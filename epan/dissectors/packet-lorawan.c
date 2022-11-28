@@ -2,6 +2,7 @@
  * Dissector routines for the LoRaWAN protocol
  * By Erik de Jong <erikdejong@gmail.com>
  * Copyright 2017 Erik de Jong
+ * Copyright 2022 Ales Povalac <alpov@alpov.net>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -11,19 +12,22 @@
  */
 
 #include "config.h"
+#include <math.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
+#include <epan/crc16-tvb.h> /* For CRC verification */
 #include <wsutil/wsgcrypt.h>
 
 void proto_reg_handoff_lorawan(void);
 void proto_register_lorawan(void);
 
 static int proto_lorawan = -1;
+static int hf_lorawan_msgtype_type = -1;
 static int hf_lorawan_mac_header_type = -1;
-static int hf_lorawan_mac_header_mtype_type = -1;
+static int hf_lorawan_mac_header_ftype_type = -1;
 static int hf_lorawan_mac_header_rfu_type = -1;
 static int hf_lorawan_mac_header_major_type = -1;
 static int hf_lorawan_mac_commands_type = -1;
@@ -74,14 +78,24 @@ static int hf_lorawan_mac_command_up_new_channel_ans_type = -1;
 static int hf_lorawan_mac_command_up_new_channel_ans_datarate_type = -1;
 static int hf_lorawan_mac_command_up_new_channel_ans_frequency_type = -1;
 static int hf_lorawan_mac_command_down_rx_timing_req_delay_type = -1;
+static int hf_lorawan_mac_command_up_di_channel_ans_type = -1;
+static int hf_lorawan_mac_command_up_ping_slot_info_req_type = -1;
+static int hf_lorawan_mac_command_up_ping_slot_channel_ans_type = -1;
+static int hf_lorawan_mac_command_up_beacon_freq_ans_type = -1;
+static int hf_lorawan_mac_command_down_tx_param_setup_req_type = -1;
+static int hf_lorawan_mac_command_down_di_channel_req_type = -1;
+static int hf_lorawan_mac_command_down_device_time_ans_type = -1;
+static int hf_lorawan_mac_command_down_ping_slot_channel_req_type = -1;
+static int hf_lorawan_mac_command_down_beacon_freq_req_type = -1;
 static int hf_lorawan_join_request_type = -1;
-static int hf_lorawan_join_request_appeui_type = -1;
+static int hf_lorawan_join_request_joineui_type = -1;
 static int hf_lorawan_join_request_deveui_type = -1;
 static int hf_lorawan_join_request_devnonce_type = -1;
 static int hf_lorawan_join_accept_type = -1;
-static int hf_lorawan_join_accept_appnonce_type = -1;
+static int hf_lorawan_join_accept_joinnonce_type = -1;
 static int hf_lorawan_join_accept_netid_type = -1;
 static int hf_lorawan_join_accept_devaddr_type = -1;
+static int hf_lorawan_join_accept_dlsettings_type = -1;
 static int hf_lorawan_join_accept_dlsettings_rx1droffset_type = -1;
 static int hf_lorawan_join_accept_dlsettings_rx2dr_type = -1;
 static int hf_lorawan_join_accept_rxdelay_type = -1;
@@ -100,6 +114,69 @@ static int hf_lorawan_frame_payload_type = -1;
 static int hf_lorawan_frame_payload_decrypted_type = -1;
 static int hf_lorawan_mic_type = -1;
 static int hf_lorawan_mic_status_type = -1;
+static int hf_lorawan_beacon_rfu1_type = -1;
+static int hf_lorawan_beacon_time_type = -1;
+static int hf_lorawan_beacon_crc1_type = -1;
+static int hf_lorawan_beacon_crc1_status_type = -1;
+static int hf_lorawan_beacon_gwspecific_type = -1;
+static int hf_lorawan_beacon_gwspecific_infodesc_type = -1;
+static int hf_lorawan_beacon_gwspecific_lat_type = -1;
+static int hf_lorawan_beacon_gwspecific_lng_type = -1;
+static int hf_lorawan_beacon_rfu2_type = -1;
+static int hf_lorawan_beacon_crc2_type = -1;
+static int hf_lorawan_beacon_crc2_status_type = -1;
+
+static int * const hfx_lorawan_mac_command_link_check_ans[] = {
+	&hf_lorawan_mac_command_up_link_adr_ans_txpower_type,
+	&hf_lorawan_mac_command_up_link_adr_ans_datarate_type,
+	&hf_lorawan_mac_command_up_link_adr_ans_channel_mask_type,
+	NULL
+};
+static int * const hfx_lorawan_mac_command_link_adr_req_channel[] = {
+	&hf_lorawan_mac_command_down_link_adr_req_channel1_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel2_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel3_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel4_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel5_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel6_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel7_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel8_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel9_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel10_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel11_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel12_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel13_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel14_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel15_type,
+	&hf_lorawan_mac_command_down_link_adr_req_channel16_type,
+	NULL
+};
+static int * const hfx_lorawan_mac_command_rx_setup_ans[] = {
+	&hf_lorawan_mac_command_up_rx_setup_ans_rx1droffset_type,
+	&hf_lorawan_mac_command_up_rx_setup_ans_rx2datarate_type,
+	&hf_lorawan_mac_command_up_rx_setup_ans_frequency_type,
+	NULL
+};
+static int * const hfx_lorawan_mac_command_new_channel_ans[] = {
+	&hf_lorawan_mac_command_up_new_channel_ans_datarate_type,
+	&hf_lorawan_mac_command_up_new_channel_ans_frequency_type,
+	NULL
+};
+
+static int * const hfx_lorawan_frame_header_frame_control[] = {
+	&hf_lorawan_frame_header_frame_control_adr_type,
+	&hf_lorawan_frame_header_frame_control_adrackreq_type,
+	&hf_lorawan_frame_header_frame_control_ack_type,
+	&hf_lorawan_frame_header_frame_control_fpending_type,
+	&hf_lorawan_frame_header_frame_control_foptslen_type,
+	NULL
+};
+
+static int * const hfx_lorawan_join_accept_dlsettings[] = {
+	&hf_lorawan_join_accept_dlsettings_rx1droffset_type,
+	&hf_lorawan_join_accept_dlsettings_rx2dr_type,
+	NULL
+};
 
 static gint ett_lorawan = -1;
 static gint ett_lorawan_mac_header = -1;
@@ -111,20 +188,25 @@ static gint ett_lorawan_mac_command_rx_setup_ans = -1;
 static gint ett_lorawan_mac_command_new_channel_ans = -1;
 static gint ett_lorawan_join_request = -1;
 static gint ett_lorawan_join_accept = -1;
+static gint ett_lorawan_join_accept_dlsettings = -1;
 static gint ett_lorawan_frame_header = -1;
 static gint ett_lorawan_frame_header_control = -1;
 static gint ett_lorawan_frame_payload_decrypted = -1;
+static gint ett_lorawan_beacon = -1;
+static gint ett_lorawan_beacon_gwspecific = -1;
 
-#define LORAWAN_MAC_MTYPE_MASK						0xE0
-#define LORAWAN_MAC_MTYPE(mtype)					(((mtype) & LORAWAN_MAC_MTYPE_MASK) >> 5)
+#define LORAWAN_MAC_FTYPE_MASK						0xE0
+#define LORAWAN_MAC_FTYPE(ftype)					(((ftype) & LORAWAN_MAC_FTYPE_MASK) >> 5)
 
-#define LORAWAN_MAC_MTYPE_JOINREQUEST					0
-#define LORAWAN_MAC_MTYPE_JOINACCEPT					1
-#define LORAWAN_MAC_MTYPE_UNCONFIRMEDDATAUP				2
-#define LORAWAN_MAC_MTYPE_UNCONFIRMEDDATADOWN				3
-#define LORAWAN_MAC_MTYPE_CONFIRMEDDATAUP				4
-#define LORAWAN_MAC_MTYPE_CONFIRMEDDATADOWN				5
-#define LORAWAN_MAC_MTYPE_PROPRIETARY					7
+#define LORAWAN_MAC_FTYPE_JOINREQUEST					0
+#define LORAWAN_MAC_FTYPE_JOINACCEPT					1
+#define LORAWAN_MAC_FTYPE_UNCONFIRMEDDATAUP				2
+#define LORAWAN_MAC_FTYPE_UNCONFIRMEDDATADOWN				3
+#define LORAWAN_MAC_FTYPE_CONFIRMEDDATAUP				4
+#define LORAWAN_MAC_FTYPE_CONFIRMEDDATADOWN				5
+#define LORAWAN_MAC_FTYPE_RFU						6
+#define LORAWAN_MAC_FTYPE_PROPRIETARY					7
+#define LORAWAN_MAC_BEACON						0xFFF0
 
 #define LORAWAN_MAC_RFU_MASK						0x1C
 
@@ -133,21 +215,35 @@ static gint ett_lorawan_frame_payload_decrypted = -1;
 
 #define LORAWAN_MAC_MAJOR_R1						0
 
-#define LORAWAN_MAC_COMMAND_UP_LINK_CHECK_REQ				2
-#define LORAWAN_MAC_COMMAND_UP_LINK_ADR_ANS				3
-#define LORAWAN_MAC_COMMAND_UP_DUTY_ANS					4
-#define LORAWAN_MAC_COMMAND_UP_RX_SETUP_ANS				5
-#define LORAWAN_MAC_COMMAND_UP_DEV_STATUS_ANS				6
-#define LORAWAN_MAC_COMMAND_UP_NEW_CHANNEL_ANS				7
-#define LORAWAN_MAC_COMMAND_UP_RX_TIMING_ANS				8
+#define LORAWAN_MAC_COMMAND_UP_LINK_CHECK_REQ				0x02
+#define LORAWAN_MAC_COMMAND_UP_LINK_ADR_ANS				0x03
+#define LORAWAN_MAC_COMMAND_UP_DUTY_ANS					0x04
+#define LORAWAN_MAC_COMMAND_UP_RX_SETUP_ANS				0x05
+#define LORAWAN_MAC_COMMAND_UP_DEV_STATUS_ANS				0x06
+#define LORAWAN_MAC_COMMAND_UP_NEW_CHANNEL_ANS				0x07
+#define LORAWAN_MAC_COMMAND_UP_RX_TIMING_ANS				0x08
+#define LORAWAN_MAC_COMMAND_UP_TX_PARAM_SETUP_ANS			0x09
+#define LORAWAN_MAC_COMMAND_UP_DI_CHANNEL_ANS				0x0A
+#define LORAWAN_MAC_COMMAND_UP_DEVICE_TIME_REQ				0x0D
+#define LORAWAN_MAC_COMMAND_UP_PING_SLOT_INFO_REQ			0x10
+#define LORAWAN_MAC_COMMAND_UP_PING_SLOT_CHANNEL_ANS			0x11
+#define LORAWAN_MAC_COMMAND_UP_BEACON_TIMING_REQ			0x12
+#define LORAWAN_MAC_COMMAND_UP_BEACON_FREQ_ANS				0x13
 
-#define LORAWAN_MAC_COMMAND_DOWN_LINK_CHECK_ANS				2
-#define LORAWAN_MAC_COMMAND_DOWN_LINK_ADR_REQ				3
-#define LORAWAN_MAC_COMMAND_DOWN_DUTY_REQ				4
-#define LORAWAN_MAC_COMMAND_DOWN_RX_SETUP_REQ				5
-#define LORAWAN_MAC_COMMAND_DOWN_DEV_STATUS_REQ				6
-#define LORAWAN_MAC_COMMAND_DOWN_NEW_CHANNEL_REQ			7
-#define LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ				8
+#define LORAWAN_MAC_COMMAND_DOWN_LINK_CHECK_ANS				0x02
+#define LORAWAN_MAC_COMMAND_DOWN_LINK_ADR_REQ				0x03
+#define LORAWAN_MAC_COMMAND_DOWN_DUTY_REQ				0x04
+#define LORAWAN_MAC_COMMAND_DOWN_RX_SETUP_REQ				0x05
+#define LORAWAN_MAC_COMMAND_DOWN_DEV_STATUS_REQ				0x06
+#define LORAWAN_MAC_COMMAND_DOWN_NEW_CHANNEL_REQ			0x07
+#define LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ				0x08
+#define LORAWAN_MAC_COMMAND_DOWN_TX_PARAM_SETUP_REQ			0x09
+#define LORAWAN_MAC_COMMAND_DOWN_DI_CHANNEL_REQ				0x0A
+#define LORAWAN_MAC_COMMAND_DOWN_DEVICE_TIME_ANS			0x0D
+#define LORAWAN_MAC_COMMAND_DOWN_PING_SLOT_INFO_ANS			0x10
+#define LORAWAN_MAC_COMMAND_DOWN_PING_SLOT_CHANNEL_REQ			0x11
+#define LORAWAN_MAC_COMMAND_DOWN_BEACON_TIMING_ANS			0x12
+#define LORAWAN_MAC_COMMAND_DOWN_BEACON_FREQ_REQ			0x13
 
 #define LORAWAN_MAC_COMMAND_DOWN_LINK_ADR_REQ_DATARATE_MASK		0xF0
 #define LORAWAN_MAC_COMMAND_DOWN_LINK_ADR_REQ_TXPOWER_MASK		0x0F
@@ -190,20 +286,24 @@ static gint ett_lorawan_frame_payload_decrypted = -1;
 #define LORAWAN_FRAME_FOPTSLEN_MASK					0x0F
 
 #define LORAWAN_AES_BLOCK_LENGTH					16
-#define LORAWAN_AES_PADDEDSIZE(length)					(length + (16 - (length % 16)))
+#define LORAWAN_AES_PADDEDSIZE(length)					(LORAWAN_AES_BLOCK_LENGTH * ((length + LORAWAN_AES_BLOCK_LENGTH - 1) / LORAWAN_AES_BLOCK_LENGTH))
 
-static expert_field ei_lorawan_unverified_mic = EI_INIT;
+static expert_field ei_lorawan_missing_keys = EI_INIT;
 static expert_field ei_lorawan_decrypting_error = EI_INIT;
 static expert_field ei_lorawan_mic = EI_INIT;
+static expert_field ei_lorawan_length_error = EI_INIT;
+static expert_field ei_lorawan_mhdr_error = EI_INIT;
 
-static const value_string lorawan_mtypenames[] = {
-	{ LORAWAN_MAC_MTYPE_JOINREQUEST,		"Join Request" },
-	{ LORAWAN_MAC_MTYPE_JOINACCEPT,			"Join Accept" },
-	{ LORAWAN_MAC_MTYPE_UNCONFIRMEDDATAUP,		"Unconfirmed Data Up" },
-	{ LORAWAN_MAC_MTYPE_UNCONFIRMEDDATADOWN,	"Unconfirmed Data Down" },
-	{ LORAWAN_MAC_MTYPE_CONFIRMEDDATAUP,		"Confirmed Data Up" },
-	{ LORAWAN_MAC_MTYPE_CONFIRMEDDATADOWN,		"Confirmed Data Down" },
-	{ LORAWAN_MAC_MTYPE_PROPRIETARY,		"Proprietary" },
+static const value_string lorawan_ftypenames[] = {
+	{ LORAWAN_MAC_FTYPE_JOINREQUEST,		"Join Request" },
+	{ LORAWAN_MAC_FTYPE_JOINACCEPT,			"Join Accept" },
+	{ LORAWAN_MAC_FTYPE_UNCONFIRMEDDATAUP,		"Unconfirmed Data Up" },
+	{ LORAWAN_MAC_FTYPE_UNCONFIRMEDDATADOWN,	"Unconfirmed Data Down" },
+	{ LORAWAN_MAC_FTYPE_CONFIRMEDDATAUP,		"Confirmed Data Up" },
+	{ LORAWAN_MAC_FTYPE_CONFIRMEDDATADOWN,		"Confirmed Data Down" },
+	{ LORAWAN_MAC_FTYPE_RFU,			"RFU" },
+	{ LORAWAN_MAC_FTYPE_PROPRIETARY,		"Proprietary" },
+	{ LORAWAN_MAC_BEACON, 				"Class-B Beacon" },
 	{ 0, NULL }
 };
 
@@ -220,6 +320,13 @@ static const value_string lorawan_mac_uplink_commandnames[] = {
 	{ LORAWAN_MAC_COMMAND_UP_DEV_STATUS_ANS,	"Status response" },
 	{ LORAWAN_MAC_COMMAND_UP_NEW_CHANNEL_ANS,	"Channel creation/modification response" },
 	{ LORAWAN_MAC_COMMAND_UP_RX_TIMING_ANS,		"Reception slots timing set response" },
+	{ LORAWAN_MAC_COMMAND_UP_TX_PARAM_SETUP_ANS,	"End-device transmit parameters response" },
+	{ LORAWAN_MAC_COMMAND_UP_DI_CHANNEL_ANS,	"Channel DI response" },
+	{ LORAWAN_MAC_COMMAND_UP_DEVICE_TIME_REQ,	"End-device time request" },
+	{ LORAWAN_MAC_COMMAND_UP_PING_SLOT_INFO_REQ,	"Class-B ping-slot periodicity request" },
+	{ LORAWAN_MAC_COMMAND_UP_PING_SLOT_CHANNEL_ANS,	"Class-B ping-slot frequency response" },
+	{ LORAWAN_MAC_COMMAND_UP_BEACON_TIMING_REQ,	"Class-B beacon timing request" },
+	{ LORAWAN_MAC_COMMAND_UP_BEACON_FREQ_ANS,	"Class-B beacon frequency response" },
 	{ 0, NULL }
 };
 
@@ -231,28 +338,134 @@ static const value_string lorawan_mac_downlink_commandnames[] = {
 	{ LORAWAN_MAC_COMMAND_DOWN_DEV_STATUS_REQ,	"Status request" },
 	{ LORAWAN_MAC_COMMAND_DOWN_NEW_CHANNEL_REQ,	"Channel creation/modification request" },
 	{ LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ,	"Reception slots timing set request" },
+	{ LORAWAN_MAC_COMMAND_DOWN_TX_PARAM_SETUP_REQ,	"End-device transmit parameters request" },
+	{ LORAWAN_MAC_COMMAND_DOWN_DI_CHANNEL_REQ,	"Channel DI request" },
+	{ LORAWAN_MAC_COMMAND_DOWN_DEVICE_TIME_ANS,	"End-device time response" },
+	{ LORAWAN_MAC_COMMAND_DOWN_PING_SLOT_INFO_ANS,	"Class-B ping-slot periodicity response" },
+	{ LORAWAN_MAC_COMMAND_DOWN_PING_SLOT_CHANNEL_REQ,	"Class-B ping-slot frequency request" },
+	{ LORAWAN_MAC_COMMAND_DOWN_BEACON_TIMING_ANS,	"Class-B beacon timing response" },
+	{ LORAWAN_MAC_COMMAND_DOWN_BEACON_FREQ_REQ,	"Class-B beacon frequency request" },
 	{ 0, NULL }
 };
 
 
-typedef struct _device_encryption_keys_t {
+typedef struct _root_keys_t {
+	gchar		*deveui_string;
+	gchar		*appkey_string;
+	GByteArray	*deveui;
+	GByteArray	*appkey;
+} root_key_t;
+
+typedef struct _session_keys_t {
 	gchar		*dev_addr_string;
 	gchar		*nwkskey_string;
 	gchar		*appskey_string;
-	gchar		*appeui_string;
 	guint32		dev_addr;
 	GByteArray	*nwkskey;
 	GByteArray	*appskey;
-	GByteArray	*appeui;
-} device_encryption_keys_t;
+} session_key_t;
 
-static device_encryption_keys_t *device_encryption_keys = NULL;
-static guint device_encryption_num_keys = 0;
+static root_key_t *root_keys = NULL;
+static session_key_t *session_keys = NULL;
+static guint root_num_keys = 0;
+static guint session_num_keys = 0;
+
+static void
+byte_array_reverse(GByteArray *arr)
+{
+	for (guint i = 0; i < arr->len / 2; i++) {
+		gint8 b = arr->data[i];
+		arr->data[i] = arr->data[(arr->len - 1) - i];
+		arr->data[(arr->len - 1) - i] = b;
+	}
+}
 
 static gboolean
-device_encryption_keys_update_cb(void *r, char **err)
+root_keys_update_cb(void *r, char **err)
 {
-	device_encryption_keys_t *rec = (device_encryption_keys_t *)r;
+	root_key_t *rec = (root_key_t *)r;
+
+	if (rec->deveui_string == NULL) {
+		*err = g_strdup("End-device indentifier can't be empty");
+		return FALSE;
+	}
+	if (!rec->deveui) {
+		rec->deveui = g_byte_array_new();
+	}
+	if (!hex_str_to_bytes(rec->deveui_string, rec->deveui, FALSE)) {
+		*err = g_strdup("End-device indentifier must be hexadecimal");
+		return FALSE;
+	}
+	if (rec->deveui->len != 8) {
+		*err = g_strdup("End-device indentifier must be 8 bytes hexadecimal");
+		return FALSE;
+	}
+	byte_array_reverse(rec->deveui);
+
+	if (rec->appkey_string == NULL) {
+		*err = g_strdup("Application key can't be empty");
+		return FALSE;
+	}
+	if (!rec->appkey) {
+		rec->appkey = g_byte_array_new();
+	}
+	if (!hex_str_to_bytes(rec->appkey_string, rec->appkey, FALSE)) {
+		*err = g_strdup("Application key must be hexadecimal");
+		return FALSE;
+	}
+	if (rec->appkey->len != 16) {
+		*err = g_strdup("Application key must be 16 bytes hexadecimal");
+		return FALSE;
+	}
+
+	*err = NULL;
+	return TRUE;
+}
+
+static void *
+root_keys_copy_cb(void *n, const void *o, size_t siz _U_)
+{
+	root_key_t *new_rec = (root_key_t*)n;
+	const root_key_t *old_rec = (const root_key_t*)o;
+
+	if (old_rec->deveui_string) {
+		new_rec->deveui_string = g_strdup(old_rec->deveui_string);
+		new_rec->deveui = g_byte_array_new();
+		hex_str_to_bytes(new_rec->deveui_string, new_rec->deveui, FALSE);
+		byte_array_reverse(new_rec->deveui);
+	} else {
+		new_rec->deveui_string = NULL;
+		new_rec->deveui = NULL;
+	}
+
+	if (old_rec->appkey_string) {
+		new_rec->appkey_string = g_strdup(old_rec->appkey_string);
+		new_rec->appkey = g_byte_array_new();
+		hex_str_to_bytes(new_rec->appkey_string, new_rec->appkey, FALSE);
+	}
+	else {
+		new_rec->appkey_string = NULL;
+		new_rec->appkey = NULL;
+	}
+
+	return new_rec;
+}
+
+static void
+root_keys_free_cb(void *r)
+{
+	root_key_t *rec = (root_key_t*)r;
+
+	g_free(rec->deveui_string);
+	g_byte_array_free(rec->deveui, TRUE);
+	g_free(rec->appkey_string);
+	g_byte_array_free(rec->appkey, TRUE);
+}
+
+static gboolean
+session_keys_update_cb(void *r, char **err)
+{
+	session_key_t *rec = (session_key_t*)r;
 
 	if (rec->dev_addr_string == NULL) {
 		*err = g_strdup("Device address can't be empty");
@@ -269,54 +482,39 @@ device_encryption_keys_update_cb(void *r, char **err)
 		*err = g_strdup("Device address must be 4 bytes hexadecimal");
 		return FALSE;
 	}
-	rec->dev_addr = *(guint32*)addr->data;
+	byte_array_reverse(addr);
+	memcpy(&rec->dev_addr, addr->data, sizeof(rec->dev_addr));
 	g_byte_array_free(addr, TRUE);
 
 	if (rec->nwkskey_string == NULL) {
-		*err = g_strdup("Network key can't be empty");
+		*err = g_strdup("Network session key can't be empty");
 		return FALSE;
 	}
 	if (!rec->nwkskey) {
 		rec->nwkskey = g_byte_array_new();
 	}
 	if (!hex_str_to_bytes(rec->nwkskey_string, rec->nwkskey, FALSE)) {
-		*err = g_strdup("Network encryption key must be hexadecimal");
+		*err = g_strdup("Network session key must be hexadecimal");
 		return FALSE;
 	}
 	if (rec->nwkskey->len != 16) {
-		*err = g_strdup("Network encryption key must be 16 bytes hexadecimal");
+		*err = g_strdup("Network session key must be 16 bytes hexadecimal");
 		return FALSE;
 	}
 
 	if (rec->appskey_string == NULL) {
-		*err = g_strdup("Application key can't be empty");
+		*err = g_strdup("Application session key can't be empty");
 		return FALSE;
 	}
 	if (!rec->appskey) {
 		rec->appskey = g_byte_array_new();
 	}
 	if (!hex_str_to_bytes(rec->appskey_string, rec->appskey, FALSE)) {
-		*err = g_strdup("Application encryption key must be hexadecimal");
+		*err = g_strdup("Application session key must be hexadecimal");
 		return FALSE;
 	}
 	if (rec->appskey->len != 16) {
-		*err = g_strdup("Application encryption key must be 16 bytes hexadecimal");
-		return FALSE;
-	}
-
-	if (rec->appeui_string == NULL) {
-		*err = g_strdup("Application eui can't be empty");
-		return FALSE;
-	}
-	if (!rec->appeui) {
-		rec->appeui = g_byte_array_new();
-	}
-	if (!hex_str_to_bytes(rec->appeui_string, rec->appeui, FALSE)) {
-		*err = g_strdup("Application eui must be hexadecimal");
-		return FALSE;
-	}
-	if (rec->appeui->len != 8) {
-		*err = g_strdup("Application eui must be 8 bytes hexadecimal");
+		*err = g_strdup("Application session key must be 16 bytes hexadecimal");
 		return FALSE;
 	}
 
@@ -325,17 +523,18 @@ device_encryption_keys_update_cb(void *r, char **err)
 }
 
 static void *
-device_encryption_keys_copy_cb(void *n, const void *o, size_t siz _U_)
+session_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 {
-	device_encryption_keys_t* new_rec = (device_encryption_keys_t*)n;
-	const device_encryption_keys_t* old_rec = (const device_encryption_keys_t*)o;
+	session_key_t *new_rec = (session_key_t*)n;
+	const session_key_t *old_rec = (const session_key_t*)o;
 
 	if (old_rec->dev_addr_string) {
 		new_rec->dev_addr_string = g_strdup(old_rec->dev_addr_string);
 		GByteArray *addr = g_byte_array_new();
 		if (hex_str_to_bytes(new_rec->dev_addr_string, addr, FALSE)) {
 			if (addr->len == 4) {
-				new_rec->dev_addr = *(guint32*)addr->data;
+				byte_array_reverse(addr);
+				memcpy(&new_rec->dev_addr, addr->data, sizeof(new_rec->dev_addr));
 			} else {
 				new_rec->dev_addr = 0;
 			}
@@ -364,56 +563,46 @@ device_encryption_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 		new_rec->appskey = NULL;
 	}
 
-	if (old_rec->appeui_string) {
-		new_rec->appeui_string = g_strdup(old_rec->appeui_string);
-		new_rec->appeui = g_byte_array_new();
-		hex_str_to_bytes(new_rec->appeui_string, new_rec->appeui, FALSE);
-	} else {
-		new_rec->appeui_string = NULL;
-		new_rec->appeui = NULL;
-	}
-
 	return new_rec;
 }
 
 static void
-device_encryption_keys_free_cb(void *r)
+session_keys_free_cb(void *r)
 {
-	device_encryption_keys_t *rec = (device_encryption_keys_t*)r;
+	session_key_t *rec = (session_key_t*)r;
 
 	g_free(rec->dev_addr_string);
 	g_free(rec->nwkskey_string);
 	g_byte_array_free(rec->nwkskey, TRUE);
 	g_free(rec->appskey_string);
 	g_byte_array_free(rec->appskey, TRUE);
-	g_free(rec->appeui_string);
-	g_byte_array_free(rec->appeui, TRUE);
 }
 
-UAT_CSTRING_CB_DEF(device_encryption_keys, dev_addr_string, device_encryption_keys_t)
-UAT_CSTRING_CB_DEF(device_encryption_keys, nwkskey_string, device_encryption_keys_t)
-UAT_CSTRING_CB_DEF(device_encryption_keys, appskey_string, device_encryption_keys_t)
-UAT_CSTRING_CB_DEF(device_encryption_keys, appeui_string, device_encryption_keys_t)
+UAT_CSTRING_CB_DEF(root_keys, deveui_string, root_key_t)
+UAT_CSTRING_CB_DEF(root_keys, appkey_string, root_key_t)
+UAT_CSTRING_CB_DEF(session_keys, dev_addr_string, session_key_t)
+UAT_CSTRING_CB_DEF(session_keys, nwkskey_string, session_key_t)
+UAT_CSTRING_CB_DEF(session_keys, appskey_string, session_key_t)
 
-static device_encryption_keys_t *get_encryption_keys_dev_address(guint32 dev_addr)
+static session_key_t *
+get_session_key(guint32 dev_addr)
 {
 	guint i;
-	for (i = 0; i < device_encryption_num_keys; i++) {
-		if (device_encryption_keys[i].dev_addr == dev_addr) {
-			return &device_encryption_keys[i];
+	for (i = 0; i < session_num_keys; i++) {
+		if (session_keys[i].dev_addr == dev_addr) {
+			return &session_keys[i];
 		}
 	}
 	return NULL;
 }
 
-static device_encryption_keys_t *get_encryption_keys_app_eui(const guint8 *appeui)
+static root_key_t *
+get_root_key(const guint8 *deveui)
 {
 	guint i;
-	for (i = 0; i < device_encryption_num_keys; i++) {
-		if (device_encryption_keys[i].appeui) {
-			if (!memcmp(device_encryption_keys[i].appeui->data, appeui, 8)) {
-				return &device_encryption_keys[i];
-			}
+	for (i = 0; i < root_num_keys; i++) {
+		if (root_keys[i].deveui != NULL && memcmp(root_keys[i].deveui->data, deveui, 8) == 0) {
+			return &root_keys[i];
 		}
 	}
 	return NULL;
@@ -452,6 +641,54 @@ calculate_mic(const guint8 *in, guint8 length, const guint8 *key)
 	return mac;
 }
 
+static nstime_t
+gps_to_utctime(const guint32 gpstime)
+{
+	nstime_t utctime;
+	utctime.secs = (guint64)gpstime;
+	utctime.secs += 315964800; /* difference between Unix epoch and GPS epoch */
+	utctime.secs -= 18; /* leap seconds valid after 2017-01-01 */
+	utctime.nsecs = 0;
+	return utctime;
+}
+
+static void
+cf_coords_lat_custom(gchar *buffer, guint32 value)
+{
+	gint32 coord_int = (value < 0x00800000) ? ((gint32)value) : ((gint32)value - 0x01000000);
+	gdouble coord_double = coord_int * 90. / 0x00800000;
+
+	snprintf(buffer, ITEM_LABEL_LENGTH, "%.5f%c", fabs(coord_double), (coord_double >= 0) ? 'N' : 'S');
+}
+
+static void
+cf_coords_lng_custom(gchar *buffer, guint32 value)
+{
+	gint32 coord_int = (value < 0x00800000) ? ((gint32)value) : ((gint32)value - 0x01000000);
+	gdouble coord_double = coord_int * 90. / 0x00800000;
+
+	snprintf(buffer, ITEM_LABEL_LENGTH, "%.5f%c", fabs(coord_double), (coord_double >= 0) ? 'E' : 'W');
+}
+
+static gboolean
+aes128_lorawan_encrypt(const guint8 *key, const guint8 *data_in, guint8 *data_out, gint length)
+{
+	gcry_cipher_hd_t cipher;
+	if (gcry_cipher_open(&cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+		return FALSE;
+	}
+	if (gcry_cipher_setkey(cipher, key, LORAWAN_AES_BLOCK_LENGTH)) {
+		gcry_cipher_close(cipher);
+		return FALSE;
+	}
+	if (gcry_cipher_encrypt(cipher, data_out, length, data_in, length)) {
+		gcry_cipher_close(cipher);
+		return FALSE;
+	}
+	gcry_cipher_close(cipher);
+	return TRUE;
+}
+
 /* length should be a multiple of 16, in should be padded to get to a multiple of 16 */
 static gboolean
 decrypt_lorawan_frame_payload(const guint8 *in, gint length, guint8 *out, const guint8 * key, guint8 dir, guint32 dev_addr, guint32 fcnt)
@@ -487,43 +724,6 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	guint8 command;
 	gint32 current_offset = 0;
 
-	static int * const link_adr_ans_flags[] = {
-		&hf_lorawan_mac_command_up_link_adr_ans_txpower_type,
-		&hf_lorawan_mac_command_up_link_adr_ans_datarate_type,
-		&hf_lorawan_mac_command_up_link_adr_ans_channel_mask_type,
-		NULL
-	};
-	static int * const link_adr_req_channel_flags[] = {
-		&hf_lorawan_mac_command_down_link_adr_req_channel1_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel2_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel3_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel4_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel5_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel6_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel7_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel8_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel9_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel10_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel11_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel12_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel13_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel14_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel15_type,
-		&hf_lorawan_mac_command_down_link_adr_req_channel16_type,
-		NULL
-	};
-	static int * const rx_setup_ans_flags[] = {
-		&hf_lorawan_mac_command_up_rx_setup_ans_rx1droffset_type,
-		&hf_lorawan_mac_command_up_rx_setup_ans_rx2datarate_type,
-		&hf_lorawan_mac_command_up_rx_setup_ans_frequency_type,
-		NULL
-	};
-	static int * const new_channel_ans_flags[] = {
-		&hf_lorawan_mac_command_up_new_channel_ans_datarate_type,
-		&hf_lorawan_mac_command_up_new_channel_ans_frequency_type,
-		NULL
-	};
-
 	ti = proto_tree_add_item(tree, hf_lorawan_mac_commands_type, tvb, 0, -1, ENC_NA);
 	mac_command_tree = proto_item_add_subtree(ti, ett_lorawan_mac_commands);
 
@@ -537,16 +737,19 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				case LORAWAN_MAC_COMMAND_UP_LINK_CHECK_REQ:
 				case LORAWAN_MAC_COMMAND_UP_DUTY_ANS:
 				case LORAWAN_MAC_COMMAND_UP_RX_TIMING_ANS:
+				case LORAWAN_MAC_COMMAND_UP_TX_PARAM_SETUP_ANS:
+				case LORAWAN_MAC_COMMAND_UP_DEVICE_TIME_REQ:
+				case LORAWAN_MAC_COMMAND_UP_BEACON_TIMING_REQ:
 					/* No payload */
 				break;
 				case LORAWAN_MAC_COMMAND_UP_LINK_ADR_ANS:
 					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
-					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_down_link_check_ans_type, ett_lorawan_mac_command_link_check_ans, link_adr_ans_flags, ENC_NA);
+					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_down_link_check_ans_type, ett_lorawan_mac_command_link_check_ans, hfx_lorawan_mac_command_link_check_ans, ENC_NA);
 					current_offset++;
 				break;
 				case LORAWAN_MAC_COMMAND_UP_RX_SETUP_ANS:
 					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
-					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_up_rx_setup_ans_type, ett_lorawan_mac_command_rx_setup_ans, rx_setup_ans_flags, ENC_NA);
+					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_up_rx_setup_ans_type, ett_lorawan_mac_command_rx_setup_ans, hfx_lorawan_mac_command_rx_setup_ans, ENC_NA);
 					current_offset++;
 				break;
 				case LORAWAN_MAC_COMMAND_UP_DEV_STATUS_ANS:
@@ -556,9 +759,29 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 					proto_tree_add_item(field_tree, hf_lorawan_mac_command_up_device_status_ans_margin_type, tvb, current_offset, 1, ENC_NA);
 					current_offset++;
 				break;
+				case LORAWAN_MAC_COMMAND_UP_DI_CHANNEL_ANS:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_up_di_channel_ans_type, tvb, current_offset, 1, ENC_NA);
+					current_offset++;
+				break;
 				case LORAWAN_MAC_COMMAND_UP_NEW_CHANNEL_ANS:
 					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
-					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_up_new_channel_ans_type, ett_lorawan_mac_command_new_channel_ans, new_channel_ans_flags, ENC_NA);
+					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_up_new_channel_ans_type, ett_lorawan_mac_command_new_channel_ans, hfx_lorawan_mac_command_new_channel_ans, ENC_NA);
+					current_offset++;
+				break;
+				case LORAWAN_MAC_COMMAND_UP_PING_SLOT_INFO_REQ:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_up_ping_slot_info_req_type, tvb, current_offset, 1, ENC_NA);
+					current_offset++;
+				break;
+				case LORAWAN_MAC_COMMAND_UP_PING_SLOT_CHANNEL_ANS:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_up_ping_slot_channel_ans_type, tvb, current_offset, 1, ENC_NA);
+					current_offset++;
+				break;
+				case LORAWAN_MAC_COMMAND_UP_BEACON_FREQ_ANS:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_up_beacon_freq_ans_type, tvb, current_offset, 1, ENC_NA);
 					current_offset++;
 				break;
 				default:
@@ -584,7 +807,7 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_link_adr_req_datarate_type, tvb, current_offset, 1, ENC_NA);
 					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_link_adr_req_txpower_type, tvb, current_offset, 1, ENC_NA);
 					current_offset++;
-					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_down_link_adr_req_channel_type, ett_lorawan_mac_command_link_adr_req_channel, link_adr_req_channel_flags, ENC_LITTLE_ENDIAN);
+					proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_mac_command_down_link_adr_req_channel_type, ett_lorawan_mac_command_link_adr_req_channel, hfx_lorawan_mac_command_link_adr_req_channel, ENC_LITTLE_ENDIAN);
 					current_offset += 2;
 					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_link_adr_req_channel_mask_control_type, tvb, current_offset, 1, ENC_NA);
 					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_link_adr_req_repetitions_type, tvb, current_offset, 1, ENC_NA);
@@ -605,6 +828,7 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 					current_offset += 3;
 				break;
 				case LORAWAN_MAC_COMMAND_DOWN_DEV_STATUS_REQ:
+				case LORAWAN_MAC_COMMAND_DOWN_PING_SLOT_INFO_ANS:
 					/* No payload */
 				break;
 				case LORAWAN_MAC_COMMAND_DOWN_NEW_CHANNEL_REQ:
@@ -624,6 +848,37 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_rx_timing_req_delay_type, tvb, current_offset, 1, ENC_NA);
 					current_offset++;
 				break;
+				case LORAWAN_MAC_COMMAND_DOWN_TX_PARAM_SETUP_REQ:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_tx_param_setup_req_type, tvb, current_offset, 1, ENC_NA);
+					current_offset++;
+				break;
+				case LORAWAN_MAC_COMMAND_DOWN_DI_CHANNEL_REQ:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_di_channel_req_type, tvb, current_offset, 4, ENC_NA);
+					current_offset += 4;
+				break;
+				case LORAWAN_MAC_COMMAND_DOWN_DEVICE_TIME_ANS:
+				case LORAWAN_MAC_COMMAND_DOWN_BEACON_TIMING_ANS:
+					/* The time provided is the GPS time at the end of the uplink transmission. The
+					 * command has a 5-octet payload defined as follows:
+					 *   32-bit unsigned integer: seconds since epoch
+					 *   8-bit unsigned integer: fractional-second in 1/256s increments
+					 */
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_device_time_ans_type, tvb, current_offset, 5, ENC_NA);
+					current_offset += 5;
+				break;
+				case LORAWAN_MAC_COMMAND_DOWN_PING_SLOT_CHANNEL_REQ:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_ping_slot_channel_req_type, tvb, current_offset, 4, ENC_NA);
+					current_offset += 4;
+				break;
+				case LORAWAN_MAC_COMMAND_DOWN_BEACON_FREQ_REQ:
+					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
+					proto_tree_add_item(field_tree, hf_lorawan_mac_command_down_beacon_freq_req_type, tvb, current_offset, 3, ENC_NA);
+					current_offset += 3;
+				break;
 				default:
 					/* End on unknown mac command because command lengths are not explicitly given */
 					return tvb_captured_length(tvb);
@@ -635,172 +890,226 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 static int
-dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+dissect_lorawan_beacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-	proto_item *ti, *tf;
-	proto_tree *lorawan_tree, *field_tree, *frame_payload_decrypted_tree;
+	proto_item *ti;
+	proto_tree *gwspecific_tree;
 	gint32 current_offset = 0;
-	guint8 mac_mtype;
-	guint8 fopts_length = 0;
-	guint8 frmpayload_length = 0;
-	guint8 fport;
-	guint32 dev_address;
-	guint32 fcnt;
-	proto_item *checksum_item;
-	gboolean uplink = TRUE;
-	device_encryption_keys_t *encryption_keys = NULL;
+	guint length = tvb_reported_length(tvb);
+	guint16 calc_crc1, calc_crc2;
+	nstime_t utctime;
 
-	static int * const flags[] = {
-		&hf_lorawan_frame_header_frame_control_adr_type,
-		&hf_lorawan_frame_header_frame_control_adrackreq_type,
-		&hf_lorawan_frame_header_frame_control_ack_type,
-		&hf_lorawan_frame_header_frame_control_fpending_type,
-		&hf_lorawan_frame_header_frame_control_foptslen_type,
-		NULL
-	};
+	proto_tree_add_string(tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str(LORAWAN_MAC_BEACON, lorawan_ftypenames, "RFU"));
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LoRaWAN");
-	col_clear(pinfo->cinfo,COL_INFO);
-	ti = proto_tree_add_item(tree, proto_lorawan, tvb, 0, -1, ENC_NA);
-	lorawan_tree = proto_item_add_subtree(ti, ett_lorawan);
-
-	/* MAC header */
-	tf = proto_tree_add_item(lorawan_tree, hf_lorawan_mac_header_type, tvb, current_offset, 1, ENC_NA);
-	mac_mtype = LORAWAN_MAC_MTYPE(tvb_get_guint8(tvb, current_offset));
-	proto_item_append_text(tf, " (Message Type: %s, Major Version: %s)", val_to_str(mac_mtype, lorawan_mtypenames, "RFU"), val_to_str(LORAWAN_MAC_MAJOR(tvb_get_guint8(tvb, current_offset)), lorawan_majornames, "RFU"));
-
-	field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_header);
-	proto_tree_add_item(field_tree, hf_lorawan_mac_header_mtype_type, tvb, current_offset, 1, ENC_NA);
-	proto_tree_add_item(field_tree, hf_lorawan_mac_header_rfu_type, tvb, current_offset, 1, ENC_NA);
-	proto_tree_add_item(field_tree, hf_lorawan_mac_header_major_type, tvb, current_offset, 1, ENC_NA);
-	current_offset++;
-
-	if (mac_mtype == LORAWAN_MAC_MTYPE_JOINREQUEST) {
-		tf = proto_tree_add_item(lorawan_tree, hf_lorawan_join_request_type, tvb, current_offset, 18, ENC_NA);
-		field_tree = proto_item_add_subtree(tf, ett_lorawan_join_request);
-		proto_tree_add_item(field_tree, hf_lorawan_join_request_appeui_type, tvb, current_offset, 8, ENC_LITTLE_ENDIAN);
-		current_offset += 8;
-		proto_tree_add_item(field_tree, hf_lorawan_join_request_deveui_type, tvb, current_offset, 8, ENC_LITTLE_ENDIAN);
-		current_offset += 8;
-		proto_tree_add_item(field_tree, hf_lorawan_join_request_devnonce_type, tvb, current_offset, 2, ENC_NA);
+	if (length == 17) {
+		calc_crc1 = crc16_r3_ccitt_tvb(tvb, 0, 6);
+		calc_crc2 = crc16_r3_ccitt_tvb(tvb, 8, 7);
+		proto_tree_add_item(tree, hf_lorawan_beacon_rfu1_type, tvb, current_offset, 2, ENC_NA);
 		current_offset += 2;
+	} else {
+		calc_crc1 = crc16_r3_ccitt_tvb(tvb, 0, 7);
+		calc_crc2 = crc16_r3_ccitt_tvb(tvb, 9, 8);
+		proto_tree_add_item(tree, hf_lorawan_beacon_rfu1_type, tvb, current_offset, 3, ENC_NA);
+		current_offset += 3;
+	}
+	utctime = gps_to_utctime(tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN));
+	proto_tree_add_time(tree, hf_lorawan_beacon_time_type, tvb, current_offset, 4, &utctime);
+	current_offset += 4;
+	proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_beacon_crc1_type, hf_lorawan_beacon_crc1_status_type, NULL, pinfo, calc_crc1, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+	current_offset += 2;
 
-		/* MIC
-		 * cmac = aes128_cmac(AppKey, msg)
-		 * MIC = cmac[0..3]
-		 */
-		encryption_keys = get_encryption_keys_app_eui(tvb_get_ptr(tvb, current_offset - 18, 8));
-		if (encryption_keys) {
-			proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo,
-								calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-		} else {
-			checksum_item = proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
-								0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-			expert_add_info(pinfo, checksum_item, &ei_lorawan_unverified_mic);
-		}
+	ti = proto_tree_add_item(tree, hf_lorawan_beacon_gwspecific_type, tvb, current_offset, 7, ENC_NA);
+	gwspecific_tree = proto_item_add_subtree(ti, ett_lorawan_beacon_gwspecific);
+	proto_tree_add_item(gwspecific_tree, hf_lorawan_beacon_gwspecific_infodesc_type, tvb, current_offset, 1, ENC_NA);
+	current_offset++;
+	proto_tree_add_item(gwspecific_tree, hf_lorawan_beacon_gwspecific_lat_type, tvb, current_offset, 3, ENC_LITTLE_ENDIAN);
+	current_offset += 3;
+	proto_tree_add_item(gwspecific_tree, hf_lorawan_beacon_gwspecific_lng_type, tvb, current_offset, 3, ENC_LITTLE_ENDIAN);
+	current_offset += 3;
+
+	if (length == 19) {
+		proto_tree_add_item(tree, hf_lorawan_beacon_rfu2_type, tvb, current_offset, 1, ENC_NA);
+		current_offset++;
+	}
+	proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_beacon_crc2_type, hf_lorawan_beacon_crc2_status_type, NULL, pinfo, calc_crc2, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lorawan_join_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+	proto_item *tf;
+	proto_tree *field_tree;
+	gint32 current_offset = 1;
+
+	tf = proto_tree_add_item(tree, hf_lorawan_join_request_type, tvb, current_offset, 18, ENC_NA);
+	field_tree = proto_item_add_subtree(tf, ett_lorawan_join_request);
+	proto_tree_add_item(field_tree, hf_lorawan_join_request_joineui_type, tvb, current_offset, 8, ENC_LITTLE_ENDIAN);
+	current_offset += 8;
+	proto_tree_add_item(field_tree, hf_lorawan_join_request_deveui_type, tvb, current_offset, 8, ENC_LITTLE_ENDIAN);
+	current_offset += 8;
+	proto_tree_add_item(field_tree, hf_lorawan_join_request_devnonce_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
+	current_offset += 2;
+
+	/* MIC
+	 * cmac = aes128_cmac(AppKey, msg)
+	 * MIC = cmac[0..3]
+	 */
+	root_key_t *root_key = get_root_key(tvb_get_ptr(tvb, current_offset - 10, 8));
+	if (root_key) {
+		proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo,
+			calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, root_key->appkey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+	} else {
+		proto_item *checksum_item = proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+			0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		expert_add_info(pinfo, checksum_item, &ei_lorawan_missing_keys);
+	}
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lorawan_join_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+	proto_item *tf;
+	proto_tree *field_tree;
+	gint32 current_offset = 1;
+	root_key_t *root_key = NULL;
+
+	gint length = tvb_captured_length_remaining(tvb, current_offset);
+	tf = proto_tree_add_item(tree, hf_lorawan_join_accept_type, tvb, current_offset, 12, ENC_NA);
+	field_tree = proto_item_add_subtree(tf, ett_lorawan_join_accept);
+
+	/* Join-Accept may be either 16B or 32B long (including MIC) */
+	if (length != 16 && length != 32) {
+		expert_add_info(pinfo, field_tree, &ei_lorawan_length_error);
+		proto_tree_add_item(tree, hf_lorawan_frame_payload_type, tvb, current_offset, tvb_captured_length_remaining(tvb, current_offset), ENC_NA);
 		return tvb_captured_length(tvb);
-	} else if (mac_mtype == LORAWAN_MAC_MTYPE_JOINACCEPT) {
-		tf = proto_tree_add_item(lorawan_tree, hf_lorawan_join_accept_type, tvb, current_offset, 12, ENC_NA);
-		field_tree = proto_item_add_subtree(tf, ett_lorawan_join_accept);
-		proto_tree_add_item(field_tree, hf_lorawan_join_accept_appnonce_type, tvb, current_offset, 3, ENC_NA);
+	}
+
+	/* Iterate through all available root keys for Join-Accept */
+	guint8 *decrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, length);
+	guint8 *mic_buffer = (guint8 *)wmem_alloc0(pinfo->pool, length - 4 + 1);
+	guint32 mic_check;
+	for (guint key_idx = 0; key_idx < root_num_keys; key_idx++) {
+		if (aes128_lorawan_encrypt(root_keys[key_idx].appkey->data, tvb_get_ptr(tvb, current_offset, length), decrypted_buffer, length)) {
+			mic_buffer[0] = tvb_get_guint8(tvb, current_offset - 1); // unencrypted MHDR
+			memcpy(&mic_buffer[1], decrypted_buffer, length - 4); // decrypted Join-Accept
+			memcpy(&mic_check, &decrypted_buffer[length - 4], 4); // decrypted MIC
+
+			// check for valid MIC of payload decrypted using current AppKey
+			if (calculate_mic(mic_buffer, length - 4 + 1, root_keys[key_idx].appkey->data) == mic_check) {
+				root_key = &root_keys[key_idx];
+				break;
+			}
+		}
+	}
+
+	if (root_key) {
+		tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, length, length);
+		add_new_data_source(pinfo, next_tvb, "Decrypted payload");
+		current_offset = 0;
+
+		proto_tree_add_item(field_tree, hf_lorawan_join_accept_joinnonce_type, next_tvb, current_offset, 3, ENC_LITTLE_ENDIAN);
 		current_offset += 3;
-		proto_tree_add_item(field_tree, hf_lorawan_join_accept_netid_type, tvb, current_offset, 3, ENC_NA);
+		proto_tree_add_item(field_tree, hf_lorawan_join_accept_netid_type, next_tvb, current_offset, 3, ENC_LITTLE_ENDIAN);
 		current_offset += 3;
-		proto_tree_add_item(field_tree, hf_lorawan_join_accept_devaddr_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
-		dev_address = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(field_tree, hf_lorawan_join_accept_devaddr_type, next_tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 		current_offset += 4;
-		proto_tree_add_item(field_tree, hf_lorawan_join_accept_dlsettings_rx1droffset_type, tvb, current_offset, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_lorawan_join_accept_dlsettings_rx2dr_type, tvb, current_offset, 1, ENC_NA);
+		proto_tree_add_bitmask(field_tree, next_tvb, current_offset, hf_lorawan_join_accept_dlsettings_type, ett_lorawan_join_accept_dlsettings, hfx_lorawan_join_accept_dlsettings, ENC_NA);
 		current_offset++;
-		proto_tree_add_item(field_tree, hf_lorawan_join_accept_rxdelay_type, tvb, current_offset, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_lorawan_join_accept_rxdelay_type, next_tvb, current_offset, 1, ENC_NA);
 		current_offset++;
-		if (tvb_captured_length(tvb) - current_offset > 4) {
-			proto_tree_add_item(field_tree, hf_lorawan_join_accept_cflist_type, tvb, current_offset, 16, ENC_NA);
+		if (tvb_captured_length(next_tvb) - current_offset > 4) {
+			proto_tree_add_item(field_tree, hf_lorawan_join_accept_cflist_type, next_tvb, current_offset, 16, ENC_NA);
 			current_offset += 16;
 			proto_item_set_len(tf, proto_item_get_len(tf) + 16);
 		}
 
-		/* MIC
-		 * cmac = aes128_cmac(AppKey, msg)
-		 * MIC = cmac[0..3]
-		 */
-		encryption_keys = get_encryption_keys_dev_address(dev_address);
-		if (encryption_keys) {
-			proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-		} else {
-			checksum_item = proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
-								0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-			expert_add_info(pinfo, checksum_item, &ei_lorawan_unverified_mic);
-		}
-		return tvb_captured_length(tvb);
-	} else if ((mac_mtype >= LORAWAN_MAC_MTYPE_UNCONFIRMEDDATAUP) && (mac_mtype <= LORAWAN_MAC_MTYPE_CONFIRMEDDATADOWN)) {
-		if (mac_mtype & 1) {
-			uplink = FALSE;
-		}
-		fopts_length = (tvb_get_guint8(tvb, current_offset + 4) & LORAWAN_FRAME_FOPTSLEN_MASK);
-		/* Frame header */
-		tf = proto_tree_add_item(lorawan_tree, hf_lorawan_frame_header_type, tvb, current_offset, 7 + fopts_length, ENC_NA);
-		field_tree = proto_item_add_subtree(tf, ett_lorawan_frame_header);
-		proto_tree_add_item(field_tree, hf_lorawan_frame_header_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
-		dev_address = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
-		current_offset += 4;
-		proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_frame_header_frame_control_type, ett_lorawan_frame_header_control, flags, ENC_NA);
-		current_offset++;
-		proto_tree_add_item(field_tree, hf_lorawan_frame_header_frame_counter_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
-		fcnt = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
-		current_offset += 2;
+		proto_tree_add_checksum(tree, next_tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY | PROTO_CHECKSUM_ZERO);
+	} else {
+		expert_add_info(pinfo, field_tree, &ei_lorawan_missing_keys);
+		proto_tree_add_item(tree, hf_lorawan_frame_payload_type, tvb, current_offset, tvb_captured_length_remaining(tvb, current_offset), ENC_NA);
+	}
 
-		/*
-		 * If fopts_length > 0 then MAC commands are present in fopts field and port cannot be 0
-		 * If fopts_length == 0 then port can be any value
-		 * If port == 0 then MAC commands are in frame payload
-		 */
+	return tvb_captured_length(tvb);
+}
 
-		if (fopts_length > 0) {
-			tvbuff_t *next_tvb = tvb_new_subset_length(tvb, current_offset, fopts_length);
-			current_offset += dissect_lorawan_mac_commands(next_tvb, pinfo, tree, uplink);
-		}
+static int
+dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, gboolean uplink)
+{
+	proto_item *ti = NULL, *tf;
+	proto_tree *field_tree;
+	gint32 current_offset = 1;
+	guint8 fopts_length = (tvb_get_guint8(tvb, current_offset + 4) & LORAWAN_FRAME_FOPTSLEN_MASK);
+	guint8 fport = 0;
 
-		proto_tree_add_item(lorawan_tree, hf_lorawan_frame_fport_type, tvb, current_offset, 1, ENC_NA);
+	/* Frame header */
+	tf = proto_tree_add_item(tree, hf_lorawan_frame_header_type, tvb, current_offset, 7 + fopts_length, ENC_NA);
+	field_tree = proto_item_add_subtree(tf, ett_lorawan_frame_header);
+	proto_tree_add_item(field_tree, hf_lorawan_frame_header_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
+	guint32 dev_address = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	current_offset += 4;
+	proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_frame_header_frame_control_type, ett_lorawan_frame_header_control, hfx_lorawan_frame_header_frame_control, ENC_NA);
+	current_offset++;
+	proto_tree_add_item(field_tree, hf_lorawan_frame_header_frame_counter_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
+	guint32 fcnt = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	current_offset += 2;
+
+	/*
+	 * If fopts_length > 0 then MAC commands are present in fopts field and port cannot be 0
+	 * If fopts_length == 0 then port can be any value
+	 * If port == 0 then MAC commands are in frame payload
+	 */
+
+	if (fopts_length > 0) {
+		tvbuff_t *next_tvb = tvb_new_subset_length(tvb, current_offset, fopts_length);
+		current_offset += dissect_lorawan_mac_commands(next_tvb, pinfo, tree, uplink);
+	}
+
+	if (tvb_captured_length_remaining(tvb, current_offset) > 4) {
+		/* FPort present */
+		proto_tree_add_item(tree, hf_lorawan_frame_fport_type, tvb, current_offset, 1, ENC_NA);
 		fport = tvb_get_guint8(tvb, current_offset);
 		current_offset++;
+	}
 
-		if ((fopts_length > 0) && (fport == 0)) {
-			/* TODO?: error, not allowed */
-		}
+	if ((fopts_length > 0) && (fport == 0)) {
+		/* TODO?: error, not allowed */
+	}
 
-		frmpayload_length = tvb_captured_length_remaining(tvb, current_offset) - 4;
-		ti = proto_tree_add_item(lorawan_tree, hf_lorawan_frame_payload_type, tvb, current_offset, frmpayload_length, ENC_NA);
-		encryption_keys = get_encryption_keys_dev_address(dev_address);
-		if (encryption_keys) {
-			guint8 padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
-			guint8 *decrypted_buffer = (guint8*)wmem_alloc0(pinfo->pool, padded_length);
-			guint8 *encrypted_buffer = (guint8*)wmem_alloc0(pinfo->pool, padded_length);
-			memcpy(encrypted_buffer, tvb_get_ptr(tvb, current_offset, frmpayload_length), frmpayload_length);
-			if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, encryption_keys->appskey->data, !uplink, dev_address, fcnt)) {
-				tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer,frmpayload_length, frmpayload_length);
-				add_new_data_source(pinfo, next_tvb, "Decrypted payload");
-				frame_payload_decrypted_tree = proto_item_add_subtree(ti, ett_lorawan_frame_payload_decrypted);
-				if (fport == 0) {
-					current_offset += dissect_lorawan_mac_commands(next_tvb, pinfo, tree, uplink);
-				} else {
-					/*
-					 * fport values 0x01 - 0xDF are application specific
-					 * fport values 0xE0 - 0xFF are reserved for future extensions
-					 */
-					proto_tree_add_bytes(frame_payload_decrypted_tree, hf_lorawan_frame_payload_decrypted_type, next_tvb, 0, frmpayload_length, decrypted_buffer);
-					current_offset += frmpayload_length;
-				}
+	guint8 frmpayload_length = tvb_captured_length_remaining(tvb, current_offset) - 4;
+	if (frmpayload_length > 0) {
+		ti = proto_tree_add_item(tree, hf_lorawan_frame_payload_type, tvb, current_offset, frmpayload_length, ENC_NA);
+	}
+
+	session_key_t *session_key = get_session_key(dev_address);
+	if (session_key && frmpayload_length > 0) {
+		guint8 padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
+		guint8 *decrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, padded_length);
+		guint8 *encrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, padded_length);
+		memcpy(encrypted_buffer, tvb_get_ptr(tvb, current_offset, frmpayload_length), frmpayload_length);
+		if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt)) {
+			tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, frmpayload_length, frmpayload_length);
+			add_new_data_source(pinfo, next_tvb, "Decrypted payload");
+			proto_tree *frame_payload_decrypted_tree = proto_item_add_subtree(ti, ett_lorawan_frame_payload_decrypted);
+			if (fport == 0) {
+				current_offset += dissect_lorawan_mac_commands(next_tvb, pinfo, tree, uplink);
 			} else {
-				proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_decrypting_error, tvb, current_offset, 4, "Decrypting error");
+				/*
+				 * fport values 0x01 - 0xDF are application specific
+				 * fport values 0xE0 - 0xFF are reserved for future extensions
+				 */
+				proto_tree_add_bytes(frame_payload_decrypted_tree, hf_lorawan_frame_payload_decrypted_type, next_tvb, 0, frmpayload_length, decrypted_buffer);
 				current_offset += frmpayload_length;
 			}
 		} else {
+			proto_tree_add_expert_format(tree, pinfo, &ei_lorawan_decrypting_error, tvb, current_offset, 4, "Decrypting error");
 			current_offset += frmpayload_length;
 		}
 	} else {
-		/* RFU */
-		current_offset = tvb_captured_length(tvb) - 4;
+		current_offset += frmpayload_length;
 	}
 
 	/*
@@ -809,7 +1118,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	 * MIC = cmac[0..3]
 	 * B0 = 0x49 | 0x00 | 0x00 | 0x00 | 0x00 | dir | devAddr | fcntup/fcntdown | len(msg)
 	 */
-	if (encryption_keys) {
+	if (session_key) {
 		gint frame_length = current_offset;
 		guint8 *msg = (guint8 *)wmem_alloc0(pinfo->pool, frame_length + 16);
 		msg[0] = 0x49;
@@ -818,42 +1127,109 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		memcpy(msg + 10, &fcnt, 4);
 		msg[15] = frame_length;
 		memcpy(msg + 16, tvb_get_ptr(tvb, 0, frame_length), frame_length);
-		proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(msg, frame_length + 16, encryption_keys->nwkskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(msg, frame_length + 16, session_key->nwkskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	} else {
-		checksum_item = proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
-							0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-		expert_add_info(pinfo, checksum_item, &ei_lorawan_unverified_mic);
+		proto_item *checksum_item = proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+			0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		expert_add_info(pinfo, checksum_item, &ei_lorawan_missing_keys);
 	}
+
 	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+{
+	proto_item *ti, *tf;
+	proto_tree *lorawan_tree, *field_tree;
+	gint32 current_offset = 0;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LoRaWAN");
+	col_clear(pinfo->cinfo,COL_INFO);
+	ti = proto_tree_add_item(tree, proto_lorawan, tvb, 0, -1, ENC_NA);
+	lorawan_tree = proto_item_add_subtree(ti, ett_lorawan);
+
+	/* Detect and dissect Class-B beacon frames
+	 * common mark: beacon is 17B or 19B long and begins with 2 bytes of zeroed RFU
+	 */
+	guint16 classb_rfu = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	guint classb_length = tvb_reported_length(tvb);
+	if (classb_rfu == 0x0000 && (classb_length == 17 || classb_length == 19)) {
+		return dissect_lorawan_beacon(tvb, pinfo, lorawan_tree);
+	}
+
+	/* MAC header */
+	guint8 mac_ftype = LORAWAN_MAC_FTYPE(tvb_get_guint8(tvb, current_offset));
+	proto_tree_add_string(lorawan_tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str(mac_ftype, lorawan_ftypenames, "RFU"));
+	tf = proto_tree_add_item(lorawan_tree, hf_lorawan_mac_header_type, tvb, current_offset, 1, ENC_NA);
+	proto_item_append_text(tf, " (Message Type: %s, Major Version: %s)", val_to_str(mac_ftype, lorawan_ftypenames, "RFU"), val_to_str(LORAWAN_MAC_MAJOR(tvb_get_guint8(tvb, current_offset)), lorawan_majornames, "RFU"));
+
+	/* Validate MHDR fields for LoRaWAN packet, do not dissect malformed packets */
+	if ((tvb_get_guint8(tvb, current_offset) & (LORAWAN_MAC_MAJOR_MASK | LORAWAN_MAC_RFU_MASK)) != LORAWAN_MAC_MAJOR_R1) {
+		expert_add_info(pinfo, lorawan_tree, &ei_lorawan_mhdr_error);
+		mac_ftype = LORAWAN_MAC_FTYPE_RFU;
+	}
+
+	field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_header);
+	proto_tree_add_item(field_tree, hf_lorawan_mac_header_ftype_type, tvb, current_offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_lorawan_mac_header_rfu_type, tvb, current_offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_lorawan_mac_header_major_type, tvb, current_offset, 1, ENC_NA);
+	current_offset++;
+
+	switch (mac_ftype) {
+		case LORAWAN_MAC_FTYPE_JOINREQUEST:
+			return dissect_lorawan_join_request(tvb, pinfo, lorawan_tree);
+
+		case LORAWAN_MAC_FTYPE_JOINACCEPT:
+			return dissect_lorawan_join_accept(tvb, pinfo, lorawan_tree);
+
+		case LORAWAN_MAC_FTYPE_UNCONFIRMEDDATAUP:
+		case LORAWAN_MAC_FTYPE_CONFIRMEDDATAUP:
+			return dissect_lorawan_data(tvb, pinfo, lorawan_tree, true /*uplink*/);
+
+		case LORAWAN_MAC_FTYPE_UNCONFIRMEDDATADOWN:
+		case LORAWAN_MAC_FTYPE_CONFIRMEDDATADOWN:
+			return dissect_lorawan_data(tvb, pinfo, lorawan_tree, false /*downlink*/);
+
+		default: /* LORAWAN_MAC_FTYPE_RFU or LORAWAN_MAC_FTYPE_PROPRIETARY */
+			proto_tree_add_item(lorawan_tree, hf_lorawan_frame_payload_type, tvb, current_offset, tvb_captured_length_remaining(tvb, current_offset), ENC_NA);
+			return tvb_captured_length(tvb);
+	}
 }
 
 void
 proto_register_lorawan(void)
 {
 	static hf_register_info hf[] = {
+	{ &hf_lorawan_msgtype_type,
+		{ "Message type", "lorawan.msgtype",
+		FT_STRING, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_lorawan_mac_header_type,
 		{ "MAC Header", "lorawan.mhdr",
 		FT_NONE, BASE_NONE,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[MHDR] MAC Header", HFILL }
 	},
-	{ &hf_lorawan_mac_header_mtype_type,
-		{ "Message Type", "lorawan.mhdr.mtype",
+	{ &hf_lorawan_mac_header_ftype_type,
+		{ "Message Type", "lorawan.mhdr.ftype",
 		FT_UINT8, BASE_DEC,
-		VALS(lorawan_mtypenames), LORAWAN_MAC_MTYPE_MASK,
-		NULL, HFILL }
+		VALS(lorawan_ftypenames), LORAWAN_MAC_FTYPE_MASK,
+		"[FType] Message Type", HFILL }
 	},
 	{ &hf_lorawan_mac_header_rfu_type,
 		{ "RFU", "lorawan.mhdr.rfu",
 		FT_UINT8, BASE_DEC,
 		NULL, LORAWAN_MAC_RFU_MASK,
-		"Reserved for Future Use", HFILL }
+		"[RFU]", HFILL }
 	},
 	{ &hf_lorawan_mac_header_major_type,
 		{ "Major Version", "lorawan.mhdr.major",
 		FT_UINT8, BASE_DEC,
 		VALS(lorawan_majornames), LORAWAN_MAC_MAJOR_MASK,
-		NULL, HFILL }
+		"[Major] Major Version", HFILL }
 	},
 	{ &hf_lorawan_mac_commands_type,
 		{ "MAC Commands", "lorawan.mac_commands",
@@ -1143,29 +1519,83 @@ proto_register_lorawan(void)
 		&units_seconds, LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ_DELAY_MASK,
 		NULL, HFILL }
 	},
+	{ &hf_lorawan_mac_command_up_di_channel_ans_type,
+		{ "Status", "lorawan.di_channel_response",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_up_ping_slot_info_req_type,
+		{ "PingSlotParam", "lorawan.ping_slot_info_request",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_up_ping_slot_channel_ans_type,
+		{ "Status", "lorawan.ping_slot_channel_response",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_up_beacon_freq_ans_type,
+		{ "Status", "lorawan.beacon_freq_response",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_down_tx_param_setup_req_type,
+		{ "DwellTime, EIRP", "lorawan.tx_param_setup_request",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_down_di_channel_req_type,
+		{ "ChIndex, Frequency", "lorawan.di_channel_request",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_down_device_time_ans_type,
+		{ "DeviceTimeAns", "lorawan.device_time_response",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_down_ping_slot_channel_req_type,
+		{ "Frequency, DR", "lorawan.ping_slot_channel_request",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_command_down_beacon_freq_req_type,
+		{ "Frequency", "lorawan.beacon_freq_request",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_lorawan_join_request_type,
 		{ "Join Request", "lorawan.join_request",
 		FT_NONE, BASE_NONE,
 		NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_lorawan_join_request_appeui_type,
-		{ "AppEUI", "lorawan.join_request.appeui",
+	{ &hf_lorawan_join_request_joineui_type,
+		{ "Join-Server identifier", "lorawan.join_request.joineui",
 		FT_EUI64, BASE_NONE,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[JoinEUI] Join-Server identifier", HFILL }
 	},
 	{ &hf_lorawan_join_request_deveui_type,
-		{ "DevEUI", "lorawan.join_request.deveui",
+		{ "End-device identifier", "lorawan.join_request.deveui",
 		FT_EUI64, BASE_NONE,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[DevEUI] End-device identifier", HFILL }
 	},
 	{ &hf_lorawan_join_request_devnonce_type,
 		{ "Device Nonce", "lorawan.join_request.devnonce",
-		FT_BYTES, BASE_NONE,
+		FT_UINT16, BASE_DEC,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[DevNonce] Device Nonce", HFILL }
 	},
 	{ &hf_lorawan_join_accept_type,
 		{ "Join Accept", "lorawan.join_accept",
@@ -1173,113 +1603,119 @@ proto_register_lorawan(void)
 		NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_lorawan_join_accept_appnonce_type,
-		{ "Application Nonce", "lorawan.join_accept.appnonce",
-		FT_BYTES, BASE_NONE,
+	{ &hf_lorawan_join_accept_joinnonce_type,
+		{ "Join-Server nonce", "lorawan.join_accept.joinnonce",
+		FT_UINT24, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[JoinNonce] Join-Server nonce", HFILL }
 	},
 	{ &hf_lorawan_join_accept_netid_type,
-		{ "Net ID", "lorawan.join_accept.netid",
-		FT_BYTES, BASE_NONE,
+		{ "Network identifier", "lorawan.join_accept.netid",
+		FT_UINT24, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[NetID] Network identifier", HFILL }
 	},
 	{ &hf_lorawan_join_accept_devaddr_type,
 		{ "Device Address", "lorawan.join_accept.devaddr",
 		FT_UINT32, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[DevAddr] Device Address", HFILL }
+	},
+	{ &hf_lorawan_join_accept_dlsettings_type,
+		{ "Downlink configuration", "lorawan.join_accept.dlsettings",
+		FT_UINT8, BASE_HEX,
+		NULL, 0x0,
+		"[DLSettings] Downlink configuration", HFILL }
 	},
 	{ &hf_lorawan_join_accept_dlsettings_rx1droffset_type,
-		{ "RX1 Datarate Offset", "lorawan.join_accept.rx1droffset",
+		{ "RX1 Data rate offset", "lorawan.join_accept.dlsettings.rx1droffset",
 		FT_UINT8, BASE_DEC,
 		NULL, LORAWAN_JOIN_ACCEPT_RX1DROFFSET_MASK,
-		NULL, HFILL }
+		"[RX1DROffset] RX1 Data rate offset", HFILL }
 	},
 	{ &hf_lorawan_join_accept_dlsettings_rx2dr_type,
-		{ "RX2 Datarate", "lorawan.join_accept.rx2datarate",
+		{ "RX2 Data rate", "lorawan.join_accept.dlsettings.rx2datarate",
 		FT_UINT8, BASE_DEC,
 		NULL, LORAWAN_JOIN_ACCEPT_RX2DR_MASK,
-		NULL, HFILL }
+		"[RX2DataRate] RX2 Data rate", HFILL }
 	},
 	{ &hf_lorawan_join_accept_rxdelay_type,
-		{ "RX Delay", "lorawan.join_accept.rxdelay",
+		{ "Delay between TX and RX", "lorawan.join_accept.rxdelay",
 		FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
 		&units_seconds, 0x0,
-		NULL, HFILL }
+		"[RXDelay] Delay between TX and RX", HFILL }
 	},
 	{ &hf_lorawan_join_accept_cflist_type,
-		{ "Channel Frequency List", "lorawan.join_accept.cflist",
+		{ "List of network parameters", "lorawan.join_accept.cflist",
 		FT_BYTES, BASE_NONE,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[CFList] List of network parameters", HFILL }
 	},
 	{ &hf_lorawan_frame_header_type,
 		{ "Frame Header", "lorawan.fhdr",
 		FT_NONE, BASE_NONE,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[FHDR] Frame Header", HFILL }
 	},
 	{ &hf_lorawan_frame_header_address_type,
 		{ "Device Address", "lorawan.fhdr.devaddr",
 		FT_UINT32, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[DevAddr] Device Address", HFILL }
 	},
 	{ &hf_lorawan_frame_header_frame_control_type,
 		{ "Frame Control", "lorawan.fhdr.fctrl",
 		FT_UINT8, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[FCtrl] Frame Control", HFILL }
 	},
 	{ &hf_lorawan_frame_header_frame_control_adr_type,
 		{ "Adaptive Data Rate", "lorawan.fhdr.fctrl.adr",
 		FT_BOOLEAN, 8,
 		NULL, 0x80,
-		NULL, HFILL }
+		"[ADR] Adaptive Data Rate", HFILL }
 	},
 	{ &hf_lorawan_frame_header_frame_control_adrackreq_type,
 		{ "ADR Acknowledgement Request", "lorawan.fhdr.fctrl.adrackreq",
 		FT_BOOLEAN, 8,
 		NULL, 0x40,
-		NULL, HFILL }
+		"[ADRACKReq] ADR Acknowledgement Request(up) / RFU(down)", HFILL}
 	},
 	{ &hf_lorawan_frame_header_frame_control_ack_type,
-		{ "ACK", "lorawan.fhdr.fctrl.ack",
+		{ "Acknowledgement", "lorawan.fhdr.fctrl.ack",
 		FT_BOOLEAN, 8,
 		NULL, 0x20,
-		NULL, HFILL }
+		"[ACK] Acknowledgement", HFILL }
 	},
 	{ &hf_lorawan_frame_header_frame_control_fpending_type,
-		{ "Frame Pending", "lorawan.fhdr.fctrl.fpending",
+		{ "ClassB Enabled / Frame Pending", "lorawan.fhdr.fctrl.fpending",
 		FT_BOOLEAN, 8,
 		NULL, 0x10,
-		NULL, HFILL }
+		"[FPending/ClassB] ClassB Enabled (up) / Frame Pending (down)", HFILL }
 	},
 	{ &hf_lorawan_frame_header_frame_control_foptslen_type,
 		{ "Frame Options Length", "lorawan.fhdr.fctrl.foptslen",
 		FT_UINT8, BASE_DEC,
 		NULL, LORAWAN_FRAME_FOPTSLEN_MASK,
-		NULL, HFILL }
+		"[FOptsLen] Frame Options Length", HFILL }
 	},
 	{ &hf_lorawan_frame_header_frame_counter_type,
 		{ "Frame Counter", "lorawan.fhdr.fcnt",
 		FT_UINT16, BASE_DEC,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[FCnt] Frame Counter", HFILL }
 	},
 	{ &hf_lorawan_frame_fport_type,
-		{ "FPort", "lorawan.fport",
+		{ "Port", "lorawan.fport",
 		FT_UINT8, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[FPort] Port", HFILL }
 	},
 	{ &hf_lorawan_frame_payload_type,
 		{ "Frame Payload", "lorawan.frmpayload",
 		FT_BYTES, BASE_NONE,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[FRMPayload] Frame Payload", HFILL }
 	},
 	{ &hf_lorawan_frame_payload_decrypted_type,
 		{ "Decrypted Frame Payload", "lorawan.frmpayload_decrypted",
@@ -1291,14 +1727,80 @@ proto_register_lorawan(void)
 		{ "Message Integrity Code", "lorawan.mic",
 		FT_UINT32, BASE_HEX,
 		NULL, 0x0,
-		NULL, HFILL }
+		"[MIC] Message Integrity Code", HFILL }
 	},
 	{ &hf_lorawan_mic_status_type,
 		{ "Message Integrity Code Status", "lorawan.mic.status",
 		FT_UINT8, BASE_NONE,
 		VALS(proto_checksum_vals), 0x0,
 		NULL, HFILL }
-	}
+	},
+	{ &hf_lorawan_beacon_rfu1_type,
+		{ "RFU", "lorawan.beacon.rfu1",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		"[RFU]", HFILL}
+	},
+	{ &hf_lorawan_beacon_time_type,
+		{ "Timestamp", "lorawan.beacon.time",
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		NULL, 0x0,
+		"[Time] Timestamp", HFILL}
+	},
+	{ &hf_lorawan_beacon_crc1_type,
+		{ "CRC of Timestamp", "lorawan.beacon.crc1",
+		FT_UINT16, BASE_HEX,
+		NULL, 0x0,
+		"[CRC] CRC of Timestamp", HFILL }
+	},
+	{ &hf_lorawan_beacon_crc1_status_type,
+		{ "Beacon Timestamp CRC Status", "lorawan.beacon.crc1.status",
+		FT_UINT8, BASE_NONE,
+		VALS(proto_checksum_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_beacon_gwspecific_type,
+		{ "Gateway specific part", "lorawan.beacon.gwspecific",
+		FT_NONE, BASE_NONE,
+		NULL, 0x0,
+		"[GwSpecific] Gateway specific part", HFILL }
+	},
+	{ &hf_lorawan_beacon_gwspecific_infodesc_type,
+		{ "Information descriptor", "lorawan.beacon.gwspecific.infodesc",
+		FT_UINT8, BASE_DEC,
+		NULL, 0x0,
+		"[InfoDesc] Information descriptor", HFILL }
+	},
+	{ &hf_lorawan_beacon_gwspecific_lat_type,
+		{ "GPS latitude", "lorawan.beacon.gwspecific.lat",
+		FT_UINT24, BASE_CUSTOM,
+		CF_FUNC(cf_coords_lat_custom), 0x0,
+		"[Lat] GPS latitude", HFILL }
+	},
+	{ &hf_lorawan_beacon_gwspecific_lng_type,
+		{ "GPS longitude", "lorawan.beacon.gwspecific.lng",
+		FT_UINT24, BASE_CUSTOM,
+		CF_FUNC(cf_coords_lng_custom), 0x0,
+		"[Lng] GPS longitude", HFILL }
+	},
+	{ &hf_lorawan_beacon_rfu2_type,
+		{ "RFU", "lorawan.beacon.rfu2",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		"[RFU]", HFILL }
+	},
+	{ &hf_lorawan_beacon_crc2_type,
+		{ "CRC of GwSpecific", "lorawan.beacon.crc2",
+		FT_UINT16, BASE_HEX,
+		NULL, 0x0,
+		"[CRC] CRC of GwSpecific", HFILL }
+	},
+	{ &hf_lorawan_beacon_crc2_status_type,
+		{ "Beacon GwSpecific CRC Status", "lorawan.beacon.crc2.status",
+		FT_UINT8, BASE_NONE,
+		VALS(proto_checksum_vals), 0x0,
+		NULL, HFILL }
+	},
 	};
 
 	/* Setup protocol subtree array */
@@ -1313,15 +1815,20 @@ proto_register_lorawan(void)
 		&ett_lorawan_mac_command_new_channel_ans,
 		&ett_lorawan_join_request,
 		&ett_lorawan_join_accept,
+		&ett_lorawan_join_accept_dlsettings,
 		&ett_lorawan_frame_header,
 		&ett_lorawan_frame_header_control,
-		&ett_lorawan_frame_payload_decrypted
+		&ett_lorawan_frame_payload_decrypted,
+		&ett_lorawan_beacon,
+		&ett_lorawan_beacon_gwspecific,
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_lorawan_unverified_mic, { "lorawan.mic_unverified", PI_PROTOCOL, PI_NOTE, "MIC could not be verified because of missing encryption keys", EXPFILL }},
+		{ &ei_lorawan_missing_keys, { "lorawan.missing_keys", PI_PROTOCOL, PI_NOTE, "Missing encryption keys", EXPFILL }},
 		{ &ei_lorawan_decrypting_error, { "lorawan.decrypting_error", PI_DECRYPTION, PI_ERROR, "Error decrypting payload", EXPFILL }},
-		{ &ei_lorawan_mic, { "lorawan.mic_bad.expert", PI_CHECKSUM, PI_WARN, "Bad MIC", EXPFILL }}
+		{ &ei_lorawan_mic, { "lorawan.mic_bad.expert", PI_CHECKSUM, PI_WARN, "Bad MIC", EXPFILL }},
+		{ &ei_lorawan_length_error, { "lorawan.length_error", PI_MALFORMED, PI_ERROR, "Field length is not according to LoRaWAN standard", EXPFILL }},
+		{ &ei_lorawan_mhdr_error, { "lorawan.mhdr_error", PI_MALFORMED, PI_ERROR, "LoRaWAN MAC Header malformed", EXPFILL }},
 	};
 
 	expert_module_t* expert_lorawan;
@@ -1340,35 +1847,57 @@ proto_register_lorawan(void)
 	expert_lorawan = expert_register_protocol(proto_lorawan);
 	expert_register_field_array(expert_lorawan, ei, array_length(ei));
 
-	static uat_field_t device_encryption_keys_uat_fields[] = {
-		UAT_FLD_CSTRING(device_encryption_keys, dev_addr_string, "Device Address", "LoRaWAN Device Address"),
-		UAT_FLD_CSTRING(device_encryption_keys, nwkskey_string, "Network Key", "LoRaWAN Network Key"),
-		UAT_FLD_CSTRING(device_encryption_keys, appskey_string, "Application Key", "LoRaWAN Application Key"),
-		UAT_FLD_CSTRING(device_encryption_keys, appeui_string, "Application EUI", "LoRaWAN Application EUI"),
+	static uat_field_t root_keys_uat_fields[] = {
+		UAT_FLD_CSTRING(root_keys, deveui_string, "DevEUI", "LoRaWAN End-device Identifier"),
+		UAT_FLD_CSTRING(root_keys, appkey_string, "AppKey", "LoRaWAN Application Key"),
+		UAT_END_FIELDS
+	};
+	static uat_field_t session_keys_uat_fields[] = {
+		UAT_FLD_CSTRING(session_keys, dev_addr_string, "DevAddr", "LoRaWAN Device Address"),
+		UAT_FLD_CSTRING(session_keys, nwkskey_string, "NwkSKey", "LoRaWAN Network Session Key"),
+		UAT_FLD_CSTRING(session_keys, appskey_string, "AppSKey", "LoRaWAN Application Session Key"),
 		UAT_END_FIELDS
 	};
 
-	uat_t *device_encryption_keys_uat = uat_new("LoRaWAN Encryption Keys",
-		sizeof(device_encryption_keys_t),
-		"encryption_keys_lorawan",
+	uat_t *root_keys_uat = uat_new("LoRaWAN Root Keys",
+		sizeof(root_key_t),
+		"root_keys_lorawan",
 		TRUE,
-		&device_encryption_keys,
-		&device_encryption_num_keys,
-		UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+		&root_keys,
+		&root_num_keys,
+		UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
 		NULL,
-		device_encryption_keys_copy_cb,
-		device_encryption_keys_update_cb,
-		device_encryption_keys_free_cb,
+		root_keys_copy_cb,
+		root_keys_update_cb,
+		root_keys_free_cb,
 		NULL,
 		NULL,
-		device_encryption_keys_uat_fields
+		root_keys_uat_fields
+	);
+	uat_t *session_keys_uat = uat_new("LoRaWAN Session Keys",
+		sizeof(session_key_t),
+		"session_keys_lorawan",
+		TRUE,
+		&session_keys,
+		&session_num_keys,
+		UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
+		NULL,
+		session_keys_copy_cb,
+		session_keys_update_cb,
+		session_keys_free_cb,
+		NULL,
+		NULL,
+		session_keys_uat_fields
 	);
 
 	module_t *lorawan_module;
 	lorawan_module = prefs_register_protocol(proto_lorawan, NULL);
-	prefs_register_uat_preference(lorawan_module, "encryption_keys_lorawan", "LoRaWAN Encryption Keys",
-		"A table to define encryption keys for LoRaWAN devices",
-		device_encryption_keys_uat);
+	prefs_register_uat_preference(lorawan_module, "root_keys_lorawan", "LoRaWAN Root Keys",
+		"A table to define root encryption keys for LoRaWAN devices, used for Join Request/Accept",
+		root_keys_uat);
+	prefs_register_uat_preference(lorawan_module, "session_keys_lorawan", "LoRaWAN Session Keys",
+		"A table to define session encryption keys for LoRaWAN devices, used for Data Up/Down",
+		session_keys_uat);
 }
 
 void
