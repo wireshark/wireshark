@@ -3150,13 +3150,14 @@ dissect_s1ap_AerialUEsubscriptionInformation(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_s1ap_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2692 "./asn1/s1ap/s1ap.cnf"
+#line 2691 "./asn1/s1ap/s1ap.cnf"
   tvbuff_t *cell_id_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      28, 28, FALSE, NULL, 0, &cell_id_tvb, NULL);
 
   if (cell_id_tvb) {
-    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 4, ENC_BIG_ENDIAN);
+    guint32 cell_id = tvb_get_bits32(cell_id_tvb, 0, 28, ENC_BIG_ENDIAN);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, cell_id_tvb, 0, 4, cell_id);
   }
 
 
@@ -18951,7 +18952,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.extension", id_LastNG_RANPLMNIdentity, create_dissector_handle(dissect_PLMNidentity_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_PSCellInformation, create_dissector_handle(dissect_s1ap_PSCellInformation_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_IMSvoiceEPSfallbackfrom5G, create_dissector_handle(dissect_IMSvoiceEPSfallbackfrom5G_PDU, proto_s1ap));
-  dissector_add_uint("s1ap.extension", id_TimeSinceSecondaryNodeRelease, create_dissector_handle(dissect_RequestTypeAdditionalInfo_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.extension", id_RequestTypeAdditionalInfo, create_dissector_handle(dissect_RequestTypeAdditionalInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_ContextatSource, create_dissector_handle(dissect_ContextatSource_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Ethernet_Type, create_dissector_handle(dissect_Ethernet_Type_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_IntersystemMeasurementConfiguration, create_dissector_handle(dissect_IntersystemMeasurementConfiguration_PDU, proto_s1ap));
@@ -21493,7 +21494,7 @@ void proto_register_s1ap(void) {
         "INTEGER_0_18446744073709551615", HFILL }},
     { &hf_s1ap_cell_ID,
       { "cell-ID", "s1ap.CellIdentity",
-        FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         "CellIdentity", HFILL }},
     { &hf_s1ap_l1Threshold,
       { "l1Threshold", "s1ap.l1Threshold",
