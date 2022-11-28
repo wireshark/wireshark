@@ -565,6 +565,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[packet-discard.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-dji-uav.[ch]]
 indent_style = tab
 indent_size = tab

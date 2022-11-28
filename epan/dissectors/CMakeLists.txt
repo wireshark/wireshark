@@ -980,6 +980,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-diffserv-mpls-common.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dis.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-distcc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-discard.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dji-uav.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dlep.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dlm3.c
