@@ -3156,8 +3156,7 @@ dissect_s1ap_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                      28, 28, FALSE, NULL, 0, &cell_id_tvb, NULL);
 
   if (cell_id_tvb) {
-    guint32 cell_id = tvb_get_bits32(cell_id_tvb, 0, 28, ENC_BIG_ENDIAN);
-    actx->created_item = proto_tree_add_uint(tree, hf_index, cell_id_tvb, 0, 4, cell_id);
+    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 4, ENC_BIG_ENDIAN);
   }
 
 
@@ -7972,7 +7971,7 @@ static const per_sequence_t NR_CGI_sequence[] = {
 
 static int
 dissect_s1ap_NR_CGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2700 "./asn1/s1ap/s1ap.cnf"
+#line 2699 "./asn1/s1ap/s1ap.cnf"
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->number_type = E212_NRCGI;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -21494,7 +21493,7 @@ void proto_register_s1ap(void) {
         "INTEGER_0_18446744073709551615", HFILL }},
     { &hf_s1ap_cell_ID,
       { "cell-ID", "s1ap.CellIdentity",
-        FT_UINT32, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0,
         "CellIdentity", HFILL }},
     { &hf_s1ap_l1Threshold,
       { "l1Threshold", "s1ap.l1Threshold",
