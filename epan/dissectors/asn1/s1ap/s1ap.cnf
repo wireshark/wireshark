@@ -2250,7 +2250,7 @@ NRrestrictionin5GS                      N s1ap.extension id-NRrestrictionin5GS
 PLMNidentity                            N s1ap.extension id-LastNG-RANPLMNIdentity
 PSCellInformation                       N s1ap.extension id-PSCellInformation
 IMSvoiceEPSfallbackfrom5G               N s1ap.extension id-IMSvoiceEPSfallbackfrom5G
-RequestTypeAdditionalInfo               N s1ap.extension id-TimeSinceSecondaryNodeRelease
+RequestTypeAdditionalInfo               N s1ap.extension id-RequestTypeAdditionalInfo
 ContextatSource                         N s1ap.extension id-ContextatSource
 Ethernet-Type                           N s1ap.extension id-Ethernet-Type
 IntersystemMeasurementConfiguration     N s1ap.extension id-IntersystemMeasurementConfiguration
