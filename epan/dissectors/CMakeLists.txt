@@ -1777,6 +1777,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sapms.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sapni.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-saprouter.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sapsnc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sasp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbus.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbc.c

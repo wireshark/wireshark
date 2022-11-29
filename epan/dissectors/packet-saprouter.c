@@ -26,6 +26,7 @@
 #include <epan/conversation.h>
 
 #include "packet-sapni.h"
+#include "packet-sapsnc.h"
 
 
 /* Define default ports */
@@ -401,12 +402,10 @@ dissect_errorstring(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static tvbuff_t*
 dissect_saprouter_snc_frame(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint32 offset _U_){
 
-	/* Call the SNC dissector
-	 * TODO: This will be enabled when the SNC dissector is added
+	/* Call the SNC dissector */
 	if (global_saprouter_snc_dissection == TRUE){
 		return dissect_sapsnc_frame(tvb, pinfo, tree, offset);
 	}
-	 */
 
 	return NULL;
 }
