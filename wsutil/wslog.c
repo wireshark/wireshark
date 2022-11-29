@@ -698,6 +698,7 @@ void ws_log_init(const char *progname,
                             void (*vcmdarg_err)(const char *, va_list ap))
 {
     const char *env;
+    int fd;
 
     if (progname != NULL) {
         registered_progname = progname;
@@ -707,12 +708,16 @@ void ws_log_init(const char *progname,
     current_log_level = DEFAULT_LOG_LEVEL;
 
 #if GLIB_CHECK_VERSION(2,50,0)
-    stdout_color_enabled = g_log_writer_supports_color(fileno(stdout));
-    stderr_color_enabled = g_log_writer_supports_color(fileno(stderr));
+    if ((fd = fileno(stdout)) >= 0)
+        stdout_color_enabled = g_log_writer_supports_color(fd);
+    if ((fd = fileno(stderr)) >= 0)
+        stderr_color_enabled = g_log_writer_supports_color(fd);
 #elif !defined(_WIN32)
     /* We assume every non-Windows console supports color. */
-    stdout_color_enabled = (isatty(fileno(stdout)) == 1);
-    stderr_color_enabled = (isatty(fileno(stderr)) == 1);
+    if ((fd = fileno(stdout)) >= 0)
+        stdout_color_enabled = isatty(fd);
+    if ((fd = fileno(stderr)) >= 0)
+        stderr_color_enabled = isatty(fd);
 #else
      /* Our Windows build version of GLib is pretty recent, we are probably
       * fine here, unless we want to do better than GLib. */
