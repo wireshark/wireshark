@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
+#include <epan/charsets.h>
 #define CIMD_STX   0x02 /* Start of CIMD PDU */
 #define CIMD_ETX   0x03 /* End of CIMD PDU */
 #define CIMD_COLON 0x3A /* CIMD colon */
@@ -452,22 +453,104 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   /* Set up structures needed to add the param subtree and manage it */
   proto_tree *param_tree;
 
-  gchar *payloadText, *tmpBuffer, *tmpBuffer1;
-  int    loop,i,poz, bufPoz = 0, bufPoz1 = 0, size, size1, resch;
+  guint8 *tmpBuffer1;
+  const guint8* payloadText;
+  wmem_strbuf_t *tmpBuffer;
+  int    loop;
   gint   g_offset, g_size;
   gchar  token[4];
-  gchar  ch;
-  static const char* mapping[128]  = {
-    "_Oa" , "_L-", ""    , "_Y-", "_e`", "_e'", "_u`", "_i`", "_o`", "_C,",        /*10*/
-    ""    , "_O/", "_o/" , ""   , "_A*", "_a*", "_gd", "_--", "_gf", "_gg", "_gl", /*21*/
-    "_go" , "_gp", "_gi" , "_gs", "_gt", "_gx", "_XX", "_AE", "_ae", "_ss", "_E'", /*32*/
-    ""    , ""   , "_qq" , ""   , "_ox", ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "",
-    ""    , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "",
-    "_!!" , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "",
-    ""    , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , "_A\"", "_O\"", "_N~",
-    "_U\"", "_so", "_??" , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   ,
-    ""    , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "_a\"",
-    "_o\"", "_n~", "_n\"","_a`"
+
+  /* The user data (33) parameter is used when the data coding scheme (30)
+   * indicates that the default GSM character set is being used.
+   * It is not transmitted directly as the 23.038 GSM encoding (packed
+   * or unpacked), but rather each character is converted to ASCII
+   * or Latin-1 (ISO-8859-1).
+   *
+   * (XXX: It is possible that the UDH indicates that a national
+   * language shift table is to be used, but we don't implement that.
+   * It is also theoretically possible for some encoding other than
+   * Latin-1 to be used.)
+   *
+   * It is simplest to first convert back to the GSM 7 bit encoding (unpacked),
+   * and then convert that to UTF-8, since the GSM extension table characters
+   * require a second level of escape handling. We will use '\xff' as a
+   * placeholder for illegal characters that will be replaced with Unicode
+   * REPLACEMENT CHARACTERS upon final conversion.
+   */
+  static const value_string combining_mapping[] = {
+    {  0, "_Oa"},
+    {  1, "_L-"},
+    {  3, "_Y-"},
+    {  4, "_e`"},
+    {  5, "_e'"},
+    {  6, "_u`"},
+    {  7, "_i`"},
+    {  8, "_o`"},
+    {  9, "_C,"},
+    { 11, "_O/"},
+    { 12, "_o/"},
+    { 14, "_A*"},
+    { 15, "_a*"},
+    { 16, "_gd"},
+    { 17, "_--"},
+    { 18, "_gf"},
+    { 19, "_gg"},
+    { 20, "_gl"},
+    { 21, "_go"},
+    { 22, "_gp"},
+    { 23, "_gi"},
+    { 24, "_gs"},
+    { 25, "_gt"},
+    { 26, "_gx"},
+    { 27, "_XX"},
+    { 28, "_AE"},
+    { 29, "_ae"},
+    { 30, "_ss"},
+    { 31, "_E'"},
+    { 34, "_qq"},
+    { 36, "_ox"},
+    { 40, "_!!"},
+    { 91, "_A\""},
+    { 92, "_O\""},
+    { 93, "_N~"},
+    { 94, "_U\""},
+    { 95, "_so"},
+    { 96, "_??"},
+    {123, "_a\""},
+    {124, "_o\""},
+    {125, "_n~"},
+    {126, "_n\""},
+    {127, "_a`"},
+    {  0, NULL }
+  };
+
+  static const char latin_mapping[256] = {
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /* 0x00 -       */
+    0xff, 0xff, 0x0a, 0xff, 0xff, 0x0d, 0xff, 0xff,     /*      - 0x0F  */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /* 0x10 -       */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /*      - 0x1F  */
+    0x20, 0x21, 0x22, 0x23, 0x02, 0x25, 0x26, 0x27,     /* 0x20 -       */
+    0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,     /*      - 0x2F  */
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,     /* 0x30 -       */
+    0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,     /*      - 0x3F  */
+    0x00, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,     /* 0x40 -       */
+    0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,     /*      - 0x4F  */
+    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,     /* 0x50 -       */
+    0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x0e, 0x5e, 0xff,     /*      - 0x5F  */
+    0xff, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,     /* 0x60 -       */
+    0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,     /*      - 0x6F  */
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,     /* 0x70 -       */
+    0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x0f, 0x7e, 0xff,     /*      - 0x7F  */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /* 0x80 -       */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /*      - 0x8F  */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /* 0x90 -       */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /*      - 0x9F  */
+    0xff, 0x40, 0xff, 0x01, 0x24, 0x03, 0xff, 0x5f,     /* 0xA0 -       */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /*      - 0xAF  */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /* 0xB0 -       */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x60,     /*      - 0xBF  */
+    0xff, 0xff, 0xff, 0xff, 0x5b, 0x0e, 0x1c, 0x09,     /* 0xC0 -       */
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,     /*      - 0xCF  */
   };
 
   param_tree = proto_tree_add_subtree(tree, tvb,
@@ -480,189 +563,34 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   g_offset = startOffset + 1 + CIMD_PC_LENGTH + 1;
   g_size   = endOffset - g_offset;
 
-  payloadText = tvb_format_text(wmem_packet_scope(), tvb, g_offset, g_size);
-  size = (int)strlen(payloadText);
-  tmpBuffer = (gchar*)wmem_alloc(wmem_packet_scope(), size+1);
-  for (loop = 0; loop < size; loop++)
+  payloadText = tvb_get_ptr(tvb, g_offset, g_size);
+  tmpBuffer = wmem_strbuf_sized_new(wmem_packet_scope(), g_size+1, 0);
+  for (loop = 0; loop < g_size; loop++)
   {
     if (payloadText[loop] == '_')
     {
-      if (loop < size - 2)
+      if (loop < g_size - 2)
       {
         token[0] = payloadText[loop++];
         token[1] = payloadText[loop++];
         token[2] = payloadText[loop];
         token[3] = '\0';
-        poz = -1;
-        for (i = 0; i < 128; i++)
-        {
-          if (strcmp(token, mapping[i]) == 0)
-          {
-            poz = i;
-            break;
-          }
-        }
-        if (poz > 0)
-        {
-          tmpBuffer[bufPoz++] = poz;
-        }
-        else
-        {
-          tmpBuffer[bufPoz++] = payloadText[loop-2];
-          tmpBuffer[bufPoz++] = payloadText[loop-1];
-          tmpBuffer[bufPoz++] = payloadText[loop];
-        }
+        wmem_strbuf_append_c(tmpBuffer, str_to_val(token, combining_mapping, 0xff));
       }
       else
       {
-        if (loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
-        if (loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
-        if (loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
+        /* Not enough room for a combining sequence. */
+        wmem_strbuf_append_c(tmpBuffer, 0xff);
       }
     }
     else
     {
-      tmpBuffer[bufPoz++] = payloadText[loop];
+      wmem_strbuf_append_c(tmpBuffer, latin_mapping[payloadText[loop]]);
     }
   }
-  tmpBuffer[bufPoz] = '\0';
 
-  size1 = (int)strlen(tmpBuffer);
-  tmpBuffer1 = (gchar*)wmem_alloc(wmem_packet_scope(), size1+1);
-  for (loop=0; loop<size1; loop++)
-  {
-    ch = tmpBuffer[loop];
-    switch ((gint)ch)
-    {
-    case 0x40: resch = 0x0040; break;
-    case 0x01: resch = 0x00A3; break;
-    case 0x02: resch = 0x0024; break;
-    case 0x03: resch = 0x00A5; break;
-    case 0x04: resch = 0x00E8; break;
-    case 0x05: resch = 0x00E9; break;
-    case 0x06: resch = 0x00F9; break;
-    case 0x07: resch = 0x00EC; break;
-    case 0x08: resch = 0x00F2; break;
-    case 0x09: resch = 0x00E7; break;
-    case 0x0B: resch = 0x00D8; break;
-    case 0x0C: resch = 0x00F8; break;
-    case 0x0E: resch = 0x00C5; break;
-    case 0x0F: resch = 0x00E5; break;
-    case 0x11: resch = 0x005F; break;
-/*  case 0x1B14: resch = 0x005E; break; */
-/*  case 0x1B28: resch = 0x007B; break; */
-/*  case 0x1B29: resch = 0x007D; break; */
-/*  case 0x1B2F: resch = 0x005C; break; */
-/*  case 0x1B3C: resch = 0x005B; break; */
-/*  case 0x1B3D: resch = 0x007E; break; */
-/*  case 0x1B3E: resch = 0x005D; break; */
-/*  case 0x1B40: resch = 0x007C; break; */
-    case 0x1C: resch = 0x00C6; break;
-    case 0x1D: resch = 0x00E6; break;
-    case 0x1E: resch = 0x00DF; break;
-    case 0x1F: resch = 0x00C9; break;
-    case 0x20: resch = 0x0020; break;
-    case 0x21: resch = 0x0021; break;
-    case 0x22: resch = 0x0022; break;
-    case 0x23: resch = 0x0023; break;
-    case 0xA4: resch = 0x00A4; break;
-    case 0x25: resch = 0x0025; break;
-    case 0x26: resch = 0x0026; break;
-    case 0x27: resch = 0x0027; break;
-    case 0x28: resch = 0x0028; break;
-    case 0x29: resch = 0x0029; break;
-    case 0x2A: resch = 0x002A; break;
-    case 0x2B: resch = 0x002B; break;
-    case 0x2C: resch = 0x002C; break;
-    case 0x2D: resch = 0x002D; break;
-    case 0x2E: resch = 0x002E; break;
-    case 0x2F: resch = 0x002F; break;
-    case 0x30: resch = 0x0030; break;
-    case 0x31: resch = 0x0031; break;
-    case 0x32: resch = 0x0032; break;
-    case 0x33: resch = 0x0033; break;
-    case 0x34: resch = 0x0034; break;
-    case 0x35: resch = 0x0035; break;
-    case 0x36: resch = 0x0036; break;
-    case 0x37: resch = 0x0037; break;
-    case 0x38: resch = 0x0038; break;
-    case 0x39: resch = 0x0039; break;
-    case 0x3A: resch = 0x003A; break;
-    case 0x3B: resch = 0x003B; break;
-    case 0x3C: resch = 0x003C; break;
-    case 0x3D: resch = 0x003D; break;
-    case 0x3E: resch = 0x003E; break;
-    case 0x3F: resch = 0x003F; break;
-/*  case 0x40: resch = 0x00A1; break; */
-    case 0x41: resch = 0x0041; break;
-    case 0x42: resch = 0x0042; break;
-/*  case 0x42: resch = 0x0392; break; */
-    case 0x43: resch = 0x0043; break;
-    case 0x44: resch = 0x0044; break;
-    case 0x45: resch = 0x0045; break;
-    case 0x46: resch = 0x0046; break;
-    case 0x47: resch = 0x0047; break;
-    case 0x48: resch = 0x0048; break;
-    case 0x49: resch = 0x0049; break;
-    case 0x4A: resch = 0x004A; break;
-    case 0x4B: resch = 0x004B; break;
-    case 0x4C: resch = 0x004C; break;
-    case 0x4D: resch = 0x004D; break;
-    case 0x4E: resch = 0x004E; break;
-    case 0x4F: resch = 0x004F; break;
-    case 0x50: resch = 0x0050; break;
-    case 0x51: resch = 0x0051; break;
-    case 0x52: resch = 0x0052; break;
-    case 0x53: resch = 0x0053; break;
-    case 0x54: resch = 0x0054; break;
-    case 0x55: resch = 0x0055; break;
-    case 0x56: resch = 0x0056; break;
-    case 0x57: resch = 0x0057; break;
-    case 0x58: resch = 0x0058; break;
-    case 0x59: resch = 0x0059; break;
-    case 0x5A: resch = 0x005A; break;
-    case 0x5B: resch = 0x00C4; break;
-    case 0x5C: resch = 0x00D6; break;
-    case 0x5D: resch = 0x00D1; break;
-    case 0x5E: resch = 0x00DC; break;
-    case 0x5F: resch = 0x00A7; break;
-    case 0x60: resch = 0x00BF; break;
-    case 0x61: resch = 0x0061; break;
-    case 0x62: resch = 0x0062; break;
-    case 0x63: resch = 0x0063; break;
-    case 0x64: resch = 0x0064; break;
-    case 0x65: resch = 0x0065; break;
-    case 0x66: resch = 0x0066; break;
-    case 0x67: resch = 0x0067; break;
-    case 0x68: resch = 0x0068; break;
-    case 0x69: resch = 0x0069; break;
-    case 0x6A: resch = 0x006A; break;
-    case 0x6B: resch = 0x006B; break;
-    case 0x6C: resch = 0x006C; break;
-    case 0x6D: resch = 0x006D; break;
-    case 0x6E: resch = 0x006E; break;
-    case 0x6F: resch = 0x006F; break;
-    case 0x70: resch = 0x0070; break;
-    case 0x71: resch = 0x0071; break;
-    case 0x72: resch = 0x0072; break;
-    case 0x73: resch = 0x0073; break;
-    case 0x74: resch = 0x0074; break;
-    case 0x75: resch = 0x0075; break;
-    case 0x76: resch = 0x0076; break;
-    case 0x77: resch = 0x0077; break;
-    case 0x78: resch = 0x0078; break;
-    case 0x79: resch = 0x0079; break;
-    case 0x7A: resch = 0x007A; break;
-    case 0x7B: resch = 0x00E4; break;
-    case 0x7C: resch = 0x00F6; break;
-    case 0x7D: resch = 0x00F1; break;
-    case 0x7F: resch = 0x00E0; break;
-    default:resch = ch; break;
-    }
-    tmpBuffer1[bufPoz1++] = (gchar)resch;
-  }
-
-  tmpBuffer1[bufPoz1] = '\0';
+  tmpBuffer1 = get_ts_23_038_7bits_string_unpacked(wmem_packet_scope(), wmem_strbuf_get_str(tmpBuffer), (int)wmem_strbuf_get_len(tmpBuffer));
+  wmem_strbuf_destroy(tmpBuffer);
   proto_tree_add_string(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, g_offset, g_size, tmpBuffer1);
 }
 
