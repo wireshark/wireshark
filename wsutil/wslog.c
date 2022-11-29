@@ -726,6 +726,7 @@ void ws_log_init(const char *progname,
                             void (*vcmdarg_err)(const char *, va_list ap))
 {
     const char *env;
+    int fd;
 
     if (progname != NULL) {
         registered_progname = progname;
@@ -734,8 +735,10 @@ void ws_log_init(const char *progname,
 
     current_log_level = DEFAULT_LOG_LEVEL;
 
-    stdout_color_enabled = g_log_writer_supports_color(fileno(stdout));
-    stderr_color_enabled = g_log_writer_supports_color(fileno(stderr));
+    if ((fd = fileno(stdout)) >= 0)
+        stdout_color_enabled = g_log_writer_supports_color(fd);
+    if ((fd = fileno(stderr)) >= 0)
+        stderr_color_enabled = g_log_writer_supports_color(fd);
 
     /* Set the GLib log handler for the default domain. */
     g_log_set_handler(NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
