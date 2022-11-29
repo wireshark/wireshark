@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h283.c                                                              */
-/* asn2wrs.py -p h283 -c ./h283.cnf -s ./packet-h283-template -D . -O ../.. LCT-PROTOCOL.asn */
+/* asn2wrs.py -L -p h283 -c ./h283.cnf -s ./packet-h283-template -D . -O ../.. LCT-PROTOCOL.asn */
 
 /* Input file: packet-h283-template.c */
 
@@ -258,21 +258,17 @@ static const per_choice_t LCTRequest_choice[] = {
 
 static int
 dissect_h283_LCTRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "./asn1/h283/h283.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h283_LCTRequest, LCTRequest_choice,
                                  &msg_type);
 
-#line 59 "./asn1/h283/h283.cnf"
   p = try_val_to_str(msg_type, VALS(h283_LCTRequest_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTRequest/%s", p);
     info_is_set = TRUE;
   }
-
   return offset;
 }
 
@@ -280,7 +276,6 @@ dissect_h283_LCTRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h283_T_deviceListResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "./asn1/h283/h283.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -289,7 +284,6 @@ dissect_h283_T_deviceListResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if (next_tvb && tvb_reported_length(next_tvb)) {
     call_dissector((rdc_device_list_handle)?rdc_device_list_handle:data_handle, next_tvb, actx->pinfo, tree);
   }
-
 
   return offset;
 }
@@ -309,21 +303,17 @@ static const per_choice_t LCTResponse_choice[] = {
 
 static int
 dissect_h283_LCTResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "./asn1/h283/h283.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h283_LCTResponse, LCTResponse_choice,
                                  &msg_type);
 
-#line 72 "./asn1/h283/h283.cnf"
   p = try_val_to_str(msg_type, VALS(h283_LCTResponse_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTResponse/%s", p);
     info_is_set = TRUE;
   }
-
   return offset;
 }
 
@@ -340,21 +330,17 @@ static const per_choice_t LCTIndication_choice[] = {
 
 static int
 dissect_h283_LCTIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "./asn1/h283/h283.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h283_LCTIndication, LCTIndication_choice,
                                  &msg_type);
 
-#line 85 "./asn1/h283/h283.cnf"
   p = try_val_to_str(msg_type, VALS(h283_LCTIndication_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTIndication/%s", p);
     info_is_set = TRUE;
   }
-
   return offset;
 }
 
@@ -404,21 +390,17 @@ static const per_choice_t LCTMessage_choice[] = {
 
 static int
 dissect_h283_LCTMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "./asn1/h283/h283.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h283_LCTMessage, LCTMessage_choice,
                                  &msg_type);
 
-#line 46 "./asn1/h283/h283.cnf"
   p = try_val_to_str(msg_type, VALS(h283_LCTMessage_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTMessage/%s", p);
     info_is_set = TRUE;
   }
-
   return offset;
 }
 
@@ -426,7 +408,6 @@ dissect_h283_LCTMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h283_T_rdcPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "./asn1/h283/h283.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -436,7 +417,6 @@ dissect_h283_T_rdcPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
     call_dissector((rdc_pdu_handle)?rdc_pdu_handle:data_handle, next_tvb, actx->pinfo, proto_tree_get_root(tree));
   }
   info_is_set = TRUE;
-
 
   return offset;
 }
@@ -456,21 +436,17 @@ static const per_choice_t T_dataType_choice[] = {
 
 static int
 dissect_h283_T_dataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 30 "./asn1/h283/h283.cnf"
   gint32 data_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h283_T_dataType, T_dataType_choice,
                                  &data_type);
 
-#line 33 "./asn1/h283/h283.cnf"
   p = try_val_to_str(data_type, VALS(h283_T_dataType_vals));
   if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RDCData/%s", p);
     info_is_set = TRUE;
   }
-
   return offset;
 }
 
@@ -504,21 +480,17 @@ static const per_choice_t T_pduType_choice[] = {
 
 static int
 dissect_h283_T_pduType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 17 "./asn1/h283/h283.cnf"
   gint32 pdu_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h283_T_pduType, T_pduType_choice,
                                  &pdu_type);
 
-#line 20 "./asn1/h283/h283.cnf"
   p = try_val_to_str(pdu_type, VALS(h283_T_pduType_vals));
   if (!info_is_set && p ) {
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
     info_is_set = TRUE;
   }
-
   return offset;
 }
 

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rnsap.c                                                             */
-/* asn2wrs.py -p rnsap -c ./rnsap.cnf -s ./packet-rnsap-template -D . -O ../.. RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
+/* asn2wrs.py -L -p rnsap -c ./rnsap.cnf -s ./packet-rnsap-template -D . -O ../.. RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
 
 /* Input file: packet-rnsap-template.c */
 
@@ -6002,17 +6002,13 @@ static value_string_ext rnsap_ProcedureCode_vals_ext = VALUE_STRING_EXT_INIT(rns
 
 static int
 dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 81 "./asn1/rnsap/rnsap.cnf"
   rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
-
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &pdata->ProcedureCode, FALSE);
 
-#line 85 "./asn1/rnsap/rnsap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                 val_to_str_ext_const(pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                            "unknown message"));
-
   return offset;
 }
 
@@ -6042,17 +6038,13 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "./asn1/rnsap/rnsap.cnf"
   rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 96 "./asn1/rnsap/rnsap.cnf"
   pdata->ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%s/%s",
                                  val_to_str_ext(pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str(pdata->ddMode, rnsap_DdMode_vals, "unknown(%u)"));
-
   return offset;
 }
 
@@ -7817,7 +7809,6 @@ dissect_rnsap_EDCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   guint16 binding_id_port;
 
@@ -7834,7 +7825,6 @@ dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   }
 
 
-
   return offset;
 }
 
@@ -7842,7 +7832,6 @@ dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 174 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   proto_item *item;
   proto_tree *subtree, *nsap_tree;
@@ -7884,7 +7873,6 @@ dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     nsap_tree = proto_item_add_subtree(item, ett_rnsap_transportLayerAddress_nsap);
     dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
   }
-
 
 
   return offset;
@@ -8852,7 +8840,6 @@ dissect_rnsap_Additional_EDCH_Setup_Info(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "./asn1/rnsap/rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 	rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
@@ -8881,7 +8868,6 @@ dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
     if (parameter_handle)
       call_dissector(parameter_handle, parameter_tvb, actx->pinfo, tree);
-
 
 
   return offset;
@@ -9690,7 +9676,6 @@ dissect_rnsap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_rnsap_LAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        2, 2, FALSE, &parameter_tvb);
@@ -9700,7 +9685,6 @@ dissect_rnsap_LAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
   }
 
 
-
   return offset;
 }
 
@@ -9708,7 +9692,6 @@ dissect_rnsap_LAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_rnsap_RAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 226 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        1, 1, FALSE, &parameter_tvb);
@@ -9716,7 +9699,6 @@ dissect_rnsap_RAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -28583,7 +28565,6 @@ dissect_rnsap_RANAP_EnhancedRelocationInformationResponse(tvbuff_t *tvb _U_, int
 
 static int
 dissect_rnsap_RANAP_RelocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -28597,7 +28578,6 @@ dissect_rnsap_RANAP_RelocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn
   col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, FALSE);
   call_dissector_only(ranap_handle, parameter_tvb, actx->pinfo, tree, NULL);
   col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, TRUE);
-
 
 
   return offset;
@@ -28957,7 +28937,6 @@ dissect_rnsap_Rx_Timing_Deviation_Value_768(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_rnsap_SAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 235 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        2, 2, FALSE, &parameter_tvb);
@@ -28965,7 +28944,6 @@ dissect_rnsap_SAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -29937,7 +29915,6 @@ dissect_rnsap_SYNC_UL_ProcParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_rnsap_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 244 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        2, 2, FALSE, &parameter_tvb);
@@ -29945,7 +29922,6 @@ dissect_rnsap_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;

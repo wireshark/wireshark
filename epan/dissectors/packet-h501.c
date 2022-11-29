@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h501.c                                                              */
-/* asn2wrs.py -p h501 -c ./h501.cnf -s ./packet-h501-template -D . -O ../.. H501-MESSAGES.asn */
+/* asn2wrs.py -L -p h501 -c ./h501.cnf -s ./packet-h501-template -D . -O ../.. H501-MESSAGES.asn */
 
 /* Input file: packet-h501-template.c */
 
@@ -2344,19 +2344,15 @@ static const per_choice_t MessageBody_choice[] = {
 
 static int
 dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 30 "./asn1/h501/h501.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h501_MessageBody, MessageBody_choice,
                                  &msg_type);
 
-#line 33 "./asn1/h501/h501.cnf"
   p = try_val_to_str(msg_type, VALS(h501_MessageBody_vals));
   if (p )
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
-
   return offset;
 }
 

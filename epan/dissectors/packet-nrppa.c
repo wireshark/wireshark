@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-nrppa.c                                                             */
-/* asn2wrs.py -p nrppa -c ./nrppa.cnf -s ./packet-nrppa-template -D . -O ../.. NRPPA-CommonDataTypes.asn NRPPA-Constants.asn NRPPA-Containers.asn NRPPA-PDU-Descriptions.asn NRPPA-IEs.asn NRPPA-PDU-Contents.asn */
+/* asn2wrs.py -L -p nrppa -c ./nrppa.cnf -s ./packet-nrppa-template -D . -O ../.. NRPPA-CommonDataTypes.asn NRPPA-Constants.asn NRPPA-Containers.asn NRPPA-PDU-Descriptions.asn NRPPA-IEs.asn NRPPA-PDU-Contents.asn */
 
 /* Input file: packet-nrppa-template.c */
 
@@ -1149,11 +1149,9 @@ dissect_nrppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 47 "./asn1/nrppa/nrppa.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, nrppa_ProcedureCode_vals,
                             "unknown message"));
-
   return offset;
 }
 
@@ -1230,11 +1228,9 @@ dissect_nrppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 40 "./asn1/nrppa/nrppa.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nrppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
-
   return offset;
 }
 
@@ -1476,13 +1472,11 @@ static const per_choice_t NRPPA_PDU_choice[] = {
 
 static int
 dissect_nrppa_NRPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "./asn1/nrppa/nrppa.cnf"
 
   proto_tree_add_item(tree, proto_nrppa, tvb, 0, -1, ENC_NA);
   add_per_encoded_label(tvb, actx->pinfo, tree);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "NRPPa");
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_nrppa_NRPPA_PDU, NRPPA_PDU_choice,
                                  NULL);
@@ -4175,7 +4169,6 @@ dissect_nrppa_DLPRSResourceCoordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_nrppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "./asn1/nrppa/nrppa.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        3, 3, FALSE, &parameter_tvb);
@@ -4183,7 +4176,6 @@ dissect_nrppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;

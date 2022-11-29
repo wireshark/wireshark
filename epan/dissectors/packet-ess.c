@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ess.c                                                               */
-/* asn2wrs.py -b -k -C -p ess -c ./ess.cnf -s ./packet-ess-template -D . -O ../.. ExtendedSecurityServices.asn */
+/* asn2wrs.py -b -k -C -L -p ess -c ./ess.cnf -s ./packet-ess-template -D . -O ../.. ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.c */
 
@@ -393,12 +393,10 @@ static const ber_sequence_t Receipt_sequence[] = {
 
 static int
 dissect_ess_Receipt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "./asn1/ess/ess.cnf"
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Signed Receipt");
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Receipt_sequence, hf_index, ett_ess_Receipt);
-
 
 
 
@@ -532,9 +530,7 @@ dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "./asn1/ess/ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -598,7 +594,6 @@ dissect_ess_T_restrictiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "./asn1/ess/ess.cnf"
   tvbuff_t *attributes;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -606,7 +601,6 @@ dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
-
 
 
   return offset;
@@ -640,14 +634,12 @@ dissect_ess_T_tagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/ess/ess.cnf"
   guint32 attribute;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &attribute);
 
   ess_dissect_attribute (attribute, actx);
-
 
 
   return offset;
@@ -694,7 +686,6 @@ dissect_ess_T_permissiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "./asn1/ess/ess.cnf"
   tvbuff_t *attributes;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -702,7 +693,6 @@ dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb 
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
-
 
 
   return offset;
@@ -736,7 +726,6 @@ dissect_ess_T_informativeTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "./asn1/ess/ess.cnf"
   tvbuff_t *attributes;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -744,7 +733,6 @@ dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
-
 
 
   return offset;

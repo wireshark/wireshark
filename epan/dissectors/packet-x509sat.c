@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-x509sat.c                                                           */
-/* asn2wrs.py -b -r Syntax -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . -O ../.. SelectedAttributeTypes.asn */
+/* asn2wrs.py -b -r Syntax -L -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . -O ../.. SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -1451,7 +1451,6 @@ dissect_x509sat_SyntaxGeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_x509sat_SyntaxUTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 378 "./asn1/x509sat/x509sat.cnf"
   char *outstr, *newstr;
   guint32 tvblen;
 
@@ -1461,7 +1460,6 @@ dissect_x509sat_SyntaxUTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
     proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
   }
-
 
 
   return offset;
@@ -1614,7 +1612,6 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 389 "./asn1/x509sat/x509sat.cnf"
   gint8 ber_class;
   gboolean pc;
   gint32 tag;
@@ -1631,7 +1628,6 @@ dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   tvb_get_ntohguid (tvb, offset, &uuid);
   actx->created_item = proto_tree_add_guid(tree, hf_index, tvb, offset, len, &uuid);
-
 
   return offset;
 }

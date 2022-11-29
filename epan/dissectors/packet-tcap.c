@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-tcap.c                                                              */
-/* asn2wrs.py -b -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . -O ../.. tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
+/* asn2wrs.py -b -L -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . -O ../.. tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
 
 /* Input file: packet-tcap-template.c */
 
@@ -272,10 +272,8 @@ dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "./asn1/tcap/tcap.cnf"
 
   offset = dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
-
 
 
   return offset;
@@ -300,11 +298,9 @@ dissect_tcap_ExternalPDU_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/tcap/tcap.cnf"
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_UNI, 8, TRUE, dissect_tcap_ExternalPDU_U);
-
 
 
 
@@ -315,10 +311,8 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 62 "./asn1/tcap/tcap.cnf"
 
   offset = dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
-
 
 
   return offset;
@@ -380,10 +374,8 @@ dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "./asn1/tcap/tcap.cnf"
 
   offset = dissect_tcap_param(actx,tree,tvb,offset);
-
 
 
   return offset;
@@ -652,7 +644,6 @@ static const ber_choice_t Component_choice[] = {
 
 static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "./asn1/tcap/tcap.cnf"
   tvbuff_t *next_tvb;
   gint8 ber_class;
   gboolean pc;
@@ -685,7 +676,6 @@ dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   offset = _offset;
 
 /* return comp_offset+len; or return offset (will be automatically added) */
-
 
 
   return offset;
@@ -743,7 +733,6 @@ dissect_tcap_OCTET_STRING_SIZE_1_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "./asn1/tcap/tcap.cnf"
   tvbuff_t *parameter_tvb;
   guint8 len, i;
   proto_tree *subtree;
@@ -794,7 +783,6 @@ dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   }
 
 
-
   return offset;
 }
 
@@ -808,7 +796,6 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 237 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -819,7 +806,6 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  *  put that info there should call col_set_fence() to protect it.
  */
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
-
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Begin_sequence, hf_index, ett_tcap_Begin);
 
@@ -830,7 +816,6 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 190 "./asn1/tcap/tcap.cnf"
   tvbuff_t *parameter_tvb;
   guint8 len , i;
   proto_tree *subtree;
@@ -880,7 +865,6 @@ dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     }
   }
 
-
   return offset;
 }
 
@@ -894,11 +878,9 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 251 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
-
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    End_sequence, hf_index, ett_tcap_End);
 
@@ -916,11 +898,9 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 258 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
-
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Continue_sequence, hf_index, ett_tcap_Continue);
 
@@ -987,11 +967,9 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 265 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
-
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Abort_sequence, hf_index, ett_tcap_Abort);
 
@@ -1036,7 +1014,6 @@ dissect_tcap_AUDT_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_AUDT_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "./asn1/tcap/tcap.cnf"
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
@@ -1044,7 +1021,6 @@ dissect_tcap_AUDT_application_context_name(gboolean implicit_tag _U_, tvbuff_t *
     p_tcap_private->oid= (const void*) cur_oid;
     p_tcap_private->acv=TRUE;
   }
-
 
   return offset;
 }
@@ -1136,7 +1112,6 @@ dissect_tcap_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_AARQ_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 125 "./asn1/tcap/tcap.cnf"
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
@@ -1144,7 +1119,6 @@ dissect_tcap_AARQ_application_context_name(gboolean implicit_tag _U_, tvbuff_t *
     p_tcap_private->oid= (const void*) cur_oid;
     p_tcap_private->acv=TRUE;
   }
-
 
   return offset;
 }
@@ -1207,7 +1181,6 @@ dissect_tcap_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_AARE_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "./asn1/tcap/tcap.cnf"
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
@@ -1215,7 +1188,6 @@ dissect_tcap_AARE_application_context_name(gboolean implicit_tag _U_, tvbuff_t *
     p_tcap_private->oid= (const void*) cur_oid;
     p_tcap_private->acv=TRUE;
   }
-
 
   return offset;
 }

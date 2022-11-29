@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pres.c                                                              */
-/* asn2wrs.py -b -p pres -c ./pres.cnf -s ./packet-pres-template -D . -O ../.. ISO8823-PRESENTATION.asn ISO9576-PRESENTATION.asn */
+/* asn2wrs.py -b -L -p pres -c ./pres.cnf -s ./packet-pres-template -D . -O ../.. ISO8823-PRESENTATION.asn ISO9576-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */
 
@@ -404,7 +404,6 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "./asn1/pres/pres.cnf"
   const char *name;
   char *oid;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
@@ -421,7 +420,6 @@ dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t
   if(oid && (name = oid_resolved_from_string(actx->pinfo->pool, oid))) {
 	proto_item_append_text(actx->created_item, " (%s)", name);
   }
-
 
 
   return offset;
@@ -468,15 +466,11 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "./asn1/pres/pres.cnf"
 	abstract_syntax_name_oid=NULL;
-
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 100 "./asn1/pres/pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
-
   return offset;
 }
 
@@ -604,7 +598,6 @@ dissect_pres_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "./asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid;
@@ -619,7 +612,6 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 	}
 
 
-
   return offset;
 }
 
@@ -627,7 +619,6 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "./asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid;
@@ -643,7 +634,6 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
                                        NULL);
 
 	}
-
 
 
 
@@ -1056,7 +1046,6 @@ static const value_string pres_Abort_reason_vals[] = {
 
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "./asn1/pres/pres.cnf"
   guint32 reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1064,7 +1053,6 @@ dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(reason, pres_Abort_reason_vals, "unknown: %d"));
-
 
 
   return offset;

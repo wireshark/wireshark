@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cmp.c                                                               */
-/* asn2wrs.py -b -p cmp -c ./cmp.cnf -s ./packet-cmp-template -D . -O ../.. CMP.asn */
+/* asn2wrs.py -b -L -p cmp -c ./cmp.cnf -s ./packet-cmp-template -D . -O ../.. CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
@@ -382,9 +382,7 @@ dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmp_T_infoValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "./asn1/cmp/cmp.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -481,7 +479,6 @@ static const value_string cmp_PKIStatus_vals[] = {
 
 static int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "./asn1/cmp/cmp.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -489,7 +486,6 @@ dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
-
 
 
   return offset;
@@ -1069,7 +1065,6 @@ static const ber_choice_t PKIBody_choice[] = {
 
 static int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 62 "./asn1/cmp/cmp.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1078,7 +1073,6 @@ dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
-
 
 
   return offset;

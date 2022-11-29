@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-goose.c                                                             */
-/* asn2wrs.py -b -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../.. goose.asn */
+/* asn2wrs.py -b -L -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../.. goose.asn */
 
 /* Input file: packet-goose-template.c */
 
@@ -520,7 +520,6 @@ dissect_goose_GSEMngtPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 31 "./asn1/goose/goose.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -556,7 +555,6 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	}
 
 
-
   return offset;
 }
 
@@ -564,7 +562,6 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_goose_T_simulation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 14 "./asn1/goose/goose.cnf"
 	gboolean value;
 	guint32 len = tvb_reported_length_remaining(tvb, offset);
 	int origin_offset = offset;
@@ -580,7 +577,6 @@ dissect_goose_T_simulation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 			proto_tree_add_expert(expert_inf_tree, actx->pinfo, &ei_goose_invalid_sim, tvb, origin_offset, len);
 		}
 	}
-
 
   return offset;
 }
@@ -622,7 +618,6 @@ dissect_goose_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "./asn1/goose/goose.cnf"
 
 	int len = tvb_reported_length_remaining(tvb, offset);
 
@@ -634,7 +629,6 @@ dissect_goose_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		proto_item_set_hidden(actx->created_item);
 		proto_tree_add_item(tree, hf_goose_float_value, tvb, 1, (FLOAT_ENC_LENGTH-1), ENC_BIG_ENDIAN);
 	}
-
 
 
   return offset;

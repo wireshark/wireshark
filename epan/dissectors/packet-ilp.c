@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ilp.c                                                               */
-/* asn2wrs.py -p ilp -c ./ilp.cnf -s ./packet-ilp-template -D . -O ../.. ILP.asn ILP-Components.asn */
+/* asn2wrs.py -L -p ilp -c ./ilp.cnf -s ./packet-ilp-template -D . -O ../.. ILP.asn ILP-Components.asn */
 
 /* Input file: packet-ilp-template.c */
 
@@ -818,7 +818,6 @@ dissect_ilp_SlcSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ilp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 83 "./asn1/ilp/ilp.cnf"
   tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &msisdn_tvb);
@@ -831,7 +830,6 @@ dissect_ilp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   }
 
 
-
   return offset;
 }
 
@@ -839,7 +837,6 @@ dissect_ilp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_ilp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "./asn1/ilp/ilp.cnf"
   tvbuff_t *mdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &mdn_tvb);
@@ -850,7 +847,6 @@ dissect_ilp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
     proto_tree_add_item(subtree, hf_ilp_mobile_directory_number, mdn_tvb, 0, 8, ENC_BCD_DIGITS_0_9);
   }
-
 
 
   return offset;
@@ -870,7 +866,6 @@ dissect_ilp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ilp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "./asn1/ilp/ilp.cnf"
   tvbuff_t *imsi_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &imsi_tvb);
@@ -881,7 +876,6 @@ dissect_ilp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
     subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
     dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
   }
-
 
 
   return offset;
@@ -3965,7 +3959,6 @@ dissect_ilp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 65 "./asn1/ilp/ilp.cnf"
   tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3977,7 +3970,6 @@ dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
-
   return offset;
 }
 
@@ -3985,7 +3977,6 @@ dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ilp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "./asn1/ilp/ilp.cnf"
   tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3995,7 +3986,6 @@ dissect_ilp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if (lpp_tvb && lpp_handle) {
     call_dissector(lpp_handle, lpp_tvb, actx->pinfo, tree);
   }
-
 
 
   return offset;
@@ -4655,7 +4645,6 @@ static const per_choice_t IlpMessage_choice[] = {
 
 static int
 dissect_ilp_IlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "./asn1/ilp/ilp.cnf"
 
 guint32 IlpMessage;
 
@@ -4665,7 +4654,6 @@ guint32 IlpMessage;
 
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
-
 
 
   return offset;
@@ -4682,7 +4670,6 @@ static const per_sequence_t ILP_PDU_sequence[] = {
 
 static int
 dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 40 "./asn1/ilp/ilp.cnf"
   proto_item *it;
   proto_tree *ilp_tree;
 
@@ -4691,11 +4678,8 @@ dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
-
-#line 51 "./asn1/ilp/ilp.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, ilp_tree, hf_index,
                                    ett_ilp_ILP_PDU, ILP_PDU_sequence);
-
 
 
   return offset;

@@ -35,6 +35,10 @@ function(ASN2WRS)
 		endforeach()
 	endforeach()
 
+	if(NOT ENABLE_DEBUG_A2W)
+		set(A2W_FLAGS ${A2W_FLAGS} -L)
+	endif()
+
 	# Creates a dissector in the source directory and store the timestamp.
 	add_custom_command(
 		OUTPUT packet-${PROTOCOL_NAME}-stamp

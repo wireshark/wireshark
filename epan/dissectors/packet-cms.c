@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cms.c                                                               */
-/* asn2wrs.py -b -C -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn */
+/* asn2wrs.py -b -C -L -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn */
 
 /* Input file: packet-cms-template.c */
 
@@ -386,7 +386,6 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->object_identifier_id = NULL;
   const char *name = NULL;
@@ -400,7 +399,6 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   }
 
 
-
   return offset;
 }
 
@@ -408,10 +406,8 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 142 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
 
@@ -427,13 +423,11 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "./asn1/cms/cms.cnf"
   top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
 
   top_tree = NULL;
-
 
 
   return offset;
@@ -485,7 +479,6 @@ dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->content_tvb = NULL;
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &cms_data->content_tvb);
@@ -495,7 +488,6 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
     call_ber_oid_callback(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
   }
-
 
 
   return offset;
@@ -520,7 +512,6 @@ dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 194 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->object_identifier_id = NULL;
   const char *name = NULL;
@@ -534,7 +525,6 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   }
 
 
-
   return offset;
 }
 
@@ -542,11 +532,9 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 206 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
   offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -796,10 +784,8 @@ dissect_cms_CertificateSet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_cms_T_otherRevInfoFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->object_identifier_id = NULL;
-
 
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cms_data->object_identifier_id);
 
@@ -810,10 +796,8 @@ dissect_cms_T_otherRevInfoFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cms_T_otherRevInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 187 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -1139,10 +1123,8 @@ dissect_cms_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 172 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->object_identifier_id = NULL;
-
 
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_ci_contentType, &cms_data->object_identifier_id);
 
@@ -1153,10 +1135,8 @@ dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 176 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -1334,10 +1314,8 @@ dissect_cms_PasswordRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_cms_T_oriType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->object_identifier_id = NULL;
-
 
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cms_data->object_identifier_id);
 
@@ -1348,10 +1326,8 @@ dissect_cms_T_oriType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cms_T_oriValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -1426,20 +1402,16 @@ dissect_cms_ContentEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbu
 
 static int
 dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 261 "./asn1/cms/cms.cnf"
 	tvbuff_t *encrypted_tvb;
 	proto_item *item;
-
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
-#line 266 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
   item = actx->created_item;
 
   PBE_decrypt_data(cms_data->object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
-
 
   return offset;
 }
@@ -1592,7 +1564,6 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 211 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   proto_item *pi;
   int old_offset = offset;
@@ -1609,7 +1580,6 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   if(cms_data->content_tvb)
     cms_verify_msg_digest(pi, cms_data->content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
-
 
 
   return offset;
@@ -1677,7 +1647,6 @@ dissect_cms_KeyWrapAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 251 "./asn1/cms/cms.cnf"
   guint32 length = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1686,7 +1655,6 @@ dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   if(cap_tree != NULL)
     proto_item_append_text(cap_tree, " (%d bits)", length);
-
 
 
   return offset;
@@ -1755,7 +1723,6 @@ dissect_cms_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 230 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   cms_data->object_identifier_id = NULL;
   const char *name = NULL;
@@ -1770,7 +1737,6 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   }
 
 
-
   return offset;
 }
 
@@ -1778,11 +1744,9 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 243 "./asn1/cms/cms.cnf"
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
   offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;

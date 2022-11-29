@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h245.c                                                              */
-/* asn2wrs.py -p h245 -c ./h245.cnf -s ./packet-h245-template -D . -O ../.. MULTIMEDIA-SYSTEM-CONTROL.asn */
+/* asn2wrs.py -L -p h245 -c ./h245.cnf -s ./packet-h245-template -D . -O ../.. MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.c */
 
@@ -2498,18 +2498,14 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 966 "./asn1/h245/h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
-#line 970 "./asn1/h245/h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
-
   return offset;
 }
 
@@ -2528,7 +2524,6 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 947 "./asn1/h245/h245.cnf"
 	gint32 value;
 
 	nsiOID = "";
@@ -2549,7 +2544,6 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 			nsp_handle = NULL;
     }
 
-
   return offset;
 }
 
@@ -2557,7 +2551,6 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_T_nsd_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 981 "./asn1/h245/h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2566,7 +2559,6 @@ dissect_h245_T_nsd_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   if (next_tvb && tvb_reported_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, actx->pinfo, tree);
   }
-
 
   return offset;
 }
@@ -2580,9 +2572,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 979 "./asn1/h245/h245.cnf"
   nsp_handle = NULL;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_NonStandardParameter, NonStandardParameter_sequence);
 
@@ -2635,11 +2625,9 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
-#line 535 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_MastSlvDet;
-
   return offset;
 }
 
@@ -3533,7 +3521,6 @@ dissect_h245_T_t38fax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_h245_T_standardOid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 693 "./asn1/h245/h245.cnf"
   const gchar *standard_oid_str = NULL;
   gef_ctx_t *gefx;
 
@@ -3549,7 +3536,6 @@ dissect_h245_T_standardOid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
 	h245_lc_dissector = amr_handle;
-
 
   return offset;
 }
@@ -3593,16 +3579,13 @@ static const per_choice_t CapabilityIdentifier_choice[] = {
 
 static int
 dissect_h245_CapabilityIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 678 "./asn1/h245/h245.cnf"
   gef_ctx_t *gefx;
   proto_item* ti;
-
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice,
                                  NULL);
 
-#line 682 "./asn1/h245/h245.cnf"
   gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
@@ -3611,7 +3594,6 @@ dissect_h245_CapabilityIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
     dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
-
   return offset;
 }
 
@@ -3629,7 +3611,6 @@ dissect_h245_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 724 "./asn1/h245/h245.cnf"
   guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
@@ -3638,7 +3619,6 @@ dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) gefx->id = wmem_strdup_printf(actx->pinfo->pool, "%d", value_int);
-
 
   return offset;
 }
@@ -3662,15 +3642,12 @@ static const per_choice_t ParameterIdentifier_choice[] = {
 
 static int
 dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 710 "./asn1/h245/h245.cnf"
   gef_ctx_t *gefx;
   proto_item* ti;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ParameterIdentifier, ParameterIdentifier_choice,
                                  NULL);
 
-#line 713 "./asn1/h245/h245.cnf"
   gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
@@ -3679,7 +3656,6 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, FALSE, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
-
   return offset;
 }
 
@@ -3687,7 +3663,6 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 733 "./asn1/h245/h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3708,7 +3683,6 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, FALSE, actx);
   }
 
-
   return offset;
 }
 
@@ -3716,7 +3690,6 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 752 "./asn1/h245/h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3737,7 +3710,6 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
 
-
   return offset;
 }
 
@@ -3745,7 +3717,6 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 771 "./asn1/h245/h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3766,7 +3737,6 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
 
-
   return offset;
 }
 
@@ -3774,7 +3744,6 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 790 "./asn1/h245/h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3795,7 +3764,6 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
 
-
   return offset;
 }
 
@@ -3803,7 +3771,6 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 809 "./asn1/h245/h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3824,7 +3791,6 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
 
-
   return offset;
 }
 
@@ -3832,7 +3798,6 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_h245_T_octetString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 828 "./asn1/h245/h245.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
   proto_item* ti;
@@ -3846,7 +3811,6 @@ dissect_h245_T_octetString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 	proto_item_set_hidden(ti);
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
-
 
   return offset;
 }
@@ -3931,17 +3895,13 @@ dissect_h245_GenericParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_T_collapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 633 "./asn1/h245/h245.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
   actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "collapsing");
-
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
-#line 638 "./asn1/h245/h245.cnf"
   actx->private_data = parent_gefx;
-
   return offset;
 }
 
@@ -3962,17 +3922,13 @@ dissect_h245_T_collapsing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_T_nonCollapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 642 "./asn1/h245/h245.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
   actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "nonCollapsing");
-
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
-#line 647 "./asn1/h245/h245.cnf"
   actx->private_data = parent_gefx;
-
   return offset;
 }
 
@@ -3993,7 +3949,6 @@ dissect_h245_T_nonCollapsing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_h245_T_nonCollapsingRaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 651 "./asn1/h245/h245.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *parent_gefx;
   gef_ctx_t *gefx;
@@ -4012,7 +3967,6 @@ dissect_h245_T_nonCollapsingRaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   }
   actx->private_data = parent_gefx;
 
-
   return offset;
 }
 
@@ -4029,16 +3983,12 @@ static const per_sequence_t GenericCapability_sequence[] = {
 
 static int
 dissect_h245_GenericCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 626 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericCapability");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericCapability, GenericCapability_sequence);
 
-#line 629 "./asn1/h245/h245.cnf"
   actx->private_data = priv_data;
-
   return offset;
 }
 
@@ -4081,7 +4031,6 @@ static const per_choice_t Application_choice[] = {
 
 static int
 dissect_h245_Application(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 465 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -4089,7 +4038,6 @@ dissect_h245_Application(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  &value);
 
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
-
 
   return offset;
 }
@@ -4225,7 +4173,6 @@ dissect_h245_T_payloadDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_T_rtpPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 932 "./asn1/h245/h245.cnf"
   unsigned int pt;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -4235,7 +4182,6 @@ dissect_h245_T_rtpPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if ((rfc_number == 2198) && upcoming_channel) {
     upcoming_channel->rfc2198 = pt;
   }
-
 
   return offset;
 }
@@ -4249,9 +4195,7 @@ static const per_sequence_t RTPPayloadType_sequence[] = {
 
 static int
 dissect_h245_RTPPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 924 "./asn1/h245/h245.cnf"
   rfc_number = 0;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_RTPPayloadType, RTPPayloadType_sequence);
 
@@ -5645,9 +5589,7 @@ dissect_h245_H263VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H263VideoCapability, H263VideoCapability_sequence);
 
-#line 363 "./asn1/h245/h245.cnf"
   h245_lc_dissector = h263_handle;
-
   return offset;
 }
 
@@ -5738,7 +5680,6 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 457 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5746,7 +5687,6 @@ dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                  &value);
 
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
-
 
 
   return offset;
@@ -6056,7 +5996,6 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 450 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -6064,7 +6003,6 @@ dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                  &value);
 
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
-
 
   return offset;
 }
@@ -6635,7 +6573,6 @@ dissect_h245_SET_SIZE_1_256_OF_CapabilityDescriptor(tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 582 "./asn1/h245/h245.cnf"
   guint32 subMessageIdentifier;
   gef_ctx_t *gefx;
 
@@ -6662,7 +6599,6 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     snprintf(h245_pi->frame_label, 50, "%s", val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
   }
 
-
   return offset;
 }
 
@@ -6670,17 +6606,13 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_h245_T_messageContent_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 608 "./asn1/h245/h245.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
   actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, NULL);
-
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
-#line 613 "./asn1/h245/h245.cnf"
   actx->private_data = parent_gefx;
-
   return offset;
 }
 
@@ -6707,7 +6639,6 @@ static const per_sequence_t GenericMessage_sequence[] = {
 
 static int
 dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 568 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
   gef_ctx_t *gefx;
 
@@ -6717,13 +6648,10 @@ dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     gefx = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericMessage");
     actx->private_data = gefx;
   }
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericMessage, GenericMessage_sequence);
 
-#line 578 "./asn1/h245/h245.cnf"
   actx->private_data = priv_data;
-
   return offset;
 }
 
@@ -6731,15 +6659,11 @@ dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_GenericInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 618 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericInformation");
-
   offset = dissect_h245_GenericMessage(tvb, offset, actx, tree, hf_index);
 
-#line 621 "./asn1/h245/h245.cnf"
   actx->private_data = priv_data;
-
   return offset;
 }
 
@@ -6772,11 +6696,9 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
-#line 553 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_TermCapSet;
-
   return offset;
 }
 
@@ -6784,13 +6706,11 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_LogicalChannelNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "./asn1/h245/h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 65535U, &value, FALSE);
 
   h245_lc_temp = value & 0xfff;
-
 
   return offset;
 }
@@ -6801,10 +6721,8 @@ static int
 dissect_h245_OLC_fw_lcn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 163 "./asn1/h245/h245.cnf"
   if (upcoming_olc) upcoming_olc->fwd_lc_num = h245_lc_temp;
   h223_fw_lc_num = h245_lc_temp;
-
   return offset;
 }
 
@@ -7236,7 +7154,6 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1007 "./asn1/h245/h245.cnf"
 gint choice_index;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -7251,7 +7168,6 @@ if (upcoming_channel){
 		upcoming_channel->is_video=FALSE;
 	}
 }
-
 
 
   return offset;
@@ -7289,10 +7205,8 @@ dissect_h245_H222LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_h245_T_h223_al_type_al1Framed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 294 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1Framed;
-
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7302,10 +7216,8 @@ dissect_h245_T_h223_al_type_al1Framed(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_h245_T_h223_al_type_al1NotFramed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 299 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1NotFramed;
-
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7315,10 +7227,8 @@ dissect_h245_T_h223_al_type_al1NotFramed(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_h245_T_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 304 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithoutSequenceNumbers;
-
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7328,10 +7238,8 @@ dissect_h245_T_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb _U_, int off
 
 static int
 dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithSequenceNumbers;
-
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7341,14 +7249,12 @@ dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_h245_T_controlFieldOctets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 323 "./asn1/h245/h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 2U, &value, FALSE);
 
   if(h223_lc_params_temp && h223_lc_params_temp->al_params)
 	((h223_al3_params*)h223_lc_params_temp->al_params)->control_field_octets = value & 3 ;
-
 
   return offset;
 }
@@ -7357,14 +7263,12 @@ dissect_h245_T_controlFieldOctets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_h245_T_al3_sendBufferSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 332 "./asn1/h245/h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 16777215U, &value, FALSE);
 
   if(h223_lc_params_temp && h223_lc_params_temp->al_params)
 	((h223_al3_params*)h223_lc_params_temp->al_params)->send_buffer_size = value & 0xfffff;
-
 
   return offset;
 }
@@ -7388,12 +7292,10 @@ dissect_h245_Al3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 static int
 dissect_h245_T_h223_al_type_al3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 314 "./asn1/h245/h245.cnf"
  if(h223_lc_params_temp) {
 	h223_lc_params_temp->al_type = al3;
 	h223_lc_params_temp->al_params = wmem_new(wmem_file_scope(), h223_al3_params);
   }
-
   offset = dissect_h245_Al3(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7583,10 +7485,8 @@ dissect_h245_H223AL1MParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h245_T_h223_al_type_al1M(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 339 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1M;
-
   offset = dissect_h245_H223AL1MParameters(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7633,10 +7533,8 @@ dissect_h245_H223AL2MParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h245_T_h223_al_type_al2M(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 344 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2M;
-
   offset = dissect_h245_H223AL2MParameters(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7721,10 +7619,8 @@ dissect_h245_H223AL3MParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h245_T_h223_al_type_al3M(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 349 "./asn1/h245/h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al3M;
-
   offset = dissect_h245_H223AL3MParameters(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7770,13 +7666,11 @@ dissect_h245_T_adaptationLayerType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_T_h223_lc_segmentableFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 356 "./asn1/h245/h245.cnf"
   gboolean value;
   offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &value);
 
   if(h223_lc_params_temp)
 	h223_lc_params_temp->segmentable = value;
-
 
   return offset;
 }
@@ -7800,14 +7694,12 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_h245_OLC_fw_h223_params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 185 "./asn1/h245/h245.cnf"
   h223_fw_lc_params = wmem_new(wmem_file_scope(), h223_lc_params);
   h223_fw_lc_params->al_type = al_nonStandard;
   h223_fw_lc_params->al_params = NULL;
   h223_fw_lc_params->segmentable = 0;
   h223_fw_lc_params->subdissector = NULL;
   h223_lc_params_temp = h223_fw_lc_params;
-
   offset = dissect_h245_H223LogicalChannelParameters(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -7974,7 +7866,6 @@ dissect_h245_V76LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 845 "./asn1/h245/h245.cnf"
   tvbuff_t *value_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -7986,7 +7877,6 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
     set_address(&upcoming_channel->upcoming_addr->addr, AT_IPv4, 4, upcoming_channel->upcoming_addr->addr_buf);
   }
 
-
   return offset;
 }
 
@@ -7994,7 +7884,6 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_TsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 856 "./asn1/h245/h245.cnf"
   guint32 tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -8004,7 +7893,6 @@ dissect_h245_TsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   if (upcoming_channel && upcoming_channel->upcoming_addr) {
     upcoming_channel->upcoming_addr->port = tsapIdentifier;
   }
-
 
   return offset;
 }
@@ -8074,7 +7962,6 @@ dissect_h245_T_iPXAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_T_ip6_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 866 "./asn1/h245/h245.cnf"
   tvbuff_t *value_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -8086,7 +7973,6 @@ dissect_h245_T_ip6_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     set_address(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
   }
 
-
   return offset;
 }
 
@@ -8094,7 +7980,6 @@ dissect_h245_T_ip6_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_ipv6_tsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 877 "./asn1/h245/h245.cnf"
   guint32 tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -8104,7 +7989,6 @@ dissect_h245_T_ipv6_tsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   if (upcoming_channel && upcoming_channel->upcoming_addr) {
     upcoming_channel->upcoming_addr->port = tsapIdentifier;
   }
-
 
   return offset;
 }
@@ -8290,16 +8174,12 @@ dissect_h245_TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_T_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 896 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
-
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 900 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
-
   return offset;
 }
 
@@ -8307,16 +8187,12 @@ dissect_h245_T_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_T_mediaControlChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 914 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
-
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 918 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
-
   return offset;
 }
 
@@ -8444,7 +8320,6 @@ static const per_sequence_t T_forwardLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 168 "./asn1/h245/h245.cnf"
 
   upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
 
@@ -8462,7 +8337,6 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_
   }
   upcoming_channel = NULL;
 
-
   return offset;
 }
 
@@ -8470,14 +8344,12 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_h245_OLC_rev_h223_params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 206 "./asn1/h245/h245.cnf"
   h223_rev_lc_params = wmem_new(wmem_file_scope(), h223_lc_params);
   h223_rev_lc_params->al_type = al_nonStandard;
   h223_rev_lc_params->al_params = NULL;
   h223_rev_lc_params->segmentable = 0;
   h223_rev_lc_params->subdissector = NULL;
   h223_lc_params_temp = h223_rev_lc_params;
-
   offset = dissect_h245_H223LogicalChannelParameters(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -8518,7 +8390,6 @@ static const per_sequence_t OLC_reverseLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_OLC_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 194 "./asn1/h245/h245.cnf"
 
   upcoming_channel = (upcoming_olc) ? &upcoming_olc->rev_lc : NULL;
 
@@ -8530,7 +8401,6 @@ dissect_h245_OLC_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _
     (void) g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
   upcoming_channel = NULL;
-
 
   return offset;
 }
@@ -8705,16 +8575,12 @@ static const per_sequence_t EncryptionSync_sequence[] = {
 
 static int
 dissect_h245_EncryptionSync(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 670 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "EncryptionSync");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_EncryptionSync, EncryptionSync_sequence);
 
-#line 673 "./asn1/h245/h245.cnf"
   actx->private_data = priv_data;
-
   return offset;
 }
 
@@ -8731,7 +8597,6 @@ static const per_sequence_t OpenLogicalChannel_sequence[] = {
 
 int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 129 "./asn1/h245/h245.cnf"
   gint32 temp;
 
   upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(wmem_file_scope(), olc_info_t) : NULL;
@@ -8765,7 +8630,6 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_OpenLogChn;
-
 
   return offset;
 }
@@ -8831,11 +8695,9 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
-#line 511 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_CloseLogChn;
-
   return offset;
 }
 
@@ -8887,13 +8749,11 @@ dissect_h245_RequestChannelClose(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 65 "./asn1/h245/h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 15U, &value, FALSE);
 
   h223_mc = value & 0xf;
-
 
   return offset;
 }
@@ -8902,7 +8762,6 @@ dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h245_T_logicalChannelNum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "./asn1/h245/h245.cnf"
   /*MultiplexElement/type/logicalChannelNumber*/
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -8910,7 +8769,6 @@ dissect_h245_T_logicalChannelNum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   h223_me->sublist = NULL;
   h223_me->vc = value & 0xffff;
-
 
   return offset;
 }
@@ -8922,7 +8780,6 @@ static const per_sequence_t T_subElementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_subElementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "./asn1/h245/h245.cnf"
   h223_mux_element dummy_me, *parent_me = h223_me;
   memset (&dummy_me, 0, sizeof (h223_mux_element));
   h223_me = &dummy_me;
@@ -8933,7 +8790,6 @@ dissect_h245_T_subElementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   parent_me->sublist = dummy_me.next;
   h223_me = parent_me;
   h223_me->vc = 0;
-
 
   return offset;
 }
@@ -8964,13 +8820,11 @@ dissect_h245_Me_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_h245_ME_finiteRepeatCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "./asn1/h245/h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 65535U, &value, FALSE);
 
   h223_me->repeat_count = value & 0xffff;
-
 
   return offset;
 }
@@ -8981,9 +8835,7 @@ static int
 dissect_h245_T_untilClosingFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
-#line 110 "./asn1/h245/h245.cnf"
   h223_me->repeat_count = 0;
-
   return offset;
 }
 
@@ -9018,13 +8870,11 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "./asn1/h245/h245.cnf"
   /*MultiplexElement*/
   h223_mux_element* me = wmem_new(wmem_file_scope(), h223_mux_element);
   h223_me->next = me;
   h223_me = me;
   h223_me->next = NULL;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MultiplexElement, MultiplexElement_sequence);
 
@@ -9038,7 +8888,6 @@ static const per_sequence_t T_elementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_elementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "./asn1/h245/h245.cnf"
   /* create a h223_mux_element to hold onto the head of the list, since
    * h223_me will track the tail */
   h223_mux_element dummy_me;
@@ -9050,7 +8899,6 @@ dissect_h245_T_elementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   /* set h223_me to the head of the list for MEDescriptor to pick up */
   h223_me = dummy_me.next;
-
 
   return offset;
 }
@@ -9064,7 +8912,6 @@ static const per_sequence_t MultiplexEntryDescriptor_sequence[] = {
 
 static int
 dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "./asn1/h245/h245.cnf"
   /*MultiplexEntryDescriptor*/
   h223_me = NULL;
   h223_mc = 0;
@@ -9074,7 +8921,6 @@ dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   if(h223_set_mc_handle)
     (*h223_set_mc_handle)(actx->pinfo, h223_mc, h223_me);
  /* stuff */
-
 
   return offset;
 }
@@ -9329,7 +9175,6 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 479 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9337,7 +9182,6 @@ dissect_h245_VideoMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                  &value);
 
   codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
-
 
   return offset;
 }
@@ -9655,7 +9499,6 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 472 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9663,7 +9506,6 @@ dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                  &value);
 
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
-
 
   return offset;
 }
@@ -9722,7 +9564,6 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 486 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9730,7 +9571,6 @@ dissect_h245_DataModeApplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  &value);
 
   codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
-
 
   return offset;
 }
@@ -10709,7 +10549,6 @@ static const per_choice_t RequestMessage_choice[] = {
 
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 367 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -10741,7 +10580,6 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
       }
     }
     (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
-
 
   return offset;
 }
@@ -10779,11 +10617,9 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb _U_, int offset _U_, asn1
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
-#line 493 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_MastSlvDetAck;
-
   return offset;
 }
 
@@ -10818,11 +10654,9 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb _U_, int offset _U_, a
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
 
-#line 499 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_MastSlvDetRjc;
-
   return offset;
 }
 
@@ -10838,11 +10672,9 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
 
-#line 529 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_TermCapSetAck;
-
   return offset;
 }
 
@@ -10907,11 +10739,9 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb _U_, int offset _U_, asn1
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
 
-#line 541 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_TermCapSetRjc;
-
   return offset;
 }
 
@@ -10921,10 +10751,8 @@ static int
 dissect_h245_OLC_ack_fw_lcn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 274 "./asn1/h245/h245.cnf"
   if (upcoming_olc) upcoming_olc->fwd_lc_num = h245_lc_temp;
   h223_fw_lc_num = h245_lc_temp;
-
   return offset;
 }
 
@@ -10934,9 +10762,7 @@ static int
 dissect_h245_T_reverseLogicalChannelNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 288 "./asn1/h245/h245.cnf"
   h223_rev_lc_num = h245_lc_temp;
-
   return offset;
 }
 
@@ -10983,16 +10809,12 @@ dissect_h245_OLC_ack_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_h245_Ack_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 887 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
-
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 891 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
-
   return offset;
 }
 
@@ -11000,16 +10822,12 @@ dissect_h245_Ack_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 905 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
-
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 909 "./asn1/h245/h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
-
   return offset;
 }
 
@@ -11046,7 +10864,6 @@ static const per_choice_t T_forwardMultiplexAckParameters_choice[] = {
 
 static int
 dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 279 "./asn1/h245/h245.cnf"
 
   upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
 
@@ -11056,7 +10873,6 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb _U_, int offset _U_, 
 
 
   upcoming_channel = NULL;
-
 
   return offset;
 }
@@ -11074,7 +10890,6 @@ static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
 
 static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 218 "./asn1/h245/h245.cnf"
   guint32 temp;
   int p2p_dir;
   h223_pending_olc *pend;
@@ -11130,7 +10945,6 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   if (h245_pi != NULL)
 	h245_pi->msg_type = H245_OpenLogChnAck;
-
 
   return offset;
 }
@@ -11198,11 +11012,9 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
-#line 505 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_OpenLogChnRjc;
-
   return offset;
 }
 
@@ -11217,11 +11029,9 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
 
-#line 517 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_CloseLogChnAck;
-
   return offset;
 }
 
@@ -12341,7 +12151,6 @@ static const per_choice_t ResponseMessage_choice[] = {
 
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 398 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -12358,7 +12167,6 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 		}
 		(void) g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
 	}
-
 
 
   return offset;
@@ -13373,7 +13181,6 @@ static const per_choice_t CommandMessage_choice[] = {
 
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 433 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -13390,7 +13197,6 @@ dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
       }
 	  (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
     }
-
 
 
   return offset;
@@ -13430,11 +13236,9 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb _U_, int offset _U_, 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
-#line 547 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_MastSlvDetRls;
-
   return offset;
 }
 
@@ -13449,11 +13253,9 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb _U_, int offset _U_, asn
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
-#line 559 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_TermCapSetRls;
-
   return offset;
 }
 
@@ -13469,11 +13271,9 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
-#line 523 "./asn1/h245/h245.cnf"
 
   if (h245_pi != NULL)
     h245_pi->msg_type = H245_OpenLogChnCnf;
-
   return offset;
 }
 
@@ -14242,7 +14042,6 @@ dissect_h245_FunctionNotSupportedCause(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h245_T_returnedFunction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 990 "./asn1/h245/h245.cnf"
   tvbuff_t *next_tvb = NULL;
   proto_item *item;
   proto_tree *subtree;
@@ -14260,7 +14059,6 @@ dissect_h245_T_returnedFunction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 	dissect_h245_MultimediaSystemControlMessage(next_tvb, 0, actx, subtree, hf_h245_pdu_type);
 	h245_pi = saved_h245_pi;
  }
-
 
 
   return offset;
@@ -14434,7 +14232,6 @@ static const per_choice_t IndicationMessage_choice[] = {
 
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 415 "./asn1/h245/h245.cnf"
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -14452,7 +14249,6 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
       (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
 
     }
-
 
 
   return offset;

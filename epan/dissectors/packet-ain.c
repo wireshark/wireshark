@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ain.c                                                               */
-/* asn2wrs.py -b -p ain -c ./ain.cnf -s ./packet-ain-template -D . -O ../.. AIN-Operations.asn AIN-Errors.asn AIN-Parameters.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
+/* asn2wrs.py -b -L -p ain -c ./ain.cnf -s ./packet-ain-template -D . -O ../.. AIN-Operations.asn AIN-Errors.asn AIN-Parameters.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
 /* Input file: packet-ain-template.c */
 
@@ -943,7 +943,6 @@ dissect_ain_SpcID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 188 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
@@ -961,7 +960,6 @@ dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   proto_tree_add_item(subtree, hf_ain_numbering_plan, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
 
   proto_tree_add_item(subtree, hf_ain_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
-
 
 
   return offset;
@@ -1145,9 +1143,7 @@ dissect_ain_T_assignmentAuthority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_ain_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 185 "./asn1/ain/ain.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -1546,7 +1542,6 @@ dissect_ain_CollectedAddressInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 205 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
@@ -1566,7 +1561,6 @@ dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   /* 2nd Digit 1st Digit .. */
   proto_tree_add_item(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb, 2), ENC_BCD_DIGITS_0_9);
-
 
 
   return offset;
@@ -3209,7 +3203,6 @@ dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 224 "./asn1/ain/ain.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
@@ -3223,7 +3216,6 @@ dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   subtree = proto_item_add_subtree(actx->created_item, ett_ain_amaslpid);
 
   proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9);
-
 
 
   return offset;
@@ -8142,7 +8134,6 @@ dissect_ain_PAR_failureReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_ain_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 140 "./asn1/ain/ain.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
@@ -8156,7 +8147,6 @@ dissect_ain_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }
-
 
 
   return offset;
@@ -8251,10 +8241,8 @@ dissect_ain_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "./asn1/ain/ain.cnf"
 
   offset = dissect_invokeData(tree, tvb, offset, actx);
-
 
 
   return offset;
@@ -8271,10 +8259,8 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_ain_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 153 "./asn1/ain/ain.cnf"
 
   ain_opcode_type=AIN_OPCODE_INVOKE;
-
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Invoke_sequence, hf_index, ett_ain_Invoke);
@@ -8286,10 +8272,8 @@ dissect_ain_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ain_T_result_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 173 "./asn1/ain/ain.cnf"
 
   offset = dissect_returnResultData(tree, tvb, offset, actx);
-
 
 
   return offset;
@@ -8319,10 +8303,8 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_ain_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 157 "./asn1/ain/ain.cnf"
 
   ain_opcode_type=AIN_OPCODE_RETURN_RESULT;
-
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnResult_sequence, hf_index, ett_ain_ReturnResult);
@@ -8334,10 +8316,8 @@ dissect_ain_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_ain_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 177 "./asn1/ain/ain.cnf"
 
   offset = dissect_returnErrorData(tree, tvb, offset, actx);
-
 
 
   return offset;
@@ -8353,10 +8333,8 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_ain_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "./asn1/ain/ain.cnf"
 
   ain_opcode_type=AIN_OPCODE_RETURN_ERROR;
-
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnError_sequence, hf_index, ett_ain_ReturnError);
@@ -8474,10 +8452,8 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_ain_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "./asn1/ain/ain.cnf"
 
   ain_opcode_type=AIN_OPCODE_REJECT;
-
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Reject_sequence, hf_index, ett_ain_Reject);

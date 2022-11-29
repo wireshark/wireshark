@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lix2.c                                                              */
-/* asn2wrs.py -b -p lix2 -c ./lix2.cnf -s ./packet-lix2-template -D . -O ../.. lix2.asn */
+/* asn2wrs.py -b -L -p lix2 -c ./lix2.cnf -s ./packet-lix2-template -D . -O ../.. lix2.asn */
 
 /* Input file: packet-lix2-template.c */
 

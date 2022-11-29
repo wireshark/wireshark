@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ulp.c                                                               */
-/* asn2wrs.py -p ulp -c ./ulp.cnf -s ./packet-ulp-template -D . -O ../.. ULP.asn SUPL.asn ULP-Components.asn */
+/* asn2wrs.py -L -p ulp -c ./ulp.cnf -s ./packet-ulp-template -D . -O ../.. ULP.asn SUPL.asn ULP-Components.asn */
 
 /* Input file: packet-ulp-template.c */
 
@@ -1331,7 +1331,6 @@ dissect_ulp_Version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 293 "./asn1/ulp/ulp.cnf"
   tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &msisdn_tvb);
@@ -1344,7 +1343,6 @@ dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   }
 
 
-
   return offset;
 }
 
@@ -1352,7 +1350,6 @@ dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_ulp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 303 "./asn1/ulp/ulp.cnf"
   tvbuff_t *mdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &mdn_tvb);
@@ -1363,7 +1360,6 @@ dissect_ulp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
     proto_tree_add_item(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, ENC_BCD_DIGITS_0_9);
   }
-
 
 
   return offset;
@@ -1383,7 +1379,6 @@ dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 313 "./asn1/ulp/ulp.cnf"
   tvbuff_t *imsi_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &imsi_tvb);
@@ -1394,7 +1389,6 @@ dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
     dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
   }
-
 
 
   return offset;
@@ -1634,7 +1628,6 @@ static const value_string ulp_EncodingType_vals[] = {
 
 static int
 dissect_ulp_EncodingType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 61 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -1644,7 +1637,6 @@ dissect_ulp_EncodingType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   ulp_priv->notif_enc_type = (guint8) val;
 
 
-
   return offset;
 }
 
@@ -1652,7 +1644,6 @@ dissect_ulp_EncodingType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_requestorId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
@@ -1684,7 +1675,6 @@ dissect_ulp_T_requestorId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
-
   return offset;
 }
 
@@ -1714,7 +1704,6 @@ dissect_ulp_FormatIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_ulp_T_clientName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
@@ -1744,7 +1733,6 @@ dissect_ulp_T_clientName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
         break;
     }
   }
-
 
 
   return offset;
@@ -1787,13 +1775,11 @@ static const per_sequence_t Notification_sequence[] = {
 
 static int
 dissect_ulp_Notification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "./asn1/ulp/ulp.cnf"
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
   ulp_priv->notif_enc_type = -1;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ulp_Notification, Notification_sequence);
-
 
 
 
@@ -1943,7 +1929,6 @@ dissect_ulp_SupportedWLANInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ulp_T_apMACAddress_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 549 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -1952,7 +1937,6 @@ dissect_ulp_T_apMACAddress_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if (val_tvb) {
     proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
   }
-
 
 
   return offset;
@@ -2372,7 +2356,6 @@ dissect_ulp_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_ganssSBASid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 191 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -2381,7 +2364,6 @@ dissect_ulp_T_ganssSBASid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   if (val_tvb) {
     proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 3, ENC_NA);
   }
-
 
 
   return offset;
@@ -3825,7 +3807,6 @@ dissect_ulp_LteCellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ulp_T_apMACAddress_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 566 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -3834,7 +3815,6 @@ dissect_ulp_T_apMACAddress_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if (val_tvb) {
     proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
   }
-
 
 
   return offset;
@@ -4090,7 +4070,6 @@ dissect_ulp_INTEGER_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_apSSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 613 "./asn1/ulp/ulp.cnf"
   tvbuff_t *ssid_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
@@ -4099,7 +4078,6 @@ dissect_ulp_T_apSSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   if (ssid_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
   }
-
 
 
   return offset;
@@ -4133,7 +4111,6 @@ dissect_ulp_T_apPHYType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_setMACAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 624 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4142,7 +4119,6 @@ dissect_ulp_T_setMACAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   if (val_tvb) {
     proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
   }
-
 
 
   return offset;
@@ -4570,7 +4546,6 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_msisdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 689 "./asn1/ulp/ulp.cnf"
   tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &msisdn_tvb);
@@ -4583,7 +4558,6 @@ dissect_ulp_T_msisdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   }
 
 
-
   return offset;
 }
 
@@ -4591,11 +4565,9 @@ dissect_ulp_T_msisdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 700 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
-
 
   return offset;
 }
@@ -4604,11 +4576,9 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 705 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
-
 
   return offset;
 }
@@ -4617,7 +4587,6 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 709 "./asn1/ulp/ulp.cnf"
   tvbuff_t *mdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &mdn_tvb);
@@ -4630,7 +4599,6 @@ dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   }
 
 
-
   return offset;
 }
 
@@ -4638,11 +4606,9 @@ dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 720 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
-
 
 
   return offset;
@@ -4869,7 +4835,6 @@ dissect_ulp_PositionEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_ulp_T_bearing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 381 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4880,7 +4845,6 @@ dissect_ulp_T_bearing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   }
 
 
-
   return offset;
 }
 
@@ -4888,7 +4852,6 @@ dissect_ulp_T_bearing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_horspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 392 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4897,7 +4860,6 @@ dissect_ulp_T_horspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   if (val_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -4922,7 +4884,6 @@ dissect_ulp_Horvel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
 static int
 dissect_ulp_T_verdirect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 403 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4933,7 +4894,6 @@ dissect_ulp_T_verdirect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   }
 
 
-
   return offset;
 }
 
@@ -4941,7 +4901,6 @@ dissect_ulp_T_verdirect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_bearing_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 414 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4952,7 +4911,6 @@ dissect_ulp_T_bearing_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   }
 
 
-
   return offset;
 }
 
@@ -4960,7 +4918,6 @@ dissect_ulp_T_bearing_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_horspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 425 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4971,7 +4928,6 @@ dissect_ulp_T_horspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
-
   return offset;
 }
 
@@ -4979,7 +4935,6 @@ dissect_ulp_T_horspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_verspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 436 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4988,7 +4943,6 @@ dissect_ulp_T_verspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   if (val_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -5015,7 +4969,6 @@ dissect_ulp_Horandvervel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_bearing_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 447 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5026,7 +4979,6 @@ dissect_ulp_T_bearing_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   }
 
 
-
   return offset;
 }
 
@@ -5034,7 +4986,6 @@ dissect_ulp_T_bearing_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_horspeed_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 458 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5045,7 +4996,6 @@ dissect_ulp_T_horspeed_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
-
   return offset;
 }
 
@@ -5053,7 +5003,6 @@ dissect_ulp_T_horspeed_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_uncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 469 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5062,7 +5011,6 @@ dissect_ulp_T_uncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   if (val_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -5088,7 +5036,6 @@ dissect_ulp_Horveluncert(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_verdirect_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 480 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5099,7 +5046,6 @@ dissect_ulp_T_verdirect_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   }
 
 
-
   return offset;
 }
 
@@ -5107,7 +5053,6 @@ dissect_ulp_T_verdirect_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ulp_T_bearing_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 491 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5118,7 +5063,6 @@ dissect_ulp_T_bearing_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   }
 
 
-
   return offset;
 }
 
@@ -5126,7 +5070,6 @@ dissect_ulp_T_bearing_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_horspeed_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 502 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5137,7 +5080,6 @@ dissect_ulp_T_horspeed_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
-
   return offset;
 }
 
@@ -5145,7 +5087,6 @@ dissect_ulp_T_horspeed_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_verspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 513 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5154,7 +5095,6 @@ dissect_ulp_T_verspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   if (val_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -5164,7 +5104,6 @@ dissect_ulp_T_verspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_horuncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 524 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5173,7 +5112,6 @@ dissect_ulp_T_horuncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   if (val_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -5183,7 +5121,6 @@ dissect_ulp_T_horuncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_ulp_T_veruncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 535 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5192,7 +5129,6 @@ dissect_ulp_T_veruncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   if (val_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -5507,7 +5443,6 @@ dissect_ulp_GanssRequestedCommonAssistanceDataList(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ulp_T_ganssId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 202 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -5517,7 +5452,6 @@ dissect_ulp_T_ganssId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   ulp_priv->ganss_req_gen_data_ganss_id = (guint8) val;
 
 
-
   return offset;
 }
 
@@ -5525,7 +5459,6 @@ dissect_ulp_T_ganssId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ganssSBASid_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 212 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5534,7 +5467,6 @@ dissect_ulp_T_ganssSBASid_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   if (val_tvb) {
     proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 3, ENC_NA);
   }
-
 
 
   return offset;
@@ -5554,7 +5486,6 @@ dissect_ulp_DGANSS_Sig_Id_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ulp_T_ganssWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 236 "./asn1/ulp/ulp.cnf"
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -5568,7 +5499,6 @@ dissect_ulp_T_ganssWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   }
 
 
-
   return offset;
 }
 
@@ -5576,7 +5506,6 @@ dissect_ulp_T_ganssWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_ganssToe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 247 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -5585,15 +5514,12 @@ dissect_ulp_T_ganssToe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 
-
-#line 253 "./asn1/ulp/ulp.cnf"
   if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
     /* Not GLONASS */
     proto_item_append_text(actx->created_item, "h");
   } else {
     proto_item_set_text(actx->created_item, "%umin (%u)", 15*val, val);
   }
-
 
   return offset;
 }
@@ -5602,7 +5528,6 @@ dissect_ulp_T_ganssToe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_ulp_T_t_toeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 261 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -5611,15 +5536,12 @@ dissect_ulp_T_t_toeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 
-
-#line 267 "./asn1/ulp/ulp.cnf"
   if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
     /* Not GLONASS */
     proto_item_append_text(actx->created_item, "h");
   } else {
     proto_item_set_text(actx->created_item, "%umin (%u)", 30*val, val);
   }
-
 
   return offset;
 }
@@ -5674,7 +5596,6 @@ dissect_ulp_GanssNavigationModelData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_ganssTimeModels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, FALSE, NULL, 0, &val_tvb, NULL);
@@ -5688,7 +5609,6 @@ dissect_ulp_T_ganssTimeModels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_bit4, val_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_spare, val_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
-
 
 
   return offset;
@@ -5968,7 +5888,6 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 138 "./asn1/ulp/ulp.cnf"
  tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5980,7 +5899,6 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
-
   return offset;
 }
 
@@ -5988,7 +5906,6 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 284 "./asn1/ulp/ulp.cnf"
  tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5998,7 +5915,6 @@ dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if (lpp_tvb && lpp_handle) {
     call_dissector(lpp_handle, lpp_tvb, actx->pinfo, tree);
   }
-
 
 
   return offset;
@@ -7183,7 +7099,6 @@ dissect_ulp_LTEAreaId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_apMACAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 162 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -7192,7 +7107,6 @@ dissect_ulp_T_apMACAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   if (val_tvb) {
     proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
   }
-
 
 
   return offset;
@@ -7856,7 +7770,6 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 45 "./asn1/ulp/ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -7866,7 +7779,6 @@ guint32 UlpMessage;
 
 
   col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
-
 
 
   return offset;
@@ -7883,7 +7795,6 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 30 "./asn1/ulp/ulp.cnf"
   proto_item *it;
   proto_tree *ulp_tree;
 
@@ -7892,11 +7803,8 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
-
-#line 41 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, ulp_tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
-
 
 
   return offset;

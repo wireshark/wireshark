@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cdt.c                                                               */
-/* asn2wrs.py -b -p cdt -c ./cdt.cnf -s ./packet-cdt-template -D . -O ../.. cdt.asn */
+/* asn2wrs.py -b -L -p cdt -c ./cdt.cnf -s ./packet-cdt-template -D . -O ../.. cdt.asn */
 
 /* Input file: packet-cdt-template.c */
 
@@ -96,7 +96,6 @@ static const value_string cdt_AlgorithmID_ShortForm_vals[] = {
 
 static int
 dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 19 "./asn1/cdt/cdt.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -109,7 +108,6 @@ dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
                                "unknown"));
-
 
 
   return offset;
@@ -159,7 +157,6 @@ static const value_string cdt_ContentType_ShortForm_vals[] = {
 
 static int
 dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 34 "./asn1/cdt/cdt.cnf"
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &content_type);
@@ -173,7 +170,6 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                "unknown"));
 
 
-
   return offset;
 }
 
@@ -181,7 +177,6 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_cdt_T_contentType_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "./asn1/cdt/cdt.cnf"
   const char *obj_id = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
@@ -197,7 +192,6 @@ dissect_cdt_T_contentType_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
     col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", name);
   }
-
 
 
   return offset;
@@ -229,7 +223,6 @@ dissect_cdt_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/cdt/cdt.cnf"
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
   int         save_offset = offset;
 
@@ -272,7 +265,6 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
    }
 
 
-
   return offset;
 }
 
@@ -300,12 +292,10 @@ static const ber_sequence_t CompressedData_sequence[] = {
 
 int
 dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 11 "./asn1/cdt/cdt.cnf"
   content_type = 0;
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CompressedData_sequence, hf_index, ett_cdt_CompressedData);
-
 
 
 

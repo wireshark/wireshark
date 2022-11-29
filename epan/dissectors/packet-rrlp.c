@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rrlp.c                                                              */
-/* asn2wrs.py -p rrlp -c ./rrlp.cnf -s ./packet-rrlp-template -D . -O ../.. ../gsm_map/MAP-ExtensionDataTypes.asn ../gsm_map/MAP-LCS-DataTypes.asn RRLP-Messages.asn RRLP-Components.asn */
+/* asn2wrs.py -L -p rrlp -c ./rrlp.cnf -s ./packet-rrlp-template -D . -O ../.. ../gsm_map/MAP-ExtensionDataTypes.asn ../gsm_map/MAP-LCS-DataTypes.asn RRLP-Messages.asn RRLP-Components.asn */
 
 /* Input file: packet-rrlp-template.c */
 
@@ -1231,7 +1231,6 @@ dissect_rrlp_ExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "./asn1/rrlp/rrlp.cnf"
 
 tvbuff_t *parameter_tvb = NULL;
 
@@ -1241,7 +1240,6 @@ tvbuff_t *parameter_tvb = NULL;
 
   if(parameter_tvb)
 	dissect_geographical_description(parameter_tvb, actx->pinfo, tree);
-
 
   return offset;
 }
@@ -7183,12 +7181,10 @@ static const per_sequence_t PDU_sequence[] = {
 
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "./asn1/rrlp/rrlp.cnf"
 
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, ENC_NA);
 
 	col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "RRLP");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rrlp_PDU, PDU_sequence);
 

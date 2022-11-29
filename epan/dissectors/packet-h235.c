@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h235.c                                                              */
-/* asn2wrs.py -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../.. H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* asn2wrs.py -L -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../.. H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -543,11 +543,9 @@ static const per_sequence_t ENCRYPTED_sequence[] = {
 
 int
 dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   proto_item_set_hidden(hidden_item);
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ENCRYPTED, ENCRYPTED_sequence);
 
@@ -575,11 +573,9 @@ static const per_sequence_t SIGNED_sequence[] = {
 
 int
 dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   proto_item_set_hidden(hidden_item);
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_SIGNED, SIGNED_sequence);
 
@@ -740,11 +736,9 @@ static const per_sequence_t ClearToken_sequence[] = {
 
 int
 dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   proto_item_set_hidden(hidden_item);
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_ClearToken, ClearToken_sequence);
 
@@ -761,11 +755,9 @@ static const per_sequence_t HASHED_sequence[] = {
 
 int
 dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   proto_item_set_hidden(hidden_item);
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_HASHED, HASHED_sequence);
 
@@ -837,11 +829,9 @@ static const per_choice_t CryptoToken_choice[] = {
 
 int
 dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   proto_item_set_hidden(hidden_item);
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h235_CryptoToken, CryptoToken_choice,
                                  NULL);

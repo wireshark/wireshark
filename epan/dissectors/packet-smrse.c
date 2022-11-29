@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-smrse.c                                                             */
-/* asn2wrs.py -b -p smrse -c ./smrse.cnf -s ./packet-smrse-template -D . -O ../.. SMRSE.asn */
+/* asn2wrs.py -b -L -p smrse -c ./smrse.cnf -s ./packet-smrse-template -D . -O ../.. SMRSE.asn */
 
 /* Input file: packet-smrse-template.c */
 
@@ -141,7 +141,6 @@ dissect_smrse_T_numbering_plan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 19 "./asn1/smrse/smrse.cnf"
 	char *strp,tmpstr[21];
 	guint32 i, start_offset;
 	gint8 ber_class;
@@ -169,7 +168,6 @@ dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	proto_tree_add_string(tree, hf_smrse_Octet_Format, tvb, start_offset, offset-start_offset, tmpstr);
 
 	return offset;
-
 
 
   return offset;

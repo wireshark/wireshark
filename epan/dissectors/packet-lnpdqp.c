@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lnpdqp.c                                                            */
-/* asn2wrs.py -b -p lnpdqp -c ./lnpdqp.cnf -s ./packet-lnpdqp-template -D . -O ../.. LNPDQP.asn */
+/* asn2wrs.py -b -L -p lnpdqp -c ./lnpdqp.cnf -s ./packet-lnpdqp-template -D . -O ../.. LNPDQP.asn */
 
 /* Input file: packet-lnpdqp-template.c */
 
@@ -246,7 +246,6 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 static int
 dissect_lnpdqp_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 13 "./asn1/lnpdqp/lnpdqp.cnf"
     tvbuff_t *parameter_tvb = NULL;
     guint8 type_of_dgt;
     proto_tree *subtree;
@@ -279,7 +278,6 @@ dissect_lnpdqp_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
         subtree = proto_item_add_subtree(actx->created_item, ett_lnpdqp_digits);
         dissect_lnpdqp_digits_type(parameter_tvb,actx->pinfo,subtree, actx);
     }
-
 
 
   return offset;

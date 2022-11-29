@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-p22.c                                                               */
-/* asn2wrs.py -b -C -p p22 -c ./p22.cnf -s ./packet-p22-template -D . -O ../.. IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn IPMSUpperBounds.asn */
+/* asn2wrs.py -b -C -L -p p22 -c ./p22.cnf -s ./packet-p22-template -D . -O ../.. IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn IPMSUpperBounds.asn */
 
 /* Input file: packet-p22-template.c */
 
@@ -1017,7 +1017,6 @@ dissect_p22_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 231 "./asn1/p22/p22.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
@@ -1027,7 +1026,6 @@ dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
   proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 
 
-
   return offset;
 }
 
@@ -1035,10 +1033,8 @@ dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_p22_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 239 "./asn1/p22/p22.cnf"
 
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -1212,7 +1208,6 @@ dissect_p22_RelatedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p22_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "./asn1/p22/p22.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1223,7 +1218,6 @@ dissect_p22_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   if(subject)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_get_string_enc(actx->pinfo->pool, subject, 0,
                                                                              tvb_reported_length(subject), ENC_T61));
-
 
 
   return offset;
@@ -1479,9 +1473,7 @@ dissect_p22_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p22_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 290 "./asn1/p22/p22.cnf"
 /* XXX Not implemented yet */
-
 
 
   return offset;
@@ -1720,9 +1712,7 @@ dissect_p22_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p22_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 293 "./asn1/p22/p22.cnf"
 /* XXX Not implemented yet */
-
 
 
   return offset;
@@ -1834,13 +1824,11 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_p22_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 243 "./asn1/p22/p22.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IPM_sequence, hf_index, ett_p22_IPM);
-
 
 
 
@@ -2105,13 +2093,11 @@ static const ber_sequence_t IPN_set[] = {
 
 int
 dissect_p22_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 250 "./asn1/p22/p22.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               IPN_set, hf_index, ett_p22_IPN);
-
 
 
 
@@ -2690,7 +2676,6 @@ dissect_p22_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_p22_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 283 "./asn1/p22/p22.cnf"
   guint32 crs;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, 32767U, hf_index, &crs);
@@ -2698,7 +2683,6 @@ dissect_p22_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   if(actx->created_item)
     proto_item_append_text(actx->created_item, " (%s)", val_to_str(crs, charsetreg_vals, "unknown"));
-
 
 
   return offset;
@@ -2931,9 +2915,7 @@ dissect_p22_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p22_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 296 "./asn1/p22/p22.cnf"
 /* XXX: Not implemented yet */
-
 
 
   return offset;
@@ -3087,9 +3069,7 @@ dissect_p22_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 299 "./asn1/p22/p22.cnf"
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
-
 
 
   return offset;
@@ -3099,9 +3079,7 @@ dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p22_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 302 "./asn1/p22/p22.cnf"
 /* XXX: Not implemented yet */
-
 
 
   return offset;

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-m2ap.c                                                              */
-/* asn2wrs.py -p m2ap -c ./m2ap.cnf -s ./packet-m2ap-template -D . -O ../.. M2AP-CommonDataTypes.asn M2AP-Constants.asn M2AP-Containers.asn M2AP-IEs.asn M2AP-PDU-Contents.asn M2AP-PDU-Descriptions.asn */
+/* asn2wrs.py -L -p m2ap -c ./m2ap.cnf -s ./packet-m2ap-template -D . -O ../.. M2AP-CommonDataTypes.asn M2AP-Constants.asn M2AP-Containers.asn M2AP-IEs.asn M2AP-PDU-Contents.asn M2AP-PDU-Descriptions.asn */
 
 /* Input file: packet-m2ap-template.c */
 
@@ -615,11 +615,9 @@ dissect_m2ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 47 "./asn1/m2ap/m2ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &m2ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
-
   return offset;
 }
 
@@ -977,7 +975,6 @@ dissect_m2ap_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
 static int
 dissect_m2ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "./asn1/m2ap/m2ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   struct m2ap_private_data *m2ap_data = m2ap_get_private_data(actx->pinfo);
   e212_number_type_t number_type = m2ap_data->number_type;
@@ -989,7 +986,6 @@ dissect_m2ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_m2ap_PLMN_Identity);
     dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
   }
-
 
   return offset;
 }
@@ -1014,12 +1010,10 @@ static const per_sequence_t ECGI_sequence[] = {
 
 static int
 dissect_m2ap_ECGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "./asn1/m2ap/m2ap.cnf"
   struct m2ap_private_data *m2ap_data = m2ap_get_private_data(actx->pinfo);
   m2ap_data->number_type = E212_ECGI;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_ECGI, ECGI_sequence);
-
 
 
 
@@ -1356,7 +1350,6 @@ dissect_m2ap_GTP_TEID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_m2ap_IPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "./asn1/m2ap/m2ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 16, FALSE, &parameter_tvb);
@@ -1377,7 +1370,6 @@ dissect_m2ap_IPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
         break;
       }
     }
-
 
   return offset;
 }
@@ -2057,9 +2049,7 @@ static const per_sequence_t SessionStartRequest_sequence[] = {
 
 static int
 dissect_m2ap_SessionStartRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Start Request");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionStartRequest, SessionStartRequest_sequence);
 
@@ -2074,9 +2064,7 @@ static const per_sequence_t SessionStartResponse_sequence[] = {
 
 static int
 dissect_m2ap_SessionStartResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 113 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Start Response");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionStartResponse, SessionStartResponse_sequence);
 
@@ -2091,9 +2079,7 @@ static const per_sequence_t SessionStartFailure_sequence[] = {
 
 static int
 dissect_m2ap_SessionStartFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 115 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Start Failure");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionStartFailure, SessionStartFailure_sequence);
 
@@ -2108,9 +2094,7 @@ static const per_sequence_t SessionStopRequest_sequence[] = {
 
 static int
 dissect_m2ap_SessionStopRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Stop Request");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionStopRequest, SessionStopRequest_sequence);
 
@@ -2125,9 +2109,7 @@ static const per_sequence_t SessionStopResponse_sequence[] = {
 
 static int
 dissect_m2ap_SessionStopResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 119 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Stop Response");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionStopResponse, SessionStopResponse_sequence);
 
@@ -2142,9 +2124,7 @@ static const per_sequence_t SessionUpdateRequest_sequence[] = {
 
 static int
 dissect_m2ap_SessionUpdateRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 121 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Update Request");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionUpdateRequest, SessionUpdateRequest_sequence);
 
@@ -2159,9 +2139,7 @@ static const per_sequence_t SessionUpdateResponse_sequence[] = {
 
 static int
 dissect_m2ap_SessionUpdateResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Update Response");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionUpdateResponse, SessionUpdateResponse_sequence);
 
@@ -2176,9 +2154,7 @@ static const per_sequence_t SessionUpdateFailure_sequence[] = {
 
 static int
 dissect_m2ap_SessionUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 125 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Update Failure");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_SessionUpdateFailure, SessionUpdateFailure_sequence);
 
@@ -2193,9 +2169,7 @@ static const per_sequence_t MbmsSchedulingInformation_sequence[] = {
 
 static int
 dissect_m2ap_MbmsSchedulingInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 127 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Scheduling Information");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsSchedulingInformation, MbmsSchedulingInformation_sequence);
 
@@ -2298,9 +2272,7 @@ static const per_sequence_t MbmsSchedulingInformationResponse_sequence[] = {
 
 static int
 dissect_m2ap_MbmsSchedulingInformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 129 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Scheduling Information Response");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsSchedulingInformationResponse, MbmsSchedulingInformationResponse_sequence);
 
@@ -2315,9 +2287,7 @@ static const per_sequence_t M2SetupRequest_sequence[] = {
 
 static int
 dissect_m2ap_M2SetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 131 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "M2 Setup Request");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_M2SetupRequest, M2SetupRequest_sequence);
 
@@ -2346,9 +2316,7 @@ static const per_sequence_t M2SetupResponse_sequence[] = {
 
 static int
 dissect_m2ap_M2SetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "M2 Setup Response");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_M2SetupResponse, M2SetupResponse_sequence);
 
@@ -2377,9 +2345,7 @@ static const per_sequence_t M2SetupFailure_sequence[] = {
 
 static int
 dissect_m2ap_M2SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "M2 Setup Failure");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_M2SetupFailure, M2SetupFailure_sequence);
 
@@ -2394,9 +2360,7 @@ static const per_sequence_t ENBConfigurationUpdate_sequence[] = {
 
 static int
 dissect_m2ap_ENBConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "eNB Configuration Update");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_ENBConfigurationUpdate, ENBConfigurationUpdate_sequence);
 
@@ -2425,9 +2389,7 @@ static const per_sequence_t ENBConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_m2ap_ENBConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "eNB Configuration Update Acknowledge");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_ENBConfigurationUpdateAcknowledge, ENBConfigurationUpdateAcknowledge_sequence);
 
@@ -2442,9 +2404,7 @@ static const per_sequence_t ENBConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_m2ap_ENBConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "eNB Configuration Update Failure");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_ENBConfigurationUpdateFailure, ENBConfigurationUpdateFailure_sequence);
 
@@ -2459,9 +2419,7 @@ static const per_sequence_t MCEConfigurationUpdate_sequence[] = {
 
 static int
 dissect_m2ap_MCEConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MCE Configuration Update");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MCEConfigurationUpdate, MCEConfigurationUpdate_sequence);
 
@@ -2476,9 +2434,7 @@ static const per_sequence_t MCEConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_m2ap_MCEConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 145 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MCE Configuration Update Acknowledge");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MCEConfigurationUpdateAcknowledge, MCEConfigurationUpdateAcknowledge_sequence);
 
@@ -2493,9 +2449,7 @@ static const per_sequence_t MCEConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_m2ap_MCEConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MCE Configuration Update Failure");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MCEConfigurationUpdateFailure, MCEConfigurationUpdateFailure_sequence);
 
@@ -2510,9 +2464,7 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_m2ap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 149 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Error Indication");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_ErrorIndication, ErrorIndication_sequence);
 
@@ -2527,9 +2479,7 @@ static const per_sequence_t Reset_sequence[] = {
 
 static int
 dissect_m2ap_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Reset");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_Reset, Reset_sequence);
 
@@ -2595,9 +2545,7 @@ static const per_sequence_t ResetAcknowledge_sequence[] = {
 
 static int
 dissect_m2ap_ResetAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 153 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Reset Acknowledge");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_ResetAcknowledge, ResetAcknowledge_sequence);
 
@@ -2626,9 +2574,7 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_m2ap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 155 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Private Message");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_PrivateMessage, PrivateMessage_sequence);
 
@@ -2643,9 +2589,7 @@ static const per_sequence_t MbmsServiceCountingRequest_sequence[] = {
 
 static int
 dissect_m2ap_MbmsServiceCountingRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 157 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Service Counting Request");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsServiceCountingRequest, MbmsServiceCountingRequest_sequence);
 
@@ -2689,9 +2633,7 @@ static const per_sequence_t MbmsServiceCountingResponse_sequence[] = {
 
 static int
 dissect_m2ap_MbmsServiceCountingResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 159 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Service Counting Response");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsServiceCountingResponse, MbmsServiceCountingResponse_sequence);
 
@@ -2706,9 +2648,7 @@ static const per_sequence_t MbmsServiceCountingFailure_sequence[] = {
 
 static int
 dissect_m2ap_MbmsServiceCountingFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Service Counting Failure");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsServiceCountingFailure, MbmsServiceCountingFailure_sequence);
 
@@ -2723,9 +2663,7 @@ static const per_sequence_t MbmsServiceCountingResultsReport_sequence[] = {
 
 static int
 dissect_m2ap_MbmsServiceCountingResultsReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 163 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Service Counting Results Report");
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsServiceCountingResultsReport, MbmsServiceCountingResultsReport_sequence);
 
@@ -2780,9 +2718,7 @@ static const per_sequence_t MbmsOverloadNotification_sequence[] = {
 
 static int
 dissect_m2ap_MbmsOverloadNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "./asn1/m2ap/m2ap.cnf"
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Overload Notification");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_m2ap_MbmsOverloadNotification, MbmsOverloadNotification_sequence);
@@ -2838,9 +2774,7 @@ dissect_m2ap_Active_MBMS_Session_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_m2ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "./asn1/m2ap/m2ap.cnf"
   message_type = INITIATING_MESSAGE;
-
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
@@ -2867,9 +2801,7 @@ dissect_m2ap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_m2ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "./asn1/m2ap/m2ap.cnf"
   message_type = SUCCESSFUL_OUTCOME;
-
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
@@ -2896,9 +2828,7 @@ dissect_m2ap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_m2ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/m2ap/m2ap.cnf"
   message_type = UNSUCCESSFUL_OUTCOME;
-
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-p772.h                                                              */
-/* asn2wrs.py -b -C -p p772 -c ./p772.cnf -s ./packet-p772-template -D . -O ../.. MMSAbstractService.asn MMSInformationObjects.asn MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn MMSHeadingExtensions.asn MMSUpperBounds.asn MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn */
+/* asn2wrs.py -b -C -L -p p772 -c ./p772.cnf -s ./packet-p772-template -D . -O ../.. MMSAbstractService.asn MMSInformationObjects.asn MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn MMSHeadingExtensions.asn MMSUpperBounds.asn MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn */
 
 /* Input file: packet-p772-template.h */
 

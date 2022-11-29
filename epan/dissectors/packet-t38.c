@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-t38.c                                                               */
-/* asn2wrs.py -p t38 -c ./t38.cnf -s ./packet-t38-template -D . -O ../.. T38_2002.asn */
+/* asn2wrs.py -L -p t38 -c ./t38.cnf -s ./packet-t38-template -D . -O ../.. T38_2002.asn */
 
 /* Input file: packet-t38-template.c */
 
@@ -450,7 +450,6 @@ dissect_t38_T30_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      16, &T30ind_value, TRUE, 7, NULL);
 
-#line 29 "./asn1/t38/t38.cnf"
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
          val_to_str(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
@@ -459,7 +458,6 @@ dissect_t38_T30_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
     /* info for tap */
     if (primary_part)
         t38_info->t30ind_value = T30ind_value;
-
   return offset;
 }
 
@@ -489,7 +487,6 @@ dissect_t38_T30_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      9, &Data_value, TRUE, 6, NULL);
 
-#line 41 "./asn1/t38/t38.cnf"
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
          val_to_str(Data_value,t38_T30_data_vals,"<unknown>"));
@@ -499,7 +496,6 @@ dissect_t38_T30_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
     /* info for tap */
     if (primary_part)
         t38_info->data_value = Data_value;
-
   return offset;
 }
 
@@ -522,11 +518,9 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                  ett_t38_Type_of_msg, Type_of_msg_choice,
                                  &Type_of_msg_value);
 
-#line 22 "./asn1/t38/t38.cnf"
   /* info for tap */
   if (primary_part)
     t38_info->type_msg = Type_of_msg_value;
-
   return offset;
 }
 
@@ -553,7 +547,6 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, &Data_Field_field_type_value, (use_pre_corrigendum_asn1_specification)?FALSE:TRUE, (use_pre_corrigendum_asn1_specification)?0:4, NULL);
 
-#line 61 "./asn1/t38/t38.cnf"
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s",
          val_to_str(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
@@ -641,7 +634,6 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
         }
         t38_info->Data_Field_field_type_value = Data_Field_field_type_value;
     }
-
   return offset;
 }
 
@@ -649,7 +641,6 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "./asn1/t38/t38.cnf"
     tvbuff_t *value_tvb = NULL;
     guint32 value_len;
 
@@ -659,8 +650,6 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     value_len = tvb_reported_length(value_tvb);
 
 
-
-#line 158 "./asn1/t38/t38.cnf"
     if (primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
@@ -731,7 +720,6 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
             actx->pinfo->fragmented = save_fragmented;
         }
     }
-
   return offset;
 }
 
@@ -747,9 +735,7 @@ dissect_t38_Data_Field_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t38_Data_Field_item, Data_Field_item_sequence);
 
-#line 53 "./asn1/t38/t38.cnf"
     if (primary_part) Data_Field_item_num++;
-
   return offset;
 }
 
@@ -788,13 +774,11 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &seq_number, FALSE);
 
-#line 238 "./asn1/t38/t38.cnf"
     /* info for tap */
     if (primary_part)
         t38_info->seq_num = seq_number;
 
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
-
   return offset;
 }
 
@@ -802,12 +786,9 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 246 "./asn1/t38/t38.cnf"
     primary_part = TRUE;
-
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_t38_IFPPacket);
 
-#line 248 "./asn1/t38/t38.cnf"
     /* if is a valid t38 packet, add to tap */
     /* Note that t4-non-ecm-sig-end without first_t4_data is not valid */
     if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum) &&
@@ -815,7 +796,6 @@ dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
 
     if (p_t38_conv) p_t38_conv_info->last_seqnum = (gint32) seq_number;
-
   return offset;
 }
 
@@ -903,16 +883,12 @@ static const per_choice_t T_error_recovery_choice[] = {
 
 static int
 dissect_t38_T_error_recovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 258 "./asn1/t38/t38.cnf"
     primary_part = FALSE;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_t38_T_error_recovery, T_error_recovery_choice,
                                  NULL);
 
-#line 260 "./asn1/t38/t38.cnf"
     primary_part = TRUE;
-
   return offset;
 }
 
@@ -926,10 +902,8 @@ static const per_sequence_t UDPTLPacket_sequence[] = {
 
 static int
 dissect_t38_UDPTLPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "./asn1/t38/t38.cnf"
     /* Initialize to something else than data type */
     Data_Field_field_type_value = 1;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t38_UDPTLPacket, UDPTLPacket_sequence);
 

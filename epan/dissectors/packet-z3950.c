@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-z3950.c                                                             */
-/* asn2wrs.py -b -p z3950 -c ./z3950.cnf -s ./packet-z3950-template -D . -O ../.. z3950.asn z3950-oclc.asn z3950-externals.asn */
+/* asn2wrs.py -b -L -p z3950 -c ./z3950.cnf -s ./packet-z3950-template -D . -O ../.. z3950.asn z3950-oclc.asn z3950-externals.asn */
 
 /* Input file: packet-z3950-template.c */
 
@@ -2102,11 +2102,9 @@ dissect_z3950_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_z3950_ReferenceId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 142 "./asn1/z3950/z3950.cnf"
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
               hf_index, BER_CLASS_CON, 2, TRUE,
               dissect_z3950_printable_OCTET_STRING);
-
 
 
   return offset;
@@ -2502,9 +2500,7 @@ dissect_z3950_ElementSetNames(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_z3950_T_type_0(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "./asn1/z3950/z3950.cnf"
 /*XXX Not implemented yet */
-
 
 
   return offset;
@@ -2514,13 +2510,10 @@ dissect_z3950_T_type_0(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_z3950_AttributeSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 152 "./asn1/z3950/z3950.cnf"
   tvbuff_t *oid_tvb=NULL;
-
 
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, &oid_tvb);
 
-#line 156 "./asn1/z3950/z3950.cnf"
   if (oid_tvb) {
     packet_info *pinfo = actx->pinfo;
     guint len = tvb_reported_length_remaining(oid_tvb, 0);
@@ -2544,7 +2537,6 @@ dissect_z3950_AttributeSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     }
   }
 
-
   return offset;
 }
 
@@ -2552,22 +2544,18 @@ dissect_z3950_AttributeSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_z3950_T_attributeElement_attributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "./asn1/z3950/z3950.cnf"
   gint att_type=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
-
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &att_type);
 
-#line 185 "./asn1/z3950/z3950.cnf"
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
     proto_item_append_text(actx->created_item, " (%s)",
       val_to_str(att_type, z3950_bib1_att_types, "Unknown bib-1 attributeType %d"));
     atinfo_data->attype = att_type;
   }
-
   return offset;
 }
 
@@ -2575,16 +2563,13 @@ dissect_z3950_T_attributeElement_attributeType(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_z3950_T_attributeValue_numeric(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 192 "./asn1/z3950/z3950.cnf"
   gint att_value=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
   const value_string *att_value_string = NULL;
-
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &att_value);
 
-#line 198 "./asn1/z3950/z3950.cnf"
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
     switch (atinfo_data->attype) {
@@ -2614,7 +2599,6 @@ dissect_z3950_T_attributeValue_numeric(gboolean implicit_tag _U_, tvbuff_t *tvb 
         val_to_str(att_value, att_value_string, "Unknown bib-1 attributeValue %d"));
     }
   }
-
   return offset;
 }
 
@@ -2746,11 +2730,9 @@ dissect_z3950_AttributeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_z3950_T_general(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "./asn1/z3950/z3950.cnf"
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
               hf_index, BER_CLASS_CON, 2, TRUE,
               dissect_z3950_printable_OCTET_STRING);
-
 
 
   return offset;
@@ -3196,13 +3178,10 @@ dissect_z3950_PresentStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_z3950_T_diagnosticSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 228 "./asn1/z3950/z3950.cnf"
   tvbuff_t *oid_tvb=NULL;
-
 
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, &oid_tvb);
 
-#line 232 "./asn1/z3950/z3950.cnf"
   if (oid_tvb) {
     packet_info *pinfo = actx->pinfo;
     guint len = tvb_reported_length_remaining(oid_tvb, 0);
@@ -3226,7 +3205,6 @@ dissect_z3950_T_diagnosticSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
     }
   }
 
-
   return offset;
 }
 
@@ -3234,22 +3212,18 @@ dissect_z3950_T_diagnosticSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_z3950_T_condition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "./asn1/z3950/z3950.cnf"
   gint diag_condition=0;
   packet_info *pinfo = actx->pinfo;
   z3950_diaginfo_t *diaginfo_data;
-
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &diag_condition);
 
-#line 261 "./asn1/z3950/z3950.cnf"
   diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY);
   if (diaginfo_data && diaginfo_data->diagsetidx == Z3950_DIAGSET_BIB1) {
     proto_item_append_text(actx->created_item, " (%s)",
       val_to_str(diag_condition, z3950_bib1_diagconditions, "Unknown bib-1 diagnostic %d"));
     diaginfo_data->diagcondition = diag_condition;
   }
-
   return offset;
 }
 
@@ -4777,14 +4751,11 @@ static const ber_choice_t PDU_choice[] = {
 
 static int
 dissect_z3950_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 127 "./asn1/z3950/z3950.cnf"
   gint choice;
-
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PDU_choice, hf_index, ett_z3950_PDU,
                                  &choice);
 
-#line 130 "./asn1/z3950/z3950.cnf"
   if (choice >= 0) {
     packet_info *pinfo = actx->pinfo;
     gint32 tag = PDU_choice[choice].tag;
@@ -4792,7 +4763,6 @@ dissect_z3950_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
     col_set_str(pinfo->cinfo, COL_INFO,
       val_to_str_const(tag, z3950_PDU_vals, "Unknown Z39.50 PDU"));
   }
-
 
   return offset;
 }

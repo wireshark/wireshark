@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h282.c                                                              */
-/* asn2wrs.py -p h282 -c ./h282.cnf -s ./packet-h282-template -D . -O ../.. RDC-PROTOCOL.asn */
+/* asn2wrs.py -L -p h282 -c ./h282.cnf -s ./packet-h282-template -D . -O ../.. RDC-PROTOCOL.asn */
 
 /* Input file: packet-h282-template.c */
 
@@ -4244,19 +4244,15 @@ static const per_choice_t RequestPDU_choice[] = {
 
 static int
 dissect_h282_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 28 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h282_RequestPDU, RequestPDU_choice,
                                  &msg_type);
 
-#line 31 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_RequestPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RequestPDU/%s", p);
-
   return offset;
 }
 
@@ -4287,19 +4283,15 @@ static const per_choice_t ResponsePDU_choice[] = {
 
 static int
 dissect_h282_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 39 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h282_ResponsePDU, ResponsePDU_choice,
                                  &msg_type);
 
-#line 42 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_ResponsePDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "ResponsePDU/%s", p);
-
   return offset;
 }
 
@@ -4322,19 +4314,15 @@ static const per_choice_t IndicationPDU_choice[] = {
 
 static int
 dissect_h282_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h282_IndicationPDU, IndicationPDU_choice,
                                  &msg_type);
 
-#line 53 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_IndicationPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "IndicationPDU/%s", p);
-
   return offset;
 }
 

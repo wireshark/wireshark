@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-spnego.c                                                            */
-/* asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . -O ../.. spnego.asn */
+/* asn2wrs.py -b -L -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . -O ../.. spnego.asn */
 
 /* Input file: packet-spnego-template.c */
 
@@ -153,7 +153,6 @@ static int dissect_spnego_NegTokenInit2(gboolean implicit_tag, tvbuff_t *tvb,
 
 static int
 dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "./asn1/spnego/spnego.cnf"
 
   gssapi_oid_value *value;
 
@@ -180,7 +179,6 @@ dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   }
 
 
-
   return offset;
 }
 
@@ -191,7 +189,6 @@ static const ber_sequence_t MechTypeList_sequence_of[1] = {
 
 static int
 dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "./asn1/spnego/spnego.cnf"
 
   conversation_t *conversation;
 
@@ -209,7 +206,6 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
     conversation = find_or_create_conversation(actx->pinfo);
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
-
 
 
   return offset;
@@ -240,7 +236,6 @@ dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "./asn1/spnego/spnego.cnf"
 
   tvbuff_t *mechToken_tvb = NULL;
 
@@ -254,7 +249,6 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
    */
   if (mechToken_tvb && next_level_value)
      call_dissector(next_level_value->handle, mechToken_tvb, actx->pinfo, tree);
-
 
 
   return offset;
@@ -291,7 +285,6 @@ dissect_spnego_NegTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_spnego_T_negTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 12 "./asn1/spnego/spnego.cnf"
   gboolean is_response = actx->pinfo->ptype == PT_TCP &&
                          actx->pinfo->srcport < 1024;
 
@@ -307,7 +300,6 @@ dissect_spnego_T_negTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     return dissect_spnego_NegTokenInit(implicit_tag, tvb, offset,
                                        actx, tree, hf_index);
   }
-
 
 
   return offset;
@@ -334,7 +326,6 @@ dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "./asn1/spnego/spnego.cnf"
 
   conversation_t *conversation;
 
@@ -355,7 +346,6 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 
-
   return offset;
 }
 
@@ -363,7 +353,6 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "./asn1/spnego/spnego.cnf"
 
   tvbuff_t *responseToken_tvb;
 
@@ -389,7 +378,6 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 
-
   return offset;
 }
 
@@ -397,7 +385,6 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 181 "./asn1/spnego/spnego.cnf"
 
   tvbuff_t *mechListMIC_tvb;
 
@@ -420,7 +407,6 @@ dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
       call_dissector(value->handle, mechListMIC_tvb, actx->pinfo, tree);
     }
   }
-
 
 
   return offset;
@@ -507,7 +493,6 @@ dissect_spnego_NegTokenInit2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "./asn1/spnego/spnego.cnf"
 
   gssapi_oid_value *next_level_value_lcl;
   proto_item *item;
@@ -549,7 +534,6 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
       offset = offset + len;
   } else
     offset = tvb_reported_length(tvb);
-
 
 
   return offset;

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-acse.h                                                              */
-/* asn2wrs.py -b -C -p acse -c ./acse.cnf -s ./packet-acse-template -D . -O ../.. acse.asn */
+/* asn2wrs.py -b -C -L -p acse -c ./acse.cnf -s ./packet-acse-template -D . -O ../.. acse.asn */
 
 /* Input file: packet-acse-template.h */
 

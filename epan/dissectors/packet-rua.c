@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rua.c                                                               */
-/* asn2wrs.py -p rua -c ./rua.cnf -s ./packet-rua-template -D . -O ../.. RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
+/* asn2wrs.py -L -p rua -c ./rua.cnf -s ./packet-rua-template -D . -O ../.. RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
 
 /* Input file: packet-rua-template.c */
 
@@ -256,12 +256,10 @@ dissect_rua_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 52 "./asn1/rua/rua.cnf"
   if (strcmp(val_to_str(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                       "Unknown Message ");
   } /* Known Procedures should be included below and broken out as ELEMENTARY names to avoid confusion */
-
 
   return offset;
 }
@@ -326,11 +324,9 @@ dissect_rua_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 41 "./asn1/rua/rua.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
   }
-
   return offset;
 }
 
@@ -816,7 +812,6 @@ dissect_rua_IntraDomainNasNodeSelector(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_rua_RANAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "./asn1/rua/rua.cnf"
   tvbuff_t *ranap_message_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &ranap_message_tvb);
@@ -827,7 +822,6 @@ dissect_rua_RANAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
      col_set_fence(actx->pinfo->cinfo, COL_INFO);
      call_dissector(ranap_handle,ranap_message_tvb,actx->pinfo, proto_tree_get_root(tree));
   }
-
 
   return offset;
 }
@@ -1005,12 +999,10 @@ static const per_sequence_t Connect_sequence[] = {
 
 static int
 dissect_rua_Connect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "CONNECT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rua_Connect, Connect_sequence);
-
 
 
 
@@ -1026,12 +1018,10 @@ static const per_sequence_t DirectTransfer_sequence[] = {
 
 static int
 dissect_rua_DirectTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "DIRECT_TRANSFER ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rua_DirectTransfer, DirectTransfer_sequence);
-
 
 
 
@@ -1047,12 +1037,10 @@ static const per_sequence_t Disconnect_sequence[] = {
 
 static int
 dissect_rua_Disconnect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "DISCONNECT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rua_Disconnect, Disconnect_sequence);
-
 
 
 
@@ -1068,12 +1056,10 @@ static const per_sequence_t ConnectionlessTransfer_sequence[] = {
 
 static int
 dissect_rua_ConnectionlessTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "CONNECTIONLESS_TRANSFER ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rua_ConnectionlessTransfer, ConnectionlessTransfer_sequence);
-
 
 
 
@@ -1089,13 +1075,11 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_rua_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "ERROR_INDICATION ");
     col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rua_ErrorIndication, ErrorIndication_sequence);
-
 
 
 
@@ -1110,12 +1094,10 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_rua_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "PRIVATE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rua_PrivateMessage, PrivateMessage_sequence);
-
 
 
 

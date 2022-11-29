@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h450.c                                                              */
-/* asn2wrs.py -c ./h450.cnf -s ./packet-h450-template -D . -O ../.. H4501-Supplementary-ServiceAPDU-Structure.asn Addressing-Data-Elements.asn H225-generic-parameters-definition.asn Manufacturer-specific-service-extension-definition.asn H4501-General-Error-List.asn Call-Transfer-Operations.asn Call-Diversion-Operations.asn Call-Hold-Operations.asn Call-Park-Pickup-Operations.asn Call-Waiting-Operations.asn Message-Waiting-Indication-Operations.asn Name-Operations.asn Call-Completion-Operations.asn Call-Offer-Operations.asn Call-Intrusion-Operations.asn Common-Information-Operations.asn */
+/* asn2wrs.py -L -c ./h450.cnf -s ./packet-h450-template -D . -O ../.. H4501-Supplementary-ServiceAPDU-Structure.asn Addressing-Data-Elements.asn H225-generic-parameters-definition.asn Manufacturer-specific-service-extension-definition.asn H4501-General-Error-List.asn Call-Transfer-Operations.asn Call-Diversion-Operations.asn Call-Hold-Operations.asn Call-Park-Pickup-Operations.asn Call-Waiting-Operations.asn Message-Waiting-Indication-Operations.asn Name-Operations.asn Call-Completion-Operations.asn Call-Offer-Operations.asn Call-Intrusion-Operations.asn Common-Information-Operations.asn */
 
 /* Input file: packet-h450-template.c */
 
@@ -908,10 +908,8 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h450_T_rosApdus_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 61 "./asn1/h450/h450.cnf"
   h450_rose_ctx.apdu_depth = 1;
   actx->rose_ctx = &h450_rose_ctx;
-
   offset = dissect_h450_ros_ROS(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -961,12 +959,10 @@ static const per_sequence_t h450_H4501SupplementaryService_sequence[] = {
 
 static int
 dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 54 "./asn1/h450/h450.cnf"
   proto_item *hidden_item;
 
   hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, ENC_NA);
   proto_item_set_hidden(hidden_item);
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_H4501SupplementaryService, h450_H4501SupplementaryService_sequence);
 

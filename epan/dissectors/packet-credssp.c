@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-credssp.c                                                           */
-/* asn2wrs.py -b -C -p credssp -c ./credssp.cnf -s ./packet-credssp-template -D . -O ../.. CredSSP.asn */
+/* asn2wrs.py -b -C -L -p credssp -c ./credssp.cnf -s ./packet-credssp-template -D . -O ../.. CredSSP.asn */
 
 /* Input file: packet-credssp-template.c */
 
@@ -130,7 +130,6 @@ static gint ett_credssp_TSRequest = -1;
 
 static int
 dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 81 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *token_tvb = NULL;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -139,7 +138,6 @@ dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 	if(token_tvb != NULL)
 		call_dissector(gssapi_handle, token_tvb, actx->pinfo, tree);
-
 
 
 
@@ -248,7 +246,6 @@ dissect_credssp_TSSmartCardCreds(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_credssp_T_packageName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *pname = NULL;
 
 	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
@@ -265,7 +262,6 @@ dissect_credssp_T_packageName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 	}
 
 
-
   return offset;
 }
 
@@ -273,7 +269,6 @@ dissect_credssp_T_packageName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_credssp_T_credBuffer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *creds= NULL;
 	proto_tree *subtree;
 
@@ -294,7 +289,6 @@ dissect_credssp_T_credBuffer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		dissect_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL(creds, 0, subtree);
 		break;
 	}
-
 
 
   return offset;
@@ -357,7 +351,6 @@ dissect_credssp_T_credType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_credssp_T_credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 61 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *creds_tvb = NULL;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -375,7 +368,6 @@ dissect_credssp_T_credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 		dissect_credssp_TSRemoteGuardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
 		break;
 	}
-
 
 
 
@@ -411,7 +403,6 @@ dissect_credssp_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 10 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *auth_tvb = NULL;
 	tvbuff_t *decr_tvb = NULL;
 	gssapi_encrypt_info_t gssapi_encrypt;
@@ -429,7 +420,6 @@ dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 		dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
 
 
-
   return offset;
 }
 
@@ -437,7 +427,6 @@ dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_credssp_T_pubKeyAuth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *auth_tvb = NULL;
 	tvbuff_t *decr_tvb = NULL;
 	gssapi_encrypt_info_t gssapi_encrypt;
@@ -455,7 +444,6 @@ dissect_credssp_T_pubKeyAuth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		proto_tree_add_item(tree, hf_credssp_decr_PublicKeyAuth, decr_tvb, 0, -1, ENC_NA);
 
 
-
   return offset;
 }
 
@@ -463,7 +451,6 @@ dissect_credssp_T_pubKeyAuth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_credssp_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 40 "./asn1/credssp/credssp.cnf"
 
 	if (credssp_ver < 3) {
 		return 0;
@@ -475,7 +462,6 @@ dissect_credssp_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 
-
   return offset;
 }
 
@@ -483,7 +469,6 @@ dissect_credssp_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_credssp_T_clientNonce(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "./asn1/credssp/credssp.cnf"
 
 	if (credssp_ver < 5) {
 		return 0;
@@ -491,7 +476,6 @@ dissect_credssp_T_clientNonce(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
-
 
 
 

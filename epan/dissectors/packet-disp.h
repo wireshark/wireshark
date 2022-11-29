@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-disp.h                                                              */
-/* asn2wrs.py -b -p disp -c ./disp.cnf -s ./packet-disp-template -D . -O ../.. disp.asn */
+/* asn2wrs.py -b -L -p disp -c ./disp.cnf -s ./packet-disp-template -D . -O ../.. disp.asn */
 
 /* Input file: packet-disp-template.h */
 

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkinit.c                                                            */
-/* asn2wrs.py -b -p pkinit -c ./pkinit.cnf -s ./packet-pkinit-template -D . -O ../.. PKINIT.asn */
+/* asn2wrs.py -b -L -p pkinit -c ./pkinit.cnf -s ./packet-pkinit-template -D . -O ../.. PKINIT.asn */
 
 /* Input file: packet-pkinit-template.c */
 
@@ -207,13 +207,11 @@ static const ber_sequence_t PKAuthenticator_sequence[] = {
 
 static int
 dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 17 "./asn1/pkinit/pkinit.cnf"
 	if (kerberos_is_win2k_pkinit(actx)) {
 		return dissect_pkinit_PKAuthenticator_Win2k(implicit_tag, tvb, offset, actx, tree, hf_index);
 	}
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
-
 
 
 

@@ -33,7 +33,7 @@ set( SRC_FILES
 	${EXT_ASN_FILE_LIST}
 )
 
-set( A2W_FLAGS -u -L )
+set( A2W_FLAGS -u )
 
 set( EXTRA_CNF
 )

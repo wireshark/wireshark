@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sv.h                                                                */
-/* asn2wrs.py -b -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
+/* asn2wrs.py -b -L -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
 
 /* Input file: packet-sv-template.h */
 

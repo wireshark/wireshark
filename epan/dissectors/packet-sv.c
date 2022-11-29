@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sv.c                                                                */
-/* asn2wrs.py -b -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
+/* asn2wrs.py -b -L -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
 
 /* Input file: packet-sv-template.c */
 
@@ -247,13 +247,11 @@ dissect_sv_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_sv_T_smpCnt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 18 "./asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
 
 	sv_data.smpCnt = value;
-
 
   return offset;
 }
@@ -272,7 +270,6 @@ dissect_sv_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 24 "./asn1/sv/sv.cnf"
 	guint32 len;
 	guint32 seconds;
 	guint32	fraction;
@@ -309,7 +306,6 @@ dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 	offset += 8;
 	return offset;
 
-
   return offset;
 }
 
@@ -324,13 +320,11 @@ static const value_string sv_T_smpSynch_vals[] = {
 
 static int
 dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 65 "./asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
 
 	sv_data.smpSynch = value;
-
 
   return offset;
 }
@@ -339,13 +333,11 @@ dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_sv_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "./asn1/sv/sv.cnf"
 	if (sv_decode_data_as_phsmeas) {
 		offset = dissect_PhsMeas1(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
 	} else {
 		offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	}
-
 
   return offset;
 }
@@ -361,13 +353,11 @@ static const value_string sv_T_smpMod_vals[] = {
 
 static int
 dissect_sv_T_smpMod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "./asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
 
 	sv_data.smpMod = value;
-
 
   return offset;
 }
@@ -376,7 +366,6 @@ dissect_sv_T_smpMod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_sv_GmidData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "./asn1/sv/sv.cnf"
 	guint32 len;
 	proto_item  *gmidentity_ti;
 	proto_tree  *gmidentity_tree;
@@ -406,7 +395,6 @@ dissect_sv_GmidData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	}
 
 	offset += 8;
-
 
   return offset;
 }

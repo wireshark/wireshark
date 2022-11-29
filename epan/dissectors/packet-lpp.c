@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lpp.c                                                               */
-/* asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP-PDU-Definitions.asn LPP-Broadcast-Definitions.asn */
+/* asn2wrs.py -L -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP-PDU-Definitions.asn LPP-Broadcast-Definitions.asn */
 
 /* Input file: packet-lpp-template.c */
 
@@ -5980,10 +5980,8 @@ dissect_lpp_ECID_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_lpp_EPDU_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 154 "./asn1/lpp/lpp.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 256U, &lpp_epdu_id, FALSE);
-
 
 
 
@@ -6019,7 +6017,6 @@ dissect_lpp_EPDU_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lpp_EPDU_Body(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "./asn1/lpp/lpp.cnf"
   tvbuff_t *lppe_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &lppe_tvb);
@@ -6034,7 +6031,6 @@ dissect_lpp_EPDU_Body(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
     break;
   }
   lpp_epdu_id = -1;
-
 
 
   return offset;
@@ -6317,9 +6313,7 @@ static const per_sequence_t RequestCapabilities_sequence[] = {
 
 static int
 dissect_lpp_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Capabilities");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_RequestCapabilities, RequestCapabilities_sequence);
@@ -6401,13 +6395,11 @@ static const value_string lpp_T_gnss_id_vals[] = {
 
 static int
 dissect_lpp_T_gnss_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1638 "./asn1/lpp/lpp.cnf"
   guint32 gnss_id;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      5, &gnss_id, TRUE, 2, NULL);
 
   actx->private_data = GUINT_TO_POINTER(gnss_id);
-
 
 
   return offset;
@@ -12879,9 +12871,7 @@ static const per_sequence_t ProvideCapabilities_sequence[] = {
 
 static int
 dissect_lpp_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Capabilities");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_ProvideCapabilities, ProvideCapabilities_sequence);
@@ -13466,9 +13456,7 @@ dissect_lpp_T_gnss_WeekOrDay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4095U, NULL, FALSE);
 
-#line 1575 "./asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " (days for glonass, weeks otherwise)");
-
 
   return offset;
 }
@@ -13480,9 +13468,7 @@ dissect_lpp_T_gnss_Toe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1578 "./asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " (units of 15 mns for glonass, hours otherwise)");
-
 
   return offset;
 }
@@ -13494,9 +13480,7 @@ dissect_lpp_T_t_toeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 15U, NULL, FALSE);
 
-#line 1581 "./asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " (units of 30 mns for glonass, hours otherwise)");
-
 
   return offset;
 }
@@ -14659,14 +14643,12 @@ dissect_lpp_OCTET_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_lpp_T_ssid_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1784 "./asn1/lpp/lpp.cnf"
   tvbuff_t *ssid_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        1, 32, FALSE, &ssid_tvb);
 
   actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
-
 
 
   return offset;
@@ -15620,9 +15602,7 @@ static const per_sequence_t RequestAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Assistance Data");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_RequestAssistanceData, RequestAssistanceData_sequence);
@@ -15695,20 +15675,16 @@ dissect_lpp_INTEGER_0_86399(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lpp_T_notificationOfLeapSecond(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 410 "./asn1/lpp/lpp.cnf"
   tvbuff_t *notificationOfLeapSecond_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, NULL, 0, &notificationOfLeapSecond_tvb, NULL);
 
 
 
-
-#line 414 "./asn1/lpp/lpp.cnf"
   if (notificationOfLeapSecond_tvb) {
     guint bitvalue = tvb_get_bits8(notificationOfLeapSecond_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, notificationOfLeapSecond_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -16448,20 +16424,16 @@ dissect_lpp_GNSS_ReferenceLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_lpp_T_dataID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 429 "./asn1/lpp/lpp.cnf"
   tvbuff_t *dataID_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, NULL, 0, &dataID_tvb, NULL);
 
 
 
-
-#line 433 "./asn1/lpp/lpp.cnf"
   if (dataID_tvb) {
     guint bitvalue = tvb_get_bits8(dataID_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, dataID_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -16839,20 +16811,16 @@ dissect_lpp_GNSS_RTK_ReferenceStationInfo_r15(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_lpp_T_smoothingIndicator_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 535 "./asn1/lpp/lpp.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      1, 1, FALSE, NULL, 0, &param_tvb, NULL);
 
 
 
-
-#line 539 "./asn1/lpp/lpp.cnf"
   if (param_tvb) {
     guint bitvalue = tvb_get_bits8(param_tvb, 0, 1);
     actx->created_item = proto_tree_add_uint(tree, hf_index, param_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -16861,20 +16829,16 @@ dissect_lpp_T_smoothingIndicator_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_lpp_T_smoothingInterval_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 548 "./asn1/lpp/lpp.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      3, 3, FALSE, NULL, 0, &param_tvb, NULL);
 
 
 
-
-#line 552 "./asn1/lpp/lpp.cnf"
   if (param_tvb) {
     guint bitvalue = tvb_get_bits8(param_tvb, 0, 3);
     actx->created_item = proto_tree_add_uint(tree, hf_index, param_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -17888,7 +17852,6 @@ dissect_lpp_INTEGER_M65536_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lpp_T_cnavMo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 843 "./asn1/lpp/lpp.cnf"
   int64_t cnavMo;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
@@ -17896,13 +17859,10 @@ dissect_lpp_T_cnavMo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 
-
-#line 848 "./asn1/lpp/lpp.cnf"
   proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavMo, "%g semi-circles (%"PRId64")",
                                                          (double)cnavMo*pow(2, -32), cnavMo);
-
 
   return offset;
 }
@@ -17911,7 +17871,6 @@ dissect_lpp_T_cnavMo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_lpp_T_cnavE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 854 "./asn1/lpp/lpp.cnf"
   uint64_t cnavE;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
@@ -17919,13 +17878,10 @@ dissect_lpp_T_cnavE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 
-
-#line 859 "./asn1/lpp/lpp.cnf"
   proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_uint64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                           cnavE, "%g (%"PRIu64")",
                                                           (double)cnavE*pow(2, -34), cnavE);
-
 
   return offset;
 }
@@ -17934,7 +17890,6 @@ dissect_lpp_T_cnavE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_lpp_T_cnavOmega(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 865 "./asn1/lpp/lpp.cnf"
   int64_t cnavOmega;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
@@ -17942,13 +17897,10 @@ dissect_lpp_T_cnavOmega(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 
-
-#line 870 "./asn1/lpp/lpp.cnf"
   proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavOmega, "%g semi-circles (%"PRId64")",
                                                          (double)cnavOmega*pow(2, -32), cnavOmega);
-
 
   return offset;
 }
@@ -17957,7 +17909,6 @@ dissect_lpp_T_cnavOmega(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_lpp_T_cnavOMEGA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 876 "./asn1/lpp/lpp.cnf"
   int64_t cnavOMEGA0;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
@@ -17965,13 +17916,10 @@ dissect_lpp_T_cnavOMEGA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 
-
-#line 881 "./asn1/lpp/lpp.cnf"
   proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavOMEGA0, "%g semi-circles (%"PRId64")",
                                                          (double)cnavOMEGA0*pow(2, -32), cnavOMEGA0);
-
 
   return offset;
 }
@@ -17980,7 +17928,6 @@ dissect_lpp_T_cnavOMEGA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_lpp_T_cnavIo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 890 "./asn1/lpp/lpp.cnf"
   int64_t cnavIo;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
@@ -17988,13 +17935,10 @@ dissect_lpp_T_cnavIo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 
-
-#line 895 "./asn1/lpp/lpp.cnf"
   proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavIo, "%g semi-circles (%"PRId64")",
                                                          (double)cnavIo*pow(2, -32), cnavIo);
-
 
   return offset;
 }
@@ -18035,20 +17979,16 @@ dissect_lpp_NavModelCNAV_KeplerianSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_lpp_T_gloP1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 925 "./asn1/lpp/lpp.cnf"
   tvbuff_t *gloP1_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, NULL, 0, &gloP1_tvb, NULL);
 
 
 
-
-#line 929 "./asn1/lpp/lpp.cnf"
   if (gloP1_tvb) {
     guint bitvalue = tvb_get_bits8(gloP1_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, gloP1_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -18304,7 +18244,6 @@ dissect_lpp_GNSS_OrbitModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lpp_T_svHealthExt_v1240(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 612 "./asn1/lpp/lpp.cnf"
   tvbuff_t *svHealthExt_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -18312,14 +18251,11 @@ dissect_lpp_T_svHealthExt_v1240(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 
-
-#line 617 "./asn1/lpp/lpp.cnf"
   if (svHealthExt_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lpp_svHealthExt_v1240);
     proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v1240_e5bhs, svHealthExt_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v1240_e1_bhs, svHealthExt_tvb, 2, 2, ENC_BIG_ENDIAN);
   }
-
 
   return offset;
 }
@@ -18609,7 +18545,6 @@ dissect_lpp_GNSS_AcquisitionAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_lpp_T_toa(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1082 "./asn1/lpp/lpp.cnf"
   guint32 toa, val;
   int len, old_offset = offset;
   T_GNSS_ID_enum gnss_id = (T_GNSS_ID_enum)GPOINTER_TO_UINT(actx->private_data);
@@ -18618,13 +18553,10 @@ dissect_lpp_T_toa(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 
 
-
-#line 1088 "./asn1/lpp/lpp.cnf"
   len = (offset-old_offset) >> 3 ? (offset-old_offset) >> 3 : 1;
   val = (gnss_id == T_GNSS_ID_GALILEO) ? 600*toa : 4096*toa;
   actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa, tvb, old_offset, len,
                                                         toa, "%u s (%u)", val, toa);
-
 
   return offset;
 }
@@ -18633,7 +18565,6 @@ dissect_lpp_T_toa(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_lpp_T_kepSV_StatusINAV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1115 "./asn1/lpp/lpp.cnf"
   tvbuff_t *statusINAV_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -18641,14 +18572,11 @@ dissect_lpp_T_kepSV_StatusINAV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 
-
-#line 1120 "./asn1/lpp/lpp.cnf"
   if (statusINAV_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_kepSV_StatusINAV);
     proto_tree_add_bits_item(subtree, hf_lpp_kepSV_StatusINAV_e5bhs, statusINAV_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lpp_kepSV_StatusINAV_e1_bhs, statusINAV_tvb, 2, 2, ENC_BIG_ENDIAN);
   }
-
 
   return offset;
 }
@@ -18657,7 +18585,6 @@ dissect_lpp_T_kepSV_StatusINAV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lpp_T_kepSV_StatusFNAV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1127 "./asn1/lpp/lpp.cnf"
   tvbuff_t *statusFNAV_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -18665,13 +18592,10 @@ dissect_lpp_T_kepSV_StatusFNAV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 
-
-#line 1132 "./asn1/lpp/lpp.cnf"
   if (statusFNAV_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_kepSV_StatusFNAV);
     proto_tree_add_bits_item(subtree, hf_lpp_kepSV_StatusFNAV_e5ahs, statusFNAV_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
-
 
   return offset;
 }
@@ -18884,7 +18808,6 @@ dissect_lpp_AlmanacECEF_SBAS_AlmanacSet(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_lpp_T_bdsSvHealth_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1294 "./asn1/lpp/lpp.cnf"
   tvbuff_t *bdsSvHealth_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -18892,8 +18815,6 @@ dissect_lpp_T_bdsSvHealth_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 
-
-#line 1299 "./asn1/lpp/lpp.cnf"
   if (bdsSvHealth_tvb) {
     guint16 bits;
     subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bdsSvHealth_r12);
@@ -18911,7 +18832,6 @@ dissect_lpp_T_bdsSvHealth_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
       proto_tree_add_bits_item(subtree, hf_lpp_bdsSvHealth_r12_nav, bdsSvHealth_tvb, 7, 1, ENC_BIG_ENDIAN);
     }
   }
-
 
   return offset;
 }
@@ -19016,7 +18936,6 @@ dissect_lpp_GNSS_AlmanacList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_lpp_T_toa_ext_v1240(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1094 "./asn1/lpp/lpp.cnf"
   guint32 toa_ext, val;
   int len, old_offset = offset;
   T_GNSS_ID_enum gnss_id = (T_GNSS_ID_enum)GPOINTER_TO_UINT(actx->private_data);
@@ -19025,13 +18944,10 @@ dissect_lpp_T_toa_ext_v1240(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 
-
-#line 1100 "./asn1/lpp/lpp.cnf"
   len = (offset-old_offset) >> 3 ? (offset-old_offset) >> 3 : 1;
   val = (gnss_id == T_GNSS_ID_GALILEO) ? 600*toa_ext : 4096*toa_ext;
   actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa_ext_v1240, tvb, old_offset, len,
                                                         toa_ext, "%u s (%u)", val, toa_ext);
-
 
   return offset;
 }
@@ -19139,20 +19055,16 @@ dissect_lpp_UTC_ModelSet1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_lpp_T_utcDN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1363 "./asn1/lpp/lpp.cnf"
   tvbuff_t *utcDN_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      4, 4, FALSE, NULL, 0, &utcDN_tvb, NULL);
 
 
 
-
-#line 1367 "./asn1/lpp/lpp.cnf"
   if (utcDN_tvb) {
     guint bitvalue = tvb_get_bits8(utcDN_tvb, 0, 4);
     actx->created_item = proto_tree_add_uint(tree, hf_index, utcDN_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -19197,20 +19109,16 @@ dissect_lpp_UTC_ModelSet2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_lpp_T_kp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1391 "./asn1/lpp/lpp.cnf"
   tvbuff_t *kp_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, NULL, 0, &kp_tvb, NULL);
 
 
 
-
-#line 1395 "./asn1/lpp/lpp.cnf"
   if (kp_tvb) {
     guint bitvalue = tvb_get_bits8(kp_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, kp_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -22600,9 +22508,7 @@ dissect_lpp_T_gN_pressure_v1520(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -1024, 1023U, NULL, FALSE);
 
-#line 1757 "./asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, "Pa/Km");
-
 
   return offset;
 }
@@ -22614,9 +22520,7 @@ dissect_lpp_T_gE_pressure_v1520(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -1024, 1023U, NULL, FALSE);
 
-#line 1760 "./asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, "Pa/Km");
-
 
   return offset;
 }
@@ -22770,7 +22674,6 @@ dissect_lpp_Sensor_ProvideAssistanceData_r14(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_lpp_T_transmitterLatitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1709 "./asn1/lpp/lpp.cnf"
   tvbuff_t *transmitterLatitude_tvb = NULL;
   guint32 val;
 
@@ -22781,7 +22684,6 @@ dissect_lpp_T_transmitterLatitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   actx->created_item = proto_tree_add_uint(tree, hf_index, transmitterLatitude_tvb, 0, 4, val);
 
 
-
   return offset;
 }
 
@@ -22789,7 +22691,6 @@ dissect_lpp_T_transmitterLatitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_lpp_T_transmitterLongitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1720 "./asn1/lpp/lpp.cnf"
   tvbuff_t *transmitterLongitude_tvb = NULL;
   guint32 val;
 
@@ -22800,7 +22701,6 @@ dissect_lpp_T_transmitterLongitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   actx->created_item = proto_tree_add_uint(tree, hf_index, transmitterLongitude_tvb, 0, 4, val);
 
 
-
   return offset;
 }
 
@@ -22808,7 +22708,6 @@ dissect_lpp_T_transmitterLongitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_lpp_T_transmitterAltitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1731 "./asn1/lpp/lpp.cnf"
   tvbuff_t *transmitterAltitude_tvb = NULL;
   guint32 val;
 
@@ -22817,7 +22716,6 @@ dissect_lpp_T_transmitterAltitude_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   val = tvb_get_bits16(transmitterAltitude_tvb, 0, 15, ENC_BIG_ENDIAN);
   actx->created_item = proto_tree_add_uint(tree, hf_index, transmitterAltitude_tvb, 0, 2, val);
-
 
 
   return offset;
@@ -26222,9 +26120,7 @@ static const per_sequence_t ProvideAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_ProvideAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Assistance Data");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_ProvideAssistanceData, ProvideAssistanceData_sequence);
@@ -26254,7 +26150,6 @@ dissect_lpp_LocationInformationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_lpp_ReportingDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "./asn1/lpp/lpp.cnf"
   guint32 duration;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -26263,7 +26158,6 @@ dissect_lpp_ReportingDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   if (duration == 0) {
     proto_item_append_text(actx->created_item, " (infinite)");
   }
-
 
 
   return offset;
@@ -26324,7 +26218,6 @@ static const value_string lpp_T_reportingInterval_vals[] = {
 
 static int
 dissect_lpp_T_reportingInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 297 "./asn1/lpp/lpp.cnf"
   guint32 idx;
   const gchar *interval[10] = {"", ": 1s", ": 2s", ": 4s", ": 8s", ": 10s",
                                ": 16s", ": 20s", ": 32s", ": 64s"};
@@ -26334,12 +26227,9 @@ dissect_lpp_T_reportingInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 
-
-#line 304 "./asn1/lpp/lpp.cnf"
   if (idx < 10) {
     proto_item_append_text(actx->created_item, "%s", interval[idx]);
   }
-
 
   return offset;
 }
@@ -27988,9 +27878,7 @@ static const per_sequence_t RequestLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 142 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Location Information");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_RequestLocationInformation, RequestLocationInformation_sequence);
@@ -29085,20 +28973,16 @@ dissect_lpp_A_GNSS_ProvideLocationInformation(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_lpp_T_error_Resolution(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 362 "./asn1/lpp/lpp.cnf"
   tvbuff_t *error_Resolution_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, NULL, 0, &error_Resolution_tvb, NULL);
 
 
 
-
-#line 366 "./asn1/lpp/lpp.cnf"
   if (error_Resolution_tvb) {
     guint bitvalue = tvb_get_bits8(error_Resolution_tvb, 0, 2);
     actx->created_item = proto_tree_add_uint(tree, hf_index, error_Resolution_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -29107,20 +28991,16 @@ dissect_lpp_T_error_Resolution(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lpp_T_error_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 375 "./asn1/lpp/lpp.cnf"
   tvbuff_t *error_Value_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      5, 5, FALSE, NULL, 0, &error_Value_tvb, NULL);
 
 
 
-
-#line 379 "./asn1/lpp/lpp.cnf"
   if (error_Value_tvb) {
     guint bitvalue = tvb_get_bits8(error_Value_tvb, 0, 5);
     actx->created_item = proto_tree_add_uint(tree, hf_index, error_Value_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -29129,20 +29009,16 @@ dissect_lpp_T_error_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_lpp_T_error_NumSamples(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 388 "./asn1/lpp/lpp.cnf"
   tvbuff_t *error_NumSamples_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      3, 3, FALSE, NULL, 0, &error_NumSamples_tvb, NULL);
 
 
 
-
-#line 392 "./asn1/lpp/lpp.cnf"
   if (error_NumSamples_tvb) {
     guint bitvalue = tvb_get_bits8(error_NumSamples_tvb, 0, 3);
     actx->created_item = proto_tree_add_uint(tree, hf_index, error_NumSamples_tvb, 0, 1, bitvalue);
   }
-
 
   return offset;
 }
@@ -30283,14 +30159,12 @@ dissect_lpp_WLAN_ProvideLocationInformation_r13(tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_lpp_T_btAddr_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1793 "./asn1/lpp/lpp.cnf"
   tvbuff_t *btAddr_tvb = NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      48, 48, FALSE, NULL, 0, &btAddr_tvb, NULL);
 
   actx->created_item = proto_tree_add_item(tree, hf_index, btAddr_tvb, 0, 6, ENC_NA);
-
 
 
   return offset;
@@ -32203,9 +32077,7 @@ static const per_sequence_t ProvideLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_ProvideLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 145 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Location Information");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_ProvideLocationInformation, ProvideLocationInformation_sequence);
@@ -32330,9 +32202,7 @@ static const per_sequence_t Abort_sequence[] = {
 
 static int
 dissect_lpp_Abort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 148 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Abort");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_Abort, Abort_sequence);
@@ -32417,9 +32287,7 @@ static const per_choice_t Error_choice[] = {
 
 static int
 dissect_lpp_Error(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "./asn1/lpp/lpp.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error");
-
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lpp_Error, Error_choice,
@@ -32550,9 +32418,7 @@ static const per_sequence_t CipheringKeyData_r15_sequence[] = {
 
 static int
 dissect_lpp_CipheringKeyData_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1802 "./asn1/lpp/lpp.cnf"
   lpp_get_private_data(actx->pinfo)->is_ciphered = TRUE;
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_CipheringKeyData_r15, CipheringKeyData_r15_sequence);
@@ -32602,9 +32468,7 @@ static const per_sequence_t SegmentationInfo_r15_sequence[] = {
 
 static int
 dissect_lpp_SegmentationInfo_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1805 "./asn1/lpp/lpp.cnf"
   lpp_get_private_data(actx->pinfo)->is_segmented = TRUE;
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_SegmentationInfo_r15, SegmentationInfo_r15_sequence);
@@ -32616,7 +32480,6 @@ dissect_lpp_SegmentationInfo_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lpp_T_assistanceDataElement_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1808 "./asn1/lpp/lpp.cnf"
   tvbuff_t *assist_data_sib_elem_tvb = NULL;
   struct lpp_private_data *lpp_data = lpp_get_private_data(actx->pinfo);
 
@@ -32764,7 +32627,6 @@ dissect_lpp_T_assistanceDataElement_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_
       break;
     }
   }
-
 
   return offset;
 }

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixac.c                                                            */
-/* asn2wrs.py -b -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . -O ../.. PKIXAttributeCertificate.asn */
+/* asn2wrs.py -b -L -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . -O ../.. PKIXAttributeCertificate.asn */
 
 /* Input file: packet-pkixac-template.c */
 
@@ -389,10 +389,8 @@ dissect_pkixac_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_pkixac_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "./asn1/pkixac/pkixac.cnf"
    if (object_identifier_id)
       offset = call_ber_oid_callback (object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -407,11 +405,9 @@ static const ber_sequence_t SecurityCategory_sequence[] = {
 
 static int
 dissect_pkixac_SecurityCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "./asn1/pkixac/pkixac.cnf"
   object_identifier_id = NULL;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecurityCategory_sequence, hf_index, ett_pkixac_SecurityCategory);
-
 
 
 

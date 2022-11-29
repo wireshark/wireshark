@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-logotypecertextn.c                                                  */
-/* asn2wrs.py -b -p logotypecertextn -c ./logotypecertextn.cnf -s ./packet-logotypecertextn-template -D . -O ../.. LogotypeCertExtn.asn */
+/* asn2wrs.py -b -L -p logotypecertextn -c ./logotypecertextn.cnf -s ./packet-logotypecertextn-template -D . -O ../.. LogotypeCertExtn.asn */
 
 /* Input file: packet-logotypecertextn-template.c */
 
@@ -170,9 +170,7 @@ dissect_logotypecertextn_T_logotypeURI_item(gboolean implicit_tag _U_, tvbuff_t 
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 16 "./asn1/logotypecertextn/logotypecertextn.cnf"
 	   proto_item_set_url(actx->created_item);
-
 
   return offset;
 }
@@ -370,9 +368,7 @@ dissect_logotypecertextn_T_refStructURI_item(gboolean implicit_tag _U_, tvbuff_t
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 19 "./asn1/logotypecertextn/logotypecertextn.cnf"
 	   proto_item_set_url(actx->created_item);
-
 
   return offset;
 }

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-mms.c                                                               */
-/* asn2wrs.py -b -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../.. mms.asn */
+/* asn2wrs.py -b -L -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../.. mms.asn */
 
 /* Input file: packet-mms-template.c */
 
@@ -1061,14 +1061,12 @@ static int dissect_mms_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "./asn1/mms/mms.cnf"
 	guint32 val;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &val);
 
 	if (hf_index == hf_mms_invokeID)
 		private_data_add_preCinfo(actx, val);
-
 
 
   return offset;
@@ -1078,7 +1076,6 @@ dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 199 "./asn1/mms/mms.cnf"
 	int offset_id = offset;
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
                                             actx, tree, tvb, offset, hf_index,
@@ -1088,7 +1085,6 @@ dissect_mms_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 		if (tvb_get_guint8(tvb, offset_id) == 0x1a)
 			private_data_add_moreCinfo_id(actx,tvb);
 	}
-
   return offset;
 }
 
@@ -1929,12 +1925,10 @@ dissect_mms_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 195 "./asn1/mms/mms.cnf"
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 	private_data_add_moreCinfo_float(actx, tvb);
-
 
 
   return offset;
@@ -1944,7 +1938,6 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 milliseconds;
@@ -1996,7 +1989,6 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 
-
   return offset;
 }
 
@@ -2024,7 +2016,6 @@ dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -2061,7 +2052,6 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	}
 
 	return offset;
-
 
 
   return offset;
@@ -2445,9 +2435,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
-
 
 
   return offset;
@@ -2457,9 +2445,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
-
 
 
   return offset;
@@ -2469,9 +2455,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
-
 
 
   return offset;
@@ -2481,9 +2465,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 83 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
-
 
 
   return offset;
@@ -7326,7 +7308,6 @@ static const ber_choice_t MMSpdu_choice[] = {
 
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "./asn1/mms/mms.cnf"
 	gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -7342,7 +7323,6 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
 				mms_MMSpdu_vals[branch_taken].strptr);
 	}
-
 
 
   return offset;

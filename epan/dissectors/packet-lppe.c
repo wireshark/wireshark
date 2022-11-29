@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lppe.c                                                              */
-/* asn2wrs.py -p lppe -c ./lppe.cnf -s ./packet-lppe-template -D . -O ../.. LPPe.asn */
+/* asn2wrs.py -L -p lppe -c ./lppe.cnf -s ./packet-lppe-template -D . -O ../.. LPPe.asn */
 
 /* Input file: packet-lppe-template.c */
 
@@ -6482,11 +6482,9 @@ dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship(tvbuff_t *
 
 static int
 dissect_lppe_OMA_LPPe_Uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "./asn1/lppe/lppe.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       NO_BOUND, NO_BOUND, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%", 85,
                                                       NULL);
-
 
 
   return offset;
@@ -13422,7 +13420,6 @@ dissect_lppe_OMA_LPPe_LocationSource(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_lppe_T_civicLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "./asn1/lppe/lppe.cnf"
   tvbuff_t *xml_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &xml_tvb);
@@ -13431,7 +13428,6 @@ dissect_lppe_T_civicLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     proto_tree *xml_tree = proto_item_add_subtree(actx->created_item, ett_lppe_civicLocation);
     call_dissector(xml_handle, xml_tvb, actx->pinfo, xml_tree);
   }
-
 
   return offset;
 }
@@ -15876,12 +15872,10 @@ static const per_sequence_t OMA_LPPe_MessageExtension_sequence[] = {
 
 static int
 dissect_lppe_OMA_LPPe_MessageExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 31 "./asn1/lppe/lppe.cnf"
 
   proto_tree_add_item(tree, proto_lppe, tvb, 0, -1, ENC_NA);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPe");
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lppe_OMA_LPPe_MessageExtension, OMA_LPPe_MessageExtension_sequence);

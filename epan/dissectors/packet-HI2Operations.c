@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-HI2Operations.c                                                     */
-/* asn2wrs.py -b -p HI2Operations -c ./HI2Operations.cnf -s ./packet-HI2Operations-template -D . -O ../.. HI2Operations_ver11.asn HI3CCLinkData.asn UmtsHI2Operations.asn TS101909201.asn PCESP.asn EN301040.asn */
+/* asn2wrs.py -b -L -p HI2Operations -c ./HI2Operations.cnf -s ./packet-HI2Operations-template -D . -O ../.. HI2Operations_ver11.asn HI3CCLinkData.asn UmtsHI2Operations.asn TS101909201.asn PCESP.asn EN301040.asn */
 
 /* Input file: packet-HI2Operations-template.c */
 
@@ -547,7 +547,6 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_5(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -557,7 +556,6 @@ dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
     return offset;
 
   dissect_isup_calling_party_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
-
 
 
   return offset;
@@ -3799,7 +3797,6 @@ dissect_HI2Operations_Direction_Indication(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3810,7 +3807,6 @@ dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *t
     return offset;
 
   dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
-
 
 
   return offset;
@@ -3857,7 +3853,6 @@ static const ber_sequence_t UUS1_Content_sequence[] = {
 
 static int
 dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 41 "./asn1/HI2Operations/HI2Operations.cnf"
 
 /* Heuristic test to see if it's our content */
     gint8    tmp_class;
@@ -3900,7 +3895,6 @@ dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
     if(tmp_tag != 1){
       return 0;
     }
-
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UUS1_Content_sequence, hf_index, ett_HI2Operations_UUS1_Content);

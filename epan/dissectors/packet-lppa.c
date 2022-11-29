@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lppa.c                                                              */
-/* asn2wrs.py -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../.. LPPA-CommonDataTypes.asn LPPA-Constants.asn LPPA-Containers.asn LPPA-IEs.asn LPPA-PDU-Contents.asn LPPA-PDU-Descriptions.asn */
+/* asn2wrs.py -L -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../.. LPPA-CommonDataTypes.asn LPPA-Constants.asn LPPA-Containers.asn LPPA-IEs.asn LPPA-PDU-Contents.asn LPPA-PDU-Descriptions.asn */
 
 /* Input file: packet-lppa-template.c */
 
@@ -604,7 +604,6 @@ static const value_string lppa_ProcedureCode_vals[] = {
 
 static int
 dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 47 "./asn1/lppa/lppa.cnf"
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -614,7 +613,6 @@ dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(lppa_data->procedure_code, lppa_ProcedureCode_vals,
                             "unknown message"));
-
 
   return offset;
 }
@@ -655,19 +653,15 @@ static const value_string lppa_ProtocolIE_ID_vals[] = {
 
 static int
 dissect_lppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "./asn1/lppa/lppa.cnf"
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &lppa_data->protocol_ie_id, FALSE);
 
 
 
-
-#line 41 "./asn1/lppa/lppa.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(lppa_data->protocol_ie_id, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
-
   return offset;
 }
 
@@ -3865,10 +3859,8 @@ dissect_lppa_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lppa_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 62 "./asn1/lppa/lppa.cnf"
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
   lppa_data->message_type = INITIATING_MESSAGE;
-
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
   return offset;
@@ -3895,10 +3887,8 @@ dissect_lppa_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lppa_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "./asn1/lppa/lppa.cnf"
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
   lppa_data->message_type = SUCCESSFUL_OUTCOME;
-
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
   return offset;
@@ -3925,10 +3915,8 @@ dissect_lppa_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lppa_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "./asn1/lppa/lppa.cnf"
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
   lppa_data->message_type = UNSUCCESSFUL_OUTCOME;
-
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
@@ -3969,12 +3957,10 @@ static const per_choice_t LPPA_PDU_choice[] = {
 
 static int
 dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "./asn1/lppa/lppa.cnf"
 
   proto_tree_add_item(tree, proto_lppa, tvb, 0, -1, ENC_NA);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPa");
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lppa_LPPA_PDU, LPPA_PDU_choice,
                                  NULL);

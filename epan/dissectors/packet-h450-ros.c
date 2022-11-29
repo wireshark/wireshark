@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h450-ros.c                                                          */
-/* asn2wrs.py -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . -O ../.. ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
+/* asn2wrs.py -L -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . -O ../.. ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
 
 /* Input file: packet-h450-ros-template.c */
 
@@ -149,9 +149,7 @@ dissect_h450_ros_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                  ett_h450_ros_Code, Code_choice,
                                  &actx->rose_ctx->d.code);
 
-#line 39 "./asn1/h450-ros/h450-ros.cnf"
   actx->rose_ctx->d.code_item = actx->created_item;
-
   return offset;
 }
 
@@ -168,10 +166,8 @@ dissect_h450_ros_InvokeId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h450_ros_T_invokeIdConstrained(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/h450-ros/h450-ros.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            0U, 65535U, NULL, TRUE);
-
 
   return offset;
 }
@@ -196,16 +192,13 @@ static const per_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 6 "./asn1/ros/ros-inv.cnf"
   dissector_handle_t arg_handle = NULL;
   const gchar *descr = "";
 
   arg_next_tvb = NULL;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_ros_Invoke, Invoke_sequence);
 
-#line 11 "./asn1/ros/ros-inv.cnf"
   actx->rose_ctx->d.pdu = 1;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->arg_local_dissector_table) {
@@ -241,7 +234,6 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   if (!arg_handle) {
     expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
-
   return offset;
 }
 
@@ -278,17 +270,14 @@ static const per_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 6 "./asn1/ros/ros-res.cnf"
   dissector_handle_t res_handle = NULL;
   const gchar *descr = "";
 
   actx->rose_ctx->d.code = -1;
   res_next_tvb = NULL;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_ros_ReturnResult, ReturnResult_sequence);
 
-#line 12 "./asn1/ros/ros-res.cnf"
   actx->rose_ctx->d.pdu = 2;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->res_local_dissector_table) {
@@ -326,7 +315,6 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
       expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
     }
   }
-
   return offset;
 }
 
@@ -349,16 +337,13 @@ static const per_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 6 "./asn1/ros/ros-err.cnf"
   dissector_handle_t err_handle = NULL;
   const gchar *descr = "";
 
   err_next_tvb = NULL;
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_ros_ReturnError, ReturnError_sequence);
 
-#line 11 "./asn1/ros/ros-err.cnf"
   actx->rose_ctx->d.pdu = 3;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->err_local_dissector_table) {
@@ -394,7 +379,6 @@ dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   if (!err_handle) {
     expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
-
   return offset;
 }
 
@@ -411,10 +395,8 @@ static int
 dissect_h450_ros_GeneralProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 50 "./asn1/h450-ros/h450-ros.cnf"
   (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_GeneralProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
-
   return offset;
 }
 
@@ -436,10 +418,8 @@ static int
 dissect_h450_ros_InvokeProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 53 "./asn1/h450-ros/h450-ros.cnf"
   (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_InvokeProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
-
   return offset;
 }
 
@@ -456,10 +436,8 @@ static int
 dissect_h450_ros_ReturnResultProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 56 "./asn1/h450-ros/h450-ros.cnf"
   (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_ReturnResultProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
-
   return offset;
 }
 
@@ -478,10 +456,8 @@ static int
 dissect_h450_ros_ReturnErrorProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 59 "./asn1/h450-ros/h450-ros.cnf"
   (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_ReturnErrorProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
-
   return offset;
 }
 
@@ -520,15 +496,12 @@ static const per_sequence_t Reject_sequence[] = {
 
 static int
 dissect_h450_ros_Reject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 6 "./asn1/ros/ros-rej.cnf"
   const gchar *descr = "";
 
   problem_str[0] = '\0';
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_ros_Reject, Reject_sequence);
 
-#line 10 "./asn1/ros/ros-rej.cnf"
   descr = wmem_strdup_printf(actx->pinfo->pool, "REJ: %s", problem_str);
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -537,7 +510,6 @@ dissect_h450_ros_Reject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
     (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
-
   return offset;
 }
 
@@ -560,10 +532,8 @@ static const per_choice_t ROS_choice[] = {
 
 int
 dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 28 "./asn1/h450-ros/h450-ros.cnf"
   DISSECTOR_ASSERT(actx->rose_ctx);
   rose_ctx_clean_data(actx->rose_ctx);
-
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h450_ros_ROS, ROS_choice,
                                  NULL);

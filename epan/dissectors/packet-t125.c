@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-t125.c                                                              */
-/* asn2wrs.py -b -p t125 -c ./t125.cnf -s ./packet-t125-template -D . -O ../.. MCS-PROTOCOL.asn */
+/* asn2wrs.py -b -L -p t125 -c ./t125.cnf -s ./packet-t125-template -D . -O ../.. MCS-PROTOCOL.asn */
 
 /* Input file: packet-t125-template.c */
 
@@ -174,7 +174,6 @@ dissect_t125_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "./asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -183,7 +182,6 @@ dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
     if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
 	     actx->pinfo, top_tree, &hdtbl_entry, NULL);
-
 
   return offset;
 }
@@ -252,7 +250,6 @@ dissect_t125_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "./asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry;
 
@@ -262,7 +259,6 @@ dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
 	     actx->pinfo, top_tree, &hdtbl_entry, NULL);
-
 
   return offset;
 }
