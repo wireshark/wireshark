@@ -273,6 +273,7 @@ static gint hf_krb_pa_supported_enctypes_des_cbc_md5;
 static gint hf_krb_pa_supported_enctypes_rc4_hmac;
 static gint hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96;
 static gint hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96;
+static gint hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96_sk;
 static gint hf_krb_pa_supported_enctypes_fast_supported;
 static gint hf_krb_pa_supported_enctypes_compound_identity_supported;
 static gint hf_krb_pa_supported_enctypes_claims_supported;
@@ -4244,6 +4245,7 @@ static int * const hf_krb_pa_supported_enctypes_fields[] = {
 	&hf_krb_pa_supported_enctypes_rc4_hmac,
 	&hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96,
 	&hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96,
+	&hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96_sk,
 	&hf_krb_pa_supported_enctypes_fast_supported,
 	&hf_krb_pa_supported_enctypes_compound_identity_supported,
 	&hf_krb_pa_supported_enctypes_claims_supported,
@@ -8849,6 +8851,9 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96,
 	  { "aes256-cts-hmac-sha1-96", "kerberos.supported_entypes.aes256-cts-hmac-sha1-96",
 		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000010, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96_sk,
+	  { "aes256-cts-hmac-sha1-96-sk", "kerberos.supported_entypes.aes256-cts-hmac-sha1-96-sk",
+		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000020, NULL, HFILL }},
 	{ &hf_krb_pa_supported_enctypes_fast_supported,
 	  { "fast-supported", "kerberos.supported_entypes.fast-supported",
 		FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00010000, NULL, HFILL }},
