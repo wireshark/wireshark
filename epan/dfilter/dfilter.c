@@ -548,6 +548,7 @@ FAILURE:
 	if (dfw->error.msg == NULL) {
 		/* We require an error message. */
 		ws_critical("Unknown error compiling filter: %s", text);
+		dfw_error_set_msg(errpp, "Unknown error compiling filter: %s", text);
 	}
 	else {
 		ws_debug("Compiling filter failed with error: %s.", dfw->error.msg);
