@@ -238,7 +238,6 @@ static int hf_dccp_data_checksum = -1;
 
 /* MP-DCCP Option fields */
 static int hf_mpdccp_confirm = -1;
-int counter = -1;
 
 static int hf_mpdccp_version = -1;
 
@@ -783,12 +782,11 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
     while (offset < offset_end) {
         /* first byte is the option type */
         option_type = tvb_get_guint8(tvb, offset);
-        option_item =
-            proto_tree_add_uint(dccp_options_tree, hf_dccp_option_type, tvb,
-                                offset,
-                                1,
-                                option_type);
-
+	option_item =
+		proto_tree_add_uint(dccp_options_tree, hf_dccp_option_type, tvb,
+				offset,
+                        	1,
+                        	option_type);
         if (option_type >= 32) { /* variable length options */
             option_len = tvb_get_guint8(tvb, offset+1);
 
@@ -890,90 +888,12 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
         case 46:
             mp_option_type = tvb_get_guint8(tvb, offset);
             option_len -= 1;
-
             switch (mp_option_type) {
                 case 0:
-                    mp_option_sub_item=proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
+		    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
-                    offset+=1;
-                    counter=option_len;
-        	    while(counter>0){
-        		option_type = tvb_get_guint8(tvb, offset+2);
-        		option_len = tvb_get_guint8(tvb, offset+1)-3;
-        	    if (option_type==4){
-		        if (option_len==6){
-		     	   mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
-			   offset += 3;
-			   proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_seq, tvb, offset, 6, ENC_BIG_ENDIAN);
-			   offset += 6;
-		           counter-=9;
-		        } else {
-        		   mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
-			   expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-                	   "Wrong Data checksum length, [%u != 6]", option_len);
-                           counter-=option_len;
-	         		}
-                	}
-    		    else if (option_type==7){
-		    	option_len = tvb_get_guint8(tvb, offset+1) - 3;
-		    	offset += 3;
-	       	    	if (option_len == 5){
-     				proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
-	       	    	}
-		    	else if (option_len == 7){
-	     			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
-			     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
-	       	    	}
-	       	   	else if (option_len == 17){ // Check endianness for ipv6
-			     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
-	       	    	}
-		   	else if (option_len == 19){
-		       		proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-				proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
-				proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
-		   	} else {
-				mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
-				expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-			   	"Wrong Data checksum length, [%u != 5 || 7 || 17 || 19]", option_len);
-			   	counter-=option_len;
-		    	}
-       			        offset += option_len;
-		                counter-=option_len+3;               
-		            	proto_item_set_text(mp_option_sub_tree,"MP_ADDADDR Confirmation");     	
-                    	}
-    		    else if (option_type==8){
-	                if (option_len == 1) {
-            			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset+3,1,ENC_BIG_ENDIAN);
-		        	offset += 4;
-	                	counter-=4;
-        			proto_item_set_text(mp_option_sub_tree,"MP_REMOVEADDR Confirmation");
-      			} else {
-	                	mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_removeaddr, tvb, offset, option_len, ENC_BIG_ENDIAN);
-    			    	expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-                           	"Wrong Data checksum length, [%u != 1]", option_len);
-                           	counter-=option_len;
-	            		}	
-            		}
-		    else if (option_type==9){
-            		if (option_len==1){
-            			offset += 3;
-            			proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
-		        	offset += 1;
-	                	counter-=4;
-                		proto_item_set_text(mp_option_sub_tree,"MP_PRIO Confirmation");  
-	                } else {
-                		mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
-                		expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-      			     	"Wrong Data checksum length, [%u != 1]", option_len);
-				counter-=option_len;
-            			}		                
-            		} else {
-            			counter-=1;
-            			}
-                	}
+                    offset += 1;
+     		    dissect_options(tvb, pinfo, mp_option_sub_tree, tree, dccph, offset, offset + option_len);
                     break;
                 case 1:
                     mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_join, tvb, offset, 1, ENC_BIG_ENDIAN);
