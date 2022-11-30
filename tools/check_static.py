@@ -46,7 +46,7 @@ class CalledSymbols:
             else:
                 object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
         if not os.path.exists(object_file):
-            print('Warning -', object_file, 'does not exist')
+            #print('Warning -', object_file, 'does not exist')
             return
         command = ['nm', object_file]
         for f in subprocess.check_output(command).splitlines():
@@ -79,7 +79,7 @@ class DefinedSymbols:
         object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
 
         if not os.path.exists(object_file):
-            print('Warning -', object_file, 'does not exist')
+            #print('Warning -', object_file, 'does not exist')
             return
 
         header_file= file.replace('.c', '.h')
