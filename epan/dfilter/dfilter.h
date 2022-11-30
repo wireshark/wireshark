@@ -69,16 +69,23 @@ WS_DLL_PUBLIC
 void
 dfilter_error_free(df_error_t *);
 
-// TODO: Replace booleans with a bit flag.
+/* Save textual representation of syntax tree (for debugging purposes). */
+#define DF_SAVE_TREE		(1U << 0)
+/* Perform macro substitution on filter text. */
+#define DF_EXPAND_MACROS	(1U << 1)
+/* Do an optimization pass on the compiled filter. */
+#define DF_OPTIMIZE		(1U << 2)
+
 WS_DLL_PUBLIC
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			df_error_t **errpp,
-			const char *caller, gboolean save_tree,
-			gboolean apply_macros, gboolean apply_optimization);
+			df_error_t **errpp, unsigned flags,
+			const char *caller);
 
 #define dfilter_compile(text, dfp, errp) \
-	dfilter_compile_real(text, dfp, errp, __func__, FALSE, TRUE, TRUE)
+	dfilter_compile_real(text, dfp, errp, \
+				DF_EXPAND_MACROS|DF_OPTIMIZE, \
+				__func__)
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */

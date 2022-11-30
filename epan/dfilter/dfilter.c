@@ -355,9 +355,8 @@ dfilter_expand(const char *expr, char **err_ret)
 
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			df_error_t **errpp,
-			const char *caller, gboolean save_tree,
-			gboolean apply_macros, gboolean apply_optimization)
+			df_error_t **errpp, unsigned flags,
+			const char *caller)
 {
 	int		token;
 	dfilter_t	*dfilter;
@@ -393,9 +392,9 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	}
 
 	dfw = dfwork_new();
-	dfw->apply_optimization = apply_optimization;
+	dfw->apply_optimization = flags & DF_OPTIMIZE;
 
-	if (apply_macros) {
+	if (flags & DF_EXPAND_MACROS) {
 		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error.msg);
 		if (dfw->expanded_text == NULL) {
 			goto FAILURE;
@@ -495,7 +494,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		tree_str = NULL;
 		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check", &tree_str);
 
-		if (save_tree && tree_str == NULL) {
+		if ((flags & DF_SAVE_TREE) && tree_str == NULL) {
 			tree_str = dump_syntax_tree_str(dfw->st_root);
 		}
 
@@ -515,7 +514,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfilter->raw_references = dfw->raw_references;
 		dfw->raw_references = NULL;
 
-		if (save_tree) {
+		if (flags & DF_SAVE_TREE) {
 			ws_assert(tree_str);
 			dfilter->syntax_tree_str = tree_str;
 			tree_str = NULL;
