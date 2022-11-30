@@ -194,7 +194,6 @@ static gint ett_dect_mitel_eth_mac_capabilities_flags = -1;
 static gint ett_dect_mitel_eth_extended_capabilities2_mac_capability_flags = -1;
 static gint ett_dect_mitel_eth_extended_capabilities2_flags = -1;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t dlc_handle;
 
 #define DECT_MITEL_ETH_T_XDLC	0xA000
@@ -981,6 +980,7 @@ static guint dissect_dect_mitel_eth_mac_con_ind(tvbuff_t *tvb, packet_info *pinf
 {
 	static int *const mac_con_ind_flags[] = {
 		&hf_dect_mitel_eth_mac_con_ind_flag_handover,
+		NULL
 	};
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
@@ -1286,9 +1286,6 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			}
 			break;
 	}
-
-	if (payload_tvb)
-		call_dissector(data_handle, payload_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -2011,7 +2008,6 @@ void proto_reg_handoff_dect_mitel_eth(void)
 	    create_dissector_handle(dissect_dect_mitel_eth, proto_dect_mitel_eth);
 	dissector_add_uint("ethertype", DECT_MITEL_ETH_T_XDLC, dect_mitel_eth_handle);
 
-	data_handle = find_dissector("data");
 	dlc_handle = find_dissector("dect_dlc");
 }
 
