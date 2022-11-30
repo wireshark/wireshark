@@ -598,6 +598,7 @@ static const value_string vendor_specific_opcode_vals[] = {
 #define DPOE_LB_MAX_LL                  0xD70007
 #define DPOE_LB_MAX_NET_PORTS           0xD70008
 #define DPOE_LB_NUM_S1_INT              0xD70009
+#define DPOE_LB_PKT_BUFFER              0xD7000A
 #define DPOE_LB_REP_THRESH              0xD7000B
 #define DPOE_LB_OAM_FR                  0xD7000D
 #define DPOE_LB_S1_INT_PORT_TYPE        0xD70010
@@ -612,8 +613,13 @@ static const value_string vendor_specific_opcode_vals[] = {
 
 /* IEEE 1904.1 SIEPON Leaf-Branch codes used by DPoE */
 #define DPOE_LB_1904_1_MAC_ENABLE_STATUS   0x07001A
+#define DPOE_LB_1904_1_RW_MAC_ADDRESS      0x07001D
+#define DPOE_LB_1904_1_A_PHY_TYPE          0x070020
 #define DPOE_LB_1904_1_MEDIA_AVAILABLE     0x070047
+#define DPOE_LB_1904_1_AUTONEG_ADM_STATE   0X07004F
 #define DPOE_LB_1904_1_DUPLEX_STATUS       0x07005A
+#define DPOE_LB_1904_1_MAC_CTl_FUNCTIONS   0x07005D
+#define DPOE_LB_1904_1_CFG_MCAST_LLID      0xD90107
 
 /* As messages get implmented and verified, replace with defined codes from above. */
 static const value_string dpoe_variable_descriptor_vals[] = {
@@ -631,7 +637,7 @@ static const value_string dpoe_variable_descriptor_vals[] = {
     { DPOE_LB_MAX_LL,                   "Max Logical Links" },
     { DPOE_LB_MAX_NET_PORTS,            "Number of Network Ports" },
     { DPOE_LB_NUM_S1_INT,               "Number of S1 interfaces" },
-    { 0xD7000A,                         "DPoE ONU Packet Buffer" },
+    { DPOE_LB_PKT_BUFFER,               "DPoE ONU Packet Buffer" },
     { DPOE_LB_REP_THRESH,               "Report Thresholds" },
     { 0xD7000C,                         "LLID Forwarding State" },
     { DPOE_LB_OAM_FR,                   "OAM Frame Rate" },
@@ -667,6 +673,7 @@ static const value_string dpoe_variable_descriptor_vals[] = {
     { 0xD90104,                         "Clear Static MAC Table" },
     { 0xD90105,                         "Add Static MAC Table" },
     { 0xD90106,                         "Delete Static MAC Address" },
+    { DPOE_LB_1904_1_CFG_MCAST_LLID,    "Config Multicast LLID"},
     { 0xD70201,                         "Rx Unicast Frames" },
     { 0xD70202,                         "Tx Unicast Frames" },
     { 0xD70203,                         "Rx Frame Too Short" },
@@ -727,8 +734,12 @@ static const value_string dpoe_variable_descriptor_vals[] = {
     { 0x09000B,                         "Auto Neg Renegotiate" },
     { 0x09000C,                         "Auto Neg Admin Ctrl" },
     { DPOE_LB_1904_1_MAC_ENABLE_STATUS, "MAC Enable Status" },
+    { DPOE_LB_1904_1_A_PHY_TYPE,        "PHY Type"},
     { DPOE_LB_1904_1_MEDIA_AVAILABLE,   "Media Available" },
+    { DPOE_LB_1904_1_AUTONEG_ADM_STATE, "Auto-Negotiation Admin State" },
     { DPOE_LB_1904_1_DUPLEX_STATUS,     "Duplex Status" },
+    { DPOE_LB_1904_1_MAC_CTl_FUNCTIONS, "MAC Control Functions Supported" },
+    { DPOE_LB_1904_1_RW_MAC_ADDRESS,    "Read/Write MAC Address" },
     { 0, NULL }
 };
 
@@ -752,9 +763,34 @@ static const value_string dpoe_1904_1_mac_enable_status_vals[] = {
     { 0, NULL }
 };
 
+static const value_string dpoe_1904_1_a_phy_type_vals[] = {
+    { 0x01, "other" },
+    { 0x02, "unknown" },
+    { 0x03, "none" },
+    { 0x07, "10Mbps" },
+    { 0x17, "100BASE-T4" },
+    { 0x18, "100BASE-X" },
+    { 0x20, "100BASE-T2" },
+    { 0x24, "1000BASE-X" },
+    { 0x28, "1000BASE-T" },
+    { 0x30, "10GBASE-X" },
+    { 0x31, "10GBASE-R" },
+    { 0x32, "10GBASE-W" },
+    { 0x37, "10GBASE-T" },
+    { 0x7d, "2.5GBASE-T" },
+    { 0x7e, "5GBASE-T" },
+    { 0, NULL }
+};
+
 static const value_string dpoe_1904_1_media_available_vals[] = {
     { 0x03, "available" },
     { 0x04, "not_available" },
+    { 0, NULL }
+};
+
+static const value_string dpoe_1904_1_autoneg_admstate_vals[] = {
+    { 0x00000001, "disabled" },
+    { 0x00000002, "enabled" },
     { 0, NULL }
 };
 
@@ -762,6 +798,13 @@ static const value_string dpoe_1904_1_duplex_status_vals[] = {
     { 0x01, "half_duplex" },
     { 0x02, "full_duplex" },
     { 0x03, "unknown" },
+    { 0, NULL }
+};
+
+static const value_string dpoe_1904_1_cfg_mcast_llid_action[] = {
+    { 0x00, "Add" },
+    { 0x01, "Delete" },
+    { 0x02, "Delete All" },
     { 0, NULL }
 };
 
@@ -850,6 +893,7 @@ static const value_string user_queue_object_rr_vals[] = {
 
 static const unit_name_string units_pdus_100ms = { " (PDUs/100ms)", NULL };
 static const unit_name_string units_num_100ms = { " (Number of 100ms)", NULL };
+static const unit_name_string units_1k = { " (KB)", NULL };
 
 /* Initialise the protocol and registered fields */
 static int proto_oampdu = -1;
@@ -929,6 +973,15 @@ static int hf_oam_dpoe_response_int = -1;
 
 static int hf_oam_dpoe_mll_b = -1;
 static int hf_oam_dpoe_mll_do = -1;
+static int hf_oam_dpoe_pkt_buffer_us_queues = -1;
+static int hf_oam_dpoe_pkt_buffer_us_queues_max_per_link = -1;
+static int hf_oam_dpoe_pkt_buffer_us_queue_inc = -1;
+static int hf_oam_dpoe_pkt_buffer_ds_queues = -1;
+static int hf_oam_dpoe_pkt_buffer_ds_queues_max_per_link = -1;
+static int hf_oam_dpoe_pkt_buffer_ds_queue_inc = -1;
+static int hf_oam_dpoe_pkt_buffer_total_memory = -1;
+static int hf_oam_dpoe_pkt_buffer_us_memory_max = -1;
+static int hf_oam_dpoe_pkt_buffer_ds_memory_max = -1;
 static int hf_oam_dpoe_frame_rate_minimum = -1;
 static int hf_oam_dpoe_frame_rate_maximum = -1;
 static int hf_oam_dpoe_repthr_nqs = -1;
@@ -971,8 +1024,14 @@ static int hf_oam_dpoe_qc_nq = -1;
 static int hf_oam_dpoe_qc_queue_size = -1;
 
 static int hf_oam_dpoe_1904_1_mac_enable_status = -1;
+static int hf_oam_dpoe_1904_1_a_phy_type = -1;
 static int hf_oam_dpoe_1904_1_media_available = -1;
+static int hf_oam_dpoe_1904_1_autoneg_admstate = -1;
 static int hf_oam_dpoe_1904_1_duplex_status = -1;
+static int hf_oam_dpoe_1904_1_mac_control_functions_supported = -1;
+static int hf_oam_dpoe_1904_1_cfg_mcast_llid_action = -1;
+static int hf_oam_dpoe_1904_1_cfg_mcast_llid_value = -1;
+static int hf_oam_dpoe_1904_1_read_write_mac_address = -1;
 
 static int hf_oampdu_lpbk = -1;
 static int hf_oampdu_lpbk_enable = -1;
@@ -1835,6 +1894,16 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_NUM_S1_INT) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_PKT_BUFFER) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_us_queues, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_us_queues_max_per_link, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_us_queue_inc, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_ds_queues, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_ds_queues_max_per_link, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_ds_queue_inc, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_total_memory, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_us_memory_max, tvb, offset+8, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_pkt_buffer_ds_memory_max, tvb, offset+10, 2, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_OAM_FR) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1999,10 +2068,30 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 /* fall-through for unmatched: */
                             } else if (leaf_branch == DPOE_LB_1904_1_MAC_ENABLE_STATUS) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_mac_enable_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_1904_1_A_PHY_TYPE) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_a_phy_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_1904_1_MEDIA_AVAILABLE) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_media_available, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_1904_1_AUTONEG_ADM_STATE) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_autoneg_admstate, tvb, offset, 4, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_1904_1_DUPLEX_STATUS) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_duplex_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_1904_1_MAC_CTl_FUNCTIONS) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_mac_control_functions_supported, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_1904_1_CFG_MCAST_LLID) {
+                                guint8 action;
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_cfg_mcast_llid_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                action = tvb_get_guint8(tvb, offset);
+                                switch (action) {
+                                    case 0x00:
+                                    case 0x01:
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_cfg_mcast_llid_value, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            } else if (leaf_branch == DPOE_LB_1904_1_RW_MAC_ADDRESS) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_read_write_mac_address, tvb, offset, 6, ENC_NA);
                             } else {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oampdu_variable_value, tvb, offset, variable_length, ENC_NA);
                             }
@@ -2388,6 +2477,51 @@ proto_register_oampdu(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL } },
 
+        { &hf_oam_dpoe_pkt_buffer_us_queues,
+            { "Upstream Queues", "oampdu.pkt_buf.us_queues",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_us_queues_max_per_link,
+            { "Upstream Queues Max/Link", "oampdu.pkt_buf.us_queues_max_per_link",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_us_queue_inc,
+            { "Upstream Queue Increment", "oampdu.pkt_buf.us_queue_increment",
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_ds_queues,
+            { "Downstream Queues", "oampdu.pkt_buf.ds_queues",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_ds_queues_max_per_link,
+            { "Downstream Queues Max/Link", "oampdu.pkt_buf.ds_queues_max_per_link",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_ds_queue_inc,
+            { "Downstream Queue Increment", "oampdu.pkt_buf.ds_queue_increment",
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_total_memory,
+            { "Total Memory", "oampdu.pkt_buf.total_memory",
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_us_memory_max,
+            { "Upstream Memory Max", "oampdu.pkt_buf.us_memory_max",
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_pkt_buffer_ds_memory_max,
+            { "Downstream Memory Max", "oampdu.pkt_buf.ds_memory_max",
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                NULL, HFILL } },
+
         { &hf_oam_dpoe_frame_rate_maximum,
             { "Maximum OAM Rate", "oampdu.frame.rate.min",
                 FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_num_100ms, 0x0,
@@ -2515,7 +2649,7 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_user_port_object_result_rr_queue_obj_type,
             { "Object Type", "oampdu.user.port.object.result.rr.queue.object_type",
-                FT_UINT8, BASE_HEX, VALS(user_queue_object_rr_vals), 0x0,
+                FT_UINT16, BASE_HEX, VALS(user_queue_object_rr_vals), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_queue_obj_inst,
@@ -2593,15 +2727,45 @@ proto_register_oampdu(void)
                 FT_UINT8, BASE_DEC, VALS(dpoe_1904_1_mac_enable_status_vals), 0x0,
                 NULL, HFILL } },
 
+        { &hf_oam_dpoe_1904_1_a_phy_type,
+            { "PHY Type", "oampdu.1904_1.a_phy_type",
+                FT_UINT8, BASE_HEX, VALS(dpoe_1904_1_a_phy_type_vals), 0x0,
+                NULL, HFILL } },
+
         { &hf_oam_dpoe_1904_1_media_available,
             { "Media Available", "oampdu.1904_1.media_available",
                 FT_UINT8, BASE_DEC, VALS(dpoe_1904_1_media_available_vals), 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_1904_1_autoneg_admstate,
+            { "Auto-Negotiation Admin State", "oampdu.1904_1.autoneg_admstate",
+                FT_UINT32, BASE_DEC, VALS(dpoe_1904_1_autoneg_admstate_vals), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_1904_1_duplex_status,
             { "Duplex Status", "oampdu.1904_1.duplex_status",
                 FT_UINT8, BASE_DEC, VALS(dpoe_1904_1_duplex_status_vals), 0x0,
                 NULL, HFILL } },
+
+        { &hf_oam_dpoe_1904_1_mac_control_functions_supported,
+            { "MAC Control Functions Supported", "oampdu.1904_1.mac_control_functions_supported",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_1904_1_cfg_mcast_llid_action,
+            { "Config MCast LLID Action", "oampdu.1904_1.cfg_mcast_llid_action",
+                FT_UINT8, BASE_DEC, VALS(dpoe_1904_1_cfg_mcast_llid_action), 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_1904_1_cfg_mcast_llid_value,
+            { "Config MCast LLID Value", "oampdu.1904_1.cfg_mcast_llid_value",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_1904_1_read_write_mac_address,
+            { "Read Write MAC Address", "oampdu.1904_1.read_write_mac_address",
+                FT_ETHER, BASE_NONE, NULL, 0x0,
+                NULL, HFILL } }
     };
 
     /* Setup protocol subtree array */
