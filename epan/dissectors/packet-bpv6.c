@@ -1578,7 +1578,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         proto_tree_add_item(block_tree, hf_bundle_block_previous_hop_eid, tvb, offset, block_length-scheme_length, ENC_ASCII);
         if (block_length - scheme_length < 1) {
             expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
-            return tvb_reported_length_remaining(tvb, offset);
+            *lastheader = TRUE;
+            return offset;
         }
         offset += block_length - scheme_length;
 
@@ -1623,7 +1624,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
             params_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
             if (ei) {
                 proto_tree_add_expert(block_tree, pinfo, ei, tvb, offset, -1);
-                return tvb_reported_length_remaining(tvb, offset);
+                *lastheader = TRUE;
+                return offset;
             }
             param_tree = proto_tree_add_subtree(block_tree, tvb, offset, params_length+1, ett_sec_block_param_data, NULL, "Ciphersuite Parameters Data");
             proto_tree_add_int(param_tree, hf_block_ciphersuite_params_length, tvb, offset, sdnv_length, params_length);
@@ -1640,7 +1642,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
                 proto_tree_add_int(param_tree, hf_block_ciphersuite_params_item_length, tvb, offset, sdnv_length, item_length);
                 if (ei) {
                     proto_tree_add_expert(param_tree, pinfo, ei, tvb, offset, -1);
-                    return tvb_reported_length_remaining(tvb, offset);
+                    *lastheader = TRUE;
+                    return offset;
                 }
 
                 offset += sdnv_length;
@@ -1749,7 +1752,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         /* and second is the creator custodian EID */
         if (block_length - sdnv_length < 1) {
             expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
-            return tvb_reported_length_remaining(tvb, offset);
+            *lastheader = TRUE;
+            return offset;
         }
         cteb_creator_custodian_eid_length = block_length - sdnv_length;
         ti = proto_tree_add_item_ret_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
