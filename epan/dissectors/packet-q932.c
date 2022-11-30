@@ -3,9 +3,6 @@
 /* packet-q932.c                                                              */
 /* asn2wrs.py -b -L -p q932 -c ./q932.cnf -s ./packet-q932-template -D . -O ../.. Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn */
 
-/* Input file: packet-q932-template.c */
-
-#line 1 "./asn1/q932/packet-q932-template.c"
 /* packet-q932.c
  * Routines for Q.932 packet dissection
  * 2007  Tomas Kukosa
@@ -41,9 +38,6 @@ static int hf_q932_ie_len = -1;
 static int hf_q932_ie_data = -1;
 static int hf_q932_pp = -1;
 static int hf_q932_nd = -1;
-
-/*--- Included file: packet-q932-hf.c ---*/
-#line 1 "./asn1/q932/packet-q932-hf.c"
 static int hf_q932_NetworkFacilityExtension_PDU = -1;  /* NetworkFacilityExtension */
 static int hf_q932_NetworkProtocolProfile_PDU = -1;  /* NetworkProtocolProfile */
 static int hf_q932_InterpretationComponent_PDU = -1;  /* InterpretationComponent */
@@ -82,15 +76,9 @@ static int hf_q932_sourceEntityAddress = -1;      /* AddressInformation */
 static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
-/*--- End of included file: packet-q932-hf.c ---*/
-#line 37 "./asn1/q932/packet-q932-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
 static gint ett_q932_ie = -1;
-
-/*--- Included file: packet-q932-ett.c ---*/
-#line 1 "./asn1/q932/packet-q932-ett.c"
 static gint ett_q932_PresentedAddressScreened = -1;
 static gint ett_q932_PresentedAddressUnscreened = -1;
 static gint ett_q932_PresentedNumberScreened = -1;
@@ -104,9 +92,6 @@ static gint ett_q932_PrivatePartyNumber = -1;
 static gint ett_q932_PartySubaddress = -1;
 static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
-
-/*--- End of included file: packet-q932-ett.c ---*/
-#line 42 "./asn1/q932/packet-q932-template.c"
 
 static expert_field ei_q932_dse_not_supported = EI_INIT;
 static expert_field ei_q932_acse_not_supported = EI_INIT;
@@ -195,9 +180,6 @@ static const value_string str_nd[] = {
   { 0, NULL}
 };
 
-
-/*--- Included file: packet-q932-fn.c ---*/
-#line 1 "./asn1/q932/packet-q932-fn.c"
 
 
 static int
@@ -703,9 +685,6 @@ static int dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *p
 }
 
 
-/*--- End of included file: packet-q932-fn.c ---*/
-#line 131 "./asn1/q932/packet-q932-template.c"
-
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 static void
 dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
@@ -874,9 +853,6 @@ void proto_register_q932(void) {
     { &hf_q932_nd,      { "Notification description", "q932.nd",
                           FT_UINT8, BASE_HEX, VALS(str_nd), 0x0,
                           NULL, HFILL }},
-
-/*--- Included file: packet-q932-hfarr.c ---*/
-#line 1 "./asn1/q932/packet-q932-hfarr.c"
     { &hf_q932_NetworkFacilityExtension_PDU,
       { "NetworkFacilityExtension", "q932.NetworkFacilityExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1025,18 +1001,12 @@ void proto_register_q932(void) {
       { "destinationEntityAddress", "q932.destinationEntityAddress",
         FT_UINT32, BASE_DEC, VALS(q932_PartyNumber_vals), 0,
         "AddressInformation", HFILL }},
-
-/*--- End of included file: packet-q932-hfarr.c ---*/
-#line 301 "./asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_q932,
     &ett_q932_ie,
-
-/*--- Included file: packet-q932-ettarr.c ---*/
-#line 1 "./asn1/q932/packet-q932-ettarr.c"
     &ett_q932_PresentedAddressScreened,
     &ett_q932_PresentedAddressUnscreened,
     &ett_q932_PresentedNumberScreened,
@@ -1050,9 +1020,6 @@ void proto_register_q932(void) {
     &ett_q932_PartySubaddress,
     &ett_q932_UserSpecifiedSubaddress,
     &ett_q932_NetworkFacilityExtension_U,
-
-/*--- End of included file: packet-q932-ettarr.c ---*/
-#line 308 "./asn1/q932/packet-q932-template.c"
   };
 
   static ei_register_info ei[] = {

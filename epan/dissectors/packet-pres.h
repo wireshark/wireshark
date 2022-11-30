@@ -3,9 +3,6 @@
 /* packet-pres.h                                                              */
 /* asn2wrs.py -b -L -p pres -c ./pres.cnf -s ./packet-pres-template -D . -O ../.. ISO8823-PRESENTATION.asn ISO9576-PRESENTATION.asn */
 
-/* Input file: packet-pres-template.h */
-
-#line 1 "./asn1/pres/packet-pres-template.h"
 /* packet-pres.h
  * Routines for pres packet dissection
  *

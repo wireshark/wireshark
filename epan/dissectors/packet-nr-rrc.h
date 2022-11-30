@@ -3,9 +3,6 @@
 /* packet-nr-rrc.h                                                            */
 /* asn2wrs.py -L -L -p nr-rrc -c ./nr-rrc.cnf -s ./packet-nr-rrc-template -D . -O ../.. NR-InterNodeDefinitions.asn NR-RRC-Definitions.asn PC5-RRC-Definitions.asn */
 
-/* Input file: packet-nr-rrc-template.h */
-
-#line 1 "./asn1/nr-rrc/packet-nr-rrc-template.h"
 /* packet-nr-rrc-template.h
  * Copyright 2018-2022, Pascal Quantin
  *
@@ -19,9 +16,6 @@
 #ifndef PACKET_NR_RRC_H
 #define PACKET_NR_RRC_H
 
-
-/*--- Included file: packet-nr-rrc-exp.h ---*/
-#line 1 "./asn1/nr-rrc/packet-nr-rrc-exp.h"
 int dissect_nr_rrc_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_nr_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_nr_rrc_CG_Config_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -110,9 +104,6 @@ int dissect_nr_rrc_SL_PHY_MAC_RLC_Config_r16_PDU(tvbuff_t *tvb _U_, packet_info 
 int dissect_nr_rrc_SL_RLC_ChannelToAddModList_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_nr_rrc_MBS_NeighbourCellList_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_nr_rrc_MRB_PDCP_ConfigBroadcast_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-nr-rrc-exp.h ---*/
-#line 15 "./asn1/nr-rrc/packet-nr-rrc-template.h"
 int dissect_nr_rrc_nr_RLF_Report_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_nr_rrc_subCarrierSpacingCommon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_nr_rrc_rach_ConfigCommonIAB_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);

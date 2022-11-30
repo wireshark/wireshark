@@ -3,9 +3,6 @@
 /* packet-pkix1explicit.c                                                     */
 /* asn2wrs.py -b -L -p pkix1explicit -c ./pkix1explicit.cnf -s ./packet-pkix1explicit-template -D . -O ../.. PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
 
-/* Input file: packet-pkix1explicit-template.c */
-
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 #define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2wrs */
 
 /* packet-pkix1explicit.c
@@ -49,9 +46,6 @@ static int hf_pkix1explicit_addressFamily_safi = -1;
 
 static int ett_pkix1explicit_addressFamily = -1;
 
-
-/*--- Included file: packet-pkix1explicit-hf.c ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-hf.c"
 static int hf_pkix1explicit_Extensions_PDU = -1;  /* Extensions */
 static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
 static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
@@ -100,13 +94,7 @@ static int hf_pkix1explicit_range = -1;           /* ASRange */
 static int hf_pkix1explicit_min_01 = -1;          /* ASId */
 static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
-/*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 45 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-pkix1explicit-ett.c ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-ett.c"
 static gint ett_pkix1explicit_Time = -1;
 static gint ett_pkix1explicit_Extensions = -1;
 static gint ett_pkix1explicit_Extension = -1;
@@ -130,9 +118,6 @@ static gint ett_pkix1explicit_ASIdentifierChoice = -1;
 static gint ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASRange = -1;
-
-/*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 48 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
@@ -173,9 +158,6 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 }
 
 
-
-/*--- Included file: packet-pkix1explicit-fn.c ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-fn.c"
 
 
 int
@@ -839,9 +821,6 @@ static int dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 }
 
 
-/*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 89 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
-
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
 void proto_register_pkix1explicit(void) {
@@ -859,9 +838,6 @@ void proto_register_pkix1explicit(void) {
     { &hf_pkix1explicit_addressFamily_safi,
       { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT16, BASE_DEC, NULL, 0,
 	"Subsequent Address Family Identifiers (SAFI) RFC4760", HFILL }},
-
-/*--- Included file: packet-pkix1explicit-hfarr.c ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-hfarr.c"
     { &hf_pkix1explicit_Extensions_PDU,
       { "Extensions", "pkix1explicit.Extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1050,17 +1026,11 @@ void proto_register_pkix1explicit(void) {
       { "max", "pkix1explicit.max",
         FT_INT32, BASE_DEC, NULL, 0,
         "ASId", HFILL }},
-
-/*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 108 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_pkix1explicit_addressFamily,
-
-/*--- Included file: packet-pkix1explicit-ettarr.c ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-ettarr.c"
     &ett_pkix1explicit_Time,
     &ett_pkix1explicit_Extensions,
     &ett_pkix1explicit_Extension,
@@ -1084,9 +1054,6 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange,
     &ett_pkix1explicit_ASIdOrRange,
     &ett_pkix1explicit_ASRange,
-
-/*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 114 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -1103,9 +1070,6 @@ void proto_register_pkix1explicit(void) {
 void proto_reg_handoff_pkix1explicit(void) {
 	oid_add_from_string("id-pkix","1.3.6.1.5.5.7");
 	oid_add_from_string("id-dsa-with-sha1","1.2.840.10040.4.3");
-
-/*--- Included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.2.1", dissect_DirectoryString_PDU, proto_pkix1explicit, "id-qt-cps");
   register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkix1explicit, "dhpublicnumber");
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.7", dissect_IPAddrBlocks_PDU, proto_pkix1explicit, "id-pe-ipAddrBlocks");
@@ -1114,7 +1078,4 @@ void proto_reg_handoff_pkix1explicit(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.7", dissect_DirectoryString_PDU, proto_pkix1explicit, "pkcs-9-at-challengePassword");
   register_ber_oid_dissector("1.2.840.113549.1.9.14", dissect_Extensions_PDU, proto_pkix1explicit, "pkcs-9-at-extensionRequest");
 
-
-/*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 131 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 }

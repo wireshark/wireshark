@@ -3,9 +3,6 @@
 /* packet-tcg-cp-oids.h                                                       */
 /* asn2wrs.py -b -L -p tcg-cp-oids -c ./tcg-cp-oids.cnf -s ./packet-tcg-cp-oids-template -D . -O ../.. tcg-cp-oids.asn */
 
-/* Input file: packet-tcg-cp-oids-template.h */
-
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.h"
 /* packet-tcg-cp-oids.h
  * Routines for TCG Certificate Profile OIDs
  *
@@ -19,11 +16,5 @@
 #ifndef PACKET_TCG_CP_OIDS_H
 #define PACKET_TCG_CP_OIDS_H
 
-
-/*--- Included file: packet-tcg-cp-oids-exp.h ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-exp.h"
-
-/*--- End of included file: packet-tcg-cp-oids-exp.h ---*/
-#line 15 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.h"
 
 #endif  /* PACKET_TCG_CP_OIDS_H */

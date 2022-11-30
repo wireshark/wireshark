@@ -3,9 +3,6 @@
 /* packet-p22.c                                                               */
 /* asn2wrs.py -b -C -L -p p22 -c ./p22.cnf -s ./packet-p22-template -D . -O ../.. IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn IPMSUpperBounds.asn */
 
-/* Input file: packet-p22-template.c */
-
-#line 1 "./asn1/p22/packet-p22-template.c"
 /* packet-p22.c
  * Routines for X.420 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
@@ -71,9 +68,6 @@ static const value_string charsetreg_vals [] = {
   { 0, NULL}
 };
 
-
-/*--- Included file: packet-p22-val.h ---*/
-#line 1 "./asn1/p22/packet-p22-val.h"
 #define id_ipms                        "2.6.1"
 #define id_mod                         id_ipms".0"
 #define id_ot                          id_ipms".1"
@@ -322,12 +316,6 @@ static const value_string charsetreg_vals [] = {
 #define ub_subject_field               128
 #define ub_telephone_number            32
 
-/*--- End of included file: packet-p22-val.h ---*/
-#line 67 "./asn1/p22/packet-p22-template.c"
-
-
-/*--- Included file: packet-p22-hf.c ---*/
-#line 1 "./asn1/p22/packet-p22-hf.c"
 static int hf_p22_InformationObject_PDU = -1;     /* InformationObject */
 static int hf_p22_Heading_PDU = -1;               /* Heading */
 static int hf_p22_ORDescriptor_PDU = -1;          /* ORDescriptor */
@@ -707,14 +695,8 @@ static int hf_p22_RecipientSecurityRequest_content_proof = -1;
 static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation = -1;
 static int hf_p22_RecipientSecurityRequest_ipn_proof = -1;
 
-/*--- End of included file: packet-p22-hf.c ---*/
-#line 69 "./asn1/p22/packet-p22-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_p22 = -1;
-
-/*--- Included file: packet-p22-ett.c ---*/
-#line 1 "./asn1/p22/packet-p22-ett.c"
 static gint ett_p22_InformationObject = -1;
 static gint ett_p22_IPM = -1;
 static gint ett_p22_IPMSExtension = -1;
@@ -841,12 +823,6 @@ static gint ett_p22_ForwardedContentToken_item = -1;
 static gint ett_p22_T_body_part_token_choice = -1;
 static gint ett_p22_T_choice = -1;
 
-/*--- End of included file: packet-p22-ett.c ---*/
-#line 73 "./asn1/p22/packet-p22-template.c"
-
-
-/*--- Included file: packet-p22-fn.c ---*/
-#line 1 "./asn1/p22/packet-p22-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* IPM -> Body -> BodyPart -> BodyPart/basic -> MessageBodyPart -> MessageData -> IPM */
@@ -4636,9 +4612,6 @@ static int dissect_ForwardedContentToken_PDU(tvbuff_t *tvb _U_, packet_info *pin
 }
 
 
-/*--- End of included file: packet-p22-fn.c ---*/
-#line 75 "./asn1/p22/packet-p22-template.c"
-
 /*
 * Dissect P22 PDUs inside a PPDU.
 */
@@ -4670,9 +4643,6 @@ void proto_register_p22(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
-
-/*--- Included file: packet-p22-hfarr.c ---*/
-#line 1 "./asn1/p22/packet-p22-hfarr.c"
     { &hf_p22_InformationObject_PDU,
       { "InformationObject", "p22.InformationObject",
         FT_UINT32, BASE_DEC, VALS(p22_InformationObject_vals), 0,
@@ -6181,17 +6151,11 @@ void proto_register_p22(void) {
       { "ipn-proof", "p22.RecipientSecurityRequest.ipn.proof",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-p22-hfarr.c ---*/
-#line 108 "./asn1/p22/packet-p22-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_p22,
-
-/*--- Included file: packet-p22-ettarr.c ---*/
-#line 1 "./asn1/p22/packet-p22-ettarr.c"
     &ett_p22_InformationObject,
     &ett_p22_IPM,
     &ett_p22_IPMSExtension,
@@ -6317,9 +6281,6 @@ void proto_register_p22(void) {
     &ett_p22_ForwardedContentToken_item,
     &ett_p22_T_body_part_token_choice,
     &ett_p22_T_choice,
-
-/*--- End of included file: packet-p22-ettarr.c ---*/
-#line 114 "./asn1/p22/packet-p22-template.c"
   };
 
   /* Register protocol */
@@ -6335,9 +6296,6 @@ void proto_register_p22(void) {
 /*--- proto_reg_handoff_p22 --- */
 void proto_reg_handoff_p22(void) {
 
-
-/*--- Included file: packet-p22-dis-tab.c ---*/
-#line 1 "./asn1/p22/packet-p22-dis-tab.c"
   register_ber_oid_dissector("2.6.1.19.0", dissect_AbsenceAdvice_PDU, proto_p22, "id-on-absence-advice");
   register_ber_oid_dissector("2.6.1.19.1", dissect_ChangeOfAddressAdvice_PDU, proto_p22, "id-on-change-of-address-advice");
   register_ber_oid_dissector("2.6.1.17.2", dissect_IPMAssemblyInstructions_PDU, proto_p22, "id-mst-assembly-instructions");
@@ -6437,9 +6395,6 @@ void proto_reg_handoff_p22(void) {
   register_ber_oid_dissector("2.6.1.18.0", dissect_RecipientSecurityRequest_PDU, proto_p22, "id-sec-ipm-security-request");
   register_ber_oid_dissector("2.6.1.18.1", dissect_IpnSecurityResponse_PDU, proto_p22, "id-sec-security-common-fields");
 
-
-/*--- End of included file: packet-p22-dis-tab.c ---*/
-#line 130 "./asn1/p22/packet-p22-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");

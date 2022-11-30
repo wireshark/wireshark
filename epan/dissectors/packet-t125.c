@@ -3,9 +3,6 @@
 /* packet-t125.c                                                              */
 /* asn2wrs.py -b -L -p t125 -c ./t125.cnf -s ./packet-t125-template -D . -O ../.. MCS-PROTOCOL.asn */
 
-/* Input file: packet-t125-template.c */
-
-#line 1 "./asn1/t125/packet-t125-template.c"
 /* packet-t125.c
  * Routines for t125 packet dissection
  * Copyright 2007, Ronnie Sahlberg
@@ -49,9 +46,6 @@ void proto_reg_handoff_t125(void);
 /* Initialize the protocol and registered fields */
 static int proto_t125 = -1;
 static proto_tree *top_tree = NULL;
-
-/*--- Included file: packet-t125-hf.c ---*/
-#line 1 "./asn1/t125/packet-t125-hf.c"
 static int hf_t125_ConnectMCSPDU_PDU = -1;        /* ConnectMCSPDU */
 static int hf_t125_maxChannelIds = -1;            /* INTEGER_0_MAX */
 static int hf_t125_maxUserIds = -1;               /* INTEGER_0_MAX */
@@ -78,15 +72,9 @@ static int hf_t125_connect_response = -1;         /* Connect_Response */
 static int hf_t125_connect_additional = -1;       /* Connect_Additional */
 static int hf_t125_connect_result = -1;           /* Connect_Result */
 
-/*--- End of included file: packet-t125-hf.c ---*/
-#line 45 "./asn1/t125/packet-t125-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
 
-
-/*--- Included file: packet-t125-ett.c ---*/
-#line 1 "./asn1/t125/packet-t125-ett.c"
 static gint ett_t125_DomainParameters = -1;
 static gint ett_t125_Connect_Initial_U = -1;
 static gint ett_t125_Connect_Response_U = -1;
@@ -94,14 +82,8 @@ static gint ett_t125_Connect_Additional_U = -1;
 static gint ett_t125_Connect_Result_U = -1;
 static gint ett_t125_ConnectMCSPDU = -1;
 
-/*--- End of included file: packet-t125-ett.c ---*/
-#line 50 "./asn1/t125/packet-t125-template.c"
-
 static heur_dissector_list_t t125_heur_subdissector_list;
 
-
-/*--- Included file: packet-t125-fn.c ---*/
-#line 1 "./asn1/t125/packet-t125-fn.c"
 
 static const value_string t125_DataPriority_vals[] = {
   {   0, "top" },
@@ -376,9 +358,6 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 }
 
 
-/*--- End of included file: packet-t125-fn.c ---*/
-#line 54 "./asn1/t125/packet-t125-template.c"
-
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
@@ -469,9 +448,6 @@ void proto_register_t125(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-t125-hfarr.c ---*/
-#line 1 "./asn1/t125/packet-t125-hfarr.c"
     { &hf_t125_ConnectMCSPDU_PDU,
       { "ConnectMCSPDU", "t125.ConnectMCSPDU",
         FT_UINT32, BASE_DEC, VALS(t125_ConnectMCSPDU_vals), 0,
@@ -572,26 +548,17 @@ void proto_register_t125(void) {
       { "connect-result", "t125.connect_result_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-t125-hfarr.c ---*/
-#line 146 "./asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_t125,
-
-/*--- Included file: packet-t125-ettarr.c ---*/
-#line 1 "./asn1/t125/packet-t125-ettarr.c"
     &ett_t125_DomainParameters,
     &ett_t125_Connect_Initial_U,
     &ett_t125_Connect_Response_U,
     &ett_t125_Connect_Additional_U,
     &ett_t125_Connect_Result_U,
     &ett_t125_ConnectMCSPDU,
-
-/*--- End of included file: packet-t125-ettarr.c ---*/
-#line 152 "./asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */

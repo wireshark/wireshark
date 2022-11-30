@@ -3,9 +3,6 @@
 /* packet-snmp.c                                                              */
 /* asn2wrs.py -b -L -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . -O ../.. snmp.asn */
 
-/* Input file: packet-snmp-template.c */
-
-#line 1 "./asn1/snmp/packet-snmp-template.c"
 /* packet-snmp.c
  * Routines for SNMP (simple network management protocol)
  * Copyright (C) 1998 Didier Jorand
@@ -242,9 +239,6 @@ static int hf_snmp_scalar_instance_index = -1;
 static int hf_snmp_var_bind_str = -1;
 static int hf_snmp_agentid_trailer = -1;
 
-
-/*--- Included file: packet-snmp-hf.c ---*/
-#line 1 "./asn1/snmp/packet-snmp-hf.c"
 static int hf_snmp_SMUX_PDUs_PDU = -1;            /* SMUX_PDUs */
 static int hf_snmp_version = -1;                  /* Version */
 static int hf_snmp_community = -1;                /* Community */
@@ -311,9 +305,6 @@ static int hf_snmp_subtree = -1;                  /* ObjectName */
 static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
-/*--- End of included file: packet-snmp-hf.c ---*/
-#line 238 "./asn1/snmp/packet-snmp-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_smux = -1;
 static gint ett_snmp = -1;
@@ -328,9 +319,6 @@ static gint ett_name = -1;
 static gint ett_value = -1;
 static gint ett_decoding_error = -1;
 
-
-/*--- Included file: packet-snmp-ett.c ---*/
-#line 1 "./asn1/snmp/packet-snmp-ett.c"
 static gint ett_snmp_Message = -1;
 static gint ett_snmp_Messagev2u = -1;
 static gint ett_snmp_T_datav2u = -1;
@@ -350,9 +338,6 @@ static gint ett_snmp_RegisterResponse = -1;
 static gint ett_snmp_OpenPDU = -1;
 static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
-
-/*--- End of included file: packet-snmp-ett.c ---*/
-#line 254 "./asn1/snmp/packet-snmp-template.c"
 
 static expert_field ei_snmp_failed_decrypted_data_pdu = EI_INIT;
 static expert_field ei_snmp_decrypted_data_bad_formatted = EI_INIT;
@@ -2022,9 +2007,6 @@ check_ScopedPdu(tvbuff_t* tvb)
 }
 
 
-/*--- Included file: packet-snmp-fn.c ---*/
-#line 1 "./asn1/snmp/packet-snmp-fn.c"
-
 
 
 static int
@@ -3132,9 +3114,6 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 }
 
 
-/*--- End of included file: packet-snmp-fn.c ---*/
-#line 1923 "./asn1/snmp/packet-snmp-template.c"
-
 static snmp_conv_info_t*
 snmp_find_conversation_and_get_conv_data(packet_info *pinfo) {
 
@@ -3662,9 +3641,6 @@ void proto_register_snmp(void) {
 		    NULL, 0, NULL, HFILL }},
 
 
-
-/*--- Included file: packet-snmp-hfarr.c ---*/
-#line 1 "./asn1/snmp/packet-snmp-hfarr.c"
     { &hf_snmp_SMUX_PDUs_PDU,
       { "SMUX-PDUs", "snmp.SMUX_PDUs",
         FT_UINT32, BASE_DEC, VALS(snmp_SMUX_PDUs_vals), 0,
@@ -3925,9 +3901,6 @@ void proto_register_snmp(void) {
       { "operation", "snmp.operation",
         FT_INT32, BASE_DEC, VALS(snmp_T_operation_vals), 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2452 "./asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3943,9 +3916,6 @@ void proto_register_snmp(void) {
 		&ett_name,
 		&ett_value,
 		&ett_decoding_error,
-
-/*--- Included file: packet-snmp-ettarr.c ---*/
-#line 1 "./asn1/snmp/packet-snmp-ettarr.c"
     &ett_snmp_Message,
     &ett_snmp_Messagev2u,
     &ett_snmp_T_datav2u,
@@ -3965,9 +3935,6 @@ void proto_register_snmp(void) {
     &ett_snmp_OpenPDU,
     &ett_snmp_SimpleOpen_U,
     &ett_snmp_RReqPDU_U,
-
-/*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2468 "./asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},

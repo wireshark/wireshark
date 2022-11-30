@@ -3,9 +3,6 @@
 /* packet-xnap.c                                                              */
 /* asn2wrs.py -L -p xnap -c ./xnap.cnf -s ./packet-xnap-template -D . -O ../.. XnAP-CommonDataTypes.asn XnAP-Constants.asn XnAP-Containers.asn XnAP-IEs.asn XnAP-PDU-Contents.asn XnAP-PDU-Descriptions.asn */
 
-/* Input file: packet-xnap-template.c */
-
-#line 1 "./asn1/xnap/packet-xnap-template.c"
 /* packet-xnap.c
  * Routines for dissecting NG-RAN Xn application protocol (XnAP)
  * 3GPP TS 38.423 packet dissection
@@ -53,9 +50,6 @@
 /* Dissector will use SCTP PPID 61 or SCTP port. IANA assigned port = 38422 */
 #define SCTP_PORT_XnAP	38422
 
-
-/*--- Included file: packet-xnap-val.h ---*/
-#line 1 "./asn1/xnap/packet-xnap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -598,9 +592,6 @@ typedef enum _GlobalNG_RANNode_ID_enum {
   GlobalNG_RANNode_ID_choice_extension =   2
 } GlobalNG_RANNode_ID_enum;
 
-/*--- End of included file: packet-xnap-val.h ---*/
-#line 49 "./asn1/xnap/packet-xnap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_xnap = -1;
 static int hf_xnap_transportLayerAddressIPv4 = -1;
@@ -635,9 +626,6 @@ static int hf_xnap_ReportCharacteristics_TNLCapacityIndPeriodic = -1;
 static int hf_xnap_ReportCharacteristics_CompositeAvailableCapacityPeriodic = -1;
 static int hf_xnap_ReportCharacteristics_NumberOfActiveUEs = -1;
 static int hf_xnap_ReportCharacteristics_Reserved = -1;
-
-/*--- Included file: packet-xnap-hf.c ---*/
-#line 1 "./asn1/xnap/packet-xnap-hf.c"
 static int hf_xnap_AdditionLocationInformation_PDU = -1;  /* AdditionLocationInformation */
 static int hf_xnap_Additional_PDCP_Duplication_TNL_List_PDU = -1;  /* Additional_PDCP_Duplication_TNL_List */
 static int hf_xnap_Additional_UL_NG_U_TNLatUPF_List_PDU = -1;  /* Additional_UL_NG_U_TNLatUPF_List */
@@ -2321,9 +2309,6 @@ static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128 = -1;
 
-/*--- End of included file: packet-xnap-hf.c ---*/
-#line 85 "./asn1/xnap/packet-xnap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_xnap = -1;
 static gint ett_xnap_RRC_Context = -1;
@@ -2373,9 +2358,6 @@ static gint ett_xnap_RACH_Config_Common_IAB = -1;
 static gint ett_xnap_ReportConfigContainer = -1;
 static gint ett_xnap_RLC_Bearer_Configuration = -1;
 static gint ett_xnap_SuccessfulHOReportContainer = -1;
-
-/*--- Included file: packet-xnap-ett.c ---*/
-#line 1 "./asn1/xnap/packet-xnap-ett.c"
 static gint ett_xnap_PrivateIE_ID = -1;
 static gint ett_xnap_ProtocolIE_Container = -1;
 static gint ett_xnap_ProtocolIE_Field = -1;
@@ -3230,9 +3212,6 @@ static gint ett_xnap_InitiatingMessage = -1;
 static gint ett_xnap_SuccessfulOutcome = -1;
 static gint ett_xnap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-xnap-ett.c ---*/
-#line 136 "./asn1/xnap/packet-xnap-template.c"
-
 enum {
   XNAP_NG_RAN_CONTAINER_AUTOMATIC,
   XNAP_NG_RAN_CONTAINER_GNB,
@@ -3376,9 +3355,6 @@ xnap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
   return ranmode_id;
 }
 
-
-/*--- Included file: packet-xnap-fn.c ---*/
-#line 1 "./asn1/xnap/packet-xnap-fn.c"
 
 static const value_string xnap_Criticality_vals[] = {
   {   0, "reject" },
@@ -27997,9 +27973,6 @@ static int dissect_XnAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-xnap-fn.c ---*/
-#line 281 "./asn1/xnap/packet-xnap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
@@ -28200,9 +28173,6 @@ void proto_register_xnap(void) {
       { "Reserved", "xnap.ReportCharacteristics.Reserved",
         FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
         NULL, HFILL }},
-
-/*--- Included file: packet-xnap-hfarr.c ---*/
-#line 1 "./asn1/xnap/packet-xnap-hfarr.c"
     { &hf_xnap_AdditionLocationInformation_PDU,
       { "AdditionLocationInformation", "xnap.AdditionLocationInformation",
         FT_UINT32, BASE_DEC, VALS(xnap_AdditionLocationInformation_vals), 0,
@@ -34927,9 +34897,6 @@ void proto_register_xnap(void) {
       { "eia3-128", "xnap.T.e.utra.IntegrityProtectionAlgorithms.eia3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-xnap-hfarr.c ---*/
-#line 483 "./asn1/xnap/packet-xnap-template.c"
   };
 
   /* List of subtrees */
@@ -34982,9 +34949,6 @@ void proto_register_xnap(void) {
     &ett_xnap_ReportConfigContainer,
     &ett_xnap_RLC_Bearer_Configuration,
     &ett_xnap_SuccessfulHOReportContainer,
-
-/*--- Included file: packet-xnap-ettarr.c ---*/
-#line 1 "./asn1/xnap/packet-xnap-ettarr.c"
     &ett_xnap_PrivateIE_ID,
     &ett_xnap_ProtocolIE_Container,
     &ett_xnap_ProtocolIE_Field,
@@ -35838,9 +35802,6 @@ void proto_register_xnap(void) {
     &ett_xnap_InitiatingMessage,
     &ett_xnap_SuccessfulOutcome,
     &ett_xnap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-xnap-ettarr.c ---*/
-#line 536 "./asn1/xnap/packet-xnap-template.c"
   };
 
   module_t *xnap_module;
@@ -35874,9 +35835,6 @@ proto_reg_handoff_xnap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_XnAP, xnap_handle);
   dissector_add_uint("sctp.ppi", XNAP_PROTOCOL_ID, xnap_handle);
-
-/*--- Included file: packet-xnap-dis-tab.c ---*/
-#line 1 "./asn1/xnap/packet-xnap-dis-tab.c"
   dissector_add_uint("xnap.ies", id_ActivatedServedCells, create_dissector_handle(dissect_ActivatedServedCells_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_ActivationIDforCellActivation, create_dissector_handle(dissect_ActivationIDforCellActivation_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_admittedSplitSRB, create_dissector_handle(dissect_SplitSRBsTypes_PDU, proto_xnap));
@@ -36330,7 +36288,4 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.proc.imsg", id_retrieveUEContextConfirm, create_dissector_handle(dissect_RetrieveUEContextConfirm_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_cPCCancel, create_dissector_handle(dissect_CPCCancel_PDU, proto_xnap));
 
-
-/*--- End of included file: packet-xnap-dis-tab.c ---*/
-#line 570 "./asn1/xnap/packet-xnap-template.c"
 }

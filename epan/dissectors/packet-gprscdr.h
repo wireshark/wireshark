@@ -3,9 +3,6 @@
 /* packet-gprscdr.h                                                           */
 /* asn2wrs.py -b -L -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../.. GenericChargingDataTypes.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypes.asn */
 
-/* Input file: packet-gprscdr-template.h */
-
-#line 1 "./asn1/gprscdr/packet-gprscdr-template.h"
 /* packet-gprscdr.h
  * Routines for gprscdr packet dissection
  * Copyright 2011, Anders Broman <anders.broman@ericsson.com>
@@ -21,9 +18,6 @@
 #define PACKET_GPRSCDR_H
 
 
-
-/*--- Included file: packet-gprscdr-exp.h ---*/
-#line 1 "./asn1/gprscdr/packet-gprscdr-exp.h"
 extern const value_string gprscdr_GPRSCallEventRecord_vals[];
 extern const value_string gprscdr_GPRSRecord_vals[];
 int dissect_gprscdr_GPRSCallEventRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -32,9 +26,6 @@ int dissect_gprscdr_CAMELInformationPDP(gboolean implicit_tag _U_, tvbuff_t *tvb
 int dissect_gprscdr_GPRSCallEventRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_gprscdr_CAMELInformationPDP_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-gprscdr-exp.h ---*/
-#line 17 "./asn1/gprscdr/packet-gprscdr-template.h"
 
 #endif  /* PACKET_GPRSCDR_H */
 

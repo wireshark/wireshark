@@ -3,9 +3,6 @@
 /* packet-p772.c                                                              */
 /* asn2wrs.py -b -C -L -p p772 -c ./p772.cnf -s ./packet-p772-template -D . -O ../.. MMSAbstractService.asn MMSInformationObjects.asn MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn MMSHeadingExtensions.asn MMSUpperBounds.asn MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn */
 
-/* Input file: packet-p772-template.c */
-
-#line 1 "./asn1/p772/packet-p772-template.c"
 /* packet-p772.c
  * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005
@@ -41,9 +38,6 @@ void proto_reg_handoff_p772(void);
 /* Initialize the protocol and registered fields */
 static int proto_p772 = -1;
 
-
-/*--- Included file: packet-p772-val.h ---*/
-#line 1 "./asn1/p772/packet-p772-val.h"
 #define id_mmhs                        "1.3.26.0.4406.0"
 #define id_mod                         id_mmhs".0"
 #define id_mm                          id_mmhs".2"
@@ -150,12 +144,6 @@ static int proto_p772 = -1;
 #define ub_military_bigstring          128
 #define ub_data_size                   65535
 
-/*--- End of included file: packet-p772-val.h ---*/
-#line 37 "./asn1/p772/packet-p772-template.c"
-
-
-/*--- Included file: packet-p772-hf.c ---*/
-#line 1 "./asn1/p772/packet-p772-hf.c"
 static int hf_p772_InformationObject_PDU = -1;    /* InformationObject */
 static int hf_p772_Acp127NotificationResponse_PDU = -1;  /* Acp127NotificationResponse */
 static int hf_p772_ExemptedAddressSeq_PDU = -1;   /* ExemptedAddressSeq */
@@ -236,14 +224,8 @@ static int hf_p772_Acp127NotificationType_acp127_nn = -1;
 static int hf_p772_Acp127NotificationType_acp127_pn = -1;
 static int hf_p772_Acp127NotificationType_acp127_tn = -1;
 
-/*--- End of included file: packet-p772-hf.c ---*/
-#line 39 "./asn1/p772/packet-p772-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_p772 = -1;
-
-/*--- Included file: packet-p772-ett.c ---*/
-#line 1 "./asn1/p772/packet-p772-ett.c"
 static gint ett_p772_InformationObject = -1;
 static gint ett_p772_Acp127NotificationResponse = -1;
 static gint ett_p772_AddressListIndicator = -1;
@@ -272,12 +254,6 @@ static gint ett_p772_ForwardedEncryptedParameters = -1;
 static gint ett_p772_MMMessageParameters = -1;
 static gint ett_p772_Acp127NotificationType = -1;
 
-/*--- End of included file: packet-p772-ett.c ---*/
-#line 43 "./asn1/p772/packet-p772-template.c"
-
-
-/*--- Included file: packet-p772-fn.c ---*/
-#line 1 "./asn1/p772/packet-p772-fn.c"
 
 static const ber_choice_t InformationObject_choice[] = {
   {   0, &hf_p772_mm             , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_p22_IPM },
@@ -1271,9 +1247,6 @@ static int dissect_Acp127NotificationType_PDU(tvbuff_t *tvb _U_, packet_info *pi
 }
 
 
-/*--- End of included file: packet-p772-fn.c ---*/
-#line 45 "./asn1/p772/packet-p772-template.c"
-
 
 /*
 * Dissect STANAG 4406 PDUs inside a PPDU.
@@ -1307,9 +1280,6 @@ void proto_register_p772(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
-
-/*--- Included file: packet-p772-hfarr.c ---*/
-#line 1 "./asn1/p772/packet-p772-hfarr.c"
     { &hf_p772_InformationObject_PDU,
       { "InformationObject", "p772.InformationObject",
         FT_UINT32, BASE_DEC, VALS(p22_InformationObject_vals), 0,
@@ -1622,17 +1592,11 @@ void proto_register_p772(void) {
       { "acp127-tn", "p772.Acp127NotificationType.acp127.tn",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-
-/*--- End of included file: packet-p772-hfarr.c ---*/
-#line 80 "./asn1/p772/packet-p772-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_p772,
-
-/*--- Included file: packet-p772-ettarr.c ---*/
-#line 1 "./asn1/p772/packet-p772-ettarr.c"
     &ett_p772_InformationObject,
     &ett_p772_Acp127NotificationResponse,
     &ett_p772_AddressListIndicator,
@@ -1660,9 +1624,6 @@ void proto_register_p772(void) {
     &ett_p772_ForwardedEncryptedParameters,
     &ett_p772_MMMessageParameters,
     &ett_p772_Acp127NotificationType,
-
-/*--- End of included file: packet-p772-ettarr.c ---*/
-#line 86 "./asn1/p772/packet-p772-template.c"
   };
 
   /* Register protocol */
@@ -1680,9 +1641,6 @@ void proto_register_p772(void) {
 
 /*--- proto_reg_handoff_p772 --- */
 void proto_reg_handoff_p772(void) {
-
-/*--- Included file: packet-p772-dis-tab.c ---*/
-#line 1 "./asn1/p772/packet-p772-dis-tab.c"
   register_ber_oid_dissector("1.3.26.0.4406.0.2.0", dissect_PrimaryPrecedence_PDU, proto_p772, "primary-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.1", dissect_CopyPrecedence_PDU, proto_p772, "copy-precedence");
   register_ber_oid_dissector("1.3.26.0.4406.0.2.2", dissect_MessageType_PDU, proto_p772, "message-type");
@@ -1714,9 +1672,6 @@ void proto_reg_handoff_p772(void) {
   register_ber_oid_dissector(id_nato_mmhs_et_mm_acp127data_parameters, dissect_ACP127DataParameters_PDU, proto_p772, "acp127-data-parameters");
   register_ber_oid_dissector("2.6.1.4.17.1.3.26.0.4406.0.4.1", dissect_InformationObject_PDU, proto_p772, "id-et-content-p772");
 
-
-/*--- End of included file: packet-p772-dis-tab.c ---*/
-#line 104 "./asn1/p772/packet-p772-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
 }

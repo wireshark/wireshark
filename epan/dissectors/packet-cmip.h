@@ -3,9 +3,6 @@
 /* packet-cmip.h                                                              */
 /* asn2wrs.py -b -L -p cmip -c ./cmip.cnf -s ./packet-cmip-template -D . -O ../.. CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
-/* Input file: packet-cmip-template.h */
-
-#line 1 "./asn1/cmip/packet-cmip-template.h"
 /* packet-cmip.h
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
@@ -20,9 +17,6 @@
 #ifndef PACKET_CMIP_H
 #define PACKET_CMIP_H
 
-
-/*--- Included file: packet-cmip-exp.h ---*/
-#line 1 "./asn1/cmip/packet-cmip-exp.h"
 extern const value_string cmip_ObjectClass_vals[];
 extern const value_string cmip_ObjectInstance_vals[];
 extern const value_string cmip_AdministrativeState_vals[];
@@ -41,9 +35,6 @@ int dissect_cmip_AttributeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 int dissect_cmip_AvailabilityStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_cmip_ProbableCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_cmip_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-
-/*--- End of included file: packet-cmip-exp.h ---*/
-#line 16 "./asn1/cmip/packet-cmip-template.h"
 
 #endif  /* PACKET_CMIP_H */
 

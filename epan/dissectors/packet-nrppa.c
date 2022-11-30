@@ -3,9 +3,6 @@
 /* packet-nrppa.c                                                             */
 /* asn2wrs.py -L -p nrppa -c ./nrppa.cnf -s ./packet-nrppa-template -D . -O ../.. NRPPA-CommonDataTypes.asn NRPPA-Constants.asn NRPPA-Containers.asn NRPPA-PDU-Descriptions.asn NRPPA-IEs.asn NRPPA-PDU-Contents.asn */
 
-/* Input file: packet-nrppa-template.c */
-
-#line 1 "./asn1/nrppa/packet-nrppa-template.c"
 /* packet-nrppa.c
  * Routines for 3GPP NR Positioning Protocol A (NRPPa) packet dissection
  * Copyright 2019, Anders Broman <anders.broman@ericsson.com>
@@ -38,9 +35,6 @@ void proto_reg_handoff_nrppa(void);
 /* Initialize the protocol and registered fields */
 static int proto_nrppa = -1;
 
-
-/*--- Included file: packet-nrppa-hf.c ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-hf.c"
 static int hf_nrppa_NRPPA_PDU_PDU = -1;           /* NRPPA_PDU */
 static int hf_nrppa_AbortTransmission_PDU = -1;   /* AbortTransmission */
 static int hf_nrppa_nrppa_Assistance_Information_PDU = -1;  /* Assistance_Information */
@@ -625,14 +619,8 @@ static int hf_nrppa_sRSResourceSetID_01 = -1;     /* SRSResourceSetID */
 static int hf_nrppa_aperiodic_04 = -1;            /* T_aperiodic */
 static int hf_nrppa_sRSResourceTrigger_01 = -1;   /* SRSResourceTrigger */
 
-/*--- End of included file: packet-nrppa-hf.c ---*/
-#line 34 "./asn1/nrppa/packet-nrppa-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_nrppa = -1;
-
-/*--- Included file: packet-nrppa-ett.c ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-ett.c"
 static gint ett_nrppa_PrivateIE_ID = -1;
 static gint ett_nrppa_ProtocolIE_Container = -1;
 static gint ett_nrppa_ProtocolIE_Field = -1;
@@ -889,9 +877,6 @@ static gint ett_nrppa_PositioningActivationResponse = -1;
 static gint ett_nrppa_PositioningActivationFailure = -1;
 static gint ett_nrppa_PositioningDeactivation = -1;
 
-/*--- End of included file: packet-nrppa-ett.c ---*/
-#line 38 "./asn1/nrppa/packet-nrppa-template.c"
-
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
@@ -904,9 +889,6 @@ static dissector_table_t nrppa_proc_sout_dissector_table;
 static dissector_table_t nrppa_proc_uout_dissector_table;
 
 /* Include constants */
-
-/*--- Included file: packet-nrppa-val.h ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -1039,18 +1021,12 @@ typedef enum _ProtocolIE_ID_enum {
   id_SRSSpatialRelationPerSRSResource =  63
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-nrppa-val.h ---*/
-#line 52 "./asn1/nrppa/packet-nrppa-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
-
-/*--- Included file: packet-nrppa-fn.c ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-fn.c"
 
 static const value_string nrppa_Criticality_vals[] = {
   {   0, "reject" },
@@ -9161,9 +9137,6 @@ static int dissect_PositioningDeactivation_PDU(tvbuff_t *tvb _U_, packet_info *p
 }
 
 
-/*--- End of included file: packet-nrppa-fn.c ---*/
-#line 60 "./asn1/nrppa/packet-nrppa-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint_new(nrppa_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
@@ -9195,9 +9168,6 @@ void proto_register_nrppa(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-nrppa-hfarr.c ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-hfarr.c"
     { &hf_nrppa_NRPPA_PDU_PDU,
       { "NRPPA-PDU", "nrppa.NRPPA_PDU",
         FT_UINT32, BASE_DEC, VALS(nrppa_NRPPA_PDU_vals), 0,
@@ -11530,17 +11500,11 @@ void proto_register_nrppa(void) {
       { "sRSResourceTrigger", "nrppa.sRSResourceTrigger_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-nrppa-hfarr.c ---*/
-#line 93 "./asn1/nrppa/packet-nrppa-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_nrppa,
-
-/*--- Included file: packet-nrppa-ettarr.c ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-ettarr.c"
     &ett_nrppa_PrivateIE_ID,
     &ett_nrppa_ProtocolIE_Container,
     &ett_nrppa_ProtocolIE_Field,
@@ -11796,9 +11760,6 @@ void proto_register_nrppa(void) {
     &ett_nrppa_PositioningActivationResponse,
     &ett_nrppa_PositioningActivationFailure,
     &ett_nrppa_PositioningDeactivation,
-
-/*--- End of included file: packet-nrppa-ettarr.c ---*/
-#line 99 "./asn1/nrppa/packet-nrppa-template.c"
   };
 
   /* Register protocol */
@@ -11821,9 +11782,6 @@ void proto_register_nrppa(void) {
 void
 proto_reg_handoff_nrppa(void)
 {
-
-/*--- Included file: packet-nrppa-dis-tab.c ---*/
-#line 1 "./asn1/nrppa/packet-nrppa-dis-tab.c"
   dissector_add_uint("nrppa.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_LMF_UE_Measurement_ID, create_dissector_handle(dissect_UE_Measurement_ID_PDU, proto_nrppa));
@@ -11913,7 +11871,4 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.proc.uout", id_positioningActivation, create_dissector_handle(dissect_PositioningActivationFailure_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_positioningDeactivation, create_dissector_handle(dissect_PositioningDeactivation_PDU, proto_nrppa));
 
-
-/*--- End of included file: packet-nrppa-dis-tab.c ---*/
-#line 122 "./asn1/nrppa/packet-nrppa-template.c"
 }

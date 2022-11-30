@@ -3,9 +3,6 @@
 /* packet-pkixqualified.h                                                     */
 /* asn2wrs.py -b -L -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../.. PKIXqualified.asn PKIXServiceNameSAN88.asn PKIXServiceNameSAN93.asn */
 
-/* Input file: packet-pkixqualified-template.h */
-
-#line 1 "./asn1/pkixqualified/packet-pkixqualified-template.h"
 /* packet-pkixqualified.h
  * Routines for RFC3739 PKIXqualified packet dissection
  *  Ronnie Sahlberg 2004

@@ -3,9 +3,6 @@
 /* packet-m3ap.c                                                              */
 /* asn2wrs.py -L -p m3ap -c ./m3ap.cnf -s ./packet-m3ap-template -D . -O ../.. M3AP-CommonDataTypes.asn M3AP-Constants.asn M3AP-Containers.asn M3AP-IEs.asn M3AP-PDU-Contents.asn M3AP-PDU-Descriptions.asn */
 
-/* Input file: packet-m3ap-template.c */
-
-#line 1 "./asn1/m3ap/packet-m3ap-template.c"
 /* packet-m3ap.c
  * Routines for M3 Application Protocol packet dissection
  *
@@ -44,9 +41,6 @@ void proto_reg_handoff_m3ap(void);
 #define M3AP_PORT 36444
 static dissector_handle_t m3ap_handle=NULL;
 
-
-/*--- Included file: packet-m3ap-val.h ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -95,9 +89,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_MBMS_Cell_List =  25
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-m3ap-val.h ---*/
-#line 40 "./asn1/m3ap/packet-m3ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_m3ap = -1;
 
@@ -105,9 +96,6 @@ static int hf_m3ap_Absolute_Time_ofMBMS_Data_value = -1;
 static int hf_m3ap_IPAddress_v4 = -1;
 static int hf_m3ap_IPAddress_v6 = -1;
 
-
-/*--- Included file: packet-m3ap-hf.c ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-hf.c"
 static int hf_m3ap_Absolute_Time_ofMBMS_Data_PDU = -1;  /* Absolute_Time_ofMBMS_Data */
 static int hf_m3ap_AllocationAndRetentionPriority_PDU = -1;  /* AllocationAndRetentionPriority */
 static int hf_m3ap_Cause_PDU = -1;                /* Cause */
@@ -208,15 +196,9 @@ static int hf_m3ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
 static int hf_m3ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_m3ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-m3ap-hf.c ---*/
-#line 49 "./asn1/m3ap/packet-m3ap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_m3ap = -1;
 static int ett_m3ap_IPAddress = -1;
-
-/*--- Included file: packet-m3ap-ett.c ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-ett.c"
 static gint ett_m3ap_PrivateIE_ID = -1;
 static gint ett_m3ap_ProtocolIE_Container = -1;
 static gint ett_m3ap_ProtocolIE_Field = -1;
@@ -264,9 +246,6 @@ static gint ett_m3ap_InitiatingMessage = -1;
 static gint ett_m3ap_SuccessfulOutcome = -1;
 static gint ett_m3ap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-m3ap-ett.c ---*/
-#line 54 "./asn1/m3ap/packet-m3ap-template.c"
-
 static expert_field ei_m3ap_invalid_ip_address_len = EI_INIT;
 
 struct m3ap_private_data {
@@ -310,9 +289,6 @@ m3ap_get_private_data(packet_info *pinfo)
   return m3ap_data;
 }
 
-
-/*--- Included file: packet-m3ap-fn.c ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-fn.c"
 
 static const value_string m3ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -2046,9 +2022,6 @@ static int dissect_M3AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-m3ap-fn.c ---*/
-#line 99 "./asn1/m3ap/packet-m3ap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint_new(m3ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
@@ -2114,9 +2087,6 @@ void proto_register_m3ap(void) {
          NULL, HFILL }
     },
 
-
-/*--- Included file: packet-m3ap-hfarr.c ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-hfarr.c"
     { &hf_m3ap_Absolute_Time_ofMBMS_Data_PDU,
       { "Absolute-Time-ofMBMS-Data", "m3ap.Absolute_Time_ofMBMS_Data",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2513,18 +2483,12 @@ void proto_register_m3ap(void) {
       { "value", "m3ap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-m3ap-hfarr.c ---*/
-#line 166 "./asn1/m3ap/packet-m3ap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_m3ap,
     &ett_m3ap_IPAddress,
-
-/*--- Included file: packet-m3ap-ettarr.c ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-ettarr.c"
     &ett_m3ap_PrivateIE_ID,
     &ett_m3ap_ProtocolIE_Container,
     &ett_m3ap_ProtocolIE_Field,
@@ -2571,9 +2535,6 @@ void proto_register_m3ap(void) {
     &ett_m3ap_InitiatingMessage,
     &ett_m3ap_SuccessfulOutcome,
     &ett_m3ap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-m3ap-ettarr.c ---*/
-#line 173 "./asn1/m3ap/packet-m3ap-template.c"
   };
 
   expert_module_t* expert_m3ap;
@@ -2611,9 +2572,6 @@ proto_reg_handoff_m3ap(void)
   if( !inited ) {
     dissector_add_uint("sctp.ppi", PROTO_3GPP_M3AP_PROTOCOL_ID, m3ap_handle);
     inited = TRUE;
-
-/*--- Included file: packet-m3ap-dis-tab.c ---*/
-#line 1 "./asn1/m3ap/packet-m3ap-dis-tab.c"
   dissector_add_uint("m3ap.ies", id_MME_MBMS_M3AP_ID, create_dissector_handle(dissect_MME_MBMS_M3AP_ID_PDU, proto_m3ap));
   dissector_add_uint("m3ap.ies", id_MCE_MBMS_M3AP_ID, create_dissector_handle(dissect_MCE_MBMS_M3AP_ID_PDU, proto_m3ap));
   dissector_add_uint("m3ap.ies", id_TMGI, create_dissector_handle(dissect_TMGI_PDU, proto_m3ap));
@@ -2657,9 +2615,6 @@ proto_reg_handoff_m3ap(void)
   dissector_add_uint("m3ap.proc.sout", id_m3Setup, create_dissector_handle(dissect_M3SetupResponse_PDU, proto_m3ap));
   dissector_add_uint("m3ap.proc.uout", id_m3Setup, create_dissector_handle(dissect_M3SetupFailure_PDU, proto_m3ap));
 
-
-/*--- End of included file: packet-m3ap-dis-tab.c ---*/
-#line 211 "./asn1/m3ap/packet-m3ap-template.c"
     dissector_add_uint("m3ap.extension", 17, create_dissector_handle(dissect_AllocationAndRetentionPriority_PDU, proto_m3ap));
   }
   else {

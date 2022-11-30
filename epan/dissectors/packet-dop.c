@@ -3,9 +3,6 @@
 /* packet-dop.c                                                               */
 /* asn2wrs.py -b -L -p dop -c ./dop.cnf -s ./packet-dop-template -D . -O ../.. dop.asn */
 
-/* Input file: packet-dop-template.c */
-
-#line 1 "./asn1/dop/packet-dop-template.c"
 /* packet-dop.c
  * Routines for X.501 (DSA Operational Attributes)  packet dissection
  * Graeme Lunt 2005
@@ -53,9 +50,6 @@ static const char *binding_type = NULL; /* binding_type */
 
 static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data);
 
-
-/*--- Included file: packet-dop-hf.c ---*/
-#line 1 "./asn1/dop/packet-dop-hf.c"
 static int hf_dop_DSEType_PDU = -1;               /* DSEType */
 static int hf_dop_SupplierInformation_PDU = -1;   /* SupplierInformation */
 static int hf_dop_ConsumerInformation_PDU = -1;   /* ConsumerInformation */
@@ -249,15 +243,9 @@ static int hf_dop_GrantsAndDenials_denyFilterMatch = -1;
 static int hf_dop_GrantsAndDenials_grantInvoke = -1;
 static int hf_dop_GrantsAndDenials_denyInvoke = -1;
 
-/*--- End of included file: packet-dop-hf.c ---*/
-#line 49 "./asn1/dop/packet-dop-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
 static gint ett_dop_unknown = -1;
-
-/*--- Included file: packet-dop-ett.c ---*/
-#line 1 "./asn1/dop/packet-dop-ett.c"
 static gint ett_dop_DSEType = -1;
 static gint ett_dop_SupplierOrConsumer = -1;
 static gint ett_dop_SET_OF_ProtocolInformation = -1;
@@ -326,9 +314,6 @@ static gint ett_dop_AuthenticationLevel = -1;
 static gint ett_dop_T_basicLevels = -1;
 static gint ett_dop_GrantsAndDenials = -1;
 
-/*--- End of included file: packet-dop-ett.c ---*/
-#line 54 "./asn1/dop/packet-dop-template.c"
-
 static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
 static expert_field ei_dop_unsupported_opcode = EI_INIT;
 static expert_field ei_dop_unsupported_errcode = EI_INIT;
@@ -348,9 +333,6 @@ static void append_oid(packet_info *pinfo, const char *oid)
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : oid);
 }
 
-
-/*--- Included file: packet-dop-fn.c ---*/
-#line 1 "./asn1/dop/packet-dop-fn.c"
 
 static int * const DSEType_bits[] = {
   &hf_dop_DSEType_root,
@@ -1988,9 +1970,6 @@ static int dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-dop-fn.c ---*/
-#line 75 "./asn1/dop/packet-dop-template.c"
-
 static int
 call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data)
 {
@@ -2141,9 +2120,6 @@ void proto_register_dop(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
-
-/*--- Included file: packet-dop-hfarr.c ---*/
-#line 1 "./asn1/dop/packet-dop-hfarr.c"
     { &hf_dop_DSEType_PDU,
       { "DSEType", "dop.DSEType",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2908,18 +2884,12 @@ void proto_register_dop(void) {
       { "denyInvoke", "dop.GrantsAndDenials.denyInvoke",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-
-/*--- End of included file: packet-dop-hfarr.c ---*/
-#line 227 "./asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_dop,
     &ett_dop_unknown,
-
-/*--- Included file: packet-dop-ettarr.c ---*/
-#line 1 "./asn1/dop/packet-dop-ettarr.c"
     &ett_dop_DSEType,
     &ett_dop_SupplierOrConsumer,
     &ett_dop_SET_OF_ProtocolInformation,
@@ -2987,9 +2957,6 @@ void proto_register_dop(void) {
     &ett_dop_AuthenticationLevel,
     &ett_dop_T_basicLevels,
     &ett_dop_GrantsAndDenials,
-
-/*--- End of included file: packet-dop-ettarr.c ---*/
-#line 234 "./asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -3032,9 +2999,6 @@ void proto_register_dop(void) {
 /*--- proto_reg_handoff_dop --- */
 void proto_reg_handoff_dop(void) {
 
-
-/*--- Included file: packet-dop-dis-tab.c ---*/
-#line 1 "./asn1/dop/packet-dop-dis-tab.c"
   register_ber_oid_dissector("2.5.12.0", dissect_DSEType_PDU, proto_dop, "id-doa-dseType");
   register_ber_oid_dissector("2.5.12.5", dissect_SupplierInformation_PDU, proto_dop, "id-doa-supplierKnowledge");
   register_ber_oid_dissector("2.5.12.6", dissect_ConsumerInformation_PDU, proto_dop, "id-doa-consumerKnowledge");
@@ -3053,9 +3017,6 @@ void proto_reg_handoff_dop(void) {
   register_ber_oid_dissector("2.5.24.5", dissect_ACIItem_PDU, proto_dop, "id-aca-entryACI");
   register_ber_oid_dissector("2.5.24.6", dissect_ACIItem_PDU, proto_dop, "id-aca-subentryACI");
 
-
-/*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 277 "./asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

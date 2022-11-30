@@ -3,9 +3,6 @@
 /* packet-pkix1explicit.h                                                     */
 /* asn2wrs.py -b -L -p pkix1explicit -c ./pkix1explicit.cnf -s ./packet-pkix1explicit-template -D . -O ../.. PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
 
-/* Input file: packet-pkix1explicit-template.h */
-
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-template.h"
 /* packet-pkix1explicit.h
  * Routines for PKIX1Explicit packet dissection
  *
@@ -30,9 +27,6 @@ int dissect_pkix1explicit_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *t
 int dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 
-
-/*--- Included file: packet-pkix1explicit-exp.h ---*/
-#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-exp.h"
 extern const value_string pkix1explicit_Version_vals[];
 extern const value_string pkix1explicit_Time_vals[];
 extern const value_string pkix1explicit_TerminalType_vals[];
@@ -49,9 +43,6 @@ int dissect_pkix1explicit_RelativeDistinguishedName(gboolean implicit_tag _U_, t
 int dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-
-/*--- End of included file: packet-pkix1explicit-exp.h ---*/
-#line 26 "./asn1/pkix1explicit/packet-pkix1explicit-template.h"
 
 #endif  /* PACKET_PKIX1EXPLICIT_H */
 

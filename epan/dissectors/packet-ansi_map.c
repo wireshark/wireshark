@@ -3,9 +3,6 @@
 /* packet-ansi_map.c                                                          */
 /* asn2wrs.py -b -L -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . -O ../.. ansi_map.asn */
 
-/* Input file: packet-ansi_map-template.c */
-
-#line 1 "./asn1/ansi_map/packet-ansi_map-template.c"
 /* packet-ansi_map.c
  * Routines for ANSI 41 Mobile Application Part (IS41 MAP) dissection
  * Specications from 3GPP2 (www.3gpp2.org)
@@ -323,9 +320,6 @@ static int hf_ansi_map_point_code = -1;
 static int hf_ansi_map_SSN = -1;
 static int hf_ansi_map_win_trigger_list = -1;
 
-
-/*--- Included file: packet-ansi_map-hf.c ---*/
-#line 1 "./asn1/ansi_map/packet-ansi_map-hf.c"
 static int hf_ansi_map_electronicSerialNumber = -1;  /* ElectronicSerialNumber */
 static int hf_ansi_map_msid = -1;                 /* MSID */
 static int hf_ansi_map_authenticationAlgorithmVersion = -1;  /* AuthenticationAlgorithmVersion */
@@ -874,9 +868,6 @@ static int hf_ansi_map_statusRequestRes = -1;     /* StatusRequestRes */
 static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSystemSMSDeliveryPointToPointRes */
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
-/*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 319 "./asn1/ansi_map/packet-ansi_map-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
 static gint ett_mintype = -1;
@@ -907,9 +898,6 @@ static gint ett_cdmaserviceoption = -1;
 static gint ett_systemcapabilities = -1;
 static gint ett_sms_originationrestrictions = -1;
 
-
-/*--- Included file: packet-ansi_map-ett.c ---*/
-#line 1 "./asn1/ansi_map/packet-ansi_map-ett.c"
 static gint ett_ansi_map_AuthenticationDirective_U = -1;
 static gint ett_ansi_map_AuthenticationDirectiveRes_U = -1;
 static gint ett_ansi_map_AuthenticationDirectiveForward_U = -1;
@@ -1133,9 +1121,6 @@ static gint ett_ansi_map_MobileStationMSID = -1;
 static gint ett_ansi_map_NewlyAssignedMSID = -1;
 static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
-
-/*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 351 "./asn1/ansi_map/packet-ansi_map-template.c"
 
 static expert_field ei_ansi_map_nr_not_used = EI_INIT;
 static expert_field ei_ansi_map_unknown_invokeData_blob = EI_INIT;
@@ -4389,9 +4374,6 @@ static const value_string ansi_map_VoicePrivacyReport_vals[]  = {
 };
 
 
-
-/*--- Included file: packet-ansi_map-fn.c ---*/
-#line 1 "./asn1/ansi_map/packet-ansi_map-fn.c"
 
 
 static int
@@ -15159,9 +15141,6 @@ dissect_ansi_map_QualificationRequest2Res(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 
-/*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3605 "./asn1/ansi_map/packet-ansi_map-template.c"
-
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
  */
@@ -16929,9 +16908,6 @@ void proto_register_ansi_map(void) {
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-
-/*--- Included file: packet-ansi_map-hfarr.c ---*/
-#line 1 "./asn1/ansi_map/packet-ansi_map-hfarr.c"
     { &hf_ansi_map_electronicSerialNumber,
       { "electronicSerialNumber", "ansi_map.electronicSerialNumber",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -19120,9 +19096,6 @@ void proto_register_ansi_map(void) {
       { "qualificationRequest2Res", "ansi_map.qualificationRequest2Res_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5374 "./asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19155,9 +19128,6 @@ void proto_register_ansi_map(void) {
         &ett_cdmaserviceoption,
         &ett_sms_originationrestrictions,
         &ett_systemcapabilities,
-
-/*--- Included file: packet-ansi_map-ettarr.c ---*/
-#line 1 "./asn1/ansi_map/packet-ansi_map-ettarr.c"
     &ett_ansi_map_AuthenticationDirective_U,
     &ett_ansi_map_AuthenticationDirectiveRes_U,
     &ett_ansi_map_AuthenticationDirectiveForward_U,
@@ -19381,9 +19351,6 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_NewlyAssignedMSID,
     &ett_ansi_map_InvokeData,
     &ett_ansi_map_ReturnData,
-
-/*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5407 "./asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static ei_register_info ei[] = {

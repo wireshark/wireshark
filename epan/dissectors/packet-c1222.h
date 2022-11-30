@@ -3,9 +3,6 @@
 /* packet-c1222.h                                                             */
 /* asn2wrs.py -b -L -p c1222 -c ./c1222.cnf -s ./packet-c1222-template -D . -O ../.. c1222.asn */
 
-/* Input file: packet-c1222-template.h */
-
-#line 1 "./asn1/c1222/packet-c1222-template.h"
 /* packet-c1222.h
  * Routines for ANSI C12.22 packet dissection
  * Copyright 2010, Edward J. Beroset, edward.beroset@elster.com

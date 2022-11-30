@@ -3,9 +3,6 @@
 /* packet-h235.c                                                              */
 /* asn2wrs.py -L -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../.. H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
-/* Input file: packet-h235-template.c */
-
-#line 1 "./asn1/h235/packet-h235-template.c"
 /* packet-h235.c
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
@@ -44,9 +41,6 @@ void proto_reg_handoff_h235(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h235 = -1;
-
-/*--- Included file: packet-h235-hf.c ---*/
-#line 1 "./asn1/h235/packet-h235-hf.c"
 static int hf_h235_SrtpCryptoCapability_PDU = -1;  /* SrtpCryptoCapability */
 static int hf_h235_nonStandardIdentifier = -1;    /* OBJECT_IDENTIFIER */
 static int hf_h235_data = -1;                     /* OCTET_STRING */
@@ -149,13 +143,7 @@ static int hf_h235_newParameter_item = -1;        /* GenericData */
 static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
 static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
-/*--- End of included file: packet-h235-hf.c ---*/
-#line 40 "./asn1/h235/packet-h235-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-h235-ett.c ---*/
-#line 1 "./asn1/h235/packet-h235-ett.c"
 static gint ett_h235_NonStandardParameter = -1;
 static gint ett_h235_DHset = -1;
 static gint ett_h235_ECpoint = -1;
@@ -189,9 +177,6 @@ static gint ett_h235_SrtpSessionParameters = -1;
 static gint ett_h235_SEQUENCE_OF_GenericData = -1;
 static gint ett_h235_FecOrder = -1;
 
-/*--- End of included file: packet-h235-ett.c ---*/
-#line 43 "./asn1/h235/packet-h235-template.c"
-
 
 static int
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
@@ -199,9 +184,6 @@ dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *
   return offset;
 }
 
-
-/*--- Included file: packet-h235-fn.c ---*/
-#line 1 "./asn1/h235/packet-h235-fn.c"
 
 
 static int
@@ -1025,18 +1007,12 @@ static int dissect_SrtpCryptoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 }
 
 
-/*--- End of included file: packet-h235-fn.c ---*/
-#line 52 "./asn1/h235/packet-h235-template.c"
-
 
 /*--- proto_register_h235 ----------------------------------------------*/
 void proto_register_h235(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-h235-hfarr.c ---*/
-#line 1 "./asn1/h235/packet-h235-hfarr.c"
     { &hf_h235_SrtpCryptoCapability_PDU,
       { "SrtpCryptoCapability", "h235.SrtpCryptoCapability",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1441,16 +1417,10 @@ void proto_register_h235(void) {
       { "fecAfterSrtp", "h235.fecAfterSrtp_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-h235-hfarr.c ---*/
-#line 60 "./asn1/h235/packet-h235-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-h235-ettarr.c ---*/
-#line 1 "./asn1/h235/packet-h235-ettarr.c"
     &ett_h235_NonStandardParameter,
     &ett_h235_DHset,
     &ett_h235_ECpoint,
@@ -1483,9 +1453,6 @@ void proto_register_h235(void) {
     &ett_h235_SrtpSessionParameters,
     &ett_h235_SEQUENCE_OF_GenericData,
     &ett_h235_FecOrder,
-
-/*--- End of included file: packet-h235-ettarr.c ---*/
-#line 65 "./asn1/h235/packet-h235-template.c"
   };
 
   /* Register protocol */

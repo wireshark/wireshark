@@ -3,9 +3,6 @@
 /* packet-q932-ros.c                                                          */
 /* asn2wrs.py -b -L -p q932.ros -c ./q932-ros.cnf -s ./packet-q932-ros-template -D . -O ../.. ../ros/Remote-Operations-Information-Objects.asn Facility-Information-Element-Components.asn */
 
-/* Input file: packet-q932-ros-template.c */
-
-#line 1 "./asn1/q932-ros/packet-q932-ros-template.c"
 /* packet-q932-ros.c
  * Routines for Q.932 packet dissection
  * 2007  Tomas Kukosa
@@ -35,9 +32,6 @@ void proto_reg_handoff_q932_ros(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_q932_ros = -1;
-
-/*--- Included file: packet-q932-ros-hf.c ---*/
-#line 1 "./asn1/q932-ros/packet-q932-ros-hf.c"
 static int hf_q932_ros_ROS_PDU = -1;              /* ROS */
 static int hf_q932_ros_local = -1;                /* T_local */
 static int hf_q932_ros_global = -1;               /* T_global */
@@ -63,13 +57,7 @@ static int hf_q932_ros_returnErrorProblem = -1;   /* ReturnErrorProblem */
 static int hf_q932_ros_present = -1;              /* INTEGER */
 static int hf_q932_ros_InvokeId_present = -1;     /* InvokeId_present */
 
-/*--- End of included file: packet-q932-ros-hf.c ---*/
-#line 31 "./asn1/q932-ros/packet-q932-ros-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-q932-ros-ett.c ---*/
-#line 1 "./asn1/q932-ros/packet-q932-ros-ett.c"
 static gint ett_q932_ros_Code = -1;
 static gint ett_q932_ros_ROS = -1;
 static gint ett_q932_ros_Invoke = -1;
@@ -80,9 +68,6 @@ static gint ett_q932_ros_ReturnError = -1;
 static gint ett_q932_ros_Reject = -1;
 static gint ett_q932_ros_T_problem = -1;
 static gint ett_q932_ros_InvokeId = -1;
-
-/*--- End of included file: packet-q932-ros-ett.c ---*/
-#line 34 "./asn1/q932-ros/packet-q932-ros-template.c"
 
 static expert_field ei_ros_undecoded = EI_INIT;
 
@@ -99,9 +84,6 @@ static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 
 
-
-/*--- Included file: packet-q932-ros-fn.c ---*/
-#line 1 "./asn1/q932-ros/packet-q932-ros-fn.c"
 
 
 static int
@@ -630,9 +612,6 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 }
 
 
-/*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 51 "./asn1/q932-ros/packet-q932-ros-template.c"
-
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   /* Reject the packet if data is NULL */
@@ -648,9 +627,6 @@ void proto_register_q932_ros(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-q932-ros-hfarr.c ---*/
-#line 1 "./asn1/q932-ros/packet-q932-ros-hfarr.c"
     { &hf_q932_ros_ROS_PDU,
       { "ROS", "q932.ros.ROS",
         FT_UINT32, BASE_DEC, VALS(q932_ros_ROS_vals), 0,
@@ -747,16 +723,10 @@ void proto_register_q932_ros(void) {
       { "InvokeId.present", "q932.ros.InvokeId_present",
         FT_INT32, BASE_DEC, NULL, 0,
         "InvokeId_present", HFILL }},
-
-/*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 68 "./asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-q932-ros-ettarr.c ---*/
-#line 1 "./asn1/q932-ros/packet-q932-ros-ettarr.c"
     &ett_q932_ros_Code,
     &ett_q932_ros_ROS,
     &ett_q932_ros_Invoke,
@@ -767,9 +737,6 @@ void proto_register_q932_ros(void) {
     &ett_q932_ros_Reject,
     &ett_q932_ros_T_problem,
     &ett_q932_ros_InvokeId,
-
-/*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 73 "./asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   static ei_register_info ei[] = {

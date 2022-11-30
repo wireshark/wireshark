@@ -3,9 +3,6 @@
 /* packet-sv.h                                                                */
 /* asn2wrs.py -b -L -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
 
-/* Input file: packet-sv-template.h */
-
-#line 1 "./asn1/sv/packet-sv-template.h"
 /* packet-sv.h
  * Routines for IEC 61850 Sampled Vales packet dissection
  * Michael Bernhard 2008

@@ -3,9 +3,6 @@
 /* packet-h225.c                                                              */
 /* asn2wrs.py -L -p h225 -c ./h225.cnf -s ./packet-h225-template -D . -O ../.. H323-MESSAGES.asn */
 
-/* Input file: packet-h225-template.c */
-
-#line 1 "./asn1/h225/packet-h225-template.c"
 /* packet-h225.c
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -121,9 +118,6 @@ static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
 static int hf_h225_debug_dissector_try_string = -1;
 
-
-/*--- Included file: packet-h225-hf.c ---*/
-#line 1 "./asn1/h225/packet-h225-hf.c"
 static int hf_h225_H323_UserInformation_PDU = -1;  /* H323_UserInformation */
 static int hf_h225_h225_ExtendedAliasAddress_PDU = -1;  /* ExtendedAliasAddress */
 static int hf_h225_RasMessage_PDU = -1;           /* RasMessage */
@@ -898,14 +892,8 @@ static int hf_h225_failed = -1;                   /* NULL */
 static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
-/*--- End of included file: packet-h225-hf.c ---*/
-#line 117 "./asn1/h225/packet-h225-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
-
-/*--- Included file: packet-h225-ett.c ---*/
-#line 1 "./asn1/h225/packet-h225-ett.c"
 static gint ett_h225_H323_UserInformation = -1;
 static gint ett_h225_T_user_data = -1;
 static gint ett_h225_H323_UU_PDU = -1;
@@ -1146,9 +1134,6 @@ static gint ett_h225_T_callSpecific = -1;
 static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
-/*--- End of included file: packet-h225-ett.c ---*/
-#line 121 "./asn1/h225/packet-h225-template.c"
-
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
 static gboolean h225_reassembly = TRUE;
@@ -1263,9 +1248,6 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
   return TAP_PACKET_REDRAW;
 }
 
-
-/*--- Included file: packet-h225-fn.c ---*/
-#line 1 "./asn1/h225/packet-h225-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* EnumeratedParameter -> Content -> Content/compound -> EnumeratedParameter */
@@ -7669,9 +7651,6 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 
-/*--- End of included file: packet-h225-fn.c ---*/
-#line 237 "./asn1/h225/packet-h225-template.c"
-
 /* Forward declaration we need below */
 void proto_reg_handoff_h225(void);
 
@@ -8261,9 +8240,6 @@ void proto_register_h225(void) {
     { "*** DEBUG dissector_try_string", "h225.debug.dissector_try_string", FT_STRING, BASE_NONE,
     NULL, 0, NULL, HFILL }},
 
-
-/*--- Included file: packet-h225-hfarr.c ---*/
-#line 1 "./asn1/h225/packet-h225-hfarr.c"
     { &hf_h225_H323_UserInformation_PDU,
       { "H323-UserInformation", "h225.H323_UserInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11356,17 +11332,11 @@ void proto_register_h225(void) {
       { "notAvailable", "h225.notAvailable_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-h225-hfarr.c ---*/
-#line 828 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_h225,
-
-/*--- Included file: packet-h225-ettarr.c ---*/
-#line 1 "./asn1/h225/packet-h225-ettarr.c"
     &ett_h225_H323_UserInformation,
     &ett_h225_T_user_data,
     &ett_h225_H323_UU_PDU,
@@ -11606,9 +11576,6 @@ void proto_register_h225(void) {
     &ett_h225_T_callSpecific,
     &ett_h225_ServiceControlResponse,
     &ett_h225_T_result,
-
-/*--- End of included file: packet-h225-ettarr.c ---*/
-#line 834 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {

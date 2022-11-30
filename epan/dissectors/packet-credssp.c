@@ -3,9 +3,6 @@
 /* packet-credssp.c                                                           */
 /* asn2wrs.py -b -C -L -p credssp -c ./credssp.cnf -s ./packet-credssp-template -D . -O ../.. CredSSP.asn */
 
-/* Input file: packet-credssp-template.c */
-
-#line 1 "./asn1/credssp/packet-credssp-template.c"
 /* packet-credssp.c
  * Routines for CredSSP (Credential Security Support Provider) packet dissection
  * Graeme Lunt 2011
@@ -67,9 +64,6 @@ static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
 static int hf_credssp_TSRemoteGuardCreds = -1;/* TSRemoteGuardCreds */
 static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
 static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
-
-/*--- Included file: packet-credssp-hf.c ---*/
-#line 1 "./asn1/credssp/packet-credssp-hf.c"
 static int hf_credssp_TSRequest_PDU = -1;         /* TSRequest */
 static int hf_credssp_NegoData_item = -1;         /* NegoData_item */
 static int hf_credssp_negoToken = -1;             /* T_negoToken */
@@ -99,16 +93,10 @@ static int hf_credssp_pubKeyAuth = -1;            /* T_pubKeyAuth */
 static int hf_credssp_errorCode = -1;             /* T_errorCode */
 static int hf_credssp_clientNonce = -1;           /* T_clientNonce */
 
-/*--- End of included file: packet-credssp-hf.c ---*/
-#line 63 "./asn1/credssp/packet-credssp-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
 static gint ett_credssp_RGC_CredBuffer = -1;
 
-
-/*--- Included file: packet-credssp-ett.c ---*/
-#line 1 "./asn1/credssp/packet-credssp-ett.c"
 static gint ett_credssp_NegoData = -1;
 static gint ett_credssp_NegoData_item = -1;
 static gint ett_credssp_TSPasswordCreds = -1;
@@ -120,12 +108,6 @@ static gint ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred = -1;
 static gint ett_credssp_TSCredentials = -1;
 static gint ett_credssp_TSRequest = -1;
 
-/*--- End of included file: packet-credssp-ett.c ---*/
-#line 69 "./asn1/credssp/packet-credssp-template.c"
-
-
-/*--- Included file: packet-credssp-fn.c ---*/
-#line 1 "./asn1/credssp/packet-credssp-fn.c"
 
 
 static int
@@ -513,9 +495,6 @@ static int dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 }
 
 
-/*--- End of included file: packet-credssp-fn.c ---*/
-#line 71 "./asn1/credssp/packet-credssp-template.c"
-
 /*
 * Dissect CredSSP PDUs
 */
@@ -610,9 +589,6 @@ void proto_register_credssp(void) {
       { "Decrypted PublicKeyAuth (sha256)", "credssp.decr_PublicKeyAuth",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-credssp-hfarr.c ---*/
-#line 1 "./asn1/credssp/packet-credssp-hfarr.c"
     { &hf_credssp_TSRequest_PDU,
       { "TSRequest", "credssp.TSRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -725,18 +701,12 @@ void proto_register_credssp(void) {
       { "clientNonce", "credssp.clientNonce",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 167 "./asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_credssp,
     &ett_credssp_RGC_CredBuffer,
-
-/*--- Included file: packet-credssp-ettarr.c ---*/
-#line 1 "./asn1/credssp/packet-credssp-ettarr.c"
     &ett_credssp_NegoData,
     &ett_credssp_NegoData_item,
     &ett_credssp_TSPasswordCreds,
@@ -747,9 +717,6 @@ void proto_register_credssp(void) {
     &ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred,
     &ett_credssp_TSCredentials,
     &ett_credssp_TSRequest,
-
-/*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 174 "./asn1/credssp/packet-credssp-template.c"
   };
 
 

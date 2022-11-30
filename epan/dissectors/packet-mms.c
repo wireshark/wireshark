@@ -3,9 +3,6 @@
 /* packet-mms.c                                                               */
 /* asn2wrs.py -b -L -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../.. mms.asn */
 
-/* Input file: packet-mms-template.c */
-
-#line 1 "./asn1/mms/packet-mms-template.c"
 /* packet-mms_asn1.c
  *
  * Ronnie Sahlberg 2005
@@ -39,9 +36,6 @@ void proto_reg_handoff_mms(void);
 /* Initialize the protocol and registered fields */
 static int proto_mms = -1;
 
-
-/*--- Included file: packet-mms-hf.c ---*/
-#line 1 "./asn1/mms/packet-mms-hf.c"
 static int hf_mms_confirmed_RequestPDU = -1;      /* Confirmed_RequestPDU */
 static int hf_mms_confirmed_ResponsePDU = -1;     /* Confirmed_ResponsePDU */
 static int hf_mms_confirmed_ErrorPDU = -1;        /* Confirmed_ErrorPDU */
@@ -727,14 +721,8 @@ static int hf_mms_Transitions_disabled_to_active = -1;
 static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
-/*--- End of included file: packet-mms-hf.c ---*/
-#line 35 "./asn1/mms/packet-mms-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
-
-/*--- Included file: packet-mms-ett.c ---*/
-#line 1 "./asn1/mms/packet-mms-ett.c"
 static gint ett_mms_MMSpdu = -1;
 static gint ett_mms_Confirmed_RequestPDU = -1;
 static gint ett_mms_SEQUENCE_OF_Modifier = -1;
@@ -951,9 +939,6 @@ static gint ett_mms_SEQUENCE_OF_DirectoryEntry = -1;
 static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
-/*--- End of included file: packet-mms-ett.c ---*/
-#line 39 "./asn1/mms/packet-mms-template.c"
-
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
 static expert_field ei_mms_zero_pdu = EI_INIT;
@@ -1038,9 +1023,6 @@ private_data_get_moreCinfo(asn1_ctx_t *actx)
 /*****************************************************************************/
 
 
-
-/*--- Included file: packet-mms-fn.c ---*/
-#line 1 "./asn1/mms/packet-mms-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* TypeSpecification -> TypeSpecification/array -> TypeSpecification */
@@ -7329,9 +7311,6 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-/*--- End of included file: packet-mms-fn.c ---*/
-#line 125 "./asn1/mms/packet-mms-template.c"
-
 /*
 * Dissect MMS PDUs inside a PPDU.
 */
@@ -7370,9 +7349,6 @@ void proto_register_mms(void) {
 	/* List of fields */
 	static hf_register_info hf[] =
 	{
-
-/*--- Included file: packet-mms-hfarr.c ---*/
-#line 1 "./asn1/mms/packet-mms-hfarr.c"
     { &hf_mms_confirmed_RequestPDU,
       { "confirmed-RequestPDU", "mms.confirmed_RequestPDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10105,17 +10081,11 @@ void proto_register_mms(void) {
       { "any-to-deleted", "mms.Transitions.any.to.deleted",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
-
-/*--- End of included file: packet-mms-hfarr.c ---*/
-#line 165 "./asn1/mms/packet-mms-template.c"
 	};
 
 	/* List of subtrees */
 	static gint *ett[] = {
 		&ett_mms,
-
-/*--- Included file: packet-mms-ettarr.c ---*/
-#line 1 "./asn1/mms/packet-mms-ettarr.c"
     &ett_mms_MMSpdu,
     &ett_mms_Confirmed_RequestPDU,
     &ett_mms_SEQUENCE_OF_Modifier,
@@ -10331,9 +10301,6 @@ void proto_register_mms(void) {
     &ett_mms_SEQUENCE_OF_DirectoryEntry,
     &ett_mms_DirectoryEntry,
     &ett_mms_FileAttributes,
-
-/*--- End of included file: packet-mms-ettarr.c ---*/
-#line 171 "./asn1/mms/packet-mms-template.c"
 	};
 
 	static ei_register_info ei[] = {

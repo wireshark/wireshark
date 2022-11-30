@@ -3,9 +3,6 @@
 /* packet-s1ap.h                                                              */
 /* asn2wrs.py -L -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . -O ../.. S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn S1AP-SonTransfer-IEs.asn */
 
-/* Input file: packet-s1ap-template.h */
-
-#line 1 "./asn1/s1ap/packet-s1ap-template.h"
 /* packet-s1ap.h
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
  *
@@ -31,9 +28,6 @@ extern const value_string s1ap_serialNumber_gs_vals[];
 
 void dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page);
 
-
-/*--- Included file: packet-s1ap-exp.h ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-exp.h"
 WS_DLL_PUBLIC const value_string s1ap_Cause_vals[];
 WS_DLL_PUBLIC const value_string s1ap_CauseMisc_vals[];
 WS_DLL_PUBLIC const value_string s1ap_CauseProtocol_vals[];
@@ -64,9 +58,6 @@ int dissect_s1ap_SONtransferApplicationIdentity_PDU(tvbuff_t *tvb _U_, packet_in
 int dissect_s1ap_SONtransferRequestContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_s1ap_SONtransferResponseContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-s1ap-exp.h ---*/
-#line 27 "./asn1/s1ap/packet-s1ap-template.h"
 
 #endif  /* PACKET_S1AP_H */
 

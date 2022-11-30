@@ -3,9 +3,6 @@
 /* packet-charging_ase.c                                                      */
 /* asn2wrs.py -b -L -p charging_ase -c ./charging_ase.cnf -s ./packet-charging_ase-template -D . -O ../.. Tariffing-Data-Types.asn */
 
-/* Input file: packet-charging_ase-template.c */
-
-#line 1 "./asn1/charging_ase/packet-charging_ase-template.c"
 /* packet-charging_ase-template.c
  * Copyright 2009 , Anders Broman <anders.broman [AT] ericsson.com>
  *
@@ -36,9 +33,6 @@ void proto_reg_handoff_charging_ase(void);
 /* Define the Charging ASE proto */
 static int proto_charging_ase = -1;
 
-
-/*--- Included file: packet-charging_ase-hf.c ---*/
-#line 1 "./asn1/charging_ase/packet-charging_ase-hf.c"
 static int hf_charging_ase_charging_ase_ChargingMessageType_PDU = -1;  /* ChargingMessageType */
 static int hf_charging_ase_crgt = -1;             /* ChargingTariffInformation */
 static int hf_charging_ase_aocrg = -1;            /* AddOnChargingInformation */
@@ -102,13 +96,7 @@ static int hf_charging_ase_SubTariffControl_oneTimeCharge = -1;
 static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
 static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
 
-/*--- End of included file: packet-charging_ase-hf.c ---*/
-#line 32 "./asn1/charging_ase/packet-charging_ase-template.c"
-
 static int ett_charging_ase = -1;
-
-/*--- Included file: packet-charging_ase-ett.c ---*/
-#line 1 "./asn1/charging_ase/packet-charging_ase-ett.c"
 static gint ett_charging_ase_ChargingMessageType = -1;
 static gint ett_charging_ase_ChargingAcknowledgementInformation = -1;
 static gint ett_charging_ase_T_acknowledgementIndicators = -1;
@@ -140,16 +128,10 @@ static gint ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunic
 static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
 static gint ett_charging_ase_ChargingReferenceIdentification = -1;
 
-/*--- End of included file: packet-charging_ase-ett.c ---*/
-#line 35 "./asn1/charging_ase/packet-charging_ase-template.c"
-
 static expert_field ei_charging_ase_extensions_not_dissected = EI_INIT;
 
 static dissector_handle_t charging_ase_handle;
 
-
-/*--- Included file: packet-charging_ase-fn.c ---*/
-#line 1 "./asn1/charging_ase/packet-charging_ase-fn.c"
 
 static int * const ChargingControlIndicators_bits[] = {
   &hf_charging_ase_ChargingControlIndicators_subscriberCharge,
@@ -826,9 +808,6 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 }
 
 
-/*--- End of included file: packet-charging_ase-fn.c ---*/
-#line 41 "./asn1/charging_ase/packet-charging_ase-template.c"
-
 static int
 dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -851,9 +830,6 @@ proto_register_charging_ase(void)
 {
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-charging_ase-hfarr.c ---*/
-#line 1 "./asn1/charging_ase/packet-charging_ase-hfarr.c"
     { &hf_charging_ase_charging_ase_ChargingMessageType_PDU,
       { "ChargingMessageType", "charging_ase.ChargingMessageType",
         FT_UINT32, BASE_DEC, VALS(charging_ase_ChargingMessageType_vals), 0,
@@ -1098,17 +1074,11 @@ proto_register_charging_ase(void)
       { "non-cyclicTariff", "charging.ase.T.tariffControlIndicators.01.non.cyclicTariff",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-
-/*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 65 "./asn1/charging_ase/packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
     static gint *ett[] = {
     &ett_charging_ase,
-
-/*--- Included file: packet-charging_ase-ettarr.c ---*/
-#line 1 "./asn1/charging_ase/packet-charging_ase-ettarr.c"
     &ett_charging_ase_ChargingMessageType,
     &ett_charging_ase_ChargingAcknowledgementInformation,
     &ett_charging_ase_T_acknowledgementIndicators,
@@ -1139,9 +1109,6 @@ proto_register_charging_ase(void)
     &ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse,
     &ett_charging_ase_T_tariffControlIndicators_01,
     &ett_charging_ase_ChargingReferenceIdentification,
-
-/*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 71 "./asn1/charging_ase/packet-charging_ase-template.c"
         };
 
   static ei_register_info ei[] = {

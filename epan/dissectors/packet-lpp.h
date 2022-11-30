@@ -3,9 +3,6 @@
 /* packet-lpp.h                                                               */
 /* asn2wrs.py -L -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP-PDU-Definitions.asn LPP-Broadcast-Definitions.asn */
 
-/* Input file: packet-lpp-template.h */
-
-#line 1 "./asn1/lpp/packet-lpp-template.h"
 /* packet-lpp.h
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
  * Copyright 2011-2022 Pascal Quantin <pascal@wireshark.org>
@@ -71,9 +68,6 @@ typedef enum {
 
 int dissect_lpp_AssistanceDataSIBelement_r15_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lpp_pos_sib_type_t pos_sib_type);
 
-
-/*--- Included file: packet-lpp-exp.h ---*/
-#line 1 "./asn1/lpp/packet-lpp-exp.h"
 extern const value_string lpp_Velocity_vals[];
 int dissect_lpp_ARFCN_ValueEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lpp_ARFCN_ValueEUTRA_v9a0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -111,8 +105,5 @@ int dissect_lpp_LocationSource_r13_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 int dissect_lpp_Sensor_MeasurementInformation_r13_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lpp_Sensor_MotionInformation_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lpp_DisplacementTimeStamp_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-lpp-exp.h ---*/
-#line 67 "./asn1/lpp/packet-lpp-template.h"
 
 #endif  /* PACKET_LPP_H */

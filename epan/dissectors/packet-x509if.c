@@ -3,9 +3,6 @@
 /* packet-x509if.c                                                            */
 /* asn2wrs.py -b -L -p x509if -c ./x509if.cnf -s ./packet-x509if-template -D . -O ../.. InformationFramework.asn ServiceAdministration.asn */
 
-/* Input file: packet-x509if-template.c */
-
-#line 1 "./asn1/x509if/packet-x509if-template.c"
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -41,9 +38,6 @@ void proto_reg_handoff_x509if(void);
 static int proto_x509if = -1;
 static int hf_x509if_object_identifier_id = -1;
 static int hf_x509if_any_string = -1;
-
-/*--- Included file: packet-x509if-hf.c ---*/
-#line 1 "./asn1/x509if/packet-x509if-hf.c"
 static int hf_x509if_DistinguishedName_PDU = -1;  /* DistinguishedName */
 static int hf_x509if_SubtreeSpecification_PDU = -1;  /* SubtreeSpecification */
 static int hf_x509if_HierarchyLevel_PDU = -1;     /* HierarchyLevel */
@@ -200,13 +194,7 @@ static int hf_x509if_AllowedSubset_baseObject = -1;
 static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
-/*--- End of included file: packet-x509if-hf.c ---*/
-#line 37 "./asn1/x509if/packet-x509if-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-x509if-ett.c ---*/
-#line 1 "./asn1/x509if/packet-x509if-ett.c"
 static gint ett_x509if_Attribute = -1;
 static gint ett_x509if_T_values = -1;
 static gint ett_x509if_T_valuesWithContext = -1;
@@ -281,9 +269,6 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ResultAttribute = -1;
 static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
-/*--- End of included file: packet-x509if-ett.c ---*/
-#line 40 "./asn1/x509if/packet-x509if-template.c"
-
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;
 
@@ -315,9 +300,6 @@ x509if_frame_end(void)
   last_ava = NULL;
 }
 
-
-/*--- Included file: packet-x509if-fn.c ---*/
-#line 1 "./asn1/x509if/packet-x509if-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Refinement -> Refinement/and -> Refinement */
@@ -2047,9 +2029,6 @@ static int dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 
-/*--- End of included file: packet-x509if-fn.c ---*/
-#line 73 "./asn1/x509if/packet-x509if-template.c"
-
 const char * x509if_get_last_dn(void)
 {
   return last_dn_buf ? wmem_strbuf_get_str(last_dn_buf) : NULL;
@@ -2093,9 +2072,6 @@ void proto_register_x509if(void) {
       { "AnyString", "x509if.any.String", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is any String", HFILL }},
 
-
-/*--- Included file: packet-x509if-hfarr.c ---*/
-#line 1 "./asn1/x509if/packet-x509if-hfarr.c"
     { &hf_x509if_DistinguishedName_PDU,
       { "DistinguishedName", "x509if.DistinguishedName",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2712,16 +2688,10 @@ void proto_register_x509if(void) {
       { "wholeSubtree", "x509if.AllowedSubset.wholeSubtree",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-
-/*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 118 "./asn1/x509if/packet-x509if-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-x509if-ettarr.c ---*/
-#line 1 "./asn1/x509if/packet-x509if-ettarr.c"
     &ett_x509if_Attribute,
     &ett_x509if_T_values,
     &ett_x509if_T_valuesWithContext,
@@ -2795,9 +2765,6 @@ void proto_register_x509if(void) {
     &ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ResultAttribute,
     &ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType,
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
-
-/*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 123 "./asn1/x509if/packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2816,9 +2783,6 @@ void proto_register_x509if(void) {
 
 /*--- proto_reg_handoff_x509if -------------------------------------------*/
 void proto_reg_handoff_x509if(void) {
-
-/*--- Included file: packet-x509if-dis-tab.c ---*/
-#line 1 "./asn1/x509if/packet-x509if-dis-tab.c"
   register_ber_oid_dissector("2.5.4.1", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aliasedEntryName");
   register_ber_oid_dissector("2.5.4.31", dissect_DistinguishedName_PDU, proto_x509if, "id-at-member");
   register_ber_oid_dissector("2.5.4.32", dissect_DistinguishedName_PDU, proto_x509if, "id-at-owner");
@@ -2853,8 +2817,5 @@ void proto_reg_handoff_x509if(void) {
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.184", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aCPDutyOfficer");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.188", dissect_DistinguishedName_PDU, proto_x509if, "id-at-primaryMember");
 
-
-/*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 142 "./asn1/x509if/packet-x509if-template.c"
 }
 

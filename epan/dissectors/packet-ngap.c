@@ -3,9 +3,6 @@
 /* packet-ngap.c                                                              */
 /* asn2wrs.py -L -p ngap -c ./ngap.cnf -s ./packet-ngap-template -D . -O ../.. NGAP-CommonDataTypes.asn NGAP-Constants.asn NGAP-Containers.asn NGAP-IEs.asn NGAP-PDU-Contents.asn NGAP-PDU-Descriptions.asn */
 
-/* Input file: packet-ngap-template.c */
-
-#line 1 "./asn1/ngap/packet-ngap-template.c"
 /* packet-ngap.c
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
@@ -74,9 +71,6 @@ static dissector_handle_t nrppa_handle;
 
 static int proto_json = -1;
 
-
-/*--- Included file: packet-ngap-val.h ---*/
-#line 1 "./asn1/ngap/packet-ngap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -630,9 +624,6 @@ typedef enum _RAT_Information_enum {
   nR_OTHERSAT  =   5
 } RAT_Information_enum;
 
-/*--- End of included file: packet-ngap-val.h ---*/
-#line 70 "./asn1/ngap/packet-ngap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_ngap = -1;
 static int hf_ngap_transportLayerAddressIPv4 = -1;
@@ -700,9 +691,6 @@ static int hf_ngap_GlobalCable_ID_str = -1;
 static int hf_ngap_UpdateFeedback_CN_PDB_DL = -1;
 static int hf_ngap_UpdateFeedback_CN_PDB_UL = -1;
 static int hf_ngap_UpdateFeedback_reserved = -1;
-
-/*--- Included file: packet-ngap-hf.c ---*/
-#line 1 "./asn1/ngap/packet-ngap-hf.c"
 static int hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU = -1;  /* AdditionalDLUPTNLInformationForHOList */
 static int hf_ngap_AllowedNSSAI_PDU = -1;         /* AllowedNSSAI */
 static int hf_ngap_AlternativeQoSParaSetIndex_PDU = -1;  /* AlternativeQoSParaSetIndex */
@@ -2106,9 +2094,6 @@ static int hf_ngap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
 static int hf_ngap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_ngap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-ngap-hf.c ---*/
-#line 139 "./asn1/ngap/packet-ngap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_ngap = -1;
 static gint ett_ngap_TransportLayerAddress = -1;
@@ -2153,9 +2138,6 @@ static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT = -1;
 static gint ett_ngap_GlobalCable_ID = -1;
 static gint ett_ngap_UpdateFeedback = -1;
 static gint ett_ngap_successfulHOReportContainer = -1;
-
-/*--- Included file: packet-ngap-ett.c ---*/
-#line 1 "./asn1/ngap/packet-ngap-ett.c"
 static gint ett_ngap_PrivateIE_ID = -1;
 static gint ett_ngap_ProtocolIE_Container = -1;
 static gint ett_ngap_ProtocolIE_Field = -1;
@@ -2922,9 +2904,6 @@ static gint ett_ngap_InitiatingMessage = -1;
 static gint ett_ngap_SuccessfulOutcome = -1;
 static gint ett_ngap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-ngap-ett.c ---*/
-#line 185 "./asn1/ngap/packet-ngap-template.c"
-
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
 
 enum{
@@ -3512,9 +3491,6 @@ const true_false_string ngap_not_updated_updated = {
     "Updated"
 };
 
-
-/*--- Included file: packet-ngap-fn.c ---*/
-#line 1 "./asn1/ngap/packet-ngap-fn.c"
 /*--- PDUs declarations ---*/
 static int dissect_UEContextResumeRequestTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_UEContextResumeResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -26674,9 +26650,6 @@ static int dissect_MulticastSessionUpdateRequestTransfer_PDU(tvbuff_t *tvb _U_, 
 }
 
 
-/*--- End of included file: packet-ngap-fn.c ---*/
-#line 774 "./asn1/ngap/packet-ngap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   ngap_ctx_t ngap_ctx;
@@ -26978,9 +26951,6 @@ proto_reg_handoff_ngap(void)
   lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
   lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_ngap);
   dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
-
-/*--- Included file: packet-ngap-dis-tab.c ---*/
-#line 1 "./asn1/ngap/packet-ngap-dis-tab.c"
   dissector_add_uint("ngap.ies", id_AllowedNSSAI, create_dissector_handle(dissect_AllowedNSSAI_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_AMFName, create_dissector_handle(dissect_AMFName_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_AMFOverloadResponse, create_dissector_handle(dissect_OverloadResponse_PDU, proto_ngap));
@@ -27494,9 +27464,6 @@ proto_reg_handoff_ngap(void)
   dissector_add_string("ngap.n2_ie_type", "UE_RADIO_CAPABILITY", create_dissector_handle(dissect_UERadioCapability_PDU, proto_ngap));
 
 
-/*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 1077 "./asn1/ngap/packet-ngap-template.c"
-
   dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
 
   nrppa_handle = find_dissector_add_dependency("nrppa", proto_ngap);
@@ -27775,9 +27742,6 @@ void proto_register_ngap(void) {
       { "Reserved", "ngap.UpdateFeedback.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x3f,
         NULL, HFILL }},
-
-/*--- Included file: packet-ngap-hfarr.c ---*/
-#line 1 "./asn1/ngap/packet-ngap-hfarr.c"
     { &hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU,
       { "AdditionalDLUPTNLInformationForHOList", "ngap.AdditionalDLUPTNLInformationForHOList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -33386,9 +33350,6 @@ void proto_register_ngap(void) {
       { "value", "ngap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 1357 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -33436,9 +33397,6 @@ void proto_register_ngap(void) {
     &ett_ngap_GlobalCable_ID,
     &ett_ngap_UpdateFeedback,
     &ett_ngap_successfulHOReportContainer,
-
-/*--- Included file: packet-ngap-ettarr.c ---*/
-#line 1 "./asn1/ngap/packet-ngap-ettarr.c"
     &ett_ngap_PrivateIE_ID,
     &ett_ngap_ProtocolIE_Container,
     &ett_ngap_ProtocolIE_Field,
@@ -34204,9 +34162,6 @@ void proto_register_ngap(void) {
     &ett_ngap_InitiatingMessage,
     &ett_ngap_SuccessfulOutcome,
     &ett_ngap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 1405 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {

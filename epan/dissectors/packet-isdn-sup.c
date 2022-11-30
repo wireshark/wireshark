@@ -3,9 +3,6 @@
 /* packet-isdn-sup.c                                                          */
 /* asn2wrs.py -b -L -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../.. Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn MLPP-Operations-And-Errors.asn */
 
-/* Input file: packet-isdn-sup-template.c */
-
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-template.c"
 /* packet-isdn-sup-template.c
  * Routines for ETSI Integrated Services Digital Network (ISDN)
  * supplementary services
@@ -33,13 +30,7 @@
 void proto_register_isdn_sup(void);
 void proto_reg_handoff_isdn_sup(void);
 
-
-/*--- Included file: packet-isdn-sup-val.h ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-val.h"
 #define fPHOID                         "0.4.0.210.1"
-
-/*--- End of included file: packet-isdn-sup-val.h ---*/
-#line 29 "./asn1/isdn-sup/packet-isdn-sup-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_isdn_sup = -1;
@@ -72,9 +63,6 @@ typedef struct isdn_sup_err_t {
 } isdn_sup_err_t;
 
 static const value_string isdn_sup_str_operation[] = {
-
-/*--- Included file: packet-isdn-sup-table10.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-table10.c"
   {   1, "userUserService" },
   {   2, "cUGcall" },
   {   3, "mCIDRequest" },
@@ -107,17 +95,11 @@ static const value_string isdn_sup_str_operation[] = {
   {  44, "isolateCONF" },
   {  45, "reattachCONF" },
   {  46, "partyDISC" },
-
-/*--- End of included file: packet-isdn-sup-table10.c ---*/
-#line 62 "./asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
 
 static const value_string isdn_sup_str_error[] = {
-
-/*--- Included file: packet-isdn-sup-table20.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-table20.c"
   {    0, "notSubscribed" },
   {    3, "notAvailable" },
   {    4, "notImplemented" },
@@ -149,17 +131,11 @@ static const value_string isdn_sup_str_error[] = {
   {    1, "rejectedByTheNetwork" },
   {    2, "rejectedByTheUser" },
   {   44, "unauthorizedPrecedenceLevel" },
-
-/*--- End of included file: packet-isdn-sup-table20.c ---*/
-#line 68 "./asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
 static int hf_isdn_sup = -1;
 
-
-/*--- Included file: packet-isdn-sup-hf.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-hf.c"
 static int hf_isdn_sup_ChargingRequestArg_PDU = -1;  /* ChargingRequestArg */
 static int hf_isdn_sup_ChargingRequestRes_PDU = -1;  /* ChargingRequestRes */
 static int hf_isdn_sup_AOCSCurrencyArg_PDU = -1;  /* AOCSCurrencyArg */
@@ -329,16 +305,10 @@ static int hf_isdn_sup_mlppSvcDomn = -1;          /* MLPPSvcDomn */
 static int hf_isdn_sup_statusQuery = -1;          /* StatusQuery */
 static int hf_isdn_sup_location = -1;             /* Location */
 
-/*--- End of included file: packet-isdn-sup-hf.c ---*/
-#line 74 "./asn1/isdn-sup/packet-isdn-sup-template.c"
-
 
 /* Initialize the subtree pointers */
 static gint ett_isdn_sup = -1;
 
-
-/*--- Included file: packet-isdn-sup-ett.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-ett.c"
 static gint ett_isdn_sup_PresentedAddressScreened = -1;
 static gint ett_isdn_sup_PresentedAddressUnscreened = -1;
 static gint ett_isdn_sup_PresentedNumberScreened = -1;
@@ -407,9 +377,6 @@ static gint ett_isdn_sup_MLPPLFBArg = -1;
 static gint ett_isdn_sup_MLPPParams = -1;
 static gint ett_isdn_sup_MLPPLFBResp = -1;
 
-/*--- End of included file: packet-isdn-sup-ett.c ---*/
-#line 80 "./asn1/isdn-sup/packet-isdn-sup-template.c"
-
 /* static expert_field ei_isdn_sup_unsupported_arg_type = EI_INIT; */
 static expert_field ei_isdn_sup_unsupported_result_type = EI_INIT;
 static expert_field ei_isdn_sup_unsupported_error_type = EI_INIT;
@@ -418,9 +385,6 @@ static expert_field ei_isdn_sup_unsupported_error_type = EI_INIT;
 
 /* Global variables */
 
-
-/*--- Included file: packet-isdn-sup-fn.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-fn.c"
 
 
 static int
@@ -2705,13 +2669,7 @@ static int dissect_PreemptParams_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 }
 
 
-/*--- End of included file: packet-isdn-sup-fn.c ---*/
-#line 90 "./asn1/isdn-sup/packet-isdn-sup-template.c"
-
 static const isdn_sup_op_t isdn_sup_op_tab[] = {
-
-/*--- Included file: packet-isdn-sup-table11.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-table11.c"
   /* chargingRequest          */ {  30, dissect_ChargingRequestArg_PDU, dissect_ChargingRequestRes_PDU },
   /* aOCSCurrency             */ {  31, dissect_AOCSCurrencyArg_PDU, NULL },
   /* aOCSSpecialArr           */ {  32, dissect_AOCSSpecialArrArg_PDU, NULL },
@@ -2744,30 +2702,18 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* mLPPLFBQuery             */ {  24, dissect_MLPPLFBArg_PDU, dissect_MLPPLFBResp_PDU },
   /* mLPPCallRequest          */ {  25, dissect_MLPPParams_PDU, dissect_StatusRequest_PDU },
   /* mLPPCallPreemption       */ {  26, dissect_PreemptParams_PDU, NULL },
-
-/*--- End of included file: packet-isdn-sup-table11.c ---*/
-#line 93 "./asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
 static const isdn_sup_global_op_t isdn_sup_global_op_tab[] = {
 
-
-/*--- Included file: packet-isdn-sup-table31.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-table31.c"
   /* callFPH                  */ { fPHOID".1", dissect_CalledFreephoneNrArg_PDU, NULL },
   /* monitor-T-FPH            */ { fPHOID".2", dissect_Monitor_T_FPHArg_PDU, NULL },
   /* free-T-FPH               */ { fPHOID".3", dissect_Free_T_FPHArg_PDU, NULL },
   /* call-T-FPH               */ { fPHOID".4", dissect_Call_T_FPHArg_PDU, NULL },
-
-/*--- End of included file: packet-isdn-sup-table31.c ---*/
-#line 99 "./asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 static const isdn_sup_err_t isdn_sup_err_tab[] = {
-
-/*--- Included file: packet-isdn-sup-table21.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-table21.c"
   /* notSubscribed            */ {    0, NULL },
   /* notAvailable             */ {    3, NULL },
   /* notImplemented           */ {    4, NULL },
@@ -2799,9 +2745,6 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
   /* rejectedByTheNetwork     */ {    1, NULL },
   /* rejectedByTheUser        */ {    2, NULL },
   /* unauthorizedPrecedenceLevel */ {   44, NULL },
-
-/*--- End of included file: packet-isdn-sup-table21.c ---*/
-#line 103 "./asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
@@ -3034,9 +2977,6 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }
 	},
 
-
-/*--- Included file: packet-isdn-sup-hfarr.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-hfarr.c"
     { &hf_isdn_sup_ChargingRequestArg_PDU,
       { "ChargingRequestArg", "isdn-sup.ChargingRequestArg",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargingCase_vals), 0,
@@ -3709,18 +3649,12 @@ void proto_register_isdn_sup(void) {
       { "location", "isdn-sup.location",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 336 "./asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_isdn_sup,
 
-
-/*--- Included file: packet-isdn-sup-ettarr.c ---*/
-#line 1 "./asn1/isdn-sup/packet-isdn-sup-ettarr.c"
     &ett_isdn_sup_PresentedAddressScreened,
     &ett_isdn_sup_PresentedAddressUnscreened,
     &ett_isdn_sup_PresentedNumberScreened,
@@ -3788,9 +3722,6 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_MLPPLFBArg,
     &ett_isdn_sup_MLPPParams,
     &ett_isdn_sup_MLPPLFBResp,
-
-/*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 343 "./asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   static ei_register_info ei[] = {

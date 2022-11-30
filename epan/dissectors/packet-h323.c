@@ -3,9 +3,6 @@
 /* packet-h323.c                                                              */
 /* asn2wrs.py -L -p h323 -c ./h323.cnf -s ./packet-h323-template -D . -O ../.. RAS-PROTOCOL-TUNNEL.asn ROBUSTNESS-DATA.asn */
 
-/* Input file: packet-h323-template.c */
-
-#line 1 "./asn1/h323/packet-h323-template.c"
 /* packet-h323.c
  * Routines for H.323 packet dissection
  * 2007  Tomas Kukosa
@@ -82,9 +79,6 @@ void gef_ctx_update_key(wmem_allocator_t *pool, gef_ctx_t *gefx) {
 
 /* Initialize the protocol and registered fields */
 static int proto_h323 = -1;
-
-/*--- Included file: packet-h323-hf.c ---*/
-#line 1 "./asn1/h323/packet-h323-hf.c"
 static int hf_h323_RasTunnelledSignallingMessage_PDU = -1;  /* RasTunnelledSignallingMessage */
 static int hf_h323_RobustnessData_PDU = -1;       /* RobustnessData */
 static int hf_h323_tunnelledProtocolID = -1;      /* TunnelledProtocol */
@@ -114,13 +108,7 @@ static int hf_h323_resetH245 = -1;                /* NULL */
 static int hf_h323_timeToLive = -1;               /* TimeToLive */
 static int hf_h323_includeFastStart = -1;         /* NULL */
 
-/*--- End of included file: packet-h323-hf.c ---*/
-#line 78 "./asn1/h323/packet-h323-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-h323-ett.c ---*/
-#line 1 "./asn1/h323/packet-h323-ett.c"
 static gint ett_h323_RasTunnelledSignallingMessage = -1;
 static gint ett_h323_T_messageContent = -1;
 static gint ett_h323_RobustnessData = -1;
@@ -135,12 +123,6 @@ static gint ett_h323_Status_RD = -1;
 static gint ett_h323_T_fastStart = -1;
 static gint ett_h323_StatusInquiry_RD = -1;
 
-/*--- End of included file: packet-h323-ett.c ---*/
-#line 81 "./asn1/h323/packet-h323-template.c"
-
-
-/*--- Included file: packet-h323-fn.c ---*/
-#line 1 "./asn1/h323/packet-h323-fn.c"
 
 
 static int
@@ -426,17 +408,11 @@ static int dissect_RobustnessData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 
-/*--- End of included file: packet-h323-fn.c ---*/
-#line 83 "./asn1/h323/packet-h323-template.c"
-
 /*--- proto_register_h323 ----------------------------------------------*/
 void proto_register_h323(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-h323-hfarr.c ---*/
-#line 1 "./asn1/h323/packet-h323-hfarr.c"
     { &hf_h323_RasTunnelledSignallingMessage_PDU,
       { "RasTunnelledSignallingMessage", "h323.RasTunnelledSignallingMessage_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -549,16 +525,10 @@ void proto_register_h323(void) {
       { "includeFastStart", "h323.includeFastStart_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-h323-hfarr.c ---*/
-#line 90 "./asn1/h323/packet-h323-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-h323-ettarr.c ---*/
-#line 1 "./asn1/h323/packet-h323-ettarr.c"
     &ett_h323_RasTunnelledSignallingMessage,
     &ett_h323_T_messageContent,
     &ett_h323_RobustnessData,
@@ -572,9 +542,6 @@ void proto_register_h323(void) {
     &ett_h323_Status_RD,
     &ett_h323_T_fastStart,
     &ett_h323_StatusInquiry_RD,
-
-/*--- End of included file: packet-h323-ettarr.c ---*/
-#line 95 "./asn1/h323/packet-h323-template.c"
   };
 
   /* Register protocol */

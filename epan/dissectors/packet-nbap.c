@@ -3,9 +3,6 @@
 /* packet-nbap.c                                                              */
 /* asn2wrs.py -L -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . -O ../.. NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
-/* Input file: packet-nbap-template.c */
-
-#line 1 "./asn1/nbap/packet-nbap-template.c"
 /* packet-nbap-template.c
  * Routines for UMTS Node B Application Part(NBAP) packet dissection
  * Copyright 2005, 2009 Anders Broman <anders.broman@ericsson.com>
@@ -65,9 +62,6 @@ void proto_reg_handoff_nbap(void);
 /* Protocol Handles */
 static dissector_handle_t fp_handle;
 
-
-/*--- Included file: packet-nbap-val.h ---*/
-#line 1 "./asn1/nbap/packet-nbap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -1522,9 +1516,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_Unallocated_1221 = 1221
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-nbap-val.h ---*/
-#line 61 "./asn1/nbap/packet-nbap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
 static int hf_nbap_transportLayerAddress_ipv4 = -1;
@@ -1532,9 +1523,6 @@ static int hf_nbap_transportLayerAddress_ipv6 = -1;
 static int hf_nbap_transportLayerAddress_nsap = -1;
 static int hf_nbap_reassembled_information_block = -1;
 
-
-/*--- Included file: packet-nbap-hf.c ---*/
-#line 1 "./asn1/nbap/packet-nbap-hf.c"
 static int hf_nbap_ActivationInformation_PDU = -1;  /* ActivationInformation */
 static int hf_nbap_Additional_EDCH_Setup_Info_PDU = -1;  /* Additional_EDCH_Setup_Info */
 static int hf_nbap_Additional_EDCH_Cell_Information_Response_List_PDU = -1;  /* Additional_EDCH_Cell_Information_Response_List */
@@ -4827,18 +4815,12 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh2 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
-/*--- End of included file: packet-nbap-hf.c ---*/
-#line 70 "./asn1/nbap/packet-nbap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
 static int ett_nbap_TransportLayerAddress = -1;
 static int ett_nbap_TransportLayerAddress_nsap = -1;
 static int ett_nbap_ib_sg_data = -1;
 
-
-/*--- Included file: packet-nbap-ett.c ---*/
-#line 1 "./asn1/nbap/packet-nbap-ett.c"
 static gint ett_nbap_PrivateIE_ID = -1;
 static gint ett_nbap_ProcedureID = -1;
 static gint ett_nbap_TransactionID = -1;
@@ -6466,9 +6448,6 @@ static gint ett_nbap_SuccessfulOutcome = -1;
 static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
-/*--- End of included file: packet-nbap-ett.c ---*/
-#line 78 "./asn1/nbap/packet-nbap-template.c"
-
 static expert_field ei_nbap_no_find_port_info = EI_INIT;
 static expert_field ei_nbap_no_set_comm_context_id = EI_INIT;
 static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
@@ -6825,9 +6804,6 @@ static void delete_setup_conv(nbap_setup_conv_t *conv);
 /*Easy way to add hsdhsch binds for corner cases*/
 static void add_hsdsch_bind(packet_info * pinfo);
 
-
-/*--- Included file: packet-nbap-fn.c ---*/
-#line 1 "./asn1/nbap/packet-nbap-fn.c"
 
 static const value_string nbap_Criticality_vals[] = {
   {   0, "reject" },
@@ -55466,9 +55442,6 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 }
 
 
-/*--- End of included file: packet-nbap-fn.c ---*/
-#line 436 "./asn1/nbap/packet-nbap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint32 protocol_ie_id;
@@ -55777,9 +55750,6 @@ void proto_register_nbap(void)
     { "Reassembled Information Block", "nbap.reassembled_information_block",
     FT_BYTES, BASE_NONE, NULL, 0,
     NULL, HFILL }},
-
-/*--- Included file: packet-nbap-hfarr.c ---*/
-#line 1 "./asn1/nbap/packet-nbap-hfarr.c"
     { &hf_nbap_ActivationInformation_PDU,
       { "ActivationInformation", "nbap.ActivationInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -68940,9 +68910,6 @@ void proto_register_nbap(void)
       { "subCh0", "nbap.RACH.SubChannelNumbers.subCh0",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 746 "./asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -68951,9 +68918,6 @@ void proto_register_nbap(void)
     &ett_nbap_TransportLayerAddress,
     &ett_nbap_TransportLayerAddress_nsap,
     &ett_nbap_ib_sg_data,
-
-/*--- Included file: packet-nbap-ettarr.c ---*/
-#line 1 "./asn1/nbap/packet-nbap-ettarr.c"
     &ett_nbap_PrivateIE_ID,
     &ett_nbap_ProcedureID,
     &ett_nbap_TransactionID,
@@ -70580,9 +70544,6 @@ void proto_register_nbap(void)
     &ett_nbap_SuccessfulOutcome,
     &ett_nbap_UnsuccessfulOutcome,
     &ett_nbap_Outcome,
-
-/*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 755 "./asn1/nbap/packet-nbap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -70640,9 +70601,6 @@ proto_reg_handoff_nbap(void)
   dissector_add_for_decode_as("sctp.port", nbap_handle);
   heur_dissector_add("sctp", dissect_nbap_heur, "NBAP over SCTP", "nbap_sctp", proto_nbap, HEURISTIC_ENABLE);
 
-
-/*--- Included file: packet-nbap-dis-tab.c ---*/
-#line 1 "./asn1/nbap/packet-nbap-dis-tab.c"
   dissector_add_uint("nbap.ies", id_TUTRANGPSMeasurementValueInformation, create_dissector_handle(dissect_TUTRANGPSMeasurementValueInformation_PDU, proto_nbap));
   dissector_add_uint("nbap.ies", id_SFNSFNMeasurementValueInformation, create_dissector_handle(dissect_SFNSFNMeasurementValueInformation_PDU, proto_nbap));
   dissector_add_uint("nbap.ies", id_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission, create_dissector_handle(dissect_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue_PDU, proto_nbap));
@@ -71735,8 +71693,5 @@ proto_reg_handoff_nbap(void)
   dissector_add_string("nbap.proc.imsg", "id-secondaryULFrequencyReporting/fdd", create_dissector_handle(dissect_SecondaryULFrequencyReport_PDU, proto_nbap));
   dissector_add_string("nbap.proc.imsg", "id-secondaryULFrequencyUpdate/fdd", create_dissector_handle(dissect_SecondaryULFrequencyUpdateIndication_PDU, proto_nbap));
 
-
-/*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 813 "./asn1/nbap/packet-nbap-template.c"
 }
 

@@ -3,9 +3,6 @@
 /* packet-rua.c                                                               */
 /* asn2wrs.py -L -p rua -c ./rua.cnf -s ./packet-rua-template -D . -O ../.. RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
 
-/* Input file: packet-rua-template.c */
-
-#line 1 "./asn1/rua/packet-rua-template.c"
 /* packet-rua-template.c
  * Routines for UMTS Home Node B RANAP User Adaptation (RUA) packet dissection
  * Copyright 2010 Neil Piercy, ip.access Limited <Neil.Piercy@ipaccess.com>
@@ -41,9 +38,6 @@
 
 void proto_register_rua(void);
 
-
-/*--- Included file: packet-rua-val.h ---*/
-#line 1 "./asn1/rua/packet-rua-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -69,15 +63,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_CSGMembershipStatus =   9
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-rua-val.h ---*/
-#line 37 "./asn1/rua/packet-rua-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_rua = -1;
 
-
-/*--- Included file: packet-rua-hf.c ---*/
-#line 1 "./asn1/rua/packet-rua-hf.c"
 static int hf_rua_CN_DomainIndicator_PDU = -1;    /* CN_DomainIndicator */
 static int hf_rua_CSGMembershipStatus_PDU = -1;   /* CSGMembershipStatus */
 static int hf_rua_Establishment_Cause_PDU = -1;   /* Establishment_Cause */
@@ -146,18 +134,12 @@ static int hf_rua_initiatingMessagevalue = -1;    /* InitiatingMessage_value */
 static int hf_rua_successfulOutcome_value = -1;   /* SuccessfulOutcome_value */
 static int hf_rua_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-rua-hf.c ---*/
-#line 42 "./asn1/rua/packet-rua-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_rua = -1;
 
  /* initialise sub-dissector handles */
  static dissector_handle_t ranap_handle = NULL;
 
-
-/*--- Included file: packet-rua-ett.c ---*/
-#line 1 "./asn1/rua/packet-rua-ett.c"
 static gint ett_rua_PrivateIE_ID = -1;
 static gint ett_rua_ProtocolIE_Container = -1;
 static gint ett_rua_ProtocolIE_Field = -1;
@@ -195,9 +177,6 @@ static gint ett_rua_InitiatingMessage = -1;
 static gint ett_rua_SuccessfulOutcome = -1;
 static gint ett_rua_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-rua-ett.c ---*/
-#line 50 "./asn1/rua/packet-rua-template.c"
-
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
@@ -219,9 +198,6 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 void proto_reg_handoff_rua(void);
 
-
-/*--- Included file: packet-rua-fn.c ---*/
-#line 1 "./asn1/rua/packet-rua-fn.c"
 
 static const value_string rua_Criticality_vals[] = {
   {   0, "reject" },
@@ -1327,9 +1303,6 @@ static int dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-rua-fn.c ---*/
-#line 73 "./asn1/rua/packet-rua-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint_new(rua_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
@@ -1378,9 +1351,6 @@ void proto_register_rua(void) {
 
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-rua-hfarr.c ---*/
-#line 1 "./asn1/rua/packet-rua-hfarr.c"
     { &hf_rua_CN_DomainIndicator_PDU,
       { "CN-DomainIndicator", "rua.CN_DomainIndicator",
         FT_UINT32, BASE_DEC, VALS(rua_CN_DomainIndicator_vals), 0,
@@ -1649,17 +1619,11 @@ void proto_register_rua(void) {
       { "value", "rua.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-rua-hfarr.c ---*/
-#line 123 "./asn1/rua/packet-rua-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
           &ett_rua,
-
-/*--- Included file: packet-rua-ettarr.c ---*/
-#line 1 "./asn1/rua/packet-rua-ettarr.c"
     &ett_rua_PrivateIE_ID,
     &ett_rua_ProtocolIE_Container,
     &ett_rua_ProtocolIE_Field,
@@ -1696,9 +1660,6 @@ void proto_register_rua(void) {
     &ett_rua_InitiatingMessage,
     &ett_rua_SuccessfulOutcome,
     &ett_rua_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-rua-ettarr.c ---*/
-#line 129 "./asn1/rua/packet-rua-template.c"
   };
 
 
@@ -1730,9 +1691,6 @@ proto_reg_handoff_rua(void)
         ranap_handle = find_dissector_add_dependency("ranap", proto_rua);
         dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
         dissector_add_uint_with_preference("sctp.port", SCTP_PORT_RUA, rua_handle);
-
-/*--- Included file: packet-rua-dis-tab.c ---*/
-#line 1 "./asn1/rua/packet-rua-dis-tab.c"
   dissector_add_uint("rua.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_rua));
   dissector_add_uint("rua.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_rua));
   dissector_add_uint("rua.ies", id_Context_ID, create_dissector_handle(dissect_Context_ID_PDU, proto_rua));
@@ -1748,7 +1706,4 @@ proto_reg_handoff_rua(void)
   dissector_add_uint("rua.proc.imsg", id_ErrorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_rua));
   dissector_add_uint("rua.proc.imsg", id_privateMessage, create_dissector_handle(dissect_PrivateMessage_PDU, proto_rua));
 
-
-/*--- End of included file: packet-rua-dis-tab.c ---*/
-#line 161 "./asn1/rua/packet-rua-template.c"
 }

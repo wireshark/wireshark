@@ -3,9 +3,6 @@
 /* packet-goose.c                                                             */
 /* asn2wrs.py -b -L -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../.. goose.asn */
 
-/* Input file: packet-goose-template.c */
-
-#line 1 "./asn1/goose/packet-goose-template.c"
 /* packet-goose.c
  * Routines for IEC 61850 GOOSE packet dissection
  * Martin Lutz 2008
@@ -94,9 +91,6 @@ static expert_field ei_goose_invalid_sim = EI_INIT;
 #define SINGLE_FLOAT_EXP_BITS	8
 #define FLOAT_ENC_LENGTH		5
 
-
-/*--- Included file: packet-goose-hf.c ---*/
-#line 1 "./asn1/goose/packet-goose-hf.c"
 static int hf_goose_gseMngtPdu = -1;              /* GSEMngtPdu */
 static int hf_goose_goosePdu = -1;                /* IECGoosePdu */
 static int hf_goose_stateID = -1;                 /* INTEGER */
@@ -157,9 +151,6 @@ static int hf_goose_objId = -1;                   /* OBJECT_IDENTIFIER */
 static int hf_goose_mMSString = -1;               /* MMSString */
 static int hf_goose_utc_time = -1;                /* UtcTime */
 
-/*--- End of included file: packet-goose-hf.c ---*/
-#line 90 "./asn1/goose/packet-goose-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_r_goose = -1;
 static int ett_session_header = -1;
@@ -171,9 +162,6 @@ static int ett_goose = -1;
 static int ett_reserve1 = -1;
 static int ett_expert_inf_sim = -1;
 
-
-/*--- Included file: packet-goose-ett.c ---*/
-#line 1 "./asn1/goose/packet-goose-ett.c"
 static gint ett_goose_GOOSEpdu = -1;
 static gint ett_goose_GSEMngtPdu = -1;
 static gint ett_goose_RequestResponse = -1;
@@ -192,12 +180,6 @@ static gint ett_goose_IECGoosePdu = -1;
 static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
-/*--- End of included file: packet-goose-ett.c ---*/
-#line 103 "./asn1/goose/packet-goose-template.c"
-
-
-/*--- Included file: packet-goose-fn.c ---*/
-#line 1 "./asn1/goose/packet-goose-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Data -> Data/array -> Data */
@@ -776,9 +758,6 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-/*--- End of included file: packet-goose-fn.c ---*/
-#line 105 "./asn1/goose/packet-goose-template.c"
-
 static dissector_handle_t goose_handle = NULL;
 static dissector_handle_t ositp_handle = NULL;
 
@@ -1239,9 +1218,6 @@ void proto_register_goose(void) {
 		{ "float value", "goose.float_value",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-
-/*--- Included file: packet-goose-hfarr.c ---*/
-#line 1 "./asn1/goose/packet-goose-hfarr.c"
     { &hf_goose_gseMngtPdu,
       { "gseMngtPdu", "goose.gseMngtPdu_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1478,9 +1454,6 @@ void proto_register_goose(void) {
       { "utc-time", "goose.utc_time",
         FT_STRING, BASE_NONE, NULL, 0,
         "UtcTime", HFILL }},
-
-/*--- End of included file: packet-goose-hfarr.c ---*/
-#line 567 "./asn1/goose/packet-goose-template.c"
 	};
 
 	/* List of subtrees */
@@ -1494,9 +1467,6 @@ void proto_register_goose(void) {
 		&ett_goose,
 		&ett_reserve1,
 		&ett_expert_inf_sim,
-
-/*--- Included file: packet-goose-ettarr.c ---*/
-#line 1 "./asn1/goose/packet-goose-ettarr.c"
     &ett_goose_GOOSEpdu,
     &ett_goose_GSEMngtPdu,
     &ett_goose_RequestResponse,
@@ -1514,9 +1484,6 @@ void proto_register_goose(void) {
     &ett_goose_IECGoosePdu,
     &ett_goose_SEQUENCE_OF_Data,
     &ett_goose_Data,
-
-/*--- End of included file: packet-goose-ettarr.c ---*/
-#line 581 "./asn1/goose/packet-goose-template.c"
 	};
 
 	static ei_register_info ei[] = {

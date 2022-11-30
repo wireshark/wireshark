@@ -3,9 +3,6 @@
 /* packet-lix2.c                                                              */
 /* asn2wrs.py -b -L -p lix2 -c ./lix2.cnf -s ./packet-lix2-template -D . -O ../.. lix2.asn */
 
-/* Input file: packet-lix2-template.c */
-
-#line 1 "./asn1/lix2/packet-lix2-template.c"
 /* packet-lix2-template.c
  * Routines for Lawful Interception X2 xIRI event dissection
  *
@@ -38,9 +35,6 @@ static int proto_lix2 = -1;
 static dissector_handle_t lix2_handle = NULL;
 
 
-
-/*--- Included file: packet-lix2-hf.c ---*/
-#line 1 "./asn1/lix2/packet-lix2-hf.c"
 static int hf_lix2_XIRIPayload_PDU = -1;          /* XIRIPayload */
 static int hf_lix2_xIRIPayloadOID = -1;           /* RELATIVE_OID */
 static int hf_lix2_event = -1;                    /* XIRIEvent */
@@ -738,12 +732,6 @@ static int hf_lix2_uncertainty_02 = -1;           /* SpeedUncertainty */
 static int hf_lix2_hUncertainty = -1;             /* SpeedUncertainty */
 static int hf_lix2_vUncertainty = -1;             /* SpeedUncertainty */
 
-/*--- End of included file: packet-lix2-hf.c ---*/
-#line 34 "./asn1/lix2/packet-lix2-template.c"
-
-
-/*--- Included file: packet-lix2-ett.c ---*/
-#line 1 "./asn1/lix2/packet-lix2-ett.c"
 static gint ett_lix2_XIRIPayload = -1;
 static gint ett_lix2_XIRIEvent = -1;
 static gint ett_lix2_IRIPayload = -1;
@@ -990,12 +978,6 @@ static gint ett_lix2_HorizontalWithVerticalVelocity = -1;
 static gint ett_lix2_HorizontalVelocityWithUncertainty = -1;
 static gint ett_lix2_HorizontalWithVerticalVelocityAndUncertainty = -1;
 
-/*--- End of included file: packet-lix2-ett.c ---*/
-#line 36 "./asn1/lix2/packet-lix2-template.c"
-
-
-/*--- Included file: packet-lix2-fn.c ---*/
-#line 1 "./asn1/lix2/packet-lix2-fn.c"
 
 
 static int
@@ -9086,17 +9068,11 @@ static int dissect_XIRIPayload_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 }
 
 
-/*--- End of included file: packet-lix2-fn.c ---*/
-#line 38 "./asn1/lix2/packet-lix2-template.c"
-
 /*--- proto_register_lix2 -------------------------------------------*/
 void proto_register_lix2(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-lix2-hfarr.c ---*/
-#line 1 "./asn1/lix2/packet-lix2-hfarr.c"
     { &hf_lix2_XIRIPayload_PDU,
       { "XIRIPayload", "lix2.XIRIPayload_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11881,16 +11857,10 @@ void proto_register_lix2(void) {
       { "vUncertainty", "lix2.vUncertainty",
         FT_STRING, BASE_NONE, NULL, 0,
         "SpeedUncertainty", HFILL }},
-
-/*--- End of included file: packet-lix2-hfarr.c ---*/
-#line 45 "./asn1/lix2/packet-lix2-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-lix2-ettarr.c ---*/
-#line 1 "./asn1/lix2/packet-lix2-ettarr.c"
     &ett_lix2_XIRIPayload,
     &ett_lix2_XIRIEvent,
     &ett_lix2_IRIPayload,
@@ -12136,9 +12106,6 @@ void proto_register_lix2(void) {
     &ett_lix2_HorizontalWithVerticalVelocity,
     &ett_lix2_HorizontalVelocityWithUncertainty,
     &ett_lix2_HorizontalWithVerticalVelocityAndUncertainty,
-
-/*--- End of included file: packet-lix2-ettarr.c ---*/
-#line 50 "./asn1/lix2/packet-lix2-template.c"
   };
 
   /* Register protocol */

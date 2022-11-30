@@ -3,9 +3,6 @@
 /* packet-ranap.c                                                             */
 /* asn2wrs.py -L -p ranap -c ./ranap.cnf -s ./packet-ranap-template -D . -O ../.. RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
 
-/* Input file: packet-ranap-template.c */
-
-#line 1 "./asn1/ranap/packet-ranap-template.c"
 /* packet-ranap.c
  * Routines for UMTS Node B Application Part(RANAP) packet dissection
  * Copyright 2005 - 2010, Anders Broman <anders.broman[AT]ericsson.com>
@@ -53,9 +50,6 @@
 /* Highest Ranap_ProcedureCode_value, use in heuristics */
 #define RANAP_MAX_PC  49 /* id_RerouteNASRequest =  49 */
 
-
-/*--- Included file: packet-ranap-val.h ---*/
-#line 1 "./asn1/ranap/packet-ranap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -444,9 +438,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_UE_Application_Layer_Measurement_Configuration_For_Relocation = 293
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-ranap-val.h ---*/
-#line 49 "./asn1/ranap/packet-ranap-template.c"
-
 void proto_register_ranap(void);
 void proto_reg_handoff_ranap(void);
 
@@ -463,9 +454,6 @@ static int hf_ranap_transportLayerAddress_ipv4 = -1;
 static int hf_ranap_transportLayerAddress_ipv6 = -1;
 static int hf_ranap_transportLayerAddress_nsap = -1;
 
-
-/*--- Included file: packet-ranap-hf.c ---*/
-#line 1 "./asn1/ranap/packet-ranap-hf.c"
 static int hf_ranap_AccuracyFulfilmentIndicator_PDU = -1;  /* AccuracyFulfilmentIndicator */
 static int hf_ranap_Additional_CSPS_coordination_information_PDU = -1;  /* Additional_CSPS_coordination_information */
 static int hf_ranap_Additional_PositioningDataSet_PDU = -1;  /* Additional_PositioningDataSet */
@@ -1258,17 +1246,11 @@ static int hf_ranap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_ranap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 static int hf_ranap_value = -1;                   /* T_value */
 
-/*--- End of included file: packet-ranap-hf.c ---*/
-#line 67 "./asn1/ranap/packet-ranap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
 static int ett_ranap_transportLayerAddress = -1;
 static int ett_ranap_transportLayerAddress_nsap = -1;
 
-
-/*--- Included file: packet-ranap-ett.c ---*/
-#line 1 "./asn1/ranap/packet-ranap-ett.c"
 static gint ett_ranap_PrivateIE_ID = -1;
 static gint ett_ranap_ProtocolIE_Container = -1;
 static gint ett_ranap_ProtocolIE_Field = -1;
@@ -1621,9 +1603,6 @@ static gint ett_ranap_SuccessfulOutcome = -1;
 static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
-/*--- End of included file: packet-ranap-ett.c ---*/
-#line 74 "./asn1/ranap/packet-ranap-template.c"
-
 /*****************************************************************************/
 /* Packet private data                                                       */
 /* For this dissector, all access to actx->private_data should be made       */
@@ -1741,9 +1720,6 @@ static int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tv
 static int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 
-
-/*--- Included file: packet-ranap-fn.c ---*/
-#line 1 "./asn1/ranap/packet-ranap-fn.c"
 
 static const value_string ranap_Criticality_vals[] = {
   {   0, "reject" },
@@ -14810,9 +14786,6 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 }
 
 
-/*--- End of included file: packet-ranap-fn.c ---*/
-#line 193 "./asn1/ranap/packet-ranap-template.c"
-
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -15026,9 +14999,6 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 
-
-/*--- Included file: packet-ranap-hfarr.c ---*/
-#line 1 "./asn1/ranap/packet-ranap-hfarr.c"
     { &hf_ranap_AccuracyFulfilmentIndicator_PDU,
       { "AccuracyFulfilmentIndicator", "ranap.AccuracyFulfilmentIndicator",
         FT_UINT32, BASE_DEC, VALS(ranap_AccuracyFulfilmentIndicator_vals), 0,
@@ -18193,9 +18163,6 @@ void proto_register_ranap(void) {
       { "value", "ranap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 408 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18203,9 +18170,6 @@ void proto_register_ranap(void) {
     &ett_ranap,
     &ett_ranap_transportLayerAddress,
     &ett_ranap_transportLayerAddress_nsap,
-
-/*--- Included file: packet-ranap-ettarr.c ---*/
-#line 1 "./asn1/ranap/packet-ranap-ettarr.c"
     &ett_ranap_PrivateIE_ID,
     &ett_ranap_ProtocolIE_Container,
     &ett_ranap_ProtocolIE_Field,
@@ -18557,9 +18521,6 @@ void proto_register_ranap(void) {
     &ett_ranap_SuccessfulOutcome,
     &ett_ranap_UnsuccessfulOutcome,
     &ett_ranap_Outcome,
-
-/*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 416 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -18603,9 +18564,6 @@ proto_reg_handoff_ranap(void)
   heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap, HEURISTIC_ENABLE);
   heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap, HEURISTIC_ENABLE);
   dissector_add_uint_with_preference("sccp.ssn", SCCP_SSN_RANAP, ranap_handle);
-
-/*--- Included file: packet-ranap-dis-tab.c ---*/
-#line 1 "./asn1/ranap/packet-ranap-dis-tab.c"
   dissector_add_uint("ranap.ies", id_Cause, create_dissector_handle(dissect_ranap_Cause_PDU, proto_ranap));
   dissector_add_uint("ranap.ies", id_RAB_DataVolumeReportList, create_dissector_handle(dissect_RAB_DataVolumeReportList_PDU, proto_ranap));
   dissector_add_uint("ranap.ies", id_RAB_ReleasedList_IuRelComp, create_dissector_handle(dissect_RAB_ReleasedList_IuRelComp_PDU, proto_ranap));
@@ -18979,9 +18937,6 @@ proto_reg_handoff_ranap(void)
   dissector_add_uint("ranap.proc.out", id_UeRegistrationQuery, create_dissector_handle(dissect_UeRegistrationQueryResponse_PDU, proto_ranap));
   dissector_add_uint("ranap.proc.imsg", id_RerouteNASRequest, create_dissector_handle(dissect_RerouteNASRequest_PDU, proto_ranap));
 
-
-/*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 460 "./asn1/ranap/packet-ranap-template.c"
 
 }
 

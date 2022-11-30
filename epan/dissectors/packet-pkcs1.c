@@ -3,9 +3,6 @@
 /* packet-pkcs1.c                                                             */
 /* asn2wrs.py -b -L -p pkcs1 -c ./pkcs1.cnf -s ./packet-pkcs1-template -D . -O ../.. PKIXAlgs-2009.asn */
 
-/* Input file: packet-pkcs1-template.c */
-
-#line 1 "./asn1/pkcs1/packet-pkcs1-template.c"
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
  *  Ronnie Sahlberg 2004
@@ -36,9 +33,6 @@ void proto_reg_handoff_pkcs1(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_pkcs1 = -1;
-
-/*--- Included file: packet-pkcs1-hf.c ---*/
-#line 1 "./asn1/pkcs1/packet-pkcs1-hf.c"
 static int hf_pkcs1_DSA_Params_PDU = -1;          /* DSA_Params */
 static int hf_pkcs1_DomainParameters_PDU = -1;    /* DomainParameters */
 static int hf_pkcs1_KEA_Params_Id_PDU = -1;       /* KEA_Params_Id */
@@ -76,13 +70,7 @@ static int hf_pkcs1_b = -1;                       /* FieldElement */
 static int hf_pkcs1_r = -1;                       /* INTEGER */
 static int hf_pkcs1_s = -1;                       /* INTEGER */
 
-/*--- End of included file: packet-pkcs1-hf.c ---*/
-#line 32 "./asn1/pkcs1/packet-pkcs1-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-pkcs1-ett.c ---*/
-#line 1 "./asn1/pkcs1/packet-pkcs1-ett.c"
 static gint ett_pkcs1_RSAPublicKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
 static gint ett_pkcs1_DSA_Params = -1;
@@ -96,12 +84,6 @@ static gint ett_pkcs1_Curve = -1;
 static gint ett_pkcs1_DSA_Sig_Value = -1;
 static gint ett_pkcs1_ECDSA_Sig_Value = -1;
 
-/*--- End of included file: packet-pkcs1-ett.c ---*/
-#line 35 "./asn1/pkcs1/packet-pkcs1-template.c"
-
-
-/*--- Included file: packet-pkcs1-fn.c ---*/
-#line 1 "./asn1/pkcs1/packet-pkcs1-fn.c"
 
 
 static int
@@ -468,17 +450,11 @@ static int dissect_Prime_p_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-pkcs1-fn.c ---*/
-#line 37 "./asn1/pkcs1/packet-pkcs1-template.c"
-
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-pkcs1-hfarr.c ---*/
-#line 1 "./asn1/pkcs1/packet-pkcs1-hfarr.c"
     { &hf_pkcs1_DSA_Params_PDU,
       { "DSA-Params", "pkcs1.DSA_Params_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -623,16 +599,10 @@ void proto_register_pkcs1(void) {
       { "s", "pkcs1.s",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
-
-/*--- End of included file: packet-pkcs1-hfarr.c ---*/
-#line 44 "./asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-pkcs1-ettarr.c ---*/
-#line 1 "./asn1/pkcs1/packet-pkcs1-ettarr.c"
     &ett_pkcs1_RSAPublicKey,
     &ett_pkcs1_DigestInfo,
     &ett_pkcs1_DSA_Params,
@@ -645,9 +615,6 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_Curve,
     &ett_pkcs1_DSA_Sig_Value,
     &ett_pkcs1_ECDSA_Sig_Value,
-
-/*--- End of included file: packet-pkcs1-ettarr.c ---*/
-#line 49 "./asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* Register protocol */
@@ -662,9 +629,6 @@ void proto_register_pkcs1(void) {
 
 /*--- proto_reg_handoff_pkcs1 -------------------------------------------*/
 void proto_reg_handoff_pkcs1(void) {
-
-/*--- Included file: packet-pkcs1-dis-tab.c ---*/
-#line 1 "./asn1/pkcs1/packet-pkcs1-dis-tab.c"
   register_ber_oid_dissector("1.2.840.10040.4.1", dissect_DSA_Params_PDU, proto_pkcs1, "id-dsa");
   register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkcs1, "dhpublicnumber");
   register_ber_oid_dissector("2.16.840.1.101.2.1.1.22", dissect_KEA_Params_Id_PDU, proto_pkcs1, "id-keyExchangeAlgorithm");
@@ -675,9 +639,6 @@ void proto_reg_handoff_pkcs1(void) {
   register_ber_oid_dissector("1.2.840.113549.1.1.8", dissect_HashAlgorithm_PDU, proto_pkcs1, "id-mgf1");
   register_ber_oid_dissector("1.2.840.10045.1.1", dissect_Prime_p_PDU, proto_pkcs1, "prime-field");
 
-
-/*--- End of included file: packet-pkcs1-dis-tab.c ---*/
-#line 64 "./asn1/pkcs1/packet-pkcs1-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2");
 	register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4");

@@ -3,9 +3,6 @@
 /* packet-ocsp.c                                                              */
 /* asn2wrs.py -b -L -p ocsp -c ./ocsp.cnf -s ./packet-ocsp-template -D . -O ../.. OCSP.asn */
 
-/* Input file: packet-ocsp-template.c */
-
-#line 1 "./asn1/ocsp/packet-ocsp-template.c"
 /* packet-ocsp.c
  * Routines for Online Certificate Status Protocol (RFC2560) packet dissection
  *  Ronnie Sahlberg 2004
@@ -40,9 +37,6 @@ void proto_reg_handoff_ocsp(void);
 /* Initialize the protocol and registered fields */
 int proto_ocsp = -1;
 static int hf_ocsp_responseType_id = -1;
-
-/*--- Included file: packet-ocsp-hf.c ---*/
-#line 1 "./asn1/ocsp/packet-ocsp-hf.c"
 static int hf_ocsp_BasicOCSPResponse_PDU = -1;    /* BasicOCSPResponse */
 static int hf_ocsp_ArchiveCutoff_PDU = -1;        /* ArchiveCutoff */
 static int hf_ocsp_AcceptableResponses_PDU = -1;  /* AcceptableResponses */
@@ -96,14 +90,8 @@ static int hf_ocsp_crlUrl = -1;                   /* IA5String */
 static int hf_ocsp_crlNum = -1;                   /* INTEGER */
 static int hf_ocsp_crlTime = -1;                  /* GeneralizedTime */
 
-/*--- End of included file: packet-ocsp-hf.c ---*/
-#line 36 "./asn1/ocsp/packet-ocsp-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_ocsp = -1;
-
-/*--- Included file: packet-ocsp-ett.c ---*/
-#line 1 "./asn1/ocsp/packet-ocsp-ett.c"
 static gint ett_ocsp_OCSPRequest = -1;
 static gint ett_ocsp_TBSRequest = -1;
 static gint ett_ocsp_SEQUENCE_OF_Request = -1;
@@ -124,12 +112,6 @@ static gint ett_ocsp_AcceptableResponses = -1;
 static gint ett_ocsp_ServiceLocator = -1;
 static gint ett_ocsp_CrlID = -1;
 
-/*--- End of included file: packet-ocsp-ett.c ---*/
-#line 40 "./asn1/ocsp/packet-ocsp-template.c"
-
-
-/*--- Included file: packet-ocsp-fn.c ---*/
-#line 1 "./asn1/ocsp/packet-ocsp-fn.c"
 
 
 static int
@@ -658,9 +640,6 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 }
 
 
-/*--- End of included file: packet-ocsp-fn.c ---*/
-#line 42 "./asn1/ocsp/packet-ocsp-template.c"
-
 
 static int
 dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -714,9 +693,6 @@ void proto_register_ocsp(void) {
       { "ResponseType Id", "ocsp.responseType.id",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-ocsp-hfarr.c ---*/
-#line 1 "./asn1/ocsp/packet-ocsp-hfarr.c"
     { &hf_ocsp_BasicOCSPResponse_PDU,
       { "BasicOCSPResponse", "ocsp.BasicOCSPResponse_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -925,17 +901,11 @@ void proto_register_ocsp(void) {
       { "crlTime", "ocsp.crlTime",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
-
-/*--- End of included file: packet-ocsp-hfarr.c ---*/
-#line 97 "./asn1/ocsp/packet-ocsp-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ocsp,
-
-/*--- Included file: packet-ocsp-ettarr.c ---*/
-#line 1 "./asn1/ocsp/packet-ocsp-ettarr.c"
     &ett_ocsp_OCSPRequest,
     &ett_ocsp_TBSRequest,
     &ett_ocsp_SEQUENCE_OF_Request,
@@ -955,9 +925,6 @@ void proto_register_ocsp(void) {
     &ett_ocsp_AcceptableResponses,
     &ett_ocsp_ServiceLocator,
     &ett_ocsp_CrlID,
-
-/*--- End of included file: packet-ocsp-ettarr.c ---*/
-#line 103 "./asn1/ocsp/packet-ocsp-template.c"
   };
 
   /* Register protocol */
@@ -980,9 +947,6 @@ void proto_reg_handoff_ocsp(void) {
 	dissector_add_string("media_type", "application/ocsp-request", ocsp_request_handle);
 	dissector_add_string("media_type", "application/ocsp-response", ocsp_response_handle);
 
-
-/*--- Included file: packet-ocsp-dis-tab.c ---*/
-#line 1 "./asn1/ocsp/packet-ocsp-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.1", dissect_BasicOCSPResponse_PDU, proto_ocsp, "id-pkix-ocsp-basic");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.2", dissect_ReOcspNonce_PDU, proto_ocsp, "id-pkix-ocsp-nonce");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.3", dissect_CrlID_PDU, proto_ocsp, "id-pkix-ocsp-crl");
@@ -991,8 +955,5 @@ void proto_reg_handoff_ocsp(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.6", dissect_ArchiveCutoff_PDU, proto_ocsp, "id-pkix-ocsp-archive-cutoff");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.7", dissect_ServiceLocator_PDU, proto_ocsp, "id-pkix-ocsp-service-locator");
 
-
-/*--- End of included file: packet-ocsp-dis-tab.c ---*/
-#line 126 "./asn1/ocsp/packet-ocsp-template.c"
 }
 

@@ -3,9 +3,6 @@
 /* packet-e1ap.c                                                              */
 /* asn2wrs.py -L -p e1ap -c ./e1ap.cnf -s ./packet-e1ap-template -D . -O ../.. E1AP-CommonDataTypes.asn E1AP-Constants.asn E1AP-Containers.asn E1AP-IEs.asn E1AP-PDU-Contents.asn E1AP-PDU-Descriptions.asn */
 
-/* Input file: packet-e1ap-template.c */
-
-#line 1 "./asn1/e1ap/packet-e1ap-template.c"
 /* packet-e1ap.c
  * Routines for E-UTRAN E1 Application Protocol (E1AP) packet dissection
  * Copyright 2018-2022, Pascal Quantin <pascal@wireshark.org>
@@ -43,9 +40,6 @@
 void proto_register_e1ap(void);
 void proto_reg_handoff_e1ap(void);
 
-
-/*--- Included file: packet-e1ap-val.h ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -308,9 +302,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_MCForwardingResourceReleaseIndication = 183
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-e1ap-val.h ---*/
-#line 39 "./asn1/e1ap/packet-e1ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_e1ap = -1;
 
@@ -331,9 +322,6 @@ static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic = -1;
 static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic = -1;
 static int hf_e1ap_ReportCharacteristics_Reserved = -1;
 static int hf_e1ap_tcp_pdu_len = -1;
-
-/*--- Included file: packet-e1ap-hf.c ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-hf.c"
 static int hf_e1ap_ActivityInformation_PDU = -1;  /* ActivityInformation */
 static int hf_e1ap_ActivityNotificationLevel_PDU = -1;  /* ActivityNotificationLevel */
 static int hf_e1ap_AdditionalHandoverInfo_PDU = -1;  /* AdditionalHandoverInfo */
@@ -1099,9 +1087,6 @@ static int hf_e1ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
 static int hf_e1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_e1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-e1ap-hf.c ---*/
-#line 61 "./asn1/e1ap/packet-e1ap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_e1ap = -1;
 static gint ett_e1ap_PLMN_Identity = -1;
@@ -1110,9 +1095,6 @@ static gint ett_e1ap_InterfacesToTrace = -1;
 static gint ett_e1ap_MeasurementsToActivate = -1;
 static gint ett_e1ap_ReportCharacteristics = -1;
 static gint ett_e1ap_BurstArrivalTime = -1;
-
-/*--- Included file: packet-e1ap-ett.c ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-ett.c"
 static gint ett_e1ap_PrivateIE_ID = -1;
 static gint ett_e1ap_ProtocolIE_Container = -1;
 static gint ett_e1ap_ProtocolIE_Field = -1;
@@ -1532,9 +1514,6 @@ static gint ett_e1ap_InitiatingMessage = -1;
 static gint ett_e1ap_SuccessfulOutcome = -1;
 static gint ett_e1ap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-e1ap-ett.c ---*/
-#line 71 "./asn1/e1ap/packet-e1ap-template.c"
-
 enum{
   INITIATING_MESSAGE,
   SUCCESSFUL_OUTCOME,
@@ -1600,9 +1579,6 @@ e1ap_get_private_data(packet_info *pinfo)
   return e1ap_data;
 }
 
-
-/*--- Included file: packet-e1ap-fn.c ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-fn.c"
 
 static const value_string e1ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -13582,9 +13558,6 @@ static int dissect_E1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-e1ap-fn.c ---*/
-#line 138 "./asn1/e1ap/packet-e1ap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   e1ap_ctx_t e1ap_ctx;
@@ -13748,9 +13721,6 @@ void proto_register_e1ap(void) {
       { "TCP PDU length", "e1ap.tcp_pdu_len",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-
-/*--- Included file: packet-e1ap-hfarr.c ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-hfarr.c"
     { &hf_e1ap_ActivityInformation_PDU,
       { "ActivityInformation", "e1ap.ActivityInformation",
         FT_UINT32, BASE_DEC, VALS(e1ap_ActivityInformation_vals), 0,
@@ -16807,9 +16777,6 @@ void proto_register_e1ap(void) {
       { "value", "e1ap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-e1ap-hfarr.c ---*/
-#line 303 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* List of subtrees */
@@ -16821,9 +16788,6 @@ void proto_register_e1ap(void) {
     &ett_e1ap_MeasurementsToActivate,
     &ett_e1ap_ReportCharacteristics,
     &ett_e1ap_BurstArrivalTime,
-
-/*--- Included file: packet-e1ap-ettarr.c ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-ettarr.c"
     &ett_e1ap_PrivateIE_ID,
     &ett_e1ap_ProtocolIE_Container,
     &ett_e1ap_ProtocolIE_Field,
@@ -17242,9 +17206,6 @@ void proto_register_e1ap(void) {
     &ett_e1ap_InitiatingMessage,
     &ett_e1ap_SuccessfulOutcome,
     &ett_e1ap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-e1ap-ettarr.c ---*/
-#line 315 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* Register protocol */
@@ -17271,9 +17232,6 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E1AP, e1ap_handle);
   dissector_add_uint_with_preference("tcp.port", 0, e1ap_tcp_handle);
   dissector_add_uint("sctp.ppi", E1AP_PROTOCOL_ID, e1ap_handle);
-
-/*--- Included file: packet-e1ap-dis-tab.c ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-dis-tab.c"
   dissector_add_uint("e1ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_gNB_CU_CP_UE_E1AP_ID, create_dissector_handle(dissect_GNB_CU_CP_UE_E1AP_ID_PDU, proto_e1ap));
@@ -17530,9 +17488,6 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.proc.sout", id_MCBearerContextRelease, create_dissector_handle(dissect_MCBearerContextReleaseComplete_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_MCBearerContextReleaseRequest, create_dissector_handle(dissect_MCBearerContextReleaseRequest_PDU, proto_e1ap));
 
-
-/*--- End of included file: packet-e1ap-dis-tab.c ---*/
-#line 342 "./asn1/e1ap/packet-e1ap-template.c"
 }
 
 /*

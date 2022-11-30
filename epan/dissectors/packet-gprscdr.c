@@ -3,9 +3,6 @@
 /* packet-gprscdr.c                                                           */
 /* asn2wrs.py -b -L -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../.. GenericChargingDataTypes.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypes.asn */
 
-/* Input file: packet-gprscdr-template.c */
-
-#line 1 "./asn1/gprscdr/packet-gprscdr-template.c"
 /* packet-gprscdr-template.c
  * Copyright 2011 , Anders Broman <anders.broman [AT] ericsson.com>
  *
@@ -43,9 +40,6 @@ void proto_register_gprscdr(void);
 /* Define the GPRS CDR proto */
 static int proto_gprscdr = -1;
 
-
-/*--- Included file: packet-gprscdr-hf.c ---*/
-#line 1 "./asn1/gprscdr/packet-gprscdr-hf.c"
 static int hf_gprscdr_gprscdr_GPRSCallEventRecord_PDU = -1;  /* GPRSCallEventRecord */
 static int hf_gprscdr_gprscdr_GPRSRecord_PDU = -1;  /* GPRSRecord */
 static int hf_gprscdr_gprscdr_CAMELInformationPDP_PDU = -1;  /* CAMELInformationPDP */
@@ -532,9 +526,6 @@ static int hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange = -1
 static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange = -1;
 static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
 
-/*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 39 "./asn1/gprscdr/packet-gprscdr-template.c"
-
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
@@ -542,9 +533,6 @@ static int ett_gprscdr_pdp_pdn_type = -1;
 static int ett_gprscdr_eps_qos_arp = -1;
 static int ett_gprscdr_managementextension_information = -1;
 static int ett_gprscdr_userlocationinformation = -1;
-
-/*--- Included file: packet-gprscdr-ett.c ---*/
-#line 1 "./asn1/gprscdr/packet-gprscdr-ett.c"
 static gint ett_gprscdr_Diagnostics = -1;
 static gint ett_gprscdr_Ecgi = -1;
 static gint ett_gprscdr_EnhancedDiagnostics = -1;
@@ -646,9 +634,6 @@ static gint ett_gprscdr_UWANUserLocationInfo = -1;
 static gint ett_gprscdr_VoLTEInformation = -1;
 static gint ett_gprscdr_WLANOperatorId = -1;
 
-/*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 48 "./asn1/gprscdr/packet-gprscdr-template.c"
-
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
 static expert_field ei_gprscdr_choice_not_found = EI_INIT;
 
@@ -717,9 +702,6 @@ dissect_gprscdr_uli(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U
   return length;
 }
 
-
-/*--- Included file: packet-gprscdr-fn.c ---*/
-#line 1 "./asn1/gprscdr/packet-gprscdr-fn.c"
 
 
 static int
@@ -5111,9 +5093,6 @@ int dissect_gprscdr_CAMELInformationPDP_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 }
 
 
-/*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 118 "./asn1/gprscdr/packet-gprscdr-template.c"
-
 
 
 /* Register all the bits needed with the filtering engine */
@@ -5122,9 +5101,6 @@ proto_register_gprscdr(void)
 {
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-gprscdr-hfarr.c ---*/
-#line 1 "./asn1/gprscdr/packet-gprscdr-hfarr.c"
     { &hf_gprscdr_gprscdr_GPRSCallEventRecord_PDU,
       { "GPRSCallEventRecord", "gprscdr.GPRSCallEventRecord",
         FT_UINT32, BASE_DEC, VALS(gprscdr_GPRSCallEventRecord_vals), 0,
@@ -7061,9 +7037,6 @@ proto_register_gprscdr(void)
       { "aPNRateControlChange", "gprscdr.ServiceConditionChange.aPNRateControlChange",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
-
-/*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 128 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -7075,9 +7048,6 @@ proto_register_gprscdr(void)
     &ett_gprscdr_eps_qos_arp,
     &ett_gprscdr_managementextension_information,
     &ett_gprscdr_userlocationinformation,
-
-/*--- Included file: packet-gprscdr-ettarr.c ---*/
-#line 1 "./asn1/gprscdr/packet-gprscdr-ettarr.c"
     &ett_gprscdr_Diagnostics,
     &ett_gprscdr_Ecgi,
     &ett_gprscdr_EnhancedDiagnostics,
@@ -7178,9 +7148,6 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UWANUserLocationInfo,
     &ett_gprscdr_VoLTEInformation,
     &ett_gprscdr_WLANOperatorId,
-
-/*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 140 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {

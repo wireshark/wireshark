@@ -3,9 +3,6 @@
 /* packet-t38.c                                                               */
 /* asn2wrs.py -L -p t38 -c ./t38.cnf -s ./packet-t38-template -D . -O ../.. T38_2002.asn */
 
-/* Input file: packet-t38-template.c */
-
-#line 1 "./asn1/t38/packet-t38-template.c"
 /* packet-t38.c
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
@@ -109,9 +106,6 @@ static guint32 Data_Field_item_num;
 
 static int proto_t38 = -1;
 static int proto_acdr = -1;
-
-/*--- Included file: packet-t38-hf.c ---*/
-#line 1 "./asn1/t38/packet-t38-hf.c"
 static int hf_t38_IFPPacket_PDU = -1;             /* IFPPacket */
 static int hf_t38_UDPTLPacket_PDU = -1;           /* UDPTLPacket */
 static int hf_t38_type_of_msg = -1;               /* Type_of_msg */
@@ -131,9 +125,6 @@ static int hf_t38_fec_npackets = -1;              /* INTEGER */
 static int hf_t38_fec_data = -1;                  /* T_fec_data */
 static int hf_t38_fec_data_item = -1;             /* OCTET_STRING */
 
-/*--- End of included file: packet-t38-hf.c ---*/
-#line 105 "./asn1/t38/packet-t38-template.c"
-
 /* T38 setup fields */
 static int hf_t38_setup        = -1;
 static int hf_t38_setup_frame  = -1;
@@ -152,9 +143,6 @@ static int hf_t38_reassembled_in = -1;
 static int hf_t38_reassembled_length = -1;
 
 static gint ett_t38 = -1;
-
-/*--- Included file: packet-t38-ett.c ---*/
-#line 1 "./asn1/t38/packet-t38-ett.c"
 static gint ett_t38_IFPPacket = -1;
 static gint ett_t38_Type_of_msg = -1;
 static gint ett_t38_Data_Field = -1;
@@ -164,9 +152,6 @@ static gint ett_t38_T_error_recovery = -1;
 static gint ett_t38_T_secondary_ifp_packets = -1;
 static gint ett_t38_T_fec_info = -1;
 static gint ett_t38_T_fec_data = -1;
-
-/*--- End of included file: packet-t38-ett.c ---*/
-#line 125 "./asn1/t38/packet-t38-template.c"
 static gint ett_t38_setup = -1;
 
 static gint ett_data_fragment = -1;
@@ -413,9 +398,6 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 }
 
 /* T38 Routines */
-
-/*--- Included file: packet-t38-fn.c ---*/
-#line 1 "./asn1/t38/packet-t38-fn.c"
 
 const value_string t38_T30_indicator_vals[] = {
   {   0, "no-signal" },
@@ -930,9 +912,6 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 }
 
 
-/*--- End of included file: packet-t38-fn.c ---*/
-#line 372 "./asn1/t38/packet-t38-template.c"
-
 /* initialize the tap t38_info and the conversation */
 static void
 init_t38_info_conv(packet_info *pinfo)
@@ -1204,9 +1183,6 @@ proto_register_t38(void)
 {
 	static hf_register_info hf[] =
 	{
-
-/*--- Included file: packet-t38-hfarr.c ---*/
-#line 1 "./asn1/t38/packet-t38-hfarr.c"
     { &hf_t38_IFPPacket_PDU,
       { "IFPPacket", "t38.IFPPacket_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1279,9 +1255,6 @@ proto_register_t38(void)
       { "fec-data item", "t38.fec_data_item",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-
-/*--- End of included file: packet-t38-hfarr.c ---*/
-#line 645 "./asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1328,9 +1301,6 @@ proto_register_t38(void)
 	static gint *ett[] =
 	{
 		&ett_t38,
-
-/*--- Included file: packet-t38-ettarr.c ---*/
-#line 1 "./asn1/t38/packet-t38-ettarr.c"
     &ett_t38_IFPPacket,
     &ett_t38_Type_of_msg,
     &ett_t38_Data_Field,
@@ -1340,9 +1310,6 @@ proto_register_t38(void)
     &ett_t38_T_secondary_ifp_packets,
     &ett_t38_T_fec_info,
     &ett_t38_T_fec_data,
-
-/*--- End of included file: packet-t38-ettarr.c ---*/
-#line 692 "./asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

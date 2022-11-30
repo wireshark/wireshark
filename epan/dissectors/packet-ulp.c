@@ -3,9 +3,6 @@
 /* packet-ulp.c                                                               */
 /* asn2wrs.py -L -p ulp -c ./ulp.cnf -s ./packet-ulp-template -D . -O ../.. ULP.asn SUPL.asn ULP-Components.asn */
 
-/* Input file: packet-ulp-template.c */
-
-#line 1 "./asn1/ulp/packet-ulp-template.c"
 /* packet-ulp.c
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
@@ -59,9 +56,6 @@ static int proto_ulp = -1;
 
 static gboolean ulp_desegment = TRUE;
 
-
-/*--- Included file: packet-ulp-hf.c ---*/
-#line 1 "./asn1/ulp/packet-ulp-hf.c"
 static int hf_ulp_ULP_PDU_PDU = -1;               /* ULP_PDU */
 static int hf_ulp_length = -1;                    /* INTEGER_0_65535 */
 static int hf_ulp_version = -1;                   /* Version */
@@ -750,9 +744,6 @@ static int hf_ulp_GANSSSignals_signal5 = -1;
 static int hf_ulp_GANSSSignals_signal6 = -1;
 static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
-
-/*--- End of included file: packet-ulp-hf.c ---*/
-#line 55 "./asn1/ulp/packet-ulp-template.c"
 static int hf_ulp_mobile_directory_number = -1;
 static int hf_ulp_ganssTimeModels_bit0 = -1;
 static int hf_ulp_ganssTimeModels_bit1 = -1;
@@ -766,9 +757,6 @@ static gint ett_ulp = -1;
 static gint ett_ulp_setid = -1;
 static gint ett_ulp_thirdPartyId = -1;
 static gint ett_ulp_ganssTimeModels = -1;
-
-/*--- Included file: packet-ulp-ett.c ---*/
-#line 1 "./asn1/ulp/packet-ulp-ett.c"
 static gint ett_ulp_ULP_PDU = -1;
 static gint ett_ulp_UlpMessage = -1;
 static gint ett_ulp_SUPLINIT = -1;
@@ -998,9 +986,6 @@ static gint ett_ulp_PolygonDescription = -1;
 static gint ett_ulp_Ver2_HighAccuracyPosition = -1;
 static gint ett_ulp_HighAccuracyPositionEstimate = -1;
 static gint ett_ulp_HighAccuracyAltitudeInfo = -1;
-
-/*--- End of included file: packet-ulp-ett.c ---*/
-#line 69 "./asn1/ulp/packet-ulp-template.c"
 
 static dissector_handle_t ulp_tcp_handle;
 
@@ -1250,9 +1235,6 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 }
 
 /* Include constants */
-
-/*--- Included file: packet-ulp-val.h ---*/
-#line 1 "./asn1/ulp/packet-ulp-val.h"
 #define maxReqLength                   50
 #define maxClientLength                50
 #define maxNumGeoArea                  32
@@ -1271,9 +1253,6 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 #define maxNRServingCell               32
 #define maxCellReportNR                32
 
-/*--- End of included file: packet-ulp-val.h ---*/
-#line 319 "./asn1/ulp/packet-ulp-template.c"
-
 typedef struct
 {
   guint8 notif_enc_type;
@@ -1288,9 +1267,6 @@ static ulp_private_data_t* ulp_get_private_data(asn1_ctx_t *actx)
   return (ulp_private_data_t*)actx->private_data;
 }
 
-
-/*--- Included file: packet-ulp-fn.c ---*/
-#line 1 "./asn1/ulp/packet-ulp-fn.c"
 
 
 static int
@@ -7822,9 +7798,6 @@ static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-ulp-fn.c ---*/
-#line 335 "./asn1/ulp/packet-ulp-template.c"
-
 
 static guint
 get_ulp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
@@ -7849,9 +7822,6 @@ void proto_register_ulp(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-ulp-hfarr.c ---*/
-#line 1 "./asn1/ulp/packet-ulp-hfarr.c"
     { &hf_ulp_ULP_PDU_PDU,
       { "ULP-PDU", "ulp.ULP_PDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10600,9 +10570,6 @@ void proto_register_ulp(void) {
       { "signal8", "ulp.GANSSSignals.signal8",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-
-/*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 361 "./asn1/ulp/packet-ulp-template.c"
     { &hf_ulp_mobile_directory_number,
       { "Mobile Directory Number", "ulp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -10639,9 +10606,6 @@ void proto_register_ulp(void) {
     &ett_ulp_setid,
     &ett_ulp_thirdPartyId,
     &ett_ulp_ganssTimeModels,
-
-/*--- Included file: packet-ulp-ettarr.c ---*/
-#line 1 "./asn1/ulp/packet-ulp-ettarr.c"
     &ett_ulp_ULP_PDU,
     &ett_ulp_UlpMessage,
     &ett_ulp_SUPLINIT,
@@ -10871,9 +10835,6 @@ void proto_register_ulp(void) {
     &ett_ulp_Ver2_HighAccuracyPosition,
     &ett_ulp_HighAccuracyPositionEstimate,
     &ett_ulp_HighAccuracyAltitudeInfo,
-
-/*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 398 "./asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;

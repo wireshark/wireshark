@@ -3,9 +3,6 @@
 /* packet-lte-rrc.h                                                           */
 /* asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . -O ../.. EUTRA-InterNodeDefinitions.asn EUTRA-RRC-Definitions.asn PC5-RRC-Definitions.asn NBIOT-InterNodeDefinitions.asn NBIOT-RRC-Definitions.asn */
 
-/* Input file: packet-lte-rrc-template.h */
-
-#line 1 "./asn1/lte-rrc/packet-lte-rrc-template.h"
 /* packet-lte-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
@@ -21,9 +18,6 @@
 
 extern value_string_ext lte_rrc_messageIdentifier_vals_ext;
 
-
-/*--- Included file: packet-lte-rrc-exp.h ---*/
-#line 1 "./asn1/lte-rrc/packet-lte-rrc-exp.h"
 int dissect_lte_rrc_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_SCG_Config_r12_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -69,8 +63,5 @@ int dissect_lte_rrc_NPRACH_ParametersList_NB_r13_PDU(tvbuff_t *tvb _U_, packet_i
 int dissect_lte_rrc_NPRACH_ParametersList_NB_r14_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_NPRACH_ParametersListTDD_NB_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_lte_rrc_NPRACH_ParametersListFmt2_NB_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-lte-rrc-exp.h ---*/
-#line 17 "./asn1/lte-rrc/packet-lte-rrc-template.h"
 
 #endif  /* PACKET_LTE_RRC_H */

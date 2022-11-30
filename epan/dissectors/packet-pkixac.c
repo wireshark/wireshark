@@ -3,9 +3,6 @@
 /* packet-pkixac.c                                                            */
 /* asn2wrs.py -b -L -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . -O ../.. PKIXAttributeCertificate.asn */
 
-/* Input file: packet-pkixac-template.c */
-
-#line 1 "./asn1/pkixac/packet-pkixac-template.c"
 /* packet-pkixac.c
  *
  * Routines for PKIXAttributeCertificate (RFC3281) packet dissection.
@@ -39,9 +36,6 @@ void proto_reg_handoff_pkixac(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_pkixac = -1;
-
-/*--- Included file: packet-pkixac-hf.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-hf.c"
 static int hf_pkixac_Targets_PDU = -1;            /* Targets */
 static int hf_pkixac_IetfAttrSyntax_PDU = -1;     /* IetfAttrSyntax */
 static int hf_pkixac_SvceAuthInfo_PDU = -1;       /* SvceAuthInfo */
@@ -94,14 +88,8 @@ static int hf_pkixac_ClassList_confidential = -1;
 static int hf_pkixac_ClassList_secret = -1;
 static int hf_pkixac_ClassList_topSecret = -1;
 
-/*--- End of included file: packet-pkixac-hf.c ---*/
-#line 35 "./asn1/pkixac/packet-pkixac-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_pkixac = -1;
-
-/*--- Included file: packet-pkixac-ett.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-ett.c"
 static gint ett_pkixac_ObjectDigestInfo = -1;
 static gint ett_pkixac_IssuerSerial = -1;
 static gint ett_pkixac_Targets = -1;
@@ -121,14 +109,8 @@ static gint ett_pkixac_AAControls = -1;
 static gint ett_pkixac_AttrSpec = -1;
 static gint ett_pkixac_ProxyInfo = -1;
 
-/*--- End of included file: packet-pkixac-ett.c ---*/
-#line 39 "./asn1/pkixac/packet-pkixac-template.c"
-
 static const char *object_identifier_id;
 
-
-/*--- Included file: packet-pkixac-fn.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-fn.c"
 
 static const value_string pkixac_T_digestedObjectType_vals[] = {
   {   0, "publicKey" },
@@ -581,17 +563,11 @@ static int dissect_ProxyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 }
 
 
-/*--- End of included file: packet-pkixac-fn.c ---*/
-#line 43 "./asn1/pkixac/packet-pkixac-template.c"
-
 /*--- proto_register_pkixac ----------------------------------------------*/
 void proto_register_pkixac(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-pkixac-hfarr.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-hfarr.c"
     { &hf_pkixac_Targets_PDU,
       { "Targets", "pkixac.Targets",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -792,17 +768,11 @@ void proto_register_pkixac(void) {
       { "topSecret", "pkixac.ClassList.topSecret",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
-
-/*--- End of included file: packet-pkixac-hfarr.c ---*/
-#line 50 "./asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	&ett_pkixac,
-
-/*--- Included file: packet-pkixac-ettarr.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-ettarr.c"
     &ett_pkixac_ObjectDigestInfo,
     &ett_pkixac_IssuerSerial,
     &ett_pkixac_Targets,
@@ -821,9 +791,6 @@ void proto_register_pkixac(void) {
     &ett_pkixac_AAControls,
     &ett_pkixac_AttrSpec,
     &ett_pkixac_ProxyInfo,
-
-/*--- End of included file: packet-pkixac-ettarr.c ---*/
-#line 56 "./asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* Register protocol */
@@ -833,24 +800,15 @@ void proto_register_pkixac(void) {
   proto_register_field_array(proto_pkixac, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-
-/*--- Included file: packet-pkixac-syn-reg.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-syn-reg.c"
   /*--- Syntax registrations ---*/
   register_ber_syntax_dissector("Clearance", proto_pkixac, dissect_Clearance_PDU);
   register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
-
-/*--- End of included file: packet-pkixac-syn-reg.c ---*/
-#line 66 "./asn1/pkixac/packet-pkixac-template.c"
 
 }
 
 
 /*--- proto_reg_handoff_pkixac -------------------------------------------*/
 void proto_reg_handoff_pkixac(void) {
-
-/*--- Included file: packet-pkixac-dis-tab.c ---*/
-#line 1 "./asn1/pkixac/packet-pkixac-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.6", dissect_AAControls_PDU, proto_pkixac, "id-pe-aaControls");
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.10", dissect_ProxyInfo_PDU, proto_pkixac, "id-pe-ac-proxying");
   register_ber_oid_dissector("1.3.6.1.5.5.7.10.1", dissect_SvceAuthInfo_PDU, proto_pkixac, "id-aca-authenticationInfo");
@@ -862,8 +820,5 @@ void proto_reg_handoff_pkixac(void) {
   register_ber_oid_dissector("2.5.4.72", dissect_RoleSyntax_PDU, proto_pkixac, "id-at-role");
   register_ber_oid_dissector("2.5.29.55", dissect_Targets_PDU, proto_pkixac, "id-ce-targetInformation");
 
-
-/*--- End of included file: packet-pkixac-dis-tab.c ---*/
-#line 73 "./asn1/pkixac/packet-pkixac-template.c"
 }
 

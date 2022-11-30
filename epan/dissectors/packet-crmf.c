@@ -3,9 +3,6 @@
 /* packet-crmf.c                                                              */
 /* asn2wrs.py -b -L -p crmf -c ./crmf.cnf -s ./packet-crmf-template -D . -O ../.. CRMF.asn */
 
-/* Input file: packet-crmf-template.c */
-
-#line 1 "./asn1/crmf/packet-crmf-template.c"
 /* packet-crmf.c
  * Routines for RFC2511 Certificate Request Message Format packet dissection
  *   Ronnie Sahlberg 2004
@@ -39,9 +36,6 @@ void proto_reg_handoff_crmf(void);
 /* Initialize the protocol and registered fields */
 static int proto_crmf = -1;
 static int hf_crmf_type_oid = -1;
-
-/*--- Included file: packet-crmf-hf.c ---*/
-#line 1 "./asn1/crmf/packet-crmf-hf.c"
 static int hf_crmf_PBMParameter_PDU = -1;         /* PBMParameter */
 static int hf_crmf_RegToken_PDU = -1;             /* RegToken */
 static int hf_crmf_Authenticator_PDU = -1;        /* Authenticator */
@@ -123,13 +117,7 @@ static int hf_crmf_privateKey = -1;               /* OCTET_STRING */
 static int hf_crmf_attributes = -1;               /* Attributes */
 static int hf_crmf_Attributes_item = -1;          /* Attribute */
 
-/*--- End of included file: packet-crmf-hf.c ---*/
-#line 35 "./asn1/crmf/packet-crmf-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-crmf-ett.c ---*/
-#line 1 "./asn1/crmf/packet-crmf-ett.c"
 static gint ett_crmf_CertReqMessages = -1;
 static gint ett_crmf_CertReqMsg = -1;
 static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue = -1;
@@ -156,12 +144,6 @@ static gint ett_crmf_EncKeyWithID = -1;
 static gint ett_crmf_T_identifier = -1;
 static gint ett_crmf_PrivateKeyInfo = -1;
 static gint ett_crmf_Attributes = -1;
-
-/*--- End of included file: packet-crmf-ett.c ---*/
-#line 38 "./asn1/crmf/packet-crmf-template.c"
-
-/*--- Included file: packet-crmf-fn.c ---*/
-#line 1 "./asn1/crmf/packet-crmf-fn.c"
 
 
 static int
@@ -898,9 +880,6 @@ static int dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 }
 
 
-/*--- End of included file: packet-crmf-fn.c ---*/
-#line 39 "./asn1/crmf/packet-crmf-template.c"
-
 
 /*--- proto_register_crmf ----------------------------------------------*/
 void proto_register_crmf(void) {
@@ -911,9 +890,6 @@ void proto_register_crmf(void) {
       { "Type", "crmf.type.oid",
         FT_STRING, BASE_NONE, NULL, 0,
         "Type of AttributeTypeAndValue", HFILL }},
-
-/*--- Included file: packet-crmf-hfarr.c ---*/
-#line 1 "./asn1/crmf/packet-crmf-hfarr.c"
     { &hf_crmf_PBMParameter_PDU,
       { "PBMParameter", "crmf.PBMParameter_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1234,16 +1210,10 @@ void proto_register_crmf(void) {
       { "Attribute", "crmf.Attribute_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-crmf-hfarr.c ---*/
-#line 51 "./asn1/crmf/packet-crmf-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-crmf-ettarr.c ---*/
-#line 1 "./asn1/crmf/packet-crmf-ettarr.c"
     &ett_crmf_CertReqMessages,
     &ett_crmf_CertReqMsg,
     &ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue,
@@ -1270,9 +1240,6 @@ void proto_register_crmf(void) {
     &ett_crmf_T_identifier,
     &ett_crmf_PrivateKeyInfo,
     &ett_crmf_Attributes,
-
-/*--- End of included file: packet-crmf-ettarr.c ---*/
-#line 56 "./asn1/crmf/packet-crmf-template.c"
   };
 
   /* Register protocol */
@@ -1290,9 +1257,6 @@ void proto_reg_handoff_crmf(void) {
 	oid_add_from_string("id-pkip","1.3.6.1.5.5.7.5");
 	oid_add_from_string("id-regCtrl","1.3.6.1.5.5.7.5.1");
 	oid_add_from_string("id-regInfo","1.3.6.1.5.5.7.5.2");
-
-/*--- Included file: packet-crmf-dis-tab.c ---*/
-#line 1 "./asn1/crmf/packet-crmf-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.21", dissect_EncKeyWithID_PDU, proto_crmf, "id-ct-encKeyWithID");
   register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
   register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.1", dissect_RegToken_PDU, proto_crmf, "id-regCtrl-regToken");
@@ -1304,8 +1268,5 @@ void proto_reg_handoff_crmf(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.1", dissect_UTF8Pairs_PDU, proto_crmf, "id-regInfo-utf8Pairs");
   register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.2", dissect_CertReq_PDU, proto_crmf, "id-regInfo-certReq");
 
-
-/*--- End of included file: packet-crmf-dis-tab.c ---*/
-#line 74 "./asn1/crmf/packet-crmf-template.c"
 }
 

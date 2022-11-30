@@ -3,9 +3,6 @@
 /* packet-f1ap.h                                                              */
 /* asn2wrs.py -L -p f1ap -c ./f1ap.cnf -s ./packet-f1ap-template -D . -O ../.. F1AP-CommonDataTypes.asn F1AP-Constants.asn F1AP-Containers.asn F1AP-IEs.asn F1AP-PDU-Contents.asn F1AP-PDU-Descriptions.asn */
 
-/* Input file: packet-f1ap-template.h */
-
-#line 1 "./asn1/f1ap/packet-f1ap-template.h"
 /* packet-f1ap.h
  * Routines for E-UTRAN F1 Application Protocol (F1AP) packet dissection
  *
@@ -19,13 +16,7 @@
 #ifndef PACKET_F1AP_H
 #define PACKET_F1AP_H
 
-
-/*--- Included file: packet-f1ap-exp.h ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-exp.h"
 int dissect_f1ap_NRPRACHConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-f1ap-exp.h ---*/
-#line 15 "./asn1/f1ap/packet-f1ap-template.h"
 
 #endif  /* PACKET_F1AP_H */
 

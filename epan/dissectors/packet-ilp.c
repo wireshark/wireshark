@@ -3,9 +3,6 @@
 /* packet-ilp.c                                                               */
 /* asn2wrs.py -L -p ilp -c ./ilp.cnf -s ./packet-ilp-template -D . -O ../.. ILP.asn ILP-Components.asn */
 
-/* Input file: packet-ilp-template.c */
-
-#line 1 "./asn1/ilp/packet-ilp-template.c"
 /* packet-ilp.c
  * Routines for OMA Internal Location Protocol packet dissection
  * Copyright 2006, e.yimjia <jy.m12.0@gmail.com>
@@ -57,9 +54,6 @@ static int proto_ilp = -1;
 
 static gboolean ilp_desegment = TRUE;
 
-
-/*--- Included file: packet-ilp-hf.c ---*/
-#line 1 "./asn1/ilp/packet-ilp-hf.c"
 static int hf_ilp_ILP_PDU_PDU = -1;               /* ILP_PDU */
 static int hf_ilp_length = -1;                    /* INTEGER_0_65535 */
 static int hf_ilp_version = -1;                   /* Version */
@@ -499,17 +493,11 @@ static int hf_ilp_GANSSSignals_signal8 = -1;
 static int hf_ilp_T_addPosMode_standalone = -1;
 static int hf_ilp_T_addPosMode_setBased = -1;
 static int hf_ilp_T_addPosMode_setAssisted = -1;
-
-/*--- End of included file: packet-ilp-hf.c ---*/
-#line 53 "./asn1/ilp/packet-ilp-template.c"
 static int hf_ilp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ilp = -1;
 static gint ett_ilp_setid = -1;
-
-/*--- Included file: packet-ilp-ett.c ---*/
-#line 1 "./asn1/ilp/packet-ilp-ett.c"
 static gint ett_ilp_ILP_PDU = -1;
 static gint ett_ilp_IlpMessage = -1;
 static gint ett_ilp_PREQ = -1;
@@ -662,13 +650,7 @@ static gint ett_ilp_MultiPosPayLoad = -1;
 static gint ett_ilp_T_lPPPayload = -1;
 static gint ett_ilp_T_tia801Payload = -1;
 
-/*--- End of included file: packet-ilp-ett.c ---*/
-#line 59 "./asn1/ilp/packet-ilp-template.c"
-
 /* Include constants */
-
-/*--- Included file: packet-ilp-val.h ---*/
-#line 1 "./asn1/ilp/packet-ilp-val.h"
 #define maxGANSS                       16
 #define maxGANSSSat                    32
 #define maxLidSize                     64
@@ -681,13 +663,7 @@ static gint ett_ilp_T_tia801Payload = -1;
 #define maxTS                          14
 #define maxPosSize                     1024
 
-/*--- End of included file: packet-ilp-val.h ---*/
-#line 62 "./asn1/ilp/packet-ilp-template.c"
 
-
-
-/*--- Included file: packet-ilp-fn.c ---*/
-#line 1 "./asn1/ilp/packet-ilp-fn.c"
 
 
 static int
@@ -4697,9 +4673,6 @@ static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-ilp-fn.c ---*/
-#line 65 "./asn1/ilp/packet-ilp-template.c"
-
 
 static guint
 get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
@@ -4724,9 +4697,6 @@ void proto_register_ilp(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-ilp-hfarr.c ---*/
-#line 1 "./asn1/ilp/packet-ilp-hfarr.c"
     { &hf_ilp_ILP_PDU_PDU,
       { "ILP-PDU", "ilp.ILP_PDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6479,9 +6449,6 @@ void proto_register_ilp(void) {
       { "setAssisted", "ilp.T.addPosMode.setAssisted",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-
-/*--- End of included file: packet-ilp-hfarr.c ---*/
-#line 91 "./asn1/ilp/packet-ilp-template.c"
     { &hf_ilp_mobile_directory_number,
       { "Mobile Directory Number", "ilp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -6492,9 +6459,6 @@ void proto_register_ilp(void) {
   static gint *ett[] = {
     &ett_ilp,
     &ett_ilp_setid,
-
-/*--- Included file: packet-ilp-ettarr.c ---*/
-#line 1 "./asn1/ilp/packet-ilp-ettarr.c"
     &ett_ilp_ILP_PDU,
     &ett_ilp_IlpMessage,
     &ett_ilp_PREQ,
@@ -6646,9 +6610,6 @@ void proto_register_ilp(void) {
     &ett_ilp_MultiPosPayLoad,
     &ett_ilp_T_lPPPayload,
     &ett_ilp_T_tia801Payload,
-
-/*--- End of included file: packet-ilp-ettarr.c ---*/
-#line 102 "./asn1/ilp/packet-ilp-template.c"
   };
 
   module_t *ilp_module;

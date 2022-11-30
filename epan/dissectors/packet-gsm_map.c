@@ -3,9 +3,6 @@
 /* packet-gsm_map.c                                                           */
 /* asn2wrs.py -b -L -c ./gsm_map.cnf -s ./packet-gsm_map-template -D . -O ../.. ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Errors.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn Ericsson.asn Nokia.asn */
 
-/* Input file: packet-gsm_map-template.c */
-
-#line 1 "./asn1/gsm_map/packet-gsm_map-template.c"
 /* XXX see bug 1852:
  *
  * packet-gsm_map.c: There are 1174 display filter fields registered.  Most are
@@ -157,9 +154,6 @@ static int hf_gsm_map_earp_pci = -1;
 static int hf_gsm_map_earp_pl = -1;
 static int hf_gsm_map_earp_pvi = -1;
 
-
-/*--- Included file: packet-gsm_map-hf.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-hf.c"
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
@@ -2044,9 +2038,6 @@ static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item = -1;  /* Acces
 /* named bits */
 static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed = -1;
 
-/*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 153 "./asn1/gsm_map/packet-gsm_map-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
 static gint ett_gsm_map_InvokeId = -1;
@@ -2082,9 +2073,6 @@ static gint ett_gsm_map_e_utranCellGlobalIdentity = -1;
 static gint ett_gsm_map_TA_id = -1;
 static gint ett_gsm_map_GeodeticInformation = -1;
 
-
-/*--- Included file: packet-gsm_map-ett.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-ett.c"
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
@@ -2797,9 +2785,6 @@ static gint ett_NokiaMAP_Extensions_AnyTimeModArgExt_U = -1;
 static gint ett_NokiaMAP_Extensions_AccessTypeExt = -1;
 static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt = -1;
 static gint ett_NokiaMAP_Extensions_AllowedServiceData = -1;
-
-/*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 190 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
@@ -3653,9 +3638,6 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-
-/*--- Included file: packet-gsm_map-fn.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-fn.c"
 
 /* --- Module MAP-SS-Code --- --- ---                                         */
 
@@ -21875,9 +21857,6 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 }
 
 
-/*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 1044 "./asn1/gsm_map/packet-gsm_map-template.c"
-
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
   {  44, "forwardSM" },
@@ -21888,9 +21867,6 @@ const value_string gsm_map_V1V2_opr_code_strings[] = {
 /* Generic translation for MAP operation */
 const value_string gsm_map_opr_code_strings[] = {
 
-/*--- Included file: packet-gsm_map-table.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-table.c"
-
 /* --- Module Remote-Operations-Information-Objects --- --- ---               */
 
 /* Unknown or empty loop list OPERATION */
@@ -22097,18 +22073,12 @@ const value_string gsm_map_opr_code_strings[] = {
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
 /* Unknown or empty loop list OPERATION */
-
-/*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1055 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
 #if 0
 static const value_string gsm_map_err_code_string_vals[] = {
 
-/*--- Included file: packet-gsm_map-table.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-table.c"
-
 /* --- Module Remote-Operations-Information-Objects --- --- ---               */
 
 /* Unknown or empty loop list OPERATION */
@@ -22315,9 +22285,6 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
 /* Unknown or empty loop list OPERATION */
-
-/*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1061 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -24595,9 +24562,6 @@ void proto_register_gsm_map(void) {
             NULL, HFILL }
     },
 
-
-/*--- Included file: packet-gsm_map-hfarr.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-hfarr.c"
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
@@ -31963,9 +31927,6 @@ void proto_register_gsm_map(void) {
       { "amr-wb-allowed", "NokiaMAP.Extensions.AllowedServiceData.amr.wb.allowed",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-
-/*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3339 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -32004,9 +31965,6 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_TA_id,
     &ett_gsm_map_GeodeticInformation,
 
-
-/*--- Included file: packet-gsm_map-ettarr.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-ettarr.c"
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
@@ -32719,9 +32677,6 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AccessTypeExt,
     &ett_NokiaMAP_Extensions_AccessSubscriptionListExt,
     &ett_NokiaMAP_Extensions_AllowedServiceData,
-
-/*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3378 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -32781,9 +32736,6 @@ void proto_register_gsm_map(void) {
 
   gsm_map_tap = register_tap("gsm_map");
 
-
-/*--- Included file: packet-gsm_map-dis-tab.c ---*/
-#line 1 "./asn1/gsm_map/packet-gsm_map-dis-tab.c"
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
@@ -32863,9 +32815,6 @@ void proto_register_gsm_map(void) {
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
 
-
-/*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3438 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

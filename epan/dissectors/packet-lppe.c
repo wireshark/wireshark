@@ -3,9 +3,6 @@
 /* packet-lppe.c                                                              */
 /* asn2wrs.py -L -p lppe -c ./lppe.cnf -s ./packet-lppe-template -D . -O ../.. LPPe.asn */
 
-/* Input file: packet-lppe-template.c */
-
-#line 1 "./asn1/lppe/packet-lppe-template.c"
 /* packet-lppe.c
  * Routines for LPP Extensions (LLPe) packet dissection
  * Copyright 2012-2021, Pascal Quantin <pascal@wireshark.org>
@@ -45,9 +42,6 @@ static int proto_lppe = -1;
 
 static dissector_handle_t xml_handle;
 
-
-/*--- Included file: packet-lppe-hf.c ---*/
-#line 1 "./asn1/lppe/packet-lppe-hf.c"
 static int hf_lppe_OMA_LPPe_MessageExtension_PDU = -1;  /* OMA_LPPe_MessageExtension */
 static int hf_lppe_lppeCompatibilityLevel = -1;   /* OMA_LPPe_LPPeCompatibilityLevel */
 static int hf_lppe_lppeVersion = -1;              /* OMA_LPPe_LPPeVersion */
@@ -1668,15 +1662,9 @@ static int hf_lppe_T_supportedAssistanceData_antennaPattern = -1;
 static int hf_lppe_T_srnMeasurements_rssi = -1;
 static int hf_lppe_T_srnMeasurements_rtd = -1;
 
-/*--- End of included file: packet-lppe-hf.c ---*/
-#line 41 "./asn1/lppe/packet-lppe-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_lppe = -1;
 static gint ett_lppe_civicLocation = -1;
-
-/*--- Included file: packet-lppe-ett.c ---*/
-#line 1 "./asn1/lppe/packet-lppe-ett.c"
 static gint ett_lppe_OMA_LPPe_MessageExtension = -1;
 static gint ett_lppe_OMA_LPPe_LPPeVersion = -1;
 static gint ett_lppe_OMA_LPPe_MessageExtensionBody = -1;
@@ -2315,13 +2303,7 @@ static gint ett_lppe_OMA_LPPe_SRN_Technologies = -1;
 static gint ett_lppe_OMA_LPPe_SRN_MeasurementMask = -1;
 static gint ett_lppe_T_srnMeasurements = -1;
 
-/*--- End of included file: packet-lppe-ett.c ---*/
-#line 46 "./asn1/lppe/packet-lppe-template.c"
-
 /* Include constants */
-
-/*--- Included file: packet-lppe-val.h ---*/
-#line 1 "./asn1/lppe/packet-lppe-val.h"
 #define maxAssistanceContainerList     16
 #define maxLocationInformationContainerDataList 10
 #define maxVendorOrOperatorIDList      32
@@ -2354,13 +2336,7 @@ static gint ett_lppe_T_srnMeasurements = -1;
 #define maxWimaxBSMeas                 32
 #define maxChannels                    512
 
-/*--- End of included file: packet-lppe-val.h ---*/
-#line 49 "./asn1/lppe/packet-lppe-template.c"
 
-
-
-/*--- Included file: packet-lppe-fn.c ---*/
-#line 1 "./asn1/lppe/packet-lppe-fn.c"
 
 
 static int
@@ -15895,9 +15871,6 @@ static int dissect_OMA_LPPe_MessageExtension_PDU(tvbuff_t *tvb _U_, packet_info 
 }
 
 
-/*--- End of included file: packet-lppe-fn.c ---*/
-#line 52 "./asn1/lppe/packet-lppe-template.c"
-
 
 /*--- proto_register_lpp -------------------------------------------*/
 void proto_register_lppe(void) {
@@ -15905,9 +15878,6 @@ void proto_register_lppe(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-lppe-hfarr.c ---*/
-#line 1 "./asn1/lppe/packet-lppe-hfarr.c"
     { &hf_lppe_OMA_LPPe_MessageExtension_PDU,
       { "OMA-LPPe-MessageExtension", "lppe.OMA_LPPe_MessageExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22380,18 +22350,12 @@ void proto_register_lppe(void) {
       { "rtd", "lppe.T.srnMeasurements.rtd",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-
-/*--- End of included file: packet-lppe-hfarr.c ---*/
-#line 61 "./asn1/lppe/packet-lppe-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_lppe,
       &ett_lppe_civicLocation,
-
-/*--- Included file: packet-lppe-ettarr.c ---*/
-#line 1 "./asn1/lppe/packet-lppe-ettarr.c"
     &ett_lppe_OMA_LPPe_MessageExtension,
     &ett_lppe_OMA_LPPe_LPPeVersion,
     &ett_lppe_OMA_LPPe_MessageExtensionBody,
@@ -23029,9 +22993,6 @@ void proto_register_lppe(void) {
     &ett_lppe_OMA_LPPe_SRN_Technologies,
     &ett_lppe_OMA_LPPe_SRN_MeasurementMask,
     &ett_lppe_T_srnMeasurements,
-
-/*--- End of included file: packet-lppe-ettarr.c ---*/
-#line 68 "./asn1/lppe/packet-lppe-template.c"
   };
 
 

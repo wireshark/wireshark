@@ -3,9 +3,6 @@
 /* packet-sbc-ap.c                                                            */
 /* asn2wrs.py -L -p sbc-ap -c ./sbc-ap.cnf -s ./packet-sbc-ap-template -D . -O ../.. SBC-AP-CommonDataTypes.asn SBC-AP-Constants.asn SBC-AP-Containers.asn SBC-AP-IEs.asn SBC-AP-PDU-Contents.asn SBC-AP-PDU-Descriptions.asn */
 
-/* Input file: packet-sbc-ap-template.c */
-
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 /* packet-sbc-ap.c
  * Routines for SBc Application Part (SBc-AP) packet dissection
  *
@@ -47,9 +44,6 @@ void proto_reg_handoff_sbc_ap(void);
 static dissector_handle_t sbc_ap_handle=NULL;
 
 
-
-/*--- Included file: packet-sbc-ap-val.h ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-val.h"
 #define maxNrOfErrors                  256
 #define maxnoofCellID                  65535
 #define maxnoofCellinEAI               65535
@@ -132,9 +126,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_Warning_Area_Coordinates =  46
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-sbc-ap-val.h ---*/
-#line 43 "./asn1/sbc-ap/packet-sbc-ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_sbc_ap = -1;
 
@@ -146,9 +137,6 @@ static int hf_sbc_ap_Warning_Type_emergency_user_alert = -1;
 static int hf_sbc_ap_Warning_Type_popup = -1;
 static int hf_sbc_ap_Warning_Message_Contents_nb_pages = -1;
 static int hf_sbc_ap_Warning_Message_Contents_decoded_page = -1;
-
-/*--- Included file: packet-sbc-ap-hf.c ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-hf.c"
 static int hf_sbc_ap_Broadcast_Scheduled_Area_List_PDU = -1;  /* Broadcast_Scheduled_Area_List */
 static int hf_sbc_ap_Broadcast_Scheduled_Area_List_5GS_PDU = -1;  /* Broadcast_Scheduled_Area_List_5GS */
 static int hf_sbc_ap_Broadcast_Cancelled_Area_List_PDU = -1;  /* Broadcast_Cancelled_Area_List */
@@ -299,9 +287,6 @@ static int hf_sbc_ap_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
 static int hf_sbc_ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sbc_ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-sbc-ap-hf.c ---*/
-#line 56 "./asn1/sbc-ap/packet-sbc-ap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_sbc_ap = -1;
 static int ett_sbc_ap_Serial_Number = -1;
@@ -309,9 +294,6 @@ static int ett_sbc_ap_Warning_Type = -1;
 static int ett_sbc_ap_Data_Coding_Scheme = -1;
 static int ett_sbc_ap_Warning_Message_Contents = -1;
 
-
-/*--- Included file: packet-sbc-ap-ett.c ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-ett.c"
 static gint ett_sbc_ap_ProtocolIE_Container = -1;
 static gint ett_sbc_ap_ProtocolIE_Field = -1;
 static gint ett_sbc_ap_ProtocolExtensionContainer = -1;
@@ -399,9 +381,6 @@ static gint ett_sbc_ap_InitiatingMessage = -1;
 static gint ett_sbc_ap_SuccessfulOutcome = -1;
 static gint ett_sbc_ap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-sbc-ap-ett.c ---*/
-#line 65 "./asn1/sbc-ap/packet-sbc-ap-template.c"
-
 enum{
 	INITIATING_MESSAGE,
 	SUCCESSFUL_OUTCOME,
@@ -444,9 +423,6 @@ sbc_ap_get_private_data(packet_info *pinfo)
   return sbc_ap_data;
 }
 
-
-/*--- Included file: packet-sbc-ap-fn.c ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-fn.c"
 
 static const value_string sbc_ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -2807,9 +2783,6 @@ static int dissect_SBC_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 
-/*--- End of included file: packet-sbc-ap-fn.c ---*/
-#line 109 "./asn1/sbc-ap/packet-sbc-ap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint(sbc_ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
@@ -2902,9 +2875,6 @@ void proto_register_sbc_ap(void) {
       { "Decoded Page", "sbc-ap.WarningMessageContents.decoded_page",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-sbc-ap-hfarr.c ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-hfarr.c"
     { &hf_sbc_ap_Broadcast_Scheduled_Area_List_PDU,
       { "Broadcast-Scheduled-Area-List", "sbc-ap.Broadcast_Scheduled_Area_List_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3501,9 +3471,6 @@ void proto_register_sbc_ap(void) {
       { "value", "sbc-ap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 203 "./asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -3513,9 +3480,6 @@ void proto_register_sbc_ap(void) {
                   &ett_sbc_ap_Warning_Type,
                   &ett_sbc_ap_Data_Coding_Scheme,
                   &ett_sbc_ap_Warning_Message_Contents,
-
-/*--- Included file: packet-sbc-ap-ettarr.c ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-ettarr.c"
     &ett_sbc_ap_ProtocolIE_Container,
     &ett_sbc_ap_ProtocolIE_Field,
     &ett_sbc_ap_ProtocolExtensionContainer,
@@ -3602,9 +3566,6 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_InitiatingMessage,
     &ett_sbc_ap_SuccessfulOutcome,
     &ett_sbc_ap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 213 "./asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -3637,9 +3598,6 @@ proto_reg_handoff_sbc_ap(void)
         sbc_ap_handle = create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
         inited = TRUE;
-
-/*--- Included file: packet-sbc-ap-dis-tab.c ---*/
-#line 1 "./asn1/sbc-ap/packet-sbc-ap-dis-tab.c"
   dissector_add_uint("sbc_ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Criticality_Diagnostics, create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Data_Coding_Scheme, create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sbc_ap));
@@ -3690,9 +3648,6 @@ proto_reg_handoff_sbc_ap(void)
   dissector_add_uint("sbc_ap.proc.imsg", id_PWS_Restart_Indication, create_dissector_handle(dissect_PWS_Restart_Indication_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.imsg", id_PWS_Failure_Indication, create_dissector_handle(dissect_PWS_Failure_Indication_PDU, proto_sbc_ap));
 
-
-/*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 246 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);

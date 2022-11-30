@@ -3,9 +3,6 @@
 /* packet-t124.c                                                              */
 /* asn2wrs.py -L -p t124 -c ./t124.cnf -s ./packet-t124-template -D . -O ../.. GCC-PROTOCOL.asn ../t125/MCS-PROTOCOL.asn */
 
-/* Input file: packet-t124-template.c */
-
-#line 1 "./asn1/t124/packet-t124-template.c"
 /* packet-t124.c
  * Routines for t124 packet dissection
  * Copyright 2010, Graeme Lunt
@@ -45,9 +42,6 @@ void proto_reg_handoff_t124(void);
 static int proto_t124 = -1;
 static proto_tree *top_tree = NULL;
 
-
-/*--- Included file: packet-t124-hf.c ---*/
-#line 1 "./asn1/t124/packet-t124-hf.c"
 static int hf_t124_object = -1;                   /* T_object */
 static int hf_t124_h221NonStandard = -1;          /* H221NonStandardIdentifier */
 static int hf_t124_key = -1;                      /* Key */
@@ -272,9 +266,6 @@ static int hf_t124_tokenTestConfirm = -1;         /* TokenTestConfirm */
 static int hf_t124_Segmentation_begin = -1;
 static int hf_t124_Segmentation_end = -1;
 
-/*--- End of included file: packet-t124-hf.c ---*/
-#line 41 "./asn1/t124/packet-t124-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_t124 = -1;
 static int ett_t124_connectGCCPDU = -1;
@@ -288,9 +279,6 @@ static guint32 channelId = -1;
 static dissector_table_t t124_ns_dissector_table=NULL;
 static dissector_table_t t124_sd_dissector_table=NULL;
 
-
-/*--- Included file: packet-t124-ett.c ---*/
-#line 1 "./asn1/t124/packet-t124-ett.c"
 static gint ett_t124_Key = -1;
 static gint ett_t124_NonStandardParameter = -1;
 static gint ett_t124_UserData = -1;
@@ -393,12 +381,6 @@ static gint ett_t124_TokenTestRequest = -1;
 static gint ett_t124_TokenTestConfirm = -1;
 static gint ett_t124_DomainMCSPDU = -1;
 
-/*--- End of included file: packet-t124-ett.c ---*/
-#line 56 "./asn1/t124/packet-t124-template.c"
-
-
-/*--- Included file: packet-t124-fn.c ---*/
-#line 1 "./asn1/t124/packet-t124-fn.c"
 
 
 static int
@@ -2854,9 +2836,6 @@ dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-/*--- End of included file: packet-t124-fn.c ---*/
-#line 58 "./asn1/t124/packet-t124-template.c"
-
 static const per_sequence_t t124Heur_sequence[] = {
   { &hf_t124_t124Identifier , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Key },
   { NULL, 0, 0, NULL }
@@ -2976,9 +2955,6 @@ void proto_register_t124(void) {
       { "DomainMCSPDU", "t124.DomainMCSPDU",
         FT_UINT32, BASE_DEC, VALS(t124_DomainMCSPDU_vals), 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-t124-hfarr.c ---*/
-#line 1 "./asn1/t124/packet-t124-hfarr.c"
     { &hf_t124_object,
       { "object", "t124.object",
         FT_OID, BASE_NONE, NULL, 0,
@@ -3867,18 +3843,12 @@ void proto_register_t124(void) {
       { "end", "t124.Segmentation.end",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-
-/*--- End of included file: packet-t124-hfarr.c ---*/
-#line 179 "./asn1/t124/packet-t124-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_t124,
 	  &ett_t124_connectGCCPDU,
-
-/*--- Included file: packet-t124-ettarr.c ---*/
-#line 1 "./asn1/t124/packet-t124-ettarr.c"
     &ett_t124_Key,
     &ett_t124_NonStandardParameter,
     &ett_t124_UserData,
@@ -3980,9 +3950,6 @@ void proto_register_t124(void) {
     &ett_t124_TokenTestRequest,
     &ett_t124_TokenTestConfirm,
     &ett_t124_DomainMCSPDU,
-
-/*--- End of included file: packet-t124-ettarr.c ---*/
-#line 186 "./asn1/t124/packet-t124-template.c"
   };
 
   /* Register protocol */

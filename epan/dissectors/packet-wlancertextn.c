@@ -3,9 +3,6 @@
 /* packet-wlancertextn.c                                                      */
 /* asn2wrs.py -b -L -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . -O ../.. WLANCERTEXTN.asn */
 
-/* Input file: packet-wlancertextn-template.c */
-
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-template.c"
 /* packet-wlancertextn.c
  * Routines for Wireless Certificate Extension (RFC3770)
  *  Ronnie Sahlberg 2005
@@ -38,27 +35,12 @@ void proto_reg_handoff_wlancertextn(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_wlancertextn = -1;
-
-/*--- Included file: packet-wlancertextn-hf.c ---*/
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-hf.c"
 static int hf_wlancertextn_SSIDList_PDU = -1;     /* SSIDList */
 static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 
-/*--- End of included file: packet-wlancertextn-hf.c ---*/
-#line 34 "./asn1/wlancertextn/packet-wlancertextn-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-wlancertextn-ett.c ---*/
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-ett.c"
 static gint ett_wlancertextn_SSIDList = -1;
 
-/*--- End of included file: packet-wlancertextn-ett.c ---*/
-#line 37 "./asn1/wlancertextn/packet-wlancertextn-template.c"
-
-
-/*--- Included file: packet-wlancertextn-fn.c ---*/
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-fn.c"
 
 
 static int
@@ -93,18 +75,12 @@ static int dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-wlancertextn-fn.c ---*/
-#line 39 "./asn1/wlancertextn/packet-wlancertextn-template.c"
-
 
 /*--- proto_register_wlancertextn ----------------------------------------------*/
 void proto_register_wlancertextn(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-wlancertextn-hfarr.c ---*/
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-hfarr.c"
     { &hf_wlancertextn_SSIDList_PDU,
       { "SSIDList", "wlancertextn.SSIDList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -113,20 +89,11 @@ void proto_register_wlancertextn(void) {
       { "SSID", "wlancertextn.SSID",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-wlancertextn-hfarr.c ---*/
-#line 47 "./asn1/wlancertextn/packet-wlancertextn-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-wlancertextn-ettarr.c ---*/
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-ettarr.c"
     &ett_wlancertextn_SSIDList,
-
-/*--- End of included file: packet-wlancertextn-ettarr.c ---*/
-#line 52 "./asn1/wlancertextn/packet-wlancertextn-template.c"
   };
 
   /* Register protocol */
@@ -141,15 +108,9 @@ void proto_register_wlancertextn(void) {
 
 /*--- proto_reg_handoff_wlancertextn -------------------------------------------*/
 void proto_reg_handoff_wlancertextn(void) {
-
-/*--- Included file: packet-wlancertextn-dis-tab.c ---*/
-#line 1 "./asn1/wlancertextn/packet-wlancertextn-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.13", dissect_SSIDList_PDU, proto_wlancertextn, "id-pe-wlanSSID");
   register_ber_oid_dissector("1.3.6.1.5.5.7.10.6", dissect_SSIDList_PDU, proto_wlancertextn, "id-aca-wlanSSID");
 
-
-/*--- End of included file: packet-wlancertextn-dis-tab.c ---*/
-#line 67 "./asn1/wlancertextn/packet-wlancertextn-template.c"
   oid_add_from_string("id-kp-eapOverPPP","1.3.6.1.5.5.7.3.13");
   oid_add_from_string("id-kp-eapOverLAN","1.3.6.1.5.5.7.3.14");
 }

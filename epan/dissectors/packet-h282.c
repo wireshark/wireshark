@@ -3,9 +3,6 @@
 /* packet-h282.c                                                              */
 /* asn2wrs.py -L -p h282 -c ./h282.cnf -s ./packet-h282-template -D . -O ../.. RDC-PROTOCOL.asn */
 
-/* Input file: packet-h282-template.c */
-
-#line 1 "./asn1/h282/packet-h282-template.c"
 /* packet-h282.c
  * Routines for H.282 packet dissection
  * 2007  Tomas Kukosa
@@ -34,9 +31,6 @@ void proto_reg_handoff_h282(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h282 = -1;
-
-/*--- Included file: packet-h282-hf.c ---*/
-#line 1 "./asn1/h282/packet-h282-hf.c"
 static int hf_h282_NonCollapsingCapabilities_PDU = -1;  /* NonCollapsingCapabilities */
 static int hf_h282_RDCPDU_PDU = -1;               /* RDCPDU */
 static int hf_h282_object = -1;                   /* OBJECT_IDENTIFIER */
@@ -471,14 +465,8 @@ static int hf_h282_deviceLockTerminatedIndication = -1;  /* DeviceLockTerminated
 static int hf_h282_deviceEventNotifyIndication = -1;  /* DeviceEventNotifyIndication */
 static int hf_h282_nonStandardIndication = -1;    /* NonStandardPDU */
 
-/*--- End of included file: packet-h282-hf.c ---*/
-#line 30 "./asn1/h282/packet-h282-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_h282 = -1;
-
-/*--- Included file: packet-h282-ett.c ---*/
-#line 1 "./asn1/h282/packet-h282-ett.c"
 static gint ett_h282_Key = -1;
 static gint ett_h282_NonStandardParameter = -1;
 static gint ett_h282_NonStandardIdentifier = -1;
@@ -623,16 +611,10 @@ static gint ett_h282_RequestPDU = -1;
 static gint ett_h282_ResponsePDU = -1;
 static gint ett_h282_IndicationPDU = -1;
 
-/*--- End of included file: packet-h282-ett.c ---*/
-#line 34 "./asn1/h282/packet-h282-template.c"
-
 /* Dissectors */
 
 /* Subdissectors */
 
-
-/*--- Included file: packet-h282-fn.c ---*/
-#line 1 "./asn1/h282/packet-h282-fn.c"
 
 
 static int
@@ -4370,9 +4352,6 @@ static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 }
 
 
-/*--- End of included file: packet-h282-fn.c ---*/
-#line 40 "./asn1/h282/packet-h282-template.c"
-
 static int
 dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -4392,9 +4371,6 @@ void proto_register_h282(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-h282-hfarr.c ---*/
-#line 1 "./asn1/h282/packet-h282-hfarr.c"
     { &hf_h282_NonCollapsingCapabilities_PDU,
       { "NonCollapsingCapabilities", "h282.NonCollapsingCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6127,17 +6103,11 @@ void proto_register_h282(void) {
       { "nonStandardIndication", "h282.nonStandardIndication_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NonStandardPDU", HFILL }},
-
-/*--- End of included file: packet-h282-hfarr.c ---*/
-#line 61 "./asn1/h282/packet-h282-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_h282,
-
-/*--- Included file: packet-h282-ettarr.c ---*/
-#line 1 "./asn1/h282/packet-h282-ettarr.c"
     &ett_h282_Key,
     &ett_h282_NonStandardParameter,
     &ett_h282_NonStandardIdentifier,
@@ -6281,9 +6251,6 @@ void proto_register_h282(void) {
     &ett_h282_RequestPDU,
     &ett_h282_ResponsePDU,
     &ett_h282_IndicationPDU,
-
-/*--- End of included file: packet-h282-ettarr.c ---*/
-#line 67 "./asn1/h282/packet-h282-template.c"
   };
 
   /* Register protocol */

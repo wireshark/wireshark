@@ -3,9 +3,6 @@
 /* packet-x509sat.c                                                           */
 /* asn2wrs.py -b -r Syntax -L -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . -O ../.. SelectedAttributeTypes.asn */
 
-/* Input file: packet-x509sat-template.c */
-
-#line 1 "./asn1/x509sat/packet-x509sat-template.c"
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *  Ronnie Sahlberg 2004
@@ -38,9 +35,6 @@ void proto_reg_handoff_x509sat(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_x509sat = -1;
-
-/*--- Included file: packet-x509sat-hf.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-hf.c"
 static int hf_x509sat_DirectoryString_PDU = -1;   /* DirectoryString */
 static int hf_x509sat_UniqueIdentifier_PDU = -1;  /* UniqueIdentifier */
 static int hf_x509sat_CountryName_PDU = -1;       /* CountryName */
@@ -207,13 +201,7 @@ static int hf_x509sat_T_bitNamedDays_thursday = -1;
 static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
-/*--- End of included file: packet-x509sat-hf.c ---*/
-#line 34 "./asn1/x509sat/packet-x509sat-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-x509sat-ett.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-ett.c"
 static gint ett_x509sat_DirectoryString = -1;
 static gint ett_x509sat_Guide = -1;
 static gint ett_x509sat_Criteria = -1;
@@ -262,12 +250,6 @@ static gint ett_x509sat_TimeAssertion = -1;
 static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
-/*--- End of included file: packet-x509sat-ett.c ---*/
-#line 37 "./asn1/x509sat/packet-x509sat-template.c"
-
-
-/*--- Included file: packet-x509sat-fn.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Criteria -> Criteria/and -> Criteria */
@@ -1902,18 +1884,12 @@ static int dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 }
 
 
-/*--- End of included file: packet-x509sat-fn.c ---*/
-#line 39 "./asn1/x509sat/packet-x509sat-template.c"
-
 
 /*--- proto_register_x509sat ----------------------------------------------*/
 void proto_register_x509sat(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-x509sat-hfarr.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-hfarr.c"
     { &hf_x509sat_DirectoryString_PDU,
       { "DirectoryString", "x509sat.DirectoryString",
         FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
@@ -2570,16 +2546,10 @@ void proto_register_x509sat(void) {
       { "saturday", "x509sat.T.bitNamedDays.saturday",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
-
-/*--- End of included file: packet-x509sat-hfarr.c ---*/
-#line 47 "./asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-x509sat-ettarr.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-ettarr.c"
     &ett_x509sat_DirectoryString,
     &ett_x509sat_Guide,
     &ett_x509sat_Criteria,
@@ -2627,9 +2597,6 @@ void proto_register_x509sat(void) {
     &ett_x509sat_TimeAssertion,
     &ett_x509sat_T_between,
     &ett_x509sat_LocaleContextSyntax,
-
-/*--- End of included file: packet-x509sat-ettarr.c ---*/
-#line 52 "./asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2639,9 +2606,6 @@ void proto_register_x509sat(void) {
   proto_register_field_array(proto_x509sat, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-
-/*--- Included file: packet-x509sat-syn-reg.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-syn-reg.c"
   /*--- Syntax registrations ---*/
   register_ber_syntax_dissector("BitString", proto_x509sat, dissect_BitString_PDU);
   register_ber_syntax_dissector("Boolean", proto_x509sat, dissect_Boolean_PDU);
@@ -2681,17 +2645,11 @@ void proto_register_x509sat(void) {
   register_ber_syntax_dissector("UniqueIdentifier", proto_x509sat, dissect_UniqueIdentifier_PDU);
   register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
 
-/*--- End of included file: packet-x509sat-syn-reg.c ---*/
-#line 62 "./asn1/x509sat/packet-x509sat-template.c"
-
 }
 
 
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
-
-/*--- Included file: packet-x509sat-dis-tab.c ---*/
-#line 1 "./asn1/x509sat/packet-x509sat-dis-tab.c"
   register_ber_oid_dissector("2.5.4.0", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-objectClass");
   register_ber_oid_dissector("2.5.4.2", dissect_DirectoryString_PDU, proto_x509sat, "id-at-knowledgeInformation");
   register_ber_oid_dissector("2.5.4.3", dissect_DirectoryString_PDU, proto_x509sat, "id-at-commonName");
@@ -2873,9 +2831,6 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.2", dissect_DirectoryString_PDU, proto_x509sat, "jurisdictionOfIncorporationStateOrProvinceName");
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.3", dissect_CountryName_PDU, proto_x509sat, "jurisdictionOfIncorporationCountryName");
 
-
-/*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 69 "./asn1/x509sat/packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 

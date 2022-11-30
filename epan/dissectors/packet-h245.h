@@ -3,9 +3,6 @@
 /* packet-h245.h                                                              */
 /* asn2wrs.py -L -p h245 -c ./h245.cnf -s ./packet-h245-template -D . -O ../.. MULTIMEDIA-SYSTEM-CONTROL.asn */
 
-/* Input file: packet-h245-template.h */
-
-#line 1 "./asn1/h245/packet-h245-template.h"
 /* packet-h245.h
  * Routines for h245 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -118,9 +115,6 @@ WS_DLL_PUBLIC void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
 typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, guint16 lc, h223_lc_params* params);
 WS_DLL_PUBLIC void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
-
-/*--- Included file: packet-h245-exp.h ---*/
-#line 1 "./asn1/h245/packet-h245-exp.h"
 extern const value_string h245_Capability_vals[];
 extern const value_string DataProtocolCapability_vals[];
 extern const value_string h245_TransportAddress_vals[];
@@ -136,9 +130,6 @@ int dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_,
 int dissect_h245_TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h245_UnicastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h245_MulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-
-/*--- End of included file: packet-h245-exp.h ---*/
-#line 114 "./asn1/h245/packet-h245-template.h"
 void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

@@ -3,9 +3,6 @@
 /* packet-rrc.h                                                               */
 /* asn2wrs.py -L -p rrc -c ./rrc.cnf -s ./packet-rrc-template -D . -O ../.. Class-definitions.asn PDU-definitions.asn InformationElements.asn Constant-definitions.asn Internode-definitions.asn */
 
-/* Input file: packet-rrc-template.h */
-
-#line 1 "./asn1/rrc/packet-rrc-template.h"
 /* packet-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
@@ -22,9 +19,6 @@
 #include <epan/asn1.h>    /* Needed for non asn1 dissectors?*/
 
 extern int proto_rrc;
-
-/*--- Included file: packet-rrc-exp.h ---*/
-#line 1 "./asn1/rrc/packet-rrc-exp.h"
 int dissect_rrc_InterRATHandoverInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_rrc_HandoverToUTRANCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_rrc_InterRATHandoverInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -58,9 +52,6 @@ int dissect_rrc_SysInfoTypeSB1_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 int dissect_rrc_SysInfoTypeSB2_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_rrc_ToTargetRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_rrc_TargetRNC_ToSourceRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-rrc-exp.h ---*/
-#line 18 "./asn1/rrc/packet-rrc-template.h"
 
 enum rrc_message_type {
   RRC_MESSAGE_TYPE_INVALID    = 0,

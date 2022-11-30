@@ -3,9 +3,6 @@
 /* packet-glow.c                                                              */
 /* asn2wrs.py -b -L -p glow -c ./glow.cnf -s ./packet-glow-template -D . -O ../.. glow.asn */
 
-/* Input file: packet-glow-template.c */
-
-#line 1 "./asn1/glow/packet-glow-template.c"
 /* packet-glow.c
  * Routines for GLOW packet dissection
  *
@@ -32,9 +29,6 @@ void proto_register_glow(void);
 static dissector_handle_t glow_handle=NULL;
 static int proto_glow = -1;
 
-
-/*--- Included file: packet-glow-hf.c ---*/
-#line 1 "./asn1/glow/packet-glow-hf.c"
 static int hf_glow_Root_PDU = -1;                 /* Root */
 static int hf_glow_number = -1;                   /* Integer32 */
 static int hf_glow_element = -1;                  /* TemplateElement */
@@ -130,15 +124,9 @@ static int hf_glow_qualifiedMatrix = -1;          /* QualifiedMatrix */
 static int hf_glow_qualifiedFunction = -1;        /* QualifiedFunction */
 static int hf_glow_qualifiedTemplate = -1;        /* QualifiedTemplate */
 
-/*--- End of included file: packet-glow-hf.c ---*/
-#line 28 "./asn1/glow/packet-glow-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_glow = -1;
 
-
-/*--- Included file: packet-glow-ett.c ---*/
-#line 1 "./asn1/glow/packet-glow-ett.c"
 static gint ett_glow_Template_U = -1;
 static gint ett_glow_QualifiedTemplate_U = -1;
 static gint ett_glow_TemplateElement = -1;
@@ -182,12 +170,6 @@ static gint ett_glow_Root_U = -1;
 static gint ett_glow_SEQUENCE_OF_RootElement = -1;
 static gint ett_glow_RootElement = -1;
 
-/*--- End of included file: packet-glow-ett.c ---*/
-#line 33 "./asn1/glow/packet-glow-template.c"
-
-
-/*--- Included file: packet-glow-fn.c ---*/
-#line 1 "./asn1/glow/packet-glow-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Parameter -> Parameter/_untag -> ElementCollection -> ElementCollection/_untag -> Element -> Parameter */
@@ -1491,9 +1473,6 @@ static int dissect_Root_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 }
 
 
-/*--- End of included file: packet-glow-fn.c ---*/
-#line 35 "./asn1/glow/packet-glow-template.c"
-
 static int
 dissect_glow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1517,9 +1496,6 @@ void proto_register_glow(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-glow-hfarr.c ---*/
-#line 1 "./asn1/glow/packet-glow-hfarr.c"
     { &hf_glow_Root_PDU,
       { "Root", "glow.Root",
         FT_UINT32, BASE_DEC, VALS(glow_Root_U_vals), 0,
@@ -1896,17 +1872,11 @@ void proto_register_glow(void) {
       { "qualifiedTemplate", "glow.qualifiedTemplate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-glow-hfarr.c ---*/
-#line 60 "./asn1/glow/packet-glow-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
                   &ett_glow,
-
-/*--- Included file: packet-glow-ettarr.c ---*/
-#line 1 "./asn1/glow/packet-glow-ettarr.c"
     &ett_glow_Template_U,
     &ett_glow_QualifiedTemplate_U,
     &ett_glow_TemplateElement,
@@ -1949,9 +1919,6 @@ void proto_register_glow(void) {
     &ett_glow_Root_U,
     &ett_glow_SEQUENCE_OF_RootElement,
     &ett_glow_RootElement,
-
-/*--- End of included file: packet-glow-ettarr.c ---*/
-#line 66 "./asn1/glow/packet-glow-template.c"
   };
 
 

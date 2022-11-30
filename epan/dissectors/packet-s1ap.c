@@ -3,9 +3,6 @@
 /* packet-s1ap.c                                                              */
 /* asn2wrs.py -L -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . -O ../.. S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn S1AP-SonTransfer-IEs.asn */
 
-/* Input file: packet-s1ap-template.c */
-
-#line 1 "./asn1/s1ap/packet-s1ap-template.c"
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
  * Copyright 2007-2016, Anders Broman <anders.broman@ericsson.com>
@@ -71,9 +68,6 @@ static dissector_handle_t lte_rrc_ue_radio_paging_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_paging_info_nb_handle;
 static dissector_handle_t nr_rrc_ue_radio_paging_info_handle;
 
-
-/*--- Included file: packet-s1ap-val.h ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -577,9 +571,6 @@ typedef enum _SRVCCHOIndication_enum {
   cSonly       =   1
 } SRVCCHOIndication_enum;
 
-/*--- End of included file: packet-s1ap-val.h ---*/
-#line 67 "./asn1/s1ap/packet-s1ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
 
@@ -636,9 +627,6 @@ static int hf_s1ap_rAT_RestrictionInformation_MEO = -1;
 static int hf_s1ap_rAT_RestrictionInformation_GEO = -1;
 static int hf_s1ap_rAT_RestrictionInformation_OTHERSAT = -1;
 static int hf_s1ap_rAT_RestrictionInformation_Reserved = -1;
-
-/*--- Included file: packet-s1ap-hf.c ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-hf.c"
 static int hf_s1ap_Additional_GUTI_PDU = -1;      /* Additional_GUTI */
 static int hf_s1ap_AdditionalRRMPriorityIndex_PDU = -1;  /* AdditionalRRMPriorityIndex */
 static int hf_s1ap_AerialUEsubscriptionInformation_PDU = -1;  /* AerialUEsubscriptionInformation */
@@ -1557,9 +1545,6 @@ static int hf_s1ap_eHRPDCapacityValue = -1;       /* EHRPDCapacityValue */
 static int hf_s1ap_eHRPD_Sector_ID_01 = -1;       /* EHRPD_Sector_ID */
 static int hf_s1ap_eHRPDSectorLoadReportingResponse = -1;  /* EHRPDSectorLoadReportingResponse */
 
-/*--- End of included file: packet-s1ap-hf.c ---*/
-#line 125 "./asn1/s1ap/packet-s1ap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
 static int ett_s1ap_TransportLayerAddress = -1;
@@ -1604,9 +1589,6 @@ static int ett_s1ap_NB_IoT_RLF_Report_Container = -1;
 static int ett_s1ap_MDT_ConfigurationNR = -1;
 static int ett_s1ap_IntersystemSONConfigurationTransfer = -1;
 static int ett_s1ap_rAT_RestrictionInformation = -1;
-
-/*--- Included file: packet-s1ap-ett.c ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-ett.c"
 static gint ett_s1ap_PrivateIE_ID = -1;
 static gint ett_s1ap_ProtocolIE_Container = -1;
 static gint ett_s1ap_ProtocolIE_Field = -1;
@@ -2032,9 +2014,6 @@ static gint ett_s1ap_EHRPDSectorLoadReportingResponse = -1;
 static gint ett_s1ap_EHRPDCompositeAvailableCapacity = -1;
 static gint ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem = -1;
 
-/*--- End of included file: packet-s1ap-ett.c ---*/
-#line 171 "./asn1/s1ap/packet-s1ap-template.c"
-
 static expert_field ei_s1ap_number_pages_le15 = EI_INIT;
 
 enum{
@@ -2271,9 +2250,6 @@ s1ap_is_nbiot_ue(packet_info *pinfo)
   return FALSE;
 }
 
-
-/*--- Included file: packet-s1ap-fn.c ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-fn.c"
 
 static const value_string s1ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -18142,9 +18118,6 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 
-/*--- End of included file: packet-s1ap-fn.c ---*/
-#line 409 "./asn1/s1ap/packet-s1ap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   s1ap_ctx_t s1ap_ctx;
@@ -18254,9 +18227,6 @@ proto_reg_handoff_s1ap(void)
   nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_s1ap);
   dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID, s1ap_handle);
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_S1AP, s1ap_handle);
-
-/*--- Included file: packet-s1ap-dis-tab.c ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-dis-tab.c"
   dissector_add_uint("s1ap.ies", id_MME_UE_S1AP_ID, create_dissector_handle(dissect_MME_UE_S1AP_ID_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_HandoverType, create_dissector_handle(dissect_HandoverType_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_s1ap));
@@ -18675,9 +18645,6 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.proc.imsg", id_eNBEarlyStatusTransfer, create_dissector_handle(dissect_ENBEarlyStatusTransfer_PDU, proto_s1ap));
   dissector_add_uint("s1ap.proc.imsg", id_MMEEarlyStatusTransfer, create_dissector_handle(dissect_MMEEarlyStatusTransfer_PDU, proto_s1ap));
 
-
-/*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 520 "./asn1/s1ap/packet-s1ap-template.c"
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -18898,9 +18865,6 @@ void proto_register_s1ap(void) {
       { "Reserved", "s1ap.rAT_RestrictionInformation.Reserved",
         FT_UINT8, BASE_HEX, NULL, 0x0f,
         NULL, HFILL }},
-
-/*--- Included file: packet-s1ap-hfarr.c ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-hfarr.c"
     { &hf_s1ap_Additional_GUTI_PDU,
       { "Additional-GUTI", "s1ap.Additional_GUTI_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22569,9 +22533,6 @@ void proto_register_s1ap(void) {
       { "eHRPDSectorLoadReportingResponse", "s1ap.eHRPDSectorLoadReportingResponse_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 741 "./asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -22619,9 +22580,6 @@ void proto_register_s1ap(void) {
     &ett_s1ap_MDT_ConfigurationNR,
     &ett_s1ap_IntersystemSONConfigurationTransfer,
     &ett_s1ap_rAT_RestrictionInformation,
-
-/*--- Included file: packet-s1ap-ettarr.c ---*/
-#line 1 "./asn1/s1ap/packet-s1ap-ettarr.c"
     &ett_s1ap_PrivateIE_ID,
     &ett_s1ap_ProtocolIE_Container,
     &ett_s1ap_ProtocolIE_Field,
@@ -23046,9 +23004,6 @@ void proto_register_s1ap(void) {
     &ett_s1ap_EHRPDSectorLoadReportingResponse,
     &ett_s1ap_EHRPDCompositeAvailableCapacity,
     &ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem,
-
-/*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 789 "./asn1/s1ap/packet-s1ap-template.c"
   };
 
   static ei_register_info ei[] = {

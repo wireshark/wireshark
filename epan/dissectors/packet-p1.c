@@ -3,9 +3,6 @@
 /* packet-p1.c                                                                */
 /* asn2wrs.py -b -C -L -p p1 -c ./p1.cnf -s ./packet-p1-template -D . -O ../.. MTAAbstractService.asn MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn */
 
-/* Input file: packet-p1-template.c */
-
-#line 1 "./asn1/p1/packet-p1-template.c"
 /* packet-p1.c
  * Routines for X.411 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
@@ -52,9 +49,6 @@ static int hf_p1_MTABindArgument_PDU = -1;
 static int hf_p1_MTABindResult_PDU = -1;
 static int hf_p1_MTABindError_PDU = -1;
 
-
-/*--- Included file: packet-p1-hf.c ---*/
-#line 1 "./asn1/p1/packet-p1-hf.c"
 static int hf_p1_InternalTraceInformation_PDU = -1;  /* InternalTraceInformation */
 static int hf_p1_InternalTraceInformationElement_PDU = -1;  /* InternalTraceInformationElement */
 static int hf_p1_TraceInformation_PDU = -1;       /* TraceInformation */
@@ -673,9 +667,6 @@ static int hf_p1_G3FacsimileNonBasicParameters_spare_bit69 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_spare_bit70 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
-/*--- End of included file: packet-p1-hf.c ---*/
-#line 48 "./asn1/p1/packet-p1-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_p1 = -1;
 static gint ett_p3 = -1;
@@ -685,9 +676,6 @@ static gint ett_p1_additional_information = -1;
 static gint ett_p1_unknown_standard_extension = -1;
 static gint ett_p1_unknown_extension_attribute_type = -1;
 static gint ett_p1_unknown_tokendata_type = -1;
-
-/*--- Included file: packet-p1-ett.c ---*/
-#line 1 "./asn1/p1/packet-p1-ett.c"
 static gint ett_p1_MTABindArgument = -1;
 static gint ett_p1_AuthenticatedArgument = -1;
 static gint ett_p1_MTABindResult = -1;
@@ -868,9 +856,6 @@ static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportDeliveryFi
 static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissionFields = -1;
 static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
 
-/*--- End of included file: packet-p1-ett.c ---*/
-#line 59 "./asn1/p1/packet-p1-template.c"
-
 static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
 static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
@@ -885,9 +870,6 @@ static dissector_table_t p1_tokendata_dissector_table;
 
 static dissector_handle_t p1_handle;
 
-
-/*--- Included file: packet-p1-table.c ---*/
-#line 1 "./asn1/p1/packet-p1-table.c"
 
 /* P3 ABSTRACT-OPERATIONS */
 const value_string p3_opr_code_string_vals[] = {
@@ -927,9 +909,6 @@ static const value_string p3_err_code_string_vals[] = {
 	  { 0, NULL }
 };
 
-
-/*--- End of included file: packet-p1-table.c ---*/
-#line 75 "./asn1/p1/packet-p1-template.c"
 
 typedef struct p1_address_ctx {
     gboolean do_address;
@@ -1003,9 +982,6 @@ static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx
     }
 }
 
-
-/*--- Included file: packet-p1-fn.c ---*/
-#line 1 "./asn1/p1/packet-p1-fn.c"
 
 
 static int
@@ -8326,12 +8302,6 @@ static int dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *pi
 }
 
 
-/*--- End of included file: packet-p1-fn.c ---*/
-#line 149 "./asn1/p1/packet-p1-template.c"
-
-
-/*--- Included file: packet-p1-table11.c ---*/
-#line 1 "./asn1/p1/packet-p1-table11.c"
 
 static const ros_opr_t p3_opr_tab[] = {
   /* mts-bind */
@@ -8357,12 +8327,6 @@ static const ros_opr_t p3_opr_tab[] = {
   { 0,				(dissector_t)(-1),	(dissector_t)(-1) },
 };
 
-
-/*--- End of included file: packet-p1-table11.c ---*/
-#line 151 "./asn1/p1/packet-p1-template.c"
-
-/*--- Included file: packet-p1-table21.c ---*/
-#line 1 "./asn1/p1/packet-p1-table21.c"
 
 static const ros_err_t p3_err_tab[] = {
   /* mts-bind-error*/
@@ -8402,9 +8366,6 @@ static const ros_err_t p3_err_tab[] = {
   { 0,	(dissector_t)(-1) },
 };
 
-
-/*--- End of included file: packet-p1-table21.c ---*/
-#line 152 "./asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -8573,9 +8534,6 @@ void proto_register_p1(void) {
         FT_UINT32, BASE_DEC, VALS(p1_MTS_APDU_vals), 0,
         "p1.MTS_APDU", HFILL }},
 
-
-/*--- Included file: packet-p1-hfarr.c ---*/
-#line 1 "./asn1/p1/packet-p1-hfarr.c"
     { &hf_p1_InternalTraceInformation_PDU,
       { "InternalTraceInformation", "p1.InternalTraceInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -11040,9 +10998,6 @@ void proto_register_p1(void) {
       { "processable-mode-26", "p1.G3FacsimileNonBasicParameters.processable.mode.26",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-
-/*--- End of included file: packet-p1-hfarr.c ---*/
-#line 321 "./asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -11055,9 +11010,6 @@ void proto_register_p1(void) {
     &ett_p1_unknown_standard_extension,
     &ett_p1_unknown_extension_attribute_type,
     &ett_p1_unknown_tokendata_type,
-
-/*--- Included file: packet-p1-ettarr.c ---*/
-#line 1 "./asn1/p1/packet-p1-ettarr.c"
     &ett_p1_MTABindArgument,
     &ett_p1_AuthenticatedArgument,
     &ett_p1_MTABindResult,
@@ -11237,9 +11189,6 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportDeliveryFields,
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissionFields,
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
-
-/*--- End of included file: packet-p1-ettarr.c ---*/
-#line 334 "./asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11283,23 +11232,14 @@ void proto_register_p1(void) {
             "P1 TCP Port preference moved information");
 
   register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
-
-/*--- Included file: packet-p1-syn-reg.c ---*/
-#line 1 "./asn1/p1/packet-p1-syn-reg.c"
   /*--- Syntax registrations ---*/
   register_ber_syntax_dissector("ORAddress", proto_p1, dissect_ORAddress_PDU);
   register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
-
-/*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 378 "./asn1/p1/packet-p1-template.c"
 }
 
 
 /*--- proto_reg_handoff_p1 --- */
 void proto_reg_handoff_p1(void) {
-
-/*--- Included file: packet-p1-dis-tab.c ---*/
-#line 1 "./asn1/p1/packet-p1-dis-tab.c"
   dissector_add_uint("p1.extension", 1, create_dissector_handle(dissect_RecipientReassignmentProhibited_PDU, proto_p1));
   dissector_add_uint("p1.extension", 2, create_dissector_handle(dissect_OriginatorRequestedAlternateRecipient_PDU, proto_p1));
   dissector_add_uint("p1.extension", 3, create_dissector_handle(dissect_DLExpansionProhibited_PDU, proto_p1));
@@ -11453,9 +11393,6 @@ void proto_reg_handoff_p1(void) {
   register_ber_oid_dissector("2.6.4.3.75", dissect_TraceInformationElement_PDU, proto_p1, "id-att-trace-information");
   register_ber_oid_dissector("2.6.1.7.36", dissect_MessageToken_PDU, proto_p1, "id-hat-forwarded-token");
 
-
-/*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 384 "./asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

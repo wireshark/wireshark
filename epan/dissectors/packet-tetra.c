@@ -3,9 +3,6 @@
 /* packet-tetra.c                                                             */
 /* asn2wrs.py -u -L -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . -O ../.. tetra.asn */
 
-/* Input file: packet-tetra-template.c */
-
-#line 1 "./asn1/tetra/packet-tetra-template.c"
 /* packet-tetra.c
  * Routines for TETRA packet dissection
  *
@@ -71,9 +68,6 @@ static gint hf_tetra_rxchannel3 = -1;
 static gint hf_tetra_crc = -1;
 static gint hf_tetra_len0 = -1;
 
-
-/*--- Included file: packet-tetra-hf.c ---*/
-#line 1 "./asn1/tetra/packet-tetra-hf.c"
 static int hf_tetra_AACH_PDU = -1;                /* AACH */
 static int hf_tetra_BSCH_PDU = -1;                /* BSCH */
 static int hf_tetra_BNCH_PDU = -1;                /* BNCH */
@@ -667,9 +661,6 @@ static int hf_tetra_proprietary_element_owner = -1;  /* Proprietary_element_owne
 static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
-/*--- End of included file: packet-tetra-hf.c ---*/
-#line 67 "./asn1/tetra/packet-tetra-template.c"
-
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_tetra = -1;
@@ -678,9 +669,6 @@ static gint ett_tetra_length = -1;
 static gint ett_tetra_txreg = -1;
 static gint ett_tetra_text = -1;
 
-
-/*--- Included file: packet-tetra-ett.c ---*/
-#line 1 "./asn1/tetra/packet-tetra-ett.c"
 static gint ett_tetra_AACH = -1;
 static gint ett_tetra_BSCH = -1;
 static gint ett_tetra_MLE_Sync = -1;
@@ -952,14 +940,8 @@ static gint ett_tetra_Type1 = -1;
 static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
-/*--- End of included file: packet-tetra-ett.c ---*/
-#line 77 "./asn1/tetra/packet-tetra-template.c"
-
 static expert_field ei_tetra_channels_incorrect = EI_INIT;
 
-
-/*--- Included file: packet-tetra-fn.c ---*/
-#line 1 "./asn1/tetra/packet-tetra-fn.c"
 
 
 static int
@@ -8730,9 +8712,6 @@ static int dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 }
 
 
-/*--- End of included file: packet-tetra-fn.c ---*/
-#line 81 "./asn1/tetra/packet-tetra-template.c"
-
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
 	{ 1, "AACH" },
@@ -9255,9 +9234,6 @@ void proto_register_tetra (void)
 		{ "PDU", "tetra.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }} ,
 
-
-/*--- Included file: packet-tetra-hfarr.c ---*/
-#line 1 "./asn1/tetra/packet-tetra-hfarr.c"
     { &hf_tetra_AACH_PDU,
       { "AACH", "tetra.AACH_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11626,9 +11602,6 @@ void proto_register_tetra (void)
       { "simplex-duplex-selection", "tetra.simplex_duplex_selection",
         FT_UINT32, BASE_DEC, VALS(tetra_T_simplex_duplex_selection_05_vals), 0,
         "T_simplex_duplex_selection_05", HFILL }},
-
-/*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 605 "./asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11638,9 +11611,6 @@ void proto_register_tetra (void)
 		&ett_tetra_length,
 		&ett_tetra_txreg,
 		&ett_tetra_text,
-
-/*--- Included file: packet-tetra-ettarr.c ---*/
-#line 1 "./asn1/tetra/packet-tetra-ettarr.c"
     &ett_tetra_AACH,
     &ett_tetra_BSCH,
     &ett_tetra_MLE_Sync,
@@ -11911,9 +11881,6 @@ void proto_register_tetra (void)
     &ett_tetra_Type1,
     &ett_tetra_Type2,
     &ett_tetra_Modify_type,
-
-/*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 615 "./asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {

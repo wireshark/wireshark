@@ -3,9 +3,6 @@
 /* packet-nbap.h                                                              */
 /* asn2wrs.py -L -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . -O ../.. NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
-/* Input file: packet-nbap-template.h */
-
-#line 1 "./asn1/nbap/packet-nbap-template.h"
 /* packet-nbap-template.h
  *
  * Wireshark - Network traffic analyzer

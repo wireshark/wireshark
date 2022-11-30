@@ -3,9 +3,6 @@
 /* packet-h450-ros.c                                                          */
 /* asn2wrs.py -L -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . -O ../.. ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
 
-/* Input file: packet-h450-ros-template.c */
-
-#line 1 "./asn1/h450-ros/packet-h450-ros-template.c"
 /* packet-h450-ros.c
  * Routines for H.450 packet dissection
  * 2007  Tomas Kukosa
@@ -36,9 +33,6 @@ void proto_reg_handoff_h450_ros(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h450_ros = -1;
-
-/*--- Included file: packet-h450-ros-hf.c ---*/
-#line 1 "./asn1/h450-ros/packet-h450-ros-hf.c"
 static int hf_h450_ros_local = -1;                /* T_local */
 static int hf_h450_ros_global = -1;               /* T_global */
 static int hf_h450_ros_invoke = -1;               /* Invoke */
@@ -60,13 +54,7 @@ static int hf_h450_ros_invokeProblem = -1;        /* InvokeProblem */
 static int hf_h450_ros_returnResultProblem = -1;  /* ReturnResultProblem */
 static int hf_h450_ros_returnErrorProblem = -1;   /* ReturnErrorProblem */
 
-/*--- End of included file: packet-h450-ros-hf.c ---*/
-#line 32 "./asn1/h450-ros/packet-h450-ros-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-h450-ros-ett.c ---*/
-#line 1 "./asn1/h450-ros/packet-h450-ros-ett.c"
 static gint ett_h450_ros_Code = -1;
 static gint ett_h450_ros_ROS = -1;
 static gint ett_h450_ros_Invoke = -1;
@@ -75,9 +63,6 @@ static gint ett_h450_ros_T_result = -1;
 static gint ett_h450_ros_ReturnError = -1;
 static gint ett_h450_ros_Reject = -1;
 static gint ett_h450_ros_T_problem = -1;
-
-/*--- End of included file: packet-h450-ros-ett.c ---*/
-#line 35 "./asn1/h450-ros/packet-h450-ros-template.c"
 
 static expert_field ei_ros_undecoded = EI_INIT;
 
@@ -109,9 +94,6 @@ error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data
   return tvb_captured_length(tvb);
 }
 
-
-/*--- Included file: packet-h450-ros-fn.c ---*/
-#line 1 "./asn1/h450-ros/packet-h450-ros-fn.c"
 
 
 static int
@@ -542,17 +524,11 @@ dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 
 
-/*--- End of included file: packet-h450-ros-fn.c ---*/
-#line 67 "./asn1/h450-ros/packet-h450-ros-template.c"
-
 /*--- proto_register_h450_ros -----------------------------------------------*/
 void proto_register_h450_ros(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-h450-ros-hfarr.c ---*/
-#line 1 "./asn1/h450-ros/packet-h450-ros-hfarr.c"
     { &hf_h450_ros_local,
       { "local", "h450.ros.local",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -633,16 +609,10 @@ void proto_register_h450_ros(void) {
       { "returnError", "h450.ros.returnError",
         FT_INT32, BASE_DEC, VALS(h450_ros_ReturnErrorProblem_vals), 0,
         "ReturnErrorProblem", HFILL }},
-
-/*--- End of included file: packet-h450-ros-hfarr.c ---*/
-#line 74 "./asn1/h450-ros/packet-h450-ros-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-h450-ros-ettarr.c ---*/
-#line 1 "./asn1/h450-ros/packet-h450-ros-ettarr.c"
     &ett_h450_ros_Code,
     &ett_h450_ros_ROS,
     &ett_h450_ros_Invoke,
@@ -651,9 +621,6 @@ void proto_register_h450_ros(void) {
     &ett_h450_ros_ReturnError,
     &ett_h450_ros_Reject,
     &ett_h450_ros_T_problem,
-
-/*--- End of included file: packet-h450-ros-ettarr.c ---*/
-#line 79 "./asn1/h450-ros/packet-h450-ros-template.c"
   };
 
   static ei_register_info ei[] = {

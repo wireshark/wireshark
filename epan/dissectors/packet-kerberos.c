@@ -3,9 +3,6 @@
 /* packet-kerberos.c                                                          */
 /* asn2wrs.py -b -L -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../.. KerberosV5Spec2.asn k5.asn RFC3244.asn RFC6113.asn SPAKE.asn */
 
-/* Input file: packet-kerberos-template.c */
-
-#line 1 "./asn1/kerberos/packet-kerberos-template.c"
 /* packet-kerberos.c
  * Routines for Kerberos
  * Wes Hardaker (c) 2000
@@ -318,9 +315,6 @@ static gint hf_kerberos_FastOptions_spare_bit15 = -1;
 static gint hf_kerberos_FastOptions_kdc_follow_referrals = -1;
 
 #endif
-
-/*--- Included file: packet-kerberos-hf.c ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-hf.c"
 static int hf_kerberos_ticket = -1;               /* Ticket */
 static int hf_kerberos_authenticator = -1;        /* Authenticator */
 static int hf_kerberos_encTicketPart = -1;        /* EncTicketPart */
@@ -553,9 +547,6 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_branch_aware = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
-/*--- End of included file: packet-kerberos-hf.c ---*/
-#line 314 "./asn1/kerberos/packet-kerberos-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
 static gint ett_krb_recordmark = -1;
@@ -585,9 +576,6 @@ static gint ett_kerberos_KrbFastResponse = -1;
 static gint ett_kerberos_KrbFastReq = -1;
 static gint ett_kerberos_FastOptions = -1;
 #endif
-
-/*--- Included file: packet-kerberos-ett.c ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-ett.c"
 static gint ett_kerberos_Applications = -1;
 static gint ett_kerberos_PrincipalName = -1;
 static gint ett_kerberos_SEQUENCE_OF_KerberosString = -1;
@@ -675,9 +663,6 @@ static gint ett_kerberos_SPAKESecondFactor = -1;
 static gint ett_kerberos_SPAKEResponse = -1;
 static gint ett_kerberos_PA_SPAKE = -1;
 
-/*--- End of included file: packet-kerberos-ett.c ---*/
-#line 345 "./asn1/kerberos/packet-kerberos-template.c"
-
 static expert_field ei_kerberos_missing_keytype = EI_INIT;
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_learnt_keytype = EI_INIT;
@@ -690,9 +675,6 @@ static dissector_handle_t krb4_handle=NULL;
 static guint32 gbl_keytype;
 static gboolean gbl_do_col_info;
 
-
-/*--- Included file: packet-kerberos-val.h ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-val.h"
 #define id_krb5                        "1.3.6.1.5.2"
 
 typedef enum _KERBEROS_AUTHDATA_TYPE_enum {
@@ -805,9 +787,6 @@ typedef enum _KERBEROS_KRBFASTARMORTYPES_enum {
   KERBEROS_FX_FAST_RESERVED =   0,
   KERBEROS_FX_FAST_ARMOR_AP_REQUEST =   1
 } KERBEROS_KRBFASTARMORTYPES_enum;
-
-/*--- End of included file: packet-kerberos-val.h ---*/
-#line 359 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -4779,9 +4758,6 @@ dissect_krb5_AD_WIN2K_PAC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 }
 
 
-/*--- Included file: packet-kerberos-fn.c ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-fn.c"
-
 
 static int
 dissect_kerberos_INTEGER_5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -7811,9 +7787,6 @@ dissect_kerberos_PA_SPAKE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-/*--- End of included file: packet-kerberos-fn.c ---*/
-#line 4330 "./asn1/kerberos/packet-kerberos-template.c"
-
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
 	{ &hf_krb_patimestamp, BER_CLASS_CON, 0, 0, dissect_kerberos_KerberosTime },
@@ -8763,9 +8736,6 @@ void proto_register_kerberos(void) {
         FT_UINT32, BASE_DEC, NULL, 0, "Microseconds", HFILL }},
 #endif /* HAVE_KERBEROS */
 
-
-/*--- Included file: packet-kerberos-hfarr.c ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-hfarr.c"
     { &hf_kerberos_ticket,
       { "ticket", "kerberos.ticket_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9686,9 +9656,6 @@ void proto_register_kerberos(void) {
       { "resource-based-constrained-delegation", "kerberos.PAC.OPTIONS.FLAGS.resource.based.constrained.delegation",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 5281 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -9721,9 +9688,6 @@ void proto_register_kerberos(void) {
         &ett_kerberos_KrbFastReq,
         &ett_kerberos_FastOptions,
 #endif
-
-/*--- Included file: packet-kerberos-ettarr.c ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-ettarr.c"
     &ett_kerberos_Applications,
     &ett_kerberos_PrincipalName,
     &ett_kerberos_SEQUENCE_OF_KerberosString,
@@ -9810,9 +9774,6 @@ void proto_register_kerberos(void) {
     &ett_kerberos_SPAKESecondFactor,
     &ett_kerberos_SPAKEResponse,
     &ett_kerberos_PA_SPAKE,
-
-/*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 5314 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

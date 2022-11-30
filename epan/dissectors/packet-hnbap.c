@@ -3,9 +3,6 @@
 /* packet-hnbap.c                                                             */
 /* asn2wrs.py -L -p hnbap -c ./hnbap.cnf -s ./packet-hnbap-template -D . -O ../.. HNBAP-CommonDataTypes.asn HNBAP-Constants.asn HNBAP-Containers.asn HNBAP-IEs.asn HNBAP-PDU-Contents.asn HNBAP-PDU-Descriptions.asn */
 
-/* Input file: packet-hnbap-template.c */
-
-#line 1 "./asn1/hnbap/packet-hnbap-template.c"
 /* packet-hnbap-template.c
  * Routines for UMTS Node B Application Part(HNBAP) packet dissection
  * Copyright 2010 Neil Piercy, ip.access Limited <Neil.Piercy@ipaccess.com>
@@ -43,9 +40,6 @@
 
 void proto_register_hnbap(void);
 
-
-/*--- Included file: packet-hnbap-val.h ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -100,15 +94,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_HNB_Cell_Identifier =  31
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-hnbap-val.h ---*/
-#line 39 "./asn1/hnbap/packet-hnbap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_hnbap = -1;
 
-
-/*--- Included file: packet-hnbap-hf.c ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-hf.c"
 static int hf_hnbap_BackoffTimer_PDU = -1;        /* BackoffTimer */
 static int hf_hnbap_Cause_PDU = -1;               /* Cause */
 static int hf_hnbap_CellIdentity_PDU = -1;        /* CellIdentity */
@@ -246,15 +234,9 @@ static int hf_hnbap_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
 static int hf_hnbap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_hnbap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-hnbap-hf.c ---*/
-#line 44 "./asn1/hnbap/packet-hnbap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_hnbap = -1;
 static int ett_hnbap_imsi = -1;
-
-/*--- Included file: packet-hnbap-ett.c ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-ett.c"
 static gint ett_hnbap_PrivateIE_ID = -1;
 static gint ett_hnbap_ProtocolIE_Container = -1;
 static gint ett_hnbap_ProtocolIE_Field = -1;
@@ -320,9 +302,6 @@ static gint ett_hnbap_InitiatingMessage = -1;
 static gint ett_hnbap_SuccessfulOutcome = -1;
 static gint ett_hnbap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-hnbap-ett.c ---*/
-#line 49 "./asn1/hnbap/packet-hnbap-template.c"
-
 struct hnbap_private_data {
   e212_number_type_t number_type;
 };
@@ -358,9 +337,6 @@ hnbap_get_private_data(packet_info *pinfo)
   return hnbap_data;
 }
 
-
-/*--- Included file: packet-hnbap-fn.c ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-fn.c"
 
 static const value_string hnbap_Criticality_vals[] = {
   {   0, "reject" },
@@ -2605,9 +2581,6 @@ static int dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 }
 
 
-/*--- End of included file: packet-hnbap-fn.c ---*/
-#line 86 "./asn1/hnbap/packet-hnbap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint_new(hnbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
@@ -2675,9 +2648,6 @@ void proto_register_hnbap(void) {
 
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-hnbap-hfarr.c ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-hfarr.c"
     { &hf_hnbap_BackoffTimer_PDU,
       { "BackoffTimer", "hnbap.BackoffTimer",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3222,18 +3192,12 @@ void proto_register_hnbap(void) {
       { "value", "hnbap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-hnbap-hfarr.c ---*/
-#line 155 "./asn1/hnbap/packet-hnbap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
           &ett_hnbap,
           &ett_hnbap_imsi,
-
-/*--- Included file: packet-hnbap-ettarr.c ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-ettarr.c"
     &ett_hnbap_PrivateIE_ID,
     &ett_hnbap_ProtocolIE_Container,
     &ett_hnbap_ProtocolIE_Field,
@@ -3298,9 +3262,6 @@ void proto_register_hnbap(void) {
     &ett_hnbap_InitiatingMessage,
     &ett_hnbap_SuccessfulOutcome,
     &ett_hnbap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-hnbap-ettarr.c ---*/
-#line 162 "./asn1/hnbap/packet-hnbap-template.c"
   };
 
 
@@ -3330,9 +3291,6 @@ proto_reg_handoff_hnbap(void)
 {
         dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
         dissector_add_uint_with_preference("sctp.port", SCTP_PORT_HNBAP, hnbap_handle);
-
-/*--- Included file: packet-hnbap-dis-tab.c ---*/
-#line 1 "./asn1/hnbap/packet-hnbap-dis-tab.c"
   dissector_add_uint("hnbap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_hnbap));
   dissector_add_uint("hnbap.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_hnbap));
   dissector_add_uint("hnbap.ies", id_HNB_Identity, create_dissector_handle(dissect_HNB_Identity_PDU, proto_hnbap));
@@ -3378,8 +3336,5 @@ proto_reg_handoff_hnbap(void)
   dissector_add_uint("hnbap.proc.imsg", id_CSGMembershipUpdate, create_dissector_handle(dissect_CSGMembershipUpdate_PDU, proto_hnbap));
   dissector_add_uint("hnbap.proc.imsg", id_privateMessage, create_dissector_handle(dissect_PrivateMessage_PDU, proto_hnbap));
 
-
-/*--- End of included file: packet-hnbap-dis-tab.c ---*/
-#line 192 "./asn1/hnbap/packet-hnbap-template.c"
 
 }

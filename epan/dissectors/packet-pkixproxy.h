@@ -3,9 +3,6 @@
 /* packet-pkixproxy.h                                                         */
 /* asn2wrs.py -b -L -p pkixproxy -c ./pkixproxy.cnf -s ./packet-pkixproxy-template -D . -O ../.. PKIXProxy.asn */
 
-/* Input file: packet-pkixproxy-template.h */
-
-#line 1 "./asn1/pkixproxy/packet-pkixproxy-template.h"
 /* packet-pkixproxy.h
  * Routines for RFC3820 PKIXProxy packet dissection
  *  Ronnie Sahlberg 2004

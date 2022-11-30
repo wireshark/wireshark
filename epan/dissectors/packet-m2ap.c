@@ -3,9 +3,6 @@
 /* packet-m2ap.c                                                              */
 /* asn2wrs.py -L -p m2ap -c ./m2ap.cnf -s ./packet-m2ap-template -D . -O ../.. M2AP-CommonDataTypes.asn M2AP-Constants.asn M2AP-Containers.asn M2AP-IEs.asn M2AP-PDU-Contents.asn M2AP-PDU-Descriptions.asn */
 
-/* Input file: packet-m2ap-template.c */
-
-#line 1 "./asn1/m2ap/packet-m2ap-template.c"
 /* packet-m2ap.c
  * Routines for M2 Application Protocol packet dissection
  * Copyright 2016, Pascal Quantin <pascal@wireshark.org>
@@ -40,9 +37,6 @@ void proto_reg_handoff_m2ap(void);
 /* M2AP uses port 36443 as recommended by IANA. */
 #define M2AP_PORT 36443
 
-
-/*--- Included file: packet-m2ap-val.h ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -124,17 +118,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_SubframeAllocationExtended =  50
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-m2ap-val.h ---*/
-#line 36 "./asn1/m2ap/packet-m2ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_m2ap = -1;
 
 static int hf_m2ap_IPAddress_v4 = -1;
 static int hf_m2ap_IPAddress_v6 = -1;
-
-/*--- Included file: packet-m2ap-hf.c ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-hf.c"
 static int hf_m2ap_Cause_PDU = -1;                /* Cause */
 static int hf_m2ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_m2ap_ENB_MBMS_Configuration_data_Item_PDU = -1;  /* ENB_MBMS_Configuration_data_Item */
@@ -321,16 +309,10 @@ static int hf_m2ap_initiatingMessage_value = -1;  /* InitiatingMessage_value */
 static int hf_m2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_m2ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-m2ap-hf.c ---*/
-#line 43 "./asn1/m2ap/packet-m2ap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_m2ap = -1;
 static int ett_m2ap_PLMN_Identity = -1;
 static int ett_m2ap_IPAddress = -1;
-
-/*--- Included file: packet-m2ap-ett.c ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-ett.c"
 static gint ett_m2ap_PrivateIE_ID = -1;
 static gint ett_m2ap_ProtocolIE_Container = -1;
 static gint ett_m2ap_ProtocolIE_Field = -1;
@@ -419,9 +401,6 @@ static gint ett_m2ap_InitiatingMessage = -1;
 static gint ett_m2ap_SuccessfulOutcome = -1;
 static gint ett_m2ap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-m2ap-ett.c ---*/
-#line 49 "./asn1/m2ap/packet-m2ap-template.c"
-
 static expert_field ei_m2ap_invalid_ip_address_len = EI_INIT;
 
 struct m2ap_private_data {
@@ -464,9 +443,6 @@ m2ap_get_private_data(packet_info *pinfo)
   return m2ap_data;
 }
 
-
-/*--- Included file: packet-m2ap-fn.c ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-fn.c"
 
 static const value_string m2ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -3487,9 +3463,6 @@ static int dissect_M2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-m2ap-fn.c ---*/
-#line 93 "./asn1/m2ap/packet-m2ap-template.c"
-
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -3555,9 +3528,6 @@ proto_register_m2ap(void) {
          FT_IPv6, BASE_NONE, NULL, 0,
          NULL, HFILL }
     },
-
-/*--- Included file: packet-m2ap-hfarr.c ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-hfarr.c"
     { &hf_m2ap_Cause_PDU,
       { "Cause", "m2ap.Cause",
         FT_UINT32, BASE_DEC, VALS(m2ap_Cause_vals), 0,
@@ -4298,9 +4268,6 @@ proto_register_m2ap(void) {
       { "value", "m2ap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-m2ap-hfarr.c ---*/
-#line 160 "./asn1/m2ap/packet-m2ap-template.c"
   };
 
   /* List of subtrees */
@@ -4308,9 +4275,6 @@ proto_register_m2ap(void) {
     &ett_m2ap,
     &ett_m2ap_PLMN_Identity,
     &ett_m2ap_IPAddress,
-
-/*--- Included file: packet-m2ap-ettarr.c ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-ettarr.c"
     &ett_m2ap_PrivateIE_ID,
     &ett_m2ap_ProtocolIE_Container,
     &ett_m2ap_ProtocolIE_Field,
@@ -4398,9 +4362,6 @@ proto_register_m2ap(void) {
     &ett_m2ap_InitiatingMessage,
     &ett_m2ap_SuccessfulOutcome,
     &ett_m2ap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-m2ap-ettarr.c ---*/
-#line 168 "./asn1/m2ap/packet-m2ap-template.c"
   };
 
   expert_module_t* expert_m2ap;
@@ -4432,9 +4393,6 @@ proto_reg_handoff_m2ap(void)
 {
   dissector_add_uint("sctp.ppi", PROTO_3GPP_M2AP_PROTOCOL_ID, m2ap_handle);
   dissector_add_uint("sctp.port", M2AP_PORT, m2ap_handle);
-
-/*--- Included file: packet-m2ap-dis-tab.c ---*/
-#line 1 "./asn1/m2ap/packet-m2ap-dis-tab.c"
   dissector_add_uint("m2ap.ies", id_MCE_MBMS_M2AP_ID, create_dissector_handle(dissect_MCE_MBMS_M2AP_ID_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_ENB_MBMS_M2AP_ID, create_dissector_handle(dissect_ENB_MBMS_M2AP_ID_PDU, proto_m2ap));
   dissector_add_uint("m2ap.ies", id_TMGI, create_dissector_handle(dissect_TMGI_PDU, proto_m2ap));
@@ -4512,7 +4470,4 @@ proto_reg_handoff_m2ap(void)
   dissector_add_uint("m2ap.proc.imsg", id_mbmsServiceCountingResultsReport, create_dissector_handle(dissect_MbmsServiceCountingResultsReport_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.imsg", id_mbmsOverloadNotification, create_dissector_handle(dissect_MbmsOverloadNotification_PDU, proto_m2ap));
 
-
-/*--- End of included file: packet-m2ap-dis-tab.c ---*/
-#line 200 "./asn1/m2ap/packet-m2ap-template.c"
 }

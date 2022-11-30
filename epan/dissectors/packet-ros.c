@@ -3,9 +3,6 @@
 /* packet-ros.c                                                               */
 /* asn2wrs.py -b -L -p ros -c ./ros.cnf -s ./packet-ros-template -D . -O ../.. ros.asn Remote-Operations-Information-Objects.asn */
 
-/* Input file: packet-ros-template.c */
-
-#line 1 "./asn1/ros/packet-ros-template.c"
 /* packet-ros_asn1.c
  * Routines for ROS packet dissection
  * Graeme Lunt 2005
@@ -62,9 +59,6 @@ static int hf_ros_response_to = -1;
 static int hf_ros_time = -1;
 
 
-
-/*--- Included file: packet-ros-hf.c ---*/
-#line 1 "./asn1/ros/packet-ros-hf.c"
 static int hf_ros_invoke = -1;                    /* Invoke */
 static int hf_ros_returnResult = -1;              /* ReturnResult */
 static int hf_ros_returnError = -1;               /* ReturnError */
@@ -93,9 +87,6 @@ static int hf_ros_absent = -1;                    /* NULL */
 static int hf_ros_local = -1;                     /* INTEGER */
 static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
 
-/*--- End of included file: packet-ros-hf.c ---*/
-#line 58 "./asn1/ros/packet-ros-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
 static gint ett_ros_unknown = -1;
@@ -107,9 +98,6 @@ static gint ett_ros_bind_error = -1;
 static gint ett_ros_unbind_invoke = -1;
 static gint ett_ros_unbind_result = -1;
 static gint ett_ros_unbind_error = -1;
-
-/*--- Included file: packet-ros-ett.c ---*/
-#line 1 "./asn1/ros/packet-ros-ett.c"
 static gint ett_ros_ROS = -1;
 static gint ett_ros_Invoke = -1;
 static gint ett_ros_ReturnResult = -1;
@@ -119,9 +107,6 @@ static gint ett_ros_Reject = -1;
 static gint ett_ros_T_problem = -1;
 static gint ett_ros_InvokeId = -1;
 static gint ett_ros_Code = -1;
-
-/*--- End of included file: packet-ros-ett.c ---*/
-#line 71 "./asn1/ros/packet-ros-template.c"
 
 static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
 static expert_field ei_ros_unknown_ros_pdu = EI_INIT;
@@ -413,9 +398,6 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   return rcrp;
 }
 
-
-/*--- Included file: packet-ros-fn.c ---*/
-#line 1 "./asn1/ros/packet-ros-fn.c"
 
 
 static int
@@ -969,9 +951,6 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-/*--- End of included file: packet-ros-fn.c ---*/
-#line 363 "./asn1/ros/packet-ros-template.c"
-
 /*
 * Dissect ROS PDUs inside a PPDU.
 */
@@ -1053,9 +1032,6 @@ void proto_register_ros(void) {
 	FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 	"The time between the Invoke and the Response", HFILL }},
 
-
-/*--- Included file: packet-ros-hfarr.c ---*/
-#line 1 "./asn1/ros/packet-ros-hfarr.c"
     { &hf_ros_invoke,
       { "invoke", "ros.invoke_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1164,9 +1140,6 @@ void proto_register_ros(void) {
       { "global", "ros.global",
         FT_OID, BASE_NONE, NULL, 0,
         "OBJECT_IDENTIFIER", HFILL }},
-
-/*--- End of included file: packet-ros-hfarr.c ---*/
-#line 446 "./asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1182,9 +1155,6 @@ void proto_register_ros(void) {
     &ett_ros_unbind_result,
     &ett_ros_unbind_error,
 
-
-/*--- Included file: packet-ros-ettarr.c ---*/
-#line 1 "./asn1/ros/packet-ros-ettarr.c"
     &ett_ros_ROS,
     &ett_ros_Invoke,
     &ett_ros_ReturnResult,
@@ -1194,9 +1164,6 @@ void proto_register_ros(void) {
     &ett_ros_T_problem,
     &ett_ros_InvokeId,
     &ett_ros_Code,
-
-/*--- End of included file: packet-ros-ettarr.c ---*/
-#line 462 "./asn1/ros/packet-ros-template.c"
   };
 
   static ei_register_info ei[] = {

@@ -3,9 +3,6 @@
 /* packet-cms.c                                                               */
 /* asn2wrs.py -b -C -L -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn */
 
-/* Input file: packet-cms-template.c */
-
-#line 1 "./asn1/cms/packet-cms-template.c"
 /* packet-cms.c
  * Routines for RFC5652 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
@@ -44,9 +41,6 @@ void proto_reg_handoff_cms(void);
 /* Initialize the protocol and registered fields */
 static int proto_cms = -1;
 static int hf_cms_ci_contentType = -1;
-
-/*--- Included file: packet-cms-hf.c ---*/
-#line 1 "./asn1/cms/packet-cms-hf.c"
 static int hf_cms_ContentInfo_PDU = -1;           /* ContentInfo */
 static int hf_cms_ContentType_PDU = -1;           /* ContentType */
 static int hf_cms_SignedData_PDU = -1;            /* SignedData */
@@ -222,13 +216,7 @@ static int hf_cms_config = -1;                    /* SEQUENCE_OF_CurrentFWConfig
 static int hf_cms_config_item = -1;               /* CurrentFWConfig */
 static int hf_cms_msgDigest = -1;                 /* OCTET_STRING */
 
-/*--- End of included file: packet-cms-hf.c ---*/
-#line 40 "./asn1/cms/packet-cms-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-cms-ett.c ---*/
-#line 1 "./asn1/cms/packet-cms-ett.c"
 static gint ett_cms_ContentInfo = -1;
 static gint ett_cms_SignedData = -1;
 static gint ett_cms_DigestAlgorithmIdentifiers = -1;
@@ -306,9 +294,6 @@ static gint ett_cms_CurrentFWConfig = -1;
 static gint ett_cms_HardwareModuleName = -1;
 static gint ett_cms_FirmwarePackageMessageDigest = -1;
 
-/*--- End of included file: packet-cms-ett.c ---*/
-#line 43 "./asn1/cms/packet-cms-template.c"
-
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
 struct cms_private_data {
@@ -379,9 +364,6 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
 }
 
-
-/*--- Included file: packet-cms-fn.c ---*/
-#line 1 "./asn1/cms/packet-cms-fn.c"
 
 
 int
@@ -2528,9 +2510,6 @@ static int dissect_FirmwarePackageMessageDigest_PDU(tvbuff_t *tvb _U_, packet_in
 }
 
 
-/*--- End of included file: packet-cms-fn.c ---*/
-#line 115 "./asn1/cms/packet-cms-template.c"
-
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
 
@@ -2540,9 +2519,6 @@ void proto_register_cms(void) {
       { "contentType", "cms.contentInfo.contentType",
         FT_OID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-cms-hfarr.c ---*/
-#line 1 "./asn1/cms/packet-cms-hfarr.c"
     { &hf_cms_ContentInfo_PDU,
       { "ContentInfo", "cms.ContentInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3239,16 +3215,10 @@ void proto_register_cms(void) {
       { "msgDigest", "cms.msgDigest",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-
-/*--- End of included file: packet-cms-hfarr.c ---*/
-#line 126 "./asn1/cms/packet-cms-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-cms-ettarr.c ---*/
-#line 1 "./asn1/cms/packet-cms-ettarr.c"
     &ett_cms_ContentInfo,
     &ett_cms_SignedData,
     &ett_cms_DigestAlgorithmIdentifiers,
@@ -3325,9 +3295,6 @@ void proto_register_cms(void) {
     &ett_cms_CurrentFWConfig,
     &ett_cms_HardwareModuleName,
     &ett_cms_FirmwarePackageMessageDigest,
-
-/*--- End of included file: packet-cms-ettarr.c ---*/
-#line 131 "./asn1/cms/packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -3350,9 +3317,6 @@ void proto_register_cms(void) {
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
   dissector_handle_t content_info_handle;
-
-/*--- Included file: packet-cms-dis-tab.c ---*/
-#line 1 "./asn1/cms/packet-cms-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.6", dissect_ContentInfo_PDU, proto_cms, "id-ct-contentInfo");
   register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_SignedData_PDU, proto_cms, "id-signedData");
   register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_EnvelopedData_PDU, proto_cms, "id-envelopedData");
@@ -3401,9 +3365,6 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.8.4", dissect_HardwareModuleName_PDU, proto_cms, "id-on-hardwareModuleName");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.41", dissect_FirmwarePackageMessageDigest_PDU, proto_cms, "id-aa-fwPkgMessageDigest");
 
-
-/*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 154 "./asn1/cms/packet-cms-template.c"
 
   /* RFC 3370 [CMS-ASN} section 4.3.1 */
   register_ber_oid_dissector("1.2.840.113549.1.9.16.3.6", dissect_ber_oid_NULL_callback, proto_cms, "id-alg-CMS3DESwrap");

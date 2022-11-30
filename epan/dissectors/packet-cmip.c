@@ -3,9 +3,6 @@
 /* packet-cmip.c                                                              */
 /* asn2wrs.py -b -L -p cmip -c ./cmip.cnf -s ./packet-cmip-template -D . -O ../.. CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
-/* Input file: packet-cmip-template.c */
-
-#line 1 "./asn1/cmip/packet-cmip-template.c"
 /* packet-cmip.c
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
@@ -47,9 +44,6 @@ static int hf_cmip_eventType_OID = -1;
 static int hf_cmip_attributeId_OID = -1;
 static int hf_cmip_errorId_OID = -1;
 
-
-/*--- Included file: packet-cmip-hf.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-hf.c"
 static int hf_cmip_BaseManagedObjectId_PDU = -1;  /* BaseManagedObjectId */
 static int hf_cmip_EventTypeId_PDU = -1;          /* EventTypeId */
 static int hf_cmip_ObjectClass_PDU = -1;          /* ObjectClass */
@@ -327,14 +321,8 @@ static int hf_cmip_T_daysOfWeek_thursday = -1;
 static int hf_cmip_T_daysOfWeek_friday = -1;
 static int hf_cmip_T_daysOfWeek_saturday = -1;
 
-/*--- End of included file: packet-cmip-hf.c ---*/
-#line 43 "./asn1/cmip/packet-cmip-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
-
-/*--- Included file: packet-cmip-ett.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-ett.c"
 static gint ett_cmip_PAR_missingAttributeValue = -1;
 static gint ett_cmip_ActionArgument = -1;
 static gint ett_cmip_ActionError = -1;
@@ -457,9 +445,6 @@ static gint ett_cmip_SET_OF_AttributeId = -1;
 static gint ett_cmip_T_modificationList = -1;
 static gint ett_cmip_T_modificationList_item = -1;
 
-/*--- End of included file: packet-cmip-ett.c ---*/
-#line 47 "./asn1/cmip/packet-cmip-template.c"
-
 static expert_field ei_wrong_spdu_type = EI_INIT;
 
 static guint32 opcode;
@@ -469,9 +454,6 @@ static dissector_handle_t cmip_handle = NULL;
 /* Dissector table */
 static dissector_table_t attribute_id_dissector_table;
 
-
-/*--- Included file: packet-cmip-table.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-table.c"
 
 /* CMIP OPERATIONS */
 static const value_string cmip_Opcode_vals[] = {
@@ -520,9 +502,6 @@ static const value_string cmip_error_code_vals[] = {
 };
 
 
-/*--- End of included file: packet-cmip-table.c ---*/
-#line 58 "./asn1/cmip/packet-cmip-template.c"
-
 static int opcode_type;
 #define OPCODE_INVOKE        1
 #define OPCODE_RETURN_RESULT 2
@@ -531,9 +510,6 @@ static int opcode_type;
 
 static const char *object_identifier_id;
 
-
-/*--- Included file: packet-cmip-val.h ---*/
-#line 1 "./asn1/cmip/packet-cmip-val.h"
 #define smi2AttributeID                "2.9.3.2.7"
 #define smi2AttributeGroup             "2.9.3.2.8"
 #define arfProbableCause               "2.9.3.2.0.0"
@@ -618,12 +594,6 @@ static const char *object_identifier_id;
 #define unspecifiedReason              securityAlarmCause".18"
 #define defaultDiscriminatorConstruct  []
 #define noInvokeId                     NULL
-
-/*--- End of included file: packet-cmip-val.h ---*/
-#line 68 "./asn1/cmip/packet-cmip-template.c"
-
-/*--- Included file: packet-cmip-fn.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* CMISFilter -> CMISFilter/and -> CMISFilter */
@@ -4395,9 +4365,6 @@ static int dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-cmip-fn.c ---*/
-#line 69 "./asn1/cmip/packet-cmip-template.c"
-
 
 
 
@@ -4472,9 +4439,6 @@ void proto_register_cmip(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
-
-/*--- Included file: packet-cmip-hfarr.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-hfarr.c"
     { &hf_cmip_BaseManagedObjectId_PDU,
       { "BaseManagedObjectId", "cmip.BaseManagedObjectId_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5575,17 +5539,11 @@ void proto_register_cmip(void) {
       { "saturday", "cmip.T.daysOfWeek.saturday",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
-
-/*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 145 "./asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_cmip,
-
-/*--- Included file: packet-cmip-ettarr.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-ettarr.c"
     &ett_cmip_PAR_missingAttributeValue,
     &ett_cmip_ActionArgument,
     &ett_cmip_ActionError,
@@ -5707,9 +5665,6 @@ void proto_register_cmip(void) {
     &ett_cmip_SET_OF_AttributeId,
     &ett_cmip_T_modificationList,
     &ett_cmip_T_modificationList_item,
-
-/*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 151 "./asn1/cmip/packet-cmip-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -5728,9 +5683,6 @@ void proto_register_cmip(void) {
   expert_cmip = expert_register_protocol(proto_cmip);
   expert_register_field_array(expert_cmip, ei, array_length(ei));
 
-
-/*--- Included file: packet-cmip-dis-tab.c ---*/
-#line 1 "./asn1/cmip/packet-cmip-dis-tab.c"
   register_ber_oid_dissector("2.9.2.21.7.13", dissect_BaseManagedObjectId_PDU, proto_cmip, "BaseManagedObjectId(13)");
   register_ber_oid_dissector("2.9.3.2.7.1", dissect_SimpleNameType_PDU, proto_cmip, "discriminatorId(1)");
   register_ber_oid_dissector("2.9.3.2.7.2", dissect_SimpleNameType_PDU, proto_cmip, "logId(2)");
@@ -5802,9 +5754,6 @@ void proto_register_cmip(void) {
   register_ber_oid_dissector("2.9.3.2.7.71", dissect_WeekMask_PDU, proto_cmip, "weekMask(71)");
   register_ber_oid_dissector("2.9.3.2.7.115", dissect_LifecycleState_PDU, proto_cmip, "lifecycleState(115)");
 
-
-/*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 170 "./asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", proto_cmip, FT_UINT32, BASE_DEC);

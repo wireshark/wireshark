@@ -3,9 +3,6 @@
 /* packet-gdt.c                                                               */
 /* asn2wrs.py -b -L -p gdt -c ./gdt.cnf -s ./packet-gdt-template -D . -O ../.. gdt.asn */
 
-/* Input file: packet-gdt-template.c */
-
-#line 1 "./asn1/gdt/packet-gdt-template.c"
 /* packet-gdt-template.c
  *
  * Copyright 2022, Damir Franusic <damir.franusic@gmail.com>
@@ -39,9 +36,6 @@
 static int proto_gdt = -1;
 static dissector_handle_t gdt_handle = NULL;
 
-
-/*--- Included file: packet-gdt-hf.c ---*/
-#line 1 "./asn1/gdt/packet-gdt-hf.c"
 static int hf_gdt_GDTMessage_PDU = -1;            /* GDTMessage */
 static int hf_gdt_version = -1;                   /* INTEGER */
 static int hf_gdt_source = -1;                    /* EndPointDescriptor */
@@ -93,14 +87,8 @@ static int hf_gdt_header = -1;                    /* Header */
 static int hf_gdt_body = -1;                      /* Body */
 static int hf_gdt_enc_type = -1;                  /* OCTET_STRING */
 
-/*--- End of included file: packet-gdt-hf.c ---*/
-#line 35 "./asn1/gdt/packet-gdt-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_gdt = -1;
-
-/*--- Included file: packet-gdt-ett.c ---*/
-#line 1 "./asn1/gdt/packet-gdt-ett.c"
 static gint ett_gdt_Header = -1;
 static gint ett_gdt_EndPointDescriptor = -1;
 static gint ett_gdt_Body = -1;
@@ -123,12 +111,6 @@ static gint ett_gdt_HopInfo = -1;
 static gint ett_gdt_GDTMessage = -1;
 static gint ett_gdt_EncryptionInfo = -1;
 
-/*--- End of included file: packet-gdt-ett.c ---*/
-#line 39 "./asn1/gdt/packet-gdt-template.c"
-
-
-/*--- Included file: packet-gdt-fn.c ---*/
-#line 1 "./asn1/gdt/packet-gdt-fn.c"
 
 
 static int
@@ -1029,9 +1011,6 @@ static int dissect_GDTMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 
-/*--- End of included file: packet-gdt-fn.c ---*/
-#line 41 "./asn1/gdt/packet-gdt-template.c"
-
 static int dissect_gdt(tvbuff_t *tvb,
                        packet_info *pinfo,
                        proto_tree *tree,
@@ -1055,9 +1034,6 @@ static int dissect_gdt(tvbuff_t *tvb,
 void proto_register_gdt(void) {
     /* List of fields */
     static hf_register_info hf[] = {
-
-/*--- Included file: packet-gdt-hfarr.c ---*/
-#line 1 "./asn1/gdt/packet-gdt-hfarr.c"
     { &hf_gdt_GDTMessage_PDU,
       { "GDTMessage", "gdt.GDTMessage_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1258,17 +1234,11 @@ void proto_register_gdt(void) {
       { "enc-type", "gdt.enc_type",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-
-/*--- End of included file: packet-gdt-hfarr.c ---*/
-#line 66 "./asn1/gdt/packet-gdt-template.c"
     };
 
     /* List of subtrees */
     static gint *ett[] = {
         &ett_gdt,
-
-/*--- Included file: packet-gdt-ettarr.c ---*/
-#line 1 "./asn1/gdt/packet-gdt-ettarr.c"
     &ett_gdt_Header,
     &ett_gdt_EndPointDescriptor,
     &ett_gdt_Body,
@@ -1290,9 +1260,6 @@ void proto_register_gdt(void) {
     &ett_gdt_HopInfo,
     &ett_gdt_GDTMessage,
     &ett_gdt_EncryptionInfo,
-
-/*--- End of included file: packet-gdt-ettarr.c ---*/
-#line 72 "./asn1/gdt/packet-gdt-template.c"
     };
 
     /* Register protocol */

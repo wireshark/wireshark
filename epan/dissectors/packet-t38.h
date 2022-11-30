@@ -3,9 +3,6 @@
 /* packet-t38.h                                                               */
 /* asn2wrs.py -L -p t38 -c ./t38.cnf -s ./packet-t38-template -D . -O ../.. T38_2002.asn */
 
-/* Input file: packet-t38-template.h */
-
-#line 1 "./asn1/t38/packet-t38-template.h"
 /* packet-t38.h
  *
  * Routines for T38 dissection
@@ -75,14 +72,8 @@ void t38_add_address(packet_info *pinfo,
                      const gchar *setup_method, guint32 setup_frame_number);
 
 
-
-/*--- Included file: packet-t38-exp.h ---*/
-#line 1 "./asn1/t38/packet-t38-exp.h"
 WS_DLL_PUBLIC const value_string t38_T30_indicator_vals[];
 WS_DLL_PUBLIC const value_string t38_T30_data_vals[];
-
-/*--- End of included file: packet-t38-exp.h ---*/
-#line 71 "./asn1/t38/packet-t38-template.h"
 
 
 

@@ -3,9 +3,6 @@
 /* packet-e2ap.c                                                              */
 /* asn2wrs.py -L -p e2ap -c ./e2ap.cnf -s ./packet-e2ap-template -D . -O ../.. E2AP-CommonDataTypes.asn E2AP-Constants.asn E2AP-Containers.asn E2AP-IEs.asn E2AP-PDU-Contents.asn E2AP-PDU-Descriptions.asn e2sm-v2.01.asn e2sm-ric-v1.02.asn e2sm-kpm-v2.02.asn */
 
-/* Input file: packet-e2ap-template.c */
-
-#line 1 "./asn1/e2ap/packet-e2ap-template.c"
 /* packet-e2ap.c
  * Routines for E2APApplication Protocol (e2ap) packet dissection
  * Copyright 2021, Martin Mathieson
@@ -47,9 +44,6 @@ void proto_reg_handoff_e2ap(void);
 
 static dissector_handle_t e2ap_handle;
 
-
-/*--- Included file: packet-e2ap-val.h ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-val.h"
 #define maxProtocolIEs                 65535
 #define maxnoofErrors                  256
 #define maxofE2nodeComponents          1024
@@ -175,14 +169,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_RICsubscription_withCause_Item =  61
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-e2ap-val.h ---*/
-#line 43 "./asn1/e2ap/packet-e2ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_e2ap = -1;
-
-/*--- Included file: packet-e2ap-hf.c ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-hf.c"
 static int hf_e2ap_Cause_PDU = -1;                /* Cause */
 static int hf_e2ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_e2ap_GlobalE2node_ID_PDU = -1;      /* GlobalE2node_ID */
@@ -863,9 +851,6 @@ static int hf_e2ap_ric_ReportStyle_List_item_01 = -1;  /* RIC_ReportStyle_Item *
 static int hf_e2ap_ric_ActionFormat_Type = -1;    /* RIC_Format_Type */
 static int hf_e2ap_measInfo_Action_List = -1;     /* MeasurementInfo_Action_List */
 
-/*--- End of included file: packet-e2ap-hf.c ---*/
-#line 47 "./asn1/e2ap/packet-e2ap-template.c"
-
 static int hf_e2ap_unmapped_ran_function_id = -1;
 static int hf_e2ap_ran_function_name_not_recognised = -1;
 static int hf_e2ap_ran_function_setup_frame = -1;
@@ -878,9 +863,6 @@ static gint ett_e2ap = -1;
 static expert_field ei_e2ap_ran_function_names_no_match = EI_INIT;
 static expert_field ei_e2ap_ran_function_id_not_mapped = EI_INIT;
 
-
-/*--- Included file: packet-e2ap-ett.c ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-ett.c"
 static gint ett_e2ap_ProtocolIE_Container = -1;
 static gint ett_e2ap_ProtocolIE_Field = -1;
 static gint ett_e2ap_Cause = -1;
@@ -1284,9 +1266,6 @@ static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item = 
 static gint ett_e2ap_RIC_EventTriggerStyle_Item = -1;
 static gint ett_e2ap_RIC_ReportStyle_Item = -1;
 
-/*--- End of included file: packet-e2ap-ett.c ---*/
-#line 61 "./asn1/e2ap/packet-e2ap-template.c"
-
 
 /* Forward declarations */
 static int dissect_E2SM_KPM_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1561,9 +1540,6 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 
-
-/*--- Included file: packet-e2ap-fn.c ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* RANParameter-Testing-Item -> RANParameter-Testing-Item/ranParameter-Type -> RANParameter-Testing-Item-Choice-List -> RANParameter-Testing-LIST -> RANParameter-Testing-Item */
@@ -11103,9 +11079,6 @@ static int dissect_E2SM_KPM_RANfunction_Description_PDU(tvbuff_t *tvb _U_, packe
 }
 
 
-/*--- End of included file: packet-e2ap-fn.c ---*/
-#line 337 "./asn1/e2ap/packet-e2ap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   e2ap_ctx_t e2ap_ctx;
@@ -11184,9 +11157,6 @@ proto_reg_handoff_e2ap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E2AP, e2ap_handle);
 
-
-/*--- Included file: packet-e2ap-dis-tab.c ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-dis-tab.c"
   dissector_add_uint("e2ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_e2ap));
   dissector_add_uint("e2ap.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_e2ap));
   dissector_add_uint("e2ap.ies", id_GlobalE2node_ID, create_dissector_handle(dissect_GlobalE2node_ID_PDU, proto_e2ap));
@@ -11275,9 +11245,6 @@ proto_reg_handoff_e2ap(void)
   dissector_add_uint("e2ap.proc.imsg", id_E2removal, create_dissector_handle(dissect_E2RemovalRequest_PDU, proto_e2ap));
   dissector_add_uint("e2ap.proc.sout", id_E2removal, create_dissector_handle(dissect_E2RemovalResponse_PDU, proto_e2ap));
 
-
-/*--- End of included file: packet-e2ap-dis-tab.c ---*/
-#line 417 "./asn1/e2ap/packet-e2ap-template.c"
 }
 
 
@@ -11288,9 +11255,6 @@ void proto_register_e2ap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-e2ap-hfarr.c ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-hfarr.c"
     { &hf_e2ap_Cause_PDU,
       { "Cause", "e2ap.Cause",
         FT_UINT32, BASE_DEC, VALS(e2ap_Cause_vals), 0,
@@ -14007,9 +13971,6 @@ void proto_register_e2ap(void) {
       { "measInfo-Action-List", "e2ap.measInfo_Action_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MeasurementInfo_Action_List", HFILL }},
-
-/*--- End of included file: packet-e2ap-hfarr.c ---*/
-#line 428 "./asn1/e2ap/packet-e2ap-template.c"
       { &hf_e2ap_unmapped_ran_function_id,
           { "Unmapped RANfunctionID", "e2ap.unmapped-ran-function-id",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -14027,9 +13988,6 @@ void proto_register_e2ap(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_e2ap,
-
-/*--- Included file: packet-e2ap-ettarr.c ---*/
-#line 1 "./asn1/e2ap/packet-e2ap-ettarr.c"
     &ett_e2ap_ProtocolIE_Container,
     &ett_e2ap_ProtocolIE_Field,
     &ett_e2ap_Cause,
@@ -14432,9 +14390,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item,
     &ett_e2ap_RIC_EventTriggerStyle_Item,
     &ett_e2ap_RIC_ReportStyle_Item,
-
-/*--- End of included file: packet-e2ap-ettarr.c ---*/
-#line 446 "./asn1/e2ap/packet-e2ap-template.c"
   };
 
   static ei_register_info ei[] = {

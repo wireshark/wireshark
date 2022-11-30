@@ -3,9 +3,6 @@
 /* packet-ansi_tcap.c                                                         */
 /* asn2wrs.py -b -L -p ansi_tcap -c ./ansi_tcap.cnf -s ./packet-ansi_tcap-template -D . -O ../.. TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
 
-/* Input file: packet-ansi_tcap-template.c */
-
-#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 /* packet-ansi_tcap-template.c
  * Routines for ANSI TCAP
  * Copyright 2007 Anders Broman <anders.broman@ericsson.com>
@@ -59,9 +56,6 @@ static int hf_ansi_tcap_bit_h = -1;
 static int hf_ansi_tcap_op_family = -1;
 static int hf_ansi_tcap_op_specifier = -1;
 
-
-/*--- Included file: packet-ansi_tcap-hf.c ---*/
-#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-hf.c"
 static int hf_ansi_tcap_national = -1;            /* T_national */
 static int hf_ansi_tcap_private = -1;             /* T_private */
 static int hf_ansi_tcap_national_01 = -1;         /* INTEGER_M128_127 */
@@ -114,9 +108,6 @@ static int hf_ansi_tcap_reject_parameter = -1;    /* T_reject_parameter */
 static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
 static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
 
-/*--- End of included file: packet-ansi_tcap-hf.c ---*/
-#line 55 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
 static gint ett_param = -1;
@@ -136,9 +127,6 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 /* Note the high bit should be masked off when registering in this table (0x7fff)*/
 static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation Codes */
 
-
-/*--- Included file: packet-ansi_tcap-ett.c ---*/
-#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-ett.c"
 static gint ett_ansi_tcap_OperationCode = -1;
 static gint ett_ansi_tcap_ErrorCode = -1;
 static gint ett_ansi_tcap_PackageType = -1;
@@ -161,9 +149,6 @@ static gint ett_ansi_tcap_Reject = -1;
 static gint ett_ansi_tcap_T_reject_parameter = -1;
 static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
-
-/*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 76 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -392,9 +377,6 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         return FALSE;
 }
 
-
-/*--- Included file: packet-ansi_tcap-fn.c ---*/
-#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-fn.c"
 
 
 static int
@@ -1327,9 +1309,6 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-/*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 305 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
-
 
 
 
@@ -1464,9 +1443,6 @@ proto_register_ansi_tcap(void)
             FT_UINT16, BASE_DEC, NULL, 0x00ff,
             NULL, HFILL }
         },
-
-/*--- Included file: packet-ansi_tcap-hfarr.c ---*/
-#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-hfarr.c"
     { &hf_ansi_tcap_national,
       { "national", "ansi_tcap.national",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -1671,9 +1647,6 @@ proto_register_ansi_tcap(void)
       { "paramSet", "ansi_tcap.paramSet_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 441 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1684,9 +1657,6 @@ proto_register_ansi_tcap(void)
         &ett_dtid,
         &ett_ansi_tcap_stat,
         &ett_ansi_tcap_op_code_nat,
-
-/*--- Included file: packet-ansi_tcap-ettarr.c ---*/
-#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-ettarr.c"
     &ett_ansi_tcap_OperationCode,
     &ett_ansi_tcap_ErrorCode,
     &ett_ansi_tcap_PackageType,
@@ -1709,9 +1679,6 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_reject_parameter,
     &ett_ansi_tcap_T_paramSequence,
     &ett_ansi_tcap_T_paramSet,
-
-/*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 452 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {

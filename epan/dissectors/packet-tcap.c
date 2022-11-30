@@ -3,9 +3,6 @@
 /* packet-tcap.c                                                              */
 /* asn2wrs.py -b -L -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . -O ../.. tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
 
-/* Input file: packet-tcap-template.c */
-
-#line 1 "./asn1/tcap/packet-tcap-template.c"
 /* packet-tcap-template.c
  * Routines for  TCAP
  * Copyright 2004 - 2005, Tim Endean <endeant@hotmail.com>
@@ -53,9 +50,6 @@ int hf_tcapsrt_BeginSession=-1;
 int hf_tcapsrt_EndSession=-1;
 int hf_tcapsrt_SessionTime=-1;
 
-
-/*--- Included file: packet-tcap-hf.c ---*/
-#line 1 "./asn1/tcap/packet-tcap-hf.c"
 static int hf_tcap_UniDialoguePDU_PDU = -1;       /* UniDialoguePDU */
 static int hf_tcap_DialoguePDU_PDU = -1;          /* DialoguePDU */
 static int hf_tcap_oid = -1;                      /* OBJECT_IDENTIFIER */
@@ -124,9 +118,6 @@ static int hf_tcap_AUDT_protocol_version_version1 = -1;
 static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
-/*--- End of included file: packet-tcap-hf.c ---*/
-#line 49 "./asn1/tcap/packet-tcap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
 static gint ett_param = -1;
@@ -143,9 +134,6 @@ static int ss7pc_address_type = -1;
 
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
-
-/*--- Included file: packet-tcap-ett.c ---*/
-#line 1 "./asn1/tcap/packet-tcap-ett.c"
 static gint ett_tcap_ExternalPDU_U = -1;
 static gint ett_tcap_TCMessage = -1;
 static gint ett_tcap_Unidirectional = -1;
@@ -179,9 +167,6 @@ static gint ett_tcap_AARE_user_information = -1;
 static gint ett_tcap_ABRT_apdu_U = -1;
 static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
-
-/*--- End of included file: packet-tcap-ett.c ---*/
-#line 67 "./asn1/tcap/packet-tcap-template.c"
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -256,9 +241,6 @@ dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
   return dissector_get_uint_handle(itu_sub_dissectors, ssn);
 }
 
-
-/*--- Included file: packet-tcap-fn.c ---*/
-#line 1 "./asn1/tcap/packet-tcap-fn.c"
 
 
 static int
@@ -1400,9 +1382,6 @@ static int dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   return offset;
 }
 
-
-/*--- End of included file: packet-tcap-fn.c ---*/
-#line 142 "./asn1/tcap/packet-tcap-template.c"
 
 /*
  * DEBUG functions
@@ -3180,15 +3159,9 @@ proto_reg_handoff_tcap(void)
 
   ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
-
-/*--- Included file: packet-tcap-dis-tab.c ---*/
-#line 1 "./asn1/tcap/packet-tcap-dis-tab.c"
   register_ber_oid_dissector("0.0.17.773.1.1.1", dissect_DialoguePDU_PDU, proto_tcap, "id-as-dialogue");
   register_ber_oid_dissector("0.0.17.773.1.2.1", dissect_UniDialoguePDU_PDU, proto_tcap, "id-as-uniDialogue");
 
-
-/*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 1920 "./asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3261,9 +3234,6 @@ proto_register_tcap(void)
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "SRT Duplicated with Session", HFILL }
     },
-
-/*--- Included file: packet-tcap-hfarr.c ---*/
-#line 1 "./asn1/tcap/packet-tcap-hfarr.c"
     { &hf_tcap_UniDialoguePDU_PDU,
       { "UniDialoguePDU", "tcap.UniDialoguePDU",
         FT_UINT32, BASE_DEC, VALS(tcap_UniDialoguePDU_vals), 0,
@@ -3528,9 +3498,6 @@ proto_register_tcap(void)
       { "version1", "tcap.AARE.protocol.version.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-
-/*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 1993 "./asn1/tcap/packet-tcap-template.c"
   };
 
 /* Setup protocol subtree array */
@@ -3540,9 +3507,6 @@ proto_register_tcap(void)
     &ett_otid,
     &ett_dtid,
     &ett_tcap_stat,
-
-/*--- Included file: packet-tcap-ettarr.c ---*/
-#line 1 "./asn1/tcap/packet-tcap-ettarr.c"
     &ett_tcap_ExternalPDU_U,
     &ett_tcap_TCMessage,
     &ett_tcap_Unidirectional,
@@ -3576,9 +3540,6 @@ proto_register_tcap(void)
     &ett_tcap_ABRT_apdu_U,
     &ett_tcap_ABRT_user_information,
     &ett_tcap_Associate_source_diagnostic,
-
-/*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2003 "./asn1/tcap/packet-tcap-template.c"
   };
 
   /*static enum_val_t tcap_options[] = {

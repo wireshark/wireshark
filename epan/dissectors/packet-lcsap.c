@@ -3,9 +3,6 @@
 /* packet-lcsap.c                                                             */
 /* asn2wrs.py -L -p lcsap -c ./lcsap.cnf -s ./packet-lcsap-template -D . -O ../.. LCS-AP-CommonDataTypes.asn LCS-AP-Constants.asn LCS-AP-Containers.asn LCS-AP-IEs.asn LCS-AP-PDU-Contents.asn LCS-AP-PDU-Descriptions.asn */
 
-/* Input file: packet-lcsap-template.c */
-
-#line 1 "./asn1/lcsap/packet-lcsap-template.c"
 /* packet-lcsap.c
  * Routines for LCS-AP packet dissembly.
  *
@@ -50,9 +47,6 @@ void proto_register_lcsap(void);
 void proto_reg_handoff_lcsap(void);
 
 #define SCTP_PORT_LCSAP 9082
-
-/*--- Included file: packet-lcsap-val.h ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-val.h"
 #define max_No_Of_Points               15
 #define max_Set                        9
 #define max_GNSS_Set                   9
@@ -105,9 +99,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_Coverage_Level =  31
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-lcsap-val.h ---*/
-#line 46 "./asn1/lcsap/packet-lcsap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_lcsap  =   -1;
 
@@ -116,9 +107,6 @@ static int hf_lcsap_pos_usage = -1;
 static int hf_lcsap_gnss_pos_method = -1;
 static int hf_lcsap_gnss_id = -1;
 static int hf_lcsap_gnss_pos_usage = -1;
-
-/*--- Included file: packet-lcsap-hf.c ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-hf.c"
 static int hf_lcsap_APDU_PDU = -1;                /* APDU */
 static int hf_lcsap_Accuracy_Fulfillment_Indicator_PDU = -1;  /* Accuracy_Fulfillment_Indicator */
 static int hf_lcsap_Additional_PositioningDataSet_PDU = -1;  /* Additional_PositioningDataSet */
@@ -265,18 +253,12 @@ static int hf_lcsap_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
 static int hf_lcsap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-lcsap-hf.c ---*/
-#line 56 "./asn1/lcsap/packet-lcsap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
 static int ett_lcsap_plmnd_id = -1;
 static int ett_lcsap_imsi = -1;
 static int ett_lcsap_civic_address = -1;
 
-
-/*--- Included file: packet-lcsap-ett.c ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-ett.c"
 static gint ett_lcsap_ProtocolIE_Container = -1;
 static gint ett_lcsap_ProtocolIE_Field = -1;
 static gint ett_lcsap_ProtocolExtensionContainer = -1;
@@ -334,9 +316,6 @@ static gint ett_lcsap_LCS_AP_PDU = -1;
 static gint ett_lcsap_InitiatingMessage = -1;
 static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
-
-/*--- End of included file: packet-lcsap-ett.c ---*/
-#line 64 "./asn1/lcsap/packet-lcsap-template.c"
 
 static expert_field ei_lcsap_civic_data_not_xml = EI_INIT;
 
@@ -456,9 +435,6 @@ static const value_string lcsap_gnss_pos_usage_vals[] = {
 };
 
 
-
-/*--- Included file: packet-lcsap-fn.c ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-fn.c"
 
 static const value_string lcsap_Criticality_vals[] = {
   {   0, "reject" },
@@ -2797,9 +2773,6 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 
-/*--- End of included file: packet-lcsap-fn.c ---*/
-#line 184 "./asn1/lcsap/packet-lcsap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint(lcsap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
@@ -2853,9 +2826,6 @@ proto_reg_handoff_lcsap(void)
   xml_handle = find_dissector_add_dependency("xml", proto_lcsap);
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_LCSAP, lcsap_handle);
   dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
-
-/*--- Included file: packet-lcsap-dis-tab.c ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-dis-tab.c"
   dissector_add_uint("lcsap.ies", id_Accuracy_Fulfillment_Indicator, create_dissector_handle(dissect_Accuracy_Fulfillment_Indicator_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_APDU, create_dissector_handle(dissect_APDU_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Correlation_ID, create_dissector_handle(dissect_lcsap_Correlation_ID_PDU, proto_lcsap));
@@ -2904,9 +2874,6 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.proc.uout", id_Ciphering_Key_Data_Delivery, create_dissector_handle(dissect_Ciphering_Key_Data_Result_PDU, proto_lcsap));
 
 
-/*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 239 "./asn1/lcsap/packet-lcsap-template.c"
-
 }
 
 /*--- proto_register_lcsap -------------------------------------------*/
@@ -2941,9 +2908,6 @@ void proto_register_lcsap(void) {
           NULL, HFILL }
       },
 
-
-/*--- Included file: packet-lcsap-hfarr.c ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-hfarr.c"
     { &hf_lcsap_APDU_PDU,
       { "APDU", "lcsap.APDU",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -3524,9 +3488,6 @@ void proto_register_lcsap(void) {
       { "value", "lcsap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 275 "./asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -3535,9 +3496,6 @@ void proto_register_lcsap(void) {
     &ett_lcsap_plmnd_id,
     &ett_lcsap_imsi,
     &ett_lcsap_civic_address,
-
-/*--- Included file: packet-lcsap-ettarr.c ---*/
-#line 1 "./asn1/lcsap/packet-lcsap-ettarr.c"
     &ett_lcsap_ProtocolIE_Container,
     &ett_lcsap_ProtocolIE_Field,
     &ett_lcsap_ProtocolExtensionContainer,
@@ -3595,9 +3553,6 @@ void proto_register_lcsap(void) {
     &ett_lcsap_InitiatingMessage,
     &ett_lcsap_SuccessfulOutcome,
     &ett_lcsap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 284 "./asn1/lcsap/packet-lcsap-template.c"
  };
 
   /* module_t *lcsap_module; */

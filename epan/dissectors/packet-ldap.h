@@ -3,9 +3,6 @@
 /* packet-ldap.h                                                              */
 /* asn2wrs.py -b -L -p ldap -c ./ldap.cnf -s ./packet-ldap-template -D . -O ../.. Lightweight-Directory-Access-Protocol-V3.asn */
 
-/* Input file: packet-ldap-template.h */
-
-#line 1 "./asn1/ldap/packet-ldap-template.h"
 /* packet-ldap.h
  * Routines for ros packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

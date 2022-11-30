@@ -3,9 +3,6 @@
 /* packet-ieee1609dot2.c                                                      */
 /* asn2wrs.py -L -p ieee1609dot2 -c ./ieee1609dot2.cnf -s ./packet-ieee1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn IEEE1609dot2DataTypes.asn IEEE1609dot12.asn */
 
-/* Input file: packet-ieee1609dot2-template.c */
-
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 /* packet-IEEE1609dot2.c
  * Routines for IEEE 1609.2
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
@@ -45,9 +42,6 @@ void proto_reg_handoff_ieee1609dot2(void);
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2 = -1;
 dissector_handle_t proto_ieee1609dot2_handle = NULL;
-
-/*--- Included file: packet-ieee1609dot2-hf.c ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-hf.c"
 static int hf_ieee1609dot2_Ieee1609Dot2Data_PDU = -1;  /* Ieee1609Dot2Data */
 static int hf_ieee1609dot2_SequenceOfUint8_item = -1;  /* Uint8 */
 static int hf_ieee1609dot2_SequenceOfUint16_item = -1;  /* Uint16 */
@@ -215,14 +209,8 @@ static int hf_ieee1609dot2_reconstructionValue = -1;  /* EccP256CurvePoint */
 static int hf_ieee1609dot2_EndEntityType_app = -1;
 static int hf_ieee1609dot2_EndEntityType_enrol = -1;
 
-/*--- End of included file: packet-ieee1609dot2-hf.c ---*/
-#line 41 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_ieee1609dot2_ssp = -1;
-
-/*--- Included file: packet-ieee1609dot2-ett.c ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-ett.c"
 static gint ett_ieee1609dot2_SequenceOfUint8 = -1;
 static gint ett_ieee1609dot2_SequenceOfUint16 = -1;
 static gint ett_ieee1609dot2_SequenceOfHashedId3 = -1;
@@ -292,9 +280,6 @@ static gint ett_ieee1609dot2_SequenceOfPsidGroupPermissions = -1;
 static gint ett_ieee1609dot2_SubjectPermissions = -1;
 static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 
-/*--- End of included file: packet-ieee1609dot2-ett.c ---*/
-#line 45 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
-
 static dissector_table_t unsecured_data_subdissector_table;
 static dissector_table_t ssp_subdissector_table;
 
@@ -309,9 +294,6 @@ ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
   p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, GUINT_TO_POINTER(psid));
 }
 
-
-/*--- Included file: packet-ieee1609dot2-fn.c ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* SignedDataPayload -> Ieee1609Dot2Data -> Ieee1609Dot2Content -> SignedData -> ToBeSignedData -> SignedDataPayload */
@@ -2093,9 +2075,6 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 }
 
 
-/*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 61 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
-
 
 static void
 ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
@@ -2163,9 +2142,6 @@ void proto_register_ieee1609dot2(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-hfarr.c"
     { &hf_ieee1609dot2_Ieee1609Dot2Data_PDU,
       { "Ieee1609Dot2Data", "ieee1609dot2.Ieee1609Dot2Data_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2826,16 +2802,10 @@ void proto_register_ieee1609dot2(void) {
       { "enrol", "ieee1609dot2.EndEntityType.enrol",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-
-/*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 130 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-ettarr.c"
     &ett_ieee1609dot2_SequenceOfUint8,
     &ett_ieee1609dot2_SequenceOfUint16,
     &ett_ieee1609dot2_SequenceOfHashedId3,
@@ -2904,9 +2874,6 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_SequenceOfPsidGroupPermissions,
     &ett_ieee1609dot2_SubjectPermissions,
     &ett_ieee1609dot2_VerificationKeyIndicator,
-
-/*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 135 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
         &ett_ieee1609dot2_ssp,
   };
 

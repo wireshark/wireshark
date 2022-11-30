@@ -3,9 +3,6 @@
 /* packet-pres.c                                                              */
 /* asn2wrs.py -b -L -p pres -c ./pres.cnf -s ./packet-pres-template -D . -O ../.. ISO8823-PRESENTATION.asn ISO9576-PRESENTATION.asn */
 
-/* Input file: packet-pres-template.c */
-
-#line 1 "./asn1/pres/packet-pres-template.c"
 /* packet-pres.c
  * Routine to dissect ISO 8823 OSI Presentation Protocol packets
  * Based on the dissector by
@@ -81,9 +78,6 @@ static int hf_pres_Abort_type = -1;
 static int hf_pres_CPR_PPDU = -1;
 static int hf_pres_Typed_data_type = -1;
 
-
-/*--- Included file: packet-pres-hf.c ---*/
-#line 1 "./asn1/pres/packet-pres-hf.c"
 static int hf_pres_UD_type_PDU = -1;              /* UD_type */
 static int hf_pres_mode_selector = -1;            /* Mode_selector */
 static int hf_pres_x410_mode_parameters = -1;     /* RTORQapdu */
@@ -163,15 +157,9 @@ static int hf_pres_User_session_requirements_typed_data = -1;
 static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
-/*--- End of included file: packet-pres-hf.c ---*/
-#line 77 "./asn1/pres/packet-pres-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
 
-
-/*--- Included file: packet-pres-ett.c ---*/
-#line 1 "./asn1/pres/packet-pres-ett.c"
 static gint ett_pres_CP_type = -1;
 static gint ett_pres_T_normal_mode_parameters = -1;
 static gint ett_pres_T_extensions = -1;
@@ -208,9 +196,6 @@ static gint ett_pres_PDV_list = -1;
 static gint ett_pres_T_presentation_data_values = -1;
 static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
-
-/*--- End of included file: packet-pres-ett.c ---*/
-#line 82 "./asn1/pres/packet-pres-template.c"
 
 static expert_field ei_pres_dissector_not_available = EI_INIT;
 static expert_field ei_pres_wrong_spdu_type = EI_INIT;
@@ -324,9 +309,6 @@ pres_free_cb(void *r)
 }
 
 
-
-/*--- Included file: packet-pres-fn.c ---*/
-#line 1 "./asn1/pres/packet-pres-fn.c"
 
 static const value_string pres_T_mode_value_vals[] = {
   {   0, "x410-1984-mode" },
@@ -1318,9 +1300,6 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-pres-fn.c ---*/
-#line 196 "./asn1/pres/packet-pres-template.c"
-
 
 /*
  * Dissect an PPDU.
@@ -1488,9 +1467,6 @@ void proto_register_pres(void) {
         FT_UINT32, BASE_DEC, VALS(pres_Typed_data_type_vals), 0,
         NULL, HFILL }},
 
-
-/*--- Included file: packet-pres-hfarr.c ---*/
-#line 1 "./asn1/pres/packet-pres-hfarr.c"
     { &hf_pres_UD_type_PDU,
       { "UD-type", "pres.UD_type_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1799,17 +1775,11 @@ void proto_register_pres(void) {
       { "data-separation", "pres.User.session.requirements.data.separation",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
-
-/*--- End of included file: packet-pres-hfarr.c ---*/
-#line 365 "./asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		&ett_pres,
-
-/*--- Included file: packet-pres-ettarr.c ---*/
-#line 1 "./asn1/pres/packet-pres-ettarr.c"
     &ett_pres_CP_type,
     &ett_pres_T_normal_mode_parameters,
     &ett_pres_T_extensions,
@@ -1846,9 +1816,6 @@ void proto_register_pres(void) {
     &ett_pres_T_presentation_data_values,
     &ett_pres_User_session_requirements,
     &ett_pres_UD_type,
-
-/*--- End of included file: packet-pres-ettarr.c ---*/
-#line 371 "./asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {

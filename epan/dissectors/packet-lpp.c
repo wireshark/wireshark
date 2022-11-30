@@ -3,9 +3,6 @@
 /* packet-lpp.c                                                               */
 /* asn2wrs.py -L -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP-PDU-Definitions.asn LPP-Broadcast-Definitions.asn */
 
-/* Input file: packet-lpp-template.c */
-
-#line 1 "./asn1/lpp/packet-lpp-template.c"
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
  * Copyright 2011-2022 Pascal Quantin <pascal@wireshark.org>
@@ -42,9 +39,6 @@ void proto_reg_handoff_lpp(void);
 /* Initialize the protocol and registered fields */
 static int proto_lpp = -1;
 
-
-/*--- Included file: packet-lpp-hf.c ---*/
-#line 1 "./asn1/lpp/packet-lpp-hf.c"
 static int hf_lpp_LPP_Message_PDU = -1;           /* LPP_Message */
 static int hf_lpp_lpp_Ellipsoid_Point_PDU = -1;   /* Ellipsoid_Point */
 static int hf_lpp_lpp_Ellipsoid_PointWithUncertaintyCircle_PDU = -1;  /* Ellipsoid_PointWithUncertaintyCircle */
@@ -2828,9 +2822,6 @@ static int hf_lpp_T_nr_UE_RxTx_TEG_ID_ReportingSupport_r17_case1 = -1;
 static int hf_lpp_T_nr_UE_RxTx_TEG_ID_ReportingSupport_r17_case2 = -1;
 static int hf_lpp_T_nr_UE_RxTx_TEG_ID_ReportingSupport_r17_case3 = -1;
 static int dummy_hf_lpp_eag_field = -1; /* never registered */
-
-/*--- End of included file: packet-lpp-hf.c ---*/
-#line 38 "./asn1/lpp/packet-lpp-template.c"
 static int hf_lpp_svHealthExt_v1240_e5bhs = -1;
 static int hf_lpp_svHealthExt_v1240_e1_bhs = -1;
 static int hf_lpp_kepSV_StatusINAV_e5bhs = -1;
@@ -2853,9 +2844,6 @@ static gint ett_kepSV_StatusINAV = -1;
 static gint ett_kepSV_StatusFNAV = -1;
 static gint ett_lpp_bdsSvHealth_r12 = -1;
 static gint ett_lpp_assistanceDataElement_r15 = -1;
-
-/*--- Included file: packet-lpp-ett.c ---*/
-#line 1 "./asn1/lpp/packet-lpp-ett.c"
 static gint ett_lpp_LPP_Message = -1;
 static gint ett_lpp_Acknowledgement = -1;
 static gint ett_lpp_LPP_MessageBody = -1;
@@ -3752,13 +3740,7 @@ static gint ett_lpp_OTDOA_UE_Assisted_r15 = -1;
 static gint ett_lpp_NR_UEB_TRP_LocationData_r16 = -1;
 static gint ett_lpp_NR_UEB_TRP_RTD_Info_r16 = -1;
 
-/*--- End of included file: packet-lpp-ett.c ---*/
-#line 61 "./asn1/lpp/packet-lpp-template.c"
-
 /* Include constants */
-
-/*--- Included file: packet-lpp-val.h ---*/
-#line 1 "./asn1/lpp/packet-lpp-val.h"
 #define maxEPDU                        16
 #define maxAddPRSconfig_r14            2
 #define maxAvailNarrowBands_Minus1_r14 15
@@ -3823,9 +3805,6 @@ typedef enum _T_GNSS_ID_enum {
   T_GNSS_ID_BDS =   5,
   T_GNSS_ID_NAVIC_V1610 =   6
 } T_GNSS_ID_enum;
-
-/*--- End of included file: packet-lpp-val.h ---*/
-#line 64 "./asn1/lpp/packet-lpp-template.c"
 
 static const value_string lpp_ePDU_ID_vals[] = {
   { 1, "OMA LPP extensions (LPPe)"},
@@ -5814,9 +5793,6 @@ lpp_mbs_beaconMeasElt_codePhase_fmt(gchar *s, guint32 v)
 const unit_name_string units_dbhz = { "dB-Hz", NULL };
 const unit_name_string units_pa = { "Pa", NULL };
 
-
-/*--- Included file: packet-lpp-fn.c ---*/
-#line 1 "./asn1/lpp/packet-lpp-fn.c"
 
 static const value_string lpp_Initiator_vals[] = {
   {   0, "locationServer" },
@@ -33193,9 +33169,6 @@ static int dissect_NR_UEB_TRP_RTD_Info_r16_PDU(tvbuff_t *tvb _U_, packet_info *p
 }
 
 
-/*--- End of included file: packet-lpp-fn.c ---*/
-#line 2053 "./asn1/lpp/packet-lpp-template.c"
-
 int dissect_lpp_AssistanceDataSIBelement_r15_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lpp_pos_sib_type_t pos_sib_type) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -33225,9 +33198,6 @@ void proto_register_lpp(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-lpp-hfarr.c ---*/
-#line 1 "./asn1/lpp/packet-lpp-hfarr.c"
     { &hf_lpp_LPP_Message_PDU,
       { "LPP-Message", "lpp.LPP_Message_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -44352,9 +44322,6 @@ void proto_register_lpp(void) {
       { "case3", "lpp.T.nr.UE.RxTx.TEG.ID.ReportingSupport.r17.case3",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-
-/*--- End of included file: packet-lpp-hfarr.c ---*/
-#line 2084 "./asn1/lpp/packet-lpp-template.c"
     { &hf_lpp_svHealthExt_v1240_e5bhs,
       { "E5b Signal Health Status", "lpp.svHealthExt_v1240.e5bhs",
         FT_UINT8, BASE_DEC, VALS(lpp_signal_health_status_vals), 0,
@@ -44405,9 +44372,6 @@ void proto_register_lpp(void) {
     &ett_kepSV_StatusFNAV,
     &ett_lpp_bdsSvHealth_r12,
     &ett_lpp_assistanceDataElement_r15,
-
-/*--- Included file: packet-lpp-ettarr.c ---*/
-#line 1 "./asn1/lpp/packet-lpp-ettarr.c"
     &ett_lpp_LPP_Message,
     &ett_lpp_Acknowledgement,
     &ett_lpp_LPP_MessageBody,
@@ -45303,9 +45267,6 @@ void proto_register_lpp(void) {
     &ett_lpp_OTDOA_UE_Assisted_r15,
     &ett_lpp_NR_UEB_TRP_LocationData_r16,
     &ett_lpp_NR_UEB_TRP_RTD_Info_r16,
-
-/*--- End of included file: packet-lpp-ettarr.c ---*/
-#line 2135 "./asn1/lpp/packet-lpp-template.c"
   };
 
 

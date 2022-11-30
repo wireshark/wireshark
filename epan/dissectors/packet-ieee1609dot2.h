@@ -3,9 +3,6 @@
 /* packet-ieee1609dot2.h                                                      */
 /* asn2wrs.py -L -p ieee1609dot2 -c ./ieee1609dot2.cnf -s ./packet-ieee1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn IEEE1609dot2DataTypes.asn IEEE1609dot12.asn */
 
-/* Input file: packet-ieee1609dot2-template.h */
-
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.h"
 /* packet-IEEE1609dot2.h
  * Routines for IEEE 1609.2
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
@@ -22,9 +19,6 @@
 
 #include "ws_symbol_export.h"
 
-
-/*--- Included file: packet-ieee1609dot2-val.h ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-val.h"
 
 typedef enum _Psid_enum {
   psid_system  =   0,
@@ -97,9 +91,6 @@ typedef enum _Psid_enum {
   psid_ipv6_routing = 270549118
 } Psid_enum;
 
-/*--- End of included file: packet-ieee1609dot2-val.h ---*/
-#line 18 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.h"
-
 /*
  * When dissecting IEEE1609.2 structure containing only unsecured data, no PSID
  * is provided inside. Caller has to provide a ITS-AID/PSID before calling the
@@ -111,13 +102,7 @@ typedef enum _Psid_enum {
 WS_DLL_PUBLIC
 void ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid);
 
-
-/*--- Included file: packet-ieee1609dot2-exp.h ---*/
-#line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-exp.h"
 WS_DLL_PUBLIC const val64_string ieee1609dot2_Psid_vals[];
-
-/*--- End of included file: packet-ieee1609dot2-exp.h ---*/
-#line 31 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.h"
 
 #endif /* _IEEE1609DOT2_H_ */
 

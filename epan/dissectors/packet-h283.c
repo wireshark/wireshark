@@ -3,9 +3,6 @@
 /* packet-h283.c                                                              */
 /* asn2wrs.py -L -p h283 -c ./h283.cnf -s ./packet-h283-template -D . -O ../.. LCT-PROTOCOL.asn */
 
-/* Input file: packet-h283-template.c */
-
-#line 1 "./asn1/h283/packet-h283-template.c"
 /* packet-h283.c
  * Routines for H.283 packet dissection
  * 2007  Tomas Kukosa
@@ -34,9 +31,6 @@ void proto_reg_handoff_h283(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h283 = -1;
-
-/*--- Included file: packet-h283-hf.c ---*/
-#line 1 "./asn1/h283/packet-h283-hf.c"
 static int hf_h283_LCTPDU_PDU = -1;               /* LCTPDU */
 static int hf_h283_t35CountryCode = -1;           /* INTEGER_0_255 */
 static int hf_h283_t35Extension = -1;             /* INTEGER_0_255 */
@@ -70,14 +64,8 @@ static int hf_h283_announceResp = -1;             /* NULL */
 static int hf_h283_deviceListResp = -1;           /* T_deviceListResp */
 static int hf_h283_deviceChange = -1;             /* NULL */
 
-/*--- End of included file: packet-h283-hf.c ---*/
-#line 30 "./asn1/h283/packet-h283-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_h283 = -1;
-
-/*--- Included file: packet-h283-ett.c ---*/
-#line 1 "./asn1/h283/packet-h283-ett.c"
 static gint ett_h283_H221NonStandard = -1;
 static gint ett_h283_NonStandardIdentifier = -1;
 static gint ett_h283_NonStandardParameter = -1;
@@ -93,9 +81,6 @@ static gint ett_h283_LCTResponse = -1;
 static gint ett_h283_LCTIndication = -1;
 static gint ett_h283_NonStandardMessage = -1;
 
-/*--- End of included file: packet-h283-ett.c ---*/
-#line 34 "./asn1/h283/packet-h283-template.c"
-
 /* Subdissectors */
 static dissector_handle_t rdc_pdu_handle;
 static dissector_handle_t rdc_device_list_handle;
@@ -105,9 +90,6 @@ static dissector_handle_t h283_udp_handle;
 
 static gboolean info_is_set;
 
-
-/*--- Included file: packet-h283-fn.c ---*/
-#line 1 "./asn1/h283/packet-h283-fn.c"
 
 
 static int
@@ -525,9 +507,6 @@ static int dissect_LCTPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 }
 
 
-/*--- End of included file: packet-h283-fn.c ---*/
-#line 45 "./asn1/h283/packet-h283-template.c"
-
 static int
 dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -549,9 +528,6 @@ void proto_register_h283(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-h283-hfarr.c ---*/
-#line 1 "./asn1/h283/packet-h283-hfarr.c"
     { &hf_h283_LCTPDU_PDU,
       { "LCTPDU", "h283.LCTPDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -680,17 +656,11 @@ void proto_register_h283(void) {
       { "deviceChange", "h283.deviceChange_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-h283-hfarr.c ---*/
-#line 68 "./asn1/h283/packet-h283-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_h283,
-
-/*--- Included file: packet-h283-ettarr.c ---*/
-#line 1 "./asn1/h283/packet-h283-ettarr.c"
     &ett_h283_H221NonStandard,
     &ett_h283_NonStandardIdentifier,
     &ett_h283_NonStandardParameter,
@@ -705,9 +675,6 @@ void proto_register_h283(void) {
     &ett_h283_LCTResponse,
     &ett_h283_LCTIndication,
     &ett_h283_NonStandardMessage,
-
-/*--- End of included file: packet-h283-ettarr.c ---*/
-#line 74 "./asn1/h283/packet-h283-template.c"
   };
 
   /* Register protocol */

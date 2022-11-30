@@ -3,9 +3,6 @@
 /* packet-mudurl.c                                                            */
 /* asn2wrs.py -b -L -p mudurl -c ./mudurl.cnf -s ./packet-mudurl-template -D . -O ../.. MUDURL.asn */
 
-/* Input file: packet-mudurl-template.c */
-
-#line 1 "./asn1/mudurl/packet-mudurl-template.c"
 /* packet-mudurl-template.c
  * Routines for mudurl found in draft-ietf-opsawg-mud
  * by Eliot Lear
@@ -36,22 +33,13 @@ void proto_reg_handoff_mudurl(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_mudurl = -1;
-
-/*--- Included file: packet-mudurl-hf.c ---*/
-#line 1 "./asn1/mudurl/packet-mudurl-hf.c"
 static int hf_mudurl_MUDURLSyntax_PDU = -1;       /* MUDURLSyntax */
-
-/*--- End of included file: packet-mudurl-hf.c ---*/
-#line 32 "./asn1/mudurl/packet-mudurl-template.c"
 
 /* Initialize the subtree pointers */
 /* #include "packet-mudurl-ett.c" */
 
 // static const char *object_identifier_id;
 
-
-/*--- Included file: packet-mudurl-fn.c ---*/
-#line 1 "./asn1/mudurl/packet-mudurl-fn.c"
 
 
 static int
@@ -74,25 +62,16 @@ static int dissect_MUDURLSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 }
 
 
-/*--- End of included file: packet-mudurl-fn.c ---*/
-#line 39 "./asn1/mudurl/packet-mudurl-template.c"
-
 
 /*--- proto_register_mudurl ----------------------------------------------*/
 void proto_register_mudurl(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-mudurl-hfarr.c ---*/
-#line 1 "./asn1/mudurl/packet-mudurl-hfarr.c"
     { &hf_mudurl_MUDURLSyntax_PDU,
       { "MUDURLSyntax", "mudurl.MUDURLSyntax",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-mudurl-hfarr.c ---*/
-#line 47 "./asn1/mudurl/packet-mudurl-template.c"
   };
 
   /* List of subtrees */
@@ -112,12 +91,6 @@ void proto_register_mudurl(void) {
 
 /*--- proto_reg_handoff_mudurl -------------------------------------------*/
 void proto_reg_handoff_mudurl(void) {
-
-/*--- Included file: packet-mudurl-dis-tab.c ---*/
-#line 1 "./asn1/mudurl/packet-mudurl-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.25", dissect_MUDURLSyntax_PDU, proto_mudurl, "id-pe-mud-url");
 
-
-/*--- End of included file: packet-mudurl-dis-tab.c ---*/
-#line 67 "./asn1/mudurl/packet-mudurl-template.c"
 }

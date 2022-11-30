@@ -3,9 +3,6 @@
 /* packet-logotypecertextn.c                                                  */
 /* asn2wrs.py -b -L -p logotypecertextn -c ./logotypecertextn.cnf -s ./packet-logotypecertextn-template -D . -O ../.. LogotypeCertExtn.asn */
 
-/* Input file: packet-logotypecertextn-template.c */
-
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
 /* packet-logotypecertextn.c
  * Routines for RFC3709 Logotype Certificate Extensions packet dissection
  *   Ronnie Sahlberg 2004
@@ -34,9 +31,6 @@ void proto_reg_handoff_logotypecertextn(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_logotypecertextn = -1;
-
-/*--- Included file: packet-logotypecertextn-hf.c ---*/
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-hf.c"
 static int hf_logotypecertextn_LogotypeExtn_PDU = -1;  /* LogotypeExtn */
 static int hf_logotypecertextn_communityLogos = -1;  /* SEQUENCE_OF_LogotypeInfo */
 static int hf_logotypecertextn_communityLogos_item = -1;  /* LogotypeInfo */
@@ -79,13 +73,7 @@ static int hf_logotypecertextn_refStructURI_item = -1;  /* T_refStructURI_item *
 static int hf_logotypecertextn_hashAlg = -1;      /* AlgorithmIdentifier */
 static int hf_logotypecertextn_hashValue = -1;    /* OCTET_STRING */
 
-/*--- End of included file: packet-logotypecertextn-hf.c ---*/
-#line 30 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-logotypecertextn-ett.c ---*/
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-ett.c"
 static gint ett_logotypecertextn_LogotypeExtn = -1;
 static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo = -1;
 static gint ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo = -1;
@@ -106,13 +94,7 @@ static gint ett_logotypecertextn_LogotypeReference = -1;
 static gint ett_logotypecertextn_T_refStructURI = -1;
 static gint ett_logotypecertextn_HashAlgAndValue = -1;
 
-/*--- End of included file: packet-logotypecertextn-ett.c ---*/
-#line 33 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
 
-
-
-/*--- Included file: packet-logotypecertextn-fn.c ---*/
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-fn.c"
 
 
 static int
@@ -501,18 +483,12 @@ static int dissect_LogotypeExtn_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 }
 
 
-/*--- End of included file: packet-logotypecertextn-fn.c ---*/
-#line 36 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
-
 
 /*--- proto_register_logotypecertextn ----------------------------------------------*/
 void proto_register_logotypecertextn(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-logotypecertextn-hfarr.c ---*/
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-hfarr.c"
     { &hf_logotypecertextn_LogotypeExtn_PDU,
       { "LogotypeExtn", "logotypecertextn.LogotypeExtn_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -677,16 +653,10 @@ void proto_register_logotypecertextn(void) {
       { "hashValue", "logotypecertextn.hashValue",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-
-/*--- End of included file: packet-logotypecertextn-hfarr.c ---*/
-#line 44 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-logotypecertextn-ettarr.c ---*/
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-ettarr.c"
     &ett_logotypecertextn_LogotypeExtn,
     &ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo,
     &ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo,
@@ -706,9 +676,6 @@ void proto_register_logotypecertextn(void) {
     &ett_logotypecertextn_LogotypeReference,
     &ett_logotypecertextn_T_refStructURI,
     &ett_logotypecertextn_HashAlgAndValue,
-
-/*--- End of included file: packet-logotypecertextn-ettarr.c ---*/
-#line 49 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
   };
 
   /* Register protocol */
@@ -723,15 +690,9 @@ void proto_register_logotypecertextn(void) {
 
 /*--- proto_reg_handoff_logotypecertextn -------------------------------------------*/
 void proto_reg_handoff_logotypecertextn(void) {
-
-/*--- Included file: packet-logotypecertextn-dis-tab.c ---*/
-#line 1 "./asn1/logotypecertextn/packet-logotypecertextn-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.12", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logotype");
   register_ber_oid_dissector("1.3.6.1.5.5.7.20.1", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logo-loyalty");
   register_ber_oid_dissector("1.3.6.1.5.5.7.20.2", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logo-background");
 
-
-/*--- End of included file: packet-logotypecertextn-dis-tab.c ---*/
-#line 64 "./asn1/logotypecertextn/packet-logotypecertextn-template.c"
 }
 

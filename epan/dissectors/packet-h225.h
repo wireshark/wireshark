@@ -3,9 +3,6 @@
 /* packet-h225.h                                                              */
 /* asn2wrs.py -L -p h225 -c ./h225.cnf -s ./packet-h225-template -D . -O ../.. H323-MESSAGES.asn */
 
-/* Input file: packet-h225-template.h */
-
-#line 1 "./asn1/h225/packet-h225-template.h"
 /* packet-h225.h
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -73,9 +70,6 @@ typedef struct _h225_packet_info {
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-per.h>
 
-
-/*--- Included file: packet-h225-exp.h ---*/
-#line 1 "./asn1/h225/packet-h225-exp.h"
 WS_DLL_PUBLIC const value_string T_h323_message_body_vals[];
 WS_DLL_PUBLIC const value_string h225_ReleaseCompleteReason_vals[];
 extern const value_string h225_PresentationIndicator_vals[];
@@ -135,9 +129,6 @@ int dissect_h225_TransportChannelInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 WS_DLL_PUBLIC int dissect_h225_RasMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h225_TransportQOS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h225_ExtendedAliasAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-h225-exp.h ---*/
-#line 69 "./asn1/h225/packet-h225-template.h"
 
 #endif  /* PACKET_H225_H */
 

@@ -3,9 +3,6 @@
 /* packet-f1ap.c                                                              */
 /* asn2wrs.py -L -p f1ap -c ./f1ap.cnf -s ./packet-f1ap-template -D . -O ../.. F1AP-CommonDataTypes.asn F1AP-Constants.asn F1AP-Containers.asn F1AP-IEs.asn F1AP-PDU-Contents.asn F1AP-PDU-Descriptions.asn */
 
-/* Input file: packet-f1ap-template.c */
-
-#line 1 "./asn1/f1ap/packet-f1ap-template.c"
 /* packet-f1ap.c
  * Routines for E-UTRAN F1 Application Protocol (F1AP) packet dissection
  * Copyright 2018-2022, Pascal Quantin <pascal@wireshark.org>
@@ -46,9 +43,6 @@
 void proto_register_f1ap(void);
 void proto_reg_handoff_f1ap(void);
 
-
-/*--- Included file: packet-f1ap-val.h ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -939,9 +933,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_UL_GapFR2_Config = 677
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-f1ap-val.h ---*/
-#line 42 "./asn1/f1ap/packet-f1ap-template.c"
-
 /* Initialize the protocol and registered fields */
 static int proto_f1ap = -1;
 
@@ -969,9 +960,6 @@ static int hf_f1ap_ReportCharacteristics_CompositeAvailableCapacityPeriodic = -1
 static int hf_f1ap_ReportCharacteristics_HWLoadIndPeriodic = -1;
 static int hf_f1ap_ReportCharacteristics_NumberOfActiveUEs = -1;
 static int hf_f1ap_ReportCharacteristics_Reserved = -1;
-
-/*--- Included file: packet-f1ap-hf.c ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-hf.c"
 static int hf_f1ap_AbortTransmission_PDU = -1;    /* AbortTransmission */
 static int hf_f1ap_Activated_Cells_to_be_Updated_List_PDU = -1;  /* Activated_Cells_to_be_Updated_List */
 static int hf_f1ap_ActivationRequestType_PDU = -1;  /* ActivationRequestType */
@@ -3027,9 +3015,6 @@ static int hf_f1ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
 static int hf_f1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_f1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
-/*--- End of included file: packet-f1ap-hf.c ---*/
-#line 71 "./asn1/f1ap/packet-f1ap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_f1ap = -1;
 static gint ett_f1ap_ResourceCoordinationTransferContainer = -1;
@@ -3107,9 +3092,6 @@ static gint ett_f1ap_SidelinkConfigurationContainer = -1;
 static gint ett_f1ap_SRSPosRRCInactiveConfig = -1;
 static gint ett_f1ap_successfulHOReportContainer = -1;
 static gint ett_f1ap_UL_GapFR2_Config = -1;
-
-/*--- Included file: packet-f1ap-ett.c ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-ett.c"
 static gint ett_f1ap_PrivateIE_ID = -1;
 static gint ett_f1ap_ProtocolIE_Container = -1;
 static gint ett_f1ap_ProtocolIE_Field = -1;
@@ -4118,9 +4100,6 @@ static gint ett_f1ap_InitiatingMessage = -1;
 static gint ett_f1ap_SuccessfulOutcome = -1;
 static gint ett_f1ap_UnsuccessfulOutcome = -1;
 
-/*--- End of included file: packet-f1ap-ett.c ---*/
-#line 150 "./asn1/f1ap/packet-f1ap-template.c"
-
 enum{
   INITIATING_MESSAGE,
   SUCCESSFUL_OUTCOME,
@@ -4527,9 +4506,6 @@ add_nr_pdcp_meta_data(packet_info *pinfo, guint8 direction, guint8 srb_id)
   set_pdcp_nr_proto_data(pinfo, p_pdcp_nr_info);
 }
 
-
-/*--- Included file: packet-f1ap-fn.c ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-fn.c"
 
 static const value_string f1ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -36788,9 +36764,6 @@ static int dissect_F1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-f1ap-fn.c ---*/
-#line 558 "./asn1/f1ap/packet-f1ap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   f1ap_ctx_t f1ap_ctx;
@@ -36999,9 +36972,6 @@ void proto_register_f1ap(void) {
       { "Reserved", "f1ap.ReportCharacteristics.Reserved",
         FT_UINT32, BASE_HEX, NULL, 0x07ffffff,
         NULL, HFILL }},
-
-/*--- Included file: packet-f1ap-hfarr.c ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-hfarr.c"
     { &hf_f1ap_AbortTransmission_PDU,
       { "AbortTransmission", "f1ap.AbortTransmission",
         FT_UINT32, BASE_DEC, VALS(f1ap_AbortTransmission_vals), 0,
@@ -45218,9 +45188,6 @@ void proto_register_f1ap(void) {
       { "value", "f1ap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
-
-/*--- End of included file: packet-f1ap-hfarr.c ---*/
-#line 768 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* List of subtrees */
@@ -45301,9 +45268,6 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SRSPosRRCInactiveConfig,
     &ett_f1ap_successfulHOReportContainer,
     &ett_f1ap_UL_GapFR2_Config,
-
-/*--- Included file: packet-f1ap-ettarr.c ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-ettarr.c"
     &ett_f1ap_PrivateIE_ID,
     &ett_f1ap_ProtocolIE_Container,
     &ett_f1ap_ProtocolIE_Field,
@@ -46311,9 +46275,6 @@ void proto_register_f1ap(void) {
     &ett_f1ap_InitiatingMessage,
     &ett_f1ap_SuccessfulOutcome,
     &ett_f1ap_UnsuccessfulOutcome,
-
-/*--- End of included file: packet-f1ap-ettarr.c ---*/
-#line 849 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* Register protocol */
@@ -46349,9 +46310,6 @@ proto_reg_handoff_f1ap(void)
   stats_tree_register("f1ap", "f1ap", "F1AP", 0,
                        f1ap_stats_tree_packet, f1ap_stats_tree_init, NULL);
 
-
-/*--- Included file: packet-f1ap-dis-tab.c ---*/
-#line 1 "./asn1/f1ap/packet-f1ap-dis-tab.c"
   dissector_add_uint("f1ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_Cells_Failed_to_be_Activated_List, create_dissector_handle(dissect_Cells_Failed_to_be_Activated_List_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_Cells_Failed_to_be_Activated_List_Item, create_dissector_handle(dissect_Cells_Failed_to_be_Activated_List_Item_PDU, proto_f1ap));
@@ -47148,9 +47106,6 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint("f1ap.proc.imsg", id_measurementActivation, create_dissector_handle(dissect_MeasurementActivation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.imsg", id_QoEInformationTransfer, create_dissector_handle(dissect_QoEInformationTransfer_PDU, proto_f1ap));
 
-
-/*--- End of included file: packet-f1ap-dis-tab.c ---*/
-#line 885 "./asn1/f1ap/packet-f1ap-template.c"
 }
 
 /*

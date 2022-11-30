@@ -3,9 +3,6 @@
 /* packet-lppa.h                                                              */
 /* asn2wrs.py -L -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../.. LPPA-CommonDataTypes.asn LPPA-Constants.asn LPPA-Containers.asn LPPA-IEs.asn LPPA-PDU-Contents.asn LPPA-PDU-Descriptions.asn */
 
-/* Input file: packet-lppa-template.h */
-
-#line 1 "./asn1/lppa/packet-lppa-template.h"
 /* packet-lppa.h
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
  *
@@ -27,12 +24,6 @@ typedef struct _lppa_ctx_t {
 } lppa_ctx_t;
 
 
-
-/*--- Included file: packet-lppa-exp.h ---*/
-#line 1 "./asn1/lppa/packet-lppa-exp.h"
-
-/*--- End of included file: packet-lppa-exp.h ---*/
-#line 23 "./asn1/lppa/packet-lppa-template.h"
 
 #endif  /* PACKET_LPPA_H */
 

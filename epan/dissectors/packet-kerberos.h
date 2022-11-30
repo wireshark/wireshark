@@ -3,9 +3,6 @@
 /* packet-kerberos.h                                                          */
 /* asn2wrs.py -b -L -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../.. KerberosV5Spec2.asn k5.asn RFC3244.asn RFC6113.asn SPAKE.asn */
 
-/* Input file: packet-kerberos-template.h */
-
-#line 1 "./asn1/kerberos/packet-kerberos-template.h"
 /* packet-kerberos.h
  * Routines for kerberos packet dissection
  * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
@@ -138,9 +135,6 @@ extern gboolean krb_decrypt;
 #endif /* __cplusplus */
 
 
-/*--- Included file: packet-kerberos-exp.h ---*/
-#line 1 "./asn1/kerberos/packet-kerberos-exp.h"
-
 /* enumerated values for Applications */
 #define KERBEROS_APPLICATIONS_TICKET   1
 #define KERBEROS_APPLICATIONS_AUTHENTICATOR   2
@@ -163,8 +157,5 @@ extern gboolean krb_decrypt;
 int dissect_kerberos_TGT_REQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_kerberos_TGT_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-
-/*--- End of included file: packet-kerberos-exp.h ---*/
-#line 133 "./asn1/kerberos/packet-kerberos-template.h"
 
 #endif  /* __PACKET_KERBEROS_H */

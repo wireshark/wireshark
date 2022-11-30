@@ -3,9 +3,6 @@
 /* packet-c1222.c                                                             */
 /* asn2wrs.py -b -L -p c1222 -c ./c1222.cnf -s ./packet-c1222-template -D . -O ../.. c1222.asn */
 
-/* Input file: packet-c1222-template.c */
-
-#line 1 "./asn1/c1222/packet-c1222-template.c"
 /* packet-c1222.c
  * Routines for ANSI C12.22 packet dissection
  * Copyright 2010, Edward J. Beroset, edward.beroset@elster.com
@@ -80,9 +77,6 @@ static dissector_handle_t c1222_udp_handle=NULL;
 /* Initialize the protocol and registered fields */
 static int proto_c1222 = -1;
 
-
-/*--- Included file: packet-c1222-hf.c ---*/
-#line 1 "./asn1/c1222/packet-c1222-hf.c"
 static int hf_c1222_MESSAGE_PDU = -1;             /* MESSAGE */
 static int hf_c1222_aSO_context = -1;             /* ASO_qualifier */
 static int hf_c1222_called_AP_title = -1;         /* Called_AP_title */
@@ -108,9 +102,6 @@ static int hf_c1222_iv_element = -1;              /* Iv_element */
 static int hf_c1222_c1221_auth_identification = -1;  /* OCTET_STRING_SIZE_CONSTR001 */
 static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
 static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
-
-/*--- End of included file: packet-c1222-hf.c ---*/
-#line 76 "./asn1/c1222/packet-c1222-template.c"
 /* These are the EPSEM pieces */
 /* first, the flag components */
 static int hf_c1222_epsem_flags = -1;
@@ -218,9 +209,6 @@ static guint32 calling_AP_title_allocated = 0;
 static guint32 key_id_element_allocated = 0;
 static guint32 iv_element_allocated = 0;
 
-
-/*--- Included file: packet-c1222-ett.c ---*/
-#line 1 "./asn1/c1222/packet-c1222-ett.c"
 static gint ett_c1222_MESSAGE_U = -1;
 static gint ett_c1222_Called_AP_title = -1;
 static gint ett_c1222_Calling_AP_title = -1;
@@ -229,9 +217,6 @@ static gint ett_c1222_Authentication_value_encoding = -1;
 static gint ett_c1222_Calling_authentication_value_single_asn1 = -1;
 static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
-
-/*--- End of included file: packet-c1222-ett.c ---*/
-#line 184 "./asn1/c1222/packet-c1222-template.c"
 
 static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
@@ -1122,9 +1107,6 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
 }
 
 
-/*--- Included file: packet-c1222-fn.c ---*/
-#line 1 "./asn1/c1222/packet-c1222-fn.c"
-
 
 static int
 dissect_c1222_ASO_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -1565,9 +1547,6 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 }
 
 
-/*--- End of included file: packet-c1222-fn.c ---*/
-#line 1074 "./asn1/c1222/packet-c1222-template.c"
-
 /**
  * Dissects a a full (reassembled) C12.22 message.
  *
@@ -1871,9 +1850,6 @@ void proto_register_c1222(void) {
     NULL, 0x0,
     "True: crypto bad; False: crypto ok or not checked", HFILL }
    },
-
-/*--- Included file: packet-c1222-hfarr.c ---*/
-#line 1 "./asn1/c1222/packet-c1222-hfarr.c"
     { &hf_c1222_MESSAGE_PDU,
       { "MESSAGE", "c1222.MESSAGE_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1974,9 +1950,6 @@ void proto_register_c1222(void) {
       { "c1221-auth-response", "c1222.c1221_auth_response",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
-
-/*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1379 "./asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1986,9 +1959,6 @@ void proto_register_c1222(void) {
                   &ett_c1222_flags,
                   &ett_c1222_crypto,
                   &ett_c1222_cmd,
-
-/*--- Included file: packet-c1222-ettarr.c ---*/
-#line 1 "./asn1/c1222/packet-c1222-ettarr.c"
     &ett_c1222_MESSAGE_U,
     &ett_c1222_Called_AP_title,
     &ett_c1222_Calling_AP_title,
@@ -1997,9 +1967,6 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_single_asn1,
     &ett_c1222_Calling_authentication_value_c1222_U,
     &ett_c1222_Calling_authentication_value_c1221_U,
-
-/*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1389 "./asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {

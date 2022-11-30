@@ -3,9 +3,6 @@
 /* packet-camel.c                                                             */
 /* asn2wrs.py -b -L -p camel -c ./camel.cnf -s ./packet-camel-template -D . -O ../.. CAP-object-identifiers.asn CAP-classes.asn CAP-datatypes.asn CAP-errorcodes.asn CAP-errortypes.asn CAP-operationcodes.asn CAP-GPRS-ReferenceNumber.asn CAP-gsmSCF-gsmSRF-ops-args.asn CAP-gsmSSF-gsmSCF-ops-args.asn CAP-gprsSSF-gsmSCF-ops-args.asn CAP-SMS-ops-args.asn CAP-U-ABORT-Data.asn CamelV2diff.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
-/* Input file: packet-camel-template.c */
-
-#line 1 "./asn1/camel/packet-camel-template.c"
 /* packet-camel-template.c
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
@@ -108,9 +105,6 @@ static int hf_camelsrt_DeltaTime35=-1;
 static int hf_camelsrt_DeltaTime80=-1;
 static int hf_camel_timeandtimezone_bcd = -1;
 
-
-/*--- Included file: packet-camel-hf.c ---*/
-#line 1 "./asn1/camel/packet-camel-hf.c"
 static int hf_camel_PAR_cancelFailed_PDU = -1;    /* PAR_cancelFailed */
 static int hf_camel_PAR_requestedInfoError_PDU = -1;  /* PAR_requestedInfoError */
 static int hf_camel_UnavailableNetworkResource_PDU = -1;  /* UnavailableNetworkResource */
@@ -598,9 +592,6 @@ static int hf_camel_returnErrorProblem = -1;      /* ReturnErrorProblem */
 static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
-/*--- End of included file: packet-camel-hf.c ---*/
-#line 104 "./asn1/camel/packet-camel-template.c"
-
 static struct camelsrt_info_t * gp_camelsrt_info;
 
 /* Forward declarations */
@@ -642,9 +633,6 @@ static gint ett_camel_number = -1;
 static gint ett_camel_digitsResponse = -1;
 static gint ett_camel_timeandtimezone = -1;
 
-
-/*--- Included file: packet-camel-ett.c ---*/
-#line 1 "./asn1/camel/packet-camel-ett.c"
 static gint ett_camel_AChChargingAddress = -1;
 static gint ett_camel_AOCBeforeAnswer = -1;
 static gint ett_camel_AOCGPRS = -1;
@@ -842,9 +830,6 @@ static gint ett_camel_Reject = -1;
 static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
-/*--- End of included file: packet-camel-ett.c ---*/
-#line 147 "./asn1/camel/packet-camel-template.c"
-
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
 static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
@@ -1001,9 +986,6 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
   { 0, NULL }
 };
 
-
-/*--- Included file: packet-camel-val.h ---*/
-#line 1 "./asn1/camel/packet-camel-val.h"
 #define tc_Messages                    "0.0.17.773.2.1.3"
 #define tc_NotationExtensions          "0.0.17.775.2.4.1"
 #define ros_InformationObjects         "2.4.5.0"
@@ -1185,12 +1167,6 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define id_CAP_U_ABORT_Reason          "0.4.0.0.1.1.2.2"
 #define noInvokeId                     NULL
 
-/*--- End of included file: packet-camel-val.h ---*/
-#line 305 "./asn1/camel/packet-camel-template.c"
-
-
-/*--- Included file: packet-camel-table.c ---*/
-#line 1 "./asn1/camel/packet-camel-table.c"
 
 /* CAMEL OPERATIONS */
 const value_string camel_opr_code_strings[] = {
@@ -1274,9 +1250,6 @@ static const value_string camel_err_code_string_vals[] = {
   { 0, NULL }
 };
 
-
-/*--- End of included file: packet-camel-table.c ---*/
-#line 307 "./asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -1377,9 +1350,6 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 
 static int dissect_camel_InitialDPArgExtensionV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
-
-/*--- Included file: packet-camel-fn.c ---*/
-#line 1 "./asn1/camel/packet-camel-fn.c"
 
 
 static int
@@ -7276,12 +7246,6 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 }
 
 
-/*--- End of included file: packet-camel-fn.c ---*/
-#line 408 "./asn1/camel/packet-camel-template.c"
-
-
-/*--- Included file: packet-camel-table2.c ---*/
-#line 1 "./asn1/camel/packet-camel-table2.c"
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
 
@@ -7482,9 +7446,6 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   return offset;
 }
 
-
-/*--- End of included file: packet-camel-table2.c ---*/
-#line 410 "./asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8358,15 +8319,9 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.61", camel_v4_handle, proto_camel, "cap4-sms-AC");
 
 
-
-/*--- Included file: packet-camel-dis-tab.c ---*/
-#line 1 "./asn1/camel/packet-camel-dis-tab.c"
   register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_CAP_GPRS_ReferenceNumber_PDU, proto_camel, "id-CAP-GPRS-ReferenceNumber");
   register_ber_oid_dissector("0.4.0.0.1.1.2.2", dissect_CAP_U_ABORT_REASON_PDU, proto_camel, "id-CAP-U-ABORT-Reason");
 
-
-/*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1284 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -8544,9 +8499,6 @@ void proto_register_camel(void) {
     },
 #ifdef REMOVED
 #endif
-
-/*--- Included file: packet-camel-hfarr.c ---*/
-#line 1 "./asn1/camel/packet-camel-hfarr.c"
     { &hf_camel_PAR_cancelFailed_PDU,
       { "PAR-cancelFailed", "camel.PAR_cancelFailed_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10491,9 +10443,6 @@ void proto_register_camel(void) {
       { "InvokeId.present", "camel.InvokeId_present",
         FT_INT32, BASE_DEC, NULL, 0,
         "InvokeId_present", HFILL }},
-
-/*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1462 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10521,9 +10470,6 @@ void proto_register_camel(void) {
     &ett_camel_digitsResponse,
     &ett_camel_timeandtimezone,
 
-
-/*--- Included file: packet-camel-ettarr.c ---*/
-#line 1 "./asn1/camel/packet-camel-ettarr.c"
     &ett_camel_AChChargingAddress,
     &ett_camel_AOCBeforeAnswer,
     &ett_camel_AOCGPRS,
@@ -10720,9 +10666,6 @@ void proto_register_camel(void) {
     &ett_camel_Reject,
     &ett_camel_T_problem,
     &ett_camel_InvokeId,
-
-/*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1490 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

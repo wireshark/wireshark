@@ -3,9 +3,6 @@
 /* packet-pcap.c                                                              */
 /* asn2wrs.py -L -p pcap -c ./pcap.cnf -s ./packet-pcap-template -D . -O ../.. PCAP-CommonDataTypes.asn PCAP-Constants.asn PCAP-Containers.asn PCAP-IEs.asn PCAP-PDU-Contents.asn PCAP-PDU-Descriptions.asn */
 
-/* Input file: packet-pcap-template.c */
-
-#line 1 "./asn1/pcap/packet-pcap-template.c"
 /* packet-pcap.c
  * Routines for UTRAN Iupc interface Positioning Calculation Application Part (PCAP) packet dissection
  *
@@ -48,9 +45,6 @@
 void proto_register_pcap(void);
 void proto_reg_handoff_pcap(void);
 
-
-/*--- Included file: packet-pcap-val.h ---*/
-#line 1 "./asn1/pcap/packet-pcap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -255,17 +249,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_AddPosSupport = 142
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-pcap-val.h ---*/
-#line 44 "./asn1/pcap/packet-pcap-template.c"
-
 static dissector_handle_t pcap_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_pcap = -1;
 
-
-/*--- Included file: packet-pcap-hf.c ---*/
-#line 1 "./asn1/pcap/packet-pcap-hf.c"
 static int hf_pcap_AccuracyFulfilmentIndicator_PDU = -1;  /* AccuracyFulfilmentIndicator */
 static int hf_pcap_AddPos_MeasuredResults_PDU = -1;  /* AddPos_MeasuredResults */
 static int hf_pcap_Cause_PDU = -1;                /* Cause */
@@ -1522,15 +1510,9 @@ static int hf_pcap_AvailableSubChannelNumbers_subCh2 = -1;
 static int hf_pcap_AvailableSubChannelNumbers_subCh1 = -1;
 static int hf_pcap_AvailableSubChannelNumbers_subCh0 = -1;
 
-/*--- End of included file: packet-pcap-hf.c ---*/
-#line 51 "./asn1/pcap/packet-pcap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_pcap = -1;
 
-
-/*--- Included file: packet-pcap-ett.c ---*/
-#line 1 "./asn1/pcap/packet-pcap-ett.c"
 static gint ett_pcap_PrivateIE_ID = -1;
 static gint ett_pcap_TransactionID = -1;
 static gint ett_pcap_ProtocolIE_Container = -1;
@@ -1959,9 +1941,6 @@ static gint ett_pcap_SuccessfulOutcome = -1;
 static gint ett_pcap_UnsuccessfulOutcome = -1;
 static gint ett_pcap_Outcome = -1;
 
-/*--- End of included file: packet-pcap-ett.c ---*/
-#line 56 "./asn1/pcap/packet-pcap-template.c"
-
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
@@ -1984,9 +1963,6 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
-
-/*--- Included file: packet-pcap-fn.c ---*/
-#line 1 "./asn1/pcap/packet-pcap-fn.c"
 
 static const value_string pcap_Criticality_vals[] = {
   {   0, "reject" },
@@ -14618,9 +14594,6 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 }
 
 
-/*--- End of included file: packet-pcap-fn.c ---*/
-#line 80 "./asn1/pcap/packet-pcap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint(pcap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
@@ -14672,9 +14645,6 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_reg_handoff_pcap(void)
 {
-
-/*--- Included file: packet-pcap-dis-tab.c ---*/
-#line 1 "./asn1/pcap/packet-pcap-dis-tab.c"
   dissector_add_uint("pcap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_pcap));
   dissector_add_uint("pcap.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_pcap));
   dissector_add_uint("pcap.ies", id_GPS_UTRAN_TRU, create_dissector_handle(dissect_GPS_UTRAN_TRU_PDU, proto_pcap));
@@ -14824,9 +14794,6 @@ proto_reg_handoff_pcap(void)
   dissector_add_uint("pcap.proc.imsg", id_PositionPeriodicResult, create_dissector_handle(dissect_PositionPeriodicResult_PDU, proto_pcap));
   dissector_add_uint("pcap.proc.imsg", id_PositionPeriodicTermination, create_dissector_handle(dissect_PositionPeriodicTermination_PDU, proto_pcap));
 
-
-/*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 133 "./asn1/pcap/packet-pcap-template.c"
     dissector_add_for_decode_as_with_preference("sccp.ssn", pcap_handle);
 }
 
@@ -14837,9 +14804,6 @@ void proto_register_pcap(void) {
 
   static hf_register_info hf[] = {
 
-
-/*--- Included file: packet-pcap-hfarr.c ---*/
-#line 1 "./asn1/pcap/packet-pcap-hfarr.c"
     { &hf_pcap_AccuracyFulfilmentIndicator_PDU,
       { "AccuracyFulfilmentIndicator", "pcap.AccuracyFulfilmentIndicator",
         FT_UINT32, BASE_DEC, VALS(pcap_AccuracyFulfilmentIndicator_vals), 0,
@@ -19856,17 +19820,11 @@ void proto_register_pcap(void) {
       { "subCh0", "pcap.AvailableSubChannelNumbers.subCh0",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 144 "./asn1/pcap/packet-pcap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_pcap,
-
-/*--- Included file: packet-pcap-ettarr.c ---*/
-#line 1 "./asn1/pcap/packet-pcap-ettarr.c"
     &ett_pcap_PrivateIE_ID,
     &ett_pcap_TransactionID,
     &ett_pcap_ProtocolIE_Container,
@@ -20294,9 +20252,6 @@ void proto_register_pcap(void) {
     &ett_pcap_SuccessfulOutcome,
     &ett_pcap_UnsuccessfulOutcome,
     &ett_pcap_Outcome,
-
-/*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 150 "./asn1/pcap/packet-pcap-template.c"
   };
 
   /* module_t *pcap_module; */

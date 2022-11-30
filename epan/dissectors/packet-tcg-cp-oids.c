@@ -3,9 +3,6 @@
 /* packet-tcg-cp-oids.c                                                       */
 /* asn2wrs.py -b -L -p tcg-cp-oids -c ./tcg-cp-oids.cnf -s ./packet-tcg-cp-oids-template -D . -O ../.. tcg-cp-oids.asn */
 
-/* Input file: packet-tcg-cp-oids-template.c */
-
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
 /* packet-tcg-cp-oids.c
  *
  * Wireshark - Network traffic analyzer
@@ -35,9 +32,6 @@ void proto_reg_handoff_tcg_cp_oids(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_tcg_cp_oids = -1;
-
-/*--- Included file: packet-tcg-cp-oids-hf.c ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-hf.c"
 static int hf_tcg_cp_oids_TPMSpecification_PDU = -1;  /* TPMSpecification */
 static int hf_tcg_cp_oids_TCGPlatformSpecification_PDU = -1;  /* TCGPlatformSpecification */
 static int hf_tcg_cp_oids_TCPASpecVersion_PDU = -1;  /* TCPASpecVersion */
@@ -93,15 +87,9 @@ static int hf_tcg_cp_oids_TCGRelevantCredentials_item = -1;  /* HashedSubjectInf
 static int hf_tcg_cp_oids_TCGRelevantManifests_item = -1;  /* HashedSubjectInfoURI */
 static int hf_tcg_cp_oids_restoreAllowed = -1;    /* BOOLEAN */
 static int hf_tcg_cp_oids_backupServiceURI = -1;  /* IA5String */
-
-/*--- End of included file: packet-tcg-cp-oids-hf.c ---*/
-#line 31 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
 static int hf_tcg_cp_oids_UTF8String_PDU = -1;
 
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-tcg-cp-oids-ett.c ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-ett.c"
 static gint ett_tcg_cp_oids_TPMSpecification = -1;
 static gint ett_tcg_cp_oids_TCGSpecificationVersion = -1;
 static gint ett_tcg_cp_oids_TCGPlatformSpecification = -1;
@@ -116,12 +104,6 @@ static gint ett_tcg_cp_oids_HashedSubjectInfoURI = -1;
 static gint ett_tcg_cp_oids_TCGRelevantCredentials = -1;
 static gint ett_tcg_cp_oids_TCGRelevantManifests = -1;
 static gint ett_tcg_cp_oids_VirtualPlatformBackupServiceURI = -1;
-
-/*--- End of included file: packet-tcg-cp-oids-ett.c ---*/
-#line 35 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
-
-/*--- Included file: packet-tcg-cp-oids-fn.c ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-fn.c"
 
 
 static int
@@ -723,9 +705,6 @@ static int dissect_VirtualPlatformBackupServiceURI_PDU(tvbuff_t *tvb _U_, packet
 }
 
 
-/*--- End of included file: packet-tcg-cp-oids-fn.c ---*/
-#line 36 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
-
 
 /*--- proto_register_tcg_cp_oids ----------------------------------------------*/
 void proto_register_tcg_cp_oids(void) {
@@ -736,9 +715,6 @@ void proto_register_tcg_cp_oids(void) {
       { "UTF8String", "tcg-cp-oids.UTF8String",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-tcg-cp-oids-hfarr.c ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-hfarr.c"
     { &hf_tcg_cp_oids_TPMSpecification_PDU,
       { "TPMSpecification", "tcg-cp-oids.TPMSpecification_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -959,16 +935,10 @@ void proto_register_tcg_cp_oids(void) {
       { "backupServiceURI", "tcg-cp-oids.backupServiceURI",
         FT_STRING, BASE_NONE, NULL, 0,
         "IA5String", HFILL }},
-
-/*--- End of included file: packet-tcg-cp-oids-hfarr.c ---*/
-#line 48 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-tcg-cp-oids-ettarr.c ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-ettarr.c"
     &ett_tcg_cp_oids_TPMSpecification,
     &ett_tcg_cp_oids_TCGSpecificationVersion,
     &ett_tcg_cp_oids_TCGPlatformSpecification,
@@ -983,9 +953,6 @@ void proto_register_tcg_cp_oids(void) {
     &ett_tcg_cp_oids_TCGRelevantCredentials,
     &ett_tcg_cp_oids_TCGRelevantManifests,
     &ett_tcg_cp_oids_VirtualPlatformBackupServiceURI,
-
-/*--- End of included file: packet-tcg-cp-oids-ettarr.c ---*/
-#line 53 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
   };
 
   /* Register protocol */
@@ -1008,9 +975,6 @@ dissect_tcg_cp_oids_UTF8String_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 /*--- proto_reg_handoff_tcg_cp_oids -------------------------------------------*/
 void proto_reg_handoff_tcg_cp_oids(void) {
-
-/*--- Included file: packet-tcg-cp-oids-dis-tab.c ---*/
-#line 1 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-dis-tab.c"
   register_ber_oid_dissector("2.23.133.1", dissect_TCPASpecVersion_PDU, proto_tcg_cp_oids, "tcg-tcpaSpecVersion");
   register_ber_oid_dissector("2.23.133.2.11", dissect_ProtectionProfile_PDU, proto_tcg_cp_oids, "tcg-at-tpmProtectionProfile");
   register_ber_oid_dissector("2.23.133.2.12", dissect_SecurityTarget_PDU, proto_tcg_cp_oids, "tcg-at-tpmSecurityTarget");
@@ -1027,9 +991,6 @@ void proto_reg_handoff_tcg_cp_oids(void) {
   register_ber_oid_dissector("2.23.133.6.6", dissect_MigrationControllerRegistrationServiceURI_PDU, proto_tcg_cp_oids, "tcg-ce-migrationControllerRegistrationService");
   register_ber_oid_dissector("2.23.133.6.7", dissect_VirtualPlatformBackupServiceURI_PDU, proto_tcg_cp_oids, "tcg-ce-virtualPlatformBackupService");
 
-
-/*--- End of included file: packet-tcg-cp-oids-dis-tab.c ---*/
-#line 76 "./asn1/tcg-cp-oids/packet-tcg-cp-oids-template.c"
   oid_add_from_string("tcg","2.23.133");
   oid_add_from_string("tcg-attribute","2.23.133.2");
   oid_add_from_string("tcg-protocol","2.23.133.3");

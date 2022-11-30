@@ -3,9 +3,6 @@
 /* packet-pkixtsp.h                                                           */
 /* asn2wrs.py -b -L -p pkixtsp -c ./pkixtsp.cnf -s ./packet-pkixtsp-template -D . -O ../.. PKIXTSP.asn */
 
-/* Input file: packet-pkixtsp-template.h */
-
-#line 1 "./asn1/pkixtsp/packet-pkixtsp-template.h"
 /* packet-pkixtsp.h
  * Routines for RFC3161 Time-Stamp Protocol packet dissection
  *    Ronnie Sahlberg 2004

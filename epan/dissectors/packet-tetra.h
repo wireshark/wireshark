@@ -3,9 +3,6 @@
 /* packet-tetra.h                                                             */
 /* asn2wrs.py -u -L -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . -O ../.. tetra.asn */
 
-/* Input file: packet-tetra-template.h */
-
-#line 1 "./asn1/tetra/packet-tetra-template.h"
 /* packet-tetra.h
  * Routines for TETRA packet dissection
  *

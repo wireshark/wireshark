@@ -3,9 +3,6 @@
 /* packet-rnsap.c                                                             */
 /* asn2wrs.py -L -p rnsap -c ./rnsap.cnf -s ./packet-rnsap-template -D . -O ../.. RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
 
-/* Input file: packet-rnsap-template.c */
-
-#line 1 "./asn1/rnsap/packet-rnsap-template.c"
 /* packet-rnsap.c
  * Routines for dissecting Universal Mobile Telecommunications System (UMTS);
  * UTRAN Iur interface Radio Network Subsystem
@@ -43,9 +40,6 @@
 
 #define SCCP_SSN_RNSAP 143
 
-
-/*--- Included file: packet-rnsap-val.h ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -1264,9 +1258,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_EventH    = 2064
 } ProtocolIE_ID_enum;
 
-/*--- End of included file: packet-rnsap-val.h ---*/
-#line 39 "./asn1/rnsap/packet-rnsap-template.c"
-
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
@@ -1288,9 +1279,6 @@ static int proto_rnsap = -1;
 static int hf_rnsap_transportLayerAddress_ipv4 = -1;
 static int hf_rnsap_transportLayerAddress_ipv6 = -1;
 static int hf_rnsap_transportLayerAddress_nsap = -1;
-
-/*--- Included file: packet-rnsap-hf.c ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-hf.c"
 static int hf_rnsap_ActivationInformation_PDU = -1;  /* ActivationInformation */
 static int hf_rnsap_Active_MBMS_Bearer_Service_ListFDD_PDU = -1;  /* Active_MBMS_Bearer_Service_ListFDD */
 static int hf_rnsap_Active_MBMS_Bearer_Service_ListFDD_PFL_PDU = -1;  /* Active_MBMS_Bearer_Service_ListFDD_PFL */
@@ -4396,17 +4384,11 @@ static int hf_rnsap_value_03 = -1;                /* SuccessfulOutcome_value */
 static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value */
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
-/*--- End of included file: packet-rnsap-hf.c ---*/
-#line 62 "./asn1/rnsap/packet-rnsap-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
 static int ett_rnsap_transportLayerAddress = -1;
 static int ett_rnsap_transportLayerAddress_nsap = -1;
 
-
-/*--- Included file: packet-rnsap-ett.c ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-ett.c"
 static gint ett_rnsap_PrivateIE_ID = -1;
 static gint ett_rnsap_ProcedureID = -1;
 static gint ett_rnsap_TransactionID = -1;
@@ -5835,9 +5817,6 @@ static gint ett_rnsap_SuccessfulOutcome = -1;
 static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
-/*--- End of included file: packet-rnsap-ett.c ---*/
-#line 69 "./asn1/rnsap/packet-rnsap-template.c"
-
 
 /* Dissector tables */
 static dissector_table_t rnsap_ies_dissector_table;
@@ -5869,9 +5848,6 @@ rnsap_get_private_data(packet_info *pinfo)
     return pdata;
 }
 
-
-/*--- Included file: packet-rnsap-fn.c ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-fn.c"
 
 static const value_string rnsap_Criticality_vals[] = {
   {   0, "reject" },
@@ -49121,9 +49097,6 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 }
 
 
-/*--- End of included file: packet-rnsap-fn.c ---*/
-#line 102 "./asn1/rnsap/packet-rnsap-template.c"
-
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
@@ -49277,9 +49250,6 @@ void proto_register_rnsap(void) {
       { "transportLayerAddress NSAP", "rnsap.transportLayerAddress_NSAP",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
-
-/*--- Included file: packet-rnsap-hfarr.c ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-hfarr.c"
     { &hf_rnsap_ActivationInformation_PDU,
       { "ActivationInformation", "rnsap.ActivationInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -61696,9 +61666,6 @@ void proto_register_rnsap(void) {
       { "value", "rnsap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Outcome_value", HFILL }},
-
-/*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 257 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -61706,9 +61673,6 @@ void proto_register_rnsap(void) {
     &ett_rnsap,
     &ett_rnsap_transportLayerAddress,
     &ett_rnsap_transportLayerAddress_nsap,
-
-/*--- Included file: packet-rnsap-ettarr.c ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-ettarr.c"
     &ett_rnsap_PrivateIE_ID,
     &ett_rnsap_ProcedureID,
     &ett_rnsap_TransactionID,
@@ -63136,9 +63100,6 @@ void proto_register_rnsap(void) {
     &ett_rnsap_SuccessfulOutcome,
     &ett_rnsap_UnsuccessfulOutcome,
     &ett_rnsap_Outcome,
-
-/*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 265 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -63172,9 +63133,6 @@ proto_reg_handoff_rnsap(void)
 	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
 	heur_dissector_add("sccp", dissect_sccp_rnsap_heur, "RNSAP over SCCP", "rnsap_sccp", proto_rnsap, HEURISTIC_ENABLE);
 
-
-/*--- Included file: packet-rnsap-dis-tab.c ---*/
-#line 1 "./asn1/rnsap/packet-rnsap-dis-tab.c"
   dissector_add_uint("rnsap.ies", id_RTLoadValue, create_dissector_handle(dissect_RTLoadValue_PDU, proto_rnsap));
   dissector_add_uint("rnsap.ies", id_NRTLoadInformationValue, create_dissector_handle(dissect_NRTLoadInformationValue_PDU, proto_rnsap));
   dissector_add_uint("rnsap.ies", id_UpPTSInterferenceValue, create_dissector_handle(dissect_UpPTSInterferenceValue_PDU, proto_rnsap));
@@ -64096,9 +64054,6 @@ proto_reg_handoff_rnsap(void)
   dissector_add_string("rnsap.proc.sout", "id-enhancedRelocationResourceRelease/tdd", create_dissector_handle(dissect_EnhancedRelocationResourceReleaseComplete_PDU, proto_rnsap));
   dissector_add_string("rnsap.proc.imsg", "id-informationTransferControl/common", create_dissector_handle(dissect_InformationTransferControlRequest_PDU, proto_rnsap));
 
-
-/*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 299 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 

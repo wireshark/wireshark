@@ -3,9 +3,6 @@
 /* packet-lnpdqp.c                                                            */
 /* asn2wrs.py -b -L -p lnpdqp -c ./lnpdqp.cnf -s ./packet-lnpdqp-template -D . -O ../.. LNPDQP.asn */
 
-/* Input file: packet-lnpdqp-template.c */
-
-#line 1 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 /* packet-lnpdqp-template.c
  * Routines for Local Number Portability Database Query Protocol dissection
  *
@@ -62,9 +59,6 @@ static int hf_lnpdqp_callingPartyANI = -1;        /* Digits */
 static int hf_lnpdqp_originatingLATA = -1;        /* Digits */
 static int hf_lnpdqp_carrierID = -1;              /* Digits */
 
-
-/*--- Included file: packet-lnpdqp-hf.c ---*/
-#line 1 "./asn1/lnpdqp/packet-lnpdqp-hf.c"
 static int hf_lnpdqp_ConnectionControlArg_PDU = -1;  /* ConnectionControlArg */
 static int hf_lnpdqp_ProvideInstructionArg_PDU = -1;  /* ProvideInstructionArg */
 static int hf_lnpdqp_digits = -1;                 /* Digits */
@@ -72,21 +66,12 @@ static int hf_lnpdqp_billingIndicators = -1;      /* BillingIndicators */
 static int hf_lnpdqp_calledPartyNumber = -1;      /* ServiceKey */
 static int hf_lnpdqp_oli = -1;                    /* OriginatingStationType */
 
-/*--- End of included file: packet-lnpdqp-hf.c ---*/
-#line 58 "./asn1/lnpdqp/packet-lnpdqp-template.c"
-
 static int ett_lnpdqp = -1;
 static int ett_lnpdqp_digitstype = -1;
 static int ett_lnpdqp_digits = -1;
-
-/*--- Included file: packet-lnpdqp-ett.c ---*/
-#line 1 "./asn1/lnpdqp/packet-lnpdqp-ett.c"
 static gint ett_lnpdqp_ConnectionControlArg_U = -1;
 static gint ett_lnpdqp_ProvideInstructionArg_U = -1;
 static gint ett_lnpdqp_ServiceKey = -1;
-
-/*--- End of included file: packet-lnpdqp-ett.c ---*/
-#line 63 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 
 /* Type of Digits (octet 1, bits A-H) */
@@ -240,9 +225,6 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 
 
-/*--- Included file: packet-lnpdqp-fn.c ---*/
-#line 1 "./asn1/lnpdqp/packet-lnpdqp-fn.c"
-
 
 static int
 dissect_lnpdqp_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -392,9 +374,6 @@ static int dissect_ProvideInstructionArg_PDU(tvbuff_t *tvb _U_, packet_info *pin
 }
 
 
-/*--- End of included file: packet-lnpdqp-fn.c ---*/
-#line 216 "./asn1/lnpdqp/packet-lnpdqp-template.c"
-
 static int
 dissect_lnpdqp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
@@ -491,9 +470,6 @@ void proto_register_lnpdqp(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         "Digits", HFILL }},
 
-
-/*--- Included file: packet-lnpdqp-hfarr.c ---*/
-#line 1 "./asn1/lnpdqp/packet-lnpdqp-hfarr.c"
     { &hf_lnpdqp_ConnectionControlArg_PDU,
       { "ConnectionControlArg", "lnpdqp.ConnectionControlArg_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -518,9 +494,6 @@ void proto_register_lnpdqp(void) {
       { "oli", "lnpdqp.oli",
         FT_UINT8, BASE_DEC, VALS(lnpdqp_OriginatingStationType_vals), 0,
         "OriginatingStationType", HFILL }},
-
-/*--- End of included file: packet-lnpdqp-hfarr.c ---*/
-#line 314 "./asn1/lnpdqp/packet-lnpdqp-template.c"
   };
 
   /* List of subtrees */
@@ -529,15 +502,9 @@ void proto_register_lnpdqp(void) {
     &ett_lnpdqp_digitstype,
     &ett_lnpdqp_digits,
 
-
-/*--- Included file: packet-lnpdqp-ettarr.c ---*/
-#line 1 "./asn1/lnpdqp/packet-lnpdqp-ettarr.c"
     &ett_lnpdqp_ConnectionControlArg_U,
     &ett_lnpdqp_ProvideInstructionArg_U,
     &ett_lnpdqp_ServiceKey,
-
-/*--- End of included file: packet-lnpdqp-ettarr.c ---*/
-#line 323 "./asn1/lnpdqp/packet-lnpdqp-template.c"
   };
 
   /* Register protocol */

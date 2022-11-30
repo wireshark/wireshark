@@ -3,9 +3,6 @@
 /* packet-e1ap.h                                                              */
 /* asn2wrs.py -L -p e1ap -c ./e1ap.cnf -s ./packet-e1ap-template -D . -O ../.. E1AP-CommonDataTypes.asn E1AP-Constants.asn E1AP-Containers.asn E1AP-IEs.asn E1AP-PDU-Contents.asn E1AP-PDU-Descriptions.asn */
 
-/* Input file: packet-e1ap-template.h */
-
-#line 1 "./asn1/e1ap/packet-e1ap-template.h"
 /* packet-e1ap.h
  * Routines for E-UTRAN E1 Application Protocol (E1AP) packet dissection
  *
@@ -27,12 +24,6 @@ typedef struct {
 } e1ap_ctx_t;
 
 
-
-/*--- Included file: packet-e1ap-exp.h ---*/
-#line 1 "./asn1/e1ap/packet-e1ap-exp.h"
-
-/*--- End of included file: packet-e1ap-exp.h ---*/
-#line 23 "./asn1/e1ap/packet-e1ap-template.h"
 
 #endif  /* PACKET_E1AP_H */
 

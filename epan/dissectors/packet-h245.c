@@ -3,9 +3,6 @@
 /* packet-h245.c                                                              */
 /* asn2wrs.py -L -p h245 -c ./h245.cnf -s ./packet-h245-template -D . -O ../.. MULTIMEDIA-SYSTEM-CONTROL.asn */
 
-/* Input file: packet-h245-template.c */
-
-#line 1 "./asn1/h245/packet-h245-template.c"
 /* packet-h245_asn1.c
  * Routines for h245 packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
@@ -79,9 +76,6 @@ static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
 static gboolean info_col_fmt_prepend = FALSE;
 
-
-/*--- Included file: packet-h245-val.h ---*/
-#line 1 "./asn1/h245/packet-h245-val.h"
 
 typedef enum _AudioCapability_enum {
   AudioCapability_nonStandard =   0,
@@ -200,9 +194,6 @@ typedef enum _IndicationMessage_enum {
   IndicationMessage_mobileMultilinkReconfigurationIndication =  22,
   IndicationMessage_genericIndication =  23
 } IndicationMessage_enum;
-
-/*--- End of included file: packet-h245-val.h ---*/
-#line 75 "./asn1/h245/packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -502,9 +493,6 @@ static void print_info_column(column_info *cinfo, const gint32 *value,
 
 /* Initialize the protocol and registered fields */
 static int proto_h245 = -1;
-
-/*--- Included file: packet-h245-hf.c ---*/
-#line 1 "./asn1/h245/packet-h245-hf.c"
 static int hf_h245_OpenLogicalChannel_PDU = -1;   /* OpenLogicalChannel */
 static int hf_h245_request = -1;                  /* RequestMessage */
 static int hf_h245_response = -1;                 /* ResponseMessage */
@@ -1908,15 +1896,9 @@ static int hf_h245_extendedAlphanumeric = -1;     /* T_extendedAlphanumeric */
 static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
-/*--- End of included file: packet-h245-hf.c ---*/
-#line 375 "./asn1/h245/packet-h245-template.c"
-
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
 static int ett_h245_returnedFunction = -1;
-
-/*--- Included file: packet-h245-ett.c ---*/
-#line 1 "./asn1/h245/packet-h245-ett.c"
 static gint ett_h245_MultimediaSystemControlMessage = -1;
 static gint ett_h245_RequestMessage = -1;
 static gint ett_h245_ResponseMessage = -1;
@@ -2409,9 +2391,6 @@ static gint ett_h245_EncryptedAlphanumeric = -1;
 static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
-/*--- End of included file: packet-h245-ett.c ---*/
-#line 380 "./asn1/h245/packet-h245-template.c"
-
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static void reset_h245_pi(void *dummy _U_)
@@ -2419,9 +2398,6 @@ static void reset_h245_pi(void *dummy _U_)
 	h245_pi = NULL; /* Make sure we don't leave pinfo->pool memory lying around */
 }
 
-
-/*--- Included file: packet-h245-fn.c ---*/
-#line 1 "./asn1/h245/packet-h245-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* GenericParameter -> ParameterValue -> ParameterValue/genericParameter -> GenericParameter */
@@ -14292,9 +14268,6 @@ static int dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 }
 
 
-/*--- End of included file: packet-h245-fn.c ---*/
-#line 389 "./asn1/h245/packet-h245-template.c"
-
 static int
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
@@ -14379,9 +14352,6 @@ void proto_register_h245(void) {
       { "*** DEBUG dissector_try_string", "h245.debug.dissector_try_string", FT_STRING, BASE_NONE,
         NULL, 0, NULL, HFILL }},
 
-
-/*--- Included file: packet-h245-hfarr.c ---*/
-#line 1 "./asn1/h245/packet-h245-hfarr.c"
     { &hf_h245_OpenLogicalChannel_PDU,
       { "OpenLogicalChannel", "h245.OpenLogicalChannel_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19990,18 +19960,12 @@ void proto_register_h245(void) {
       { "encryptedAlphanumeric", "h245.encryptedAlphanumeric_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-h245-hfarr.c ---*/
-#line 475 "./asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_h245,
 	  &ett_h245_returnedFunction,
-
-/*--- Included file: packet-h245-ettarr.c ---*/
-#line 1 "./asn1/h245/packet-h245-ettarr.c"
     &ett_h245_MultimediaSystemControlMessage,
     &ett_h245_RequestMessage,
     &ett_h245_ResponseMessage,
@@ -20493,9 +20457,6 @@ void proto_register_h245(void) {
     &ett_h245_EncryptedAlphanumeric,
     &ett_h245_FlowControlIndication,
     &ett_h245_MobileMultilinkReconfigurationIndication,
-
-/*--- End of included file: packet-h245-ettarr.c ---*/
-#line 482 "./asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 

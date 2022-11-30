@@ -3,9 +3,6 @@
 /* packet-disp.c                                                              */
 /* asn2wrs.py -b -L -p disp -c ./disp.cnf -s ./packet-disp-template -D . -O ../.. disp.asn */
 
-/* Input file: packet-disp-template.c */
-
-#line 1 "./asn1/disp/packet-disp-template.c"
 /* packet-disp.c
  * Routines for X.525 (X.500 Directory Shadow Asbtract Service) and X.519 DISP packet dissection
  * Graeme Lunt 2005
@@ -53,9 +50,6 @@ void proto_reg_handoff_disp(void);
 /* Initialize the protocol and registered fields */
 static int proto_disp = -1;
 
-
-/*--- Included file: packet-disp-hf.c ---*/
-#line 1 "./asn1/disp/packet-disp-hf.c"
 static int hf_disp_EstablishParameter_PDU = -1;   /* EstablishParameter */
 static int hf_disp_ModificationParameter_PDU = -1;  /* ModificationParameter */
 static int hf_disp_ShadowingAgreementInfo_PDU = -1;  /* ShadowingAgreementInfo */
@@ -164,14 +158,8 @@ static int hf_disp_unsignedShadowError = -1;      /* ShadowErrorData */
 static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
-/*--- End of included file: packet-disp-hf.c ---*/
-#line 49 "./asn1/disp/packet-disp-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
-
-/*--- Included file: packet-disp-ett.c ---*/
-#line 1 "./asn1/disp/packet-disp-ett.c"
 static gint ett_disp_ModificationParameter = -1;
 static gint ett_disp_SET_OF_SupplierAndConsumers = -1;
 static gint ett_disp_ShadowingAgreementInfo = -1;
@@ -227,9 +215,6 @@ static gint ett_disp_ShadowErrorData = -1;
 static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
-/*--- End of included file: packet-disp-ett.c ---*/
-#line 53 "./asn1/disp/packet-disp-template.c"
-
 static expert_field ei_disp_unsupported_opcode = EI_INIT;
 static expert_field ei_disp_unsupported_errcode = EI_INIT;
 static expert_field ei_disp_unsupported_pdu = EI_INIT;
@@ -237,9 +222,6 @@ static expert_field ei_disp_zero_pdu = EI_INIT;
 
 static dissector_handle_t disp_handle = NULL;
 
-
-/*--- Included file: packet-disp-fn.c ---*/
-#line 1 "./asn1/disp/packet-disp-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Subtree -> Subtree/subtree -> Subtree */
@@ -1452,9 +1434,6 @@ static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 }
 
 
-/*--- End of included file: packet-disp-fn.c ---*/
-#line 62 "./asn1/disp/packet-disp-template.c"
-
 /*
 * Dissect DISP PDUs inside a ROS PDUs
 */
@@ -1578,9 +1557,6 @@ void proto_register_disp(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
-
-/*--- Included file: packet-disp-hfarr.c ---*/
-#line 1 "./asn1/disp/packet-disp-hfarr.c"
     { &hf_disp_EstablishParameter_PDU,
       { "EstablishParameter", "disp.EstablishParameter_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2009,17 +1985,11 @@ void proto_register_disp(void) {
       { "shadowError", "disp.shadowError_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ShadowErrorData", HFILL }},
-
-/*--- End of included file: packet-disp-hfarr.c ---*/
-#line 187 "./asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_disp,
-
-/*--- Included file: packet-disp-ettarr.c ---*/
-#line 1 "./asn1/disp/packet-disp-ettarr.c"
     &ett_disp_ModificationParameter,
     &ett_disp_SET_OF_SupplierAndConsumers,
     &ett_disp_ShadowingAgreementInfo,
@@ -2074,9 +2044,6 @@ void proto_register_disp(void) {
     &ett_disp_ShadowErrorData,
     &ett_disp_ShadowError,
     &ett_disp_T_signedShadowError,
-
-/*--- End of included file: packet-disp-ettarr.c ---*/
-#line 193 "./asn1/disp/packet-disp-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2114,18 +2081,12 @@ void proto_register_disp(void) {
 
 /*--- proto_reg_handoff_disp --- */
 void proto_reg_handoff_disp(void) {
-
-/*--- Included file: packet-disp-dis-tab.c ---*/
-#line 1 "./asn1/disp/packet-disp-dis-tab.c"
   dissector_add_string("dop.oid", "agreement.2.5.19.1", create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
   dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
   dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
   dissector_add_string("dop.oid", "modify.rolea.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
   dissector_add_string("dop.oid", "modify.roleb.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
 
-
-/*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 231 "./asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

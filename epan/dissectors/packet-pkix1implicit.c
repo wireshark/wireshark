@@ -3,9 +3,6 @@
 /* packet-pkix1implicit.c                                                     */
 /* asn2wrs.py -b -L -p pkix1implicit -c ./pkix1implicit.cnf -s ./packet-pkix1implicit-template -D . -O ../.. PKIX1IMPLICIT93.asn */
 
-/* Input file: packet-pkix1implicit-template.c */
-
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
 /* packet-pkix1implicit.c
  * Routines for PKIX1Implitic packet dissection
  *
@@ -35,9 +32,6 @@ void proto_reg_handoff_pkix1implicit(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_pkix1implicit = -1;
-
-/*--- Included file: packet-pkix1implicit-hf.c ---*/
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-hf.c"
 static int hf_pkix1implicit_Dummy_PDU = -1;       /* Dummy */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU = -1;  /* AuthorityInfoAccessSyntax */
 static int hf_pkix1implicit_UserNotice_PDU = -1;  /* UserNotice */
@@ -54,22 +48,13 @@ static int hf_pkix1implicit_visibleString = -1;   /* VisibleString */
 static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
 static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
 
-/*--- End of included file: packet-pkix1implicit-hf.c ---*/
-#line 31 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
-
 /* Initialize the subtree pointers */
-
-/*--- Included file: packet-pkix1implicit-ett.c ---*/
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-ett.c"
 static gint ett_pkix1implicit_AuthorityInfoAccessSyntax = -1;
 static gint ett_pkix1implicit_AccessDescription = -1;
 static gint ett_pkix1implicit_UserNotice = -1;
 static gint ett_pkix1implicit_NoticeReference = -1;
 static gint ett_pkix1implicit_T_noticeNumbers = -1;
 static gint ett_pkix1implicit_DisplayText = -1;
-
-/*--- End of included file: packet-pkix1implicit-ett.c ---*/
-#line 34 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
 
 
 int
@@ -85,9 +70,6 @@ dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   return offset;
 }
 
-
-/*--- Included file: packet-pkix1implicit-fn.c ---*/
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-fn.c"
 
 
 int
@@ -292,18 +274,12 @@ static int dissect_UserNotice_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 
-/*--- End of included file: packet-pkix1implicit-fn.c ---*/
-#line 50 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
-
 
 /*--- proto_register_pkix1implicit ----------------------------------------------*/
 void proto_register_pkix1implicit(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-/*--- Included file: packet-pkix1implicit-hfarr.c ---*/
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-hfarr.c"
     { &hf_pkix1implicit_Dummy_PDU,
       { "Dummy", "pkix1implicit.Dummy_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -364,25 +340,16 @@ void proto_register_pkix1implicit(void) {
       { "utf8String", "pkix1implicit.utf8String",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- End of included file: packet-pkix1implicit-hfarr.c ---*/
-#line 58 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-
-/*--- Included file: packet-pkix1implicit-ettarr.c ---*/
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-ettarr.c"
     &ett_pkix1implicit_AuthorityInfoAccessSyntax,
     &ett_pkix1implicit_AccessDescription,
     &ett_pkix1implicit_UserNotice,
     &ett_pkix1implicit_NoticeReference,
     &ett_pkix1implicit_T_noticeNumbers,
     &ett_pkix1implicit_DisplayText,
-
-/*--- End of included file: packet-pkix1implicit-ettarr.c ---*/
-#line 63 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
   };
 
   /* Register protocol */
@@ -397,9 +364,6 @@ void proto_register_pkix1implicit(void) {
 
 /*--- proto_reg_handoff_pkix1implicit -------------------------------------------*/
 void proto_reg_handoff_pkix1implicit(void) {
-
-/*--- Included file: packet-pkix1implicit-dis-tab.c ---*/
-#line 1 "./asn1/pkix1implicit/packet-pkix1implicit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.1", dissect_AuthorityInfoAccessSyntax_PDU, proto_pkix1implicit, "id-pe-authorityInfoAccess");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ad-ocsp");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ad-caIssuers");
@@ -438,8 +402,5 @@ void proto_reg_handoff_pkix1implicit(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.8.2.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-ipsec-kp-ike-intermediate");
   register_ber_oid_dissector("1.3.6.1.5.5.7.2.2", dissect_UserNotice_PDU, proto_pkix1implicit, "id-qt-unotice");
 
-
-/*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/
-#line 78 "./asn1/pkix1implicit/packet-pkix1implicit-template.c"
 }
 

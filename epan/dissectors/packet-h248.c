@@ -3,9 +3,6 @@
 /* packet-h248.c                                                              */
 /* asn2wrs.py -b -L -p h248 -c ./h248.cnf -s ./packet-h248-template -D . -O ../.. h248v3.asn h248v1support.asn */
 
-/* Input file: packet-h248-template.c */
-
-#line 1 "./asn1/h248/packet-h248-template.c"
 /* packet-h248.c
  * Routines for H.248/MEGACO packet dissection
  *
@@ -73,9 +70,6 @@ static int hf_h248_context_id64 = -1;
 /* h248v1 support */
 static int hf_h248_auditValueReplyV1 = -1;
 
-
-/*--- Included file: packet-h248-hf.c ---*/
-#line 1 "./asn1/h248/packet-h248-hf.c"
 static int hf_h248_authHeader = -1;               /* AuthenticationHeader */
 static int hf_h248_mess = -1;                     /* Message */
 static int hf_h248_secParmIndex = -1;             /* SecurityParmIndex */
@@ -391,9 +385,6 @@ static int hf_h248_NotifyCompletion_onInterruptByNewSignalDescr = -1;
 static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
-/*--- End of included file: packet-h248-hf.c ---*/
-#line 69 "./asn1/h248/packet-h248-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
@@ -412,9 +403,6 @@ static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 static gint exported_pdu_tap = -1;
 
 
-
-/*--- Included file: packet-h248-ett.c ---*/
-#line 1 "./asn1/h248/packet-h248-ett.c"
 static gint ett_h248_MegacoMessage = -1;
 static gint ett_h248_AuthenticationHeader = -1;
 static gint ett_h248_Message = -1;
@@ -558,9 +546,6 @@ static gint ett_h248_AuditReplyV1 = -1;
 static gint ett_h248_AuditResultV1 = -1;
 static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
-
-/*--- End of included file: packet-h248-ett.c ---*/
-#line 89 "./asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -2627,9 +2612,6 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
 
 #define H248_TAP() do { if (keep_persistent_data && curr_info.cmd) tap_queue_packet(h248_tap, actx->pinfo, curr_info.cmd); } while(0)
 
-
-/*--- Included file: packet-h248-fn.c ---*/
-#line 1 "./asn1/h248/packet-h248-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* SecondEventsDescriptor -> SecondEventsDescriptor/eventList -> SecondRequestedEvent -> SecondRequestedActions -> NotifyBehaviour -> RegulatedEmbeddedDescriptor -> SecondEventsDescriptor */
@@ -5983,9 +5965,6 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-/*--- End of included file: packet-h248-fn.c ---*/
-#line 2156 "./asn1/h248/packet-h248-template.c"
-
 static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
     return tvb_captured_length(tvb);
@@ -6152,9 +6131,6 @@ void proto_register_h248(void) {
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
-
-/*--- Included file: packet-h248-hfarr.c ---*/
-#line 1 "./asn1/h248/packet-h248-hfarr.c"
     { &hf_h248_authHeader,
       { "authHeader", "h248.authHeader_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7408,9 +7384,6 @@ void proto_register_h248(void) {
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
 
-/*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2324 "./asn1/h248/packet-h248-template.c"
-
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
     };
@@ -7427,9 +7400,6 @@ void proto_register_h248(void) {
         &ett_h248_no_evt,
         GCP_ETT_ARR_ELEMS(h248_arrel),
 
-
-/*--- Included file: packet-h248-ettarr.c ---*/
-#line 1 "./asn1/h248/packet-h248-ettarr.c"
     &ett_h248_MegacoMessage,
     &ett_h248_AuthenticationHeader,
     &ett_h248_Message,
@@ -7573,9 +7543,6 @@ void proto_register_h248(void) {
     &ett_h248_AuditResultV1,
     &ett_h248_EventParameterV1,
     &ett_h248_SigParameterV1,
-
-/*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2342 "./asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {

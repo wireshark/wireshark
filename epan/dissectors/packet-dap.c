@@ -3,9 +3,6 @@
 /* packet-dap.c                                                               */
 /* asn2wrs.py -b -L -p dap -c ./dap.cnf -s ./packet-dap-template -D . -O ../.. dap.asn DirectoryAccessProtocol.asn */
 
-/* Input file: packet-dap-template.c */
-
-#line 1 "./asn1/dap/packet-dap-template.c"
 /* packet-dap.c
  * Routines for X.511 (X.500 Directory Asbtract Service) and X.519 DAP  packet dissection
  * Graeme Lunt 2005
@@ -53,9 +50,6 @@ void proto_reg_handoff_dap(void);
 static int proto_dap = -1;
 
 
-
-/*--- Included file: packet-dap-hf.c ---*/
-#line 1 "./asn1/dap/packet-dap-hf.c"
 static int hf_dap_DirectoryBindArgument_PDU = -1;  /* DirectoryBindArgument */
 static int hf_dap_DirectoryBindResult_PDU = -1;   /* DirectoryBindResult */
 static int hf_dap_DirectoryBindError_PDU = -1;    /* DirectoryBindError */
@@ -462,14 +456,8 @@ static int hf_dap_SearchControlOptions_useSubset = -1;
 static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
-/*--- End of included file: packet-dap-hf.c ---*/
-#line 49 "./asn1/dap/packet-dap-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
-
-/*--- Included file: packet-dap-ett.c ---*/
-#line 1 "./asn1/dap/packet-dap-ett.c"
 static gint ett_dap_ServiceControls = -1;
 static gint ett_dap_T_manageDSAITPlaneRef = -1;
 static gint ett_dap_ServiceControlOptions = -1;
@@ -641,14 +629,8 @@ static gint ett_dap_T_attributeInfo_item = -1;
 static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
-/*--- End of included file: packet-dap-ett.c ---*/
-#line 53 "./asn1/dap/packet-dap-template.c"
-
 static expert_field ei_dap_anonymous = EI_INIT;
 
-
-/*--- Included file: packet-dap-val.h ---*/
-#line 1 "./asn1/dap/packet-dap-val.h"
 #define id_opcode_read                 1
 #define id_opcode_compare              2
 #define id_opcode_abandon              3
@@ -668,12 +650,6 @@ static expert_field ei_dap_anonymous = EI_INIT;
 #define id_errcode_updateError         8
 #define id_errcode_dsaReferral         9
 
-/*--- End of included file: packet-dap-val.h ---*/
-#line 57 "./asn1/dap/packet-dap-template.c"
-
-
-/*--- Included file: packet-dap-table.c ---*/
-#line 1 "./asn1/dap/packet-dap-table.c"
 
 /* DAP OPERATIONS */
 const value_string dap_opr_code_string_vals[] = {
@@ -706,12 +682,6 @@ static const value_string dap_err_code_string_vals[] = {
 };
 
 
-/*--- End of included file: packet-dap-table.c ---*/
-#line 59 "./asn1/dap/packet-dap-template.c"
-
-
-/*--- Included file: packet-dap-fn.c ---*/
-#line 1 "./asn1/dap/packet-dap-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* FamilyEntries -> FamilyEntries/familyEntries -> FamilyEntry -> FamilyEntry/family-info -> FamilyEntries */
@@ -4753,12 +4723,6 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 }
 
 
-/*--- End of included file: packet-dap-fn.c ---*/
-#line 61 "./asn1/dap/packet-dap-template.c"
-
-
-/*--- Included file: packet-dap-table11.c ---*/
-#line 1 "./asn1/dap/packet-dap-table11.c"
 
 static const ros_opr_t dap_opr_tab[] = {
   /* directoryBind */
@@ -4785,12 +4749,6 @@ static const ros_opr_t dap_opr_tab[] = {
 };
 
 
-/*--- End of included file: packet-dap-table11.c ---*/
-#line 63 "./asn1/dap/packet-dap-template.c"
-
-/*--- Included file: packet-dap-table21.c ---*/
-#line 1 "./asn1/dap/packet-dap-table21.c"
-
 static const ros_err_t dap_err_tab[] = {
   /* directoryBindError*/
   { err_ros_bind,	dissect_DirectoryBindError_PDU },
@@ -4814,9 +4772,6 @@ static const ros_err_t dap_err_tab[] = {
 };
 
 
-/*--- End of included file: packet-dap-table21.c ---*/
-#line 64 "./asn1/dap/packet-dap-template.c"
-
 static const ros_info_t dap_ros_info = {
   "DAP",
   &proto_dap,
@@ -4834,9 +4789,6 @@ void proto_register_dap(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
-
-/*--- Included file: packet-dap-hfarr.c ---*/
-#line 1 "./asn1/dap/packet-dap-hfarr.c"
     { &hf_dap_DirectoryBindArgument_PDU,
       { "DirectoryBindArgument", "dap.DirectoryBindArgument_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6453,17 +6405,11 @@ void proto_register_dap(void) {
       { "searchFamily", "dap.SearchControlOptions.searchFamily",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-dap-hfarr.c ---*/
-#line 83 "./asn1/dap/packet-dap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_dap,
-
-/*--- Included file: packet-dap-ettarr.c ---*/
-#line 1 "./asn1/dap/packet-dap-ettarr.c"
     &ett_dap_ServiceControls,
     &ett_dap_T_manageDSAITPlaneRef,
     &ett_dap_ServiceControlOptions,
@@ -6634,9 +6580,6 @@ void proto_register_dap(void) {
     &ett_dap_T_attributeInfo_item,
     &ett_dap_UpdateError,
     &ett_dap_T_signedUpdateError,
-
-/*--- End of included file: packet-dap-ettarr.c ---*/
-#line 89 "./asn1/dap/packet-dap-template.c"
   };
 
   static ei_register_info ei[] = {

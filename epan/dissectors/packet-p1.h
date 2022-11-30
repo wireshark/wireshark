@@ -3,9 +3,6 @@
 /* packet-p1.h                                                                */
 /* asn2wrs.py -b -C -L -p p1 -c ./p1.cnf -s ./packet-p1-template -D . -O ../.. MTAAbstractService.asn MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn */
 
-/* Input file: packet-p1-template.h */
-
-#line 1 "./asn1/p1/packet-p1-template.h"
 /* packet-p3.h
  * Routines for X.411 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
@@ -20,9 +17,6 @@
 #ifndef PACKET_P1_H
 #define PACKET_P1_H
 
-
-/*--- Included file: packet-p1-val.h ---*/
-#line 1 "./asn1/p1/packet-p1-val.h"
 #define op_message_submission          3
 #define op_probe_submission            4
 #define op_cancel_deferred_delivery    7
@@ -157,15 +151,9 @@
 #define ub_universal_surname_length    64
 #define ub_x121_address_length         16
 
-/*--- End of included file: packet-p1-val.h ---*/
-#line 16 "./asn1/p1/packet-p1-template.h"
-
 void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean report_unknown_cont_type);
 const char* p1_get_last_oraddress(asn1_ctx_t* actx);
 int dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data);
-
-/*--- Included file: packet-p1-exp.h ---*/
-#line 1 "./asn1/p1/packet-p1-exp.h"
 extern const value_string p1_Credentials_vals[];
 extern const value_string p1_SecurityProblem_vals[];
 extern const value_string p1_ContentType_vals[];
@@ -217,9 +205,6 @@ int dissect_p1_G3FacsimileNonBasicParameters(gboolean implicit_tag _U_, tvbuff_t
 int dissect_p1_TeletexNonBasicParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_p1_SecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_p1_MessageSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
-/*--- End of included file: packet-p1-exp.h ---*/
-#line 21 "./asn1/p1/packet-p1-template.h"
 
 void proto_reg_handoff_p1(void);
 void proto_register_p1(void);

@@ -2995,22 +2995,22 @@ class EthOut:
         print("\n")
 
     #--- make_single_file -------------------------------------------------------
-    def make_single_file(self):
+    def make_single_file(self, suppress_line):
         if (not self.single_file): return
         in_nm = self.single_file + '.c'
         out_nm = os.path.join(self.outdir, self.output_fname(''))
-        self.do_include(out_nm, in_nm)
+        self.do_include(out_nm, in_nm, suppress_line)
         in_nm = self.single_file + '.h'
         if (os.path.exists(in_nm)):
             out_nm = os.path.join(self.outdir, self.output_fname('', ext='h'))
-            self.do_include(out_nm, in_nm)
+            self.do_include(out_nm, in_nm, suppress_line)
         if (not self.keep):
             for fn in self.created_files_ord:
                 if not self.created_files[fn]:
                     os.unlink(fn)
 
     #--- do_include -------------------------------------------------------
-    def do_include(self, out_nm, in_nm):
+    def do_include(self, out_nm, in_nm, suppress_line):
         def check_file(fn, fnlist):
             fnfull = os.path.normcase(os.path.abspath(fn))
             if (fnfull in fnlist and os.path.exists(fnfull)):
@@ -3019,9 +3019,10 @@ class EthOut:
         fin = open(in_nm, "r")
         fout = open(out_nm, "w")
         fout.write(self.fhdr(out_nm))
-        fout.write('/* Input file: ' + os.path.basename(in_nm) +' */\n')
-        fout.write('\n')
-        fout.write('#line %u "%s"\n' % (1, rel_dissector_path(in_nm)))
+        if (not suppress_line):
+            fout.write('/* Input file: ' + os.path.basename(in_nm) +' */\n')
+            fout.write('\n')
+            fout.write('#line %u "%s"\n' % (1, rel_dissector_path(in_nm)))
 
         include = re.compile(r'^\s*#\s*include\s+[<"](?P<fname>[^>"]+)[>"]', re.IGNORECASE)
 
@@ -3041,14 +3042,16 @@ class EthOut:
                 if (not ifile):
                     ifile = check_file(result.group('fname'), self.created_files)
             if (ifile):
-                fout.write('\n')
-                fout.write('/*--- Included file: ' + ifile + ' ---*/\n')
-                fout.write('#line %u "%s"\n' % (1, rel_dissector_path(ifile)))
+                if (not suppress_line):
+                    fout.write('\n')
+                    fout.write('/*--- Included file: ' + ifile + ' ---*/\n')
+                    fout.write('#line %u "%s"\n' % (1, rel_dissector_path(ifile)))
                 finc = open(ifile, "r")
                 fout.write(finc.read())
-                fout.write('\n')
-                fout.write('/*--- End of included file: ' + ifile + ' ---*/\n')
-                fout.write('#line %u "%s"\n' % (cont_linenum+1, rel_dissector_path(in_nm)) )
+                if (not suppress_line):
+                    fout.write('\n')
+                    fout.write('/*--- End of included file: ' + ifile + ' ---*/\n')
+                    fout.write('#line %u "%s"\n' % (cont_linenum+1, rel_dissector_path(in_nm)) )
                 finc.close()
             else:
                 fout.write(line)
@@ -8019,6 +8022,8 @@ def eth_main():
             ectx.srcdir = relpath(a)
         if o in ("-C",):
             ectx.constraints_check = True
+        if o in ("-L",):
+            ectx.suppress_line = True
         if o in ("-X",):
             warnings.warn("Command line option -X is obsolete and can be removed")
         if o in ("-T",):
@@ -8102,7 +8107,7 @@ def eth_main():
 
     if ectx.dbg('o'):
         ectx.output.dbg_print()
-    ectx.output.make_single_file()
+    ectx.output.make_single_file(ectx.suppress_line)
 
 
 # Python compiler

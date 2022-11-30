@@ -3,9 +3,6 @@
 /* packet-idmp.h                                                              */
 /* asn2wrs.py -b -L -p idmp -c ./idmp.cnf -s ./packet-idmp-template -D . -O ../.. IDMProtocolSpecification.asn CommonProtocolSpecification.asn */
 
-/* Input file: packet-idmp-template.h */
-
-#line 1 "./asn1/idmp/packet-idmp-template.h"
 /* packet-idmp.h
  * Routines for X.519 Internet Directly Mapped Protocol (IDMP) packet dissection
  * Graeme Lunt 2010

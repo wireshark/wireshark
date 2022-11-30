@@ -3,9 +3,6 @@
 /* packet-its.h                                                               */
 /* asn2wrs.py -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-PDU-Descriptions.asn */
 
-/* Input file: packet-its-template.h */
-
-#line 1 "./asn1/its/packet-its-template.h"
 /* packet-its-template.h
  *
  * Intelligent Transport Systems Applications dissectors
@@ -21,9 +18,6 @@
 #ifndef __PACKET_ITS_H__
 #define __PACKET_ITS_H__
 
-
-/*--- Included file: packet-its-exp.h ---*/
-#line 1 "./asn1/its/packet-its-exp.h"
 
 /* --- Module ITS-Container --- --- ---                                       */
 
@@ -100,12 +94,6 @@
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
 
 
-/*--- End of included file: packet-its-exp.h ---*/
-#line 17 "./asn1/its/packet-its-template.h"
-
-
-/*--- Included file: packet-its-val.h ---*/
-#line 1 "./asn1/its/packet-its-val.h"
 
 /* --- Module ITS-Container --- --- ---                                       */
 
@@ -241,9 +229,6 @@ typedef enum _RegionId_enum {
 
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
 
-
-/*--- End of included file: packet-its-val.h ---*/
-#line 19 "./asn1/its/packet-its-template.h"
 
 typedef struct its_header {
     guint32 version;

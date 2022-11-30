@@ -3,9 +3,6 @@
 /* packet-acp133.c                                                            */
 /* asn2wrs.py -b -L -p acp133 -c ./acp133.cnf -s ./packet-acp133-template -D . -O ../.. acp133.asn MHSDirectoryObjectsAndAttributes.asn */
 
-/* Input file: packet-acp133-template.c */
-
-#line 1 "./asn1/acp133/packet-acp133-template.c"
 /* packet-acp133.c
  * Routines for ACP133 specific syntaxes in X.500 packet dissection
  * Graeme Lunt 2005
@@ -44,9 +41,6 @@ void proto_reg_handoff_acp133(void);
 static int proto_acp133 = -1;
 
 
-
-/*--- Included file: packet-acp133-hf.c ---*/
-#line 1 "./asn1/acp133/packet-acp133-hf.c"
 static int hf_acp133_ACPPreferredDelivery_PDU = -1;  /* ACPPreferredDelivery */
 static int hf_acp133_ALType_PDU = -1;             /* ALType */
 static int hf_acp133_Community_PDU = -1;          /* Community */
@@ -135,14 +129,8 @@ static int hf_acp133_OnSupported_acp127_nn = -1;
 static int hf_acp133_OnSupported_acp127_pn = -1;
 static int hf_acp133_OnSupported_acp127_tn = -1;
 
-/*--- End of included file: packet-acp133-hf.c ---*/
-#line 40 "./asn1/acp133/packet-acp133-template.c"
-
 /* Initialize the subtree pointers */
 static gint ett_acp133 = -1;
-
-/*--- Included file: packet-acp133-ett.c ---*/
-#line 1 "./asn1/acp133/packet-acp133-ett.c"
 static gint ett_acp133_OnSupported = -1;
 static gint ett_acp133_Addressees = -1;
 static gint ett_acp133_MonthlyUKMs = -1;
@@ -164,12 +152,6 @@ static gint ett_acp133_SET_OF_Capability = -1;
 static gint ett_acp133_Capability = -1;
 static gint ett_acp133_SET_OF_ExtendedContentType = -1;
 
-/*--- End of included file: packet-acp133-ett.c ---*/
-#line 44 "./asn1/acp133/packet-acp133-template.c"
-
-
-/*--- Included file: packet-acp133-fn.c ---*/
-#line 1 "./asn1/acp133/packet-acp133-fn.c"
 
 static const value_string acp133_ACPPreferredDelivery_vals[] = {
   {   0, "smtp" },
@@ -1207,9 +1189,6 @@ static int dissect_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 }
 
 
-/*--- End of included file: packet-acp133-fn.c ---*/
-#line 46 "./asn1/acp133/packet-acp133-template.c"
-
 
 /*--- proto_register_acp133 -------------------------------------------*/
 void proto_register_acp133(void) {
@@ -1217,9 +1196,6 @@ void proto_register_acp133(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
-
-/*--- Included file: packet-acp133-hfarr.c ---*/
-#line 1 "./asn1/acp133/packet-acp133-hfarr.c"
     { &hf_acp133_ACPPreferredDelivery_PDU,
       { "ACPPreferredDelivery", "acp133.ACPPreferredDelivery",
         FT_UINT32, BASE_DEC, VALS(acp133_ACPPreferredDelivery_vals), 0,
@@ -1564,17 +1540,11 @@ void proto_register_acp133(void) {
       { "acp127-tn", "acp133.OnSupported.acp127.tn",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-
-/*--- End of included file: packet-acp133-hfarr.c ---*/
-#line 55 "./asn1/acp133/packet-acp133-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_acp133,
-
-/*--- Included file: packet-acp133-ettarr.c ---*/
-#line 1 "./asn1/acp133/packet-acp133-ettarr.c"
     &ett_acp133_OnSupported,
     &ett_acp133_Addressees,
     &ett_acp133_MonthlyUKMs,
@@ -1595,9 +1565,6 @@ void proto_register_acp133(void) {
     &ett_acp133_SET_OF_Capability,
     &ett_acp133_Capability,
     &ett_acp133_SET_OF_ExtendedContentType,
-
-/*--- End of included file: packet-acp133-ettarr.c ---*/
-#line 61 "./asn1/acp133/packet-acp133-template.c"
   };
 
   /* Register protocol */
@@ -1613,9 +1580,6 @@ void proto_register_acp133(void) {
 /*--- proto_reg_handoff_acp133 --- */
 void proto_reg_handoff_acp133(void) {
 
-
-/*--- Included file: packet-acp133-dis-tab.c ---*/
-#line 1 "./asn1/acp133/packet-acp133-dis-tab.c"
   register_ber_oid_dissector("2.6.5.2.4", dissect_DLSubmitPermission_PDU, proto_acp133, "id-at-mhs-dl-submit-permissions");
   register_ber_oid_dissector("2.6.5.2.13", dissect_DLPolicy_PDU, proto_acp133, "id-at-mhs-dl-policy");
   register_ber_oid_dissector("2.6.5.2.16", dissect_AddressCapabilities_PDU, proto_acp133, "id-at-mhs-or-addresses-with-capabilities");
@@ -1667,9 +1631,6 @@ void proto_reg_handoff_acp133(void) {
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.171", dissect_DistributionCode_PDU, proto_acp133, "id-at-distributionKeywordInfo");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.189", dissect_ACPNoAttachments_PDU, proto_acp133, "id-at-aCPNoAttachments");
 
-
-/*--- End of included file: packet-acp133-dis-tab.c ---*/
-#line 77 "./asn1/acp133/packet-acp133-template.c"
 
   /* X.402 Object Classes */
   oid_add_from_string("id-oc-mhs-distribution-list","2.6.5.1.0");

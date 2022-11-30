@@ -3,9 +3,6 @@
 /* packet-acse.c                                                              */
 /* asn2wrs.py -b -C -L -p acse -c ./acse.cnf -s ./packet-acse-template -D . -O ../.. acse.asn */
 
-/* Input file: packet-acse-template.c */
-
-#line 1 "./asn1/acse/packet-acse-template.c"
 /*XXX
   There is a bug in asn2wrs that it can not yet handle tagged assignments such
   as EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE {
@@ -60,9 +57,6 @@ int proto_clacse = -1;
 
 
 
-
-/*--- Included file: packet-acse-hf.c ---*/
-#line 1 "./asn1/acse/packet-acse-hf.c"
 static int hf_acse_direct_reference = -1;         /* T_direct_reference */
 static int hf_acse_indirect_reference = -1;       /* T_indirect_reference */
 static int hf_acse_data_value_descriptor = -1;    /* ObjectDescriptor */
@@ -171,16 +165,10 @@ static int hf_acse_ACSE_requirements_authentication = -1;
 static int hf_acse_ACSE_requirements_aSO_context_negotiation = -1;
 static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
-
-/*--- End of included file: packet-acse-hf.c ---*/
-#line 56 "./asn1/acse/packet-acse-template.c"
 static gint hf_acse_user_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
-
-/*--- Included file: packet-acse-ett.c ---*/
-#line 1 "./asn1/acse/packet-acse-ett.c"
 static gint ett_acse_EXTERNALt_U = -1;
 static gint ett_acse_T_encoding = -1;
 static gint ett_acse_ACSE_apdu = -1;
@@ -216,9 +204,6 @@ static gint ett_acse_PDV_list = -1;
 static gint ett_acse_T_presentation_data_values = -1;
 static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
-
-/*--- End of included file: packet-acse-ett.c ---*/
-#line 61 "./asn1/acse/packet-acse-template.c"
 
 static expert_field ei_acse_dissector_not_available = EI_INIT;
 static expert_field ei_acse_malformed = EI_INIT;
@@ -283,9 +268,6 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 
 # endif /* NOT_NEEDED */
 
-
-/*--- Included file: packet-acse-fn.c ---*/
-#line 1 "./asn1/acse/packet-acse-fn.c"
 
 
 static int
@@ -1634,9 +1616,6 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-/*--- End of included file: packet-acse-fn.c ---*/
-#line 126 "./asn1/acse/packet-acse-template.c"
-
 
 /*
 * Dissect ACSE PDUs inside a PPDU.
@@ -1747,9 +1726,6 @@ void proto_register_acse(void) {
       { "User data", "acse.user_data",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-/*--- Included file: packet-acse-hfarr.c ---*/
-#line 1 "./asn1/acse/packet-acse-hfarr.c"
     { &hf_acse_direct_reference,
       { "direct-reference", "acse.direct_reference",
         FT_OID, BASE_NONE, NULL, 0,
@@ -2178,17 +2154,11 @@ void proto_register_acse(void) {
       { "nested-association", "acse.ACSE.requirements.nested.association",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-
-/*--- End of included file: packet-acse-hfarr.c ---*/
-#line 238 "./asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_acse,
-
-/*--- Included file: packet-acse-ettarr.c ---*/
-#line 1 "./asn1/acse/packet-acse-ettarr.c"
     &ett_acse_EXTERNALt_U,
     &ett_acse_T_encoding,
     &ett_acse_ACSE_apdu,
@@ -2224,9 +2194,6 @@ void proto_register_acse(void) {
     &ett_acse_T_presentation_data_values,
     &ett_acse_Authentication_value_other,
     &ett_acse_Authentication_value,
-
-/*--- End of included file: packet-acse-ettarr.c ---*/
-#line 244 "./asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {
