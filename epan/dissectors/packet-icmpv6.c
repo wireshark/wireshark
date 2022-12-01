@@ -2351,7 +2351,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             case ND_OPT_DNS_SEARCH_LIST: /* DNS Search List Option (31) */
             {
                 int dnssl_len;
-                const gchar *dnssl_name;
+                const gchar *dnssl_name, *name_out;
 
                 /* Reserved */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
@@ -2370,8 +2370,9 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         break;
                     }
                     used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dnssl_name, &dnssl_len);
-                    proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, used_bytes, format_text(pinfo->pool, dnssl_name, dnssl_len));
-                    proto_item_append_text(ti, " %s", dnssl_name);
+                    name_out = format_text(pinfo->pool, dnssl_name, dnssl_len);
+                    proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, used_bytes, name_out);
+                    proto_item_append_text(ti, " %s", name_out);
                     opt_offset += used_bytes;
 
                 }
