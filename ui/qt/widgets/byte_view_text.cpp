@@ -23,10 +23,12 @@
 #include <QActionGroup>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QScreen>
 #include <QScrollBar>
 #include <QStyle>
 #include <QStyleOption>
 #include <QTextLayout>
+#include <QWindow>
 
 // To do:
 // - Add recent settings and context menu items to show/hide the offset.
@@ -68,6 +70,9 @@ ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWi
 
     offset_normal_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
     offset_field_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.65);
+
+    winId(); // Required for screenChanged? https://phabricator.kde.org/D20171
+    connect(windowHandle(), &QWindow::screenChanged, viewport(), [=](const QScreen *) { viewport()->update(); });
 
     createContextMenu();
 
