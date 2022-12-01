@@ -60,7 +60,7 @@ ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWi
     show_hex_(true),
     show_ascii_(true),
     row_width_(recent.gui_bytes_view == BYTES_HEX ? 16 : 8),
-    font_width_(0),
+    em_width_(0),
     line_height_(0),
     allow_hover_selection_(false)
 {
@@ -229,7 +229,7 @@ void ByteViewText::paintEvent(QPaintEvent *)
     updateLayoutMetrics();
 
     QPainter painter(viewport());
-    painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
+    painter.translate(-horizontalScrollBar()->value() * em_width_, 0);
 
     // Pixel offset of this row
     int row_y = 0;
@@ -306,7 +306,7 @@ void ByteViewText::resizeEvent(QResizeEvent *)
 }
 
 void ByteViewText::mousePressEvent (QMouseEvent *event) {
-    if (isEmpty() || !event || event->button() != Qt::LeftButton) {
+    if (data_.isEmpty() || !event || event->button() != Qt::LeftButton) {
         return;
     }
 
@@ -364,17 +364,17 @@ const int ByteViewText::separator_interval_ = DataPrinter::separatorInterval();
 
 void ByteViewText::updateLayoutMetrics()
 {
-    font_width_  = stringWidth("M");
+    em_width_  = stringWidth("M");
     // We might want to match ProtoTree::rowHeight.
-    line_height_ = fontMetrics().lineSpacing();
+    line_height_ = viewport()->fontMetrics().lineSpacing();
 }
 
 int ByteViewText::stringWidth(const QString &line)
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
-    return fontMetrics().horizontalAdvance(line);
+    return viewport()->fontMetrics().horizontalAdvance(line);
 #else
-    return fontMetrics().boundingRect(line).width();
+    return viewport()->fontMetrics().boundingRect(line).width();
 #endif
 }
 
@@ -382,7 +382,7 @@ int ByteViewText::stringWidth(const QString &line)
 // Text highlighting is handled using QTextLayout::FormatRange.
 void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y)
 {
-    if (isEmpty()) {
+    if (data_.isEmpty()) {
         return;
     }
 
@@ -411,7 +411,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     if (show_hex_) {
         int ascii_start = static_cast<int>(line.length()) + DataPrinter::hexChars() + 3;
         // Extra hover space before and after each byte.
-        int slop = font_width_ / 2;
+        int slop = em_width_ / 2;
 
         if (build_x_pos) {
             x_pos_to_column_ += QVector<int>().fill(-1, slop);
@@ -422,7 +422,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             /* insert a space every separator_interval_ bytes */
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
                 line += ' ';
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, font_width_);
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, em_width_);
             }
 
             switch (recent.gui_bytes_view) {
@@ -472,7 +472,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
                 line += ' ';
                 if (build_x_pos) {
-                    x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, font_width_ / 2);
+                    x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, em_width_ / 2);
                 }
             }
 
@@ -615,7 +615,7 @@ void ByteViewText::scrollToByte(int byte)
 int ByteViewText::offsetChars(bool include_pad)
 {
     int padding = include_pad ? 2 : 0;
-    if (! isEmpty() && data_.size() > 0xffff) {
+    if (! data_.isEmpty() && data_.size() > 0xffff) {
         return 8 + padding;
     }
     return 4 + padding;
@@ -679,18 +679,18 @@ void ByteViewText::copyBytes(bool)
 void ByteViewText::updateScrollbars()
 {
     const int length = static_cast<int>(data_.size());
-    if (length > 0) {
+    if (length > 0 && line_height_ > 0 && em_width_ > 0) {
         int all_lines_height = length / row_width_ + ((length % row_width_) ? 1 : 0) - viewport()->height() / line_height_;
 
         verticalScrollBar()->setRange(0, qMax(0, all_lines_height));
-        horizontalScrollBar()->setRange(0, qMax(0, int((totalPixels() - viewport()->width()) / font_width_)));
+        horizontalScrollBar()->setRange(0, qMax(0, int((totalPixels() - viewport()->width()) / em_width_)));
     }
 }
 
 int ByteViewText::byteOffsetAtPixel(QPoint pos)
 {
     int byte = (verticalScrollBar()->value() + (pos.y() / line_height_)) * row_width_;
-    int x = (horizontalScrollBar()->value() * font_width_) + pos.x();
+    int x = (horizontalScrollBar()->value() * em_width_) + pos.x();
     int col = x_pos_to_column_.value(x, -1);
 
     if (col < 0) {
