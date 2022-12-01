@@ -261,28 +261,31 @@ choco install -y git cmake python3
 
 ==== Install Microsoft Visual Studio
 
-Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[“Microsoft Visual Studio 2019 Community Edition”].
-If you prefer you can instead download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=17[“Microsoft Visual Studio 2022 Community Edition”].
+Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=17[“Microsoft Visual Studio 2022 Community Edition”].
+If you prefer you can instead download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[“Microsoft Visual Studio 2019 Community Edition”].
+The examples below are for Visual Studio 2022 but can be adapted for Visual Studio 2019.
 These are small utilities that download all the other required parts (which are quite large).
 
 Check the checkbox for “Desktop development with {cpp}” and then uncheck
-all the optional components other than the “V{cpp} 2019” or “V{cpp} 2022” item with the
-“latest ... tools”, the “Windows 10 SDK”, and the “Visual {cpp} tools for
-CMake” (unless you want to use them for purposes other than Wireshark).
+all the optional components other than
+
+* “MSVC ... VS 2022 {cpp}” item with the “... build tools (Latest)”
+* “Windows 11 SDK”
+* “{cpp} CMake tools for Windows"
+
+(unless you want to use them for purposes other than Wireshark).
 
 You can alternatively use Chocolatey to install Visual Studio, using the Visual Studio Community and Native Desktop workload packages.
 Note that this includes Visual Studio’s CMake component.
 
 ----
-choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
-# OR
 choco install -y visualstudio2022community visualstudio2022-workload-nativedesktop
 ----
 
 // winget has basic VS 2022 and 2019 packages, but no native desktop workload packages.
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests/m/Microsoft/VisualStudio
 
-You can use other Microsoft C compiler variants, but VS2019 is used to
+You can use other Microsoft C compiler variants, but VS2022 is used to
 build the development releases and is the preferred option. It’s
 possible to compile Wireshark with a wide range of Microsoft C compiler
 variants. For details see <<ChToolsMSChain>>.
@@ -301,7 +304,7 @@ of Visual Studio add more cross-platform support.
 
 Why is this recommended?
 While this is a huge download, the Community Editions of Visual Studio are free (as in beer) and include the Visual Studio integrated debugger.
-Visual Studio 2019 is also used to create official Wireshark builds, so it will likely have fewer development-related problems.
+Visual Studio 2022 is also used to create official Wireshark builds, so it will likely have fewer development-related problems.
 
 [#ChSetupQt]
 
@@ -534,11 +537,11 @@ Make sure your repository path doesn't contain spaces.
 
 ==== Open a Visual Studio Command Prompt
 
-From the Start Menu (or Start Screen), navigate to the “Visual Studio 2019” folder and choose the https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2019#developer_command_prompt_shortcuts[Command Prompt] appropriate for the build you wish to make, e.g. “x64 Native Tools Command Prompt for VS 2019” for a 64-bit version or “x86 Native Tools Command Prompt for VS 2019” for a 32-bit version.
-Depending on your version of Windows the Command Prompt list might be directly under “Visual Studio 2019” or you might have to dig for it under multiple folders, e.g. menu:Visual Studio 2019[Visual Studio Tools,Windows Desktop Command Prompts].
+From the Start Menu (or Start Screen), navigate to the “Visual Studio 2022” folder and choose the https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#developer_command_prompt_shortcuts[Command Prompt] appropriate for the build you wish to make, e.g. “x64 Native Tools Command Prompt for VS 2022” for a 64-bit version.
+Depending on your version of Windows the Command Prompt list might be directly under “Visual Studio 2022” or you might have to dig for it under multiple folders, e.g. menu:Visual Studio 2022[Visual Studio Tools,Windows Desktop Command Prompts].
 
 You can set up a build environment in your own command prompt by running the appropriate `vcvars__ARCHITECTURE__.bat` command.
-See https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2019#use-the-developer-tools-in-an-existing-command-window[Use the Microsoft C++ toolset from the command line] for details.
+See https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#use-the-developer-tools-in-an-existing-command-window[Use the Microsoft C++ toolset from the command line] for details.
 
 [TIP]
 .Pin the items to the Task Bar
@@ -612,8 +615,6 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
 cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
-: or
-cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
 ----
 
 Adjusting the path to the Wireshark source tree as required.

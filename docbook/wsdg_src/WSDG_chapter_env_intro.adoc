@@ -268,7 +268,7 @@ Jobs provide a link to the corresponding console logfile which provides addition
 
 Release packages are built on the following platforms:
 
-* Windows Server 2019 x86-64 (Win64, little endian, Visual Studio 2019)
+* Windows Server 2019 x86-64 (Win64, little endian, Visual Studio 2022)
 
 * Ubuntu 18.04 x86-64 (Linux, little endian, gcc, Clang)
 
@@ -276,7 +276,7 @@ Release packages are built on the following platforms:
 
 Static code analysis and fuzz tests are run on the following platforms:
 
-* Visual Studio Code Analysis (Win64, little endian, VS 2019)
+* Visual Studio Code Analysis (Win64, little endian, VS 2022)
 
 * Clang Code Analysis, Coverity Scan, and fuzz tests (Linux, little endian, Clang)
 

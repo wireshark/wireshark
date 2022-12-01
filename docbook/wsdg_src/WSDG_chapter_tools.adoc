@@ -314,7 +314,7 @@ _windows.h_, _WS2_32.lib_)
 
 Official releases are or were built with the following Visual {cpp} versions:
 
-// * Wireshark 4.0.x: Microsoft Visual {cpp} 2022.
+* Wireshark 4.0.x: Microsoft Visual {cpp} 2022.
 * Wireshark 3.6.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.4.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.2.x: Microsoft Visual {cpp} 2019.
@@ -363,21 +363,6 @@ You can use Chocolatey to install Visual Studio, e.g:
 PS:\> choco install visualstudiocommunity2022 visualstudio2022-workload-nativedesktop
 ----
 
-==== Visual {cpp} 2019 Community Edition
-
-IDE + Debugger?:: Yes
-
-SDK required for 64-bit builds?:: No
-
-CMake Generator: *`Visual Studio 16`*
-
-You can use Chocolatey to install Visual Studio, e.g:
-
-[source,cmd]
-----
-PS:\> choco install visualstudiocommunity2019 visualstudio2019-workload-nativedesktop
-----
-
 ==== cl.exe (C Compiler)
 
 The following table gives an overview of the possible
@@ -385,14 +370,15 @@ Microsoft toolchain variants and their specific C compiler
 versions ordered by release date.
 
 |===
-| Compiler Package   | cl.exe | _MSC_VER
-| Visual Studio 2019 | 16.0.0 | 1920
-| Visual Studio 2019 | 16.1.2 | 1921
-| Visual Studio 2019 | 16.2.3 | 1922
-| Visual Studio 2019 | 16.3.2 | 1923
-| Visual Studio 2022 | 17.0   | 1930
-| Visual Studio 2022 | 17.1   | 1931
+| Compiler Package   | V{cpp} | _MSC_VER
+| Visual Studio 2022 (17.4.2) | 14.34   | 1934
 |===
+
+A description of `_MSC_VER` and `_MSC_FULL_VER`, and their relation to Visual Studio and compiler versions,
+can be found at
+https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170[Microsoft-specific predefined macros].
+
+Information on the V{cpp} version can be found in the file _ui/version_info.c_.
 
 After correct installation of the toolchain, typing
 at the Visual Studio Command line prompt (cmd.exe):
