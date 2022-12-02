@@ -1911,7 +1911,9 @@ get_dect_standard_8bits_string(wmem_allocator_t *scope, const guint8 *ptr, gint 
     strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
     for (position = 0, current_byte_ptr = ptr; position < length; current_byte_ptr++, position++) {
-        if (!dect_standard_8bits_code_table[*current_byte_ptr]) {
+        if (*current_byte_ptr & 0x80) {
+            wmem_strbuf_append_unichar(strbuf, UNREPL);
+        } else if (!dect_standard_8bits_code_table[*current_byte_ptr]) {
             wmem_strbuf_append_unichar(strbuf, UNREPL);
         } else {
             wmem_strbuf_append_unichar(strbuf, dect_standard_8bits_code_table[*current_byte_ptr]);
