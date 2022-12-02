@@ -700,10 +700,10 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
                             ett_dccp_feature, &dccp_item, "%s(",
                             rval_to_str_const(feature_number, dccp_feature_numbers_rvals, "Unknown feature number"));
     if (feature_number != 10)
-        proto_tree_add_uint(feature_tree, hf_dccp_feature_number, tvb,
+        proto_tree_add_item(feature_tree, hf_dccp_feature_number, tvb,
                                 offset, 1, feature_number);
     else
-        proto_tree_add_uint(feature_tree, hf_mpdccp_version, tvb,
+        proto_tree_add_item(feature_tree, hf_mpdccp_version, tvb,
                                 offset+1, option_len, ENC_BIG_ENDIAN);
     offset++;
     option_len--;
@@ -961,34 +961,34 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                                    "Wrong Data checksum length, [%u != 9]", option_len);
                     }
                     break;
-              	
               	case 7:
                     mp_option_sub_item=proto_tree_add_item(option_tree,hf_mpdccp_addaddr,tvb,offset,1,ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
-
-               	    if (option_len == 5){
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
-               	    }
-                    else if (option_len == 7){
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
-               	    }
-               	   else if (option_len == 17){ // Check endianness for ipv6
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			             proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
-               	    }
-                   else if (option_len == 19){
+    		    switch (option_len) {
+               	    case 5:
+     			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+	     		proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
+	     		break;
+                    case 7:
+		     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+		     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
+		     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
+	     		break;
+       	   	    case 17:// Check endianness for ipv6
+	             	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+	             	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+	             	break;
+                    case 19:
                		proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			        proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
-			        proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
-               	
-                    } else {
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
+                    	break;
+                    default:
                         mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
                                    "Wrong Data checksum length, [%u != 5 || 7 || 17 || 19]", option_len);
+                        break;
                     }
                     break;
                 
