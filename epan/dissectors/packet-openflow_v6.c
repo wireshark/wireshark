@@ -1119,16 +1119,22 @@ dissect_openflow_v6_oxs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 dissect_openflow_stats_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
+    proto_item *ti;
     guint32 stats_length;
     int oxs_end;
     guint32 padding;
 
     proto_tree_add_item(tree, hf_openflow_v6_stats_reserved, tvb, offset, 2, ENC_NA);
 
-    proto_tree_add_item_ret_uint(tree, hf_openflow_v6_stats_length, tvb, offset+2, 2, ENC_BIG_ENDIAN, &stats_length);
+    ti = proto_tree_add_item_ret_uint(tree, hf_openflow_v6_stats_length, tvb, offset+2, 2, ENC_BIG_ENDIAN, &stats_length);
 
     oxs_end = offset + stats_length;
     offset+=4;
+
+    if (stats_length < 4) {
+        expert_add_info(pinfo, ti, &ei_openflow_v6_length_too_short);
+        return offset;
+    }
 
     while (offset < oxs_end) {
         offset = dissect_openflow_v6_oxs(tvb, pinfo, tree, offset, oxs_end - offset);
