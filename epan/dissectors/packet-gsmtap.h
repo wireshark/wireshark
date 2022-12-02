@@ -130,6 +130,7 @@
 #define GSMTAP_E1T1_RAW				0x03	/* raw/transparent B-channel */
 #define GSMTAP_E1T1_TRAU16			0x04	/* 16k TRAU frames; sub-slot 0-3 */
 #define GSMTAP_E1T1_TRAU8			0x05	/* 8k TRAU frames; sub-slot 0-7 */
+#define GSMTAP_E1T1_V5EF			0x06	/* V5 Envelope Function */
 
 #define GSMTAP_ARFCN_F_PCS			0x8000
 #define GSMTAP_ARFCN_F_UPLINK			0x4000
