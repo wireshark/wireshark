@@ -267,6 +267,7 @@ static expert_field ei_kafka_bad_record_length = EI_INIT;
 static expert_field ei_kafka_bad_varint = EI_INIT;
 static expert_field ei_kafka_bad_message_set_length = EI_INIT;
 static expert_field ei_kafka_bad_decompression_length = EI_INIT;
+static expert_field ei_kafka_zero_decompression_length = EI_INIT;
 static expert_field ei_kafka_unknown_message_magic = EI_INIT;
 static expert_field ei_kafka_pdu_length_mismatch = EI_INIT;
 
@@ -1872,6 +1873,10 @@ decompress(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, int co
 {
     if (length > MAX_DECOMPRESSION_SIZE) {
         expert_add_info(pinfo, NULL, &ei_kafka_bad_decompression_length);
+        return FALSE;
+    }
+    if (length == 0) {
+        expert_add_info(pinfo, NULL, &ei_kafka_zero_decompression_length);
         return FALSE;
     }
     switch (codec) {
@@ -10246,6 +10251,8 @@ proto_register_kafka_expert_module(const int proto) {
                     { "kafka.ei_kafka_bad_message_set_length", PI_MALFORMED, PI_WARN, "Message set size does not match content", EXPFILL }},
             { &ei_kafka_bad_decompression_length,
                     { "kafka.ei_kafka_bad_decompression_length", PI_MALFORMED, PI_WARN, "Decompression size too large", EXPFILL }},
+            { &ei_kafka_zero_decompression_length,
+                    { "kafka.ei_kafka_zero_decompression_length", PI_PROTOCOL, PI_NOTE, "Decompression size zero", EXPFILL }},
             { &ei_kafka_unknown_message_magic,
                     { "kafka.unknown_message_magic", PI_MALFORMED, PI_WARN, "Invalid message magic field", EXPFILL }},
             { &ei_kafka_pdu_length_mismatch,
