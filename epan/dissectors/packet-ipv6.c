@@ -161,6 +161,12 @@ static int hf_ipv6_nxt                          = -1;
 static int hf_ipv6_hlim                         = -1;
 static int hf_ipv6_src                          = -1;
 static int hf_ipv6_src_addr_space               = -1;
+static int hf_ipv6_src_multicast_flags          = -1;
+static int hf_ipv6_src_multicast_flags_reserved = -1;
+static int hf_ipv6_src_multicast_flags_transient = -1;
+static int hf_ipv6_src_multicast_flags_network_prefix = -1;
+static int hf_ipv6_src_multicast_flags_embed_rp = -1;
+static int hf_ipv6_src_multicast_scope          = -1;
 static int hf_ipv6_src_host                     = -1;
 static int hf_ipv6_src_slaac_mac                = -1;
 static int hf_ipv6_src_isatap_ipv4              = -1;
@@ -172,6 +178,12 @@ static int hf_ipv6_src_teredo_client_ipv4       = -1;
 static int hf_ipv6_src_embed_ipv4               = -1;
 static int hf_ipv6_dst                          = -1;
 static int hf_ipv6_dst_addr_space               = -1;
+static int hf_ipv6_dst_multicast_flags          = -1;
+static int hf_ipv6_dst_multicast_flags_reserved = -1;
+static int hf_ipv6_dst_multicast_flags_transient = -1;
+static int hf_ipv6_dst_multicast_flags_network_prefix = -1;
+static int hf_ipv6_dst_multicast_flags_embed_rp = -1;
+static int hf_ipv6_dst_multicast_scope          = -1;
 static int hf_ipv6_dst_host                     = -1;
 static int hf_ipv6_dst_slaac_mac                = -1;
 static int hf_ipv6_dst_isatap_ipv4              = -1;
@@ -183,6 +195,12 @@ static int hf_ipv6_dst_teredo_client_ipv4       = -1;
 static int hf_ipv6_dst_embed_ipv4               = -1;
 static int hf_ipv6_addr                         = -1;
 static int hf_ipv6_addr_space                   = -1;
+static int hf_ipv6_multicast_flags              = -1;
+static int hf_ipv6_multicast_flags_reserved     = -1;
+static int hf_ipv6_multicast_flags_transient    = -1;
+static int hf_ipv6_multicast_flags_network_prefix = -1;
+static int hf_ipv6_multicast_flags_embed_rp     = -1;
+static int hf_ipv6_multicast_scope              = -1;
 static int hf_ipv6_host                         = -1;
 static int hf_ipv6_slaac_mac                    = -1;
 static int hf_ipv6_isatap_ipv4                  = -1;
@@ -365,17 +383,43 @@ static int hf_ipv6_routing_crh32_segment_id     = -1;
 struct ipv6_addr_info_s {
     int *hf_addr;
     int *hf_addr_space;
+    int *hf_multicast_flags;
+    int *const *hf_multicast_flags_bits;
+    int *hf_multicast_scope;
     int *hf_host;
+};
+
+static int *const ipv6_src_multicast_flags_bits[5] = {
+    &hf_ipv6_src_multicast_flags_reserved,
+    &hf_ipv6_src_multicast_flags_embed_rp,
+    &hf_ipv6_src_multicast_flags_network_prefix,
+    &hf_ipv6_src_multicast_flags_transient,
+    NULL
 };
 
 static struct ipv6_addr_info_s ipv6_src_info = {
     &hf_ipv6_src,
     &hf_ipv6_src_addr_space,
+    &hf_ipv6_src_multicast_flags,
+    ipv6_src_multicast_flags_bits,
+    &hf_ipv6_src_multicast_scope,
     &hf_ipv6_src_host,
 };
+
+static int *const ipv6_dst_multicast_flags_bits[5] = {
+    &hf_ipv6_dst_multicast_flags_reserved,
+    &hf_ipv6_dst_multicast_flags_embed_rp,
+    &hf_ipv6_dst_multicast_flags_network_prefix,
+    &hf_ipv6_dst_multicast_flags_transient,
+    NULL
+};
+
 static struct ipv6_addr_info_s ipv6_dst_info = {
     &hf_ipv6_dst,
     &hf_ipv6_dst_addr_space,
+    &hf_ipv6_dst_multicast_flags,
+    ipv6_dst_multicast_flags_bits,
+    &hf_ipv6_dst_multicast_scope,
     &hf_ipv6_dst_host,
 };
 
@@ -405,6 +449,7 @@ static int hf_geoip_dst_longitude       = -1;
 
 static gint ett_ipv6_proto              = -1;
 static gint ett_ipv6_detail             = -1;
+static gint ett_ipv6_multicast_flags    = -1;
 static gint ett_ipv6_traffic_class      = -1;
 static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_type           = -1;
@@ -890,6 +935,26 @@ static const value_string mpl_seed_id_len_vals[] = {
     { 1, "16-bit unsigned integer" },
     { 2, "64-bit unsigned integer" },
     { 3, "128-bit unsigned integer" },
+    { 0, NULL }
+};
+
+static const value_string ipv6_multicast_scope_vals[] = {
+    { 0x0, "Reserved" },
+    { 0x1, "Interface-Local scope" },
+    { 0x2, "Link-Local scope" },
+    { 0x3, "Realm-Local scope" },
+    { 0x4, "Admin-Local scope" },
+    { 0x5, "Site-Local scope" },
+    { 0x6, "Unassigned" },
+    { 0x7, "Unassigned" },
+    { 0x8, "Organization-Local scope" },
+    { 0x9, "Unassigned" },
+    { 0xA, "Unassigned" },
+    { 0xB, "Unassigned" },
+    { 0xC, "Unassigned" },
+    { 0xD, "Unassigned" },
+    { 0xE, "Global scope" },
+    { 0xF, "Reserved" },
     { 0, NULL }
 };
 
@@ -2846,6 +2911,41 @@ add_ipv6_address_detail(packet_info *pinfo, proto_item *vis, proto_item *invis,
 
         ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 1, "Multicast");
         proto_item_set_generated(ti);
+
+        /*
+         * Multicast address scope and flags.
+         *
+         * RFC 4291 Section 2.7:
+         *   https://www.rfc-editor.org/rfc/rfc4291#section-2.7
+         *
+         * RFC 7346:
+         *   https://www.rfc-editor.org/rfc/rfc7346.html
+         *
+         * IANA Registry:
+         *   https://www.iana.org/assignments/ipv6-multicast-addresses/ipv6-multicast-addresses.xhtml#ipv6-scope
+         */
+
+        static int *const hf_ipv6_multicast_flags_bits[] = {
+            &hf_ipv6_multicast_flags_reserved,
+            &hf_ipv6_multicast_flags_embed_rp,
+            &hf_ipv6_multicast_flags_network_prefix,
+            &hf_ipv6_multicast_flags_transient,
+            NULL
+        };
+
+        /* Add multicast address flags. */
+        ti = proto_tree_add_bitmask(vtree, tvb, offset, *addr_info->hf_multicast_flags,
+                    ett_ipv6_multicast_flags, addr_info->hf_multicast_flags_bits, ENC_BIG_ENDIAN);
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_bitmask(itree, tvb, offset, hf_ipv6_multicast_flags,
+                    ett_ipv6_multicast_flags, hf_ipv6_multicast_flags_bits, ENC_BIG_ENDIAN);
+        proto_item_set_generated(ti);
+
+        /* Add multicast address scope. */
+        ti = proto_tree_add_item(vtree, *addr_info->hf_multicast_scope, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_item(itree, hf_ipv6_multicast_scope, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_item_set_generated(ti);
     }
     else if ((tvb_get_ntohs(tvb, offset) & 0xFFC0) == 0xFE80) {
         /* RFC 4291 section 2.4: Link-local unicast */
@@ -3449,6 +3549,36 @@ proto_register_ipv6(void)
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 "Source IPv6 Address Space", HFILL }
         },
+        { &hf_ipv6_src_multicast_flags,
+            { "Source Address Multicast Flags", "ipv6.src_multicast_flags",
+                FT_UINT16, BASE_HEX, NULL, 0x00F0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_src_multicast_flags_transient,
+            { "Source Address Transient Multicast Flag", "ipv6.src_multicast_flags.transient",
+                FT_BOOLEAN, 16, NULL, 0x0010,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_src_multicast_flags_network_prefix,
+            { "Source Address Network Prefix Multicast Flag", "ipv6.src_multicast_flags.network_prefix",
+                FT_BOOLEAN, 16, NULL, 0x0020,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_src_multicast_flags_embed_rp,
+            { "Source Address RP Multicast Flag", "ipv6.src_multicast_flags.embed_rp",
+                FT_BOOLEAN, 16, NULL, 0x0040,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_src_multicast_flags_reserved,
+            { "Source Address Reserved Multicast Flag", "ipv6.src_multicast_flags.reserved",
+                FT_UINT16, BASE_DEC, NULL, 0x0080,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_src_multicast_scope,
+            { "Source Address Multicast Scope", "ipv6.src_multicast_scope",
+                FT_UINT16, BASE_HEX, VALS(ipv6_multicast_scope_vals), 0x000F,
+                NULL, HFILL }
+        },
         { &hf_ipv6_src_host,
             { "Source Host", "ipv6.src_host",
                 FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3504,6 +3634,36 @@ proto_register_ipv6(void)
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 "Destination IPv6 Address Space", HFILL }
         },
+        { &hf_ipv6_dst_multicast_flags,
+            { "Destination Address Multicast Flags", "ipv6.dst_multicast_flags",
+                FT_UINT16, BASE_HEX, NULL, 0x00F0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_dst_multicast_flags_transient,
+            { "Destination Address Transient Multicast Flag", "ipv6.dst_multicast_flags.transient",
+                FT_BOOLEAN, 16, NULL, 0x0010,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_dst_multicast_flags_network_prefix,
+            { "Destination Address Network Prefix Multicast Flag", "ipv6.dst_multicast_flags.network_prefix",
+                FT_BOOLEAN, 16, NULL, 0x0020,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_dst_multicast_flags_embed_rp,
+            { "Destination Address RP Multicast Flag", "ipv6.dst_multicast_flags.embed_rp",
+                FT_BOOLEAN, 16, NULL, 0x0040,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_dst_multicast_flags_reserved,
+            { "Destination Address Reserved Multicast Flag", "ipv6.dst_multicast_flags.reserved",
+                FT_UINT16, BASE_DEC, NULL, 0x0080,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_dst_multicast_scope,
+            { "Destination Address Multicast Scope", "ipv6.dst_multicast_scope",
+                FT_UINT16, BASE_HEX, VALS(ipv6_multicast_scope_vals), 0x000F,
+                NULL, HFILL }
+        },
         { &hf_ipv6_dst_host,
             { "Destination Host", "ipv6.dst_host",
                 FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3557,6 +3717,36 @@ proto_register_ipv6(void)
         { &hf_ipv6_addr_space,
             { "Source or Destination Address Space", "ipv6.addr_space",
                 FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_multicast_flags,
+            { "Source or Destination Address Multicast Flags", "ipv6.multicast_flags",
+                FT_UINT16, BASE_HEX, NULL, 0x00F0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_multicast_flags_transient,
+            { "Source or Destination Address Transient Multicast Flag", "ipv6.multicast_flags.transient",
+                FT_BOOLEAN, 16, NULL, 0x0010,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_multicast_flags_network_prefix,
+            { "Source or Destination Address Network Prefix Multicast Flag", "ipv6.multicast_flags.network_prefix",
+                FT_BOOLEAN, 16, NULL, 0x0020,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_multicast_flags_embed_rp,
+            { "Source or Destination Address RP Multicast Flag", "ipv6.multicast_flags.embed_rp",
+                FT_BOOLEAN, 16, NULL, 0x0040,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_multicast_flags_reserved,
+            { "Source or Destination Address Reserved Multicast Flag", "ipv6.multicast_flags.reserved",
+                FT_UINT16, BASE_DEC, NULL, 0x0080,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_multicast_scope,
+            { "Source or Destination Address Multicast Scope", "ipv6.multicast_scope",
+                FT_UINT16, BASE_HEX, VALS(ipv6_multicast_scope_vals), 0x000F,
                 NULL, HFILL }
         },
         { &hf_ipv6_host,
@@ -4569,6 +4759,7 @@ proto_register_ipv6(void)
     static gint *ett_ipv6[] = {
         &ett_ipv6_proto,
         &ett_ipv6_detail,
+        &ett_ipv6_multicast_flags,
         &ett_ipv6_traffic_class,
         &ett_geoip_info,
         &ett_ipv6_opt,
