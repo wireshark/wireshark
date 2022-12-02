@@ -20,6 +20,7 @@
 #include <epan/tfs.h>
 #include <epan/tvbuff.h>
 #include <epan/value_string.h>
+#include <epan/wmem_scopes.h>
 #include <ftypes/ftypes.h>
 
 #include "packet-e212.h"
@@ -1817,6 +1818,30 @@ static const value_string dect_charset_control_codes_val[] = {
  * DECT dissector code
  *********************************************************************************/
 
+static proto_item* add_dect_nwk_dect_charset_tree_item(proto_tree *tree, packet_info *pinfo, int hfindex, tvbuff_t *tvb, gint start, gint length)
+{
+	const gchar *keypad_string, *current_char_ptr;
+	guint8 current_char_position;
+	gunichar current_char;
+	wmem_strbuf_t *keypad_information;
+
+	keypad_string = tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_DECT_STANDARD_8BITS);
+	current_char_ptr = keypad_string;
+
+	keypad_information = wmem_strbuf_sized_new(pinfo->pool, length, 0);
+	for ( current_char_position = 0; current_char_position < length; current_char_position++ ) {
+		current_char = g_utf8_get_char(current_char_ptr);
+		if ( current_char < 0x20 ) {
+			wmem_strbuf_append_printf(keypad_information, "<<%s>>", val_to_str(current_char, dect_charset_control_codes_val, "0x%02x"));
+		} else {
+			wmem_strbuf_append_unichar(keypad_information, current_char);
+		}
+		current_char_ptr = g_utf8_next_char(current_char_ptr);
+	}
+
+	return proto_tree_add_string_format_value(tree, hfindex, tvb, start, length, keypad_string ,"%s", wmem_strbuf_get_str(keypad_information));
+}
+
 static int dissect_dect_nwk_s_ie_auth_type(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
 	guint8 authentication_algorithm;
@@ -2011,31 +2036,17 @@ static int dissect_dect_nwk_s_ie_nwk_assigned_identity(tvbuff_t *tvb, guint offs
 
 static int dissect_dect_nwk_s_ie_multi_display(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data)
 {
-	guint next_element_offset;
-	guint8 display_information;
+	add_dect_nwk_dect_charset_tree_item(tree, pinfo, hf_dect_nwk_s_ie_multi_display_information, tvb, offset, ie_length);
+	offset += ie_length;
 
-	next_element_offset = offset + ie_length;
-	while ( offset != next_element_offset ) {
-		display_information = tvb_get_guint8(tvb, offset);
-		proto_tree_add_string(tree, hf_dect_nwk_s_ie_multi_display_information, tvb, offset, 1,
-			val_to_str(display_information, dect_charset_control_codes_val, "raw: 0x%02x"));
-		offset++;
-	}
 	return offset;
 }
 
 static int dissect_dect_nwk_s_ie_multi_keypad(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data)
 {
-	guint next_element_offset;
-	guint8 keypad_information;
+	add_dect_nwk_dect_charset_tree_item(tree, pinfo, hf_dect_nwk_s_ie_multi_keypad_information, tvb, offset, ie_length);
+	offset += ie_length;
 
-	next_element_offset = offset + ie_length;
-	while ( offset != next_element_offset ) {
-		keypad_information = tvb_get_guint8(tvb, offset);
-		proto_tree_add_string(tree, hf_dect_nwk_s_ie_multi_keypad_information, tvb, offset, 1,
-			val_to_str(keypad_information, dect_charset_control_codes_val, "raw: 0x%02x"));
-		offset++;
-	}
 	return offset;
 }
 
@@ -2476,10 +2487,10 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_test_hook_control_hook_value, tvb, offset, 1, ENC_NA);
 					break;
 				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_DISPLAY:
-					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_display_display_info, tvb, offset, 1, ENC_DECT_STANDARD_8BITS);
+					add_dect_nwk_dect_charset_tree_item(field_tree, pinfo, hf_dect_nwk_s_ie_fl_single_display_display_info, tvb, offset, 1);
 					break;
 				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_KEYPAD:
-					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_keypad_keypad_info, tvb, offset, 1, ENC_DECT_STANDARD_8BITS);
+					add_dect_nwk_dect_charset_tree_item(field_tree, pinfo, hf_dect_nwk_s_ie_fl_single_keypad_keypad_info, tvb, offset, 1);
 					break;
 			}
 		} else {
@@ -2891,13 +2902,13 @@ void proto_register_dect_nwk(void)
 		},
 		/* Single display */
 		{ &hf_dect_nwk_s_ie_fl_single_display_display_info,
-			{ "Display Info", "dect_nwk.s.ie.fl.single_display.display_info", FT_CHAR, BASE_HEX,
+			{ "Display Info", "dect_nwk.s.ie.fl.single_display.display_info", FT_STRING, BASE_NONE,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
 		/* Single keypad */
 		{ &hf_dect_nwk_s_ie_fl_single_keypad_keypad_info,
-			{ "Keypad Info", "dect_nwk.s.ie.fl.single_keypad.keypad_info", FT_CHAR, BASE_HEX,
+			{ "Keypad Info", "dect_nwk.s.ie.fl.single_keypad.keypad_info", FT_STRING, BASE_NONE,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
