@@ -1828,8 +1828,11 @@ decompress_zstd(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, t
     while (input.pos < input.size) {
         ZSTD_outBuffer output = { wmem_alloc(pinfo->pool, ZSTD_DStreamOutSize()), ZSTD_DStreamOutSize(), 0 };
         rc = ZSTD_decompressStream(zds, &output, &input);
-        // rc holds either the number of decompressed offsets or the error code.
-        // Both values are positive, one has to use ZSTD_isError to determine if the call succeeded.
+        // rc is 0 when a frame is completely decoded and fully flushed,
+        // or an error code, which can be tested using ZSTD_isError(),
+        // or any other value > 0, which means there is still some decoding or flushing to do to complete current frame :
+        //    the return value is a suggested next input size (just a hint for better latency)
+        //    that will never request more than the remaining frame size.
         if (ZSTD_isError(rc)) {
             goto end;
         }
