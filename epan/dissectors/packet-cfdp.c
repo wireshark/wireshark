@@ -20,7 +20,7 @@
 #include "packet-cfdp.h"
 
 /* The CFDP standard can be found here:
- * http://public.ccsds.org/publications/archive/727x0b4.pdf
+ * https://public.ccsds.org/Pubs/727x0b4s.pdf
  *
  * The Store and Forward Overlay Operations are not included.
  */
@@ -499,7 +499,6 @@ static int * const cfdp_proxy_segment_control_byte [] = {
 static int * const cfdp_proxy_put_resp [] = {
     &hf_cfdp_condition_code,
     &hf_cfdp_spare_one,
-    &hf_cfdp_condition_code,
     &hf_cfdp_proxy_delivery_code,
     &hf_cfdp_file_stat,
     NULL

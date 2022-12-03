@@ -635,6 +635,42 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
                              check_consecutive=(not is_generated and check_consecutive))
     return items
 
+
+# Looking for args to ..add_bitmask_..() calls that are not NULL-terminated or  have repeated items.
+# TODO: some dissectors have similar-looking hf arrays for other reasons, so need to cross-reference with
+# the 6th arg of ..add_bitmask_..() calls...
+# TODO: return items (rather than local checks) from here so can be checked against list of calls for given filename
+def find_field_arrays(filename):
+    global warnings_found
+    with open(filename, 'r') as f:
+        contents = f.read()
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
+        for m in matches:
+            name = m.group(1)
+            all_fields = m.group(2)
+            all_fields = all_fields.replace('&', '')
+            all_fields = all_fields.replace(',', '')
+            fields = all_fields.split()
+
+            if fields[0].startswith('ett_'):
+                continue
+            if fields[-1].find('NULL') == -1 and fields[-1] != '0':
+                print('Warning:', filename, name, 'is not NULL-terminated - {', ', '.join(fields), '}')
+                warnings_found += 1
+
+            # Do any hf items reappear?
+            seen_fields = set()
+            for f in fields:
+                if f in seen_fields:
+                    print(filename, name, f, 'already added!')
+                    warnings_found += 1
+                seen_fields.add(f)
+
+    return []
+
 def find_item_declarations(filename):
     items = set()
 
@@ -686,7 +722,7 @@ def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
 
 
 # Run checks on the given dissector file.
-def checkFile(filename, check_mask=False, check_label=False, check_consecutive=False, check_missing_items=False):
+def checkFile(filename, check_mask=False, check_label=False, check_consecutive=False, check_missing_items=False, check_bitmask_fields=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
@@ -706,6 +742,10 @@ def checkFile(filename, check_mask=False, check_label=False, check_consecutive=F
     for c in apiChecks:
         c.find_calls(filename)
         c.check_against_items(items_defined, items_declared, items_extern_declared, check_missing_items)
+
+    # Checking for lists of fields for add_bitmask calls
+    if check_bitmask_fields:
+        field_arrays = find_field_arrays(filename)
 
 
 
@@ -731,6 +771,8 @@ parser.add_argument('--consecutive', action='store_true',
                     help='when set, copy copy/paste errors between consecutive items')
 parser.add_argument('--missing-items', action='store_true',
                     help='when set, look for used items that were never registered')
+parser.add_argument('--check-bitmask-fields', action='store_true',
+                    help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
 
 
 
@@ -803,7 +845,8 @@ for f in files:
     if should_exit:
         exit(1)
     checkFile(f, check_mask=args.mask, check_label=args.label,
-              check_consecutive=args.consecutive, check_missing_items=args.missing_items)
+              check_consecutive=args.consecutive, check_missing_items=args.missing_items,
+              check_bitmask_fields=args.check_bitmask_fields)
 
     # Do checks against all calls.
     if args.consecutive:
