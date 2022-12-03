@@ -1825,8 +1825,7 @@ decompress_zstd(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, t
     size_t rc = 0;
     tvbuff_t *composite_tvb = NULL;
     gboolean ret = FALSE;
-
-    do {
+    while (input.pos < input.size) {
         ZSTD_outBuffer output = { wmem_alloc(pinfo->pool, ZSTD_DStreamOutSize()), ZSTD_DStreamOutSize(), 0 };
         rc = ZSTD_decompressStream(zds, &output, &input);
         // rc holds either the number of decompressed offsets or the error code.
@@ -1840,7 +1839,7 @@ decompress_zstd(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, t
         tvb_composite_append(composite_tvb,
                              tvb_new_child_real_data(tvb, (guint8*)output.dst, (guint)output.pos, (gint)output.pos));
         // rc == 0 means there is nothing more to decompress, but there could be still something in the data
-    } while (rc > 0);
+    }
     ret = TRUE;
 end:
     if (composite_tvb) {
