@@ -114,13 +114,8 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 						g_memdup2(strmbuf, bytes_pass) :
 						g_strdup(""));
 			} else {
-				guint8 *new_data = (guint8 *)g_malloc0(bytes_out + bytes_pass);
-
-				memcpy(new_data, uncompr, bytes_out);
-				memcpy(new_data + bytes_out, strmbuf, bytes_pass);
-
-				g_free(uncompr);
-				uncompr = new_data;
+				uncompr = (guint8 *)g_realloc(uncompr, bytes_out + bytes_pass);
+				memcpy(uncompr + bytes_out, strmbuf, bytes_pass);
 			}
 
 			bytes_out += bytes_pass;
