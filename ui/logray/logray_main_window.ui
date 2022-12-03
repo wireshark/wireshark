@@ -413,7 +413,7 @@
     <addaction name="actionAnalyzeDisplayFilterMacros"/>
     <addaction name="actionDisplayFilterExpression"/>
     <addaction name="separator"/>
-    <addaction name="actionAnalyzeCreateAColumn"/>
+    <addaction name="actionAnalyzeApplyAsColumn"/>
     <addaction name="menuApplyAsFilter"/>
     <addaction name="menuPrepareAFilter"/>
     <addaction name="menuConversationFilter"/>
@@ -1186,7 +1186,7 @@
     <string>Display Filter &amp;Macros…</string>
    </property>
   </action>
-  <action name="actionAnalyzeCreateAColumn">
+  <action name="actionAnalyzeApplyAsColumn">
    <property name="text">
     <string>Apply as Column</string>
    </property>

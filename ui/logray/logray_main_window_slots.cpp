@@ -1310,7 +1310,7 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
 
     main_ui_->actionGoGoToLinkedPacket->setEnabled(is_framenum);
 
-    main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
+    main_ui_->actionAnalyzeApplyAsColumn->setEnabled(can_match_selected);
 
     main_ui_->actionContextShowLinkedPacketInNewWindow->setEnabled(is_framenum);
 
@@ -1596,16 +1596,6 @@ void LograyMainWindow::setFeaturesEnabled(bool enabled)
 }
 
 // Display Filter Toolbar
-
-void LograyMainWindow::on_actionDisplayFilterExpression_triggered()
-{
-    DisplayFilterExpressionDialog *dfe_dialog = new DisplayFilterExpressionDialog(this);
-
-    connect(dfe_dialog, SIGNAL(insertDisplayFilter(QString)),
-            df_combo_box_->lineEdit(), SLOT(insertFilter(const QString &)));
-
-    dfe_dialog->show();
-}
 
 void LograyMainWindow::on_actionNewDisplayFilterExpression_triggered()
 {
@@ -2838,6 +2828,72 @@ void LograyMainWindow::startCaptureTriggered()
 
 // Analyze Menu
 
+void LograyMainWindow::connectAnalyzeMenuActions()
+{
+    connect(main_ui_->actionAnalyzeDisplayFilters, &QAction::triggered, this, [=]() {
+        FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter);
+        display_filter_dlg->setWindowModality(Qt::ApplicationModal);
+        display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+        display_filter_dlg->show();
+    });
+
+    connect(main_ui_->actionAnalyzeDisplayFilterMacros, &QAction::triggered, this, [=]() {
+        struct epan_uat* dfm_uat;
+        dfilter_macro_get_uat(&dfm_uat);
+        UatDialog *uat_dlg = new UatDialog(parentWidget(), dfm_uat);
+        connect(uat_dlg, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+
+        uat_dlg->setWindowModality(Qt::ApplicationModal);
+        uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
+        uat_dlg->show();
+    });
+
+    connect(main_ui_->actionDisplayFilterExpression, &QAction::triggered, this, [=]() {
+        DisplayFilterExpressionDialog *dfe_dialog = new DisplayFilterExpressionDialog(this);
+
+        connect(dfe_dialog, &DisplayFilterExpressionDialog::insertDisplayFilter,
+                qobject_cast<SyntaxLineEdit *>(df_combo_box_->lineEdit()), &SyntaxLineEdit::insertFilter);
+
+        dfe_dialog->show();
+    });
+
+    connect(main_ui_->actionAnalyzeApplyAsColumn, &QAction::triggered, this, &LograyMainWindow::applyFieldAsColumn);
+
+    connect(main_ui_->actionAnalyzeEnabledProtocols, &QAction::triggered, this, [=]() {
+        EnabledProtocolsDialog *enable_proto_dialog = new EnabledProtocolsDialog(this);
+        connect(enable_proto_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+
+        enable_proto_dialog->setWindowModality(Qt::ApplicationModal);
+        enable_proto_dialog->setAttribute(Qt::WA_DeleteOnClose);
+        enable_proto_dialog->show();
+    });
+
+    connect(main_ui_->actionAnalyzeDecodeAs, &QAction::triggered, this, [=]() {
+        QAction *da_action = qobject_cast<QAction*>(sender());
+        bool create_new = da_action && da_action->property("create_new").toBool();
+
+        DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
+        connect(da_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+
+        da_dialog->setWindowModality(Qt::ApplicationModal);
+        da_dialog->setAttribute(Qt::WA_DeleteOnClose);
+        da_dialog->show();
+    });
+
+    connect(main_ui_->actionAnalyzeReloadLuaPlugins, &QAction::triggered, this, &LograyMainWindow::reloadLuaPlugins);
+
+    connect(main_ui_->actionAnalyzeShowPacketBytes, &QAction::triggered, this, [=]() {
+        ShowPacketBytesDialog *spbd = new ShowPacketBytesDialog(*this, capture_file_);
+        spbd->addCodecs(text_codec_map_);
+        spbd->show();
+    });
+
+    connect(main_ui_->actionAnalyzeExpertInfo, &QAction::triggered, this, [=]() {
+        statCommandExpertInfo(NULL, NULL);
+    });
+}
+
+
 void LograyMainWindow::filterMenuAboutToShow()
 {
     QMenu * menu = qobject_cast<QMenu *>(sender());
@@ -2879,28 +2935,7 @@ void LograyMainWindow::matchFieldFilter(FilterAction::Action action, FilterActio
     setDisplayFilter(field_filter, action, filter_type);
 }
 
-void LograyMainWindow::on_actionAnalyzeDisplayFilters_triggered()
-{
-    FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter);
-    display_filter_dlg->setWindowModality(Qt::ApplicationModal);
-    display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
-    display_filter_dlg->show();
-}
-
-struct epan_uat;
-void LograyMainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
-{
-    struct epan_uat* dfm_uat;
-    dfilter_macro_get_uat(&dfm_uat);
-    UatDialog *uat_dlg = new UatDialog(parentWidget(), dfm_uat);
-    connect(uat_dlg, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
-
-    uat_dlg->setWindowModality(Qt::ApplicationModal);
-    uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
-    uat_dlg->show();
-}
-
-void LograyMainWindow::on_actionAnalyzeCreateAColumn_triggered()
+void LograyMainWindow::applyFieldAsColumn()
 {
     if (capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0) {
         header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
@@ -2955,34 +2990,6 @@ void LograyMainWindow::applyExportObject()
     export_dialog->show();
 }
 
-void LograyMainWindow::on_actionAnalyzeEnabledProtocols_triggered()
-{
-    EnabledProtocolsDialog *enable_proto_dialog = new EnabledProtocolsDialog(this);
-    connect(enable_proto_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
-
-    enable_proto_dialog->setWindowModality(Qt::ApplicationModal);
-    enable_proto_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    enable_proto_dialog->show();
-}
-
-void LograyMainWindow::on_actionAnalyzeDecodeAs_triggered()
-{
-    QAction *da_action = qobject_cast<QAction*>(sender());
-    bool create_new = da_action && da_action->property("create_new").toBool();
-
-    DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
-    connect(da_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
-
-    da_dialog->setWindowModality(Qt::ApplicationModal);
-    da_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    da_dialog->show();
-}
-
-void LograyMainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
-{
-    reloadLuaPlugins();
-}
-
 void LograyMainWindow::openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
     connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
@@ -3014,18 +3021,6 @@ void LograyMainWindow::statCommandExpertInfo(const char *, void *)
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
 
     expert_dialog->show();
-}
-
-void LograyMainWindow::on_actionAnalyzeShowPacketBytes_triggered()
-{
-    ShowPacketBytesDialog *spbd = new ShowPacketBytesDialog(*this, capture_file_);
-    spbd->addCodecs(text_codec_map_);
-    spbd->show();
-}
-
-void LograyMainWindow::on_actionAnalyzeExpertInfo_triggered()
-{
-    statCommandExpertInfo(NULL, NULL);
 }
 
 

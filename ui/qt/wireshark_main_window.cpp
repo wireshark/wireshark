@@ -629,6 +629,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectViewMenuActions();
     connectGoMenuActions();
     connectCaptureMenuActions();
+    connectAnalyzeMenuActions();
 
     connect(main_ui_->actionAnalyzeFollowTCPStream, &QAction::triggered, this,
             [this]() { this->openFollowStreamDialogForType(FOLLOW_TCP); },
@@ -678,8 +679,9 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
 
-    connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo,
-            this, &WiresharkMainWindow::on_actionAnalyzeExpertInfo_triggered);
+    connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo, this, [=]() {
+        statCommandExpertInfo(NULL, NULL);
+    });
 
     connect(main_ui_->statusBar, &MainStatusBar::stopLoading,
             &capture_file_, &CaptureFile::stopLoading);
