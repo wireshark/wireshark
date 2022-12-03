@@ -1987,11 +1987,12 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
     string, such as produced by tvb_get_string_enc(), regardless of the original
     packet data.
 
-    String must be valid UTF-8 but do not format the string for display in any way,
-    for example by escaping unprintable characters, because this is packet data,
-    not a display string. Formatting is a concern of the UI. Doing that here would
-    change the meaning of the captured data and make display filtering very
-    unintuitive for speacial characters.
+    This function is used to add a custom string *value* to the protocol tree.
+    Do not format the string value for display, for example by using format_text().
+    The input string represents packet data, not a display label. Formatting
+    labels is a concern of the UI. Doing that here would change the meaning of the packet
+    data, restrict the options for formatting later and make display filtering unintuitive
+    for whitespace and other special characters.
 
  @param tree the tree to append this item to
  @param hfindex field index
