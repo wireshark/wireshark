@@ -910,15 +910,15 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                     }
                     break;
                 case 2:
-                    proto_tree_add_item(option_tree, hf_mpdccp_fast_close, tvb, offset, option_len, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_mpdccp_fast_close, tvb, offset, option_len, ENC_NA);
                     break;
                 case 3:
-                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_key, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_key, tvb, offset, 1, ENC_NA);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
                     if (option_len > 8 && option_len < 69) {
                         proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_key_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_key_key, tvb, offset+1, option_len-1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_key_key, tvb, offset+1, option_len-1, ENC_NA);
                     } else {
                         mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
@@ -940,7 +940,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                         mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_hmac, tvb, offset, 1, ENC_BIG_ENDIAN);
                         mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                         offset += 1;
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_hmac_sha, tvb, offset, 20, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_hmac_sha, tvb, offset, 20, ENC_NA);
                     } else {
                         mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_hmac, tvb, offset, option_len, ENC_BIG_ENDIAN);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
@@ -977,11 +977,11 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                           break;
                        case 17:// Check endianness for ipv6
                           proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_NA);
                           break;
                        case 19:
                           proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_NA);
                           proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
                           break;
                        default:
@@ -1024,7 +1024,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_close_key, tvb, offset, option_len, ENC_BIG_ENDIAN);
                     break;
                 case 11:
-                    proto_tree_add_item(option_tree, hf_mpdccp_exp, tvb, offset, option_len, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_mpdccp_exp, tvb, offset, option_len, ENC_NA);
                     break;
                 default:
                     mp_option_sub_item = proto_tree_add_item(option_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
