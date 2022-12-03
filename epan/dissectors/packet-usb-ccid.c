@@ -610,7 +610,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 9, 1, ENC_LITTLE_ENDIAN);
         break;
 
     /*Interupt IN*/
