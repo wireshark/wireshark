@@ -965,33 +965,32 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                     mp_option_sub_item=proto_tree_add_item(option_tree,hf_mpdccp_addaddr,tvb,offset,1,ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
-    		    switch (option_len) {
-               	    case 5:
-     			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-	     		proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
-	     		break;
-                    case 7:
-		     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-		     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
-		     	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
-	     		break;
-       	   	    case 17:// Check endianness for ipv6
-	             	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-	             	proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
-	             	break;
-                    case 19:
-               		proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
-			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
-                    	break;
-                    default:
-                        mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
-                        expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-                                   "Wrong Data checksum length, [%u != 5 || 7 || 17 || 19]", option_len);
-                        break;
-                    }
-                    break;
-                
+                    switch (option_len) {
+                       case 5:
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
+                          break;
+                       case 7:
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
+                          break;
+                       case 17:// Check endianness for ipv6
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+                          break;
+                       case 19:
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
+                          break;
+                       default:
+                          mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
+                          expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
+                                                "Wrong Data checksum length, [%u != 5 || 7 || 17 || 19]", option_len);
+                       break;
+                  }
+                  break;
                 case 8:
                     if (option_len == 1) {
                         mp_option_sub_item=proto_tree_add_item(option_tree,hf_mpdccp_removeaddr,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1861,48 +1860,48 @@ proto_register_dccp(void)
 
 
         /*  MP-DCCP related option fields  */
-        {&hf_mpdccp_confirm,{"MP_CONFIRM", "mpdccp.mp_confirm",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_version,{"version", "mpdccp.version",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_confirm,{"MP_CONFIRM", "dccp.mp_confirm",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_version,{"version", "dccp.mp_version",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_join,{"MP_JOIN", "mpdccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_join_id,{"Address ID", "mpdccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_join_token,{"Path Token", "mpdccp.mp_join",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_join_nonce,{"Nonce", "mpdccp.mp_join",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_join,{"MP_JOIN", "dccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_join_id,{"Address ID", "dccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_join_token,{"Path Token", "dccp.mp_join",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_join_nonce,{"Nonce", "dccp.mp_join",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_fast_close,{"MP_FAST_CLOSE", "mpdccp.mp_fast_close",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_fast_close,{"MP_FAST_CLOSE", "dccp.mp_fast_close",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_key,{"MP_KEY", "mpdccp.mp_key",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_key_type,{"Key Type", "mpdccp.mp_key_type",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_key_key,{"Key Data", "mpdccp.mp_key_hash",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_key,{"MP_KEY", "dccp.mp_key",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_key_type,{"Key Type", "dccp.mp_key_type",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_key_key,{"Key Data", "dccp.mp_key_hash",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_seq,{"Sequence Number", "mpdccp.mp_seq",FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_seq,{"Sequence Number", "dccp.mp_seq",FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_hmac,{"MP_HMAC", "mpdccp.mp_hmac",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_hmac_sha,{"HMAC-SHA256", "mpdccp.mp_hmac_sha",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_hmac,{"MP_HMAC", "dccp.mp_hmac",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_hmac_sha,{"HMAC-SHA256", "dccp.mp_hmac_sha",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_rtt,{"MP_RTT", "mpdccp.mp_rtt",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_rtt_type,{"RTT_Type", "mpdccp.rtt_type",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_rtt_value,{"RTT", "mpdccp.rtt_value",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_rtt_age,{"Age", "mpdccp.rtt_age",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_rtt,{"MP_RTT", "dccp.mp_rtt",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_rtt_type,{"RTT_Type", "dccp.mp_rtt_type",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_rtt_value,{"RTT", "dccp.mp_rtt_value",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_rtt_age,{"Age", "dccp.mp_rtt_age",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-      	{&hf_mpdccp_addaddr,{"MP_ADDADDR", "mpdccp.mp_addaddr",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-  	{&hf_mpdccp_addrid,{"Address ID", "mpdccp.mp_addrid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-      	{&hf_mpdccp_addr_dec,{"Address", "mpdccp.mp_addr",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-      	{&hf_mpdccp_addr_hex,{"Address", "mpdccp.mp_addr",FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-      	{&hf_mpdccp_addrport,{"Port", "mpdccp.mp_addrport",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      	{&hf_mpdccp_addaddr,{"MP_ADDADDR", "dccp.mp_addaddr",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+  	{&hf_mpdccp_addrid,{"Address ID", "dccp.mp_addrid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      	{&hf_mpdccp_addr_dec,{"Address", "dccp.mp_addr",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      	{&hf_mpdccp_addr_hex,{"Address", "dccp.mp_addr",FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      	{&hf_mpdccp_addrport,{"Port", "dccp.mp_addrport",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
       
-      	{&hf_mpdccp_removeaddr,{"MP_REMOVEADDR", "mpdccp.mp_removeaddr",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      	{&hf_mpdccp_removeaddr,{"MP_REMOVEADDR", "dccp.mp_removeaddr",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
       
-        {&hf_mpdccp_prio,{"MP_PRIO", "mpdccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_prio_value,{"Priority", "mpdccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_prio,{"MP_PRIO", "dccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_prio_value,{"Priority", "dccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_close,{"MP_CLOSE", "mpdccp.mp_close",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_close,{"MP_CLOSE", "dccp.mp_close",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_close_key,{"Key Data", "mpdccp.mp_close_key",FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_close_key,{"Key Data", "dccp.mp_close_key",FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-	{&hf_mpdccp_exp,{"MP_EXP", "mpdccp.mp_exp",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_exp,{"MP_EXP", "dccp.mp_exp",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_dccp_option_data,{"Option data", "mpdccp.mp_option",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_dccp_option_data,{"Option data", "dccp.mp_option",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 
         {
