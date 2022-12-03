@@ -102,6 +102,16 @@ static int hf_ccid_bmSlotICCState_slot6Changed = -1;
 static int hf_ccid_bmSlotICCState_slot7Current = -1;
 static int hf_ccid_bmSlotICCState_slot7Changed = -1;
 static int hf_ccid_bHardwareErrorCode = -1;
+static int hf_ccid_bmFindexDindex = -1;
+static int hf_ccid_bmTCCKST0 = -1;
+static int hf_ccid_bmTCCKST1 = -1;
+static int hf_ccid_bGuardTimeT0 = -1;
+static int hf_ccid_bGuardTimeT1 = -1;
+static int hf_ccid_bWaitingIntegerT0 = -1;
+static int hf_ccid_bmWaitingIntegersT1 = -1;
+static int hf_ccid_bClockStop = -1;
+static int hf_ccid_bIFSC = -1;
+static int hf_ccid_bNadValue = -1;
 
 static dissector_handle_t usb_ccid_handle;
 
@@ -339,6 +349,7 @@ static const value_string ccid_status_cmd_status_vals[] = {
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
+static gint ett_ccid_protocol_data_structure = -1;
 static gint ett_ccid_voltage_level = -1;
 static gint ett_ccid_protocols = -1;
 static gint ett_ccid_features = -1;
@@ -473,6 +484,8 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tvbuff_t   *next_tvb;
     usb_conv_info_t  *usb_conv_info;
     int len_remaining;
+    guint8 bProtocolNum;
+    proto_tree *protocol_tree;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -501,10 +514,36 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* Placeholder for abRFU */
         proto_tree_add_item(ccid_tree, hf_ccid_Reserved, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-        if (tvb_get_letohl(tvb, 1) != 0)
+
+        payload_len = tvb_get_letohl(tvb, 1);
+
+        /* abProtocolDataStructure */
+        bProtocolNum = tvb_get_guint8(tvb, 7);
+        switch (bProtocolNum)
         {
-            next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_data_dissector(next_tvb, pinfo, tree);
+            case 0: /* T=0 */
+                protocol_tree = proto_tree_add_subtree(tree, tvb, 10, payload_len, ett_ccid_protocol_data_structure, NULL, "Protocol Data Structure for Protocol T=0");
+                proto_tree_add_item(protocol_tree, hf_ccid_bmFindexDindex, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bmTCCKST0, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bGuardTimeT0, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bWaitingIntegerT0, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bClockStop, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+                break;
+
+            case 1: /* T=1 */
+                protocol_tree = proto_tree_add_subtree(tree, tvb, 10, payload_len, ett_ccid_protocol_data_structure, NULL, "Protocol Data Structure for Protocol T=1");
+                proto_tree_add_item(protocol_tree, hf_ccid_bmFindexDindex, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bmTCCKST1, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bGuardTimeT1, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bmWaitingIntegersT1, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bClockStop, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bIFSC, tvb, 15, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bNadValue, tvb, 16, 1, ENC_LITTLE_ENDIAN);
+                break;
+
+            default:
+                next_tvb = tvb_new_subset_remaining(tvb, 10);
+                call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
 
@@ -611,6 +650,37 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+
+        payload_len = tvb_get_letohl(tvb, 1);
+
+        /* abProtocolDataStructure */
+        bProtocolNum = tvb_get_guint8(tvb, 9);
+        switch (bProtocolNum)
+        {
+            case 0: /* T=0 */
+                protocol_tree = proto_tree_add_subtree(tree, tvb, 10, payload_len, ett_ccid_protocol_data_structure, NULL, "Protocol Data Structure for Protocol T=0");
+                proto_tree_add_item(protocol_tree, hf_ccid_bmFindexDindex, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bmTCCKST0, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bGuardTimeT0, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bWaitingIntegerT0, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bClockStop, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+                break;
+
+            case 1: /* T=1 */
+                protocol_tree = proto_tree_add_subtree(tree, tvb, 10, payload_len, ett_ccid_protocol_data_structure, NULL, "Protocol Data Structure for Protocol T=1");
+                proto_tree_add_item(protocol_tree, hf_ccid_bmFindexDindex, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bmTCCKST1, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bGuardTimeT1, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bmWaitingIntegersT1, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bClockStop, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bIFSC, tvb, 15, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(protocol_tree, hf_ccid_bNadValue, tvb, 16, 1, ENC_LITTLE_ENDIAN);
+                break;
+
+            default:
+                next_tvb = tvb_new_subset_remaining(tvb, 10);
+                call_data_dissector(next_tvb, pinfo, tree);
+        }
         break;
 
     /*Interupt IN*/
@@ -893,11 +963,42 @@ proto_register_ccid(void)
         { &hf_ccid_bHardwareErrorCode,
          { "Hardware Error Code", "usbccid.hf_ccid_bHardwareErrorCode",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        {&hf_ccid_bmFindexDindex,
+         { "Fi/Di selecting clock rate", "usbccid.bmFindexDindex", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bmTCCKST0,
+         { "Convention used", "usbccid.bmTCCKST0", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bmTCCKST1,
+         { "Checksum type - Convention used", "usbccid.bmTCCKST1", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bGuardTimeT0,
+         { "Extra Guardtime between two characters", "usbccid.bGuardTimeT0", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bGuardTimeT1,
+         { "Extra Guardtime", "usbccid.bGuardTimeT1", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bmWaitingIntegersT1,
+         { "BWI - CWI", "usbccid.bmWaitingIntegersT1", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bClockStop,
+         { "ICC Clock Stop Support", "usbccid.bClockStop", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bIFSC,
+         { "Size of negotiated IFSC", "usbccid.bIFSC", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bNadValue,
+         { "NAD", "usbccid.bNadValue", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bWaitingIntegerT0,
+         { "WI for T= 0 used to define WWT", "usbccid.bWaitingIntegerT0", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
         &ett_ccid,
         &ett_ccid_desc,
+        &ett_ccid_protocol_data_structure,
         &ett_ccid_voltage_level,
         &ett_ccid_protocols,
         &ett_ccid_features,
