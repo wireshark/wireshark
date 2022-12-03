@@ -98,11 +98,13 @@ static const value_string section_kind_vals[] = {
 #define MONGO_COMPRESSOR_NOOP    0
 #define MONGO_COMPRESSOR_SNAPPY  1
 #define MONGO_COMPRESSOR_ZLIB    2
+#define MONGO_COMPRESSOR_ZSTD    3
 
 static const value_string compressor_vals[] = {
   { MONGO_COMPRESSOR_NOOP,   "Noop (Uncompressed)" },
   { MONGO_COMPRESSOR_SNAPPY, "Snappy" },
   { MONGO_COMPRESSOR_ZLIB,   "Zlib" },
+  { MONGO_COMPRESSOR_ZSTD,   "Zstd" },
   { 0,  NULL }
 };
 
@@ -755,6 +757,22 @@ dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, guint offset, pro
 
     offset = tvb_reported_length(tvb);
   } break;
+#endif
+
+#ifdef HAVE_ZSTD
+  case MONGO_COMPRESSOR_ZSTD:
+  {
+    tvbuff_t *uncompressed_tvb = tvb_child_uncompress_zstd (tvb, tvb, offset, tvb_captured_length_remaining (tvb, offset));
+    if (!uncompressed_tvb) {
+      expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing zstd data");
+    } else {
+      add_new_data_source(pinfo, uncompressed_tvb, "Decompressed Data");
+      dissect_opcode_types(uncompressed_tvb, pinfo, 0, tree, opcode, effective_opcode);
+    }
+
+    offset = tvb_reported_length(tvb);
+  }
+  break;
 #endif
 
   case MONGO_COMPRESSOR_ZLIB: {
