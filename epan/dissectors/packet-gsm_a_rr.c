@@ -44,6 +44,7 @@
 #include "packet-ber.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ppp.h"
+#include "packet-gsmtap.h"
 
 #include "packet-gsm_a_rr.h"
 
@@ -462,6 +463,7 @@ static int proto_a_rr = -1;
 static int proto_a_ccch = -1;
 static int proto_a_ec_ccch = -1;
 static int proto_a_sacch = -1;
+static int proto_a_rach = -1;
 
 static int hf_gsm_a_dtap_msg_rr_type = -1;
 static int hf_gsm_a_dtap_msg_rr_ec_ccch_type = -1;
@@ -860,6 +862,8 @@ static int hf_gsm_a_rr_tchf_acchs = -1;
 static int hf_gsm_a_rr_unknown_channel_info = -1;
 static int hf_gsm_a_rr_subchannel = -1;
 static int hf_gsm_a_rr_w_elements = -1;
+static int hf_gsm_a_rr_ra_est_cause = -1;
+static int hf_gsm_a_rr_ra_rand_ref = -1;
 
 
 /* gsm_rr_csn_flag() fields */
@@ -1233,6 +1237,7 @@ static int hf_gsm_a_rr_ps_sd_tsc_val = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ccch_msg = -1;
+static gint ett_rach_msg = -1;
 static gint ett_ec_ccch_msg = -1;
 static gint ett_ccch_oct_1 = -1;
 static gint ett_sacch_msg = -1;
@@ -11922,6 +11927,154 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
 };
 
+
+/* GSM 04.08 9.1.8 Channel request, ESTABLISHMENT CAUSE */
+
+static const value_string gsm_a_rr_cannel_request_3bit_est_cause_vals[] = {
+    { 0x00, "Location updating and the network does not set NECI bit to 1"},
+    { 0x80, "Answer to paging: 'Any Channel', or ('TCH/F' or 'TCH/H or TCH/F') if MS is 'Full rate only'"},
+    { 0xa0, "Emergency call"},
+    { 0xc0, "Call re-establishment; TCH/F was in use, or TCH/H was in use but the network does not set NECI bit to 1"},
+    { 0xe0, "Originating call and TCH/F is needed, or originating call and the network does not set NECI bit to 1,"
+            " or procedures that can be completed with a SDCCH and the network does not set NECI bit to 1"},
+    {    0, NULL }
+};
+
+static const value_string gsm_a_rr_cannel_request_4bit_est_cause_vals[] = {
+    { 0x00, "Location updating and the network sets NECI bit to 1"},
+    { 0x10, "Answer to paging: 'SDCCH' / Other procedures which can be completed with an SDCCH and the network sets NECI bit to 1"},
+    { 0x20, "Answer to paging: MS is dual rate capable and requests 'TCH/F' only"},
+    { 0x30, "Answer to paging: MS is dual rate capable and requests 'TCH/H or TCH/F'"},
+    { 0x40, "Originating speech call from dual-rate mobile station when TCH/H is sufficient and the network sets NECI bit to 1"},
+    { 0x50, "Originating data call from dual-rate mobile station when TCH/H is sufficient and the network sets NECI bit to 1"},
+    { 0x70, "Reserved for future use. An SDCCH may be allocated"},
+    {    0, NULL }
+};
+
+static const value_string gsm_a_rr_cannel_request_5bit_est_cause_vals[] = {
+    { 0x70, "Single block packet access; one block period on a PDCH is needed for two phase packet access or other RR"
+            " signalling purpose"},
+    { 0x78, "One phase packet access with request for single timeslot uplink transmission; one PDCH is needed"},
+    {    0, NULL }
+};
+
+static const value_string gsm_a_rr_cannel_request_6bit_est_cause_vals[] = {
+    { 0x68, "Call re-establishment; TCH/H was in use and the network sets NECI bit to 1"},
+    { 0x6c, "Call re-establishment; TCH/H + TCH/H was in use and the network sets NECI bit to 1"},
+    {    0, NULL }
+};
+
+static const value_string gsm_a_rr_cannel_request_8bit_est_cause_vals[] = {
+    { 0x63, "Reserved for future use. An SDCCH may be allocated"},
+    { 0x67, "LMU establishment. An SDCCH may be allocated"},
+    { 0x7f, "Reserved. Message may be ignored"},
+    {    0, NULL }
+};
+
+static gboolean
+ra_channel_request_parse(const gchar **cause, guint8 *reference, guint32 ra)
+{
+    const gchar *str;
+    guint8 ref;
+    gint idx;
+
+    str = try_val_to_str_idx((guint32)(ra & 0xe0), gsm_a_rr_cannel_request_3bit_est_cause_vals, &idx);
+    if (str != NULL) {
+        ref = ra & 0x1f;
+        goto found;
+    }
+
+    str = try_val_to_str_idx((guint32)(ra & 0xf0), gsm_a_rr_cannel_request_4bit_est_cause_vals, &idx);
+    if (str != NULL) {
+        ref = ra & 0x0f;
+        goto found;
+    }
+
+    str = try_val_to_str_idx((guint32)(ra & 0xf8), gsm_a_rr_cannel_request_5bit_est_cause_vals, &idx);
+    if (str != NULL) {
+        ref = ra & 0x07;
+        if ((idx != 1) || (ref != 0x07)) {
+            goto found;
+        }
+    }
+
+    str = try_val_to_str_idx((guint32)(ra & 0xfc), gsm_a_rr_cannel_request_6bit_est_cause_vals, &idx);
+    if (str != NULL) {
+        ref = ra & 0x03;
+        goto found;
+    }
+
+    str = try_val_to_str_idx((guint32)ra, gsm_a_rr_cannel_request_8bit_est_cause_vals, &idx);
+    if (str != NULL) {
+        ref = 0;
+        goto found;
+    }
+
+    if ((ra & 0xf9) == 0x60) {
+        str = "Single block MBMS access; one block period on a PDCH is needed for transfer of MBMS SERVICE REQUEST message";
+        ref = (ra & 0x6) >> 1;
+        goto found;
+    }
+
+    if ((ra & 0xfb) == 0x61) {
+        str = "Reserved for future use. An SDCCH may be allocated";
+        ref = (ra & 0x4) >> 2;
+        goto found;
+    }
+
+    return FALSE;
+
+found:
+    if (NULL != cause) {
+        *cause = str;
+    }
+    if (NULL != reference) {
+        *reference = ref;
+    }
+    return TRUE;
+}
+
+static void
+ra_est_cause_convert(gchar *result, guint32 ra)
+{
+    const gchar *str;
+
+    if (ra_channel_request_parse(&str, NULL, ra)) {
+        snprintf(result, ITEM_LABEL_LENGTH, "%s", str);
+    } else {
+        snprintf(result, ITEM_LABEL_LENGTH, "unknown ra %u", ra);
+    }
+}
+
+
+static void
+ra_rand_ref_convert(gchar *result, guint32 ra)
+{
+    guint8 reference;
+
+    if (ra_channel_request_parse(NULL, &reference, ra)) {
+        snprintf(result, ITEM_LABEL_LENGTH, "%d", reference);
+    } else {
+        snprintf(result, ITEM_LABEL_LENGTH, "unknown ra %u", ra);
+    }
+}
+
+
+static int dissect_rach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    proto_item  *rach_item   = NULL;
+    proto_tree  *rach_tree   = NULL;
+    guint32      len;
+
+    col_append_str(pinfo->cinfo, COL_INFO, "(RACH) Channel Request ");
+    len = tvb_reported_length(tvb);
+    rach_item = proto_tree_add_protocol_format(tree, proto_a_rach, tvb, 0, len, "GSM RACH");
+    rach_tree = proto_item_add_subtree(rach_item, ett_rach_msg);
+    proto_tree_add_item(rach_tree, hf_gsm_a_rr_ra_est_cause, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(rach_tree, hf_gsm_a_rr_ra_rand_ref, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
 void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint idx;
@@ -11941,7 +12094,7 @@ void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
  * The name CCCH might not be correct!
  */
 static int
-dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 
     static gsm_a_tap_rec_t  tap_rec[4];
@@ -11961,8 +12114,13 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     const gchar            *msg_str;
     gint                    ett_tree;
     int                     hf_idx;
+    guint8                 *gsmtap_channel_type = (guint8 *)data;
 
     len = tvb_reported_length(tvb);
+
+    if ((NULL != gsmtap_channel_type) && ((*gsmtap_channel_type & ~GSMTAP_CHANNEL_ACCH) == GSMTAP_CHANNEL_RACH)) {
+        return dissect_rach(tvb, pinfo, tree, NULL);
+    }
 
     if (len < 3){
         /*
@@ -14823,11 +14981,21 @@ proto_register_gsm_a_rr(void)
               { "Radio Resources Short L2 Header", "gsm_a.rr.short_l2_header",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ra_est_cause,
+              { "Establishment Cause", "gsm_a.rr.ra_est_cause",
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(ra_est_cause_convert), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ra_rand_ref,
+              { "Random Reference", "gsm_a.rr.ra_rand_ref",
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(ra_rand_ref_convert), 0x0,
+                NULL, HFILL }
             }
         };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    5
+#define NUM_INDIVIDUAL_ELEMS    6
     gint *ett[NUM_INDIVIDUAL_ELEMS +
               NUM_GSM_DTAP_MSG_RR +
               NUM_GSM_RR_ELEM +
@@ -14851,6 +15019,7 @@ proto_register_gsm_a_rr(void)
     ett[2] = &ett_sacch_msg;
     ett[3] = &ett_ec_ccch_msg;
     ett[4] = &ett_apdu;
+    ett[5] = &ett_rach_msg;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -14892,6 +15061,13 @@ proto_register_gsm_a_rr(void)
 
     /* subdissector code */
     register_dissector("gsm_a_ccch", dissect_ccch, proto_a_ccch);
+
+    /* Register the protocol name and description */
+    proto_a_rach =
+        proto_register_protocol("GSM RACH", "GSM RACH", "gsm_a.rach");
+
+    /* subdissector code */
+    register_dissector("gsm_a_rach", dissect_rach, proto_a_rach);
 
     /* Register the protocol name and description */
     proto_a_sacch =

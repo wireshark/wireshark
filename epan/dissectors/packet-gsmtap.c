@@ -547,6 +547,13 @@ handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
+handle_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 channel_type = GSMTAP_CHANNEL_RACH;
+	call_dissector_with_data(sub_handles[GSMTAP_SUB_UM], tvb, pinfo, tree, &channel_type);
+}
+
+static void
 dissect_um_voice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *payload_tvb;
@@ -1005,6 +1012,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			return tvb_captured_length(tvb);
 
 		case GSMTAP_CHANNEL_RACH:
+			handle_rach(payload_tvb, pinfo, tree);
+			return tvb_captured_length(tvb);
+
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
 			break;
