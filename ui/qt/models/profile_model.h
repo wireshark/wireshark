@@ -119,7 +119,7 @@ public:
     bool checkIfDeleted(int row) const;
     bool checkDuplicate(const QModelIndex &index, bool isOriginalToDuplicate = false) const;
 
-Q_SIGNALS:
+signals:
     void itemChanged(const QModelIndex &idx);
 
 protected:

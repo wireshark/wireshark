@@ -704,7 +704,7 @@ void PacketListModel::dissectIdle(bool reset)
     }
 
     if (idle_dissection_row_ < physical_rows_.count()) {
-        QTimer::singleShot(0, this, SLOT(dissectIdle()));
+        QTimer::singleShot(0, this, [=]() { dissectIdle(); });
     } else {
         idle_dissection_timer_->invalidate();
     }
@@ -733,7 +733,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
         if (new_visible_rows_.count() < 2) {
             // This is the first queued packet. Schedule an insertion for
             // the next UI update.
-            QTimer::singleShot(0, this, SLOT(flushVisibleRows()));
+            QTimer::singleShot(0, this, &PacketListModel::flushVisibleRows);
         }
         pos = static_cast<int>( visible_rows_.count() + new_visible_rows_.count() ) - 1;
     }

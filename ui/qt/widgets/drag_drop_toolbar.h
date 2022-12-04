@@ -25,7 +25,7 @@ public:
 
     virtual void clear();
 
-Q_SIGNALS:
+signals:
     void actionMoved(QAction * action, int oldPos, int newPos);
 
     void newFilterDropped(QString description, QString filter);

@@ -126,18 +126,19 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
 
     connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
     connect(mainApp, &MainApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(checkFilter()));
+    connect(mainApp, &MainApplication::preferencesChanged, this, [=](){ checkFilter(); });
 
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::connectToMainWindow);
 }
 
 void DisplayFilterEdit::connectToMainWindow()
 {
-    connect(this, SIGNAL(filterPackets(QString, bool)), mainApp->mainWindow(), SLOT(filterPackets(QString, bool)));
-    connect(this, SIGNAL(showPreferencesDialog(QString)),
-            mainApp->mainWindow(), SLOT(showPreferencesDialog(QString)));
-    connect(mainApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)),
-            this, SLOT(displayFilterSuccess(bool)));
+    connect(this, &DisplayFilterEdit::filterPackets, qobject_cast<MainWindow *>(mainApp->mainWindow()),
+            &MainWindow::filterPackets);
+    connect(this, &DisplayFilterEdit::showPreferencesDialog,
+            qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::showPreferencesDialog);
+    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::displayFilterSuccess,
+            this, &DisplayFilterEdit::displayFilterSuccess);
 }
 
 void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {

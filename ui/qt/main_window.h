@@ -52,6 +52,8 @@ public:
 
 public slots:
     void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);
+    virtual void filterPackets(QString, bool) = 0;
+    virtual void showPreferencesDialog(QString module_name) = 0;
     void layoutPanes();
     void applyRecentPaneGeometry();
 
@@ -92,6 +94,7 @@ signals:
     void fieldSelected(FieldInformation *);
     void framesSelected(QList<int>);
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
+    void displayFilterSuccess(bool success);
 
 };
 

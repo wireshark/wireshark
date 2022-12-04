@@ -49,7 +49,7 @@ public:
     void selectRow(int row);
     bool activeEdit();
 
-Q_SIGNALS:
+signals:
     void itemUpdated();
 
     // QWidget interface

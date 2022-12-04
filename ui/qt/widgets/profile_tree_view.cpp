@@ -48,7 +48,7 @@ ProfileTreeView::ProfileTreeView(QWidget *parent) :
     setItemDelegateForColumn(ProfileModel::COL_NAME, delegate_);
 
     connect(this, &QAbstractItemView::clicked, this, &ProfileTreeView::clicked);
-    connect(delegate_, SIGNAL(commitData(QWidget *)), this, SIGNAL(itemUpdated()));
+    connect(delegate_, &ProfileTreeEditDelegate::commitData, this, &ProfileTreeView::itemUpdated);
 }
 
 ProfileTreeView::~ProfileTreeView()

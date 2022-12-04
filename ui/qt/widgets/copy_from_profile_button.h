@@ -27,7 +27,7 @@ public:
 
     void setFilename(QString filename);
 
-Q_SIGNALS:
+signals:
     void copyProfile(QString filename);
 
 private:

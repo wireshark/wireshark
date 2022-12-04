@@ -44,6 +44,7 @@
 #include <QGraphicsScene>
 #include <QToolTip>
 
+#include <ui/qt/main_window.h>
 #include "packet_list.h"
 #include <ui/qt/models/packet_list_model.h>
 
@@ -297,7 +298,7 @@ void WirelessTimeline::captureFileReadFinished()
 
 void WirelessTimeline::appInitialized()
 {
-    connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected, this, &WirelessTimeline::selectedFrameChanged);
 
     GString *error_string;
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);
@@ -342,7 +343,7 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     capfile = NULL;
 
     radio_packet_list = g_hash_table_new(g_direct_hash, g_direct_equal);
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
+    connect(mainApp, &MainApplication::appInitialized, this, &WirelessTimeline::appInitialized);
 }
 
 WirelessTimeline::~WirelessTimeline()
