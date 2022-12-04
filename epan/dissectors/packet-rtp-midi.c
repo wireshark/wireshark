@@ -1315,7 +1315,7 @@ static const value_string rtp_midi_controller_values[] = {
 	{ RTP_MIDI_CTRL_EFFECTS_2_DEPTH,				"Effects 2 Depth (formerly: Tremolo Depth)" },
 	{ RTP_MIDI_CTRL_EFFECTS_3_DEPTH,				"Effects 3 Depth (formerly: Chorus Depth)" },
 	{ RTP_MIDI_CTRL_EFFECTS_4_DEPTH,				"Effects 4 Depth (formerly: Celeste (Detune) Depth)" },
-	{ RTP_MIDI_CTRL_EFFECTS_5_DEPTH,				"Effects 5 Depth (formerly: Phaser Deptch)" },
+	{ RTP_MIDI_CTRL_EFFECTS_5_DEPTH,				"Effects 5 Depth (formerly: Phaser Depth)" },
 	{ RTP_MIDI_CTRL_DATA_INCREMENT,					"Data Increment" },
 	{ RTP_MIDI_CTRL_DATA_DECREMENT,					"Data Decrement" },
 	{ RTP_MIDI_CTRL_NON_REGISTERED_PARAM_LSB,			"Non-Registered Parameter (lsb)" },

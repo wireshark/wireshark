@@ -602,7 +602,7 @@ proto_register_abis_pgsl(void)
 		{ &hf_pgsl_codec_delay,
 			{ "Codec Delay", "gsm_abis_pgsl.codec_delay",
 			  FT_UINT8, BASE_DEC, NULL, 0xe0,
-			  "Estimated Accss Delay Deviation", HFILL }
+			  "Estimated Access Delay Deviation", HFILL }
 		},
 		{ &hf_pgsl_codec_cs,
 			{ "Codec CS", "gsm_abis_pgsl.codec_csy",

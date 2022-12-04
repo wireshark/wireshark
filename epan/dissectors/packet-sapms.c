@@ -1745,7 +1745,7 @@ proto_register_sapms(void)
 	range_convert_str(wmem_epan_scope(), &global_sapms_port_range, SAPMS_PORT_RANGE, MAX_TCP_PORT);
 	prefs_register_range_preference(sapms_module, "tcp_ports", "SAP MS Protocol TCP port numbers", "Port numbers used for SAP MS Protocol (default " SAPMS_PORT_RANGE ")", &global_sapms_port_range, MAX_TCP_PORT);
 
-	prefs_register_bool_preference(sapms_module, "highlight_unknown_items", "Highlight unknown SAP MS messages", "Whether the SAP MS Protocol dissector should highlight unknown MS messages (migth be noise and generate a lot of expert warnings)", &global_sapms_highlight_items);
+	prefs_register_bool_preference(sapms_module, "highlight_unknown_items", "Highlight unknown SAP MS messages", "Whether the SAP MS Protocol dissector should highlight unknown MS messages (might be noise and generate a lot of expert warnings)", &global_sapms_highlight_items);
 
 }
 

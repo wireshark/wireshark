@@ -68,6 +68,7 @@ appset
 arbitrated
 arduino
 arfcn
+arista
 asciidoc
 ashrae
 asn1
@@ -97,6 +98,7 @@ authntransitioning
 authorizer
 authtoken
 authtype
+authz
 autoconfiguration
 autodiscovery
 autoneg
@@ -197,6 +199,7 @@ cellidentity
 centiseconds
 centrino
 cfilters
+cframe
 chan1
 chan2
 changelog
@@ -204,6 +207,7 @@ channelisation
 channelized
 charset
 charsets
+chauvet
 checkbox
 checkout
 checksum
@@ -254,6 +258,7 @@ combiners
 communication
 compat
 compilers
+compr
 computable
 concatenate
 concatenated
@@ -265,8 +270,10 @@ configurable
 conformant
 connectionless
 connid
+connp
 const
 contactless
+contextp
 contiguity
 contiguously
 coord
@@ -295,6 +302,7 @@ csapi
 ctime
 ctype
 cumulated
+cumulatively
 customizable
 customization
 customizing
@@ -386,6 +394,7 @@ dfilter
 dfilters
 dfsauth
 dftest
+dgram
 dhcpv
 dialed
 dialup
@@ -439,6 +448,7 @@ eeprom
 egprs
 egroup
 eigrp
+einval
 elektronik
 elided
 elink
@@ -492,6 +502,7 @@ eutra
 eutran
 eventlog
 executables
+exflags
 exocet
 extattr
 extcap
@@ -501,12 +512,14 @@ extern
 exthdr
 extrainformation
 eyesdn
+facch
 failover
 fastcom
 fastip
 fastmsg
 fattr
 featureful
+fhandle
 fiber
 fileset
 firewall
@@ -554,6 +567,7 @@ geonw
 geran
 getattr
 getentrybyname
+getgroupinfo
 getnext
 getter
 gidaddr
@@ -568,9 +582,11 @@ gmprs
 gnodeb
 gnutls
 goaway
+golomb
 google
 gpointer
 gprscdr
+gprsmeasurementparams3g
 gregex
 greyed
 groupa
@@ -589,6 +605,7 @@ hashed
 hashes
 hazelcast
 hcidump
+headend
 heuristic
 hfarr
 hfill,
@@ -612,6 +629,7 @@ huffman
 hytec
 icmpv
 ident
+identifier
 idiographic
 idl2deb
 idl2wrs
@@ -625,6 +643,7 @@ ifdef
 ifname
 ikev2
 illuminance
+imeisv
 immersive
 implementations
 implementer
@@ -668,6 +687,7 @@ interruptible
 interworking
 inuse
 invalidation
+invalidly
 ioctl
 ioerr
 ioflag
@@ -676,7 +696,9 @@ iotecha
 ipaccess
 ipaddr
 ipaddress
+ipcomp
 ipconfig
+iperf
 ipfix
 ipphone
 ipprim
@@ -685,6 +707,7 @@ ipseckey
 iptables
 iptrace
 ipv4addr
+ipv6addr
 ipxnet
 ipxnets
 irqmask
@@ -725,6 +748,7 @@ l2vpn
 l3vpn
 laggy
 lanalyzer
+latencies
 lbmpdm
 lcgid
 lcids
@@ -807,6 +831,7 @@ minus1
 mirrorlink
 misconfiguration
 misconfigured
+mitel
 mitsubishi
 mkdir
 mmdbresolve
@@ -823,9 +848,12 @@ mpsse
 mptcp
 mrcpv
 msbuild
+mscldap
 msgid
+msglen
 msgreq
 msgsend
+msgtype
 msisdn
 MSM7627A
 mtftp
@@ -849,6 +877,7 @@ multiplexed
 multiplexer
 multiplexers
 multiplexing
+multiplicative
 multiplicator
 multirat
 multirate
@@ -938,8 +967,10 @@ octetstring
 ofdma
 offloadability
 ofpat
+ofpet
 ofpmp
 ofppf
+ofptfpt
 ofpxmt
 om2000
 omniidl
@@ -963,9 +994,11 @@ optiplex
 ordinal
 oscillatory
 oscore
+osdmap
 osmocom
 ospf6
 outhdr
+pacch
 packetcable
 packetization
 packetized
@@ -986,7 +1019,10 @@ passivated
 passkey
 passthrough
 passwd
+pbcch
 pcapng
+pccch
+pcch
 pcell
 pcmax
 pcmaxc
@@ -1024,6 +1060,7 @@ portinfo
 portmod
 portno
 portnumber
+portset
 portstatus
 posix
 postfix
@@ -1080,6 +1117,7 @@ qam64
 qnet6
 qosinfo
 qsearch
+quadlet
 quadrature
 quadro
 quantifiers
@@ -1239,6 +1277,8 @@ rtpmidi
 rtpmux
 ruleset
 rxchannel
+rxlen
+rxlev
 rxreq
 s7comm
 sabme
@@ -1254,6 +1294,7 @@ scdma
 scell
 scoped
 scrollbar
+sdcch
 sdjournal
 sdusize
 sectorization
@@ -1445,6 +1486,7 @@ toolbar
 toolongfragment
 toolset
 tooltip
+topup
 toshiba
 touchlink
 touchpad
@@ -1626,6 +1668,7 @@ utf8mb
 utilization
 utils
 utran
+uuencoded
 v1250
 v1310
 v1410
@@ -1636,6 +1679,7 @@ varint
 vcpkg
 vcredist
 vcxproj
+vector3d
 verbosity
 verifier
 verizon
@@ -1650,8 +1694,10 @@ versioning
 vhdset
 viavi
 virtex
+virtio
 virtualization
 vlans
+vnode
 vocoder
 vodafone
 voipmetrics
@@ -1673,6 +1719,7 @@ wimaxasncp
 winget
 winpcap
 winspool
+wiphy
 wireshark
 wiretap
 withfcs
@@ -1693,6 +1740,7 @@ X32bit
 x509if
 x509sat
 xattr
+xauth
 xchannel
 xcode
 xetra

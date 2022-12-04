@@ -1291,7 +1291,7 @@ static int hf_ec_puan_monitor_ec_pacch = -1;
 static int hf_t3238 = -1;
 static int hf_ec_initial_waiting_time = -1;
 static int hf_ec_pacch_monitoring_pattern = -1;
-static int hf_ec_puan_fua_dealy_exist = -1;
+static int hf_ec_puan_fua_delay_exist = -1;
 
 static int hf_ec_reject_wait_exist = -1;
 static int hf_ec_packet_access_reject_count = -1;
@@ -4129,7 +4129,7 @@ CSN_DESCR_BEGIN       (PUAN_Fixed_Uplink_Allocation_t)
   M_NEXT_EXIST        (PUAN_Fixed_Uplink_Allocation_t, Exist_BSN_OFFSET, 1, &hf_ec_bsn_offset_exist),
   M_UINT              (PUAN_Fixed_Uplink_Allocation_t, BSN_OFFSET, 2, &hf_ec_bsn_offset),
   M_UINT              (PUAN_Fixed_Uplink_Allocation_t, START_FIRST_UL_RLC_DATA_BLOCK, 4, &hf_ec_start_first_ul_rlc_data_block),
-  M_REC_TARRAY        (PUAN_Fixed_Uplink_Allocation_t, FUA_Delay, FUA_Delay_t, Count_FUA_Delay, &hf_ec_puan_fua_dealy_exist),
+  M_REC_TARRAY        (PUAN_Fixed_Uplink_Allocation_t, FUA_Delay, FUA_Delay_t, Count_FUA_Delay, &hf_ec_puan_fua_delay_exist),
 CSN_DESCR_END         (PUAN_Fixed_Uplink_Allocation_t)
 
 static const
@@ -4263,7 +4263,7 @@ CSN_DESCR_END         (EC_Packet_Tbf_Release_t)
 static const
 CSN_DESCR_BEGIN       (Fixed_Uplink_Allocation_t)
   M_UINT              (Fixed_Uplink_Allocation_t, START_FIRST_UL_RLC_DATA_BLOCK, 4, &hf_ec_start_first_ul_rlc_data_block),
-  M_REC_TARRAY        (Fixed_Uplink_Allocation_t, FUA_Delay, FUA_Delay_t, Count_FUA_Delay, &hf_ec_puan_fua_dealy_exist),
+  M_REC_TARRAY        (Fixed_Uplink_Allocation_t, FUA_Delay, FUA_Delay_t, Count_FUA_Delay, &hf_ec_puan_fua_delay_exist),
 CSN_DESCR_END         (Fixed_Uplink_Allocation_t)
 
 static const
@@ -18462,8 +18462,8 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-    { &hf_ec_puan_fua_dealy_exist,
-      { "EC_PUAN_FUA_DEALY Exist", "gsm_rlcmac.dl.ec_puan_fua_dealy_exist",
+    { &hf_ec_puan_fua_delay_exist,
+      { "EC_PUAN_FUA_DELAY Exist", "gsm_rlcmac.dl.ec_puan_fua_delay_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
