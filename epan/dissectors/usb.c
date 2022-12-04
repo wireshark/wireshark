@@ -23748,6 +23748,7 @@ static const value_string usb_products_vals[] = {
     { 0x26720049, "GoPro HERO8 Black" },
     { 0x2672004D, "GoPro HERO9 Black" },
     { 0x26720056, "GoPro HERO10 Black" },
+    { 0x26720059, "GoPro HERO11 Black" },
     { 0x2676ba02, "ace" },
     { 0x2676ba03, "ba03 dart Vision Caera" },
     { 0x2676ba04, "ba04 pulse Vision Camera" },
