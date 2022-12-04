@@ -52,11 +52,8 @@ ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 Presence
 FreqBandNrItem
-S-NSSAI
 IndexToRFSP
 EN-GNB-ID
-SST
-SD
 SubscriberProfileIDforRFP
 QoSID
 GroupID

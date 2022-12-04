@@ -24,8 +24,7 @@ IMPORTS
     RIC-Format-Type,
     RIC-Style-Name,
     RIC-Style-Type,
-    -- TODO: removed hyphen
-    -- SNSSAI,
+    S-NSSAI,
     UEID
 FROM E2SM-COMMON-IEs;
 
@@ -39,12 +38,6 @@ MeasurementType ::= CHOICE {
     ...
 }
 
--- TODO: (copied from e2sm-kpm-v1.asn)
-SNSSAI ::= SEQUENCE {
-        sST			OCTET STRING (SIZE(1)),
-        sD			OCTET STRING (SIZE(3)) 	OPTIONAL
-}
-
 MeasurementTypeName ::= PrintableString(SIZE(1.. 150, ...))
 
 MeasurementTypeID ::= INTEGER (1.. 65536, ...)
@@ -53,7 +46,7 @@ MeasurementLabel ::= SEQUENCE {
     noLabel ENUMERATED {true, ...} OPTIONAL,
     -- TODO: changed from PLMNIdentity and S-NSSAI
     plmnID PLMN-Identity OPTIONAL,
-    sliceID SNSSAI  OPTIONAL,
+    sliceID S-NSSAI  OPTIONAL,
     fiveQI FiveQI OPTIONAL,
     qFI QosFlowIdentifier OPTIONAL,
     qCI QCI OPTIONAL,

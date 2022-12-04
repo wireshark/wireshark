@@ -449,6 +449,8 @@ static int hf_e2ap_aMFPointer = -1;               /* AMFPointer */
 static int hf_e2ap_macroNgENB_ID = -1;            /* BIT_STRING_SIZE_20 */
 static int hf_e2ap_shortMacroNgENB_ID = -1;       /* BIT_STRING_SIZE_18 */
 static int hf_e2ap_longMacroNgENB_ID = -1;        /* BIT_STRING_SIZE_21 */
+static int hf_e2ap_sST = -1;                      /* SST */
+static int hf_e2ap_sD = -1;                       /* SD */
 static int hf_e2ap_gNB_02 = -1;                   /* GlobalGNB_ID */
 static int hf_e2ap_ng_eNB_02 = -1;                /* GlobalNgENB_ID */
 static int hf_e2ap_nRARFCN = -1;                  /* INTEGER_0_maxNRARFCN */
@@ -750,11 +752,9 @@ static int hf_e2ap_ran_PolicyConditionParameters_List = -1;  /* SEQUENCE_SIZE_1_
 static int hf_e2ap_ran_PolicyConditionParameters_List_item = -1;  /* PolicyCondition_RANParameter_Item */
 static int hf_e2ap_measName = -1;                 /* MeasurementTypeName */
 static int hf_e2ap_measID = -1;                   /* MeasurementTypeID */
-static int hf_e2ap_sST = -1;                      /* OCTET_STRING_SIZE_1 */
-static int hf_e2ap_sD = -1;                       /* OCTET_STRING_SIZE_3 */
 static int hf_e2ap_noLabel = -1;                  /* T_noLabel */
 static int hf_e2ap_plmnID = -1;                   /* PLMN_Identity */
-static int hf_e2ap_sliceID = -1;                  /* SNSSAI */
+static int hf_e2ap_sliceID = -1;                  /* S_NSSAI */
 static int hf_e2ap_fiveQI = -1;                   /* FiveQI */
 static int hf_e2ap_qFI = -1;                      /* QosFlowIdentifier */
 static int hf_e2ap_qCI = -1;                      /* QCI */
@@ -1001,6 +1001,7 @@ static gint ett_e2ap_GlobalNgENB_ID = -1;
 static gint ett_e2ap_GNB_ID = -1;
 static gint ett_e2ap_GUAMI = -1;
 static gint ett_e2ap_NgENB_ID = -1;
+static gint ett_e2ap_S_NSSAI = -1;
 static gint ett_e2ap_GlobalNGRANNodeID = -1;
 static gint ett_e2ap_NR_ARFCN = -1;
 static gint ett_e2ap_NRFrequencyBand_List = -1;
@@ -1213,7 +1214,6 @@ static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCon
 static gint ett_e2ap_PolicyAction_RANParameter_Item = -1;
 static gint ett_e2ap_PolicyCondition_RANParameter_Item = -1;
 static gint ett_e2ap_MeasurementType = -1;
-static gint ett_e2ap_SNSSAI = -1;
 static gint ett_e2ap_MeasurementLabel = -1;
 static gint ett_e2ap_TestCondInfo = -1;
 static gint ett_e2ap_TestCond_Type = -1;
@@ -5217,6 +5217,41 @@ dissect_e2ap_QosFlowIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
+dissect_e2ap_SD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_SST(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t S_NSSAI_sequence[] = {
+  { &hf_e2ap_sST            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_SST },
+  { &hf_e2ap_sD             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_SD },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e2ap_S_NSSAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e2ap_S_NSSAI, S_NSSAI_sequence);
+
+  return offset;
+}
+
+
+
+static int
 dissect_e2ap_FiveGS_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, NULL);
@@ -9007,41 +9042,6 @@ dissect_e2ap_MeasurementType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-
-static int
-dissect_e2ap_OCTET_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 1, FALSE, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_e2ap_OCTET_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t SNSSAI_sequence[] = {
-  { &hf_e2ap_sST            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e2ap_OCTET_STRING_SIZE_1 },
-  { &hf_e2ap_sD             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e2ap_OCTET_STRING_SIZE_3 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e2ap_SNSSAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e2ap_SNSSAI, SNSSAI_sequence);
-
-  return offset;
-}
-
-
 static const value_string e2ap_T_noLabel_vals[] = {
   {   0, "true" },
   { 0, NULL }
@@ -9161,7 +9161,7 @@ dissect_e2ap_T_avg(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static const per_sequence_t MeasurementLabel_sequence[] = {
   { &hf_e2ap_noLabel        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_T_noLabel },
   { &hf_e2ap_plmnID         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_PLMN_Identity },
-  { &hf_e2ap_sliceID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_SNSSAI },
+  { &hf_e2ap_sliceID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_S_NSSAI },
   { &hf_e2ap_fiveQI         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_FiveQI },
   { &hf_e2ap_qFI            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_QosFlowIdentifier },
   { &hf_e2ap_qCI            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_QCI },
@@ -12367,6 +12367,14 @@ void proto_register_e2ap(void) {
       { "longMacroNgENB-ID", "e2ap.longMacroNgENB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_21", HFILL }},
+    { &hf_e2ap_sST,
+      { "sST", "e2ap.sST",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e2ap_sD,
+      { "sD", "e2ap.sD",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e2ap_gNB_02,
       { "gNB", "e2ap.gNB_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13571,14 +13579,6 @@ void proto_register_e2ap(void) {
       { "measID", "e2ap.measID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MeasurementTypeID", HFILL }},
-    { &hf_e2ap_sST,
-      { "sST", "e2ap.sST",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1", HFILL }},
-    { &hf_e2ap_sD,
-      { "sD", "e2ap.sD",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_3", HFILL }},
     { &hf_e2ap_noLabel,
       { "noLabel", "e2ap.noLabel",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_noLabel_vals), 0,
@@ -13590,7 +13590,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_sliceID,
       { "sliceID", "e2ap.sliceID_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "SNSSAI", HFILL }},
+        "S_NSSAI", HFILL }},
     { &hf_e2ap_fiveQI,
       { "fiveQI", "e2ap.fiveQI",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -14126,6 +14126,7 @@ void proto_register_e2ap(void) {
     &ett_e2ap_GNB_ID,
     &ett_e2ap_GUAMI,
     &ett_e2ap_NgENB_ID,
+    &ett_e2ap_S_NSSAI,
     &ett_e2ap_GlobalNGRANNodeID,
     &ett_e2ap_NR_ARFCN,
     &ett_e2ap_NRFrequencyBand_List,
@@ -14338,7 +14339,6 @@ void proto_register_e2ap(void) {
     &ett_e2ap_PolicyAction_RANParameter_Item,
     &ett_e2ap_PolicyCondition_RANParameter_Item,
     &ett_e2ap_MeasurementType,
-    &ett_e2ap_SNSSAI,
     &ett_e2ap_MeasurementLabel,
     &ett_e2ap_TestCondInfo,
     &ett_e2ap_TestCond_Type,
