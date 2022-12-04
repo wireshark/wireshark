@@ -219,6 +219,407 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
     WSLUA_RETURN(1); /* The value [0-255] of the byte. */
 }
 
+WSLUA_METHOD ByteArray_get_le_int16(lua_State* L) {
+    /* Read a little endian encoded 16 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 1) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    gint32 value = (gint32)ba->data[idx + 1];
+    value <<= 8;
+    value |= (gint32)ba->data[idx];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the little endian encoded 16 bit signed integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_le_int32(lua_State* L) {
+    /* Read a little endian encoded 32 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 3) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    gint32 value = (gint32)ba->data[idx + 3];
+    value <<= 8;
+    value |= (gint32)ba->data[idx + 2];
+    value <<= 8;
+    value |= (gint32)ba->data[idx + 1];
+    value <<= 8;
+    value |= (gint32)ba->data[idx];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the little endian encoded 32 bit signed integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_le_int64(lua_State* L) {
+    /* Read a little endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 7) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    gint64 value = (gint64)ba->data[idx + 7];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 6];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 5];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 4];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 3];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 2];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 1];
+    value <<= 8;
+    value |= (gint64)ba->data[idx];
+
+    pushInt64(L, value);
+
+    WSLUA_RETURN(1); /* The value of the little endian encoded 64 bit signed integer as a <<lua_class_Int64,`Int64`>> object beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_le_uint16(lua_State* L) {
+    /* Read a little endian encoded 16 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 1) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    guint32 value = (guint32)ba->data[idx + 1];
+    value <<= 8;
+    value |= (guint32)ba->data[idx];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the little endian encoded 16 bit unsigned integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_le_uint32(lua_State* L) {
+    /* Read a little endian encoded 32 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 3) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    guint32 value = (guint32)ba->data[idx + 3];
+    value <<= 8;
+    value |= (guint32)ba->data[idx + 2];
+    value <<= 8;
+    value |= (guint32)ba->data[idx + 1];
+    value <<= 8;
+    value |= (guint32)ba->data[idx];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the little endian encoded 32 bit unsigned integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_le_uint64(lua_State* L) {
+    /* Read a little endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 7) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    guint64 value = (guint64)ba->data[idx + 7];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 6];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 5];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 4];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 3];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 2];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 1];
+    value <<= 8;
+    value |= (guint64)ba->data[idx];
+
+    pushUInt64(L, value);
+
+    WSLUA_RETURN(1); /* The value of the little endian encoded 64 bit unsigned integer as a <<lua_class_UInt64,`UInt64`>> object beginning at given index. */
+}
+
+
+WSLUA_METHOD ByteArray_get_int16(lua_State* L) {
+    /* Read a little endian encoded 16 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 1) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    gint32 value = (gint32)ba->data[idx];
+    value <<= 8;
+    value |= (gint32)ba->data[idx + 1];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the big endian encoded 16 bit signed integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_int32(lua_State* L) {
+    /* Read a big endian encoded 32 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 3) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    gint32 value = (gint32)ba->data[idx];
+    value <<= 8;
+    value |= (gint32)ba->data[idx + 1];
+    value <<= 8;
+    value |= (gint32)ba->data[idx + 2];
+    value <<= 8;
+    value |= (gint32)ba->data[idx + 3];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit signed integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_int64(lua_State* L) {
+    /* Read a big endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 7) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    gint64 value = (gint64)ba->data[idx];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 1];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 2];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 3];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 4];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 5];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 6];
+    value <<= 8;
+    value |= (gint64)ba->data[idx + 7];
+
+    pushInt64(L, value);
+
+    WSLUA_RETURN(1); /* The value of the big endian encoded 64 bit signed integer as a <<lua_class_Int64,`Int64`>> object beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_uint16(lua_State* L) {
+    /* Read a big endian encoded 16 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 1) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    guint32 value = (guint32)ba->data[idx];
+    value <<= 8;
+    value |= (guint32)ba->data[idx + 1];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the big endian encoded 16 bit unsigned integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_uint32(lua_State* L) {
+    /* Read a big endian encoded 32 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 3) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    guint32 value = (guint32)ba->data[idx];
+    value <<= 8;
+    value |= (guint32)ba->data[idx + 1];
+    value <<= 8;
+    value |= (guint32)ba->data[idx + 2];
+    value <<= 8;
+    value |= (guint32)ba->data[idx + 3];
+
+    lua_pushnumber(L, value);
+
+    WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit unsigned integer beginning at given index. */
+}
+
+WSLUA_METHOD ByteArray_get_uint64(lua_State* L) {
+    /* Read a big endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given index.
+
+    @since 4.1.0
+    */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+    ByteArray ba = checkByteArray(L, 1);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+
+    if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
+        luaL_argerror(L, 2, "bad index");
+        return 0;
+    }
+
+    if (idx < 0 || (guint)idx >= ba->len - 7) {
+        luaL_argerror(L, 2, "index out of range");
+        return 0;
+    }
+
+    guint64 value = (guint64)ba->data[idx];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 1];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 2];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 3];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 4];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 5];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 6];
+    value <<= 8;
+    value |= (guint64)ba->data[idx + 7];
+
+    pushUInt64(L, value);
+
+    WSLUA_RETURN(1); /* The value of the big endian encoded 64 bit unsigned integer as a <<lua_class_UInt64,`UInt64`>> object beginning at given index. */
+}
+
 WSLUA_METHOD ByteArray_len(lua_State* L) {
     /* Obtain the length of a <<lua_class_ByteArray,`ByteArray`>>. */
     ByteArray ba = checkByteArray(L,1);
@@ -387,6 +788,18 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
 
 WSLUA_METHODS ByteArray_methods[] = {
     WSLUA_CLASS_FNREG(ByteArray,new),
+    WSLUA_CLASS_FNREG(ByteArray,get_le_int16),
+    WSLUA_CLASS_FNREG(ByteArray,get_le_int32),
+    WSLUA_CLASS_FNREG(ByteArray,get_le_int64),
+    WSLUA_CLASS_FNREG(ByteArray,get_le_uint16),
+    WSLUA_CLASS_FNREG(ByteArray,get_le_uint32),
+    WSLUA_CLASS_FNREG(ByteArray,get_le_uint64),
+    WSLUA_CLASS_FNREG(ByteArray,get_int16),
+    WSLUA_CLASS_FNREG(ByteArray,get_int32),
+    WSLUA_CLASS_FNREG(ByteArray,get_int64),
+    WSLUA_CLASS_FNREG(ByteArray,get_uint16),
+    WSLUA_CLASS_FNREG(ByteArray,get_uint32),
+    WSLUA_CLASS_FNREG(ByteArray,get_uint64),
     WSLUA_CLASS_FNREG(ByteArray,len),
     WSLUA_CLASS_FNREG(ByteArray,prepend),
     WSLUA_CLASS_FNREG(ByteArray,append),
