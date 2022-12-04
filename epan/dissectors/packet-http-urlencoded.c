@@ -29,23 +29,31 @@ static int hf_form_value = -1;
 static gint ett_form_urlencoded = -1;
 static gint ett_form_keyvalue = -1;
 
+static ws_mempbrk_pattern pbrk_key;
+static ws_mempbrk_pattern pbrk_value;
+
 static int
-get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset, char stop)
+get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset, const ws_mempbrk_pattern *pbrk)
 {
 	const int orig_offset = offset;
+	int found_offset;
+	guint8 ch;
 	char *tmp;
 	int len;
 
 	len = 0;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		guint8 ch;
-
-		ch = tvb_get_guint8(tvb, offset);
-		if (!ch)
-			return -1;
-		if (ch == stop)
+		found_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, pbrk, &ch);
+		if (found_offset == -1) {
+			len += tvb_reported_length_remaining(tvb, offset);
 			break;
+		}
+		len += (found_offset - offset);
+		offset = found_offset;
 		if (ch == '%') {
+			if (tvb_reported_length_remaining(tvb, offset) < 2) {
+				return -1;
+			}
 			offset++;
 			ch = tvb_get_guint8(tvb, offset);
 			if (ws_xton(ch) == -1)
@@ -55,6 +63,9 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 			ch = tvb_get_guint8(tvb, offset);
 			if (ws_xton(ch) == -1)
 				return -1;
+		} else if (ch != '+') {
+			/* Key, matched '=', stop. */
+			break;
 		}
 
 		len++;
@@ -66,15 +77,16 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 
 	len = 0;
 	offset = orig_offset;
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		guint8 ch;
-
-		ch = tvb_get_guint8(tvb, offset);
-		if (!ch)
-			return -1;
-		if (ch == stop)
+	while (tvb_reported_length_remaining(tvb, offset)) {
+		found_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, pbrk, &ch);
+		if (found_offset == -1) {
+			tvb_memcpy(tvb, &tmp[len], offset, tvb_reported_length_remaining(tvb, offset));
+			offset = tvb_reported_length(tvb);
 			break;
-
+		}
+		tvb_memcpy(tvb, &tmp[len], offset, found_offset - offset);
+		len += (found_offset - offset);
+		offset = found_offset;
 		if (ch == '%') {
 			guint8 ch1, ch2;
 
@@ -86,10 +98,12 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 
 			tmp[len] = ws_xton(ch1) << 4 | ws_xton(ch2);
 
-		} else if (ch == '+')
+		} else if (ch == '+') {
 			tmp[len] = ' ';
-		else
-			tmp[len] = ch;
+		} else {
+			/* Key, matched '=', stop */
+			break;
+		}
 
 		len++;
 		offset++;
@@ -105,9 +119,10 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree	*url_tree;
 	proto_tree	*sub;
 	proto_item	*ti;
-	gint		offset = 0, next_offset;
+	gint		offset = 0, next_offset, end_offset;
 	const char	*data_name;
 	http_message_info_t *message_info;
+	tvbuff_t	*sequence_tvb;
 
 	data_name = pinfo->match_string;
 	if (! (data_name && data_name[0])) {
@@ -140,13 +155,17 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	url_tree = proto_item_add_subtree(ti, ett_form_urlencoded);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		const int start_offset = offset;
 		char *key, *value;
 		char *key_decoded, *value_decoded;
 
-		sub = proto_tree_add_subtree(url_tree, tvb, offset, 0, ett_form_keyvalue, &ti, "Form item");
+		end_offset = tvb_find_guint8(tvb, offset, -1, '&');
+		if (end_offset == -1) {
+			end_offset = (int)tvb_reported_length(tvb);
+		}
+		sub = proto_tree_add_subtree(url_tree, tvb, offset, end_offset - offset, ett_form_keyvalue, NULL, "Form item");
 
-		next_offset = get_form_key_value(pinfo->pool, tvb, &key, offset, '=');
+		sequence_tvb = tvb_new_subset_length(tvb, 0, end_offset);
+		next_offset = get_form_key_value(pinfo->pool, sequence_tvb, &key, offset, &pbrk_key);
 		if (next_offset == -1)
 			break;
 		/* XXX: Only UTF-8 is conforming according to WHATWG, though we
@@ -162,7 +181,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 		offset = next_offset+1;
 
-		next_offset = get_form_key_value(pinfo->pool, tvb, &value, offset, '&');
+		next_offset = get_form_key_value(pinfo->pool, sequence_tvb, &value, offset, &pbrk_value);
 		if (next_offset == -1)
 			break;
 		value_decoded = get_utf_8_string(pinfo->pool, value, (int)strlen(value));
@@ -170,8 +189,6 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		proto_item_append_text(sub, " = \"%s\"", format_text(pinfo->pool, value, strlen(value)));
 
 		offset = next_offset+1;
-
-		proto_item_set_len(ti, offset - start_offset);
 	}
 
 	return tvb_captured_length(tvb);
@@ -204,6 +221,9 @@ proto_register_http_urlencoded(void)
 
 	proto_register_field_array(proto_urlencoded, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ws_mempbrk_compile(&pbrk_key, "%+=");
+	ws_mempbrk_compile(&pbrk_value, "%+");
 }
 
 void
