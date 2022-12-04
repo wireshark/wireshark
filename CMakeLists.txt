@@ -687,7 +687,6 @@ else() # ! MSVC
 		-Wshadow
 		-Wold-style-definition
 		-Wstrict-prototypes
-		-Wjump-misses-init
 	)
 
 	#
