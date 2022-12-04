@@ -707,7 +707,6 @@ else() # ! MSVC
 		# we don't.
 		#
 		-Wlogical-op
-		-Wjump-misses-init
 		#
 		# Implicit function declarations are an error in C++ and most
 		# likely a programming error in C. Turn -Wimplicit-int and
