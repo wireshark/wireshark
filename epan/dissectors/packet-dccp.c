@@ -703,8 +703,8 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
         proto_tree_add_uint(feature_tree, hf_dccp_feature_number, tvb,
                                 offset, 1, feature_number);
     else
-        proto_tree_add_uint(feature_tree, hf_mpdccp_version, tvb,
-                                offset+1, option_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(feature_tree, hf_mpdccp_version, tvb,
+                                offset, option_len, ENC_BIG_ENDIAN);
     offset++;
     option_len--;
 
