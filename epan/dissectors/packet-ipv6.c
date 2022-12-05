@@ -3048,32 +3048,17 @@ add_ipv6_address_detail(packet_info *pinfo, proto_item *vis, proto_item *invis,
     proto_item *ti;
     proto_tree *vtree;      /* visible tree */
     proto_tree *itree;      /* invisible tree */
-    const guint8 unspecified[IPv6_ADDR_SIZE] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    const guint8 loopback[IPv6_ADDR_SIZE]    = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 
     vtree = proto_item_add_subtree(vis, ett_ipv6_detail);
     itree = proto_item_add_subtree(invis, ett_ipv6_detail);
 
-    if (tvb_memeql(tvb, offset, unspecified, IPv6_ADDR_SIZE) == 0) {
-        /* RFC 4291 section 2.4: unspecified address */
-        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Unspecified");
-        proto_item_set_generated(ti);
-        if (addr_info == &ipv6_dst_info) {
-            /* "Shouldn't" see this one as a destination */
-            expert_add_info(pinfo, ti, &ei_ipv6_dst_addr_not_unspecified);
-        }
+    /*
+     * Internet Protocol Version 6 Address Space
+     * https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.xhtml
+     */
 
-        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Unspecified");
-        proto_item_set_generated(ti);
-    }
-    else if (tvb_memeql(tvb, offset, loopback, IPv6_ADDR_SIZE) == 0) {
-        /* RFC 4291 section 2.4: loopback address */
-        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Loopback");
-        proto_item_set_generated(ti);
-        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Loopback");
-        proto_item_set_generated(ti);
-    }
-    else if (tvb_get_guint8(tvb, offset) == 0xFF) {
+
+    if (tvb_get_guint8(tvb, offset) == 0xFF) {
         /* RFC 4291 section 2.4: multicast prefix */
         ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 1, "Multicast");
         proto_item_set_generated(ti);
@@ -3121,21 +3106,24 @@ add_ipv6_address_detail(packet_info *pinfo, proto_item *vis, proto_item *invis,
         proto_item_set_generated(ti);
     }
     else if ((tvb_get_ntohs(tvb, offset) & 0xFFC0) == 0xFE80) {
-        /* RFC 4291 section 2.4: Link-local unicast */
         ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Link-Local Unicast");
         proto_item_set_generated(ti);
         ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Link-Local Unicast");
         proto_item_set_generated(ti);
     }
     else if ((tvb_get_guint8(tvb, offset) & 0x30) == 0x20) {
-        /* RFC 4291 section 2.4: Global unicast */
         ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Global Unicast");
         proto_item_set_generated(ti);
         ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Global Unicast");
         proto_item_set_generated(ti);
     }
+    else if ((tvb_get_guint8(tvb, offset) & 0xFE) == 0xFC) {
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Unique Local Unicast");
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Unique Local Unicast");
+        proto_item_set_generated(ti);
+    }
     else {
-        /* Technically anything else is also global unicast, but... */
         ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Reserved by IETF");
         proto_item_set_generated(ti);
         ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Reserved by IETF");
