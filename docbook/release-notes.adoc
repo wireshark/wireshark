@@ -94,7 +94,10 @@ DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
 * The JSON dissector now has a preference to enable/disable "unescaping"
   of string values. By default it is off. Previously it was always on.
 
-Too many protocols have been updated to list here.
+* The IPv6 dissector has a new preference to show some semantic details
+  about addresses (default off).
+
+Too many other protocols have been updated to list them all here.
 
 === New and Updated Capture File Support
 
