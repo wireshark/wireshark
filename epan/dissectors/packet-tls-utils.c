@@ -4818,7 +4818,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 }
 
 static gint
-dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
+dtls_check_mac(SslDecryptSession *ssl, SslDecoder*decoder, gint ct, guint8* data,
         guint32 datalen, guint8* mac, const guchar *cid, guint8 cidl)
 {
     SSL_HMAC hm;
@@ -4827,6 +4827,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     guint8   buf[DIGEST_MAX_SIZE];
     gint16   temp;
 
+    int ver = ssl->session.version;
     gboolean is_cid = ((ct == SSL_ID_TLS12_CID) && (ver == DTLSV1DOT2_VERSION));
 
     md=ssl_get_digest_by_name(ssl_cipher_suite_dig(decoder->cipher_suite)->name);
@@ -4840,7 +4841,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 
     ssl_debug_printf("dtls_check_mac seq: %" PRIu64 " epoch: %d\n",decoder->seq,decoder->epoch);
 
-    if (is_cid) {
+    if (is_cid && !ssl->session.deprecated_cid) {
         /* hash seq num placeholder */
         memset(buf,0xFF,8);
         ssl_hmac_update(&hm,buf,8);
@@ -4879,6 +4880,15 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
         temp = g_htons(ver);
         memcpy(buf, &temp, 2);
         ssl_hmac_update(&hm,buf,2);
+
+        if (is_cid && ssl->session.deprecated_cid) {
+            /* hash cid */
+            ssl_hmac_update(&hm,cid,cidl);
+
+            /* hash cid length */
+            buf[0] = cidl;
+            ssl_hmac_update(&hm,buf,1);
+        }
     }
 
     /* data length and data */
@@ -5291,7 +5301,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         ssl->session.version==DTLSV1DOT2_VERSION ||
         ssl->session.version==DTLSV1DOT0_OPENSSL_VERSION){
         /* Try rfc-compliant mac first, and if failed, try old openssl's non-rfc-compliant mac */
-        if(dtls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac,cid,cidl)>= 0) {
+        if(dtls_check_mac(ssl,decoder,ct,mac_frag,mac_fraglen,mac,cid,cidl)>= 0) {
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
         else if(tls_check_mac(decoder,ct,TLSV1_VERSION,mac_frag,mac_fraglen,mac)>= 0) {
