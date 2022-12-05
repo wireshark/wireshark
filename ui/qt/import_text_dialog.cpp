@@ -990,7 +990,7 @@ void ImportTextDialog::checkAddress(SyntaxLineEdit *le, bool &ok_enabled, const 
     if (addr_str.length() < 1) {
         *val_ptr = 0;
     } else {
-        conv_ok = ws_inet_pton4(addr_str.toLocal8Bit().data(), (ws_in4_addr*)val_ptr);
+        conv_ok = ws_inet_pton4(addr_str.toUtf8().data(), (ws_in4_addr*)val_ptr);
         if (conv_ok) {
             syntax_state= SyntaxLineEdit::Valid;
         } else {
@@ -1013,7 +1013,7 @@ void ImportTextDialog::checkIPv6Address(SyntaxLineEdit *le, bool &ok_enabled, co
     if (addr_str.length() < 1) {
         *val_ptr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
     } else {
-        conv_ok = ws_inet_pton6(addr_str.toLocal8Bit().data(), (ws_in6_addr*)val_ptr);
+        conv_ok = ws_inet_pton6(addr_str.toUtf8().data(), (ws_in6_addr*)val_ptr);
         if (conv_ok) {
             syntax_state= SyntaxLineEdit::Valid;
         } else {

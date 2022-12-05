@@ -1404,7 +1404,7 @@ void PacketList::addPacketComment(QString new_comment)
     if (!cap_file_ || !packet_list_model_) return;
     if (new_comment.isEmpty()) return;
 
-    QByteArray ba = new_comment.toLocal8Bit();
+    QByteArray ba = new_comment.toUtf8();
 
     for (int i = 0; i < selectedRows().size(); i++) {
         int row = selectedRows().at(i);
@@ -1452,7 +1452,7 @@ void PacketList::setPacketComment(guint c_number, QString new_comment)
     if (new_comment.isEmpty()) {
         wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, c_number);
     } else {
-        QByteArray ba = new_comment.toLocal8Bit();
+        QByteArray ba = new_comment.toUtf8();
         /*
          * Make sure this would fit in a pcapng option.
          *
