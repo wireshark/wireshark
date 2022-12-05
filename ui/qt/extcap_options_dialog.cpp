@@ -337,7 +337,7 @@ void ExtcapOptionsDialog::updateWidgets()
             editWidget = argument->createEditor((QWidget *) this);
             if (editWidget != NULL)
             {
-                editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(argument));
+                editWidget->setProperty("extcap", VariantPointer<ExtcapArgument>::asQVariant(argument));
                 layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
 
                 if (argument->isSetDefaultValueSupported())
@@ -515,7 +515,7 @@ void ExtcapOptionsDialog::resetValues()
                 {
                     /* Don't need labels, the edit widget contains the extcapargument property value */
                     ExtcapArgument * arg = 0;
-                    QVariant prop = child->property(QString("extcap").toLocal8Bit());
+                    QVariant prop = child->property("extcap");
 
                     if (prop.isValid())
                     {
