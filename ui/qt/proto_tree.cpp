@@ -277,7 +277,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     if (! buildForDialog)
     {
-        action = window()->findChild<QAction *>("actionAnalyzeCreateAColumn");
+        action = window()->findChild<QAction *>("actionAnalyzeApplyAsColumn");
         ctx_menu->addAction(action);
         ctx_menu->addSeparator();
     }
