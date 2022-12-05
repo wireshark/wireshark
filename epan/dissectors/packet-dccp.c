@@ -700,10 +700,10 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
                             ett_dccp_feature, &dccp_item, "%s(",
                             rval_to_str_const(feature_number, dccp_feature_numbers_rvals, "Unknown feature number"));
     if (feature_number != 10)
-        proto_tree_add_item(feature_tree, hf_dccp_feature_number, tvb,
+        proto_tree_add_uint(feature_tree, hf_dccp_feature_number, tvb,
                                 offset, 1, feature_number);
     else
-        proto_tree_add_item(feature_tree, hf_mpdccp_version, tvb,
+        proto_tree_add_uint(feature_tree, hf_mpdccp_version, tvb,
                                 offset+1, option_len, ENC_BIG_ENDIAN);
     offset++;
     option_len--;
