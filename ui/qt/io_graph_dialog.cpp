@@ -334,12 +334,16 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ui->deleteToolButton->setStockIcon("list-remove");
     ui->copyToolButton->setStockIcon("list-copy");
     ui->clearToolButton->setStockIcon("list-clear");
+    ui->moveUpwardsToolButton->setStockIcon("list-move-up");
+    ui->moveDownwardsToolButton->setStockIcon("list-move-down");
 
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->moveUpwardsToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->moveDownwardsToolButton->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
@@ -1293,10 +1297,14 @@ void IOGraphDialog::on_graphUat_currentItemChanged(const QModelIndex &current, c
         ui->deleteToolButton->setEnabled(true);
         ui->copyToolButton->setEnabled(true);
         ui->clearToolButton->setEnabled(true);
+        ui->moveUpwardsToolButton->setEnabled(true);
+        ui->moveDownwardsToolButton->setEnabled(true);
     } else {
         ui->deleteToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
         ui->clearToolButton->setEnabled(false);
+        ui->moveUpwardsToolButton->setEnabled(false);
+        ui->moveDownwardsToolButton->setEnabled(false);
     }
 }
 
@@ -1364,6 +1372,40 @@ void IOGraphDialog::on_clearToolButton_clicked()
 
     hint_err_.clear();
     mouseMoved(NULL);
+}
+
+void IOGraphDialog::on_moveUpwardsToolButton_clicked()
+{
+    const QModelIndex& current = ui->graphUat->currentIndex();
+    if (uat_model_ && current.isValid()) {
+
+        int current_row = current.row();
+        if (current_row > 0){
+            // Swap current row with the one above
+            IOGraph* temp = ioGraphs_[current_row - 1];
+            ioGraphs_[current_row - 1] = ioGraphs_[current_row];
+            ioGraphs_[current_row] = temp;
+
+            uat_model_->moveRow(current_row, current_row - 1);
+        }
+    }
+}
+
+void IOGraphDialog::on_moveDownwardsToolButton_clicked()
+{
+    const QModelIndex& current = ui->graphUat->currentIndex();
+    if (uat_model_ && current.isValid()) {
+
+        int current_row = current.row();
+        if (current_row < uat_model_->rowCount() - 1) {
+            // Swap current row with the one below
+            IOGraph* temp = ioGraphs_[current_row + 1];
+            ioGraphs_[current_row + 1] = ioGraphs_[current_row];
+            ioGraphs_[current_row] = temp;
+
+            uat_model_->moveRow(current_row, current_row + 1);
+        }
+    }
 }
 
 void IOGraphDialog::on_dragRadioButton_toggled(bool checked)
