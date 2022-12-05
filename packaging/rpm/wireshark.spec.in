@@ -57,7 +57,7 @@
 Summary:	The world's foremost protocol analyzer
 Name:		wireshark
 Version:	@RPM_VERSION@
-Release:	1
+Release:	1%{?dist}
 License:	GPLv2+
 Group:		Applications/Internet
 Source:		https://www.wireshark.org/download/src/%{name}-%{package_version}.tar.xz
