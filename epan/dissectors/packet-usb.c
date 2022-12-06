@@ -3671,6 +3671,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     guint32                  k_frame_number;
     guint32                  k_device_address;
     guint32                  k_bus_id;
+    usb_conv_info_t         *old_conv_info = usb_conv_info;
     usb_trans_info_t        *usb_trans_info;
     heur_dtbl_entry_t       *hdtbl_entry;
     heur_dissector_list_t    heur_subdissector_list = NULL;
@@ -3824,6 +3825,14 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                 usb_dissector_table = usb_control_dissector_table;
             }
 
+            if (old_conv_info != usb_conv_info) {
+                /* Preserve URB specific information */
+                usb_conv_info->is_setup = old_conv_info->is_setup;
+                usb_conv_info->is_request = old_conv_info->is_request;
+                usb_conv_info->setup_requesttype = old_conv_info->setup_requesttype;
+                usb_conv_info->speed = old_conv_info->speed;
+            }
+
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
             sub_item = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
             proto_item_set_generated(sub_item);
@@ -3851,6 +3860,15 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             usb_class = usb_conv_info->interfaceClass;
         }
 
+        ret = dissector_try_uint_new(usb_dissector_table, usb_class,
+                next_tvb, pinfo, use_setup_tree ? setup_tree : tree, TRUE, usb_conv_info);
+        if (ret)
+            return tvb_captured_length(next_tvb);
+
+        /* try protocol specific dissector if there is one */
+        usb_class = USB_PROTOCOL_KEY(usb_conv_info->interfaceClass,
+                                     usb_conv_info->interfaceSubclass,
+                                     usb_conv_info->interfaceProtocol);
         ret = dissector_try_uint_new(usb_dissector_table, usb_class,
                 next_tvb, pinfo, use_setup_tree ? setup_tree : tree, TRUE, usb_conv_info);
         if (ret)
@@ -6954,13 +6972,13 @@ proto_register_usb(void)
     product_to_dissector = register_dissector_table("usb.product",   "USB product",  proto_usb, FT_UINT32, BASE_HEX);
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
-        "USB bulk endpoint", proto_usb, FT_UINT8, BASE_DEC);
+        "USB bulk endpoint", proto_usb, FT_UINT32, BASE_HEX);
     heur_bulk_subdissector_list = register_heur_dissector_list("usb.bulk", proto_usb);
     usb_control_dissector_table = register_dissector_table("usb.control",
-        "USB control endpoint", proto_usb, FT_UINT8, BASE_DEC);
+        "USB control endpoint", proto_usb, FT_UINT32, BASE_HEX);
     heur_control_subdissector_list = register_heur_dissector_list("usb.control", proto_usb);
     usb_interrupt_dissector_table = register_dissector_table("usb.interrupt",
-        "USB interrupt endpoint", proto_usb, FT_UINT8, BASE_DEC);
+        "USB interrupt endpoint", proto_usb, FT_UINT32, BASE_HEX);
     heur_interrupt_subdissector_list = register_heur_dissector_list("usb.interrupt", proto_usb);
     usb_descriptor_dissector_table = register_dissector_table("usb.descriptor",
         "USB descriptor", proto_usb, FT_UINT8, BASE_DEC);

@@ -551,6 +551,9 @@ proto_register_usb_dfu(void)
             "Version of protocol supported by this dissector.");
 }
 
+#define RUNTIME_KEY USB_PROTOCOL_KEY(IF_CLASS_APPLICATION_SPECIFIC, IF_SUBCLASS_APP_DFU, IF_PROTOCOL_DFU_RUNTIME)
+#define DFU_MODE_KEY USB_PROTOCOL_KEY(IF_CLASS_APPLICATION_SPECIFIC, IF_SUBCLASS_APP_DFU, IF_PROTOCOL_DFU_MODE)
+
 void
 proto_reg_handoff_usb_dfu(void)
 {
@@ -558,6 +561,9 @@ proto_reg_handoff_usb_dfu(void)
 
     usf_dfu_descriptor_handle = create_dissector_handle(dissect_usb_dfu_descriptor, proto_usb_dfu);
     dissector_add_uint("usb.descriptor", IF_CLASS_APPLICATION_SPECIFIC, usf_dfu_descriptor_handle);
+
+    dissector_add_uint("usb.control", RUNTIME_KEY, usb_dfu_handle);
+    dissector_add_uint("usb.control", DFU_MODE_KEY, usb_dfu_handle);
 
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x1db5, usb_dfu_handle); /* IDBG in DFU mode */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6001, usb_dfu_handle); /* Ubertooth Zero DFU */

@@ -211,6 +211,21 @@ typedef struct _usb_tap_data_t {
 
 #define IF_SUBCLASS_MISC_U3V          0x05
 
+#define IF_SUBCLASS_APP_DFU           0x01
+
+#define IF_PROTOCOL_DFU_RUNTIME       0x01
+#define IF_PROTOCOL_DFU_MODE          0x02
+
+/* Key to be used with "usb.control", "usb.bulk" and/or "usb.interrupt"
+ * dissector tables when the dissector only applies to specific triple.
+ * Use class code directly if the code is not shared with other specifications.
+ *
+ * MSB (bit 31) is arbitrarily chosen to ensure class registered dissectors
+ * won't clash with protocol key.
+ */
+#define USB_PROTOCOL_KEY(class, subclass, protocol) \
+    (1u << 31 | (class & 0xff) << 16 | (subclass & 0xff) << 8 | (protocol & 0xff))
+
 /* bmRequestType values */
 #define USB_DIR_OUT                     0               /* to device */
 #define USB_DIR_IN                      0x80            /* to host */
