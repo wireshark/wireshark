@@ -12,9 +12,13 @@ import fixtures
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_follow_multistream(subprocesstest.SubprocessTestCase):
-    def test_follow_http2_multistream(self, cmd_tshark, capture_file):
+    def test_follow_http2_multistream(self, cmd_tshark, capture_file, features):
         '''Checks whether Follow HTTP2 correctly handles multiple streams on the same packet.'''
-
+        # If we don't have nghttp2, we output the compressed headers.
+        # We could test against the expected output in that case, but
+        # just skip for now.
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
         # Test 1:
         # 1. While following stream 25 we should ignore stream 21 at frame 65
         proc = self.assertRun((cmd_tshark,
