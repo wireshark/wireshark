@@ -682,7 +682,7 @@ ABI Check:
     CXX: "clang++-$CLANG_VERSION"
     INSTALL_PREFIX: "$CI_PROJECT_DIR/_install"
     MIN_PLUGINS: 10
-    MAX_PASSES: 15
+    MAX_PASSES: 10
   before_script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install llvm-$CLANG_VERSION
@@ -749,7 +749,7 @@ Valgrind Menagerie Fuzz:
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
-    - MAX_SECONDS=$(( 3 * 60 * 60 ))
+    - MAX_SECONDS=$(( 2 * 60 * 60 ))
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DENABLE_CCACHE=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
