@@ -700,7 +700,17 @@ void
 pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
                              guint16 option_length, const guint8 *option_content)
 {
-    wtap_block_add_string_option(wblock->block, option_code, (const char *)option_content, option_length);
+    const char *opt = (const char *)option_content;
+    size_t optlen = option_length;
+    char *str;
+
+    /* Validate UTF-8 encoding. */
+    if (g_utf8_validate(opt, optlen, NULL))
+        str = g_strndup(opt, optlen);
+    else
+        str = g_utf8_make_valid(opt, optlen);
+
+    wtap_block_add_string_option_owned(wblock->block, option_code, str);
 }
 
 void

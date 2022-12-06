@@ -19,6 +19,7 @@
 
 #include <wsutil/glib-compat.h>
 #include <wsutil/inet_ipv6.h>
+#include <wsutil/unicode-utils.h>
 
 #if 0
 #define wtap_debug(...) ws_warning(__VA_ARGS__)
@@ -942,6 +943,21 @@ wtap_block_add_string_option(wtap_block_t block, guint option_id, const char *va
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     opt->value.stringval = g_strndup(value, value_length);
+    WS_UTF_8_CHECK(opt->value.stringval, -1);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_string_option_owned(wtap_block_t block, guint option_id, char *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_STRING, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.stringval = value;
+    WS_UTF_8_CHECK(opt->value.stringval, -1);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -955,6 +971,7 @@ wtap_block_add_string_option_vformat(wtap_block_t block, guint option_id, const 
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     opt->value.stringval = ws_strdup_vprintf(format, va);
+    WS_UTF_8_CHECK(opt->value.stringval, -1);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
