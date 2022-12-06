@@ -16,6 +16,9 @@
 // (216 × 279mm).
 :pdf-page-size: 210mm x 280mm
 
+// Include glyphs for up/down arrows
+:pdf-theme: default-with-fallback-font
+
 //
 // URLs
 //

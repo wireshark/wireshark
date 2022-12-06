@@ -654,7 +654,7 @@ $ wireshark -o "gui.prepend_window_title:External Network" &
 
 Configuration Profiles can be used to configure and use more than one set of
 preferences and configurations. Select the menu:Edit[Configuration Profiles...] menu item
-or press kbd:[Shift+Ctrl+A] or kbd:[Shift+{cmd}+A] (macOS) and Wireshark will pop up
+or press kbd:[Shift+Ctrl+A] or kbd:[Shift+Cmd+A] (macOS) and Wireshark will pop up
 the Configuration Profiles dialog box as shown in
 <<ChCustGUIConfigProfilesPage>>. It is also possible to click in the “Profile”
 part of the statusbar to popup a menu with available Configuration Profiles
