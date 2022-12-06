@@ -2266,10 +2266,10 @@ ber_sequence_try_again:
         if (!seq->func) {
             /* it was not,  move to the next one and try again */
             offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
-            dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+            offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
             cause = proto_tree_add_expert_format(
                 tree, actx->pinfo, &ei_ber_unknown_field_sequence,
-                tvb, hoffset, -1,
+                tvb, hoffset, ((offset - hoffset) + len),
                 "BER Error: This field lies beyond the end of the known sequence definition.");
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
