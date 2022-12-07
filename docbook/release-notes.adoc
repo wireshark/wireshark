@@ -31,25 +31,15 @@ wsbuglink:17779[]
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2022-09[]
-Multiple dissector infinite loops.
+// * wssalink:2022-11[]
+// Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxxxx[].
 // cveidlink:2022-xxxx[].
-// Fixed in master: f2a0d25dba,13823bb105,0e11932183,f8d308e9af
-// Fixed in release-4.0: 6b49db03f2,ccf491b993,9828a59081
-// Fixed in release-3.6: 5fb7e2097e,39db474f80
+// Fixed in master: xxxxx
+// Fixed in release-4.0: xxxxx
+// Fixed in release-3.6: xxxxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-835
-
-* wssalink:2022-10[]
-Kafka dissector memory exhaustion.
-// wsbuglink:xxxxx[].
-// cveidlink:2022-xxxx[].
-// Fixed in master: 9412adf7bf
-// Fixed in release-4.0: f812314a60
-// Fixed in release-3.6: 9a93a1dbe3
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-789
 
 The following bugs have been fixed:
 
@@ -57,24 +47,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
-
-* Packet bytes not displayed completely if scrolling wsbuglink:18438[].
-
-* GOOSE: field "floating_point" not working anymore wsbuglink:18491[].
-
-* EVS dissector missing value description wsbuglink:18550[].
-
-* ProtoBuf parse extension definitions failed wsbuglink:18599[].
-
-* Fuzz job crash output: fuzz-2022-11-09-11134.pcap wsbuglink:18613[].
-
-* Wireshark is using old version of ASN (ETSI TS 125 453 V11.2.0)  which is imapacting length of param in the messages wsbuglink:18646[].
-
-* BGP: False IGMP flags value in EVPN routes (type 6,7,8) wsbuglink:18660[].
-
-* wslog assumes stderr and stdout exist wsbuglink:18684[].
-
-* Editing packet comments, with non-ASCII characters, on Windows saves them in the local code page, not in UTF-8. wsbuglink:18698[].
 
 === New and Updated Features
 
@@ -92,19 +64,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.9.. | ag packet- | sort -u)
 [commaize]
 --
-ASN.1 PER
-BGP
-BPv6
-EVS
-GOOSE
-GSM Osmux
-Kafka
-Mongo
-NXP 802.15.4
-OpenFlow
-PCAP
-S1AP
-WASSP
 --
 
 === New and Updated Capture File Support
