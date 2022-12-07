@@ -25,53 +25,22 @@ wsbuglink:17779[]
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2022-09[]
-Multiple dissector infinite loops.
+// * wssalink:2022-11[]
+// Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxxxx[].
 // cveidlink:2022-xxxx[].
-// Fixed in master: f2a0d25dba,13823bb105,0e11932183,f8d308e9af
-// Fixed in release-4.0: 6b49db03f2,ccf491b993,9828a59081
-// Fixed in release-3.6: 5fb7e2097e,39db474f80
+// Fixed in master: xxxxx
+// Fixed in release-4.0: xxxxx
+// Fixed in release-3.6: xxxxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-835
 
-* wssalink:2022-10[]
-Kafka dissector memory exhaustion.
-// wsbuglink:xxxxx[].
-// cveidlink:2022-xxxx[].
-// Fixed in master: 9412adf7bf
-// Fixed in release-4.0: f812314a60
-// Fixed in release-3.6: 9a93a1dbe3
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-789
-
 The following bugs have been fixed:
-
-* Qt: Endpoints dialog - unexpected byte unit suffixes in packet columns. wsbuglink:18229[].
-* GOOSE: field "floating_point" not working anymore. wsbuglink:18491[].
-* EVS Header-Full format padding issues. wsbuglink:18498[].
-* Wireshark 4.0.0 VOIP playback has no sound and can't resume after pausing. wsbuglink:18510[].
-* Wireshark crashes when exporting a profile on Mac OSX if there is no extension. wsbuglink:18525[].
-* EVS dissector missing value description. wsbuglink:18550[].
-* Qt 6 font descriptions not backward compatible with Qt 5. wsbuglink:18553[].
-* Wireshark, wrong TCP ACKed unseen segment message. wsbuglink:18558[].
-* Invalid Cyrillic symbol in timezone at \"Arrival Time\" field in frame. wsbuglink:18562[].
-* ProtoBuf parse extension definitions failed. wsbuglink:18599[].
-* Fuzz job crash output: fuzz-2022-11-09-11134.pcap. wsbuglink:18613[].
-* Fuzz job crash output: fuzz-2022-11-14-11111.pcap. wsbuglink:18632[].
-* Wireshark is using old version of ASN (ETSI TS 125 453 V11.2.0)  which is imapacting length of param in the messages. wsbuglink:18646[].
-* BGP: False IGMP flags value in EVPN routes (type 6,7,8) wsbuglink:18660[].
-* wslog assumes stderr and stdout exist. wsbuglink:18684[].
-* Editing packet comments, with non-ASCII characters, on Windows saves them in the local code page, not in UTF-8. wsbuglink:18698[].
-* Unable to decrypt PSK based DTLS traffic which uses Connection ID. wsbuglink:18705[].
-* HTTP2 tests fail when built without nghttp2. wsbuglink:18707[].
-
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
-
 
 === New and Updated Features
 
@@ -96,27 +65,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.2.. | ag packet- | sort -u)
 [commaize]
 --
-ASN.1 PER
-ASTERIX
-BGP
-BPv6
-DTLS
-EVS
-GOOSE
-GSM Osmux
-IPv6
-Kafka
-Locamation IM
-MONGO
-NXP 802.15.4
-OpenFlow v6
-PCAP
-Protobuf
-RTP
-S1AP
-SKINNY
-TCP
-WASSP
 --
 
 === New and Updated Capture File Support
