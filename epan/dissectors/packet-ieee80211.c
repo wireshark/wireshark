@@ -27697,7 +27697,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case MEASURE_REP_LCI_SUB_REPORTED_LCI: /* Location Configuration Information (0) */
         {
           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_lci,
-                              tvb, offset, 16, ENC_LITTLE_ENDIAN);
+                              tvb, offset, 16, ENC_NA);
           offset += 16;
           break;
         }
@@ -27801,11 +27801,11 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         {
           guint32 length;
           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_country,
-                              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                              tvb, offset, 2, ENC_ASCII);
           offset += 2;
 
           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_type,
-                              tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                              tvb, offset, 1, ENC_ASCII);
           offset += 1;
 
           proto_tree_add_item_ret_uint(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_length,
@@ -27813,7 +27813,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
           offset += 1;
 
           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic,
-                              tvb, offset, length, ENC_LITTLE_ENDIAN);
+                              tvb, offset, length, ENC_ASCII);
           offset += length;
           break;
         }
