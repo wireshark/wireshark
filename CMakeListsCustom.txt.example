@@ -18,9 +18,15 @@ set(CUSTOM_PLUGIN_SRC_DIR
 
 # Do not fail CMake stage if any of the optional plugins are missing from source tree
 set(_OPTIONAL_CUSTOM_PLUGIN_SRC_DIR
-	plugins/epan/bar
+#	plugins/epan/bar
 )
 
+# Add your custom TShark taps here
+set(CUSTOM_TSHARK_TAP_SRC
+#	ui/cli/tap-baz.c
+)
+
+# This loop handles supporting optional plugins
 foreach(  _plugin_dir ${_OPTIONAL_CUSTOM_PLUGIN_SRC_DIR} )
 	if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_plugin_dir}/CMakeLists.txt )
 		list( APPEND CUSTOM_PLUGIN_SRC_DIR ${_plugin_dir} )
