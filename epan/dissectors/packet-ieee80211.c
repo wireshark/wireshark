@@ -27739,7 +27739,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                             ieee80211_tag_measure_reported_lci_urp,
                                             ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
           offset += 1;
-          
+
           /* Retention Expires Relative (optional) */
           if ((sub_tag_end - 1) == 2 ) {
             proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative,
