@@ -12834,8 +12834,7 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb,
       }
     }
   }
-  /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
-  else if ((seq == 2) && (status_code != 82))
+  else if ((seq == 2) && (status_code == 0))
   {
     proto_tree_add_item(tree, hf_ieee80211_ff_send_confirm, tvb, 6, 2,
                         ENC_LITTLE_ENDIAN);
