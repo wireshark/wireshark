@@ -62,8 +62,9 @@ The following bugs have been fixed:
 * Wireshark is using old version of ASN (ETSI TS 125 453 V11.2.0)  which is imapacting length of param in the messages. wsbuglink:18646[].
 * BGP: False IGMP flags value in EVPN routes (type 6,7,8) wsbuglink:18660[].
 * wslog assumes stderr and stdout exist. wsbuglink:18684[].
+* Editing packet comments, with non-ASCII characters, on Windows saves them in the local code page, not in UTF-8. wsbuglink:18698[].
 * Unable to decrypt PSK based DTLS traffic which uses Connection ID. wsbuglink:18705[].
-
+* HTTP2 tests fail when built without nghttp2. wsbuglink:18707[].
 
 
 //* wsbuglink:5000[]

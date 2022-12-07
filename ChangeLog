@@ -1,0 +1,639 @@
+commit 89358de9f4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Dec 5 15:52:42 2022 -0800
+
+    Qt: Don't use QString::toLocal8Bit().
+
+    As the QString::toLocal8Bit() documentation says,
+
+    "On Unix systems this is equivalen to toUtf8(), on Windows the systems
+    current code page is being used."
+
+    This is problematic for the Packet Comments dialog, since the comments
+    need to be UTF-8 as per the pcapng specification. Use toUtf8() instead
+    there and in the Import Text dialog.
+
+    Remove the toLocal8Bit() calls from the Extcap Options dialog since they
+    weren'nt needed.
+
+    Blind attempt at fixing #18698.
+
+    (cherry picked from commit 932f4ff893012e259175649f73c22a76839a2877)
+
+commit 60ce09bb43
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 6 07:21:58 2022 -0500
+
+    test: Skip Follow HTTP2 test without Nghttp2
+
+    The expected test output is with the headers decompressed, which
+    we can't do without Nghttp2. (It outputs the compressed headers
+    if we don't have it, so we could test for that instead.)
+
+    Fix #18707
+
+    (cherry picked from commit 74b1c07f913fcedcf9c28795b93ac53ee654fb29)
+
+commit 32e9b16afd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Dec 5 13:20:24 2022 -0800
+
+    Prep for 4.0.2.
+
+commit d0e7f501c1
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Dec 5 14:50:31 2022 +0100
+
+    dtls: Support Connection ID when using Block Ciphers
+
+    Add support for DTLS Connection ID when using Block Ciphers
+    with the deprecated extention type (53) from
+    draft-ietf-tls-dtls-connection-id-07.
+
+    Closes #18705
+
+    (cherry picked from commit 6558b58e58772743420c4b35a73c958f826f6b61)
+
+commit 11a0464167
+Author: Kevin Albertson <kevin.eric.albertson@gmail.com>
+Date:   Fri Dec 2 22:18:38 2022 -0500
+
+    kafka: fix note of ZSTD_decompressStream return
+
+    (cherry picked from commit 266a0d38b4b57ceae7e910ad10cfd68e9de3908a)
+
+commit f812314a60
+Author: Kevin Albertson <kevin.eric.albertson@gmail.com>
+Date:   Fri Dec 2 22:08:31 2022 -0500
+
+    kafka: stop decompressing once all input is consumed
+
+    (cherry picked from commit 9412adf7bfa6d1b6749f9dd25a15241c9450ec3e)
+
+commit 2855fd7377
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 2 08:16:28 2022 -0400
+
+    nxp_802154_sniffer: Add heuristics
+
+    UDP port 49999 is not IANA registered, so add some heuristics
+    to the NXP 802.15.4 sniffer so that it doesn't claim packets
+    from other protocols that have chosen that ephemeral port.
+
+    Don't return 0 after already adding things to the tree; do that
+    check in the heuristics.
+
+    Fix #18695
+
+    (cherry picked from commit c36dde6e1319287fb23ed779fd246f9f8d21fce2)
+
+commit 7af58a8c3a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 4 16:38:17 2022 +0000
+
+    [Automatic update for 2022-12-04]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9828a59081
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 1 20:38:35 2022 -0500
+
+    kafka: Don't try to decompress if the length is zero.
+
+    There's no point in trying to decompress a message with
+    length zero, and some of the third party decompression
+    libraries (e.g. zstd) can give unexpected results that
+    lead to infinite loops if we do so. A message length zero
+    is almost surely a file with errors.
+
+    (cherry picked from commit 0e119321837e6ec69fe6cb04aee04935e0386d7a)
+
+commit ccf491b993
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 1 20:46:15 2022 -0500
+
+    openflow_v6: Prevent infinite loops in too short ofp_stats
+
+    The ofp_stats struct length field includes the fixed 4 bytes.
+    If the length is smaller than that, report the length error
+    and break out. In particular, a value of zero can cause
+    infinite loops if this isn't done.
+
+    (cherry picked from commit 13823bb1059cf70f401892ba1b1eaa2400cdf3db)
+
+commit c9aef2471e
+Author: João Valverde <j@v6e.pt>
+Date:   Tue Nov 29 15:41:20 2022 +0000
+
+    wslog: Check fileno() for errors
+
+    fileno() can fail and GLib will assert on negative fd.
+
+    Fixes #18684.
+
+    (cherry picked from commit 7336190bbc254dbf3533256702f2b960db775ea9)
+
+commit 2f02d2b8da
+Author: Jirka Novak <j.novak@netsystem.cz>
+Date:   Sun Aug 28 09:59:22 2022 +0200
+
+    Capture options dialog: Fix start of capture by double click
+
+    Double click is used for editing of some columns in dialog, but it
+    starts capture too.
+    Change lists noneditable columns (interface name and traffic graph) which
+    starts capture. The rest of columns are editable by double click as before.
+
+    Related to #18269. This patch fixes the code, doc update is other task.
+
+    Welcome screen is fixed too. First column with excap symbol ignores
+    double click.
+
+    (cherry picked from commit 33e00237d1f1f7ab3a7a876eac7b092c962334e6)
+
+commit 6b49db03f2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 30 08:39:46 2022 -0500
+
+    bpv6: Prevent infinite loops
+
+    display_extension_block is supposed to return the current offset,
+    not the number of bytes remaining, which can be less than the current
+    offset and cause an infinite loop. In the case of errors, set
+    lastheader and return the current offset to break out of loops.
+
+    (cherry picked from commit f2a0d25dba1152f1f34c91cd2addab11c9c8b250)
+
+commit 2f6ee6179a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 27 15:04:13 2022 -0800
+
+    CMake: Updates for CMake 3.25 and later on Windows.
+
+    https://cmake.org/cmake/help/latest/release/3.25.html says:
+
+    "On Windows, when targeting the MSVC ABI, the find_library() command now
+    accepts .a file names after first considering .lib. This is symmetric
+    with existing behavior when targeting the GNU ABI, in which the command
+    accepts .lib file names after first considering .a."
+
+    If "MSVC" is defined, only search for libsmi-2. This keeps us from finding
+    libsmi.a. Set NO_SYSTEM_ENVIRONMENT_PATH when we're searching for zlib. This
+    keeps us from finding Strawberry Perl's version.
+
+    Some SpanDSP builds link with LibTIFF, but our Windows version doesn't.
+
+    (cherry picked from commit 0af31745082d2bf75d79c6827381e819f6db8df9)
+
+commit 7407fe6365
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Mon Nov 28 09:34:15 2022 +0100
+
+    S1AP: Wrong ie id used on RequestTypeAdditionalInfo
+
+    (cherry picked from commit 47a1b0f9da71071b2b0776617ad56e6ea5547d28)
+
+    Conflicts:
+            epan/dissectors/packet-s1ap.c
+
+commit 4e41a9d22c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 27 16:39:39 2022 +0000
+
+    [Automatic update for 2022-11-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 639c648509
+Author: j.novak@netsystem.cz <j.novak@netsystem.cz>
+Date:   Fri Nov 25 16:06:49 2022 +0000
+
+    RTP Player: Fix: Playback marker do not move after resume with Qt6 (4.0)
+
+commit 03702ed22e
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Mon Nov 21 15:12:37 2022 +0000
+
+    BGP: Fix (reader_)offset for IGMP
+
+    fix typo (offset => reader_offset)
+
+    Close #18660
+
+    (cherry picked from commit 6dcfb07b7ded9d9237ef0b67700d04236d94630f)
+
+commit 40a4750d35
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Fri Nov 18 21:02:44 2022 -0600
+
+    github: windows - downgrade cmake back to 3.24.3
+
+    cmake 3.25 changed library search logic for .a and .library
+    Downgrade cmake until libsmi and zlib cmake files are adjusted?
+    See notes in !8807
+
+    (cherry picked from commit 80ebd68cc44f538adb3f940453c5687a11555534)
+
+commit 5eda8d7f9c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 20 16:39:49 2022 +0000
+
+    [Automatic update for 2022-11-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 9afcb5fbe0
+Author: Ferry Huberts <ferry.huberts@pelagic.nl>
+Date:   Thu Nov 17 11:05:14 2022 +0100
+
+    locamation-im: restore showing the eol character in the hex dump
+
+    This got lost in b00725c945d92ecc3a9560262e0d098bece70288.
+
+    Showing the eol character is important to us.
+
+    Signed-off-by: Ferry Huberts <ferry.huberts@pelagic.nl>
+
+commit 5d1d564b04
+Author: Ferry Huberts <ferry.huberts@pelagic.nl>
+Date:   Thu Nov 17 12:26:22 2022 +0100
+
+    locamation-im: line numbers are never used for split lines, lose them
+
+    Signed-off-by: Ferry Huberts <ferry.huberts@pelagic.nl>
+
+commit c21c297b94
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 16 19:42:53 2022 -0500
+
+    locamation-im: Fix encoding
+
+    Add strings with proto_tree_add_item or tvb_get_string_enc;
+    avoid using tvb_get_raw_bytes_as_string.
+
+    Use UTF-8 as the encoding to future-proof, according to
+    Locomation.
+
+    Use tvb_find_line_end() to split the lines, which does almost
+    all the needed logic and simplifies the code.
+
+    Fix #18632
+
+commit 1fcde654cd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 16 18:44:01 2022 -0500
+
+    rpm-setup: Don't attempt to install cmake3
+
+    cmake is already in the basic list of packages. "cmake3" is
+    necessary for RHEL/CentOS 7 (where the "cmake" package is 2.8.12),
+    but that distribution isn't supported on 4.0 and later.
+
+    At the same time, the OpenSUSE 15.4 repository accidentally has
+    a "cmake3" package which is an earlier version than the "cmake" RPM,
+    which creates some conflicts when trying to install both.
+    (https://gitlab.com/wireshark/wireshark-containers/-/jobs/3328997023)
+
+    So, don't attempt to install cmake3 anymore.
+
+    (cherry picked from commit 6e6386a3dce1edb850328a8627e1cd02db0a6474)
+
+commit 2eb3e3eb22
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 10 20:18:00 2022 -0500
+
+    tcp: Use correct wraparound comparison in sequence analysis
+
+    maxseqtobeacked needs to be increased when it's lower than
+    nextseq, not the other way around, otherwise we can get repeated
+    extra TCP ACKed unseen segment messages.
+
+    Since sequence analysis is always on the absolute sequence
+    numbers, not relative, it needs to use LT_SEQ to handle wraparound.
+
+    Fix #18558. Fix #18633.
+
+    (cherry picked from commit 8fd375cfad4dd70065cc8a5b4f3e9535a3c32a74)
+
+commit 19299ae542
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Nov 15 15:23:52 2022 +0100
+
+    PCAP: upgrade dissector to v17.0.0
+
+    In their infinite wisdom, 3GPP succeeded to make non backward compatible
+    ASN.1 description
+    Closes #18646
+
+    (cherry picked from commit 6b41ad918b2aa8f67d103bf5981c78716b64e554)
+
+commit 09287b55a4
+Author: Kevin Albertson <kevin.eric.albertson@gmail.com>
+Date:   Sun Nov 13 08:49:54 2022 -0500
+
+    move depth increment below error checks
+
+    (cherry picked from commit 24d55ce7ac82c2a32171c0c229efe09169fd4fff)
+
+commit 95641e5b79
+Author: Kevin Albertson <kevin.eric.albertson@gmail.com>
+Date:   Tue Nov 8 20:17:17 2022 -0500
+
+    mongo: fix document depth tracking
+
+    Fixes a "BSON document recursion exceeds" error on lists of > 100
+    documents.
+
+    (cherry picked from commit 2b43f5f650288ecb39497f7dad2f15888e83b120)
+
+commit e52571c9b0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 13 16:36:52 2022 +0000
+
+    [Automatic update for 2022-11-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 9de1a4e3d6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 9 20:37:39 2022 -0500
+
+    WASSP: Don't add a NULL to a column
+
+    The result of try_val_to_str can be NULL, don't add a null address
+    to a column. Ensure that an appropriate unknown string is added
+    instead.
+
+    Fix #18613
+
+    (cherry picked from commit f9a5bf58057b0b65a8a062c2b13b6d206bbd9fd6)
+
+commit 5f22e8abf4
+Author: Huang Qiangxiong <qiangxiong.huang@qq.com>
+Date:   Wed Nov 9 23:34:10 2022 +0800
+
+    Protobuf: fix the bug about string format
+
+    Support string format like:
+    - 'a single quote string contains "a double quote string"'
+    - "a double quote string contains 'a single quote string'"
+
+    close #18599
+
+    (cherry picked from commit 99e93e24b89e13e9e1ccf6c3665814e61f59fa48)
+
+commit 0bb5638c79
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Nov 9 16:12:17 2022 +0100
+
+    EVS: add an option to force decoding as Header-Full format only
+
+    Closes #18498
+
+    (cherry picked from commit 1196f214aac82aba01eb84bc1975163c14a0b640)
+
+commit dc7381f195
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 6 10:33:09 2022 -0800
+
+    GitLab CI: Switch to clang 15.
+
+    (cherry picked from commit 0928a25d1f7f24b38b59474a981296b8de8ba372)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit ffa56754ab
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sun Nov 6 16:57:59 2022 +0100
+
+    IPv6: fix embedded IPv4 address dissection when using Well-Known Prefix
+
+    See https://www.wireshark.org/lists/wireshark-dev/202211/msg00000.html
+
+    (cherry picked from commit a1feafad6cc0f176525acdcf6be71a04e0310333)
+
+commit 5d60eab11d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 6 16:41:14 2022 +0000
+
+    [Automatic update for 2022-11-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 8842d21fa8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 3 20:55:05 2022 -0400
+
+    skinny: Resync xml code with dissector, regenerate
+
+    Make changes to packet-skinny.c.in and SkinnyProtocolOptimized.xml
+    that incorporate changes from 67f05835cac0a26636a7e04739a4cc0dd225c077
+    and 8efad466c4e62b0371659c8fd1d909038c36da27 made to the dissector
+    manually and regenerate. Also fix a case where a comment mixed
+    tabs and spaces, which caused the python conversion tool to complain.
+
+    (cherry picked from commit 73c291029d9b8e7412548405b051827708aedc4f)
+
+commit 5545fe5681
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 3 19:20:41 2022 -0400
+
+    skinny: Convert parse_xml2skinny_dissector.py to Py3
+
+    Convert parse_xml2skinny_dissector.py to Python 3.
+    This is mostly the output of running 2to3, but some of the
+    uses of dict.keys() were left as is instead of being converted
+    to lists, since only membership was tested.
+
+    The dissector still needs to be regenerated, which will happen
+    in a next commit, so that this change can be easily backported.
+
+    (cherry picked from commit 8c585cc2280deb256f6af442907a77c4627e3d02)
+
+commit 1ab45e0875
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Nov 3 11:40:41 2022 +0000
+
+    addr_resolv: define default port values for DNS resolution UAT
+
+    This ensures forward compatibility when using Wireshark 4.x or later
+    (see #18214)
+
+    (cherry picked from commit 1505fa1b4b91370aaa0b0127ef4c4a36bffd32c9)
+
+commit 04032a5c8d
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Nov 2 09:03:39 2022 +0000
+
+    EVS: fix frame format detection heuristics
+
+    As stated in 3GPP 26.445 chapter A.2.2.1.4.2, RTP padding must be taken
+    into account to discrimate between Header-Full format and Compact format
+
+    Closes #18498
+
+    (cherry picked from commit 798c1a8e6d37df465766c90729b9643e78235374)
+
+commit f973a606c1
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Wed Nov 2 11:40:33 2022 +0100
+
+    gsm_osmux: Fix AMR_SID frame type payload size
+
+    According to TS 26.101, AMR_SID payload is 39 bits.
+    Hence, (39+7)/8 = 5, rounding to octet boundaries.
+
+    This fixes incorrect dissecting of Osmux frames containing AMR_SID
+    payloads.
+
+    (cherry picked from commit 12a5c106645b01f7e4b7d9928a641b9306feba5d)
+
+commit a1ecdeb6dd
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Nov 1 14:02:43 2022 +0000
+
+    GOOSE: add back goose.floating_point filter
+
+    Let's add it as a hidden filter for IEEE 754 single precision floating point
+
+    Closes #18491
+
+    (cherry picked from commit a1c55f2356c90dbd60861e33270f875b24734346)
+
+commit d66e242a7f
+Author: Roland Knall <rknall@gmail.com>
+Date:   Mon Oct 31 10:06:45 2022 +0000
+
+    Qt: Prevent dangling object for profile dialog
+
+    When running the profiles dialog from the main status bar,
+    some objects appear to be not cleaned up properly with Qt 6.
+    This will circumvent this, by creating an object for the
+    dialog and cleaning it on closing.
+
+    Fixes #18525
+
+    (cherry picked from commit c59804f25f4e2b146e9685b44e01715d6c220dca)
+
+commit bbd98ab909
+Author: Adrian Granados <adrian@intuitibits.com>
+Date:   Fri Oct 7 20:50:37 2022 -0400
+
+    extcap: fix missing control frames from wifidump capture
+
+    Normally, 'control' and 'otherbss' flags are set when
+    using monitor mode, but certain Wi-Fi drivers (e.g. MT7921)
+    need to explicitly have these flags set in order to capture
+    control frames.
+
+    (cherry picked from commit 420ec1511dcd467d33bf30d65c7a6dcb8f73734a)
+
+commit d5dd2fdcf9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 30 16:37:26 2022 +0000
+
+    [Automatic update for 2022-10-30]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7a76e634a1
+Author: Roland Knall <rknall@gmail.com>
+Date:   Fri Oct 28 15:21:27 2022 +0200
+
+    Qt: Fix unexpected bytes suffix
+
+    Packets obviously have not a "bytes" suffix, therefore
+    it should be removed.
+
+    Fixes #18229
+
+    (cherry picked from commit b4a738e0693575fadaae87aa9c39aeea016a5d50)
+
+commit e5dab8c905
+Author: Roland Knall <rknall@gmail.com>
+Date:   Fri Oct 28 14:51:38 2022 +0200
+
+    TrafficTree: Fix wrong element choosen in context menu
+
+    The context menu falsely assigns the proxied index to the context menu
+    entries, therefore always selecting the wrong model index for the
+    resulting functions.
+
+    Fixes #18xxx
+
+    (cherry picked from commit ea60fdcb31c5046c2cf8a5a1abef9af91c8811fd)
+
+commit c3c4725de7
+Author: Martin Mathieson <martin.mathieson@keysight.com>
+Date:   Thu Oct 27 16:12:50 2022 +0100
+
+    PER: Fix length of restricted character string item
+
+    (cherry picked from commit c8cf2f544c76f23ba084f4a076f8324294d333fb)
+
+commit 900e55dd66
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Oct 26 19:41:21 2022 +0000
+
+    evs: fix typo for evs_d_bits_t0_values
+
+     should be { 0x6, "NB 24.4 kbps" } instead of the current { 0x6, "Not used" }
+    According to Table A.3 of 3gpp TS 26445
+
+    Reported by Massimiliano Agnoletti
+
+    Close: #18550
+
+    (cherry picked from commit 0b9edb2299df34feb9772726ddb710c9008251b2)
+
+commit 2b509168b2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Oct 27 09:58:39 2022 -0700
+
+    Qt: Make sure our font setting is backward compatible.
+
+    Qt5's QFont::fromString() isn't compatible with Qt6's QFont::toString().
+    If we were built with Qt5, don't try to process a font preference that
+    was created by Qt6.
+
+    Fixes #18553
+
+    (cherry picked from commit 0ae3315f53bc9c1b56809c07b7326ba22ad6d38b)
+
+commit 1c6719eaba
+Author: João Valverde <j@v6e.pt>
+Date:   Fri Oct 28 14:19:35 2022 +0100
+
+    epan: Increase timezone buffer size
+
+    Some internationalized strings can exceed this size and become
+    truncated with encoding errors.
+
+    Fixes #18562.
+
+    (cherry picked from commit 267954cda2198ff81525b803223d7f0eed918bf0)
+
+commit 235f951686
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Oct 27 10:29:47 2022 -0700
+
+    Qt: Fix our default font size on Windows.
+
+    It looks like we need to adjust our monospace font size differently in
+    Qt6 on Windows.
+
+    (cherry picked from commit d560dd39487aa4f3fb9c6153d055c27d7b14f0d7)
+
+commit 69884260a4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Oct 26 12:08:45 2022 -0700
+
+    Version: 4.0.1 → 4.0.2
+
+    [skip ci]
