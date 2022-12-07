@@ -207,7 +207,7 @@ def check_licenses(options, args):
 
     # All files in the build output directory are generated one way or another.
     # There's no need to check them.
-    if filename.startswith('out/') or filename.startswith('sconsbuild/'):
+    if os.path.dirname(filename).startswith('build'):
       continue
 
     # For now we're just interested in the license.
