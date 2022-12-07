@@ -770,23 +770,20 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
     guint8      option_len  = 0;
     guint32     p;
     guint8      mp_option_type = 0;
-    
-    
+        
     proto_item *option_item;
     proto_tree *option_tree;
     proto_item *mp_option_sub_item;
     proto_tree *mp_option_sub_tree;
-
-
-
+    
     while (offset < offset_end) {
         /* first byte is the option type */
         option_type = tvb_get_guint8(tvb, offset);
 	option_item =
 		proto_tree_add_uint(dccp_options_tree, hf_dccp_option_type, tvb,
 				offset,
-                        	1,
-                        	option_type);
+				1,
+				option_type);
         if (option_type >= 32) { /* variable length options */
             option_len = tvb_get_guint8(tvb, offset+1);
 
@@ -893,7 +890,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
 		    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
-     		    dissect_options(tvb, pinfo, mp_option_sub_tree, tree, dccph, offset, offset + option_len);
+                    dissect_options(tvb, pinfo, mp_option_sub_tree, tree, dccph, offset, offset + option_len);
                     break;
                 case 1:
                     mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_join, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -961,7 +958,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                                    "Wrong Data checksum length, [%u != 9]", option_len);
                     }
                     break;
-              	case 7:
+		case 7:
                     mp_option_sub_item=proto_tree_add_item(option_tree,hf_mpdccp_addaddr,tvb,offset,1,ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
@@ -1864,9 +1861,9 @@ proto_register_dccp(void)
 	{&hf_mpdccp_version,{"version", "dccp.mp_version",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{&hf_mpdccp_join,{"MP_JOIN", "dccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_join_id,{"Address ID", "dccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_join_token,{"Path Token", "dccp.mp_join",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_join_nonce,{"Nonce", "dccp.mp_join",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_join_id,{"Address ID", "dccp.mp_joidid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_join_token,{"Path Token", "dccp.mp_path_token",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_join_nonce,{"Nonce", "dccp.mp_nonce",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 	{&hf_mpdccp_fast_close,{"MP_FAST_CLOSE", "dccp.mp_fast_close",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -1886,14 +1883,14 @@ proto_register_dccp(void)
 
 	{&hf_mpdccp_addaddr,{"MP_ADDADDR", "dccp.mp_addaddr",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 	{&hf_mpdccp_addrid,{"Address ID", "dccp.mp_addrid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_addr_dec,{"Address", "dccp.mp_addr",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_addr_hex,{"Address", "dccp.mp_addr",FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_addr_dec,{"Address", "dccp.mp_ipv4addr",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_addr_hex,{"Address", "dccp.mp_ipv6addr",FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 	{&hf_mpdccp_addrport,{"Port", "dccp.mp_addrport",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-      
+
 	{&hf_mpdccp_removeaddr,{"MP_REMOVEADDR", "dccp.mp_removeaddr",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-      
+
 	{&hf_mpdccp_prio,{"MP_PRIO", "dccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_prio_value,{"Priority", "dccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_prio_value,{"Priority", "dccp.mp_prioval",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{&hf_mpdccp_close,{"MP_CLOSE", "dccp.mp_close",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
