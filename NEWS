@@ -13,7 +13,36 @@
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2022-09[2] Multiple dissector infinite loops.
+
+     • wnpa-sec-2022-10[3] Kafka dissector memory exhaustion.
+
    The following bugs have been fixed:
+
+     • Packet bytes not displayed completely if scrolling Issue
+       18438[4].
+
+     • GOOSE: field "floating_point" not working anymore Issue 18491[5].
+
+     • EVS dissector missing value description Issue 18550[6].
+
+     • ProtoBuf parse extension definitions failed Issue 18599[7].
+
+     • Fuzz job crash output: fuzz-2022-11-09-11134.pcap Issue 18613[8].
+
+     • Wireshark is using old version of ASN (ETSI TS 125 453 V11.2.0)
+       which is imapacting length of param in the messages Issue
+       18646[9].
+
+     • BGP: False IGMP flags value in EVPN routes (type 6,7,8) Issue
+       18660[10].
+
+     • wslog assumes stderr and stdout exist Issue 18684[11].
+
+     • Editing packet comments, with non-ASCII characters, on Windows
+       saves them in the local code page, not in UTF-8. Issue 18698[12].
 
   New and Updated Features
 
@@ -22,6 +51,9 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   ASN.1 PER, BGP, BPv6, EVS, GOOSE, GSM Osmux, Kafka, Mongo, NXP
+   802.15.4, OpenFlow, PCAP, S1AP, and WASSP
 
   New and Updated Capture File Support
 
@@ -41,7 +73,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[13] on the Wireshark web site.
 
  File Locations
 
@@ -56,21 +88,32 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[14] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[15].
 
-  Bugs and feature requests can be reported on the issue tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[17].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/download.html
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://gitlab.com/wireshark/wireshark/-/issues
-   6. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/security/wnpa-sec-2022-09
+   3. https://www.wireshark.org/security/wnpa-sec-2022-10
+   4. https://gitlab.com/wireshark/wireshark/-/issues/18438
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18491
+   6. https://gitlab.com/wireshark/wireshark/-/issues/18550
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18599
+   8. https://gitlab.com/wireshark/wireshark/-/issues/18613
+   9. https://gitlab.com/wireshark/wireshark/-/issues/18646
+  10. https://gitlab.com/wireshark/wireshark/-/issues/18660
+  11. https://gitlab.com/wireshark/wireshark/-/issues/18684
+  12. https://gitlab.com/wireshark/wireshark/-/issues/18698
+  13. https://www.wireshark.org/download.html
+  14. https://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. https://gitlab.com/wireshark/wireshark/-/issues
+  17. https://www.wireshark.org/faq.html
