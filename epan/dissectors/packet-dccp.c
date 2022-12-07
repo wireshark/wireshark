@@ -770,12 +770,12 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
     guint8      option_len  = 0;
     guint32     p;
     guint8      mp_option_type = 0;
-        
+
     proto_item *option_item;
     proto_tree *option_tree;
     proto_item *mp_option_sub_item;
     proto_tree *mp_option_sub_tree;
-    
+
     while (offset < offset_end) {
         /* first byte is the option type */
         option_type = tvb_get_guint8(tvb, offset);
