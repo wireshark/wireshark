@@ -6303,9 +6303,6 @@ mbim_dissect_device_caps_v3_and_higher_info(tvbuff_t *tvb, packet_info *pinfo _U
 static void
 mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_mbim_ms_device_slot_mapping_info_map_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
-
     proto_tree *subtree;
     gint base_offset;
     guint32 i, elem_count;
