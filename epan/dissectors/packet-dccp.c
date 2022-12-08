@@ -1861,7 +1861,7 @@ proto_register_dccp(void)
 	{&hf_mpdccp_version,{"version", "dccp.mp_version",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{&hf_mpdccp_join,{"MP_JOIN", "dccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_join_id,{"Address ID", "dccp.mp_joidid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_join_id,{"Address ID", "dccp.mp_joinid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 	{&hf_mpdccp_join_token,{"Path Token", "dccp.mp_path_token",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 	{&hf_mpdccp_join_nonce,{"Nonce", "dccp.mp_nonce",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
