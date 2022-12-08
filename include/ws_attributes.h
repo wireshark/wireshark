@@ -28,7 +28,7 @@ extern "C" {
   /* This includes clang */
   #define _U_ __attribute__((unused))
 #elif defined(_MSC_VER)
-  #define _U_ __pragma(warning(suppress:4100))
+  #define _U_ __pragma(warning(suppress:4100 4189))
 #else
   #define _U_
 #endif

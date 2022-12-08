@@ -26,7 +26,7 @@
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
-string_walk(GSList *args, guint32 arg_count, GSList **retval, gchar(*conv_func)(gchar))
+string_walk(GSList *args, guint32 arg_count _U_, GSList **retval, gchar(*conv_func)(gchar))
 {
     GSList      *arg1;
     fvalue_t    *arg_fvalue;
@@ -75,7 +75,7 @@ df_func_upper(GSList *args, guint32 arg_count, GSList **retval)
 
 /* dfilter function: count() */
 static gboolean
-df_func_count(GSList *args, guint32 arg_count, GSList **retval)
+df_func_count(GSList *args, guint32 arg_count _U_, GSList **retval)
 {
     GSList   *arg1;
     fvalue_t *ft_ret;
@@ -96,7 +96,7 @@ df_func_count(GSList *args, guint32 arg_count, GSList **retval)
 
 /* dfilter function: string() */
 static gboolean
-df_func_string(GSList *args, guint32 arg_count, GSList **retval)
+df_func_string(GSList *args, guint32 arg_count _U_, GSList **retval)
 {
     GSList   *arg1;
     fvalue_t *arg_fvalue;
@@ -203,7 +203,7 @@ df_func_min(GSList *args, guint32 arg_count, GSList **retval)
 }
 
 static gboolean
-df_func_abs(GSList *args, guint32 arg_count, GSList **retval)
+df_func_abs(GSList *args, guint32 arg_count _U_, GSList **retval)
 {
     GSList   *arg1;
     fvalue_t *fv_arg, *new_fv;

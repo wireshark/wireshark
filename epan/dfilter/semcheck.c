@@ -594,7 +594,7 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 /* If the LHS of a relation test is a FIELD, run some checks
  * and possibly some modifications of syntax tree nodes. */
 static void
-check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
+check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op _U_,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
@@ -703,7 +703,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 }
 
 static void
-check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
+check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 		FtypeCanFunc can_func _U_,
 		gboolean allow_partial_value,
 		stnode_t *st_node _U_,
@@ -786,7 +786,7 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 /* If the LHS of a relation test is a FUNCTION, run some checks
  * and possibly some modifications of syntax tree nodes. */
 static void
-check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
+check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
