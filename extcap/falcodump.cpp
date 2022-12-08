@@ -118,8 +118,6 @@ struct plugin_configuration {
     }
 };
 
-//using config_override_func = void(*)(int, const char *, const char *);
-
 // Read a line without trailing (CR)LF. Returns -1 on failure. Copied from addr_resolv.c.
 // XXX Use g_file_get_contents or GMappedFile instead?
 static int
@@ -220,6 +218,7 @@ void print_cloudtrail_aws_region_config(int arg_num, const char *display, const 
         "ap-northeast-2",
         "ap-northeast-3",
         "ap-south-1",
+        "ap-south-2",
         "ap-southeast-1",
         "ap-southeast-2",
         "ap-southeast-3",
@@ -227,6 +226,7 @@ void print_cloudtrail_aws_region_config(int arg_num, const char *display, const 
         "eu-central-1",
         "eu-north-1",
         "eu-south-1",
+        "eu-south-2",
         "eu-west-1",
         "eu-west-2",
         "eu-west-3",
@@ -941,7 +941,6 @@ int main(int argc, char **argv)
             goto end;
         }
 
-        int fifo_fd = ws_open(extcap_conf->fifo, O_WRONLY|O_BINARY, 0);
         sinsp_dumper dumper = (&inspector);
 #ifdef DEBUG_SINSP
         inspector.set_debug_mode(true);
@@ -955,13 +954,10 @@ int main(int argc, char **argv)
                 goto end;
             }
             inspector.open_plugin(extcap_conf->interface, plugin_source);
-            dumper.fdopen(fifo_fd, false);
+            // scap_dump_open handles "-"
+            dumper.open(extcap_conf->fifo, false);
         } catch (sinsp_exception e) {
-            if (dumper.is_open()) {
-                dumper.close();
-            } else {
-                ws_close(fifo_fd);
-            }
+            dumper.close();
             ws_warning("%s", e.what());
             goto end;
         }
