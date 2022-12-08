@@ -154,4 +154,4 @@ https://www.wireshark.org/docs/man-pages.
 
 .Original Author
 [%hardbreaks]
-Odysseus Yang L<wiresharkyyh@outlook.com>
+Odysseus Yang <wiresharkyyh@outlook.com>
