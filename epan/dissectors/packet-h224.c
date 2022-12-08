@@ -262,6 +262,7 @@ void
 proto_reg_handoff_h224(void)
 {
     dissector_add_string("rtp_dyn_payload_type", "H224", h224_handle);
+    dissector_add_for_decode_as("rtp.pt", h224_handle);
 }
 
 /*
