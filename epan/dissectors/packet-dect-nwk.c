@@ -142,7 +142,15 @@ static gint hf_dect_nwk_s_ie_portable_identity_padding = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_ipei = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_tpui_value = -1;
-static gint hf_dect_ipui_o_number = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_o_number = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_p_poc = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_p_acc = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_q_bacn = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_s_number = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_t_eic = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_t_number = -1;
+static int hf_dect_nwk_s_ie_portable_identity_ipui_u_cacn = -1;
 
 static gint hf_dect_nwk_s_ie_rand_rand_field = -1;
 
@@ -2071,20 +2079,27 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, 
 					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
 					break;
 				case DECT_NWK_IPUI_TYPE_O:
-					proto_tree_add_bits_item(tree, hf_dect_ipui_o_number, tvb, bit_offset, no_of_bits, ENC_NA);
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_o_number, tvb, bit_offset, no_of_bits, ENC_NA);
 					break;
 				case DECT_NWK_IPUI_TYPE_P:
-					/* FIXME IPUI Type P */
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_poc, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_acc, tvb, bit_offset + 16, no_of_bits - 16, ENC_BIG_ENDIAN);
+					break;
 				case DECT_NWK_IPUI_TYPE_Q:
-					/* FIXME IPUI Type Q */
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_q_bacn, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					break;
 				case DECT_NWK_IPUI_TYPE_R:
-					/* FIXME IPUI Type R */
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					break;
 				case DECT_NWK_IPUI_TYPE_S:
-					/* FIXME IPUI Type S */
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_s_number, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					break;
 				case DECT_NWK_IPUI_TYPE_T:
-					/* FIXME IPUI Type T */
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_t_eic, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_t_number, tvb, bit_offset + 16, no_of_bits - 16, ENC_BCD_DIGITS_0_9);
+					break;
 				case DECT_NWK_IPUI_TYPE_U:
-					/* FIXME IPUI Type U */
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_u_cacn, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
 					break;
 			}
 
@@ -3214,8 +3229,37 @@ void proto_register_dect_nwk(void)
 			{ "TPUI value", "dect_nwk.s.ie.portable_identity.tpui_value", FT_UINT32, BASE_HEX,
 				NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_ipui_o_number,
-			{ "Number", "dect_nwk.s.ie.portable_identity.ipui.number", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_o_number,
+			{ "Number", "dect_nwk.s.ie.portable_identity.ipui_o.number", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_p_poc,
+			{ "POC", "dect_nwk.s.ie.portable_identity.ipui_p.poc", FT_UINT16, BASE_HEX,
+				NULL, 0, "Public Operator Code", HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_p_acc,
+			{ "ACC", "dect_nwk.s.ie.portable_identity.ipui_p.acc", FT_BYTES, BASE_NONE,
+			NULL, 0, "ACCount number", HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_q_bacn,
+			{ "BACN", "dect_nwk.s.ie.portable_identity.ipui_q.bacn", FT_STRING, BASE_NONE,
+			NULL, 0, "Bank ACount Number", HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi,
+			{ "IMSI", "dect_nwk.s.ie.portable_identity.ipui_r.imsi", FT_STRING, BASE_NONE,
+			NULL, 0, "International Mobile Subscriber Identity", HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_s_number,
+			{ "Number", "dect_nwk.s.ie.portable_identity.ipui_s.number", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_t_eic,
+			{ "EIC", "dect_nwk.s.ie.portable_identity.ipui_t.eic", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_t_number,
+			{ "Number", "dect_nwk.s.ie.portable_identity.ipui_t.number", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipui_u_cacn,
+			{ "CACN", "dect_nwk.s.ie.portable_identity.ipui_u.cacn", FT_STRING, BASE_NONE,
+			NULL, 0, "Credit Card ACount Number", HFILL }
 		},
 		{ &hf_dect_nwk_s_ie_portable_identity_padding,
 			{ "Padding", "dect_nwk.s.ie.portable_identity.padding", FT_NONE, BASE_NONE,
