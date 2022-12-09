@@ -2,6 +2,7 @@
  * Routines for RFC5652 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
  *   Stig Bjorlykke 2010
+ *   Uwe Heuert 2022
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

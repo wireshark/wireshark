@@ -21,6 +21,7 @@ DigestAlgorithmIdentifiers
 DigestInfo
 EncapsulatedContentInfo
 EnvelopedData
+AuthEnvelopedData
 IssuerAndSerialNumber
 SignedAttributes
 SignedData
@@ -38,6 +39,8 @@ EnvelopedData		B "1.2.840.113549.1.7.3"      "id-envelopedData"
 DigestedData		B "1.2.840.113549.1.7.5"      "id-digestedData"
 EncryptedData		B "1.2.840.113549.1.7.6"      "id-encryptedData"
 AuthenticatedData	B "1.2.840.113549.1.9.16.1.2" "id-ct-authenticatedData"
+EncryptedContentInfo	B "1.2.840.113549.1.9.16.1.9" "id-ct-compressedData"
+AuthEnvelopedData	B "1.2.840.113549.1.9.16.1.23" "id-ct-authEnvelopedData"
 
 ContentType			B "1.2.840.113549.1.9.3"	"id-contentType"
 MessageDigest		B "1.2.840.113549.1.9.4"	"id-messageDigest"
@@ -52,6 +55,18 @@ SMIMEEncryptionKeyPreference B "1.2.840.113549.1.9.16.2.11" "id-encryption-key-p
 
 # I think the following should be RC2CBCParameter - but that appears to be incorrect
 RC2CBCParameters 	B "1.2.840.113549.3.4" "id-alg-rc4"
+
+KeyEncryptionAlgorithmIdentifier	B "0.4.0.127.0.7.1.1.5.1.1.3"	"ecka-eg-X963KDF-SHA256"
+KeyEncryptionAlgorithmIdentifier	B "0.4.0.127.0.7.1.1.5.1.1.4"	"ecka-eg-X963KDF-SHA384"
+KeyEncryptionAlgorithmIdentifier	B "0.4.0.127.0.7.1.1.5.1.1.5"	"ecka-eg-X963KDF-SHA512"
+
+KeyEncryptionAlgorithmIdentifier	B "2.16.840.1.101.3.4.1.5"	"id-aes128-wrap"
+KeyEncryptionAlgorithmIdentifier	B "2.16.840.1.101.3.4.1.25"	"id-aes192-wrap"
+KeyEncryptionAlgorithmIdentifier	B "2.16.840.1.101.3.4.1.45"	"id-aes256-wrap"
+
+GCMParameters		B "2.16.840.1.101.3.4.1.6"	"id-aes128-GCM"
+GCMParameters		B "2.16.840.1.101.3.4.1.26"	"id-aes192-GCM"
+GCMParameters		B "2.16.840.1.101.3.4.1.46"	"id-aes256-GCM"
 
 # EC algorithms from RFC 3278 / RFC 5753
 KeyWrapAlgorithm B "1.3.133.16.840.63.0.2"  "dhSinglePass-stdDH-sha1kdf-scheme"
