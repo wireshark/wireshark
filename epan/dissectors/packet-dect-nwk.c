@@ -1040,7 +1040,6 @@ enum dect_nwk_s_ie_codec_list_slot_size_type {
 };
 
 /* Annex D.2.2 */
-/* TODO: Handling the DECT charset should most likely be done better with charset/string functions */
 enum dect_charset_control_codes {
 	DECT_CHARSET_CANCEL_DTMF_TONE                          = 0x00,
 	DECT_CHARSET_RETURN_HOME                               = 0x02,
@@ -1755,7 +1754,6 @@ static const value_string dect_nwk_s_ie_codec_list_slot_size_type_val[] = {
 };
 
 /* Annex D.2.2 */
-/* TODO: Handling the DECT charset should most likely be done better with charset/string functions */
 static const value_string dect_charset_control_codes_val[] = {
 	{ DECT_CHARSET_CANCEL_DTMF_TONE,                          "Null/cancel DTMF tone" },
 	{ DECT_CHARSET_RETURN_HOME,                               "Return home" },
@@ -1901,7 +1899,6 @@ static int dissect_dect_nwk_s_ie_calling_party_number(tvbuff_t *tvb, guint offse
 		address_length = ie_length - 1;
 	}
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_address, tvb, offset, address_length, ENC_DECT_STANDARD_8BITS);
-	/* TODO: Check encoding of address field */
 	return offset + address_length;
 }
 
