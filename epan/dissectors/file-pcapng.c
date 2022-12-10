@@ -145,11 +145,13 @@ static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
 static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_flags = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_reserved = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_wk = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_ch = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_so = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_re = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_ka = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_nf = -1;
+static int hf_pcapng_option_data_packet_darwin_flow_id = -1;
 
 static expert_field ei_invalid_byte_order_magic = EI_INIT;
 static expert_field ei_block_length_below_block_minimum = EI_INIT;
@@ -204,6 +206,7 @@ static int * const hfx_pcapng_block_type[] = {
 
 static int * const hfx_pcapng_option_data_packet_darwin_flags[] = {
     &hf_pcapng_option_data_packet_darwin_flags_reserved,
+    &hf_pcapng_option_data_packet_darwin_flags_wk,
     &hf_pcapng_option_data_packet_darwin_flags_ch,
     &hf_pcapng_option_data_packet_darwin_flags_so,
     &hf_pcapng_option_data_packet_darwin_flags_re,
@@ -371,6 +374,7 @@ static const value_string block_type_vals[] = {
  *          | darwin_svc_class | 32770 | 4      | no?               |
  *          | darwin_edpeb_id  | 32771 | 4      | no?               |
  *          | darwin_flags     | 32772 | 4      | no?               |
+ *          | darwin_flow_id   | 32773 | 4      | no?               |
  *          +------------------+------+---------+-------------------+
  *
  *           Table XXX.2: Darwin options for Enhanced Packet Blocks
@@ -426,6 +430,7 @@ static const value_string block_type_vals[] = {
  *                          +-------------------------+
  *                          |     FLAG_MASK    | Flag |
  *                          +-------------------------+
+ *                          |    0x00000020    |  wk  |
  *                          |    0x00000010    |  ch  |
  *                          |    0x00000008    |  so  |
  *                          |    0x00000004    |  re  |
@@ -434,11 +439,17 @@ static const value_string block_type_vals[] = {
  *                          +-------------------------+
  *
  *                           Table XXX.4: Darwin Flags
- * nf = New Flow
- * ka = Keep Alive
- * re = ReXmit (I assume this means Re-Transmit)
- * so = Socket
- * ch = Nexus Channel
+ *
+ *      wk = Wake Packet
+ *      ch = Nexus Channel
+ *      so = Socket
+ *      re = ReXmit
+ *      ka = Keep Alive
+ *      nf = New Flow
+ *
+ *    darwin_flow_id:
+ *            The darwin_flow_id option is a 32 bit value that
+ *            identifies a specific flow this packet is a part of.
  */
 
 static const value_string option_code_section_header_vals[] = {
@@ -486,6 +497,7 @@ static const value_string option_code_enhanced_packet_vals[] = {
     { 32770,   "Darwin Service Class" },
     { 32771,   "Darwin Effective DPEB ID" },
     { 32772,   "Darwin Flags" },
+    { 32773,   "Darwin Flow ID" },
     { 0, NULL }
 };
 
@@ -1304,6 +1316,13 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             case 32772: /* Darwin Flags */
                 proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_darwin_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_darwin_flags, encoding);
                 offset += option_length;
+
+                break;
+            case 32773: /* Darwin Flow ID */
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_flow_id, tvb, offset, option_length, encoding, &value_u32);
+                offset += option_length;
+
+                proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             default:
@@ -2474,32 +2493,42 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_packet_darwin_flags_reserved,
             { "Reserved",                                  "pcapng.options.option.data.packet.darwin.flags.reserved",
-            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xFFFFFFE0,
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xFFFFFFC0,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_wk,
+            { "Wake Packet(wk)",                           "pcapng.options.option.data.packet.darwin.flags.wk",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_darwin_flags_ch,
-            { "Nexus Channel(ch)",                                        "pcapng.options.option.data.packet.darwin.flags.ch",
+            { "Nexus Channel(ch)",                         "pcapng.options.option.data.packet.darwin.flags.ch",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_darwin_flags_so,
-            { "Socket(so)",                                        "pcapng.options.option.data.packet.darwin.flags.so",
+            { "Socket(so)",                                "pcapng.options.option.data.packet.darwin.flags.so",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_darwin_flags_re,
-            { "ReXmit(re)",                                        "pcapng.options.option.data.packet.darwin.flags.re",
+            { "ReXmit(re)",                                "pcapng.options.option.data.packet.darwin.flags.re",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_darwin_flags_ka,
-            { "Keep Alive(ka)",                                        "pcapng.options.option.data.packet.darwin.flags.ka",
+            { "Keep Alive(ka)",                            "pcapng.options.option.data.packet.darwin.flags.ka",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_darwin_flags_nf,
-            { "New Flow(nf)",                                        "pcapng.options.option.data.packet.darwin.flags.nf",
+            { "New Flow(nf)",                              "pcapng.options.option.data.packet.darwin.flags.nf",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flow_id,
+            { "Flow ID",                                   "pcapng.options.option.data.packet.darwin.flow_id",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_dns_name,
