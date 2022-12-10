@@ -377,6 +377,9 @@ static int Proto_get_prefs(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE Proto_prefs_changed WO The preferences changed routine of this dissector,
    a Lua function you define.
+
+   The function is called when the protocol's preferences are changed.
+   It is passed no arguments.
  */
 static int Proto_set_prefs_changed(lua_State* L) {
     Proto proto = checkProto(L,1);
@@ -396,7 +399,8 @@ static int Proto_set_prefs_changed(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define.
 
-   The called init function is passed no arguments.
+   The init function is called when the a new capture file is opened or when
+   the open capture file is closed.  It is passed no arguments.
 */
 static int Proto_set_init(lua_State* L) {
     Proto proto = checkProto(L,1);
