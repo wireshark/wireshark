@@ -5202,10 +5202,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         break;
 
     case USB_HEADER_DARWIN:
-        urb_type = tvb_get_guint8(tvb, 1);
+        urb_type = tvb_get_guint8(tvb, 3) ? URB_COMPLETE : URB_SUBMIT;
         endpoint = tvb_get_guint8(tvb, 30) & 0x7F;
         device_address = (guint16)tvb_get_guint8(tvb, 29);
-        location = tvb_get_letohl(tvb, 23);
+        location = tvb_get_letohl(tvb, 24);
         bus_id = location >> 24;
         break;
 
