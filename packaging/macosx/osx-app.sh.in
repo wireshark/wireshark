@@ -198,8 +198,9 @@ while $endl; do
 
 	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering.
-	#    libbrotli, for some reason, doesn't have a path prefix in its
-	#    "install name" when built by tools/macos-setup.sh;
+	#    libbrotli 1.09 and earlier doesn't have a path prefix in its
+	#    "install name" when built by tools/macos-setup.sh:
+	#    https://github.com/google/brotli/pull/976;
 	#
 	#    replace "@loader_path/libbrotli" with "/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering;
