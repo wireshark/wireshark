@@ -761,7 +761,7 @@ proto_register_ccid(void)
          { "Block Wait Time Integer", "usbccid.bBWI", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_wLevelParameter,
-         { "Level Parameter", "usbccid.wLevelParameter", FT_UINT8, BASE_HEX,
+         { "Level Parameter", "usbccid.wLevelParameter", FT_UINT16, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bcdCCID,
          { "bcdCCID", "usbccid.bcdCCID", FT_UINT16, BASE_HEX,
