@@ -1850,7 +1850,7 @@ cap_pipe_open_live(char *pipename,
         /* Not a pcapng file, and either not a pcap type we know about
            or not a pcap file, either. */
         snprintf(errmsg, (gulong)errmsgl,
-                   "Data written to the pipe is neither in a supported pcap format nor in pcapng format.");
+                   "File type is neither a supported pcap nor pcapng format. (magic = 0x%08x)", magic);
         snprintf(secondary_errmsg, (gulong)secondary_errmsgl, "%s",
                    not_our_bug);
         goto error;

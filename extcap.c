@@ -1354,6 +1354,8 @@ gboolean extcap_session_stop(capture_session *cap_session)
             }
             /* the fifo will not be freed here, but with the other capture_opts in capture_sync */
             ws_unlink(interface_opts->extcap_fifo);
+            get_dirname(interface_opts->extcap_fifo);
+            rmdir(interface_opts->extcap_fifo);
             interface_opts->extcap_fifo = NULL;
         }
         if (interface_opts->extcap_control_in && file_exists(interface_opts->extcap_control_in))
@@ -1661,33 +1663,27 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, HANDLE *ha
 #else
 static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *temp_dir, const gchar *pipe_prefix)
 {
-    gchar *temp_name = NULL;
-    int fd = 0;
+    gchar *subdir_tmpl = g_strdup_printf("%s_%s_XXXXXX", pipe_prefix, ifname);
+    gchar *temp_subdir = create_tempdir(temp_dir, subdir_tmpl, NULL);
 
-    gchar *pfx = g_strconcat(pipe_prefix, "_", ifname, NULL);
-    if ((fd = create_tempfile(temp_dir, &temp_name, pfx, NULL, NULL)) < 0)
+    g_free(subdir_tmpl);
+    if (temp_subdir == NULL)
     {
-        g_free(pfx);
         return FALSE;
     }
-    g_free(pfx);
 
-    ws_close(fd);
+    gchar *fifo_path = g_build_path(G_DIR_SEPARATOR_S, temp_subdir, "fifo", NULL);
+    g_free(temp_subdir);
 
-    ws_debug("Extcap - Creating fifo: %s", temp_name);
+    ws_debug("Extcap - Creating fifo: %s", fifo_path);
 
-    if (file_exists(temp_name))
+    if (mkfifo(fifo_path, 0600) == 0)
     {
-        ws_unlink(temp_name);
-    }
-
-    if (mkfifo(temp_name, 0600) == 0)
-    {
-        *fifo = temp_name;
+        *fifo = fifo_path;
     }
     else
     {
-        g_free(temp_name);
+        g_free(fifo_path);
     }
     return TRUE;
 }

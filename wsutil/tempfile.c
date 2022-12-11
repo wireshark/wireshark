@@ -15,6 +15,28 @@
 #include "tempfile.h"
 #include "file_util.h"
 
+static char *
+sanitize_prefix(const char *prefix)
+{
+  if (!prefix) {
+      return NULL;
+  }
+
+  /* The characters in "delimiters" come from:
+   * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
+   * Add to the list as necessary for other OS's.
+   */
+  const gchar *delimiters = "<>:\"/\\|?*"
+    "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
+    "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
+    "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
+
+  /* Sanitize the prefix to resolve bug 7877 */
+  char *safe_prefx = g_strdup(prefix);
+  safe_prefx = g_strdelimit(safe_prefx, delimiters, '-');
+  return safe_prefx;
+}
+
  /**
  * Create a tempfile with the given prefix (e.g. "wireshark"). The path
  * is created using g_file_open_tmp.
@@ -32,22 +54,7 @@ int
 create_tempfile(const char *tempdir, gchar **namebuf, const char *pfx, const char *sfx, GError **err)
 {
   int fd;
-  gchar *safe_pfx = NULL;
-
-  if (pfx) {
-    /* The characters in "delimiters" come from:
-     * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
-     * Add to the list as necessary for other OS's.
-     */
-    const gchar *delimiters = "<>:\"/\\|?*"
-      "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
-      "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
-      "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
-
-    /* Sanitize the pfx to resolve bug 7877 */
-    safe_pfx = g_strdup(pfx);
-    safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
-  }
+  gchar *safe_pfx = sanitize_prefix(pfx);
 
   if (tempdir == NULL || tempdir[0] == '\0') {
     /* Use OS default tempdir behaviour */
@@ -105,6 +112,31 @@ create_tempfile(const char *tempdir, gchar **namebuf, const char *pfx, const cha
   }
 
   return fd;
+}
+
+char *
+create_tempdir(const gchar *parent_dir, const char *tmpl, GError **err)
+{
+  if (parent_dir == NULL || parent_dir[0] == '\0') {
+      parent_dir = g_get_tmp_dir();
+  }
+
+  gchar *safe_pfx = sanitize_prefix(tmpl);
+  if (safe_pfx == NULL) {
+    safe_pfx = g_strdup("wireshark_XXXXXX");
+  }
+
+  char *temp_subdir = g_build_path(G_DIR_SEPARATOR_S, parent_dir, safe_pfx, NULL);
+  g_free(safe_pfx);
+  if (g_mkdtemp(temp_subdir) == NULL)
+  {
+      g_free(temp_subdir);
+      g_set_error_literal(err, G_FILE_ERROR,
+          g_file_error_from_errno(errno), g_strerror(errno));
+      return FALSE;
+  }
+
+  return temp_subdir;
 }
 
 /*
