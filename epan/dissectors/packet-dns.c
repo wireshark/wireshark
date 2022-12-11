@@ -657,6 +657,9 @@ typedef struct _dns_conv_info_t {
 #define T_ANY          255              /* A request for all records (RFC 1035) */
 #define T_URI          256              /* URI */
 #define T_CAA          257              /* Certification Authority Authorization (RFC 6844) */
+#define T_AVC          258              /* Application Visibility and Control (Wolfgang_Riedel) */
+#define T_DOA          259              /* Digital Object Architecture (draft-durand-doa-over-dns) */
+#define T_AMTRELAY     260              /* Automatic Multicast Tunneling Relay (RFC8777) */
 #define T_TA         32768              /* DNSSEC Trust Authorities */
 #define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 #define T_WINS       65281              /* Microsoft's WINS RR */
@@ -1028,7 +1031,9 @@ static const value_string dns_types_vals[] = {
   { T_ANY,        "ANY"        },
   { T_URI,        "URI"        },
   { T_CAA,        "CAA"        }, /* RFC 6844 */
-
+  { T_AVC,        "AVC"        },
+  { T_DOA,        "DOA"        }, /* (draft-durand-doa-over-dns) */
+  { T_AMTRELAY,   "AMTRELAY"   }, /* RFC8777 */
   { T_TA,         "TA"         },
   { T_DLV,        "DLV"        }, /* RFC 4431 */
 
@@ -1126,6 +1131,9 @@ static const value_string dns_types_description_vals[] = {
   { T_ANY,        "* (A request for all records the server/cache has available)" },
   { T_URI,        "URI" },
   { T_CAA,        "CAA (Certification Authority Restriction)" }, /* RFC 6844 */
+  { T_AVC,        "AVC (Application Visibility and Control)" },
+  { T_DOA,        "DOA (Digital Object Architecture)" }, /* (draft-durand-doa-over-dns) */
+  { T_AMTRELAY,   "AMTRELAY (Automatic Multicast Tunneling Relay)" }, /* RFC8777 */
   { T_TA,         "TA (DNSSEC Trust Authorities)" },
   { T_DLV,        "DLV (DNSSEC Lookaside Validation)" }, /* RFC 4431 */
 
