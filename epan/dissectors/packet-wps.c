@@ -442,6 +442,8 @@ static int hf_multi_ap_backhaul_sta = -1;
 static int hf_multi_ap_backhaul_bss = -1;
 static int hf_multi_ap_fronthaul_bss = -1;
 static int hf_multi_ap_teardown_bsses = -1;
+static int hf_multi_ap_profile1_backhaul_sta_assoc_disallowed = -1;
+static int hf_multi_ap_profile2_backhaul_sta_assoc_disallowed = -1;
 static int hf_multi_ap_reserved = -1;
 static int hf_multi_ap_flags = -1;
 static int hf_multi_ap_profiles = -1;
@@ -820,6 +822,8 @@ add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
     &hf_multi_ap_backhaul_bss,
     &hf_multi_ap_fronthaul_bss,
     &hf_multi_ap_teardown_bsses,
+    &hf_multi_ap_profile1_backhaul_sta_assoc_disallowed,
+    &hf_multi_ap_profile2_backhaul_sta_assoc_disallowed,
     &hf_multi_ap_reserved,
     NULL
   };
@@ -2453,9 +2457,17 @@ proto_register_wps(void)
       { "Teardown", "wps.ext.multi_ap.teardown",
         FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x10, NULL, HFILL }},
 
+    { &hf_multi_ap_profile1_backhaul_sta_assoc_disallowed,
+      { "Profile-1 Backhaul STA association disallowed", "wps.ext.multi_ap.profile1_backhaul_sta_disallowed",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08, NULL, HFILL }},
+
+    { &hf_multi_ap_profile2_backhaul_sta_assoc_disallowed,
+      { "Profile-2 Backhaul STA association disallowed", "wps.ext.multi_ap.profile2_backhaul_sta_disallowed",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04, NULL, HFILL }},
+
     { &hf_multi_ap_reserved,
       { "Reserved", "wps.ext.multi_ap.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
 
     { &hf_multi_ap_flags,
       { "Multi-AP Flags", "wps.ext.multi_ap_flags",
