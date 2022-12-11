@@ -20,6 +20,7 @@
 #include <epan/llcsaps.h>
 #include "packet-gre.h"
 #include "packet-wccp.h"
+#include <epan/decode_as.h>
 
 #define GRE_IN_UDP_PORT 4754
 
@@ -95,6 +96,8 @@ static gint ett_3gpp2_attr = -1;
 static expert_field ei_gre_checksum_incorrect = EI_INIT;
 
 static dissector_table_t gre_dissector_table;
+
+static dissector_table_t gre_subdissector_table;
 
 static const value_string gre_version[] = {
     { 0, "GRE" },                /* [RFC2784] */
@@ -494,11 +497,18 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         pinfo->flags.in_gre_pkt = TRUE;
         if (!dissector_try_uint_new(gre_dissector_table, type, next_tvb, pinfo, tree, TRUE, &gre_hdr_info))
-            call_data_dissector(next_tvb, pinfo, gre_tree);
+            if (!dissector_try_payload_new(gre_subdissector_table, next_tvb, pinfo, tree, TRUE, &gre_hdr_info)) {
+              call_data_dissector(next_tvb, pinfo, gre_tree);
+            }
     }
     return tvb_captured_length(tvb);
 }
 
+static void
+gre_prompt(packet_info *pinfo _U_, gchar* result)
+{
+  snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "GRE proto as");
+}
 
 void
 proto_register_gre(void)
@@ -752,6 +762,9 @@ proto_register_gre(void)
      */
     gre_dissector_table = register_dissector_table("gre.proto",
                                                    "GRE protocol type", proto_gre, FT_UINT16, BASE_HEX);
+
+    gre_subdissector_table = register_decode_as_next_proto(proto_gre, "gre.subproto",
+                                                                "GRE protocol type", gre_prompt);
 }
 
 void

@@ -1187,6 +1187,7 @@ proto_reg_handoff_eth(void)
   dissector_add_uint("ip.proto", IP_PROTO_ETHERNET, eth_maybefcs_handle);
 
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+  dissector_add_for_decode_as("gre.subproto", eth_withoutfcs_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
   dissector_add_uint("gre.proto", GRE_MIKROTIK_EOIP, eth_withoutfcs_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_ETHER, eth_withoutfcs_handle);
