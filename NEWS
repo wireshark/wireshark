@@ -1,4 +1,4 @@
-Wireshark 4.0.2 Release Notes
+Wireshark 4.0.3 Release Notes
 
  What is Wireshark?
 
@@ -15,61 +15,7 @@ Wireshark 4.0.2 Release Notes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2022-09[2] Multiple dissector infinite loops.
-
-     • wnpa-sec-2022-10[3] Kafka dissector memory exhaustion.
-
    The following bugs have been fixed:
-
-     • Qt: Endpoints dialog - unexpected byte unit suffixes in packet
-       columns. Issue 18229[4].
-
-     • GOOSE: field "floating_point" not working anymore. Issue
-       18491[5].
-
-     • EVS Header-Full format padding issues. Issue 18498[6].
-
-     • Wireshark 4.0.0 VOIP playback has no sound and can’t resume after
-       pausing. Issue 18510[7].
-
-     • Wireshark crashes when exporting a profile on Mac OSX if there is
-       no extension. Issue 18525[8].
-
-     • EVS dissector missing value description. Issue 18550[9].
-
-     • Qt 6 font descriptions not backward compatible with Qt 5. Issue
-       18553[10].
-
-     • Wireshark, wrong TCP ACKed unseen segment message. Issue
-       18558[11].
-
-     • Invalid Cyrillic symbol in timezone at \"Arrival Time\" field in
-       frame. Issue 18562[12].
-
-     • ProtoBuf parse extension definitions failed. Issue 18599[13].
-
-     • Fuzz job crash output: fuzz-2022-11-09-11134.pcap. Issue
-       18613[14].
-
-     • Fuzz job crash output: fuzz-2022-11-14-11111.pcap. Issue
-       18632[15].
-
-     • Wireshark is using old version of ASN (ETSI TS 125 453 V11.2.0)
-       which is imapacting length of param in the messages. Issue
-       18646[16].
-
-     • BGP: False IGMP flags value in EVPN routes (type 6,7,8) Issue
-       18660[17].
-
-     • wslog assumes stderr and stdout exist. Issue 18684[18].
-
-     • Editing packet comments, with non-ASCII characters, on Windows
-       saves them in the local code page, not in UTF-8. Issue 18698[19].
-
-     • Unable to decrypt PSK based DTLS traffic which uses Connection
-       ID. Issue 18705[20].
-
-     • HTTP2 tests fail when built without nghttp2. Issue 18707[21].
 
   New and Updated Features
 
@@ -80,10 +26,6 @@ Wireshark 4.0.2 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   ASN.1 PER, ASTERIX, BGP, BPv6, DTLS, EVS, GOOSE, GSM Osmux, IPv6,
-   Kafka, Locamation IM, MONGO, NXP 802.15.4, OpenFlow v6, PCAP,
-   Protobuf, RTP, S1AP, SKINNY, TCP, and WASSP
 
   New and Updated Capture File Support
 
@@ -103,7 +45,7 @@ Wireshark 4.0.2 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[22] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -118,45 +60,25 @@ Wireshark 4.0.2 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[23] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[24].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[25].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[26].
+  SharkFest[6].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[27].
+  A complete FAQ is available on the Wireshark web site[7].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/security/wnpa-sec-2022-09
-   3. https://www.wireshark.org/security/wnpa-sec-2022-10
-   4. https://gitlab.com/wireshark/wireshark/-/issues/18229
-   5. https://gitlab.com/wireshark/wireshark/-/issues/18491
-   6. https://gitlab.com/wireshark/wireshark/-/issues/18498
-   7. https://gitlab.com/wireshark/wireshark/-/issues/18510
-   8. https://gitlab.com/wireshark/wireshark/-/issues/18525
-   9. https://gitlab.com/wireshark/wireshark/-/issues/18550
-  10. https://gitlab.com/wireshark/wireshark/-/issues/18553
-  11. https://gitlab.com/wireshark/wireshark/-/issues/18558
-  12. https://gitlab.com/wireshark/wireshark/-/issues/18562
-  13. https://gitlab.com/wireshark/wireshark/-/issues/18599
-  14. https://gitlab.com/wireshark/wireshark/-/issues/18613
-  15. https://gitlab.com/wireshark/wireshark/-/issues/18632
-  16. https://gitlab.com/wireshark/wireshark/-/issues/18646
-  17. https://gitlab.com/wireshark/wireshark/-/issues/18660
-  18. https://gitlab.com/wireshark/wireshark/-/issues/18684
-  19. https://gitlab.com/wireshark/wireshark/-/issues/18698
-  20. https://gitlab.com/wireshark/wireshark/-/issues/18705
-  21. https://gitlab.com/wireshark/wireshark/-/issues/18707
-  22. https://www.wireshark.org/download.html
-  23. https://ask.wireshark.org/
-  24. https://www.wireshark.org/lists/
-  25. https://gitlab.com/wireshark/wireshark/-/issues
-  26. https://sharkfest.wireshark.org
-  27. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://sharkfest.wireshark.org
+   7. https://www.wireshark.org/faq.html
