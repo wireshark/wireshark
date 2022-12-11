@@ -155,9 +155,7 @@ void DragDropTabBar::mouseMoveEvent(QMouseEvent *event)
         _dragInitiated = true;
 
     if ((event->buttons() & Qt::LeftButton) && _dragInitiated) {
-DIAG_WARN(deprecated-declarations)
-        QMouseEvent * finishMouseMove = new QMouseEvent(QEvent::MouseMove, event->pos(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-DIAG_ON(deprecated-declarations)
+        QMouseEvent * finishMouseMove = new QMouseEvent(QEvent::MouseMove, event->pos(), QCursor::pos(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
         QTabBar::mouseMoveEvent(finishMouseMove);
 
         QDrag * drag = new QDrag(this);
