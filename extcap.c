@@ -1343,6 +1343,15 @@ gboolean extcap_session_stop(capture_session *cap_session)
 #else
         if (interface_opts->extcap_fifo != NULL && file_exists(interface_opts->extcap_fifo))
         {
+            /* If extcap didn't open the fifo, dumpcap would be waiting on it
+             * until user manually stops capture. Simply open and close fifo
+             * here to let dumpcap return from the select() call. This has no
+             * effect if dumpcap is not waiting.
+             */
+            int fd = ws_open(interface_opts->extcap_fifo, O_WRONLY, 0000);
+            if (fd != -1) {
+                close(fd);
+            }
             /* the fifo will not be freed here, but with the other capture_opts in capture_sync */
             ws_unlink(interface_opts->extcap_fifo);
             interface_opts->extcap_fifo = NULL;
