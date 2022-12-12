@@ -169,6 +169,7 @@ int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
 
 	va_start(arg, fmt);
 	buf = ws_strdup_vprintf(fmt, arg);
+	ws_debug("%s", buf);
 	if (ssh_channel_write(channel, buf, (guint32)strlen(buf)) == SSH_ERROR)
 		ret = EXIT_FAILURE;
 	va_end(arg);

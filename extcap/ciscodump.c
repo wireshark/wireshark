@@ -273,6 +273,7 @@ static int ssh_channel_read_prompt(ssh_channel channel, char *line, guint32 *len
 			} else {
 				/* Parse the current line */
 				line[*len] = '\0';
+				ws_noisy("  exiting: READ_PROMPT_EOLN (%d/%d)", *len, max_len);
 				return READ_PROMPT_EOLN;
 			}
 		} else {
@@ -282,21 +283,25 @@ static int ssh_channel_read_prompt(ssh_channel channel, char *line, guint32 *len
 			/* IOS, IOS-XE: check if line has same length as prompt and if it match prompt */
 			if ((*len == (guint32)prompt_len) && (0 == strncmp(line, prompt_str, prompt_len))) {
 				line[*len] = '\0';
+				ws_noisy("  exiting: READ_PROMPT_PROMPT (%d/%d)", *len, max_len);
 				return READ_PROMPT_PROMPT;
 			}
 			/* ASA: check if line begins with \r and has same length as prompt and if it match prompt */
 			if ((line[0] == '\r') && (*len == (guint32)prompt_len+1) && (0 == strncmp(line+1, prompt_str, prompt_len))) {
 				line[*len] = '\0';
+				ws_noisy("  exiting: READ_PROMPT_PROMPT (%d/%d)", *len, max_len);
 				return READ_PROMPT_PROMPT;
 			}
 			/* no prompt found, so we continue in waiting for data, but we should check global timeout */
 			if ((cur_time-start_time) > SSH_READ_TIMEOUT_USEC) {
 				line[*len] = '\0';
+				ws_noisy("  exiting: READ_PROMPT_ERROR");
 				return READ_PROMPT_ERROR;
 			}
 		}
 	} while (!extcap_end_application && (*len < max_len));
 
+	ws_noisy("  exiting: READ_PROMPT_TOO_LONG (%d/%d/%d)", *len, max_len, extcap_end_application);
 	line[*len] = '\0';
 	return READ_PROMPT_TOO_LONG;
 }
@@ -325,10 +330,12 @@ static int ssh_channel_wait_prompt(ssh_channel channel, char *line, guint32 *len
 				/* Just terminate the line and return error */
 				*len = (guint32)g_strlcat(line, line2, max_len);
 				line[max_len] = '\0';
+				ws_noisy("Returning READ_PROMPT_ERROR (%d/%d)", *len, max_len);
 				return READ_PROMPT_ERROR;
 		}
 	} while (status == READ_PROMPT_EOLN);
 
+	ws_noisy("Returning READ_PROMPT_PROMPT (%d/%d)", *len, max_len);
 	return READ_PROMPT_PROMPT;
 }
 
@@ -854,7 +861,12 @@ static int process_buffer_response_ios(ssh_channel channel, guint8* packet, FILE
 				break;
 			default:
 				/* We do not have better solution for that cases */
-				ws_warning("Timeout or response was too long\n");
+				if (extcap_end_application) {
+					/* End by signal causes timeout so we decrease priority */
+					ws_debug("Timeout or response was too long\n");
+				} else {
+					ws_warning("Timeout or response was too long\n");
+				}
 				return FALSE;
 		}
 		len = 0;
@@ -969,7 +981,12 @@ static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, F
 				break;
 			default:
 				/* We do not have better solution for that cases */
-				ws_warning("Timeout or response was too long\n");
+				if (extcap_end_application) {
+					/* End by signal causes timeout so we decrease priority */
+					ws_debug("Timeout or response was too long\n");
+				} else {
+					ws_warning("Timeout or response was too long\n");
+				}
 				return FALSE;
 		}
 		len = 0;
@@ -1091,7 +1108,12 @@ static int process_buffer_response_asa(ssh_channel channel, guint8* packet, FILE
 					break;
 				default:
 					/* We do not have better solution for that cases */
-					ws_warning("Timeout or response was too long\n");
+					if (extcap_end_application) {
+						/* End by signal causes timeout so we decrease priority */
+						ws_debug("Timeout or response was too long\n");
+					} else {
+						ws_warning("Timeout or response was too long\n");
+					}
 					return FALSE;
 			}
 			len = 0;
