@@ -54,8 +54,10 @@
 
 #define MINIMUM_IOS_MAJOR 12
 #define MINIMUM_IOS_MINOR 4
-#define MINIMUM_IOS_XE_MAJOR 16
-#define MINIMUM_IOS_XE_MINOR 1
+#define MINIMUM_IOS_XE_MAJOR_16 16
+#define MINIMUM_IOS_XE_MINOR_16 1
+#define MINIMUM_IOS_XE_MAJOR_17 17
+#define MINIMUM_IOS_XE_MINOR_17 1
 #define MINIMUM_ASA_MAJOR 8
 #define MINIMUM_ASA_MINOR 4
 
@@ -73,7 +75,8 @@
 typedef enum {
 	CISCO_UNKNOWN,
 	CISCO_IOS,
-	CISCO_IOS_XE,
+	CISCO_IOS_XE_16,
+	CISCO_IOS_XE_17,
 	CISCO_ASA
 } CISCO_SW_TYPE;
 
@@ -104,6 +107,8 @@ enum {
 
 static char prompt_str[SSH_READ_BLOCK_SIZE + 1];
 static gint32 prompt_len = -1;
+CISCO_SW_TYPE global_sw_type = CISCO_UNKNOWN;
+static bool send_output_quit = FALSE;	/* IOS XE 17: send quit during output */
 
 static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
@@ -112,6 +117,13 @@ static struct ws_option longopts[] = {
 	SSH_BASE_OPTIONS,
 	{ 0, 0, 0, 0}
 };
+
+static void graceful_shutdown_cb(void)
+{
+	if (global_sw_type == CISCO_IOS_XE_17) {
+		send_output_quit = TRUE;
+	}
+}
 
 /* Replaces needle with rep in line */
 static char* str_replace_char(char *line, char needle, char rep)
@@ -409,7 +421,26 @@ static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const 
 	g_free(iface_copy);
 }
 
-static void ciscodump_cleanup_ios_xe(ssh_channel channel, const char* cfilter)
+static void ciscodump_cleanup_ios_xe_16(ssh_channel channel, const char* cfilter)
+{
+	if (channel) {
+		ws_debug("Removing configuration...");
+		read_output_bytes(channel, -1, NULL);
+
+		ssh_channel_printf(channel, "monitor capture %s stop\n", WIRESHARK_CAPTURE);
+		ssh_channel_printf(channel, "no monitor capture %s\n", WIRESHARK_CAPTURE);
+		if (cfilter) {
+			ssh_channel_printf(channel, "configure terminal\n");
+			ssh_channel_printf(channel, "no ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+			ssh_channel_printf(channel, "\nend\n");
+		}
+
+		read_output_bytes(channel, -1, NULL);
+		ws_debug("Configuration removed");
+	}
+}
+
+static void ciscodump_cleanup_ios_xe_17(ssh_channel channel, const char* cfilter)
 {
 	if (channel) {
 		ws_debug("Removing configuration...");
@@ -453,8 +484,11 @@ static void ciscodump_cleanup(ssh_channel channel, const char* iface, const char
 		case CISCO_IOS:
 			ciscodump_cleanup_ios(channel, iface, cfilter);
 			break;
-		case CISCO_IOS_XE:
-			ciscodump_cleanup_ios_xe(channel, cfilter);
+		case CISCO_IOS_XE_16:
+			ciscodump_cleanup_ios_xe_16(channel, cfilter);
+			break;
+		case CISCO_IOS_XE_17:
+			ciscodump_cleanup_ios_xe_17(channel, cfilter);
 			break;
 		case CISCO_ASA:
 			ciscodump_cleanup_asa(channel, cfilter);
@@ -492,7 +526,7 @@ static void packets_captured_count_ios(char *line, guint32 *max, gboolean *runni
 	ws_debug("Capture is running: %d", *running);
 }
 
-static void packets_captured_count_ios_xe(char *line, guint32 *max, gboolean *running) {
+static void packets_captured_count_ios_xe_16(char *line, guint32 *max, gboolean *running) {
 	char** part;
 
 	*max = 0;
@@ -654,7 +688,7 @@ static int parse_line_ios(guint8* packet, unsigned* offset, char* line, int stat
 	return CISCODUMP_PARSER_IN_PACKET;
 }
 
-static int parse_line_ios_xe(guint8* packet, unsigned* offset, char* line)
+static int parse_line_ios_xe_16(guint8* packet, unsigned* offset, char* line)
 {
 	char** parts;
 	char** part;
@@ -712,6 +746,51 @@ static int parse_line_ios_xe(guint8* packet, unsigned* offset, char* line)
 				size = strlen(*part) / 2;
 				memcpy(packet + *offset, &value, size);
 				*offset += (guint32)size;
+			}
+			part++;
+		}
+	}
+	g_strfreev(parts);
+
+	return CISCODUMP_PARSER_IN_PACKET;
+}
+
+static int parse_line_ios_xe_17(guint8* packet, unsigned* offset, char* line)
+{
+	char** parts;
+	char** part;
+	guint8 value;
+
+	if (strlen(line) <= 1) {
+		return CISCODUMP_PARSER_END_PACKET;
+	}
+
+	/*
+0000  6c 5e 3b 88 5e 80 6c 5e 3b 88 5e 80 08 00 45 00   l^;.^.l^;.^...E.
+0010  00 28 9b 00 00 00 ff 06 0f 02 c0 a8 c8 01 c0 a8   .(..............
+0020  c8 7a 7e 77 00 31 4c ba ba a5 92 d3 0a eb 50 10   .z~w.1L.......P.
+0030  10 20 6a 20 00 00 00 00 00 00 00 00               . j ........
+*/
+
+	/* we got a line of the packet                                                          */
+	/* A line looks like                                                                    */
+	/*   0000  6c 5e 3b 88 5e 80 6c 5e 3b 88 5e 80 08 00 45 00   l^;.^.l^;.^...E            */
+	/*   ...                                                                                */
+	/*   0030  10 20 6a 20 00 00 00 00 00 00 00 00               . j ........               */
+	/* Note that any of the 4 groups are optional and that a group can be 1 to 8 bytes long */
+	parts = g_regex_split_simple(
+		"^\\s*[0-9A-F]{4,4}  ([0-9A-F]{2}) ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1} ([0-9A-F]{2}){0,1}\\s+.*",
+		line, G_REGEX_CASELESS, 0);
+
+	part = parts;
+	if (*part && *(part+1)) {
+		/* There is at least one match. Skip first string */
+		part++;
+		while(*part) {
+			if (strlen(*part) > 1) {
+				ws_hexstrtou8(*part, NULL, &value);
+				memcpy(packet + *offset, &value, 1);
+				*offset += 1;
 			}
 			part++;
 		}
@@ -934,8 +1013,8 @@ static void ssh_loop_read_ios(ssh_channel channel, FILE* fp, const guint32 count
 	read_output_bytes_any(channel, -1, NULL);
 }
 
-/* IOS-XE: Reads response and parses buffer till prompt received */
-static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, FILE* fp, const guint32 count, guint32 *processed_packets)
+/* IOS-XE 16: Reads response and parses buffer till prompt received */
+static int process_buffer_response_ios_xe_16(ssh_channel channel, guint8* packet, FILE* fp, const guint32 count, guint32 *processed_packets)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	guint32 read_packets = 1;
@@ -950,7 +1029,7 @@ static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, F
 		/* Read input till EOLN or prompt */
 		switch (ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
 			case READ_PROMPT_EOLN:
-				status = parse_line_ios_xe(packet, &packet_size, line);
+				status = parse_line_ios_xe_16(packet, &packet_size, line);
 
 				if (status == CISCODUMP_PARSER_END_PACKET) {
 					ws_debug("Read packet %d\n", read_packets);
@@ -996,8 +1075,76 @@ static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, F
 	return TRUE;
 }
 
-/* IOS-XE: Queries buffer content and reads it */
-static void ssh_loop_read_ios_xe(ssh_channel channel, FILE* fp, const guint32 count)
+/* IOS-XE 17: Reads response and parses buffer till prompt received */
+static int process_buffer_response_ios_xe_17(ssh_channel channel, guint8* packet, FILE* fp, const guint32 count, guint32 *processed_packets)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 read_packets = 1;
+	int status = CISCODUMP_PARSER_STARTING;
+	int loop_end = 0;
+	unsigned packet_size = 0;
+	guint32 len = 0;
+
+	/* Process response */
+	do {
+		loop_end = 0;
+		/* Read input till EOLN */
+		switch (ssh_channel_read_line_timeout(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+			case READ_PROMPT_EOLN:
+				/* Starting message? Ignore... */
+				if (NULL != g_strstr_len(line, -1, "Starting the packet display")) {
+					break;
+				}
+
+				/* End of dump message? End loop. */
+				if (NULL != g_strstr_len(line, -1, "Started capture point :")) {
+					loop_end = 1;
+					break;
+				}
+
+				status = parse_line_ios_xe_17(packet, &packet_size, line);
+				ws_debug("Packet offset %d\n", packet_size);
+
+				if ((status == CISCODUMP_PARSER_END_PACKET) && (packet_size > 0)) {
+					ws_debug("Read packet %d\n", read_packets);
+					if (read_packets > *processed_packets) {
+						int err;
+						gint64 cur_time = g_get_real_time();
+						guint64 bytes_written;
+
+						ws_debug("Exporting packet %d\n", *processed_packets);
+						/*  dump the packet to the pcap file */
+						if (!libpcap_write_packet(fp,
+								(guint32)(cur_time / G_USEC_PER_SEC), (guint32)(cur_time % G_USEC_PER_SEC),
+								packet_size, packet_size, packet, &bytes_written, &err)) {
+							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
+							break;
+						}
+						fflush(fp);
+						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
+						(*processed_packets)++;
+					}
+					packet_size = 0;
+					read_packets++;
+				}
+				break;
+			case READ_LINE_TIMEOUT:
+				/* Timeout is OK during reading of IOS XE 17 buffer */
+				break;
+			default:
+				/* We do not have better solution for that cases */
+				ws_warning("Error or response was too long\n");
+				return FALSE;
+		}
+		len = 0;
+		ws_debug("loop end detection %d %d %d %d", extcap_end_application, loop_end, *processed_packets, count);
+	} while ((!extcap_end_application) && (!loop_end) && (*processed_packets < count));
+
+	return TRUE;
+}
+
+/* IOS-XE 16: Queries buffer content and reads it */
+static void ssh_loop_read_ios_xe_16(ssh_channel channel, FILE* fp, const guint32 count)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	guint8* packet;
@@ -1022,7 +1169,7 @@ static void ssh_loop_read_ios_xe(ssh_channel channel, FILE* fp, const guint32 co
 			return;
 		}
 		ws_debug("Read: %s", line);
-		packets_captured_count_ios_xe(line, &new_max, &running);
+		packets_captured_count_ios_xe_16(line, &new_max, &running);
 		ws_debug("Max counts %d %d", current_max, new_max);
 		if (new_max == current_max) {
 			/* There is no change in count of available packets, repeat the loop */
@@ -1042,9 +1189,39 @@ static void ssh_loop_read_ios_xe(ssh_channel channel, FILE* fp, const guint32 co
 		}
 
 		/* Process buffer */
-		if (!process_buffer_response_ios_xe(channel, packet, fp, count, &processed_packets)) {
+		if (!process_buffer_response_ios_xe_16(channel, packet, fp, count, &processed_packets)) {
 			g_free(packet);
 			return;
+		}
+	} while (!extcap_end_application && running && (processed_packets < count));
+
+	g_free(packet);
+
+	/* Discard any subsequent messages */
+	read_output_bytes_any(channel, -1, NULL);
+}
+
+/* IOS-XE 17: Queries buffer content and reads it */
+static void ssh_loop_read_ios_xe_17(ssh_channel channel, FILE* fp, const guint32 count)
+{
+	guint8* packet;
+	guint32 processed_packets = 0;
+	gboolean running = TRUE;
+
+	/* This is big enough to put on the heap */
+	packet = (guint8*)g_malloc(PACKET_MAX_SIZE);
+
+	do {
+		//guint32 len = 0;
+
+		/* Process buffer */
+		if (!process_buffer_response_ios_xe_17(channel, packet, fp, count, &processed_packets)) {
+			g_free(packet);
+			return;
+		}
+		if (extcap_end_application && send_output_quit) {
+			ws_debug("Terminating the output\n");
+			ssh_channel_printf(channel, "\n\x1e\n");
 		}
 	} while (!extcap_end_application && running && (processed_packets < count));
 
@@ -1185,8 +1362,11 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count _U_
 		case CISCO_IOS:
 			ssh_loop_read_ios(channel, fp, count);
 			break;
-		case CISCO_IOS_XE:
-			ssh_loop_read_ios_xe(channel, fp, count);
+		case CISCO_IOS_XE_16:
+			ssh_loop_read_ios_xe_16(channel, fp, count);
+			break;
+		case CISCO_IOS_XE_17:
+			ssh_loop_read_ios_xe_17(channel, fp, count);
 			break;
 		case CISCO_ASA:
 			ssh_loop_read_asa(channel, fp, count);
@@ -1295,7 +1475,7 @@ static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
 	/* We should check IOS XE first as its version contains IOS string too */
 	cur = g_strstr_len(version, strlen(version), msg_ios_xe);
 	if (cur) {
-		*sw_type = CISCO_IOS_XE;
+		*sw_type = CISCO_IOS_XE_16;
 		cur += strlen(msg_ios_xe);
 	} else {
 		cur = g_strstr_len(version, strlen(version), msg_ios);
@@ -1325,9 +1505,14 @@ static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
 						return TRUE;
 					}
 					break;
-				case CISCO_IOS_XE:
+				case CISCO_IOS_XE_16:
 					ws_debug("Current IOS XE version: %u.%u", sw_major, sw_minor);
-					if ((sw_major > MINIMUM_IOS_XE_MAJOR) || (sw_major == MINIMUM_IOS_XE_MAJOR && sw_minor >= MINIMUM_IOS_XE_MINOR)) {
+					if ((sw_major > MINIMUM_IOS_XE_MAJOR_17) || (sw_major == MINIMUM_IOS_XE_MAJOR_17 && sw_minor >= MINIMUM_IOS_XE_MINOR_17)) {
+						*sw_type = CISCO_IOS_XE_17;
+						return TRUE;
+					}
+					if ((sw_major > MINIMUM_IOS_XE_MAJOR_16) || (sw_major == MINIMUM_IOS_XE_MAJOR_16 && sw_minor >= MINIMUM_IOS_XE_MINOR_16)) {
+						*sw_type = CISCO_IOS_XE_16;
 						return TRUE;
 					}
 					break;
@@ -1501,7 +1686,7 @@ error:
 	return FALSE;
 }
 
-static gboolean run_capture_ios_xe(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
+static gboolean run_capture_ios_xe_16(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
 {
 	int ret = 0;
 	char line[SSH_READ_BLOCK_SIZE + 1];
@@ -1609,6 +1794,128 @@ static gboolean run_capture_ios_xe(ssh_channel channel, const char* iface, const
 		ws_warning("Received response: %s", crtoln(line));
 		goto error;
 	}
+
+	g_free(iface_copy);
+	return TRUE;
+error:
+	g_free(iface_copy);
+	ws_warning("Error running ssh remote command");
+
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	return FALSE;
+}
+
+static gboolean run_capture_ios_xe_17(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
+{
+	int ret = 0;
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len;
+	gchar* iface_copy = g_strdup(iface);
+	gchar* iface_one;
+	gchar* str = NULL;
+
+	if (ssh_channel_printf(channel, "terminal length 0\n") == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (ssh_channel_printf(channel, "monitor capture %s limit packet-len 9500\n", WIRESHARK_CAPTURE) == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (count > 0) {
+		if (ssh_channel_printf(channel, "monitor capture %s limit packets %u\n", WIRESHARK_CAPTURE, count) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+	}
+
+	if (cfilter) {
+		gchar* multiline_filter;
+		gchar* chr;
+
+		if (ssh_channel_printf(channel, "configure terminal\n") == EXIT_FAILURE)
+			goto error;
+
+		if (ssh_channel_printf(channel, "ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+
+		multiline_filter = g_strdup(cfilter);
+		chr = multiline_filter;
+		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
+			chr[0] = '\n';
+			ws_debug("Splitting filter into multiline");
+		}
+		ret = ssh_channel_write(channel, multiline_filter, (uint32_t)strlen(multiline_filter));
+		g_free(multiline_filter);
+		if (ret == SSH_ERROR)
+			goto error;
+
+		if (ssh_channel_printf(channel, "\nend\n") == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		if (ssh_channel_printf(channel, "monitor capture %s access-list %s\n",
+				WIRESHARK_CAPTURE, WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+	} else {
+		if (ssh_channel_printf(channel, "monitor capture %s match any\n",
+				WIRESHARK_CAPTURE) == EXIT_FAILURE)
+			goto error;
+	}
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	for (str = iface_copy; ; str = NULL) {
+		iface_one = strtok(str, ",");
+		if (iface_one == NULL)
+			break;
+
+		if (0 == g_strcmp0(iface_one, "control-plane")) {
+			if (ssh_channel_printf(channel, "monitor capture %s control-plane both\n", WIRESHARK_CAPTURE
+					) == EXIT_FAILURE)
+				goto error;
+		} else {
+			if (ssh_channel_printf(channel, "monitor capture %s interface %s both\n", WIRESHARK_CAPTURE,
+					iface_one) == EXIT_FAILURE)
+				goto error;
+		}
+	}
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (ssh_channel_printf(channel, "monitor capture %s start display dump\n", WIRESHARK_CAPTURE) == EXIT_FAILURE)
+		goto error;
+
+/*
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE,
+	    "(Capture is not Supported|Unable to activate Capture)")
+	   ) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+*/
 
 	g_free(iface_copy);
 	return TRUE;
@@ -1799,19 +2106,15 @@ error:
 	return NULL;
 }
 
-static gboolean run_capture(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count, CISCO_SW_TYPE *sw_type)
+static gboolean run_capture(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count, CISCO_SW_TYPE sw_type)
 {
-	if (!detect_host_prompt(channel))
-		goto error;
-
-	if (!check_ios_version(channel, sw_type))
-		goto error;
-
-	switch (*sw_type) {
+	switch (sw_type) {
 		case CISCO_IOS:
 			return run_capture_ios(channel, iface, cfilter, count);
-		case CISCO_IOS_XE:
-			return run_capture_ios_xe(channel, iface, cfilter, count);
+		case CISCO_IOS_XE_16:
+			return run_capture_ios_xe_16(channel, iface, cfilter, count);
+		case CISCO_IOS_XE_17:
+			return run_capture_ios_xe_17(channel, iface, cfilter, count);
 		case CISCO_ASA:
 			return run_capture_asa(channel, iface, cfilter);
 		case CISCO_UNKNOWN:
@@ -1819,11 +2122,6 @@ static gboolean run_capture(ssh_channel channel, const char* iface, const char* 
 			return FALSE;
 	}
 
-error:
-	ws_warning("Error running ssh remote command");
-
-	ssh_channel_close(channel);
-	ssh_channel_free(channel);
 	return FALSE;
 }
 
@@ -1837,7 +2135,6 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 	int err;
 	int ret = EXIT_FAILURE;
 	char* err_info = NULL;
-	CISCO_SW_TYPE sw_type = CISCO_UNKNOWN;
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
@@ -1866,13 +2163,22 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		goto cleanup;
 	}
 
-	if (!run_capture(channel, iface, cfilter, count, &sw_type)) {
+	if (!detect_host_prompt(channel))
+		goto cleanup;
+
+	if (!check_ios_version(channel, &global_sw_type))
+		goto cleanup;
+
+	/* clean up and exit */
+	ciscodump_cleanup(channel, iface, cfilter, global_sw_type);
+
+	if (!run_capture(channel, iface, cfilter, count, global_sw_type)) {
 		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
 
 	/* read from channel and write into fp */
-	ssh_loop_read(channel, fp, count, sw_type);
+	ssh_loop_read(channel, fp, count, global_sw_type);
 
 	/* Read loop can be terminated by signal or QUIT command in
 	 * mid of long "show" command and its reading can take really
@@ -1898,7 +2204,7 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 	}
 
 	/* clean up and exit */
-	ciscodump_cleanup(channel, iface, cfilter, sw_type);
+	ciscodump_cleanup(channel, iface, cfilter, global_sw_type);
 
 	ssh_channel_close(channel);
 	ssh_channel_free(channel);
@@ -2008,7 +2314,7 @@ int main(int argc, char *argv[])
 	add_libssh_info(extcap_conf);
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
-	if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, NULL)) {
+	if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb)) {
 		ret = EXIT_FAILURE;
 		goto end;
 	}
