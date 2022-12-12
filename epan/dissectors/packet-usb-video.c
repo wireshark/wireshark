@@ -1159,10 +1159,7 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
     if ((subtype == VS_FORMAT_UNCOMPRESSED) || (subtype == VS_FORMAT_FRAME_BASED))
     {
         /* Augment the descriptor root item with the format's four-character-code */
-        char fourcc[5];
-        tvb_memcpy(tvb, (guint8 *)fourcc, offset, 4);
-        fourcc[4] = '\0';
-        proto_item_append_text(desc_item, ": %s", fourcc);
+        proto_item_append_text(desc_item, ": %s", tvb_format_text(wmem_packet_scope(), tvb, offset, 4));
 
         proto_tree_add_item(tree, hf_usb_vid_format_guid, tvb, offset,   16, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_usb_vid_format_bits_per_pixel,        tvb, offset+16, 1, ENC_LITTLE_ENDIAN);
