@@ -1348,7 +1348,7 @@ gboolean extcap_session_stop(capture_session *cap_session)
              * here to let dumpcap return from the select() call. This has no
              * effect if dumpcap is not waiting.
              */
-            int fd = ws_open(interface_opts->extcap_fifo, O_WRONLY, 0000);
+            int fd = ws_open(interface_opts->extcap_fifo, O_WRONLY|O_NONBLOCK, 0000);
             if (fd != -1) {
                 close(fd);
             }
