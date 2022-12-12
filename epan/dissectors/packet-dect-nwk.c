@@ -2715,7 +2715,6 @@ static int dissect_dect_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 pdisc, msg_type;
 	guint len;
 	guint offset = 0;
-	int available_length;
 
 	len = tvb_reported_length(tvb);
 
@@ -2753,9 +2752,8 @@ static int dissect_dect_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* whatever was not dissected: Use generic data dissector */
-	available_length = tvb_captured_length(tvb) - offset;
-	if (available_length) {
-		tvbuff_t *payload = tvb_new_subset_length_caplen(tvb, offset, MIN(len-offset, available_length), len);
+	if ( offset < tvb_captured_length(tvb) ) {
+		tvbuff_t *payload = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(payload, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
