@@ -1834,7 +1834,7 @@ static proto_item* add_dect_nwk_dect_charset_tree_item(proto_tree *tree, packet_
 	keypad_string = tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_DECT_STANDARD_8BITS);
 	current_char_ptr = keypad_string;
 
-	keypad_information = wmem_strbuf_sized_new(pinfo->pool, length, 0);
+	keypad_information = wmem_strbuf_new_sized(pinfo->pool, length);
 	for ( current_char_position = 0; current_char_position < length; current_char_position++ ) {
 		current_char = g_utf8_get_char(current_char_ptr);
 		if ( current_char < 0x20 ) {

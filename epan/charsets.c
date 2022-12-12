@@ -1908,7 +1908,7 @@ get_dect_standard_8bits_string(wmem_allocator_t *scope, const guint8 *ptr, gint 
     const guint8  *current_byte_ptr;
     wmem_strbuf_t *strbuf;
 
-    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     for (position = 0, current_byte_ptr = ptr; position < length; current_byte_ptr++, position++) {
         if (*current_byte_ptr & 0x80) {
