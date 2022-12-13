@@ -1214,19 +1214,19 @@ static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_inf
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static guint sip_is_packet_resend(packet_info *pinfo,
-                gchar* cseq_method,
+                const char *cseq_method,
                 gchar* call_id,
                 guchar cseq_number_set, guint32 cseq_number,
                 line_type_t line_type);
 
 static guint sip_find_request(packet_info *pinfo,
-                gchar* cseq_method,
+                const char *cseq_method,
                 gchar* call_id,
                 guchar cseq_number_set, guint32 cseq_number,
                 guint32 *response_time);
 
 static guint sip_find_invite(packet_info *pinfo,
-                gchar* cseq_method,
+                const char *cseq_method,
                 gchar* call_id,
                 guchar cseq_number_set, guint32 cseq_number,
                 guint32 *response_time);
@@ -1328,7 +1328,7 @@ typedef struct
 {
     guint32             cseq;
     transaction_state_t transaction_state;
-    gchar               method[MAX_CSEQ_METHOD_SIZE];
+    const char         *method;
     nstime_t            request_time;
     guint32             response_code;
     gint                frame_number;
@@ -3425,7 +3425,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0, contacts_expires_0 = 0, contacts_expires_unknown = 0;
     guint32 cseq_number = 0;
     guchar  cseq_number_set = 0;
-    char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
+    const char *cseq_method = "";
     char   *call_id = NULL;
     gchar  *media_type_str_lower_case = NULL;
     http_message_info_t message_info = { SIP_DATA, NULL, NULL, NULL };
@@ -4083,25 +4083,19 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         strlen_to_copy = (int)value_len-sub_value_offset;
                         if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
                             /* Note the error in the protocol tree */
-                            if (hdr_tree) {
-                                proto_tree_add_string_format(hdr_tree,
+                            proto_tree_add_string_format(hdr_tree,
                                                              hf_header_array[hf_index], tvb,
                                                              offset, next_offset - offset,
                                                              value+sub_value_offset, "%s String too big: %d bytes",
                                                              sip_headers[POS_CSEQ].name,
                                                              strlen_to_copy);
-                            }
                             return offset - orig_offset;
                         }
                         else {
-                            (void) g_strlcpy(cseq_method, value+sub_value_offset, MAX_CSEQ_METHOD_SIZE);
-
                             /* Add CSeq method to the tree */
-                            if (cseq_tree)
-                            {
-                                proto_tree_add_item(cseq_tree, hf_sip_cseq_method, tvb,
-                                                    value_offset + sub_value_offset, strlen_to_copy, ENC_UTF_8);
-                            }
+                            proto_tree_add_item_ret_string(cseq_tree, hf_sip_cseq_method, tvb,
+                                                    value_offset + sub_value_offset, strlen_to_copy, ENC_UTF_8,
+                                                    pinfo->pool, (const guint8 **)&cseq_method);
                         }
                     }
                     break;
@@ -5248,7 +5242,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 /* Check to see if this packet is a resent request.  Return value is the frame number
    of the original frame this packet seems to be resending (0 = no resend). */
 guint sip_is_packet_resend(packet_info *pinfo,
-            gchar *cseq_method,
+            const char *cseq_method,
             gchar *call_id,
             guchar cseq_number_set,
             guint32 cseq_number, line_type_t line_type)
@@ -5326,7 +5320,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         if (cseq_number != p_val->cseq)
         {
             p_val->cseq = cseq_number;
-            (void) g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
+            p_val->method = cseq_method;
             p_val->transaction_state = nothing_seen;
             p_val->frame_number = 0;
             if (line_type == REQUEST_LINE)
@@ -5355,7 +5349,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         }
 
         p_val->cseq = cseq_number;
-        (void) g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
+        p_val->method = cseq_method;
         p_val->transaction_state = nothing_seen;
         if (line_type == REQUEST_LINE)
         {
@@ -5446,7 +5440,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 /* Check to see if this packet is a resent request.  Return value is the frame number
    of the original frame this packet seems to be resending (0 = no resend). */
 guint sip_find_request(packet_info *pinfo,
-            gchar *cseq_method,
+            const char *cseq_method,
             gchar *call_id,
             guchar cseq_number_set,
             guint32 cseq_number,
@@ -5558,7 +5552,7 @@ guint sip_find_request(packet_info *pinfo,
  * Find the initial INVITE to calculate the total setup time
  */
 guint sip_find_invite(packet_info *pinfo,
-            gchar *cseq_method _U_,
+            const char *cseq_method _U_,
             gchar *call_id,
             guchar cseq_number_set,
             guint32 cseq_number _U_,
