@@ -4,6 +4,11 @@
 # https://editorconfig.org/
 #
 
+# packet-ncp2222.inc
+[*.inc]
+indent_style = space
+indent_size = 4
+
 [file-file.[ch]]
 indent_style = tab
 indent_size = tab
