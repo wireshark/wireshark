@@ -1036,7 +1036,7 @@ static int process_buffer_response_ios_xe_16(ssh_channel channel, guint8* packet
 					if (read_packets > *processed_packets) {
 						int err;
 						gint64 cur_time = g_get_real_time();
-						guint64 bytes_written;
+						guint64 bytes_written = 0;
 
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
