@@ -1696,8 +1696,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
             proto_tree_add_int(result_tree, hf_block_ciphersuite_result_item_length, tvb, offset, sdnv_length, result_item_length);
             if (ei) {
                 proto_tree_add_expert(result_tree, pinfo, ei, tvb, offset, -1);
-                offset = tvb_reported_length_remaining(tvb, offset);
-                break;
+                *lastheader = TRUE;
+                return offset;
             }
             offset += sdnv_length;
 
