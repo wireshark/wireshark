@@ -99,7 +99,7 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
             treeView->setExpanded(index, true);
             index = index.parent();
         }
-    } else {
+    } else if (item->isCheckable()) {
         item->setCheckState(Qt::Unchecked);
     }
 }
