@@ -15,8 +15,8 @@
  * RFC9000 QUIC: A UDP-Based Multiplexed and Secure Transport
  * RFC9001 Using TLS to Secure QUIC
  * RFC8889 Version-Independent Properties of QUIC
- * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-06
- * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-01
+ * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-14
+ * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-10
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -29,7 +29,7 @@
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
  * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30, draft-31, draft-32,
- * draft-33, draft-34, v1, v2-draft-01
+ * draft-33, draft-34, v1, v2-draft-10
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -519,16 +519,14 @@ static inline guint8 quic_draft_version(guint32 version) {
         return 34;
     }
     /* QUIC Version 2 */
-    /* TODO: for the time being use 100 as a number for V2 and let
-       see how v2 drafts evolve */
-    if (version == 0x709A50C4) {
+    if (version == 0x6b3343cf) {
        return 100;
     }
     return 0;
 }
 
 static inline gboolean is_quic_v2(guint32 version) {
-    return version == 0x709A50C4;
+    return version == 0x6b3343cf;
 }
 
 static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
@@ -595,7 +593,8 @@ const range_string quic_version_vals[] = {
     { 0xff000022, 0xff000022, "draft-34" },
     /* QUICv2 */
     { 0xff020000, 0xff020000, "v2-draft-00" }, /* Never used; not really supported */
-    { 0x709A50C4, 0x709A50C4, "v2-draft-01" },
+    { 0x709A50C4, 0x709A50C4, "v2-draft-01" }, /* Never used; not really supported */
+    { 0x6b3343cf, 0x6b3343cf, "2" },
     { 0, 0, NULL }
 };
 
@@ -743,9 +742,9 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x000e, 0x000e, "KEY_UPDATE_ERROR" },
     { 0x000f, 0x000f, "AEAD_LIMIT_REACHED" },
     { 0x0010, 0x0010, "NO_VIABLE_PATH" },
+    { 0x0011, 0x0011, "VERSION_NEGOTIATION_ERROR" },
     { 0x0100, 0x01ff, "CRYPTO_ERROR" },
     /* 0x40 - 0x3fff Assigned via Specification Required policy. */
-    { 0x53F8, 0x53F8, "VERSION_NEGOTIATION_ERROR" },
     { 0, 0, NULL }
 };
 
@@ -2898,9 +2897,9 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
         0x7a, 0x4e, 0xde, 0xf4, 0xe7, 0xcc, 0xee, 0x5f, 0xa4, 0x50,
         0x6c, 0x19, 0x12, 0x4f, 0xc8, 0xcc, 0xda, 0x6e, 0x03, 0x3d
     };
-    static const guint8 handshake_salt_v2_draft_00[20] = {
-        0xa7, 0x07, 0xc2, 0x03, 0xa5, 0x9b, 0x47, 0x18, 0x4a, 0x1d,
-        0x62, 0xca, 0x57, 0x04, 0x06, 0xea, 0x7a, 0xe3, 0xe5, 0xd3
+    static const guint8 handshake_salt_v2[20] = {
+        0x0d, 0xed, 0xe3, 0xde, 0xf7, 0x00, 0xa6, 0xdb, 0x81, 0x93,
+        0x81, 0xbe, 0x6e, 0x26, 0x9d, 0xcb, 0xf9, 0xbd, 0x2e, 0xd9
     };
 
     gcry_error_t    err;
@@ -2928,7 +2927,7 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_v1, sizeof(handshake_salt_v1),
                            cid->cid, cid->len, secret);
     } else {
-        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_v2_draft_00, sizeof(handshake_salt_v2_draft_00),
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_v2, sizeof(handshake_salt_v2),
                            cid->cid, cid->len, secret);
     }
     if (err) {
@@ -3397,9 +3396,9 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
         0xcc, 0xce, 0x18, 0x7e, 0xd0, 0x9a, 0x09, 0xd0,
         0x57, 0x28, 0x15, 0x5a, 0x6c, 0xb9, 0x6b, 0xe1
     };
-    static const guint8 key_v2_draft_00[] = {
-        0xba, 0x85, 0x8d, 0xc7, 0xb4, 0x3d, 0xe5, 0xdb,
-        0xf8, 0x76, 0x17, 0xff, 0x4a, 0xb2, 0x53, 0xdb
+    static const guint8 key_v2[] = {
+        0x8f, 0xb4, 0xb0, 0x1b, 0x56, 0xac, 0x48, 0xe2,
+        0x60, 0xfb, 0xcb, 0xce, 0xad, 0x7c, 0xcc, 0x92
     };
     static const guint8 nonce_draft_29[] = {
         0xe5, 0x49, 0x30, 0xf9, 0x7f, 0x21, 0x36, 0xf0, 0x53, 0x0a, 0x8c, 0x1c
@@ -3411,8 +3410,8 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
     static const guint8 nonce_draft_25[] = {
         0x4d, 0x16, 0x11, 0xd0, 0x55, 0x13, 0xa5, 0x52, 0xc5, 0x87, 0xd5, 0x75,
     };
-    static const guint8 nonce_v2_draft_00[] = {
-        0x14, 0x1b, 0x99, 0xc2, 0x39, 0xb0, 0x3e, 0x78, 0x5d, 0x6a, 0x2e, 0x9f
+    static const guint8 nonce_v2[] = {
+        0xd8, 0x69, 0x69, 0xbc, 0x2d, 0x7c, 0x6d, 0x99, 0x90, 0xef, 0xb0, 0x4a
     };
     gcry_cipher_hd_t    h = NULL;
     gcry_error_t        err;
@@ -3429,7 +3428,7 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
     } else if (is_quic_draft_max(version, 34)) {
        err = gcry_cipher_setkey(h, key_v1, sizeof(key_v1));
     } else {
-       err = gcry_cipher_setkey(h, key_v2_draft_00, sizeof(key_v2_draft_00));
+       err = gcry_cipher_setkey(h, key_v2, sizeof(key_v2));
     }
     DISSECTOR_ASSERT_HINT(err == 0, "set key");
     if (is_quic_draft_max(version, 28)) {
@@ -3439,7 +3438,7 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
     } else if (is_quic_draft_max(version, 34)) {
         err = gcry_cipher_setiv(h, nonce_v1, sizeof(nonce_v1));
     } else {
-        err = gcry_cipher_setiv(h, nonce_v2_draft_00, sizeof(nonce_v2_draft_00));
+        err = gcry_cipher_setiv(h, nonce_v2, sizeof(nonce_v2));
     }
     DISSECTOR_ASSERT_HINT(err == 0, "set nonce");
     G_STATIC_ASSERT(sizeof(odcid->len) == 1);
