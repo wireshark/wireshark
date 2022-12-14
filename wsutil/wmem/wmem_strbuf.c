@@ -128,12 +128,12 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
     }
 
     append_len = strlen(str);
-
     wmem_strbuf_grow(strbuf, append_len);
 
-    (void) g_strlcpy(&strbuf->str[strbuf->len], str, WMEM_STRBUF_RAW_ROOM(strbuf));
-
-    strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_size - 1);
+    ASSERT(WMEM_STRBUF_RAW_ROOM(strbuf) >= append_len + 1);
+    memcpy(&strbuf->str[strbuf->len], str, append_len);
+    strbuf->len += append_len;
+    strbuf->str[strbuf->len] = '\0';
 }
 
 void
@@ -212,11 +212,9 @@ wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c)
 {
     wmem_strbuf_grow(strbuf, 1);
 
-    if (WMEM_STRBUF_ROOM(strbuf) >= 1) {
-        strbuf->str[strbuf->len] = c;
-        strbuf->len++;
-        strbuf->str[strbuf->len] = '\0';
-    }
+    strbuf->str[strbuf->len] = c;
+    strbuf->len++;
+    strbuf->str[strbuf->len] = '\0';
 }
 
 void
@@ -229,11 +227,9 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
 
     wmem_strbuf_grow(strbuf, charlen);
 
-    if (WMEM_STRBUF_ROOM(strbuf) >= charlen) {
-        memcpy(&strbuf->str[strbuf->len], buf, charlen);
-        strbuf->len += charlen;
-        strbuf->str[strbuf->len] = '\0';
-    }
+    memcpy(&strbuf->str[strbuf->len], buf, charlen);
+    strbuf->len += charlen;
+    strbuf->str[strbuf->len] = '\0';
 }
 
 void
@@ -256,13 +252,11 @@ wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t ch)
 {
     wmem_strbuf_grow(strbuf, HEX_CODELEN * 1);
 
-    if (WMEM_STRBUF_ROOM(strbuf) >= HEX_CODELEN * 1) {
-        strbuf->str[strbuf->len++] = '\\';
-        strbuf->str[strbuf->len++] = 'x';
-        strbuf->str[strbuf->len++] = hex[(ch >> 4) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >> 0) & 0xF];
-        strbuf->str[strbuf->len] = '\0';
-    }
+    strbuf->str[strbuf->len++] = '\\';
+    strbuf->str[strbuf->len++] = 'x';
+    strbuf->str[strbuf->len++] = hex[(ch >> 4) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >> 0) & 0xF];
+    strbuf->str[strbuf->len] = '\0';
 }
 
 #define BMP_CODELEN 6
@@ -272,15 +266,13 @@ void append_hex_bmp(wmem_strbuf_t *strbuf, gunichar ch)
 {
     wmem_strbuf_grow(strbuf, BMP_CODELEN * 1);
 
-    if (WMEM_STRBUF_ROOM(strbuf) >= BMP_CODELEN * 1) {
-        strbuf->str[strbuf->len++] = '\\';
-        strbuf->str[strbuf->len++] = 'u';
-        strbuf->str[strbuf->len++] = hex[(ch >> 12) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >>  8) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >>  4) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >>  0) & 0xF];
-        strbuf->str[strbuf->len] = '\0';
-    }
+    strbuf->str[strbuf->len++] = '\\';
+    strbuf->str[strbuf->len++] = 'u';
+    strbuf->str[strbuf->len++] = hex[(ch >> 12) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >>  8) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >>  4) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >>  0) & 0xF];
+    strbuf->str[strbuf->len] = '\0';
 }
 
 #define ANY_CODELEN 10
@@ -290,19 +282,17 @@ void append_hex_any(wmem_strbuf_t *strbuf, gunichar ch)
 {
     wmem_strbuf_grow(strbuf, ANY_CODELEN * 1);
 
-    if (WMEM_STRBUF_ROOM(strbuf) >= ANY_CODELEN * 1) {
-        strbuf->str[strbuf->len++] = '\\';
-        strbuf->str[strbuf->len++] = 'U';
-        strbuf->str[strbuf->len++] = hex[(ch >> 28) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >> 24) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >> 20) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >> 16) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >> 12) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >>  8) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >>  4) & 0xF];
-        strbuf->str[strbuf->len++] = hex[(ch >>  0) & 0xF];
-        strbuf->str[strbuf->len] = '\0';
-    }
+    strbuf->str[strbuf->len++] = '\\';
+    strbuf->str[strbuf->len++] = 'U';
+    strbuf->str[strbuf->len++] = hex[(ch >> 28) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >> 24) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >> 20) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >> 16) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >> 12) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >>  8) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >>  4) & 0xF];
+    strbuf->str[strbuf->len++] = hex[(ch >>  0) & 0xF];
+    strbuf->str[strbuf->len] = '\0';
 }
 
 size_t
