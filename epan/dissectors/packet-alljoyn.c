@@ -847,11 +847,11 @@ static void add_padding_item(gint padding_start, gint padding_end, tvbuff_t *tvb
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
  *         we update as we dissect the packet.
- * @param header_item, if not NULL, is appended with the text name of the data type.
+ * @param header_item if not NULL, is appended with the text name of the data type.
  * @param encoding indicates big (ENC_BIG_ENDIAN) or little (ENC_LITTLE_ENDIAN)
  * @param offset is the offset into tvb to get the field from.
  * @param field_tree is the tree to which this argument should be attached.
- * @param is_reply_to, if TRUE, means this uint32 value should be used to update
+ * @param is_reply_to if TRUE, means this uint32 value should be used to update
  *         header_item and pinfo->cinfo with a special message.
  * @param type_id is the type of this argument.
  * @param field_code is the type of header, or HDR_INVALID if not used, which this
@@ -1285,7 +1285,7 @@ parse_arg(tvbuff_t      *tvb,
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
  *         we update as we dissect the packet.
- * @param header_item is the subtree that we connect data items to.
+ * @param header_tree is the subtree that we connect data items to.
  * @param encoding indicates big (ENC_BIG_ENDIAN) or little (ENC_LITTLE_ENDIAN)
  * @param offset is the offset into tvb to get the field from.
  *         endianness.
