@@ -162,6 +162,7 @@ static gint ett_ocp1 = -1;
 static gint ett_ocp1_pdu = -1;
 static gint ett_ocp1_keepalive = -1;
 static gint ett_ocp1_message_method = -1;
+static gint ett_ocp1_context = -1;
 static gint ett_ocp1_event_data = -1;
 static gint ett_ocp1_event_method = -1;
 static gint ett_ocp1_params = -1;
@@ -616,6 +617,7 @@ decode_params_OcaBlob(tvbuff_t *tvb, guint offset, proto_tree *tree, char *fname
 
     return offset_m - offset;
 }
+
 static int
 decode_params_OcaBlobFixedLen(tvbuff_t *tvb, guint offset, guint length, proto_tree *tree, char *fname)
 {
@@ -2371,8 +2373,8 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
 static int
 dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree, guint msg_counter)
 {
-    proto_tree *message_tree, *method_tree, *eventdata_tree, *eventid_tree;
-    proto_item *ti, *tf, *te, *teid, *t_occ;
+    proto_tree *message_tree, *context_tree, *method_tree, *eventdata_tree, *eventid_tree;
+    proto_item *ti, *tf, *te, *teid, *t_occ, *ti_context;
 
     message_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_ocp1_keepalive, &ti, "Notification Message %d", msg_counter);
 
@@ -2398,8 +2400,9 @@ dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tre
     proto_tree_add_item(message_tree, hf_ocp1_message_parameter_count, tvb, offset_m, 1, ENC_BIG_ENDIAN);
     offset_m += 1;
 
-    proto_tree_add_item(message_tree, hf_ocp1_notification_parameter_context, tvb, offset_m, 4, ENC_BIG_ENDIAN);
-    offset_m += 4;
+    ti_context = proto_tree_add_item(message_tree, hf_ocp1_notification_parameter_context, tvb, offset_m, tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN) + 2, ENC_NA);
+    context_tree = proto_item_add_subtree(ti_context, ett_ocp1_context);
+    offset_m += decode_params_OcaBlob(tvb, offset_m, context_tree, "Context");
 
     eventdata_tree = proto_tree_add_subtree(message_tree, tvb, offset_m, length-(offset_m - offset), ett_ocp1_event_data, &te, "Event Data");
     proto_tree_add_item(eventdata_tree, hf_ocp1_message_emitter_ono, tvb, offset_m, 4, ENC_BIG_ENDIAN);
@@ -2895,7 +2898,7 @@ proto_register_ocp1(void)
         /* Notification */
         { &hf_ocp1_notification_parameter_context,
             { "Context", "ocp1.context",
-            FT_UINT32, BASE_DEC_HEX,
+            FT_BYTES, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
@@ -3279,6 +3282,7 @@ proto_register_ocp1(void)
         &ett_ocp1_pdu,
         &ett_ocp1_keepalive,
         &ett_ocp1_message_method,
+        &ett_ocp1_context,
         &ett_ocp1_event_data,
         &ett_ocp1_event_method,
         &ett_ocp1_params,
