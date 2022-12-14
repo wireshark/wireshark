@@ -637,12 +637,12 @@ See {wireshark-wiki-url}FuzzTesting for details.
 
 When you're satisfied with your changes (and obtained any necessary
 approval from your organization) you can upload them for review at
-{wireshark-code-review-url}. This requires a Gitlab account
+{wireshark-code-review-url}. This requires a GitLab account
 as described at <<ChSrcGitRepository>>.
 
 You need to fork your repository which will became yours, and you will have write access to it. Once
 you are done with your changes, push them to a branch of your choice (as snowcone-machine). Now in the
-Gitlab's UI a message will tell you that you created a new branch and a button to create a merge request.
+GitLab's UI a message will tell you that you created a new branch and a button to create a merge request.
 
 
 [source,sh]
