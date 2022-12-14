@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wsutil/bits_ctz.h>
+#include <wsutil/str_util.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
@@ -951,11 +952,8 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
         "outliner"
     };
 
-    const gint max_len = 128;
-
     proto_tree  *field_tree;
-
-    gchar   *complex = (gchar *)wmem_alloc(pinfo->pool, max_len);
+    gchar   *complex;
     guint8  tag;
 
     if ((tree) && (ettindex != -1)) {
@@ -977,11 +975,11 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
         lang_str[1] = tvb_get_guint8(tvb, *offset + 2);
         lang_str[2] = '\0';
 
-        snprintf(complex, max_len, "<%s>%s, %s</%s>", tag_name[tag_charset], lang_str, charset_str, tag_name[tag_charset]);
+        complex = wmem_strdup_printf(pinfo->pool, "<%s>%s, %s</%s>", tag_name[tag_charset], lang_str, charset_str, tag_name[tag_charset]);
     }
     else if (tag == tag_icon) {
         /* TODO: */
-        snprintf(complex, max_len, "<%s>FixMe</%s>", tag_name[tag_icon], tag_name[tag_icon]);
+        complex = wmem_strdup_printf(pinfo->pool, "<%s>FixMe</%s>", tag_name[tag_icon], tag_name[tag_icon]);
     }
     else {
         gchar *str;
@@ -989,15 +987,13 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
         str = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, *offset+1, length-1, ENC_ASCII|ENC_NA);
         /* Handles all string type XML tags. */
         if (tag <= tag_icon_url) {
-            snprintf(complex, max_len, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);
+            complex = wmem_strdup_printf(pinfo->pool, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);
         }
         else {
-            snprintf(complex, max_len, "<%s>%s</%s>", tag_name[0], str, tag_name[0]);
+            complex = wmem_strdup_printf(pinfo->pool, "<%s>%s</%s>", tag_name[0], str, tag_name[0]);
         }
     }
-    if (tree) {
-        proto_tree_add_string(field_tree, hf_zbee_zdp_complex, tvb, *offset, length, complex);
-    }
+    proto_tree_add_string(field_tree, hf_zbee_zdp_complex, tvb, *offset, length, complex);
     *offset += (length);
 } /* zdp_parse_complex_desc */
 
