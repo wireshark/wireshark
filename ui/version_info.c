@@ -208,18 +208,24 @@ get_compiled_version_info(gather_feature_func gather_compile)
 #endif
 
 #ifdef WS_DISABLE_DEBUG
-	g_string_append(str, ", release build");
+	g_string_append(str, ", release build (");
+#else
+	g_string_append(str, ", debug build (");
 #endif
 
 #ifdef WS_DISABLE_ASSERT
-	g_string_append(str, ", without assertions");
+	g_string_append(str, "-assert");
+#else
+	g_string_append(str, "+assert");
 #endif
 
 #ifdef WS_DEBUG_UTF_8
-	g_string_append(str, ", with UTF-8 validation");
+	g_string_append(str, " +utf8");
+#else
+	g_string_append(str, " -utf8");
 #endif
 
-	g_string_append(str, ".");
+	g_string_append(str, ").");
 	end_string(str);
 	free_features(&l);
 

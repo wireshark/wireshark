@@ -49,16 +49,6 @@ extern "C" {
 #define WS_UTF_8_DEBUG_HERE(str, len) \
   _CHECK_UTF_8(LOG_LEVEL_ECHO, str, len)
 
-#define WS_UTF_8_SANITIZE_STRBUF(buf) \
-  do {                                                      \
-    const char *__uni_endptr;                               \
-    if (!wmem_strbuf_utf8_validate(buf, &__uni_endptr)) {   \
-      ws_log_utf8(buf->str, buf->len, __uni_endptr);        \
-      wmem_strbuf_utf8_make_valid(buf);                     \
-    }                                                       \
-  } while (0)
-
-
 WSUTIL_EXPORT
 int ws_utf8_seqlen[256];
 
