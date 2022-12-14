@@ -26,6 +26,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/pci-ids.h>
+#include <epan/charsets.h>
 #include <epan/dissectors/packet-mctp.h>
 
 void proto_reg_handoff_ncsi(void);
@@ -513,14 +514,10 @@ dissect_ncsi_aen(tvbuff_t *tvb, proto_tree *tree)
 static const gchar *
 ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
 {
-    int     length = 16; /* MM.mm.uu.aa.bb */
     guint8  octet;
     int     i;
-    char   *digit_str;
+    char    digit_str[16]; /* MM.mm.uu.aa.bb */
     int     str_offset = 0;
-
-
-    digit_str = (char *)wmem_alloc(wmem_packet_scope(), length);
 
     for (i = 0 ; i < 3; i++) {
         octet = tvb_get_guint8(tvb, offset + i);
@@ -552,7 +549,7 @@ ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
     }
 
     digit_str[str_offset] = '\0';
-    return digit_str;
+    return get_utf_8_string(wmem_packet_scope(), digit_str, (int)strlen(digit_str));
 
 }
 
@@ -907,7 +904,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (plen >= 40) { /*  We got complete payload*/
             const gchar *ver_str;
             proto_tree  *ncsi_ver_tree;
-            gchar fw_name[13];
+            gchar *fw_name;
             guint16 vid, did, svid, ssid;
 
             ncsi_ver_tree = proto_tree_add_subtree(ncsi_payload_tree, tvb, 20,
@@ -915,8 +912,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ver_str = ncsi_bcd_dig_to_str(tvb, 20);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_ver, tvb, 20, 8, ver_str);
 
-            tvb_memcpy(tvb, fw_name, 28, 12);
-            fw_name[12] = 0;
+            fw_name = tvb_get_string_enc(pinfo->pool, tvb, 28, 12, ENC_ASCII);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_name, tvb, 28, 12, fw_name);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_ver, tvb, 40, 4, ncsi_fw_version(tvb, 40));
 
