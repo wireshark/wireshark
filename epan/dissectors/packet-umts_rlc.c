@@ -1695,7 +1695,7 @@ dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
 
 static void
-rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
+rlc_um_reassemble(tvbuff_t *tvb, guint16 offs, packet_info *pinfo, proto_tree *tree,
           proto_tree *top_level, enum rlc_channel_type channel, guint16 seq,
           struct rlc_li *li, guint16 num_li, gboolean li_is_on_2_bytes,
           struct atm_phdr *atm)
@@ -1922,7 +1922,8 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     guint32        orig_num;
     guint8         seq;
     guint8         ext;
-    guint8         next_byte, offs = 0;
+    guint8         next_byte;
+    guint16        offs = 0;
     gint16         cur_tb, num_li  = 0;
     gboolean       is_truncated, li_is_on_2_bytes;
     proto_item    *truncated_ti;
@@ -2014,7 +2015,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 offset)
+dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint16 offset)
 {
     guint8      sufi_type, bits;
     guint64     len, sn, wsn, lsn, l;
@@ -2240,7 +2241,7 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
+rlc_am_reassemble(tvbuff_t *tvb, guint16 offs, packet_info *pinfo,
           proto_tree *tree, proto_tree *top_level,
           enum rlc_channel_type channel, guint16 seq, gboolean poll_set, struct rlc_li *li,
           guint16 num_li, gboolean final, gboolean li_is_on_2_bytes,
@@ -2333,11 +2334,11 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     fp_info       *fpinf;
     rlc_info      *rlcinf;
     guint8         ext, dc;
-    guint8         next_byte, offs = 0;
+    guint8         next_byte;
     guint32        orig_num        = 0;
     gint16         num_li          = 0;
     gint16         cur_tb;
-    guint16        seq;
+    guint16        seq, offs       = 0;
     gboolean       is_truncated, li_is_on_2_bytes;
     proto_item    *truncated_ti, *ti;
     guint64        polling;
