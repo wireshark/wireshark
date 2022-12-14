@@ -13,6 +13,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/str_util.h>
 
 void proto_register_AllJoyn(void);
 void proto_reg_handoff_AllJoyn(void);
@@ -730,6 +731,7 @@ append_struct_signature(proto_item   *item,
     int    depth            = 0;
     guint8 type_start;
     gint   signature_length = 0;
+    char c;
 
     proto_item_append_text(item, "%c", ' ');
     type_start = *signature;
@@ -743,7 +745,8 @@ append_struct_signature(proto_item   *item,
             depth--;
         }
 
-        proto_item_append_text(item, "%c", *signature++);
+        c = *signature++;
+        proto_item_append_text(item, "%c", g_ascii_isprint(c) ? c : '?');
     } while(depth > 0 && ++signature_length < signature_max_length);
 
     if(signature_length >= signature_max_length) {
@@ -967,7 +970,7 @@ parse_arg(tvbuff_t      *tvb,
             }
 
             if(item) {
-                proto_item_append_text(item, " of %d '%c' elements", number_of_items, *sig_saved);
+                proto_item_append_text(item, " of %d '%s' elements", number_of_items, format_char(pinfo->pool, *sig_saved));
             }
         }
         break;
@@ -1176,7 +1179,7 @@ parse_arg(tvbuff_t      *tvb,
 
             /* The signature of the variant has now been taken care of.  So now take care of the variant data. */
             while(((sig_pointer - sig_saved) < (length - 1)) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
-                proto_item_append_text(item, "%c", *sig_pointer);
+                proto_item_append_text(item, "%c", g_ascii_isprint(*sig_pointer) ? *sig_pointer : '?');
 
                 offset = parse_arg(tvb, pinfo, header_item, encoding, offset, tree, is_reply_to,
                                    *sig_pointer, field_code, &sig_pointer, &variant_sig_length, field_starting_offset);
