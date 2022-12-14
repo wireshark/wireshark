@@ -1189,41 +1189,68 @@ void ws_log_write_always_full(const char *domain, enum ws_log_level level,
 }
 
 
+static void
+append_trailer(const char *src, size_t src_length, wmem_strbuf_t *display, wmem_strbuf_t *underline)
+{
+    gunichar ch;
+    size_t hex_len;
+
+    while (src_length > 0) {
+        ch = g_utf8_get_char_validated(src, src_length);
+        if (ch == (gunichar)-1 || ch == (gunichar)-2) {
+            wmem_strbuf_append_hex(display, *src);
+            wmem_strbuf_append_c_count(underline, '^', 4);
+            src += 1;
+            src_length -= 1;
+        }
+        else {
+            if (g_unichar_isprint(ch)) {
+                wmem_strbuf_append_unichar(display, ch);
+                wmem_strbuf_append_c_count(underline, ' ', 1);
+            }
+            else {
+                hex_len = wmem_strbuf_append_hex_unichar(display, ch);
+                wmem_strbuf_append_c_count(underline, ' ', hex_len);
+            }
+            const char *tmp = g_utf8_next_char(src);
+            src_length -= tmp - src;
+            src = tmp;
+        }
+    }
+}
+
+
 static char *
 make_utf8_display(const char *src, size_t src_length, size_t good_length)
 {
-    wmem_strbuf_t *buf;
+    wmem_strbuf_t *display;
+    wmem_strbuf_t *underline;
     gunichar ch;
-    size_t offset = 0;
+    size_t hex_len;
 
-    buf = wmem_strbuf_new(NULL, NULL);
+    display = wmem_strbuf_create(NULL);
+    underline = wmem_strbuf_create(NULL);
 
     for (const char *s = src; s < src + good_length; s = g_utf8_next_char(s)) {
         ch = g_utf8_get_char(s);
 
         if (g_unichar_isprint(ch)) {
-            wmem_strbuf_append_unichar(buf, ch);
-            offset += 1;
+            wmem_strbuf_append_unichar(display, ch);
+            wmem_strbuf_append_c(underline, ' ');
         }
         else {
-            offset += wmem_strbuf_append_hex_unichar(buf, ch);
+            hex_len = wmem_strbuf_append_hex_unichar(display, ch);
+            wmem_strbuf_append_c_count(underline, ' ', hex_len);
         }
     }
 
-    for (size_t pos = good_length; pos < src_length; pos++) {
-        ch = src[pos];
-        wmem_strbuf_append_hex(buf, ch);
-    }
-    wmem_strbuf_append_c(buf, '\n');
+    append_trailer(&src[good_length], src_length - good_length, display, underline);
 
-    for (size_t pos = 0; pos < offset; pos++) {
-        wmem_strbuf_append_c(buf, ' ');
-    }
-    wmem_strbuf_append(buf, "^^^^");
-    for (size_t pos = good_length + 1; pos < src_length; pos++) {
-        wmem_strbuf_append(buf, "~~~~");
-    }
-    return wmem_strbuf_finalize(buf);
+    wmem_strbuf_append_c(display, '\n');
+    wmem_strbuf_append(display, underline->str);
+    wmem_strbuf_destroy(underline);
+
+    return wmem_strbuf_finalize(display);
 }
 
 
