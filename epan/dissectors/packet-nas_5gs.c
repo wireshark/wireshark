@@ -6046,7 +6046,7 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     /* 74    Ciphering key data    Ciphering key data 9.11.3.18C    O    TLV-E    34-n */
     ELEM_OPT_TLV_E(0x74, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CIPHERING_KEY_DATA, NULL);
     /* 75    CAG information list    CAG information list 9.11.3.18A    O    TLV-E    3-n */
-    ELEM_OPT_TLV(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
     /* 1B    Truncated 5G-S-TMSI configuration    Truncated 5G-S-TMSI configuration 9.11.3.70    O    TLV    3 */
     ELEM_OPT_TLV(0x1B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_TRUNCATED_5G_S_TMSI_CONF, NULL);
     /* 1C    Negotiated WUS assistance information    WUS assistance information 9.11.3.71    O    TLV    3-n */
@@ -6108,7 +6108,7 @@ nas_5gs_mm_registration_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /* 69    Rejected NSSAI    Rejected NSSAI 9.11.3.46    O    TLV    4-42 DE_NAS_5GS_MM_REJ_NSSAI*/
     ELEM_OPT_TLV(0x69, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REJ_NSSAI, NULL);
     /* 75    CAG information list    CAG information list 9.11.3.18A    O    TLV-E    3-n */
-    ELEM_OPT_TLV(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
     /* 68    Extended rejected NSSAI    Extended rejected NSSAI 9.11.3.75    O    TLV    4-74 */
     ELEM_OPT_TLV(0x68, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_EXTENDED_REJECTED_NSSAI, NULL);
 
@@ -6254,7 +6254,7 @@ nas_5gs_mm_de_registration_req_ue_term(tvbuff_t *tvb, proto_tree *tree, packet_i
     /* 6D    Rejected NSSAI    Rejected NSSAI 9.11.3.46    O    TLV    4-42 */
     ELEM_OPT_TLV(0x6D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REJ_NSSAI, NULL);
     /* 75    CAG information list    CAG information list 9.11.3.18A    O    TLV-E    3-n */
-    ELEM_OPT_TLV(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
     /* 68    Extended rejected NSSAI    Extended rejected NSSAI 9.11.3.75    O    TLV    4-74 */
     ELEM_OPT_TLV(0x68, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_EXTENDED_REJECTED_NSSAI, NULL);
 
@@ -6351,7 +6351,7 @@ nas_5gs_mm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     /* 6B    T3448 value    GPRS timer 3 9.11.2.4    O    TLV    3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
     /* 75    CAG information list    CAG information list 9.11.3.18A    O    TLV-E    3-n */
-    ELEM_OPT_TLV(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -6407,7 +6407,7 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* 6C    T3447 value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x6c, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447");
     /* 75    C75    CAG information list    CAG information list 9.11.3.18A    O    TLV-E    3-n  */
-    ELEM_OPT_TLV(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_CAG_INFORMATION_LIST, NULL);
     /* 67    UE radio capability ID    UE radio capability ID 9.11.3.68    O    TLV    3-n  */
     ELEM_OPT_TLV(0x67, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* A-    UE radio capability ID deletion indication    UE radio capability ID deletion indication 9.11.3.69    O    TV    1 */
