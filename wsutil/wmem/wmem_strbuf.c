@@ -218,6 +218,17 @@ wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c)
 }
 
 void
+wmem_strbuf_append_c_count(wmem_strbuf_t *strbuf, const gchar c, size_t count)
+{
+    wmem_strbuf_grow(strbuf, count);
+
+    while (count-- > 0) {
+        strbuf->str[strbuf->len++] = c;
+    }
+    strbuf->str[strbuf->len] = '\0';
+}
+
+void
 wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
 {
     gchar buf[6];

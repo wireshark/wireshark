@@ -1112,6 +1112,10 @@ wmem_test_strbuf(void)
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3aq\xC2\xA9");
     g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 13);
 
+    wmem_strbuf_append_c_count(strbuf, '+', 8);
+    g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3aq\xC2\xA9++++++++");
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 21);
+
     wmem_strbuf_truncate(strbuf, 32);
     wmem_strbuf_truncate(strbuf, 24);
     wmem_strbuf_truncate(strbuf, 16);

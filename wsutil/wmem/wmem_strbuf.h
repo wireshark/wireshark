@@ -100,6 +100,10 @@ wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c);
 
 WS_DLL_PUBLIC
 void
+wmem_strbuf_append_c_count(wmem_strbuf_t *strbuf, const gchar c, size_t count);
+
+WS_DLL_PUBLIC
+void
 wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c);
 
 #define wmem_strbuf_append_unichar_repl(buf) \
