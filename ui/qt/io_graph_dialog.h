@@ -47,7 +47,7 @@ class IOGraph : public QObject {
 Q_OBJECT
 public:
     // COUNT_TYPE_* in gtk/io_graph.c
-    enum PlotStyles { psLine, psImpulse, psBar, psStackedBar, psDot, psSquare, psDiamond, psCross, psPlus, psCircle };
+    enum PlotStyles { psLine, psDotLine, psStepLine, psDotStepLine, psImpulse, psBar, psStackedBar, psDot, psSquare, psDiamond, psCross, psPlus, psCircle };
 
     explicit IOGraph(QCustomPlot *parent);
     ~IOGraph();

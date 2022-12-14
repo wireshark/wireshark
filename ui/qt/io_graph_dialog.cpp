@@ -88,6 +88,9 @@ typedef struct _io_graph_settings_t {
 
 static const value_string graph_style_vs[] = {
     { IOGraph::psLine, "Line" },
+    { IOGraph::psDotLine, "Dot Line" },
+    { IOGraph::psStepLine, "Step Line" },
+    { IOGraph::psDotStepLine, "Dot Step Line" },
     { IOGraph::psImpulse, "Impulse" },
     { IOGraph::psBar, "Bar" },
     { IOGraph::psStackedBar, "Stacked Bar" },
@@ -1779,6 +1782,23 @@ void IOGraph::setPlotStyle(int style)
     case psLine:
         if (graph_) {
             graph_->setLineStyle(QCPGraph::lsLine);
+        }
+        break;
+    case psDotLine:
+        if (graph_) {
+            graph_->setLineStyle(QCPGraph::lsLine);
+            graph_->setScatterStyle(QCPScatterStyle::ssDisc);
+        }
+        break;
+    case psStepLine:
+        if (graph_) {
+            graph_->setLineStyle(QCPGraph::lsStepLeft);
+        }
+        break;
+    case psDotStepLine:
+        if (graph_) {
+            graph_->setLineStyle(QCPGraph::lsStepLeft);
+            graph_->setScatterStyle(QCPScatterStyle::ssDisc);
         }
         break;
     case psImpulse:
