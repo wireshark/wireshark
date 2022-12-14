@@ -238,7 +238,7 @@ Each week translations are automatically synchronized with the source code throu
 
 - Pull changes from Transifex by running `tx pull -f`.
 - Run `lupdate` on the ts files.
-- Push and commit on Gerrit.
+- Push and commit on GitLab.
 - Push changes to Transifex by running `tx push`.
 
 ===== Colors And Themes
