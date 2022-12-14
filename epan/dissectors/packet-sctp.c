@@ -5205,6 +5205,7 @@ proto_reg_handoff_sctp(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SCTP, sctp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint_with_preference("udp.port", UDP_TUNNELING_PORT, sctp_handle);
+  dissector_add_uint_with_preference("dtls.port", UDP_TUNNELING_PORT, sctp_handle);
   sctp_cap_handle = create_capture_dissector_handle(capture_sctp, proto_sctp);
   capture_dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_cap_handle);
 }
