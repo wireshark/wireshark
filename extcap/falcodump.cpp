@@ -81,9 +81,8 @@ struct plugin_configuration {
     std::vector<struct config_properties> property_list;
 
     std::string json_config() {
-        json_dumper dumper = {
-            .output_string = g_string_new(NULL),
-        };
+        json_dumper dumper = {};
+        dumper.output_string = g_string_new(NULL);
 
         json_dumper_begin_object(&dumper);
 
@@ -136,7 +135,7 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
     char buf[MAX_AWS_LINELEN];
     char profile[MAX_AWS_LINELEN];
     FILE *aws_fp;
-    std::set<const std::string>profiles;
+    std::set<std::string>profiles;
 
     // Look in files as specified in https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
     char *cred_path = g_strdup(g_getenv("AWS_SHARED_CREDENTIALS_FILE"));
@@ -211,7 +210,7 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
 
 void print_cloudtrail_aws_region_config(int arg_num, const char *display, const char *description) {
     // aws ec2 describe-regions --all-regions --query "Regions[].{Name:RegionName}" --output text
-    std::set<const std::string> regions = {
+    std::set<std::string> regions = {
         "af-south-1",
         "ap-east-1",
         "ap-northeast-1",
@@ -631,7 +630,7 @@ static bool get_plugin_config_schema(const std::shared_ptr<sinsp_plugin> &plugin
                 ws_warning("replacing: %s\n", schema_blob.substr(key_tok->start - 1, val_tok->end - key_tok->start + 2).c_str());
 #endif
                 schema_blob.replace(key_tok->start - 1, val_tok->end - key_tok->start + 2, ref_body);
-            } catch (std::out_of_range) {
+            } catch (std::out_of_range const&) {
                 ws_warning("Unknown reference %s.", key.c_str());
                 return false;
             }
@@ -956,7 +955,7 @@ int main(int argc, char **argv)
             inspector.open_plugin(extcap_conf->interface, plugin_source);
             // scap_dump_open handles "-"
             dumper.open(extcap_conf->fifo, false);
-        } catch (sinsp_exception e) {
+        } catch (sinsp_exception &e) {
             dumper.close();
             ws_warning("%s", e.what());
             goto end;
@@ -971,7 +970,7 @@ int main(int argc, char **argv)
                 }
                 dumper.dump(evt);
                 dumper.flush();
-            } catch (sinsp_exception e) {
+            } catch (sinsp_exception &e) {
                 ws_warning("%s", e.what());
                 goto end;
             }
