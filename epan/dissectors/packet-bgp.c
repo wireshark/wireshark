@@ -78,6 +78,7 @@
 #include <epan/ipproto.h>
 #include <wsutil/str_util.h>
 #include "packet-ip.h"
+#include "packet-tcp.h"
 #include "packet-ldp.h"
 #include "packet-bgp.h"
 #include "packet-eigrp.h"
@@ -10779,10 +10780,11 @@ example 2
     }
 }
 
-static void
+static int
 dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                gboolean first)
+                void *data)
 {
+    gboolean      *first = (gboolean *)data;
     guint16       bgp_len;          /* Message length             */
     guint8        bgp_type;         /* Message type               */
     const char    *typ;             /* Message type (string)      */
@@ -10798,10 +10800,11 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     bgp_type = tvb_get_guint8(tvb, BGP_MARKER_SIZE + 2);
     typ = val_to_str(bgp_type, bgptypevals, "Unknown message type (0x%02x)");
 
-    if (first)
+    if (*first)
         col_add_str(pinfo->cinfo, COL_INFO, typ);
     else
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
+    *first = FALSE;
 
     if (tree) {
         proto_item *ti;
@@ -10845,7 +10848,7 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
         expert_add_info_format(pinfo, ti_len, &ei_bgp_length_invalid, "Length is invalid %u", bgp_len);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     proto_tree_add_item(bgp_tree, hf_bgp_type, tvb, 16 + 2, 1, ENC_BIG_ENDIAN);
@@ -10873,6 +10876,13 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     default:
         break;
     }
+    return tvb_captured_length(tvb);
+}
+
+static guint
+get_bgp_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    return tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
 }
 
 /*
@@ -10882,20 +10892,14 @@ static int
 dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     volatile int  offset = 0;   /* offset into the tvbuff           */
-    gint          reported_length_remaining;
-    guint8        bgp_marker[BGP_MARKER_SIZE];    /* Marker (should be all ones */
     static guchar marker[] = {   /* BGP message marker               */
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     };
     proto_item    *ti;           /* tree item                        */
     proto_tree    *bgp_tree;     /* BGP packet tree                  */
-    guint16       bgp_len;       /* Message length             */
-    int           offset_before;
-    guint         length_remaining;
-    guint         length;
     volatile gboolean first = TRUE;  /* TRUE for the first BGP message in packet */
-    tvbuff_t *volatile next_tvb;
+    tvbuff_t *volatile this_tvb; /* for tcp_dissect_pdus()           */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -10903,166 +10907,47 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*
      * Scan through the TCP payload looking for a BGP marker.
      */
-    while ((reported_length_remaining = tvb_reported_length_remaining(tvb, offset))
-                > 0) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
-         * "reported_length_remaining" is the number of bytes of TCP payload
-         * remaining.  If it's more than the length of a BGP marker,
-         * we check only the number of bytes in a BGP marker.
+         * Start with a quick search for 0xFFFF, then do the heavier
+         * tvb_memeql() once we find it.
          */
-        if (reported_length_remaining > BGP_MARKER_SIZE)
-            reported_length_remaining = BGP_MARKER_SIZE;
-
-        /*
-         * OK, is there a BGP marker starting at the specified offset -
-         * or, at least, the beginning of a BGP marker running to the end
-         * of the TCP payload?
-         *
-         * This will throw an exception if the frame is short; that's what
-         * we want.
-         */
-        tvb_memcpy(tvb, bgp_marker, offset, reported_length_remaining);
-        if (memcmp(bgp_marker, marker, reported_length_remaining) == 0) {
-            /*
-             * Yes - stop scanning and start processing BGP packets.
-             */
+        offset = tvb_find_guint16(tvb, offset, -1, 0xFFFF);
+        if (offset < 0) {
+            /* Didn't find even the start of a marker */
+            return 0;
+        }
+        else if (0 == tvb_memeql(tvb, offset, marker, BGP_MARKER_SIZE)) {
+            /* Found the marker - stop scanning and start processing BGP packets. */
             break;
         }
-
-        /*
-         * No - keep scanning through the tvbuff to try to find a marker.
-         */
-        offset++;
+        else {
+            /* Keep scanning through the tvbuff to try to find a marker. */
+            offset++;
+        }
     }
 
     /*
      * If we skipped any bytes, mark it as a BGP continuation.
      */
     if (offset > 0) {
-        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, offset, ENC_NA);
         bgp_tree = proto_item_add_subtree(ti, ett_bgp);
-
+        proto_item_append_text(bgp_tree, " - Continuation");
         proto_tree_add_item(bgp_tree, hf_bgp_continuation, tvb, 0, offset, ENC_NA);
+
+        /* Don't include the continuation in PDU reassembly */
+        this_tvb = tvb_new_subset_remaining(tvb, offset);
+    }
+    else {
+        this_tvb = tvb;
     }
 
     /*
      * Now process the BGP packets in the TCP payload.
-     *
-     * XXX - perhaps "tcp_dissect_pdus()" should take a starting
-     * offset, in which case we can replace the loop below with
-     * a call to "tcp_dissect_pdus()".
      */
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        /*
-         * This will throw an exception if we don't have any data left.
-         * That's what we want.  (See "tcp_dissect_pdus()", which is
-         * similar.)
-         */
-        length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
-
-        /*
-         * Can we do reassembly?
-         */
-        if (bgp_desegment && pinfo->can_desegment) {
-            /*
-             * Yes - would a BGP header starting at this offset be split
-             * across segment boundaries?
-             */
-            if (length_remaining < BGP_HEADER_SIZE) {
-                /*
-                 * Yes.  Tell the TCP dissector where the data for this message
-                 * starts in the data it handed us and that we need "some more
-                 * data."  Don't tell it exactly how many bytes we need because
-                 * if/when we ask for even more (after the header) that will
-                 * break reassembly.
-                 */
-                pinfo->desegment_offset = offset;
-                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return tvb_captured_length(tvb);
-            }
-        }
-
-        /*
-         * Get the length and type from the BGP header.
-         */
-        bgp_len = tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
-        if (bgp_len < BGP_HEADER_SIZE) {
-            /*
-             * The BGP length doesn't include the BGP header; report that
-             * as an error.
-             */
-            show_reported_bounds_error(tvb, pinfo, tree);
-            return tvb_captured_length(tvb);
-        }
-
-        /*
-         * Can we do reassembly?
-         */
-        if (bgp_desegment && pinfo->can_desegment) {
-            /*
-             * Yes - is the PDU split across segment boundaries?
-             */
-            if (length_remaining < bgp_len) {
-                /*
-                 * Yes.  Tell the TCP dissector where the data for this
-                 * message starts in the data it handed us, and how many
-                 * more bytes we need, and return.
-                 */
-                pinfo->desegment_offset = offset;
-                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return tvb_captured_length(tvb);
-            }
-        }
-
-        /*
-         * Construct a tvbuff containing the amount of the payload we have
-         * available.  Make its reported length the amount of data in the PDU.
-         *
-         * XXX - if reassembly isn't enabled. the subdissector will throw a
-         * BoundsError exception, rather than a ReportedBoundsError exception.
-         * We really want a tvbuff where the length is "length", the reported
-         * length is "plen", and the "if the snapshot length were infinite"
-         * length is the minimum of the reported length of the tvbuff handed
-         * to us and "plen", with a new type of exception thrown if the offset
-         * is within the reported length but beyond that third length, with
-         * that exception getting the "Unreassembled Packet" error.
-         */
-        length = length_remaining;
-        if (length > bgp_len)
-            length = bgp_len;
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, bgp_len);
-
-        /*
-         * Dissect the PDU.
-         *
-         * If it gets an error that means there's no point in
-         * dissecting any more PDUs, rethrow the exception in
-         * question.
-         *
-         * If it gets any other error, report it and continue, as that
-         * means that PDU got an error, but that doesn't mean we should
-         * stop dissecting PDUs within this frame or chunk of reassembled
-         * data.
-         */
-        TRY {
-            dissect_bgp_pdu(next_tvb, pinfo, tree, first);
-        }
-        CATCH_NONFATAL_ERRORS {
-            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-        }
-        ENDTRY;
-
-        first = FALSE;
-
-        /*
-         * Step to the next PDU.
-         * Make sure we don't overflow.
-         */
-        offset_before = offset;
-        offset += bgp_len;
-        if (offset <= offset_before)
-            break;
-    }
+    tcp_dissect_pdus(this_tvb, pinfo, tree, bgp_desegment, BGP_HEADER_SIZE,
+                     get_bgp_len, dissect_bgp_pdu, (void *)&first);
     return tvb_captured_length(tvb);
 }
 
