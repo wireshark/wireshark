@@ -13,11 +13,7 @@
 #include "config.h"
 #include <ui/rtp_media.h>
 
-#ifdef HAVE_SPEEXDSP
 #include <speex/speex_resampler.h>
-#else
-#include "../../speexdsp/speex_resampler.h"
-#endif /* HAVE_SPEEXDSP */
 
 #include <QIODevice>
 #include <QDir>

@@ -25,6 +25,9 @@ A new display filter feature for filtering raw bytes has been added.
 
 Display filter autocomplete is smarter about not suggesting invalid syntax.
 
+The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
+The speex code that was previously bundled has been removed.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 

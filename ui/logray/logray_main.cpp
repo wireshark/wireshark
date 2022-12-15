@@ -225,11 +225,6 @@ gather_wireshark_qt_compiled_info(feature_list l)
     without_feature(l, "AirPcap");
 #endif
 #endif /* _WIN32 */
-#ifdef HAVE_SPEEXDSP
-    with_feature(l, "SpeexDSP (using system library)");
-#else
-    with_feature(l, "SpeexDSP (using bundled resampler)");
-#endif
 
 #ifdef HAVE_MINIZIP
     with_feature(l, "Minizip");

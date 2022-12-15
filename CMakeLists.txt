@@ -1327,19 +1327,7 @@ find_package(DOXYGEN)
 
 # The SpeexDSP resampler is required iff building wireshark or sharkd.
 if(BUILD_wireshark OR BUILD_logray OR BUILD_sharkd)
-	# We don't provide a binary package for SpeexDSP in our repository.
-	# If using the repository don't bother searching for a system SpeexDSP
-	# installation and just use the bundled resampler code instead.
-	if (NOT USE_REPOSITORY)
-		find_package(SpeexDSP)
-	endif()
-	if(SpeexDSP_FOUND)
-		set(HAVE_SPEEXDSP 1)
-	else()
-		add_subdirectory(speexdsp)
-		set(SPEEXDSP_INCLUDE_DIRS "")
-		set(SPEEXDSP_LIBRARIES "speexresampler")
-	endif()
+	find_package(SpeexDSP REQUIRED)
 endif()
 
 # Generate the distribution tarball.
@@ -2171,6 +2159,9 @@ if(USE_REPOSITORY)
 			list (APPEND THIRD_PARTY_DLLS "${BROTLI_DLL_DIR}/${_dll}")
 		endforeach(_dll)
 	endif(BROTLI_FOUND)
+	if (SPEEXDSP_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${SPEEXDSP_DLL_DIR}/${SPEEXDSP_DLL}")
+	endif()
 
 	# With libs downloaded to c:/wireshark-win64-libs this currently
 	# (early 2018) expands to about 1900 characters.

@@ -11,11 +11,7 @@
 
 #ifdef QT_MULTIMEDIA_LIB
 
-#ifdef HAVE_SPEEXDSP
 #include <speex/speex_resampler.h>
-#else
-#include "../../speexdsp/speex_resampler.h"
-#endif /* HAVE_SPEEXDSP */
 
 #include <epan/rtp_pt.h>
 #include <epan/to_str.h>

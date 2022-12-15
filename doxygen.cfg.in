@@ -837,7 +837,6 @@ INPUT                  = @DOXYGEN_INPUT_DIRECTORY@/wireshark.dox \
                          @DOXYGEN_INPUT_DIRECTORY@/extcap \
                          @DOXYGEN_INPUT_DIRECTORY@/plugins \
                          @DOXYGEN_INPUT_DIRECTORY@/randpkt_core \
-                         @DOXYGEN_INPUT_DIRECTORY@/speexdsp \
                          @DOXYGEN_INPUT_DIRECTORY@/ui \
                          @DOXYGEN_INPUT_DIRECTORY@/wiretap \
                          @DOXYGEN_INPUT_DIRECTORY@/writecap \
