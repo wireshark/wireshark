@@ -1508,6 +1508,7 @@ static const value_string e_gender_strings[] =  {
 };
 
 typedef enum {
+    AREA_NONE = 0x000,
     AREA_DUN_MOROGH = 0x001,
     AREA_LONGSHORE = 0x002,
     AREA_BADLANDS = 0x003,
@@ -2591,6 +2592,7 @@ typedef enum {
     AREA_RAVENHOLDT_MANOR = 0xD9E,
 } e_area;
 static const value_string e_area_strings[] =  {
+    { AREA_NONE, "None" },
     { AREA_DUN_MOROGH, "Dun Morogh" },
     { AREA_LONGSHORE, "Longshore" },
     { AREA_BADLANDS, "Badlands" },
