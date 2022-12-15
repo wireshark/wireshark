@@ -492,6 +492,9 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SIGNAL(framesSelected(QList<int>)));
 
+    QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));
+    connect(action, &QAction::triggered, this, &LograyMainWindow::addPacketComment);
+    action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     connect(main_ui_->menuPacketComment, SIGNAL(aboutToShow()), this, SLOT(setEditCommentsMenu()));
 
     proto_tree_ = new ProtoTree(&master_split_);
