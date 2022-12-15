@@ -1317,6 +1317,10 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
       sic[i] = '*';
       failure = TRUE;
     }
+    if (!g_ascii_isprint(sic[i])) {
+      sic[i] = '*';
+      failure = TRUE;
+    }
   }
   sic[i] = '\0';
 
