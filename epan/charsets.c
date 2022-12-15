@@ -89,6 +89,132 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
     return (guint8 *) wmem_strbuf_finalize(str);
 }
 
+/* Given a pointer and a length, validates a string of bytes as UTF-8.
+ * Returns the number of valid bytes, and a pointer immediately past
+ * the checked region.
+ *
+ * Differs from Glib's g_utf8_validate_len in that null bytes are
+ * considered valid UTF-8, and that maximal subparts are replaced as
+ * a unit. (I.e., given a sequence of 2 or 3 bytes which are a
+ * truncated version of a 3 or 4 byte UTF-8 character, but the next
+ * byte does not continue the character, the set of 2 or 3 bytes
+ * are replaced with one REPLACMENT CHARACTER.)
+ */
+static inline size_t
+utf_8_validate(const guint8 *start, gint length, const guint8 **end)
+{
+    const guint8 *ptr = start;
+    guint8 ch;
+    size_t unichar_len, valid_bytes = 0;
+
+    while (length > 0) {
+
+        ch = *ptr;
+
+        if (ch < 0x80) {
+            valid_bytes++;
+            ptr++;
+            length--;
+            continue;
+        }
+
+        ch = *ptr;
+
+        if (ch < 0xc2 || ch > 0xf4) {
+            ptr++;
+            length--;
+            *end = ptr;
+            return valid_bytes;
+        }
+
+        if (ch < 0xe0) { /* 110xxxxx, 2 byte char */
+            unichar_len = 2;
+        } else if (ch < 0xf0) { /* 1110xxxx, 3 byte char */
+            unichar_len = 3;
+            ptr++;
+            length--;
+            if (length < 1) {
+                *end = ptr;
+                return valid_bytes;
+            }
+            switch (ch) {
+                case 0xe0:
+                    if (*ptr < 0xa0 || *ptr > 0xbf) {
+                        *end = ptr;
+                        return valid_bytes;
+                    }
+                    break;
+                case 0xed:
+                    if (*ptr < 0x80 || *ptr > 0x9f) {
+                        *end = ptr;
+                        return valid_bytes;
+                    }
+                    break;
+                default:
+                    if (*ptr < 0x80 || *ptr > 0xbf) {
+                        *end = ptr;
+                        return valid_bytes;
+                    }
+            }
+        } else { /* 11110xxx, 4 byte char - > 0xf4 excluded above */
+            unichar_len = 4;
+            ptr++;
+            length--;
+            if (length < 1) {
+                *end = ptr;
+                return valid_bytes;
+            }
+            switch (ch) {
+                case 0xf0:
+                    if (*ptr < 0x90 || *ptr > 0xbf) {
+                        *end = ptr;
+                        return valid_bytes;
+                    }
+                    break;
+                case 0xf4:
+                    if (*ptr < 0x80 || *ptr > 0x8f) {
+                        *end = ptr;
+                        return valid_bytes;
+                    }
+                    break;
+                default:
+                    if (*ptr < 0x80 || *ptr > 0xbf) {
+                        *end = ptr;
+                        return valid_bytes;
+                    }
+            }
+            ptr++;
+            length--;
+            if (length < 1) {
+                *end = ptr;
+                return valid_bytes;
+            }
+            if (*ptr < 0x80 || *ptr > 0xbf) {
+                *end = ptr;
+                return valid_bytes;
+            }
+        }
+
+        ptr++;
+        length--;
+        if (length < 1) {
+            *end = ptr;
+            return valid_bytes;
+        }
+        if (*ptr < 0x80 || *ptr > 0xbf) {
+            *end = ptr;
+            return valid_bytes;
+        } else {
+            ptr++;
+            length--;
+            valid_bytes += unichar_len;
+        }
+
+    }
+    *end = ptr;
+    return valid_bytes;
+}
+
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
  * referred to by the pointer and length as a UTF-8 string, and return a
@@ -103,114 +229,49 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
  * substitutes REPLACEMENT CHARACTER for them. Explicit support for nonstandard
  * derivative encoding formats (e.g. CESU-8, Java Modified UTF-8, WTF-8) could
  * be added later.
+ *
+ * Compared with g_utf8_make_valid(), this function does not consider
+ * internal NUL bytes as invalid and replace them with replacment characters.
+ * It also replaces maximal subparts as a unit; i.e., a sequence of 2 or 3
+ * bytes which are a truncated version of a valid 3 or 4 byte character (but
+ * the next byte does not continue the character) are replaced with a single
+ * REPLACEMENT CHARACTER, whereas the Glib function replaces each byte of the
+ * sequence with its own (3 octet) REPLACEMENT CHARACTER.
+ *
+ * XXX: length should probably be a size_t instead of a gint in all
+ * these encoding functions
+ * XXX: the buffer returned can be of different length than the input,
+ * and can have internal NULs as well (so that strlen doesn't give its
+ * length). As with the other encoding functions, we should return the
+ * length of the output buffer (or a wmem_strbuf_t directly) and an
+ * indication of whether there was an invalid character (i.e.
+ * REPLACEMENT CHARACTER was used.)
  */
 guint8 *
 get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
     wmem_strbuf_t *str;
-    guint8 ch;
-    const guint8 *prev;
+    const guint8 *prev = ptr;
+    size_t valid_bytes = 0;
 
     str = wmem_strbuf_new_sized(scope, length+1);
 
     /* See the Unicode Standard conformance chapter at
-     * https://www.unicode.org/versions/Unicode13.0.0/ch03.pdf especially
+     * https://www.unicode.org/versions/Unicode15.0.0/ch03.pdf especially
      * Table 3-7 "Well-Formed UTF-8 Byte Sequences" and
      * U+FFFD Substitution of Maximal Subparts. */
+
     while (length > 0) {
-        gsize unichar_len;
-        ch = *ptr;
 
-        if (ch < 0x80) {
-            wmem_strbuf_append_c(str, ch);
-        } else if (ch < 0xc2 || ch > 0xf4) {
-            wmem_strbuf_append_unichar_repl(str);
-        } else {
-            prev = ptr;
-            if (ch < 0xe0) { /* 110xxxxx, 2 byte char */
-                unichar_len = 2;
-            } else if (ch < 0xf0) { /* 1110xxxx, 3 byte char */
-                unichar_len = 3;
-                ptr++;
-                length--;
-                if (length < 1) {
-                    wmem_strbuf_append_unichar_repl(str);
-                    continue;
-                }
-                switch (ch) {
-                    case 0xe0:
-                        if (*ptr < 0xa0 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar_repl(str);
-                            continue;
-                        }
-                        break;
-                    case 0xed:
-                        if (*ptr < 0x80 || *ptr > 0x9f) {
-                            wmem_strbuf_append_unichar_repl(str);
-                            continue;
-                        }
-                        break;
-                    default:
-                        if (*ptr < 0x80 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar_repl(str);
-                            continue;
-                        }
-                }
-            } else { /* 11110xxx, 4 byte char - > 0xf4 excluded above */
-                unichar_len = 4;
-                ptr++;
-                length--;
-                if (length < 1) {
-                    wmem_strbuf_append_unichar_repl(str);
-                    continue;
-                }
-                switch (ch) {
-                    case 0xf0:
-                        if (*ptr < 0x90 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar_repl(str);
-                            continue;
-                        }
-                        break;
-                    case 0xf4:
-                        if (*ptr < 0x80 || *ptr > 0x8f) {
-                            wmem_strbuf_append_unichar_repl(str);
-                            continue;
-                        }
-                        break;
-                    default:
-                        if (*ptr < 0x80 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar_repl(str);
-                            continue;
-                        }
-                }
-                ptr++;
-                length--;
-                if (length < 1) {
-                    wmem_strbuf_append_unichar_repl(str);
-                    continue;
-                }
-                if (*ptr < 0x80 || *ptr > 0xbf) {
-                    wmem_strbuf_append_unichar_repl(str);
-                    continue;
-                }
-            }
-
-            ptr++;
-            length--;
-            if (length < 1) {
-                wmem_strbuf_append_unichar_repl(str);
-                continue;
-            }
-            if (*ptr < 0x80 || *ptr > 0xbf) {
-                wmem_strbuf_append_unichar_repl(str);
-                continue;
-            } else {
-                wmem_strbuf_append_len(str, prev, unichar_len);
-            }
+        prev = ptr;
+        valid_bytes = utf_8_validate(prev, length, &ptr);
+        if (valid_bytes) {
+            wmem_strbuf_append_len(str, prev, valid_bytes);
         }
-
-        ptr++;
-        length--;
+        length -= (gint)valid_bytes;
+        if (length) {
+            wmem_strbuf_append_unichar_repl(str);
+        }
     }
 
     return (guint8 *) wmem_strbuf_finalize(str);
