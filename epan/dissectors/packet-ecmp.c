@@ -875,7 +875,7 @@ static void add_attributes(packet_info* pinfo, int offset, tvbuff_t *tvb, proto_
 	guint8 check = 0;
 	guint16 att_length = 0;
 	guint32 color;
-	gchar* pStr = NULL; /*char array for version string output*/
+	wmem_strbuf_t* pStr = NULL; /*char array for version string output*/
 	int start_offset = offset;
 
 	/*display the number of attributes*/
@@ -921,28 +921,26 @@ static void add_attributes(packet_info* pinfo, int offset, tvbuff_t *tvb, proto_
 			case 7:
 				offset++;
 				att_length = tvb_get_ntohs(tvb, offset);
-				pStr = (gchar *)wmem_alloc(wmem_packet_scope(), att_length+1); /* 100 char buffer */
-				b = 0;
+				pStr = wmem_strbuf_create(pinfo->pool);
 				offset+= 2;
 				if (pStr != NULL) {
 					for (c = 0; c < att_length; c++, offset++) {
 						check = tvb_get_guint8(tvb,offset);
-						if((check == 'V')||(check == '#')||(check == '@')) {
-							pStr[b] = ' ';
-							b++;
-						} else if(tvb_get_guint8(tvb,offset)== (';')) {
-							pStr[b] = 0;
+						if (check == 'V' || check == '#' || check == '@') {
+							wmem_strbuf_append_c(pStr, ' ');
+						} else if (check == ';') {
 							/*display version summary parameter, e.g 'FW', 'BL', 'HW'*/
-							proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, pStr);
-							b = 0;
-						} else {
-							pStr[b] = (gchar)tvb_get_guint8(tvb,offset);
-							b++;
+							proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, wmem_strbuf_get_str(pStr));
+							wmem_strbuf_truncate(pStr, 0);
+						} else if (check <= 0x7f) {
+							wmem_strbuf_append_c(pStr, check);
+						}
+						else {
+							wmem_strbuf_append_hex(pStr, check);
 						}
 					}
-					pStr[b] = 0;
 					/*display last version summary parameter, e.g 'FW', 'BL', 'HW' as no deliminator to check for, just prints out rest of version string*/
-					proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, pStr);
+					proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, wmem_strbuf_get_str(pStr));
 					offset-= 1;
 				}
 				break;
