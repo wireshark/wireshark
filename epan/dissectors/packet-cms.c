@@ -62,6 +62,7 @@ static int hf_cms_SMIMECapabilities_PDU = -1;     /* SMIMECapabilities */
 static int hf_cms_SMIMEEncryptionKeyPreference_PDU = -1;  /* SMIMEEncryptionKeyPreference */
 static int hf_cms_RC2CBCParameters_PDU = -1;      /* RC2CBCParameters */
 static int hf_cms_AuthEnvelopedData_PDU = -1;     /* AuthEnvelopedData */
+static int hf_cms_CCMParameters_PDU = -1;         /* CCMParameters */
 static int hf_cms_GCMParameters_PDU = -1;         /* GCMParameters */
 static int hf_cms_FirmwarePkgData_PDU = -1;       /* FirmwarePkgData */
 static int hf_cms_FirmwarePackageIdentifier_PDU = -1;  /* FirmwarePackageIdentifier */
@@ -2559,6 +2560,13 @@ static int dissect_AuthEnvelopedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset = dissect_cms_AuthEnvelopedData(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_AuthEnvelopedData_PDU);
   return offset;
 }
+static int dissect_CCMParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_CCMParameters(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_CCMParameters_PDU);
+  return offset;
+}
 static int dissect_GCMParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2746,6 +2754,10 @@ void proto_register_cms(void) {
         NULL, HFILL }},
     { &hf_cms_AuthEnvelopedData_PDU,
       { "AuthEnvelopedData", "cms.AuthEnvelopedData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_CCMParameters_PDU,
+      { "CCMParameters", "cms.CCMParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cms_GCMParameters_PDU,
@@ -3534,6 +3546,9 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("2.16.840.1.101.3.4.1.6", dissect_GCMParameters_PDU, proto_cms, "id-aes128-GCM");
   register_ber_oid_dissector("2.16.840.1.101.3.4.1.26", dissect_GCMParameters_PDU, proto_cms, "id-aes192-GCM");
   register_ber_oid_dissector("2.16.840.1.101.3.4.1.46", dissect_GCMParameters_PDU, proto_cms, "id-aes256-GCM");
+  register_ber_oid_dissector("2.16.840.1.101.3.4.1.7", dissect_CCMParameters_PDU, proto_cms, "id-aes128-CCM");
+  register_ber_oid_dissector("2.16.840.1.101.3.4.1.27", dissect_CCMParameters_PDU, proto_cms, "id-aes192-CCM");
+  register_ber_oid_dissector("2.16.840.1.101.3.4.1.44", dissect_CCMParameters_PDU, proto_cms, "id-aes256-CCM");
   register_ber_oid_dissector("1.3.133.16.840.63.0.2", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha1kdf-scheme");
   register_ber_oid_dissector("1.3.132.1.11.0", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha224kdf-scheme");
   register_ber_oid_dissector("1.3.132.1.11.1", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha256kdf-scheme");

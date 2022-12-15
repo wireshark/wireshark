@@ -68,6 +68,10 @@ GCMParameters		B "2.16.840.1.101.3.4.1.6"	"id-aes128-GCM"
 GCMParameters		B "2.16.840.1.101.3.4.1.26"	"id-aes192-GCM"
 GCMParameters		B "2.16.840.1.101.3.4.1.46"	"id-aes256-GCM"
 
+CCMParameters		B "2.16.840.1.101.3.4.1.7"	"id-aes128-CCM"
+CCMParameters		B "2.16.840.1.101.3.4.1.27"	"id-aes192-CCM"
+CCMParameters		B "2.16.840.1.101.3.4.1.44"	"id-aes256-CCM"
+
 # EC algorithms from RFC 3278 / RFC 5753
 KeyWrapAlgorithm B "1.3.133.16.840.63.0.2"  "dhSinglePass-stdDH-sha1kdf-scheme"
 KeyWrapAlgorithm B "1.3.132.1.11.0"         "dhSinglePass-stdDH-sha224kdf-scheme"
