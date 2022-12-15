@@ -92,6 +92,7 @@ typedef enum {
     CONVERSATION_MCTP,
     CONVERSATION_NVME_MI,       /* NVMe management interface */
     CONVERSATION_BP,		/* Bundle Protocol endpoint IDs */
+    CONVERSATION_SNMP,		/* SNMP */
 } conversation_type;
 
 /*
@@ -138,6 +139,7 @@ typedef enum {
 #define ENDPOINT_LOG		CONVERSATION_LOG
 #define ENDPOINT_MCTP		CONVERSATION_MCTP
 #define ENDPOINT_NVME_MI	CONVERSATION_NVME_MI
+#define ENDPOINT_SNMP		CONVERSATION_SNMP
 
 typedef conversation_type endpoint_type;
 
