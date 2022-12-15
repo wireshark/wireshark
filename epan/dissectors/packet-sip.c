@@ -5320,7 +5320,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         if (cseq_number != p_val->cseq)
         {
             p_val->cseq = cseq_number;
-            p_val->method = cseq_method;
+            p_val->method = wmem_strdup(wmem_file_scope(), cseq_method);
             p_val->transaction_state = nothing_seen;
             p_val->frame_number = 0;
             if (line_type == REQUEST_LINE)
@@ -5349,7 +5349,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         }
 
         p_val->cseq = cseq_number;
-        p_val->method = cseq_method;
+        p_val->method = wmem_strdup(wmem_file_scope(), cseq_method);
         p_val->transaction_state = nothing_seen;
         if (line_type == REQUEST_LINE)
         {
