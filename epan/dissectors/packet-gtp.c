@@ -11362,17 +11362,17 @@ proto_register_gtp(void)
         },
         { &hf_gtp_qos_arp_pci,
           {"Pre-emption Capability (PCI)", "gtp.qos_arp_pci",
-          FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x40,
+          FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x0040,
           NULL, HFILL}
         },
         { &hf_gtp_qos_arp_pl,
           {"Priority Level", "gtp.qos_arp_pl",
-          FT_UINT16, BASE_DEC, NULL, 0x3c,
+          FT_UINT16, BASE_DEC, NULL, 0x003c,
           NULL, HFILL}
         },
         { &hf_gtp_qos_arp_pvi,
           {"Pre-emption Vulnerability (PVI)", "gtp.qos_arp_pvi",
-          FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x01,
+          FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x0001,
           NULL, HFILL}
         },
         {&hf_gtp_qos_qci,

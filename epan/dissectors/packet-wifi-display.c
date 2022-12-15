@@ -589,7 +589,7 @@ proto_register_wifi_display(void)
     { &hf_wfd_subelem_ext_capab_standby_resume_control,
       { "Standby and Resume Control",
         "wifi_display.subelem.ext_capab.standby_resume_control",
-        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x008, NULL, HFILL }},
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0008, NULL, HFILL }},
     { &hf_wfd_subelem_ext_capab_tdls_persistent,
       { "TDLS Persistent",
         "wifi_display.subelem.ext_capab.tdls_persistent",

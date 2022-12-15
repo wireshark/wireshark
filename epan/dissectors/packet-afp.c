@@ -6705,17 +6705,17 @@ proto_register_afp(void)
 
 		{ &hf_afp_user_bitmap_UID,
 		  { "User ID",         "afp.user_bitmap.UID",
-		    FT_BOOLEAN, 16, NULL, 0x01,
+		    FT_BOOLEAN, 16, NULL, 0x0001,
 		    NULL, HFILL }},
 
 		{ &hf_afp_user_bitmap_GID,
 		  { "Primary group ID",         "afp.user_bitmap.GID",
-		    FT_BOOLEAN, 16, NULL, 0x02,
+		    FT_BOOLEAN, 16, NULL, 0x0002,
 		    NULL, HFILL }},
 
 		{ &hf_afp_user_bitmap_UUID,
 		  { "UUID",         "afp.user_bitmap.UUID",
-		    FT_BOOLEAN, 16, NULL, 0x04,
+		    FT_BOOLEAN, 16, NULL, 0x0004,
 		    NULL, HFILL }},
 
 		{ &hf_afp_message_type,
@@ -6734,12 +6734,12 @@ proto_register_afp(void)
 		 */
 		{ &hf_afp_message_bitmap_REQ,
 		  { "Request message",         "afp.message_bitmap.requested",
-		    FT_BOOLEAN, 16, NULL, 0x01,
+		    FT_BOOLEAN, 16, NULL, 0x0001,
 		    "Message Requested", HFILL }},
 
 		{ &hf_afp_message_bitmap_UTF,
 		  { "Message is UTF-8",         "afp.message_bitmap.utf8",
-		    FT_BOOLEAN, 16, NULL, 0x02,
+		    FT_BOOLEAN, 16, NULL, 0x0002,
 		    NULL, HFILL }},
 
 		{ &hf_afp_message_len,
@@ -6764,17 +6764,17 @@ proto_register_afp(void)
 
 		{ &hf_afp_extattr_bitmap_NoFollow,
 		  { "No follow symlinks",         "afp.extattr_bitmap.nofollow",
-		    FT_BOOLEAN, 16, NULL, 0x01,
+		    FT_BOOLEAN, 16, NULL, 0x0001,
 		    "Do not follow symlink", HFILL }},
 
 		{ &hf_afp_extattr_bitmap_Create,
 		  { "Create",         "afp.extattr_bitmap.create",
-		    FT_BOOLEAN, 16, NULL, 0x02,
+		    FT_BOOLEAN, 16, NULL, 0x0002,
 		    "Create extended attribute", HFILL }},
 
 		{ &hf_afp_extattr_bitmap_Replace,
 		  { "Replace",         "afp.extattr_bitmap.replace",
-		    FT_BOOLEAN, 16, NULL, 0x04,
+		    FT_BOOLEAN, 16, NULL, 0x0004,
 		    "Replace extended attribute", HFILL }},
 
 		{ &hf_afp_extattr_namelen,

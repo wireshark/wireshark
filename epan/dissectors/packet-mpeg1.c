@@ -193,7 +193,7 @@ proto_register_mpeg1(void)
 				FT_BOOLEAN,
 				16,
 				NULL,
-				0x20,
+				0x0020,
 				NULL, HFILL
 			}
 		},
@@ -206,7 +206,7 @@ proto_register_mpeg1(void)
 				FT_BOOLEAN,
 				16,
 				NULL,
-				0x10,
+				0x0010,
 				NULL, HFILL
 			}
 		},
@@ -219,7 +219,7 @@ proto_register_mpeg1(void)
 				FT_BOOLEAN,
 				16,
 				NULL,
-				0x08,
+				0x0008,
 				NULL, HFILL
 			}
 		},

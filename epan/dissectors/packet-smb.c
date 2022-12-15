@@ -19181,23 +19181,23 @@ proto_register_smb(void)
 
 	{ &hf_smb_mac_sup_access_ctrl,
 	  { "Mac Access Control", "smb.mac.access_control", FT_BOOLEAN, 32,
-	    TFS(&tfs_smb_mac_access_ctrl), 0x0010, "Are Mac Access Control Supported", HFILL }},
+	    TFS(&tfs_smb_mac_access_ctrl), 0x00000010, "Are Mac Access Control Supported", HFILL }},
 
 	{ &hf_smb_mac_sup_getset_comments,
 	  { "Get Set Comments", "smb.mac.get_set_comments", FT_BOOLEAN, 32,
-	    TFS(&tfs_smb_mac_getset_comments), 0x0020, "Are Mac Get Set Comments supported?", HFILL }},
+	    TFS(&tfs_smb_mac_getset_comments), 0x00000020, "Are Mac Get Set Comments supported?", HFILL }},
 
 	{ &hf_smb_mac_sup_desktopdb_calls,
 	  { "Desktop DB Calls", "smb.mac.desktop_db_calls", FT_BOOLEAN, 32,
-	    TFS(&tfs_smb_mac_desktopdb_calls), 0x0040, "Are Macintosh Desktop DB Calls Supported?", HFILL }},
+	    TFS(&tfs_smb_mac_desktopdb_calls), 0x00000040, "Are Macintosh Desktop DB Calls Supported?", HFILL }},
 
 	{ &hf_smb_mac_sup_unique_ids,
 	  { "Macintosh Unique IDs", "smb.mac.uids", FT_BOOLEAN, 32,
-	    TFS(&tfs_smb_mac_unique_ids), 0x0080, "Are Unique IDs supported", HFILL }},
+	    TFS(&tfs_smb_mac_unique_ids), 0x00000080, "Are Unique IDs supported", HFILL }},
 
 	{ &hf_smb_mac_sup_streams,
 	  { "Mac Streams", "smb.mac.streams_support", FT_BOOLEAN, 32,
-	    TFS(&tfs_smb_mac_streams), 0x0100, "Are Mac Extensions and streams supported?", HFILL }},
+	    TFS(&tfs_smb_mac_streams), 0x00000100, "Are Mac Extensions and streams supported?", HFILL }},
 
 	{ &hf_smb_create_dos_date,
 		{ "Create Date", "smb.create.smb.date", FT_UINT16, BASE_HEX,
@@ -20400,11 +20400,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_get_dfs_server_hold_storage,
 		{ "Hold Storage", "smb.dfs.flags.server_hold_storage", FT_BOOLEAN, 16,
-		TFS(&tfs_get_dfs_server_hold_storage), 0x02, "The servers in referrals should hold storage for the file", HFILL }},
+	    TFS(&tfs_get_dfs_server_hold_storage), 0x0002, "The servers in referrals should hold storage for the file", HFILL }},
 
 	{ &hf_smb_get_dfs_fielding,
 		{ "Fielding", "smb.dfs.flags.fielding", FT_BOOLEAN, 16,
-		TFS(&tfs_get_dfs_fielding), 0x01, "The servers in referrals are capable of fielding", HFILL }},
+	    TFS(&tfs_get_dfs_fielding), 0x0001, "The servers in referrals are capable of fielding", HFILL }},
 
 	{ &hf_smb_dfs_referral_version,
 		{ "Version", "smb.dfs.referral.version", FT_UINT16, BASE_DEC,

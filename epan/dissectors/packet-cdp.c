@@ -1349,47 +1349,47 @@ proto_register_cdp(void)
 
         { &hf_cdp_capabilities_router,
         {"Router", "cdp.capabilities.router", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000001, NULL, HFILL }},
 
         { &hf_cdp_capabilities_trans_bridge,
         {"Transparent Bridge", "cdp.capabilities.trans_bridge", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x02, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000002, NULL, HFILL }},
 
         { &hf_cdp_capabilities_src_bridge,
         {"Source Route Bridge", "cdp.capabilities.src_bridge", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x04, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000004, NULL, HFILL }},
 
         { &hf_cdp_capabilities_switch,
         {"Switch", "cdp.capabilities.switch", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x08, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000008, NULL, HFILL }},
 
         { &hf_cdp_capabilities_host,
         {"Host", "cdp.capabilities.host", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x10, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000010, NULL, HFILL }},
 
         { &hf_cdp_capabilities_igmp_capable,
         {"IGMP capable", "cdp.capabilities.igmp_capable", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x20, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000020, NULL, HFILL }},
 
         { &hf_cdp_capabilities_repeater,
         {"Repeater", "cdp.capabilities.repeater", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000040, NULL, HFILL }},
 
         { &hf_cdp_capabilities_voip_phone,
         {"VoIP Phone", "cdp.capabilities.voip_phone", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000080, NULL, HFILL }},
 
         { &hf_cdp_capabilities_remote,
         {"Remotely Managed Device", "cdp.capabilities.remote", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x0100, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000100, NULL, HFILL }},
 
         { &hf_cdp_capabilities_cvta,
         {"CVTA/STP Dispute Resolution/Cisco VT Camera", "cdp.capabilities.cvta", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x0200, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000200, NULL, HFILL }},
 
         { &hf_cdp_capabilities_mac_relay,
         {"Two Port Mac Relay", "cdp.capabilities.mac_relay", FT_BOOLEAN, 32,
-                TFS(&tfs_yes_no), 0x0400, NULL, HFILL }},
+                TFS(&tfs_yes_no), 0x00000400, NULL, HFILL }},
 
         { &hf_cdp_spare_poe_tlv,
         { "Spare Pair PoE", "cdp.spare_poe_tlv", FT_UINT8, BASE_HEX,

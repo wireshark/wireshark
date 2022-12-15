@@ -1124,7 +1124,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_ch_rec_ch_num,
 		      { "Channel Number", "a21.ch_channel_number",
-		      FT_UINT16, BASE_DEC, NULL, 0x7ff,
+		      FT_UINT16, BASE_DEC, NULL, 0x07ff,
 		      NULL, HFILL }
 		  },
 

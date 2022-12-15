@@ -13869,51 +13869,51 @@ proto_register_nfs(void)
 
 		{ &hf_nfs3_mode_suid, {
 			"S_ISUID", "nfs.mode3.suid", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x800, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000800, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_sgid, {
 			"S_ISGID", "nfs.mode3.sgid", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x400, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000400, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_sticky, {
 			"S_ISVTX", "nfs.mode3.sticky", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x200, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000200, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_rusr, {
 			"S_IRUSR", "nfs.mode3.rusr", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x100, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000100, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_wusr, {
 			"S_IWUSR", "nfs.mode3.wusr", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x080, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000080, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_xusr, {
 			"S_IXUSR", "nfs.mode3.xusr", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x040, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000040, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_rgrp, {
 			"S_IRGRP", "nfs.mode3.rgrp", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x020, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000020, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_wgrp, {
 			"S_IWGRP", "nfs.mode3.wgrp", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x010, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000010, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_xgrp, {
 			"S_IXGRP", "nfs.mode3.xgrp", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x008, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000008, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_roth, {
 			"S_IROTH", "nfs.mode3.roth", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x004, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000004, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_woth, {
 			"S_IWOTH", "nfs.mode3.woth", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x002, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000002, NULL, HFILL }},
 
 		{ &hf_nfs3_mode_xoth, {
 			"S_IXOTH", "nfs.mode3.xoth", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x001, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x00000001, NULL, HFILL }},
 
 		{ &hf_nfs2_ftype, {
 			"type", "nfs.ftype", FT_UINT32, BASE_DEC|BASE_EXT_STRING,

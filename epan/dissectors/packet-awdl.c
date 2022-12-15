@@ -1634,42 +1634,42 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_datastate_flags_0,
       { "Infrastructure BSSID and Channel", "awdl.datastate.flags.0",
-        FT_BOOLEAN, 16, NULL, 0x1, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_1,
       { "Infrastructure Address", "awdl.datastate.flags.1",
-        FT_BOOLEAN, 16, NULL, 0x2, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_2,
       { "AWDL Address", "awdl.datastate.flags.2",
-        FT_BOOLEAN, 16, NULL, 0x4, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_3,
       { "Bit 3", "awdl.datastate.flags.3",
-        FT_BOOLEAN, 16, NULL, 0x8, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_4,
       { "UMI", "awdl.datastate.flags.4",
-        FT_BOOLEAN, 16, NULL, 0x10, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_5,
       { "Bit 5", "awdl.datastate.flags.5",
-        FT_BOOLEAN, 16, NULL, 0x20, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_6,
       { "Is AirPlay (?)", "awdl.datastate.flags.6",
-        FT_BOOLEAN, 16, NULL, 0x40, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_7,
       { "Bit 6", "awdl.datastate.flags.7",
-        FT_BOOLEAN, 16, NULL, 0x80, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_8,
@@ -2237,122 +2237,122 @@ void proto_register_awdl(void)
      */
     { &hf_awdl_serviceparams_bitmask_0,
       { "0", "awdl.serviceparams.bitmask.0",
-        FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_1,
       { "1", "awdl.serviceparams.bitmask.1",
-        FT_BOOLEAN, 32, NULL, 0x2, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_2,
       { "2", "awdl.serviceparams.bitmask.2",
-        FT_BOOLEAN, 32, NULL, 0x4, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_3,
       { "3", "awdl.serviceparams.bitmask.3",
-        FT_BOOLEAN, 32, NULL, 0x8, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000008, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_4,
       { "4", "awdl.serviceparams.bitmask.4",
-        FT_BOOLEAN, 32, NULL, 0x10, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_5,
       { "5", "awdl.serviceparams.bitmask.5",
-        FT_BOOLEAN, 32, NULL, 0x20, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_6,
       { "6", "awdl.serviceparams.bitmask.6",
-        FT_BOOLEAN, 32, NULL, 0x40, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000040, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_7,
       { "7", "awdl.serviceparams.bitmask.7",
-        FT_BOOLEAN, 32, NULL, 0x80, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000080, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_8,
       { "8", "awdl.serviceparams.bitmask.8",
-        FT_BOOLEAN, 32, NULL, 0x0100, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_9,
       { "9", "awdl.serviceparams.bitmask.9",
-        FT_BOOLEAN, 32, NULL, 0x0200, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_10,
       { "10", "awdl.serviceparams.bitmask.10",
-        FT_BOOLEAN, 32, NULL, 0x0400, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_11,
       { "11", "awdl.serviceparams.bitmask.11",
-        FT_BOOLEAN, 32, NULL, 0x0800, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_12,
       { "12", "awdl.serviceparams.bitmask.12",
-        FT_BOOLEAN, 32, NULL, 0x1000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00001000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_13,
       { "13", "awdl.serviceparams.bitmask.13",
-        FT_BOOLEAN, 32, NULL, 0x2000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00002000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_14,
       { "14", "awdl.serviceparams.bitmask.14",
-        FT_BOOLEAN, 32, NULL, 0x4000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00004000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_15,
       { "15", "awdl.serviceparams.bitmask.15",
-        FT_BOOLEAN, 32, NULL, 0x8000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00008000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_16,
       { "16", "awdl.serviceparams.bitmask.16",
-        FT_BOOLEAN, 32, NULL, 0x010000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00010000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_17,
       { "17", "awdl.serviceparams.bitmask.17",
-        FT_BOOLEAN, 32, NULL, 0x020000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00020000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_18,
       { "18", "awdl.serviceparams.bitmask.18",
-        FT_BOOLEAN, 32, NULL, 0x040000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00040000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_19,
       { "19", "awdl.serviceparams.bitmask.19",
-        FT_BOOLEAN, 32, NULL, 0x080000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00080000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_20,
       { "20", "awdl.serviceparams.bitmask.20",
-        FT_BOOLEAN, 32, NULL, 0x100000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_21,
       { "21", "awdl.serviceparams.bitmask.21",
-        FT_BOOLEAN, 32, NULL, 0x200000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00200000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_22,
       { "22", "awdl.serviceparams.bitmask.22",
-        FT_BOOLEAN, 32, NULL, 0x400000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00400000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_23,
       { "23", "awdl.serviceparams.bitmask.23",
-        FT_BOOLEAN, 32, NULL, 0x800000, NULL, HFILL
+        FT_BOOLEAN, 32, NULL, 0x00800000, NULL, HFILL
       }
     },
     { &hf_awdl_serviceparams_bitmask_24,

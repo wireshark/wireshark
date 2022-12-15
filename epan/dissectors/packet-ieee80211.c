@@ -42506,7 +42506,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_class_mask7_reserved,
      {"Reserved", "wlan.tclas.class7.reserved",
-      FT_UINT24, BASE_HEX, NULL, 0xFFC0000, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, NULL, 0xFFC000, NULL, HFILL }},
 
     {&hf_ieee80211_tclas7_frame_control_spec,
      {"Frame Control Spec", "wlan.tclas.class7.frame_control_spec",
@@ -42637,24 +42637,24 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_class_mask9_frame_control_match_spec,
      {"Frame Control Spec", "wlan.tclas.class9.frame_control_spec",
-      FT_UINT16, BASE_HEX, VALS(frame_control_mask_vals), 0x0003, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, VALS(frame_control_mask_vals), 0x000003, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_address_1_match_spec,
      {"Address 1 Spec", "wlan.tclas.class9.mask.address_1_spec",
-      FT_UINT16, BASE_HEX, VALS(address_1_mask_vals), 0x0003, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, VALS(address_1_mask_vals), 0x000003, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_address_2_match_spec,
      {"Address 2 Spec", "wlan.tclas.class9.mask.address_2_spec",
-      FT_UINT16, BASE_HEX, VALS(address_2_mask_vals), 0x00000C, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x00000C, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_sequence_control_spec,
      {"Sequence Control Spec", "wlan.tclas.class9.mask.sequence_control_spec",
-      FT_UINT16, BASE_HEX, VALS(sequence_control_mask_vals),
-      0x0030, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, VALS(sequence_control_mask_vals),
+      0x000030, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_reserved,
      {"Reserved", "wlan.tclas.class9.mask.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xFFFFC0, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, NULL, 0xFFFFC0, NULL, HFILL }},
 
     {&hf_ieee80211_tclas9_frame_control_spec,
      {"Frame Control Spec", "wlan.tclas.class9.frame_control_spec",
@@ -43685,22 +43685,22 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_s1g_slot_def_slot_duration_count8,
      {"Slot Duration Count",
       "wlan.s1g.rps.raw_slot_definition.slot_duration_count",
-      FT_UINT16, BASE_DEC, NULL, 0x03FC0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x03FC, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_slot_def_num_slots6,
      {"Number of Slots",
       "wlan.s1g.rps.raw_slot_definition.number_of_slots",
-      FT_UINT16, BASE_DEC, NULL, 0xFC0000, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0xFC00, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_slot_def_slot_duration_count11,
      {"Slot Duration Count",
       "wlan.s1g.rps.raw_slot_definition.slot_duration_count",
-      FT_UINT16, BASE_DEC, NULL, 0x1FFC0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x1FC0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_slot_def_num_slots3,
      {"Number of Slots",
       "wlan.s1g.rps.raw_slot_definition.number_of_slots",
-      FT_UINT16, BASE_DEC, NULL, 0xE00000, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0xE000, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_raw_start_time,
      {"RAW Start Time", "wlan.s1g.raw_slot_definition.raw_start_time",

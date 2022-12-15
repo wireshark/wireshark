@@ -584,7 +584,7 @@ proto_register_btamp(void)
         },
         { &hf_btamp_pal_caps_guaranteed,
             { "Guaranteed Service type",           "btamp.guaranteed_type",
-                FT_BOOLEAN, 16, NULL, 0x01,
+                FT_BOOLEAN, 16, NULL, 0x0001,
                 NULL, HFILL }
         },
         { &hf_btamp_total_bw,

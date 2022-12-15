@@ -375,7 +375,7 @@ proto_register_isl(void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         "Route descriptor to be used for source learning", HFILL }},
     { &hf_isl_fcs_not_incl,
-      { "FCS Not Included",   "isl.fcs_not_incl", FT_BOOLEAN, 9,
+      { "FCS Not Included",   "isl.fcs_not_incl", FT_BOOLEAN, 8,
         NULL, 0x40, NULL, HFILL }},
     { &hf_isl_esize,
       { "Esize",      "isl.esize", FT_UINT8, BASE_DEC, NULL,

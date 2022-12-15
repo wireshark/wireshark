@@ -242,7 +242,7 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'ebhscr.eth.rsv',  # matches other fields in same sequence
                                 'v120.lli',  # non-contiguous field (http://www.acacia-net.com/wwwcla/protocol/v120_l2.htm)
                                 'stun.type.class',
-                                'bssgp.csg_id',
+                                'bssgp.csg_id', 'tiff.t6.unused', 'artnet.ip_prog_reply.unused',
                                 'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu'
 
                               }
@@ -276,12 +276,14 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, filter, label, item_type, type_modifier, mask=None, check_mask=False, check_label=False, check_consecutive=False):
+    def __init__(self, filename, filter, label, item_type, type_modifier, mask=None,
+                 check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
         self.filename = filename
         self.filter = filter
         self.label = label
 
         self.mask = mask
+        self.mask_exact_width = mask_exact_width
 
         global warnings_found
 
@@ -323,6 +325,11 @@ class Item:
                 #self.check_mask_too_long(mask)
                 self.check_num_digits(mask)
                 self.check_digits_all_zeros(mask)
+
+
+    def __str__(self):
+        return 'Item ({0} "{1}" {2} type={3}:{4} mask={5})'.format(self.filename, self.label, self.filter, self.item_type, self.type_modifier, self.mask)
+
 
 
     def set_mask_value(self):
@@ -409,14 +416,16 @@ class Item:
                 return 8  # i.e. 1 byte
             elif self.type_modifier == 'BASE_NONE':
                 return 8
-            elif self.type_modifier == 'SEP_DOT':
+            elif self.type_modifier == 'SEP_DOT':   # from proto.h
                 return 64
             else:
-                # Round up to next nibble.
+                # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
                 return int(self.type_modifier)+3
         else:
+            # Lookup fixed width for this type
             return field_widths[self.item_type]
 
+    # N.B. Not currently used.
     def check_mask_too_long(self, mask):
         if not self.mask_value:
             return
@@ -432,27 +441,38 @@ class Item:
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
             global errors_found
-            if len(mask) % 2:
+            # Warn if odd number of digits/  TODO: only if >= 5?
+            if len(mask) % 2  and self.item_type != 'FT_BOOLEAN':
                 print('Warning:', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
                       'expected max for', self.item_type, 'is', int((self.get_field_width_in_bits())/4))
                 warnings_found += 1
 
             if self.item_type in field_widths:
+                # Longer than it should be?
                 if len(mask)-2 > self.get_field_width_in_bits()/4:
                     extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
-                    # Its an error if any of these are non-zero, as they won't have any effect!
+                    # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
                         print('Error:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
                               "and extra digits are non-zero (" + extra_digits + ")")
                         errors_found += 1
                     else:
-                        # If has leading zeros, still confusing, so warn.
-                        print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                        # Has extra leading zeros, still confusing, so warn.
+                        print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
 
+                # Strict/fussy check - expecting mask length to match field width exactly!
+                # Currently only doing for FT_BOOLEAN
+                if self.mask_exact_width:
+                    if self.item_type == 'FT_BOOLEAN' and  len(mask)-2 != int(self.get_field_width_in_bits()/4):
+                        print('Warning:', self.filename, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
+                                "but type", self.item_type, "|", self.type_modifier,  " indicates should be", int(self.get_field_width_in_bits()/4))
+                        warnings_found += 1
+
             else:
+                # This type shouldn't have a mask set at all.
                 print('Warning:', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
                 warnings_found += 1
 
@@ -600,6 +620,7 @@ def isGeneratedFile(filename):
             f_read.close()
             return False
         if (line.find('Generated automatically') != -1 or
+            line.find('Generated Automatically') != -1 or
             line.find('Autogenerated from') != -1 or
             line.find('is autogenerated') != -1 or
             line.find('automatically generated by Pidl') != -1 or
@@ -617,14 +638,15 @@ def isGeneratedFile(filename):
     return False
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, check_mask=False, check_label=False, check_consecutive=False):
+def find_items(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
     with open(filename, 'r') as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.+)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([\&A-Za-z0-9x_<\|\s\(\)]*)\s*,\s*([ a-zA-Z0-9x_\<\~\|\(\)]*)\s*,', contents)
+        # N.B. re extends all the way to HFILL to avoid greedy matching
+        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([\&A-Za-z0-9x\_<\|\s\(\)]*)\s*,\s*([a-zA-Z0-9x_]*)\s*,\s*.*\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -632,7 +654,9 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
                              type_modifier=m.group(5),
                              check_mask=check_mask,
                              check_label=check_label,
+                             mask_exact_width=mask_exact_width,
                              check_consecutive=(not is_generated and check_consecutive))
+            #print('item is', hf, items[hf])
     return items
 
 
@@ -722,14 +746,14 @@ def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
 
 
 # Run checks on the given dissector file.
-def checkFile(filename, check_mask=False, check_label=False, check_consecutive=False, check_missing_items=False, check_bitmask_fields=False):
+def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False, check_missing_items=False, check_bitmask_fields=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
         return
 
     # Find important parts of items.
-    items_defined = find_items(filename, check_mask, check_label, check_consecutive)
+    items_defined = find_items(filename, check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
     items_declared = {}
@@ -765,6 +789,8 @@ parser.add_argument('--open', action='store_true',
                     help='check open files')
 parser.add_argument('--mask', action='store_true',
                    help='when set, check mask field too')
+parser.add_argument('--mask-exact-width', action='store_true',
+                   help='when set, check width of mask against field width')
 parser.add_argument('--label', action='store_true',
                    help='when set, check label field too')
 parser.add_argument('--consecutive', action='store_true',
@@ -844,7 +870,7 @@ else:
 for f in files:
     if should_exit:
         exit(1)
-    checkFile(f, check_mask=args.mask, check_label=args.label,
+    checkFile(f, check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
               check_consecutive=args.consecutive, check_missing_items=args.missing_items,
               check_bitmask_fields=args.check_bitmask_fields)
 

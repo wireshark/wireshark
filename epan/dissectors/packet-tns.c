@@ -1522,19 +1522,19 @@ void proto_register_tns(void)
 			NULL, 0x8, NULL, HFILL }},
 		{ &hf_tns_data_flag_more, {
 			"More Data to Come", "tns.data_flag.more", FT_BOOLEAN, 16,
-			NULL, 0x20, NULL, HFILL }},
+			NULL, 0x0020, NULL, HFILL }},
 		{ &hf_tns_data_flag_eof, {
 			"End of File", "tns.data_flag.eof", FT_BOOLEAN, 16,
-			NULL, 0x40, NULL, HFILL }},
+			NULL, 0x0040, NULL, HFILL }},
 		{ &hf_tns_data_flag_dic, {
 			"Do Immediate Confirmation", "tns.data_flag.dic", FT_BOOLEAN, 16,
-			NULL, 0x80, NULL, HFILL }},
+			NULL, 0x0080, NULL, HFILL }},
 		{ &hf_tns_data_flag_rts, {
 			"Request To Send", "tns.data_flag.rts", FT_BOOLEAN, 16,
-			NULL, 0x100, NULL, HFILL }},
+			NULL, 0x0100, NULL, HFILL }},
 		{ &hf_tns_data_flag_sntt, {
 			"Send NT Trailer", "tns.data_flag.sntt", FT_BOOLEAN, 16,
-			NULL, 0x200, NULL, HFILL }},
+			NULL, 0x0200, NULL, HFILL }},
 
 		{ &hf_tns_data_id, {
 			"Data ID", "tns.data_id", FT_UINT8, BASE_HEX,

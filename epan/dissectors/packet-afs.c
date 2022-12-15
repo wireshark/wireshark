@@ -3424,13 +3424,13 @@ proto_register_afs(void)
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 
 	{ &hf_afs_vldb_flags_rwexists, { "Read/Write Exists", "afs.vldb.flags.rwexists",
-		FT_BOOLEAN, 32, 0, 0x1000, NULL, HFILL }},
+		FT_BOOLEAN, 32, 0, 0x00001000, NULL, HFILL }},
 	{ &hf_afs_vldb_flags_roexists, { "Read-Only Exists", "afs.vldb.flags.roexists",
-		FT_BOOLEAN, 32, 0, 0x2000, NULL, HFILL }},
+		FT_BOOLEAN, 32, 0, 0x00002000, NULL, HFILL }},
 	{ &hf_afs_vldb_flags_bkexists, { "Backup Exists", "afs.vldb.flags.bkexists",
-		FT_BOOLEAN, 32, 0, 0x4000, NULL, HFILL }},
+		FT_BOOLEAN, 32, 0, 0x00004000, NULL, HFILL }},
 	{ &hf_afs_vldb_flags_dfsfileset, { "DFS Fileset", "afs.vldb.flags.dfsfileset",
-		FT_BOOLEAN, 32, 0, 0x8000, NULL, HFILL }},
+		FT_BOOLEAN, 32, 0, 0x00008000, NULL, HFILL }},
 
 	{ &hf_afs_vldb_spare1, { "Spare 1", "afs.vldb.spare1",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
@@ -3490,7 +3490,7 @@ proto_register_afs(void)
 	{ &hf_afs_cm_capabilities, { "Capabilities", "afs.cm.capabilities",
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 	{ &hf_afs_cm_cap_errortrans, { "ERRORTRANS", "afs.cm.capabilities.errortrans",
-		FT_BOOLEAN, 32, 0, 0x0001, NULL, HFILL }},
+		FT_BOOLEAN, 32, 0, 0x00000001, NULL, HFILL }},
 
 /* PROT Server Fields */
 	{ &hf_afs_prot_errcode, { "Error Code", "afs.prot.errcode",

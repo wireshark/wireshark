@@ -1771,7 +1771,7 @@ proto_register_ansi_801(void)
 		/* Generated from convert_proto_tree_add_text.pl */
 		{ &hf_ansi_801_desired_pilot_phase_resolution,
 		  { "Desired pilot phase resolution", "ansi_801.desired_pilot_phase_resolution",
-		    FT_BOOLEAN, 24, TFS(&tfs_desired_pilot_phase_resolution), 0x08,
+		    FT_BOOLEAN, 24, TFS(&tfs_desired_pilot_phase_resolution), 0x000008,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_reserved_24_7,
@@ -1781,22 +1781,22 @@ proto_register_ansi_801(void)
 		},
 		{ &hf_ansi_801_for_req_loc_height_information,
 		  { "Height information", "ansi_801.height_incl",
-		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x10,
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x000010,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_for_req_loc_clock_correction_for_gps_time,
 		  { "Clock correction for GPS time", "ansi_801.clock_correction_for_gps_time",
-		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x08,
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x000008,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_for_req_loc_velocity_information,
 		  { "Velocity information", "ansi_801.velocity_information",
-		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x04,
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x000004,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_reserved24_3,
 		  { "Reserved", "ansi_801.reserved",
-		    FT_UINT24, BASE_HEX, NULL, 0x03,
+		    FT_UINT24, BASE_HEX, NULL, 0x000003,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_use_action_time_indicator,

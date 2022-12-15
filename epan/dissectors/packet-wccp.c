@@ -2824,7 +2824,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_hash_flag_u,
-      { "Hash information", "wccp.hash_flag.u", FT_BOOLEAN, 32, TFS(&tfs_historical_current), 0x10000,
+      { "Hash information", "wccp.hash_flag.u", FT_BOOLEAN, 32, TFS(&tfs_historical_current), 0x00010000,
         NULL, HFILL }
     },
     { &hf_recvd_id,

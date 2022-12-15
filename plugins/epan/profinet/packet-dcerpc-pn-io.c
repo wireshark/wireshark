@@ -14511,7 +14511,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_RedundancyInfo_reserved,
       { "RedundancyInfo.reserved", "pn_io.srl_data.redundancyInfoReserved",
-        FT_UINT16, BASE_HEX, NULL, 0xFFFFFFFC,
+        FT_UINT16, BASE_HEX, NULL, 0xFFFC,
         NULL, HFILL }
     },
     { &hf_pn_io_number_of_ARDATAInfo,
