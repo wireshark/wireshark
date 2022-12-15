@@ -44,14 +44,18 @@ static int proto_acdr = -1;
 static int hf_json_array = -1;
 static int hf_json_array_compact = -1;
 static int hf_json_array_item_compact = -1;
+static int hf_json_array_raw = -1;
+static int hf_json_array_item_raw = -1;
 static int hf_json_binary_data = -1;
 static int hf_json_ignored_leading_bytes = -1;
 static int hf_json_key = -1;
 static int hf_json_member = -1;
 static int hf_json_member_compact = -1;
+static int hf_json_member_raw = -1;
 static int hf_json_member_with_value = -1;
 static int hf_json_object = -1;
 static int hf_json_object_compact = -1;
+static int hf_json_object_raw = -1;
 static int hf_json_path = -1;
 static int hf_json_path_with_value = -1;
 static int hf_json_value_false = -1;
@@ -70,9 +74,16 @@ static gint ett_json_compact = -1;
 static gint ett_json_array_compact = -1;
 static gint ett_json_object_compact = -1;
 static gint ett_json_member_compact = -1;
+/* Define the trees for json raw form */
+static gint ett_json_raw = -1;
+static gint ett_json_array_raw = -1;
+static gint ett_json_object_raw = -1;
+static gint ett_json_member_raw = -1;
 
 /* Preferences */
 static gboolean json_compact = FALSE;
+
+static gboolean json_raw = FALSE;
 
 static gboolean ignore_leading_bytes = FALSE;
 
@@ -100,6 +111,16 @@ typedef enum {
 
 } json_token_type_t;
 
+typedef enum {
+	JSON_MARK_TYPE_NONE = 0,
+	JSON_MARK_TYPE_BEGIN_OBJECT,
+	JSON_MARK_TYPE_END_OBJECT,
+	JSON_MARK_TYPE_BEGIN_ARRAY,
+	JSON_MARK_TYPE_END_ARRAY,
+	JSON_MARK_TYPE_MEMBER_NAME,
+	JSON_MARK_TYPE_VALUE
+} json_mark_type_t;
+
 typedef struct {
 	wmem_stack_t *stack;
 	wmem_stack_t *stack_compact; /* Used for compact json form only */
@@ -109,6 +130,9 @@ typedef struct {
 									Array -1: no key, -2: has key  */
 	wmem_stack_t* stack_path;
 	packet_info* pinfo;
+	wmem_stack_t* stack_raw; /* Used for raw json form only */
+	json_mark_type_t prev_item_type_raw; /* Used for raw json form only */
+	proto_item* prev_item_raw; /* Used for raw json form only */
 } json_parser_data_t;
 
 #define JSON_COMPACT_TOP_ITEM -3
@@ -553,6 +577,17 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		wmem_stack_push(parser_data.array_idx, GINT_TO_POINTER(JSON_COMPACT_TOP_ITEM)); /* top element */
 	}
 
+	if (json_raw) {
+		proto_tree* json_tree_raw = NULL;
+		json_tree_raw = proto_tree_add_subtree(json_tree, tvb, 0, -1, ett_json_raw, NULL, "JSON raw form:");
+
+		parser_data.stack_raw = wmem_stack_new(pinfo->pool);
+		wmem_stack_push(parser_data.stack_raw, json_tree_raw);
+
+		parser_data.prev_item_raw = NULL;
+		parser_data.prev_item_type_raw = JSON_MARK_TYPE_NONE;
+	}
+
 	tt = tvbparse_init(pinfo->pool, tvb, offset, buffer_length - offset, &parser_data, want_ignore);
 
 	/* XXX, only one json in packet? */
@@ -617,10 +652,35 @@ before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 
 		JSON_OBJECT_BEGIN(data);
 	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* subtree_raw;
+		proto_item* ti_raw;
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_END_OBJECT) {
+			proto_item_append_text(data->prev_item_raw, ",");
+		}
+
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
+			/* this is an object value of an member, add the "{" just after the memeber name */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, " {");
+		} else {
+			/* this object is either the top object or an element of an array, add the "{" as a single item */
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_object_raw, tok->tvb, tok->offset, tok->len, "{");
+		}
+
+		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_object_raw);
+		wmem_stack_push(data->stack_raw, subtree_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_BEGIN_OBJECT;
+	}
 }
 
 static void
-after_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *elem _U_) {
+after_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t* tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
 	wmem_stack_pop(data->stack);
@@ -639,6 +699,23 @@ after_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 		wmem_stack_pop(data->stack_compact);
 
 		JSON_ARRAY_OBJECT_END(data);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* parent_tree = proto_tree_get_parent_tree(tree_raw);
+		proto_item* ti_raw;
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_BEGIN_OBJECT) { /* an empty object */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, "}");
+		} else {
+			tvbparse_elem_t* tok_last = tok->sub->last;
+			ti_raw = proto_tree_add_none_format(parent_tree, hf_json_object_raw, tok_last->tvb, tok_last->offset, tok_last->len, "}");
+		}
+		wmem_stack_pop(data->stack_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_END_OBJECT;
 	}
 }
 
@@ -687,6 +764,32 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		subtree_compact = proto_item_add_subtree(ti_compact, ett_json_member_compact);
 		wmem_stack_push(data->stack_compact, subtree_compact);
 	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* subtree_raw;
+		proto_item* ti_raw = NULL;
+		tvbparse_elem_t* key_tok = tok->sub;
+
+		if (data->prev_item_raw && data->prev_item_type_raw != JSON_MARK_TYPE_BEGIN_OBJECT && data->prev_item_type_raw != JSON_MARK_TYPE_BEGIN_ARRAY) {
+			proto_item_append_text(data->prev_item_raw, ",");
+		}
+
+		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
+			ti_raw = json_key_lookup(tree_raw, tok, key_string_without_quotation_marks, data->pinfo, TRUE);
+			if (!ti_raw) {
+				ti_raw = proto_tree_add_none_format(tree_raw, hf_json_member_raw, tok->tvb, tok->offset, tok->len, "\"%s\":", key_string_without_quotation_marks);
+			}
+		} else {
+			ti_raw = proto_tree_add_item(tree_raw, hf_json_member_raw, tok->tvb, tok->offset, tok->len, ENC_NA);
+		}
+
+		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_member_raw);
+		wmem_stack_push(data->stack_raw, subtree_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_MEMBER_NAME;
+	}
 }
 
 static void
@@ -719,6 +822,10 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	if (json_compact) {
 		wmem_stack_pop(data->stack_compact);
 		json_object_add_key(data);
+	}
+
+	if (json_raw) {
+		wmem_stack_pop(data->stack_raw);
 	}
 }
 
@@ -767,10 +874,35 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 
 		JSON_ARRAY_BEGIN(data);
 	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* subtree_raw;
+		proto_item* ti_raw;
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_END_ARRAY) {
+			proto_item_append_text(data->prev_item_raw, ",");
+		}
+
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
+			/* this is an array value of an member, add the "[" just after the memeber name */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, " [");
+		} else {
+			/* this array is either the top element or an element of an array, add the "[" as a single item */
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_array_raw, tok->tvb, tok->offset, tok->len, "[");
+		}
+
+		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_array_raw);
+		wmem_stack_push(data->stack_raw, subtree_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_BEGIN_ARRAY;
+	}
 }
 
 static void
-after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *elem _U_) {
+after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t* tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
 	wmem_stack_pop(data->stack);
@@ -792,6 +924,23 @@ after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *e
 		wmem_stack_pop(data->stack_compact);
 
 		JSON_ARRAY_OBJECT_END(data);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* parent_tree = proto_tree_get_parent_tree(tree_raw);
+		proto_item* ti_raw;
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_BEGIN_ARRAY) { /* an empty array */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, "]");
+		} else {
+			tvbparse_elem_t* tok_last = tok->sub->last;
+			ti_raw = proto_tree_add_none_format(parent_tree, hf_json_array_raw, tok_last->tvb, tok_last->offset, tok_last->len, "]");
+		}
+		wmem_stack_pop(data->stack_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_END_ARRAY;
 	}
 }
 
@@ -901,6 +1050,26 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 			proto_item *parent_item = proto_tree_get_parent(tree_compact);
 			proto_item_append_text(parent_item, " %s", val_str);
 		}
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_item* ti_raw;
+		char* val_str = tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_VALUE) {
+			proto_item_append_text(data->prev_item_raw, ","); /* this value is an element of an array */
+		}
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
+			ti_raw = proto_tree_get_parent(tree_raw);
+			proto_item_append_text(ti_raw, " %s", val_str);
+		} else {
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_array_item_raw, tok->tvb, tok->offset, tok->len, "%s", val_str);
+		}
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_VALUE;
 	}
 }
 
@@ -1168,6 +1337,26 @@ proto_register_json(void)
 			  FT_STRING, BASE_NONE, NULL, 0x00,
 			  NULL, HFILL }
 		},
+		{ &hf_json_array_raw,
+			{ "Array raw", "json.array_raw",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON array raw", HFILL }
+		},
+		{ &hf_json_object_raw,
+			{ "Object raw", "json.object_raw",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON object raw", HFILL }
+		},
+		{ &hf_json_member_raw,
+			{ "Member raw", "json.member_raw",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON member raw", HFILL }
+		},
+		{ &hf_json_array_item_raw,
+			{ "Array item raw", "json.array_item_raw",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON array item raw", HFILL }
+		},
 
 	};
 
@@ -1180,6 +1369,10 @@ proto_register_json(void)
 		&ett_json_array_compact,
 		&ett_json_object_compact,
 		&ett_json_member_compact,
+		&ett_json_raw,
+		&ett_json_array_raw,
+		&ett_json_object_raw,
+		&ett_json_member_raw,
 	};
 
 	module_t *json_module;
@@ -1198,6 +1391,11 @@ proto_register_json(void)
 		"Display JSON in compact form",
 		"Display JSON like in browsers devtool",
 		&json_compact);
+
+	prefs_register_bool_preference(json_module, "raw_form",
+		"Display JSON in raw form",
+		"Display JSON like in vscode editor",
+		&json_raw);
 
 	prefs_register_bool_preference(json_module, "ignore_leading_bytes",
 		"Ignore leading non JSON bytes",
