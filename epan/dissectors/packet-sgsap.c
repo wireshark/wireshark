@@ -350,7 +350,7 @@ de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static guint16
 de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint   name_len, tmp;
+    guint   name_len;
     guint8  *fqdn = NULL;
 
     /* The MME name information element specifies the MME name and is coded as shown in figure 9.4.13.1. Octets 3
@@ -362,14 +362,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len - 1, ENC_ASCII);
-            for (;;) {
-                if (name_len >= len - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + fqdn[tmp] + 1;
-                fqdn[tmp] = '.';
-            }
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
         } else{
             fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         }
@@ -552,7 +545,7 @@ de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint     name_len, tmp;
+    guint     name_len;
     guint8  *fqdn = NULL;
 
     /* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1.
@@ -563,14 +556,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len - 1, ENC_ASCII);
-            for (;;) {
-                if (name_len >= len - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + fqdn[tmp] + 1;
-                fqdn[tmp] = '.';
-            }
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
         } else{
             fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         }
