@@ -684,8 +684,7 @@ void TrafficTree::toggleSaveRawAction()
 
 void TrafficTree::copyToClipboard(eTrafficTreeClipboard type)
 {
-    ATapDataModel * model = dataModel();
-    if (!model)
+    if (!model())
         return;
 
     QString clipText;
@@ -694,17 +693,17 @@ void TrafficTree::copyToClipboard(eTrafficTreeClipboard type)
     if (type == CLIPBOARD_CSV) {
         QMap<int, QString> headers;
         QStringList rdsl;
-        for (int cnt = 0; cnt < model->columnCount(); cnt++)
+        for (int cnt = 0; cnt < model()->columnCount(); cnt++)
         {
-            rdsl << model->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString();
+            rdsl << model()->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString();
         }
         stream << rdsl.join(",") << "\n";
 
-        for (int row = 0; row < model->rowCount(); row++) {
+        for (int row = 0; row < model()->rowCount(); row++) {
             rdsl.clear();
-            for (int col = 0; col < model->columnCount(); col++) {
-                QModelIndex idx = model->index(row, col);
-                QVariant v = model->data(idx, _exportRole);
+            for (int col = 0; col < model()->columnCount(); col++) {
+                QModelIndex idx = model()->index(row, col);
+                QVariant v = model()->data(idx, _exportRole);
                 if (!v.isValid()) {
                     rdsl << "\"\"";
                 } else if (v.userType() == QMetaType::QString) {
@@ -718,29 +717,29 @@ void TrafficTree::copyToClipboard(eTrafficTreeClipboard type)
     } else if (type == CLIPBOARD_YAML) {
         stream << "---" << '\n';
         QMap<int, QString> headers;
-        for (int cnt = 0; cnt < model->columnCount(); cnt++)
-            headers.insert(cnt, model->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString());
+        for (int cnt = 0; cnt < model()->columnCount(); cnt++)
+            headers.insert(cnt, model()->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString());
 
-        for (int row = 0; row < model->rowCount(); row++) {
+        for (int row = 0; row < model()->rowCount(); row++) {
             stream << "-" << '\n';
-            for (int col = 0; col < model->columnCount(); col++) {
-                QModelIndex idx = model->index(row, col);
-                QVariant v = model->data(idx, _exportRole);
+            for (int col = 0; col < model()->columnCount(); col++) {
+                QModelIndex idx = model()->index(row, col);
+                QVariant v = model()->data(idx, _exportRole);
                 stream << " - " << headers[col] << ": " << v.toString() << '\n';
             }
         }
     } else if (type == CLIPBOARD_JSON) {
         QMap<int, QString> headers;
-        for (int cnt = 0; cnt < model->columnCount(); cnt++)
-            headers.insert(cnt, model->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString());
+        for (int cnt = 0; cnt < model()->columnCount(); cnt++)
+            headers.insert(cnt, model()->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString());
 
         QJsonArray records;
 
-        for (int row = 0; row < model->rowCount(); row++) {
+        for (int row = 0; row < model()->rowCount(); row++) {
             QJsonObject rowData;
             foreach(int col, headers.keys()) {
-                QModelIndex idx = model->index(row, col);
-                rowData.insert(headers[col], model->data(idx, _exportRole).toString());
+                QModelIndex idx = model()->index(row, col);
+                rowData.insert(headers[col], model()->data(idx, _exportRole).toString());
             }
             records.push_back(rowData);
         }
