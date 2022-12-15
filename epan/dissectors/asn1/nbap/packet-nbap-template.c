@@ -471,13 +471,15 @@ static void add_hsdsch_bind(packet_info *pinfo){
   umts_fp_conversation_info_t *umts_fp_conversation_info;
   fp_hsdsch_channel_info_t* fp_hsdsch_channel_info = NULL;
   guint32 i;
+  nbap_private_data_t* nbap_private_data;
   nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
 
   if (PINFO_FD_VISITED(pinfo)){
     return;
   }
 
-  nbap_hsdsch_channel_info = nbap_get_private_data(pinfo)->nbap_hsdsch_channel_info;
+  nbap_private_data = nbap_get_private_data(pinfo);
+  nbap_hsdsch_channel_info = nbap_private_data->nbap_hsdsch_channel_info;
   /* Set port to zero use that as an indication of whether we have data or not */
   clear_address(&null_addr);
   for (i = 0; i < maxNrOfMACdFlows; i++) {
@@ -508,6 +510,15 @@ static void add_hsdsch_bind(packet_info *pinfo){
           umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
           /*Added june 3, normally just the iterator variable*/
           fp_hsdsch_channel_info->hsdsch_macdflow_id = i ; /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
+
+          if (nbap_private_data->crnc_context_present) {
+            umts_fp_conversation_info->com_context_id = nbap_private_data->com_context_id;
+          } else {
+            /* XXX: This expert info doesn't get added in subsequent passes,
+             * but probably should.
+             */
+            expert_add_info(pinfo, NULL, &ei_nbap_no_set_comm_context_id);
+          }
 
           /* Cheat and use the DCH entries */
           umts_fp_conversation_info->num_dch_in_flow++;
