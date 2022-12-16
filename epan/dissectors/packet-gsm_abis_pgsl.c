@@ -191,6 +191,7 @@ setup_rlc_mac_priv(RlcMacPrivateData_t *rm, gboolean is_uplink,
 {
 	guint nc, dbl = 0, dbo[2] = {0,0};
 
+	DISSECTOR_ASSERT(rm->mcs < G_N_ELEMENTS(data_block_len_by_mcs));
 	dbl = data_block_len_by_mcs[rm->mcs];
 
 	switch (rm->block_format) {
