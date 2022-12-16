@@ -34,7 +34,6 @@ enum json_dumper_element_type {
 #define JSON_DUMPER_HAS_NAME            (1 << 3)
 
 #define JSON_DUMPER_FLAGS_ERROR     (1 << 16)   /* Output flag: an error occurred. */
-#define JSON_DUMPER_FLAGS_NO_DEBUG  (1 << 17)   /* Input flag: disable debug prints (intended for speeding up fuzzing). */
 
 enum json_dumper_change {
     JSON_DUMPER_BEGIN,

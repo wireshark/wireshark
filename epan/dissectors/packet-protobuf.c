@@ -698,13 +698,13 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
 
     case PROTOBUF_TYPE_BYTES:
         if (field_desc && dumper) {
+            json_dumper_begin_base64(dumper);
             buf = (char*) tvb_memdup(wmem_file_scope(), tvb, offset, length);
             if (buf) {
-                json_dumper_begin_base64(dumper);
                 json_dumper_write_base64(dumper, buf, length);
-                json_dumper_end_base64(dumper);
                 wmem_free(wmem_file_scope(), buf);
             }
+            json_dumper_end_base64(dumper);
         }
         if (field_dissector) {
             if (!show_details) { /* don't show Value node if there is a subdissector for this field */
@@ -1528,10 +1528,6 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     const PbwDescriptor* message_desc = NULL;
     const gchar* data_str = NULL;
     gchar *json_str, *p, *q;
-    json_dumper dumper = {
-        .output_string = (display_json_mapping ? g_string_new(NULL) : NULL),
-        .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
-    };
 
     /* initialize only the first time the protobuf dissector is called */
     if (!protobuf_dissector_called) {
@@ -1620,10 +1616,19 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         message_desc = find_message_type_by_udp_port(pinfo);
     }
 
-    dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
-        protobuf_tree, message_desc, -1, pinfo->ptype == PT_UDP, (message_desc ? &dumper : NULL), NULL, NULL);
+    if (display_json_mapping && message_desc) {
+        json_dumper dumper = {
+            .output_string = g_string_new(NULL),
+            .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT | JSON_DUMPER_FLAGS_NO_DEBUG,
+        };
 
-    if (display_json_mapping && message_desc && json_dumper_finish(&dumper)) {
+        /* Dissecting can throw an exception, ideally CLEANUP_PUSH and _POP
+         * should be used to free the GString to avoid a leak.
+         */
+        dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
+            protobuf_tree, message_desc, -1, pinfo->ptype == PT_UDP, &dumper, NULL, NULL);
+
+        DISSECTOR_ASSERT_HINT(json_dumper_finish(&dumper), "Bad json_dumper state");
         ti = proto_tree_add_item(tree, proto_protobuf_json_mapping, tvb, 0, -1, ENC_NA);
         protobuf_json_tree = proto_item_add_subtree(ti, ett_protobuf_json);
 
@@ -1644,6 +1649,9 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             g_free(json_str);
         }
+    } else {
+        dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
+            protobuf_tree, message_desc, -1, pinfo->ptype == PT_UDP, NULL, NULL, NULL);
     }
 
     return tvb_captured_length(tvb);
