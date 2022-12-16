@@ -102,24 +102,19 @@ static int hf_sml_password = -1;
 static int hf_sml_smlVersion = -1;
 static int hf_sml_listName = -1;
 static int hf_sml_globalSignature = -1;
-static int hf_sml_refTime = -1;
-static int hf_sml_actSensorTime = -1;
 static int hf_sml_timetype = -1;
 static int hf_sml_objName = -1;
 static int hf_sml_status = -1;
-static int hf_sml_valTime = -1;
 static int hf_sml_unit = -1;
 static int hf_sml_scaler = -1;
 static int hf_sml_value = -1;
 static int hf_sml_simplevalue = -1;
 static int hf_sml_valueSignature = -1;
 static int hf_sml_listSignature = -1;
-static int hf_sml_actGatewayTime = -1;
 static int hf_sml_parameterTreePath = -1;
 static int hf_sml_attribute = -1;
 static int hf_sml_parameterName = -1;
 static int hf_sml_procParValue = -1;
-static int hf_sml_procParValueTime = -1;
 static int hf_sml_padding = -1;
 static int hf_sml_secIndex = -1;
 static int hf_sml_timestamp = -1;
@@ -128,10 +123,7 @@ static int hf_sml_seasonTimeOffset = -1;
 static int hf_sml_attentionNo = -1;
 static int hf_sml_attentionMsg = -1;
 static int hf_sml_withRawdata = -1;
-static int hf_sml_beginTime = -1;
-static int hf_sml_endTime = -1;
 static int hf_sml_object_list_Entry = -1;
-static int hf_sml_actTime = -1;
 static int hf_sml_regPeriod = -1;
 static int hf_sml_rawdata = -1;
 static int hf_sml_periodSignature = -1;
@@ -1071,16 +1063,9 @@ static void TupleEntryTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *procPa
 	field_serverId(tvb, TupleEntry_list, offset, &data, &length);
 
 	/*secindex*/
-	// TODO: check this
 	SML_time_tree = proto_tree_add_subtree(procParValue_tree, tvb, *offset, -1, ett_sml_time, &SML_time, "secIndex");
 	*offset+=1;
 	sml_time_type(tvb, pinfo, SML_time_tree, offset);
-//	get_length(tvb, offset, &data, &length);
-//	secIndex_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, length + data, ett_sml_secIndex, NULL, "secIndex");
-//	proto_tree_add_item (secIndex_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-//	*offset+=1;
-//	proto_tree_add_item(secIndex_tree, hf_sml_secIndex, tvb, *offset, data, ENC_BIG_ENDIAN);
-//	*offset+=data;
 	proto_item_set_end(SML_time, tvb, *offset);
 
 	/*Sml Status OPTIONAL*/
@@ -1334,17 +1319,7 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 			case PROC_TIME:
 				SML_time_tree = proto_tree_add_subtree(procParValue_tree, tvb, *offset, -1, ett_sml_time, &SML_time, "Time");
 				*offset+=1;
-
 				sml_time_type(tvb, pinfo, SML_time_tree, offset);
-
-				/*Time*/
-				//get_length(tvb, offset, data, length);
-				//procParValueTime_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, *length + *data, ett_sml_procParValueTime, NULL, "procParValueTime");
-				//proto_tree_add_item (procParValueTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-				//*offset+=1;
-				//proto_tree_add_item(procParValueTime_tree, hf_sml_procParValueTime, tvb, *offset, *data, ENC_BIG_ENDIAN);
-				//*offset+=*data;
-
 				proto_item_set_end(SML_time, tvb, *offset);
 				break;
 
@@ -1506,16 +1481,7 @@ static void decode_PublicOpenRes (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	else{
 		/*SML TIME*/
 		*offset+=1;
-
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-
-		/*refTime*/
-		//get_length(tvb, offset, &data, &length);
-		//refTime_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, length+data, ett_sml_refTime, NULL, "refTime");
-		//proto_tree_add_item (refTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-		//*offset+=1;
-		//proto_tree_add_item(refTime_tree, hf_sml_refTime, tvb, *offset, data, ENC_BIG_ENDIAN);
-		//*offset+=data;
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
 	/*sml-Version OPTIONAL*/
@@ -1578,16 +1544,7 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 	else {
 		/*SML TIME*/
 		*offset+=1;
-
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-
-		/*beginTime*/
-		//get_length(tvb, offset, &data, &length);
-		//beginTime_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, length + data, ett_sml_beginTime, NULL, "beginTime");
-		//proto_tree_add_item (beginTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-		//*offset+=1;
-		//proto_tree_add_item(beginTime_tree, hf_sml_beginTime, tvb, *offset, data, ENC_BIG_ENDIAN);
-		//*offset+=data;
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
 
@@ -1603,16 +1560,7 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 	else {
 		/*SML TIME*/
 		*offset+=1;
-
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-
-		/*endTime*/
-		//get_length(tvb, offset, &data, &length);
-		//endTime_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, length + data, ett_sml_beginTime, NULL, "endTime");
-		//proto_tree_add_item (endTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-		//*offset+=1;
-		//proto_tree_add_item(endTime_tree, hf_sml_endTime, tvb, *offset, data, ENC_BIG_ENDIAN);
-		//*offset+=data;
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
 
@@ -1727,7 +1675,6 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 				"actTime List with %d %s", length+data, plurality(length+data, "element", "elements"));
 	*offset+=1;
 	sml_time_type(tvb, pinfo, SML_time_tree, offset);
-	//field_actTime(tvb, SML_time_tree, offset, &data, &length);
 	proto_item_set_end(SML_time,tvb,*offset);
 
 	/*regPeriod*/
@@ -1819,7 +1766,6 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 		SML_time_tree = proto_tree_add_subtree(period_List_Entry, tvb, *offset, -1, ett_sml_time, &SML_time, "valTime");
 		*offset+=1;
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-		//field_valTime(tvb, SML_time_tree, offset, &data, &length);
 		proto_item_set_end(SML_time,tvb, *offset);
 
 		/*status*/
@@ -1909,7 +1855,6 @@ static gboolean decode_GetProfileListRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	SML_time_tree = proto_tree_add_subtree(messagebodytree_list, tvb, *offset, -1, ett_sml_time, &SML_time, "actTime");
 	*offset+=1;
 	sml_time_type(tvb, pinfo, SML_time_tree, offset);
-	//field_actTime(tvb, SML_time_tree, offset, &data, &length);
 	proto_item_set_end(SML_time,tvb, *offset);
 
 	/*regPeriod*/
@@ -1949,9 +1894,7 @@ static gboolean decode_GetProfileListRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	else {
 		/*SML TIME*/
 		*offset+=1;
-
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-		//field_valTime(tvb, SML_time_tree, offset, &data, &length);
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
 
@@ -2067,16 +2010,7 @@ static gboolean decode_GetListRes (tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	else {
 		/*SML TIME*/
 		*offset+=1;
-
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-
-		/*actSensorTime*/
-		//get_length(tvb, offset, &data, &length);
-		//actSensorTime_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, length + data, ett_sml_actSensorTime, NULL, "actSensorTime");
-		//proto_tree_add_item (actSensorTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-		//*offset+=1;
-		//proto_tree_add_item(actSensorTime_tree, hf_sml_actSensorTime, tvb, *offset, data, ENC_BIG_ENDIAN);
-		//*offset+=data;
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
 
@@ -2120,9 +2054,7 @@ static gboolean decode_GetListRes (tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		else {
 			/*SML TIME*/
 			*offset+=1;
-
 			sml_time_type(tvb, pinfo, SML_time_tree, offset);
-			//field_valTime(tvb, SML_time_tree, offset, &data, &length);
 			proto_item_set_end(SML_time, tvb, *offset);
 		}
 
@@ -2168,15 +2100,7 @@ static gboolean decode_GetListRes (tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	else{
 		/*SML TIME*/
 		*offset+=1;
-
 		sml_time_type(tvb, pinfo, SML_time_tree, offset);
-
-		//get_length(tvb, offset, &data, &length);
-		//actGatewayTime_tree = proto_tree_add_subtree(SML_time_tree, tvb, *offset, length + data, ett_sml_actSensorTime, NULL, "actGatewayTime");
-		//proto_tree_add_item (actGatewayTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
-		//*offset+=1;
-		//proto_tree_add_item(actGatewayTime_tree, hf_sml_actGatewayTime, tvb, *offset, data, ENC_BIG_ENDIAN);
-		//*offset+=data;
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
 	return FALSE;
@@ -2803,7 +2727,7 @@ static int dissect_sml (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static void
 sml_fmt_length( gchar *result, guint32 length )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d %s", length, plurality(length, "octet", "octets"));
+   snprintf( result, ITEM_LABEL_LENGTH, "%d %s", length, plurality(length, "octet", "octets"));
 }
 
 void proto_register_sml (void) {
@@ -2819,9 +2743,8 @@ void proto_register_sml (void) {
 			{ "SML Version", "sml.version", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_crc16,
 			{ "CRC16", "sml.crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-//TODO:check this
-//		{ &hf_sml_crc16_status,
-//			{ "CRC16 Status", "sml.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
+		{ &hf_sml_crc16_status,
+			{ "CRC16 Status", "sml.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 		{ &hf_sml_endOfSmlMsg,
 			{ "End of SML Msg", "sml.end", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_transactionId,
@@ -2854,18 +2777,12 @@ void proto_register_sml (void) {
 			{ "List Name", "sml.listname", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_globalSignature,
 			{ "Global Signature", "sml.globalsignature", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sml_refTime,
-			{ "refTime", "sml.reftime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sml_actSensorTime,
-			{ "actSensorTime", "sml.actsensortime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_timetype,
 			{ "Time type", "sml.timetype", FT_UINT8, BASE_HEX, VALS (sml_timetypes), 0x0, NULL, HFILL }},
 		{ &hf_sml_objName,
 			{ "objName", "sml.objname", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_status,
 			{ "Status", "sml.status", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sml_valTime,
-			{ "valTime", "sml.valtime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_unit,
 			{ "unit", "sml.unit", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_scaler,
@@ -2878,8 +2795,6 @@ void proto_register_sml (void) {
 			{ "ValueSignature", "sml.valuesignature", FT_BYTES, BASE_NONE, NULL, 0x0,NULL, HFILL }},
 		{ &hf_sml_listSignature,
 			{ "ListSignature", "sml.listsignature", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sml_actGatewayTime,
-			{ "actGatewayTime", "sml.gatewaytime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_parameterTreePath,
 			{ "path_Entry", "sml.parametertreepath", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_attribute,
@@ -2888,8 +2803,6 @@ void proto_register_sml (void) {
 			{ "parameterName", "sml.parametername", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_procParValue,
 			{ "procParValue", "sml.procparvalue", FT_UINT8, BASE_HEX, VALS(procvalues), 0x0, NULL, HFILL }},
-		{ &hf_sml_procParValueTime,
-			{ "procParValueTime", "sml.procparvaluetime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_padding,
 			{ "Padding", "sml.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_secIndex,
@@ -2906,12 +2819,6 @@ void proto_register_sml (void) {
 			{ "attentionMsg", "sml.attentionmsg", FT_STRING, BASE_NONE, NULL, 0x0 , NULL, HFILL }},
 		{ &hf_sml_withRawdata,
 			{ "withRawdata", "sml.withrawdata", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(bools), 0x0 , NULL, HFILL }},
-		{ &hf_sml_beginTime,
-			{ "beginTime", "sml.begintime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sml_endTime,
-			{ "endTime", "sml.endtime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sml_actTime,
-			{ "endTime", "sml.acttime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_object_list_Entry,
 			{ "object_list_Entry", "sml.objectentry", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_regPeriod,

@@ -200,7 +200,7 @@ void proto_reg_handoff_cms(void) {
   oid_add_from_string("ecdsaWithSHA512","1.2.840.10045.4.3.4");
 
   content_info_handle = create_dissector_handle (dissect_ContentInfo_PDU, proto_cms);
-  
+
   dissector_add_string("media_type", "application/pkcs7-mime", content_info_handle);
   dissector_add_string("media_type", "application/pkcs7-signature", content_info_handle);
 
