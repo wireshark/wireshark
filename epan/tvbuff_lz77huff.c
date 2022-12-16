@@ -194,6 +194,10 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 
 	j = 1;
 	for (; i < 512; i++) {
+		//ws_assert(j < TREE_SIZE);
+		if (j >= TREE_SIZE) {
+			return -1;
+		}
 		tree->nodes[j].symbol = symbolInfo[i].symbol;
 		tree->nodes[j].leaf = TRUE;
 		mask <<= symbolInfo[i].length - bits;
