@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/t35.h>
 //#include <epan/expert.h>
 //#include <epan/prefs.h>
 
@@ -36,8 +37,11 @@ static int hf_h224_dta = -1;
 static int hf_h224_sta = -1;
 static int hf_h224_reserved = -1;
 static int hf_h224_standard_client_id = -1;
+static int hf_h224_extended_client_id_list = -1;
+static int hf_h224_non_standard_client = -1;
 static int hf_h224_extended_client_id = -1;
 static int hf_h224_country_code = -1;
+static int hf_h224_extension = -1;
 static int hf_h224_manufacturer_code = -1;
 static int hf_h224_client_id_manufacturer = -1;
 
@@ -46,8 +50,44 @@ static int hf_h224_bs_b6 = -1;
 static int hf_h224_c1_b5 = -1;
 static int hf_h224_c2_b4 = -1;
 static int hf_h224_seg_b3b0 = -1;
+static int hf_h224_other_client_data = -1;
 
-static int hf_h224_client_data = -1;
+static int hf_h224_client_list_code = -1;
+static int hf_h224_extra_caps_code = -1;
+static int hf_h224_response_code = -1;
+static int hf_h224_number_of_clients = -1;
+static int hf_h224_ex_caps_bit = -1;
+static int hf_h224_caps_reserved = -1;
+static int hf_h224_brd_svs = -1;
+static int hf_h224_number_of_presets = -1;
+static int hf_h224_vs_id = -1;
+static int hf_h224_vs_reserved_b3 = -1;
+static int hf_h224_vs_reserved_b3b0 = -1;
+static int hf_h224_motion_video = -1;
+static int hf_h224_norm_res_si = -1;
+static int hf_h224_dbl_res_si = -1;
+static int hf_h224_pan_cap = -1;
+static int hf_h224_tilt_cap = -1;
+static int hf_h224_zoom_cap = -1;
+static int hf_h224_focus_cap = -1;
+static int hf_h224_encoded_characters = -1;
+static int hf_h224_end_octet = -1;
+static int hf_h224_command_code = -1;
+static int hf_h224_message_pan = -1;
+static int hf_h224_message_pan_dir = -1;
+static int hf_h224_message_tilt = -1;
+static int hf_h224_message_tilt_dir = -1;
+static int hf_h224_message_zoom = -1;
+static int hf_h224_message_zoom_dir = -1;
+static int hf_h224_message_focus = -1;
+static int hf_h224_message_focus_dir = -1;
+static int hf_h224_message_reserved_b7b4 = -1;
+static int hf_h224_message_reserved_b3b2 = -1;
+static int hf_h224_message_reserved_b3b0 = -1;
+static int hf_h224_message_vs_m1 = -1;
+static int hf_h224_message_vs_m0 = -1;
+static int hf_h224_message_timeout = -1;
+static int hf_h224_message_preset_number = -1;
 
 //static expert_field ei_h224_EXPERTABBREV = EI_INIT;
 
@@ -56,7 +96,52 @@ static dissector_handle_t h224_handle;
 /* Initialize the subtree pointers */
 static gint ett_h224 = -1;
 
+/* Definition of DLCI data priority's masks */
 #define H224_DATA_PRI_MASK      0xFCF0
+
+#define FECC_MAX_LENGTH_ASCII_STR       16
+#define TIMEOUT_INTERVALS               50
+#define MAX_TIMEOUT_VALUE               800
+
+/* Definition of Standard Client IDs */
+#define H224_CME_CLIENT_ID                      0x00
+#define H224_FECC_CLIENT_ID                     0x01
+#define H224_EXTENED_CLIENT_ID                  0x7E
+#define H224_NON_STANDARD_CLIENT_ID             0x7F
+
+/* definitions of CME messages type */
+#define CME_MSG_Client_List_Message             0x0100
+#define CME_MSG_Client_List_Command             0x01FF
+#define CME_MSG_Extra_Capabilities_Message      0x0200
+#define CME_MSG_Extra_Capabilities_Command      0x02FF
+
+/* definitions of FECC messages type */
+#define FECC_MSG_START_ACTION_REQ               0x01
+#define FECC_MSG_CONTINUE_ACTION_REQ            0x02
+#define FECC_MSG_STOP_ACTION_REQ                0x03
+#define FECC_MSG_SELECT_VIDEO_SOURCE_REQ        0x04
+#define FECC_MSG_VIDEO_SOURCE_SWITCHED_IND      0x05
+#define FECC_MSG_STORE_AS_PRESET_REQ            0x06
+#define FECC_MSG_ACTIVATE_PRESET_REQ            0x07
+
+static guint dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
+static guint dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
+static guint dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
+static guint dissect_h224_non_standard_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset);
+
+typedef struct {
+    int optcode;
+    guint (*decode) (tvbuff_t*, proto_tree*, guint);
+} h224_opt_t;
+
+static const h224_opt_t h224opt[] = {
+/* CME */           {H224_CME_CLIENT_ID, dissect_h224_cme_client_data},
+/* FECC */          {H224_FECC_CLIENT_ID, dissect_h224_fecc_client_data},
+/* EXTENED */       {H224_EXTENED_CLIENT_ID, dissect_h224_extended_client_data},
+/* NON_STANDARD */  {H224_NON_STANDARD_CLIENT_ID, dissect_h224_non_standard_client_data},
+                    {0, NULL}
+};
+
 /* DLCI address for data priority */
 static const value_string h224_data_priority[] =
         {
@@ -65,6 +150,248 @@ static const value_string h224_data_priority[] =
                 { 0, NULL },
         };
 
+static const value_string h224_client_data_type[] =
+        {
+                { H224_CME_CLIENT_ID, "Client Data For CME(Client Management Entity)" },
+                { H224_FECC_CLIENT_ID, "Client Data For FECC(Far-End Camera Control)" },
+                { H224_EXTENED_CLIENT_ID, "Client Data For Extended Client ID list" },
+                { H224_NON_STANDARD_CLIENT_ID, "Client Data For Non-standard client" },
+                { 0, NULL}
+        };
+
+static const value_string h224_fecc_message_type[] =
+        {
+                { FECC_MSG_START_ACTION_REQ, "START ACTION Request" },
+                { FECC_MSG_CONTINUE_ACTION_REQ, "CONTINUE ACTION Request" },
+                { FECC_MSG_STOP_ACTION_REQ, "STOP ACTION Request" },
+                { FECC_MSG_SELECT_VIDEO_SOURCE_REQ, "SELECT VIDEO SOURCE Request" },
+                { FECC_MSG_VIDEO_SOURCE_SWITCHED_IND, "VIDEO SOURCE SWITCHED indication" },
+                { FECC_MSG_STORE_AS_PRESET_REQ, "STORE AS PRESET Request" },
+                { FECC_MSG_ACTIVATE_PRESET_REQ, "ACTIVATE PRESET Request" },
+                { 0, NULL },
+        };
+
+static value_string_ext h224_client_data_ext = VALUE_STRING_EXT_INIT(h224_client_data_type);
+
+static guint
+dissect_h224_standard_clients_ids(tvbuff_t* tvb, proto_tree* tree, guint offset, guint8 client_id)
+{
+    guint32 manufacturer_code;
+
+    if (client_id == H224_EXTENED_CLIENT_ID) {
+        proto_tree_add_item(tree, hf_h224_extended_client_id_list, tvb, offset, 1, ENC_NA);
+        offset++;
+        proto_tree_add_item(tree, hf_h224_extended_client_id, tvb, offset, 1, ENC_NA);
+        offset++;
+    } else if (client_id == H224_NON_STANDARD_CLIENT_ID){
+        proto_tree_add_item(tree, hf_h224_non_standard_client, tvb, offset, 1, ENC_NA);
+        offset++;
+        manufacturer_code = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_h224_country_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_h224_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_uint(tree, hf_h224_manufacturer_code, tvb, offset - 2, 4, manufacturer_code);
+        offset += 2;
+        proto_tree_add_item(tree, hf_h224_client_id_manufacturer, tvb, offset, 1, ENC_NA);
+        offset++;
+    } else {
+        proto_tree_add_item(tree, hf_h224_standard_client_id, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+    return offset;
+}
+
+static guint
+dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
+{
+    guint16 type;
+    guint8 num;
+    guint8 oct;
+    guint8 source_id;
+    guint8 zero_offset;
+    proto_tree *ext_tree;
+
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
+                                      val_to_str_ext_const(H224_CME_CLIENT_ID, &h224_client_data_ext, "Unknown field"));
+    type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    switch (type) {
+        case CME_MSG_Client_List_Message:
+            proto_tree_add_item(ext_tree, hf_h224_client_list_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_number_of_clients, tvb, offset, 1, ENC_BIG_ENDIAN);
+            num = tvb_get_guint8(tvb, offset);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            for (int i = 0; i < num; i++) {
+                oct = tvb_get_guint8(tvb, offset);
+                offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, (oct & 0x7f));
+            }
+            break;
+        case CME_MSG_Client_List_Command:
+            proto_tree_add_item(ext_tree, hf_h224_client_list_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        case CME_MSG_Extra_Capabilities_Message:
+            proto_tree_add_item(ext_tree, hf_h224_extra_caps_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            oct = tvb_get_guint8(tvb, offset);
+            offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, oct);
+            if ((oct & 0x7f) == 0x01) {
+                static int* const fecc_number_of_presets[] = {
+                        &hf_h224_caps_reserved,
+                        &hf_h224_brd_svs,
+                        &hf_h224_number_of_presets,
+                        NULL
+                };
+                proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_number_of_presets, ENC_BIG_ENDIAN);
+                offset++;
+                oct = tvb_get_guint8(tvb, offset);
+                static int* const fecc_vrs_capabilities[] = {
+                        &hf_h224_vs_id,
+                        &hf_h224_vs_reserved_b3,
+                        &hf_h224_motion_video,
+                        &hf_h224_norm_res_si,
+                        &hf_h224_dbl_res_si,
+                        NULL
+                };
+                proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_vrs_capabilities, ENC_BIG_ENDIAN);
+                offset++;
+                source_id = (oct & 0xf0) >> 4;
+                if (source_id > 5) {
+                    zero_offset = tvb_find_guint8(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0);
+                    if (zero_offset > offset) {
+                        proto_tree_add_item(ext_tree, hf_h224_encoded_characters, tvb, offset, zero_offset - offset, ENC_ASCII);
+                        offset = zero_offset;
+                        proto_tree_add_item(ext_tree, hf_h224_end_octet, tvb, offset, 1, ENC_NA);
+                        offset++;
+                    }
+                }
+                static int* const fecc_caps_ability[] = {
+                        &hf_h224_pan_cap,
+                        &hf_h224_tilt_cap,
+                        &hf_h224_zoom_cap,
+                        &hf_h224_focus_cap,
+                        &hf_h224_vs_reserved_b3b0,
+                        NULL
+                };
+                proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_caps_ability, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            break;
+        case CME_MSG_Extra_Capabilities_Command:
+            proto_tree_add_item(ext_tree, hf_h224_extra_caps_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            oct = tvb_get_guint8(tvb, offset);
+            offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, oct);
+            break;
+        default:
+            break;
+    }
+    return offset;
+}
+
+static guint
+dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset)
+{
+    guint8 oct;
+    proto_tree *ext_tree;
+
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
+                                      val_to_str_ext_const(H224_FECC_CLIENT_ID, &h224_client_data_ext, "Unknown field"));
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ext_tree, hf_h224_command_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    static int* const fecc_message_action[] = {
+            &hf_h224_message_pan,
+            &hf_h224_message_pan_dir,
+            &hf_h224_message_tilt,
+            &hf_h224_message_tilt_dir,
+            &hf_h224_message_zoom,
+            &hf_h224_message_zoom_dir,
+            &hf_h224_message_focus,
+            &hf_h224_message_focus_dir,
+            NULL
+    };
+    switch(oct) {
+        case FECC_MSG_START_ACTION_REQ:
+        {
+            guint16 timeout;
+            proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_message_action, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(ext_tree, hf_h224_message_reserved_b7b4, tvb, offset, 1, ENC_BIG_ENDIAN);
+            oct = tvb_get_guint8(tvb, offset);
+            timeout = (oct & 0x0f) ? (oct * TIMEOUT_INTERVALS) : MAX_TIMEOUT_VALUE;
+            proto_tree_add_uint_format(ext_tree, hf_h224_message_timeout, tvb, offset, 1, oct,"%u (%u milliseconds)", oct, timeout);
+            offset++;
+            break;
+        }
+        case FECC_MSG_CONTINUE_ACTION_REQ:
+        case FECC_MSG_STOP_ACTION_REQ:
+            proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_message_action, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        case FECC_MSG_SELECT_VIDEO_SOURCE_REQ:
+        case FECC_MSG_VIDEO_SOURCE_SWITCHED_IND:
+        {
+            static int* const fecc_message_m1m0[] = {
+                    &hf_h224_vs_id,
+                    &hf_h224_message_reserved_b3b2,
+                    &hf_h224_message_vs_m1,
+                    &hf_h224_message_vs_m0,
+                    NULL
+            };
+            proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_message_m1m0, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        }
+        case FECC_MSG_STORE_AS_PRESET_REQ:
+        case FECC_MSG_ACTIVATE_PRESET_REQ:
+        {
+            static int* const fecc_message_preset_num[] = {
+                    &hf_h224_message_preset_number,
+                    &hf_h224_message_reserved_b3b0,
+                    NULL
+            };
+            proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_message_preset_num, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        }
+        default:
+            break;
+    }
+    return offset;
+}
+
+static guint dissect_h224_extended_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset) {
+    proto_tree *ext_tree;
+
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
+                                      val_to_str_ext_const(H224_EXTENED_CLIENT_ID, &h224_client_data_ext, "Unknown field"));
+    proto_tree_add_item(ext_tree, hf_h224_other_client_data, tvb, offset, -1, ENC_NA);
+    offset++;
+    return offset;
+}
+
+static guint dissect_h224_non_standard_client_data(tvbuff_t* tvb, proto_tree* tree, guint offset) {
+    proto_tree *ext_tree;
+
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
+                                      val_to_str_ext_const(H224_NON_STANDARD_CLIENT_ID, &h224_client_data_ext, "Unknown field"));
+    proto_tree_add_item(ext_tree, hf_h224_other_client_data, tvb, offset, -1, ENC_NA);
+    offset++;
+    return offset;
+}
 /* Code to actually dissect the packets */
 static int
 dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
@@ -106,22 +433,7 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     * - Non-standard Client ID – Six octets (0x7F, country, manufacturer code, ID)
     */
     oct = tvb_get_guint8(tvb, offset);
-    if (oct == 0x7e) {
-        offset++;
-        proto_tree_add_item(h224_tree, hf_h224_extended_client_id, tvb, offset, 1, ENC_NA);
-        offset++;
-    } else if (oct == 0x7f){
-        offset++;
-        proto_tree_add_item(h224_tree, hf_h224_country_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        proto_tree_add_item(h224_tree, hf_h224_manufacturer_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        proto_tree_add_item(h224_tree, hf_h224_client_id_manufacturer, tvb, offset, 1, ENC_NA);
-        offset++;
-    } else {
-        proto_tree_add_item(h224_tree, hf_h224_standard_client_id, tvb, offset, 1, ENC_NA);
-        offset++;
-    }
+    offset = dissect_h224_standard_clients_ids(tvb, h224_tree, offset, oct);
 
     static int* const h224_flags[] = {
     &hf_h224_es_b7,
@@ -136,8 +448,13 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     offset++;
 
     /* Data */
-    proto_tree_add_item(h224_tree, hf_h224_client_data, tvb, offset, -1, ENC_NA);
-
+    int i = -1;
+    while (h224opt[++i].decode) {
+        if (h224opt[i].optcode == oct) {
+            h224opt[i].decode(tvb, h224_tree, offset);
+            break;
+        }
+    }
     return tvb_reported_length(tvb);
 }
 
@@ -179,6 +496,16 @@ proto_register_h224(void)
             FT_UINT8, BASE_HEX, NULL, 0x7f,
             NULL, HFILL }
         },
+        { &hf_h224_extended_client_id_list,
+          { "Extended Client ID List", "h224.extended_client_id_list",
+            FT_UINT8, BASE_HEX, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_h224_non_standard_client,
+          { "Non-standard Client", "h224.non_standard_client",
+            FT_UINT8, BASE_HEX, NULL, 0x7f,
+            NULL, HFILL }
+        },
         { &hf_h224_extended_client_id,
           { "Extended Client ID", "h224.extended_client_id",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -186,12 +513,17 @@ proto_register_h224(void)
         },
         { &hf_h224_country_code,
           { "Country code", "h224.country_code",
-            FT_UINT16, BASE_HEX, NULL, 0xffff,
+            FT_UINT8, BASE_HEX, VALS(T35CountryCode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h224_extension,
+          { "Extension", "h224.Extension",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h224_manufacturer_code,
           { "Manufacturer code", "h224.manufacturer_code",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT32, BASE_HEX, VALS(H221ManufacturerCode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_h224_client_id_manufacturer,
@@ -224,8 +556,188 @@ proto_register_h224(void)
             FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
-        { &hf_h224_client_data,
-            { "Client data",           "h224.data",
+        { &hf_h224_client_list_code,
+          { "Client List code", "h224.client_list_code",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h224_extra_caps_code,
+          { "Extra Capabilities code", "h224.ex_caps_code",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h224_response_code,
+          { "Response Code", "h224.response_code",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h224_number_of_clients,
+          { "Number of clients", "h224.number_of_clients",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h224_ex_caps_bit,
+          { "Extra Capabilities bit", "h224.ex_caps_bit",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_h224_caps_reserved,
+          { "Preset reserved", "h224.preset_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_h224_brd_svs,
+          { "Broadcast switch video sources", "h224.brd_svs",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_h224_number_of_presets,
+          { "Number of presets", "h224.number_of_presets",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_h224_vs_id,
+          { "Video source id", "h224.vs_id",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_h224_vs_reserved_b3,
+          { "Reserved type", "h224.reserved_type",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_h224_vs_reserved_b3b0,
+          { "Reserved Capabilities", "h224.reserved_caps",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_h224_motion_video,
+          { "Motion video", "h224.motion_video",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_h224_norm_res_si,
+          { "Normal resolution still image", "h224.norm_res_si",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_h224_dbl_res_si,
+          { "Double resolution still image", "h224.dbl_res_si",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_h224_pan_cap,
+          { "Pan Capability", "h224.pan_cap",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_h224_tilt_cap,
+          { "Tilt Capability", "h224.tilt_cap",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_h224_zoom_cap,
+          { "Zoom Capability", "h224.zoom_cap",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_h224_focus_cap,
+          { "Focus Capability", "h224.focus_cap",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_h224_encoded_characters,
+          { "Ascii String", "h224.ascii_str",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_h224_end_octet,
+          { "End octet", "h224.end_oct",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_h224_command_code,
+          { "FECC Message Code", "h224.fecc_message_code",
+            FT_UINT8, BASE_HEX, VALS(h224_fecc_message_type), 0,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_pan,
+          { "Pan action", "h224.pan_action",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_pan_dir,
+          { "Pan direction", "h224.pan_dir",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_tilt,
+          { "Tilt action", "h224.tilt_action",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_tilt_dir,
+          { "Tilt direction", "h224.tilt_dir",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_zoom,
+          { "Zoom action", "h224.zoom_action",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_zoom_dir,
+          { "Zoom direction", "h224.zoom_dir",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_focus,
+          { "Focus action", "h224.focus_action",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_focus_dir,
+          { "Focus direction", "h224.focus_dir",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_reserved_b7b4,
+          { "Action Reserved", "h224.act_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_reserved_b3b2,
+          { "Mode Reserved", "h224.mode_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x0c,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_reserved_b3b0,
+          { "Activate Preset Reserved", "h224.ap_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_vs_m1,
+          { "M1", "h224.vs_m1",
+            FT_UINT8, BASE_DEC, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_vs_m0,
+          { "M0", "h224.vs_m0",
+            FT_UINT8, BASE_DEC, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_timeout,
+          { "Timeout", "h224.timeout",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_h224_message_preset_number,
+          { "Preset Number", "h224.preset_number",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_h224_other_client_data,
+          { "Client data", "h224.client_data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
