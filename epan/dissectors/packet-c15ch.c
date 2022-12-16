@@ -51,9 +51,6 @@ void proto_reg_handoff_c15ch(void);
 #define C15_INFO           27
 
 #define HEADER_SZ 36 /* length of complete c15ch header in bytes */
-#define MAX_LEN_CONCAT_STRING 100
-#define MAX_LEN_DESC_STRING 20
-#define MAX_LEN_LOC_STRING 50 /* includes null char */
 
 static const char * C15_LABEL = "C15";
 /* Heartbeat Protocol : distinct from normal c15 type */
@@ -4579,8 +4576,7 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         pc_val = tvb_get_ntohl( tvb, 19 );
         loop_val = tvb_get_ntohl( tvb, 23 );
         slot_val = tvb_get_ntohl( tvb, 27 );
-        loc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_LOC_STRING); /* init to all NULL */
-        snprintf( loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", pm_val, pc_val, loop_val, slot_val );
+        loc_string = wmem_strdup_printf(wmem_packet_scope(), "%d  %d  %d  %d", pm_val, pc_val, loop_val, slot_val );
         ti = proto_tree_add_string(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_location, tvb, 15, (27 + 4 - 15) + 1, loc_string);
         loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub4);
 
@@ -4728,45 +4724,27 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree * c15ch_nitnxlate_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
     proto_tree * concat_tree = NULL;
-    char * concat_string = NULL;
     guchar * site_string;
     guchar * subsite_string;
     gchar * equipname_string;
-    char * desc_string = NULL;
+    wmem_strbuf_t * desc_string = wmem_strbuf_create(pinfo->pool);
     gint str_start;
-    gint max_str_len;
     gint site_str_len, subsite_str_len, equipname_str_len;
     guint32 gwtype_val;
     guint32 frame_val, shelf_val, lsg_val, unit_val;
     guint32 key_val;
-    concat_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_CONCAT_STRING); /* init to all NULL */
-    desc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_DESC_STRING);
+
     /* sitestring */
     str_start = 12;
-    max_str_len = 5;
     site_string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &site_str_len, ENC_ASCII);
-    if ( site_str_len > max_str_len )
-    {
-        site_string[ max_str_len - 1] = '\0';
-    }
 
     /* subsitestring */
     str_start = 17;
-    max_str_len = 5;
     subsite_string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &subsite_str_len, ENC_ASCII);
-    if ( subsite_str_len > max_str_len )
-    {
-        subsite_string[ max_str_len - 1] = '\0';
-    }
 
     /* equipname */
     str_start = 22;
-    max_str_len = 5;
     equipname_string = (gchar * )tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &equipname_str_len, ENC_ASCII);
-    if ( equipname_str_len > max_str_len )
-    {
-        equipname_string[ max_str_len - 1] = '\0';
-    }
 
     frame_val = tvb_get_ntohl( tvb, 31 );
     shelf_val = tvb_get_ntohl( tvb, 35 );
@@ -4775,89 +4753,36 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     key_val = tvb_get_ntohl( tvb, 47 );
     /* desc_string contains for site, subsite, equip, any of which may be null */
     /* don't want to print "NULL" or similar in the output string on any platform */
-    if ( ( site_str_len > 1 ) && ( subsite_str_len > 1 ) && ( equipname_str_len > 1 ) )
-    {
-        /* 1) none of site, subsite, or equip is null */
-        snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s %s ", site_string, subsite_string, equipname_string );
-    }
-    else
-        if ( ( site_str_len < 2 ) && ( subsite_str_len > 1 ) && ( equipname_str_len > 1 ) )
-        {
-            /* 2) only site is null */
-            snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", subsite_string, equipname_string );
-        }
-        else
-            if ( ( site_str_len > 1 ) && ( subsite_str_len < 2 ) && ( equipname_str_len > 1 ) )
-            {
-                /* 3) only subsite is null */
-                snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", site_string, equipname_string);
-            }
-            else
-                if ( ( site_str_len > 1 ) && ( subsite_str_len > 1 ) && ( equipname_str_len < 2 ) )
-                {
-                    /* 4) only equip is null */
-                    snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", site_string, subsite_string);
-                }
-                else
-                    if ( ( site_str_len < 2 ) && ( subsite_str_len < 2 ) && ( equipname_str_len > 1 ) )
-                    {
-                        /* 5) site and subsite are null but equip is non-null */
-                        snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", equipname_string );
-                    }
-                    else
-                        if ( ( site_str_len < 2 ) && ( subsite_str_len > 1 ) && ( equipname_str_len < 2 ) )
-                        {
-                            /* 6) site and equip are null but subsite is not-null */
-                            snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", subsite_string );
-                        }
-                        else
-                            if ( ( site_str_len > 1 ) && ( subsite_str_len < 2 ) && ( equipname_str_len < 2 ) )
-                            {
-                                /* 7) subsite and equip are null but site is not-null */
-                                snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", site_string );
-                            }
-                            /* else site, subsite, equip are all null */
+    if (site_str_len > 0)
+        wmem_strbuf_append_printf(desc_string, "%s ", site_string);
+    if (subsite_str_len > 0)
+        wmem_strbuf_append_printf(desc_string, "%s ", subsite_string);
+    if (equipname_str_len > 0)
+        wmem_strbuf_append_printf(desc_string, "%s ", equipname_string);
+
     if ( key_val )
     {
-        if ( strlen( desc_string ) )
-        {
-            snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d %d %d %d",
-                desc_string, frame_val, shelf_val, lsg_val, unit_val, key_val );
-        }
-        else
-        {
-            snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%d %d %d %d %d",
-                    frame_val, shelf_val, lsg_val, unit_val, key_val );
-        }
+        wmem_strbuf_append_printf(desc_string, "%d %d %d %d %d",
+                                    frame_val, shelf_val, lsg_val, unit_val, key_val );
     }
     else
     {
-        if ( strlen( desc_string) )
+        if ( (g_strcmp0( "VLIN", equipname_string) == 0) ||
+                (g_strcmp0( "PTRK", equipname_string) == 0) )
         {
-            if ( (g_strcmp0( "VLIN", equipname_string) == 0) ||
-                 (g_strcmp0( "PTRK", equipname_string) == 0) )
-            {
-                snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d",
-                        desc_string, frame_val );
-            }
-            else
-                if ( (g_strcmp0( "GWE", equipname_string ) == 0) ||
+            wmem_strbuf_append_printf(desc_string, "%d", frame_val );
+        }
+        else if ( (g_strcmp0( "GWE", equipname_string ) == 0) ||
                  (g_strcmp0( "IDE", equipname_string ) == 0) )
-                {
-                    snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d",
-                        desc_string, frame_val, shelf_val );
-                }
-            else
-                snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d %d %d",
-                    desc_string, frame_val, shelf_val, lsg_val, unit_val);
-        } /* if ( strlen( desc_string ) ) */
+        {
+            wmem_strbuf_append_printf(desc_string, "%d %d", frame_val, shelf_val );
+        }
         else
         {
-            snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%d %d %d %d",
-                    frame_val, shelf_val, lsg_val, unit_val);
+            wmem_strbuf_append_printf(desc_string, "%d %d %d %d", frame_val, shelf_val, lsg_val, unit_val);
         }
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", concat_string);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", desc_string->str);
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_nitnxlate, tvb, 0, 190, ENC_NA);
@@ -4875,25 +4800,22 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
         ti = proto_tree_add_string(c15ch_nitnxlate_tree, hf_c15ch_nitnxlate_concat_string, tvb, 12, 40 /*length*/,
-                                concat_string);
+                                desc_string->str);
         concat_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub2);
         if ( site_str_len > 1 )
         {
             str_start = 12;
-            max_str_len = 5;
-            add_string_field( concat_tree, tvb, str_start, max_str_len, hf_c15ch_nitnxlate_sitestring );
+            add_string_field( concat_tree, tvb, str_start, 5, hf_c15ch_nitnxlate_sitestring );
         }
         if ( subsite_str_len > 1 )
         {
             str_start = 17;
-            max_str_len = 5;
-            add_string_field( concat_tree, tvb, str_start, max_str_len, hf_c15ch_nitnxlate_subsitestring );
+            add_string_field( concat_tree, tvb, str_start, 5, hf_c15ch_nitnxlate_subsitestring );
         }
         if ( equipname_str_len > 1 )
         {
             str_start = 22;
-            max_str_len = 5;
-            add_string_field( concat_tree, tvb, str_start, max_str_len, hf_c15ch_nitnxlate_equipname );
+            add_string_field( concat_tree, tvb, str_start, 5, hf_c15ch_nitnxlate_equipname );
         }
         if ( g_strcmp0( "GWE", equipname_string) == 0 )
         {
@@ -4981,16 +4903,14 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if ( g_strcmp0( "GWE", equipname_string ) == 0 )
         {
             str_start = 51;
-            max_str_len = 65;
-            add_string_field( c15ch_nitnxlate_tree, tvb, str_start, max_str_len, hf_c15ch_nitnxlate_user_tid );
+            add_string_field( c15ch_nitnxlate_tree, tvb, str_start, 65, hf_c15ch_nitnxlate_user_tid );
         }
         /* host */
         str_start = 116;
-        max_str_len = 65;
         gwtype_val = tvb_get_ntohl( tvb, 27 );
         if ( gwtype_val )
         {
-            add_string_field( c15ch_nitnxlate_tree, tvb, str_start, max_str_len, hf_c15ch_nitnxlate_host );
+            add_string_field( c15ch_nitnxlate_tree, tvb, str_start, 65, hf_c15ch_nitnxlate_host );
         }
 
         /* target group number */
@@ -5055,8 +4975,7 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         from_pc_val = tvb_get_guint8( tvb, 9 );
         from_loop_val = tvb_get_guint8( tvb, 10 );
         from_slot_val = tvb_get_guint8( tvb, 11 );
-        from_loc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_LOC_STRING); /* init to all NULL */
-        snprintf( from_loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", from_pm_val, from_pc_val, from_loop_val, from_slot_val );
+        from_loc_string = wmem_strdup_printf(wmem_packet_scope(), "%d  %d  %d  %d", from_pm_val, from_pc_val, from_loop_val, from_slot_val );
         ti = proto_tree_add_string(c15ch_ntwk_conn_tree, hf_c15ch_ntwk_conn_fromlocation, tvb, 8, (11 - 8) + 1,
                                 from_loc_string);
         old_loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub1);
@@ -5096,8 +5015,7 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         to_pc_val = tvb_get_guint8( tvb, 32 );
         to_loop_val = tvb_get_guint8( tvb, 33 );
         to_slot_val = tvb_get_guint8( tvb, 34 );
-        to_loc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_LOC_STRING); /* init to all NULL */
-        snprintf( to_loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", to_pm_val, to_pc_val, to_loop_val, to_slot_val );
+        to_loc_string = wmem_strdup_printf(wmem_packet_scope(), "%d  %d  %d  %d", to_pm_val, to_pc_val, to_loop_val, to_slot_val );
         ti = proto_tree_add_string(c15ch_ntwk_conn_tree, hf_c15ch_ntwk_conn_tolocation, tvb, 31, (34 - 31) + 1,
                                 to_loc_string);
         new_loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub3);
