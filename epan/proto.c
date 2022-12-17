@@ -6668,8 +6668,9 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_ETHER:
 			set_address (&addr, AT_ETHER, FT_ETHER_LEN, fvalue_get_bytes(&finfo->value));
-			address_to_str_buf(&addr, display_label_str, label_str_size);
-			label_len = (int)strlen(display_label_str);
+			tmp_str = address_to_display(NULL, &addr);
+			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
+			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_GUID:
