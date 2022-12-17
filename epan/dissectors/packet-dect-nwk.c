@@ -2774,14 +2774,14 @@ static void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
 	guint32 psn;
 	guint64 digit_divisor, ipei_digits;
 
-	emc = ( ipei & 0xFFFF00000 ) >> 20;
+	emc = ( ( ipei & 0xFFFF00000 ) >> 20 ) & 0xFFFF;
 	psn = ipei & 0xFFFFF;
 
 	digit_divisor = 100000000000;
 	ipei_digits = emc * 10000000 + psn;
 	check_digit = 0;
-	for(int i = 1; i <= 12; i++) {
-		check_digit += ( ipei_digits / digit_divisor ) * i;
+	for(guint8 i = 1; i <= 12; i++) {
+		check_digit += (guint16)( ( ipei_digits / digit_divisor ) * i );
 		ipei_digits = ipei_digits % digit_divisor;
 		digit_divisor /= 10;
 	}
