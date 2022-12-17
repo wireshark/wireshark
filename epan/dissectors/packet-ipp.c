@@ -1054,6 +1054,10 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_lengt
                 guint8 seconds = tvb_get_guint8(tvb, valoffset + 6);
                 guint8 decisecs = tvb_get_guint8(tvb, valoffset + 7);
                 guint8 utcsign = tvb_get_guint8(tvb, valoffset + 8);
+                if (utcsign != '+' && utcsign != '-') {
+                    // XXX Add expert info
+                    utcsign = '?';
+                }
                 guint8 utchours = tvb_get_guint8(tvb, valoffset + 9);
                 guint8 utcminutes = tvb_get_guint8(tvb, valoffset + 10);
 
@@ -1286,6 +1290,10 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
                 guint8 seconds = tvb_get_guint8(tvb, valoffset + 6);
                 guint8 decisecs = tvb_get_guint8(tvb, valoffset + 7);
                 guint8 utcsign = tvb_get_guint8(tvb, valoffset + 8);
+                if (utcsign != '+' && utcsign != '-') {
+                    // XXX Add expert info
+                    utcsign = '?';
+                }
                 guint8 utchours = tvb_get_guint8(tvb, valoffset + 9);
                 guint8 utcminutes = tvb_get_guint8(tvb, valoffset + 10);
 
