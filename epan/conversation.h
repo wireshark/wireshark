@@ -93,6 +93,7 @@ typedef enum {
     CONVERSATION_NVME_MI,       /* NVMe management interface */
     CONVERSATION_BP,		/* Bundle Protocol endpoint IDs */
     CONVERSATION_SNMP,		/* SNMP */
+    CONVERSATION_QUIC,		/* QUIC */
 } conversation_type;
 
 /*

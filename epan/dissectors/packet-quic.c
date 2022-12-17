@@ -402,7 +402,8 @@ typedef struct quic_follow_tap_data {
  * State for a single QUIC connection, identified by one or more Destination
  * Connection IDs (DCID).
  */
-typedef struct quic_info_data {
+typedef struct quic_info_data quic_info_data_t;
+struct quic_info_data {
     guint32         number;         /** Similar to "udp.stream", but for identifying QUIC connections across migrations. */
     guint32         version;
     address         server_address;
@@ -436,7 +437,8 @@ typedef struct quic_info_data {
     wmem_map_t     *client_crypto;
     wmem_map_t     *server_crypto;
     gquic_info_data_t *gquic_info; /**< GQUIC info for >Q050 flows. */
-} quic_info_data_t;
+    quic_info_data_t *prev; /**< The previous QUIC connection multiplexed on the same network 5-tuple. Used by checking Stateless Reset tokens */
+};
 
 typedef struct _quic_crypto_info {
     const guint64 packet_number; /**< Reconstructed full packet number. */
@@ -1030,9 +1032,13 @@ quic_cids_is_known_length(const quic_cid_t *cid)
 }
 
 /**
- * Returns the QUIC connection for the current UDP stream. This may return NULL
- * after connection migration if the new UDP association was not properly linked
- * via a match based on the Connection ID.
+ * Returns the most recent QUIC connection for the current UDP stream. This may
+ * return NULL after connection migration if the new UDP association was not
+ * properly linked via a match based on the Connection ID.
+ *
+ * There may be more than one QUIC connection multiplexed on the same UDP
+ * 5-tuple; previous connections can be found by looking at the ->prev pointer.
+ * Per RFC 9000, multiplexed connections with zero-length CIDs will fail.
  */
 static quic_info_data_t *
 quic_connection_from_conv(packet_info *pinfo)
@@ -1045,7 +1051,8 @@ quic_connection_from_conv(packet_info *pinfo)
 }
 
 /**
- * Tries to lookup a matching connection (Connection ID is optional).
+ * Tries to lookup a matching connection (if Connection ID is NULL, the
+ * most recent connection on the network 5-tuple is returned, if any).
  * If connection is found, "from_server" is set accordingly.
  */
 static quic_info_data_t *
@@ -1144,12 +1151,15 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
     if (!is_long_packet && !conn) {
         // For short packets, first try to find a match based on the address.
         conn = quic_connection_find_dcid(pinfo, NULL, from_server);
-        if (conn) {
-            if ((*from_server && !quic_cids_has_match(&conn->client_cids, dcid)) ||
-                (!*from_server && !quic_cids_has_match(&conn->server_cids, dcid))) {
-                // Connection does not match packet.
-                conn = NULL;
+        /* Since we don't know the DCID, check all connections multiplexed
+         * on the same 5-tuple for a match. */
+        while (conn) {
+            if ((*from_server && quic_cids_has_match(&conn->client_cids, dcid)) ||
+                (!*from_server && quic_cids_has_match(&conn->server_cids, dcid))) {
+                // Connection matches packet.
+                break;
             }
+            conn = conn->prev;
         }
 
         // No match found so far, potentially connection migration. Length of
@@ -1173,7 +1183,8 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
 static quic_info_data_t *
 quic_connection_create(packet_info *pinfo, guint32 version)
 {
-    quic_info_data_t *conn = NULL;
+    conversation_t   *conv;
+    quic_info_data_t *prev_conn, *conn = NULL;
 
     conn = wmem_new0(wmem_file_scope(), quic_info_data_t);
     wmem_list_append(quic_connections, conn);
@@ -1183,7 +1194,15 @@ quic_connection_create(packet_info *pinfo, guint32 version)
     conn->server_port = pinfo->destport;
 
     // For faster lookups without having to check DCID
-    conversation_t *conv = find_or_create_conversation(pinfo);
+    conv = find_or_create_conversation(pinfo);
+    // Check for another connection multiplexed on the 5-tuple
+    prev_conn = conversation_get_proto_data(conv, proto_quic);
+    if (prev_conn) {
+        conn->prev = prev_conn;
+    }
+    conversation_add_proto_data(conv, proto_quic, conn);
+
+    conv = find_or_create_conversation_by_id(pinfo, CONVERSATION_QUIC, conn->number);
     conversation_add_proto_data(conv, proto_quic, conn);
 
     if (version == 0x51303530 || version == 0x54303530 || version == 0x54303531) {
@@ -3493,21 +3512,29 @@ quic_add_loss_bits(packet_info *pinfo, guint64 value)
 static quic_info_data_t *
 quic_find_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, gboolean *from_server)
 {
-    /* This is used when we have not found a connection, so use
-     * the 5-tuple. (XXX: When we do handle multiple connections
-     * on the same 5-tuple properly (#17099), this needs to search
-     * all of them.)
+    /* RFC 9000 10.3.1 Detecting a Stateless Reset
+     * "The endpoint identifies a received datagram as a Stateless
+     * Reset by comparing the last 16 bytes of the datagram with all
+     * stateless reset tokens associated with the remote address on
+     * which the datagram was received." That means we check all QUIC
+     * connections on the 5-tuple (as when a nonzero Connection ID is
+     * used there can be more than one.)
      */
     quic_info_data_t* conn = quic_connection_from_conv(pinfo);
     const quic_cid_item_t *cids;
 
-    if (conn) {
+    while (conn) {
         gboolean conn_from_server;
         conn_from_server = conn->server_port == pinfo->srcport &&
                 addresses_equal(&conn->server_address, &pinfo->src);
         cids = conn_from_server ? &conn->server_cids : &conn->client_cids;
         while (cids) {
             const quic_cid_t *cid = &cids->data;
+            /* XXX: Ibid., "An endpoint MUST NOT check for any stateless
+             * reset token associated with connection IDs it has not
+             * used or for connection IDs that have been retired,"
+             * so we ideally should track when they are retired.
+             */
             if (cid->reset_token_set &&
                     !tvb_memeql(tvb, -16, cid->reset_token, 16) ) {
                 *from_server = conn_from_server;
@@ -3515,6 +3542,7 @@ quic_find_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, gboolean *fro
             }
             cids = cids->next;
         }
+        conn = conn->prev;
     }
     return NULL;
 }
@@ -3573,6 +3601,11 @@ quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, qu
         return;
     }
 
+    /* Set the conversation elements so that TLS and other subdissectors
+     * calling find_conversation_pinfo() find this QUIC connection and
+     * not all QUIC connections multiplexed on the same network 5-tuple.
+     */
+    conversation_set_elements_by_id(pinfo, CONVERSATION_QUIC, conn->number);
     pi = proto_tree_add_uint(ctree, hf_quic_connection_number, tvb, 0, 0, conn->number);
     proto_item_set_generated(pi);
 #if 0
