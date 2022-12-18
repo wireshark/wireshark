@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: fb7db5d454274560f627ec68e989807c4bb46db0
+git revision: e06057c11420bf0ac51561c3d4c2340e9ae39656
 
 
 */
@@ -22454,6 +22454,8 @@ static const value_string valstr_021_V2_6_040_RCF[] = {
 static const FieldPart I021_V2_6_040_RCF = { 1, 1.0, FIELD_PART_UINT, &hf_021_V2_6_040_RCF, NULL };
 static gint hf_021_V2_6_040_TBC = -1;
 static const FieldPart I021_V2_6_040_TBC = { 7, 1.0, FIELD_PART_HEX, &hf_021_V2_6_040_TBC, NULL };
+static gint hf_021_V2_6_040_MBC = -1;
+static const FieldPart I021_V2_6_040_MBC = { 7, 1.0, FIELD_PART_HEX, &hf_021_V2_6_040_MBC, NULL };
 static const FieldPart *I021_V2_6_040_PARTS[] = {
     &I021_V2_6_040_ATP,
     &I021_V2_6_040_ARC,
@@ -22476,6 +22478,8 @@ static const FieldPart *I021_V2_6_040_PARTS[] = {
     &I021_V2_6_040_RCF,
     &IXXX_FX,
     &I021_V2_6_040_TBC,
+    &IXXX_FX,
+    &I021_V2_6_040_MBC,
     &IXXX_FX,
     NULL
 };
@@ -23617,6 +23621,8 @@ static const value_string valstr_021_040_RCF[] = {
 static const FieldPart I021_040_RCF = { 1, 1.0, FIELD_PART_UINT, &hf_021_040_RCF, NULL };
 static gint hf_021_040_TBC = -1;
 static const FieldPart I021_040_TBC = { 7, 1.0, FIELD_PART_HEX, &hf_021_040_TBC, NULL };
+static gint hf_021_040_MBC = -1;
+static const FieldPart I021_040_MBC = { 7, 1.0, FIELD_PART_HEX, &hf_021_040_MBC, NULL };
 static const FieldPart *I021_040_PARTS[] = {
     &I021_040_ATP,
     &I021_040_ARC,
@@ -23639,6 +23645,8 @@ static const FieldPart *I021_040_PARTS[] = {
     &I021_040_RCF,
     &IXXX_FX,
     &I021_040_TBC,
+    &IXXX_FX,
+    &I021_040_MBC,
     &IXXX_FX,
     NULL
 };
@@ -50254,6 +50262,7 @@ void proto_register_asterix (void)
         { &hf_021_V2_6_040_LDPJ, { "LDPJ, Local Decoding Position Jump", "asterix.021_V2_6_040_LDPJ", FT_UINT8, BASE_DEC, VALS (valstr_021_V2_6_040_LDPJ), 0x04, NULL, HFILL } },
         { &hf_021_V2_6_040_RCF, { "RCF, Range Check", "asterix.021_V2_6_040_RCF", FT_UINT8, BASE_DEC, VALS (valstr_021_V2_6_040_RCF), 0x02, NULL, HFILL } },
         { &hf_021_V2_6_040_TBC, { "TBC, Total Bits Corrected", "asterix.021_V2_6_040_TBC", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_021_V2_6_040_MBC, { "MBC, Maximum Bits Corrected", "asterix.021_V2_6_040_MBC", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_021_V2_6_070, { "070, Mode 3/A Code in Octal Representation", "asterix.021_V2_6_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_021_V2_6_070_MODE3A, { "MODE3A, Mode-3/A Reply in Octal Representation", "asterix.021_V2_6_070_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_021_V2_6_071, { "071, Time of Applicability for Position", "asterix.021_V2_6_071", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -50471,6 +50480,7 @@ void proto_register_asterix (void)
         { &hf_021_040_LDPJ, { "LDPJ, Local Decoding Position Jump", "asterix.021_040_LDPJ", FT_UINT8, BASE_DEC, VALS (valstr_021_040_LDPJ), 0x04, NULL, HFILL } },
         { &hf_021_040_RCF, { "RCF, Range Check", "asterix.021_040_RCF", FT_UINT8, BASE_DEC, VALS (valstr_021_040_RCF), 0x02, NULL, HFILL } },
         { &hf_021_040_TBC, { "TBC, Total Bits Corrected", "asterix.021_040_TBC", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_021_040_MBC, { "MBC, Maximum Bits Corrected", "asterix.021_040_MBC", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_021_070, { "070, Mode 3/A Code in Octal Representation", "asterix.021_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_021_070_MODE3A, { "MODE3A, Mode-3/A Reply in Octal Representation", "asterix.021_070_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_021_071, { "071, Time of Applicability for Position", "asterix.021_071", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
