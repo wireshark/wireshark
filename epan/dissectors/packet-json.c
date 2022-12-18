@@ -750,6 +750,21 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	json_key_lookup(tree, tok, last_key_string, data->pinfo, FALSE);
 
 	if (json_compact) {
+		proto_tree* tree_compact = (proto_tree*)wmem_stack_peek(data->stack_compact);
+		proto_tree* subtree_compact;
+		proto_item* ti_compact;
+
+		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+
+		if (JSON_INSIDE_ARRAY(idx)) {
+			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_array_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
+			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_array_compact);
+			json_array_index_increment(data);
+		} else {
+			subtree_compact = tree_compact;
+		}
+		wmem_stack_push(data->stack_compact, subtree_compact);
+
 		JSON_ARRAY_BEGIN(data);
 	}
 }
@@ -773,6 +788,8 @@ after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *e
 			proto_item_append_text(parent_item, " []");
 		else
 			proto_item_append_text(parent_item, " [...]");
+
+		wmem_stack_pop(data->stack_compact);
 
 		JSON_ARRAY_OBJECT_END(data);
 	}
