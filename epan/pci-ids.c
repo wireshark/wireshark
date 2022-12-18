@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2022.12.04
- * Date:    2022-12-04 03:15:02
+ * Version: 2022.12.17
+ * Date:    2022-12-17 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -191,6 +191,11 @@ pci_id_t pci_vid_0432[] = {
 pci_id_t pci_vid_0497[] = {
 {0x0497, 0xFFFF, 0xFFFF, 0xFFFF, "Dell Inc. (wrong ID)(0x0497)"},
 }; /* pci_vid_0497[] */
+
+pci_id_t pci_vid_060E[] = {
+{0x060E, 0xFFFF, 0xFFFF, 0xFFFF, "Lightelligence(0x060E)"},
+{0x060E, 0x0001, 0xFFFF, 0xFFFF, "Hummingbird ES(0x0001)"},
+}; /* pci_vid_060E[] */
 
 pci_id_t pci_vid_0675[] = {
 {0x0675, 0xFFFF, 0xFFFF, 0xFFFF, "Dynalink(0x0675)"},
@@ -41894,6 +41899,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x0357, 2, pci_vid_0357 },
 {0x0432, 2, pci_vid_0432 },
 {0x0497, 1, pci_vid_0497 },
+{0x060E, 2, pci_vid_060E },
 {0x0675, 5, pci_vid_0675 },
 {0x0721, 1, pci_vid_0721 },
 {0x0731, 38, pci_vid_0731 },
@@ -44176,7 +44182,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2310 VIDs */
+}; /* We have 2311 VIDs */
 
 static pci_vid_index_t *get_vid_index(guint16 vid)
 {

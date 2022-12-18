@@ -6161,6 +6161,7 @@ crestron-ctps	41797/tcp	# Crestron Secure Terminal Port
 candp		42508/tcp/udp	# Computer Associates network discovery protocol
 candrp		42509/tcp/udp	# CA discovery response
 caerpc		42510/tcp/udp	# CA eTrust RPC
+curiosity	42999/tcp	# API endpoint for search application
 recvr-rc	43000/tcp	# Receiver Remote Control
 recvr-rc-disc	43000/udp	# Receiver Remote Control Discovery
 reachout	43188/tcp/udp	# REACHOUT

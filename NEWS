@@ -17,6 +17,10 @@ Wireshark 4.1.0 Release Notes
   Display filter autocomplete is smarter about not suggesting invalid
   syntax.
 
+  The Windows build has a new SpeexDSP external dependency
+  (https://www.speex.org). The speex code that was previously bundled
+  has been removed.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -46,18 +50,21 @@ Wireshark 4.1.0 Release Notes
        to filter on malformed UTF-8 strings, among other use cases where
        it is necessary to look at the field’s raw data.
 
+     • ciscodump support Cisco IOS XE 17.x
+
   New Protocol Support
 
-   DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe),
-   Management Component Transport Protocol (MCTP), Management Component
-   Transport Protocol - Control Protocol (MCTP CP), Non-volatile Memory
-   Express - Management Interface (NVMe-MI) over MCTP, SAP Enqueue
-   Server (SAPEnqueue), SAP HANA SQL Command Network Protocol (SAPHDB),
-   SAP Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS),
-   SAP Network Interface (SAPNI), SAP Router (SAPROUTER), SAP Secure
-   Network Connection (SNC), Support for almost all WoW 1.12 messages
-   has been added., and World of Warcraft World (WOWW) display filters
-   have been changed to be more internally consistent.
+   DECT DLC protocol layer (DECT-DLC), DECT proprietary Mitel OMM/RFP
+   Protocol (also named AaMiDe), Management Component Transport Protocol
+   (MCTP), Management Component Transport Protocol - Control Protocol
+   (MCTP CP), Non-volatile Memory Express - Management Interface
+   (NVMe-MI) over MCTP, SAP Enqueue Server (SAPEnqueue), SAP HANA SQL
+   Command Network Protocol (SAPHDB), SAP Internet Graphic Server (SAP
+   IGS), SAP Message Server (SAPMS), SAP Network Interface (SAPNI), SAP
+   Router (SAPROUTER), SAP Secure Network Connection (SNC), Support for
+   almost all WoW 1.12 messages has been added., and World of Warcraft
+   World (WOWW) display filters have been changed to be more internally
+   consistent.
 
   Updated Protocol Support
 
