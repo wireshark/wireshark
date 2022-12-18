@@ -24,15 +24,14 @@
 
 #include <QStringList>
 
+QCache<guint32, QStringList> PacketListRecord::col_text_cache_(500);
 QMap<int, int> PacketListRecord::cinfo_column_;
-unsigned PacketListRecord::col_data_ver_ = 1;
 unsigned PacketListRecord::rows_color_ver_ = 1;
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
     lines_(1),
     line_count_changed_(false),
-    data_ver_(0),
     color_ver_(0),
     colorized_(false),
     conv_index_(0),
@@ -42,7 +41,6 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
 
 PacketListRecord::~PacketListRecord()
 {
-    col_text_.clear();
 }
 
 void PacketListRecord::ensureColorized(capture_file *cap_file)
@@ -54,14 +52,10 @@ void PacketListRecord::ensureColorized(capture_file *cap_file)
         return;
     }
 
-    //
-    // XXX - do we need to check whether the data versions match?
-    // If the record's color is already correct, we shouldn't need
-    // to redissect it to colorize it.
-    //
     bool dissect_color = !colorized_ || ( color_ver_ != rows_color_ver_ );
-    if (data_ver_ != col_data_ver_ || dissect_color) {
-        dissect(cap_file, dissect_color);
+    if (dissect_color) {
+        /* Do not dissect columns to avoid thrashing cache */
+        dissect(cap_file, false, dissect_color);
     }
 }
 
@@ -82,11 +76,16 @@ const QString PacketListRecord::columnString(capture_file *cap_file, int column,
     // properly colorized?
     //
     bool dissect_color = ( colorized && !colorized_ ) || ( color_ver_ != rows_color_ver_ );
-    if (column >= col_text_.count() || col_text_.at(column).isNull() || data_ver_ != col_data_ver_ || dissect_color) {
-        dissect(cap_file, dissect_color);
+    QStringList *col_text = nullptr;
+    if (!dissect_color) {
+        col_text = col_text_cache_.object(fdata_->num);
+    }
+    if (col_text == nullptr || column >= col_text->count() || col_text->at(column).isNull()) {
+        dissect(cap_file, true, dissect_color);
+        col_text = col_text_cache_.object(fdata_->num);
     }
 
-    return col_text_.at(column);
+    return col_text ? col_text->at(column) : QString();
 }
 
 void PacketListRecord::resetColumns(column_info *cinfo)
@@ -107,7 +106,7 @@ void PacketListRecord::resetColumns(column_info *cinfo)
     }
 }
 
-void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
+void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, bool dissect_color)
 {
     // packet_list_store.c:packet_list_dissect_and_cache_record
     epan_dissect_t edt;
@@ -115,8 +114,6 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     gboolean create_proto_tree;
     wtap_rec rec; /* Record metadata */
     Buffer buf;   /* Record data */
-
-    gboolean dissect_columns = col_text_.isEmpty() || data_ver_ != col_data_ver_;
 
     if (!cap_file) {
         return;
@@ -205,7 +202,6 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
         colorized_ = true;
         color_ver_ = rows_color_ver_;
     }
-    data_ver_ = col_data_ver_;
 
     struct conversation * conv = find_conversation_pinfo(&edt.pi, 0);
     conv_index_ = ! conv ? 0 : conv->conv_index;
@@ -215,7 +211,6 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     wtap_rec_cleanup(&rec);
 }
 
-//#define MINIMIZE_STRING_COPYING 1
 void PacketListRecord::cacheColumnStrings(column_info *cinfo)
 {
     // packet_list_store.c:packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gint col, column_info *cinfo)
@@ -223,66 +218,14 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         return;
     }
 
-    col_text_.clear();
+    QStringList *col_text = new QStringList();
+
     lines_ = 1;
     line_count_changed_ = false;
 
     for (int column = 0; column < cinfo->num_cols; ++column) {
         int col_lines = 1;
 
-#ifdef MINIMIZE_STRING_COPYING
-        int text_col = cinfo_column_.value(column, -1);
-
-        /* Column based on frame_data or it already contains a value */
-        if (text_col < 0) {
-            col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
-            col_text_ << QString(get_column_text(cinfo, column));
-            continue;
-        }
-
-        switch (cinfo->col_fmt[column]) {
-        case COL_PROTOCOL:
-        case COL_INFO:
-        case COL_IF_DIR:
-        case COL_DCE_CALL:
-        case COL_8021Q_VLAN_ID:
-        case COL_EXPERT:
-        case COL_FREQ_CHAN:
-            const gchar *col_data = get_column_text(cinfo, column);
-            if (col_data && col_data != cinfo->columns[column].col_buf) {
-                /* This is a constant string, so we don't have to copy it */
-                // XXX - ui/gtk/packet_list_store.c uses G_MAXUSHORT. We don't do proper UTF8
-                // truncation in either case.
-                int col_text_len = MIN(qstrlen(col_data) + 1, COL_MAX_INFO_LEN);
-                col_text_ << QString(QByteArray::fromRawData(col_data, col_text_len));
-                break;
-            }
-            /* !! FALL-THROUGH!! */
-
-        case COL_DEF_SRC:
-        case COL_RES_SRC:        /* COL_DEF_SRC is currently just like COL_RES_SRC */
-        case COL_UNRES_SRC:
-        case COL_DEF_DL_SRC:
-        case COL_RES_DL_SRC:
-        case COL_UNRES_DL_SRC:
-        case COL_DEF_NET_SRC:
-        case COL_RES_NET_SRC:
-        case COL_UNRES_NET_SRC:
-        case COL_DEF_DST:
-        case COL_RES_DST:        /* COL_DEF_DST is currently just like COL_RES_DST */
-        case COL_UNRES_DST:
-        case COL_DEF_DL_DST:
-        case COL_RES_DL_DST:
-        case COL_UNRES_DL_DST:
-        case COL_DEF_NET_DST:
-        case COL_RES_NET_DST:
-        case COL_UNRES_NET_DST:
-        default:
-            // XXX Use QContiguousCache?
-            col_text_ << QString(get_column_text(cinfo, column));
-            break;
-        }
-#else // MINIMIZE_STRING_COPYING
         QString col_str;
         int text_col = cinfo_column_.value(column, -1);
         if (text_col < 0) {
@@ -290,12 +233,13 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         }
 
         col_str = QString(get_column_text(cinfo, column));
-        col_text_ << col_str;
+        *col_text << col_str;
         col_lines = static_cast<int>(col_str.count('\n'));
         if (col_lines > lines_) {
             lines_ = col_lines;
             line_count_changed_ = true;
         }
-#endif // MINIMIZE_STRING_COPYING
     }
+
+    col_text_cache_.insert(fdata_->num, col_text);
 }

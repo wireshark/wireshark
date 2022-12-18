@@ -164,6 +164,7 @@ guint PacketListModel::recreateVisibleRows()
 void PacketListModel::clear() {
     beginResetModel();
     qDeleteAll(physical_rows_);
+    PacketListRecord::invalidateAllRecords();
     physical_rows_.resize(0);
     visible_rows_.resize(0);
     new_visible_rows_.resize(0);
