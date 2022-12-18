@@ -84,7 +84,8 @@ BASIC_LIST="gcc \
 	flex \
 	make \
 	python3 \
-	libgcrypt-dev"
+	libgcrypt-dev \
+	libspeexdsp-dev"
 
 QT5_LIST="qttools5-dev \
 	qttools5-dev-tools \
@@ -154,7 +155,6 @@ ADDITIONAL_LIST="libnl-3-dev \
 	perl \
 	xsltproc \
 	ccache \
-	libspeexdsp-dev \
 	doxygen"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
