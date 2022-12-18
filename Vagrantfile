@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Bump the default resources as building is expensive
   config.vm.provider "virtualbox" do |v|
-    v.memory = 2048
+    v.memory = 8096
     v.cpus = 4
   end
 
@@ -22,11 +22,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Install and build the various things (including wireshark!)
   config.vm.define "ubuntu", autostart: false do |deb|
-    deb.vm.box = "ubuntu/bionic64"
+    deb.vm.box = "ubuntu/jammy64"
 
     deb.vm.provision "shell" do |s|
       s.path = 'tools/debian-setup.sh'
-      s.args = ['--install-optional', '--assume-yes']
+      s.args = ['--install-optional', '--assume-yes', '--install-qt6-deps']
     end
     deb.vm.provision :shell, inline: "apt-get -y install ccache"
     deb.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
