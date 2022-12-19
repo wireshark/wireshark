@@ -13,6 +13,8 @@
 #pragma warning(disable : 4267)
 #endif
 
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
+
 #include "main_application.h"
 
 #include <algorithm>
@@ -312,25 +314,36 @@ void MainApplication::setMonospaceFont(const char *font_string) {
 
     if (font_string && strlen(font_string) > 0) {
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        // Qt 6's QFont::toString returns a value with 16 fields, e.g.
+        // Qt 6's QFont::toString returns a value with 16 or 17 fields, e.g.
         // Consolas,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-        // Qt 5's QFont::fromString expects a value with 10 fields, e.g.
+        // Corbel,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Regular
+        // Qt 5's QFont::fromString expects a value with 10 or 11 fields, e.g.
         // Consolas,10,-1,5,50,0,0,0,0,0
+        // Corbel,10,-1,5,50,0,0,0,0,0,Regular
+        // It looks like Qt6's QFont::fromString can read both forms:
+        // https://github.com/qt/qtbase/blob/6.0/src/gui/text/qfont.cpp#L2146
+        // but Qt5's cannot:
+        // https://github.com/qt/qtbase/blob/5.15/src/gui/text/qfont.cpp#L2151
         const char *fs_ptr = font_string;
-        int comma_count = 0;
+        int field_count = 1;
         while ((fs_ptr = strchr(fs_ptr, ',')) != NULL) {
             fs_ptr++;
-            comma_count++;
+            field_count++;
         }
-        if (comma_count < 10) {
+        if (field_count <= 11) {
 #endif
             mono_font_.fromString(font_string);
 
             // Only accept the font name if it actually exists.
             if (mono_font_.family() == QFontInfo(mono_font_).family()) {
                 return;
+            } else {
+                ws_warning("Monospace font family %s differs from its fontinfo: %s",
+                    qUtf8Printable(mono_font_.family()), qUtf8Printable(QFontInfo(mono_font_).family()));
             }
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+        } else {
+            ws_warning("Monospace font %s appears to be from Qt6 and we're running Qt5.", font_string);
         }
 #endif
     }
