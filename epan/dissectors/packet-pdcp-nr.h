@@ -43,7 +43,7 @@ enum nr_security_ciphering_algorithm_e { nea0, nea1, nea2, nea3, nea_disabled=99
 typedef struct pdcp_nr_security_info_t
 {
     guint32                                algorithm_configuration_frame;
-    gboolean                               seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
+    gboolean                               seen_next_ul_pdu;       /* i.e. have we seen SecurityModeComplete */
     gboolean                               dl_after_reest_request; /* i.e. waiting for DL after rrcReestablishmentRequest */
     enum nr_security_integrity_algorithm_e integrity;
     enum nr_security_ciphering_algorithm_e ciphering;

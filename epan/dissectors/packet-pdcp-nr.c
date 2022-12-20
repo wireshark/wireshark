@@ -110,6 +110,7 @@ static int hf_pdcp_nr_security_cipher_key = -1;
 static int hf_pdcp_nr_security_integrity_key = -1;
 static int hf_pdcp_nr_security_cipher_key_setup_frame = -1;
 static int hf_pdcp_nr_security_integrity_key_setup_frame = -1;
+static int hf_pdcp_nr_security_deciphered_data = -1;
 
 
 /* Protocol subtree. */
@@ -1207,7 +1208,7 @@ static void checkBearerSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 }
 
 
-/* Hash table for security state for a UE
+/* Hash table for security state for a UE during first pass.
    Maps UEId -> pdcp_security_info_t*  */
 static wmem_map_t *pdcp_security_hash = NULL;
 
@@ -1540,9 +1541,12 @@ void set_pdcp_nr_rrc_reestablishment_request(guint16 ueid)
 {
     pdcp_nr_security_info_t *pdu_security = (pdcp_nr_security_info_t*)wmem_map_lookup(pdcp_security_hash,
                                                                                       GUINT_TO_POINTER(ueid));
+
     /* Set flag if entry found */
     if (pdu_security) {
         pdu_security->dl_after_reest_request = TRUE;
+        /* Also, will need to repeat securityCommand, so unset this flag */
+        pdu_security->seen_next_ul_pdu = FALSE;
     }
 }
 
@@ -2140,11 +2144,12 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             /* No entry added from RRC, but still use configured defaults */
             if ((global_default_ciphering_algorithm != nea0) ||
                 (global_default_integrity_algorithm != nia0)) {
-                /* Copy algorithms from preference defaults */
+
+                /* Copy algorithms from preference defaults into new entry. */
                 pdcp_nr_security_info_t *security_to_store = wmem_new0(wmem_file_scope(), pdcp_nr_security_info_t);
                 security_to_store->ciphering = global_default_ciphering_algorithm;
                 security_to_store->integrity = global_default_integrity_algorithm;
-                security_to_store->seen_next_ul_pdu = TRUE;
+                security_to_store->seen_next_ul_pdu = FALSE;
                 wmem_map_insert(pdcp_security_result_hash,
                                 get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, TRUE),
                                 security_to_store);
@@ -2426,12 +2431,17 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             /* Control plane */
             /* Decipher if past securityModeComplete, snf not on DL after reestRequest */
             should_decipher = pdu_security->seen_next_ul_pdu && !pdu_security->dl_after_reest_request;
-
         }
     }
     payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info, sdap_length,
                                    should_decipher,
                                    &payload_deciphered);
+
+    /* Add deciphered data as a filterable field */
+    if (payload_deciphered) {
+        proto_tree_add_item(pdcp_tree, hf_pdcp_nr_security_deciphered_data,
+                            payload_tvb, 0,  tvb_reported_length(payload_tvb), ENC_NA);
+    }
 
     if ((p_pdcp_info->direction == PDCP_NR_DIRECTION_DOWNLINK) && current_security && (current_security->dl_after_reest_request)) {
         /* Have passed DL frame following reestRequest, so set back again */
@@ -2484,12 +2494,13 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                      data_length, ENC_NA);
             }
 
-            /* Have we seen SecurityModResponse? */
+            /* After payload - have we seen SecurityModResponse? */
             if (!PINFO_FD_VISITED(pinfo) &&
                 (current_security != NULL) && !current_security->seen_next_ul_pdu &&
                 p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK)
             {
-                /* i.e. we have now seen SecurityModeResponse! */
+                /* i.e. we have now seen SecurityModeComplete ! */
+                /* Set current security for UE, but not value stored for this PDU */
                 current_security->seen_next_ul_pdu = TRUE;
             }
         }
@@ -2504,7 +2515,6 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((p_pdcp_info->maci_present) ? 4 : 0);
 
         if (sdap_length) {
-
             /* SDAP */
             proto_item *sdap_ti;
             proto_tree *sdap_tree;
@@ -2931,7 +2941,13 @@ void proto_register_pdcp_nr(void)
               "pdcp-nr.security-config.integrity-key.setup-frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
-        }
+        },
+        { &hf_pdcp_nr_security_deciphered_data,
+            { "Deciphered Data",
+              "pdcp-nr.deciphered-data", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
     };
 
     static hf_register_info hf_sdap[] =
