@@ -45868,7 +45868,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_civic_location_type,
-     {"Civic Location Type", "wlan.measure.req.location_subject",
+     {"Civic Location Type", "wlan.measure.req.location_type",
       FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_civic_location_type), 0,
       NULL, HFILL }},
 
@@ -51662,7 +51662,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_s1g_sector_id_snr,
      {"SNR", "wlan.s1g.sector_id_index.snr",
       FT_UINT16, BASE_CUSTOM, CF_FUNC(s1g_sector_id_index_snr_custom),
-      0x00F1, NULL, HFILL }},
+      0x00F8, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_sector_id_receive_sector_bitmap,
      {"Receive Sector Bitmap", "wlan.s1g.sector_id_index.receive_sector_bitmap",
