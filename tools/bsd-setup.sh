@@ -49,7 +49,8 @@ BASIC_LIST="\
 	cmake \
 	qt6 \
 	git \
-	pcre2"
+	pcre2 \
+	speexdsp"
 
 ADDITIONAL_LIST="\
 	gettext-tools \
@@ -59,7 +60,6 @@ ADDITIONAL_LIST="\
 	libmaxminddb \
 	libsmi \
 	brotli \
-	speexdsp \
 	zstd \
 	lua52 \
 	"
