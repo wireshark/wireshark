@@ -7027,7 +7027,7 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     /* 7B    Service-level-AA container    Service-level-AA container 9.11.2.10    O    TLV-E    6-n */
     ELEM_OPT_TLV_E(0x7B, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_SERVICE_LEVEL_AA_CONT, NULL);
     /* 33    Negotiated PEIPS assistance information    PEIPS assistance information 9.11.3.80    O    TLV    3-n */
-    ELEM_OPT_TLV(0x33, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PEIPS_ASSIST_INFO, " - Negociated");
+    ELEM_OPT_TLV(0x33, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PEIPS_ASSIST_INFO, " - Negotiated");
     /* 34    5GS additional request result    5GS additional request result 9.11.3.81    O    TLV    3 */
     ELEM_OPT_TLV(0x34, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_ADD_REQ_RES, NULL);
     /* 70    NSSRG information    NSSRG information 9.11.3.82    O    TLV-E    7-65538 */
