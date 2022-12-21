@@ -1172,6 +1172,10 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 
 	if (st_op == STNODE_OP_UNARY_MINUS) {
 		ftype1 = check_arithmetic_entity(dfw, st_arg1, lhs_ftype);
+		if (!ftype_can_unary_minus(ftype1)) {
+			FAIL(dfw, st_arg1, "%s cannot %s.",
+				ftype_name(ftype1), stnode_todisplay(st_node));
+		}
 		if (stnode_type_id(st_arg1) == STTYPE_FVALUE) {
 			/* Pre-compute constant unary minus result */
 			char *err_msg;
