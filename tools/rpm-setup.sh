@@ -180,6 +180,9 @@ echo "Required package zlib|libz1 is unavailable" >&2
 add_package BASIC_LIST c-ares-devel || add_package BASIC_LIST libcares-devel ||
 echo "Required package c-ares-devel|libcares-devel is unavailable" >&2
 
+add_package BASIC_LIST speexdsp-devel || add_package BASIC_LIST speex-devel ||
+echo "Required package speexdsp-devel|speex-devel is unavailable" >&2
+
 if [ $HAVE_ADD_QT -eq 0 ]
 then
 	# Try to select Qt version from distro
@@ -229,7 +232,7 @@ then
 			qt6-qt5compat-devel
 			qt6-qtmultimedia-devel
 			libxkbcommon-devel)
-		
+
 	for pkg in ${QT6_LIST[@]}
 	do
 		add_package BASIC_LIST "$pkg" ||
@@ -286,9 +289,6 @@ echo "Optional package libxslt|libxslt1 is unavailable" >&2
 
 add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
 echo "Optional packages brotli-devel|libbrotli-devel is unavailable" >&2
-
-add_package ADDITIONAL_LIST speexdsp-devel || add_package ADDITIONAL_LIST speex-devel ||
-echo "Optional package speexdsp-devel|speex-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST libnl3-devel || add_package ADDITIONAL_LIST libnl-devel ||
 echo "Optional package libnl3-devel|libnl-devel are unavailable" >&2
