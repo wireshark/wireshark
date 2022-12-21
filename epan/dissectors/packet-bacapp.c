@@ -11594,8 +11594,19 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             switch (fTagNo(tvb, offset)) {
             case 0: /* new-value */
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                offset  = fApplicationTypes(tvb, pinfo, subtree, offset, "new-value: ");
-                offset  = fDeviceObjectPropertyValue(tvb, pinfo, subtree, offset);
+
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_opening(tag_info))
+                {
+                    offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                    offset  = fDateTime(tvb, pinfo, subtree, offset, "new-value: ");
+                    offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                }
+                else
+                {
+                    offset  = fApplicationTypes(tvb, pinfo, subtree, offset, "new-value: ");
+                }
+
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 break;
             case 1: /* status-flags */
