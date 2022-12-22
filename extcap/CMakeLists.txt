@@ -82,6 +82,9 @@ macro(set_extcap_executable_properties _executable)
 endmacro()
 
 macro(set_extlog_executable_properties _executable)
+	set_target_properties(${_executable} PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+	)
 	if(ENABLE_APPLICATION_BUNDLE)
 		if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
 			# Xcode
