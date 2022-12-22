@@ -61,11 +61,11 @@ DIAG_ON_LEMON()
 %type           set_element     {GSList*}
 %destructor     set_element     {set_nodelist_free($$);}
 
-/* This is called as soon as a syntax error happens. After that, 
+/* This is called as soon as a syntax error happens. After that,
 any "error" symbols are shifted, if possible. */
 %syntax_error {
     if (!TOKEN) {
-        dfilter_fail(dfw, DF_ERROR_UNEXPECTED_END, NULL, "Unexpected end of filter expression.");
+        dfilter_fail(dfw, DF_ERROR_UNEXPECTED_END, DFILTER_LOC_EMPTY, "Unexpected end of filter expression.");
         return;
     }
     FAIL(dfw, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
@@ -181,7 +181,7 @@ field(R) ::= ATSIGN layered_field(F).
 field(R) ::= ATSIGN UNPARSED(U).
 {
     const char *token = stnode_token(U);
-    const stloc_t *loc = stnode_location(U);
+    df_loc_t loc = stnode_location(U);
     header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, token);
     if (hfinfo == NULL) {
         FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
@@ -218,7 +218,7 @@ entity(E) ::= reference(R).     { E = R; }
 entity(E) ::= UNPARSED(U).
 {
     const char *token = stnode_token(U);
-    const stloc_t *loc = stnode_location(U);
+    df_loc_t loc = stnode_location(U);
     header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, token);
     if (hfinfo != NULL) {
         E = stnode_new(STTYPE_FIELD, hfinfo, g_strdup(token), loc);
@@ -319,7 +319,7 @@ comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) comparison_test(R).
     L = O;
     sttype_oper_set2_args(L, E, stnode_dup(F));
 
-    T = stnode_new(STTYPE_TEST, NULL, NULL, NULL);
+    T = stnode_new_empty(STTYPE_TEST);
     sttype_oper_set2(T, STNODE_OP_AND, L, R);
 }
 
@@ -366,7 +366,7 @@ relation(R) ::= ALL relation_test(T).
 
 set(S) ::= LBRACE set_list(L) RBRACE.
 {
-    S = stnode_new(STTYPE_SET, L, NULL, NULL);
+    S = stnode_new(STTYPE_SET, L, NULL, DFILTER_LOC_EMPTY);
 }
 
 set_list(L) ::= set_element(N).
@@ -411,7 +411,7 @@ set_element(N) ::= set_entity(X) DOTDOT set_entity(Y).
 
 slice(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
-    R = stnode_new(STTYPE_SLICE, NULL, NULL, NULL);
+    R = stnode_new(STTYPE_SLICE, NULL, NULL, DFILTER_LOC_EMPTY);
     sttype_slice_set(R, E, L);
 
     /* Delete the list, but not the drange_nodes that

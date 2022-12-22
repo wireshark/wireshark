@@ -13,6 +13,8 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
+#include "dfilter-loc.h"
+
 /* Passed back to user */
 typedef struct epan_dfilter dfilter_t;
 
@@ -55,15 +57,10 @@ dfilter_expand(const char *expr, char **err_ret);
 #define DF_ERROR_GENERIC		-1
 #define DF_ERROR_UNEXPECTED_END		-2
 
-typedef struct _dfilter_loc {
-	long col_start;
-	size_t col_len;
-} dfilter_loc_t;
-
 typedef struct {
 	int code;
 	char *msg;
-	dfilter_loc_t loc;
+	df_loc_t loc;
 } df_error_t;
 
 WS_DLL_PUBLIC

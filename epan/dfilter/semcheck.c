@@ -41,7 +41,8 @@ static void
 semcheck(dfwork_t *dfw, stnode_t *st_node);
 
 static fvalue_t *
-mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s);
+mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s,
+				df_loc_t loc);
 
 typedef gboolean (*FtypeCanFunc)(enum ftenum);
 
@@ -178,7 +179,7 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 
 	if (fv == NULL && hfinfo_value_string) {
 		/* check value_string */
-		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, s);
+		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, s, stnode_location(st));
 		/*
 		 * Ignore previous errors if this can be mapped
 		 * to an item from value_string.
@@ -209,7 +210,7 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	SET_ERROR(dfw, error_message);
 
 	if (fv == NULL && hfinfo_value_string) {
-		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, gs->str);
+		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, gs->str, stnode_location(st));
 		/*
 		 * Ignore previous errors if this can be mapped
 		 * to an item from value_string.
@@ -254,7 +255,8 @@ mk_uint64_fvalue(guint64 val)
  * This works only for ftypes that are integers. Returns the created fvalue_t*
  * or NULL if impossible. */
 static fvalue_t*
-mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s)
+mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s,
+				df_loc_t loc)
 {
 	static const true_false_string  default_tf = { "True", "False" };
 	const true_false_string		*tf = &default_tf;
@@ -333,7 +335,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			 * has already been set.
 			 */
 			dfw_error_clear(&dfw->error);
-			dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot be found among the possible values for %s.",
+			dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 			return NULL;
 		}
@@ -341,7 +343,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 
 	/* Do val_strings exist? */
 	if (!hfinfo->strings) {
-		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "%s cannot accept strings as values.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "%s cannot accept strings as values.",
 				hfinfo->abbrev);
 		return NULL;
 	}
@@ -352,7 +354,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	dfw_error_clear(&dfw->error);
 
 	if (hfinfo->display & BASE_RANGE_STRING) {
-		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot accept [range] strings as values.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot accept [range] strings as values.",
 				hfinfo->abbrev);
 	}
 	else if (hfinfo->display & BASE_VAL64_STRING) {
@@ -364,7 +366,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			}
 			vals++;
 		}
-		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot be found among the possible values for %s.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
@@ -374,7 +376,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		 *  integer, we have the string they're trying to match.
 		 *  -><-
 		 */
-		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot accept [custom] strings as values.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot accept [custom] strings as values.",
 				hfinfo->abbrev);
 	}
 	else {
@@ -388,7 +390,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			}
 			vals++;
 		}
-		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot be found among the possible values for %s.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 	}
 	return NULL;
@@ -992,7 +994,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 
 	pcre = ws_regex_compile_ex(patt->str, patt->len, &errmsg, WS_REGEX_CASELESS|WS_REGEX_NEVER_UTF);
 	if (errmsg) {
-		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "Regex compilation error: %s.", errmsg);
+		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st_arg2), "Regex compilation error: %s.", errmsg);
 		g_free(errmsg);
 		THROW(TypeError);
 	}

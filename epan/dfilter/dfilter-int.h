@@ -65,8 +65,8 @@ typedef struct {
 	dfwork_t *dfw;
 	GString* quoted_string;
 	gboolean raw_string;
-	stloc_t string_loc;
-	stloc_t location;
+	df_loc_t string_loc;
+	df_loc_t location;
 } df_scanner_state_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
@@ -80,20 +80,20 @@ void Dfilter(void*, int, stnode_t*, dfwork_t*);
 #define SCAN_FAILED	-1	/* not 0, as that means end-of-input */
 
 void
-dfilter_vfail(dfwork_t *dfw, int code, stloc_t *err_loc,
+dfilter_vfail(dfwork_t *dfw, int code, df_loc_t err_loc,
 			const char *format, va_list args);
 
 void
-dfilter_fail(dfwork_t *dfw, int code, stloc_t *err_loc,
+dfilter_fail(dfwork_t *dfw, int code, df_loc_t err_loc,
 			const char *format, ...) G_GNUC_PRINTF(4, 5);
 
 WS_NORETURN
 void
-dfilter_fail_throw(dfwork_t *dfw, int code, stloc_t *err_loc,
+dfilter_fail_throw(dfwork_t *dfw, int code, df_loc_t err_loc,
 			const char *format, ...) G_GNUC_PRINTF(4, 5);
 
 void
-dfw_set_error_location(dfwork_t *dfw, stloc_t *err_loc);
+dfw_set_error_location(dfwork_t *dfw, df_loc_t err_loc);
 
 void
 add_deprecated_token(dfwork_t *dfw, const char *token);

@@ -243,7 +243,7 @@ df_func_abs(GSList *args, guint32 arg_count, GSList **retval)
  * it is an FT_STRING */
 static ftenum_t
 ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
-                            GSList *param_list, stloc_t *func_loc _U_)
+                            GSList *param_list, df_loc_t func_loc _U_)
 {
     header_field_info *hfinfo;
 
@@ -261,7 +261,7 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t lhs_f
 
 static ftenum_t
 ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
-                            GSList *param_list, stloc_t *func_loc _U_)
+                            GSList *param_list, df_loc_t func_loc _U_)
 {
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node = param_list->data;
@@ -274,7 +274,7 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U
 
 static ftenum_t
 ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
-                            GSList *param_list, stloc_t *func_loc _U_)
+                            GSList *param_list, df_loc_t func_loc _U_)
 {
     header_field_info *hfinfo;
 
@@ -328,7 +328,7 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftyp
 /* Check arguments are all the same type and they can be compared. */
 static ftenum_t
 ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
-                        GSList *param_list, stloc_t *func_loc _U_)
+                        GSList *param_list, df_loc_t func_loc _U_)
 {
     stnode_t *arg;
     ftenum_t ftype, ft_arg;
@@ -396,7 +396,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
 
 static ftenum_t
 ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
-                        GSList *param_list, stloc_t *func_loc _U_)
+                        GSList *param_list, df_loc_t func_loc _U_)
 {
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node;

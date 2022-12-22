@@ -13,6 +13,7 @@
 #include <glib.h>
 #include <ftypes/ftypes.h>
 #include "syntax-tree.h"
+#include "dfilter-int.h"
 
 /* Functions take any number of arguments and return 1. */
 
@@ -21,7 +22,7 @@ typedef gboolean (*DFFuncType)(GSList *arg_list, guint32 arg_count, GSList **ret
 
 /* The semantic check for the dfilter function */
 typedef ftenum_t (*DFSemCheckType)(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
-                                GSList *param_list, stloc_t *func_loc);
+                                GSList *param_list, df_loc_t func_loc);
 
 /* This is a "function definition" record, holding everything
  * we need to know about a function */

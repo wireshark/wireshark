@@ -42,7 +42,7 @@ static void dftest_cmdarg_err(const char *fmt, va_list ap);
 static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 
 static void
-putloc(FILE *fp, dfilter_loc_t loc)
+putloc(FILE *fp, df_loc_t loc)
 {
     for (long i = 0; i < loc.col_start; i++) {
         fputc(' ', fp);

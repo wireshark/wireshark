@@ -41,8 +41,10 @@ static void*	ParserObj = NULL;
  */
 dfwork_t *global_dfw;
 
+df_loc_t loc_empty = {-1, 0};
+
 void
-dfilter_vfail(dfwork_t *dfw, int code, stloc_t *loc,
+dfilter_vfail(dfwork_t *dfw, int code, df_loc_t loc,
 				const char *format, va_list args)
 {
 	dfw->parse_failure = TRUE;
@@ -53,17 +55,11 @@ dfilter_vfail(dfwork_t *dfw, int code, stloc_t *loc,
 
 	dfw->error.code = code;
 	dfw->error.msg = ws_strdup_vprintf(format, args);
-	if (loc) {
-		dfw->error.loc = *(dfilter_loc_t *)loc;
-	}
-	else {
-		dfw->error.loc.col_start = -1;
-		dfw->error.loc.col_len = 0;
-	}
+	dfw->error.loc = loc;
 }
 
 void
-dfilter_fail(dfwork_t *dfw, int code, stloc_t *loc,
+dfilter_fail(dfwork_t *dfw, int code, df_loc_t loc,
 				const char *format, ...)
 {
 	va_list	args;
@@ -74,7 +70,7 @@ dfilter_fail(dfwork_t *dfw, int code, stloc_t *loc,
 }
 
 void
-dfilter_fail_throw(dfwork_t *dfw, int code, stloc_t *loc, const char *format, ...)
+dfilter_fail_throw(dfwork_t *dfw, int code, df_loc_t loc, const char *format, ...)
 {
 	va_list	args;
 
@@ -85,11 +81,9 @@ dfilter_fail_throw(dfwork_t *dfw, int code, stloc_t *loc, const char *format, ..
 }
 
 void
-dfw_set_error_location(dfwork_t *dfw, stloc_t *loc)
+dfw_set_error_location(dfwork_t *dfw, df_loc_t loc)
 {
-	/* Set new location. */
-	ws_assert(loc);
-	dfw->error.loc = *(dfilter_loc_t *)loc;
+	dfw->error.loc = loc;
 }
 
 header_field_info *
@@ -419,7 +413,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	df_set_extra(&state, scanner);
 
 	while (1) {
-		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL, NULL, NULL);
+		df_lval = stnode_new_empty(STTYPE_UNINITIALIZED);
 		token = df_lex(scanner);
 
 		/* Check for scanner failure */
