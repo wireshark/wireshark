@@ -278,6 +278,7 @@ sttype_oper_set1(stnode_t *node, stnode_op_t op, stnode_t *val1)
 	oper->op = op;
 	oper->val1 = val1;
 	oper->val2 = NULL;
+	node->location = stnode_merge_location(node, val1, (stnode_t *)NULL);
 }
 
 void
@@ -290,6 +291,7 @@ sttype_oper_set2(stnode_t *node, stnode_op_t op, stnode_t *val1, stnode_t *val2)
 	oper->op = op;
 	oper->val1 = val1;
 	oper->val2 = val2;
+	node->location = stnode_merge_location(node, val1, val2, (stnode_t *)NULL);
 }
 
 void
@@ -303,6 +305,7 @@ sttype_oper_set1_args(stnode_t *node, stnode_t *val1)
 	ws_assert(num_operands(oper->op) == 1);
 	oper->val1 = val1;
 	oper->val2 = NULL;
+	node->location = stnode_merge_location(node, val1, (stnode_t *)NULL);
 }
 
 void
@@ -316,6 +319,7 @@ sttype_oper_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
 	ws_assert(num_operands(oper->op) == 2);
 	oper->val1 = val1;
 	oper->val2 = val2;
+	node->location = stnode_merge_location(node, val1, val2, (stnode_t *)NULL);
 }
 
 void

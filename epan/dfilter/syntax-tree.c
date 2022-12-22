@@ -250,6 +250,37 @@ stnode_location(stnode_t *node)
 	return node->location;
 }
 
+/* Finds the first and last location from a set and creates
+ * a new location from start of first (col_start) to end of
+ * last (col_start + col_len). */
+df_loc_t
+stnode_merge_location(stnode_t *st, ...)
+{
+	df_loc_t first, last, loc;
+	df_loc_t result;
+	va_list ap;
+
+	first = last = stnode_location(st);
+
+	va_start(ap, st);
+	while ((st = va_arg(ap, stnode_t *)) != NULL) {
+		loc = stnode_location(st);
+		if (loc.col_start >= 0) {
+			if (loc.col_start < first.col_start) {
+				first = loc;
+			}
+			else if (loc.col_start > last.col_start) {
+				last = loc;
+			}
+		}
+	}
+	va_end(ap);
+
+	result.col_start = first.col_start;
+	result.col_len = last.col_start - first.col_start + last.col_len;
+	return result;
+}
+
 #define IS_OPERATOR(node) \
 	(stnode_type_id(node) == STTYPE_TEST || \
 		stnode_type_id(node) == STTYPE_ARITHMETIC)

@@ -1265,8 +1265,8 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	}
 
 	if (!compatible_ftypes(ftype1, ftype2)) {
-		FAIL(dfw, st_arg2, "%s and %s are not type compatible.",
-			stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
+		FAIL(dfw, st_node, "%s and %s are not compatible.",
+			ftype_name(ftype1), ftype_name(ftype2));
 	}
 
 	return ftype1;

@@ -156,6 +156,9 @@ stnode_token(stnode_t *node);
 df_loc_t
 stnode_location(stnode_t *node);
 
+df_loc_t
+stnode_merge_location(stnode_t *n1, ...);
+
 const char *
 stnode_tostr(stnode_t *node, gboolean pretty);
 
