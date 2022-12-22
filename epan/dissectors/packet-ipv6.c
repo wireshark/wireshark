@@ -68,6 +68,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_CALIPSO                  0x07    /* 00 0 00111 =   7 */
 #define IP6OPT_SMF_DPD                  0x08    /* 00 0 01000 =   8 */
 #define IP6OPT_PDM                      0x0F    /* 00 0 01111 =  15 */
+#define IP6OPT_APN6                     0x13    /* 00 0 10003 =  19 */
 #define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
 #define IP6OPT_PMTU                     0x30    /* 00 1 10000 =  48 */
@@ -229,6 +230,13 @@ static int hf_ipv6_opt_rtalert                  = -1;
 static int hf_ipv6_opt_pmtu_min                 = -1;
 static int hf_ipv6_opt_pmtu_rtn                 = -1;
 static int hf_ipv6_opt_pmtu_rtn_flag            = -1;
+static int hf_ipv6_opt_apn_id_type              = -1;
+static int hf_ipv6_opt_apn_flags                = -1;
+static int hf_ipv6_opt_apn_param_type           = -1;
+static int hf_ipv6_opt_apn_id_part1             = -1;
+static int hf_ipv6_opt_apn_id_part2             = -1;
+static int hf_ipv6_opt_apn_id_part3             = -1;
+static int hf_ipv6_opt_apn_id_part4             = -1;
 static int hf_ipv6_opt_jumbo                    = -1;
 static int hf_ipv6_opt_calipso_doi              = -1;
 static int hf_ipv6_opt_calipso_cmpt_length      = -1;
@@ -493,6 +501,7 @@ static expert_field ei_ipv6_opt_jumbo_prohibited = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_truncated = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_fragment = EI_INIT;
 static expert_field ei_ipv6_opt_invalid_len = EI_INIT;
+static expert_field ei_ipv6_opt_apn_invalid_id_type = EI_INIT;
 static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_opt_deprecated = EI_INIT;
 static expert_field ei_ipv6_opt_mpl_ipv6_src_seed_id = EI_INIT;
@@ -810,6 +819,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_CALIPSO,       "CALIPSO"                       },
     { IP6OPT_SMF_DPD,       "SMF_DPD"                       },
     { IP6OPT_PDM,           "Performance and Diagnostic Metrics" },
+    { IP6OPT_APN6,          "Application-Aware IPv6 Networking (APN6)" },
     { IP6OPT_EXP_1E,        "Experimental (0x1E)"           },
     { IP6OPT_QUICKSTART,    "Quick-Start"                   },
     { IP6OPT_PMTU,          "Path MTU Option"               },
@@ -881,6 +891,7 @@ static const gint _ipv6_opt_type_hdr[][2] = {
     { IP6OPT_TEL,           IPv6_OPT_HDR_DST },
     { IP6OPT_RTALERT,       IPv6_OPT_HDR_HBH },
     { IP6OPT_PMTU,          IPv6_OPT_HDR_HBH },
+    { IP6OPT_APN6,          IPv6_OPT_HDR_ANY },
     { IP6OPT_CALIPSO,       IPv6_OPT_HDR_HBH },
     { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
     { IP6OPT_PDM,           IPv6_OPT_HDR_DST },
@@ -962,6 +973,17 @@ static const value_string ipv6_multicast_scope_vals[] = {
     { 0xE, "Global scope" },
     { 0xF, "Reserved" },
     { 0, NULL }
+};
+
+#define APN_ID_32BIT 1
+#define APN_ID_64BIT 2
+#define APN_ID_128BIT 3
+static const value_string apn_id_type_strs[] = {
+        { 0,             "Invalid" },
+        { APN_ID_32BIT,  "32-bit"  },
+        { APN_ID_64BIT,  "64-bit"  },
+        { APN_ID_128BIT, "128-bit" },
+        { 0, NULL }
 };
 
 static gboolean
@@ -1806,6 +1828,90 @@ dissect_opt_pmtu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt
 
     return offset;
 }
+
+/*
+ * IETF APN6
+ *
+ * Application-Aware IPv6 Networking (APN6)
+ *
+ * https://datatracker.ietf.org/wg/apn/about/
+ * https://datatracker.ietf.org/doc/draft-li-apn-header/
+ * https://datatracker.ietf.org/doc/draft-li-apn-ipv6-encap/
+ *
+ *  0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  APN-ID-Type  |     Flags     |         APN-Para-Type         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                            APN-ID                             |
+   |                    (32-bit/64-bit/128-bit)                    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * */
+static gint
+dissect_opt_apn6(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+                 struct opt_proto_item *opt_ti, guint8 opt_len)
+{
+    if (opt_len < 8) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+              "APN6 Option: Invalid Length (%u bytes) for basic APN header and shortest APN ID(32-bit)", opt_len);
+    }
+
+    guint32 parsed_offset = 0; // offset is for DOH header; parsed_offset is for APN option.
+    proto_tree *sub_tree = proto_tree_add_subtree(opt_tree, tvb, offset, opt_len, 0, NULL, "APN Header");
+
+    guint8 apn_id_type = tvb_get_guint8(tvb, offset);
+    proto_item *apn_id_type_i = proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    parsed_offset++;
+
+    if (apn_id_type < APN_ID_32BIT || apn_id_type > APN_ID_128BIT) {
+        expert_add_info_format(pinfo, apn_id_type_i, &ei_ipv6_opt_apn_invalid_id_type,
+                               "APN6 Option: Invalid APN ID Type (%u)", apn_id_type);
+    }
+
+
+    proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    parsed_offset++;
+
+    proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_param_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    parsed_offset += 2;
+
+
+    if (apn_id_type >= APN_ID_32BIT) {
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_id_part1, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        parsed_offset += 4;
+    }
+    if (apn_id_type >= APN_ID_64BIT) {
+        if (opt_len - parsed_offset < 4) {
+            expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                                   "APN6 Option: Invalid Length (%u bytes) for 64-bit APN ID, parsed offset %u",
+                                   opt_len, parsed_offset);
+        }
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_id_part2, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        parsed_offset += 4;
+    }
+    if (apn_id_type >= APN_ID_128BIT) {
+        if (opt_len - parsed_offset < 8) {
+            expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                                   "APN6 Option: Invalid Length (%u bytes) for 128-bit APN ID, parsed offset %u",
+                                   opt_len, parsed_offset);
+        }
+
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_id_part3, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_apn_id_part4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
 
 /*
  * IPv6 Router Alert Option
@@ -2753,6 +2859,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             break;
         case IP6OPT_PMTU:
             offset = dissect_opt_pmtu(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
+        case IP6OPT_APN6:
+            offset = dissect_opt_apn6(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_QUICKSTART:
             offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, iph);
@@ -4171,6 +4280,41 @@ proto_register_ipv6(void)
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "Destination should include the received reported PMTU", HFILL }
         },
+        { &hf_ipv6_opt_apn_id_type,
+            { "ID Type", "ipv6.opt.apn.id.type",
+                FT_UINT8, BASE_DEC, VALS(apn_id_type_strs), 0x0,
+                "The type of the APN ID", HFILL }
+        },
+        { &hf_ipv6_opt_apn_flags,
+            { "Flags", "ipv6.opt.apn.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                "Flags for advanced processing", HFILL }
+        },
+        { &hf_ipv6_opt_apn_param_type,
+            { "Parameters Types", "ipv6.opt.apn.param.type",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "Bitmap to identify the existence of APN Parameters", HFILL }
+        },
+        { &hf_ipv6_opt_apn_id_part1,
+            { "ID Part1", "ipv6.opt.apn.id.part1",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "The first 32-bit of the APN ID", HFILL }
+        },
+        { &hf_ipv6_opt_apn_id_part2,
+            { "ID Part2", "ipv6.opt.apn.id.part2",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "The second 32-bit of the APN ID", HFILL }
+        },
+        { &hf_ipv6_opt_apn_id_part3,
+            { "ID Part3", "ipv6.opt.apn.id.part3",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "The third 32-bit of the APN ID", HFILL }
+        },
+        { &hf_ipv6_opt_apn_id_part4,
+            { "ID Part4", "ipv6.opt.apn.id.part4",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "The last 32-bit of the APN ID", HFILL }
+        },
         { &hf_ipv6_opt_rtalert,
             { "Router Alert", "ipv6.opt.router_alert",
                 FT_UINT16, BASE_DEC, VALS(ipv6_opt_rtalert_vals), 0x0,
@@ -5000,6 +5144,10 @@ proto_register_ipv6(void)
         { &ei_ipv6_opt_invalid_len,
             { "ipv6.opt.invalid_len", PI_MALFORMED, PI_ERROR,
                 "Invalid IPv6 option length", EXPFILL }
+        },
+        { &ei_ipv6_opt_apn_invalid_id_type,
+            { "ipv6.opt.apn.invalid.id_type", PI_MALFORMED, PI_ERROR,
+                "Invalid APN ID Type", EXPFILL }
         },
         { &ei_ipv6_opt_unknown_data,
             { "ipv6.opt.unknown_data.expert", PI_UNDECODED, PI_NOTE,
