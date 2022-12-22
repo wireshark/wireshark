@@ -1150,7 +1150,7 @@ static const value_string nwk_mm_msgt_vals[] = {
 	{ DECT_NWK_MM_ACC_RIGHTS_ACK,      "MM-ACCESS-RIGHTS-ACCEPT" },
 	{ DECT_NWK_MM_ACC_RIGHTS_REJ,      "MM-ACCESS-RIGHTS-REJECT" },
 	{ DECT_NWK_MM_ACC_RIGHTS_TERM_REQ, "MM-ACCESS-RIGHTS-TERMINATE-REQUEST" },
-	{ DECT_NWK_MM_ACC_RIGHTS_ACK,      "MM-ACCESS-RIGHTS-TERMINATE-ACCEPT" },
+	{ DECT_NWK_MM_ACC_RIGHTS_TERM_ACK, "MM-ACCESS-RIGHTS-TERMINATE-ACCEPT" },
 	{ DECT_NWK_MM_ACC_RIGHTS_TERM_REJ, "MM-ACCESS-RIGHTS-TERMINATE-REJECT" },
 	{ DECT_NWK_MM_CIPH_REQ,            "MM-CIPHER-REQUEST" },
 	{ DECT_NWK_MM_CIPH_SUGGEST,        "MM-CIPHER-SUGGEST" },
@@ -3217,7 +3217,7 @@ void proto_register_dect_nwk(void)
 				CF_FUNC(&fmt_dect_nwk_ipei), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type,
-			{ "Assignment Type", "dect_nwk.s.ie.portable_identity.tpui_assignemtn_type", FT_UINT8, BASE_HEX,
+			{ "Assignment Type", "dect_nwk.s.ie.portable_identity.tpui_assignment_type", FT_UINT8, BASE_HEX,
 				VALS(dect_nwk_s_ie_portable_identity_tpui_assignment_type_val), 0xF0, NULL, HFILL }
 		},
 		{ &hf_dect_nwk_s_ie_portable_identity_tpui_value,
