@@ -716,6 +716,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 	/* xx.x */
 	length=max_len;
+	old_offset = offset;
 	if (max_len == NO_BOUND) {
 		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_octet_string_length, &length, NULL);
 		/* the unconstrained strings are always byte aligned (27.6.3)*/
@@ -731,7 +732,9 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		/* there is no string at all, so don't do any byte alignment */
 		/* byte_aligned=FALSE; */
 		/* Advance offset to next 'element' */
-		offset = offset + 1;	}
+		if (offset == old_offset)
+			offset = offset + 1;
+	}
 
 	if((byte_aligned)&&(actx->aligned)){
 		BYTE_ALIGN_OFFSET(offset);
