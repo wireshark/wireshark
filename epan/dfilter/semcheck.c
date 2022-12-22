@@ -1117,6 +1117,29 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
+static const char *
+op_to_error_msg(stnode_op_t st_op)
+{
+	switch (st_op) {
+		case STNODE_OP_UNARY_MINUS:
+			return "cannot be negated";
+		case STNODE_OP_ADD:
+			return "cannot be added";
+		case STNODE_OP_SUBTRACT:
+			return "cannot be subtracted";
+		case STNODE_OP_MULTIPLY:
+			return "cannot be multiplied";
+		case STNODE_OP_DIVIDE:
+			return "cannot be divided";
+		case STNODE_OP_MODULO:
+			return "does not support modulo operation";
+		case STNODE_OP_BITWISE_AND:
+			return "does not support bitwise AND";
+		default:
+			return "cannot FIXME";
+	}
+}
+
 static ftenum_t
 check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 {
@@ -1185,8 +1208,8 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	if (st_op == STNODE_OP_UNARY_MINUS) {
 		ftype1 = check_arithmetic_entity(dfw, st_arg1, lhs_ftype);
 		if (!ftype_can_unary_minus(ftype1)) {
-			FAIL(dfw, st_arg1, "%s cannot %s.",
-				ftype_name(ftype1), stnode_todisplay(st_node));
+			FAIL(dfw, st_arg1, "%s %s.",
+				ftype_name(ftype1), op_to_error_msg(st_op));
 		}
 		if (stnode_type_id(st_arg1) == STTYPE_FVALUE) {
 			/* Pre-compute constant unary minus result */
@@ -1229,14 +1252,14 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 
 	ftype1 = check_arithmetic_expr(dfw, st_arg1, lhs_ftype);
 	if (!can_func(ftype1)) {
-		FAIL(dfw, st_arg1, "%s cannot %s.",
-			ftype_name(ftype1), stnode_todisplay(st_node));
+		FAIL(dfw, st_arg1, "%s %s.",
+			ftype_name(ftype1), op_to_error_msg(st_op));
 	}
 
 	ftype2 = check_arithmetic_expr(dfw, st_arg2, ftype1);
 	if (!can_func(ftype2)) {
-		FAIL(dfw, st_arg2, "%s cannot %s.",
-			ftype_name(ftype2), stnode_todisplay(st_node));
+		FAIL(dfw, st_arg2, "%s %s.",
+			ftype_name(ftype2), op_to_error_msg(st_op));
 	}
 
 	if (!compatible_ftypes(ftype1, ftype2)) {
