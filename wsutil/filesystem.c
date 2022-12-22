@@ -464,6 +464,20 @@ get_executable_path(void)
 }
 #endif /* _WIN32 */
 
+static void trim_progfile_dir(void)
+{
+    char *progfile_last_dir = find_last_pathname_separator(progfile_dir);
+
+    if (! (progfile_last_dir && strncmp(progfile_last_dir + 1, "extcap", sizeof("extcap")) == 0)) {
+        return;
+    }
+
+    *progfile_last_dir = '\0';
+    char *extcap_progfile_dir = progfile_dir;
+    progfile_dir = g_strdup(extcap_progfile_dir);
+    g_free(extcap_progfile_dir);
+}
+
 /*
  * Get the pathname of the directory from which the executable came,
  * and save it for future use.  Returns NULL on success, and a
@@ -502,6 +516,7 @@ init_progfile_dir(
          */
         progfile_dir = g_path_get_dirname(prog_pathname);
         if (progfile_dir != NULL) {
+            trim_progfile_dir();
             return NULL;    /* we succeeded */
         } else {
             /*
@@ -754,6 +769,7 @@ init_progfile_dir(
          * OK, we have the path we want.
          */
         progfile_dir = prog_pathname;
+        trim_progfile_dir();
         return NULL;
     } else {
         /*

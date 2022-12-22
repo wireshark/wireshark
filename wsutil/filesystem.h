@@ -32,7 +32,11 @@ extern "C" {
 WS_DLL_PUBLIC char *init_progfile_dir(const char *arg0);
 
 /*
- * Get the directory in which the program resides.
+ * Get the directory in which the main (Wireshark, TShark, Logray, etc)
+ * program resides.
+ * Extcaps should use get_extcap_dir() to get their path.
+ *
+ * @return The main program file directory.
  */
 WS_DLL_PUBLIC const char *get_progfile_dir(void);
 
