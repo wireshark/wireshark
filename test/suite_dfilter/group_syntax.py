@@ -232,6 +232,10 @@ class case_unary_minus(unittest.TestCase):
         dfilter = "-2 == tcp.dstport"
         checkDFilterFail(dfilter, error)
 
+    def test_unary_4(self, checkDFilterCount):
+        dfilter = "tcp.window_size_scalefactor == -{tcp.dstport * 20}"
+        checkDFilterCount(dfilter, 0)
+
 @fixtures.uses_fixtures
 class case_arithmetic(unittest.TestCase):
     trace_file = "dhcp.pcap"

@@ -438,7 +438,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 
 			case DFVM_UNARY_MINUS:
-				wmem_strbuf_append_printf(buf, "%05d %s\t\t-%s -> %s\n",
+				wmem_strbuf_append_printf(buf, "%05d %s\t-%s -> %s\n",
 					id, opcode_str, arg1_str, arg2_str);
 				break;
 

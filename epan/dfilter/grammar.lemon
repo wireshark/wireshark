@@ -234,12 +234,12 @@ arithmetic_expr(T) ::= entity(N).
     T = N;
 }
 
-arithmetic_expr(T) ::= PLUS entity(N).  [UNARY_PLUS]
+arithmetic_expr(T) ::= PLUS arithmetic_expr(N).  [UNARY_PLUS]
 {
     T = N;
 }
 
-arithmetic_expr(T) ::= MINUS(M) entity(N). [UNARY_MINUS]
+arithmetic_expr(T) ::= MINUS(M) arithmetic_expr(N). [UNARY_MINUS]
 {
     T = M;
     sttype_oper_set1(T, STNODE_OP_UNARY_MINUS, N);

@@ -60,6 +60,8 @@ The following features are new (or have been significantly updated) since versio
   This can be useful to filter on malformed UTF-8 strings, among other use cases where it is necessary to
   look at the field's raw data.
 
+* Negation (unary minus) now works with any display filter arithmetic expression.
+
 * ciscodump support Cisco IOS XE 17.x
 
 // === Removed Features and Support

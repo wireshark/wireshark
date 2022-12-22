@@ -1206,7 +1206,7 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	}
 
 	if (st_op == STNODE_OP_UNARY_MINUS) {
-		ftype1 = check_arithmetic_entity(dfw, st_arg1, lhs_ftype);
+		ftype1 = check_arithmetic_expr(dfw, st_arg1, lhs_ftype);
 		if (!ftype_can_unary_minus(ftype1)) {
 			FAIL(dfw, st_arg1, "%s %s.",
 				ftype_name(ftype1), op_to_error_msg(st_op));
