@@ -546,9 +546,34 @@ E2RemovalResponse                        N e2ap.proc.sout id-E2removal
   /* TODO: is there a nicer/reliable way to get PrintableString here (VAL_PTR won't get assigned..) */
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   ran_functionid_table_t *table = get_ran_functionid_table(actx->pinfo);
-  store_ran_function_mapping(actx->pinfo, table, e2ap_data->ran_function_id,
+  store_ran_function_mapping(actx->pinfo, table, e2ap_data,
                              tvb_get_stringz_enc(wmem_packet_scope(), tvb, (start_offset+15)/8, NULL, ENC_ASCII));
 
+#.FN_BODY GlobalgNB-ID/gnb-id
+  int start_offset = offset;
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  /* Limit length, but really can't be > 5 bytes.. */
+  e2ap_data->gnb_id_len = MIN((offset-start_offset)/8, MAX_GNB_ID_BYTES);
+  memcpy(&e2ap_data->gnb_id_bytes, tvb_get_ptr(tvb, start_offset/8, e2ap_data->gnb_id_len), e2ap_data->gnb_id_len);
+  update_conversation_from_gnb_id(actx);
+
+
+
+#.FN_BODY TNLinformation/tnlAddress VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
+%(DEFAULT_BODY)s
+  if (tvb_captured_length(value_tvb)==4) {
+    proto_item_append_text(tree, " (%%s", tvb_ip_to_str(actx->pinfo->pool, value_tvb, 0));
+  }
+  else {
+    proto_item_append_text(tree, " (%%s", tvb_ip6_to_str(actx->pinfo->pool, value_tvb, 0));
+  }
+
+#.FN_BODY TNLinformation/tnlPort
+  proto_item_append_text(tree, ":%%u)", tvb_get_ntohs(tvb, offset/8));
+%(DEFAULT_BODY)s
 
 
 #.FN_HDR E2connectionUpdate

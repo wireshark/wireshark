@@ -29,6 +29,7 @@
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/to_str.h>
 
 #include "packet-e2ap.h"
 #include "packet-per.h"
@@ -329,7 +330,7 @@ static int hf_e2ap_pLMN_Identity = -1;            /* PLMN_Identity */
 static int hf_e2ap_eNB_ID = -1;                   /* ENB_ID */
 static int hf_e2ap_gNB_ID_01 = -1;                /* ENGNB_ID */
 static int hf_e2ap_plmn_id = -1;                  /* PLMN_Identity */
-static int hf_e2ap_gnb_id = -1;                   /* GNB_ID_Choice */
+static int hf_e2ap_gnb_id = -1;                   /* T_gnb_id */
 static int hf_e2ap_enb_id = -1;                   /* ENB_ID_Choice */
 static int hf_e2ap_gNB_01 = -1;                   /* GlobalgNB_ID */
 static int hf_e2ap_ng_eNB_01 = -1;                /* GlobalngeNB_ID */
@@ -339,8 +340,8 @@ static int hf_e2ap_ricRequestorID_01 = -1;        /* INTEGER_0_65535 */
 static int hf_e2ap_ricInstanceID = -1;            /* INTEGER_0_65535 */
 static int hf_e2ap_ricSubsequentActionType = -1;  /* RICsubsequentActionType */
 static int hf_e2ap_ricTimeToWait = -1;            /* RICtimeToWait */
-static int hf_e2ap_tnlAddress = -1;               /* BIT_STRING_SIZE_1_160_ */
-static int hf_e2ap_tnlPort = -1;                  /* BIT_STRING_SIZE_16 */
+static int hf_e2ap_tnlAddress = -1;               /* T_tnlAddress */
+static int hf_e2ap_tnlPort = -1;                  /* T_tnlPort */
 static int hf_e2ap_protocolIEs = -1;              /* ProtocolIE_Container */
 static int hf_e2ap_ricEventTriggerDefinition = -1;  /* RICeventTriggerDefinition */
 static int hf_e2ap_ricAction_ToBeSetup_List = -1;  /* RICactions_ToBeSetup_List */
@@ -1310,6 +1311,9 @@ struct e2ap_private_data {
   guint32 ran_ue_e2ap_id;
 
   guint32 ran_function_id;
+  guint32 gnb_id_len;
+#define MAX_GNB_ID_BYTES 6
+  guint8  gnb_id_bytes[MAX_GNB_ID_BYTES];
 };
 
 static struct e2ap_private_data*
@@ -1396,7 +1400,7 @@ typedef struct {
 } ran_function_id_mapping_t;
 
 typedef struct  {
-#define MAX_RANFUNCTION_ENTRIES 16
+#define MAX_RANFUNCTION_ENTRIES 8
     guint32                   num_entries;
     ran_function_id_mapping_t entries[MAX_RANFUNCTION_ENTRIES];
 } ran_functionid_table_t;
@@ -1414,8 +1418,20 @@ const char *ran_function_to_str(ran_function_t ran_function)
     }
 }
 
+typedef struct {
+#define MAX_GNBS 6
+    guint32 num_gnbs;
+    struct {
+        guint32 len;
+        guint8  value[MAX_GNB_ID_BYTES];
+        ran_functionid_table_t *ran_function_table;
+    } gnb[MAX_GNBS];
+} gnb_ran_functions_t;
 
-/* Get RANfunctionID table from conversation data */
+static gnb_ran_functions_t s_gnb_ran_functions;
+
+
+/* Get RANfunctionID table from conversation data - create new if necessary */
 ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 {
     conversation_t *p_conv;
@@ -1443,13 +1459,15 @@ ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 
 
 /* Store new RANfunctionID -> Service Model mapping in table */
-static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_t *table, guint32 ran_function_id, const char *name)
+static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_t *table, struct e2ap_private_data *e2ap_data, const char *name)
 {
     /* Stop if already reached table limit */
     if (table->num_entries == MAX_RANFUNCTION_ENTRIES) {
         /* TODO: expert info warning? */
         return;
     }
+
+    guint32 ran_function_id = e2ap_data->ran_function_id;
 
     ran_function_t           ran_function = MAX_RANFUNCTIONS;  /* i.e. invalid */
     ran_function_pointers_t *ran_function_pointers = NULL;
@@ -1484,6 +1502,34 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
     table->entries[idx].ran_function_id = ran_function_id;
     table->entries[idx].ran_function = ran_function;
     table->entries[idx].ran_function_pointers = ran_function_pointers;
+
+    /* When add first entry, also want to set up table from gnbId -> table */
+    if (idx == 0) {
+        guint id_len = e2ap_data->gnb_id_len;
+        guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
+
+        gboolean found = FALSE;
+        for (guint n=0; n<s_gnb_ran_functions.num_gnbs; n++) {
+            if ((s_gnb_ran_functions.gnb[n].len = id_len) &&
+                (memcmp(s_gnb_ran_functions.gnb[n].value, id_value, id_len) == 0)) {
+                // Already have an entry for this gnb.
+                found = TRUE;
+                break;
+            }
+        }
+
+        if (!found) {
+            /* Add entry (if room for 1 more) */
+            guint32 new_idx = s_gnb_ran_functions.num_gnbs;
+            if (new_idx < MAX_GNBS-1) {
+                s_gnb_ran_functions.gnb[new_idx].len = id_len;
+                memcpy(s_gnb_ran_functions.gnb[new_idx].value, id_value, id_len);
+                s_gnb_ran_functions.gnb[new_idx].ran_function_table = table;
+
+                s_gnb_ran_functions.num_gnbs++;
+            }
+        }
+    }
 }
 
 /* Look for Service Model function pointers, based on current RANFunctionID in pinfo */
@@ -1513,6 +1559,49 @@ ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, proto_t
     expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_id_not_mapped,
                            "Service Model not mapped for FunctionID %u", ran_function_id);
     return NULL;
+}
+
+/* This will get used for E2nodeConfigurationUpdate, where we have a gnb-id but haven't seen E2setupRequest */
+void update_conversation_from_gnb_id(asn1_ctx_t *actx _U_)
+{
+    packet_info *pinfo = actx->pinfo;
+    struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
+
+    /* Look for conversation data */
+    conversation_t *p_conv;
+    ran_functionid_table_t *p_conv_data = NULL;
+
+    /* Lookup conversation */
+    p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                               conversation_pt_to_endpoint_type(pinfo->ptype),
+                               pinfo->destport, pinfo->srcport, 0);
+
+    if (!p_conv) {
+        /* None, so create new data and set */
+        p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                                  conversation_pt_to_endpoint_type(pinfo->ptype),
+                                  pinfo->destport, pinfo->srcport, 0);
+        p_conv_data = (ran_functionid_table_t*)wmem_new0(wmem_file_scope(), ran_functionid_table_t);
+        conversation_add_proto_data(p_conv, proto_e2ap, p_conv_data);
+
+        /* Look to see if we already know about the mappings in effect on this gNB */
+        guint id_len = e2ap_data->gnb_id_len;
+        guint8 *id_value = &e2ap_data->gnb_id_bytes[0];
+
+        for (guint n=0; n<s_gnb_ran_functions.num_gnbs; n++) {
+            if ((s_gnb_ran_functions.gnb[n].len = id_len) &&
+                (memcmp(s_gnb_ran_functions.gnb[n].value, id_value, id_len) == 0)) {
+
+                /* Have an entry for this gnb.  Set direct pointer to existing data (used by original conversation). */
+                /* N.B. This means that no further updates for the gNB are expected on different conversations.. */
+                p_conv_data = s_gnb_ran_functions.gnb[n].ran_function_table;
+                conversation_add_proto_data(p_conv, proto_e2ap, p_conv_data);
+
+                /* TODO: may want to try to add a generated field to pass back to E2setupRequest where RAN function mappings were first seen? */
+                break;
+            }
+        }
+    }
 }
 
 
@@ -2126,9 +2215,29 @@ dissect_e2ap_GNB_ID_Choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+
+static int
+dissect_e2ap_T_gnb_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  int start_offset = offset;
+  offset = dissect_e2ap_GNB_ID_Choice(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  /* Limit length, but really can't be > 5 bytes.. */
+  e2ap_data->gnb_id_len = MIN((offset-start_offset)/8, MAX_GNB_ID_BYTES);
+  memcpy(&e2ap_data->gnb_id_bytes, tvb_get_ptr(tvb, start_offset/8, e2ap_data->gnb_id_len), e2ap_data->gnb_id_len);
+  update_conversation_from_gnb_id(actx);
+
+
+
+
+  return offset;
+}
+
+
 static const per_sequence_t GlobalgNB_ID_sequence[] = {
   { &hf_e2ap_plmn_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PLMN_Identity },
-  { &hf_e2ap_gnb_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_GNB_ID_Choice },
+  { &hf_e2ap_gnb_id         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_gnb_id },
   { NULL, 0, 0, NULL }
 };
 
@@ -2942,9 +3051,18 @@ dissect_e2ap_TimeToWait(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 static int
-dissect_e2ap_BIT_STRING_SIZE_1_160_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e2ap_T_tnlAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *value_tvb;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, NULL, 0, NULL, NULL);
+                                     1, 160, TRUE, NULL, 0, &value_tvb, NULL);
+
+  if (tvb_captured_length(value_tvb)==4) {
+    proto_item_append_text(tree, " (%s", tvb_ip_to_str(actx->pinfo->pool, value_tvb, 0));
+  }
+  else {
+    proto_item_append_text(tree, " (%s", tvb_ip6_to_str(actx->pinfo->pool, value_tvb, 0));
+  }
+
 
   return offset;
 }
@@ -2952,17 +3070,21 @@ dissect_e2ap_BIT_STRING_SIZE_1_160_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static int
-dissect_e2ap_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e2ap_T_tnlPort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  proto_item_append_text(tree, ":%u)", tvb_get_ntohs(tvb, offset/8));
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, FALSE, NULL, 0, NULL, NULL);
+
+
+
 
   return offset;
 }
 
 
 static const per_sequence_t TNLinformation_sequence[] = {
-  { &hf_e2ap_tnlAddress     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_BIT_STRING_SIZE_1_160_ },
-  { &hf_e2ap_tnlPort        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_BIT_STRING_SIZE_16 },
+  { &hf_e2ap_tnlAddress     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_tnlAddress },
+  { &hf_e2ap_tnlPort        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_T_tnlPort },
   { NULL, 0, 0, NULL }
 };
 
@@ -4618,10 +4740,8 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   /* TODO: is there a nicer/reliable way to get PrintableString here (VAL_PTR won't get assigned..) */
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   ran_functionid_table_t *table = get_ran_functionid_table(actx->pinfo);
-  store_ran_function_mapping(actx->pinfo, table, e2ap_data->ran_function_id,
+  store_ran_function_mapping(actx->pinfo, table, e2ap_data,
                              tvb_get_stringz_enc(wmem_packet_scope(), tvb, (start_offset+15)/8, NULL, ENC_ASCII));
-
-
 
 
   return offset;
@@ -11151,6 +11271,12 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 
+static void e2ap_init_protocol(void)
+{
+  s_gnb_ran_functions.num_gnbs = 0;
+}
+
+
 /*--- proto_reg_handoff_e2ap ---------------------------------------*/
 void
 proto_reg_handoff_e2ap(void)
@@ -11890,7 +12016,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_gnb_id,
       { "gnb-id", "e2ap.gnb_id",
         FT_UINT32, BASE_DEC, VALS(e2ap_GNB_ID_Choice_vals), 0,
-        "GNB_ID_Choice", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_enb_id,
       { "enb-id", "e2ap.enb_id",
         FT_UINT32, BASE_DEC, VALS(e2ap_ENB_ID_Choice_vals), 0,
@@ -11930,11 +12056,11 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_tnlAddress,
       { "tnlAddress", "e2ap.tnlAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_1_160_", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_tnlPort,
       { "tnlPort", "e2ap.tnlPort",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_16", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_protocolIEs,
       { "protocolIEs", "e2ap.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -14422,6 +14548,8 @@ void proto_register_e2ap(void) {
   e2ap_proc_sout_dissector_table = register_dissector_table("e2ap.proc.sout", "E2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_e2ap, FT_UINT32, BASE_DEC);
   e2ap_proc_uout_dissector_table = register_dissector_table("e2ap.proc.uout", "E2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_e2ap, FT_UINT32, BASE_DEC);
   e2ap_n2_ie_type_dissector_table = register_dissector_table("e2ap.n2_ie_type", "E2AP N2 IE Type", proto_e2ap, FT_STRING, FALSE);
+
+  register_init_routine(&e2ap_init_protocol);
 }
 
 /*
