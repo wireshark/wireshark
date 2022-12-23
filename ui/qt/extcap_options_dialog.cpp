@@ -419,11 +419,12 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
 
     /* Check the existence for a local file */
     if (help_url.isLocalFile()) {
-        QFileInfo help_file(help_url.toLocalFile());
+        QString local_path = help_url.toLocalFile();
+        QFileInfo help_file(local_path);
         if (!help_file.exists()) {
             QMessageBox::warning(this, tr("Extcap Help cannot be found"),
                 QString(tr("The help for the extcap interface %1 cannot be found. Given file: %2"))
-                    .arg(device->name).arg(help_url.path()),
+                    .arg(device->name).arg(QDir::toNativeSeparators(local_path)),
                 QMessageBox::Ok);
             return;
         }
