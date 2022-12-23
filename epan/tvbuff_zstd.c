@@ -70,6 +70,11 @@ tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const int offset, int comprlen)
         count++;
         DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
     }
+    if (rc > 0)
+    {
+        // There is extra data that was not decompressed.
+        goto end;
+    }
 
     ok = true;
 end:
