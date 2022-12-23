@@ -419,8 +419,7 @@ set_target_properties(reassemble_test PROPERTIES
 )
 
 add_executable(tvbtest EXCLUDE_FROM_ALL tvbtest.c)
-# TODO: revert this change. linking to zstd was necessary for generating test data only.
-target_link_libraries(tvbtest epan ${ZSTD_LIBRARIES})
+target_link_libraries(tvbtest epan)
 set_target_properties(tvbtest PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True

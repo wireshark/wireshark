@@ -700,6 +700,103 @@ varint_tests(void)
 	tvb_free_chain(tvb_parent);  /* should free all tvb's and associated data */
 }
 
+#define DATA_AND_LEN(X) .data = X, .len = sizeof(X) - 1
+
+static void
+zstd_tests (void) {
+#ifdef HAVE_ZSTD
+	typedef struct {
+		const char* desc;
+		const uint8_t* data;
+		size_t len;
+		const char* expect;
+	} zstd_testcase;
+
+	zstd_testcase tests[] = {
+		{
+			.desc = "Uncompressing 'foobar'",
+			DATA_AND_LEN ("\x28\xb5\x2f\xfd\x20\x07\x39\x00\x00\x66\x6f\x6f\x62\x61\x72\x00"),
+			.expect = "foobar"
+		},
+		{
+			.desc = "Uncompressing invalid data",
+			DATA_AND_LEN ("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"),
+			.expect = NULL
+		},
+		{
+			.desc = "Uncompressing too short length",
+			.data = "\x28\xb5\x2f\xfd\x20\x07\x39\x00\x00\x66\x6f\x6f\x62\x61\x72\x00",
+			.len = 1,
+			.expect = NULL
+		},
+		{
+			.desc = "Uncompressing two frames of data",
+			// data is two frames of compressed data with compression level 1.
+			// the first frame is the string "foo" with no null terminator.
+			// the second frame is the string "bar" with a null terminator.
+			DATA_AND_LEN ("\x28\xb5\x2f\xfd\x20\x03\x19\x00\x00\x66\x6f\x6f"
+				      "\x28\xb5\x2f\xfd\x20\x04\x21\x00\x00\x62\x61\x72\x00"),
+			.expect = "foobar"
+		},
+		{
+			.desc = "Uncompressing two frames of data. 2nd frame has too short length.",
+			// data is two frames of compressed data with compression level 1.
+			// the first frame is the string "foo" with no null terminator.
+			// the second frame is the string "bar" with a null terminator.
+			.data ="\x28\xb5\x2f\xfd\x20\x03\x19\x00\x00\x66\x6f\x6f"
+			       "\x28\xb5\x2f\xfd\x20\x04\x21\x00\x00\x62\x61\x72\x00",
+			.len = 13,
+			.expect = NULL
+		},
+		{
+			.desc = "Uncompressing two frames of data. 2nd frame is malformed.",
+			// data is two frames of compressed data with compression level 1.
+			// the first frame is the string "foo" with no null terminator.
+			// the second frame is malformed.
+			DATA_AND_LEN ("\x28\xb5\x2f\xfd\x20\x03\x19\x00\x00\x66\x6f\x6f"
+			              "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"),
+			.expect = NULL
+		},
+
+	};
+
+	for (size_t i = 0; i < sizeof tests / sizeof tests[0]; i++) {
+		zstd_testcase *t = tests + i;
+
+		printf ("ZSTD test: %s ... begin\n", t->desc);
+
+		tvbuff_t *tvb = tvb_new_real_data (t->data, t->len, t->len);
+		tvbuff_t *got = tvb_uncompress_zstd (tvb, 0, t->len);
+		if (!t->expect) {
+			if (got) {
+				fprintf (stderr, "ZSTD test: %s ... FAIL: Expected error, but got non-NULL from uncompress\n", t->desc);
+				failed = TRUE;
+				return;
+			}
+		} else {
+			if (!got) {
+				printf ("ZSTD test: %s ... FAIL: Expected success, but got NULL from uncompress.\n", t->desc);
+				failed = TRUE;
+				return;
+			}
+			char * got_str = tvb_get_string_enc (NULL, got, 0, tvb_reported_length (got), ENC_ASCII);
+			if (0 != strcmp (got_str, t->expect)) {
+				printf ("ZSTD test: %s ... FAIL: Expected \"%s\", got \"%s\".\n", t->desc, t->expect, got_str);
+				failed = TRUE;
+				return;
+			}
+			wmem_free (NULL, got_str);
+			tvb_free (got);
+		}
+
+		tvb_free (tvb);
+
+		printf ("ZSTD test: %s ... OK\n", t->desc);
+	}
+#else
+	printf ("Skipping ZSTD test. ZSTD is not available.\n");
+#endif
+}
 /* Note: valgrind can be used to check for tvbuff memory leaks */
 int
 main(void)
@@ -711,6 +808,7 @@ main(void)
 	except_init();
 	run_tests();
 	varint_tests();
+	zstd_tests ();
 	except_deinit();
 	exit(failed?1:0);
 }
