@@ -287,14 +287,53 @@ arithmetic_expr(T) ::= LBRACE arithmetic_expr(F) RBRACE.
 }
 
 /* Relational tests */
-cmp_op(O) ::= TEST_ALL_EQ(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ALL_EQ); }
-cmp_op(O) ::= TEST_ANY_EQ(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ANY_EQ); }
-cmp_op(O) ::= TEST_ALL_NE(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ALL_NE); }
-cmp_op(O) ::= TEST_ANY_NE(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ANY_NE); }
-cmp_op(O) ::= TEST_GT(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_GT); }
-cmp_op(O) ::= TEST_GE(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_GE); }
-cmp_op(O) ::= TEST_LT(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_LT); }
-cmp_op(O) ::= TEST_LE(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_LE); }
+cmp_op(O) ::= TEST_ALL_EQ(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_ALL_EQ);
+}
+
+cmp_op(O) ::= TEST_ANY_EQ(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_ANY_EQ);
+}
+
+cmp_op(O) ::= TEST_ALL_NE(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_ALL_NE);
+}
+
+cmp_op(O) ::= TEST_ANY_NE(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_ANY_NE);
+}
+
+cmp_op(O) ::= TEST_GT(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_GT);
+}
+
+cmp_op(O) ::= TEST_GE(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_GE);
+}
+
+cmp_op(O) ::= TEST_LT(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_LT);
+}
+
+cmp_op(O) ::= TEST_LE(L).
+{
+    O = L;
+    sttype_oper_set_op(O, STNODE_OP_LE);
+}
 
 comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) arithmetic_expr(F).
 {
@@ -306,15 +345,11 @@ comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) arithmetic_expr(F).
 comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) comparison_test(R).
 {
     stnode_t *L, *F;
-    /* for now generate it like E O F  STNODE_OP_AND  F P G, later it could be optimized
-       or semantically checked (to make a <= b >= c or a == b != c invalid)?
-     */
 
     F = R;
-    do {
-        ws_assert(F != NULL && stnode_type_id(F) == STTYPE_TEST);
+    while (stnode_type_id(F) == STTYPE_TEST) {
         sttype_oper_get(F, NULL, &F, NULL);
-    } while (stnode_type_id(F) == STTYPE_TEST);
+    }
 
     L = O;
     sttype_oper_set2_args(L, E, stnode_dup(F));
