@@ -1465,6 +1465,54 @@ control_proc_start(tvbuff_t *tvb,
     return proc_info;
 }
 
+/* Adds a frame to a control procedure context */
+static void control_proc_add_frame(tvbuff_t *tvb,
+                                   packet_info *pinfo,
+                                   proto_tree *btle_tree,
+                                   control_proc_info_t *last_control_proc_info,
+                                   guint frame_num)
+{
+    proto_item *item;
+
+    last_control_proc_info->frames[frame_num] = pinfo->num;
+
+    item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                               last_control_proc_info->frames[0]);
+    proto_item_set_generated(item);
+}
+
+/* Adds a frame to a control procedure context.
+ * Marks this frame as the last control procedure packet. */
+static void control_proc_add_last_frame(tvbuff_t *tvb,
+                                        packet_info *pinfo,
+                                        proto_tree *btle_tree,
+                                        control_proc_info_t *last_control_proc_info,
+                                        guint frame_num)
+{
+    control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc_info, frame_num);
+    last_control_proc_info->last_frame = pinfo->num;
+}
+
+/* Adds a frame containing an instant to a control procedure context
+ * Marks this frame as the last control procedure packet if the event counter is not available */
+static void control_proc_add_frame_with_instant(tvbuff_t *tvb,
+                                                packet_info *pinfo,
+                                                proto_tree *btle_tree,
+                                                const btle_context_t *btle_context,
+                                                control_proc_info_t *last_control_proc_info,
+                                                guint frame_num,
+                                                guint16 instant)
+{
+    if (btle_context && btle_context->event_counter_valid) {
+        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc_info, frame_num);
+        last_control_proc_info->instant = instant;
+        last_control_proc_info->frame_with_instant_value = pinfo->num;
+    } else {
+        /* Event counter is not available, assume the procedure completes now. */
+        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc_info, frame_num);
+    }
+}
+
 static void
 dissect_ad_eir(tvbuff_t *tvb, guint32 interface_id, guint32 adapter_id, guint32 frame_number, guint8 *src_bd_addr, packet_info *pinfo, proto_tree *tree)
 {
@@ -2787,21 +2835,19 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x0F, 2)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_last_frame(tvb,
+                                                        pinfo,
+                                                        btle_tree,
+                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                        2);
                         } else if (control_proc_can_add_frame(pinfo,
                                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                               0x0F, 1)) {
-                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
-                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_last_frame(tvb,
+                                                        pinfo,
+                                                        btle_tree,
+                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        1);
                         } else {
                             control_proc_info_t *proc_info;
                             proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
@@ -2844,19 +2890,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                        0x19, 1)) {
-                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
-
-                            if (btle_context && btle_context->event_counter_valid) {
-                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->instant = item_value;
-                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->frame_with_instant_value = pinfo->num;
-                            } else {
-                                /* Event counter is not available, assume the procedure completes now. */
-                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
-                            }
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame_with_instant(tvb,
+                                                                pinfo,
+                                                                btle_tree,
+                                                                btle_context,
+                                                                last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                                1,
+                                                                item_value);
                         } else {
                             control_proc_info_t *proc_info;
                             proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
@@ -2927,11 +2967,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x3, 1)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -2949,11 +2985,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x3, 2)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -2972,21 +3004,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x3, 3)) {
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[3] = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 3);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER &&
                                control_proc_can_add_frame(pinfo,
                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                           0x3, 4)) {
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[4] = pinfo->num;
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 4);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3005,12 +3028,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                    last_control_proc[other_direction],
                                                    last_control_proc[other_direction]->proc_opcode,
                                                    1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3041,12 +3059,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x0E, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3080,21 +3093,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x0A, 1)) {
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                     } else if (direction == BTLE_DIR_MASTER_SLAVE &&
                                control_proc_can_add_frame(pinfo,
                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                           0x0A, 2)) {
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3117,12 +3121,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x0C, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
@@ -3144,21 +3143,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x03, 1)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                         } else if (control_proc_can_add_frame(pinfo,
                                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                               0x03, 2)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3205,11 +3194,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x0F, 1)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3238,41 +3223,20 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x03, 1)) {
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER &&
                                control_proc_can_add_frame(pinfo,
                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                           0x03, 2)) {
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                        proto_item_set_generated(sub_item);
-
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
                                                           0x0F, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
                                                           0x16, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3294,12 +3258,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x12, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3322,12 +3281,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x14, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3351,11 +3305,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x16, 1)) {
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3397,38 +3347,23 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x16, 2)) {
-
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-
-                            if (btle_context && btle_context->event_counter_valid && phy_c_to_p != 0 && phy_p_to_c != 0) {
-                                last_control_proc[BTLE_DIR_MASTER_SLAVE]->instant = item_value;
-                                last_control_proc[BTLE_DIR_MASTER_SLAVE]->frame_with_instant_value = pinfo->num;
-                            } else {
-                                /* 1. If the event counter is not available we can only assume the procedure completes now.
-                                 * 2. If both the PHY_C_TO_P and PHY_P_TO_C fields are zero then the procedure completes now.
-                                 */
-                                last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
-                            }
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame_with_instant(tvb,
+                                                                pinfo,
+                                                                btle_tree,
+                                                                btle_context,
+                                                                last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                                2,
+                                                                item_value);
                         } else if (control_proc_can_add_frame(pinfo,
                                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                               0x16, 1)){
-                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
-
-                            if (btle_context && btle_context->event_counter_valid) {
-                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->instant = item_value;
-                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->frame_with_instant_value = pinfo->num;
-                            } else {
-                                /* Event counter is not available, assume the procedure completes now. */
-                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
-                            }
-
-                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                           last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
-                            proto_item_set_generated(sub_item);
+                            control_proc_add_frame_with_instant(tvb,
+                                                                pinfo,
+                                                                btle_tree,
+                                                                btle_context,
+                                                                last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                                1,
+                                                                item_value);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3479,12 +3414,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x1A, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3510,12 +3440,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x1D, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3523,25 +3448,24 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x1F: /* LL_CIS_REQ */
                 offset = dissect_cis_req(tvb, btle_tree, offset);
-                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                       connection_info->direction_info[direction].control_procs,
-                                       last_control_proc[other_direction],
-                                       control_opcode);
+                if (connection_info && !btle_frame_info->retransmit) {
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                           control_opcode);
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
                 }
                 break;
             case 0x20: /* LL_CIS_RSP */
                 offset = dissect_cis_rsp(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_can_add_frame(pinfo,
-                                                   last_control_proc[other_direction],
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x1F, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3592,6 +3516,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
                 }
                 offset = dissect_cis_ind(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   0x1F, 2)) {
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
                 break;
             case 0x22: /* LL_CIS_TERMINATE_IND */
                 offset = dissect_cis_terminate_ind(tvb, btle_tree, offset);
@@ -3611,12 +3544,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x23, 1)) {
-                        last_control_proc[other_direction]->frames[1] = pinfo->num;
-                        last_control_proc[other_direction]->last_frame = pinfo->num;
-
-                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
-                                                       last_control_proc[other_direction]->frames[0]);
-                        proto_item_set_generated(sub_item);
+                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
