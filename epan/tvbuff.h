@@ -1109,6 +1109,24 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lznt1(tvbuff_t *tvb,
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
     tvbuff_t *tvb, const int offset, int comprlen);
 
+/**
+ * Uncompresses a ZSTD compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a ZSTD compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_zstd(tvbuff_t *parent,
+    tvbuff_t *tvb, const int offset, int comprlen);
+
 /* From tvbuff_base64.c */
 
 /** Return a tvb that contains the binary representation of a base64

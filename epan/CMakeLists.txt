@@ -253,6 +253,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff_real.c
 	tvbuff_subset.c
 	tvbuff_zlib.c
+	tvbuff_zstd.c
 	tvbuff_lz77.c
 	tvbuff_lz77huff.c
 	tvbuff_lznt1.c
@@ -418,7 +419,8 @@ set_target_properties(reassemble_test PROPERTIES
 )
 
 add_executable(tvbtest EXCLUDE_FROM_ALL tvbtest.c)
-target_link_libraries(tvbtest epan)
+# TODO: revert this change. linking to zstd was necessary for generating test data only.
+target_link_libraries(tvbtest epan ${ZSTD_LIBRARIES})
 set_target_properties(tvbtest PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
