@@ -1256,62 +1256,6 @@ dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btl
     return offset;
 }
 
-/* Mark the start of a new control procedure.
- * At first visit it will create a new control procedure context.
- * Otherwise it will update the existing context.
- *
- * If there is already an ongoing control procedure context, control procedure
- * contexts will not be created or modified.
- *
- * It returns the procedure context in case it exists, otherwise NULL.
- */
-static control_proc_info_t *
-control_proc_start(tvbuff_t *tvb,
-                   packet_info *pinfo,
-                   proto_tree *btle_tree,
-                   proto_item *control_proc_item,
-                   wmem_tree_t *control_proc_tree,
-                   guint8 opcode)
-{
-    control_proc_info_t *proc_info;
-    if (!pinfo->fd->visited) {
-        /* Check the if there is an existing ongoing procedure. */
-        proc_info = (control_proc_info_t *)wmem_tree_lookup32_le(control_proc_tree, pinfo->num);
-        if (proc_info && proc_info->last_frame == 0) {
-            /* Control procedure violation - initiating new procedure before previous was complete */
-            return NULL;
-        } else {
-            /* Create a new control procedure context. */
-            proc_info = wmem_new0(wmem_file_scope(), control_proc_info_t);
-            memset(proc_info, 0, sizeof(control_proc_info_t));
-            proc_info->frames[0] = pinfo->num;
-            proc_info->proc_opcode = opcode;
-            wmem_tree_insert32(control_proc_tree, pinfo->num, proc_info);
-        }
-    } else {
-        /* Match the responses with this request. */
-        proc_info = (control_proc_info_t *)wmem_tree_lookup32(control_proc_tree, pinfo->num);
-
-        if (proc_info && proc_info->proc_opcode == opcode) {
-            proto_item *sub_item;
-            for (guint i = 1; i < sizeof(proc_info->frames)/sizeof(proc_info->frames[0]); i++) {
-                if (proc_info->frames[i]) {
-                    sub_item = proto_tree_add_uint(btle_tree, hf_response_in_frame, tvb, 0, 0, proc_info->frames[i]);
-                    proto_item_set_generated(sub_item);
-                }
-            }
-        } else {
-            /* The found control procedure does not match the last one.
-             * This indicates a protocol violation. */
-            expert_add_info(pinfo, control_proc_item, &ei_control_proc_overlapping);
-
-            return NULL;
-        }
-    }
-
-    return proc_info;
-}
-
 /* Checks if it is possible to add the frame at the given index
  * to the given control procedure context.
  *
@@ -1456,6 +1400,69 @@ control_proc_invalid_collision(packet_info const *pinfo,
         return TRUE;
     else
         return FALSE;
+}
+
+/* Mark the start of a new control procedure.
+ * At first visit it will create a new control procedure context.
+ * Otherwise it will update the existing context.
+ *
+ * If there is already an ongoing control procedure context, control procedure
+ * contexts will not be created or modified.
+ *
+ * It returns the procedure context in case it exists, otherwise NULL.
+ */
+static control_proc_info_t *
+control_proc_start(tvbuff_t *tvb,
+                   packet_info *pinfo,
+                   proto_tree *btle_tree,
+                   proto_item *control_proc_item,
+                   wmem_tree_t *control_proc_tree,
+                   control_proc_info_t const *control_proc_other_direction,
+                   guint8 opcode)
+{
+    if (control_proc_invalid_collision(pinfo,
+                                       control_proc_other_direction,
+                                       opcode)) {
+        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+    }
+
+    control_proc_info_t *proc_info;
+    if (!pinfo->fd->visited) {
+        /* Check the if there is an existing ongoing procedure. */
+        proc_info = (control_proc_info_t *)wmem_tree_lookup32_le(control_proc_tree, pinfo->num);
+        if (proc_info && proc_info->last_frame == 0) {
+            /* Control procedure violation - initiating new procedure before previous was complete */
+            return NULL;
+        } else {
+            /* Create a new control procedure context. */
+            proc_info = wmem_new0(wmem_file_scope(), control_proc_info_t);
+            memset(proc_info, 0, sizeof(control_proc_info_t));
+            proc_info->frames[0] = pinfo->num;
+            proc_info->proc_opcode = opcode;
+            wmem_tree_insert32(control_proc_tree, pinfo->num, proc_info);
+        }
+    } else {
+        /* Match the responses with this request. */
+        proc_info = (control_proc_info_t *)wmem_tree_lookup32(control_proc_tree, pinfo->num);
+
+        if (proc_info && proc_info->proc_opcode == opcode) {
+            proto_item *sub_item;
+            for (guint i = 1; i < sizeof(proc_info->frames)/sizeof(proc_info->frames[0]); i++) {
+                if (proc_info->frames[i]) {
+                    sub_item = proto_tree_add_uint(btle_tree, hf_response_in_frame, tvb, 0, 0, proc_info->frames[i]);
+                    proto_item_set_generated(sub_item);
+                }
+            }
+        } else {
+            /* The found control procedure does not match the last one.
+             * This indicates a protocol violation. */
+            expert_add_info(pinfo, control_proc_item, &ei_control_proc_overlapping);
+
+            return NULL;
+        }
+    }
+
+    return proc_info;
 }
 
 static void
@@ -2796,15 +2803,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
                             proto_item_set_generated(sub_item);
                         } else {
-                            if (control_proc_invalid_collision(pinfo,
-                                                               last_control_proc[other_direction],
-                                                               control_opcode)) {
-                                expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                            }
-
                             control_proc_info_t *proc_info;
                             proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                            connection_info->direction_info[direction].control_procs,
+                                                           last_control_proc[other_direction],
                                                            control_opcode);
 
                             if (proc_info) {
@@ -2856,15 +2858,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
                             proto_item_set_generated(sub_item);
                         } else {
-                            if (control_proc_invalid_collision(pinfo,
-                                                               last_control_proc[other_direction],
-                                                               control_opcode)) {
-                                expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                            }
-
                             control_proc_info_t *proc_info;
                             proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                            connection_info->direction_info[direction].control_procs,
+                                                           last_control_proc[other_direction],
                                                            control_opcode);
 
                             if (proc_info) {
@@ -2907,14 +2904,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_ENC_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           last_control_proc[other_direction],
                                            control_opcode);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3030,14 +3022,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_FEATURE_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
+                                           last_control_proc[other_direction],
                                            control_opcode);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3075,14 +3062,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_PAUSE_ENC_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           last_control_proc[other_direction],
                                            control_opcode);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3142,14 +3124,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        last_control_proc[other_direction]->frames[0]);
                         proto_item_set_generated(sub_item);
                     } else {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
+                                           last_control_proc[other_direction],
                                            control_opcode);
                     }
                 }
@@ -3196,14 +3173,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_SLAVE_FEATURE_REQ can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
+                                           last_control_proc[other_direction],
                                            control_opcode);
                     } else if (direction == BTLE_DIR_MASTER_SLAVE) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3215,14 +3187,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit) {
                     if (direction != BTLE_DIR_UNKNOWN) {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
+                                           last_control_proc[other_direction],
                                            control_opcode);
                     }
                 }
@@ -3315,14 +3282,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x12: /* LL_PING_REQ */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
                 break;
@@ -3347,14 +3309,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x14: /* LL_LENGTH_REQ */
                 dissect_length_req_rsp(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
 
@@ -3379,14 +3336,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x16: /* LL_PHY_REQ */
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
 
@@ -3497,15 +3449,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_MIN_USED_CHANNELS_IND can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
-                        if (control_proc_invalid_collision(pinfo,
-                                                           last_control_proc[other_direction],
-                                                           control_opcode)) {
-                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                        }
-
                         control_proc_info_t *proc_info;
                         proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                        connection_info->direction_info[direction].control_procs,
+                                                       last_control_proc[other_direction],
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
@@ -3520,14 +3467,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_phys, ett_cte, hfx_control_cte, ENC_NA);
                 offset += 1;
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
                 break;
@@ -3555,14 +3497,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_sleep_clock_accuracy, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
                 break;
@@ -3587,14 +3524,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x1F: /* LL_CIS_REQ */
                 offset = dissect_cis_req(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
                 break;
@@ -3667,14 +3599,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x23: /* LL_POWER_CONTROL_REQ */
                 offset = dissect_power_control_req(tvb, btle_tree, offset);
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
-                    if (control_proc_invalid_collision(pinfo,
-                                                       last_control_proc[other_direction],
-                                                       control_opcode)) {
-                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
-                    }
-
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
+                                       last_control_proc[other_direction],
                                        control_opcode);
                 }
                 break;
