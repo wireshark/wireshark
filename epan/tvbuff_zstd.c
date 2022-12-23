@@ -52,15 +52,21 @@ tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const int offset, int comprlen)
             goto end;
         }
 
-        if (!composite_tvb)
+        // Do not create a composite buffer if there is no output data.
+        // Empty buffers are ignored by tvb_composite_append().
+        // tvb_composite_finalize() throws if there are no non-empty members.
+        if (output.pos > 0)
         {
-            composite_tvb = tvb_new_composite();
+            if (!composite_tvb)
+            {
+                composite_tvb = tvb_new_composite();
+            }
+            tvbuff_t *output_tvb = tvb_new_real_data((guint8 *)output.dst, (guint)output.pos, (gint)output.pos);
+            tvb_set_free_cb(output_tvb, g_free);
+            tvb_composite_append(composite_tvb, output_tvb);
+            // Reset the output buffer.
+            output = (ZSTD_outBuffer){g_malloc(ZSTD_DStreamOutSize()), ZSTD_DStreamOutSize(), 0};
         }
-        tvbuff_t *output_tvb = tvb_new_real_data((guint8 *)output.dst, (guint)output.pos, (gint)output.pos);
-        tvb_set_free_cb(output_tvb, g_free);
-        tvb_composite_append(composite_tvb, output_tvb);
-        // Reset the output buffer.
-        output = (ZSTD_outBuffer){g_malloc(ZSTD_DStreamOutSize()), ZSTD_DStreamOutSize(), 0};
         count++;
         DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
     }
