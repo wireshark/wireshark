@@ -2802,7 +2802,7 @@ static void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
 	psn = ipei & 0xFFFFF;
 
 	digit_divisor = 100000000000;
-	ipei_digits = emc * 10000000 + psn;
+	ipei_digits = emc * (guint64)10000000 + psn;
 	check_digit = 0;
 	for(guint8 i = 1; i <= 12; i++) {
 		check_digit += (guint16)( ( ipei_digits / digit_divisor ) * i );
