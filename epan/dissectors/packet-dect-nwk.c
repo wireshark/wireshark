@@ -1819,8 +1819,8 @@ static const dgt_set_t Dgt0_9_bcd = {
 
 #define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_MASK 0x80
 #define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT 7
-#define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK 0xE0
-#define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT 5
+#define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK 0xF0
+#define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT 4
 
 #define DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK 0x7F
 
@@ -3180,7 +3180,7 @@ void proto_register_dect_nwk(void)
 		},
 		{ &hf_dect_nwk_s_ie_location_area_eli_type,
 			{ "ELI-Type", "dect_nwk.s.ie.location_area.eli_type", FT_UINT8, BASE_HEX,
-				VALS(dect_nwk_s_ie_location_area_eli_type_val), 0xF0, "Extended Location Information type", HFILL
+				VALS(dect_nwk_s_ie_location_area_eli_type_val), DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK, "Extended Location Information type", HFILL
 			}
 		},
 		{ &hf_dect_nwk_s_ie_location_area_lac,
