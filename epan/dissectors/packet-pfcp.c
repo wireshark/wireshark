@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V17.6.0 (2022-09-23)
+ * Ref 3GPP TS 29.244 V18.0.0 (2022-12-15)
  */
 #include "config.h"
 
@@ -413,6 +413,7 @@ static int hf_pfcp_pfcpsmreq_flags_b1_sndem = -1;
 static int hf_pfcp_pfcpsmreq_flags_b2_qaurr = -1;
 static int hf_pfcp_pfcpsmreq_flags_b3_sumpc = -1;
 static int hf_pfcp_pfcpsmreq_flags_b4_rumuc = -1;
+static int hf_pfcp_pfcpsmreq_flags_b5_deteid = -1;
 
 static int hf_pfcp_pfcpsrrsp_flags_b0_drobu = -1;
 
@@ -789,7 +790,7 @@ static int hf_pfcp_rds_configuration_information_flags_b0_rds = -1;
 
 static int hf_pfcp_mptcp_application_indication_flags_b0_mai = -1;
 
-static int hf_pfcp_user_plane_nodemanagement_information_container = -1;
+static int hf_pfcp_user_plane_node_management_information_container = -1;
 
 static int hf_pfcp_number_of_ue_ip_addresses_b1_ipv6 = -1;
 static int hf_pfcp_number_of_ue_ip_addresses_b0_ipv4 = -1;
@@ -1608,7 +1609,7 @@ static const value_string pfcp_ie_type[] = {
     { 263, "Query Packet Rate Status IE within PFCP Session Modification Request"}, /* Extendable / Table 7.5.4.22-1  */
     { 264, "Query Packet Rate Status Report IE within PFCP Session Modification Response"}, /* Extendable / Table 7.5.5.4-1  */
     { 265, "MPTCP Applicable Indication"},                          /* Extendable / Clause 8.2.181 */
-    { 266, "User Plane NodeManagement Information Container"},              /* Variable Length / Clause 8.2.182 */
+    { 266, "User Plane Node Management Information Container"},              /* Variable Length / Clause 8.2.182 */
     { 267, "UE IP Address Usage Information"},                      /* Extendable / Table 7.4.4.3.1-1 */
     { 268, "Number of UE IP Addresses"},                            /* Extendable / Clause 8.2.183 */
     { 269, "Validity Timer"},                                       /* Extendable / Clause 8.2.184 */
@@ -2051,7 +2052,10 @@ static const value_string pfcp_cause_vals[] = {
     { 84, "L2TP tunnel release" },
     { 85, "L2TP session release" },
     { 86, "PFCP session restoration failure" },
-    /* 87 to 255 Spare for future use in a response message. */
+    { 87, "L2TP tunnel Establishment failure - Tunnel Auth Failure"},
+    { 88, "L2TP Session Establishment failure - Session Auth Failure"},
+    { 89, "L2TP tunnel Establishment failure - LNS not reachable"},
+    /* 90 to 255 Spare for future use in a response message. */
     {0, NULL}
 };
 
@@ -3245,7 +3249,8 @@ dissect_pfcp_pfcpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     int offset = 0;
 
     static int * const pfcp_pfcpsmreq_flags[] = {
-        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_pfcpsmreq_flags_b5_deteid,
         &hf_pfcp_pfcpsmreq_flags_b4_rumuc,
         &hf_pfcp_pfcpsmreq_flags_b3_sumpc,
         &hf_pfcp_pfcpsmreq_flags_b2_qaurr,
@@ -3253,7 +3258,7 @@ dissect_pfcp_pfcpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         &hf_pfcp_pfcpsmreq_flags_b0_drobu,
         NULL
     };
-    /* Octet 5  Spare   Spare   Spare   RUMUC   SUMPC   QAURR   SNDEM   DROBU */
+    /* Octet 5  Spare   Spare   DETEID   RUMUC   SUMPC   QAURR   SNDEM   DROBU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_pfcpsmreq_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3425,7 +3430,6 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
         return;
     }
     /* Octet 6 to 13    SEID  */
-    //proto_tree_add_item(tree, hf_pfcp_seid, tvb, offset, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint64(tree, hf_pfcp_seid, tvb, offset, 8, ENC_BIG_ENDIAN, &seid_cp);
     proto_item_append_text(item, "SEID: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 8));
     offset += 8;
@@ -6940,9 +6944,9 @@ dissect_pfcp_source_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     /* Mask/Prefix Length (if present) */
     if ((source_ip_address_flags & 0x4)) {
-        proto_tree_add_item(tree, hf_pfcp_source_ip_address_mask_prefix_lengt, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
-        offset += 16;
+        proto_tree_add_item(tree, hf_pfcp_source_ip_address_mask_prefix_lengt, tvb, offset, 1, ENC_NA);
+        proto_item_append_text(item, ", Mask/Prefix length %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+        offset += 1;
     }
 
 
@@ -7999,16 +8003,16 @@ dissect_pfcp_mptcp_application_indication(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /*
- * 8.2.182   User Plane NodeManagement Information Container
+ * 8.2.182   User Plane Node Management Information Container
  */
 static void
-dissect_pfcp_user_plane_nodemanagement_information_container(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_user_plane_node_management_information_container(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    /* Octet 5 to (n+4) User Plane NodeManagement Information Container
-    * The User Plane NodeManagement Information Container field shall be encoded as an OctetString.
+    /* Octet 5 to (n+4) User Plane Node Management Information Container
+    * The User Plane Node Management Information Container field shall be encoded as an OctetString.
     */
-    proto_tree_add_item(tree, hf_pfcp_user_plane_nodemanagement_information_container, tvb, offset, length, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_user_plane_node_management_information_container, tvb, offset, length, ENC_NA);
 }
 
 /*
@@ -9181,7 +9185,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    263 */    { dissect_pfcp_query_packet_rate_status_ie_within_pfcp_session_modification_request }, /* Query Packet Rate Status IE within PFCP Session Modification Request      Extendable / Table 7.5.4.22-1  */
 /*    264 */    { dissect_pfcp_query_packet_rate_status_report_ie_within_pfcp_session_modification_response }, /* Query Packet Rate Status Report IE within PFCP Session Modification Response      Extendable / Table 7.5.5.4-1  */
 /*    265 */    { dissect_pfcp_mptcp_application_indication },                  /* MPTCP Applicable Indication                     Extendable / Clause 8.2.181 */
-/*    266 */    { dissect_pfcp_user_plane_nodemanagement_information_container }, /* User Plane NodeManagement Information Container         Variable Length / Clause 8.2.182 */
+/*    266 */    { dissect_pfcp_user_plane_node_management_information_container }, /* User Plane Node Management Information Container         Variable Length / Clause 8.2.182 */
 /*    267 */    { dissect_pfcp_ue_ip_address_usage_information_ie_within_pfcp_association_update_request },       /* UE IP Address Usage Information IE within PFCP Association Update Request         Extendable / Table 7.4.4.3.1-1 */
 /*    268 */    { dissect_pfcp_number_of_ue_ip_addresses },                     /* Number of UE IP Addresses                       Variable Length / Clause 8.2.183 */
 /*    269 */    { dissect_pfcp_validity_timer },                                /* Validity Timer                                  Variable Length / Clause 8.2.183 */
@@ -10525,9 +10529,6 @@ dissect_pfcp_enterprise_bbf_up_function_features(tvbuff_t *tvb, packet_info *pin
         NULL
     };
 
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_bbf_up_function_features_o7_flags, ENC_BIG_ENDIAN);
-    offset += 1;
-
     // Octet 8 Spare Octet
     proto_tree_add_item(tree, hf_pfcp_spare_oct, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -10538,6 +10539,9 @@ dissect_pfcp_enterprise_bbf_up_function_features(tvbuff_t *tvb, packet_info *pin
 
     // Octet 10 Spare Octet
     proto_tree_add_item(tree, hf_pfcp_spare_oct, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_bbf_up_function_features_o7_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (offset < length) {
@@ -12910,6 +12914,11 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
+        { &hf_pfcp_pfcpsmreq_flags_b5_deteid,
+        { "DETEID (Delete All DL N3mb and/or N19mb F-TEIDs)", "pfcp.smreq_flags.deteid",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
         { &hf_pfcp_pfcpsrrsp_flags_b0_drobu,
         { "DROBU (Drop Buffered Packets)", "pfcp.srrsp_flags.drobu",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -13916,8 +13925,8 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_packet_rate_status_validity_time,
-        { "Validity Time value", "pfcp.packet_rate_status.validity_time",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        { "Rate Status Validity Time value", "pfcp.packet_rate_status.validity_time",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -14402,8 +14411,8 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_user_plane_nodemanagement_information_container,
-        { "Predefined Rules Name", "pfcp.user_plane_nodemanagement_information_container",
+        { &hf_pfcp_user_plane_node_management_information_container,
+        { "Predefined Rules Name", "pfcp.user_plane_node_management_information_container",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
