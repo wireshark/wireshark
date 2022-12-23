@@ -445,6 +445,7 @@ static expert_field ei_nack = EI_INIT;
 static expert_field ei_control_proc_overlapping = EI_INIT;
 static expert_field ei_control_proc_invalid_collision = EI_INIT;
 static expert_field ei_control_proc_wrong_seq = EI_INIT;
+static expert_field ei_control_proc_invalid_conflict_resolution = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
@@ -1469,7 +1470,10 @@ control_proc_start(tvbuff_t *tvb,
 static void control_proc_add_frame(tvbuff_t *tvb,
                                    packet_info *pinfo,
                                    proto_tree *btle_tree,
+                                   guint8 opcode,
+                                   guint32 direction,
                                    control_proc_info_t *last_control_proc_info,
+                                   control_proc_info_t const *control_proc_other_direction,
                                    guint frame_num)
 {
     proto_item *item;
@@ -1479,6 +1483,19 @@ static void control_proc_add_frame(tvbuff_t *tvb,
     item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
                                last_control_proc_info->frames[0]);
     proto_item_set_generated(item);
+
+    if (control_proc_other_direction &&
+        !control_proc_is_complete(pinfo->num, control_proc_other_direction) &&
+        control_proc_contains_instant(last_control_proc_info->proc_opcode) &&
+        control_proc_contains_instant(control_proc_other_direction->proc_opcode)) {
+        if (direction == BTLE_DIR_MASTER_SLAVE && opcode != 0x0D && opcode != 0x11) {
+          /* Continuing a control procedure when the peer has initiated an incompatible control procedure.
+           * The central should have aborted the peripheral initiated procedure.
+           * See Core_V5.2, Vol 6, Part B, Section 5.3.
+           */
+           expert_add_info(pinfo, item, &ei_control_proc_invalid_conflict_resolution);
+        }
+    }
 }
 
 /* Adds a frame to a control procedure context.
@@ -1486,10 +1503,20 @@ static void control_proc_add_frame(tvbuff_t *tvb,
 static void control_proc_add_last_frame(tvbuff_t *tvb,
                                         packet_info *pinfo,
                                         proto_tree *btle_tree,
+                                        guint8 opcode,
+                                        guint32 direction,
                                         control_proc_info_t *last_control_proc_info,
+                                        control_proc_info_t const *control_proc_other_direction,
                                         guint frame_num)
 {
-    control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc_info, frame_num);
+    control_proc_add_frame(tvb,
+                           pinfo,
+                           btle_tree,
+                           opcode,
+                           direction,
+                           last_control_proc_info,
+                           control_proc_other_direction,
+                           frame_num);
     last_control_proc_info->last_frame = pinfo->num;
 }
 
@@ -1499,17 +1526,34 @@ static void control_proc_add_frame_with_instant(tvbuff_t *tvb,
                                                 packet_info *pinfo,
                                                 proto_tree *btle_tree,
                                                 const btle_context_t *btle_context,
+                                                guint8 opcode,
+                                                guint32 direction,
                                                 control_proc_info_t *last_control_proc_info,
+                                                control_proc_info_t const *control_proc_other_direction,
                                                 guint frame_num,
                                                 guint16 instant)
 {
     if (btle_context && btle_context->event_counter_valid) {
-        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc_info, frame_num);
+        control_proc_add_frame(tvb,
+                               pinfo,
+                               btle_tree,
+                               opcode,
+                               direction,
+                               last_control_proc_info,
+                               control_proc_other_direction,
+                               frame_num);
         last_control_proc_info->instant = instant;
         last_control_proc_info->frame_with_instant_value = pinfo->num;
     } else {
         /* Event counter is not available, assume the procedure completes now. */
-        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc_info, frame_num);
+        control_proc_add_last_frame(tvb,
+                                    pinfo,
+                                    btle_tree,
+                                    opcode,
+                                    direction,
+                                    last_control_proc_info,
+                                    control_proc_other_direction,
+                                    frame_num);
     }
 }
 
@@ -2838,7 +2882,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             control_proc_add_last_frame(tvb,
                                                         pinfo,
                                                         btle_tree,
+                                                        control_opcode,
+                                                        direction,
                                                         last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                         2);
                         } else if (control_proc_can_add_frame(pinfo,
                                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
@@ -2846,7 +2893,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             control_proc_add_last_frame(tvb,
                                                         pinfo,
                                                         btle_tree,
+                                                        control_opcode,
+                                                        direction,
                                                         last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                         1);
                         } else {
                             control_proc_info_t *proc_info;
@@ -2894,7 +2944,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                                 pinfo,
                                                                 btle_tree,
                                                                 btle_context,
+                                                                control_opcode,
+                                                                direction,
                                                                 last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                                last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                                 1,
                                                                 item_value);
                         } else {
@@ -2967,7 +3020,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x3, 1)) {
-                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                            control_proc_add_frame(tvb,
+                                                   pinfo,
+                                                   btle_tree,
+                                                   control_opcode,
+                                                   direction,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -2985,7 +3045,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x3, 2)) {
-                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
+                            control_proc_add_frame(tvb,
+                                                   pinfo,
+                                                   btle_tree,
+                                                   control_opcode,
+                                                   direction,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   2);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3004,12 +3071,26 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x3, 3)) {
-                        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 3);
+                        control_proc_add_frame(tvb,
+                                               pinfo,
+                                               btle_tree,
+                                               control_opcode,
+                                               direction,
+                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                               3);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER &&
                                control_proc_can_add_frame(pinfo,
                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                           0x3, 4)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 4);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    4);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3028,7 +3109,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                    last_control_proc[other_direction],
                                                    last_control_proc[other_direction]->proc_opcode,
                                                    1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3059,7 +3147,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x0E, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3093,12 +3188,26 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x0A, 1)) {
-                        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                        control_proc_add_frame(tvb,
+                                               pinfo,
+                                               btle_tree,
+                                               control_opcode,
+                                               direction,
+                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                               1);
                     } else if (direction == BTLE_DIR_MASTER_SLAVE &&
                                control_proc_can_add_frame(pinfo,
                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                           0x0A, 2)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    2);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3121,7 +3230,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x0C, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
@@ -3143,11 +3259,25 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x03, 1)) {
-                            control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                            control_proc_add_last_frame(tvb,
+                                                        pinfo,
+                                                        btle_tree,
+                                                        control_opcode,
+                                                        direction,
+                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        1);
                         } else if (control_proc_can_add_frame(pinfo,
                                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                               0x03, 2)) {
-                            control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
+                            control_proc_add_last_frame(tvb,
+                                                        pinfo,
+                                                        btle_tree,
+                                                        control_opcode,
+                                                        direction,
+                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                        2);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3194,7 +3324,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x0F, 1)) {
-                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                            control_proc_add_frame(tvb,
+                                                   pinfo,
+                                                   btle_tree,
+                                                   control_opcode,
+                                                   direction,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3223,20 +3360,48 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x03, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    1);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER &&
                                control_proc_can_add_frame(pinfo,
                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                           0x03, 2)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    2);
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
                                                           0x0F, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
                                                           0x16, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3258,7 +3423,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x12, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3281,7 +3453,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x14, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3305,7 +3484,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                        0x16, 1)) {
-                            control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                            control_proc_add_frame(tvb,
+                                                   pinfo,
+                                                   btle_tree,
+                                                   control_opcode,
+                                                   direction,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   1);
                         } else {
                             expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                         }
@@ -3351,7 +3537,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                                 pinfo,
                                                                 btle_tree,
                                                                 btle_context,
+                                                                control_opcode,
+                                                                direction,
                                                                 last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                                last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                                 2,
                                                                 item_value);
                         } else if (control_proc_can_add_frame(pinfo,
@@ -3361,7 +3550,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                                 pinfo,
                                                                 btle_tree,
                                                                 btle_context,
+                                                                control_opcode,
+                                                                direction,
                                                                 last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                                last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                                 1,
                                                                 item_value);
                         } else {
@@ -3414,7 +3606,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x1A, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3440,7 +3639,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x1D, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3465,7 +3671,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x1F, 1)) {
-                        control_proc_add_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 1);
+                        control_proc_add_frame(tvb,
+                                               pinfo,
+                                               btle_tree,
+                                               control_opcode,
+                                               direction,
+                                               last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                               1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3520,7 +3733,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                    0x1F, 2)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[BTLE_DIR_MASTER_SLAVE], 2);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    2);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3544,7 +3764,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x23, 1)) {
-                        control_proc_add_last_frame(tvb, pinfo, btle_tree, last_control_proc[other_direction], 1);
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -5071,6 +5298,9 @@ proto_register_btle(void)
             { "btle.control_proc_incompatible", PI_PROTOCOL, PI_ERROR, "Initiating a new incompatible control procedure after having sent a response to an incompatible control procedure", EXPFILL }},
         { &ei_control_proc_wrong_seq,
             { "btle.control_proc_unknown_seq",  PI_PROTOCOL, PI_ERROR, "Incorrect control procedure packet sequencing or direction", EXPFILL }},
+        { &ei_control_proc_invalid_conflict_resolution,
+            { "btle.ei_control_proc_invalid_conflict_resolution",
+            PI_PROTOCOL, PI_ERROR, "Incorrect control procedure packet collision resolution. See Core_v5.2, Vol 6, Part B, Section 5.3", EXPFILL }},
         { &ei_crc_cannot_be_determined,
             { "btle.crc.indeterminate",         PI_CHECKSUM, PI_NOTE,  "CRC unchecked, not all data available", EXPFILL }},
         { &ei_crc_incorrect,
