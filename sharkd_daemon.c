@@ -423,7 +423,7 @@ sharkd_loop(int argc _U_, char* argv[])
             handles[i_handles++] = si.hStdError;
         }
 
-        exename = ws_strdup_printf("%s\\%s", get_progfile_dir(), "sharkd.exe");
+        exename = get_executable_path("sharkd");
 
         // we need to pass in all of the command line parameters except the -a parameter
         // passing in -a at this point would could a loop, each iteration of which would generate a new session process

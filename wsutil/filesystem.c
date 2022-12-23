@@ -371,7 +371,7 @@ bool is_packet_configuration_namespace(void)
  */
 #define xx_free free  /* hack so checkAPIs doesn't complain */
 static const char *
-get_executable_path(void)
+get_current_executable_path(void)
 {
 #if defined(__APPLE__)
     static char *executable_path;
@@ -532,6 +532,32 @@ static void trim_progfile_dir(void)
 }
 
 /*
+ * Construct the path name of a non-extcap Wireshark executable file,
+ * given the program name.  The executable name doesn't include ".exe";
+ * append it on Windows, so that callers don't have to worry about that.
+ *
+ * This presumes that all non-extcap executables are in the same directory.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
+ */
+char *
+get_executable_path(const char *program_name)
+{
+    /*
+     * Fail if we don't know what directory contains the executables.
+     */
+    if (progfile_dir == NULL)
+        return NULL;
+
+#ifdef _WIN32
+    return ws_strdup_printf("%s\\%s.exe", progfile_dir, program_name);
+#else
+    return ws_strdup_printf("%s/%s", progfile_dir, program_name);
+#endif
+}
+
+/*
  * Get the pathname of the directory from which the executable came,
  * and save it for future use.  Returns NULL on success, and a
  * g_mallocated string containing an error on failure.
@@ -635,7 +661,7 @@ configuration_init(
         running_in_build_directory_flag = TRUE;
     }
 
-    execname = get_executable_path();
+    execname = get_current_executable_path();
     if (execname == NULL) {
         /*
          * OK, guess based on argv[0].

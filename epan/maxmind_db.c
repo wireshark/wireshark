@@ -455,7 +455,7 @@ static void mmdb_resolve_start(void) {
     }
 
     GPtrArray *args = g_ptr_array_new();
-    char *mmdbresolve = ws_strdup_printf("%s%c%s", get_progfile_dir(), G_DIR_SEPARATOR, "mmdbresolve");
+    char *mmdbresolve = get_executable_path("mmdbresolve");
     g_ptr_array_add(args, mmdbresolve);
     for (guint i = 0; i < mmdb_file_arr->len; i++) {
         g_ptr_array_add(args, g_strdup("-f"));

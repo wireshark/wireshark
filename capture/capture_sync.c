@@ -220,13 +220,13 @@ sync_pipe_add_arg(char **args, int *argc, const char *arg)
 /* Initialize an argument list and add dumpcap to it. */
 static char **
 init_pipe_args(int *argc) {
-    char **argv;
-    const char *progfile_dir;
     char *exename;
+    char **argv;
 
-    progfile_dir = get_progfile_dir();
-    if (progfile_dir == NULL) {
-      return NULL;
+    /* Find the absolute path of the dumpcap executable. */
+    exename = get_executable_path("dumpcap");
+    if (exename == NULL) {
+        return NULL;
     }
 
     /* Allocate the string pointer array with enough space for the
@@ -234,13 +234,6 @@ init_pipe_args(int *argc) {
     *argc = 0;
     argv = (char **)g_malloc(sizeof (char *));
     *argv = NULL;
-
-    /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
-#ifdef _WIN32
-    exename = ws_strdup_printf("%s\\dumpcap.exe", progfile_dir);
-#else
-    exename = ws_strdup_printf("%s/dumpcap", progfile_dir);
-#endif
 
     /* Make that the first argument in the argument list (argv[0]). */
     argv = sync_pipe_add_arg(argv, argc, exename);
