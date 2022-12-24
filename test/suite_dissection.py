@@ -823,3 +823,15 @@ class case_communityid(subprocesstest.SubprocessTestCase):
              ))
 
         self.assertBaseline(dirs, proc.stdout_str, 'communityid-filtered.txt')
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_decompress_mongo(subprocesstest.SubprocessTestCase):
+    def test_decompress_zstd(self, cmd_tshark, capture_file):
+        proc = self.assertRun((cmd_tshark,
+                '-d', 'tcp.port==27017,mongo',
+                '-r', capture_file('mongo-zstd.pcapng'),
+                '-Tfields', '-emongo.element.name'
+        ))
+        # Check the element names of the decompressed body.
+        self.assertEqual('drop,lsid,id,$db', proc.stdout_str.strip())
