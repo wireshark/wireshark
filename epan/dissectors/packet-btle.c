@@ -3357,6 +3357,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  *  - As a response during the CTE request procedure.
                  *  - As a response to LL_CIS_REQ
                  *  - As a response to LL_CIS_RSP
+                 *  - As a response to LL_POWER_CONTROL_REQ
                  */
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (direction == BTLE_DIR_SLAVE_MASTER &&
@@ -3438,6 +3439,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                     last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                     last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                     2);
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[other_direction],
+                                                          0x23, 1)) {
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3815,6 +3827,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x25: /* LL_POWER_CHANGE_IND */
                 offset = dissect_power_control_ind(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    control_proc_info_t *proc_info;
+                    proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                   connection_info->direction_info[direction].control_procs,
+                                                   last_control_proc[other_direction],
+                                                   control_opcode);
+
+                    /* Procedure completes in the same frame. */
+                    if (proc_info)
+                        proc_info->last_frame = pinfo->num;
+                }
                 break;
             default:
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
