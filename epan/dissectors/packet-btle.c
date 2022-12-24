@@ -3669,6 +3669,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x1C: /* LL_PERIODIC_SYNC_IND */
                 offset = dissect_periodic_sync_ind(tvb, btle_tree, offset, pinfo, interface_id, adapter_id);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    control_proc_info_t *proc_info;
+                    proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                   connection_info->direction_info[direction].control_procs,
+                                                   last_control_proc[other_direction],
+                                                   control_opcode);
+
+                    /* Procedure completes in the same frame. */
+                    if (proc_info)
+                        proc_info->last_frame = pinfo->num;
+                }
                 break;
             case 0x1D: /* LL_CLOCK_ACCURACY_REQ */
                 proto_tree_add_item(btle_tree, hf_control_sleep_clock_accuracy, tvb, offset, 1, ENC_NA);
