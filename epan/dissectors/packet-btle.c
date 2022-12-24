@@ -267,6 +267,16 @@ static int hf_control_pwrflags_min = -1;
 static int hf_control_pwrflags_max = -1;
 static int hf_control_pwrflags_reserved_bits = -1;
 static int hf_control_acceptable_power_reduction = -1;
+static int hf_control_subrate_factor_min = -1;
+static int hf_control_subrate_factor_max = -1;
+static int hf_control_max_latency = -1;
+static int hf_control_continuation_number = -1;
+static int hf_control_subrate_factor = -1;
+static int hf_control_subrate_base_event = -1;
+static int hf_control_channel_reporting_enable = -1;
+static int hf_control_channel_reporting_min_spacing = -1;
+static int hf_control_channel_reporting_max_delay = -1;
+static int hf_control_channel_classification = -1;
 static int hf_big_control_opcode = -1;
 static int hf_isochronous_data = -1;
 static int hf_btle_l2cap_msg_fragments = -1;
@@ -716,6 +726,10 @@ static const value_string control_opcode_vals[] = {
     { 0x23, "LL_POWER_CONTROL_REQ" },
     { 0x24, "LL_POWER_CONTROL_RSP" },
     { 0x25, "LL_POWER_CHANGE_IND" },
+    { 0x26, "LL_SUBRATE_REQ" },
+    { 0x27, "LL_SUBRATE_IND" },
+    { 0x28, "LL_CHANNEL_REPORTING_IND" },
+    { 0x29, "LL_CHANNEL_STATUS_IND" },
     { 0, NULL }
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
@@ -1242,6 +1256,72 @@ dissect_power_control_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
 
     proto_tree_add_item(btle_tree, hf_control_txpwr, tvb, offset, 1, ENC_NA);
     offset += 1;
+
+    return offset;
+}
+
+static gint
+dissect_subrate_req(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_subrate_factor_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_subrate_factor_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_max_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_continuation_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_subrate_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_subrate_factor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_subrate_base_event, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_continuation_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_channel_reporting_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_channel_reporting_enable, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_channel_reporting_min_spacing, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_channel_reporting_max_delay, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static gint
+dissect_channel_status_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_channel_classification, tvb, offset, 10, ENC_NA);
+    offset += 10;
 
     return offset;
 }
@@ -3358,6 +3438,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  *  - As a response to LL_CIS_REQ
                  *  - As a response to LL_CIS_RSP
                  *  - As a response to LL_POWER_CONTROL_REQ
+                 *  - As a response to a LL_SUBRATE_REQ
                  */
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (direction == BTLE_DIR_SLAVE_MASTER &&
@@ -3449,6 +3530,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                     direction,
                                                     last_control_proc[other_direction],
                                                     last_control_proc[direction],
+                                                    1);
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                          0x26, 1)) {
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
                                                     1);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -3859,6 +3951,84 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     /* Procedure completes in the same frame. */
                     if (proc_info)
                         proc_info->last_frame = pinfo->num;
+                }
+                break;
+            case 0x26: /* LL_SUBRATE_REQ */
+                offset = dissect_subrate_req(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit) {
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs,
+                                           last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                           control_opcode);
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x27: /* LL_SUBRATE_IND */
+                offset = dissect_subrate_ind(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                   0x26, 1)) {
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    1);
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        control_proc_info_t *proc_info;
+                        proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                       connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                                       last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                       control_opcode);
+
+                        /* Procedure completes in the same frame. */
+                        if (proc_info)
+                            proc_info->last_frame = pinfo->num;
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x28: /* LL_CHANNEL_REPORTING_IND */
+                offset = dissect_channel_reporting_ind(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit) {
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        control_proc_info_t *proc_info;
+                        proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                       connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                                       last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                       control_opcode);
+
+                        /* Procedure completes in the same frame. */
+                        if (proc_info)
+                            proc_info->last_frame = pinfo->num;
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x29: /* LL_CHANNEL_STATUS_IND */
+                offset = dissect_channel_status_ind(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit) {
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        control_proc_info_t *proc_info;
+                        proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                       connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       control_opcode);
+
+                        /* Procedure completes in the same frame. */
+                        if (proc_info)
+                            proc_info->last_frame = pinfo->num;
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
                 }
                 break;
             default:
@@ -5220,6 +5390,56 @@ proto_register_btle(void)
         { &hf_control_acceptable_power_reduction,
             { "Acceptable Power Reduction", "btle.control.acceptable_power_reduction",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_subrate_factor_min,
+            {"Minimum subrating factor", "btle.control.subrate_factor_min",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_subrate_factor_max,
+            {"Minimum subrating factor", "btle.control.subrate_factor_max",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_max_latency,
+            {"Maximum peripheral latency in subrated events", "btle.control.max_latency",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_continuation_number,
+            {"The minimum requested continuation number", "btle.control.continuation_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_subrate_factor,
+            {"Subrate factor", "btle.control.subrate_factor",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_subrate_base_event,
+            {"Subrate base event", "btle.control.subrate_base_event",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_channel_reporting_enable,
+            {"Enable channel reporting", "btle.control.channel_reporting_enable",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_channel_reporting_min_spacing,
+            {"Channel reporting min spacing (200 ms units)", "btle.control.channel_reporting_min_spacing",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_channel_reporting_max_delay,
+            {"Channel reporting max delay (200 ms units)", "btle.control.channel_reporting_max_delay",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_channel_classification,
+            {"Channel classification", "btle.control.hf_control_channel_classification",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_big_control_opcode,
