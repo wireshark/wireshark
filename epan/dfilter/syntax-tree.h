@@ -156,6 +156,9 @@ stnode_token(stnode_t *node);
 df_loc_t
 stnode_location(stnode_t *node);
 
+void
+stnode_set_location(stnode_t *node, df_loc_t loc);
+
 df_loc_t
 stnode_merge_location(stnode_t *n1, ...);
 

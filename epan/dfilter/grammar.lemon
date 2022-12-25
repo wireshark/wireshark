@@ -119,7 +119,12 @@ expr(X) ::= TEST_NOT(T) expr(Y).
 }
 
 /* Any expression inside parens is simply that expression */
-expr(X) ::= LPAREN expr(Y) RPAREN.  { X = Y; }
+expr(X) ::= LPAREN(L) expr(Y) RPAREN(R).
+{
+    X = Y;
+    df_loc_t loc = stnode_merge_location(L, Y, R, (stnode_t *)NULL);
+    stnode_set_location(X, loc);
+}
 
 /* Entities, or things that can be compared/tested/checked */
 atom(A) ::= STRING(S).      { A = S; }
@@ -281,9 +286,11 @@ arithmetic_expr(T) ::= arithmetic_expr(F) PERCENT(O) arithmetic_expr(M).
     sttype_oper_set2(T, STNODE_OP_MODULO, F, M);
 }
 
-arithmetic_expr(T) ::= LBRACE arithmetic_expr(F) RBRACE.
+arithmetic_expr(T) ::= LBRACE(L) arithmetic_expr(F) RBRACE(R).
 {
     T = F;
+    df_loc_t loc = stnode_merge_location(L, F, R, (stnode_t *)NULL);
+    stnode_set_location(T, loc);
 }
 
 /* Relational tests */

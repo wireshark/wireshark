@@ -250,6 +250,12 @@ stnode_location(stnode_t *node)
 	return node->location;
 }
 
+void
+stnode_set_location(stnode_t *node, df_loc_t loc)
+{
+	node->location = loc;
+}
+
 /* Finds the first and last location from a set and creates
  * a new location from start of first (col_start) to end of
  * last (col_start + col_len). */
