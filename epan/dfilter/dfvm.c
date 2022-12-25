@@ -828,7 +828,7 @@ typedef ft_bool_t (*DFVMCompareFunc)(const fvalue_t*, const fvalue_t*);
 typedef ft_bool_t (*DFVMTestFunc)(const fvalue_t*);
 
 static gboolean
-cmp_test(enum match_how how, DFVMCompareFunc match_func,
+cmp_test_internal(enum match_how how, DFVMCompareFunc match_func,
 					GSList *arg1, GSList *arg2)
 {
 	GSList *list1, *list2;
@@ -888,25 +888,46 @@ all_test_unary(dfilter_t *df, DFVMTestFunc func, dfvm_value_t *arg1)
 	return cmp_test_unary(MATCH_ALL, func, list1);
 }
 
-/* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
 static gboolean
+cmp_test(dfilter_t *df, DFVMCompareFunc cmp,
+			dfvm_value_t *arg1, dfvm_value_t *arg2,
+			enum match_how how)
+{
+	GSList list1, list2, *l1, *l2;
+
+	if (arg1->type == REGISTER) {
+		l1 = df->registers[arg1->value.numeric];
+	}
+	else if (arg1->type == FVALUE) {
+		list1.data = arg1->value.fvalue;
+		list1.next = NULL;
+		l1 = &list1;
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
+	if (arg2->type == REGISTER) {
+		l2 = df->registers[arg2->value.numeric];
+	}
+	else if (arg2->type == FVALUE) {
+		list2.data = arg2->value.fvalue;
+		list2.next = NULL;
+		l2 = &list2;
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
+	return cmp_test_internal(how, cmp, l1, l2);
+}
+
+/* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
+static inline gboolean
 any_test(dfilter_t *df, DFVMCompareFunc cmp,
 				dfvm_value_t *arg1, dfvm_value_t *arg2)
 {
-	ws_assert(arg1->type == REGISTER);
-	GSList *list1 = df->registers[arg1->value.numeric];
-
-	if (arg2->type == REGISTER) {
-		return cmp_test(MATCH_ANY, cmp, list1, df->registers[arg2->value.numeric]);
-	}
-	if (arg2->type == FVALUE) {
-		GSList list2;
-
-		list2.data = arg2->value.fvalue;
-		list2.next = NULL;
-		return cmp_test(MATCH_ANY, cmp, list1, &list2);
-	}
-	ws_assert_not_reached();
+	return cmp_test(df, cmp, arg1, arg2, MATCH_ANY);
 }
 
 /* cmp(A) <=> cmp(a1) AND cmp(a2) AND cmp(a3) AND ... */
@@ -914,20 +935,7 @@ static gboolean
 all_test(dfilter_t *df, DFVMCompareFunc cmp,
 				dfvm_value_t *arg1, dfvm_value_t *arg2)
 {
-	ws_assert(arg1->type == REGISTER);
-	GSList *list1 = df->registers[arg1->value.numeric];
-
-	if (arg2->type == REGISTER) {
-		return cmp_test(MATCH_ALL, cmp, list1, df->registers[arg2->value.numeric]);
-	}
-	if (arg2->type == FVALUE) {
-		GSList list2;
-
-		list2.data = arg2->value.fvalue;
-		list2.next = NULL;
-		return cmp_test(MATCH_ALL, cmp, list1, &list2);
-	}
-	ws_assert_not_reached();
+	return cmp_test(df, cmp, arg1, arg2, MATCH_ALL);
 }
 
 static gboolean
@@ -1272,9 +1280,21 @@ mk_minus_internal(GSList *arg1, GSList **retval)
 static void
 mk_minus(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
 {
-	ws_assert(arg1->type == REGISTER);
-	GSList *list1 = df->registers[arg1->value.numeric];
+	GSList ls1;
+	GSList *list1;
 	GSList *result = NULL;
+
+	if (arg1->type == REGISTER) {
+		list1 = df->registers[arg1->value.numeric];
+	}
+	else if (arg1->type == FVALUE) {
+		ls1.data = arg1->value.fvalue;
+		ls1.next = NULL;
+		list1 = &ls1;
+	}
+	else {
+		ws_assert_not_reached();
+	}
 
 	mk_minus_internal(list1, &result);
 
