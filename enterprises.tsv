@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2022-12-16)
+# (last updated 2022-12-25)
 
 0	Reserved
 1	NxNetworks
@@ -2191,6 +2191,8 @@
 2184	Open Architecture Systems Integration Solutions (OASIS),Inc.
 2185	NetPartner s.r.o.
 2186	Vina Technologies
+2187	Reserved
+2188	Reserved
 2189	Deutsches Klimarechenzentrum GmbH
 2190	ABSYSSClaude-Aime MOTONGANEmotongane&absyss.fr
 2191	Quadrophonics, Inc.
@@ -3514,6 +3516,7 @@
 3510	TWO-WAY LAUNDRY
 3511	SkyStream, Inc.
 3512	Portal Software, Inc.
+3513	Reserved
 3514	VStream Incorporated
 3515	Joanneum Research GesmbH
 3516	Cybernetica
@@ -4163,6 +4166,7 @@
 4161	Qtera Corporation
 4162	Input Output Inc.
 4163	Quarry Technologies
+4164	Reserved
 4165	SE Electronics
 4166	The Mercy Foundation
 4167	Markus Lauer IT Consulting
@@ -4563,6 +4567,7 @@
 4562	Centermark Engineering LC
 4563	Syllogi, Inc.
 4564	Diverse Networks, Inc.
+4565	Reserved
 4566	Cedelbank
 4567	Cedel Global Services
 4568	Cedel International
@@ -4597,6 +4602,7 @@
 4597	Fiberview Technologies Inc.
 4598	JCampus
 4599	MIMSOFT
+4600	Reserved
 4601	Cybertime Informatik GmbH
 4602	BEA Systems
 4603	TERS Ltd.
@@ -4909,6 +4915,7 @@
 4910	Ubizen
 4911	pcOrder.com, Inc.
 4912	HolisticMeta, LLC	# formerly 'One World Information System'
+4913	Reserved
 4914	hole-in-the.net
 4915	Sipher Internet Technology Ltd.+44 1494 765335
 4916	Blacksound SA
@@ -4994,6 +5001,7 @@
 4996	Forest Networks LLC
 4997	Inetd.Com Consulting
 4998	Cadant Inc.
+4999	Reserved
 5000	Personal Business
 5001	LogicMedia
 5002	RC Networks
@@ -5093,6 +5101,7 @@
 5096	Computer Science and Engineering, CUHK
 5097	Rock Marketing
 5098	OPUSWAVE Networks, Inc.
+5099	Reserved
 5100	Tricast Multimedia
 5101	Novalabs
 5102	Integro A.C.S.
@@ -5137,6 +5146,7 @@
 5141	Hart Edwards Corporation, Inc.
 5142	IVANS
 5143	Cereva Networks Inc.
+5144	Reserved
 5145	ICT electronics SA
 5146	Eclipsys Corporation
 5147	MICEX
@@ -5193,6 +5203,7 @@
 5198	"Universita`" degli Studi di Roma "Tor Vergata"
 5199	Odetics ITS
 5200	EnFlex Corp.
+5201	Reserved
 5202	Aalto University	# formerly 'Helsinki University of Technology'
 5203	The Naqvi Group
 5204	ClickNet Software Corporation
@@ -5674,6 +5685,7 @@
 5680	Windsor Group
 5681	fruittm
 5682	Synergon Ltd.
+5683	Reserved
 5684	Metro Optix, Inc.
 5685	DataLink SNMP Solution
 5686	A H Computer Company
@@ -5767,6 +5779,7 @@
 5774	Beijing Telecable Network System Ltd.
 5775	Advanced Technology Solutions International
 5776	Express Scripts, Inc.
+5777	Reserved
 5778	Universidad Autonoma de Madrid
 5779	Data-GUYS Inc.
 5780	PDA Verticals Corp.
@@ -6248,6 +6261,7 @@
 6257	Disappearing, Inc.
 6258	Iwatsu Electric Co., Ltd.
 6259	Sohonet Limited
+6260	Reserved
 6261	MAKU Informationstechnik GmbH
 6262	IMC Communications
 6263	Avstar Systems, LLC
@@ -6606,6 +6620,7 @@
 6616	Lexica, LLC
 6617	MicroStrategy
 6618	Sonus Networks, Inc.
+6619	Reserved
 6620	Global Telemann System Inc.
 6621	Department of Foreign Affairs and Trade (Australia)
 6622	secondomillennio
@@ -11645,6 +11660,106 @@
 11667	New York State Education Department
 11668	WRLucas
 11669	Milhouse Technologies USA
+11670	Reserved
+11671	Reserved
+11672	Reserved
+11673	Reserved
+11674	Reserved
+11675	Reserved
+11676	Reserved
+11677	Reserved
+11678	Reserved
+11679	Reserved
+11680	Reserved
+11681	Reserved
+11682	Reserved
+11683	Reserved
+11684	Reserved
+11685	Reserved
+11686	Reserved
+11687	Reserved
+11688	Reserved
+11689	Reserved
+11690	Reserved
+11691	Reserved
+11692	Reserved
+11693	Reserved
+11694	Reserved
+11695	Reserved
+11696	Reserved
+11697	Reserved
+11698	Reserved
+11699	Reserved
+11700	Reserved
+11701	Reserved
+11702	Reserved
+11703	Reserved
+11704	Reserved
+11705	Reserved
+11706	Reserved
+11707	Reserved
+11708	Reserved
+11709	Reserved
+11710	Reserved
+11711	Reserved
+11712	Reserved
+11713	Reserved
+11714	Reserved
+11715	Reserved
+11716	Reserved
+11717	Reserved
+11718	Reserved
+11719	Reserved
+11720	Reserved
+11721	Reserved
+11722	Reserved
+11723	Reserved
+11724	Reserved
+11725	Reserved
+11726	Reserved
+11727	Reserved
+11728	Reserved
+11729	Reserved
+11730	Reserved
+11731	Reserved
+11732	Reserved
+11733	Reserved
+11734	Reserved
+11735	Reserved
+11736	Reserved
+11737	Reserved
+11738	Reserved
+11739	Reserved
+11740	Reserved
+11741	Reserved
+11742	Reserved
+11743	Reserved
+11744	Reserved
+11745	Reserved
+11746	Reserved
+11747	Reserved
+11748	Reserved
+11749	Reserved
+11750	Reserved
+11751	Reserved
+11752	Reserved
+11753	Reserved
+11754	Reserved
+11755	Reserved
+11756	Reserved
+11757	Reserved
+11758	Reserved
+11759	Reserved
+11760	Reserved
+11761	Reserved
+11762	Reserved
+11763	Reserved
+11764	Reserved
+11765	Reserved
+11766	Reserved
+11767	Reserved
+11768	Reserved
+11769	Reserved
 11770	China Sanjiang Space Group
 11771	81 Broad Street
 11772	Adrock Software
@@ -14697,6 +14812,7 @@
 14824	Centaur Technology Inc
 14825	Aldata Solutions S.A.
 14826	Adage Networks
+14827	Reserved
 14828	Sonorys Technology GmbH
 14829	Centra Software
 14830	UPtime Systemlösungen
@@ -16607,7 +16723,7 @@
 16736	JavaLi Ltd.
 16737	NeoTool Development, LLC
 16738	InterVideo Inc.
-16739	CompanyName
+16739	Reserved
 16740	3C Limited
 16741	Alexander Müller Informatik
 16742	topteam Services GmbH
@@ -26831,7 +26947,7 @@
 26972	Cimices	# formerly 'Quetz Limited'
 26973	Tomato Vine, Inc.
 26974	Disk Bridge
-26975	CompanyName
+26975	Reserved
 26976	NexG Co., Ltd.
 26977	Qball Technologies Ltd.
 26978	next layer GmbH.
@@ -29129,7 +29245,7 @@
 29273	GCS Software & Consulting e.U.
 29274	BusinessFabric Inc
 29275	Autometrix Precision Cutting Systems
-29276	Wizards Internet Limited
+29276	Exim Internet Mailer
 29277	BookieStreet, Ltd.
 29278	Dima Technologies Co.,Ltd
 29279	WuXi ZhongXing Optoelectronics Technology Co., Ltd.
@@ -59624,7 +59740,7 @@
 59816	Konekto IT Solution
 59817	VotingWorks
 59818	SnatchDreams
-59819	Sean McLaughlin
+59819	HR Duo
 59820	CEMA Ltd
 59821	Neways Technologies BV
 59822	Versorgungsbetriebe Hann. Münden GmbH
@@ -59634,3 +59750,25 @@
 59826	AIA New Zealand
 59827	Efficture AB
 59828	Payment Alliance International
+59829	AO "Nacional'naja nerudnaja kompanija"
+59830	Mapo
+59831	CSSSPNQL
+59832	Ideamatrix
+59833	Asha Enterprises
+59834	BTS LABS
+59835	LAYER8 DEFENSE TECHNOLOGIES
+59836	Cellcomm Solutions Limited
+59837	David Emmett
+59838	Medical Intertrade d.o.o.
+59839	Fabio Bettiol
+59840	Asociación de Autoridades Ancestrales Territoriales Nasa Çxhãçxha
+59841	Wojskowy Instytut Medyczny - PIB
+59842	QuestNet
+59843	Tortuga AgTech
+59844	Thibaud
+59845	Orlando L. Antonio
+59846	Bechtle Nürnberg Cloud
+59847	Creativagenten
+59848	Michael Hörauf Maschinenfabrik GmbH & Co. KG
+59849	Profideo
+59850	Golem Factory GmbH

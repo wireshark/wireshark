@@ -12346,7 +12346,7 @@ a:hover {
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation>Bienvenue à %1</translation>
+        <translation>Bienvenue dans %1</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
