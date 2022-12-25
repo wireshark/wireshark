@@ -90,8 +90,12 @@ resolve_column (gint col, capture_file *cf)
                 field_idx = (guint *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
                 hfi = proto_registrar_get_nth(*field_idx);
 
-                /* Check if we have an OID or a strings table with integer values */
-                if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_BOOLEAN) ||
+                /* Check if we have an OID, a (potentially) resolvable network
+                 * address, a Boolean, or a strings table with integer values */
+                /* XXX: Should this checkbox be disabled if the Name Resolution
+                 * preference for a given type is off?
+                 */
+                if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_IPv4) || (hfi->type == FT_IPv6) || (hfi->type == FT_FCWWN) || (hfi->type == FT_BOOLEAN) ||
                     ((hfi->strings != NULL) &&
                      (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
                 {

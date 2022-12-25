@@ -242,7 +242,7 @@ column_prefs_custom_resolve(const gchar* custom_field)
     for (guint i = 0; i < g_strv_length(fields); i++) {
         if (fields[i] && *fields[i]) {
             hfi = proto_registrar_get_byname(fields[i]);
-            if (hfi && ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_BOOLEAN) ||
+            if (hfi && ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_IPv4) || (hfi->type == FT_IPv6) || (hfi->type == FT_FCWWN) || (hfi->type == FT_BOOLEAN) ||
                     ((hfi->strings != NULL) &&
                      (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))))
                 {

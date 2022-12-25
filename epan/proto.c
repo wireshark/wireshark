@@ -6649,21 +6649,24 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_IPv4:
 			ipv4 = fvalue_get_uinteger(&finfo->value);
 			set_address (&addr, AT_IPv4, 4, &ipv4);
-			address_to_str_buf(&addr, display_label_str, label_str_size);
-			label_len = (int)strlen(display_label_str);
+			tmp_str = address_to_display(NULL, &addr);
+			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
+			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_IPv6:
 			bytes = fvalue_get_bytes(&finfo->value);
 			set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), bytes);
-			address_to_str_buf(&addr, display_label_str, label_str_size);
-			label_len = (int)strlen(display_label_str);
+			tmp_str = address_to_display(NULL, &addr);
+			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
+			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_FCWWN:
 			set_address (&addr, AT_FCWWN, FCWWN_ADDR_LEN, fvalue_get_bytes(&finfo->value));
-			address_to_str_buf(&addr, display_label_str, label_str_size);
-			label_len = (int)strlen(display_label_str);
+			tmp_str = address_to_display(NULL, &addr);
+			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
+			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_ETHER:
