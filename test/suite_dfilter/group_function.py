@@ -66,6 +66,11 @@ class case_dfunction_maxmin(unittest.TestCase):
         dfilter = 'max(udp.srcport, udp.dstport) < 5060'
         checkDFilterCount(dfilter, 1)
 
+    def test_max_4(self, checkDFilterFail):
+        error = 'Argument \'1\' is not valid for max()'
+        dfilter = 'max(1,_ws.ftypes.int8) == 1'
+        checkDFilterFail(dfilter, error)
+
 @fixtures.uses_fixtures
 class case_dfunction_abs(unittest.TestCase):
     trace_file = "dhcp.pcapng"

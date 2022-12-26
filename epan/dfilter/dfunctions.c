@@ -348,12 +348,11 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
     else if (stnode_type_id(arg) == STTYPE_FUNCTION) {
         ftype = check_function(dfw, arg, lhs_ftype);
     }
-    else {
+    else if (stnode_type_id(arg) == STTYPE_FIELD || stnode_type_id(arg) == STTYPE_REFERENCE) {
         ftype = sttype_field_ftenum(arg);
     }
-
-    if (ftype == FT_NONE) {
-        FAIL(dfw, arg, "Argument '%s' (FT_NONE) is not valid for %s()",
+    else {
+        FAIL(dfw, arg, "Argument '%s' is not valid for %s()",
                                 stnode_todisplay(arg), func_name);
     }
 
@@ -371,14 +370,14 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         else if (stnode_type_id(arg) == STTYPE_FUNCTION) {
             ft_arg = check_function(dfw, arg, ftype);
         }
-        else {
+        else if (stnode_type_id(arg) == STTYPE_FIELD || stnode_type_id(arg) == STTYPE_REFERENCE) {
             ft_arg = sttype_field_ftenum(arg);
         }
-
-        if (ft_arg == FT_NONE) {
-            FAIL(dfw, arg, "Argument '%s' (FT_NONE) is not valid for %s()",
+        else {
+            FAIL(dfw, arg, "Argument '%s' is not valid for %s()",
                                     stnode_todisplay(arg), func_name);
         }
+
         if (ftype == FT_NONE) {
             ftype = ft_arg;
         }
