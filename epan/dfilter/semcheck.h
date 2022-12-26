@@ -11,6 +11,8 @@
 #ifndef SEMCHECK_H
 #define SEMCHECK_H
 
+#include "dfilter-int.h"
+
 gboolean
 dfw_semcheck(dfwork_t *dfw);
 

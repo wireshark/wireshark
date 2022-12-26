@@ -7,6 +7,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #include <glib.h>
 
@@ -22,7 +23,10 @@
 #include <wsutil/ws_assert.h>
 
 #define FAIL(dfw, node, ...) \
-	dfilter_fail_throw(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__)
+    do { \
+        ws_noisy("Semantic check failed here."); \
+        dfilter_fail_throw(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
+    } while (0)
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
