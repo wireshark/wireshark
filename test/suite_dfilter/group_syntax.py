@@ -264,6 +264,11 @@ class case_arithmetic(unittest.TestCase):
         dfilter = "1 + 2 == 2 + 1"
         checkDFilterFail(dfilter, error)
 
+    def test_add_6(self, checkDFilterFail):
+        error = 'Constant expression is invalid'
+        dfilter = "1 - 2"
+        checkDFilterFail(dfilter, error)
+
     def test_sub_1(self, checkDFilterCount):
         dfilter = "udp.srcport == udp.dstport - 1"
         checkDFilterCount(dfilter, 2)

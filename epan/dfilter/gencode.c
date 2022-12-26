@@ -581,8 +581,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 		val = gen_arithmetic(dfw, st_arg, jumps_ptr);
 	}
 	else {
-		WS_DEBUG_HERE("sttype is %s", stnode_type_name(st_arg));
-		ws_assert_not_reached();
+		ws_error("Invalid sttype: %s", stnode_type_name(st_arg));
 	}
 	return val;
 }

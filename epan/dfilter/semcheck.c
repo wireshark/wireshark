@@ -1369,13 +1369,17 @@ static void
 semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
 	LOG_NODE(st_node);
+	ftenum_t ftype;
 
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			check_test(dfw, st_node);
 			break;
 		case STTYPE_ARITHMETIC:
-			check_arithmetic(dfw, st_node, FT_NONE);
+			ftype = check_arithmetic(dfw, st_node, FT_NONE);
+			if (ftype == FT_NONE) {
+				FAIL(dfw, st_node, "Constant expression is invalid.");
+			}
 			break;
 		case STTYPE_SLICE:
 			check_slice_sanity(dfw, st_node, FT_NONE);
