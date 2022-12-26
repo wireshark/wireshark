@@ -305,6 +305,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     }
 
     if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) {
+        dfilter_free(sfcode);
         err_str_ = tr("Please select an IAX2 packet.");
         save_payload_error_ = TAP_IAX2_NO_PACKET_SELECTED;
         updateWidgets();
