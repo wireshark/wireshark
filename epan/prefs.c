@@ -4620,7 +4620,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                             break;
 
                         case PREFS_SET_SYNTAX_ERR:
-                            ws_warning("Syntax error in preference \"%s\" at line %d of\n%s %s",
+                            report_warning("Syntax error in preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
                             break;
 
