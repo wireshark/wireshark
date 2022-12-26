@@ -920,9 +920,16 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
+		int commute)
 {
 	LOG_NODE(st_node);
+
+	if (commute < 0) {
+		/* We have already commuted the LHS with the RHS and still
+		   cannot assign a field type to any side of the relation. */
+		FAIL(dfw, st_node, "Constant expression is invalid.");
+	}
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -942,9 +949,19 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 			check_relation_LHS_ARITHMETIC(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
+		case STTYPE_LITERAL:
+		case STTYPE_STRING:
+		case STTYPE_CHARCONST:
+			/* We cannot semantically check a relation with literals on the LHS because we
+			   don't have a type to assign them. Commute the LHS with the RHS and retry
+			   the relation semantic check. */
+			check_relation(dfw, st_op, can_func,
+					allow_partial_value,st_node, st_arg2, st_arg1, --commute);
+			break;
 		default:
-			FAIL(dfw, st_arg1, "Left side of \"%s\" expression must be a field or function, not %s.",
-					stnode_todisplay(st_node), stnode_todisplay(st_arg1));
+			/* Should not happen. */
+			FAIL(dfw, st_arg1, "(FIXME) Syntax node type \"%s\" is invalid for relation \"%s\".",
+					stnode_type_name(st_arg1), stnode_todisplay(st_node));
 	}
 }
 
@@ -1096,13 +1113,13 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case STNODE_OP_ANY_EQ:
 		case STNODE_OP_ALL_NE:
 		case STNODE_OP_ANY_NE:
-			check_relation(dfw, st_op, ftype_can_eq, FALSE, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_eq, FALSE, st_node, st_arg1, st_arg2, 1);
 			break;
 		case STNODE_OP_GT:
 		case STNODE_OP_GE:
 		case STNODE_OP_LT:
 		case STNODE_OP_LE:
-			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2, 1);
 			break;
 		case STNODE_OP_CONTAINS:
 			check_relation_contains(dfw, st_node, st_arg1, st_arg2);

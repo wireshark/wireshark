@@ -24,9 +24,13 @@ class case_syntax(unittest.TestCase):
         dfilter = "ip.proto == 6"
         checkDFilterCount(dfilter, 1)
 
-    def test_commute_2(self, checkDFilterFail):
+    def test_commute_2(self, checkDFilterCount):
         dfilter = "6 == ip.proto"
-        error = "Left side of \"==\" expression must be a field or function"
+        checkDFilterCount(dfilter, 1)
+
+    def test_commute_3(self, checkDFilterFail):
+        dfilter = "6 == 7"
+        error = "Constant expression is invalid"
         checkDFilterFail(dfilter, error)
 
     def test_func_1(self, checkDFilterCount):
