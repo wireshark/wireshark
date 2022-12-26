@@ -439,17 +439,24 @@ static void dissect_srt_hs_ext_field(proto_tree* tree,
 }
 
 
+/*
+ * UTF-8 string packed as 32 bit little endian words (what?!)
+ * https://datatracker.ietf.org/doc/html/draft-sharabayko-srt-01#section-3.2.1.3
+ */
 static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, int hfinfo, int baseoff, int blocklen)
 {
-    wmem_strbuf_t *sid = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *sid = wmem_strbuf_create(wmem_packet_scope());
     for (int ii = 0; ii < blocklen; ii += 4)
     {
+        // XXX This should be tvb_get_letohl() according to the spec.
         const guint32 u = tvb_get_ntohl(tvb, baseoff + ii);
         wmem_strbuf_append_c(sid, 0xFF & (u >>  0));
         wmem_strbuf_append_c(sid, 0xFF & (u >>  8));
         wmem_strbuf_append_c(sid, 0xFF & (u >> 16));
         wmem_strbuf_append_c(sid, 0xFF & (u >> 24));
     }
+    if (!wmem_strbuf_utf8_validate(sid, NULL))
+        wmem_strbuf_utf8_make_valid(sid);
     proto_tree_add_string(tree, hfinfo, tvb,
                           baseoff, blocklen, wmem_strbuf_get_str(sid));
 }
