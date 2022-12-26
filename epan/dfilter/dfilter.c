@@ -234,6 +234,8 @@ dfwork_new(void)
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
 				NULL, (GDestroyNotify)free_refs_array);
 
+	dfw->dfw_scope = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
+
 	return dfw;
 }
 
@@ -272,6 +274,8 @@ dfwork_free(dfwork_t *dfw)
 		g_ptr_array_unref(dfw->deprecated);
 
 	g_free(dfw->expanded_text);
+
+	wmem_destroy_allocator(dfw->dfw_scope);
 
 	/*
 	 * We don't free the error message string; our caller will return

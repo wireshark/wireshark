@@ -330,51 +330,52 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftyp
 }
 
 /* Check arguments are all the same type and they can be compared. */
+/*
+  Every STTYPE_LITERAL needs to be resolved to a STTYPE_FVALUE. If we don't
+  have type information (lhs_ftype is FT_NONE) and we have not seen an argument
+  with a definite type we defer resolving literals to values until we have examined
+  the entire list of function arguments. If we still cannot resolve to a definite
+  type after that (all arguments must have the same type) then we give up and
+  return FT_NONE.
+*/
 static ftenum_t
 ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
                         GSList *param_list, df_loc_t func_loc _U_)
 {
     stnode_t *arg;
+    sttype_id_t type;
     ftenum_t ftype, ft_arg;
     GSList *l;
     fvalue_t *fv;
+    wmem_list_t *literals = NULL;
 
-    arg = param_list->data;
+    ftype = lhs_ftype;
 
-    if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
-        ftype = check_arithmetic(dfw, arg, lhs_ftype);
-    }
-    else if (stnode_type_id(arg) == STTYPE_LITERAL && lhs_ftype != FT_NONE) {
-        fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, arg, FALSE, NULL);
-        stnode_replace(arg, STTYPE_FVALUE, fv);
-        ftype = fvalue_type_ftenum(fv);
-    }
-    else if (stnode_type_id(arg) == STTYPE_FUNCTION) {
-        ftype = check_function(dfw, arg, lhs_ftype);
-    }
-    else if (stnode_type_id(arg) == STTYPE_FIELD || stnode_type_id(arg) == STTYPE_REFERENCE) {
-        ftype = sttype_field_ftenum(arg);
-    }
-    else {
-        FAIL(dfw, arg, "Argument '%s' is not valid for %s()",
-                                stnode_todisplay(arg), func_name);
-    }
-
-    for (l = param_list->next; l != NULL; l = l->next) {
+    for (l = param_list; l != NULL; l = l->next) {
         arg = l->data;
+        type = stnode_type_id(arg);
 
-        if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
+        if (type == STTYPE_ARITHMETIC) {
             ft_arg = check_arithmetic(dfw, arg, ftype);
         }
-        else if (stnode_type_id(arg) == STTYPE_LITERAL && ftype != FT_NONE) {
-            fv = dfilter_fvalue_from_literal(dfw, ftype, arg, FALSE, NULL);
-            stnode_replace(arg, STTYPE_FVALUE, fv);
-            ft_arg = fvalue_type_ftenum(fv);
+        else if (type == STTYPE_LITERAL) {
+            if (ftype != FT_NONE) {
+                fv = dfilter_fvalue_from_literal(dfw, ftype, arg, FALSE, NULL);
+                stnode_replace(arg, STTYPE_FVALUE, fv);
+                ft_arg = fvalue_type_ftenum(fv);
+            }
+            else {
+                if (literals == NULL) {
+                    literals = wmem_list_new(dfw->dfw_scope);
+                }
+                wmem_list_append(literals, arg);
+                ft_arg = FT_NONE;
+            }
         }
-        else if (stnode_type_id(arg) == STTYPE_FUNCTION) {
+        else if (type == STTYPE_FUNCTION) {
             ft_arg = check_function(dfw, arg, ftype);
         }
-        else if (stnode_type_id(arg) == STTYPE_FIELD || stnode_type_id(arg) == STTYPE_REFERENCE) {
+        else if (type == STTYPE_FIELD || type == STTYPE_REFERENCE) {
             ft_arg = sttype_field_ftenum(arg);
         }
         else {
@@ -385,15 +386,29 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         if (ftype == FT_NONE) {
             ftype = ft_arg;
         }
-        if (ft_arg != ftype) {
+        if (ft_arg != FT_NONE && ftype != FT_NONE && ft_arg != ftype) {
             FAIL(dfw, arg, "Arguments to '%s' must have the same type (expected %s, got %s)",
                                         func_name, ftype_name(ftype), ftype_name(ft_arg));
         }
-        if (!ftype_can_cmp(ft_arg)) {
+        if (ft_arg != FT_NONE && !ftype_can_cmp(ft_arg)) {
             FAIL(dfw, arg, "Argument '%s' to '%s' cannot be ordered",
                                     stnode_todisplay(arg), func_name);
         }
     }
+
+    if (literals != NULL) {
+        if (ftype != FT_NONE) {
+            wmem_list_frame_t *fp;
+            stnode_t *st;
+            for (fp = wmem_list_head(literals); fp != NULL; fp = wmem_list_frame_next(fp)) {
+                st = wmem_list_frame_data(fp);
+                fv = dfilter_fvalue_from_literal(dfw, ftype, st, FALSE, NULL);
+                stnode_replace(st, STTYPE_FVALUE, fv);
+            }
+        }
+        wmem_destroy_list(literals);
+    }
+
     return ftype;
 }
 

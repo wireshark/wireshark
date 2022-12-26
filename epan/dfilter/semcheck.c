@@ -787,8 +787,8 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 static void
 check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node,
-		stnode_t *st_arg1, stnode_t *st_arg2)
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
+		int commute)
 {
 	sttype_id_t		type2;
 	ftenum_t		ftype1, ftype2;
@@ -797,7 +797,11 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 	LOG_NODE(st_node);
 
 	ftype1 = check_function(dfw, st_arg1, FT_NONE);
-
+	if (ftype1 == FT_NONE) {
+		check_relation(dfw, st_op, can_func, allow_partial_value,
+				st_node, st_arg2, st_arg1, commute - 1);
+		return;
+	}
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "Function %s (type=%s) cannot participate in %s comparison.",
 				sttype_function_name(st_arg1), ftype_pretty_name(ftype1),
@@ -1006,7 +1010,7 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, st_op, can_func,
-					allow_partial_value, st_node, st_arg1, st_arg2);
+					allow_partial_value, st_node, st_arg1, st_arg2, commute);
 			break;
 		case STTYPE_ARITHMETIC:
 			check_relation_LHS_ARITHMETIC(dfw, st_op, can_func,
@@ -1042,7 +1046,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
-							TRUE, st_node, st_arg1, st_arg2);
+							TRUE, st_node, st_arg1, st_arg2, 0);
 			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
@@ -1089,7 +1093,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, STNODE_OP_MATCHES, ftype_can_matches,
-							TRUE, st_node, st_arg1, st_arg2);
+							TRUE, st_node, st_arg1, st_arg2, 0);
 			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, STNODE_OP_MATCHES, ftype_can_matches,

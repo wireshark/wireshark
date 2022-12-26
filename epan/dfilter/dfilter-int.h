@@ -56,6 +56,10 @@ typedef struct {
 	GHashTable	*raw_references; /* hfinfo -> pointer to array of references */
 	char		*expanded_text;
 	gboolean	apply_optimization;
+	wmem_allocator_t *dfw_scope; /* Because we use exceptions for error handling sometimes
+	                                cleaning up memory allocations is inconvenient. Memory
+					allocated from this pool will be freed when the dfwork_t
+					context is destroyed. */
 } dfwork_t;
 
 /*
