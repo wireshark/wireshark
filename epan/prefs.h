@@ -220,6 +220,7 @@ typedef struct _e_prefs {
   gboolean     gui_packet_list_show_related;
   gboolean     gui_packet_list_show_minimap;
   gboolean     gui_packet_list_sortable;
+  guint        gui_packet_list_cached_rows_max;
   gint         gui_decimal_places1; /* Used for type 1 calculations */
   gint         gui_decimal_places2; /* Used for type 2 calculations */
   gint         gui_decimal_places3; /* Used for type 3 calculations */

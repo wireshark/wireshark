@@ -252,6 +252,12 @@ PacketList::PacketList(QWidget *parent) :
     connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
     connect(mainApp, SIGNAL(columnDataChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
     connect(mainApp, &MainApplication::preferencesChanged, this, [=]() {
+        /* The pref is a uint but QCache maxCost is a signed int (/
+         * qsizetype in Qt 6). Note that QAbstractItemModel row numbers
+         * are ints, not unsigned ints, so we're limited to INT_MAX
+         * rows anyway.
+         */
+        PacketListRecord::setMaxCache(prefs.gui_packet_list_cached_rows_max > INT_MAX ? INT_MAX : prefs.gui_packet_list_cached_rows_max);
         if ((bool) (prefs.gui_packet_list_sortable) != isSortingEnabled()) {
             setSortingEnabled(prefs.gui_packet_list_sortable);
         }

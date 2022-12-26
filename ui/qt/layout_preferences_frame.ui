@@ -403,6 +403,34 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="packetListCachedRows">
+     <item>
+      <widget class="QLabel" name="packetListCachedRowsLabel">
+       <property name="text">
+        <string>Maximum number of cached rows (affects sorting)</string>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="packetListCachedRowsLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="packetListCachedRowsHorizontalSpacer">
+       <property name="orientation">
+        <enum>Qt:Horizontal</enum>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QCheckBox" name="packetListHoverStyleCheckbox">
      <property name="text">
       <string>Enable mouse-over colorization</string>

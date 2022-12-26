@@ -41,6 +41,7 @@ private:
     pref_t *pref_packet_header_column_definition_;
     pref_t *pref_packet_list_hover_style_;
     pref_t *pref_packet_list_sorting_;
+    pref_t *pref_packet_list_cached_rows_max_;
     pref_t *pref_show_selected_packet_;
     pref_t *pref_show_file_load_time_;
 
@@ -73,6 +74,7 @@ private slots:
     void on_packetListHeaderShowColumnDefinition_toggled(bool checked);
     void on_packetListHoverStyleCheckbox_toggled(bool checked);
     void on_packetListAllowSorting_toggled(bool checked);
+    void on_packetListCachedRowsLineEdit_textEdited(const QString &new_str);
     void on_statusBarShowSelectedPacketCheckBox_toggled(bool checked);
     void on_statusBarShowFileLoadTimeCheckBox_toggled(bool checked);
 };

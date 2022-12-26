@@ -41,7 +41,7 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
 
     QStyleOption style_opt;
     QString indent_ss = QString(
-             "QCheckBox {"
+             "QCheckBox, QLabel {"
              "  margin-left: %1px;"
              "}"
              ).arg(ui->packetListSeparatorCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left());
@@ -49,6 +49,7 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->packetListHeaderShowColumnDefinition->setStyleSheet(indent_ss);
     ui->packetListHoverStyleCheckbox->setStyleSheet(indent_ss);
     ui->packetListAllowSorting->setStyleSheet(indent_ss);
+    ui->packetListCachedRowsLabel->setStyleSheet(indent_ss);
     ui->statusBarShowSelectedPacketCheckBox->setStyleSheet(indent_ss);
     ui->statusBarShowFileLoadTimeCheckBox->setStyleSheet(indent_ss);
 
@@ -63,6 +64,8 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
 
     pref_packet_list_sorting_ = prefFromPrefPtr(&prefs.gui_packet_list_sortable);
     ui->packetListAllowSorting->setChecked(prefs_get_bool_value(pref_packet_list_sorting_, pref_stashed));
+
+    pref_packet_list_cached_rows_max_ = prefFromPrefPtr(&prefs.gui_packet_list_cached_rows_max);
 
     pref_show_selected_packet_ = prefFromPrefPtr(&prefs.gui_qt_show_selected_packet);
     ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_stashed));
@@ -157,6 +160,8 @@ void LayoutPreferencesFrame::updateWidgets()
         ui->pane3NoneRadioButton->setChecked(true);
         break;
     }
+
+    ui->packetListCachedRowsLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_packet_list_cached_rows_max_, pref_stashed)));
 }
 
 void LayoutPreferencesFrame::on_layout5ToolButton_toggled(bool checked)
@@ -369,6 +374,15 @@ void LayoutPreferencesFrame::on_packetListHoverStyleCheckbox_toggled(bool checke
 void LayoutPreferencesFrame::on_packetListAllowSorting_toggled(bool checked)
 {
     prefs_set_bool_value(pref_packet_list_sorting_, (gboolean) checked, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_packetListCachedRowsLineEdit_textEdited(const QString &new_str)
+{
+    bool ok;
+    uint new_uint = new_str.toUInt(&ok, 0);
+    if (ok) {
+        prefs_set_uint_value(pref_packet_list_cached_rows_max_, new_uint, pref_stashed);
+    }
 }
 
 void LayoutPreferencesFrame::on_statusBarShowSelectedPacketCheckBox_toggled(bool checked)

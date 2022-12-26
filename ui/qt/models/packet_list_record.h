@@ -45,6 +45,10 @@ public:
 
     int columnTextSize(const char *str);
     static void invalidateAllRecords() { col_text_cache_.clear(); }
+    /* In Qt 6, QCache maxCost is a qsizetype, but the QAbstractItemModel
+     * number of rows is still an int, so we're limited to INT_MAX anyway.
+     */
+    static void setMaxCache(int cost) { col_text_cache_.setMaxCost(cost); }
     static void resetColumns(column_info *cinfo);
     static void resetColorization() { rows_color_ver_++; }
 

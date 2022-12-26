@@ -3485,6 +3485,11 @@ prefs_register_modules(void)
                                    "To prevent sorting by mistake (which can take some time to calculate), it can be disabled",
                                    &prefs.gui_packet_list_sortable);
 
+    prefs_register_uint_preference(gui_module, "packet_list_cached_rows_max",
+                                   "Maximum cached rows",
+                                   "Maximum number of rows that can be sorted by columns that require dissection. Increasing this increases memory consumption by caching column text",
+                                   10,
+                                   &prefs.gui_packet_list_cached_rows_max);
 
     prefs_register_bool_preference(gui_module, "interfaces_show_hidden",
                                    "Show hidden interfaces",
@@ -4190,6 +4195,7 @@ pre_init_prefs(void)
     prefs.gui_packet_list_show_related = TRUE;
     prefs.gui_packet_list_show_minimap = TRUE;
     prefs.gui_packet_list_sortable     = TRUE;
+    prefs.gui_packet_list_cached_rows_max = 10000;
     g_free (prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = g_strdup("");
     prefs.gui_interfaces_show_hidden = FALSE;

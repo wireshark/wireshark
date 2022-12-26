@@ -358,6 +358,27 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 
     QString col_title = get_column_title(column);
 
+    if (text_sort_column_ >= 0 && (guint)visible_rows_.count() > prefs.gui_packet_list_cached_rows_max) {
+        /* Column not based on frame data but by column text that requires
+         * dissection, so to sort in a reasonable amount of time the column
+         * text needs to be cached.
+         */
+        /* If the sort is being triggered because the columns were already
+         * sorted and the filter is being cleared (or changed to something
+         * else with more rows than fit in the cache), then the temporary
+         * message will be immediately overwritten with the standard capture
+         * statistics by the packets_bar_update() call after thawing the rows.
+         * It will still blink yellow, and the user will get the message if
+         * they then click on the header file (wondering why it didn't sort.)
+         */
+        if (col_title.isEmpty()) {
+            col_title = tr("Column");
+        }
+        QString temp_msg = tr("%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences").arg(col_title).arg(prefs.gui_packet_list_cached_rows_max);
+        mainApp->pushStatus(MainApplication::TemporaryStatus, temp_msg);
+        return;
+    }
+
     // XXX Use updateProgress instead. We'd have to switch from std::sort to
     // something we can interrupt.
     if (!col_title.isEmpty()) {
