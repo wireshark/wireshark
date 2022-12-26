@@ -2312,6 +2312,7 @@ static int hf_bgp_pmsi_tunnel_pimssm_pmc_group = -1;
 static int hf_bgp_pmsi_tunnel_pimbidir_sender = -1;
 static int hf_bgp_pmsi_tunnel_pimbidir_pmc_group = -1;
 static int hf_bgp_pmsi_tunnel_ingress_rep_addr = -1;
+static int hf_bgp_pmsi_tunnel_ingress_rep_addr6 = -1;
 
 /* RFC 7311 attribute */
 static int hf_bgp_aigp_type = -1;
@@ -9159,9 +9160,15 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
                                    tvb_ip_to_str(pinfo->pool, tvb, offset+9));
             break;
         case PMSI_TUNNEL_INGRESS:
-            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_ingress_rep_addr, tvb, offset+5, 4, ENC_BIG_ENDIAN);
-            proto_item_append_text(tunnel_id_item, ": tunnel end point -> %s",
-                                   tvb_ip_to_str(pinfo->pool, tvb, offset+5));
+            if(tunnel_id_len == 4){
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_ingress_rep_addr, tvb, offset+5, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(tunnel_id_item, ": tunnel end point -> %s",
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset+5));
+            } else {
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_ingress_rep_addr6, tvb, offset+5, 16, ENC_NA);
+                proto_item_append_text(tunnel_id_item, ": tunnel end point -> %s",
+                                       tvb_ip6_to_str(pinfo->pool, tvb, offset+5));
+            }
             break;
         default:
             expert_add_info_format(pinfo, pmsi_tunnel_type_item, &ei_bgp_attr_pmsi_tunnel_type,
@@ -11520,6 +11527,9 @@ proto_register_bgp(void)
          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_pmsi_tunnel_ingress_rep_addr,
         {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_ingress_rep_addr6,
+        {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip6", FT_IPv6, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
 
         /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
