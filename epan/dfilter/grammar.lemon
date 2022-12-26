@@ -124,6 +124,8 @@ expr(X) ::= LPAREN(L) expr(Y) RPAREN(R).
     X = Y;
     df_loc_t loc = stnode_merge_location(L, Y, R, (stnode_t *)NULL);
     stnode_set_location(X, loc);
+    stnode_free(L);
+    stnode_free(R);
 }
 
 /* Entities, or things that can be compared/tested/checked */
@@ -291,6 +293,8 @@ arithmetic_expr(T) ::= LBRACE(L) arithmetic_expr(F) RBRACE(R).
     T = F;
     df_loc_t loc = stnode_merge_location(L, F, R, (stnode_t *)NULL);
     stnode_set_location(T, loc);
+    stnode_free(L);
+    stnode_free(R);
 }
 
 /* Relational tests */
