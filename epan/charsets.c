@@ -251,8 +251,6 @@ guint8 *
 get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
     wmem_strbuf_t *str;
-    const guint8 *prev = ptr;
-    size_t valid_bytes = 0;
 
     str = wmem_strbuf_new_sized(scope, length+1);
 
@@ -262,14 +260,15 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
      * U+FFFD Substitution of Maximal Subparts. */
 
     while (length > 0) {
+        const guint8 *prev = ptr;
+        size_t valid_bytes = utf_8_validate(prev, length, &ptr);
 
-        prev = ptr;
-        valid_bytes = utf_8_validate(prev, length, &ptr);
         if (valid_bytes) {
             wmem_strbuf_append_len(str, prev, valid_bytes);
         }
-        length -= (gint)valid_bytes;
-        if (length) {
+        length -= (gint)(ptr - prev);
+        prev += valid_bytes;
+        if (ptr - prev) {
             wmem_strbuf_append_unichar_repl(str);
         }
     }
