@@ -17,7 +17,7 @@ gboolean
 dfw_semcheck(dfwork_t *dfw);
 
 ftenum_t
-check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
+check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
 
 ftenum_t
 check_function(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);

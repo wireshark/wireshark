@@ -342,7 +342,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
     arg = param_list->data;
 
     if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
-        ftype = check_arithmetic_expr(dfw, arg, lhs_ftype);
+        ftype = check_arithmetic(dfw, arg, lhs_ftype);
     }
     else if (stnode_type_id(arg) == STTYPE_LITERAL && lhs_ftype != FT_NONE) {
         fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, arg, FALSE, NULL);
@@ -365,7 +365,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         arg = l->data;
 
         if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
-            ft_arg = check_arithmetic_expr(dfw, arg, ftype);
+            ft_arg = check_arithmetic(dfw, arg, ftype);
         }
         else if (stnode_type_id(arg) == STTYPE_LITERAL && ftype != FT_NONE) {
             fv = dfilter_fvalue_from_literal(dfw, ftype, arg, FALSE, NULL);
@@ -410,7 +410,7 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
     st_node = param_list->data;
 
     if (stnode_type_id(st_node) == STTYPE_ARITHMETIC) {
-        ftype = check_arithmetic_expr(dfw, st_node, lhs_ftype);
+        ftype = check_arithmetic(dfw, st_node, lhs_ftype);
     }
     else if (stnode_type_id(st_node) == STTYPE_LITERAL) {
         if (lhs_ftype != FT_NONE) {
