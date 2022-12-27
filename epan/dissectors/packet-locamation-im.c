@@ -489,25 +489,11 @@ static const value_string samples_timestamps_sample_additional_status_master_clo
     {1, "Yes"},
     {0, NULL}};
 
-static void samples_timestamps_sample_sync_status(gchar *result, guint8 sync_status) {
-	char *str = NULL;
-	switch (sync_status) {
-		case 0:
-			str = "None";
-			break;
-		case 1:
-			str = "Local";
-			break;
-		case 2:
-			str = "Global";
-			break;
-		default:
-			str = "Invalid";
-			break;
-	}
-
-	snprintf(result, ITEM_LABEL_LENGTH, "%s", str);
-}
+static const value_string samples_timestamps_sample_sync_status[] = {
+    {0, "None"},
+    {1, "Local"},
+    {2, "Global"},
+    {0, NULL}};
 
 static int *const timestamp_additional_status_bits[] = {
     &hf_samples_timestamps_sample_additional_status_holdover_state,
@@ -531,8 +517,7 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 	gmtime_r(&sample_time, &sample_time_split);
 
 	/* Construct the readable sync status */
-	gchar sync_status_buf[ITEM_LABEL_LENGTH];
-	samples_timestamps_sample_sync_status(sync_status_buf, sync_status);
+	const gchar *sync_status_buf = val_to_str(sync_status, samples_timestamps_sample_sync_status, "Unknown (%u)");
 
 	/* Construct the readable timestamp */
 	gchar timestamp_buf[ITEM_LABEL_LENGTH];
@@ -1173,7 +1158,7 @@ static hf_register_info protocol_registration_samples_im2[] = {
     {&hf_samples_timestamps_sample_6, {"Sample 6", "locamation-im.samples.timestamps.sample.6", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_7, {"Sample 7", "locamation-im.samples.timestamps.sample.7", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_8, {"Sample 8", "locamation-im.samples.timestamps.sample.8", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_samples_timestamps_sample_sync_status, {"Sync Status", "locamation-im.samples.timestamps.sample.sync.status", FT_UINT8, BASE_CUSTOM, CF_FUNC(samples_timestamps_sample_sync_status), 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_sync_status, {"Sync Status", "locamation-im.samples.timestamps.sample.sync.status", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_sync_status), 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_additional_status, {"Additional Status", "locamation-im.samples.timestamps.sample.additional.status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_additional_status_holdover_state, {"Holdover", "locamation-im.samples.timestamps.sample.additional.status.holdover.state", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_additional_status_holdover_state_vals), MASK_TIMESTAMP_ADDITIONAL_STATUS_HOLDOVER_STATE, NULL, HFILL}},
     {&hf_samples_timestamps_sample_additional_status_master_clock_switch, {"Master Clock Switch", "locamation-im.samples.timestamps.sample.additional.status.master.clock.switch", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_additional_status_master_clock_switch_vals), MASK_TIMESTAMP_ADDITIONAL_STATUS_MASTER_CLOCK_SWITCH, NULL, HFILL}},
