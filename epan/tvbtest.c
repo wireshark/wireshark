@@ -765,8 +765,8 @@ zstd_tests (void) {
 
 		printf ("ZSTD test: %s ... begin\n", t->desc);
 
-		tvbuff_t *tvb = tvb_new_real_data (t->data, t->len, t->len);
-		tvbuff_t *got = tvb_uncompress_zstd (tvb, 0, t->len);
+		tvbuff_t *tvb = tvb_new_real_data (t->data, (const guint) t->len, (const guint) t->len);
+		tvbuff_t *got = tvb_uncompress_zstd (tvb, 0, (int) t->len);
 		if (!t->expect) {
 			if (got) {
 				fprintf (stderr, "ZSTD test: %s ... FAIL: Expected error, but got non-NULL from uncompress\n", t->desc);
