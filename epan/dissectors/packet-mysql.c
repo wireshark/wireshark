@@ -2441,7 +2441,7 @@ mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tre
 	offset += 3;
 
 	if (ulen>0) {
-		next_tvb = tvb_uncompress(tvb, offset, clen);
+		next_tvb = tvb_child_uncompress(tvb, tvb, offset, clen);
 		if (next_tvb) {
 			add_new_data_source(pinfo, next_tvb, "compressed data");
 			// call_dissector(mysql_handle, next_tvb, pinfo, mysql_tree);
