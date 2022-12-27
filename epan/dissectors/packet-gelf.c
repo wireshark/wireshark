@@ -109,7 +109,7 @@ dissect_gelf_simple_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
     len = tvb_captured_length(tvb);
     if (header == HEADER_GZIP || is_simple_zlib(header)) {
-        next_tvb = tvb_uncompress(tvb, 0, len);
+        next_tvb = tvb_child_uncompress(tvb, tvb, 0, len);
         if (next_tvb) {
             add_new_data_source(pinfo, next_tvb, "compressed data");
             call_dissector(json_handle, next_tvb, pinfo, tree);
