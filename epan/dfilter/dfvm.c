@@ -329,17 +329,28 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 
 			case DFVM_CALL_FUNCTION:
-				wmem_strbuf_append_printf(buf, "%05d %s\t%s(",
-					id, opcode_str, arg1_str);
-				for (l = stack_print, i = 0; i < arg3->value.numeric; i++, l = l->next) {
-					if (l != stack_print) {
-						wmem_strbuf_append(buf, ", ");
+			{
+				uint32_t nargs = arg3->value.numeric;
+				uint32_t idx;
+				GString	*gs;
+
+				wmem_strbuf_append_printf(buf, "%05d %s\t%s(#%"PRIu32,
+					id, opcode_str, arg1_str, nargs);
+				if (nargs > 0) {
+					wmem_strbuf_append(buf, ": ");
+					gs = g_string_new(NULL);
+					for (l = stack_print, idx = 0; idx < nargs; idx++, l = l->next) {
+						g_string_prepend(gs, l->data);
+						if (nargs > 1 && idx < nargs - 1) {
+							g_string_prepend(gs, ", ");
+						}
 					}
-					wmem_strbuf_append(buf, l->data);
+					wmem_strbuf_append(buf, gs->str);
+					g_string_free(gs, TRUE);
 				}
 				wmem_strbuf_append_printf(buf, ") -> %s\n", arg2_str);
 				break;
-
+			}
 			case DFVM_STACK_PUSH:
 				wmem_strbuf_append_printf(buf, "%05d %s\t%s\n",
 					id, opcode_str, arg1_str);
