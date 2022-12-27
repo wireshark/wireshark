@@ -72,18 +72,28 @@ guint8 *
 get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
     wmem_strbuf_t *str;
+    const guint8 *prev = ptr;
+    size_t valid_bytes = 0;
 
     str = wmem_strbuf_new_sized(scope, length+1);
 
     while (length > 0) {
-        guint8 ch = *ptr;
+        guint8 ch = *ptr++;
 
-        if (ch < 0x80)
-            wmem_strbuf_append_c(str, ch);
-        else
+        if (ch < 0x80) {
+            valid_bytes++;
+        } else {
+            if (valid_bytes) {
+                wmem_strbuf_append_len(str, prev, valid_bytes);
+                prev = ptr;
+                valid_bytes = 0;
+            }
             wmem_strbuf_append_unichar_repl(str);
-        ptr++;
+        }
         length--;
+    }
+    if (valid_bytes) {
+        wmem_strbuf_append_len(str, prev, valid_bytes);
     }
 
     return (guint8 *) wmem_strbuf_finalize(str);
