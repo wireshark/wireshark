@@ -321,7 +321,6 @@ static dfvm_value_t *
 dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	GSList *params;
-	GSList *params_jumps = NULL;
 	dfvm_value_t *jmp;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*reg_val, *val1, *val3, *val_arg;
@@ -344,12 +343,9 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	ws_assert(params);
 	count = 0;
 	while (params) {
-		val_arg = gen_entity(dfw, params->data, &params_jumps);
-		/* If a parameter fails to generate jump here.
-		 * Note: stack_push NULL register is valid. */
-		g_slist_foreach(params_jumps, fixup_jumps, dfw);
-		g_slist_free(params_jumps);
-		params_jumps = NULL;
+		/* If a parameter fails to generate do not jump anywhere.
+		   The function is responsible for handling NULL arguments. */
+		val_arg = gen_entity(dfw, params->data, NULL);
 		dfw_append_stack_push(dfw, val_arg);
 		count++;
 		params = params->next;
@@ -556,14 +552,18 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 		range = sttype_field_drange_steal(st_arg);
 		raw = sttype_field_raw(st_arg);
 		val = dfw_append_read_tree(dfw, hfinfo, range, raw);
-		*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+		if (jumps_ptr != NULL) {
+			*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+		}
 	}
 	else if (e_type == STTYPE_REFERENCE) {
 		hfinfo = sttype_field_hfinfo(st_arg);
 		range = sttype_field_drange_steal(st_arg);
 		raw = sttype_field_raw(st_arg);
 		val = dfw_append_read_reference(dfw, hfinfo, range, raw);
-		*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+		if (jumps_ptr != NULL) {
+			*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
+		}
 	}
 	else if (e_type == STTYPE_FVALUE) {
 		val = dfvm_value_new_fvalue(stnode_steal_data(st_arg));
