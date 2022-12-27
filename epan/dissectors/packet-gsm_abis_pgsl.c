@@ -390,7 +390,7 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	int offset = 0;
 	tvbuff_t *next_tvb;
 	guint32 msg_disc, len, ack_data_ind, cs, fn;
-	RlcMacPrivateData_t rlcmac_data;
+	RlcMacPrivateData_t rlcmac_data = {0};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P-GSL");
 

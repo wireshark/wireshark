@@ -759,9 +759,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         new_request_key = wmem_new(wmem_file_scope(), struct beep_request_key);
         new_request_key->conversation = conversation->conv_index;
 
-        request_val = wmem_new(wmem_file_scope(), struct beep_request_val);
-        request_val->processed = 0;
-        request_val->size = 0;
+        request_val = wmem_new0(wmem_file_scope(), struct beep_request_val);
 
         wmem_map_insert(beep_request_hash, new_request_key, request_val);
 
