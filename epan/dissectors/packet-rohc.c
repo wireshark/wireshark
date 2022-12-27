@@ -298,6 +298,7 @@ static const value_string rohc_opt_type_vals[] =
 
 static const value_string rohc_ip_version_vals[] =
 {
+    { 0,    "Unknown" },
     { 4,    "IPv4" },
     { 6,    "IPv6" },
     { 0, NULL },
@@ -2468,7 +2469,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         } else {
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
-            /*rohc_cid_context->mode     mode;*/
+            rohc_cid_context->mode = 0;
             /*rohc_cid_context->d_mode;*/
             rohc_cid_context->rnd = FALSE;
             rohc_cid_context->udp_checksum_present = FALSE;
@@ -2592,9 +2593,8 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
         } else {
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
-            /*rohc_cid_context->rohc_ip_version;*/
+            rohc_cid_context->rohc_ip_version = 0;
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
-            /*rohc_cid_context->mode     mode;*/
             /*rohc_cid_context->d_mode;*/
             rohc_cid_context->rnd = FALSE;
             rohc_cid_context->udp_checksum_present = FALSE;
