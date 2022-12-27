@@ -59,7 +59,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 
 /* Compares to ftenum_t's and decides if they're
  * compatible or not (if they're the same basic type) */
-static gboolean
+gboolean
 compatible_ftypes(ftenum_t a, ftenum_t b)
 {
 	switch (a) {

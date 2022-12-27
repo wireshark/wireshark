@@ -22,4 +22,7 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
 ftenum_t
 check_function(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
 
+gboolean
+compatible_ftypes(ftenum_t a, ftenum_t b);
+
 #endif

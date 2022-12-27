@@ -386,8 +386,8 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         if (ftype == FT_NONE) {
             ftype = ft_arg;
         }
-        if (ft_arg != FT_NONE && ftype != FT_NONE && ft_arg != ftype) {
-            FAIL(dfw, arg, "Arguments to '%s' must have the same type (expected %s, got %s)",
+        if (ft_arg != FT_NONE && ftype != FT_NONE && !compatible_ftypes(ft_arg, ftype)) {
+            FAIL(dfw, arg, "Arguments to '%s' must be type compatible (expected %s, got %s)",
                                         func_name, ftype_name(ftype), ftype_name(ft_arg));
         }
         if (ft_arg != FT_NONE && !ftype_can_cmp(ft_arg)) {
