@@ -248,10 +248,10 @@ proto_register_mdshdr(void)
           {"Packet Len", "mdshdr.plen", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL}},
 
         { &hf_mdshdr_dstidx,
-          {"Dst Index", "mdshdr.dstidx", FT_UINT16, BASE_HEX, NULL, 0xFFC, NULL, HFILL}},
+          {"Dst Index", "mdshdr.dstidx", FT_UINT16, BASE_HEX, NULL, 0x0FFC, NULL, HFILL}},
 
         { &hf_mdshdr_srcidx,
-          {"Src Index", "mdshdr.srcidx", FT_UINT16, BASE_HEX, NULL, 0x3FF, NULL, HFILL}},
+          {"Src Index", "mdshdr.srcidx", FT_UINT16, BASE_HEX, NULL, 0x03FF, NULL, HFILL}},
 
         { &hf_mdshdr_vsan,
           {"VSAN", "mdshdr.vsan", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL}},

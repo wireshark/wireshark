@@ -4472,27 +4472,27 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_ioam_trace_flags,
             { "Flags", "ipv6.opt.ioam.trace.flags",
-                FT_UINT16, BASE_HEX, NULL, 0x780,
+                FT_UINT16, BASE_HEX, NULL, 0x0780,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_ioam_trace_flag_o,
             { "Overflow", "ipv6.opt.ioam.trace.flag.o",
-                FT_BOOLEAN, 16, NULL, 0x400,
+                FT_BOOLEAN, 16, NULL, 0x0400,
                 "Not enough free space", HFILL }
         },
         { &hf_ipv6_opt_ioam_trace_flag_l,
             { "Loopback", "ipv6.opt.ioam.trace.flag.l",
-                FT_BOOLEAN, 16, NULL, 0x200,
+                FT_BOOLEAN, 16, NULL, 0x0200,
                 "Send a copy of the packet back towards the source", HFILL }
         },
         { &hf_ipv6_opt_ioam_trace_flag_a,
             { "Active", "ipv6.opt.ioam.trace.flag.a",
-                FT_BOOLEAN, 16, NULL, 0x100,
+                FT_BOOLEAN, 16, NULL, 0x0100,
                 "Active measurement packet", HFILL }
         },
         { &hf_ipv6_opt_ioam_trace_flag_rsv,
             { "Reserved", "ipv6.opt.ioam.trace.flag.rsv",
-                FT_BOOLEAN, 16, NULL, 0x80,
+                FT_BOOLEAN, 16, NULL, 0x0080,
                 "Reserved (must be zero)", HFILL }
         },
         { &hf_ipv6_opt_ioam_trace_remlen,

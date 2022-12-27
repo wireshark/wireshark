@@ -1565,11 +1565,11 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_fscbrflag,
         { "CBR Transmit Mode", "waveagent.fscbrflag",
-        FT_BOOLEAN, 4, NULL, 0x01, NULL, HFILL } },
+        FT_BOOLEAN, 4, NULL, 0x1, NULL, HFILL } },
 
         { &hf_waveagent_fscombinedsetupflag,
         { "Setup, Connect/Listen, Start Combined", "waveagent.fscombinedsetupflag",
-        FT_BOOLEAN, 4, NULL, 0x02, NULL, HFILL } },
+        FT_BOOLEAN, 4, NULL, 0x2, NULL, HFILL } },
 
     /* END: Flow setup message */
 
@@ -1637,19 +1637,19 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_ifphytypebit0,
         { "11b", "waveagent.ifphytypebit0",
-        FT_BOOLEAN, 4, NULL, 0x01, NULL, HFILL } },
+        FT_BOOLEAN, 4, NULL, 0x1, NULL, HFILL } },
 
         { &hf_waveagent_ifphytypebit1,
         { "11g", "waveagent.ifphytypebit1",
-        FT_BOOLEAN, 4, NULL, 0x02, NULL, HFILL } },
+        FT_BOOLEAN, 4, NULL, 0x2, NULL, HFILL } },
 
         { &hf_waveagent_ifphytypebit2,
         { "11a", "waveagent.ifphytypebit2",
-        FT_BOOLEAN, 4, NULL, 0x04, NULL, HFILL } },
+        FT_BOOLEAN, 4, NULL, 0x4, NULL, HFILL } },
 
         { &hf_waveagent_ifphytypebit3,
         { "11n", "waveagent.ifphytypebit3",
-        FT_BOOLEAN, 4, NULL, 0x08, NULL, HFILL } },
+        FT_BOOLEAN, 4, NULL, 0x8, NULL, HFILL } },
 
         { &hf_waveagent_ifwlanauthentication,
         { "WLAN Interface Authentication Algorithm", "waveagent.ifwlanauthentication",

@@ -35,6 +35,12 @@ signal.signal(signal.SIGINT, signal_handler)
 warnings_found = 0
 errors_found = 0
 
+def name_has_one_of(name, substring_list):
+    for word in substring_list:
+        if name.find(word) != -1:
+            return True
+    return False
+
 # A call is an individual call to an API we are interested in.
 # Internal to APICheck below.
 class Call:
@@ -78,6 +84,9 @@ class APICheck:
             self.p = re.compile('[^\n]*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
 
         self.file = None
+        self.mask_allowed = True
+        if fun_name.find('proto_tree_add_bits_') != -1:
+            self.mask_allowed = False
 
 
     def find_calls(self, file):
@@ -130,6 +139,15 @@ class APICheck:
                     print('    (allowed types are', self.allowed_types, ')\n')
                     # Inc global count of issues found.
                     errors_found += 1
+                if not self.mask_allowed and items_defined[call.hf_name].mask_value != 0:
+                    # Report this issue.
+                    print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
+                          self.file + ':' + str(call.line_number) +
+                          ' with mask ' + items_defined[call.hf_name].mask + '    (must be zero!)\n')
+                    # Inc global count of issues found.
+                    errors_found += 1
+
+
             elif check_missing_items:
                 if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
                 #not in common_hf_var_names:
@@ -276,9 +294,10 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, filter, label, item_type, type_modifier, mask=None,
+    def __init__(self, filename, hf, filter, label, item_type, type_modifier, mask=None,
                  check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
         self.filename = filename
+        self.hf = hf
         self.filter = filter
         self.label = label
 
@@ -293,7 +312,7 @@ class Item:
         if check_consecutive:
             if Item.previousItem and Item.previousItem.filter == filter:
                 if label != Item.previousItem.label:
-                    print('Warning: ' + filename + ': - filter "' + filter +
+                    print('Warning:', filename, hf, ': - filter "' + filter +
                           '" appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
                     warnings_found += 1
 
@@ -303,16 +322,16 @@ class Item:
         # Optionally check label.
         if check_label:
             if label.startswith(' ') or label.endswith(' '):
-                print('Warning: ' + filename + ' filter "' + filter +  '" label' + label + '" begins or ends with a space')
+                print('Warning: ' + filename, hf, 'filter "' + filter +  '" label' + label + '" begins or ends with a space')
                 warnings_found += 1
 
             if (label.count('(') != label.count(')') or
                 label.count('[') != label.count(']') or
                 label.count('{') != label.count('}')):
-                print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
+                print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
                 warnings_found += 1
             if item_type != 'FT_NONE' and label.endswith(':'):
-                print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
+                print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
                 warnings_found += 1
 
         self.item_type = item_type
@@ -365,6 +384,10 @@ class Item:
         if not self.mask_value:
             return
 
+        # Do see non-contiguous bits often for these..
+        if name_has_one_of(self.hf, ['reserved', 'unknown']):
+            return
+
         # Walk past any l.s. 0 bits
         n = 0
         while not self.check_bit(self.mask_value, n) and n <= 63:
@@ -394,7 +417,7 @@ class Item:
         mask_width = n-1-mask_start
         if mask_width > field_width:
             # N.B. No call, so no line number.
-            print(self.filename + ':', 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
+            print(self.filename + ':', self.hf, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
                   'but mask is', mask, 'which is', mask_width, 'bits wide!')
             global warnings_found
             warnings_found += 1
@@ -405,7 +428,7 @@ class Item:
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
-                print('Warning:', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
                 warnings_found += 1
                 return
             n += 1
@@ -433,7 +456,7 @@ class Item:
             # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
             # all lined up as part of the same word may make it clearer.  But some cases have been found
             # where the grouping does not seem to be natural..
-            print('Warning:', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
+            print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
             global warnings_found
             warnings_found += 1
 
@@ -443,7 +466,7 @@ class Item:
             global errors_found
             # Warn if odd number of digits/  TODO: only if >= 5?
             if len(mask) % 2  and self.item_type != 'FT_BOOLEAN':
-                print('Warning:', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask has odd number of digits', mask,
                       'expected max for', self.item_type, 'is', int((self.get_field_width_in_bits())/4))
                 warnings_found += 1
 
@@ -453,13 +476,13 @@ class Item:
                     extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
                     # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
-                        print('Error:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                        print('Error:', self.filename, self.hf, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
                               "and extra digits are non-zero (" + extra_digits + ")")
                         errors_found += 1
                     else:
                         # Has extra leading zeros, still confusing, so warn.
-                        print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len", len(mask)-2,
+                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, self.mask, "with len", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
 
@@ -467,19 +490,19 @@ class Item:
                 # Currently only doing for FT_BOOLEAN
                 if self.mask_exact_width:
                     if self.item_type == 'FT_BOOLEAN' and  len(mask)-2 != int(self.get_field_width_in_bits()/4):
-                        print('Warning:', self.filename, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
+                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
                                 "but type", self.item_type, "|", self.type_modifier,  " indicates should be", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
 
             else:
                 # This type shouldn't have a mask set at all.
-                print('Warning:', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
                 warnings_found += 1
 
     def check_digits_all_zeros(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             if mask[2:] == '0'*(len(mask)-2):
-                print('Warning:', self.filename, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
                 global warnings_found
                 warnings_found += 1
 
@@ -504,6 +527,11 @@ class CombinedCallsCheck:
 
         prev = None
         for call in self.all_calls:
+
+            # These names commonly do appear together..
+            if name_has_one_of(call.hf_name, [ 'unused', 'unknown', 'spare', 'reserved', 'default']):
+                return
+
             if prev and call.hf_name == prev.hf_name:
                 # More compelling if close together..
                 if call.line_number>prev.line_number and call.line_number-prev.line_number <= 4:
@@ -588,6 +616,15 @@ apiChecks.append(APICheck('proto_tree_add_bitmask_with_flags_ret_uint64', bitmas
 apiChecks.append(APICheck('proto_tree_add_bitmask_value', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_value_with_flags', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_len', bitmask_types))
+
+add_bits_types = { 'FT_CHAR', 'FT_BOOLEAN',
+                   'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32', 'FT_UINT40', 'FT_UINT48', 'FT_UINT56', 'FT_UINT64',
+                   'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32', 'FT_INT40', 'FT_INT48', 'FT_INT56', 'FT_INT64',
+                    'FT_BYTES'}
+#apiChecks.append(APICheck('proto_tree_add_bits_item',    add_bits_types))
+#apiChecks.append(APICheck('proto_tree_add_bits_ret_val', add_bits_types))
+
+
 # TODO: doesn't even have an hf_item !
 #apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
 
@@ -650,7 +687,7 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            items[hf] = Item(filename, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
+            items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
                              type_modifier=m.group(5),
                              check_mask=check_mask,
                              check_label=check_label,

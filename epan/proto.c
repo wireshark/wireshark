@@ -12409,6 +12409,8 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		return pi;
 		break;
 
+	/* TODO: should handle FT_UINT_BYTES ? */
+
 	default:
 		REPORT_DISSECTOR_BUG("field %s has type %d (%s) not handled in proto_tree_add_bits_ret_val()",
 				     hf_field->abbrev,

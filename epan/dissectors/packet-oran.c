@@ -1111,7 +1111,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_bits_item(extension_tree, hf_oran_csf, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                     bit_offset += 1;
                     /* mcScaleOffset (15 bits) */
-                    proto_tree_add_item(extension_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(extension_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, ENC_BIG_ENDIAN);
                     bit_offset += 15;
                 }
 
@@ -2778,7 +2778,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* 5.4.7.4.1 */
+        /* 5.4.7.4.1 (1 bit) */
         { &hf_oran_csf,
           { "csf", "oran_fh_cus.csf",
             FT_BOOLEAN, 1,
@@ -2795,18 +2795,19 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* 5.4.7.5.1 */
+        /* 5.4.7.5.1 (12 bits) */
         { &hf_oran_mc_scale_re_mask,
           { "mcScaleReMask", "oran_fh_cus.mcscaleremask",
             FT_UINT16, BASE_DEC,
-            NULL, 0xfff0,
+            NULL, 0x0,
             "modulation compression power scale RE mask",
             HFILL }
         },
+        /* (15 bits) */
         { &hf_oran_mc_scale_offset,
           { "mcScaleOffset", "oran_fh_cus.mcscaleoffset",
             FT_UINT24, BASE_DEC,
-            NULL, 0x03fff0,
+            NULL, 0x0,
             "scaling value for modulation compression",
             HFILL }
         },

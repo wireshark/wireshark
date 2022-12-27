@@ -3071,7 +3071,7 @@ proto_register_wlccp(void)
 
 		{ &hf_wlccp_type,
 		  { "Message Type", "wlccp.type",
-		    FT_UINT8, BASE_HEX, NULL,
+		    FT_UINT16, BASE_HEX, NULL,
 		    0x0, NULL, HFILL }
 		},
 

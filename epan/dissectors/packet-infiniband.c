@@ -8086,7 +8086,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_MultiPathRecord_SL, {
                 "SL", "infiniband.multipathrecord.sl",
-                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}
+                FT_UINT16, BASE_HEX, NULL, 0x000F, NULL, HFILL}
         },
         { &hf_infiniband_MultiPathRecord_MTUSelector, {
                 "MTUSelector", "infiniband.multipathrecord.mtuselector",
@@ -8168,7 +8168,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_ClassPortInfo_RedirectFL, {
                 "RedirectFL", "infiniband.classportinfo.redirectfl",
-                FT_UINT24, BASE_HEX, NULL, 0xFFFFF, NULL, HFILL}
+                FT_UINT24, BASE_HEX, NULL, 0x0FFFFF, NULL, HFILL}
         },
         { &hf_infiniband_ClassPortInfo_RedirectLID, {
                 "RedirectLID", "infiniband.classportinfo.redirectlid",
@@ -8204,7 +8204,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_ClassPortInfo_TrapFL, {
                 "TrapFL", "infiniband.classportinfo.trapfl",
-                FT_UINT24, BASE_HEX, NULL, 0xFFFFF, NULL, HFILL}
+                FT_UINT24, BASE_HEX, NULL, 0x0FFFFF, NULL, HFILL}
         },
         { &hf_infiniband_ClassPortInfo_TrapLID, {
                 "TrapLID", "infiniband.classportinfo.traplid",

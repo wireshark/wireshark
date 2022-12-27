@@ -651,12 +651,12 @@ proto_register_isobus(void)
         },
         { &hf_isobus_ext_data_page,
           { "Ext data page", "isobus.edp",
-            FT_UINT32, BASE_HEX, NULL, 0x2000000,
+            FT_UINT32, BASE_HEX, NULL, 0x02000000,
             NULL, HFILL }
         },
         { &hf_isobus_data_page,
           { "Data page", "isobus.datapage",
-            FT_UINT32, BASE_HEX, NULL, 0x1000000,
+            FT_UINT32, BASE_HEX, NULL, 0x01000000,
             NULL, HFILL }
         },
         { &hf_isobus_pdu_format_dp0,

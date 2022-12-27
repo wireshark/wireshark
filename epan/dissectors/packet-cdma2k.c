@@ -5426,7 +5426,7 @@ void proto_register_cdma2k(void)
         {  &hf_cdma2k_AlertWithInfoMsg,
             { "Alert With Info Msg", "cdma2k.AlertWithInfoMsg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         {  &hf_cdma2k_Hook_Status,
-            { "Hook_Status", "cdma2k.Hook_Status", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Hook_Status", "cdma2k.Hook_Status", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         {  &hf_cdma2k_MeIdUhdmMsg,
             { "MeIdUhdmMsg", "cdma2k.MeIdUhdmMsg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         {  &hf_cdma2k_UhdmMsg,

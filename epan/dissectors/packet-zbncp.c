@@ -5231,11 +5231,11 @@ void proto_register_zbncp(void)
 
         {&hf_zbncp_data_flags_user_desc_av,
          {"User desc available", "zbncp.data.flags.user_desc_av", FT_BOOLEAN, 16, NULL,
-          0x10, NULL, HFILL}},
+          0x0010, NULL, HFILL}},
 
         {&hf_zbncp_data_flags_freq_868,
          {"868MHz BPSK Band", "zbncp.data.flags.freq.868mhz", FT_BOOLEAN, 16, NULL,
-          0x800, NULL, HFILL}},
+          0x0800, NULL, HFILL}},
 
         {&hf_zbncp_data_flags_freq_902,
          {"902MHz BPSK Band", "zbncp.data.flags.freq.902mhz", FT_BOOLEAN, 16, NULL,
@@ -5254,19 +5254,19 @@ void proto_register_zbncp(void)
 
         {&hf_zbncp_data_srv_msk_prim_tc,
          {"Primary Trust Center", "zbncp.data.srv_msk.prim_tc", FT_BOOLEAN, 16, NULL,
-          0x1, NULL, HFILL}},
+          0x0001, NULL, HFILL}},
 
         {&hf_zbncp_data_srv_msk_backup_tc,
          {"Backup Trust Center", "zbncp.data.srv_msk.backup_tc", FT_BOOLEAN, 16, NULL,
-          0x2, NULL, HFILL}},
+          0x0002, NULL, HFILL}},
 
         {&hf_zbncp_data_srv_msk_prim_bind_tbl_cache,
          {"Primary Binding Table Cache", "zbncp.data.srv_msk.prim_bind_tbl_cache", FT_BOOLEAN, 16, NULL,
-          0x4, NULL, HFILL}},
+          0x0004, NULL, HFILL}},
 
         {&hf_zbncp_data_srv_msk_backup_bind_tbl_cache,
          {"Backup Binding Table Cache", "zbncp.data.srv_msk.backup_bind_tbl_cache", FT_BOOLEAN, 16, NULL,
-          0x8, NULL, HFILL}},
+          0x0008, NULL, HFILL}},
 
         {&hf_zbncp_data_remote_bind_offset,
          {"Remote Bind Offset", "zbncp.data.remote_bind_access", FT_UINT8, BASE_HEX, NULL,
@@ -5277,15 +5277,15 @@ void proto_register_zbncp(void)
 
         {&hf_zbncp_data_srv_msk_prim_disc_cache,
          {"Primary Discovery Cache", "zbncp.data.srv_msk.prim_disc_cache", FT_BOOLEAN, 16, NULL,
-          0x10, NULL, HFILL}},
+          0x0010, NULL, HFILL}},
 
         {&hf_zbncp_data_srv_msk_backup_disc_cache,
          {"Backup Discovery Cache", "zbncp.data.srv_msk.backup_disc_cache", FT_BOOLEAN, 16, NULL,
-          0x20, NULL, HFILL}},
+          0x0020, NULL, HFILL}},
 
         {&hf_zbncp_data_srv_msk_nwk_manager,
          {"Network Manager", "zbncp.data.srv_msk.nwk_manager", FT_BOOLEAN, 16, NULL,
-          0x40, NULL, HFILL}},
+          0x0040, NULL, HFILL}},
 
         {&hf_zbncp_data_srv_msk_stack_compl_rev,
          {"Stack Compliance Revision", "zbncp.data.srv_msk.stack_compl_rev", FT_UINT16, BASE_DEC, NULL,

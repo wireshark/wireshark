@@ -1915,7 +1915,7 @@ proto_register_mausb(void)
 
         { &hf_mausb_cap_resp_num_ep,
             { "Number of Endpoints", "mausb.cap_resp.num_ep",
-              FT_UINT8, BASE_DEC, NULL, 0,
+              FT_UINT16, BASE_DEC, NULL, 0,
               "the maximum number of endpoints for this device",
               HFILL
             }
