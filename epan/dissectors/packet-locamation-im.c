@@ -479,16 +479,6 @@ static int hf_samples_timestamps_sample_timestamp = -1;
 static int hf_samples_timestamps_sample_timestamp_seconds = -1;
 static int hf_samples_timestamps_sample_timestamp_nanoseconds = -1;
 
-static const value_string samples_timestamps_sample_additional_status_holdover_state_vals[] = {
-    {0, "Inactive"},
-    {1, "Active"},
-    {0, NULL}};
-
-static const value_string samples_timestamps_sample_additional_status_master_clock_switch_vals[] = {
-    {0, "No"},
-    {1, "Yes"},
-    {0, NULL}};
-
 static const value_string samples_timestamps_sample_sync_status[] = {
     {0, "None"},
     {1, "Local"},
@@ -1160,8 +1150,8 @@ static hf_register_info protocol_registration_samples_im2[] = {
     {&hf_samples_timestamps_sample_8, {"Sample 8", "locamation-im.samples.timestamps.sample.8", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_sync_status, {"Sync Status", "locamation-im.samples.timestamps.sample.sync.status", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_sync_status), 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_additional_status, {"Additional Status", "locamation-im.samples.timestamps.sample.additional.status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_samples_timestamps_sample_additional_status_holdover_state, {"Holdover", "locamation-im.samples.timestamps.sample.additional.status.holdover.state", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_additional_status_holdover_state_vals), MASK_TIMESTAMP_ADDITIONAL_STATUS_HOLDOVER_STATE, NULL, HFILL}},
-    {&hf_samples_timestamps_sample_additional_status_master_clock_switch, {"Master Clock Switch", "locamation-im.samples.timestamps.sample.additional.status.master.clock.switch", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_additional_status_master_clock_switch_vals), MASK_TIMESTAMP_ADDITIONAL_STATUS_MASTER_CLOCK_SWITCH, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_additional_status_holdover_state, {"Holdover", "locamation-im.samples.timestamps.sample.additional.status.holdover.state", FT_BOOLEAN, 8, TFS(&tfs_active_inactive), MASK_TIMESTAMP_ADDITIONAL_STATUS_HOLDOVER_STATE, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_additional_status_master_clock_switch, {"Master Clock Switch", "locamation-im.samples.timestamps.sample.additional.status.master.clock.switch", FT_BOOLEAN, 8, TFS(&tfs_yes_no), MASK_TIMESTAMP_ADDITIONAL_STATUS_MASTER_CLOCK_SWITCH, NULL, HFILL}},
     {&hf_samples_timestamps_sample_timestamp, {"Timestamp", "locamation-im.samples.timestamps.sample.timestamp", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_timestamp_seconds, {"Seconds", "locamation-im.samples.timestamps.sample.timestamp.seconds", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_samples_timestamps_sample_timestamp_nanoseconds, {"Nanoseconds", "locamation-im.samples.timestamps.sample.timestamp.nanoseconds", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}}};
