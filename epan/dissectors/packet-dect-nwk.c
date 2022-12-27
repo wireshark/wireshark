@@ -3093,7 +3093,7 @@ void proto_register_dect_nwk(void)
 			{ "ARD", "dect_nwk.s.ie.fixed_identity.ard", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nwk_s_ie_fixed_identity_padding,
-			{ "Padding", "dect_nwk.s.ie.fixed_identity.padding", FT_NONE, BASE_NONE,
+			{ "Padding", "dect_nwk.s.ie.fixed_identity.padding", FT_UINT8, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
@@ -3189,10 +3189,10 @@ void proto_register_dect_nwk(void)
 			}
 		},
 		{ &hf_dect_nwk_s_ie_nwk_assigned_identity_value,
-			{ "Value", "dect_nwk.s.ie.nwk_assigned_identity.value", FT_UINT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+			{ "Value", "dect_nwk.s.ie.nwk_assigned_identity.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nwk_s_ie_nwk_assigned_identity_padding,
-			{ "Padding", "dect_nwk.s.ie.nwk_assigned_identity.padding", FT_NONE, BASE_NONE,
+			{ "Padding", "dect_nwk.s.ie.nwk_assigned_identity.padding", FT_UINT8, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
@@ -3257,7 +3257,7 @@ void proto_register_dect_nwk(void)
 			NULL, 0, "Credit Card ACount Number", HFILL }
 		},
 		{ &hf_dect_nwk_s_ie_portable_identity_padding,
-			{ "Padding", "dect_nwk.s.ie.portable_identity.padding", FT_NONE, BASE_NONE,
+			{ "Padding", "dect_nwk.s.ie.portable_identity.padding", FT_UINT8, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
