@@ -798,7 +798,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                    g_ascii_strncasecmp(content_encoding_str,"x-gzip",6) == 0 ||
                    g_ascii_strncasecmp(content_encoding_str,"x-deflate",9) == 0){
                    /* The body is gzip:ed */
-                    tvbuff_t *uncompress_tvb = tvb_uncompress(tmp_tvb, 0, body_len);
+                    tvbuff_t *uncompress_tvb = tvb_child_uncompress(tmp_tvb, tmp_tvb, 0, body_len);
                     if (uncompress_tvb) {
                         tmp_tvb = uncompress_tvb;
                         add_new_data_source(pinfo, tmp_tvb, "gunzipped data");
