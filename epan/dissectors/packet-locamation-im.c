@@ -525,17 +525,23 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 		guint32 nanoseconds_previous = tvb_get_guint32(tvb, *tvb_offset_previous + 6, ENC_BIG_ENDIAN);
 		guint64 time_previous = ((guint64)seconds_previous << 32) | nanoseconds_previous;
 		guint64 time_now = ((guint64)seconds << 32) | nanoseconds;
-		guint64 time_diff;
+		guint64 time_diff = 0;
 		gchar time_difference_sign[2] = {'\0', '\0'};
-		if (time_now >= time_previous) {
+		if (time_now > time_previous) {
 			time_diff = time_now - time_previous;
 			time_difference_sign[0] = '\0';
-		} else {
+		} else if (time_now < time_previous) {
 			time_diff = time_previous - time_now;
 			time_difference_sign[0] = '-';
 		}
-		double frequency = 1.0 / ((double)time_diff * 1.0E-09);
-		title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ", Time Difference: %s%lu nsec = %f Hz", time_difference_sign, time_diff, frequency);
+		double frequency = 0.0;
+		if (time_diff != 0) {
+			frequency = 1.0 / ((double)time_diff * 1.0E-09);
+		}
+		title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ", Time Difference: %s%lu nsec", time_difference_sign, time_diff);
+		if (frequency != 0.0) {
+			title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, " = %f Hz", frequency);
+		}
 	}
 	title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ")");
 
