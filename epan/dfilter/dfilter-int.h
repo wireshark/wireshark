@@ -45,6 +45,7 @@ typedef struct {
 	/* Syntax Tree stuff */
 	stnode_t	*st_root;
 	gboolean	parse_failure;
+	unsigned	field_count;
 	df_error_t	error;
 	GPtrArray	*insns;
 	GHashTable	*loaded_fields;

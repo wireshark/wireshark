@@ -463,6 +463,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			/* This is OK */
+			dfw->field_count++;
 			break;
 		case STTYPE_REFERENCE:
 		case STTYPE_STRING:
@@ -503,6 +504,7 @@ check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 	ws_assert(entity1);
 
 	if (stnode_type_id(entity1) == STTYPE_FIELD) {
+		dfw->field_count++;
 		hfinfo1 = sttype_field_hfinfo(entity1);
 		ftype1 = hfinfo1->type;
 
@@ -606,18 +608,18 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 
 	LOG_NODE(st_node);
 
-	type2 = stnode_type_id(st_arg2);
+	if (stnode_type_id(st_arg1) == STTYPE_FIELD)
+		dfw->field_count++;
 
-	ws_assert(stnode_type_id(st_arg1) == STTYPE_FIELD ||
-			stnode_type_id(st_arg1) == STTYPE_REFERENCE);
 	hfinfo1 = sttype_field_hfinfo(st_arg1);
 	ftype1 = sttype_field_ftenum(st_arg1);
-
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "%s (type=%s) cannot participate in %s comparison.",
 				hfinfo1->abbrev, ftype_pretty_name(ftype1),
 				stnode_todisplay(st_node));
 	}
+
+	type2 = stnode_type_id(st_arg2);
 
 	if (IS_FIELD_ENTITY(type2)) {
 		ftype2 = sttype_field_ftenum(st_arg2);
@@ -631,6 +633,9 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+		if (type2 == STTYPE_FIELD) {
+			dfw->field_count++;
 		}
 	}
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_LITERAL) {
@@ -735,6 +740,9 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op _U_,
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
+		if (type2 == STTYPE_FIELD) {
+			dfw->field_count++;
+		}
 	}
 	else if (type2 == STTYPE_STRING ||
 				type2 == STTYPE_LITERAL ||
@@ -819,6 +827,9 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 
 			/* Convert entire field to bytes */
 			convert_to_bytes(st_arg2);
+		}
+		if (type2 == STTYPE_FIELD) {
+			dfw->field_count++;
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
@@ -917,6 +928,9 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+		if (type2 == STTYPE_FIELD) {
+			dfw->field_count++;
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
@@ -1023,6 +1037,9 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+		if (type2 == STTYPE_FIELD) {
+			dfw->field_count++;
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
@@ -1473,12 +1490,12 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 			break;
 
 		case STTYPE_FIELD:
+			dfw->field_count++;
+			/* fall-through */
 		case STTYPE_REFERENCE:
-		{
-			header_field_info *hfinfo = sttype_field_hfinfo(st_node);
-			ftype = hfinfo->type;
+			ftype = sttype_field_ftenum(st_node);
 			break;
-		}
+
 		case STTYPE_FUNCTION:
 			ftype = check_function(dfw, st_node, lhs_ftype);
 			break;
@@ -1511,6 +1528,8 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
 	LOG_NODE(st_node);
 
+	dfw->field_count = 0;
+
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			check_test(dfw, st_node);
@@ -1521,6 +1540,10 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 			break;
 		default:
 			check_exists(dfw, st_node);
+	}
+
+	if (dfw->field_count == 0) {
+		FAIL(dfw, st_node, "Constant expression is invalid.");
 	}
 }
 

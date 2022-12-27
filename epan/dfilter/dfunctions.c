@@ -255,6 +255,7 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t lhs_f
     stnode_t *st_node = param_list->data;
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
+        dfw->field_count++;
         hfinfo = sttype_field_hfinfo(st_node);
         if (IS_FT_STRING(hfinfo->type)) {
             return FT_STRING;
@@ -270,8 +271,10 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node = param_list->data;
 
-    if (stnode_type_id(st_node) == STTYPE_FIELD)
+    if (stnode_type_id(st_node) == STTYPE_FIELD) {
+        dfw->field_count++;
         return FT_UINT32;
+    }
 
     FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
 }
@@ -286,6 +289,7 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftyp
     stnode_t *st_node = param_list->data;
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
+        dfw->field_count++;
         hfinfo = sttype_field_hfinfo(st_node);
         switch (hfinfo->type) {
             case FT_UINT8:
@@ -375,7 +379,11 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         else if (type == STTYPE_FUNCTION) {
             ft_arg = check_function(dfw, arg, ftype);
         }
-        else if (type == STTYPE_FIELD || type == STTYPE_REFERENCE) {
+        else if (type == STTYPE_FIELD) {
+            dfw->field_count++;
+            ft_arg = sttype_field_ftenum(arg);
+        }
+        else if (type == STTYPE_REFERENCE) {
             ft_arg = sttype_field_ftenum(arg);
         }
         else {
@@ -441,6 +449,7 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
         ftype = check_function(dfw, st_node, lhs_ftype);
     }
     else if (stnode_type_id(st_node) == STTYPE_FIELD) {
+        dfw->field_count++;
         ftype = sttype_field_ftenum(st_node);
     }
     else {
