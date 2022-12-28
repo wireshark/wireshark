@@ -3355,6 +3355,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  *  - As a response to LL_CONNECTION_PARAM_RSP
                  *  - As a response during the phy update procedure.
                  *  - As a response during the CTE request procedure.
+                 *  - As a response to LL_CIS_REQ
+                 *  - As a response to LL_CIS_RSP
                  */
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (direction == BTLE_DIR_SLAVE_MASTER &&
@@ -3414,6 +3416,28 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                     last_control_proc[other_direction],
                                                     last_control_proc[direction],
                                                     1);
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          0x1F, 1)) {
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    1);
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          0x1F, 2)) {
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                    last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                    2);
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
