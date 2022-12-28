@@ -47,8 +47,7 @@ check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-		int commute);
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2);
 
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node);
@@ -714,6 +713,80 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 }
 
 static void
+check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op _U_,
+		FtypeCanFunc can_func, gboolean allow_partial_value,
+		stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	sttype_id_t		type1, type2;
+	header_field_info	*hfinfo2 = NULL;
+	ftenum_t		ftype2;
+	fvalue_t		*fvalue;
+
+	LOG_NODE(st_node);
+
+	type2 = stnode_type_id(st_arg2);
+
+	if (IS_FIELD_ENTITY(type2)) {
+		hfinfo2 = sttype_field_hfinfo(st_arg2);
+		ftype2 = sttype_field_ftenum(st_arg2);
+
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+	}
+	else if (type2 == STTYPE_STRING ||
+				type2 == STTYPE_LITERAL ||
+				type2 == STTYPE_CHARCONST ||
+				type2 == STTYPE_PCRE) {
+		FAIL(dfw, st_node, "Constant expression is invalid.");
+	}
+	else if (type2 == STTYPE_SLICE) {
+		ftype2 = check_slice(dfw, st_arg2, FT_NONE);
+
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+	}
+	else if (type2 == STTYPE_FUNCTION) {
+		ftype2 = check_function(dfw, st_arg2, FT_NONE);
+
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "return value of %s() (type=%s) cannot participate in specified comparison.",
+					sttype_function_name(st_arg2), ftype_pretty_name(ftype2));
+		}
+	}
+	else if (type2 == STTYPE_ARITHMETIC) {
+		ftype2 = check_arithmetic(dfw, st_arg2, FT_NONE);
+
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
+	type1 = stnode_type_id(st_arg1);
+	if (type1 == STTYPE_STRING) {
+		fvalue = dfilter_fvalue_from_string(dfw, ftype2, st_arg1, hfinfo2);
+	}
+	else if (type1 == STTYPE_LITERAL) {
+		fvalue = dfilter_fvalue_from_literal(dfw, ftype2, st_arg1, allow_partial_value, hfinfo2);
+	}
+	else if (type1 == STTYPE_CHARCONST) {
+		fvalue = dfilter_fvalue_from_charconst(dfw, ftype2, st_arg1);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+	stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
+}
+
+static void
 check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func _U_,
 		gboolean allow_partial_value,
@@ -812,8 +885,7 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 static void
 check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-		int commute)
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
 	ftenum_t		ftype1, ftype2;
@@ -823,9 +895,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 
 	ftype1 = check_function(dfw, st_arg1, FT_NONE);
 	if (ftype1 == FT_NONE) {
-		check_relation(dfw, st_op, can_func, allow_partial_value,
-				st_node, st_arg2, st_arg1, commute - 1);
-		return;
+		FAIL(dfw, st_arg1, "Constant expression is invalid on the LHS.");
 	}
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "Function %s (type=%s) cannot participate in %s comparison.",
@@ -923,8 +993,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 static void
 check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-		int commute)
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
 	ftenum_t		ftype1, ftype2;
@@ -934,11 +1003,8 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 
 	ftype1 = check_arithmetic(dfw, st_arg1, FT_NONE);
 	if (ftype1 == FT_NONE) {
-		check_relation(dfw, st_op, can_func, allow_partial_value,
-				st_node, st_arg2, st_arg1, commute - 1);
-		return;
+		FAIL(dfw, st_arg1, "Constant expression is invalid on the LHS.");
 	}
-
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "Result with type %s cannot participate in %s comparison.",
 				ftype_pretty_name(ftype1),
@@ -1030,16 +1096,9 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-		int commute)
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	LOG_NODE(st_node);
-
-	if (commute < 0) {
-		/* We have already commuted the LHS with the RHS and still
-		   cannot assign a field type to any side of the relation. */
-		FAIL(dfw, st_node, "Constant expression is invalid.");
-	}
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -1053,20 +1112,17 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, st_op, can_func,
-					allow_partial_value, st_node, st_arg1, st_arg2, commute);
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_ARITHMETIC:
 			check_relation_LHS_ARITHMETIC(dfw, st_op, can_func,
-					allow_partial_value, st_node, st_arg1, st_arg2, commute);
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_LITERAL:
 		case STTYPE_STRING:
 		case STTYPE_CHARCONST:
-			/* We cannot semantically check a relation with literals on the LHS because we
-			   don't have a type to assign them. Commute the LHS with the RHS and retry
-			   the relation semantic check. */
-			check_relation(dfw, st_op, can_func,
-					allow_partial_value,st_node, st_arg2, st_arg1, commute - 1);
+			check_relation_LHS_FVALUE(dfw, st_op, can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		default:
 			/* Should not happen. */
@@ -1110,7 +1166,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
-							TRUE, st_node, st_arg1, st_arg2, 0);
+							TRUE, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, STNODE_OP_CONTAINS, ftype_can_contains,
@@ -1157,7 +1213,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, STNODE_OP_MATCHES, ftype_can_matches,
-							TRUE, st_node, st_arg1, st_arg2, 0);
+							TRUE, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, STNODE_OP_MATCHES, ftype_can_matches,
@@ -1238,13 +1294,13 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case STNODE_OP_ANY_EQ:
 		case STNODE_OP_ALL_NE:
 		case STNODE_OP_ANY_NE:
-			check_relation(dfw, st_op, ftype_can_eq, FALSE, st_node, st_arg1, st_arg2, 1);
+			check_relation(dfw, st_op, ftype_can_eq, FALSE, st_node, st_arg1, st_arg2);
 			break;
 		case STNODE_OP_GT:
 		case STNODE_OP_GE:
 		case STNODE_OP_LT:
 		case STNODE_OP_LE:
-			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2, 1);
+			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
 			break;
 		case STNODE_OP_CONTAINS:
 			check_relation_contains(dfw, st_node, st_arg1, st_arg2);
