@@ -1786,6 +1786,15 @@ static const value_string dect_charset_control_codes_val[] = {
 
 /* TOOD: value_string for other protocols */
 
+/* Encoding table for BCD string. */
+/* TODO: Remove this when tvb_bcd_dig_to_str_be allows removing of last half byte */
+static const dgt_set_t Dgt0_9_bcd = {
+	{
+		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f */
+		   '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+	}
+};
+
 #define DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK 0x80
 #define DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT 7
 
@@ -2055,15 +2064,25 @@ static int dissect_dect_nwk_s_ie_multi_keypad(tvbuff_t *tvb, guint offset, guint
 	return offset;
 }
 
-static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
+static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
 {
 	guint8 value_length, identity_type, ipui_type;
-	guint bit_offset, no_of_bits;
+	guint bit_offset, no_of_bits, overflow_bits_in_last_byte, no_of_bytes;
+	gboolean bcd_last_byte_odd;
+	char* bcd_string;
 	identity_type = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_type, tvb, offset, 1, ENC_NA);
 	offset++;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_value_length, tvb, offset, 1, ENC_NA);
 	value_length = tvb_get_guint8(tvb, offset) & 0x7F;
+	overflow_bits_in_last_byte = value_length % 8;
+	if (overflow_bits_in_last_byte) {
+		no_of_bytes = value_length / 8 + 1;
+		bcd_last_byte_odd = true;
+	} else {
+		no_of_bytes = value_length / 8;
+		bcd_last_byte_odd = false;
+	}
 	offset++;
 	bit_offset = ( offset * 8 ) + 4;
 	switch(identity_type) {
@@ -2083,27 +2102,32 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, 
 					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_acc, tvb, bit_offset + 16, no_of_bits - 16, ENC_BIG_ENDIAN);
 					break;
 				case DECT_NWK_IPUI_TYPE_Q:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_q_bacn, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					bcd_string = tvb_get_bcd_string(pinfo->pool, tvb, offset, no_of_bytes, &Dgt0_9_bcd, true, bcd_last_byte_odd, true);
+					proto_tree_add_string(tree, hf_dect_nwk_s_ie_portable_identity_ipui_q_bacn, tvb, offset, no_of_bytes, bcd_string);
 					break;
 				case DECT_NWK_IPUI_TYPE_R:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					bcd_string = tvb_get_bcd_string(pinfo->pool, tvb, offset, no_of_bytes, &Dgt0_9_bcd, true, bcd_last_byte_odd, true);
+					proto_tree_add_string(tree, hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi, tvb, offset, no_of_bytes, bcd_string);
 					break;
 				case DECT_NWK_IPUI_TYPE_S:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_s_number, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					bcd_string = tvb_get_bcd_string(pinfo->pool, tvb, offset, no_of_bytes, &Dgt0_9_bcd, true, bcd_last_byte_odd, true);
+					proto_tree_add_string(tree, hf_dect_nwk_s_ie_portable_identity_ipui_s_number, tvb, offset, no_of_bytes, bcd_string);
 					break;
 				case DECT_NWK_IPUI_TYPE_T:
 					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_t_eic, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_t_number, tvb, bit_offset + 16, no_of_bits - 16, ENC_BCD_DIGITS_0_9);
+					bcd_string = tvb_get_bcd_string(pinfo->pool, tvb, offset + 2, no_of_bytes - 2, &Dgt0_9_bcd, true, bcd_last_byte_odd, true);
+					proto_tree_add_string(tree, hf_dect_nwk_s_ie_portable_identity_ipui_t_number, tvb, offset + 2, no_of_bytes - 2, bcd_string);
 					break;
 				case DECT_NWK_IPUI_TYPE_U:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_u_cacn, tvb, bit_offset, no_of_bits, ENC_BCD_DIGITS_0_9);
+					bcd_string = tvb_get_bcd_string(pinfo->pool, tvb, offset, no_of_bytes, &Dgt0_9_bcd, true, bcd_last_byte_odd, true);
+					proto_tree_add_string(tree, hf_dect_nwk_s_ie_portable_identity_ipui_u_cacn, tvb, offset, no_of_bytes, bcd_string);
 					break;
 			}
 
 			bit_offset += no_of_bits;
 			offset += value_length / 8;
-			if (value_length % 8) {
-				no_of_bits = 8 - (value_length % 8);
+			if (overflow_bits_in_last_byte) {
+				no_of_bits = 8 - overflow_bits_in_last_byte;
 				proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_padding, tvb, bit_offset, no_of_bits, ENC_NA);
 				offset++;
 			}
@@ -2569,7 +2593,7 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 				offset = dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_PORTABLE_IDENTITY:
-				offset = dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
+				offset = dissect_dect_nwk_s_ie_portable_identity(tvb, offset, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_RAND:
 				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rand_rand_field, tvb, offset, element_length, ENC_NA);
