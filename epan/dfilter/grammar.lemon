@@ -507,16 +507,24 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 }
 
 /* A function can have one or more parameters */
-function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
+function(F) ::= UNPARSED(U) LPAREN(L) function_params(P) RPAREN(R).
 {
     F = new_function(dfw, U);
     sttype_function_set_params(F, P);
+    df_loc_t loc = stnode_merge_location(F, L, R, (stnode_t *)NULL);
+    stnode_set_location(F, loc);
+    stnode_free(L);
+    stnode_free(R);
 }
 
 /* A function can have zero parameters. */
-function(F) ::= UNPARSED(U) LPAREN RPAREN.
+function(F) ::= UNPARSED(U) LPAREN(L) RPAREN(R).
 {
     F = new_function(dfw, U);
+    df_loc_t loc = stnode_merge_location(F, L, R, (stnode_t *)NULL);
+    stnode_set_location(F, loc);
+    stnode_free(L);
+    stnode_free(R);
 }
 
 function_params(P) ::= arithmetic_expr(E).
