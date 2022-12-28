@@ -165,7 +165,14 @@ class SubprocessTestCase(unittest.TestCase):
         # It remains None when running in debug mode (`pytest --pdb`).
         # The property is available since Python 3.4 until at least Python 3.7.
         if self._outcome:
-            for test_case, exc_info in self._outcome.errors:
+            if hasattr(self._outcome, 'errors'):
+                # Python 3.4 - 3.10
+                result = self.defaultTestResult()
+                self._feedErrorsToResult(result, self._outcome.errors)
+            else:
+                # Python 3.11+
+                result = self._outcome.result
+            for test_case, exc_info in (result.errors + result.failures):
                 if exc_info:
                     return True
         # No errors occurred or running in debug mode.
