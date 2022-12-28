@@ -132,6 +132,12 @@ class case_syntax(unittest.TestCase):
         dfilter = '\ttcp.stream \r\n== 1'
         checkDFilterSucceed(dfilter)
 
+    def test_func_name_clash1(self, checkDFilterFail):
+        # "tcp" is a (non-existent) function, not a protocol
+        error = "Function 'tcp' does not exist"
+        dfilter = 'frame == tcp()'
+        checkDFilterFail(dfilter, error)
+
 @fixtures.uses_fixtures
 class case_equality(unittest.TestCase):
     trace_file = "sip.pcapng"

@@ -1,6 +1,7 @@
 %top {
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 #include <wireshark.h>
 
 #include <stdlib.h>
@@ -79,16 +80,18 @@ DIAG_OFF_FLEX()
 
 stnode_t *df_lval;
 
-static int set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id);
+WS_WARN_UNUSED static int set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id);
 #define simple(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_UNINITIALIZED))
 #define test(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_TEST))
 #define math(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_ARITHMETIC))
 
-static int set_lval_literal(df_scanner_state_t *state, const char *token_value);
-static int set_lval_unparsed(df_scanner_state_t *state, const char *token_value);
-static int set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string);
-static int set_lval_charconst(df_scanner_state_t *state, GString *quoted_string);
-static int set_lval_field(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_literal(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_unparsed(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string);
+WS_WARN_UNUSED static int set_lval_charconst(df_scanner_state_t *state, GString *quoted_string);
+WS_WARN_UNUSED static int set_lval_field(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_identifier(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_constant(df_scanner_state_t *state, const char *token_value);
 
 static gboolean append_escaped_char(df_scanner_state_t *state, GString *str, char c);
 static gboolean append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn);
@@ -97,7 +100,11 @@ static gboolean parse_charconst(df_scanner_state_t *state, const char *s, unsign
 static void update_location(df_scanner_state_t *state, const char *text);
 static void update_string_loc(df_scanner_state_t *state, const char *text);
 
-#define FAIL(...) dfilter_fail(yyextra->dfw, DF_ERROR_GENERIC, yyextra->location, __VA_ARGS__)
+#define FAIL(...) \
+	do { \
+		ws_noisy("Scanning failed here."); \
+		dfilter_fail(yyextra->dfw, DF_ERROR_GENERIC, yyextra->location, __VA_ARGS__); \
+	} while (0)
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -419,19 +426,19 @@ HyphenBytes	{hex2}(-{hex2})+
 {MacAddress}|{QuadMacAddress}		{
 	/* MAC Address. */
 	update_location(yyextra, yytext);
-	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
+	return set_lval_unparsed(yyextra, yytext);
 }
 
 {IPv4Address}{V4CidrPrefix}?		{
 	/* IPv4 with or without prefix. */
 	update_location(yyextra, yytext);
-	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
+	return set_lval_unparsed(yyextra, yytext);
 }
 
 {IPv6Address}{V6CidrPrefix}?		{
 	/* IPv6 with or without prefix. */
 	update_location(yyextra, yytext);
-	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
+	return set_lval_unparsed(yyextra, yytext);
 }
 
 :?({ColonBytes}|{DotBytes}|{HyphenBytes})	{
@@ -448,14 +455,25 @@ HyphenBytes	{hex2}(-{hex2})+
 	return set_lval_literal(yyextra, yytext); /* Keep leading colon. */
 }
 
-\.?{Identifier}			{
-	/* Identifier or unparsed. */
+{Identifier}			{
+	/* Identifier (field or function) or constant (literal). */
 	update_location(yyextra, yytext);
-	if (yytext[0] == '.') {
-		/* Skip leading dot. */
-		return set_lval_field(yyextra, yytext + 1);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra->dfw, yytext);
+	if (hfinfo != NULL) {
+		return set_lval_identifier(yyextra, yytext);
 	}
-	return set_lval_unparsed(yyextra, yytext);
+        df_func_def_t *def = df_func_lookup(yytext);
+	if (def != NULL) {
+		return set_lval_identifier(yyextra, yytext);
+	}
+	return set_lval_constant(yyextra, yytext);
+}
+
+\.{Identifier}			{
+	/* Field. */
+	update_location(yyextra, yytext);
+	/* Skip leading dot. */
+	return set_lval_field(yyextra, yytext + 1);
 }
 
 . {
@@ -512,9 +530,28 @@ set_lval_literal(df_scanner_state_t *state, const char *token_value)
 }
 
 static int
+set_lval_identifier(df_scanner_state_t *state, const char *token_value)
+{
+	stnode_init(df_lval, STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	return TOKEN_IDENTIFIER;
+}
+
+static int
+set_lval_constant(df_scanner_state_t *state, const char *token_value)
+{
+	stnode_init(df_lval, STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	return TOKEN_CONSTANT;
+}
+
+static int
 set_lval_unparsed(df_scanner_state_t *state, const char *token_value)
 {
-	return set_lval_simple(state, TOKEN_UNPARSED, token_value, STTYPE_UNINITIALIZED);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
+	if (hfinfo != NULL) {
+		stnode_init(df_lval, STTYPE_FIELD, hfinfo, g_strdup(token_value), state->location);
+		return TOKEN_FIELD;
+    	}
+	return set_lval_literal(state, token_value);
 }
 
 static int

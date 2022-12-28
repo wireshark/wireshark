@@ -1,6 +1,7 @@
 
 %include {
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #include <assert.h>
 
@@ -22,7 +23,11 @@
 static stnode_t *
 new_function(dfwork_t *dfw, stnode_t *node);
 
-#define FAIL(dfw, node, ...) dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__)
+#define FAIL(dfw, node, ...) \
+    do { \
+        ws_noisy("Parsing failed here."); \
+        dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
+    } while (0)
 
 DIAG_OFF_LEMON()
 } /* end of %include */
@@ -48,9 +53,6 @@ DIAG_ON_LEMON()
 
 %type           range_node_list {GSList*}
 %destructor     range_node_list {drange_node_free_list($$);}
-
-%type           layer           {GSList*}
-%destructor     layer           {drange_node_free_list($$);}
 
 %type           func_params_list {GSList*}
 %destructor     func_params_list {st_funcparams_free($$);}
@@ -132,73 +134,61 @@ expr(X) ::= LPAREN(L) expr(Y) RPAREN(R).
 atom(A) ::= STRING(S).      { A = S; }
 atom(A) ::= CHARCONST(N).   { A = N; }
 atom(A) ::= LITERAL(S).     { A = S; }
+atom(A) ::= CONSTANT(C).    { A = C; }
 
-layer(R) ::= HASH LBRACKET range_node_list(L) RBRACKET.
+named_field(X) ::= FIELD(F).
 {
-    R = L;
+    X = F;
 }
 
-layer(R) ::= HASH INTEGER(N).
+named_field(X) ::= IDENTIFIER(U).
 {
+    X = U;
+    const char *name = stnode_token(U);
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, name);
+    if (hfinfo == NULL) {
+        FAIL(dfw, U, "\"%s\" is not a valid protocol or protocol field.", name);
+    }
+    stnode_replace(X, STTYPE_FIELD, hfinfo);
+}
+
+layered_field(R) ::= named_field(F).
+{
+    R = F;
+}
+
+layered_field(R) ::= named_field(F) HASH LBRACKET range_node_list(L) RBRACKET.
+{
+    R = F;
+    sttype_field_set_range(R, L);
+    g_slist_free(L);
+}
+
+layered_field(R) ::= named_field(F) HASH INTEGER(N).
+{
+    R = F;
     char *err_msg = NULL;
     drange_node *range = drange_node_from_str(stnode_token(N), &err_msg);
     if (err_msg != NULL) {
         FAIL(dfw, N, "%s", err_msg);
         g_free(err_msg);
     }
+    sttype_field_set_range1(R, range);
     stnode_free(N);
-    R = g_slist_append(NULL, range);
 }
 
-layered_field(R) ::= FIELD(F).
+rawable_field(R) ::= layered_field(F).
 {
     R = F;
 }
 
-layered_field(R) ::= FIELD(F) layer(L).
-{
-    R = F;
-    sttype_field_set_range(R, L);
-    g_slist_free(L);
-}
-
-layered_field(R) ::= UNPARSED(U) layer(L).
-{
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_token(U));
-    if (hfinfo == NULL) {
-        FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
-    }
-    R = stnode_new(STTYPE_FIELD, hfinfo, NULL, stnode_location(U));
-    stnode_free(U);
-    sttype_field_set_range(R, L);
-    g_slist_free(L);
-}
-
-field(R) ::= layered_field(F).
-{
-    R = F;
-}
-
-field(R) ::= ATSIGN layered_field(F).
+rawable_field(R) ::= ATSIGN layered_field(F).
 {
     R = F;
     sttype_field_set_raw(R, TRUE);
 }
 
-field(R) ::= ATSIGN UNPARSED(U).
-{
-    const char *token = stnode_token(U);
-    df_loc_t loc = stnode_location(U);
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, token);
-    if (hfinfo == NULL) {
-        FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
-    }
-    R = stnode_new(STTYPE_FIELD, hfinfo, g_strdup(token), loc);
-    sttype_field_set_raw(R, TRUE);
-    stnode_free(U);
-}
-
-reference(R) ::= DOLLAR LBRACE field(F) RBRACE.
+reference(R) ::= DOLLAR LBRACE rawable_field(F) RBRACE.
 {
     /* convert field to reference */
     R = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(F), NULL, stnode_location(F));
@@ -207,34 +197,11 @@ reference(R) ::= DOLLAR LBRACE field(F) RBRACE.
     stnode_free(F);
 }
 
-reference(R) ::= DOLLAR LBRACE UNPARSED(U) RBRACE.
-{
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_token(U));
-    if (hfinfo == NULL) {
-        FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
-    }
-    R = stnode_new(STTYPE_REFERENCE, hfinfo, NULL, stnode_location(U));
-    stnode_free(U);
-}
-
 entity(E) ::= atom(A).          { E = A; }
 entity(E) ::= slice(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
-entity(E) ::= field(F).         { E = F; }
+entity(E) ::= rawable_field(F). { E = F; }
 entity(E) ::= reference(R).     { E = R; }
-entity(E) ::= UNPARSED(U).
-{
-    const char *token = stnode_token(U);
-    df_loc_t loc = stnode_location(U);
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, token);
-    if (hfinfo != NULL) {
-        E = stnode_new(STTYPE_FIELD, hfinfo, g_strdup(token), loc);
-    }
-    else {
-        E = stnode_new(STTYPE_LITERAL, g_strdup(token), g_strdup(token), loc);
-    }
-    stnode_free(U);
-}
 
 arithmetic_expr(T) ::= entity(N).
 {
@@ -507,7 +474,7 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 }
 
 /* A function can have one or more parameters */
-function(F) ::= UNPARSED(U) LPAREN(L) func_params_list(P) RPAREN(R).
+function(F) ::= IDENTIFIER(U) LPAREN(L) func_params_list(P) RPAREN(R).
 {
     F = new_function(dfw, U);
     sttype_function_set_params(F, P);
@@ -517,14 +484,24 @@ function(F) ::= UNPARSED(U) LPAREN(L) func_params_list(P) RPAREN(R).
     stnode_free(R);
 }
 
+function ::= CONSTANT(U) LPAREN func_params_list RPAREN.
+{
+    FAIL(dfw, U, "Function '%s' does not exist", stnode_token(U));
+}
+
 /* A function can have zero parameters. */
-function(F) ::= UNPARSED(U) LPAREN(L) RPAREN(R).
+function(F) ::= IDENTIFIER(U) LPAREN(L) RPAREN(R).
 {
     F = new_function(dfw, U);
     df_loc_t loc = stnode_merge_location(F, L, R, (stnode_t *)NULL);
     stnode_set_location(F, loc);
     stnode_free(L);
     stnode_free(R);
+}
+
+function ::= CONSTANT(U) LPAREN RPAREN.
+{
+    FAIL(dfw, U, "Function '%s' does not exist", stnode_token(U));
 }
 
 func_params_list(P) ::= arithmetic_expr(E).

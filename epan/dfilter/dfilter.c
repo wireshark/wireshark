@@ -308,7 +308,8 @@ const char *tokenstr(int token)
 		case TOKEN_TEST_NOT:	return "TEST_NOT";
 		case TOKEN_STRING:	return "STRING";
 		case TOKEN_CHARCONST:	return "CHARCONST";
-		case TOKEN_UNPARSED:	return "UNPARSED";
+		case TOKEN_IDENTIFIER:	return "IDENTIFIER";
+		case TOKEN_CONSTANT:	return "CONSTANT";
 		case TOKEN_LITERAL:	return "LITERAL";
 		case TOKEN_FIELD:	return "FIELD";
 		case TOKEN_LBRACKET:	return "LBRACKET";
@@ -323,6 +324,7 @@ const char *tokenstr(int token)
 		case TOKEN_RPAREN:	return "RPAREN";
 		case TOKEN_DOLLAR:	return "DOLLAR";
 		case TOKEN_ATSIGN:	return "ATSIGN";
+		case TOKEN_HASH:	return "HASH";
 	}
 	return "<unknown>";
 }
@@ -422,12 +424,14 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 		/* Check for scanner failure */
 		if (token == SCAN_FAILED) {
+			ws_noisy("Scanning failed");
 			failure = TRUE;
 			break;
 		}
 
 		/* Check for end-of-input */
 		if (token == 0) {
+			ws_noisy("Scanning finished");
 			break;
 		}
 
