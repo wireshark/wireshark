@@ -3354,6 +3354,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  *  - As a response to LL_CONNECTION_PARAM_REQ
                  *  - As a response to LL_CONNECTION_PARAM_RSP
                  *  - As a response during the phy update procedure.
+                 *  - As a response during the CTE request procedure.
                  */
                 if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (direction == BTLE_DIR_SLAVE_MASTER &&
@@ -3394,6 +3395,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     } else if (control_proc_can_add_frame(pinfo,
                                                           last_control_proc[other_direction],
                                                           0x16, 1)) {
+                        control_proc_add_last_frame(tvb,
+                                                    pinfo,
+                                                    btle_tree,
+                                                    control_opcode,
+                                                    direction,
+                                                    last_control_proc[other_direction],
+                                                    last_control_proc[direction],
+                                                    1);
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[other_direction],
+                                                          0x1A, 1)) {
                         control_proc_add_last_frame(tvb,
                                                     pinfo,
                                                     btle_tree,
