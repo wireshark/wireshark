@@ -152,7 +152,29 @@ static int hf_control_feature_set_le_periodic_advertising = -1;
 static int hf_control_feature_set_channel_selection_algorithm_2 = -1;
 static int hf_control_feature_set_le_power_class_1 = -1;
 static int hf_control_feature_set_minimum_number_of_used_channels_procedure = -1;
-static int hf_control_feature_set_reserved_bits = -1;
+static int hf_control_feature_set_connection_cte_request = -1;
+static int hf_control_feature_set_connection_cte_response = -1;
+static int hf_control_feature_set_connectionless_cte_tx = -1;
+static int hf_control_feature_set_connectionless_cte_rx = -1;
+static int hf_control_feature_set_antenna_switching_tx_aod = -1;
+static int hf_control_feature_set_antenna_switching_rx_aoa = -1;
+static int hf_control_feature_set_cte_rx = -1;
+static int hf_control_feature_set_past_sender = -1;
+static int hf_control_feature_set_past_receiver = -1;
+static int hf_control_feature_set_sca_updates = -1;
+static int hf_control_feature_set_remote_public_key_validation = -1;
+static int hf_control_feature_set_cis_central = -1;
+static int hf_control_feature_set_cis_peripheral = -1;
+static int hf_control_feature_set_iso_broadcast = -1;
+static int hf_control_feature_set_synchronized_receiver = -1;
+static int hf_control_feature_set_connected_iso_host_support = -1;
+static int hf_control_feature_set_le_power_control_request1 = -1;
+static int hf_control_feature_set_le_power_control_request2 = -1;
+static int hf_control_feature_set_le_path_loss_monitoring = -1;
+static int hf_control_feature_set_le_periodic_adv_adi_support = -1;
+static int hf_control_feature_set_connection_subrating = -1;
+static int hf_control_feature_set_connection_subrating_host_support = -1;
+static int hf_control_feature_set_channel_classification = -1;
 static int hf_control_feature_set_reserved = -1;
 static int hf_control_window_size = -1;
 static int hf_control_window_offset = -1;
@@ -369,7 +391,37 @@ static int * const hfx_control_feature_set_2[] = {
 
 static int * const hfx_control_feature_set_3[] = {
     &hf_control_feature_set_minimum_number_of_used_channels_procedure,
-    &hf_control_feature_set_reserved_bits,
+    &hf_control_feature_set_connection_cte_request,
+    &hf_control_feature_set_connection_cte_response,
+    &hf_control_feature_set_connectionless_cte_tx,
+    &hf_control_feature_set_connectionless_cte_rx,
+    &hf_control_feature_set_antenna_switching_tx_aod,
+    &hf_control_feature_set_antenna_switching_rx_aoa,
+    &hf_control_feature_set_cte_rx,
+    NULL
+};
+
+static int * const hfx_control_feature_set_4[] = {
+    &hf_control_feature_set_past_sender,
+    &hf_control_feature_set_past_receiver,
+    &hf_control_feature_set_sca_updates,
+    &hf_control_feature_set_remote_public_key_validation,
+    &hf_control_feature_set_cis_central,
+    &hf_control_feature_set_cis_peripheral,
+    &hf_control_feature_set_iso_broadcast,
+    &hf_control_feature_set_synchronized_receiver,
+    NULL
+};
+
+static int * const hfx_control_feature_set_5[] = {
+    &hf_control_feature_set_connected_iso_host_support,
+    &hf_control_feature_set_le_power_control_request1,
+    &hf_control_feature_set_le_power_control_request2,
+    &hf_control_feature_set_le_path_loss_monitoring,
+    &hf_control_feature_set_le_periodic_adv_adi_support,
+    &hf_control_feature_set_connection_subrating,
+    &hf_control_feature_set_connection_subrating_host_support,
+    &hf_control_feature_set_channel_classification,
     NULL
 };
 
@@ -936,8 +988,14 @@ dissect_feature_set(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
     proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_3, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 5, ENC_NA);
-    offset += 5;
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_4, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_5, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 3, ENC_NA);
+    offset += 3;
 
     return offset;
 }
@@ -4817,9 +4875,119 @@ proto_register_btle(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_control_feature_set_reserved_bits,
-            { "Reserved", "btle.control.feature_set.reserved_bits",
-            FT_UINT8, BASE_DEC, NULL, 0xFE,
+        { &hf_control_feature_set_connection_cte_request,
+        { "Connection CTE Request", "btle.control.feature_set.connection_cte_request",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connection_cte_response,
+        { "Connection CTE Response", "btle.control.feature_set.connection_cte_response",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connectionless_cte_tx,
+        { "Connectionless CTE Transmitter", "btle.control.feature_set.connectionless_cte_transmitter",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connectionless_cte_rx,
+        { "Connectionless CTE Receiver", "btle.control.feature_set.connectionless_cte_receiver",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_antenna_switching_tx_aod,
+        { "Antenna Switching During CTE Transmission (AoD)", "btle.control.feature_set.antenna_switching_tx_aod",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_antenna_switching_rx_aoa,
+        { "Antenna Switching During CTE Reception (AoA)", "btle.control.feature_set.antenna_switching_rx_aoa",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_cte_rx,
+        { "Receiving Constant Tone Extensions", "btle.control.feature_set.cte_rx",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_past_sender,
+        { "Periodic Advertising Sync Transfer - Sender", "btle.control.feature_set.past_sender",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_past_receiver,
+        { "Periodic Advertising Sync Transfer - Receiver", "btle.control.feature_set.past_receiver",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_sca_updates,
+        { "Sleep Clock Accuracy Updates", "btle.control.feature_set.sca_updates",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_remote_public_key_validation,
+        { "Remote Public Key Validation", "btle.control.feature_set.remote_public_key_validation",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_cis_central,
+        { "Connected Isochronous Stream - Central", "btle.control.feature_set.cis_central",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_cis_peripheral,
+        { "Connected Isochronous Stream - Peripheral", "btle.control.feature_set.cis_peripheral",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_iso_broadcast,
+        { "Isochronous Broadcaster", "btle.control.feature_set.iso_broadcast",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_synchronized_receiver,
+        { "Synchronized Receiver", "btle.control.feature_set.synchronized_receiver",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connected_iso_host_support,
+        { "Connected Isochronous Stream (Host Support)", "btle.control.feature_set.connected_iso_host_support",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_power_control_request1,
+        { "LE Power Control Request", "btle.control.feature_set.le_power_control_request",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_power_control_request2,
+        { "LE Power Control Request", "btle.control.feature_set.le_power_control_request_bit_2",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_path_loss_monitoring,
+        { "LE Path Loss Monitoring", "btle.control.feature_set.le_path_loss_monitoring",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_periodic_adv_adi_support,
+        { "Periodic Advertising ADI support", "btle.control.feature_set.le_periodic_adv_adi_support",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connection_subrating,
+        { "Connection Subrating", "btle.control.feature_set.connection_subrating",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connection_subrating_host_support,
+        { "Connection Subrating (Host Support)", "btle.control.feature_set.connection_subrating_host_support",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_channel_classification,
+        { "Channel Classification", "btle.control.feature_set.channel_classification",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_control_feature_set_reserved,
