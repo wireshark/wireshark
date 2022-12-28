@@ -312,12 +312,6 @@ static const value_string frame_type_vals[] = {
     { 0,   NULL }
 };
 
-static const value_string direction_vals[] = {
-    { 0,   "Downlink" },
-    { 1,   "Uplink" },
-    { 0,   NULL }
-};
-
 static const value_string crci_vals[] = {
     { 0,   "Correct" },
     { 1,   "Not correct" },
@@ -5911,7 +5905,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     /* Add link direction as a generated field */
-    ti = proto_tree_add_uint(fp_tree, hf_fp_direction, tvb, 0, 0, p_fp_info->is_uplink);
+    ti = proto_tree_add_boolean(fp_tree, hf_fp_direction, tvb, 0, 0, p_fp_info->is_uplink);
     proto_item_set_generated(ti);
 
     /* Don't currently handle IuR-specific formats, but it's useful to even see
@@ -6106,7 +6100,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_direction,
               { "Direction",
-                "fp.direction", FT_UINT8, BASE_HEX, VALS(direction_vals), 0x0,
+                "fp.direction", FT_BOOLEAN, 8, TFS(&tfs_uplink_downlink), 0x0,
                 "Link direction", HFILL
               }
             },
