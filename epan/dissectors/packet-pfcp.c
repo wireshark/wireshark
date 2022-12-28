@@ -7077,8 +7077,8 @@ dissect_pfcp_5gs_user_plane_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     // Bit 1 – BID: If this bit is set to "1", then the Use Plane value field shall be present,
     // The Bridge ID value is defined in IEEE.802.1Q clause 14.2.5 and value shall be encoded as an Unisigned64 binary integer.
     if ((flags_val & 0x1)) {
-        proto_tree_add_item(tree, hf_pfcp_5gs_user_plane_node_value, tvb, offset, 6, ENC_NA);
-        offset += 6;
+        proto_tree_add_item(tree, hf_pfcp_5gs_user_plane_node_value, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
     }
 
     if (offset < length) {
@@ -13955,7 +13955,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_5gs_user_plane_node_value,
         { "Use Plane Node value", "pfcp.5gs_user_plane_node.value",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
