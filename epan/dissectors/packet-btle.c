@@ -3807,6 +3807,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x22: /* LL_CIS_TERMINATE_IND */
                 offset = dissect_cis_terminate_ind(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    control_proc_info_t *proc_info;
+                    proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                   connection_info->direction_info[direction].control_procs,
+                                                   last_control_proc[other_direction],
+                                                   control_opcode);
+
+                    /* Procedure completes in the same frame. */
+                    if (proc_info)
+                        proc_info->last_frame = pinfo->num;
+                }
                 break;
             case 0x23: /* LL_POWER_CONTROL_REQ */
                 offset = dissect_power_control_req(tvb, btle_tree, offset);
