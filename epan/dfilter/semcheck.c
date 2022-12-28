@@ -491,8 +491,8 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 	}
 }
 
-static void
-check_slice_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
+ftenum_t
+check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 {
 	stnode_t		*entity1;
 	header_field_info	*hfinfo1;
@@ -520,11 +520,13 @@ check_slice_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 		}
 	} else if (stnode_type_id(entity1) == STTYPE_SLICE) {
 		/* Should this be rejected instead? */
-		check_slice_sanity(dfw, entity1, lhs_ftype);
+		check_slice(dfw, entity1, lhs_ftype);
 	} else {
 		FAIL(dfw, entity1, "Range is not supported for entity %s",
 					stnode_todisplay(entity1));
 	}
+
+	return FT_BYTES;
 }
 
 #define IS_FIELD_ENTITY(ft) \
@@ -654,7 +656,17 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_SLICE) {
-		check_slice_sanity(dfw, st_arg2, ftype1);
+		ftype2 = check_slice(dfw, st_arg2, ftype1);
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
+					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
+		}
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "\"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -709,12 +721,16 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
-	ftenum_t		ftype2;
+	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 
 	LOG_NODE(st_node);
 
-	check_slice_sanity(dfw, st_arg1, FT_NONE);
+	ftype1 = check_slice(dfw, st_arg1, FT_NONE);
+	if (!can_func(ftype1)) {
+		FAIL(dfw, st_arg1, "%s cannot participate in %s comparison.",
+				stnode_todisplay(st_arg1), stnode_todisplay(st_node));
+	}
 
 	type2 = stnode_type_id(st_arg2);
 
@@ -745,7 +761,16 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op,
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_SLICE) {
-		check_slice_sanity(dfw, st_arg2, FT_BYTES);
+		ftype2 = check_slice(dfw, st_arg2, FT_BYTES);
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
+					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
+		}
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
 		ftype2 = check_function(dfw, st_arg2, FT_BYTES);
@@ -837,7 +862,17 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op,
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_SLICE) {
-		check_slice_sanity(dfw, st_arg2, ftype1);
+		ftype2 = check_slice(dfw, st_arg2, ftype1);
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
+					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
+		}
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "Function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -937,7 +972,17 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_SLICE) {
-		check_slice_sanity(dfw, st_arg2, ftype1);
+		ftype2 = check_slice(dfw, st_arg2, ftype1);
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
+					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
+		}
+		if (!can_func(ftype2)) {
+			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
+		}
+
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "Result is a %s and cannot be converted into a sequence of bytes.",
@@ -956,7 +1001,6 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 					ftype_pretty_name(ftype1),
 					sttype_function_name(st_arg2), ftype_pretty_name(ftype2));
 		}
-
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "return value of %s() (type=%s) cannot participate in specified comparison.",
 					sttype_function_name(st_arg2), ftype_pretty_name(ftype2));
@@ -972,7 +1016,6 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op,
 			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
 					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
 		}
-
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
@@ -1183,20 +1226,14 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	sttype_oper_get(st_node, &st_op, &st_arg1, &st_arg2);
 
 	switch (st_op) {
-		case STNODE_OP_UNINITIALIZED:
-			ws_assert_not_reached();
-			break;
-
 		case STNODE_OP_NOT:
 			semcheck(dfw, st_arg1);
 			break;
-
 		case STNODE_OP_AND:
 		case STNODE_OP_OR:
 			semcheck(dfw, st_arg1);
 			semcheck(dfw, st_arg2);
 			break;
-
 		case STNODE_OP_ALL_EQ:
 		case STNODE_OP_ANY_EQ:
 		case STNODE_OP_ALL_NE:
@@ -1221,6 +1258,30 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 
 		default:
 			ws_assert_not_reached();
+	}
+}
+
+static void
+check_nonzero(dfwork_t *dfw, stnode_t *st_node)
+{
+	ftenum_t		ftype = FT_NONE;
+
+	LOG_NODE(st_node);
+
+	switch (stnode_type_id(st_node)) {
+		case STTYPE_ARITHMETIC:
+			ftype = check_arithmetic(dfw, st_node, FT_NONE);
+			break;
+		case STTYPE_SLICE:
+			ftype = check_slice(dfw, st_node, FT_NONE);
+			break;
+		default:
+			ws_assert_not_reached();
+			break;
+	}
+
+	if (ftype == FT_NONE) {
+		FAIL(dfw, st_node, "Constant expression is invalid.");
 	}
 }
 
@@ -1367,8 +1428,7 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 			break;
 
 		case STTYPE_SLICE:
-			check_slice_sanity(dfw, st_node, lhs_ftype);
-			ftype = FT_BYTES;
+			ftype = check_slice(dfw, st_node, lhs_ftype);
 			break;
 
 		case STTYPE_FVALUE:
@@ -1394,20 +1454,14 @@ static void
 semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
 	LOG_NODE(st_node);
-	ftenum_t ftype;
 
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			check_test(dfw, st_node);
 			break;
 		case STTYPE_ARITHMETIC:
-			ftype = check_arithmetic(dfw, st_node, FT_NONE);
-			if (ftype == FT_NONE) {
-				FAIL(dfw, st_node, "Constant expression is invalid.");
-			}
-			break;
 		case STTYPE_SLICE:
-			check_slice_sanity(dfw, st_node, FT_NONE);
+			check_nonzero(dfw, st_node);
 			break;
 		default:
 			check_exists(dfw, st_node);
