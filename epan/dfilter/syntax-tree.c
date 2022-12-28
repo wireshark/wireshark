@@ -258,33 +258,19 @@ stnode_set_location(stnode_t *node, df_loc_t loc)
 
 /* Finds the first and last location from a set and creates
  * a new location from start of first (col_start) to end of
- * last (col_start + col_len). */
-df_loc_t
-stnode_merge_location(stnode_t *st, ...)
+ * last (col_start + col_len). Sets the result to dst. */
+void
+stnode_merge_location(stnode_t *dst, stnode_t *n1, stnode_t *n2)
 {
-	df_loc_t first, last, loc;
-	df_loc_t result;
-	va_list ap;
+	df_loc_t first, last;
+	df_loc_t loc2;
 
-	first = last = stnode_location(st);
-
-	va_start(ap, st);
-	while ((st = va_arg(ap, stnode_t *)) != NULL) {
-		loc = stnode_location(st);
-		if (loc.col_start >= 0) {
-			if (loc.col_start < first.col_start) {
-				first = loc;
-			}
-			else if (loc.col_start > last.col_start) {
-				last = loc;
-			}
-		}
-	}
-	va_end(ap);
-
-	result.col_start = first.col_start;
-	result.col_len = last.col_start - first.col_start + last.col_len;
-	return result;
+	first = last = stnode_location(n1);
+	loc2 = stnode_location(n2);
+	if (loc2.col_start >= 0 && loc2.col_start > first.col_start)
+		last = loc2;
+	dst->location.col_start = first.col_start;
+	dst->location.col_len = last.col_start - first.col_start + last.col_len;
 }
 
 #define IS_OPERATOR(node) \

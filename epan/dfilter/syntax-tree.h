@@ -159,8 +159,8 @@ stnode_location(stnode_t *node);
 void
 stnode_set_location(stnode_t *node, df_loc_t loc);
 
-df_loc_t
-stnode_merge_location(stnode_t *n1, ...);
+void
+stnode_merge_location(stnode_t *dst, stnode_t *n1, stnode_t *n2);
 
 const char *
 stnode_tostr(stnode_t *node, gboolean pretty);
