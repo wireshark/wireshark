@@ -113,6 +113,19 @@ extern "C" {
   #define WS_THREAD_LOCAL __thread
 #endif
 
+/*
+ * The warn_unused_result attribute causes a warning to be emitted if a caller
+ * of the function with this attribute does not use its return value. This is
+ * useful for functions where not checking the result is either a security
+ * problem or always a bug, such as realloc.
+ */
+#if defined(__GNUC__)
+  /* This includes clang */
+  #define WS_WARN_UNUSED __attribute__((warn_unused_result))
+#else
+  #define WS_WARN_UNUSED
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
