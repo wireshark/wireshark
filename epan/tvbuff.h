@@ -1019,6 +1019,9 @@ WS_DLL_PUBLIC gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
  * Uncompresses a zlib compressed packet inside a tvbuff at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
  * succeeded or NULL if uncompression failed.
+ *
+ * The returned tvbuffer must be freed with `tvb_free` or added to the
+ * chain of another tvbuffer to avoid a memory leak.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
     int comprlen);
@@ -1037,6 +1040,9 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
  * Uncompresses a brotli compressed packet inside a tvbuff at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
  * succeeded or NULL if uncompression failed.
+ *
+ * The returned tvbuffer must be freed with `tvb_free` or added to the
+ * chain of another tvbuffer to avoid a memory leak.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_brotli(tvbuff_t *tvb, const int offset,
     int comprlen);
@@ -1056,6 +1062,9 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_brotli(tvbuff_t *parent, tvbuff_t *
  * tvbuff at offset with length comprlen.  Returns an uncompressed
  * tvbuffer if uncompression succeeded or NULL if uncompression
  * failed.
+ *
+ * The returned tvbuffer must be freed with `tvb_free` or added to the
+ * chain of another tvbuffer to avoid a memory leak.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77(tvbuff_t *tvb,
     const int offset, int comprlen);
@@ -1076,6 +1085,9 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77(tvbuff_t *parent,
  * tvbuff at offset with length comprlen.  Returns an uncompressed
  * tvbuffer if uncompression succeeded or NULL if uncompression
  * failed.
+ *
+ * The returned tvbuffer must be freed with `tvb_free` or added to the
+ * chain of another tvbuffer to avoid a memory leak.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77huff(tvbuff_t *tvb,
     const int offset, int comprlen);
@@ -1096,6 +1108,9 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77huff(tvbuff_t *parent,
  * a tvbuff at offset with length comprlen.  Returns an uncompressed
  * tvbuffer if uncompression succeeded or NULL if uncompression
  * failed.
+ *
+ * The returned tvbuffer must be freed with `tvb_free` or added to the
+ * chain of another tvbuffer to avoid a memory leak.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lznt1(tvbuff_t *tvb,
     const int offset, int comprlen);
@@ -1114,6 +1129,9 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
  * tvbuff at offset with length comprlen.  Returns an uncompressed
  * tvbuffer if uncompression succeeded or NULL if uncompression
  * failed.
+ *
+ * The returned tvbuffer must be freed with `tvb_free` or added to the
+ * chain of another tvbuffer to avoid a memory leak.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb,
     const int offset, int comprlen);
