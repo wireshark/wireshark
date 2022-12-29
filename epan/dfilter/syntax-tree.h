@@ -54,6 +54,10 @@ typedef struct {
 	STTypeToStrFunc		func_tostr;
 } sttype_t;
 
+
+/* Lexical value is ambiguous (can be a protocol field or a literal). */
+#define STFLAG_UNPARSED		(1 << 0)
+
 /** Node (type instance) information */
 typedef struct {
 	uint32_t	magic;
@@ -63,6 +67,7 @@ typedef struct {
 	char 		*repr_display;
 	char 		*repr_debug;
 	df_loc_t	location;
+	uint16_t	flags;
 } stnode_t;
 
 typedef enum {
@@ -158,6 +163,12 @@ stnode_location(stnode_t *node);
 
 void
 stnode_set_location(stnode_t *node, df_loc_t loc);
+
+gboolean
+stnode_get_flags(stnode_t *node, uint16_t flags);
+
+void
+stnode_set_flags(stnode_t *node, uint16_t flags);
 
 void
 stnode_merge_location(stnode_t *dst, stnode_t *n1, stnode_t *n2);

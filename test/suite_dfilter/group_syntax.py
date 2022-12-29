@@ -193,10 +193,25 @@ class case_equality(unittest.TestCase):
         dfilter = 'frame[37] == fc:'
         checkDFilterCount(dfilter, 1)
 
-    def test_rhs_literal_bias_4(self, checkDFilterCount):
+    def test_rhs_bias_4(self, checkDFilterCount):
         # Protocol "Fibre Channel" on the RHS
         dfilter = 'frame[37] == .fc'
         checkDFilterCount(dfilter, 0)
+
+    def test_rhs_bias_5(self, checkDFilterSucceed):
+        # Protocol "Fibre Channel" on the RHS (with warning)
+        dfilter = 'frame contains fc'
+        checkDFilterSucceed(dfilter, 'Interpreting "fc" as Fibre Channel')
+
+    def test_rhs_bias_6(self, checkDFilterSucceed):
+        # Protocol "Fibre Channel" on the RHS (without warning)
+        dfilter = 'frame contains .fc'
+        checkDFilterSucceed(dfilter)
+
+    def test_rhs_bias_7(self, checkDFilterSucceed):
+        # Byte 0xFC on the RHS
+        dfilter = 'frame contains fc:'
+        checkDFilterSucceed(dfilter)
 
 @fixtures.uses_fixtures
 class case_bitwise(unittest.TestCase):

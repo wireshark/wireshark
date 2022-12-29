@@ -80,13 +80,14 @@ WS_WARN_UNUSED static int set_lval_simple(df_scanner_state_t *state, int token, 
 #define test(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_TEST))
 #define math(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_ARITHMETIC))
 
-WS_WARN_UNUSED static int set_lval_literal(df_scanner_state_t *state, const char *token_value);
-WS_WARN_UNUSED static int set_lval_unparsed(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_literal(df_scanner_state_t *state,  const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_identifier(df_scanner_state_t *state,  const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_constant(df_scanner_state_t *state,  const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_unparsed(df_scanner_state_t *state, const char *value, const char *token_value);
+
+WS_WARN_UNUSED static int set_lval_field(df_scanner_state_t *state, const header_field_info *hfinfo, const char *token_value);
 WS_WARN_UNUSED static int set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string);
 WS_WARN_UNUSED static int set_lval_charconst(df_scanner_state_t *state, GString *quoted_string);
-WS_WARN_UNUSED static int set_lval_field(df_scanner_state_t *state, const char *token_value, const header_field_info *hfinfo);
-WS_WARN_UNUSED static int set_lval_identifier(df_scanner_state_t *state, const char *token_value);
-WS_WARN_UNUSED static int set_lval_constant(df_scanner_state_t *state, const char *token_value);
 
 static gboolean append_escaped_char(df_scanner_state_t *state, GString *str, char c);
 static gboolean append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn);
@@ -103,27 +104,43 @@ static void update_string_loc(df_scanner_state_t *state, const char *text);
 
 %}
 
-Identifier	[[:alnum:]_][[:alnum:]_-]*(\.[[:alnum:]_-]+)*
+FunctionIdentifier	[[:alpha:]_][[:alnum:]_]*
 
-hex2		[[:xdigit:]]{2}
-MacAddress	{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}|{hex2}-{hex2}-{hex2}-{hex2}-{hex2}-{hex2}|{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}
+/*
+ * Cannot start with '-'. * Some protocol name can contain '-', for example "mac-lte".
+ * Note that some protocol names start with a number, for example "9p".
+ * Some protocol names contain dots, e.g: _ws.expert
+ * Protocol or protocol field cannot contain DOTDOT anywhere.
+ */
+VarIdentifier		[[:alnum:]_][[:alnum:]_-]*
+ProtoFieldIdentifier	{VarIdentifier}(\.{VarIdentifier})*
 
-hex4		[[:xdigit:]]{4}
-QuadMacAddress	{hex4}\.{hex4}\.{hex4}
+hex2			[[:xdigit:]]{2}
+ColonMacAddress		{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}
+HyphenMacAddress 	{hex2}-{hex2}-{hex2}-{hex2}-{hex2}-{hex2}
+DotMacAddress		{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}
 
-DecOctet	[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]
-IPv4Address	{DecOctet}\.{DecOctet}\.{DecOctet}\.{DecOctet}
+hex4			[[:xdigit:]]{4}
+DotQuadMacAddress 	{hex4}\.{hex4}\.{hex4}
 
-h16		[0-9A-Fa-f]{1,4}
-ls32		{h16}:{h16}|{IPv4Address}
-IPv6Address	({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|(({h16}:){0,1}{h16})?::({h16}:){3}{ls32}|(({h16}:){0,2}{h16})?::({h16}:){2}{ls32}|(({h16}:){0,3}{h16})?::{h16}:{ls32}|(({h16}:){0,4}{h16})?::{ls32}|(({h16}:){0,5}{h16})?::{h16}|(({h16}:){0,6}{h16})?::
+ColonBytes		({hex2}:)|({hex2}(:{hex2})+)
+HyphenBytes		{hex2}(-{hex2})+
+DotBytes		{hex2}(\.{hex2})+
 
-V4CidrPrefix	\/[[:digit:]]{1,2}
-V6CidrPrefix	\/[[:digit:]]{1,3}
+DecOctet		[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]
+IPv4Address		{DecOctet}\.{DecOctet}\.{DecOctet}\.{DecOctet}
 
-ColonBytes	({hex2}:)|({hex2}(:{hex2})+)
-DotBytes	{hex2}(\.{hex2})+
-HyphenBytes	{hex2}(-{hex2})+
+h16			[0-9A-Fa-f]{1,4}
+ls32			{h16}:{h16}|{IPv4Address}
+IPv6Address		({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|(({h16}:){0,1}{h16})?::({h16}:){3}{ls32}|(({h16}:){0,2}{h16})?::({h16}:){2}{ls32}|(({h16}:){0,3}{h16})?::{h16}:{ls32}|(({h16}:){0,4}{h16})?::{ls32}|(({h16}:){0,5}{h16})?::{h16}|(({h16}:){0,6}{h16})?::
+
+V4CidrPrefix		\/[[:digit:]]{1,2}
+V6CidrPrefix		\/[[:digit:]]{1,3}
+
+/* Catch all valid semantic values. Cannot contain DOT DOT or start with MINUS. */
+StartAlphabet		[[:alnum:]_:]
+Alphabet		[[:alnum:]_:/-]
+LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 
 %x RANGE
 %x LAYER
@@ -403,57 +420,120 @@ HyphenBytes	{hex2}(-{hex2})+
 	g_string_append(yyextra->quoted_string, yytext);
 }
 
+	/* NOTE: None of the patterns below can match ".." anywhere in the token string. */
 
-	/* None of the patterns below can match ".." anywhere in the token string. */
+	/* MAC address. */
 
-{MacAddress}|{QuadMacAddress}		{
+{ColonMacAddress}|{HyphenMacAddress}	{
 	/* MAC Address. */
 	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext);
+	return set_lval_literal(yyextra, yytext, yytext);
 }
+
+{DotMacAddress}|{DotQuadMacAddress}	{
+	/* MAC Address, can also be a field. */
+	update_location(yyextra, yytext);
+	return set_lval_unparsed(yyextra, yytext, yytext);
+}
+
+	/* IP address. */
 
 {IPv4Address}{V4CidrPrefix}?		{
 	/* IPv4 with or without prefix. */
 	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext);
+	return set_lval_literal(yyextra, yytext, yytext);
 }
 
 {IPv6Address}{V6CidrPrefix}?		{
 	/* IPv6 with or without prefix. */
 	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext);
+	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-:?({ColonBytes}|{DotBytes}|{HyphenBytes})	{
+	/* Integer or bytes */
+
+0[bBoOxX][[:xdigit:]]+	{
+	/* Binary/octal/hex integer. */
+	update_location(yyextra, yytext);
+	return set_lval_literal(yyextra, yytext, yytext);
+}
+
+:[[:xdigit:]]+	{
+	/* Numeric prefixed with ':'. */
+	update_location(yyextra, yytext);
+	return set_lval_literal(yyextra, yytext + 1, yytext);
+}
+
+[[:xdigit:]]+	{
+	/* Numeric or field. */
+	update_location(yyextra, yytext);
+	return set_lval_unparsed(yyextra, yytext, yytext);
+}
+
+	/* Floating point. */
+
+[[:digit:]]+\.[[:digit:]]+([eE][+-]?[[:digit:]]+)?	{
+	/* Decimal float with optional exponent. */
+	/* Significand cannot have any side omitted. */
+	update_location(yyextra, yytext);
+	return set_lval_unparsed(yyextra, yytext, yytext);
+}
+
+0[xX][[:xdigit:]]+\.[[:xdigit:]]+([pP][+-]?[[:digit:]]+)?	{
+	/* Hexadecimal float with optional exponent. Can't be a field because
+	 * field cannot beging with 0x. */
+	/* Significand cannot have any side omitted. */
+	update_location(yyextra, yytext);
+	return set_lval_literal(yyextra,  yytext, yytext);
+}
+
+	/* Bytes. */
+
+:?{ColonBytes}	{
 	/* Bytes. */
 	update_location(yyextra, yytext);
 	if (yytext[0] == ':')
-		return set_lval_literal(yyextra, yytext); /* Keep leading colon. */
-	return set_lval_unparsed(yyextra, yytext);
+		return set_lval_literal(yyextra, yytext + 1, yytext);
+	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-:[[:xdigit:]]+		{
-	/* Numeric. */
+:?{HyphenBytes}	{
+	/* Bytes. */
 	update_location(yyextra, yytext);
-	return set_lval_literal(yyextra, yytext); /* Keep leading colon. */
+	if (yytext[0] == ':')
+		return set_lval_literal(yyextra, yytext + 1, yytext);
+	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-{Identifier}			{
-	/* Identifier (field or function) or constant (literal). */
+:?{DotBytes}	{
+	/* DotBytes, can be a field without ':' prefix. */
+	update_location(yyextra, yytext);
+	if (yytext[0] == ':')
+		return set_lval_literal(yyextra, yytext + 1, yytext);
+	return set_lval_unparsed(yyextra, yytext, yytext);
+}
+
+	/* Identifier (protocol/field/function name). */
+
+	/* This must come before FieldIdentifier to match function names. */
+{FunctionIdentifier}	{
+	/* Identifier (field or function) or constant (bytes without separator). */
+	/* We use CONSTANT instead of LITERAL because the difference is significant
+	 * in the syntactical grammar. */
 	update_location(yyextra, yytext);
 	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra->dfw, yytext);
 	if (hfinfo != NULL) {
-		return set_lval_identifier(yyextra, yytext);
+		return set_lval_identifier(yyextra, yytext, yytext);
 	}
         df_func_def_t *def = df_func_lookup(yytext);
 	if (def != NULL) {
-		return set_lval_identifier(yyextra, yytext);
+		return set_lval_identifier(yyextra, yytext, yytext);
 	}
-	return set_lval_constant(yyextra, yytext);
+	return set_lval_constant(yyextra, yytext, yytext);
 }
 
-\.{Identifier}			{
-	/* Field. */
+\.{ProtoFieldIdentifier}	{
+	/* Identifier, prefixed with a '.'. */
 	update_location(yyextra, yytext);
 	const char *name = yytext + 1;
 	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra->dfw, name);
@@ -461,7 +541,21 @@ HyphenBytes	{hex2}(-{hex2})+
 		FAIL("\"%s\" is not a valid protocol or protocol field.", name);
 		return SCAN_FAILED;
 	}
-	return set_lval_field(yyextra, yytext, hfinfo);
+	return set_lval_field(yyextra, hfinfo, yytext);
+}
+
+{ProtoFieldIdentifier}	{
+	/* Catch-all for protocol values. Can also be a literal. */
+	update_location(yyextra, yytext);
+	return set_lval_unparsed(yyextra, yytext, yytext);
+}
+
+{LiteralValue}	{
+	/* Catch-all for semantic values. */
+	update_location(yyextra, yytext);
+	/* We use literal here because identifiers (using unparsed) should have
+	 * matched one of the previous rules. */
+	return set_lval_literal(yyextra, yytext, yytext);
 }
 
 . {
@@ -473,7 +567,6 @@ HyphenBytes	{hex2}(-{hex2})+
 		FAIL("Non-printable ASCII characters may only appear inside double-quotes.");
 	return SCAN_FAILED;
 }
-
 
 %%
 
@@ -511,34 +604,46 @@ set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, s
 }
 
 static int
-set_lval_literal(df_scanner_state_t *state, const char *token_value)
+set_lval_literal(df_scanner_state_t *state, const char *value, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), state->location);
 	return TOKEN_LITERAL;
 }
 
 static int
-set_lval_identifier(df_scanner_state_t *state, const char *token_value)
+set_lval_identifier(df_scanner_state_t *state, const char *value, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), state->location);
 	return TOKEN_IDENTIFIER;
 }
 
 static int
-set_lval_constant(df_scanner_state_t *state, const char *token_value)
+set_lval_constant(df_scanner_state_t *state, const char *value, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), state->location);
 	return TOKEN_CONSTANT;
 }
 
 static int
-set_lval_unparsed(df_scanner_state_t *state, const char *token_value)
+set_lval_unparsed(df_scanner_state_t *state, const char *value, const char *token_value)
 {
-	const header_field_info *hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
+	int token;
+	const header_field_info *hfinfo = dfilter_resolve_unparsed(state->dfw, value);
 	if (hfinfo != NULL) {
-		return set_lval_field(state, token_value, hfinfo);
+		token = set_lval_field(state, hfinfo, token_value);
     	}
-	return set_lval_literal(state, token_value);
+	else {
+		token = set_lval_literal(state, value, token_value);
+	}
+	stnode_set_flags(state->df_lval, STFLAG_UNPARSED);
+	return token;
+}
+
+static int
+set_lval_field(df_scanner_state_t *state, const header_field_info *hfinfo, const char *token_value)
+{
+	state->df_lval = stnode_new(STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), state->location);
+	return TOKEN_FIELD;
 }
 
 static int
@@ -565,13 +670,6 @@ set_lval_charconst(df_scanner_state_t *state, GString *quoted_string)
 	}
 	state->df_lval = stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, state->string_loc);
 	return TOKEN_CHARCONST;
-}
-
-static int
-set_lval_field(df_scanner_state_t *state, const char *token_value, const header_field_info *hfinfo)
-{
-	state->df_lval = stnode_new(STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), state->location);
-	return TOKEN_FIELD;
 }
 
 static gboolean

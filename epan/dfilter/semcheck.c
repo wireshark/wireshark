@@ -1149,18 +1149,18 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 }
 
 static void
-check_relation_contains_RHS_FIELD(dfwork_t *dfw, stnode_t *st_node _U_,
+check_warning_contains_RHS_FIELD(dfwork_t *dfw, stnode_t *st_node _U_,
 		stnode_t *st_arg1 _U_, stnode_t *st_arg2)
 {
 	const char *token = stnode_token(st_arg2);
-	if (token[0] == '.' || token[0] == ':')
-		return;
-
 	header_field_info *hfinfo = sttype_field_hfinfo(st_arg2);
-	fvalue_t *fvalue = fvalue_from_literal(FT_BYTES, hfinfo->abbrev, FALSE, NULL);
+	fvalue_t *fvalue = fvalue_from_literal(FT_BYTES, token, TRUE, NULL);
 	if (fvalue != NULL) {
-		add_compile_warning(dfw, "Interpreting \"%s\" as \"%s\". Consider writing :%s or .%s",
-					hfinfo->abbrev, hfinfo->name, hfinfo->abbrev, hfinfo->abbrev);
+		char *repr = fvalue_to_string_repr(dfw->dfw_scope, fvalue, FTREPR_DFILTER, 0);
+		add_compile_warning(dfw, "Interpreting \"%s\" as %s instead of %s. "
+					"Consider writing \"%s\" or \".%s\" to remove this warning",
+					token, hfinfo->name, ftype_pretty_name(FT_BYTES),
+					repr, hfinfo->abbrev);
 		fvalue_free(fvalue);
 	}
 }
@@ -1171,8 +1171,8 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 {
 	LOG_NODE(st_node);
 
-	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
-		check_relation_contains_RHS_FIELD(dfw, st_node, st_arg1, st_arg2);
+	if (stnode_type_id(st_arg2) == STTYPE_FIELD && stnode_get_flags(st_arg2, STFLAG_UNPARSED)) {
+		check_warning_contains_RHS_FIELD(dfw, st_node, st_arg1, st_arg2);
 	}
 
 	switch (stnode_type_id(st_arg1)) {

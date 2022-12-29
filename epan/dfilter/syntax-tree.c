@@ -99,6 +99,7 @@ stnode_clear(stnode_t *node)
 	node->repr_token = NULL;
 	node->location.col_start = -1;
 	node->location.col_len = 0;
+	node->flags = 0;
 }
 
 void
@@ -113,6 +114,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, df_
 	node->repr_debug = NULL;
 	node->repr_token = token;
 	node->location = loc;
+	node->flags = 0;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -138,8 +140,10 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
 	char *token = g_strdup(node->repr_token);
 	df_loc_t loc = node->location;
+	uint16_t flags = node->flags;
 	stnode_clear(node);
 	stnode_init(node, type_id, data, token, loc);
+	node->flags = flags;
 }
 
 stnode_t*
@@ -174,6 +178,7 @@ stnode_dup(const stnode_t *node)
 	new->repr_debug = NULL;
 	new->repr_token = g_strdup(node->repr_token);
 	new->location = node->location;
+	new->flags = node->flags;
 
 	new->type = node->type;
 	if (node->type == NULL)
@@ -254,6 +259,18 @@ void
 stnode_set_location(stnode_t *node, df_loc_t loc)
 {
 	node->location = loc;
+}
+
+gboolean
+stnode_get_flags(stnode_t *node, uint16_t flags)
+{
+	return node->flags & flags;
+}
+
+void
+stnode_set_flags(stnode_t *node, uint16_t flags)
+{
+	node->flags |= flags;
 }
 
 /* Finds the first and last location from a set and creates
