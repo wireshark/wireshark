@@ -117,6 +117,10 @@ WS_DLL_PUBLIC
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df);
 
+WS_DLL_PUBLIC
+GSList *
+dfilter_get_warnings(dfilter_t *df);
+
 /* Print bytecode of dfilter to stdout */
 WS_DLL_PUBLIC
 void

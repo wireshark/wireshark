@@ -203,11 +203,17 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
     dfilter_t *dfp = NULL;
     df_error_t *df_err = NULL;
     if (dfilter_compile(filter.toUtf8().constData(), &dfp, &df_err)) {
+        GSList *warn;
         GPtrArray *depr = NULL;
-        if (dfp) {
-            depr = dfilter_deprecated_tokens(dfp);
-        }
-        if (depr) {
+        if (dfp != NULL && (warn = dfilter_get_warnings(dfp)) != NULL) {
+            // FIXME Need to use a different state or rename ::Deprecated
+            setSyntaxState(SyntaxLineEdit::Deprecated);
+            /*
+            * We're being lazy and only printing the first warning.
+            * Would it be better to print all of them?
+            */
+            syntax_error_message_  = QString(static_cast<gchar *>(warn->data));
+        } else if (dfp != NULL && (depr = dfilter_deprecated_tokens(dfp)) != NULL) {
             // You keep using that word. I do not think it means what you think it means.
             // Possible alternatives: ::Troubled, or ::Problematic maybe?
             setSyntaxState(SyntaxLineEdit::Deprecated);

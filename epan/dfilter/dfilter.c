@@ -157,12 +157,10 @@ dfilter_new(GPtrArray *deprecated)
 
 	df = g_new0(dfilter_t, 1);
 	df->insns = NULL;
-
+	df->function_stack = NULL;
+	df->warnings = NULL;
 	if (deprecated)
 		df->deprecated = g_ptr_array_ref(deprecated);
-
-	df->function_stack = NULL;
-
 	return df;
 }
 
@@ -204,6 +202,9 @@ dfilter_free(dfilter_t *df)
 		g_slist_free(df->function_stack);
 	}
 
+	if (df->warnings)
+		g_slist_free_full(df->warnings, g_free);
+
 	g_free(df->registers);
 	g_free(df->attempted_load);
 	g_free(df->free_registers);
@@ -225,6 +226,7 @@ dfwork_new(void)
 	dfwork_t *dfw = g_new0(dfwork_t, 1);
 
 	dfw_error_init(&dfw->error);
+	dfw->warnings = NULL;
 
 	dfw->references =
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
@@ -272,6 +274,9 @@ dfwork_free(dfwork_t *dfw)
 
 	if (dfw->deprecated)
 		g_ptr_array_unref(dfw->deprecated);
+
+	if (dfw->warnings)
+		g_slist_free_full(dfw->warnings, g_free);
 
 	g_free(dfw->expanded_text);
 
@@ -345,6 +350,16 @@ add_deprecated_token(dfwork_t *dfw, const char *token)
 		}
 	}
 	g_ptr_array_add(deprecated, g_strdup(token));
+}
+
+void
+add_compile_warning(dfwork_t *dfw, const char *format, ...)
+{
+	va_list ap;
+	va_start(ap, format);
+	char *msg = ws_strdup_vprintf(format, ap);
+	va_end(ap);
+	dfw->warnings = g_slist_prepend(dfw->warnings, msg);
 }
 
 char *
@@ -515,6 +530,8 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfw->references = NULL;
 		dfilter->raw_references = dfw->raw_references;
 		dfw->raw_references = NULL;
+		dfilter->warnings = dfw->warnings;
+		dfw->warnings = NULL;
 
 		if (flags & DF_SAVE_TREE) {
 			ws_assert(tree_str);
@@ -599,6 +616,12 @@ dfilter_deprecated_tokens(dfilter_t *df) {
 		return df->deprecated;
 	}
 	return NULL;
+}
+
+GSList *
+dfilter_get_warnings(dfilter_t *df)
+{
+	return df->warnings;
 }
 
 void

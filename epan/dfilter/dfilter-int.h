@@ -32,6 +32,7 @@ struct epan_dfilter {
 	int		*interesting_fields;
 	int		num_interesting_fields;
 	GPtrArray	*deprecated;
+	GSList		*warnings;
 	char		*expanded_text;
 	GHashTable	*references;
 	GHashTable	*raw_references;
@@ -60,6 +61,7 @@ typedef struct {
 	                                cleaning up memory allocations is inconvenient. Memory
 					allocated from this pool will be freed when the dfwork_t
 					context is destroyed. */
+	GSList		*warnings;
 } dfwork_t;
 
 /*
@@ -101,6 +103,9 @@ dfw_set_error_location(dfwork_t *dfw, df_loc_t err_loc);
 
 void
 add_deprecated_token(dfwork_t *dfw, const char *token);
+
+void
+add_compile_warning(dfwork_t *dfw, const char *format, ...);
 
 void
 free_deprecated(GPtrArray *deprecated);

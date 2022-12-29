@@ -71,14 +71,15 @@ main(int argc, char **argv)
         cfile_write_failure_message,
         cfile_close_failure_message
     };
-    char		*text;
-    char		*expanded_text;
-    dfilter_t		*df;
-    gchar		*err_msg;
-    df_error_t          *df_err;
-    GTimer *timer;
+    char        *text = NULL;
+    char        *expanded_text = NULL;
+    dfilter_t   *df = NULL;
+    gchar       *err_msg = NULL;
+    df_error_t  *df_err = NULL;
+    GTimer      *timer = NULL;
     gdouble elapsed_expand, elapsed_compile;
     gboolean ok;
+    int exit_status = 0;
 
     cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
@@ -162,13 +163,9 @@ main(int argc, char **argv)
     if (expanded_text == NULL) {
         fprintf(stderr, "dftest: %s\n", err_msg);
         g_free(err_msg);
-        g_free(text);
-        epan_cleanup();
-        g_timer_destroy(timer);
-        exit(2);
+        exit_status = 2;
+        goto out;
     }
-    g_free(text);
-    text = NULL;
 
     printf("Filter: %s\n", expanded_text);
 
@@ -186,28 +183,35 @@ main(int argc, char **argv)
             putloc(stderr, df_err->loc);
         }
         dfilter_error_free(df_err);
-        g_free(expanded_text);
-        epan_cleanup();
-        g_timer_destroy(timer);
-        exit(2);
+        exit_status = 2;
     }
 
     if (df == NULL) {
         printf("Filter is empty.\n");
-    }
-    else {
-        printf("\nSyntax tree:\n%s\n\n", dfilter_syntax_tree(df));
-        dfilter_dump(df);
-        printf("\nElapsed time: %.f µs (%.f µs + %.f µs)\n",
-                (elapsed_expand + elapsed_compile) * 1000 * 1000,
-                elapsed_expand * 1000 * 1000, elapsed_compile * 1000 * 1000);
+        goto out;
     }
 
-    dfilter_free(df);
+    for (GSList *l = dfilter_get_warnings(df); l != NULL; l = l->next) {
+        printf("\nWarning: %s.\n", (char *)l->data);
+    }
+
+    printf("\nSyntax tree:\n%s\n\n", dfilter_syntax_tree(df));
+    dfilter_dump(df);
+    printf("\nElapsed time: %.f µs (%.f µs + %.f µs)\n",
+            (elapsed_expand + elapsed_compile) * 1000 * 1000,
+            elapsed_expand * 1000 * 1000, elapsed_compile * 1000 * 1000);
+
+out:
     epan_cleanup();
-    g_free(expanded_text);
-    g_timer_destroy(timer);
-    exit(0);
+    if (df != NULL)
+        dfilter_free(df);
+    if (text != NULL)
+        g_free(text);
+    if (expanded_text != NULL)
+        g_free(expanded_text);
+    if (timer != NULL)
+        g_timer_destroy(timer);
+    exit(exit_status);
 }
 
 /*

@@ -89,7 +89,7 @@ WS_WARN_UNUSED static int set_lval_literal(df_scanner_state_t *state, const char
 WS_WARN_UNUSED static int set_lval_unparsed(df_scanner_state_t *state, const char *token_value);
 WS_WARN_UNUSED static int set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string);
 WS_WARN_UNUSED static int set_lval_charconst(df_scanner_state_t *state, GString *quoted_string);
-WS_WARN_UNUSED static int set_lval_field(df_scanner_state_t *state, const char *token_value);
+WS_WARN_UNUSED static int set_lval_field(df_scanner_state_t *state, const char *token_value, const header_field_info *hfinfo);
 WS_WARN_UNUSED static int set_lval_identifier(df_scanner_state_t *state, const char *token_value);
 WS_WARN_UNUSED static int set_lval_constant(df_scanner_state_t *state, const char *token_value);
 
@@ -472,8 +472,13 @@ HyphenBytes	{hex2}(-{hex2})+
 \.{Identifier}			{
 	/* Field. */
 	update_location(yyextra, yytext);
-	/* Skip leading dot. */
-	return set_lval_field(yyextra, yytext + 1);
+	const char *name = yytext + 1;
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra->dfw, name);
+	if (hfinfo == NULL) {
+		FAIL("\"%s\" is not a valid protocol or protocol field.", name);
+		return SCAN_FAILED;
+	}
+	return set_lval_field(yyextra, yytext, hfinfo);
 }
 
 . {
@@ -546,10 +551,9 @@ set_lval_constant(df_scanner_state_t *state, const char *token_value)
 static int
 set_lval_unparsed(df_scanner_state_t *state, const char *token_value)
 {
-	header_field_info *hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
+	const header_field_info *hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
 	if (hfinfo != NULL) {
-		stnode_init(df_lval, STTYPE_FIELD, hfinfo, g_strdup(token_value), state->location);
-		return TOKEN_FIELD;
+		return set_lval_field(state, token_value, hfinfo);
     	}
 	return set_lval_literal(state, token_value);
 }
@@ -581,15 +585,9 @@ set_lval_charconst(df_scanner_state_t *state, GString *quoted_string)
 }
 
 static int
-set_lval_field(df_scanner_state_t *state, const char *token_value)
+set_lval_field(df_scanner_state_t *state, const char *token_value, const header_field_info *hfinfo)
 {
-	header_field_info *hfinfo;
-
-	hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
-	if (hfinfo == NULL) {
-		dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->location, "\"%s\" is not a valid protocol or protocol field.", token_value);
-	}
-	stnode_init(df_lval, STTYPE_FIELD, hfinfo, g_strdup(token_value), state->location);
+	stnode_init(df_lval, STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), state->location);
 	return TOKEN_FIELD;
 }
 
