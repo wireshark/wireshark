@@ -52,14 +52,14 @@ DIAG_ON_LEMON()
 %type           layer           {GSList*}
 %destructor     layer           {drange_node_free_list($$);}
 
-%type           function_params {GSList*}
-%destructor     function_params {st_funcparams_free($$);}
+%type           func_params_list {GSList*}
+%destructor     func_params_list {st_funcparams_free($$);}
 
 %type           set_list        {GSList*}
 %destructor     set_list        {set_nodelist_free($$);}
 
-%type           set_element     {GSList*}
-%destructor     set_element     {set_nodelist_free($$);}
+%type           set_element_list {GSList*}
+%destructor     set_element_list {set_nodelist_free($$);}
 
 /* This is called as soon as a syntax error happens. After that,
 any "error" symbols are shifted, if possible. */
@@ -415,12 +415,12 @@ set(S) ::= LBRACE set_list(L) RBRACE.
     S = stnode_new(STTYPE_SET, L, NULL, DFILTER_LOC_EMPTY);
 }
 
-set_list(L) ::= set_element(N).
+set_list(L) ::= set_element_list(N).
 {
     L = g_slist_concat(NULL, N);
 }
 
-set_list(L) ::= set_list(P) COMMA set_element(N).
+set_list(L) ::= set_list(P) COMMA set_element_list(N).
 {
     L = g_slist_concat(P, N);
 }
@@ -441,13 +441,13 @@ set_entity(N) ::= PLUS entity(E).
     N = E;
 }
 
-set_element(N) ::= set_entity(X).
+set_element_list(N) ::= set_entity(X).
 {
     N = g_slist_append(NULL, X);
     N = g_slist_append(N, NULL);
 }
 
-set_element(N) ::= set_entity(X) DOTDOT set_entity(Y).
+set_element_list(N) ::= set_entity(X) DOTDOT set_entity(Y).
 {
     N = g_slist_append(NULL, X);
     N = g_slist_append(N, Y);
@@ -507,7 +507,7 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 }
 
 /* A function can have one or more parameters */
-function(F) ::= UNPARSED(U) LPAREN(L) function_params(P) RPAREN(R).
+function(F) ::= UNPARSED(U) LPAREN(L) func_params_list(P) RPAREN(R).
 {
     F = new_function(dfw, U);
     sttype_function_set_params(F, P);
@@ -527,12 +527,12 @@ function(F) ::= UNPARSED(U) LPAREN(L) RPAREN(R).
     stnode_free(R);
 }
 
-function_params(P) ::= arithmetic_expr(E).
+func_params_list(P) ::= arithmetic_expr(E).
 {
     P = g_slist_append(NULL, E);
 }
 
-function_params(P) ::= function_params(L) COMMA arithmetic_expr(E).
+func_params_list(P) ::= func_params_list(L) COMMA arithmetic_expr(E).
 {
     P = g_slist_append(L, E);
 }
