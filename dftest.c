@@ -76,6 +76,9 @@ main(int argc, char **argv)
     dfilter_t		*df;
     gchar		*err_msg;
     df_error_t          *df_err;
+    GTimer *timer;
+    gdouble elapsed_expand, elapsed_compile;
+    gboolean ok;
 
     cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
@@ -146,16 +149,22 @@ main(int argc, char **argv)
         exit(1);
     }
 
+    timer = g_timer_new();
+
     /* Get filter text */
     text = get_args_as_string(argc, argv, 1);
 
     /* Expand macros. */
+    g_timer_start(timer);
     expanded_text = dfilter_expand(text, &err_msg);
+    g_timer_stop(timer);
+    elapsed_expand = g_timer_elapsed(timer, NULL);
     if (expanded_text == NULL) {
         fprintf(stderr, "dftest: %s\n", err_msg);
         g_free(err_msg);
         g_free(text);
         epan_cleanup();
+        g_timer_destroy(timer);
         exit(2);
     }
     g_free(text);
@@ -164,8 +173,12 @@ main(int argc, char **argv)
     printf("Filter: %s\n", expanded_text);
 
     /* Compile it */
-    if (!dfilter_compile_real(expanded_text, &df, &df_err,
-                                DF_SAVE_TREE, "dftest")) {
+    g_timer_start(timer);
+    ok = dfilter_compile_real(expanded_text, &df, &df_err,
+                                DF_SAVE_TREE, "dftest");
+    g_timer_stop(timer);
+    elapsed_compile = g_timer_elapsed(timer, NULL);
+    if (!ok) {
         fprintf(stderr, "dftest: %s\n", df_err->msg);
         if (df_err->loc.col_start >= 0) {
             fprintf(stderr, "\t%s\n", expanded_text);
@@ -175,6 +188,7 @@ main(int argc, char **argv)
         dfilter_error_free(df_err);
         g_free(expanded_text);
         epan_cleanup();
+        g_timer_destroy(timer);
         exit(2);
     }
 
@@ -184,11 +198,15 @@ main(int argc, char **argv)
     else {
         printf("\nSyntax tree:\n%s\n\n", dfilter_syntax_tree(df));
         dfilter_dump(df);
+        printf("\nElapsed time: %.f µs (%.f µs + %.f µs)\n",
+                (elapsed_expand + elapsed_compile) * 1000 * 1000,
+                elapsed_expand * 1000 * 1000, elapsed_compile * 1000 * 1000);
     }
 
     dfilter_free(df);
     epan_cleanup();
     g_free(expanded_text);
+    g_timer_destroy(timer);
     exit(0);
 }
 
