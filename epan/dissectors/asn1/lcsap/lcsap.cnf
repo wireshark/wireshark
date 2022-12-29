@@ -265,38 +265,40 @@ id-Reset                                       ProcedureCode
 id-Ciphering-Key-Data-Delivery                 ProcedureCode
 
 # ProtocolIE-ID
-id-Correlation-ID                   ProtocolIE-ID
-id-Location-Type                    ProtocolIE-ID
-id-E-UTRAN-Cell-Identifier          ProtocolIE-ID
-id-LCS-Client-Type                  ProtocolIE-ID
-id-LCS-Priority                     ProtocolIE-ID
-id-LCS-QOS                          ProtocolIE-ID
-id-UE-Positioning-Capability        ProtocolIE-ID
-id-Include-Velocity                 ProtocolIE-ID
-id-IMSI                             ProtocolIE-ID
-id-IMEI                             ProtocolIE-ID
-id-MultipleAPDUs                    ProtocolIE-ID
-id-Positioning-Data                 ProtocolIE-ID
-id-Velocity-Estimate                ProtocolIE-ID
-id-Accuracy-Fulfillment-Indicator   ProtocolIE-ID
-id-LCS-Cause                        ProtocolIE-ID
-id-Payload-Type                     ProtocolIE-ID
-id-Return-Error-Cause               ProtocolIE-ID
-id-APDU                             ProtocolIE-ID
-id-Return-Error-Request             ProtocolIE-ID
-id-Location-Estimate                ProtocolIE-ID
-id-Source-Identity                  ProtocolIE-ID
-id-Destination-ID                   ProtocolIE-ID
-id-LCS-Service-Type-ID              ProtocolIE-ID
-id-Cell-Portion-ID                  ProtocolIE-ID
-id-Civic-Address                    ProtocolIE-ID
-id-Barometric-Pressure              ProtocolIE-ID
-id-Additional-PositioningDataSet    ProtocolIE-ID
-id-RAT-Type                         ProtocolIE-ID
-id-Ciphering-Data                   ProtocolIE-ID
-id-Ciphering-Data-Ack               ProtocolIE-ID
-id-Ciphering-Data-Error-Report      ProtocolIE-ID
-id-Coverage-Level                   ProtocolIE-ID
+id-Correlation-ID                       ProtocolIE-ID
+id-Location-Type                        ProtocolIE-ID
+id-E-UTRAN-Cell-Identifier              ProtocolIE-ID
+id-LCS-Client-Type                      ProtocolIE-ID
+id-LCS-Priority                         ProtocolIE-ID
+id-LCS-QOS                              ProtocolIE-ID
+id-UE-Positioning-Capability            ProtocolIE-ID
+id-Include-Velocity                     ProtocolIE-ID
+id-IMSI                                 ProtocolIE-ID
+id-IMEI                                 ProtocolIE-ID
+id-MultipleAPDUs                        ProtocolIE-ID
+id-Positioning-Data                     ProtocolIE-ID
+id-Velocity-Estimate                    ProtocolIE-ID
+id-Accuracy-Fulfillment-Indicator       ProtocolIE-ID
+id-LCS-Cause                            ProtocolIE-ID
+id-Payload-Type                         ProtocolIE-ID
+id-Return-Error-Cause                   ProtocolIE-ID
+id-APDU                                 ProtocolIE-ID
+id-Return-Error-Request                 ProtocolIE-ID
+id-Location-Estimate                    ProtocolIE-ID
+id-Source-Identity                      ProtocolIE-ID
+id-Destination-ID                       ProtocolIE-ID
+id-LCS-Service-Type-ID                  ProtocolIE-ID
+id-Cell-Portion-ID                      ProtocolIE-ID
+id-Civic-Address                        ProtocolIE-ID
+id-Barometric-Pressure                  ProtocolIE-ID
+id-Additional-PositioningDataSet        ProtocolIE-ID
+id-RAT-Type                             ProtocolIE-ID
+id-Ciphering-Data                       ProtocolIE-ID
+id-Ciphering-Data-Ack                   ProtocolIE-ID
+id-Ciphering-Data-Error-Report          ProtocolIE-ID
+id-Coverage-Level                       ProtocolIE-ID
+id-UE-Country-Determination-Indication  ProtocolIE-ID
+id-UE-Area-Indication                   ProtocolIE-ID
 
 #.REGISTER
 
@@ -330,6 +332,8 @@ Ciphering-Data                          N lcsap.ies id-Ciphering-Data
 Ciphering-Data-Ack                      N lcsap.ies id-Ciphering-Data-Ack
 Ciphering-Data-Error-Report             N lcsap.ies id-Ciphering-Data-Error-Report
 Coverage-Level                          N lcsap.ies id-Coverage-Level
+UE-Country-Determination-Indication     N lcsap.ies id-UE-Country-Determination-Indication
+UE-Area-Indication                      N lcsap.ies id-UE-Area-Indication
 
 #LCS-AP-PROTOCOL-EXTENSION
 LCS-Service-Type-ID                     N lcsap.extension id-LCS-Service-Type-ID

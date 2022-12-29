@@ -1,6 +1,7 @@
--- ETSI TS 129 171 V16.2.0 (2020-12)
 --
+-- 3GPP TS 29.171 v17.2.0 (2022-12-15)
 -- 7.5.5	Information element definitions
+
 -- ************************************************************** 
 -- 
 -- Information Element Definitions 
@@ -113,6 +114,7 @@ Confidence	::= INTEGER (0..100)
 
 Correlation-ID	::=	OCTET STRING (SIZE (4))
 
+Country	::=	OCTET STRING
 
 -- D
 
@@ -222,7 +224,10 @@ Geographical-Area	::= CHOICE {
 	ellipsoid-Arc			Ellipsoid-Arc,
 	...,
 	high-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse	High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse,
-	high-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid	High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid
+	high-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid	High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid,
+	high-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse	High-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse,
+	high-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid	High-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid
+
 }
 
 Geographical-Coordinates	::= SEQUENCE {
@@ -252,7 +257,7 @@ GNSS-Positioning-Data-Set ::= SEQUENCE (SIZE (1..max-GNSS-Set)) OF GNSS-Position
 -- H
 
 
-High-Accuracy-Altitude ::= INTEGER (-64000..128000)
+High-Accuracy-Altitude ::= INTEGER (-64000..1280000)
 
 High-Accuracy-DegreesLatitude	::= INTEGER(-2147483648..2147483647)
 
@@ -267,6 +272,17 @@ High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse  ::= SEQUENCE {
 	...}
 
 High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+High-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse  ::= SEQUENCE {
+	high-Accuracy-Geographical-Coordinates	High-Accuracy-Geographical-Coordinates,
+	high-Accuracy-Scalable-Uncertainty-Ellipse	High-Accuracy-Scalable-Uncertainty-Ellipse,
+	confidence		Confidence,
+	iE-Extensions	ProtocolExtensionContainer { { High-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse-ExtIEs} } OPTIONAL,
+	...}
+
+High-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -286,6 +302,21 @@ High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid-ExtIEs LCS
 	...
 }
 
+High-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid	::= SEQUENCE {
+	high-Accuracy-Geographical-Coordinates	High-Accuracy-Geographical-Coordinates,
+	high-Accuracy-Altitude	High-Accuracy-Altitude,
+	high-Accuracy-Scalable-Uncertainty-Ellipse	High-Accuracy-Scalable-Uncertainty-Ellipse,
+	confidence		Confidence,
+	high-Accuracy-Scalable-Uncertainty-Altitude	High-Accuracy-Scalable-Uncertainty-Altitude,
+	vertical-Confidence	Confidence,
+	iE-Extensions	ProtocolExtensionContainer { { High-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid-ExtIEs} } OPTIONAL,
+	...}
+
+
+High-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 High-Accuracy-Geographical-Coordinates	::= SEQUENCE {
 	high-Accuracy-DegreesLatitude	High-Accuracy-DegreesLatitude,
@@ -301,6 +332,8 @@ High-Accuracy-Geographical-Coordinates-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
 
 High-Accuracy-Uncertainty-Code ::= INTEGER (0..255)
 
+High-Accuracy-Extended-Uncertainty-Code ::= INTEGER (0..255)
+
 High-Accuracy-Uncertainty-Ellipse	::= SEQUENCE {
 	high-Accuracy-Uncertainty-SemiMajor	High-Accuracy-Uncertainty-Code,
 	high-Accuracy-Uncertainty-SemiMinor	High-Accuracy-Uncertainty-Code,
@@ -312,6 +345,28 @@ High-Accuracy-Uncertainty-Ellipse	::= SEQUENCE {
 High-Accuracy-Uncertainty-Ellipse-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+High-Accuracy-Extended-Uncertainty-Ellipse	::= SEQUENCE {
+	high-Accuracy-Extended-Uncertainty-SemiMajor	High-Accuracy-Extended-Uncertainty-Code,
+	high-Accuracy-Extended-Uncertainty-SemiMinor	High-Accuracy-Extended-Uncertainty-Code,
+	orientation-Major-Axis	INTEGER (0..179),
+	iE-Extensions	ProtocolExtensionContainer { { High-Accuracy-Extended-Uncertainty-Ellipse-ExtIEs} } OPTIONAL,
+	...
+}
+
+High-Accuracy-Extended-Uncertainty-Ellipse-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+High-Accuracy-Scalable-Uncertainty-Ellipse	::= CHOICE {
+high-Accuracy-Uncertainty-Ellipse	High-Accuracy-Uncertainty-Ellipse,
+high-Accuracy-Extended-Uncertainty-Ellipse	High-Accuracy-Extended-Uncertainty-Ellipse
+}
+
+High-Accuracy-Scalable-Uncertainty-Altitude	::= CHOICE {
+high-Accuracy-Uncertainty-Altitude	High-Accuracy-Uncertainty-Code,
+high-Accuracy-Extended-Uncertainty-Altitude	High-Accuracy-Extended-Uncertainty-Code
+}
+
 
 Home-eNB-ID ::= BIT STRING (SIZE (28))
 
@@ -386,6 +441,11 @@ Include-Velocity	::= ENUMERATED {
 
 
 Inner-Radius	::= INTEGER (0..65535)	-- 16 bit field
+
+International-Area-Indication	::= ENUMERATED {
+	yes,
+...
+}
 
 
 -- J
@@ -616,6 +676,18 @@ UE-Positioning-Capability	::= SEQUENCE {
 	lPP		BOOLEAN,
 	...
 }
+
+UE-Country-Determination-Indication	::= ENUMERATED {
+	required,
+	not-required,
+...
+}
+
+UE-Area-Indication ::= SEQUENCE {
+	country		Country,
+	international-area-indication		International-Area-Indication
+}
+
 
 -- V
 

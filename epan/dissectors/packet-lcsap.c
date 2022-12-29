@@ -96,7 +96,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_Ciphering_Data =  28,
   id_Ciphering_Data_Ack =  29,
   id_Ciphering_Data_Error_Report =  30,
-  id_Coverage_Level =  31
+  id_Coverage_Level =  31,
+  id_UE_Country_Determination_Indication =  32,
+  id_UE_Area_Indication =  33
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -137,6 +139,8 @@ static int hf_lcsap_RAT_Type_PDU = -1;            /* RAT_Type */
 static int hf_lcsap_Return_Error_Type_PDU = -1;   /* Return_Error_Type */
 static int hf_lcsap_Return_Error_Cause_PDU = -1;  /* Return_Error_Cause */
 static int hf_lcsap_UE_Positioning_Capability_PDU = -1;  /* UE_Positioning_Capability */
+static int hf_lcsap_UE_Country_Determination_Indication_PDU = -1;  /* UE_Country_Determination_Indication */
+static int hf_lcsap_UE_Area_Indication_PDU = -1;  /* UE_Area_Indication */
 static int hf_lcsap_Velocity_Estimate_PDU = -1;   /* Velocity_Estimate */
 static int hf_lcsap_Location_Request_PDU = -1;    /* Location_Request */
 static int hf_lcsap_Location_Response_PDU = -1;   /* Location_Response */
@@ -194,6 +198,8 @@ static int hf_lcsap_ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid = -1
 static int hf_lcsap_ellipsoid_Arc = -1;           /* Ellipsoid_Arc */
 static int hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse = -1;  /* High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse */
 static int hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid = -1;  /* High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid */
+static int hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse = -1;  /* High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse */
+static int hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid = -1;  /* High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid */
 static int hf_lcsap_latitudeSign = -1;            /* LatitudeSign */
 static int hf_lcsap_degreesLatitude = -1;         /* DegreesLatitude */
 static int hf_lcsap_degreesLongitude = -1;        /* DegreesLongitude */
@@ -202,14 +208,20 @@ static int hf_lcsap_eNB_ID = -1;                  /* ENB_ID */
 static int hf_lcsap_GNSS_Positioning_Data_Set_item = -1;  /* GNSS_Positioning_Method_And_Usage */
 static int hf_lcsap_high_Accuracy_Geographical_Coordinates = -1;  /* High_Accuracy_Geographical_Coordinates */
 static int hf_lcsap_high_Accuracy_Uncertainty_Ellipse = -1;  /* High_Accuracy_Uncertainty_Ellipse */
+static int hf_lcsap_high_Accuracy_Scalable_Uncertainty_Ellipse = -1;  /* High_Accuracy_Scalable_Uncertainty_Ellipse */
 static int hf_lcsap_high_Accuracy_Altitude = -1;  /* High_Accuracy_Altitude */
 static int hf_lcsap_high_Accuracy_Uncertainty_Altitude = -1;  /* High_Accuracy_Uncertainty_Code */
 static int hf_lcsap_vertical_Confidence = -1;     /* Confidence */
+static int hf_lcsap_high_Accuracy_Scalable_Uncertainty_Altitude = -1;  /* High_Accuracy_Scalable_Uncertainty_Altitude */
 static int hf_lcsap_high_Accuracy_DegreesLatitude = -1;  /* High_Accuracy_DegreesLatitude */
 static int hf_lcsap_high_Accuracy_DegreesLongitude = -1;  /* High_Accuracy_DegreesLongitude */
 static int hf_lcsap_high_Accuracy_Uncertainty_SemiMajor = -1;  /* High_Accuracy_Uncertainty_Code */
 static int hf_lcsap_high_Accuracy_Uncertainty_SemiMinor = -1;  /* High_Accuracy_Uncertainty_Code */
 static int hf_lcsap_orientation_Major_Axis = -1;  /* INTEGER_0_179 */
+static int hf_lcsap_high_Accuracy_Extended_Uncertainty_SemiMajor = -1;  /* High_Accuracy_Extended_Uncertainty_Code */
+static int hf_lcsap_high_Accuracy_Extended_Uncertainty_SemiMinor = -1;  /* High_Accuracy_Extended_Uncertainty_Code */
+static int hf_lcsap_high_Accuracy_Extended_Uncertainty_Ellipse = -1;  /* High_Accuracy_Extended_Uncertainty_Ellipse */
+static int hf_lcsap_high_Accuracy_Extended_Uncertainty_Altitude = -1;  /* High_Accuracy_Extended_Uncertainty_Code */
 static int hf_lcsap_bearing = -1;                 /* INTEGER_0_359 */
 static int hf_lcsap_horizontal_Speed = -1;        /* INTEGER_0_2047 */
 static int hf_lcsap_horizontal_Speed_And_Bearing = -1;  /* Horizontal_Speed_And_Bearing */
@@ -237,6 +249,8 @@ static int hf_lcsap_uncertainty_SemiMajor = -1;   /* Uncertainty_Code */
 static int hf_lcsap_uncertainty_SemiMinor = -1;   /* Uncertainty_Code */
 static int hf_lcsap_orientation_Major_Axis_01 = -1;  /* Orientation_Major_Axis */
 static int hf_lcsap_lPP = -1;                     /* BOOLEAN */
+static int hf_lcsap_country = -1;                 /* Country */
+static int hf_lcsap_international_area_indication = -1;  /* International_Area_Indication */
 static int hf_lcsap_horizontal_Velocity = -1;     /* Horizontal_Velocity */
 static int hf_lcsap_horizontal_With_Vertical_Velocity = -1;  /* Horizontal_With_Vertical_Velocity */
 static int hf_lcsap_horizontal_Velocity_With_Uncertainty = -1;  /* Horizontal_Velocity_With_Uncertainty */
@@ -281,9 +295,14 @@ static gint ett_lcsap_Geographical_Coordinates = -1;
 static gint ett_lcsap_Global_eNB_ID = -1;
 static gint ett_lcsap_GNSS_Positioning_Data_Set = -1;
 static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse = -1;
+static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse = -1;
 static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid = -1;
+static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid = -1;
 static gint ett_lcsap_High_Accuracy_Geographical_Coordinates = -1;
 static gint ett_lcsap_High_Accuracy_Uncertainty_Ellipse = -1;
+static gint ett_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse = -1;
+static gint ett_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse = -1;
+static gint ett_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude = -1;
 static gint ett_lcsap_Horizontal_Speed_And_Bearing = -1;
 static gint ett_lcsap_Horizontal_Velocity = -1;
 static gint ett_lcsap_Horizontal_With_Vertical_Velocity = -1;
@@ -301,6 +320,7 @@ static gint ett_lcsap_Positioning_Data = -1;
 static gint ett_lcsap_Positioning_Data_Set = -1;
 static gint ett_lcsap_Uncertainty_Ellipse = -1;
 static gint ett_lcsap_UE_Positioning_Capability = -1;
+static gint ett_lcsap_UE_Area_Indication = -1;
 static gint ett_lcsap_Velocity_Estimate = -1;
 static gint ett_lcsap_Vertical_Velocity = -1;
 static gint ett_lcsap_Location_Request = -1;
@@ -531,6 +551,8 @@ static const value_string lcsap_ProtocolIE_ID_vals[] = {
   { id_Ciphering_Data_Ack, "id-Ciphering-Data-Ack" },
   { id_Ciphering_Data_Error_Report, "id-Ciphering-Data-Error-Report" },
   { id_Coverage_Level, "id-Coverage-Level" },
+  { id_UE_Country_Determination_Indication, "id-UE-Country-Determination-Indication" },
+  { id_UE_Area_Indication, "id-UE-Area-Indication" },
   { 0, NULL }
 };
 
@@ -986,6 +1008,16 @@ static int
 dissect_lcsap_Correlation_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 4, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Country(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -1468,7 +1500,7 @@ dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse(tvbuff_t *t
 static int
 dissect_lcsap_High_Accuracy_Altitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -64000, 128000U, NULL, FALSE);
+                                                            -64000, 1280000U, NULL, FALSE);
 
   return offset;
 }
@@ -1494,6 +1526,114 @@ dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellips
 }
 
 
+
+static int
+dissect_lcsap_High_Accuracy_Extended_Uncertainty_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t High_Accuracy_Extended_Uncertainty_Ellipse_sequence[] = {
+  { &hf_lcsap_high_Accuracy_Extended_Uncertainty_SemiMajor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Extended_Uncertainty_Code },
+  { &hf_lcsap_high_Accuracy_Extended_Uncertainty_SemiMinor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Extended_Uncertainty_Code },
+  { &hf_lcsap_orientation_Major_Axis, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_INTEGER_0_179 },
+  { &hf_lcsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse, High_Accuracy_Extended_Uncertainty_Ellipse_sequence);
+
+  return offset;
+}
+
+
+static const value_string lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse_vals[] = {
+  {   0, "high-Accuracy-Uncertainty-Ellipse" },
+  {   1, "high-Accuracy-Extended-Uncertainty-Ellipse" },
+  { 0, NULL }
+};
+
+static const per_choice_t High_Accuracy_Scalable_Uncertainty_Ellipse_choice[] = {
+  {   0, &hf_lcsap_high_Accuracy_Uncertainty_Ellipse, ASN1_NO_EXTENSIONS     , dissect_lcsap_High_Accuracy_Uncertainty_Ellipse },
+  {   1, &hf_lcsap_high_Accuracy_Extended_Uncertainty_Ellipse, ASN1_NO_EXTENSIONS     , dissect_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse, High_Accuracy_Scalable_Uncertainty_Ellipse_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse_sequence[] = {
+  { &hf_lcsap_high_Accuracy_Geographical_Coordinates, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Geographical_Coordinates },
+  { &hf_lcsap_high_Accuracy_Scalable_Uncertainty_Ellipse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse },
+  { &hf_lcsap_confidence    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Confidence },
+  { &hf_lcsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse, High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse_sequence);
+
+  return offset;
+}
+
+
+static const value_string lcsap_High_Accuracy_Scalable_Uncertainty_Altitude_vals[] = {
+  {   0, "high-Accuracy-Uncertainty-Altitude" },
+  {   1, "high-Accuracy-Extended-Uncertainty-Altitude" },
+  { 0, NULL }
+};
+
+static const per_choice_t High_Accuracy_Scalable_Uncertainty_Altitude_choice[] = {
+  {   0, &hf_lcsap_high_Accuracy_Uncertainty_Altitude, ASN1_NO_EXTENSIONS     , dissect_lcsap_High_Accuracy_Uncertainty_Code },
+  {   1, &hf_lcsap_high_Accuracy_Extended_Uncertainty_Altitude, ASN1_NO_EXTENSIONS     , dissect_lcsap_High_Accuracy_Extended_Uncertainty_Code },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude, High_Accuracy_Scalable_Uncertainty_Altitude_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid_sequence[] = {
+  { &hf_lcsap_high_Accuracy_Geographical_Coordinates, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Geographical_Coordinates },
+  { &hf_lcsap_high_Accuracy_Altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Altitude },
+  { &hf_lcsap_high_Accuracy_Scalable_Uncertainty_Ellipse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse },
+  { &hf_lcsap_confidence    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Confidence },
+  { &hf_lcsap_high_Accuracy_Scalable_Uncertainty_Altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude },
+  { &hf_lcsap_vertical_Confidence, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Confidence },
+  { &hf_lcsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid, High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid_sequence);
+
+  return offset;
+}
+
+
 static const value_string lcsap_Geographical_Area_vals[] = {
   {   0, "point" },
   {   1, "point-With-Uncertainty" },
@@ -1504,6 +1644,8 @@ static const value_string lcsap_Geographical_Area_vals[] = {
   {   6, "ellipsoid-Arc" },
   {   7, "high-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse" },
   {   8, "high-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid" },
+  {   9, "high-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse" },
+  {  10, "high-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid" },
   { 0, NULL }
 };
 
@@ -1517,6 +1659,8 @@ static const per_choice_t Geographical_Area_choice[] = {
   {   6, &hf_lcsap_ellipsoid_Arc , ASN1_EXTENSION_ROOT    , dissect_lcsap_Ellipsoid_Arc },
   {   7, &hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse, ASN1_NOT_EXTENSION_ROOT, dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse },
   {   8, &hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid, ASN1_NOT_EXTENSION_ROOT, dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid },
+  {   9, &hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse, ASN1_NOT_EXTENSION_ROOT, dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse },
+  {  10, &hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid, ASN1_NOT_EXTENSION_ROOT, dissect_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid },
   { 0, NULL, 0, NULL }
 };
 
@@ -1776,6 +1920,21 @@ static int
 dissect_lcsap_Include_Velocity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lcsap_International_Area_Indication_vals[] = {
+  {   0, "yes" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lcsap_International_Area_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -2174,6 +2333,37 @@ static int
 dissect_lcsap_UE_Positioning_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lcsap_UE_Positioning_Capability, UE_Positioning_Capability_sequence);
+
+  return offset;
+}
+
+
+static const value_string lcsap_UE_Country_Determination_Indication_vals[] = {
+  {   0, "required" },
+  {   1, "not-required" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lcsap_UE_Country_Determination_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_Area_Indication_sequence[] = {
+  { &hf_lcsap_country       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Country },
+  { &hf_lcsap_international_area_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_International_Area_Indication },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_UE_Area_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_UE_Area_Indication, UE_Area_Indication_sequence);
 
   return offset;
 }
@@ -2683,6 +2873,22 @@ static int dissect_UE_Positioning_Capability_PDU(tvbuff_t *tvb _U_, packet_info 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UE_Country_Determination_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_UE_Country_Determination_Indication(tvb, offset, &asn1_ctx, tree, hf_lcsap_UE_Country_Determination_Indication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UE_Area_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_UE_Area_Indication(tvb, offset, &asn1_ctx, tree, hf_lcsap_UE_Area_Indication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Velocity_Estimate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2855,6 +3061,8 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.ies", id_Ciphering_Data_Ack, create_dissector_handle(dissect_Ciphering_Data_Ack_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Ciphering_Data_Error_Report, create_dissector_handle(dissect_Ciphering_Data_Error_Report_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Coverage_Level, create_dissector_handle(dissect_Coverage_Level_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_UE_Country_Determination_Indication, create_dissector_handle(dissect_UE_Country_Determination_Indication_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_UE_Area_Indication, create_dissector_handle(dissect_UE_Area_Indication_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_LCS_Service_Type_ID, create_dissector_handle(dissect_LCS_Service_Type_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Cell_Portion_ID, create_dissector_handle(dissect_Cell_Portion_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Civic_Address, create_dissector_handle(dissect_Civic_Address_PDU, proto_lcsap));
@@ -3026,6 +3234,14 @@ void proto_register_lcsap(void) {
         NULL, HFILL }},
     { &hf_lcsap_UE_Positioning_Capability_PDU,
       { "UE-Positioning-Capability", "lcsap.UE_Positioning_Capability_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_UE_Country_Determination_Indication_PDU,
+      { "UE-Country-Determination-Indication", "lcsap.UE_Country_Determination_Indication",
+        FT_UINT32, BASE_DEC, VALS(lcsap_UE_Country_Determination_Indication_vals), 0,
+        NULL, HFILL }},
+    { &hf_lcsap_UE_Area_Indication_PDU,
+      { "UE-Area-Indication", "lcsap.UE_Area_Indication_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lcsap_Velocity_Estimate_PDU,
@@ -3256,6 +3472,14 @@ void proto_register_lcsap(void) {
       { "high-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid", "lcsap.high_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse,
+      { "high-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse", "lcsap.high_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_high_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid,
+      { "high-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid", "lcsap.high_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lcsap_latitudeSign,
       { "latitudeSign", "lcsap.latitudeSign",
         FT_UINT32, BASE_DEC, VALS(lcsap_LatitudeSign_vals), 0,
@@ -3288,6 +3512,10 @@ void proto_register_lcsap(void) {
       { "high-Accuracy-Uncertainty-Ellipse", "lcsap.high_Accuracy_Uncertainty_Ellipse_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lcsap_high_Accuracy_Scalable_Uncertainty_Ellipse,
+      { "high-Accuracy-Scalable-Uncertainty-Ellipse", "lcsap.high_Accuracy_Scalable_Uncertainty_Ellipse",
+        FT_UINT32, BASE_DEC, VALS(lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse_vals), 0,
+        NULL, HFILL }},
     { &hf_lcsap_high_Accuracy_Altitude,
       { "high-Accuracy-Altitude", "lcsap.high_Accuracy_Altitude",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -3300,6 +3528,10 @@ void proto_register_lcsap(void) {
       { "vertical-Confidence", "lcsap.vertical_Confidence",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Confidence", HFILL }},
+    { &hf_lcsap_high_Accuracy_Scalable_Uncertainty_Altitude,
+      { "high-Accuracy-Scalable-Uncertainty-Altitude", "lcsap.high_Accuracy_Scalable_Uncertainty_Altitude",
+        FT_UINT32, BASE_DEC, VALS(lcsap_High_Accuracy_Scalable_Uncertainty_Altitude_vals), 0,
+        NULL, HFILL }},
     { &hf_lcsap_high_Accuracy_DegreesLatitude,
       { "high-Accuracy-DegreesLatitude", "lcsap.high_Accuracy_DegreesLatitude",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -3320,6 +3552,22 @@ void proto_register_lcsap(void) {
       { "orientation-Major-Axis", "lcsap.orientation_Major_Axis",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_179", HFILL }},
+    { &hf_lcsap_high_Accuracy_Extended_Uncertainty_SemiMajor,
+      { "high-Accuracy-Extended-Uncertainty-SemiMajor", "lcsap.high_Accuracy_Extended_Uncertainty_SemiMajor",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "High_Accuracy_Extended_Uncertainty_Code", HFILL }},
+    { &hf_lcsap_high_Accuracy_Extended_Uncertainty_SemiMinor,
+      { "high-Accuracy-Extended-Uncertainty-SemiMinor", "lcsap.high_Accuracy_Extended_Uncertainty_SemiMinor",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "High_Accuracy_Extended_Uncertainty_Code", HFILL }},
+    { &hf_lcsap_high_Accuracy_Extended_Uncertainty_Ellipse,
+      { "high-Accuracy-Extended-Uncertainty-Ellipse", "lcsap.high_Accuracy_Extended_Uncertainty_Ellipse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_high_Accuracy_Extended_Uncertainty_Altitude,
+      { "high-Accuracy-Extended-Uncertainty-Altitude", "lcsap.high_Accuracy_Extended_Uncertainty_Altitude",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "High_Accuracy_Extended_Uncertainty_Code", HFILL }},
     { &hf_lcsap_bearing,
       { "bearing", "lcsap.bearing",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3428,6 +3676,14 @@ void proto_register_lcsap(void) {
       { "lPP", "lcsap.lPP",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_lcsap_country,
+      { "country", "lcsap.country",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_international_area_indication,
+      { "international-area-indication", "lcsap.international_area_indication",
+        FT_UINT32, BASE_DEC, VALS(lcsap_International_Area_Indication_vals), 0,
+        NULL, HFILL }},
     { &hf_lcsap_horizontal_Velocity,
       { "horizontal-Velocity", "lcsap.horizontal_Velocity_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3518,9 +3774,14 @@ void proto_register_lcsap(void) {
     &ett_lcsap_Global_eNB_ID,
     &ett_lcsap_GNSS_Positioning_Data_Set,
     &ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse,
+    &ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse,
     &ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid,
+    &ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid,
     &ett_lcsap_High_Accuracy_Geographical_Coordinates,
     &ett_lcsap_High_Accuracy_Uncertainty_Ellipse,
+    &ett_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse,
+    &ett_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse,
+    &ett_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude,
     &ett_lcsap_Horizontal_Speed_And_Bearing,
     &ett_lcsap_Horizontal_Velocity,
     &ett_lcsap_Horizontal_With_Vertical_Velocity,
@@ -3538,6 +3799,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_Positioning_Data_Set,
     &ett_lcsap_Uncertainty_Ellipse,
     &ett_lcsap_UE_Positioning_Capability,
+    &ett_lcsap_UE_Area_Indication,
     &ett_lcsap_Velocity_Estimate,
     &ett_lcsap_Vertical_Velocity,
     &ett_lcsap_Location_Request,

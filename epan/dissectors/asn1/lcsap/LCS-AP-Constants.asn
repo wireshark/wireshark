@@ -1,10 +1,13 @@
--- ETSI TS 129 171  V16.2.0 (2020-12)
+--
+-- 3GPP TS 29.171 v17.2.0 (2022-12-15)
+-- 7.5.7	Constant definitions
+
 -- ************************************************************** 
 -- 
 -- Constant definitions 
 -- 
 -- ************************************************************** 
- 
+
 LCS-AP-Constants {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-Constants (4)}
@@ -67,6 +70,8 @@ id-Ciphering-Data		INTEGER ::= 28
 id-Ciphering-Data-Ack	INTEGER ::= 29
 id-Ciphering-Data-Error-Report	INTEGER ::= 30
 id-Coverage-Level		INTEGER ::= 31
+id-UE-Country-Determination-Indication		INTEGER ::= 32
+id-UE-Area-Indication		INTEGER ::= 33
 
 
 

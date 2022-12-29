@@ -1,6 +1,7 @@
--- ETSI TS 129 171 V16.2.0 (2020-12)
 --
+-- 3GPP TS 29.171 v17.2.0 (2022-12-15)
 -- 7.5.4	PDU definitions
+
 -- ************************************************************** 
 -- 
 -- PDU definitions for LCS-AP. 
@@ -53,7 +54,9 @@ IMPORTS
 	Return-Error-Type,
 	Return-Error-Cause,
 	UE-Positioning-Capability,
-	Velocity-Estimate
+	Velocity-Estimate,
+	UE-Country-Determination-Indication,
+	UE-Area-Indication
 FROM LCS-AP-IEs
 
 	ProtocolExtensionContainer{},
@@ -92,7 +95,9 @@ FROM LCS-AP-Containers
 	id-Return-Error-Cause,
 	id-Source-Identity,
 	id-UE-Positioning-Capability,
-	id-Velocity-Estimate
+	id-Velocity-Estimate,
+	id-UE-Country-Determination-Indication,
+	id-UE-Area-Indication
 FROM LCS-AP-Constants;
 
 
@@ -126,7 +131,8 @@ Location-Request-IEs LCS-AP-PROTOCOL-IES ::= {
 }
 
 Location-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-LCS-Service-Type-ID	CRITICALITY ignore	EXTENSION LCS-Service-Type-ID	PRESENCE optional  },
+	{ ID id-LCS-Service-Type-ID	CRITICALITY ignore	EXTENSION LCS-Service-Type-ID	PRESENCE optional  } |
+	{ ID id-UE-Country-Determination-Indication	CRITICALITY ignore	TYPE UE-Country-Determination-Indication	PRESENCE optional},
 	...
 }
 
@@ -158,7 +164,8 @@ Location-Response-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 { ID id-E-UTRAN-Cell-Identifier	CRITICALITY ignore	EXTENSION E-CGI	PRESENCE optional  } |
 { ID id-Cell-Portion-ID		CRITICALITY ignore	EXTENSION Cell-Portion-ID	PRESENCE optional  } |
 { ID id-Civic-Address		CRITICALITY ignore	EXTENSION Civic-Address	PRESENCE optional  } |
-{ ID id-Barometric-Pressure		CRITICALITY ignore	EXTENSION Barometric-Pressure	PRESENCE optional  },
+{ ID id-Barometric-Pressure		CRITICALITY ignore	EXTENSION Barometric-Pressure	PRESENCE optional  } |
+{ ID id-UE-Area-Indication		CRITICALITY ignore	EXTENSION UE-Area-Indication	PRESENCE optional  },
 	...
 }
 
