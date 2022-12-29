@@ -310,7 +310,7 @@ class case_field_reference(unittest.TestCase):
         checkDFilterCountWithSelectedFrame(dfilter, 1, 1)
 
 @fixtures.uses_fixtures
-class case_field_reference(unittest.TestCase):
+class case_layer(unittest.TestCase):
     trace_file = "ipoipoip.pcap"
 
     def test_layer_1(self, checkDFilterCount):
