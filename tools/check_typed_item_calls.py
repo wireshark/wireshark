@@ -306,8 +306,7 @@ class Item:
 
         global warnings_found
 
-        if check_mask or check_consecutive:
-            self.set_mask_value()
+        self.set_mask_value()
 
         if check_consecutive:
             if Item.previousItem and Item.previousItem.filter == filter:
@@ -621,8 +620,8 @@ add_bits_types = { 'FT_CHAR', 'FT_BOOLEAN',
                    'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32', 'FT_UINT40', 'FT_UINT48', 'FT_UINT56', 'FT_UINT64',
                    'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32', 'FT_INT40', 'FT_INT48', 'FT_INT56', 'FT_INT64',
                     'FT_BYTES'}
-#apiChecks.append(APICheck('proto_tree_add_bits_item',    add_bits_types))
-#apiChecks.append(APICheck('proto_tree_add_bits_ret_val', add_bits_types))
+apiChecks.append(APICheck('proto_tree_add_bits_item',    add_bits_types))
+apiChecks.append(APICheck('proto_tree_add_bits_ret_val', add_bits_types))
 
 
 # TODO: doesn't even have an hf_item !
