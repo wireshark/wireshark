@@ -185,7 +185,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
 	{ ETHERTYPE_TECMP,                "Technically Enhanced Capture Module Protocol (TECMP)" },
 	{ ETHERTYPE_6LOWPAN,              "6LoWPAN" },
-	{ ETHERTYPE_AVSP,                 "Arista Timestamp" },
+	{ ETHERTYPE_AVSP,                 "Arista Vendor Specific Protocol" },
 	{ ETHERTYPE_ECPRI,                "eCPRI" },
 	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
 	{ ETHERTYPE_EXEH,                 "EXos internal Extra Header" },

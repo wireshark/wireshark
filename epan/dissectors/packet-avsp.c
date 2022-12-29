@@ -1,8 +1,9 @@
 /* packet-avsp.c
  * Arista Vendor Specific ethertype Protocol (AVSP)
  *
- * Copyright (c) 2018 by Arista Networks
+ * Copyright (c) 2018-2022 by Arista Networks
  * Author: Nikhil AP <nikhilap@arista.com>
+ * Author: PMcL <peterm@arista.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -11,34 +12,49 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* Arista Vendor-Specific EtherType Protocol Identifier
- *
- * Arista applied for, and received the assignment of, a vendor-specific EtherType Protocol Identifier in May of 2016. Details below:
- *
- * Ethertype number is: D28B
- * Issue date is: May 12, 2016
- *
- * Arista Subtype 0x01 is Timestamp L2 Header
- *
- * The timestamp L2 header consist of the following fields:
- *
- * Arista EtherType (0xD28B)
- *     Two-byte protocol subtype of 0x1
- *     Two-byte protocol version: 0x10 for 64-bit timestamp and 0x20 for 48-bit timestamp
- *     UTC timestamp value in IEEE 1588 time of day format (either 64-bit or 48-bit) with the lower 32-bits representing nanoseconds and upper bits representing seconds.
- */
+ /* Arista Vendor-Specific EtherType Protocol Identifier
+  *
+  * Arista applied for, and received the assignment of, a vendor-specific EtherType Protocol Identifier in May of 2016. Details below:
+  *
+  * Ethertype number is: D28B
+  * Issue date is: May 12, 2016
+  *
+  * Arista Subtype 0x0001 is a Timestamp L2 Header
+  * Arista Subtype 0xCAFE is a TGen L2 header
+  *
+  * The timestamp L2 header consists of the following fields:
+  *
+  * Arista Vendor Specific Protocol EtherType (0xD28B)
+  *     Two-byte protocol subtype of 0x0001
+  *     Two-byte protocol version: 0x0010 for 64-bit timestamp and 0x0020 for 48-bit timestamp
+  *     UTC timestamp value in IEEE 1588 time of day format (either 64-bit or 48-bit) with the lower 32-bits representing nanoseconds and upper bits representing seconds.
+  *
+  * The TGen L2 header consists of the following fields:
+  *
+  * Arista Vendor Specific Protocol EtherType (0xD28B)
+  *     Two-byte protocol subtype of 0xCAFE
+  *     Two-byte protocol version: 0x0001
+  */
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 
-#define ARISTA_TIMESTAMP_SUBTYPE 0x01
+#include <wsutil/str_util.h>
 
-#define ARISTA_TIMESTAMP_64_TAI 0x10
-#define ARISTA_TIMESTAMP_64_UTC 0x110
-#define ARISTA_TIMESTAMP_48_TAI 0x20
-#define ARISTA_TIMESTAMP_48_UTC 0x120
+#include "packet-eth.h"
+
+#define ARISTA_SUBTYPE_TIMESTAMP 0x0001
+
+#define ARISTA_TIMESTAMP_64_TAI 0x0010
+#define ARISTA_TIMESTAMP_64_UTC 0x0110
+#define ARISTA_TIMESTAMP_48_TAI 0x0020
+#define ARISTA_TIMESTAMP_48_UTC 0x0120
+
+#define ARISTA_SUBTYPE_TGEN 0xCAFE
+#define ARISTA_TGEN_VER_1 0x0001
 
 void proto_reg_handoff_avsp(void);
 void proto_register_avsp(void);
@@ -49,9 +65,12 @@ static int proto_avsp = -1;
 static gint ett_avsp = -1;
 static gint ett_avsp_ts_48 = -1;
 static gint ett_avsp_ts_64 = -1;
+static gint ett_avsp_tgen_hdr = -1;
+static gint ett_avsp_tgen_hdr_ctrl = -1;
+static gint ett_avsp_tgen_payload = -1;
 
-/* avsp variables */
-static int hf_avsp_sub_type = -1;
+/* AVSP Timestamp subtype header fields */
+static int hf_avsp_subtype = -1;
 static int hf_avsp_ts_version = -1;
 static int hf_avsp_ts_64_tai = -1;
 static int hf_avsp_ts_64_utc = -1;
@@ -61,15 +80,51 @@ static int hf_avsp_ts_48_tai = -1;
 static int hf_avsp_ts_48_utc = -1;
 static int hf_avsp_ts_48_sec = -1;
 static int hf_avsp_ts_48_ns = -1;
+
 static int hf_avsp_etype = -1;
 static int hf_avsp_trailer = -1;
 
+/*
+  TGen subtype format
+   0.............7...............15..............23..............31
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |      Ethertype = 0xD28B       |   Protocol Subtype = 0xCAFE   |
+  +---------------+---------------+---------------+---------------+
+  |   Protocol Version = 0x0001   |      TGen Control Word        |
+  +---------------+---------------+---------------+---------------+
+  |     TGen Sequence Number      |      TGen Payload Length      |
+  +---------------+---------------+---------------+---------------+
+  |                        TGen Data Payload                      |
+  +---------------+---------------+---------------+---------------+
+  |                              ...                              |
+  +---------------+---------------+---------------+---------------+
+  |                        TGen Data Payload                      |
+  +---------------+---------------+---------------+---------------+
+*/
+
+/* AVSP TGen subtype header fields */
+static int hf_avsp_tgen_version = -1;
+static int hf_avsp_tgen_hdr = -1;
+static int hf_avsp_tgen_hdr_ctrl = -1;
+static int hf_avsp_tgen_hdr_ctrl_fcs_inverted = -1;
+static int hf_avsp_tgen_hdr_ctrl_reserved = -1;
+static int hf_avsp_tgen_hdr_seq_num = -1;
+static int hf_avsp_tgen_hdr_payload_len = -1;
+static int hf_avsp_tgen_payload = -1;
+static int hf_avsp_tgen_payload_data = -1;
+static int hf_avsp_tgen_trailer = -1;
+
+static int* const avsp_tgen_ctrl[] = {
+    &hf_avsp_tgen_hdr_ctrl_fcs_inverted,
+    &hf_avsp_tgen_hdr_ctrl_reserved,
+    NULL
+};
+
 static dissector_handle_t ethertype_handle;
 
-static expert_field ei_avsp_ts_unknown_version = EI_INIT;
-
-static const value_string arista_subtype[] = {
-    {ARISTA_TIMESTAMP_SUBTYPE, "timestamp"},
+static const value_string arista_subtypes[] = {
+    {ARISTA_SUBTYPE_TIMESTAMP, "timestamp"},
+    {ARISTA_SUBTYPE_TGEN, "TGen"},
     {0, NULL}
 };
 
@@ -81,44 +136,65 @@ static const value_string ts_versions[] = {
     {0, NULL}
 };
 
-static ei_register_info ei[] = {
-    { &ei_avsp_ts_unknown_version, { "avsp.ts.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown timestamp version", EXPFILL }},
+static const value_string tgen_versions[] = {
+    {ARISTA_TGEN_VER_1, "1"},
+    {0, NULL}
 };
 
+static expert_field ei_avsp_unknown_subtype = EI_INIT;
+static expert_field ei_avsp_ts_unknown_version = EI_INIT;
+static expert_field ei_avsp_tgen_unknown_version = EI_INIT;
+
 static int
-dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data _U_)
+dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     guint8 offset = 0;
-    int version, subtype;
+    guint32 version, subtype, tgen_payload_len = 0;
+    guint64 tgen_ctrl;
+    guint32 tgen_seq_num;
+    const char* str;
 
-    /* col_set_str() function is used to set the column string */
+    tvbuff_t* volatile tgen_payload_tvb = NULL;
+    tvbuff_t* volatile trailer_tvb = NULL;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    proto_item *ti = NULL;
-    proto_tree *avsp_tree = NULL, *avsp_48_tree = NULL, *avsp_64_tree;
+    proto_item* avsp_ti, * ti;
+    proto_tree* avsp_tree, * avsp_48_tree = NULL, * avsp_64_tree = NULL,
+        * avsp_tgen_hdr = NULL, * avsp_tgen_payload = NULL;
 
     /* Adding Items and Values to the Protocol Tree */
-    ti = proto_tree_add_item(tree, proto_avsp, tvb, 0, -1,
-            ENC_NA);
-    avsp_tree = proto_item_add_subtree(ti, ett_avsp);
+    avsp_ti = proto_tree_add_item(tree, proto_avsp, tvb, 0, -1,
+        ENC_NA);
+    avsp_tree = proto_item_add_subtree(avsp_ti, ett_avsp);
 
-    /* adding each item to avsp */
-    proto_tree_add_item_ret_uint(avsp_tree, hf_avsp_sub_type, tvb,
-            offset, 2, ENC_BIG_ENDIAN, &subtype);
+    /* add the subtype to avsp */
+    proto_tree_add_item_ret_uint(avsp_tree, hf_avsp_subtype, tvb,
+        offset, 2, ENC_BIG_ENDIAN, &subtype);
+    str = try_val_to_str(subtype, arista_subtypes);
+    if (str) {
+        proto_item_append_text(avsp_ti, ", Subtype: %s", str);
+    }
     offset += 2;
 
-    if (subtype == ARISTA_TIMESTAMP_SUBTYPE) {
+    /* Based on the subtype, add the version and further custom protocol fields */
+    switch (subtype) {
+    case ARISTA_SUBTYPE_TIMESTAMP:
         proto_tree_add_item_ret_uint(avsp_tree, hf_avsp_ts_version, tvb, offset,
-                2, ENC_BIG_ENDIAN, &version);
+            2, ENC_BIG_ENDIAN, &version);
+        str = try_val_to_str(version, ts_versions);
+        if (str) {
+            proto_item_append_text(avsp_ti, ", Version: %s", str);
+        }
         offset += 2;
 
         switch (version) {
         case ARISTA_TIMESTAMP_64_TAI:
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64_tai, tvb, 0, -1,
-                    ENC_NA);
+                ENC_NA);
             avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "64bit TAI timestamp");
+            col_add_str(pinfo->cinfo, COL_INFO, "64bit TAI timestamp");
             proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
                 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -128,9 +204,9 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
             break;
         case ARISTA_TIMESTAMP_64_UTC:
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64_utc, tvb, 0, -1,
-                    ENC_NA);
+                ENC_NA);
             avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "64bit UTC timestamp");
+            col_add_str(pinfo->cinfo, COL_INFO, "64bit UTC timestamp");
             proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
                 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -140,9 +216,9 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
             break;
         case ARISTA_TIMESTAMP_48_TAI:
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48_tai, tvb, 0, -1,
-                    ENC_NA);
+                ENC_NA);
             avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "48bit TAI timestamp");
+            col_add_str(pinfo->cinfo, COL_INFO, "48bit TAI timestamp");
             proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_sec, tvb, offset,
                 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -152,9 +228,9 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
             break;
         case ARISTA_TIMESTAMP_48_UTC:
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48_utc, tvb, 0, -1,
-                    ENC_NA);
+                ENC_NA);
             avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "48bit UTC timestamp");
+            col_add_str(pinfo->cinfo, COL_INFO, "48bit UTC timestamp");
             proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_sec, tvb, offset,
                 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -163,25 +239,127 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
             offset += 4;
             break;
         default:
-            expert_add_info_format(pinfo, ti, &ei_avsp_ts_unknown_version,
-                    "Unknown timestamp version: 0x%0x", version);
+            expert_add_info_format(pinfo, avsp_ti, &ei_avsp_ts_unknown_version,
+                "Unknown timestamp version: 0x%0x", version);
             return tvb_captured_length(tvb);
         }
+
+        guint16 encap_proto;
+        encap_proto = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(avsp_tree, hf_avsp_etype, tvb, offset, 2, encap_proto);
+        offset += 2;
+
+        ethertype_data_t ethertype_data;
+        ethertype_data.etype = encap_proto;
+        ethertype_data.payload_offset = offset;
+        ethertype_data.fh_tree = avsp_tree;
+        ethertype_data.trailer_id = hf_avsp_trailer;
+        ethertype_data.fcs_len = 0;
+
+        call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+        break;
+
+    case ARISTA_SUBTYPE_TGEN:
+        proto_tree_add_item_ret_uint(avsp_tree, hf_avsp_tgen_version, tvb,
+            offset, 2, ENC_BIG_ENDIAN, &version);
+        str = try_val_to_str(version, tgen_versions);
+        if (str) {
+            proto_item_append_text(avsp_ti, ", Version: %s", str);
+        }
+        offset += 2;
+
+        switch (version) {
+        case ARISTA_TGEN_VER_1:
+            col_add_str(pinfo->cinfo, COL_INFO, "Arista TGen Frame");
+
+            /* Get TGen Header Control Word. */
+            ti = proto_tree_add_item(avsp_tree, hf_avsp_tgen_hdr, tvb, offset, 6,
+                ENC_NA);
+            avsp_tgen_hdr = proto_item_add_subtree(ti, ett_avsp_tgen_hdr);
+            proto_tree_add_bitmask_ret_uint64(avsp_tgen_hdr, tvb, offset,
+                hf_avsp_tgen_hdr_ctrl, ett_avsp_tgen_hdr_ctrl, avsp_tgen_ctrl,
+                ENC_BIG_ENDIAN, &tgen_ctrl);
+            proto_item_append_text(ti, ", Control Word: 0x%04lx", tgen_ctrl);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Ctrl=0x%04lx", tgen_ctrl);
+            offset += 2;
+
+            /* Get TGen Header Sequence Number*/
+            proto_tree_add_item_ret_uint(avsp_tgen_hdr, hf_avsp_tgen_hdr_seq_num, tvb,
+                offset, 2, ENC_BIG_ENDIAN, &tgen_seq_num);
+            proto_item_append_text(ti, ", Sequence Number: %u", tgen_seq_num);
+            col_append_str_uint(pinfo->cinfo, COL_INFO, "Seq", tgen_seq_num, ", ");
+            offset += 2;
+
+            /* Get TGen Header Payload Length */
+            proto_tree_add_item_ret_uint(avsp_tgen_hdr,
+                hf_avsp_tgen_hdr_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN,
+                &tgen_payload_len);
+            proto_item_append_text(ti, ", Payload Length: %u", tgen_payload_len);
+            col_append_str_uint(pinfo->cinfo, COL_INFO, "Len", tgen_payload_len, ", ");
+            offset += 2;
+
+            /* Try to construct a tvbuff containing only
+                the data specified by the tgen_payload_len field. */
+
+            TRY {
+                tgen_payload_tvb = tvb_new_subset_length(tvb, offset, tgen_payload_len);
+                trailer_tvb = tvb_new_subset_remaining(tvb, offset + tgen_payload_len);
+            }
+                CATCH_BOUNDS_ERRORS {
+                /* Either:
+
+                    the packet doesn't have "tgen_payload_len" bytes worth of
+                    captured data left in it so the "tvb_new_subset_length()"
+                    creating "payload_tvb" threw an exception
+
+                    or
+
+                    the packet has exactly "tgen_payload_len" bytes worth of
+                    captured data left in it, so the "tvb_new_subset_remaining()"
+                    creating "trailer_tvb" threw an exception.
+
+                    In either case, this means that all the data in the frame
+                    is within the length value, so we give all the data to the
+                    payload and have no trailer. */
+                tgen_payload_tvb = tvb_new_subset_remaining(tvb, offset);
+                trailer_tvb = NULL;
+            }
+            ENDTRY;
+
+            /* Get the TGen payload captured length. */
+            guint16 tgen_payload_captured_len = tvb_captured_length(tgen_payload_tvb);
+
+            /* Add the TGen payload to the tree, with a heading that displays
+               the TGgen payload captured length. */
+            ti = proto_tree_add_bytes_format(avsp_tree, hf_avsp_tgen_payload_data,
+                tgen_payload_tvb, 0, -1, NULL, "TGen Payload (%u byte%s)",
+                tgen_payload_captured_len,
+                plurality(tgen_payload_captured_len, "", "s"));
+            avsp_tgen_payload = proto_item_add_subtree(ti, ett_avsp_tgen_payload);
+            proto_tree_add_item(avsp_tgen_payload, hf_avsp_tgen_payload_data, tgen_payload_tvb,
+                0, -1, ENC_NA);
+
+            /* Now we know the TGen payload captured length (which may be less than
+               that specified in the TGen header because the captured frame may have
+               been truncated) we can set the length of the entire AVSP protocol. */
+            proto_item_set_len(avsp_ti, offset + tgen_payload_captured_len);
+
+            /* If there is a trailer, then add it to the tree. */
+            add_ethernet_trailer(pinfo, tree, avsp_tree, hf_avsp_tgen_trailer, tvb, trailer_tvb, -1);
+            break;
+
+        default:
+            expert_add_info_format(pinfo, avsp_ti, &ei_avsp_tgen_unknown_version,
+                "Unknown version: 0x%0x", version);
+            return tvb_captured_length(tvb);
+        }
+        break;
+
+    default:
+        expert_add_info_format(pinfo, avsp_ti, &ei_avsp_unknown_subtype,
+            "Unknown subtype: 0x%0x", subtype);
+        return tvb_captured_length(tvb);
     }
-
-    guint16 encap_proto;
-    encap_proto = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(avsp_tree, hf_avsp_etype, tvb, offset, 2, encap_proto);
-    offset += 2;
-
-    ethertype_data_t ethertype_data;
-    ethertype_data.etype = encap_proto;
-    ethertype_data.payload_offset = offset;
-    ethertype_data.fh_tree = avsp_tree;
-    ethertype_data.trailer_id = hf_avsp_trailer;
-    ethertype_data.fcs_len = 0;
-
-    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     return tvb_captured_length(tvb);
 }
 
@@ -202,62 +380,62 @@ void proto_register_avsp(void)
     /* Field Registration */
     static hf_register_info hf[] = {
         /* For avsp */
-        {&hf_avsp_sub_type,
-            {"Sub Type", "avsp.sub_type",
-                FT_UINT16, BASE_DEC,
-                VALS(arista_subtype), 0x0,
+        {&hf_avsp_subtype,
+            {"Subtype", "avsp.subtype",
+                FT_UINT16, BASE_HEX,
+                VALS(arista_subtypes), 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_version,
-            {"Version", "avsp.ver",
+            {"Version", "avsp.ts.ver",
                 FT_UINT16, BASE_HEX,
                 VALS(ts_versions), 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_64_tai,
-            {"Timestamp (TAI)", "avsp.64ts",
+            {"Timestamp (TAI)", "avsp.ts.64.tai",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_64_utc,
-            {"Timestamp (UTC)", "avsp.64ts",
+            {"Timestamp (UTC)", "avsp.ts.64.utc",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_64_sec,
-            {"Seconds", "avsp.64sec",
+            {"Seconds", "avsp.ts.64.sec",
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_64_ns,
-            {"Nanoseconds", "avsp.64ns",
+            {"Nanoseconds", "avsp.ts.64.ns",
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_48_tai,
-            {"Timestamp (TAI)", "avsp.48ts",
+            {"Timestamp (TAI)", "avsp.ts.48.tai",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_48_utc,
-            {"Timestamp (UTC)", "avsp.48ts",
+            {"Timestamp (UTC)", "avsp.ts.48.utc",
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_48_sec,
-            {"Seconds", "avsp.48sec",
+            {"Seconds", "avsp.ts.48.sec",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_avsp_ts_48_ns,
-            {"Nanoseconds", "avsp.48ns",
+            {"Nanoseconds", "avsp.ts.48.ns",
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
@@ -274,30 +452,95 @@ void proto_register_avsp(void)
                 NULL, 0x0,
                 "AVSP Trailer", HFILL}
         },
+        {&hf_avsp_tgen_version,
+            {"Version", "avsp.tgen.ver",
+                FT_UINT16, BASE_DEC,
+                VALS(tgen_versions), 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_tgen_hdr,
+            {"TGen Header", "avsp.tgen.hdr",
+                FT_NONE, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_tgen_hdr_ctrl,
+            {"Control Word", "avsp.tgen.hdr.ctrl",
+                FT_UINT16, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_tgen_hdr_ctrl_fcs_inverted,
+            {"FCS Inverted", "avsp.tgen.hdr.ctrl.fcs_inverted",
+                FT_BOOLEAN, 8,
+                TFS(&tfs_true_false), 0x01,
+                NULL, HFILL}
+        },
+        {&hf_avsp_tgen_hdr_ctrl_reserved,
+            {"Reserved", "avsp.tgen.hdr.ctrl.reserved",
+                FT_UINT16, BASE_HEX,
+                NULL, 0xFFFE,
+                NULL, HFILL}
+        },
+        {&hf_avsp_tgen_hdr_seq_num,
+            {"Sequence Number", "avsp.tgen.hdr.seq_num",
+                FT_UINT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_tgen_hdr_payload_len,
+            {"Payload Length", "avsp.tgen.hdr.payload_len",
+                FT_UINT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        { &hf_avsp_tgen_payload,
+            {"TGen Payload", "avsp.tgen.payload",
+                FT_NONE, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        { &hf_avsp_tgen_payload_data,
+            {"Data", "avsp.tgen.payload.data",
+                FT_BYTES, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        { &hf_avsp_tgen_trailer,
+            {"Trailer", "avsp.tgen.trailer",
+                FT_BYTES, BASE_NONE,
+                NULL, 0x0,
+                "Ethernet Trailer or Checksum", HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
-        &ett_avsp,    /* main avsp tree */
-        &ett_avsp_ts_48, /* subtree above for 48 bit timestamp */
-        &ett_avsp_ts_64, /* subtree above for 64 bit timestamp */
+    static gint* ett[] = {
+        &ett_avsp,               /* main avsp tree */
+        &ett_avsp_ts_48,         /* subtree above for 48 bit timestamp */
+        &ett_avsp_ts_64,         /* subtree above for 64 bit timestamp */
+        &ett_avsp_tgen_hdr,      /* subtree for TGen header */
+        &ett_avsp_tgen_hdr_ctrl, /* subtree for TGen header control bits */
+        &ett_avsp_tgen_payload,  /* subtree for TGen payload */
     };
 
-    /* registering the avsp protocol with 3 names */
-    proto_avsp = proto_register_protocol("Arista Vendor Specific Protocol",
-            "avsp",
-            "avsp"
-            );
+    static ei_register_info ei[] = {
+        { &ei_avsp_unknown_subtype, { "avsp.unknown_subtype", PI_SEQUENCE, PI_WARN, "Unknown AVSP subtype", EXPFILL}},
+        { &ei_avsp_ts_unknown_version, { "avsp.ts.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown timestamp version", EXPFILL }},
+        { &ei_avsp_tgen_unknown_version, { "avsp.tgen.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown TGen version", EXPFILL }},
+    };
+
+    /* Register the AVSP protocol. */
+    proto_avsp = proto_register_protocol("Arista Vendor Specific Protocol", "AVSP", "avsp");
 
     /* Register header fields and subtrees. */
     proto_register_field_array(proto_avsp, hf, array_length(hf));
 
-    /*  To register subtree types, pass an array of pointers */
+    /*  Register subtree types. */
     proto_register_subtree_array(ett, array_length(ett));
 
-    expert_register_field_array(expert_register_protocol(proto_avsp),
-            ei, array_length(ei));
-
+    /* Register the expert module. */
+    expert_register_field_array(expert_register_protocol(proto_avsp), ei, array_length(ei));
 }
 
 /*
