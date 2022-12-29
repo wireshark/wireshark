@@ -386,6 +386,8 @@ static int hf_diameter_3gpp_core_network_restrictions_spare_bits = -1;
 static int hf_diameter_3gpp_core_network_restrictions_bit1 = -1;
 static int hf_diameter_3gpp_core_network_restrictions_bit0 = -1;
 static int hf_diameter_3gpp_supported_gad_shapes = -1;
+static int hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10 = -1;
+static int hf_diameter_3gpp_highaccuracyellipsoidpointwithscalableuncertaintyellipse_bit9 = -1;
 static int hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8 = -1;
 static int hf_diameter_3gpp_highaccuracyellipsoidpointwithuncertaintyellipse_bit7 = -1;
 static int hf_diameter_3gpp_ellipsoidarc_bit6 = -1;
@@ -2483,6 +2485,8 @@ static int
 dissect_diameter_3gpp_supported_gad_shapes(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data)
 {
     static int* const flags[] = {
+        &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10,
+        &hf_diameter_3gpp_highaccuracyellipsoidpointwithscalableuncertaintyellipse_bit9,
         &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8,
         &hf_diameter_3gpp_highaccuracyellipsoidpointwithuncertaintyellipse_bit7,
         &hf_diameter_3gpp_ellipsoidarc_bit6,
@@ -5439,6 +5443,16 @@ proto_register_diameter_3gpp(void)
           NULL, HFILL }
         },
 
+        { &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10,
+        { "highAccuracyEllipsoidPointWithScalableUncertaintyEllipse", "diameter.3gpp.highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000400,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_highaccuracyellipsoidpointwithscalableuncertaintyellipse_bit9,
+        { "highAccuracyEllipsoidPointWithScalableUncertaintyEllipse", "diameter.3gpp.highaccuracyellipsoidpointwithscalableuncertaintyellipse_bit9",
+          FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000200,
+          NULL, HFILL }
+        },
         { &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8,
         { "highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid", "diameter.3gpp.highaccuracyellipsoidpointwithaltitudeanduncertaintyellipsoid_bit8",
           FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000100,
