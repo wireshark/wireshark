@@ -2372,7 +2372,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
     /*
      * try to uncompress as if it were DEFLATEd.  With negotiated
      * CPIs, we don't know the algorithm beforehand; if we get it
-     * wrong, tvb_uncompress() returns NULL and nothing is displayed.
+     * wrong, tvb_child_uncompress() returns NULL and nothing is displayed.
      */
     decomp = tvb_child_uncompress(data, data, 0, tvb_captured_length(data));
     if (decomp) {
