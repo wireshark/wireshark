@@ -95,13 +95,11 @@ static int hf_woww_agility = -1;
 static int hf_woww_ai_reaction = -1;
 static int hf_woww_allow_movement = -1;
 static int hf_woww_allowed_class = -1;
-static int hf_woww_allowed_classes = -1;
 static int hf_woww_allowed_genders = -1;
 static int hf_woww_allowed_guild_id = -1;
 static int hf_woww_allowed_maximum_level = -1;
 static int hf_woww_allowed_minimum_level = -1;
 static int hf_woww_allowed_race = -1;
-static int hf_woww_allowed_races = -1;
 static int hf_woww_ammo_display_id = -1;
 static int hf_woww_ammo_inventory_type = -1;
 static int hf_woww_ammo_type = -1;
@@ -6359,36 +6357,36 @@ typedef enum {
     ITEM_CLASS_CONSUMABLE = 0x0,
     ITEM_CLASS_CONTAINER = 0x1,
     ITEM_CLASS_WEAPON = 0x2,
-    ITEM_CLASS_RESERVED_1 = 0x3,
+    ITEM_CLASS_GEM = 0x3,
     ITEM_CLASS_ARMOR = 0x4,
     ITEM_CLASS_REAGENT = 0x5,
     ITEM_CLASS_PROJECTILE = 0x6,
     ITEM_CLASS_TRADE_GOODS = 0x7,
-    ITEM_CLASS_RESERVED_2 = 0x8,
+    ITEM_CLASS_GENERIC = 0x8,
     ITEM_CLASS_RECIPE = 0x9,
-    ITEM_CLASS_RESERVED_3 = 0xA,
+    ITEM_CLASS_MONEY = 0xA,
     ITEM_CLASS_QUIVER = 0xB,
     ITEM_CLASS_QUEST = 0xC,
     ITEM_CLASS_KEY = 0xD,
-    ITEM_CLASS_RESERVED_4 = 0xE,
+    ITEM_CLASS_PERMANENT = 0xE,
     ITEM_CLASS_MISC = 0xF,
 } e_item_class;
 static const value_string e_item_class_strings[] =  {
     { ITEM_CLASS_CONSUMABLE, "Consumable" },
     { ITEM_CLASS_CONTAINER, "Container" },
     { ITEM_CLASS_WEAPON, "Weapon" },
-    { ITEM_CLASS_RESERVED_1, "Reserved 1" },
+    { ITEM_CLASS_GEM, "Gem" },
     { ITEM_CLASS_ARMOR, "Armor" },
     { ITEM_CLASS_REAGENT, "Reagent" },
     { ITEM_CLASS_PROJECTILE, "Projectile" },
     { ITEM_CLASS_TRADE_GOODS, "Trade Goods" },
-    { ITEM_CLASS_RESERVED_2, "Reserved 2" },
+    { ITEM_CLASS_GENERIC, "Generic" },
     { ITEM_CLASS_RECIPE, "Recipe" },
-    { ITEM_CLASS_RESERVED_3, "Reserved 3" },
+    { ITEM_CLASS_MONEY, "Money" },
     { ITEM_CLASS_QUIVER, "Quiver" },
     { ITEM_CLASS_QUEST, "Quest" },
     { ITEM_CLASS_KEY, "Key" },
-    { ITEM_CLASS_RESERVED_4, "Reserved 4" },
+    { ITEM_CLASS_PERMANENT, "Permanent" },
     { ITEM_CLASS_MISC, "Misc" },
     { 0, NULL }
 };
@@ -7388,6 +7386,32 @@ typedef enum {
     CHANNEL_FLAGS_LFG = 0x40,
     CHANNEL_FLAGS_VOICE = 0x80,
 } e_channel_flags;
+
+typedef enum {
+    ALLOWED_CLASS_ALL = 0x000,
+    ALLOWED_CLASS_WARRIOR = 0x001,
+    ALLOWED_CLASS_PALADIN = 0x002,
+    ALLOWED_CLASS_HUNTER = 0x004,
+    ALLOWED_CLASS_ROGUE = 0x008,
+    ALLOWED_CLASS_PRIEST = 0x010,
+    ALLOWED_CLASS_SHAMAN = 0x040,
+    ALLOWED_CLASS_MAGE = 0x080,
+    ALLOWED_CLASS_WARLOCK = 0x100,
+    ALLOWED_CLASS_DRUID = 0x400,
+} e_allowed_class;
+
+typedef enum {
+    ALLOWED_RACE_ALL = 0x000,
+    ALLOWED_RACE_HUMAN = 0x001,
+    ALLOWED_RACE_ORC = 0x002,
+    ALLOWED_RACE_DWARF = 0x004,
+    ALLOWED_RACE_NIGHT_ELF = 0x008,
+    ALLOWED_RACE_UNDEAD = 0x010,
+    ALLOWED_RACE_TAUREN = 0x020,
+    ALLOWED_RACE_GNOME = 0x040,
+    ALLOWED_RACE_TROLL = 0x080,
+    ALLOWED_RACE_GOBLIN = 0x100,
+} e_allowed_race;
 
 typedef enum {
     GROUP_UPDATE_FLAGS_NONE = 0x00000000,
@@ -14475,8 +14499,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_deadline, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_issue_date, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_guild_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_allowed_classes, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_allowed_races, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_allowed_class, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_allowed_race, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_genders, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_minimum_level, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_maximum_level, 4, ENC_LITTLE_ENDIAN);
@@ -15953,12 +15977,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_allowed_classes,
-            { "Allowed Classes", "woww.allowed.classes",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_allowed_genders,
             { "Allowed Genders", "woww.allowed.genders",
                 FT_UINT16, BASE_HEX_DEC, NULL, 0,
@@ -15985,12 +16003,6 @@ proto_register_woww(void)
         },
         { &hf_woww_allowed_race,
             { "Allowed Race", "woww.allowed.race",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_allowed_races,
-            { "Allowed Races", "woww.allowed.races",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
