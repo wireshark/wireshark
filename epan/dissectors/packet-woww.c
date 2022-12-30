@@ -6392,6 +6392,24 @@ static const value_string e_item_class_strings[] =  {
 };
 
 typedef enum {
+    BONDING_NO_BIND = 0x0,
+    BONDING_PICK_UP = 0x1,
+    BONDING_EQUIP = 0x2,
+    BONDING_USE = 0x3,
+    BONDING_QUEST_ITEM = 0x4,
+    BONDING_QUEST_ITEM1 = 0x5,
+} e_bonding;
+static const value_string e_bonding_strings[] =  {
+    { BONDING_NO_BIND, "No Bind" },
+    { BONDING_PICK_UP, "Pick Up" },
+    { BONDING_EQUIP, "Equip" },
+    { BONDING_USE, "Use" },
+    { BONDING_QUEST_ITEM, "Quest Item" },
+    { BONDING_QUEST_ITEM1, "Quest Item1" },
+    { 0, NULL }
+};
+
+typedef enum {
     LOGOUT_RESULT_SUCCESS = 0x0,
     LOGOUT_RESULT_FAILURE_IN_COMBAT = 0x1,
     LOGOUT_RESULT_FAILURE_FROZEN_BY_GM = 0x2,
@@ -16603,7 +16621,7 @@ proto_register_woww(void)
         },
         { &hf_woww_bonding,
             { "Bonding", "woww.bonding",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_bonding_strings), 0,
                 NULL, HFILL
             }
         },
