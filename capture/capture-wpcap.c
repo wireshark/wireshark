@@ -39,9 +39,6 @@ gboolean has_wpcap = FALSE;
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
 
-/* XXX - yes, I know, I should move cppmagic.h to a generic location. */
-#include "tools/lemon/cppmagic.h"
-
 #define MAX_WIN_IF_NAME_LEN 511
 
 static void    (*p_pcap_close) (pcap_t *);
@@ -120,7 +117,7 @@ typedef struct {
 	gboolean	optional;
 } symbol_table_t;
 
-#define SYM(x, y)	{ G_STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
+#define SYM(x, y)	{ G_STRINGIFY(x) , (gpointer) &G_PASTE(p_,x), y }
 
 void
 load_wpcap(void)

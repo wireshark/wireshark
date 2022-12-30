@@ -6,9 +6,11 @@
 sed -e 's/ \+$//' -i lemon.c lempar.c
 
 # Other patches
-for i in patches/*.patch; do
-    echo "Applying $i"
-    patch --silent -p1 -i "$i"
-done
+if [ -d "patches" ]; then
+    for i in patches/*.patch; do
+        echo "Applying $i"
+        patch --silent -p1 -i "$i"
+    done
+fi
 
 echo DONE

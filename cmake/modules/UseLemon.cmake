@@ -25,5 +25,12 @@ MACRO(ADD_LEMON_FILES _source _generated)
 
       LIST(APPEND ${_source} ${_in})
       LIST(APPEND ${_generated} ${_out}.c)
-   ENDFOREACH (_current_FILE)
+      if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+        set_source_files_properties(${_out}.c PROPERTIES COMPILE_OPTIONS "/w")
+      elseif(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        set_source_files_properties(${_out}.c PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter")
+      else()
+        # Build with some warnings for lemon generated code
+      endif()
+    ENDFOREACH (_current_FILE)
 ENDMACRO(ADD_LEMON_FILES)

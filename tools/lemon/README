@@ -7,11 +7,11 @@ Git mirror of the upstream Fossil repository: https://github.com/mackyle/sqlite
 The lempar.c and lemon.c are taken from sqlite and are modified as little as
 possible to make it easier to synchronize changes. Last updated at:
 
-    commit 273ee151217b04c640c1af148e36c518678c89fa
-    Author: mistachkin <mistachkin@noemail.net>
-    Date:   Mon Sep 21 20:18:44 2020 +0000
+    commit a913f942cf6b32b85de6428fd542b39458df2a88
+    Author: D. Richard Hipp <drh@hwaci.com>
+    Date:   Wed Dec 28 14:03:47 2022 +0000
 
-        Fix harmless compiler warning seen with MSVC.
+        Version 3.40.1
 
 To check for changes (adjust "previous commit" accordingly):
 
@@ -25,6 +25,13 @@ To create a Wireshark version (steps 1-3) and validate the result (steps 4-5):
 3. Update the commit in this README (to ensure the base is known).
 4. Check for CSA warnings:  clang-check -analyze lemon.c --
 5. Build and run lemon:     ninja epan/dfilter/grammar.c
+
+To keep the lemon source as pristine as possible from upstream all warnings
+when building lemon itself are disabled. Only patch the lemon source code as
+a last resort.
+
+Warnings for lemon generated code are few in practice with -Wall -Wextra. These
+are preferably selectively disabled in the Wireshark build.
 
 The patches to lemon to silence compiler warnings and static analysis reports
 (for edge cases that cannot occur) are not proposed upstream because that

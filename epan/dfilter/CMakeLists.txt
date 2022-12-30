@@ -101,9 +101,6 @@ CHECKAPI(
 	SWITCHES
 	SOURCES
 	  ${DFILTER_NONGENERATED_FILES}
-# LEX files commented out due to use of malloc, free etc.
-#	  ${LEX_FILES}
-	  ${LEMON_FILES}
 )
 
 #

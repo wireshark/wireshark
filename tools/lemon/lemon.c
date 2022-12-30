@@ -48,7 +48,7 @@ extern int access(const char *path, int mode);
 #define MAXRHS 1000
 #endif
 
-extern void memory_error(void);
+extern void memory_error();
 static int showPrecedenceConflict = 0;
 static char *msort(char*,char**,int(*)(const char*,const char*));
 
@@ -401,7 +401,7 @@ struct lemon {
   struct symbol *errsym;   /* The error symbol */
   struct symbol *wildcard; /* Token that matches anything */
   char *name;              /* Name of the generated parser */
-  char *arg;               /* Declaration of the 3th argument to parser */
+  char *arg;               /* Declaration of the 3rd argument to parser */
   char *ctx;               /* Declaration of 2nd argument to constructor */
   char *tokentype;         /* Type of terminal symbols in the parser stack */
   char *vartype;           /* The default type of non-terminal symbols */
@@ -430,6 +430,7 @@ struct lemon {
 };
 
 #define MemoryCheck(X) if((X)==0){ \
+  extern void memory_error(); \
   memory_error(); \
 }
 
@@ -694,13 +695,11 @@ int acttab_insert(acttab *p, int makeItSafe){
       fprintf(stderr,"malloc failed\n");
       exit(1);
     }
-    assert(oldAlloc < p->nActionAlloc);     /* hint for CSA */
     for(i=oldAlloc; i<p->nActionAlloc; i++){
       p->aAction[i].lookahead = -1;
       p->aAction[i].action = -1;
     }
   }
-  assert(p->aAction);  /* Hint for CSA (for p->aAction[i] below) */
 
   /* Scan the existing action table looking for an offset that is a
   ** duplicate of the current transaction set.  Fall out of the loop
@@ -918,8 +917,11 @@ void FindStates(struct lemon *lemp)
       lemp->errorcnt++;
       sp = lemp->startRule->lhs;
     }
-  }else{
+  }else if( lemp->startRule ){
     sp = lemp->startRule->lhs;
+  }else{
+    ErrorMsg(lemp->filename,0,"Internal error - no start rule\n");
+    exit(1);
   }
 
   /* Make sure the start symbol doesn't occur on the right-hand side of
@@ -994,13 +996,7 @@ PRIVATE struct state *getstate(struct lemon *lemp)
     stp->cfp = cfp;              /* Remember the configuration closure */
     stp->statenum = lemp->nstate++; /* Every state gets a sequence number */
     stp->ap = 0;                 /* No actions, yet. */
-#ifndef NDEBUG
-    int ret =
-#endif
     State_insert(stp,stp->bp);   /* Add to the state table */
-#ifndef NDEBUG
-    assert(ret == 1);  /* CSA hint: stp did not leak, it has escaped. */
-#endif
     buildshifts(lemp,stp);       /* Recursively compute successor states */
   }
   return stp;
@@ -1034,7 +1030,7 @@ PRIVATE void buildshifts(struct lemon *lemp, struct state *stp)
   struct symbol *bsp;  /* Symbol following the dot in configuration "bcfp" */
   struct state *newstp; /* A pointer to a successor state */
 
-  /* Each configuration becomes complete after it contibutes to a successor
+  /* Each configuration becomes complete after it contributes to a successor
   ** state.  Initially, all configurations are incomplete */
   for(cfp=stp->cfp; cfp; cfp=cfp->next) cfp->status = INCOMPLETE;
 
@@ -1090,8 +1086,7 @@ void FindLinks(struct lemon *lemp)
   ** which the link is attached. */
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
-    assert(stp);    /* Hint for CSA */
-    for(cfp=stp->cfp; cfp; cfp=cfp->next){
+    for(cfp=stp?stp->cfp:0; cfp; cfp=cfp->next){
       cfp->stp = stp;
     }
   }
@@ -1100,7 +1095,7 @@ void FindLinks(struct lemon *lemp)
   ** links are used in the follow-set computation. */
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
-    for(cfp=stp->cfp; cfp; cfp=cfp->next){
+    for(cfp=stp?stp->cfp:0; cfp; cfp=cfp->next){
       for(plp=cfp->bplp; plp; plp=plp->next){
         other = plp->cfp;
         Plink_add(&other->fplp,cfp);
@@ -1123,6 +1118,7 @@ void FindFollowSets(struct lemon *lemp)
   int change;
 
   for(i=0; i<lemp->nstate; i++){
+    assert( lemp->sorted[i]!=0 );
     for(cfp=lemp->sorted[i]->cfp; cfp; cfp=cfp->next){
       cfp->status = INCOMPLETE;
     }
@@ -1131,6 +1127,7 @@ void FindFollowSets(struct lemon *lemp)
   do{
     progress = 0;
     for(i=0; i<lemp->nstate; i++){
+      assert( lemp->sorted[i]!=0 );
       for(cfp=lemp->sorted[i]->cfp; cfp; cfp=cfp->next){
         if( cfp->status==COMPLETE ) continue;
         for(plp=cfp->fplp; plp; plp=plp->next){
@@ -1180,7 +1177,14 @@ void FindActions(struct lemon *lemp)
   /* Add the accepting token */
   if( lemp->start ){
     sp = Symbol_find(lemp->start);
-    if( sp==0 ) sp = lemp->startRule->lhs;
+    if( sp==0 ){
+      if( lemp->startRule==0 ){
+        fprintf(stderr, "internal error on source line %d: no start rule\n",
+                __LINE__);
+        exit(1);
+      }
+      sp = lemp->startRule->lhs;
+    }
   }else{
     sp = lemp->startRule->lhs;
   }
@@ -1307,21 +1311,7 @@ static struct config **basisend = 0;     /* End of list of basis configs */
 
 /* Return a pointer to a new configuration */
 PRIVATE struct config *newconfig(void){
-  struct config *newcfg;
-  if( freelist==0 ){
-    int i;
-    int amt = 3;
-    freelist = (struct config *)calloc( amt, sizeof(struct config) );
-    if( freelist==0 ){
-      fprintf(stderr,"Unable to allocate memory for a new configuration.");
-      exit(1);
-    }
-    for(i=0; i<amt-1; i++) freelist[i].next = &freelist[i+1];
-    freelist[amt-1].next = 0;
-  }
-  newcfg = freelist;
-  freelist = freelist->next;
-  return newcfg;
+  return (struct config*)calloc(1, sizeof(struct config));
 }
 
 /* The configuration "old" is no longer used */
@@ -1703,7 +1693,6 @@ int main(int argc, char **argv){
   /* Parse the input file */
   Parse(&lem);
   if( lem.printPreprocessed || lem.errorcnt ) exit(lem.errorcnt);
-  assert(lem.rule);  /* Hint for CSA (no errors => rule found). */
   if( lem.nrule==0 ){
     fprintf(stderr,"Empty grammar.\n");
     exit(1);
@@ -1896,7 +1885,7 @@ static char *merge(
 **
 ** Return Value:
 **   A pointer to the head of a sorted list containing the elements
-**   orginally in list.
+**   originally in list.
 **
 ** Side effects:
 **   The "next" pointers for elements in list are changed.
@@ -1941,8 +1930,12 @@ static FILE *errstream;
 static void errline(int n, int k, FILE *err)
 {
   int spcnt, i;
-  if( g_argv[0] ) fprintf(err,"%s",g_argv[0]);
-  spcnt = lemonStrlen(g_argv[0]) + 1;
+  if( g_argv[0] ){
+    fprintf(err,"%s",g_argv[0]);
+    spcnt = lemonStrlen(g_argv[0]) + 1;
+  }else{
+    spcnt = 0;
+  }
   for(i=1; i<n && g_argv[i]; i++){
     fprintf(err," %s",g_argv[i]);
     spcnt += lemonStrlen(g_argv[i])+1;
@@ -2717,7 +2710,7 @@ static void parseonetoken(struct pstate *psp)
       ** in order to control their assigned integer number.  The number for
       ** each token is assigned when it is first seen.  So by including
       **
-      **     %token ONE TWO THREE
+      **     %token ONE TWO THREE.
       **
       ** early in the grammar file, that assigns small consecutive values
       ** to each of the tokens ONE TWO and THREE.
@@ -3022,6 +3015,7 @@ void Parse(struct lemon *gp)
     }
     if( c=='/' && cp[1]=='*' ){          /* Skip C style comments */
       cp+=2;
+      if( (*cp)=='/' ) cp++;
       while( (c= *cp)!=0 && (c!='/' || cp[-1]!='*') ){
         if( c=='\n' ) lineno++;
         cp++;
@@ -3522,7 +3516,7 @@ void ReportOutput(struct lemon *lemp)
 }
 
 /* Search for the file "name" which is in the same directory as
-** the exacutable */
+** the executable */
 PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
 {
   const char *pathlist;
@@ -3547,7 +3541,6 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
     if( pathlist==0 ) pathlist = ".:/bin:/usr/bin";
     pathbuf = (char *) malloc( lemonStrlen(pathlist) + 1 );
     path = (char *)malloc( lemonStrlen(pathlist)+lemonStrlen(name)+2 );
-    MemoryCheck(pathbuf); MemoryCheck(path);  /* Fail on allocation failure. */
     if( (pathbuf != 0) && (path!=0) ){
       pathbufptr = pathbuf;
       lemon_strcpy(pathbuf, pathlist);
@@ -3581,7 +3574,9 @@ PRIVATE int compute_action(struct lemon *lemp, struct action *ap)
       /* Since a SHIFT is inherient after a prior REDUCE, convert any
       ** SHIFTREDUCE action with a nonterminal on the LHS into a simple
       ** REDUCE action: */
-      if( ap->sp->index>=lemp->nterminal ){
+      if( ap->sp->index>=lemp->nterminal
+       && (lemp->errsym==0 || ap->sp->index!=lemp->errsym->index)
+      ){
         act = lemp->minReduce + ap->x.rp->iRule;
       }else{
         act = lemp->minShiftReduce + ap->x.rp->iRule;
@@ -3878,7 +3873,7 @@ PRIVATE int translate_code(struct lemon *lemp, struct rule *rp){
     lhsdirect = 1;
   }else if( rp->rhsalias[0]==0 ){
     /* The left-most RHS symbol has no value.  LHS direct is ok.  But
-    ** we have to call the distructor on the RHS symbol first. */
+    ** we have to call the destructor on the RHS symbol first. */
     lhsdirect = 1;
     if( has_destructor(rp->rhs[0],lemp) ){
       append_str(0,0,0,0);
@@ -4296,7 +4291,6 @@ void ReportTable(
   int sqlFlag     /* Generate the *.sql file too */
 ){
   FILE *out, *in, *sql;
-  char line[LINESIZE];
   int  lineno;
   struct state *stp;
   struct action *ap;
@@ -4771,7 +4765,6 @@ void ReportTable(
   /* Generate a table containing the symbolic name of every symbol
   */
   for(i=0; i<lemp->nsymbol; i++){
-    lemon_sprintf(line,"\"%s\",",lemp->symbols[i]->name);
     fprintf(out,"  /* %4d */ \"%s\",\n",i, lemp->symbols[i]->name); lineno++;
   }
   tplt_xfer(lemp->name,in,out,&lineno);
@@ -4859,7 +4852,7 @@ void ReportTable(
   ** yyRuleInfoNRhs[].
   **
   ** Note: This code depends on the fact that rules are number
-  ** sequentually beginning with 0.
+  ** sequentially beginning with 0.
   */
   for(i=0, rp=lemp->rule; rp; rp=rp->next, i++){
     fprintf(out,"  %4d,  /* (%d) ", rp->lhs->index, i);
@@ -5347,8 +5340,9 @@ int Strsafe_insert(const char *data)
       newnp->from = &(array.ht[h]);
       array.ht[h] = newnp;
     }
-    free(x1a->tbl);
-    memcpy(x1a, &array, sizeof(array)); /* *x1a = array; */
+    /* free(x1a->tbl); // This program was originally for 16-bit machines.
+    ** Don't worry about freeing memory on modern platforms. */
+    *x1a = array;
   }
   /* Insert the new data */
   h = ph & (x1a->size-1);
@@ -5515,8 +5509,10 @@ int Symbol_insert(struct symbol *data, const char *key)
       newnp->from = &(array.ht[h]);
       array.ht[h] = newnp;
     }
-    free(x2a->tbl);
-    memcpy(x2a, &array, sizeof(array)); /* *x2a = array; */
+    /* free(x2a->tbl); // This program was originally written for 16-bit
+    ** machines.  Don't worry about freeing this trivial amount of memory
+    ** on modern platforms.  Just leak it. */
+    *x2a = array;
   }
   /* Insert the new data */
   h = ph & (x2a->size-1);
@@ -5713,7 +5709,7 @@ int State_insert(struct state *data, struct config *key)
       array.ht[h] = newnp;
     }
     free(x3a->tbl);
-    memcpy(x3a, &array, sizeof(array)); /* *x3a = array; */
+    *x3a = array;
   }
   /* Insert the new data */
   h = ph & (x3a->size-1);
@@ -5851,8 +5847,10 @@ int Configtable_insert(struct config *data)
       newnp->from = &(array.ht[h]);
       array.ht[h] = newnp;
     }
-    free(x4a->tbl);
-    memcpy(x4a, &array, sizeof(array)); /* *x4a = array; */
+    /* free(x4a->tbl); // This code was originall written for 16-bit machines.
+    ** on modern machines, don't worry about freeing this trival amount of
+    ** memory. */
+    *x4a = array;
   }
   /* Insert the new data */
   h = ph & (x4a->size-1);
