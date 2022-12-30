@@ -447,7 +447,6 @@ static int hf_woww_item_spell_charges = -1;
 static int hf_woww_item_stack_count = -1;
 static int hf_woww_item_stack_size = -1;
 static int hf_woww_item_stat_type = -1;
-static int hf_woww_item_stat_value = -1;
 static int hf_woww_item_sub_class_mask = -1;
 static int hf_woww_item_suffix_factor = -1;
 static int hf_woww_item_target = -1;
@@ -3910,6 +3909,26 @@ typedef enum {
 static const value_string e_guild_member_status_strings[] =  {
     { GUILD_MEMBER_STATUS_OFFLINE, "Offline" },
     { GUILD_MEMBER_STATUS_ONLINE, "Online" },
+    { 0, NULL }
+};
+
+typedef enum {
+    ITEM_STAT_TYPE_MANA = 0x0,
+    ITEM_STAT_TYPE_HEALTH = 0x1,
+    ITEM_STAT_TYPE_AGILITY = 0x3,
+    ITEM_STAT_TYPE_STRENGTH = 0x4,
+    ITEM_STAT_TYPE_INTELLECT = 0x5,
+    ITEM_STAT_TYPE_SPIRIT = 0x6,
+    ITEM_STAT_TYPE_STAMINA = 0x7,
+} e_item_stat_type;
+static const value_string e_item_stat_type_strings[] =  {
+    { ITEM_STAT_TYPE_MANA, "Mana" },
+    { ITEM_STAT_TYPE_HEALTH, "Health" },
+    { ITEM_STAT_TYPE_AGILITY, "Agility" },
+    { ITEM_STAT_TYPE_STRENGTH, "Strength" },
+    { ITEM_STAT_TYPE_INTELLECT, "Intellect" },
+    { ITEM_STAT_TYPE_SPIRIT, "Spirit" },
+    { ITEM_STAT_TYPE_STAMINA, "Stamina" },
     { 0, NULL }
 };
 
@@ -14127,7 +14146,7 @@ add_body_fields(guint32 opcode,
                 for (i = 0; i < 10; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ItemStat");
                     ptvcursor_add(ptv, hf_woww_item_stat_type, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_item_stat_value, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_value, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_pop_subtree(ptv);
                 }
                 for (i = 0; i < 5; ++i) {
@@ -18250,13 +18269,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_stat_type,
             { "Item Stat Type", "woww.item.stat.type",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_stat_value,
-            { "Item Stat Value", "woww.item.stat.value",
-                FT_INT32, BASE_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_item_stat_type_strings), 0,
                 NULL, HFILL
             }
         },
@@ -20638,7 +20651,7 @@ proto_register_woww(void)
         },
         { &hf_woww_value,
             { "Value", "woww.value",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_INT32, BASE_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
