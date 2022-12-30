@@ -31,6 +31,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_getopt.h>
 
 #include <wiretap/wtap.h>
 
@@ -45,14 +46,6 @@ static int debug_noisy = 0;
 static int debug_flex = 0;
 static int debug_lemon = 0;
 
-static GOptionEntry entries[] =
-{
-  { "debug", 'd', 0, G_OPTION_ARG_NONE, &debug_noisy, "Enable verbose debug logs", NULL },
-  { "debug-flex", 'f', 0, G_OPTION_ARG_NONE, &debug_flex, "Enable debugging for Flex", NULL },
-  { "debug-lemon", 'l', 0, G_OPTION_ARG_NONE, &debug_lemon, "Enable debugging for Lemon", NULL },
-  { NULL, 0, 0, G_OPTION_ARG_NONE, NULL, "", NULL }
-};
-
 static void
 putloc(FILE *fp, df_loc_t loc)
 {
@@ -65,6 +58,12 @@ putloc(FILE *fp, df_loc_t loc)
         fputc('~', fp);
     }
     fputc('\n', fp);
+}
+
+static void
+print_usage(void)
+{
+    fprintf(stderr, "Usage: dftest [OPTIONS] -- <EXPR>\n");
 }
 
 int
@@ -93,8 +92,7 @@ main(int argc, char **argv)
     gdouble elapsed_expand, elapsed_compile;
     gboolean ok;
     int exit_status = 0;
-    GError *error = NULL;
-    GOptionContext *context;
+    int opt;
 
     cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
@@ -116,12 +114,21 @@ main(int argc, char **argv)
     setlocale(LC_ALL, "");
 #endif
 
-    context = g_option_context_new("EXPR");
-    g_option_context_add_main_entries(context, entries, NULL);
-    if (!g_option_context_parse(context, &argc, &argv, &error)) {
-        printf("Error parsing arguments: %s\n", error->message);
-        g_error_free(error);
-        exit(1);
+    while ((opt = ws_getopt(argc, argv, "dfl")) != -1) {
+        switch (opt) {
+            case 'd':
+                debug_noisy = 1;
+                break;
+            case 'f':
+                debug_flex = 1;
+                break;
+            case 'l':
+                debug_lemon = 1;
+                break;
+            default: /* '?' */
+                print_usage();
+                exit(EXIT_FAILURE);
+        }
     }
 
     if (debug_noisy)
@@ -171,17 +178,22 @@ main(int argc, char **argv)
     prefs_apply_all();
 
     /* Check for filter on command line */
-    if (argc <= 1) {
-        char *help = g_option_context_get_help(context, TRUE, NULL);
-        fprintf(stderr, "%s", help);
-        g_free(help);
-        goto out;
+    if (argv[ws_optind] == NULL) {
+        print_usage();
+        exit(1);
     }
 
-    timer = g_timer_new();
+    /* This is useful to prevent confusion with option parsing.
+     * Skips printing options and argv[0]. */
+    for (int i = ws_optind; i < argc; i++) {
+        printf("argv[%d]: %s\n", i, argv[i]);
+    }
+    printf("\n");
 
     /* Get filter text */
-    text = get_args_as_string(argc, argv, 1);
+    text = get_args_as_string(argc, argv, ws_optind);
+
+    timer = g_timer_new();
 
     /* Expand macros. */
     g_timer_start(timer);
@@ -244,7 +256,6 @@ out:
         g_free(expanded_text);
     if (timer != NULL)
         g_timer_destroy(timer);
-    g_option_context_free(context);
     exit(exit_status);
 }
 

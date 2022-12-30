@@ -67,7 +67,7 @@ def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
 def checkDFilterFail(cmd_dftest, base_env):
     def checkDFilterFail_real(dfilter, error_message):
         """Run a display filter and expect dftest to fail."""
-        proc = subprocess.Popen([cmd_dftest, dfilter],
+        proc = subprocess.Popen([cmd_dftest, '--', dfilter],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 universal_newlines=True,
@@ -84,7 +84,7 @@ def checkDFilterFail(cmd_dftest, base_env):
 def checkDFilterSucceed(cmd_dftest, base_env):
     def checkDFilterSucceed_real(dfilter, expect_stdout=None):
         """Run a display filter and expect dftest to succeed."""
-        proc = subprocess.Popen([cmd_dftest, dfilter],
+        proc = subprocess.Popen([cmd_dftest, '--', dfilter],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 universal_newlines=True,
