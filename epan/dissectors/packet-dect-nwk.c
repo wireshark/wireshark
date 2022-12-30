@@ -2151,7 +2151,7 @@ static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, guint offset
 {
 	gboolean octet_group_extension;
 	guint octet_identifier, next_element_offset;
-	guint16 stored_display_characters;
+	guint16 stored_display_characters = 0;
 
 	static int* const slot_type_flags[] = {
 		&hf_dect_nwk_s_ie_terminal_capability_slot_type_double,
