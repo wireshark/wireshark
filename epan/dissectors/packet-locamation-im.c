@@ -504,7 +504,11 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 	/* Convert the timestamp seconds to a split time type */
 	time_t sample_time = (time_t)seconds;
 	struct tm sample_time_split;
+#ifdef _WIN32
+	gmtime_s(&sample_time_split, &sample_time);
+#else
 	gmtime_r(&sample_time, &sample_time_split);
+#endif
 
 	/* Construct the readable sync status */
 	const gchar *sync_status_buf = val_to_str(sync_status, samples_timestamps_sample_sync_status, "Unknown (%u)");
