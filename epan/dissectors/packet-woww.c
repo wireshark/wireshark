@@ -423,6 +423,7 @@ static int hf_woww_item = -1;
 static int hf_woww_item_bag_index = -1;
 static int hf_woww_item_charges = -1;
 static int hf_woww_item_class = -1;
+static int hf_woww_item_class_and_sub_class = -1;
 static int hf_woww_item_count = -1;
 static int hf_woww_item_creator = -1;
 static int hf_woww_item_display_id = -1;
@@ -447,7 +448,6 @@ static int hf_woww_item_stack_count = -1;
 static int hf_woww_item_stack_size = -1;
 static int hf_woww_item_stat_type = -1;
 static int hf_woww_item_stat_value = -1;
-static int hf_woww_item_sub_class = -1;
 static int hf_woww_item_sub_class_mask = -1;
 static int hf_woww_item_suffix_factor = -1;
 static int hf_woww_item_target = -1;
@@ -6354,40 +6354,150 @@ static const value_string e_new_item_chat_alert_strings[] =  {
 };
 
 typedef enum {
-    ITEM_CLASS_CONSUMABLE = 0x0,
-    ITEM_CLASS_CONTAINER = 0x1,
-    ITEM_CLASS_WEAPON = 0x2,
-    ITEM_CLASS_GEM = 0x3,
-    ITEM_CLASS_ARMOR = 0x4,
-    ITEM_CLASS_REAGENT = 0x5,
-    ITEM_CLASS_PROJECTILE = 0x6,
-    ITEM_CLASS_TRADE_GOODS = 0x7,
-    ITEM_CLASS_GENERIC = 0x8,
-    ITEM_CLASS_RECIPE = 0x9,
-    ITEM_CLASS_MONEY = 0xA,
-    ITEM_CLASS_QUIVER = 0xB,
-    ITEM_CLASS_QUEST = 0xC,
-    ITEM_CLASS_KEY = 0xD,
-    ITEM_CLASS_PERMANENT = 0xE,
-    ITEM_CLASS_MISC = 0xF,
-} e_item_class;
-static const value_string e_item_class_strings[] =  {
-    { ITEM_CLASS_CONSUMABLE, "Consumable" },
-    { ITEM_CLASS_CONTAINER, "Container" },
-    { ITEM_CLASS_WEAPON, "Weapon" },
-    { ITEM_CLASS_GEM, "Gem" },
-    { ITEM_CLASS_ARMOR, "Armor" },
-    { ITEM_CLASS_REAGENT, "Reagent" },
-    { ITEM_CLASS_PROJECTILE, "Projectile" },
-    { ITEM_CLASS_TRADE_GOODS, "Trade Goods" },
-    { ITEM_CLASS_GENERIC, "Generic" },
-    { ITEM_CLASS_RECIPE, "Recipe" },
-    { ITEM_CLASS_MONEY, "Money" },
-    { ITEM_CLASS_QUIVER, "Quiver" },
-    { ITEM_CLASS_QUEST, "Quest" },
-    { ITEM_CLASS_KEY, "Key" },
-    { ITEM_CLASS_PERMANENT, "Permanent" },
-    { ITEM_CLASS_MISC, "Misc" },
+    ITEM_CLASS_AND_SUB_CLASS_CONSUMABLE = 0x0000000000,
+    ITEM_CLASS_AND_SUB_CLASS_CHEESE_OR_BREAD_OBSOLETE = 0x0000000000,
+    ITEM_CLASS_AND_SUB_CLASS_LIQUID_OBSOLETE = 0x0000000000,
+    ITEM_CLASS_AND_SUB_CLASS_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_SOUL_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_HERB_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_AXE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_AXE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_BOW = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_GUN = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_MACE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_MACE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_POLEARM = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_SWORD = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_SWORD = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_OBSOLETE_WEAPON = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_STAFF = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_EXOTIC = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_EXOTIC = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_FIST_WEAPON = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_WEAPON = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_DAGGER = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_THROWN = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_SPEAR = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_CROSSBOW = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_WAND = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_FISHING_POLE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_JEWELRY_OBSOLETE = 0x0000000003,
+    ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_CLOTH_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_LEATHER_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_MAIL_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_PLATE_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_BUCKLER_OBSOLETE = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_SHIELD = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_LIBRAM = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_IDOL = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_TOTEM = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_REAGENT = 0x0000000005,
+    ITEM_CLASS_AND_SUB_CLASS_WAND_OBSOLETE = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_BOLT_OBSOLETE = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_ARROW = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_BULLET = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_THROWN_OBSOLETE = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_PART_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_EXPLOSIVE_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_DEVICE_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_GENERIC_OBSOLETE = 0x0000000008,
+    ITEM_CLASS_AND_SUB_CLASS_BOOK = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_LEATHERWORKING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_TAILORING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_BLACKSMITHING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_COOKING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_ALCHEMY_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_FIRST_AID_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_FISHING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_MONEY_OBSOLETE = 0x000000000A,
+    ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE1 = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_QUIVER = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_AMMO_POUCH = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_QUEST = 0x000000000C,
+    ITEM_CLASS_AND_SUB_CLASS_KEY = 0x000000000D,
+    ITEM_CLASS_AND_SUB_CLASS_LOCKPICK = 0x000000000D,
+    ITEM_CLASS_AND_SUB_CLASS_PERMANENT = 0x000000000E,
+    ITEM_CLASS_AND_SUB_CLASS_JUNK = 0x000000000F,
+} e_item_class_and_sub_class;
+static const value_string e_item_class_and_sub_class_strings[] =  {
+    { ITEM_CLASS_AND_SUB_CLASS_CONSUMABLE, "Consumable" },
+    { ITEM_CLASS_AND_SUB_CLASS_CHEESE_OR_BREAD_OBSOLETE, "Cheese Or Bread Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_LIQUID_OBSOLETE, "Liquid Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_BAG, "Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_SOUL_BAG, "Soul Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_HERB_BAG, "Herb Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_BAG, "Enchanting Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_BAG, "Engineering Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_AXE, "One Handed Axe" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_AXE, "Two Handed Axe" },
+    { ITEM_CLASS_AND_SUB_CLASS_BOW, "Bow" },
+    { ITEM_CLASS_AND_SUB_CLASS_GUN, "Gun" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_MACE, "One Handed Mace" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_MACE, "Two Handed Mace" },
+    { ITEM_CLASS_AND_SUB_CLASS_POLEARM, "Polearm" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_SWORD, "One Handed Sword" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_SWORD, "Two Handed Sword" },
+    { ITEM_CLASS_AND_SUB_CLASS_OBSOLETE_WEAPON, "Obsolete Weapon" },
+    { ITEM_CLASS_AND_SUB_CLASS_STAFF, "Staff" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_EXOTIC, "One Handed Exotic" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_EXOTIC, "Two Handed Exotic" },
+    { ITEM_CLASS_AND_SUB_CLASS_FIST_WEAPON, "Fist Weapon" },
+    { ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_WEAPON, "Miscellaneous Weapon" },
+    { ITEM_CLASS_AND_SUB_CLASS_DAGGER, "Dagger" },
+    { ITEM_CLASS_AND_SUB_CLASS_THROWN, "Thrown" },
+    { ITEM_CLASS_AND_SUB_CLASS_SPEAR, "Spear" },
+    { ITEM_CLASS_AND_SUB_CLASS_CROSSBOW, "Crossbow" },
+    { ITEM_CLASS_AND_SUB_CLASS_WAND, "Wand" },
+    { ITEM_CLASS_AND_SUB_CLASS_FISHING_POLE, "Fishing Pole" },
+    { ITEM_CLASS_AND_SUB_CLASS_JEWELRY_OBSOLETE, "Jewelry Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_ARMOR, "Miscellaneous Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_CLOTH_ARMOR, "Cloth Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_LEATHER_ARMOR, "Leather Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_MAIL_ARMOR, "Mail Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_PLATE_ARMOR, "Plate Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_BUCKLER_OBSOLETE, "Buckler Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_SHIELD, "Shield" },
+    { ITEM_CLASS_AND_SUB_CLASS_LIBRAM, "Libram" },
+    { ITEM_CLASS_AND_SUB_CLASS_IDOL, "Idol" },
+    { ITEM_CLASS_AND_SUB_CLASS_TOTEM, "Totem" },
+    { ITEM_CLASS_AND_SUB_CLASS_REAGENT, "Reagent" },
+    { ITEM_CLASS_AND_SUB_CLASS_WAND_OBSOLETE, "Wand Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_BOLT_OBSOLETE, "Bolt Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_ARROW, "Arrow" },
+    { ITEM_CLASS_AND_SUB_CLASS_BULLET, "Bullet" },
+    { ITEM_CLASS_AND_SUB_CLASS_THROWN_OBSOLETE, "Thrown Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_TRADE_GOOD, "Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_PART_TRADE_GOOD, "Part Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_EXPLOSIVE_TRADE_GOOD, "Explosive Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_DEVICE_TRADE_GOOD, "Device Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_GENERIC_OBSOLETE, "Generic Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_BOOK, "Book" },
+    { ITEM_CLASS_AND_SUB_CLASS_LEATHERWORKING_RECIPE, "Leatherworking Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_TAILORING_RECIPE, "Tailoring Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_RECIPE, "Engineering Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_BLACKSMITHING_RECIPE, "Blacksmithing Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_COOKING_RECIPE, "Cooking Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_ALCHEMY_RECIPE, "Alchemy Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_FIRST_AID_RECIPE, "First Aid Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_RECIPE, "Enchanting Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_FISHING_RECIPE, "Fishing Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_MONEY_OBSOLETE, "Money Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE, "Quiver Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE1, "Quiver Obsolete1" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUIVER, "Quiver" },
+    { ITEM_CLASS_AND_SUB_CLASS_AMMO_POUCH, "Ammo Pouch" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUEST, "Quest" },
+    { ITEM_CLASS_AND_SUB_CLASS_KEY, "Key" },
+    { ITEM_CLASS_AND_SUB_CLASS_LOCKPICK, "Lockpick" },
+    { ITEM_CLASS_AND_SUB_CLASS_PERMANENT, "Permanent" },
+    { ITEM_CLASS_AND_SUB_CLASS_JUNK, "Junk" },
     { 0, NULL }
 };
 
@@ -7120,6 +7230,44 @@ static const value_string e_server_message_type_strings[] =  {
     { SERVER_MESSAGE_TYPE_CUSTOM, "Custom" },
     { SERVER_MESSAGE_TYPE_SHUTDOWN_CANCELLED, "Shutdown Cancelled" },
     { SERVER_MESSAGE_TYPE_RESTART_CANCELLED, "Restart Cancelled" },
+    { 0, NULL }
+};
+
+typedef enum {
+    ITEM_CLASS_CONSUMABLE = 0x0,
+    ITEM_CLASS_CONTAINER = 0x1,
+    ITEM_CLASS_WEAPON = 0x2,
+    ITEM_CLASS_GEM = 0x3,
+    ITEM_CLASS_ARMOR = 0x4,
+    ITEM_CLASS_REAGENT = 0x5,
+    ITEM_CLASS_PROJECTILE = 0x6,
+    ITEM_CLASS_TRADE_GOODS = 0x7,
+    ITEM_CLASS_GENERIC = 0x8,
+    ITEM_CLASS_RECIPE = 0x9,
+    ITEM_CLASS_MONEY = 0xA,
+    ITEM_CLASS_QUIVER = 0xB,
+    ITEM_CLASS_QUEST = 0xC,
+    ITEM_CLASS_KEY = 0xD,
+    ITEM_CLASS_PERMANENT = 0xE,
+    ITEM_CLASS_MISC = 0xF,
+} e_item_class;
+static const value_string e_item_class_strings[] =  {
+    { ITEM_CLASS_CONSUMABLE, "Consumable" },
+    { ITEM_CLASS_CONTAINER, "Container" },
+    { ITEM_CLASS_WEAPON, "Weapon" },
+    { ITEM_CLASS_GEM, "Gem" },
+    { ITEM_CLASS_ARMOR, "Armor" },
+    { ITEM_CLASS_REAGENT, "Reagent" },
+    { ITEM_CLASS_PROJECTILE, "Projectile" },
+    { ITEM_CLASS_TRADE_GOODS, "Trade Goods" },
+    { ITEM_CLASS_GENERIC, "Generic" },
+    { ITEM_CLASS_RECIPE, "Recipe" },
+    { ITEM_CLASS_MONEY, "Money" },
+    { ITEM_CLASS_QUIVER, "Quiver" },
+    { ITEM_CLASS_QUEST, "Quest" },
+    { ITEM_CLASS_KEY, "Key" },
+    { ITEM_CLASS_PERMANENT, "Permanent" },
+    { ITEM_CLASS_MISC, "Misc" },
     { 0, NULL }
 };
 
@@ -13951,8 +14099,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             len = offset_packet_end - ptvcursor_current_offset(ptv);
             if (len > 0) {
-                ptvcursor_add(ptv, hf_woww_item_class, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_sub_class, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_class_and_sub_class, 8, ENC_LITTLE_ENDIAN);
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
@@ -17959,7 +18106,13 @@ proto_register_woww(void)
         },
         { &hf_woww_item_class,
             { "Item Class", "woww.item.class",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_item_class_strings), 0,
+                FT_UINT8, BASE_HEX_DEC, VALS(e_item_class_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_item_class_and_sub_class,
+            { "Item Class And Sub Class", "woww.item.class.and.sub.class",
+                FT_UINT64, BASE_HEX_DEC, VALS(e_item_class_and_sub_class_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18104,12 +18257,6 @@ proto_register_woww(void)
         { &hf_woww_item_stat_value,
             { "Item Stat Value", "woww.item.stat.value",
                 FT_INT32, BASE_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_sub_class,
-            { "Item Sub Class", "woww.item.sub.class",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
