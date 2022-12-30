@@ -734,7 +734,7 @@ static int hf_woww_spell_miss_info = -1;
 static int hf_woww_spell_on_lowest_slot = -1;
 static int hf_woww_spell_school = -1;
 static int hf_woww_spell_school_mask = -1;
-static int hf_woww_spell_trigger = -1;
+static int hf_woww_spell_trigger_type = -1;
 static int hf_woww_spell_visual_kit = -1;
 static int hf_woww_spells = -1;
 static int hf_woww_spirit = -1;
@@ -3908,6 +3908,18 @@ typedef enum {
 static const value_string e_guild_member_status_strings[] =  {
     { GUILD_MEMBER_STATUS_OFFLINE, "Offline" },
     { GUILD_MEMBER_STATUS_ONLINE, "Online" },
+    { 0, NULL }
+};
+
+typedef enum {
+    SPELL_TRIGGER_TYPE_ON_USE = 0x0,
+    SPELL_TRIGGER_TYPE_ON_EQUIP = 0x1,
+    SPELL_TRIGGER_TYPE_CHANCE_ON_HIT = 0x2,
+} e_spell_trigger_type;
+static const value_string e_spell_trigger_type_strings[] =  {
+    { SPELL_TRIGGER_TYPE_ON_USE, "On Use" },
+    { SPELL_TRIGGER_TYPE_ON_EQUIP, "On Equip" },
+    { SPELL_TRIGGER_TYPE_CHANCE_ON_HIT, "Chance On Hit" },
     { 0, NULL }
 };
 
@@ -14168,7 +14180,7 @@ add_body_fields(guint32 opcode,
                 for (i = 0; i < 5; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ItemSpells");
                     ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_spell_trigger, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_spell_trigger_type, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_charges, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_cooldown, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_category, 4, ENC_LITTLE_ENDIAN);
@@ -19994,9 +20006,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_spell_trigger,
-            { "Spell Trigger", "woww.spell.trigger",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_spell_trigger_type,
+            { "Spell Trigger Type", "woww.spell.trigger.type",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_spell_trigger_type_strings), 0,
                 NULL, HFILL
             }
         },
