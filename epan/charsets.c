@@ -85,9 +85,9 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
         } else {
             if (valid_bytes) {
                 wmem_strbuf_append_len(str, prev, valid_bytes);
-                prev = ptr;
                 valid_bytes = 0;
             }
+            prev = ptr;
             wmem_strbuf_append_unichar_repl(str);
         }
         length--;
