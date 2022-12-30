@@ -959,7 +959,7 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
     if (conv->options & NO_PORT2) {
         conversation_remove_from_hashtable(conversation_hashtable_no_addr2_or_port2, conv);
     } else {
-        conversation_remove_from_hashtable(conversation_hashtable_no_port2, conv);
+        conversation_remove_from_hashtable(conversation_hashtable_no_addr2, conv);
     }
 
     // Shift our endpoint and, if needed, our port element over and set our address.
