@@ -184,6 +184,7 @@ main(int argc, char **argv)
         }
         dfilter_error_free(df_err);
         exit_status = 2;
+        goto out;
     }
 
     if (df == NULL) {
