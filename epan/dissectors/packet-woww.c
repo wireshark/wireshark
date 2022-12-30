@@ -275,7 +275,6 @@ static int hf_woww_damage_float = -1;
 static int hf_woww_damage_maximum = -1;
 static int hf_woww_damage_minimum = -1;
 static int hf_woww_damage_state = -1;
-static int hf_woww_damage_type = -1;
 static int hf_woww_damage_uint = -1;
 static int hf_woww_data = -1;
 static int hf_woww_data_type = -1;
@@ -14153,7 +14152,7 @@ add_body_fields(guint32 opcode,
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ItemDamageType");
                     ptvcursor_add(ptv, hf_woww_damage_minimum, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_damage_maximum, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_damage_type, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_spell_school, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_pop_subtree(ptv);
                 }
                 ptvcursor_add(ptv, hf_woww_armor, 4, ENC_LITTLE_ENDIAN);
@@ -17237,12 +17236,6 @@ proto_register_woww(void)
         },
         { &hf_woww_damage_state,
             { "Damage State", "woww.damage.state",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_damage_type,
-            { "Damage Type", "woww.damage.type",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
