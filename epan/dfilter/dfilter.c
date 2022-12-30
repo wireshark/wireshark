@@ -121,14 +121,6 @@ dfilter_init(void)
 	/* Allocate an instance of our Lemon-based parser */
 	ParserObj = DfilterAlloc(g_malloc);
 
-/* Enable parser tracing by defining AM_CFLAGS
- * so that it contains "-DDFTRACE".
- */
-#ifdef DFTRACE
-	/* Trace parser */
-	DfilterTrace(stdout, "lemon> ");
-#endif
-
 	/* Initialize the syntax-tree sub-sub-system */
 	sttype_init();
 
@@ -432,6 +424,18 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	state.dfw = dfw;
 
 	df_set_extra(&state, scanner);
+
+	/* Enable/disable debugging for Flex. */
+	df_set_debug(flags & DF_DEBUG_FLEX, scanner);
+
+#ifndef NDEBUG
+	/* Enable/disable debugging for Lemon. */
+	DfilterTrace(flags & DF_DEBUG_LEMON ? stderr : NULL, "lemon> ");
+#else
+	if (flags & DF_DEBUG_LEMON) {
+		ws_message("Compile Wireshark without NDEBUG to enable Lemon debug traces");
+	}
+#endif
 
 	while (1) {
 		df_lval = stnode_new_empty(STTYPE_UNINITIALIZED);

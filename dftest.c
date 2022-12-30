@@ -41,6 +41,18 @@
 static void dftest_cmdarg_err(const char *fmt, va_list ap);
 static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 
+static int debug_noisy = 0;
+static int debug_flex = 0;
+static int debug_lemon = 0;
+
+static GOptionEntry entries[] =
+{
+  { "debug", 'd', 0, G_OPTION_ARG_NONE, &debug_noisy, "Enable verbose debug logs", NULL },
+  { "debug-flex", 'f', 0, G_OPTION_ARG_NONE, &debug_flex, "Enable debugging for Flex", NULL },
+  { "debug-lemon", 'l', 0, G_OPTION_ARG_NONE, &debug_lemon, "Enable debugging for Lemon", NULL },
+  { NULL, 0, 0, G_OPTION_ARG_NONE, NULL, "", NULL }
+};
+
 static void
 putloc(FILE *fp, df_loc_t loc)
 {
@@ -76,10 +88,13 @@ main(int argc, char **argv)
     dfilter_t   *df = NULL;
     gchar       *err_msg = NULL;
     df_error_t  *df_err = NULL;
+    unsigned     df_flags;
     GTimer      *timer = NULL;
     gdouble elapsed_expand, elapsed_compile;
     gboolean ok;
     int exit_status = 0;
+    GError *error = NULL;
+    GOptionContext *context;
 
     cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
@@ -90,6 +105,27 @@ main(int argc, char **argv)
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
     ws_noisy("Finished log init and parsing command line log arguments");
+
+    /*
+     * Set the C-language locale to the native environment and set the
+     * code page to UTF-8 on Windows.
+     */
+#ifdef _WIN32
+    setlocale(LC_ALL, ".UTF-8");
+#else
+    setlocale(LC_ALL, "");
+#endif
+
+    context = g_option_context_new("EXPR");
+    g_option_context_add_main_entries(context, entries, NULL);
+    if (!g_option_context_parse(context, &argc, &argv, &error)) {
+        printf("Error parsing arguments: %s\n", error->message);
+        g_error_free(error);
+        exit(1);
+    }
+
+    if (debug_noisy)
+        ws_log_set_noisy_filter("DFilter");
 
     /*
      * Get credential information for later use.
@@ -126,16 +162,6 @@ main(int argc, char **argv)
     if (!epan_init(NULL, NULL, FALSE))
         return 2;
 
-    /*
-     * Set the C-language locale to the native environment and set the
-     * code page to UTF-8 on Windows.
-     */
-#ifdef _WIN32
-    setlocale(LC_ALL, ".UTF-8");
-#else
-    setlocale(LC_ALL, "");
-#endif
-
     /* Load libwireshark settings from the current profile. */
     epan_load_settings();
 
@@ -146,8 +172,10 @@ main(int argc, char **argv)
 
     /* Check for filter on command line */
     if (argc <= 1) {
-        fprintf(stderr, "Usage: dftest <filter>\n");
-        exit(1);
+        char *help = g_option_context_get_help(context, TRUE, NULL);
+        fprintf(stderr, "%s", help);
+        g_free(help);
+        goto out;
     }
 
     timer = g_timer_new();
@@ -170,9 +198,13 @@ main(int argc, char **argv)
     printf("Filter: %s\n", expanded_text);
 
     /* Compile it */
+    df_flags = DF_SAVE_TREE;
+    if (debug_flex)
+        df_flags |= DF_DEBUG_FLEX;
+    if (debug_lemon)
+        df_flags |= DF_DEBUG_LEMON;
     g_timer_start(timer);
-    ok = dfilter_compile_real(expanded_text, &df, &df_err,
-                                DF_SAVE_TREE, "dftest");
+    ok = dfilter_compile_real(expanded_text, &df, &df_err, df_flags, "dftest");
     g_timer_stop(timer);
     elapsed_compile = g_timer_elapsed(timer, NULL);
     if (!ok) {
@@ -212,6 +244,7 @@ out:
         g_free(expanded_text);
     if (timer != NULL)
         g_timer_destroy(timer);
+    g_option_context_free(context);
     exit(exit_status);
 }
 

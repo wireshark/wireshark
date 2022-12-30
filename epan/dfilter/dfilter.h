@@ -73,6 +73,10 @@ dfilter_error_free(df_error_t *);
 #define DF_EXPAND_MACROS	(1U << 1)
 /* Do an optimization pass on the compiled filter. */
 #define DF_OPTIMIZE		(1U << 2)
+/* Enable debug trace for flex. */
+#define DF_DEBUG_FLEX		(1U << 3)
+/* Enable debug trace for lemon. */
+#define DF_DEBUG_LEMON		(1U << 4)
 
 WS_DLL_PUBLIC
 gboolean
