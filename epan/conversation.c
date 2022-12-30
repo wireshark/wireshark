@@ -825,7 +825,7 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
 	if (conv->options & NO_PORT2) {
 		conversation_remove_from_hashtable(conversation_hashtable_no_addr2_or_port2, conv);
 	} else {
-		conversation_remove_from_hashtable(conversation_hashtable_no_port2, conv);
+		conversation_remove_from_hashtable(conversation_hashtable_no_addr2, conv);
 	}
 	conv->options &= ~NO_ADDR2;
 	copy_address_wmem(wmem_file_scope(), &conv->key_ptr->addr2, addr);
