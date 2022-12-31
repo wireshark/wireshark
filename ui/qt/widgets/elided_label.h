@@ -35,6 +35,10 @@ signals:
 
 public slots:
     void clear();
+    /**
+     * @brief setText Set the label's plain text.
+     * @param text The text to set. HTML will be escaped.
+     */
     void setText(const QString &text);
 };
 

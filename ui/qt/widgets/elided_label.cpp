@@ -77,6 +77,6 @@ void ElidedLabel::clear()
 
 void ElidedLabel::setText(const QString &text)
 {
-    full_text_ = text;
+    full_text_ = text.toHtmlEscaped();
     updateText();
 }
