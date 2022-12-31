@@ -503,8 +503,7 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 
 	/* Convert the timestamp seconds to a split time type */
 	time_t sample_time = (time_t)seconds;
-	struct tm sample_time_split;
-	gmtime_r(&sample_time, &sample_time_split);
+	struct tm *sample_time_split = gmtime(&sample_time);
 
 	/* Construct the readable sync status */
 	const gchar *sync_status_buf = val_to_str(sync_status, samples_timestamps_sample_sync_status, "Unknown (%u)");
@@ -512,7 +511,7 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 	/* Construct the readable timestamp */
 	gchar timestamp_buf[ITEM_LABEL_LENGTH];
 	size_t timestamp_length = 0;
-	timestamp_length += strftime(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%Y-%m-%d %H:%M:%S.", &sample_time_split);
+	timestamp_length += strftime(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%Y-%m-%d %H:%M:%S.", sample_time_split);
 	timestamp_length += snprintf(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%09u TAI", nanoseconds);
 
 	/* Construct the readable sample text */
