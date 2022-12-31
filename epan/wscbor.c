@@ -239,7 +239,7 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint 
             }
             else {
                 // indefinite length, sequence of definite items
-                chunk->_priv->str_value = tvb_new_composite();
+                chunk->_priv->str_value = NULL;
 
                 while (TRUE) {
                     wscbor_head_t *head = wscbor_head_read(alloc, tvb, offset);
@@ -264,6 +264,9 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint 
                             *offset += datalen;
                             chunk->data_length += datalen;
                             if(datalen) {
+                                if (!chunk->_priv->str_value) {
+                                    chunk->_priv->str_value = tvb_new_composite ();
+                                }
                                 tvb_composite_append(
                                     chunk->_priv->str_value,
                                     tvb_new_subset_length(tvb, head->start + head->length, datalen)
@@ -282,7 +285,14 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint 
                         chunk->_priv->alloc, &ei_cbor_indef_string,
                         NULL
                 ));
-                tvb_composite_finalize(chunk->_priv->str_value);
+
+                if (chunk->_priv->str_value) {
+                    tvb_composite_finalize(chunk->_priv->str_value);
+                }
+                else {
+                    // Create an empty subset tvb. str_value is expected to be non-NULL for string types.
+                    chunk->_priv->str_value = tvb_new_subset_length (tvb, 0, 0);
+                }
             }
             break;
         default:
