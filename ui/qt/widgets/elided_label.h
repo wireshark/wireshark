@@ -17,7 +17,15 @@ class ElidedLabel : public QLabel
     Q_OBJECT
 public:
     explicit ElidedLabel(QWidget *parent = 0);
+    /**
+     * @brief setUrl Set the label's URL.
+     * @param url The URL to set.
+     */
     void setUrl(const QString &url);
+    /**
+     * @brief setSmallText Specifies a small or normal text size.
+     * @param small_text Show the text in a smaller font size if true, or a normal size otherwise.
+     */
     void setSmallText(bool small_text = true) { small_text_ = small_text; }
 
 protected:
@@ -34,6 +42,9 @@ private:
 signals:
 
 public slots:
+    /**
+     * @brief clear Clear the label.
+     */
     void clear();
     void setText(const QString &text);
 };
