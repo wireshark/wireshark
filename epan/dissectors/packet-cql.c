@@ -1267,11 +1267,17 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_value_count, tvb, offset, 2, ENC_BIG_ENDIAN, &value_count);
 					offset += 2;
 					for (k = 0; k < value_count; ++k) {
-						guint32 batch_bytes_length = 0;
+						gint32 batch_bytes_length = 0;
 						proto_tree_add_item_ret_int(cql_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &batch_bytes_length);
 						offset += 4;
-						proto_tree_add_item(cql_subtree, hf_cql_bytes, tvb, offset, batch_bytes_length, ENC_NA);
-						offset += batch_bytes_length;
+						if (batch_bytes_length > 0) {
+							proto_tree_add_item(cql_subtree, hf_cql_bytes, tvb, offset, batch_bytes_length, ENC_NA);
+							offset += batch_bytes_length;
+						}
+						/* TODO - handle both -1 and -2 batch_bytes_length values:
+						-1 no byte should follow and the value represented is `null`.
+						-2 no byte should follow and the value represented is `not set` not resulting in any change to the existing value.
+						< -2 is an invalid value and results in an error. */
 					}
 				}
 				/* consistency */
