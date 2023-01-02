@@ -413,20 +413,20 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		ws_noisy("Verbatim text: %s", dfw->expanded_text);
 	}
 
-	if (df_lex_init(&scanner) != 0) {
+	if (df_yylex_init(&scanner) != 0) {
 		dfw_error_set_msg(errpp, "Can't initialize scanner: %s", g_strerror(errno));
 		goto FAILURE;
 	}
 
-	in_buffer = df__scan_string(dfw->expanded_text, scanner);
+	in_buffer = df_yy_scan_string(dfw->expanded_text, scanner);
 
 	memset(&state, 0, sizeof(state));
 	state.dfw = dfw;
 
-	df_set_extra(&state, scanner);
+	df_yyset_extra(&state, scanner);
 
 	/* Enable/disable debugging for Flex. */
-	df_set_debug(flags & DF_DEBUG_FLEX, scanner);
+	df_yyset_debug(flags & DF_DEBUG_FLEX, scanner);
 
 #ifndef NDEBUG
 	/* Enable/disable debugging for Lemon. */
@@ -439,7 +439,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 	while (1) {
 		df_lval = stnode_new_empty(STTYPE_UNINITIALIZED);
-		token = df_lex(scanner);
+		token = df_yylex(scanner);
 
 		/* Check for scanner failure */
 		if (token == SCAN_FAILED) {
@@ -492,8 +492,8 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	/* Free scanner state */
 	if (state.quoted_string != NULL)
 		g_string_free(state.quoted_string, TRUE);
-	df__delete_buffer(in_buffer, scanner);
-	df_lex_destroy(scanner);
+	df_yy_delete_buffer(in_buffer, scanner);
+	df_yylex_destroy(scanner);
 
 	if (failure)
 		goto FAILURE;
