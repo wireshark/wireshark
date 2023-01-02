@@ -1301,7 +1301,7 @@ static const value_string dect_nwk_s_ie_fl_release_reason_val[] = {
 static const value_string dect_nwk_s_ie_fl_signal_value_val[] = {
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_DIAL_TONE_ON,               "Dial tone on" },
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_RINGBACK_TONE_ON,           "Ring-back tone on" },
-	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_INTERCEPT_TONE_ON,          "Intercep tone on " },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_INTERCEPT_TONE_ON,          "Intercept tone on " },
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_NETWORK_CONGESTION_TONE_ON, "Network congestion tone on" },
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_BUSY_TONE_ON,               "Busy tone on" },
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_CONFIRM_TONE_ON,            "Confirm tone on" },
@@ -1531,7 +1531,7 @@ static const value_string dect_nwk_arc_type_val[] = {
 
 /* Section 7.7.23 */
 static const value_string dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator_type_val[] = {
-	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_USER_SPECIFIC,     "User specifid" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_USER_SPECIFIC,     "User specific" },
 	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_OSI_HIGH_LAYER,    "OSI high layer protocols" },
 	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_X263,              "ITU-T X.263" },
 	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_LIST_ACCESS,       "List Access" },
