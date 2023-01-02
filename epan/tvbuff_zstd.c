@@ -37,7 +37,8 @@ tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const int offset, int comprlen)
     ZSTD_inBuffer input = {tvb_memdup(NULL, tvb, offset, comprlen), comprlen, 0};
     ZSTD_DStream *zds = ZSTD_createDStream();
     size_t rc = 0;
-    tvbuff_t *composite_tvb = NULL;
+    uint8_t *uncompr = NULL;
+    size_t uncompr_len = 0;
     bool ok = false;
     int count = 0;
 
@@ -52,20 +53,19 @@ tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const int offset, int comprlen)
             goto end;
         }
 
-        // Do not create a composite buffer if there is no output data.
-        // Empty buffers are ignored by tvb_composite_append().
-        // tvb_composite_finalize() throws if there are no non-empty members.
         if (output.pos > 0)
         {
-            if (!composite_tvb)
+            if (!uncompr)
             {
-                composite_tvb = tvb_new_composite();
+                DISSECTOR_ASSERT (uncompr_len == 0);
+                uncompr = g_malloc(output.pos);
+            } else {
+                uncompr = g_realloc(uncompr, uncompr_len + output.pos);
             }
-            tvbuff_t *output_tvb = tvb_new_real_data((guint8 *)output.dst, (guint)output.pos, (gint)output.pos);
-            tvb_set_free_cb(output_tvb, g_free);
-            tvb_composite_append(composite_tvb, output_tvb);
+            memcpy (uncompr + uncompr_len, output.dst, output.pos);
+            uncompr_len += output.pos;
             // Reset the output buffer.
-            output = (ZSTD_outBuffer){g_malloc(ZSTD_DStreamOutSize()), ZSTD_DStreamOutSize(), 0};
+            output.pos = 0;
         }
         count++;
         DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
@@ -80,19 +80,18 @@ tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const int offset, int comprlen)
 end:
     g_free((void *)output.dst);
     wmem_free(NULL, (void *)input.src);
-    if (composite_tvb)
-    {
-        tvb_composite_finalize(composite_tvb);
-    }
     ZSTD_freeDStream(zds);
     if (ok)
     {
-        return composite_tvb;
+        tvbuff_t *uncompr_tvb;
+        uncompr_tvb = tvb_new_real_data (uncompr, (guint)uncompr_len, (guint)uncompr_len);
+        tvb_set_free_cb (uncompr_tvb, g_free);
+        return uncompr_tvb;
     }
 
-    if (composite_tvb)
+    if (uncompr)
     {
-        tvb_free(composite_tvb);
+        g_free (uncompr);
     }
 
     return NULL;
