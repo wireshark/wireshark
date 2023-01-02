@@ -1444,7 +1444,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						if (result_rows_columns_count) {
 							for (j = 0; j < result_rows_row_count; ++j) {
 								columns_subtree = proto_tree_add_subtree(rows_subtree, tvb, offset, 0, ett_cql_result_columns, &ti, "Data (columns)");
-								proto_item_append_text(columns_subtree, " for row # %ld", j + 1);
+								proto_item_append_text(columns_subtree, " for row # %" PRId64, j + 1);
 
 								if (offset_row_metadata) {
 									offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count);
