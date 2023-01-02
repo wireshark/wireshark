@@ -438,7 +438,6 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 #endif
 
 	while (1) {
-		df_lval = stnode_new_empty(STTYPE_UNINITIALIZED);
 		token = df_yylex(scanner);
 
 		/* Check for scanner failure */
@@ -456,12 +455,12 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 		ws_noisy("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
-				stnode_token(df_lval));
+				stnode_token(state.df_lval));
 
 		/* Give the token to the parser */
-		Dfilter(ParserObj, token, df_lval, dfw);
+		Dfilter(ParserObj, token, state.df_lval, dfw);
 		/* The parser has freed the lval for us. */
-		df_lval = NULL;
+		state.df_lval = NULL;
 
 		if (dfw->parse_failure) {
 			failure = TRUE;
@@ -472,9 +471,9 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 	/* If we created a df_lval_t but didn't use it, free it; the
 	 * parser doesn't know about it and won't free it for us. */
-	if (df_lval) {
-		stnode_free(df_lval);
-		df_lval = NULL;
+	if (state.df_lval) {
+		stnode_free(state.df_lval);
+		state.df_lval = NULL;
 	}
 
 	/* Tell the parser that we have reached the end of input; that

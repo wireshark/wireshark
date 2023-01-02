@@ -75,8 +75,6 @@
  */
 DIAG_OFF_FLEX()
 
-stnode_t *df_lval;
-
 WS_WARN_UNUSED static int set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id);
 #define simple(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_UNINITIALIZED))
 #define test(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_TEST))
@@ -508,28 +506,28 @@ update_string_loc(df_scanner_state_t *state, const char *text)
 static int
 set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id)
 {
-	stnode_init(df_lval, type_id, NULL, g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(type_id, NULL, g_strdup(token_value), state->location);
 	return token;
 }
 
 static int
 set_lval_literal(df_scanner_state_t *state, const char *token_value)
 {
-	stnode_init(df_lval, STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
 	return TOKEN_LITERAL;
 }
 
 static int
 set_lval_identifier(df_scanner_state_t *state, const char *token_value)
 {
-	stnode_init(df_lval, STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
 	return TOKEN_IDENTIFIER;
 }
 
 static int
 set_lval_constant(df_scanner_state_t *state, const char *token_value)
 {
-	stnode_init(df_lval, STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), state->location);
 	return TOKEN_CONSTANT;
 }
 
@@ -549,7 +547,7 @@ set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string)
 	char *token_value;
 
 	token_value = ws_escape_string_len(NULL, quoted_string->str, quoted_string->len, true);
-	stnode_init(df_lval, STTYPE_STRING, quoted_string, token_value, state->string_loc);
+	state->df_lval = stnode_new(STTYPE_STRING, quoted_string, token_value, state->string_loc);
 	return TOKEN_STRING;
 }
 
@@ -565,14 +563,14 @@ set_lval_charconst(df_scanner_state_t *state, GString *quoted_string)
 		g_free(token_value);
 		return SCAN_FAILED;
 	}
-	stnode_init(df_lval, STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, state->string_loc);
+	state->df_lval = stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, state->string_loc);
 	return TOKEN_CHARCONST;
 }
 
 static int
 set_lval_field(df_scanner_state_t *state, const char *token_value, const header_field_info *hfinfo)
 {
-	stnode_init(df_lval, STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), state->location);
+	state->df_lval = stnode_new(STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), state->location);
 	return TOKEN_FIELD;
 }
 
