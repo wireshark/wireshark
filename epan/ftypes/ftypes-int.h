@@ -160,6 +160,10 @@ byte_array_from_literal(const char *s, gchar **err_msg);
 GByteArray *
 byte_array_from_charconst(unsigned long num, gchar **err_msg);
 
+char *
+bytes_to_dfilter_repr(wmem_allocator_t *scope,
+			const guint8 *src, size_t src_size);
+
 #endif /* FTYPES_INT_H */
 
 /*

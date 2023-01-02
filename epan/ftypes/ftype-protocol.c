@@ -169,7 +169,7 @@ val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
 }
 
 static char *
-val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
 	guint length;
 	char *volatile buf = NULL;
@@ -183,8 +183,12 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int
 		else
 			length = tvb_captured_length(fv->value.protocol.tvb);
 
-		if (length)
-			buf = bytes_to_str_punct_maxlen(scope, tvb_get_ptr(fv->value.protocol.tvb, 0, length), length, ':', 0);
+		if (length) {
+			if (rtype == FTREPR_DFILTER)
+				buf = bytes_to_dfilter_repr(scope, tvb_get_ptr(fv->value.protocol.tvb, 0, length), length);
+			else
+				buf = bytes_to_str_punct_maxlen(scope, tvb_get_ptr(fv->value.protocol.tvb, 0, length), length, ':', 0);
+		}
 	}
 	CATCH_ALL {
 		/* nothing */

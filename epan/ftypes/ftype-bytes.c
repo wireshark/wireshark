@@ -69,10 +69,37 @@ system_id_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U
 	return print_system_id(scope, fv->value.bytes->data, fv->value.bytes->len);
 }
 
+char *
+bytes_to_dfilter_repr(wmem_allocator_t *scope,
+			const guint8 *src, size_t src_size)
+{
+	char *buf;
+	size_t max_char_size;
+	char *buf_ptr;
+
+	/* Include space for extra punct and '\0'. */
+	max_char_size = src_size * 3 + 1;
+
+	buf = wmem_alloc(scope, max_char_size);
+	buf_ptr = bytes_to_hexstr_punct(buf, src, src_size, ':');
+	if (src_size == 1)
+		*buf_ptr++ = ':';
+	*buf_ptr = '\0';
+	return buf;
+}
+
 static char *
 bytes_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	char separator;
+
+	if (rtype == FTREPR_DFILTER) {
+		if (fv->value.bytes->len == 0) {
+			/* An empty byte array in a display filter is represented as "" */
+			return wmem_strdup(scope, "\"\"");
+		}
+		return bytes_to_dfilter_repr(scope, fv->value.bytes->data, fv->value.bytes->len);
+	}
 
 	switch(FIELD_DISPLAY(field_display))
 	{
@@ -92,11 +119,6 @@ bytes_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int f
 
 	if (fv->value.bytes->len) {
 		return bytes_to_str_punct_maxlen(scope, fv->value.bytes->data, fv->value.bytes->len, separator, 0);
-	}
-
-	if (rtype == FTREPR_DFILTER) {
-		/* An empty byte array in a display filter is represented as "" */
-		return wmem_strdup(scope, "\"\"");
 	}
 
 	return wmem_strdup(scope, "");

@@ -121,7 +121,7 @@ IPv6Address	({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|((
 V4CidrPrefix	\/[[:digit:]]{1,2}
 V6CidrPrefix	\/[[:digit:]]{1,3}
 
-ColonBytes	{hex2}(:{hex2})+
+ColonBytes	({hex2}:)|({hex2}(:{hex2})+)
 DotBytes	{hex2}(\.{hex2})+
 HyphenBytes	{hex2}(-{hex2})+
 
