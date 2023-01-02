@@ -7038,27 +7038,28 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 			ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 			proto_item_fill_label(fi, fi->rep->representation);
 		}
-
-		curlen = strlen(fi->rep->representation);
-		/* curlen doesn't include the \0 byte.
-		 * XXX: If curlen + 4 > ITEM_LABEL_LENGTH, we can't tell if
-		 * the representation has already been truncated (of an up
-		 * to 4 byte UTF-8 character) or is just at the maximum length
-		 * unless we search for " [truncated]" (which may not be
-		 * at the start.)
-		 * It's safer to do nothing.
-		 */
-		if (ITEM_LABEL_LENGTH > (curlen + 4)) {
-			va_start(ap, format);
-			str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
-			va_end(ap);
-			WS_UTF_8_CHECK(str, -1);
-			curlen = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, curlen, str, 0);
-			if (curlen >= ITEM_LABEL_LENGTH) {
-				/* Uh oh, we don't have enough room.  Tell the user
-				 * that the field is truncated.
-				 */
-				LABEL_MARK_TRUNCATED_START(fi->rep->representation);
+		if (fi->rep) {
+			curlen = strlen(fi->rep->representation);
+			/* curlen doesn't include the \0 byte.
+			 * XXX: If curlen + 4 > ITEM_LABEL_LENGTH, we can't tell if
+			 * the representation has already been truncated (of an up
+			 * to 4 byte UTF-8 character) or is just at the maximum length
+			 * unless we search for " [truncated]" (which may not be
+			 * at the start.)
+			 * It's safer to do nothing.
+			 */
+			if (ITEM_LABEL_LENGTH > (curlen + 4)) {
+				va_start(ap, format);
+				str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
+				va_end(ap);
+				WS_UTF_8_CHECK(str, -1);
+				curlen = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, curlen, str, 0);
+				if (curlen >= ITEM_LABEL_LENGTH) {
+					/* Uh oh, we don't have enough room.  Tell the user
+					 * that the field is truncated.
+					 */
+					LABEL_MARK_TRUNCATED_START(fi->rep->representation);
+				}
 			}
 		}
 	}
