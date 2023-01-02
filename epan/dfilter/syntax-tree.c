@@ -333,12 +333,13 @@ sprint_node(stnode_t *node)
 {
 	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
 
-	wmem_strbuf_append_printf(buf, "stnode{ ");
-	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
-	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
-	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todebug(node));
-	wmem_strbuf_append_printf(buf, "location=%ld:%zu",
+	wmem_strbuf_append_printf(buf, "{ ");
+	wmem_strbuf_append_printf(buf, "magic = 0x%"PRIx32", ", node->magic);
+	wmem_strbuf_append_printf(buf, "type = %s, ", stnode_type_name(node));
+	wmem_strbuf_append_printf(buf, "data = %s, ", stnode_todebug(node));
+	wmem_strbuf_append_printf(buf, "location = %ld:%zu",
 			node->location.col_start, node->location.col_len);
+	wmem_strbuf_append_printf(buf, " }");
 	return wmem_strbuf_finalize(buf);
 }
 
@@ -390,7 +391,7 @@ log_test_full(enum ws_log_level level,
 		rhs = sprint_node(st_rhs);
 
 	ws_log_write_always_full(WS_LOG_DOMAIN, level, file, line, func,
-				"%s: LHS = %s; RHS = %s",
+				"%s:\n LHS = %s\n RHS = %s",
 				stnode_todebug(node),
 				lhs ? lhs : "NULL",
 				rhs ? rhs : "NULL");
