@@ -292,12 +292,6 @@ static const value_string message_block_type[] = {
   {0, NULL}
 };
 
-static const value_string packet_start_pointer_field[] = {
-  {0, "Not Present"},
-  {1, "Present"},
-  {0, NULL}
-};
-
 static const true_false_string zero_bit_loading = {
   "subcarriers are all zero-bit-loaded",
   "subcarriers follow profile"
@@ -710,9 +704,10 @@ static void
 dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree, guint16 remaining_length) {
   proto_tree_add_item (tree, hf_plc_mb_mc_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-  guint packet_start_pointer_field_present, packet_start_pointer;
+  gboolean packet_start_pointer_field_present;
+  guint packet_start_pointer;
 
-  proto_tree_add_item_ret_uint (tree, hf_plc_mb_mc_pspf_present, tvb, 0, 1, FALSE, &packet_start_pointer_field_present);
+  proto_tree_add_item_ret_boolean(tree, hf_plc_mb_mc_pspf_present, tvb, 0, 1, FALSE, &packet_start_pointer_field_present);
 
   /* If not present, this contains stuff from other packet. We can't do much in this case */
   if(packet_start_pointer_field_present) {
@@ -1278,7 +1273,7 @@ proto_register_xra (void)
     },
     {&hf_plc_mb_mc_pspf_present,
       {"Packet Start Pointer Field", "docsis_plc.mb_mc_pspf_present",
-        FT_UINT8, BASE_DEC, VALS(packet_start_pointer_field) , 0x01,
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
         NULL, HFILL}
     },
     {&hf_plc_mb_mc_psp,

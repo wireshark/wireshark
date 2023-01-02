@@ -153,12 +153,6 @@ static const value_string Link16_Sync_Status[] = {
     { 0, NULL },
 };
 
-static const value_string Link_Terminal_Host_Status[] = {
-    { 0, "Inactive" },
-    { 1, "Active" },
-    { 0, NULL },
-};
-
 static const value_string Link11_DTS_Type[] = {
     { 0, "None" },
     { 1, "MIL-STD-1397 parallel" },
@@ -612,7 +606,7 @@ void proto_register_simple(void)
           { "Link 16 Sync Status", "simple.status.link16.sync_status", FT_UINT8, BASE_DEC, VALS(Link16_Sync_Status), 0x0,
             NULL, HFILL }},
         { &hf_simple_status_link16_terminal_host_status,
-          { "Link 16 Terminal/Host Status", "simple.status.link16.terminal_host_status", FT_UINT8, BASE_DEC, VALS(Link_Terminal_Host_Status), 0x0,
+          { "Link 16 Terminal/Host Status", "simple.status.link16.terminal_host_status", FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x0,
             NULL, HFILL }},
         { &hf_simple_status_link16_stn,
           { "Link 16 STN", "simple.status.link16.stn", FT_UINT16, BASE_OCT, NULL, 0x0,
@@ -630,7 +624,7 @@ void proto_register_simple(void)
           { "Link 11 PU", "simple.status.link11.pu", FT_UINT8, BASE_OCT, NULL, 0x0,
             NULL, HFILL }},
         { &hf_simple_status_link11_dts_host_status,
-          { "Link 11 DTS/Host Status", "simple.status.link11.dts_host_status", FT_UINT8, BASE_DEC, VALS(Link_Terminal_Host_Status), 0x0,
+          { "Link 11 DTS/Host Status", "simple.status.link11.dts_host_status", FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x0,
             NULL, HFILL }},
         { &hf_simple_status_spare_3,
           { "Spare3", "simple.status.spare_3", FT_BYTES, BASE_NONE, NULL, 0x0,

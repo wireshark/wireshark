@@ -65,11 +65,6 @@ typedef enum packet_direction_t
     DOWNLINK
 } packet_direction_t;
 
-static const value_string direction_vals[] = {
-    { 0,   "Uplink" },
-    { 1,   "Downlink" },
-    { 0,   NULL },
-};
 /* Pseudo header functions*/
 typedef gboolean (*pseudo_hdr_func_ptr_t) (char *, packet_info *pinfo, guint16, packet_direction_t);
 
@@ -765,7 +760,7 @@ void proto_register_log3gpp(void)
         },
         { &hf_log3gpp_direction,
             { "Direction",
-              "log3gpp.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
+              "log3gpp.direction", FT_BOOLEAN, 8, TFS(&tfs_downlink_uplink), 0x0,
               "Frame direction (Uplink or Downlink)", HFILL
             }
         },

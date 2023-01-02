@@ -215,12 +215,6 @@ static const value_string ccpri_opcode_vals[] = {
     { 0,             NULL}
 };
 
-static const value_string ccpri_status_vals[] = {
-    { 0,     "OK"},
-    { 1,     "ERROR"},
-    { 0,     NULL}
-};
-
 static const value_string rlc_rbid_vals[] = {
     { 1,     "DCH1"},
     { 2,     "DCH2"},
@@ -252,12 +246,6 @@ static value_string_ext rlc_rbid_vals_ext = VALUE_STRING_EXT_INIT(rlc_rbid_vals)
 static const value_string ueid_type_vals[] = {
     { 0,     "URNTI"},
     { 1,     "CRNTI"},
-    { 0,     NULL}
-};
-
-static const value_string tx_priority_vals[] = {
-    { 0,     "Normal"},
-    { 1,     "High"},
     { 0,     NULL}
 };
 
@@ -3831,7 +3819,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_lte_ccpri_status,
             { "Status",
-              "dct2000.lte.ccpri.status", FT_UINT8, BASE_DEC, VALS(ccpri_status_vals), 0x0,
+              "dct2000.lte.ccpri.status", FT_BOOLEAN, 8, TFS(&tfs_error_ok), 0x0,
               NULL, HFILL
             }
         },
@@ -3923,7 +3911,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_tx_priority,
             { "Tx Priority",
-              "dct2000.tx-priority", FT_UINT8, BASE_DEC, VALS(tx_priority_vals), 0x0,
+              "dct2000.tx-priority", FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x0,
               NULL, HFILL
             }
         },

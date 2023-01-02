@@ -1742,12 +1742,6 @@ static const true_false_string tds_tfs_more_final = {"More tokens follow", "Fina
 
 static const unit_name_string units_characters = { " character", " characters" };
 
-static const value_string tds_mars_type[] = {
-    {0, "Off"},
-    {1, "On"},
-    {0, NULL}
-};
-
 #define TDS_MAX_COLUMNS 256
 
 /*
@@ -9824,7 +9818,7 @@ proto_register_tds(void)
         },
         { &hf_tds_prelogin_option_mars,
           { "MARS", "tds.prelogin.option.mars",
-            FT_UINT8, BASE_DEC, VALS(tds_mars_type), 0x0,
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_prelogin_option_traceid,

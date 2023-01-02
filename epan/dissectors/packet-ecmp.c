@@ -125,14 +125,6 @@ static const value_string command_vals [] = {
 	/*other commands to be added*/
 };
 
-/* Command Structure for request/response */
-static const value_string type_rr [] = {
-	{ 0, "Request" },
-	{ 1, "Response" },
-	{ 0, NULL }
-	/*other commands to be added*/
-};
-
 /* Option Code structure*/
 static const value_string option_code [] = {
 	{ 0, "End of Options"},
@@ -455,12 +447,6 @@ static const value_string cyclic_setup_link_exists [] = {
 	{ 0, NULL}
 };
 
-static const value_string cyclic_link_req_resp [] = {
-	{ 0, "Request"},
-	{ 1, "Response"},
-	{ 0, NULL}
-};
-
 static const value_string additional_scheme_vals [] = {
 	{ 0, "None"},
 	{ 1, "Generic"},
@@ -522,12 +508,6 @@ static const value_string Interrogate_command_option_state [] = {
 static const value_string item_type_vals[] = {
 	{ 0,  "File"},
 	{ 1,  "Directory"},
-	{ 0,   NULL }
-};
-
-static const value_string file_integrity_vals[] = {
-	{ 0,  "Error"},
-	{ 1,  "OK"},
 	{ 0,   NULL }
 };
 
@@ -1025,9 +1005,7 @@ static int add_command_codes(packet_info* pinfo, int offset, tvbuff_t *tvb, prot
 {
 	proto_tree *ecmp_command_tree;
 	const gchar* command_str;
-	guint8 command;
-
-	command = tvb_get_guint8(tvb, offset);
+	guint8 command = tvb_get_guint8(tvb, offset);
 	*command_value = command & 0x7F;
 	command_str = val_to_str(*command_value, command_vals, "Unknown Type (0x%02x)");
 
@@ -1041,7 +1019,8 @@ static int add_command_codes(packet_info* pinfo, int offset, tvbuff_t *tvb, prot
 
 	/* Information displayed in the Info column*/
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s. Transaction ID: %d",
-			command_str, val_to_str(((command & 0x80) >> 7), type_rr, "Unknown Type (0x%02x)"), transaction_id_value);
+				command_str, tfs_get_string(((command & 0x80) >> 7), &tfs_response_request),
+				transaction_id_value);
 
 	return offset;
 }
@@ -3109,7 +3088,8 @@ static int dissect_ecmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Information displayed in the Info column*/
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s. Transaction ID: %d",
 					val_to_str(command_value, command_vals, "Unknown Type:0x%02x"),
-					val_to_str((type_value & 0x80) >> 7, type_rr, "Unknown Type:0x%02x"), transaction_id_value);
+					tfs_get_string((type_value & 0x80) >> 7, &tfs_response_request),
+					transaction_id_value);
 
 	/*display the first line of the tree (ECMP data)*/
 	ecmp_item = proto_tree_add_item(tree, proto_ecmp, tvb, 0, -1, ENC_NA); /*item created*/
@@ -3197,7 +3177,7 @@ void proto_register_ecmp (void)
 	{ "Option", "ecmp.option", FT_UINT8, BASE_DEC, VALS(option_code), 0x0, NULL, HFILL }},
 
 	{ &hf_ecmp_type_rr,
-	{ "Type", "ecmp.type", FT_UINT8, BASE_DEC, VALS(type_rr), 0x80, "ECMP Type (request/response)", HFILL }},
+	{ "Type", "ecmp.type", FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x80, "ECMP Type (request/response)", HFILL }},
 
 	{ &hf_ecmp_chunking,
 	{ "Chunks allowed","ecmp.chunking", FT_UINT16, BASE_DEC, NULL,0xF000, "ECMP number of chunks allowed", HFILL}},
@@ -3329,7 +3309,7 @@ void proto_register_ecmp (void)
 	{"Existence State", "ecmp.cyclic_setup.exists.state", FT_UINT8, BASE_DEC, VALS(cyclic_setup_link_exists), 0x0, "Cyclic setup exists state", HFILL}},
 
 	{ &hf_ecmp_cyclic_link_req_resp,
-	{"Cyclic Link - Request-Response", "ecmp.cyclic_link.request.response", FT_UINT8, BASE_DEC, VALS(cyclic_link_req_resp), 0x0, "Cyclic link request - response", HFILL}},
+	{"Cyclic Link - Request-Response", "ecmp.cyclic_link.request.response", FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0, "Cyclic link request - response", HFILL}},
 
 	{ &hf_ecmp_attribute_string,
 	{ "Attribute string", "ecmp.attribute_string", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3425,7 +3405,7 @@ void proto_register_ecmp (void)
 	{ &hf_ecmp_number_of_files_to_list, { "Number of files to list", "ecmp.number_of_files_to_list", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_file_hash, { "Hash", "ecmp.file_hash", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_item_type, { "Item type", "ecmp.item_type", FT_UINT8, BASE_DEC, VALS(item_type_vals), 0x0, NULL, HFILL }},
-	{ &hf_ecmp_file_integrity, { "File Integrity", "ecmp.file_integrity", FT_UINT8, BASE_DEC, VALS(file_integrity_vals), 0x01, NULL, HFILL }},
+	{ &hf_ecmp_file_integrity, { "File Integrity", "ecmp.file_integrity", FT_BOOLEAN, 8, TFS(&tfs_ok_error), 0x01, NULL, HFILL }},
 	{ &hf_ecmp_display_attr_read_only, { "Read Only", "ecmp.display_attr.read_only", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 	{ &hf_ecmp_display_attr_hidden, { "Hidden", "ecmp.display_attr.hidden", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 	{ &hf_ecmp_display_attr_system, { "System", "ecmp.display_attr.system", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},

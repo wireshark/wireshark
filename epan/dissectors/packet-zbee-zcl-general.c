@@ -3283,20 +3283,6 @@ static const value_string zbee_zcl_on_off_srv_rx_cmd_names[] = {
     { 0, NULL }
 };
 
-/* OnOff Names */
-static const value_string zbee_zcl_on_off_timed_off_names[] = {
-    { 0, "Off" },
-    { 1, "On" },
-    { 0, NULL }
-};
-
-/* GlobalSceneControl Names */
-static const value_string zbee_zcl_on_off_globalscenecontrol_names[] = {
-    { 0, "False" },
-    { 1, "True" },
-    { 0, NULL }
-};
-
 static const range_string zbee_zcl_on_off_effect_identifier_names[] = {
     { 0x00, 0x00, "Delayed All Off" },
     { 0x01, 0x01, "Dying Light" },
@@ -3498,11 +3484,11 @@ proto_register_zbee_zcl_on_off(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_onoff,
-            { "On/off Control", "zbee_zcl_general.onoff.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_timed_off_names),
+            { "On/off Control", "zbee_zcl_general.onoff.attr.onoff", FT_BOOLEAN, 8, TFS(&tfs_on_off),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_globalscenecontrol,
-            { "Global Scene Control", "zbee_zcl_general.onoff.attr.globalscenecontrol", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_globalscenecontrol_names),
+            { "Global Scene Control", "zbee_zcl_general.onoff.attr.globalscenecontrol", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_ontime,
@@ -6053,11 +6039,6 @@ static const value_string zbee_zcl_reliability_names[] = {
 #define ZBEE_ZCL_STATUS_OVERRIDDEN              0x04      /* Overridden Flag */
 #define ZBEE_ZCL_STATUS_OUT_OF_SERVICE          0x08      /* Out of Service Flag */
 
-static const value_string zbee_zcl_status_values[] = {
-    {0, "False"},
-    {1, "True"},
-    {0, NULL}
-};
 
 /* ########################################################################## */
 /* #### (0x000C) ANALOG INPUT (BASIC) CLUSTER ############################### */
@@ -6241,19 +6222,19 @@ proto_register_zbee_zcl_analog_input_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_input_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.analog_input_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.analog_input_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_input_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.analog_input_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.analog_input_basic.attr.status.fault",FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_input_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.analog_input_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.analog_input_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_input_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.analog_input_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.analog_input_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } }
         /* end Status Flags fields */
     };
@@ -6515,19 +6496,19 @@ proto_register_zbee_zcl_analog_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.analog_output_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.analog_output_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.analog_output_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.analog_output_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.analog_output_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.analog_output_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.analog_output_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.analog_output_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 
@@ -6798,19 +6779,19 @@ proto_register_zbee_zcl_analog_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.analog_value_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.analog_value_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.analog_value_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.analog_value_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.analog_value_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.analog_value_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.analog_value_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.analog_value_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 
@@ -7065,19 +7046,19 @@ proto_register_zbee_zcl_binary_input_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_input_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.binary_input_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.binary_input_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_input_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.binary_input_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.binary_input_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_input_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.binary_input_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.binary_input_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_input_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.binary_input_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.binary_input_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 
@@ -7355,19 +7336,19 @@ proto_register_zbee_zcl_binary_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.binary_output_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.binary_output_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.binary_output_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.binary_output_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.binary_output_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.binary_output_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.binary_output_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.binary_output_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 
@@ -7648,19 +7629,19 @@ proto_register_zbee_zcl_binary_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.binary_value_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.binary_value_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.binary_value_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.binary_value_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.binary_value_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.binary_value_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.binary_value_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.binary_value_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 
@@ -7900,19 +7881,19 @@ proto_register_zbee_zcl_multistate_input_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_input_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.multistate_input_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.multistate_input_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_input_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.multistate_input_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.multistate_input_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_input_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.multistate_input_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.multistate_input_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_input_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.multistate_input_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.multistate_input_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } }
         /* end Status Flags fields */
     };
@@ -8171,19 +8152,19 @@ proto_register_zbee_zcl_multistate_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_output_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.multistate_output_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.multistate_output_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_output_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.multistate_output_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.multistate_output_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_output_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.multistate_output_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.multistate_output_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_output_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.multistate_output_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.multistate_output_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 
@@ -8461,19 +8442,19 @@ proto_register_zbee_zcl_multistate_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_status_in_alarm,
-            { "In Alarm Status", "zbee_zcl_general.multistate_value_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "In Alarm Status", "zbee_zcl_general.multistate_value_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.multistate_value_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.multistate_value_basic.attr.status.fault", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_status_overridden,
-            { "Overridden Status", "zbee_zcl_general.multistate_value_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Overridden Status", "zbee_zcl_general.multistate_value_basic.attr.status.overridden", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_status_out_of_service,
-            { "Out of Service Status", "zbee_zcl_general.multistate_value_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Out of Service Status", "zbee_zcl_general.multistate_value_basic.attr.status.out_of_service", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
         /* end Status Flags fields */
 

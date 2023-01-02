@@ -2198,12 +2198,6 @@ static const value_string v10_ixia_dns_section_type[] = {
     {0, NULL}
 };
 
-static const value_string v10_ixia_req_res_flag[] = {
-    {0, "Request"},
-    {1, "Response"},
-    {0, NULL}
-};
-
 #define FORWARDING_STATUS_UNKNOWN 0
 #define FORWARDING_STATUS_FORWARD 1
 #define FORWARDING_STATUS_DROP    2
@@ -18838,7 +18832,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 275 */
         {&hf_pie_ixia_dns_qr_flag,
          {"DNS HDR Flag QR", "cflow.pie.ixia.dns-hdr-qr",
-          FT_UINT8, BASE_DEC, VALS(v10_ixia_req_res_flag), 0x0,
+          FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
           "DNS Header Flag QR {0:Query, 1:Response}", HFILL}
         },
 

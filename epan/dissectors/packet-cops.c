@@ -433,12 +433,6 @@ static const value_string table_cops_mm_transaction_id[] = {
     {0, NULL },
 };
 
-static const value_string pcmm_activation_state_vals[] = {
-    {0, "Inactive"},
-    {1, "Active"},
-    {0, NULL },
-};
-
 static const value_string pcmm_action_vals[] = {
     {0, "Add classifier"},
     {1, "Replace classifier"},
@@ -2455,7 +2449,7 @@ void proto_register_cops(void)
         },
         { &hf_cops_pcmm_classifier_activation_state,
           { "Activation State", "cops.pc_mm_classifier_activation_state",
-            FT_UINT8, BASE_HEX, VALS(pcmm_activation_state_vals), 0,
+            FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0,
             "PacketCable Multimedia Classifier Activation State", HFILL }
         },
         { &hf_cops_pcmm_classifier_action,

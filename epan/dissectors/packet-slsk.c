@@ -222,12 +222,6 @@ static const value_string slsk_transfer_direction[] = {
   { 0, NULL }
 };
 
-static const value_string slsk_yes_no[] = {
-  { 0, "No"},
-  { 1, "Yes"},
-  { 0, NULL }
-};
-
 static const value_string slsk_attr_type[] = {
   { 0, "Bitrate"},
   { 1, "Length"},
@@ -2089,7 +2083,7 @@ proto_register_slsk(void)
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_slsk_login_successful,
       { "Login successful", "slsk.login.successful",
-      FT_UINT8, BASE_DEC, VALS(slsk_yes_no), 0, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0, NULL, HFILL } },
     { &hf_slsk_login_message,
       { "Login Message", "slsk.login.message",
       FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -2101,7 +2095,7 @@ proto_register_slsk(void)
       FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_slsk_user_exists,
       { "User exists", "slsk.user.exists",
-      FT_UINT8, BASE_DEC, VALS(slsk_yes_no), 0, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0, NULL, HFILL } },
     { &hf_slsk_status_code,
       { "Status Code", "slsk.status.code",
       FT_UINT32, BASE_DEC, VALS(slsk_status_codes), 0, NULL, HFILL } },
@@ -2190,7 +2184,7 @@ proto_register_slsk(void)
       FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_slsk_picture_exists,
       { "Picture exists", "slsk.user.picture.exists",
-      FT_UINT8, BASE_DEC, VALS(slsk_yes_no), 0, "User has a picture", HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0, "User has a picture", HFILL } },
     { &hf_slsk_picture,
       { "User Picture", "slsk.user.picture",
       FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -2207,10 +2201,10 @@ proto_register_slsk(void)
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_slsk_slots_available,
       { "Upload Slots available", "slsk.uploads.available",
-      FT_UINT8, BASE_DEC, VALS(slsk_yes_no), 0, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0, NULL, HFILL } },
     { &hf_slsk_allowed,
       { "Download allowed", "slsk.user.allowed",
-      FT_UINT8, BASE_DEC, VALS(slsk_yes_no), 0, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0, NULL, HFILL } },
     { &hf_slsk_compr_packet,
       { "zlib compressed packet", "slsk.compr.packet",
       FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -2288,7 +2282,7 @@ proto_register_slsk(void)
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_slsk_free_upload_slots,
       { "Free upload slots", "slsk.free_upload_slots",
-      FT_UINT32, BASE_DEC, VALS(slsk_yes_no), 0, NULL, HFILL } },
+      FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0, NULL, HFILL } },
     { &hf_slsk_bytes,
       { "Bytes", "slsk.bytes",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },

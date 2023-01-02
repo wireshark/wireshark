@@ -218,11 +218,6 @@ static const struct {
 	{ NULL,		NULL}
 };
 
-static const value_string ext_r_types[] = {
-	{ 0,		"Request" },
-	{ 1,		"Response" },
-	{ 0,		NULL}
-};
 
 #define NTPCTRL_R_MASK 0x80
 
@@ -393,8 +388,6 @@ static const value_string err_values_types[] = {
 };
 
 #define NTPPRIV_R_MASK 0x80
-
-#define priv_r_types ext_r_types
 
 #define NTPPRIV_MORE_MASK 0x40
 
@@ -2713,8 +2706,8 @@ proto_register_ntp(void)
 			"Flags 2", "ntp.ctrl.flags2", FT_UINT8, BASE_HEX,
 			NULL, 0, "Flags (Response/Error/More/Opcode)", HFILL }},
 		{ &hf_ntpctrl_flags2_r, {
-			"Response bit", "ntp.ctrl.flags2.r", FT_UINT8, BASE_DEC,
-			VALS(ctrl_r_types), NTPCTRL_R_MASK, NULL, HFILL }},
+			"Response bit", "ntp.ctrl.flags2.r", FT_BOOLEAN, 8,
+			TFS(&tfs_response_request), NTPCTRL_R_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_error, {
 			"Error bit", "ntp.ctrl.flags2.error", FT_UINT8, BASE_DEC,
 			NULL, NTPCTRL_ERROR_MASK, NULL, HFILL }},
@@ -2807,8 +2800,8 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntppriv_flags_r, {
-			"Response bit", "ntp.priv.flags.r", FT_UINT8, BASE_DEC,
-			VALS(priv_r_types), NTPPRIV_R_MASK, NULL, HFILL }},
+			"Response bit", "ntp.priv.flags.r", FT_BOOLEAN, 8,
+			TFS(&tfs_response_request), NTPPRIV_R_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_flags_more, {
 			"More bit", "ntp.priv.flags.more", FT_UINT8, BASE_DEC,
 			NULL, NTPPRIV_MORE_MASK, NULL, HFILL }},

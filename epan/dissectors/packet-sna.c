@@ -346,13 +346,6 @@ static const value_string sna_th_efi_vals[] = {
 	{ 0x0,	NULL }
 };
 
-/* Request/Response Indicator */
-static const value_string sna_rh_rri_vals[] = {
-	{ 0, "Request" },
-	{ 1, "Response" },
-	{ 0x0,	NULL }
-};
-
 /* Request/Response Unit Category */
 static const value_string sna_rh_ru_category_vals[] = {
 	{ 0, "Function Management Data (FMD)" },
@@ -3054,8 +3047,8 @@ proto_register_sna(void)
 		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_rh_rri,
-		  { "Request/Response Indicator", "sna.rh.rri", FT_UINT8,
-		    BASE_DEC, VALS(sna_rh_rri_vals), 0x80, NULL, HFILL }},
+		  { "Request/Response Indicator", "sna.rh.rri", FT_BOOLEAN,
+		    8, TFS(&tfs_response_request), 0x80, NULL, HFILL }},
 
 		{ &hf_sna_rh_ru_category,
 		  { "Request/Response Unit Category", "sna.rh.ru_category",
