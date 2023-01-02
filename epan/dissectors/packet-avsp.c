@@ -279,8 +279,8 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             proto_tree_add_bitmask_ret_uint64(avsp_tgen_hdr, tvb, offset,
                 hf_avsp_tgen_hdr_ctrl, ett_avsp_tgen_hdr_ctrl, avsp_tgen_ctrl,
                 ENC_BIG_ENDIAN, &tgen_ctrl);
-            proto_item_append_text(ti, ", Control Word: 0x%04lx", tgen_ctrl);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Ctrl=0x%04lx", tgen_ctrl);
+            proto_item_append_text(ti, ", Control Word: 0x%04" PRIx64, tgen_ctrl);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Ctrl=0x%04" PRIx64, tgen_ctrl);
             offset += 2;
 
             /* Get TGen Header Sequence Number*/
