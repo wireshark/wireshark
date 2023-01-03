@@ -42,7 +42,7 @@ typedef gboolean (*FtypeCanFunc)(enum ftenum);
 static ftenum_t
 check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
 			stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-			ftenum_t lhs_ftype, int commute);
+			ftenum_t lhs_ftype);
 
 static void
 check_relation(dfwork_t *dfw, stnode_op_t st_op,
@@ -1384,16 +1384,12 @@ op_to_error_msg(stnode_op_t st_op)
 static ftenum_t
 check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
 			stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2,
-			ftenum_t lhs_ftype, int commute)
+			ftenum_t lhs_ftype)
 {
 	ftenum_t		ftype1, ftype2;
 	FtypeCanFunc 		can_func = NULL;
 
 	LOG_NODE(st_node);
-
-	if (commute < 0) {
-		return FT_NONE;
-	}
 
 	if (st_op == STNODE_OP_UNARY_MINUS) {
 		ftype1 = check_arithmetic(dfw, st_arg1, lhs_ftype);
@@ -1444,7 +1440,7 @@ check_arithmetic_LHS(dfwork_t *dfw, stnode_op_t st_op,
 
 	ftype1 = check_arithmetic(dfw, st_arg1, lhs_ftype);
 	if (ftype1 == FT_NONE) {
-		return check_arithmetic_LHS(dfw, st_op, st_node, st_arg2, st_arg1, lhs_ftype, commute - 1);
+		FAIL(dfw, st_arg1, "Unknown type for left side of %s", stnode_todisplay(st_node));
 	}
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "%s %s.",
@@ -1510,7 +1506,7 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 
 		case STTYPE_ARITHMETIC:
 			sttype_oper_get(st_node, &st_op, &st_arg1, &st_arg2);
-			ftype = check_arithmetic_LHS(dfw, st_op, st_node, st_arg1, st_arg2, lhs_ftype, 1);
+			ftype = check_arithmetic_LHS(dfw, st_op, st_node, st_arg1, st_arg2, lhs_ftype);
 			break;
 
 		default:

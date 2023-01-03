@@ -268,17 +268,17 @@ class case_arithmetic(unittest.TestCase):
         checkDFilterCount(dfilter, 2)
 
     def test_add_4(self, checkDFilterFail):
-        error = 'Constant expression is invalid on the LHS'
+        error = 'Unknown type for left side of +'
         dfilter = "1 + 2 == frame.number"
         checkDFilterFail(dfilter, error)
 
     def test_add_5(self, checkDFilterFail):
-        error = 'Constant expression is invalid'
+        error = 'Unknown type for left side of +'
         dfilter = "1 + 2 == 2 + 1"
         checkDFilterFail(dfilter, error)
 
     def test_add_6(self, checkDFilterFail):
-        error = 'Constant expression is invalid'
+        error = 'Unknown type for left side of -'
         dfilter = "1 - 2"
         checkDFilterFail(dfilter, error)
 
