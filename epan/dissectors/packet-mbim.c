@@ -2279,6 +2279,18 @@ static int * const mbim_device_service_element_dss_payload_fields[] = {
     NULL
 };
 
+static const value_string mbim_network_idle_hint_states_vals[] = {
+    { 0, "Disabled"},
+    { 1, "Enabled"},
+    { 0, NULL}
+};
+
+static const value_string mbim_emergency_mode_states_vals[] = {
+    { 0, "Off"},
+    { 1, "On"},
+    { 0, NULL}
+};
+
 static const value_string mbim_sms_storage_state_vals[] = {
     { 0, "Not Initialized"},
     { 1, "Initialized"},
@@ -2717,6 +2729,12 @@ static const value_string mbim_thermal_config_enable_vals[] = {
     { 0, NULL}
 };
 
+static const value_string mbim_sar_status_vals[] = {
+    { 0, "Disabled"},
+    { 1, "Enabled"},
+    { 0, NULL}
+};
+
 static const value_string mbim_ms_sar_config_sar_mode_vals[] = {
     { 0, "Device"},
     { 1, "OS"},
@@ -2932,6 +2950,12 @@ static int * const mbim_multiflow_caps_info_control_caps_fields[] = {
     NULL
 };
 
+static const value_string mbim_multiflow_state_vals[] = {
+    { 0, "Off"},
+    { 1, "On"},
+    { 0, NULL}
+};
+
 static const value_string mbim_ms_context_roaming_control_vals[] = {
     { 0, "HomeOnly"},
     { 1, "PartnerOnly"},
@@ -2947,6 +2971,12 @@ static const value_string mbim_ms_context_media_type_vals[] = {
     { 0, "CellularOnly"},
     { 1, "WifiOnly"},
     { 2, "All"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ms_context_enable_vals[] = {
+    { 0, "Disabled"},
+    { 1, "Enabled"},
     { 0, NULL}
 };
 
@@ -3015,6 +3045,11 @@ static const value_string mbim_ms_apdu_secure_messaging_vals[] = {
 static const value_string mbim_ms_apdu_type_vals[] = {
     { 0, "Interindustry"},
     { 1, "Extended"},
+    { 0, NULL}
+};
+static const value_string mbim_ms_reset_pass_through_action_vals[] = {
+    { 0, "Disabled"},
+    { 1, "Enabled"},
     { 0, NULL}
 };
 
@@ -11372,12 +11407,12 @@ proto_register_mbim(void)
         },
         { &hf_mbim_network_idle_hint_state,
             { "Network Idle Hint State", "mbim.control.network_idle_hint.state",
-               FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_network_idle_hint_states_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_emergency_mode_info_emergency_mode,
             { "Emergency Mode", "mbim.control.emergency_mode_info.mode",
-               FT_BOOLEAN, 32, TFS(&tfs_on_off), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_emergency_mode_states_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_single_packet_filter_filter_size,
@@ -12717,7 +12752,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_sar_config_sar_status,
             { "SAR Status", "mbim.control.sar_config.sar_status",
-               FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_sar_status_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_sar_config_level,
@@ -13197,12 +13232,12 @@ proto_register_mbim(void)
         },
         { &hf_mbim_set_multiflow_state_state,
             { "State", "mbim.control.set_multiflow_state.state",
-               FT_BOOLEAN, 32, TFS(&tfs_on_off), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_multiflow_state_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_multiflow_state_info_state,
             { "State", "mbim.control.multiflow_state_info.state",
-               FT_BOOLEAN, 32, TFS(&tfs_on_off), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_multiflow_state_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_multiflow_tft_info_session_id,
@@ -13237,7 +13272,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_set_ms_provisioned_context_v2_enable,
             { "Enable", "mbim.control.set_ms_provisioned_context_v2.enable",
-               FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_context_enable_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_set_ms_provisioned_context_v2_roaming,
@@ -13962,7 +13997,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_reset_pass_through_action,
             { "Type", "mbim.control.ms_reset.pass_through_action",
-               FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0,
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_reset_pass_through_action_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_atr_info_atr_offset,
