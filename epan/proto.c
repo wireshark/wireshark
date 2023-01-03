@@ -7466,16 +7466,16 @@ check_protocol_filter_name_or_fail(const char *filter_name)
 						filter_name, filter_name[0], filter_name[1]);
 	}
 
-	/* Check that it doesn't have all decimal digits. */
-	bool all_digits = true;
+	/* Check that it contains at least one letter. */
+	bool have_letter = false;
 	for (const char *s = filter_name; *s != '\0'; s++) {
-		if (!g_ascii_isdigit(*s)) {
-			all_digits = false;
+		if (g_ascii_isalpha(*s)) {
+			have_letter = true;
 			break;
 		}
 	}
-	if (all_digits) {
-		REPORT_DISSECTOR_BUG("Protocol filter name \"%s\" cannot be composed of all decimal digits.",
+	if (!have_letter) {
+		REPORT_DISSECTOR_BUG("Protocol filter name \"%s\" must contain at least one letter a-z.",
 						filter_name);
 	}
 
