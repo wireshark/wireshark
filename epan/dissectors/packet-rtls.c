@@ -498,7 +498,7 @@ proto_register_rtls(void)
         },
         { &hf_rtls_nack_flags_reserved,
           { "Reserved", "rtls.nack.flags.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x0D,
+            FT_UINT16, BASE_HEX, NULL, 0xFC,
             NULL, HFILL }
         },
 

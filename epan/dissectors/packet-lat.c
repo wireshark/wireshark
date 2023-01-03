@@ -1702,7 +1702,7 @@ proto_register_lat(void)
 	    { &hf_lat_data_b_slot_control_flags_report_port_char,
 	        { "Report port characteristics",
 	          "lat.data_b_slot.control_flags.report_port_characteristics",
-	          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+	          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
 
 	    { &hf_lat_data_b_slot_stop_output_channel_char,
 	        { "Output channel stop character",

@@ -5761,6 +5761,7 @@ s7comm_register_szl_types(int proto)
         { "SZL-ID", "s7comm.data.userdata.szl_id", FT_UINT16, BASE_HEX, NULL, 0x0,
           "SZL-ID (System Status List) Bits 15-12: Diagnostic type, Bits 11-8: Number of the partial list extract, Bits 7-0: Number of the partial list", HFILL }},
 
+        /* N.B. 2nd member of the bitfield test covers all 16 bits.. */
         { &hf_s7comm_userdata_szl_id_type,
         { "Diagnostic type", "s7comm.data.userdata.szl_id.diag_type", FT_UINT16, BASE_HEX, VALS(szl_module_type_names), 0xf000,
           NULL, HFILL }},

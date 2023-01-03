@@ -44,15 +44,16 @@ def name_has_one_of(name, substring_list):
 # A call is an individual call to an API we are interested in.
 # Internal to APICheck below.
 class Call:
-    def __init__(self, hf_name, line_number=None, length=None):
-       self.hf_name = hf_name
-       self.line_number = line_number
-       self.length = None
-       if length:
-           try:
-               self.length = int(length)
-           except:
-               pass
+    def __init__(self, hf_name, line_number=None, length=None, fields=None):
+        self.hf_name = hf_name
+        self.line_number = line_number
+        self.fields = fields
+        self.length = None
+        if length:
+            try:
+                self.length = int(length)
+            except:
+                pass
 
 
 # These are variable names that have been seen to be used in calls..
@@ -81,7 +82,8 @@ class APICheck:
         else:
             # _add_bitmask functions.
             # RE captures function name + 1st + 4th args (always tree + hfindex)
-            self.p = re.compile('[^\n]*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
+            # 6th arg is 'fields'
+            self.p = re.compile('[^\n]*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)\s*,\s*[a-zA-Z0-9_]+\s*,\s*([a-zA-Z0-9_]+)\s*,')
 
         self.file = None
         self.mask_allowed = True
@@ -110,11 +112,21 @@ class APICheck:
                             to_check += (lines[line_number-1+i] + '\n')
                     m = self.p.search(to_check)
                     if m:
+                        fields = None
+                        length = None
+
+                        if self.fun_name.find('add_bitmask') != -1:
+                            fields = m.group(3)
+                        else:
+                            if self.p.groups == 3:
+                                length = m.group(3)
+
                         # Add call. We have length if re had 3 groups.
                         num_groups = self.p.groups
                         self.calls.append(Call(m.group(2),
                                                line_number=line_number,
-                                               length=(m.group(3) if (num_groups==3) else None)))
+                                               length=length,
+                                               fields=fields))
 
 
 
@@ -623,7 +635,6 @@ add_bits_types = { 'FT_CHAR', 'FT_BOOLEAN',
 apiChecks.append(APICheck('proto_tree_add_bits_item',    add_bits_types))
 apiChecks.append(APICheck('proto_tree_add_bits_ret_val', add_bits_types))
 
-
 # TODO: doesn't even have an hf_item !
 #apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
 
@@ -700,7 +711,7 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
 # TODO: some dissectors have similar-looking hf arrays for other reasons, so need to cross-reference with
 # the 6th arg of ..add_bitmask_..() calls...
 # TODO: return items (rather than local checks) from here so can be checked against list of calls for given filename
-def find_field_arrays(filename):
+def find_field_arrays(filename, all_fields, all_hf):
     global warnings_found
     with open(filename, 'r') as f:
         contents = f.read()
@@ -710,6 +721,9 @@ def find_field_arrays(filename):
         matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
         for m in matches:
             name = m.group(1)
+            # Ignore if not used in a call to an _add_bitmask_ API
+            if name not in all_fields:
+                continue
             all_fields = m.group(2)
             all_fields = all_fields.replace('&', '')
             all_fields = all_fields.replace(',', '')
@@ -729,6 +743,15 @@ def find_field_arrays(filename):
                     warnings_found += 1
                 seen_fields.add(f)
 
+            # Check for duplicated flags among entries..
+            combined_mask = 0x0
+            for f in fields[0:-1]:
+                if f in all_hf:
+                    new_mask = all_hf[f].mask_value
+                    if new_mask & combined_mask:
+                        print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
+                        warnings_found += 1
+                    combined_mask |= new_mask
     return []
 
 def find_item_declarations(filename):
@@ -797,15 +820,20 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         items_declared = find_item_declarations(filename)
         items_extern_declared = find_item_extern_declarations(filename)
 
+    fields = set()
 
     # Check each API
     for c in apiChecks:
         c.find_calls(filename)
+        for call in c.calls:
+            if call.fields:
+                fields.add(call.fields)
+
         c.check_against_items(items_defined, items_declared, items_extern_declared, check_missing_items)
 
     # Checking for lists of fields for add_bitmask calls
     if check_bitmask_fields:
-        field_arrays = find_field_arrays(filename)
+        field_arrays = find_field_arrays(filename, fields, items_defined)
 
 
 
