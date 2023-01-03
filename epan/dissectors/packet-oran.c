@@ -374,6 +374,10 @@ static const value_string exttype_vals[] = {
     {16,    "Section description for antenna mapping in UE channel information based UL beamforming"},
     {17,    "Section description for indication of user port group"},
     {18,    "Section description for Uplink Transmission Management"},
+    {19,    "Compact beamforming information for multiple port"},
+    {20,    "Puncturing extension"},
+    {21,    "Variable PRB group size for channel information"},
+    {22,    "ACK/NACK request"},
     {0, NULL}
 };
 
@@ -1392,6 +1396,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     return offset;
 }
 
+/* Dissect udCompHdr (user data compression header, 7.5.2.10) */
+/* bit_width and comp_meth are out params */
 static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
                              guint *bit_width, guint *comp_meth)
 {
@@ -1401,12 +1407,12 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                                                          "udCompHdr");
     proto_tree *udcomphdr_tree = proto_item_add_subtree(udcomphdr_ti, ett_oran_udcomphdr);
 
-
     /* udIqWidth */
     guint32 hdr_iq_width;
     proto_item *iq_width_item = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrIqWidth , tvb, offset, 1, ENC_NA, &hdr_iq_width);
     *bit_width = (hdr_iq_width) ? hdr_iq_width : 16;
-    proto_item_append_text(iq_width_item, " (%d bits)", *bit_width);
+    proto_item_append_text(iq_width_item, " (%u bits)", *bit_width);
+
     /* udCompMeth */
     guint32 ud_comp_meth;
     proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA, &ud_comp_meth);
@@ -1422,7 +1428,7 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 
-/* Control plane dissector. */
+/* Control plane dissector (section 7). */
 static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1577,7 +1583,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return tvb_captured_length(tvb);
 }
 
-/* User plane dissector (6.3.2) */
+/* User plane dissector (section 8) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1683,8 +1689,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (includeUdCompHeader) {
             /* 5.4.4.10.  Described in 6.3.3.13 */
-            /* Extract these values to inform how wide IQ samples in each PRB will be? */
-            /* TODO: should be setting compression here as well? */
+            /* Extract these values to inform how wide IQ samples in each PRB will be. */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &sample_bit_width, &compression);
 
             /* Not part of udCompHdr */
@@ -1770,6 +1775,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 /*****************************/
 /* Main dissection function. */
+/* N.B. ecpri message type passed in as 'data' arg by eCPRI dissector */
 static int
 dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
