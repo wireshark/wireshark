@@ -537,7 +537,7 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 		if (time_diff != 0) {
 			frequency = 1.0 / ((double)time_diff * 1.0E-09);
 		}
-		title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ", Time Difference: %s%lu nsec", time_difference_sign, time_diff);
+		title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ", Time Difference: %s%" G_GINT64_MODIFIER "u nsec", time_difference_sign, time_diff);
 		if (frequency != 0.0) {
 			title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, " = %f Hz", frequency);
 		}
