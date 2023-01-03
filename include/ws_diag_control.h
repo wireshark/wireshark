@@ -201,6 +201,7 @@ extern "C" {
   #if defined(__clang__) || defined(__APPLE__)
     #define DIAG_OFF_FLEX() \
       DIAG_OFF(sign-compare) \
+      DIAG_OFF(unused-parameter) \
       DIAG_OFF(shorten-64-to-32) \
       DIAG_OFF(unreachable-code) \
       DIAG_OFF(documentation)
@@ -208,11 +209,14 @@ extern "C" {
       DIAG_ON(documentation)    \
       DIAG_ON(unreachable-code) \
       DIAG_ON(shorten-64-to-32) \
+      DIAG_ON(unused-parameter) \
       DIAG_ON(sign-compare)
   #else
     #define DIAG_OFF_FLEX() \
-      DIAG_OFF(sign-compare)
+      DIAG_OFF(sign-compare) \
+      DIAG_OFF(unused-parameter)
     #define DIAG_ON_FLEX() \
+      DIAG_ON(unused-parameter) \
       DIAG_ON(sign-compare)
   #endif
 #endif
