@@ -21,7 +21,7 @@ typedef struct {
 #define OPER_MAGIC	0xab9009ba
 
 static gpointer
-oper_new(gpointer junk)
+oper_new(gpointer junk _U_)
 {
 	oper_t *oper;
 
