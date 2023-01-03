@@ -12,7 +12,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN "ciscodump"
-
+ 
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
 #include <wsutil/strtoi.h>
@@ -1491,7 +1491,7 @@ static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
 		}
 	}
 
-	if (*sw_type != CISCO_UNKNOWN) {
+	if (*sw_type != CISCO_UNKNOWN && cur) {
 		cur = g_strstr_len(cur, 255-strlen(cur), msg_version);
 		if (cur) {
 			cur += strlen(msg_version);
