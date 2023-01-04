@@ -617,8 +617,8 @@ extern int  dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo
 extern void dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
    int hf_vendor, int hf_devtype, int hf_prodcode,
    int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev,
-   gboolean generate);
-extern int dissect_electronic_key_format(tvbuff_t* tvb, int offset, proto_tree* tree, gboolean generate, guint8 key_format);
+   gboolean generate, guint encoding);
+extern int dissect_electronic_key_format(tvbuff_t* tvb, int offset, proto_tree* tree, gboolean generate, guint8 key_format, guint encoding);
 extern int  dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len);
 extern int  dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,

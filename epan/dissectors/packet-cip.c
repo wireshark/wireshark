@@ -4214,11 +4214,11 @@ void
 dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
                  int hf_vendor, int hf_devtype, int hf_prodcode,
                  int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev,
-                 gboolean generate)
+                 gboolean generate, guint encoding)
 {
-   proto_item* vendor_id_item = proto_tree_add_item(tree, hf_vendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-   proto_item* device_type_item = proto_tree_add_item(tree, hf_devtype, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
-   proto_item* product_code_item = proto_tree_add_item(tree, hf_prodcode, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+   proto_item* vendor_id_item = proto_tree_add_item(tree, hf_vendor, tvb, offset, 2, encoding);
+   proto_item* device_type_item = proto_tree_add_item(tree, hf_devtype, tvb, offset + 2, 2, encoding);
+   proto_item* product_code_item = proto_tree_add_item(tree, hf_prodcode, tvb, offset + 4, 2, encoding);
 
    /* Major revision/Compatibility */
    guint8 compatibility = tvb_get_guint8(tvb, offset + 6);
@@ -4230,9 +4230,9 @@ dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
       compatibility & 0x7F);
    proto_tree* compatibility_tree = proto_item_add_subtree(compatibility_item, ett_mcsc);
 
-   proto_item* comp_bit_item = proto_tree_add_item(compatibility_tree, hf_comp_bit, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-   proto_item* major_rev_item = proto_tree_add_item(compatibility_tree, hf_majrev, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-   proto_item* minor_rev_item = proto_tree_add_item(tree, hf_minrev, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
+   proto_item* comp_bit_item = proto_tree_add_item(compatibility_tree, hf_comp_bit, tvb, offset + 6, 1, encoding);
+   proto_item* major_rev_item = proto_tree_add_item(compatibility_tree, hf_majrev, tvb, offset + 6, 1, encoding);
+   proto_item* minor_rev_item = proto_tree_add_item(tree, hf_minrev, tvb, offset + 7, 1, encoding);
 
    if (generate)
    {
@@ -4912,7 +4912,7 @@ static int dissect_segment_ansi_extended_symbol(packet_info* pinfo, tvbuff_t* tv
 }
 
 // offset - Starts with the 'Key Data' section of the Electronic Key Segment Format.
-int dissect_electronic_key_format(tvbuff_t* tvb, int offset, proto_tree* tree, gboolean generate, guint8 key_format)
+int dissect_electronic_key_format(tvbuff_t* tvb, int offset, proto_tree* tree, gboolean generate, guint8 key_format, guint encoding)
 {
    int key_len;
    if (key_format == CI_E_KEY_FORMAT_VAL)
@@ -4928,17 +4928,17 @@ int dissect_electronic_key_format(tvbuff_t* tvb, int offset, proto_tree* tree, g
    {
       dissect_deviceid(tvb, offset, tree,
          hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
-         hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, TRUE);
+         hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, TRUE, encoding);
    }
    else
    {
       dissect_deviceid(tvb, offset, tree,
          hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
-         hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, FALSE);
+         hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, FALSE, encoding);
 
       if (key_format == CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL)
       {
-         proto_tree_add_item(tree, hf_cip_ekey_serial_number, tvb, offset + 8, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(tree, hf_cip_ekey_serial_number, tvb, offset + 8, 4, encoding);
       }
    }
 
@@ -4970,7 +4970,7 @@ static int dissect_segment_logical_special(packet_info* pinfo, tvbuff_t* tvb, in
          }
          segment_len = 2;
 
-         segment_len += dissect_electronic_key_format(tvb, offset + 2, path_seg_tree, generate, key_format);
+         segment_len += dissect_electronic_key_format(tvb, offset + 2, path_seg_tree, generate, key_format, ENC_LITTLE_ENDIAN);
 
          proto_item_set_len(path_seg_item, segment_len);
 
@@ -7956,7 +7956,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, proto_item *ti,
 
    dissect_deviceid(tvb, offset+2, tdi_tree,
       hf_cip_cco_tdi_vendor, hf_cip_cco_tdi_devtype, hf_cip_cco_tdi_prodcode,
-      hf_cip_cco_tdi_compatibility, hf_cip_cco_tdi_comp_bit, hf_cip_cco_tdi_majorrev, hf_cip_cco_tdi_minorrev, FALSE);
+      hf_cip_cco_tdi_compatibility, hf_cip_cco_tdi_comp_bit, hf_cip_cco_tdi_majorrev, hf_cip_cco_tdi_minorrev, FALSE, ENC_LITTLE_ENDIAN);
 
    /* CS Data Index Number */
    proto_tree_add_item(cmd_tree, hf_cip_cco_cs_data_index, tvb, offset+10, 4, ENC_LITTLE_ENDIAN );
@@ -8036,7 +8036,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, proto_item *ti,
 
    dissect_deviceid(tvb, offset+variable_data_size, tdi_tree,
       hf_cip_cco_pdi_vendor, hf_cip_cco_pdi_devtype, hf_cip_cco_pdi_prodcode,
-      hf_cip_cco_pdi_compatibility, hf_cip_cco_pdi_comp_bit, hf_cip_cco_pdi_majorrev, hf_cip_cco_pdi_minorrev, FALSE);
+      hf_cip_cco_pdi_compatibility, hf_cip_cco_pdi_comp_bit, hf_cip_cco_pdi_majorrev, hf_cip_cco_pdi_minorrev, FALSE, ENC_LITTLE_ENDIAN);
 
    /* Add in proxy device id size */
    variable_data_size += 8;

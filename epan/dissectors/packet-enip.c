@@ -5067,7 +5067,7 @@ proto_register_enip(void)
 } /* end of proto_register_enip() */
 
 const value_string lldp_cip_subtypes[] = {
-   { 1, "CIP Identification" },
+   { 1, "Deprecated CIP Identification" },
    { 2, "CIP MAC Address" },
    { 3, "CIP Interface Label" },
    { 4, "Position ID" },
@@ -5075,6 +5075,7 @@ const value_string lldp_cip_subtypes[] = {
    { 6, "Commission Request" },
    { 7, "Commission Response" },
    { 8, "Discover Topology Response" },
+   { 9, "CIP Identification" },
 
 	{ 0, NULL }
 };
@@ -5091,7 +5092,7 @@ int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
    {
       case 1:
       {
-         dissect_electronic_key_format(tvb, offset, tree, FALSE, CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL);
+         dissect_electronic_key_format(tvb, offset, tree, FALSE, CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL, ENC_LITTLE_ENDIAN);
          break;
       }
 
@@ -5104,6 +5105,12 @@ int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
          // The string is all the data, minus Subtype (1 byte).
          int string_len = total_len - 1;
          proto_tree_add_item(tree, hf_elink_interface_label, tvb, offset, string_len, ENC_ASCII | ENC_NA);
+         break;
+      }
+
+      case 9:
+      {
+         dissect_electronic_key_format(tvb, offset, tree, FALSE, CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL, ENC_BIG_ENDIAN);
          break;
       }
 
