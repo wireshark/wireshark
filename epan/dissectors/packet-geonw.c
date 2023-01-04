@@ -147,6 +147,8 @@ void proto_register_geonw(void);
 
 #define TST_MAX 0xffffffff
 
+#define SEC_TVB_KEY 0
+
 /*
  * Variables
  */
@@ -1910,7 +1912,7 @@ dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
                 param_len = dissect_sec_var_len(tvb, offset, pinfo, field_tree);
                 if (param_len) {
                     tvbuff_t *next_tvb = tvb_new_subset_length(tvb, *offset, param_len);
-                    p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, next_tvb);
+                    p_add_proto_data(pinfo->pool, pinfo, proto_geonw, SEC_TVB_KEY, next_tvb);
                 }
                 *offset += param_len;
                 break;
@@ -2113,7 +2115,7 @@ static int
 dissect_sgeonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     // Just store the tvbuff for later, as it is embedded inside a secured geonetworking packet
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, tvb);
+    p_add_proto_data(pinfo->pool, pinfo, proto_geonw, SEC_TVB_KEY, tvb);
 
     return tvb_reported_length(tvb);
 }
@@ -2226,7 +2228,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     if (bh_next_header == BH_NH_SECURED_PKT) {
         dissect_secured_message(tvb, offset, pinfo, geonw_tree, NULL);
-        tvbuff_t *next_tvb = (tvbuff_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0);
+        tvbuff_t *next_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_geonw, SEC_TVB_KEY);
         if (next_tvb) {
             tvb = next_tvb;
             bh_next_header = BH_NH_COMMON_HDR;
@@ -2259,7 +2261,6 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 default:
                     hdr_len = -1;
             }
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, NULL);
         }
     }
 
