@@ -423,7 +423,7 @@ get_data_source_tvb_by_name(packet_info *pinfo, const char *name)
 {
 	GSList *source;
 	for (source = pinfo->data_src; source; source = source->next) {
-		struct data_source *this_source = (struct data_source *)source;
+		struct data_source *this_source = (struct data_source *)source->data;
 		if (this_source->name && strcmp(this_source->name, name) == 0) {
 			return this_source->tvb;
 		}
