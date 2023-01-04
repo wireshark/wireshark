@@ -835,13 +835,13 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     {
         parseInt32(subtree, tvb, pinfo, &iOffset, hf_opcua_diag_namespace);
     }
-    if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_LOCALIZEDTEXT_FLAG)
-    {
-        parseInt32(subtree, tvb, pinfo, &iOffset, hf_opcua_diag_localizedtext);
-    }
     if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_LOCALE_FLAG)
     {
         parseInt32(subtree, tvb, pinfo, &iOffset, hf_opcua_diag_locale);
+    }
+    if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_LOCALIZEDTEXT_FLAG)
+    {
+        parseInt32(subtree, tvb, pinfo, &iOffset, hf_opcua_diag_localizedtext);
     }
     if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_ADDITIONALINFO_FLAG)
     {
