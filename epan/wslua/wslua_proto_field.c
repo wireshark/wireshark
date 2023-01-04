@@ -420,7 +420,7 @@ static guint64 get_mask(lua_State* L, int idx, guint64 default_value) {
 
     switch(lua_type(L, idx)) {
         case LUA_TNUMBER:
-            mask = (guint64)wslua_optguint32(L, idx, default_value);
+            mask = (guint64)wslua_optguint32(L, idx, (lua_Number)default_value);
             break;
         case LUA_TSTRING:
         case LUA_TUSERDATA:
@@ -1455,7 +1455,7 @@ PROTOFIELD_OTHER(eui64,FT_EUI64)
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.16lx %s",
+    gchar* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.16" PRIu64 "x %s",
                                          f->hfid,f->name,f->abbrev,
                                          ftenum_to_string(f->type),
                                          base_to_string(f->base),
