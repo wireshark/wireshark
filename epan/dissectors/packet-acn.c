@@ -82,6 +82,7 @@ void proto_reg_handoff_acn(void);
 #define ACN_PROTOCOL_ID_DMX           0x00000003
 #define ACN_PROTOCOL_ID_DMX_2         0x00000004
 #define ACN_PROTOCOL_ID_RPT           0x00000005
+#define ACN_PROTOCOL_ID_EXTENDED      0x00000008
 #define ACN_PROTOCOL_ID_BROKER        0x00000009
 #define ACN_PROTOCOL_ID_LLRP          0x0000000A
 #define ACN_PROTOCOL_ID_EPT           0x0000000B
@@ -219,6 +220,10 @@ void proto_reg_handoff_acn(void);
 #define ACN_DMP_REASON_CODE_NO_SUBSCRIPTIONS_SUPPORTED  11
 
 #define ACN_DMX_VECTOR      2
+
+#define ACN_DMX_EXT_SYNC_VECTOR 1
+#define ACN_DMX_EXT_DISCOVERY_VECTOR 2
+#define ACN_DMX_DISCOVERY_UNIVERSE_LIST_VECTOR 1
 
 #define ACN_PREF_DMX_DISPLAY_HEX  0
 #define ACN_PREF_DMX_DISPLAY_DEC  1
@@ -494,6 +499,8 @@ static gint ett_rdmnet_ept_data_pdu = -1;
 static gint ett_rdmnet_ept_data_vector_pdu = -1;
 static gint ett_rdmnet_ept_status_pdu = -1;
 
+static expert_field ei_acn_dmx_discovery_outofseq = EI_INIT;
+
 /*  Register fields */
 /* In alphabetical order */
 static int hf_acn_association = -1;
@@ -578,6 +585,7 @@ static int hf_acn_adhoc_expiry = -1;
 static int hf_acn_sdt_vector = -1;
 
 static int hf_acn_dmx_vector = -1;
+static int hf_acn_dmx_extension_vector = -1;
 /* static int hf_acn_session_count = -1; */
 static int hf_acn_total_sequence_number = -1;
 static int hf_acn_dmx_source_name = -1;
@@ -601,6 +609,12 @@ static int hf_acn_postamble_seq_type = -1;
 static int hf_acn_postamble_seq_hi = -1;
 static int hf_acn_postamble_seq_low = -1;
 static int hf_acn_postamble_message_digest = -1;
+
+static int hf_acn_dmx_discovery_framing_reserved = -1;
+static int hf_acn_dmx_discovery_page = -1;
+static int hf_acn_dmx_discovery_last_page = -1;
+static int hf_acn_dmx_discovery_vector = -1;
+static int hf_acn_dmx_discovery_universe_list = -1;
 
 /* static int hf_acn_dmx_dmp_vector = -1; */
 
@@ -760,6 +774,7 @@ static const value_string acn_protocol_id_vals[] = {
   { ACN_PROTOCOL_ID_LLRP,   "Low Level Recovery Protocol" },
   { ACN_PROTOCOL_ID_EPT,    "Extensible Packet Transport Protocol" },
   { ACN_PROTOCOL_ID_DMX_3,  "Pathway Connectivity Secure DMX Protocol" },
+  { ACN_PROTOCOL_ID_EXTENDED, "Protocol Extension" },
   { 0,       NULL },
 };
 
@@ -816,6 +831,17 @@ static const value_string acn_sdt_vector_vals[] = {
 
 static const value_string acn_dmx_vector_vals[] = {
   { ACN_DMX_VECTOR,  "Streaming DMX"},
+  { 0,       NULL },
+};
+
+static const value_string acn_dmx_extension_vector_vals[] = {
+  { ACN_DMX_EXT_SYNC_VECTOR,        "Streaming DMX Sync"},
+  { ACN_DMX_EXT_DISCOVERY_VECTOR,   "Streaming DMX Discovery"},
+  { 0,       NULL },
+};
+
+static const value_string acn_dmx_discovery_vector_vals[] = {
+  { ACN_DMX_DISCOVERY_UNIVERSE_LIST_VECTOR,        "Source Universe List"},
   { 0,       NULL },
 };
 
@@ -3256,7 +3282,8 @@ is_acn(tvbuff_t *tvb)
     if ((protocol_id == ACN_PROTOCOL_ID_DMX) ||
         (protocol_id == ACN_PROTOCOL_ID_DMX_2) ||
         (protocol_id == ACN_PROTOCOL_ID_DMX_3) ||
-        (protocol_id == ACN_PROTOCOL_ID_SDT))
+        (protocol_id == ACN_PROTOCOL_ID_SDT) ||
+        (protocol_id == ACN_PROTOCOL_ID_EXTENDED))
       return TRUE;
   }
 
@@ -5603,6 +5630,178 @@ dissect_acn_common_base_pdu(tvbuff_t *tvb, proto_tree *tree, int *offset, acn_pd
 }
 
 /******************************************************************************/
+/* Dissect sACN Discovery PDU*/
+#define DMX_UNIV_LIST_MAX_DIGITS 5
+#define DMX_UNIV_LIST_MAX_ITEMS_PER_LINE 16
+#define DMX_UNIV_LIST_BUF_SIZE (DMX_UNIV_LIST_MAX_DIGITS + 1) * DMX_UNIV_LIST_MAX_ITEMS_PER_LINE + 1
+static guint32
+dissect_acn_dmx_discovery_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
+{
+  /* common to all pdu */
+  guint8            pdu_flags;
+  guint32           pdu_start;
+  guint32           pdu_length;
+  guint32           pdu_flvh_length; /* flags, length, vector, header */
+  guint32           vector_offset;
+  guint32           data_offset;
+  guint32           end_offset;
+  guint32           data_length;
+  guint32           item_cnt;
+
+  proto_item       *ti;
+  proto_tree       *pdu_tree;
+
+/* this pdu */
+  const gchar      *name;
+  guint32           vector;
+  gchar            *buffer;
+  char             *buf_ptr;
+  guint             x;
+  guint16           universe;
+  guint16           last_universe;
+
+  guint32           page;
+  guint32           lastpage;
+  guint32           current_universe_idx;
+  guint32           bytes_printed;
+  bool              warned_unorder_once;
+
+  (void)protocol_id;
+  warned_unorder_once = false;
+
+  buffer = (gchar*)wmem_alloc(pinfo->pool, DMX_UNIV_LIST_BUF_SIZE);
+  buffer[0] = '\0';
+
+  data_length = 0;
+
+   //discovery pdu
+  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_dmx_pdu, 4, 1);
+  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  end_offset = data_offset + data_length;
+
+  /* Add Vector item */
+  vector = tvb_get_ntohl(tvb, vector_offset);
+  proto_tree_add_item(ti, hf_acn_dmx_discovery_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+
+  /* Add Vector item to tree*/
+  name = val_to_str(vector, acn_dmx_discovery_vector_vals, "not valid (%d)");
+  proto_item_append_text(ti, ": %s", name);
+
+  page = tvb_get_guint8(tvb, data_offset);
+  proto_tree_add_item(ti, hf_acn_dmx_discovery_page, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+  data_offset += 1;
+
+  lastpage = tvb_get_guint8(tvb, data_offset);
+  proto_tree_add_item(ti, hf_acn_dmx_discovery_last_page, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+  data_offset += 1;
+
+  switch (vector) {
+    case ACN_DMX_DISCOVERY_UNIVERSE_LIST_VECTOR:
+      buf_ptr = buffer;
+      
+      /* add a snippet to info (this may be slow) */
+      col_append_fstr(pinfo->cinfo,COL_INFO, ",[Universe Page %u/%u: ", page+1, lastpage+1);
+      current_universe_idx = 0;
+      while(data_offset + (sizeof(guint16)*current_universe_idx) != end_offset && current_universe_idx < 6)
+      {
+        col_append_fstr(pinfo->cinfo,COL_INFO, "%u ", tvb_get_guint16(tvb, data_offset + (sizeof(guint16)*current_universe_idx), ENC_BIG_ENDIAN));
+        ++current_universe_idx;
+      }
+      if(data_offset + (sizeof(guint16)*current_universe_idx) != end_offset)
+        col_append_fstr(pinfo->cinfo,COL_INFO,"...");
+      else if(current_universe_idx == 0)
+        col_append_fstr(pinfo->cinfo,COL_INFO,"none");
+
+      col_append_fstr(pinfo->cinfo,COL_INFO, "]");
+
+      proto_tree_add_string(pdu_tree, hf_acn_dmx_discovery_universe_list, tvb, data_offset, end_offset-data_offset, "");
+
+      item_cnt = 0;
+      last_universe = 0;
+      for (x=data_offset; x<end_offset; x+=2) {
+        universe = tvb_get_guint16(tvb, x, ENC_BIG_ENDIAN);
+
+        if(!warned_unorder_once && last_universe > universe)
+        {
+          expert_add_info(pinfo, pdu_tree, &ei_acn_dmx_discovery_outofseq);
+          warned_unorder_once = true;
+        }
+        bytes_printed = snprintf(buf_ptr, DMX_UNIV_LIST_BUF_SIZE, "%*u ", DMX_UNIV_LIST_MAX_DIGITS /*max 5 digits (1-63999), align right*/, universe);
+        if(bytes_printed > 0)
+          buf_ptr += bytes_printed;
+
+        item_cnt++;
+        if((item_cnt % DMX_UNIV_LIST_MAX_ITEMS_PER_LINE) == 0 || x+2 >= end_offset)
+        {
+          proto_tree_add_string_format(pdu_tree, hf_acn_dmx_discovery_universe_list, tvb, data_offset, item_cnt*2, buffer, "%s", buffer);
+          data_offset += item_cnt * 2;
+          item_cnt = 0;
+
+          buf_ptr = buffer;
+        }
+
+        last_universe = universe;
+      }
+
+      break;
+  }
+  return pdu_start + pdu_length;
+}
+
+/******************************************************************************/
+/* Dissect DMX Base PDU                                                       */
+static guint32
+dissect_acn_dmx_extension_base_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
+{
+  (void)protocol_id;
+  (void)pinfo;
+  /* common to all pdu */
+  guint8           pdu_flags;
+  guint32          pdu_start;
+  guint32          pdu_length;
+  guint32          pdu_flvh_length; /* flags, length, vector, header */
+  guint32          vector_offset;
+  guint32          data_offset;
+  guint32          data_length;
+
+  proto_item      *ti;
+  proto_tree      *pdu_tree;
+
+  /* this pdu */
+  const char      *name;
+  guint32          vector;
+
+  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_dmx_pdu, 4, 1);
+
+  /* Add Vector item */
+  vector = tvb_get_ntohl(tvb, vector_offset);
+  proto_tree_add_item(pdu_tree, hf_acn_dmx_extension_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
+
+  /* Add Vector item to tree*/
+  name = val_to_str(vector, acn_dmx_extension_vector_vals, "not valid (%d)");
+  proto_item_append_text(ti, ": %s", name);
+
+  ///* NO HEADER DATA ON THESE* (at least so far) */
+
+  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+
+  ///* process based on vector */
+  switch (vector) {
+    case ACN_DMX_EXT_DISCOVERY_VECTOR:
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 64, ENC_UTF_8);
+      data_offset += 64;
+
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_discovery_framing_reserved, tvb, data_offset, 4, ENC_BIG_ENDIAN);
+      data_offset += 4;
+
+      dissect_acn_dmx_discovery_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, last_pdu_offsets);
+
+      break;
+  }
+  return pdu_start + pdu_length;
+}
+
+/******************************************************************************/
 /* Dissect DMX Base PDU                                                       */
 static guint32
 dissect_acn_dmx_base_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
@@ -7056,6 +7255,16 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         }
       }
       break;
+     case ACN_PROTOCOL_ID_EXTENDED:
+      end_offset = dissect_acn_root_pdu_header(tvb, pinfo, pdu_tree, ti, ": Root DMX Extension", &offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, 1, &pdu_flvh_length, 1);
+
+       /* adjust for what we used */
+        while (data_offset < end_offset) {
+          old_offset = data_offset;
+          data_offset = dissect_acn_dmx_extension_base_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
+          if (data_offset == old_offset) break;
+        }
+      break;
     case ACN_PROTOCOL_ID_SDT:
       end_offset = dissect_acn_root_pdu_header(tvb, pinfo, pdu_tree, ti, ": Root SDT", &offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, 0, &pdu_flvh_length, 1);
 
@@ -7797,6 +8006,42 @@ proto_register_acn(void)
         "DMX Start Code", HFILL }
     },
 
+    /* DMX Extension Vector */
+    { &hf_acn_dmx_extension_vector,
+      { "Vector", "acn.dmx.extension.vector",
+        FT_UINT32, BASE_DEC, VALS(acn_dmx_extension_vector_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_dmx_discovery_vector,
+      { "Vector", "acn.dmx.discovery.vector",
+        FT_UINT32, BASE_DEC, VALS(acn_dmx_discovery_vector_vals), 0x0,
+        "DMX Extension Discovery Vector", HFILL }
+    },
+    { &hf_acn_dmx_discovery_universe_list,
+      { "Universe List", "acn.dmx.discovery.list",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "DMX Extension Discovery Universe List", HFILL }
+    },
+      
+    /* DMX Discovery Pages */
+    { &hf_acn_dmx_discovery_page,
+      { "Page", "acn.dmx.discovery.page",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "DMX Extension Discovery Page", HFILL }
+    },
+
+    { &hf_acn_dmx_discovery_last_page,
+      { "Last Page", "acn.dmx.discovery.last_page",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "DMX Extension Discovery Last Page", HFILL }
+    },
+
+    { &hf_acn_dmx_discovery_framing_reserved,
+      { "Reserved", "acn.dmx.discovery.reserved",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
     /*
      * If you want the pretty-printed data in the field, for filtering
      * purposes, you have to make it an FT_STRING.
@@ -8030,7 +8275,6 @@ proto_register_acn(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Security Message Digest", HFILL }
     },
-
   };
 
   static hf_register_info rdmnet_hf[] = {
@@ -8638,6 +8882,7 @@ proto_register_acn(void)
 
   static ei_register_info ei[] = {
     { &ei_magic_reply_invalid_type, { "magic.reply.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
+    { &ei_acn_dmx_discovery_outofseq, { "acn.dmx.discovery.out_of_order_universes", PI_PROTOCOL, PI_WARN, "Universe list is unordered, E1.31 Sec. 8.5 requires sorted lists", EXPFILL }},
   };
 
   module_t *acn_module;
