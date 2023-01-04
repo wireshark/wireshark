@@ -1026,8 +1026,8 @@ static const value_string dns_types_vals[] = {
   { T_TSIG,       "TSIG"       },
   { T_IXFR,       "IXFR"       },
   { T_AXFR,       "AXFR"       },
-  { T_MAILB,      "MAILA"      },
-  { T_MAILA,      "MAILB"      },
+  { T_MAILB,      "MAILB"      },
+  { T_MAILA,      "MAILA"      },
   { T_ANY,        "ANY"        },
   { T_URI,        "URI"        },
   { T_CAA,        "CAA"        }, /* RFC 6844 */
