@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V17.8.0 (2022-09)
+ * References: 3GPP TS 24.301 V17.9.0 (2022-12)
  */
 
 #include "config.h"
@@ -5728,6 +5728,10 @@ nas_emm_serv_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
     /* 37   EPS additional request result EPS additional request result 9.9.3.67 O TLV 3 */
     ELEM_OPT_TLV(0x37, NAS_PDU_TYPE_EMM, DE_EMM_EPS_ADD_REQ_RESULT, NULL);
+    /* 1D   Forbidden TAI(s) for the list of "forbidden tracking areas for roaming" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
+    /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
