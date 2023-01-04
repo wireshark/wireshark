@@ -1075,7 +1075,7 @@ static const value_string dns_types_description_vals[] = {
   { T_KEY,        "KEY (security key)" },
   { T_PX,         "PX (X.400 mail mapping information)" },
   { T_GPOS,       "GPOS (Geographical Position)" },
-  { T_AAAA,       "AAAA (IPv6 Address)" },
+  { T_AAAA,       "AAAA (IP6 Address)" },
   { T_LOC,        "LOC (Location Information)" },
   { T_NXT,        "NXT (Next Domain)" },
   { T_EID,        "EID (Endpoint Identifier)" },
