@@ -21,6 +21,13 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 
+/* TODO:
+ * - sequence analysis based on sequence Id.  N.B. separate counts per antenna for spatial stream (eAxC Id), plane, direction
+ * - tap stats by flow?
+ * - for U-Plane, track back to last C-Plane frame for that eAxC
+ *     - use upCompHdr values from C-Plane if not overridden by U-Plane?
+ */
+
 /* Prototypes */
 void proto_reg_handoff_oran(void);
 void proto_register_oran(void);
@@ -509,13 +516,16 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
     guint64 duPortId, bandSectorId, ccId, ruPortId = 0;
     gint id_offset = *offset;
 
-    if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) && ((pref_du_port_id_bits + pref_bandsector_id_bits + pref_cc_id_bits + pref_ru_port_id_bits) == 16))) {
+    if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) && /* all parts above 0 */
+         ((pref_du_port_id_bits + pref_bandsector_id_bits + pref_cc_id_bits + pref_ru_port_id_bits) == 16))) {                  /* and adding up to 16 bits */
         expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
         *offset += 2;
         return;
     }
 
     guint bit_offset = *offset * 8;
+
+    /* N.B. For sequence analysis / tapping, just interpret these 2 bytes as eAxC ID... */
 
     /* DU Port ID */
     proto_tree_add_bits_ret_val(oran_pcid_tree, hf_oran_du_port_id, tvb, bit_offset, pref_du_port_id_bits, &duPortId, ENC_BIG_ENDIAN);
@@ -1723,10 +1733,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 proto_tree_add_item_ret_uint(rb_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, &exponent);
                 offset += 1;
             }
+            /* Show PRB number in root */
+            proto_item_append_text(prbHeading, " %u", startPrbu + i);
 
-            /* FIXME - add udCompParam for COMP_NONE or COMP_MODULATION, figure out correct length
-               Maybe even decode the samples themselves.
-             */
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
 
@@ -1754,12 +1763,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                     sample_number++;
                 }
+                proto_item_append_text(prbHeading, " (%u samples)", sample_number);
             }
 
             offset += nBytesForSamples;
 
             proto_item_set_len(sectionHeading, nBytesPerPrb * numPrbu + 4);  /* 4 bytes for section header */
-            proto_item_append_text(prbHeading, " %d", startPrbu + i);
         }
         bytesLeft = tvb_captured_length(tvb) - offset;
         number_of_sections++;
@@ -2644,21 +2653,21 @@ proto_register_oran(void)
 
         { &hf_oran_rsvd4,
           { "Reserved", "oran_fh_cus.reserved4",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_HEX,
             NULL, 0xf0,
             "Reserved for future use", HFILL }
         },
 
         { &hf_oran_rsvd8,
           { "Reserved", "oran_fh_cus.reserved8",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_HEX,
             NULL, 0x00,
             "Reserved for future use", HFILL }
         },
 
         { &hf_oran_rsvd16,
           { "Reserved", "oran_fh_cus.reserved16",
-            FT_UINT16, BASE_DEC,
+            FT_UINT16, BASE_HEX,
             NULL, 0x00,
             "Reserved for future use", HFILL }
         },
@@ -2878,7 +2887,7 @@ proto_register_oran(void)
         "The bit width of RU Port ID, sum of a,b,c&d must be 16", 10, &pref_ru_port_id_bits);
 
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
-        "The bit width of a sample in the Uplink", 10, &pref_sample_bit_width_uplink);
+        "The bit width of a sample in the Uplink (if no udcompHdr)", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
         "Uplink User Data Compression", &pref_iqCompressionUplink, compression_options, TRUE);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
@@ -2887,7 +2896,7 @@ proto_register_oran(void)
         "this field to be present in uplink messages.", &pref_includeUdCompHeaderUplink);
 
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
-        "The bit width of a sample in the Downlink", 10, &pref_sample_bit_width_downlink);
+        "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
         "Downlink User Data Compression", &pref_iqCompressionDownlink, compression_options, TRUE);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
