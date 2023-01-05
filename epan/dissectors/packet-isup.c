@@ -3839,7 +3839,7 @@ static const value_string q850_cause_code_vals[] = {
   { 0x7C,  "Unassigned" },
   { 0x7D,  "Unassigned" },
   { 0x7E,  "Unassigned" },
-  { 0x7F,  "Internetworking, unspecified" },
+  { 0x7F,  "Interworking, unspecified" },
   { 0,  NULL }
 };
 value_string_ext q850_cause_code_vals_ext = VALUE_STRING_EXT_INIT(q850_cause_code_vals);
