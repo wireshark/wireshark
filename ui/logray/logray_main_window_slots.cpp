@@ -288,9 +288,6 @@ void LograyMainWindow::filterPackets(QString new_filter, bool force)
     } else {
         emit displayFilterSuccess(false);
     }
-    if (packet_list_) {
-        packet_list_->resetColumns();
-    }
 }
 
 void LograyMainWindow::layoutToolbars()
