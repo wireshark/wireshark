@@ -125,10 +125,10 @@ WS_DLL_PUBLIC
 GSList *
 dfilter_get_warnings(dfilter_t *df);
 
-/* Print bytecode of dfilter to stdout */
+/* Print bytecode of dfilter to fp */
 WS_DLL_PUBLIC
 void
-dfilter_dump(dfilter_t *df);
+dfilter_dump(FILE *fp, dfilter_t *df);
 
 /* Text after macro expansion. */
 WS_DLL_PUBLIC

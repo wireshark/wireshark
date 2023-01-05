@@ -96,7 +96,7 @@ class case_syntax(unittest.TestCase):
 
     def test_deprecated_1(self, checkDFilterSucceed):
         dfilter = "bootp"
-        checkDFilterSucceed(dfilter, "Deprecated tokens: \"bootp\"")
+        checkDFilterSucceed(dfilter, "Deprecated token \"bootp\"")
 
     def test_charconst_bytes_1(self, checkDFilterCount):
         # Bytes as a character constant.

@@ -42,9 +42,11 @@
 static void dftest_cmdarg_err(const char *fmt, va_list ap);
 static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 
-static int debug_noisy = 0;
-static int debug_flex = 0;
-static int debug_lemon = 0;
+static int opt_verbose = 0;
+static int opt_noisy = 0;
+static int opt_flex = 0;
+static int opt_lemon = 0;
+static int opt_syntax_tree = 0;
 
 static void
 putloc(FILE *fp, df_loc_t loc)
@@ -64,6 +66,51 @@ static void
 print_usage(void)
 {
     fprintf(stderr, "Usage: dftest [OPTIONS] -- <EXPR>\n");
+    fprintf(stderr, "\nOptions:\n");
+    fprintf(stderr, "  -v       Verbose mode\n");
+    fprintf(stderr, "  -d       Enable verbose display filter logs\n");
+    fprintf(stderr, "  -f       Enable Flex debug trace\n");
+    fprintf(stderr, "  -l       Enable Lemon debug trace\n");
+    fprintf(stderr, "  -t       Print syntax tree\n");
+}
+
+static void
+print_syntax_tree(dfilter_t *df)
+{
+    printf("Syntax tree:\n%s\n\n", dfilter_syntax_tree(df));
+}
+
+static void
+print_warnings(dfilter_t *df)
+{
+    guint i;
+    GSList *warnings;
+    GPtrArray *deprecated;
+
+    warnings = dfilter_get_warnings(df);
+    for (GSList *l = warnings; l != NULL; l = l->next) {
+        printf("Warning: %s.\n", (char *)l->data);
+    }
+
+    deprecated = dfilter_deprecated_tokens(df);
+    if (deprecated && deprecated->len) {
+        for (i = 0; i < deprecated->len; i++) {
+            printf("Warning: Deprecated token \"%s\".\n", (char *) g_ptr_array_index(deprecated, i));
+        }
+    }
+
+    if (warnings || (deprecated && deprecated->len > 0)) {
+        printf("\n");
+    }
+}
+
+static void
+print_elapsed(gdouble expand_secs, gdouble compile_secs)
+{
+    printf("Elapsed time: %.f µs (%.f µs + %.f µs)\n",
+            (expand_secs + compile_secs) * 1000 * 1000,
+            expand_secs * 1000 * 1000,
+            compile_secs * 1000 * 1000);
 }
 
 int
@@ -87,7 +134,7 @@ main(int argc, char **argv)
     dfilter_t   *df = NULL;
     gchar       *err_msg = NULL;
     df_error_t  *df_err = NULL;
-    unsigned     df_flags;
+    unsigned     df_flags = 0;
     GTimer      *timer = NULL;
     gdouble elapsed_expand, elapsed_compile;
     gboolean ok;
@@ -114,16 +161,22 @@ main(int argc, char **argv)
     setlocale(LC_ALL, "");
 #endif
 
-    while ((opt = ws_getopt(argc, argv, "dfl")) != -1) {
+    while ((opt = ws_getopt(argc, argv, "vdflt")) != -1) {
         switch (opt) {
+            case 'v':
+                opt_verbose = 1;
+                break;
             case 'd':
-                debug_noisy = 1;
+                opt_noisy = 1;
                 break;
             case 'f':
-                debug_flex = 1;
+                opt_flex = 1;
                 break;
             case 'l':
-                debug_lemon = 1;
+                opt_lemon = 1;
+                break;
+            case 't':
+                opt_syntax_tree = 1;
                 break;
             default: /* '?' */
                 print_usage();
@@ -131,8 +184,8 @@ main(int argc, char **argv)
         }
     }
 
-    if (debug_noisy)
-        ws_log_set_noisy_filter("DFilter");
+    if (opt_noisy)
+        ws_log_set_noisy_filter(LOG_DOMAIN_DFILTER);
 
     /*
      * Get credential information for later use.
@@ -185,13 +238,17 @@ main(int argc, char **argv)
 
     /* This is useful to prevent confusion with option parsing.
      * Skips printing options and argv[0]. */
-    for (int i = ws_optind; i < argc; i++) {
-        printf("argv[%d]: %s\n", i, argv[i]);
+    if (opt_verbose) {
+        for (int i = ws_optind; i < argc; i++) {
+            printf("argv[%d]: %s\n", i, argv[i]);
+        }
+        printf("\n");
     }
-    printf("\n");
 
     /* Get filter text */
     text = get_args_as_string(argc, argv, ws_optind);
+
+    printf("Filter: %s\n\n", text);
 
     timer = g_timer_new();
 
@@ -201,29 +258,30 @@ main(int argc, char **argv)
     g_timer_stop(timer);
     elapsed_expand = g_timer_elapsed(timer, NULL);
     if (expanded_text == NULL) {
-        fprintf(stderr, "dftest: %s\n", err_msg);
+        fprintf(stderr, "Error: %s\n", err_msg);
         g_free(err_msg);
         exit_status = 2;
         goto out;
     }
 
-    printf("Filter: %s\n", expanded_text);
+    if (strcmp(text, expanded_text) != 0)
+        printf("Filter after expansion: %s\n\n", expanded_text);
 
     /* Compile it */
-    df_flags = DF_SAVE_TREE;
-    if (debug_flex)
+    if (opt_syntax_tree)
+        df_flags = DF_SAVE_TREE;
+    if (opt_flex)
         df_flags |= DF_DEBUG_FLEX;
-    if (debug_lemon)
+    if (opt_lemon)
         df_flags |= DF_DEBUG_LEMON;
     g_timer_start(timer);
     ok = dfilter_compile_real(expanded_text, &df, &df_err, df_flags, "dftest");
     g_timer_stop(timer);
     elapsed_compile = g_timer_elapsed(timer, NULL);
     if (!ok) {
-        fprintf(stderr, "dftest: %s\n", df_err->msg);
+        fprintf(stderr, "Error: %s\n", df_err->msg);
         if (df_err->loc.col_start >= 0) {
-            fprintf(stderr, "\t%s\n", expanded_text);
-            fputc('\t', stderr);
+            fprintf(stderr, "  %s\n  ", expanded_text);
             putloc(stderr, df_err->loc);
         }
         dfilter_error_free(df_err);
@@ -236,15 +294,15 @@ main(int argc, char **argv)
         goto out;
     }
 
-    for (GSList *l = dfilter_get_warnings(df); l != NULL; l = l->next) {
-        printf("\nWarning: %s.\n", (char *)l->data);
-    }
+    if (opt_syntax_tree)
+        print_syntax_tree(df);
 
-    printf("\nSyntax tree:\n%s\n\n", dfilter_syntax_tree(df));
-    dfilter_dump(df);
-    printf("\nElapsed time: %.f µs (%.f µs + %.f µs)\n",
-            (elapsed_expand + elapsed_compile) * 1000 * 1000,
-            elapsed_expand * 1000 * 1000, elapsed_compile * 1000 * 1000);
+    dfilter_dump(stdout, df);
+    printf("\n");
+
+    print_warnings(df);
+
+    print_elapsed(elapsed_expand, elapsed_compile);
 
 out:
     epan_cleanup();

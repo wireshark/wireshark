@@ -628,21 +628,9 @@ dfilter_get_warnings(dfilter_t *df)
 }
 
 void
-dfilter_dump(dfilter_t *df)
+dfilter_dump(FILE *fp, dfilter_t *df)
 {
-	guint i;
-	const gchar *sep = "";
-
-	dfvm_dump(stdout, df);
-
-	if (df->deprecated && df->deprecated->len) {
-		printf("\nDeprecated tokens: ");
-		for (i = 0; i < df->deprecated->len; i++) {
-			printf("%s\"%s\"", sep, (char *) g_ptr_array_index(df->deprecated, i));
-			sep = ", ";
-		}
-		printf("\n");
-	}
+	dfvm_dump(fp, df);
 }
 
 const char *
