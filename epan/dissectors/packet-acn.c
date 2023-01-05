@@ -48,6 +48,7 @@ void proto_reg_handoff_acn(void);
 
 #define ACN_DMX_OPTION_P   0x80
 #define ACN_DMX_OPTION_S   0x40
+#define ACN_DMX_OPTION_F   0x20
 
 #define ACN_DMP_ADT_FLAG_V 0x80 /* V = Specifies whether address is a virtual address or not. */
 #define ACN_DMP_ADT_FLAG_R 0x40 /* R = Specifies whether address is relative to last valid address in packet or not. */
@@ -590,11 +591,13 @@ static int hf_acn_dmx_extension_vector = -1;
 static int hf_acn_total_sequence_number = -1;
 static int hf_acn_dmx_source_name = -1;
 static int hf_acn_dmx_priority = -1;
-static int hf_acn_dmx_2_reserved = -1;
+static int hf_acn_dmx_2_sync_universe = -1;
+static int hf_acn_dmx_3_reserved = -1;
 static int hf_acn_dmx_sequence_number = -1;
 static int hf_acn_dmx_2_options = -1;
 static int hf_acn_dmx_2_option_p = -1;
 static int hf_acn_dmx_2_option_s = -1;
+static int hf_acn_dmx_2_option_f = -1;
 static int hf_acn_dmx_universe = -1;
 
 static int hf_acn_dmx_start_code = -1;
@@ -615,6 +618,9 @@ static int hf_acn_dmx_discovery_page = -1;
 static int hf_acn_dmx_discovery_last_page = -1;
 static int hf_acn_dmx_discovery_vector = -1;
 static int hf_acn_dmx_discovery_universe_list = -1;
+
+static int hf_acn_dmx_sync_universe = -1;
+static int hf_acn_dmx_sync_reserved = -1;
 
 /* static int hf_acn_dmx_dmp_vector = -1; */
 
@@ -5797,6 +5803,20 @@ dissect_acn_dmx_extension_base_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_in
       dissect_acn_dmx_discovery_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, last_pdu_offsets);
 
       break;
+
+    case ACN_DMX_EXT_SYNC_VECTOR:
+      proto_tree_add_item(ti, hf_acn_dmx_sequence_number, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+      data_offset += 1;
+
+      proto_tree_add_item(ti, hf_acn_dmx_sync_universe, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      data_offset += 2;
+
+      proto_tree_add_item(ti, hf_acn_dmx_sync_reserved, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      data_offset += 2;
+      break;
+
+    default:
+      break;
   }
   return pdu_start + pdu_length;
 }
@@ -5859,8 +5879,13 @@ dissect_acn_dmx_base_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(pdu_tree, hf_acn_dmx_priority, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset += 1;
 
-      if (protocol_id == ACN_PROTOCOL_ID_DMX_2 || protocol_id == ACN_PROTOCOL_ID_DMX_3) {
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_reserved, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      if (protocol_id == ACN_PROTOCOL_ID_DMX_2) {
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_sync_universe, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+        data_offset += 2;
+      }
+      else if (protocol_id == ACN_PROTOCOL_ID_DMX_3) {
+        //it is not clear if ssacn uses sync universes or not, leaving this as reserved (previous behavior)
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_3_reserved, tvb, data_offset, 2, ENC_BIG_ENDIAN);
         data_offset += 2;
       }
 
@@ -5874,6 +5899,7 @@ dissect_acn_dmx_base_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
         flag_tree = proto_item_add_subtree(pi, ett_acn_dmx_2_options);
         proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_p, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_s, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_f, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         data_offset += 1;
       }
 
@@ -7931,8 +7957,15 @@ proto_register_acn(void)
         "DMX Priority", HFILL }
     },
 
-    /* DMX 2 reserved */
-    { &hf_acn_dmx_2_reserved,
+    /* DMX 2 sync universe*/
+    { &hf_acn_dmx_2_sync_universe,
+      { "Sync Universe", "acn.dmx.sync",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* DMX 3 reserved */
+    { &hf_acn_dmx_3_reserved,
       { "Reserved", "acn.dmx.reserved",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "DMX Reserved", HFILL }
@@ -7962,6 +7995,12 @@ proto_register_acn(void)
       { "Stream Terminated", "acn.dmx.option_s",
         FT_BOOLEAN, 8, NULL, ACN_DMX_OPTION_S,
         "Stream Terminated flag", HFILL }
+    },
+
+    { &hf_acn_dmx_2_option_f,
+      { "Force Synchronization", "acn.dmx.option_sync",
+        FT_BOOLEAN, 8, NULL, ACN_DMX_OPTION_F,
+        "Force Synchronization flag", HFILL }
     },
 
     /* DMX Universe */
@@ -8039,6 +8078,18 @@ proto_register_acn(void)
     { &hf_acn_dmx_discovery_framing_reserved,
       { "Reserved", "acn.dmx.discovery.reserved",
         FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_acn_dmx_sync_universe,
+      { "Sync Universe", "acn.dmx.sync.universe",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_acn_dmx_sync_reserved,
+      { "Reserved", "acn.dmx.sync.reserved",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
 
