@@ -9407,37 +9407,29 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint
 /* 7.2.3.3  Grouped Information Elements */
 
 static void
-dissect_pfcp_grouped_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, int ett_index, pfcp_session_args_t *args)
+dissect_pfcp_grouped_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    int         offset = 0;
-    tvbuff_t   *new_tvb;
-    proto_tree *grouped_tree;
-
     proto_item_append_text(item, "[Grouped IE]");
-    grouped_tree = proto_item_add_subtree(tree, ett_index);
-
-    new_tvb = tvb_new_subset_length(tvb, offset, length);
-    dissect_pfcp_ies_common(new_tvb, pinfo, grouped_tree, offset, length, message_type, args);
-
+    dissect_pfcp_ies_common(tvb, pinfo, tree, 0, length, message_type, args);
 }
 
 static void
 dissect_pfcp_pdi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ID_PDI], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_create_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ID_CREATE_PDR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_create_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_FAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": FAR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.far & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.far & 0x7fffffff));
@@ -9446,19 +9438,19 @@ dissect_pfcp_create_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_forwarding_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_FORWARDING_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_duplicating_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_DUPLICATING_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_create_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_URR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": URR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.urr & 0x7fffffff));
@@ -9467,7 +9459,7 @@ dissect_pfcp_create_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_create_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_QER], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": QER ID: %s %u",
                         tfs_get_string((args->last_rule_ids.qer & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.qer & 0x7fffffff));
@@ -9476,21 +9468,21 @@ dissect_pfcp_create_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_created_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_PDR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_update_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_PDR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_update_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_FAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": FAR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.far & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.far & 0x7fffffff));
@@ -9499,20 +9491,20 @@ dissect_pfcp_update_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_upd_forwarding_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPD_FORWARDING_PARAM], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_update_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_BAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_update_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_URR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": URR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.urr & 0x7fffffff));
@@ -9521,7 +9513,7 @@ dissect_pfcp_update_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_update_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_QER], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": QER ID: %s %u",
                         tfs_get_string((args->last_rule_ids.qer & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.qer & 0x7fffffff));
@@ -9530,14 +9522,14 @@ dissect_pfcp_update_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_remove_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_PDR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_remove_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_FAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": FAR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.far & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.far & 0x7fffffff));
@@ -9546,7 +9538,7 @@ dissect_pfcp_remove_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_remove_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_URR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": URR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.urr & 0x7fffffff));
@@ -9555,7 +9547,7 @@ dissect_pfcp_remove_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_remove_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_QER], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": QER ID: %s %u",
                         tfs_get_string((args->last_rule_ids.qer & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.qer & 0x7fffffff));
@@ -9564,44 +9556,44 @@ dissect_pfcp_remove_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_load_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_LOAD_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_overload_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_OVERLOAD_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_application_ids_pfds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_APPLICATION_IDS_PFDS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_pfd_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFD_CONTEXT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 
 static void
 dissect_pfcp_application_detection_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_APPLICATION_DETECTION_INF], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_pfcp_query_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QUERY_URR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_usage_report_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SMR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": URR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.urr & 0x7fffffff));
@@ -9610,7 +9602,7 @@ dissect_pfcp_usage_report_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_pfcp_usage_report_sdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SDR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": URR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.urr & 0x7fffffff));
@@ -9619,7 +9611,7 @@ dissect_pfcp_usage_report_sdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_pfcp_usage_report_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SRR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": URR ID: %s %u",
                         tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
                         (args->last_rule_ids.urr & 0x7fffffff));
@@ -9628,466 +9620,466 @@ dissect_pfcp_usage_report_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_pfcp_downlink_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_DOWNLINK_DATA_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_create_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_BAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_update_bar_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_BAR_SMR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_remove_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_BAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_error_indication_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ERROR_INDICATION_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_user_plane_path_failure_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USER_PLANE_PATH_FAILURE_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_update_duplicating_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_DUPLICATING_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_aggregated_urrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_AGGREGATED_URRS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_create_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_TRAFFIC_ENDPOINT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_created_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_TRAFFIC_ENDPOINT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_update_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_TRAFFIC_ENDPOINT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_remove_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_TRAFFIC_ENDPOINT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_ethernet_packet_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ETHERNET_PACKET_FILTER], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_ethernet_traffic_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ETHERNET_TRAFFIC_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_additional_monitoring_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ADDITIONAL_MONITORING_TIME], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_create_mar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_MAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": MAR ID: %u", args->last_rule_ids.mar);
 }
 
 static void
 dissect_pfcp_access_forwarding_action_information_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_FORWARDING_ACTION_INORMATION_1], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_FORWARDING_ACTION_INORMATION_2], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_update_mar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_MAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": MAR ID: %u", args->last_rule_ids.mar);
 }
 
 static void
 dissect_pfcp_remove_mar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_MAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": MAR ID: %u", args->last_rule_ids.mar);
 }
 
 static void
 dissect_pfcp_update_access_forwarding_action_information_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_1], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_update_access_forwarding_action_information_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_ACCESS_FORWARDING_ACTION_INORMATION_2], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_pfcp_session_retention_information_within_pfcp_association_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFCP_SESSION_RETENTION_INFORMATION_WITHIN_ASSOCIATION_SETUP_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_user_plane_path_recovery_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USER_PLANE_PATH_RECOVERY_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_ip_multicast_addressing_info_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_IP_MULTICAST_ADDRESSING_INFO], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_join_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_JOIN_IP_MULTICAST_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_leave_ip_multicast_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_LEAVE_IP_MULTICAST_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_created_bridge_info_for_tsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_BRIDGE_INFO_FOR_TSC], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_tsc_management_information_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_TSC_MANAGEMENT_INFORMATION_WITHIN_PCFP_SESSION_MODIFICATION_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_tsc_management_information_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_TSC_MANAGEMENT_INFORMATION_WITHIN_PCFP_SESSION_MODIFICATION_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_tsc_management_information_ie_within_pfcp_session_report_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_TSC_MANAGEMENT_INFORMATION_WITHIN_PCFP_SESSION_REPORT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_clock_drift_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CLOCK_DRIFT_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_clock_drift_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CLOCK_DRIFT_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_remove_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_SRR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
 static void
 dissect_pfcp_create_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_SRR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
 static void
 dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_SRR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
     proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
 static void
 dissect_pfcp_session_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_SESSION_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_access_availability_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_AVAILABILITY_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_access_availability_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ACCESS_AVAILABILITY_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_provide_atsss_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PROVICE_ATSSS_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_atsss_control_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ATSSS_CONTROl_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_mptcp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MPTCP_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_atsss_ll_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ATSSS_LL_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_pmf_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PMF_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_ue_ip_address_pool_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UE_IP_ADDRESS_POOL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_gtp_u_path_qos_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_GTP_U_PATH_QOS_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_GTP_U_PATH_QOS_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_qos_information_in_gtp_u_path_qos_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_INFORMATION_IN_GTP_U_PATH_QOS_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_qos_monitoring_per_qos_flow_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_MONITORING_PER_QOS_FLOW_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_qos_monitoring_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QOS_MONITORING_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_packet_rate_status_report_ie_within_pfcp_session_deletion_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PACKET_RATE_STATUS_REPORT_IE_WITHIN_PFCP_SESSION_DELETION_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_ethernet_context_information_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PCFP_IE_ETHERNET_CONTEXT_INFORMATION_WITHIN_PFCP_SESSION_MODIFICATION_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_redundant_transmission_detection_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REDUNDANT_TRANSMISSION_DETECTION_PARAMETERS_IE_IN_PDI], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_updated_pdr_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATED_PDR_IE_WITHIN_PFCP_SESSION_MODIFICATION_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_provide_rds_configuration_information_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PROVIDE_RDS_CONFIGURATION_INFORMATION_IE_WITHIN_PCFP_SESSION_ESTABLISHMENT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_query_packet_rate_status_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QUERY_PACKET_RATE_STATUS_IE_WITHIN_PCFP_SESSION_ESTABLISHMENT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_query_packet_rate_status_report_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QUERY_PACKET_RATE_STATUS_REPORT_IE_WITHIN_PCFP_SESSION_ESTABLISHMENT_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_ue_ip_address_usage_information_ie_within_pfcp_association_update_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UE_IP_ADDRESS_USAGE_INFORMATION_IE_WITHIN_PFCP_ASSOCIATION_UPDATE_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_redundant_transmission_forward_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REDUNDANT_TRANSMISSION_FORWARD_PARAMETERS_IE_IN_FAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_transport_dealy_reporting_ie_in_create_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_TRANSPORT_DELAY_REPORTING], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_partial_failure_information_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PARTIAL_FAILURE_INFORMATION_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_partial_failure_information_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PARTIAL_FAILURE_INFORMATION_WITHIN_PFCP_SESSION_MODIFICATION_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_l2tp_tunnel_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_L2TP_TUNNEL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_l2tp_session_information_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_L2TP_SESSION_INFORMATION_WITHIN_PFCP_SESSION_ESTABLISHMENT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_l2tp_session_information_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_L2TP_SESSION_INFORMATION_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_pfcp_session_change_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFCP_SESSION_CHANGE_INFO], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_direct_reporting_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_DIRECT_REPORTING_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_mbs_session_n4mb_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_SESSION_N4MB_CONTROL_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_mbs_multicast_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_MULTICAST_PARAMETERS], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_add_mbs_unicast_parameters_ie_in_create_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ADD_MBS_UNICAST_PARAMETERS_IE_IN_CREATE_FAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_mbs_session_n4mb_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_SESSION_N4MB_INFORMATION], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_remove_mbs_unicast_parameters_ie_in_update_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_MBS_UNICAST_PARAMETERS_IE_IN_UPDATE_FAR], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_SESSION_N4_CONTROl_INFORMATION_IE_WITHIN_PFCP_SESSION_ESTABLISHMENT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_SESSION_N4_CONTROl_INFORMATION_IE_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_peer_up_restart_report_ie_within_pfcp__node_report_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PEER_UP_REPORT_IE_WITING_PFCP_NODE_REPORT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_dscp_to_ppi_control_information_ie_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_DSCP_TO_PPI_CONTROL_INFORMATION_IE_WITIN_PCFP_SESSION_ESTABLISHMENT_REQUEST], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 
@@ -10847,13 +10839,13 @@ gint ett_pfcp_enterprise_bbf_elem[NUM_PFCP_ENTERPRISE_BBF_IES-1];
 static void
 dissect_pfcp_enterprise_bbf_ppp_lcp_connectivity(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_bbf_elem[PFCP_IE_ENTERPRISE_BBF_PPP_LCP_CONNECTIVITY], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_enterprise_bbf_l2tp_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_bbf_elem[PFCP_IE_ENTERPRISE_BBF_L2TP_TUNNEL], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static int
@@ -11131,19 +11123,19 @@ gint ett_pfcp_enterprise_travelping_elem[NUM_PFCP_ENTERPRISE_TRAVELPING_IES-1];
 static void
 dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_ERROR_REPORT], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static void
 dissect_pfcp_enterprise_travelping_trace_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_INFO], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, args);
 }
 
 static int
