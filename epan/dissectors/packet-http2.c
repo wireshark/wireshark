@@ -1947,7 +1947,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
     const guint8 *header_value;
     int hoffset = 0;
     nghttp2_hd_inflater *hd_inflater;
-    tvbuff_t *header_tvb = tvb_new_composite();
+    tvbuff_t *header_tvb = NULL;
     int rv;
     int header_len = 0;
     int final;
@@ -2121,7 +2121,15 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 
         /* Now setup the tvb buffer to have the new data */
         next_tvb = tvb_new_child_real_data(tvb, in->table.data.data, in->table.data.datalen, in->table.data.datalen);
+        if (!header_tvb) {
+            header_tvb = tvb_new_composite();
+        }
         tvb_composite_append(header_tvb, next_tvb);
+    }
+
+
+    if (!header_tvb) {
+        return;
     }
 
     tvb_composite_finalize(header_tvb);
