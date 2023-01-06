@@ -511,8 +511,12 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 	/* Construct the readable timestamp */
 	gchar timestamp_buf[ITEM_LABEL_LENGTH];
 	size_t timestamp_length = 0;
-	timestamp_length += strftime(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%Y-%m-%d %H:%M:%S.", sample_time_split);
-	timestamp_length += snprintf(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%09u TAI", nanoseconds);
+	if (sample_time_split != NULL) {
+		timestamp_length += strftime(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%Y-%m-%d %H:%M:%S.", sample_time_split);
+	} else {
+		timestamp_length += snprintf(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "\?\?\?\?-\?\?-\?\? \?\?:\?\?:\?\?.");
+	}
+	snprintf(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%09u TAI", nanoseconds);
 
 	/* Construct the readable sample text */
 	char title_buf[ITEM_LABEL_LENGTH];
@@ -542,7 +546,7 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 			title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, " = %f Hz", frequency);
 		}
 	}
-	title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ")");
+	snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ")");
 
 	proto_item *sample_timestamp_item = proto_tree_add_string(tree, hf, tvb, *tvb_offset, item_size, title_buf);
 
