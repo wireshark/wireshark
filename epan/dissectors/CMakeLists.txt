@@ -704,6 +704,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ajp13.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-alcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-alljoyn.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-alp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-amp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-amqp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-amr.c

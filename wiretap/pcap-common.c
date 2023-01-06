@@ -482,6 +482,9 @@ static const struct {
 	/* USB 2.0/1.1/1.0 packets as transmitted over the cable */
 	{ 288,		WTAP_ENCAP_USB_2_0 },
 
+	/* ATSC Link-Layer Protocol (A/330) packets */
+	{ 289,		WTAP_ENCAP_ATSC_ALP },
+
 	/* Event Tracing for Windows records */
 	{ 290,		WTAP_ENCAP_ETW },
 
