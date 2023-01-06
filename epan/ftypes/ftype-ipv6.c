@@ -82,7 +82,17 @@ ipv6_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 static char *
 ipv6_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return ip6_to_str(scope, &(fv->value.ipv6.addr));
+	char buf[WS_INET6_ADDRSTRLEN];
+	char *repr;
+
+	ip6_to_str_buf(&fv->value.ipv6.addr, buf, sizeof(buf));
+
+	if (fv->value.ipv6.prefix != 0 && fv->value.ipv6.prefix != 128)
+		repr = wmem_strdup_printf(scope, "%s/%"PRIu32, buf, fv->value.ipv6.prefix);
+	else
+		repr = wmem_strdup(scope, buf);
+
+	return repr;
 }
 
 static const guint8 *

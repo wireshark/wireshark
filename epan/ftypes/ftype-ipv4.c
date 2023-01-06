@@ -14,6 +14,7 @@
 #include <epan/ipv4.h>
 #include <epan/addr_and_mask.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/bits_count_ones.h>
 
 static void
 set_uinteger(fvalue_t *fv, guint32 value)
@@ -98,8 +99,18 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 static char *
 val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
+	char buf[WS_INET_ADDRSTRLEN];
+	char *repr;
+
 	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
-	return ip_to_str(scope, (guint8*)&ipv4_net_order);
+	ip_to_str_buf((guint8*)&ipv4_net_order, buf, sizeof(buf));
+
+	if (fv->value.ipv4.nmask != 0 && fv->value.ipv4.nmask != 0xffffffff)
+		repr = wmem_strdup_printf(scope, "%s/%d", buf, ws_count_ones(fv->value.ipv4.nmask));
+	else
+		repr = wmem_strdup(scope, buf);
+
+	return repr;
 }
 
 
