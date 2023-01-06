@@ -3781,8 +3781,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
-                        if (proc_info)
+                        if (proc_info) {
                             proc_info->last_frame = pinfo->num;
+                        }
                     } else if (direction == BTLE_DIR_MASTER_SLAVE) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -3827,8 +3828,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                    control_opcode);
 
                     /* Procedure completes in the same frame. */
-                    if (proc_info)
+                    if (proc_info) {
                         proc_info->last_frame = pinfo->num;
+                    }
                 }
                 break;
             case 0x1D: /* LL_CLOCK_ACCURACY_REQ */
@@ -3965,8 +3967,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                    control_opcode);
 
                     /* Procedure completes in the same frame. */
-                    if (proc_info)
+                    if (proc_info) {
                         proc_info->last_frame = pinfo->num;
+                    }
                 }
                 break;
             case 0x23: /* LL_POWER_CONTROL_REQ */
@@ -4007,8 +4010,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                    control_opcode);
 
                     /* Procedure completes in the same frame. */
-                    if (proc_info)
+                    if (proc_info) {
                         proc_info->last_frame = pinfo->num;
+                    }
                 }
                 break;
             case 0x26: /* LL_SUBRATE_REQ */
@@ -4046,8 +4050,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
-                        if (proc_info)
+                        if (proc_info) {
                             proc_info->last_frame = pinfo->num;
+                        }
                     } else {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -4064,8 +4069,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
-                        if (proc_info)
+                        if (proc_info) {
                             proc_info->last_frame = pinfo->num;
+                        }
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -4082,8 +4088,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        control_opcode);
 
                         /* Procedure completes in the same frame. */
-                        if (proc_info)
+                        if (proc_info) {
                             proc_info->last_frame = pinfo->num;
+                        }
                     } else if (direction == BTLE_DIR_MASTER_SLAVE) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
