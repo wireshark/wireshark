@@ -253,17 +253,12 @@ dump_str_stack_push(GSList *stack, const char *str)
 }
 
 static GSList *
-dump_str_stack_pop(GSList *stack)
+dump_str_stack_pop(GSList *stack, guint32 count)
 {
-	if (!stack) {
-		return NULL;
+	while (stack && count-- > 0) {
+		g_free(stack->data);
+		stack = g_slist_delete_link(stack, stack);
 	}
-
-	char *str;
-
-	str = stack->data;
-	stack = g_slist_delete_link(stack, stack);
-	g_free(str);
 	return stack;
 }
 
@@ -352,16 +347,15 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				uint32_t nargs = arg3->value.numeric;
 				uint32_t idx;
 				GString	*gs;
+				const char *sep = "";
 
-				wmem_strbuf_append_printf(buf, "%s(#%"PRIu32, arg1_str, nargs);
+				wmem_strbuf_append_printf(buf, "%s(", arg1_str);
 				if (nargs > 0) {
-					wmem_strbuf_append(buf, ": ");
 					gs = g_string_new(NULL);
-					for (l = stack_print, idx = 0; idx < nargs; idx++, l = l->next) {
+					for (l = stack_print, idx = 0; l != NULL && idx < nargs; idx++, l = l->next) {
+						g_string_prepend(gs, sep);
 						g_string_prepend(gs, l->data);
-						if (nargs > 1 && idx < nargs - 1) {
-							g_string_prepend(gs, ", ");
-						}
+						sep = ", ";
 					}
 					wmem_strbuf_append(buf, gs->str);
 					g_string_free(gs, TRUE);
@@ -371,15 +365,13 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 			}
 			case DFVM_STACK_PUSH:
-				wmem_strbuf_append_printf(buf, "%s", arg1_str);
+				wmem_strbuf_append_printf(buf, "%s\n", arg1_str);
 				stack_print = dump_str_stack_push(stack_print, arg1_str);
 				break;
 
 			case DFVM_STACK_POP:
-				wmem_strbuf_append_printf(buf, "%s", arg1_str);
-				for (i = 0; i < arg1->value.numeric; i ++) {
-					stack_print = dump_str_stack_pop(stack_print);
-				}
+				wmem_strbuf_append_printf(buf, "%s\n", arg1_str);
+				stack_print = dump_str_stack_pop(stack_print, arg1->value.numeric);
 				break;
 
 			case DFVM_SLICE:
