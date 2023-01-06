@@ -210,26 +210,20 @@ dfvm_value_new_guint(guint num)
 static char *
 dfvm_value_tostr(dfvm_value_t *v)
 {
-	char *s, *aux;
+	char *s;
 
 	if (!v)
 		return NULL;
 
 	switch (v->type) {
 		case HFINFO:
-			s = ws_strdup_printf("%s <%s>",
-					v->value.hfinfo->abbrev,
-					ftype_name(v->value.hfinfo->type));
+			s = ws_strdup(v->value.hfinfo->abbrev);
 			break;
 		case RAW_HFINFO:
-			s = ws_strdup_printf("@%s <FT_BYTES>",
-					v->value.hfinfo->abbrev);
+			s = ws_strdup_printf("@%s", v->value.hfinfo->abbrev);
 			break;
 		case FVALUE:
-			aux = fvalue_to_debug_repr(NULL, v->value.fvalue);
-			s = ws_strdup_printf("%s <%s>",
-				aux, fvalue_type_name(v->value.fvalue));
-			g_free(aux);
+			s = fvalue_to_debug_repr(NULL, v->value.fvalue);
 			break;
 		case DRANGE:
 			s = drange_tostr(v->value.drange);
@@ -238,7 +232,7 @@ dfvm_value_tostr(dfvm_value_t *v)
 			s = ws_strdup(ws_regex_pattern(v->value.pcre));
 			break;
 		case REGISTER:
-			s = ws_strdup_printf("reg#%"G_GUINT32_FORMAT, v->value.numeric);
+			s = ws_strdup_printf("R%"G_GUINT32_FORMAT, v->value.numeric);
 			break;
 		case FUNCTION_DEF:
 			s = ws_strdup(v->value.funcdef->name);
@@ -278,9 +272,9 @@ append_op(wmem_strbuf_t *buf, int id, dfvm_opcode_t opcode)
 {
 	char *str;
 	size_t len;
-#define INDENT_COLUMN 22
+#define INDENT_COLUMN 24
 
-	str = ws_strdup_printf("%04d %s ", id, dfvm_opcode_tostr(opcode));
+	str = ws_strdup_printf(" %04d %s ", id, dfvm_opcode_tostr(opcode));
 	wmem_strbuf_append(buf, str);
 	len = strlen(str);
 	g_free(str);
@@ -293,7 +287,7 @@ static void
 append_to_register(wmem_strbuf_t *buf, const char *reg)
 {
 	if (reg != NULL) {
-		wmem_strbuf_append(buf, " --> ");
+		wmem_strbuf_append(buf, " -> ");
 		wmem_strbuf_append(buf, reg);
 	}
 	wmem_strbuf_append_c(buf, '\n');

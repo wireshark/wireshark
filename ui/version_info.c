@@ -564,10 +564,11 @@ show_version(void)
 void
 show_help_header(const char *description)
 {
-	printf("%s\n"
-		"%s\n"
-		"See https://www.wireshark.org for more information.\n",
-		appname_with_version, description);
+	printf("%s\n", appname_with_version);
+	if (description) {
+		printf("%s\n", description);
+		printf("See https://www.wireshark.org for more information.\n");
+	}
 }
 
 /*

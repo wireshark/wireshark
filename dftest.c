@@ -38,6 +38,7 @@
 #include "ui/util.h"
 #include "ui/cmdarg_err.h"
 #include "ui/failure_message.h"
+#include "ui/version_info.h"
 
 static void dftest_cmdarg_err(const char *fmt, va_list ap);
 static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
@@ -67,11 +68,12 @@ print_usage(void)
 {
     fprintf(stderr, "Usage: dftest [OPTIONS] -- <EXPR>\n");
     fprintf(stderr, "\nOptions:\n");
-    fprintf(stderr, "  -v       Verbose mode\n");
-    fprintf(stderr, "  -d       Enable verbose display filter logs\n");
-    fprintf(stderr, "  -f       Enable Flex debug trace\n");
-    fprintf(stderr, "  -l       Enable Lemon debug trace\n");
-    fprintf(stderr, "  -t       Print syntax tree\n");
+    fprintf(stderr, "  -v       verbose mode\n");
+    fprintf(stderr, "  -d       enable noisy display filter logs\n");
+    fprintf(stderr, "  -f       enable Flex debug trace\n");
+    fprintf(stderr, "  -l       enable Lemon debug trace\n");
+    fprintf(stderr, "  -s       print syntax tree\n");
+    fprintf(stderr, "  -h       display this help and exit\n");
 }
 
 static void
@@ -161,7 +163,9 @@ main(int argc, char **argv)
     setlocale(LC_ALL, "");
 #endif
 
-    while ((opt = ws_getopt(argc, argv, "vdflt")) != -1) {
+    ws_init_version_info("DFTest", NULL, NULL);
+
+    while ((opt = ws_getopt(argc, argv, "vdflsh")) != -1) {
         switch (opt) {
             case 'v':
                 opt_verbose = 1;
@@ -175,10 +179,14 @@ main(int argc, char **argv)
             case 'l':
                 opt_lemon = 1;
                 break;
-            case 't':
+            case 's':
                 opt_syntax_tree = 1;
                 break;
+            case 'h':
+                /* fall-through */
             default: /* '?' */
+                show_help_header(NULL);
+                printf("\n");
                 print_usage();
                 exit(EXIT_FAILURE);
         }
@@ -248,7 +256,7 @@ main(int argc, char **argv)
     /* Get filter text */
     text = get_args_as_string(argc, argv, ws_optind);
 
-    printf("Filter: %s\n\n", text);
+    printf("Filter:\n %s\n\n", text);
 
     timer = g_timer_new();
 
@@ -265,11 +273,11 @@ main(int argc, char **argv)
     }
 
     if (strcmp(text, expanded_text) != 0)
-        printf("Filter after expansion: %s\n\n", expanded_text);
+        printf("Filter (after expansion):\n %s\n\n", expanded_text);
 
     /* Compile it */
     if (opt_syntax_tree)
-        df_flags = DF_SAVE_TREE;
+        df_flags |= DF_SAVE_TREE;
     if (opt_flex)
         df_flags |= DF_DEBUG_FLEX;
     if (opt_lemon)
