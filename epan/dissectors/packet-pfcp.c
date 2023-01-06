@@ -21,8 +21,11 @@
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
+#include <proto.h>
+#include <tvbuff.h>
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ip.h"
@@ -979,6 +982,117 @@ static int hf_pfcp_travelping_trace_parent_str = -1;
 static int hf_pfcp_travelping_trace_state = -1;
 static int hf_pfcp_travelping_trace_state_str = -1;
 
+/* Nokia */
+
+static int hf_pfcp_nokia_sap_template = -1;
+static int hf_pfcp_nokia_group_iface_template = -1;
+static int hf_pfcp_nokia_session_state_id = -1;
+static int hf_pfcp_nokia_detailed_stats_key = -1;
+static int hf_pfcp_nokia_detailed_stats_key_direction = -1;
+static int hf_pfcp_nokia_detailed_stats_key_object_id = -1;
+static int hf_pfcp_nokia_detailed_stats_key_stat_mode = -1;
+static int hf_pfcp_nokia_detailed_stats_key_type = -1;
+static int hf_pfcp_nokia_detailed_stats_bitmap_item = -1;
+static int hf_pfcp_nokia_detailed_stats_octets = -1;
+static int hf_pfcp_nokia_detailed_error = -1;
+static int hf_pfcp_nokia_qos_override = -1;
+static int hf_pfcp_nokia_measurement_info = -1;
+static int hf_pfcp_nokia_measurement_info_b0_det = -1;
+static int hf_pfcp_nokia_pfcpsmreq_flags = -1;
+static int hf_pfcp_nokia_pfcpsmreq_flags_b0_abs = -1;
+static int hf_pfcp_nokia_pfcpsmreq_flags_b1_audit = -1;
+static int hf_pfcp_nokia_up_function_features_bulk_audit = -1;
+static int hf_pfcp_nokia_up_function_features_sssg = -1;
+static int hf_pfcp_nokia_filter_override_type = -1;
+static int hf_pfcp_nokia_filter_override_name = -1;
+static int hf_pfcp_nokia_intermediate_destination = -1;
+static int hf_pfcp_nokia_nat_isa_members = -1;
+static int hf_pfcp_nokia_pfcphb_flags = -1;
+static int hf_pfcp_nokia_pfcphb_flags_b0_aud_r = -1;
+static int hf_pfcp_nokia_pfcphb_flags_b1_aud_s = -1;
+static int hf_pfcp_nokia_pfcphb_flags_b2_aud_e = -1;
+static int hf_pfcp_nokia_l2tp_lcp_request = -1;
+static int hf_pfcp_nokia_l2tp_auth_type = -1;
+static int hf_pfcp_nokia_l2tp_auth_name = -1;
+static int hf_pfcp_nokia_l2tp_auth_id = -1;
+static int hf_pfcp_nokia_l2tp_auth_challenge = -1;
+static int hf_pfcp_nokia_l2tp_auth_response = -1;
+static int hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv4_address = -1;
+static int hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv6_address = -1;
+static int hf_pfcp_nokia_l2tp_client_auth_id = -1;
+static int hf_pfcp_nokia_l2tp_server_auth_id = -1;
+static int hf_pfcp_nokia_l2tp_password = -1;
+static int hf_pfcp_nokia_l2tp_assignment_id = -1;
+static int hf_pfcp_nokia_l2tp_private_group_id = -1;
+static int hf_pfcp_nokia_l2tp_tunnel_params_flags = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b31_hello_interval = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b30_idle_timeout = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b29_session_limit = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b28_preference = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b27_df_bit = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b26_challenge = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b25_avp_hiding = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b24_algorithm = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b19_rx_window_size = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b18_max_retries_not_estab = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b17_max_retries_estab = -1;
+static int hf_pfcp_nokia_l2tp_params_flags_b16_destruct_timeout = -1;
+static int hf_pfcp_nokia_l2tp_params_hello_interval = -1;
+static int hf_pfcp_nokia_l2tp_params_idle_timeout = -1;
+static int hf_pfcp_nokia_l2tp_params_session_limit = -1;
+static int hf_pfcp_nokia_l2tp_params_preference = -1;
+static int hf_pfcp_nokia_l2tp_params_df_bit = -1;
+static int hf_pfcp_nokia_l2tp_params_challenge = -1;
+static int hf_pfcp_nokia_l2tp_params_avp_hiding = -1;
+static int hf_pfcp_nokia_l2tp_params_algorithm = -1;
+static int hf_pfcp_nokia_l2tp_params_rx_window_size = -1;
+static int hf_pfcp_nokia_l2tp_params_max_retries_not_estab = -1;
+static int hf_pfcp_nokia_l2tp_params_max_retries_estab = -1;
+static int hf_pfcp_nokia_l2tp_params_destruct_timeout = -1;
+static int hf_pfcp_nokia_l2tp_local_tunnel_id = -1;
+static int hf_pfcp_nokia_l2tp_remote_tunnel_id = -1;
+static int hf_pfcp_nokia_l2tp_local_session_id = -1;
+static int hf_pfcp_nokia_l2tp_remote_session_id = -1;
+static int hf_pfcp_nokia_l2tp_call_serial_num = -1;
+static int hf_pfcp_nokia_snat_inside_ipv4_address = -1;
+static int hf_pfcp_nokia_access_line_circuit_id = -1;
+static int hf_pfcp_nokia_access_line_remote_id = -1;
+static int hf_pfcp_nokia_access_line_params_flags = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b24_act_up = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b25_act_down = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b26_min_up = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b27_min_down = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b28_att_up = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b29_att_down = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b30_max_up = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b31_max_down = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b16_min_up_lp = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b17_min_down_lp = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b18_max_inter_delay_up = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b19_act_inter_delay_up = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b20_max_inter_delay_down = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b21_act_inter_delay_down = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b22_access_loop_encap = -1;
+static int hf_pfcp_nokia_access_line_params_flags_b23_iw_session = -1;
+static int hf_pfcp_nokia_access_line_params_act_up = -1;
+static int hf_pfcp_nokia_access_line_params_act_down = -1;
+static int hf_pfcp_nokia_access_line_params_min_up = -1;
+static int hf_pfcp_nokia_access_line_params_min_down = -1;
+static int hf_pfcp_nokia_access_line_params_att_up = -1;
+static int hf_pfcp_nokia_access_line_params_att_down = -1;
+static int hf_pfcp_nokia_access_line_params_max_up = -1;
+static int hf_pfcp_nokia_access_line_params_max_down = -1;
+static int hf_pfcp_nokia_access_line_params_min_up_lp = -1;
+static int hf_pfcp_nokia_access_line_params_min_down_lp = -1;
+static int hf_pfcp_nokia_access_line_params_max_inter_delay_up = -1;
+static int hf_pfcp_nokia_access_line_params_act_inter_delay_up = -1;
+static int hf_pfcp_nokia_access_line_params_max_inter_delay_down = -1;
+static int hf_pfcp_nokia_access_line_params_act_inter_delay_down = -1;
+static int hf_pfcp_nokia_access_line_params_access_loop_encap = -1;
+static int hf_pfcp_nokia_acct_session_id = -1;
+static int hf_pfcp_nokia_fsg_template_name = -1;
+
+
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
 static int ett_pfcp_ie = -1;
@@ -1006,6 +1120,14 @@ static int ett_pfcp_bbf_l2tp_endp_flags = -1;
 static int ett_pfcp_bbf_l2tp_type_flags = -1;
 static int ett_pfcp_bbf_ppp_lcp_connectivity = -1;
 static int ett_pfcp_bbf_l2tp_tunnel = -1;
+
+static int ett_pfcp_nokia_detailed_stats_key = -1;
+static int ett_pfcp_nokia_detailed_stats_bitmap = -1;
+static int ett_pfcp_nokia_measurement_info = -1;
+static int ett_pfcp_nokia_pfcpsmreq_flags = -1;
+static int ett_pfcp_nokia_pfcphb_flags = -1;
+static int ett_pfcp_nokia_l2tp_tunnel_params_flags = -1;
+static int ett_pfcp_nokia_access_line_params_flags = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -1830,6 +1952,15 @@ static void
 dissect_pfcp_reserved(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_reserved, tvb, 0, length);
+}
+
+static int dissect_pfcp_string_ie(tvbuff_t *tvb, proto_tree *tree, int hf)
+{
+    char* string_value = NULL;
+    proto_tree_add_item_ret_display_string(tree, hf, tvb, 0, -1, ENC_ASCII, wmem_packet_scope(), &string_value);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %s", string_value);
+
+    return tvb_reported_length(tvb);
 }
 
 /* Functions for C-Tag and S-TAG
@@ -10462,6 +10593,615 @@ static pfcp_generic_ie_t pfcp_travelping_ies[] = {
     { VENDOR_TRAVELPING, 32782 , "Trace State"                       , dissect_pfcp_enterprise_travelping_trace_state        , -1} ,
 };
 
+/************************************ Nokia ***********************************/
+
+static int dissect_pfcp_nokia_sap_template(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_sap_template);
+}
+
+static int dissect_pfcp_nokia_group_if_template(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_group_iface_template);
+}
+
+static int dissect_pfcp_nokia_session_state_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint64 value;
+
+    proto_tree_add_item_ret_uint64(tree, hf_pfcp_nokia_session_state_id, tvb, 0, 8, ENC_BIG_ENDIAN, &value);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %" G_GUINT64_FORMAT, value);
+
+    return 8;
+}
+
+const true_false_string tfs_nokia_detailed_stats_ie = { "Egress", "Ingress" };
+const true_false_string tfs_nokia_detailed_stats_qp = { "Policer", "Queue" };
+const val64_string nokia_detailed_stats_length_values[] = {
+    {0, "Not present"},
+    {1, "4 bytes"},
+    {2, "8 bytes"},
+    {3, "Invalid"},
+    {0, NULL}
+};
+
+static int dissect_pfcp_nokia_detailed_statistics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    static const value_string ingress_queue_names[] = {
+        { 1, "HighPktsOffered"},
+        { 2, "HighPktsDropped"},
+        { 3, "LowPktsOffered"},
+        { 4, "LowPktsDropped"},
+        { 5, "HighOctetsOffered"},
+        { 6, "HighOctetsDropped"},
+        { 7, "LowOctetsOffered"},
+        { 8, "LowOctetsDropped"},
+        { 9, "UncolouredPktsOffered"},
+        {10, "UncolouredOctetsOffered"},
+        {11, "McastManagedPktsOffered"},
+        {12, "McastManagedOctetsOffered"},
+        {13, "InProfilePktsForwarded"},
+        {14, "OutOfProfilePktsForwarded"},
+        {15, "InProfileOctetsForwarded"},
+        {16, "OutOfProfileOctetsForwarded"},
+        { 0, NULL},
+    };
+    static const value_string egress_queue_names[] = {
+        { 1, "InProfilePktsForwarded"},
+        { 2, "InProfilePktsDropped"},
+        { 3, "OutOfProfilePktsForwarded"},
+        { 4, "OutOfProfilePktsDropped"},
+        { 5, "InProfileOctetsForwarded"},
+        { 6, "InProfileOctetsDropped"},
+        { 7, "OutOfProfileOctetsForwarded"},
+        { 8, "OutOfProfileOctetsDropped"},
+        { 9, "ExceedProfilePktsForwarded"},
+        {10, "ExceedProfilePktsDropped"},
+        {11, "ExceedProfileOctetsForwarded"},
+        {12, "ExceedProfileOctetsDropped"},
+        { 0, NULL},
+    };
+    static const value_string policer_names[] = {
+        { 1, "HighPktsOffered"},
+        { 2, "HighPktsDropped"},
+        { 3, "LowPktsOffered"},
+        { 4, "LowPktsDropped"},
+        { 5, "HighOctetsOffered"},
+        { 6, "HighOctetsDropped"},
+        { 7, "LowOctetsOffered"},
+        { 8, "LowOctetsDropped"},
+        { 9, "UncolouredPktsOffered"},
+        {10, "UncolouredOctetsOffered"},
+        {11, "InProfilePktsForwarded"},
+        {12, "OutOfProfilePktsForwarded"},
+        {13, "InProfileOctetsForwarded"},
+        {14, "OutOfProfileOctetsForwarded"},
+        {15, "ExceedProfilePktsOffered"},
+        {16, "ExceedProfilePktsDropped"},
+        {17, "ExceedProfilePktsForwarded"},
+        {18, "ExceedProfileOctetsOffered"},
+        {19, "ExceedProfileOctetsDropped"},
+        {20, "ExceedProfileOctetsForwarded"},
+        {21, "InPlusProfilePktsOffered"},
+        {22, "InPlusProfilePktsDropped"},
+        {23, "InPlusProfilePktsForwarded"},
+        {24, "InPlusProfileOctetsOffered"},
+        {25, "InPlusProfileOctetsDropped"},
+        {26, "InPlusProfileOctetsForwarded"},
+        { 0, NULL},
+    };
+
+    int offset = 0;
+    static int * const key[] = {
+        &hf_pfcp_nokia_detailed_stats_key_direction,
+        &hf_pfcp_nokia_detailed_stats_key_type,
+        &hf_pfcp_nokia_detailed_stats_key_object_id,
+        &hf_pfcp_nokia_detailed_stats_key_stat_mode,
+        NULL
+    };
+
+    guint64 flags;
+    proto_tree_add_bitmask_with_flags_ret_uint64(
+        tree, tvb, offset, hf_pfcp_nokia_detailed_stats_key,
+        ett_pfcp_nokia_detailed_stats_key, key,
+        ENC_BIG_ENDIAN, 0, &flags
+    );
+    const bool flags_egress  = !!(flags & 0x80000000);
+    const bool flags_policer = !!(flags & 0x40000000);
+    offset += 4;
+
+    proto_item* bitmap_item;
+    proto_tree* bitmap_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_pfcp_nokia_detailed_stats_bitmap, &bitmap_item, "Counter info");
+    guint64 bitmap = tvb_get_ntoh64(tvb, offset);
+    const int bitmap_offset = offset;
+    offset += 8;
+
+    int num = 0;
+    for (int i = 0; bitmap != 0; bitmap <<= 8, i += 4)
+    {
+        uint8_t mappedbyte = (bitmap >> 56) & 0xff;
+        if (mappedbyte == 0) continue;
+
+        for (int j = 1; mappedbyte != 0; mappedbyte >>= 2, j++)
+        {
+           const uint8_t bits = mappedbyte & 0x03;
+           int counter_index = i + j;
+           if (bits == 0) continue;
+
+           const value_string* names = flags_policer ? policer_names : flags_egress ? egress_queue_names : ingress_queue_names;
+           const char* counter_name = val_to_str(counter_index, names, "Counter %u");
+
+           const int bit_offset = 8 * (bitmap_offset + i/4 + 1) - 2 * j;
+           proto_item* it = proto_tree_add_bits_item(bitmap_tree, hf_pfcp_nokia_detailed_stats_bitmap_item, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+           proto_item_append_text(it, " - %s (%u) ", counter_name, counter_index);
+           if (bits == 3)
+           {
+               proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, bitmap_offset, 8);
+               break;
+           }
+
+           const int len = bits == 1 ? 4 : 8;
+
+           if (offset > 0 && (unsigned) offset + len > tvb_reported_length(tvb))
+           {
+               proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, tvb_reported_length(tvb) - offset);
+               break;
+           }
+
+           guint64 octets;
+           it = proto_tree_add_item_ret_uint64(tree, hf_pfcp_nokia_detailed_stats_octets, tvb, offset, len, ENC_BIG_ENDIAN, &octets);
+           proto_item_set_text(it, "%s: %" G_GINT64_MODIFIER "u", counter_name, octets);
+
+           num++;
+           offset += len;
+       }
+    }
+
+    if (num == 0)
+    {
+        proto_item_append_text(bitmap_item, " (empty)");
+    }
+
+    proto_item_append_text(proto_tree_get_parent(tree), " : %u %s %s counter%s (object %u mode %u)",
+                           num, flags_egress ? "egress" : "ingress", flags_policer ? "policer" : "queue", num == 1 ? "" : "s",
+                           (int) (flags >> 16) & 0x3f, (int) flags & 0x1f);
+
+    return offset;
+}
+
+static int dissect_pfcp_nokia_detailed_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_detailed_error);
+}
+
+static int dissect_pfcp_nokia_qos_override(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_qos_override);
+}
+
+static int dissect_pfcp_nokia_measurement_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_nokia_measurement_info_b0_det,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_pfcp_nokia_measurement_info, ett_pfcp_nokia_measurement_info, flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_pfpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_nokia_pfcpsmreq_flags_b1_audit,
+        &hf_pfcp_nokia_pfcpsmreq_flags_b0_abs,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_pfcp_nokia_pfcpsmreq_flags, ett_pfcp_nokia_pfcpsmreq_flags, flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_up_function_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const pfcp_nokia_up_function_features_flags[] = {
+        &hf_pfcp_nokia_up_function_features_sssg,
+        &hf_pfcp_nokia_up_function_features_bulk_audit,
+        NULL,
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, 0, 1, pfcp_nokia_up_function_features_flags, ENC_BIG_ENDIAN);
+
+    return 1;
+}
+
+static const value_string nokia_filter_override_type_vals[] = {
+    {0, "Ingress IPv4"},
+    {1, "Egress IPv4"},
+    {2, "Ingress IPv6"},
+    {3, "Egress IPv6"},
+    {0, NULL}
+};
+
+static int dissect_pfcp_nokia_filter_override(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint32 type;
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_filter_override_type, tvb, 0, 1, ENC_BIG_ENDIAN, &type);
+
+    if (tvb_reported_length(tvb) == 1)
+    {
+        proto_item_append_text(proto_tree_get_parent(tree), " : %s: <disable>", val_to_str_const(type, nokia_filter_override_type_vals, "Unknown"));
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pfcp_nokia_filter_override_name, tvb, 1, tvb_reported_length(tvb) - 1, ENC_ASCII);
+
+        proto_item_append_text(proto_tree_get_parent(tree), " : %s: %s",
+                val_to_str_const(type, nokia_filter_override_type_vals, "Unknown"),
+                tvb_get_string_enc(wmem_packet_scope(), tvb, 1, tvb_reported_length(tvb) - 1, ENC_ASCII));
+    }
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_nokia_intermediate_destination(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_intermediate_destination);
+}
+
+static int dissect_pfcp_nokia_nat_isa_members(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint32 num_members;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_nat_isa_members, tvb, 0, 1, ENC_BIG_ENDIAN, &num_members);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %u", num_members);
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_pfcphb_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_nokia_pfcphb_flags_b2_aud_e,
+        &hf_pfcp_nokia_pfcphb_flags_b1_aud_s,
+        &hf_pfcp_nokia_pfcphb_flags_b0_aud_r,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_pfcp_nokia_pfcphb_flags, ett_pfcp_nokia_pfcphb_flags, flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_l2tp_lcp_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_l2tp_lcp_request, tvb, 0, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
+
+static const value_string nokia_l2tp_auth_type_vals[] = {
+    {0, "CHAP"},
+    {1, "PAP"},
+    {0, NULL}
+};
+
+static int dissect_pfcp_nokia_l2tp_auth_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint32 type;
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_auth_type, tvb, 0, 1, ENC_BIG_ENDIAN, &type);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %s", val_to_str_const(type, nokia_l2tp_auth_type_vals, "<Unknown>"));
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_l2tp_auth_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_auth_name);
+}
+
+static int dissect_pfcp_nokia_l2tp_auth_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint32 id;
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_auth_id, tvb, 0, 1, ENC_BIG_ENDIAN, &id);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %u", id);
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_l2tp_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_l2tp_auth_challenge, tvb, 0, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_nokia_l2tp_auth_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_l2tp_auth_response, tvb, 0, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_nokia_l2tp_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    if (tvb_reported_length(tvb) == 4)
+    {
+        proto_tree_add_item(tree, hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv4_address, tvb, 0, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(proto_tree_get_parent(tree), " : %s", tvb_ip_to_str(pinfo->pool, tvb, 0));
+    }
+    else if (tvb_reported_length(tvb) == 16)
+    {
+        proto_tree_add_item(tree, hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv6_address, tvb, 0, 16, ENC_NA);
+        proto_item_append_text(proto_tree_get_parent(tree), " : %s", tvb_ip6_to_str(pinfo->pool, tvb, 0));
+    }
+    else
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, 0, -1);
+    }
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_nokia_l2tp_client_auth_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_client_auth_id);
+}
+
+static int dissect_pfcp_nokia_l2tp_server_auth_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_server_auth_id);
+}
+
+static int dissect_pfcp_nokia_l2tp_password(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_password);
+}
+
+static int dissect_pfcp_nokia_l2tp_assignment_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_assignment_id);
+}
+
+static int dissect_pfcp_nokia_l2tp_private_group_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_private_group_id);
+}
+
+static int dissect_pfcp_flags_and_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned length, int * const * flags, int * const * fields, int flags_hf, int flags_ett)
+{
+    unsigned offset = 0;
+
+    guint64 flags_present;
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, flags_hf, flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_present);
+    offset += 4;
+
+    for (int i = 0; flags[i] != NULL; i++)
+    {
+        // is there a corresponding field?
+        if (fields[i] == NULL) continue;
+
+        // is the flag enabled?
+        header_field_info* hf = proto_registrar_get_nth(*flags[i]);
+        if ((flags_present & hf->bitmask) == 0) continue;
+
+        // is the field actually there?
+        if (offset >= length)
+        {
+            proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, 0, length);
+            return tvb_reported_length(tvb);
+        }
+
+        // all is well, add the field
+        hf = proto_registrar_get_nth(*fields[i]);
+        int len = hf->type == FT_UINT8  ? 1 :
+                  hf->type == FT_UINT24 ? 3 :
+                  hf->type == FT_UINT32 ? 4 : 0;
+        proto_tree_add_item(tree, *fields[i], tvb, offset, len, ENC_NA);
+        offset += len;
+    }
+
+    return offset;
+}
+
+static const value_string nokia_l2tp_params_algorithm_vals[] = {
+    {0, "Weighted Access"},
+    {1, "Weighted Random"},
+    {2, "Existing First"},
+    {0, NULL}
+};
+
+static const value_string nokia_l2tp_params_avp_hiding_vals[] = {
+    {0, "Nothing"},
+    {1, "Senitive Only"},
+    {2, "All"},
+    {0, NULL}
+};
+
+static const value_string nokia_l2tp_params_never_always[] = {
+    {0, "Never"},
+    {1, "Always"},
+    {0, NULL}
+};
+
+static const value_string nokia_l2tp_params_infinite[] = {
+    {0xffffff, "Infinite"},
+    {0, NULL}
+};
+
+static int dissect_pfcp_nokia_l2tp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    static int * const flags[] = {
+        &hf_pfcp_nokia_l2tp_params_flags_b24_algorithm,
+        &hf_pfcp_nokia_l2tp_params_flags_b25_avp_hiding,
+        &hf_pfcp_nokia_l2tp_params_flags_b26_challenge,
+        &hf_pfcp_nokia_l2tp_params_flags_b27_df_bit,
+        &hf_pfcp_nokia_l2tp_params_flags_b28_preference,
+        &hf_pfcp_nokia_l2tp_params_flags_b29_session_limit,
+        &hf_pfcp_nokia_l2tp_params_flags_b30_idle_timeout,
+        &hf_pfcp_nokia_l2tp_params_flags_b31_hello_interval,
+        &hf_pfcp_nokia_l2tp_params_flags_b16_destruct_timeout,
+        &hf_pfcp_nokia_l2tp_params_flags_b17_max_retries_estab,
+        &hf_pfcp_nokia_l2tp_params_flags_b18_max_retries_not_estab,
+        &hf_pfcp_nokia_l2tp_params_flags_b19_rx_window_size,
+        NULL
+    };
+    static int * const fields[] = {
+        &hf_pfcp_nokia_l2tp_params_algorithm,
+        &hf_pfcp_nokia_l2tp_params_avp_hiding,
+        &hf_pfcp_nokia_l2tp_params_challenge,
+        &hf_pfcp_nokia_l2tp_params_df_bit,
+        &hf_pfcp_nokia_l2tp_params_preference,
+        &hf_pfcp_nokia_l2tp_params_session_limit,
+        &hf_pfcp_nokia_l2tp_params_idle_timeout,
+        &hf_pfcp_nokia_l2tp_params_hello_interval,
+        &hf_pfcp_nokia_l2tp_params_destruct_timeout,
+        &hf_pfcp_nokia_l2tp_params_max_retries_estab,
+        &hf_pfcp_nokia_l2tp_params_max_retries_not_estab,
+        &hf_pfcp_nokia_l2tp_params_rx_window_size,
+        NULL
+    };
+
+    return dissect_pfcp_flags_and_fields(tvb, pinfo, tree, tvb_reported_length(tvb), flags, fields, hf_pfcp_nokia_l2tp_tunnel_params_flags, ett_pfcp_nokia_l2tp_tunnel_params_flags);
+}
+
+static int dissect_pfcp_nokia_l2tp_ids(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint32 local_tunnel, remote_tunnel, local_session, remote_session, call_serial_number;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_local_tunnel_id  , tvb, 0, 2, ENC_BIG_ENDIAN, &local_tunnel);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_remote_tunnel_id , tvb, 2, 2, ENC_BIG_ENDIAN, &remote_tunnel);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_local_session_id , tvb, 4, 2, ENC_BIG_ENDIAN, &local_session);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_remote_session_id, tvb, 6, 2, ENC_BIG_ENDIAN, &remote_session);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_l2tp_call_serial_num  , tvb, 8, 4, ENC_BIG_ENDIAN, &call_serial_number);
+
+    proto_item_append_text(proto_tree_get_parent(tree), " : LTID %u LSID %u RTID %u RSID %u CSN %u", local_tunnel, local_session, remote_tunnel, remote_session, call_serial_number);
+
+    return 12;
+}
+
+static int dissect_pfcp_nokia_snat_inside_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_snat_inside_ipv4_address, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %s", tvb_ip_to_str(pinfo->pool, tvb, 0));
+
+    return 4;
+}
+
+static int dissect_pfcp_nokia_access_line_circuit_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_access_line_circuit_id, tvb, 0, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_nokia_access_line_remote_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_access_line_remote_id, tvb, 0, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_nokia_access_line_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    static int * const flags[] = {
+        &hf_pfcp_nokia_access_line_params_flags_b24_act_up,
+        &hf_pfcp_nokia_access_line_params_flags_b25_act_down,
+        &hf_pfcp_nokia_access_line_params_flags_b26_min_up,
+        &hf_pfcp_nokia_access_line_params_flags_b27_min_down,
+        &hf_pfcp_nokia_access_line_params_flags_b28_att_up,
+        &hf_pfcp_nokia_access_line_params_flags_b29_att_down,
+        &hf_pfcp_nokia_access_line_params_flags_b30_max_up,
+        &hf_pfcp_nokia_access_line_params_flags_b31_max_down,
+        &hf_pfcp_nokia_access_line_params_flags_b16_min_up_lp,
+        &hf_pfcp_nokia_access_line_params_flags_b17_min_down_lp,
+        &hf_pfcp_nokia_access_line_params_flags_b18_max_inter_delay_up,
+        &hf_pfcp_nokia_access_line_params_flags_b19_act_inter_delay_up,
+        &hf_pfcp_nokia_access_line_params_flags_b20_max_inter_delay_down,
+        &hf_pfcp_nokia_access_line_params_flags_b21_act_inter_delay_down,
+        &hf_pfcp_nokia_access_line_params_flags_b22_access_loop_encap,
+        &hf_pfcp_nokia_access_line_params_flags_b23_iw_session,
+        NULL
+    };
+    static int * const fields[] = {
+        &hf_pfcp_nokia_access_line_params_act_up,
+        &hf_pfcp_nokia_access_line_params_act_down,
+        &hf_pfcp_nokia_access_line_params_min_up,
+        &hf_pfcp_nokia_access_line_params_min_down,
+        &hf_pfcp_nokia_access_line_params_att_up,
+        &hf_pfcp_nokia_access_line_params_att_down,
+        &hf_pfcp_nokia_access_line_params_max_up,
+        &hf_pfcp_nokia_access_line_params_max_down,
+        &hf_pfcp_nokia_access_line_params_min_up_lp,
+        &hf_pfcp_nokia_access_line_params_min_down_lp,
+        &hf_pfcp_nokia_access_line_params_max_inter_delay_up,
+        &hf_pfcp_nokia_access_line_params_act_inter_delay_up,
+        &hf_pfcp_nokia_access_line_params_max_inter_delay_down,
+        &hf_pfcp_nokia_access_line_params_act_inter_delay_down,
+        &hf_pfcp_nokia_access_line_params_access_loop_encap,
+        NULL
+    };
+
+    return dissect_pfcp_flags_and_fields(tvb, pinfo, tree, tvb_reported_length(tvb), flags, fields, hf_pfcp_nokia_access_line_params_flags, ett_pfcp_nokia_access_line_params_flags);
+}
+
+static int dissect_pfcp_nokia_acct_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_acct_session_id);
+}
+
+static int dissect_pfcp_nokia_fsg_template(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_fsg_template_name);
+}
+
+static pfcp_generic_ie_t pfcp_nokia_ies[] = {
+    {VENDOR_NOKIA, 32774, "UP Aggregate Route",                dissect_pfcp_grouped_ie_wrapper, -1},
+    {VENDOR_NOKIA, 32775, "SAP Template",                      dissect_pfcp_nokia_sap_template, -1},
+    {VENDOR_NOKIA, 32776, "Group Interface Template",          dissect_pfcp_nokia_group_if_template, -1},
+    {VENDOR_NOKIA, 32777, "State Id",                          dissect_pfcp_nokia_session_state_id, -1},
+    {VENDOR_NOKIA, 32778, "Detailed Statistics",               dissect_pfcp_nokia_detailed_statistics, -1},
+    {VENDOR_NOKIA, 32779, "Detailed Error",                    dissect_pfcp_nokia_detailed_error, -1},
+    {VENDOR_NOKIA, 32780, "Qos Override",                      dissect_pfcp_nokia_qos_override, -1},
+    {VENDOR_NOKIA, 32781, "Measurement Information",           dissect_pfcp_nokia_measurement_information, -1},
+    {VENDOR_NOKIA, 32783, "PFCPSMReq-Flags",                   dissect_pfcp_nokia_pfpsmreq_flags, -1},
+    {VENDOR_NOKIA, 32787, "UP Function Features",              dissect_pfcp_nokia_up_function_features, -1},
+    {VENDOR_NOKIA, 32788, "Create Filter Override",            dissect_pfcp_nokia_filter_override, -1},
+    {VENDOR_NOKIA, 32789, "Delete Filter Override",            dissect_pfcp_nokia_filter_override, -1},
+    {VENDOR_NOKIA, 32790, "Intermediate Destination",          dissect_pfcp_nokia_intermediate_destination, -1},
+    {VENDOR_NOKIA, 32791, "NAT ISA Members",                   dissect_pfcp_nokia_nat_isa_members, -1},
+    {VENDOR_NOKIA, 32797, "PFCPHB-Flags",                      dissect_pfcp_nokia_pfcphb_flags, -1},
+    {VENDOR_NOKIA, 32800, "L2TP First Rx LCP Conf Request",    dissect_pfcp_nokia_l2tp_lcp_options, -1},
+    {VENDOR_NOKIA, 32801, "L2TP Last Tx LCP Conf Request",     dissect_pfcp_nokia_l2tp_lcp_options, -1},
+    {VENDOR_NOKIA, 32802, "L2TP Last Rx LCP Conf Request",     dissect_pfcp_nokia_l2tp_lcp_options, -1},
+    {VENDOR_NOKIA, 32803, "L2TP Auth Type",                    dissect_pfcp_nokia_l2tp_auth_type, -1},
+    {VENDOR_NOKIA, 32804, "L2TP Auth Name",                    dissect_pfcp_nokia_l2tp_auth_name, -1},
+    {VENDOR_NOKIA, 32805, "L2TP Auth Id",                      dissect_pfcp_nokia_l2tp_auth_id, -1},
+    {VENDOR_NOKIA, 32806, "L2TP Auth Challenge",               dissect_pfcp_nokia_l2tp_auth_challenge, -1},
+    {VENDOR_NOKIA, 32807, "L2TP Auth Response",                dissect_pfcp_nokia_l2tp_auth_response, -1},
+    {VENDOR_NOKIA, 32808, "L2TP Tunnel",                       dissect_pfcp_grouped_ie_wrapper, -1},
+    {VENDOR_NOKIA, 32809, "L2TP Client Endpoint",              dissect_pfcp_nokia_l2tp_endpoint, -1},
+    {VENDOR_NOKIA, 32810, "L2TP Server Endpoint",              dissect_pfcp_nokia_l2tp_endpoint, -1},
+    {VENDOR_NOKIA, 32811, "L2TP Client Auth Id",               dissect_pfcp_nokia_l2tp_client_auth_id, -1},
+    {VENDOR_NOKIA, 32812, "L2TP Server Auth Id",               dissect_pfcp_nokia_l2tp_server_auth_id, -1},
+    {VENDOR_NOKIA, 32813, "L2TP Password",                     dissect_pfcp_nokia_l2tp_password, -1},
+    {VENDOR_NOKIA, 32814, "L2TP Assignment Id",                dissect_pfcp_nokia_l2tp_assignment_id, -1},
+    {VENDOR_NOKIA, 32815, "L2TP Private Group Id",             dissect_pfcp_nokia_l2tp_private_group_id, -1},
+    {VENDOR_NOKIA, 32816, "L2TP Parameters",                   dissect_pfcp_nokia_l2tp_parameters, -1},
+    {VENDOR_NOKIA, 32817, "L2TP Ids",                          dissect_pfcp_nokia_l2tp_ids, -1},
+    {VENDOR_NOKIA, 32819, "SNAT Inside IP",                    dissect_pfcp_nokia_snat_inside_ip, -1},
+    {VENDOR_NOKIA, 32820, "Access Line Circuit Id",            dissect_pfcp_nokia_access_line_circuit_id, -1},
+    {VENDOR_NOKIA, 32821, "Access Line Remote Id",             dissect_pfcp_nokia_access_line_remote_id, -1},
+    {VENDOR_NOKIA, 32822, "Access Line Params",                dissect_pfcp_nokia_access_line_params, -1},
+    {VENDOR_NOKIA, 32823, "Accounting Session Id",             dissect_pfcp_nokia_acct_session_id, -1},
+    {VENDOR_NOKIA, 32830, "FSG Template",                      dissect_pfcp_nokia_fsg_template, -1},
+};
+
 static void
 pfcp_init(void)
 {
@@ -14484,6 +15224,544 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+        /* Nokia */
+
+        { &hf_pfcp_nokia_sap_template,
+        { "SAP template", "pfcp.nokia.sap_template",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_group_iface_template,
+        { "Group Interface Template", "pfcp.nokia.group_if_template",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_session_state_id,
+        { "Session State Id", "pfcp.nokia.session_state_id",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_key,
+        { "Key", "pfcp.nokia.detailed_stats.key",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_key_direction,
+        { "Direction", "pfcp.nokia.detailed_stats.direction",
+            FT_BOOLEAN, 32, TFS(&tfs_nokia_detailed_stats_ie), 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_key_type,
+        { "Type", "pfcp.nokia.detailed_stats.type",
+            FT_BOOLEAN, 32, TFS(&tfs_nokia_detailed_stats_qp), 0x40000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_key_object_id,
+        { "Object id", "pfcp.nokia.detailed_stats.object_id",
+            FT_UINT32, BASE_DEC, NULL, 0x003f0000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_key_stat_mode,
+        { "Stat mode", "pfcp.nokia.detailed_stats.stat_mode",
+            FT_UINT32, BASE_DEC, NULL, 0x0000001f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_bitmap_item,
+        { "length", "pfcp.nokia.detailed_stats.bitmap.len",
+            FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(nokia_detailed_stats_length_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_stats_octets,
+        { "Packets offered", "pfcp.nokia.detailed_stats.octets",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_detailed_error,
+        { "Detailed Error", "pfcp.nokia.detailed_error",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_qos_override,
+        { "Qos Override", "pfcp.nokia.qos_override",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_measurement_info,
+        { "Flags", "pfcp.nokia.measurement_info",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_measurement_info_b0_det,
+        { "DET (Detailed Statistics)", "pfcp.nokia.measurement_info.det",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcpsmreq_flags,
+        { "Flags", "pfcp.nokia.smreq_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcpsmreq_flags_b0_abs,
+        { "ABS (Absolute modification request)", "pfcp.nokia.smreq_flags.abs",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcpsmreq_flags_b1_audit,
+        { "AUD (Auditing modification message)", "pfcp.nokia.smreq_flags.audit",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_up_function_features_bulk_audit,
+        { "BLK_AUD (Bulk Audit)", "pfcp.nokia.up_function_features.blk_aud",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_up_function_features_sssg,
+        { "SSSG (Shared Subnet Signaling)", "pfcp.nokia.up_function_features.sssg",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_filter_override_type,
+        { "Filter Type", "pfcp.nokia.filter_override.type",
+            FT_UINT8, BASE_HEX, VALS(nokia_filter_override_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_filter_override_name,
+        { "Filter Override", "pfcp.nokia.filter_override.name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_intermediate_destination,
+        { "Intermediate Destination", "pfcp.nokia.intermediate_destination",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_nat_isa_members,
+        { "Number of ISA members", "pfcp.nokia.nat_isa_members",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcphb_flags,
+        { "Flags", "pfcp.nokia.hb_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcphb_flags_b0_aud_r,
+        { "AUDR (Mass Audit Request)", "pfcp.nokia.hb_flags.audr",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcphb_flags_b1_aud_s,
+        { "AUDS (Mass Audit Start)", "pfcp.nokia.hb_flags.auds",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pfcphb_flags_b2_aud_e,
+        { "AUDE (Mass Audit End)", "pfcp.nokia.hb_flags.aude",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_lcp_request,
+        { "LCP Request", "pfcp.nokia.l2tp.lcp_request",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_auth_type,
+        { "L2TP Auth Type", "pfcp.nokia.l2tp.auth_type",
+            FT_UINT8, BASE_HEX, VALS(nokia_l2tp_auth_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_auth_name,
+        { "L2TP Auth Name", "pfcp.nokia.l2tp.auth_name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_auth_id,
+        { "L2TP Auth Id", "pfcp.nokia.l2tp.auth_id",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_auth_challenge,
+        { "L2TP Auth Challenge", "pfcp.nokia.l2tp.auth_challenge",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_auth_response,
+        { "L2TP Auth Response", "pfcp.nokia.l2tp.auth_response",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv4_address,
+        { "L2TP IPv4 Endpoint", "pfcp.nokia.l2tp.tunnel_endpoint.ipv4_addr",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv6_address,
+        { "L2TP IPv6 Endpoint", "pfcp.nokia.l2tp.tunnel_endpoint.ipv6_addr",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_client_auth_id,
+        { "L2TP Client Auth Id", "pfcp.nokia.l2tp.client_auth_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_server_auth_id,
+        { "L2TP Server Auth Id", "pfcp.nokia.l2tp.server_auth_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_password,
+        { "L2TP Password", "pfcp.nokia.l2tp.password",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_assignment_id,
+        { "L2TP Assignment Id", "pfcp.nokia.l2tp.assignment_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_private_group_id,
+        { "L2TP Private Group Id", "pfcp.nokia.l2tp.private_group_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_tunnel_params_flags,
+        { "Flags", "pfcp.nokia.l2tp.tunnel_params.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b30_idle_timeout,
+        {"Idle Timeout", "pfcp.nokia.l2tp.tunnel_params.flags.idle_timeout",
+            FT_BOOLEAN, 32, NULL, 0x40000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b31_hello_interval,
+        {"Hello Interval", "pfcp.nokia.l2tp.tunnel_params.flags.hello_interval",
+            FT_BOOLEAN, 32, NULL, 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b29_session_limit,
+        {"Session Limit", "pfcp.nokia.l2tp.tunnel_params.flags.session_limit",
+            FT_BOOLEAN, 32, NULL, 0x20000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b28_preference,
+        {"Preference", "pfcp.nokia.l2tp.tunnel_params.flags.preference",
+            FT_BOOLEAN, 32, NULL, 0x10000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b27_df_bit,
+        {"DF Bit", "pfcp.nokia.l2tp.tunnel_params.flags.df_bit",
+            FT_BOOLEAN, 32, NULL, 0x08000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b26_challenge,
+        {"Challenge", "pfcp.nokia.l2tp.tunnel_params.flags.challenge",
+            FT_BOOLEAN, 32, NULL, 0x04000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b25_avp_hiding,
+        {"AVP Hiding", "pfcp.nokia.l2tp.tunnel_params.flags.avp_hiding",
+            FT_BOOLEAN, 32, NULL, 0x02000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b24_algorithm,
+        {"Algorithm", "pfcp.nokia.l2tp.tunnel_params.flags.algorithm",
+            FT_BOOLEAN, 32, NULL, 0x01000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b19_rx_window_size,
+        {"RX Window Size", "pfcp.nokia.l2tp.tunnel_params.flags.rx_window_size",
+            FT_BOOLEAN, 32, NULL, 0x00080000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b18_max_retries_not_estab,
+        {"Max Retries Not Established", "pfcp.nokia.l2tp.tunnel_params.flags.max_retries_not_estab",
+            FT_BOOLEAN, 32, NULL, 0x00040000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b17_max_retries_estab,
+        {"Max Retries Established", "pfcp.nokia.l2tp.tunnel_params.flags.max_retries_estab",
+            FT_BOOLEAN, 32, NULL, 0x00020000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_flags_b16_destruct_timeout,
+        {"Destruct Timeout", "pfcp.nokia.l2tp.tunnel_params.flags.destruct_timeout",
+            FT_BOOLEAN, 32, NULL, 0x00010000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_hello_interval,
+        {"Hello Interval", "pfcp.nokia.l2tp.tunnel_params.hello_interval",
+            FT_UINT24, BASE_DEC|BASE_SPECIAL_VALS, VALS(nokia_l2tp_params_infinite), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_idle_timeout,
+        {"Idle Timeout", "pfcp.nokia.l2tp.tunnel_params.idle_timeout",
+            FT_UINT24, BASE_DEC|BASE_SPECIAL_VALS, VALS(nokia_l2tp_params_infinite), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_session_limit,
+        {"Session Limit", "pfcp.nokia.l2tp.tunnel_params.session_limit",
+            FT_UINT24, BASE_DEC|BASE_SPECIAL_VALS, VALS(nokia_l2tp_params_infinite), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_preference,
+        {"Preference", "pfcp.nokia.l2tp.tunnel_params.preference",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_df_bit,
+        {"DF Bit", "pfcp.nokia.l2tp.tunnel_params.df_bit",
+            FT_UINT8, BASE_DEC, VALS(nokia_l2tp_params_never_always), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_challenge,
+        {"Challenge", "pfcp.nokia.l2tp.tunnel_params.challenge",
+            FT_UINT8, BASE_DEC, VALS(nokia_l2tp_params_never_always), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_avp_hiding,
+        {"AVP Hiding", "pfcp.nokia.l2tp.tunnel_params.avp_hiding",
+            FT_UINT8, BASE_DEC, VALS(nokia_l2tp_params_avp_hiding_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_algorithm,
+        {"Algorithm", "pfcp.nokia.l2tp.tunnel_params.algorithm",
+            FT_UINT8, BASE_DEC, VALS(nokia_l2tp_params_algorithm_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_rx_window_size,
+        {"RX Window Size", "pfcp.nokia.l2tp.tunnel_params.rx_window_size",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_max_retries_not_estab,
+        {"Max Retries Not Estab", "pfcp.nokia.l2tp.tunnel_params.max_retries_not_estab",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_max_retries_estab,
+        {"Max Retries Estab", "pfcp.nokia.l2tp.tunnel_params.max_retries_estab",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_params_destruct_timeout,
+        {"Destruct Timeout", "pfcp.nokia.l2tp.tunnel_params.destruct_timeout",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_local_tunnel_id,
+        { "Local Tunnel Id", "pfcp.nokia.l2tp.local_tunnel_id",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_remote_tunnel_id,
+        { "Remote Tunnel Id", "pfcp.nokia.l2tp.remote_tunnel_id",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_local_session_id,
+        { "Local Session Id", "pfcp.nokia.l2tp.local_session_id",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_remote_session_id,
+        { "Remote Session Id", "pfcp.nokia.l2tp.remote_session_id",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_l2tp_call_serial_num,
+        { "Call Serial Number", "pfcp.nokia.l2tp.call_serial_num",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_snat_inside_ipv4_address,
+        { "SNAT Inside IP", "pfcp.nokia.snat_inside_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_circuit_id,
+        { "Access Line Circuit Id", "pfcp.nokia.access_line.circuit_id",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_remote_id,
+        { "Access Line Remote Id", "pfcp.nokia.access_line.remote_id",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags,
+        { "Flags", "pfcp.nokia.access_line.params.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b24_act_up,
+        {"Act Up", "pfcp.nokia.access_line.params.flags.act_up",
+            FT_BOOLEAN, 32, NULL, 0x01000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b25_act_down,
+        {"Act Down", "pfcp.nokia.access_line.params.flags.act_down",
+            FT_BOOLEAN, 32, NULL, 0x02000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b26_min_up,
+        {"Min Up", "pfcp.nokia.access_line.params.flags.min_up",
+            FT_BOOLEAN, 32, NULL, 0x04000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b27_min_down,
+        {"Min Down", "pfcp.nokia.access_line.params.flags.min_down",
+            FT_BOOLEAN, 32, NULL, 0x08000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b28_att_up,
+        {"Att Up", "pfcp.nokia.access_line.params.flags.att_up",
+            FT_BOOLEAN, 32, NULL, 0x10000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b29_att_down,
+        {"Att Down", "pfcp.nokia.access_line.params.flags.att_down",
+            FT_BOOLEAN, 32, NULL, 0x20000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b30_max_up,
+        {"Max Up", "pfcp.nokia.access_line.params.flags.max_up",
+            FT_BOOLEAN, 32, NULL, 0x40000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b31_max_down,
+        {"Max Down", "pfcp.nokia.access_line.params.flags.max_down",
+            FT_BOOLEAN, 32, NULL, 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b16_min_up_lp,
+        {"Min Up Lp", "pfcp.nokia.access_line.params.flags.min_up_lp",
+            FT_BOOLEAN, 32, NULL, 0x00010000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b17_min_down_lp,
+        {"Min Down Lp", "pfcp.nokia.access_line.params.flags.min_down_lp",
+            FT_BOOLEAN, 32, NULL, 0x00020000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b18_max_inter_delay_up,
+        {"Max Inter Delay Up", "pfcp.nokia.access_line.params.flags.max_inter_delay_up",
+            FT_BOOLEAN, 32, NULL, 0x00040000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b19_act_inter_delay_up,
+        {"Act Inter Delay Up", "pfcp.nokia.access_line.params.flags.act_inter_delay_up",
+            FT_BOOLEAN, 32, NULL, 0x00080000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b20_max_inter_delay_down,
+        {"Max Inter Delay Down", "pfcp.nokia.access_line.params.flags.max_inter_delay_down",
+            FT_BOOLEAN, 32, NULL, 0x00100000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b21_act_inter_delay_down,
+        {"Act Inter Delay Down", "pfcp.nokia.access_line.params.flags.act_inter_delay_down",
+            FT_BOOLEAN, 32, NULL, 0x00200000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b22_access_loop_encap,
+        {"Access Loop Encap", "pfcp.nokia.access_line.params.flags.access_loop_encap",
+            FT_BOOLEAN, 32, NULL, 0x00400000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_flags_b23_iw_session,
+        {"IW Session", "pfcp.nokia.access_line.params.flags.iw_session",
+            FT_BOOLEAN, 32, NULL, 0x00800000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_act_up,
+        { "Act Up", "pfcp.nokia.access_line.params.act_up",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_act_down,
+        { "Act Down", "pfcp.nokia.access_line.params.act_down",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_min_up,
+        { "Min Up", "pfcp.nokia.access_line.params.min_up",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_min_down,
+        { "Min Down", "pfcp.nokia.access_line.params.min_down",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_att_up,
+        { "Att Up", "pfcp.nokia.access_line.params.att_up",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_att_down,
+        { "Act Att Down", "pfcp.nokia.access_line.params.att_down",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_max_up,
+        { "Max Up", "pfcp.nokia.access_line.params.max_up",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_max_down,
+        { "Max Down", "pfcp.nokia.access_line.params.max_down",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_min_up_lp,
+        { "Min Up Lp", "pfcp.nokia.access_line.params.min_up_lp",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_min_down_lp,
+        { "Min Down Lp", "pfcp.nokia.access_line.params.min_down_lp",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_max_inter_delay_up,
+        { "Max Inter Delay Up", "pfcp.nokia.access_line.params.max_inter_delay_up",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_act_inter_delay_up,
+        { "Act Inter Delay Up", "pfcp.nokia.access_line.params.act_inter_delay_up",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_max_inter_delay_down,
+        { "Max Inter Delay Down", "pfcp.nokia.access_line.params.max_inter_delay_down",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_act_inter_delay_down,
+        { "Act Inter Delay Down", "pfcp.nokia.access_line.params.act_inter_delay_down",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_access_line_params_access_loop_encap,
+        { "Access Loop Encap", "pfcp.nokia.access_line.params.access_loop_encap",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_acct_session_id,
+        { "Accounting Session Id", "pfcp.nokia.acct_session_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_fsg_template_name,
+        { "FSG Template Name", "pfcp.nokia.fsg_template_name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -14515,6 +15793,14 @@ proto_register_pfcp(void)
         &ett_pfcp_bbf_l2tp_type_flags,
         &ett_pfcp_bbf_ppp_lcp_connectivity,
         &ett_pfcp_bbf_l2tp_tunnel,
+        /* Nokia */
+        &ett_pfcp_nokia_detailed_stats_key,
+        &ett_pfcp_nokia_detailed_stats_bitmap,
+        &ett_pfcp_nokia_measurement_info,
+        &ett_pfcp_nokia_pfcpsmreq_flags,
+        &ett_pfcp_nokia_pfcphb_flags,
+        &ett_pfcp_nokia_l2tp_tunnel_params_flags,
+        &ett_pfcp_nokia_access_line_params_flags,
     };
 
     // Each IE gets its own subtree
@@ -14551,6 +15837,7 @@ proto_register_pfcp(void)
 
     pfcp_register_generic_ie_dissector(VENDOR_TRAVELPING, "pfcp_travelping_ies", "pfcp.ie.travelping", "Travelping IE Type", pfcp_travelping_ies, G_N_ELEMENTS(pfcp_travelping_ies));
     pfcp_register_generic_ie_dissector(VENDOR_BROADBAND_FORUM, "pfcp_bbf_ies", "pfcp.ie.bbf", "Broadband Forum IE Type", pfcp_bbf_ies, G_N_ELEMENTS(pfcp_bbf_ies));
+    pfcp_register_generic_ie_dissector(VENDOR_NOKIA, "pfcp_nokia_ies", "pfcp.ie.nokia", "Nokia IE Type", pfcp_nokia_ies, G_N_ELEMENTS(pfcp_nokia_ies));
 
     prefs_register_bool_preference(module_pfcp, "track_pfcp_session", "Track PFCP session", "Track PFCP session", &g_pfcp_session);
     register_init_routine(pfcp_init);
