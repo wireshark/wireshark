@@ -224,9 +224,9 @@ WSLUA_METHOD ByteArray_get_le_int16(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_le_int16_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_int16_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -252,9 +252,9 @@ WSLUA_METHOD ByteArray_get_le_int32(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_le_int32_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_int32_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -284,9 +284,9 @@ WSLUA_METHOD ByteArray_get_le_int64(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_le_int64_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_int64_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -324,9 +324,9 @@ WSLUA_METHOD ByteArray_get_le_uint16(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_le_uint16_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_uint16_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -352,9 +352,9 @@ WSLUA_METHOD ByteArray_get_le_uint32(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_le_uint32_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_uint32_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -384,9 +384,9 @@ WSLUA_METHOD ByteArray_get_le_uint64(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_le_uint64_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_le_uint64_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -425,9 +425,9 @@ WSLUA_METHOD ByteArray_get_int16(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_int16_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_int16_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -453,9 +453,9 @@ WSLUA_METHOD ByteArray_get_int32(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_int32_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_int32_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -485,9 +485,9 @@ WSLUA_METHOD ByteArray_get_int64(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_int64_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_int64_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -525,9 +525,9 @@ WSLUA_METHOD ByteArray_get_uint16(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_uint16_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_uint16_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -553,9 +553,9 @@ WSLUA_METHOD ByteArray_get_uint32(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_uint32_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_uint32_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
@@ -585,9 +585,9 @@ WSLUA_METHOD ByteArray_get_uint64(lua_State* L) {
 
     @since 4.1.0
     */
-#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the first byte. */
+#define WSLUA_ARG_ByteArray_get_uint64_INDEX 2 /* The position of the first byte. */
     ByteArray ba = checkByteArray(L, 1);
-    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L, WSLUA_ARG_ByteArray_get_uint64_INDEX);
 
     if (idx == 0 && !g_str_equal(luaL_optstring(L, 2, ""), "0")) {
         luaL_argerror(L, 2, "bad index");
