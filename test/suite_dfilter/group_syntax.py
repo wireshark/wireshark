@@ -266,6 +266,11 @@ class case_unary_minus(unittest.TestCase):
         dfilter = "tcp.window_size_scalefactor == -{tcp.dstport * 20}"
         checkDFilterCount(dfilter, 0)
 
+    def test_unary_invalid_1(self, checkDFilterFail):
+        error = 'FT_PROTOCOL cannot be negated'
+        dfilter = "-tcp"
+        checkDFilterFail(dfilter, error)
+
 @fixtures.uses_fixtures
 class case_arithmetic(unittest.TestCase):
     trace_file = "dhcp.pcap"
