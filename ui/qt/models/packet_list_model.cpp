@@ -9,6 +9,8 @@
 
 #include <algorithm>
 #include <glib.h>
+#include <cmath>
+#include <stdexcept>
 
 #include "packet_list_model.h"
 
@@ -43,6 +45,11 @@
 #ifdef DEBUG_PACKET_LIST_MODEL
 #include <wsutil/time_util.h>
 #endif
+
+class SortAbort : public std::runtime_error
+{
+    using std::runtime_error::runtime_error;
+};
 
 static PacketListModel * glbl_plist_model = Q_NULLPTR;
 static const int reserved_packets_ = 100000;
@@ -340,6 +347,10 @@ int PacketListModel::sort_column_is_numeric_;
 int PacketListModel::text_sort_column_;
 Qt::SortOrder PacketListModel::sort_order_;
 capture_file *PacketListModel::sort_cap_file_;
+gboolean PacketListModel::stop_flag_;
+ProgressFrame *PacketListModel::progress_frame_;
+double PacketListModel::comps_;
+double PacketListModel::exp_comps_;
 
 QElapsedTimer busy_timer_;
 const int busy_timeout_ = 65; // ms, approximately 15 fps
@@ -379,41 +390,88 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
         return;
     }
 
-    // XXX Use updateProgress instead. We'd have to switch from std::sort to
-    // something we can interrupt.
+    /* If we are currently in the middle of reading the capture file, don't
+     * sort. PacketList::captureFileReadFinished invalidates all the cached
+     * column strings and then tries to sort again.
+     * Similarly, claim the read lock because we don't want the file to
+     * change out from under us while sorting, which can segfault. (Previously
+     * we ignored user input, but now in order to cancel sorting we don't.)
+     */
+    if (sort_cap_file_->read_lock) {
+        ws_info("Refusing to sort because capture file is being read");
+        /* We shouldn't have to tell the user because we're just deferring
+         * the sort until PacketList::captureFileReadFinished
+         */
+        return;
+    }
+    sort_cap_file_->read_lock = TRUE;
+
+    QString busy_msg;
     if (!col_title.isEmpty()) {
-        QString busy_msg = tr("Sorting \"%1\"…").arg(col_title);
-        mainApp->pushStatus(MainApplication::BusyStatus, busy_msg);
+        busy_msg = tr("Sorting \"%1\"…").arg(col_title);
+    } else {
+        busy_msg = tr("Sorting …");
+    }
+    stop_flag_ = FALSE;
+    comps_ = 0;
+    /* XXX: The expected number of comparisons is O(N log N), but this could
+     * be a pretty significant overestimate of the amount of time it takes,
+     * if there are lots of identical entries. (Especially with string
+     * comparisons, some comparisons are faster than others.) Better to
+     * overestimate?
+     */
+    exp_comps_ = log2(visible_rows_.count()) * visible_rows_.count();
+    progress_frame_ = nullptr;
+    if (qobject_cast<MainWindow *>(mainApp->mainWindow())) {
+        MainWindow *mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
+        progress_frame_ = mw->findChild<ProgressFrame *>();
+        if (progress_frame_) {
+            progress_frame_->showProgress(busy_msg, true, false, &stop_flag_, 0);
+            connect(progress_frame_, &ProgressFrame::stopLoading,
+                    this, &PacketListModel::stopSorting);
+        }
     }
 
     busy_timer_.start();
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
     QVector<PacketListRecord *> sorted_visible_rows_ = visible_rows_;
-    std::sort(sorted_visible_rows_.begin(), sorted_visible_rows_.end(), recordLessThan);
+    try {
+        std::sort(sorted_visible_rows_.begin(), sorted_visible_rows_.end(), recordLessThan);
 
-    beginResetModel();
-    visible_rows_.resize(0);
-    number_to_row_.fill(0);
-    foreach (PacketListRecord *record, sorted_visible_rows_) {
-        frame_data *fdata = record->frameData();
+        beginResetModel();
+        visible_rows_.resize(0);
+        number_to_row_.fill(0);
+        foreach (PacketListRecord *record, sorted_visible_rows_) {
+            frame_data *fdata = record->frameData();
 
-        if (fdata->passed_dfilter || fdata->ref_time) {
-            visible_rows_ << record;
-            if (number_to_row_.size() <= (int)fdata->num) {
-                number_to_row_.resize(fdata->num + 10000);
+            if (fdata->passed_dfilter || fdata->ref_time) {
+                visible_rows_ << record;
+                if (number_to_row_.size() <= (int)fdata->num) {
+                    number_to_row_.resize(fdata->num + 10000);
+                }
+                number_to_row_[fdata->num] = static_cast<int>(visible_rows_.count());
             }
-            number_to_row_[fdata->num] = static_cast<int>(visible_rows_.count());
         }
+        endResetModel();
+    } catch (const SortAbort& e) {
+        mainApp->pushStatus(MainApplication::TemporaryStatus, e.what());
     }
-    endResetModel();
 
-    if (!col_title.isEmpty()) {
-        mainApp->popStatus(MainApplication::BusyStatus);
+    if (progress_frame_ != nullptr) {
+        progress_frame_->hide();
+        disconnect(progress_frame_, &ProgressFrame::stopLoading,
+                   this, &PacketListModel::stopSorting);
     }
+    sort_cap_file_->read_lock = FALSE;
 
     if (cap_file_->current_frame) {
         emit goToPacket(cap_file_->current_frame->num);
     }
+}
+
+void PacketListModel::stopSorting()
+{
+    stop_flag_ = TRUE;
 }
 
 bool PacketListModel::isNumericColumn(int column)
@@ -486,15 +544,22 @@ bool PacketListModel::isNumericColumn(int column)
 bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
 {
     int cmp_val = 0;
+    comps_++;
 
     // Wherein we try to cram the logic of packet_list_compare_records,
     // _packet_list_compare_records, and packet_list_compare_custom from
     // gtk/packet_list_store.c into one function
 
     if (busy_timer_.elapsed() > busy_timeout_) {
+        if (progress_frame_) {
+            progress_frame_->setValue(static_cast<int>(comps_/exp_comps_ * 100));
+        }
         // What's the least amount of processing that we can do which will draw
         // the busy indicator?
-        mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+        mainApp->processEvents(QEventLoop::ExcludeSocketNotifiers, 1);
+        if (stop_flag_) {
+            throw SortAbort("Sorting aborted");
+        }
         busy_timer_.restart();
     }
     if (sort_column_ < 0) {
@@ -506,11 +571,16 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     } else  {
         QString r1String = r1->columnString(sort_cap_file_, sort_column_);
         QString r2String = r2->columnString(sort_cap_file_, sort_column_);
+        // XXX: The naive string comparison compares Unicode code points.
+        // Proper collation is more expensive
         cmp_val = r1String.compare(r2String);
         if (cmp_val != 0 && sort_column_is_numeric_) {
             // Custom column with numeric data (or something like a port number).
             // Attempt to convert to numbers.
-            // XXX This is slow. Can we avoid doing this?
+            // XXX This is slow. Can we avoid doing this? Perhaps the actual
+            // values used for sorting should be cached too as QVariant[List].
+            // If so, we could consider using QCollatorSortKeys or similar
+            // for strings as well.
             bool ok_r1, ok_r2;
             double num_r1 = parseNumericColumn(r1String, &ok_r1);
             double num_r2 = parseNumericColumn(r2String, &ok_r2);

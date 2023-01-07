@@ -1229,6 +1229,10 @@ void PacketList::captureFileReadFinished()
     // Invalidating the column strings picks up and request/response
     // tracking changes. We might just want to call it from flushVisibleRows.
     packet_list_model_->invalidateAllColumnStrings();
+    // Sort *after* invalidating the column strings
+    if (isSortingEnabled()) {
+        sortByColumn(header()->sortIndicatorSection(), header()->sortIndicatorOrder());
+    }
 }
 
 void PacketList::freeze()
@@ -1249,6 +1253,9 @@ void PacketList::freeze()
 void PacketList::thaw(bool restore_selection)
 {
     setHeaderHidden(false);
+    // Note that if we have a current sort status set in the header,
+    // this will automatically try to sort the model (we don't want
+    // that to happen if we're in the middle of reading the file).
     setModel(packet_list_model_);
 
     // Resetting the model resets our column widths so we restore them here.
