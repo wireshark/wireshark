@@ -566,6 +566,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 {
 	char *str = dfvm_dump_str(NULL, df, FALSE);
 	fputs(str, f);
+	fputc('\n', f);
 	wmem_free(NULL, str);
 }
 

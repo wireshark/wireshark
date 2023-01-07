@@ -388,7 +388,6 @@ main(int argc, char **argv)
         print_syntax_tree(df);
 
     dfilter_dump(stdout, df);
-    printf("\n");
 
     print_warnings(df);
 
