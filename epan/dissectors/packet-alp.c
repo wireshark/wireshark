@@ -17,6 +17,7 @@
 #include <config.h>
 #include <stdbool.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 void proto_reg_handoff_alp(void);
 void proto_register_alp(void);
@@ -26,6 +27,9 @@ static gint ett_alp = -1;
 static gint ett_alp_si = -1;
 static gint ett_alp_he = -1;
 static gint ett_alp_sig_info = -1;
+static gint ett_alp_lmt = -1;
+static gint ett_alp_lmt_plp = -1;
+static gint ett_alp_lmt_plp_mc = -1;
 
 static dissector_handle_t alp_handle;
 static dissector_handle_t ip_handle;
@@ -102,6 +106,24 @@ static int hf_alp_header_extension = -1;
 static int hf_alp_header_extension_type = -1;
 static int hf_alp_header_extension_length = -1;
 
+static int hf_alp_header_extension_sony_l1d_timeinfo = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_flag = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_sec = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_ms = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_us = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_ns = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_time = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo_time_ns = -1;
+static int hf_alp_header_extension_sony_plp_id = -1;
+static int hf_alp_header_extension_sony_plp_unk = -1;
+#define ALP_HE_SONY_L1D_TIME_FLAG_MASK 0xC000000000000000
+#define ALP_HE_SONY_L1D_TIME_SEC_MASK  0x3FFFFFFFC0000000
+#define ALP_HE_SONY_L1D_TIME_MS_MASK   0x000000003FF00000
+#define ALP_HE_SONY_L1D_TIME_US_MASK   0x00000000000FFC00
+#define ALP_HE_SONY_L1D_TIME_NS_MASK   0x00000000000003FF
+#define ALP_HE_SONY_PLP_NUM_MASK 0xFC
+#define ALP_HE_SONY_PLP_UNK_MASK 0x03
+
 static int hf_alp_sig_info = -1;
 static int hf_alp_sig_info_type = -1;
 static int hf_alp_sig_info_type_extension = -1;
@@ -110,6 +132,7 @@ static int hf_alp_sig_info_format = -1;
 static int hf_alp_sig_info_encoding = -1;
 #define ALP_SIG_INFO_FORMAT_MASK 0xC0
 #define ALP_SIG_INFO_ENCODING_MASK 0x30
+#define ALP_SIG_INFO_TYPE_LMT 0x01
 static const value_string alp_sig_info_type_vals[] = {
     { 0x01, "Link Mapping Table" },
     { 0x02, "ROHC-U Description Table" },
@@ -129,6 +152,32 @@ static const value_string alp_sig_info_encoding_vals[] = {
     { 3, "Reserved" },
     { 0, NULL }
 };
+
+static int hf_alp_lmt = -1;
+static int hf_alp_lmt_numplp = -1;
+static int hf_alp_lmt_reserved = -1;
+static int hf_alp_lmt_plp = -1;
+static int hf_alp_lmt_plp_id = -1;
+static int hf_alp_lmt_plp_reserved = -1;
+static int hf_alp_lmt_plp_nummc = -1;
+static int hf_alp_lmt_plp_mc = -1;
+static int hf_alp_lmt_plp_mc_src_ip = -1;
+static int hf_alp_lmt_plp_mc_dst_ip = -1;
+static int hf_alp_lmt_plp_mc_src_port = -1;
+static int hf_alp_lmt_plp_mc_dst_port = -1;
+static int hf_alp_lmt_plp_mc_sid_flag = -1;
+static int hf_alp_lmt_plp_mc_comp_flag = -1;
+static int hf_alp_lmt_plp_mc_reserved = -1;
+static int hf_alp_lmt_plp_mc_sid = -1;
+static int hf_alp_lmt_plp_mc_context_id = -1;
+
+#define ALP_LMT_NUMPLP_MASK 0xFC
+#define ALP_LMT_RESERVED_MASK 0x03
+#define ALP_LMT_PLP_ID_MASK 0xFC
+#define ALP_LMT_PLP_RESERVED_MASK 0x03
+#define ALP_LMT_PLP_MC_SID_MASK 0x80
+#define ALP_LMT_PLP_MC_COMP_MASK 0x40
+#define ALP_LMT_PLP_MC_RESERVED_MASK 0x3F
 
 static int hf_alp_junk = -1;
 
@@ -310,6 +359,8 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_item *he_item = proto_tree_add_item(alp_tree, hf_alp_header_extension, tvb, offset, 2 + he_length, ENC_NA);
         proto_tree *he_tree = proto_item_add_subtree(he_item, ett_alp_he);
 
+        guint8 he_type = tvb_get_guint8(tvb, offset);
+
         proto_tree_add_item(he_tree, hf_alp_header_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
@@ -318,15 +369,53 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         );
         offset++;
 
-        tvbuff_t *he_data_tvb = tvb_new_subset_length(tvb, offset, he_length);
-        call_data_dissector(he_data_tvb, pinfo, he_tree);
-        offset += he_length;
+        if (he_type == 0xF0 && he_length == 8) {
+            /* Sony L1D Time Info Extension */
+            guint64 sony_time = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            guint64 sony_sec = (sony_time & ALP_HE_SONY_L1D_TIME_SEC_MASK) >> 30;
+            guint64 sony_ms = (sony_time & ALP_HE_SONY_L1D_TIME_MS_MASK) >> 20;
+            guint64 sony_us = (sony_time & ALP_HE_SONY_L1D_TIME_US_MASK) >> 10;
+            guint64 sony_ns = sony_time & ALP_HE_SONY_L1D_TIME_NS_MASK;
+            guint64 ns_part = sony_ns + sony_us * 1000 + sony_ms * 1000000;
+            guint64 ns_full = ns_part + sony_sec * 1000000000;
+            nstime_t abs_time = {
+                .secs = (time_t) sony_sec,
+                .nsecs = (int) ns_part
+            };
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Sony L1D TAI Time: %s (%" G_GUINT64_FORMAT ")",
+                abs_time_to_str(pinfo->pool, &abs_time, ABSOLUTE_TIME_UTC, FALSE), ns_full);
+
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_l1d_timeinfo, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_flag, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_sec, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_ms, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_us, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_ns, tvb, offset, 8, ENC_BIG_ENDIAN);
+            PROTO_ITEM_SET_GENERATED(
+                proto_tree_add_time(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_time, tvb, offset, 8, &abs_time)
+            );
+            PROTO_ITEM_SET_GENERATED(
+                proto_tree_add_uint64(he_tree, hf_alp_header_extension_sony_l1d_timeinfo_time_ns, tvb, offset, 8, ns_full)
+            );
+            offset += 8;
+        } else if (he_type == 0xF1 && he_length == 1) {
+            /* Sony PLP Extension */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Sony PLP Extension: PLP %u", (tvb_get_guint8(tvb, offset) & ALP_HE_SONY_PLP_NUM_MASK) >> 2);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_plp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(he_tree, hf_alp_header_extension_sony_plp_unk, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        } else {
+            tvbuff_t *he_data_tvb = tvb_new_subset_length(tvb, offset, he_length);
+            call_data_dissector(he_data_tvb, pinfo, he_tree);
+            offset += he_length;
+        }
     }
 
     if (packet_type == ALP_PACKET_TYPE_SIGNALLING) {
         proto_item *sig_info_item = proto_tree_add_item(alp_tree, hf_alp_sig_info, tvb, offset, 5, ENC_NA);
         proto_tree *sig_info_tree = proto_item_add_subtree(sig_info_item, ett_alp_sig_info);
 
+        guint8 sig_info_type = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(sig_info_tree, hf_alp_sig_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
@@ -339,6 +428,96 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree_add_item(sig_info_tree, hf_alp_sig_info_format, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sig_info_tree, hf_alp_sig_info_encoding, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
+
+        if (sig_info_type == ALP_SIG_INFO_TYPE_LMT) {
+            proto_item *lmt_item = proto_tree_add_item(alp_tree, hf_alp_lmt, tvb, offset, payload_length, ENC_NA);
+            proto_tree *lmt_tree = proto_item_add_subtree(lmt_item, ett_alp_lmt);
+
+            guint8 lmt_numplp = ((tvb_get_guint8(tvb, offset) & ALP_LMT_NUMPLP_MASK) >> 2) + 1;
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Link Mapping Table, number of PLPs: %u", lmt_numplp);
+            PROTO_ITEM_SET_GENERATED(
+                proto_tree_add_uint(lmt_tree, hf_alp_lmt_numplp, tvb, offset, 1, lmt_numplp)
+            );
+            proto_tree_add_item(lmt_tree, hf_alp_lmt_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            for(guint8 i = 0; i < lmt_numplp; i++) {
+                /* Fist pass. Calculate PLP entry length */
+                gint lmt_plp_length = 2;
+                guint8 lmt_mc_nummc = tvb_get_guint8(tvb, offset + 1);
+                gint plp_mc_len = 0;
+                for(guint8 j = 0; j < lmt_mc_nummc; j++) {
+                    guint8 lmt_mc_plp_flags = tvb_get_guint8(tvb, offset + 2 + plp_mc_len + 12);
+                    plp_mc_len += 13;
+                    guint8 lmt_mc_plp_sid_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_SID_MASK;
+                    guint8 lmt_mc_plp_comp_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_COMP_MASK;
+                    if (lmt_mc_plp_sid_flag) {
+                        plp_mc_len += 1;
+                    }
+                    if (lmt_mc_plp_comp_flag) {
+                        plp_mc_len += 1;
+                    }
+                }
+                lmt_plp_length += plp_mc_len;
+
+                /* Second pass. Add PLP to the tree */
+                proto_item *lmt_plp_item = proto_tree_add_item(lmt_tree, hf_alp_lmt_plp, tvb, offset, lmt_plp_length, ENC_NA);
+                proto_tree *lmt_plp_tree = proto_item_add_subtree(lmt_plp_item, ett_alp_lmt_plp);
+
+                guint8 lmt_plp_id = (tvb_get_guint8(tvb, offset) & ALP_LMT_PLP_ID_MASK) >> 2;
+                proto_item_append_text(lmt_plp_item, " ID=%u", lmt_plp_id);
+
+                proto_tree_add_item(lmt_plp_tree, hf_alp_lmt_plp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(lmt_plp_tree, hf_alp_lmt_plp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+
+                proto_tree_add_item(lmt_plp_tree, hf_alp_lmt_plp_nummc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+
+                for(guint8 j = 0; j < lmt_mc_nummc; j++) {
+                    gint mc_len = 13;
+                    guint8 lmt_mc_plp_flags = tvb_get_guint8(tvb, offset + 12);
+                    guint8 lmt_mc_plp_sid_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_SID_MASK;
+                    guint8 lmt_mc_plp_comp_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_COMP_MASK;
+                    if (lmt_mc_plp_sid_flag) {
+                        mc_len += 1;
+                    }
+                    if (lmt_mc_plp_comp_flag) {
+                        mc_len += 1;
+                    }
+
+                    proto_item *lmt_plp_mc_item = proto_tree_add_item(lmt_plp_tree, hf_alp_lmt_plp_mc, tvb, offset, mc_len, ENC_NA);
+                    proto_item_append_text(lmt_plp_mc_item, " (%u) Dst=%s:%u", j, tvb_ip_to_str(pinfo->pool, tvb, offset + 4), tvb_get_guint16(tvb, offset + 10, ENC_BIG_ENDIAN));
+                    proto_tree *lmt_plp_mc_tree = proto_item_add_subtree(lmt_plp_mc_item, ett_alp_lmt_plp_mc);
+
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_src_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_dst_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_sid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_comp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+
+                    if (lmt_mc_plp_sid_flag) {
+                        proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_sid, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
+                    if (lmt_mc_plp_comp_flag) {
+                        proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_context_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
+                }
+            }
+        }
     }
 
     if (payload_length > 0) {
@@ -469,6 +648,48 @@ proto_register_alp(void)
             FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0, NULL, HFILL
         } },
 
+        { &hf_alp_header_extension_sony_l1d_timeinfo, {
+            "Sony L1D Time Info Extension Raw", "alp.he.sony_l1d_timeinfo",
+            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_flag, {
+            "Sony L1D Time Info Flag", "alp.he.sony_l1d_timeinfo.flag",
+            FT_UINT64, BASE_HEX, NULL, ALP_HE_SONY_L1D_TIME_FLAG_MASK, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_sec, {
+            "Sony L1D Time Info Seconds", "alp.he.sony_l1d_timeinfo.sec",
+            FT_UINT64, BASE_DEC, NULL, ALP_HE_SONY_L1D_TIME_SEC_MASK, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_ms, {
+            "Sony L1D Time Info Milliseconds", "alp.he.sony_l1d_timeinfo.ms",
+            FT_UINT64, BASE_DEC, NULL, ALP_HE_SONY_L1D_TIME_MS_MASK, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_us, {
+            "Sony L1D Time Info Microseconds", "alp.he.sony_l1d_timeinfo.us",
+            FT_UINT64, BASE_DEC, NULL, ALP_HE_SONY_L1D_TIME_US_MASK, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_ns, {
+            "Sony L1D Time Info Nanoseconds", "alp.he.sony_l1d_timeinfo.ns",
+            FT_UINT64, BASE_DEC, NULL, ALP_HE_SONY_L1D_TIME_NS_MASK, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_time, {
+            "Sony L1D Time Info TAI Time", "alp.he.sony_l1d_timeinfo.time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_l1d_timeinfo_time_ns, {
+            "Sony L1D Time Info TAI Time (ns)", "alp.he.sony_l1d_timeinfo.time_ns",
+            FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_alp_header_extension_sony_plp_id, {
+            "Sony PLP Extension PLP ID", "alp.he.sony_plp.id",
+            FT_UINT8, BASE_DEC, NULL, ALP_HE_SONY_PLP_NUM_MASK, NULL, HFILL
+        } },
+        { &hf_alp_header_extension_sony_plp_unk, {
+            "Sony PLP Extension Unknown Bits", "alp.he.sony_plp.unknown",
+            FT_UINT8, BASE_HEX, NULL, ALP_HE_SONY_PLP_UNK_MASK, NULL, HFILL
+        } },
+
         { &hf_alp_sig_info, {
             "Signalling Information Header", "alp.sih",
             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
@@ -494,6 +715,76 @@ proto_register_alp(void)
             FT_UINT8, BASE_DEC, VALS(alp_sig_info_encoding_vals), ALP_SIG_INFO_ENCODING_MASK, NULL, HFILL
         } },
 
+        { &hf_alp_lmt, {
+            "Link Mapping Table", "alp.lmt",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_numplp, {
+            "Number of PLPs", "alp.lmt.numplp",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_reserved, {
+            "Reserved", "alp.lmt.reserved",
+            FT_UINT8, BASE_HEX, NULL, ALP_LMT_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_alp_lmt_plp, {
+            "PLP", "alp.plp",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_id, {
+            "PLP ID", "alp.plp.id",
+            FT_UINT8, BASE_DEC, NULL, ALP_LMT_PLP_ID_MASK, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_reserved, {
+            "Reserved", "alp.plp.reserved",
+            FT_UINT8, BASE_HEX, NULL, ALP_LMT_PLP_RESERVED_MASK, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_nummc, {
+            "Number of Multicast Entries", "alp.plp.nummc",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc, {
+            "Multicast Entry", "alp.plp.mc",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_src_ip, {
+            "Source IP", "alp.plp.mc.src_ip",
+            FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_dst_ip, {
+            "Destination IP", "alp.plp.mc.dst_ip",
+            FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_src_port, {
+            "Source Port", "alp.plp.mc.src_port",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_dst_port, {
+            "Destination IP", "alp.plp.mc.dst_port",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_sid_flag, {
+            "SID Flag", "alp.plp.mc.sid_flag",
+            FT_UINT8, BASE_DEC, NULL, ALP_LMT_PLP_MC_SID_MASK, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_comp_flag, {
+            "Compressed Flag", "alp.plp.mc.comp_flag",
+            FT_UINT8, BASE_DEC, NULL, ALP_LMT_PLP_MC_COMP_MASK, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_reserved, {
+            "Reserved", "alp.plp.mc.reserved",
+            FT_UINT8, BASE_HEX, NULL, ALP_LMT_PLP_MC_RESERVED_MASK, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_sid, {
+            "Reserved", "alp.plp.mc.sid",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+        { &hf_alp_lmt_plp_mc_context_id, {
+            "Reserved", "alp.plp.mc.context_id",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
         { &hf_alp_junk, {
             "Junk", "alp.junk",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
@@ -505,6 +796,9 @@ proto_register_alp(void)
         &ett_alp_si,
         &ett_alp_he,
         &ett_alp_sig_info,
+        &ett_alp_lmt,
+        &ett_alp_lmt_plp,
+        &ett_alp_lmt_plp_mc,
     };
 
     proto_alp = proto_register_protocol("ATSC Link-Layer Protocol", "ALP", "alp");
