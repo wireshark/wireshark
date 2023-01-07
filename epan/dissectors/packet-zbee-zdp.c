@@ -964,18 +964,20 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
 
     tag = tvb_get_guint8(tvb, *offset);
     if (tag == tag_charset) {
-        gchar   lang_str[3];
+        gchar   *lang_str[2];
+        guint8   ch;
         guint8  charset  = tvb_get_guint8(tvb, *offset + 3);
         const gchar *charset_str;
 
         if (charset == 0x00) charset_str = "ASCII";
         else                 charset_str = "Unknown Character Set";
 
-        lang_str[0] = tvb_get_guint8(tvb, *offset + 1);
-        lang_str[1] = tvb_get_guint8(tvb, *offset + 2);
-        lang_str[2] = '\0';
+        ch = tvb_get_guint8(tvb, *offset + 1);
+        lang_str[0] = format_char(pinfo->pool, ch);
+        ch = tvb_get_guint8(tvb, *offset + 2);
+        lang_str[1] = format_char(pinfo->pool, ch);
 
-        complex = wmem_strdup_printf(pinfo->pool, "<%s>%s, %s</%s>", tag_name[tag_charset], lang_str, charset_str, tag_name[tag_charset]);
+        complex = wmem_strdup_printf(pinfo->pool, "<%s>%s%s, %s</%s>", tag_name[tag_charset], lang_str[0], lang_str[1], charset_str, tag_name[tag_charset]);
     }
     else if (tag == tag_icon) {
         /* TODO: */
@@ -984,7 +986,7 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
     else {
         gchar *str;
 
-        str = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, *offset+1, length-1, ENC_ASCII|ENC_NA);
+        str = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, *offset+1, length-1, ENC_ASCII);
         /* Handles all string type XML tags. */
         if (tag <= tag_icon_url) {
             complex = wmem_strdup_printf(pinfo->pool, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);
