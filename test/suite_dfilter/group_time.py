@@ -100,3 +100,19 @@ class case_time(unittest.TestCase):
         dfilter = 'frame.time == "mrt 1, 2000 00:00:00"'
         error = '"mrt 1, 2000 00:00:00" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
         checkDFilterFail(dfilter, error)
+
+@fixtures.uses_fixtures
+class case_time_relative(unittest.TestCase):
+    trace_file = "nfs.pcap"
+
+    def test_relative_time_1(self, checkDFilterCount):
+        dfilter = "frame.time_delta == 0.7"
+        checkDFilterCount(dfilter, 1)
+
+    def test_relative_time_2(self, checkDFilterCount):
+        dfilter = "frame.time_delta > 0.7"
+        checkDFilterCount(dfilter, 0)
+
+    def test_relative_time_3(self, checkDFilterCount):
+        dfilter = "frame.time_delta < 0.7"
+        checkDFilterCount(dfilter, 1)

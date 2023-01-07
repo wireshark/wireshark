@@ -11,10 +11,6 @@ from suite_dfilter.dfiltertest import *
 class case_ipv4(unittest.TestCase):
     trace_file = "nfs.pcap"
 
-    def test_uint64_1(self, checkDFilterCount):
-        dfilter = "nfs.fattr3.size == 264032"
-        checkDFilterCount(dfilter, 1)
-
     def test_eq_1(self, checkDFilterCount):
         dfilter = "ip.src == 172.25.100.14"
         checkDFilterCount(dfilter, 1)

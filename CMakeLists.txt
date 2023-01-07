@@ -3915,24 +3915,20 @@ set(_test_group_list
 	suite_capture
 	suite_clopts
 	suite_decryption
-	suite_dfilter.group_bytes_ether
-	suite_dfilter.group_bytes_ipv6
-	suite_dfilter.group_bytes_type
+	suite_dfilter.group_bytes
 	suite_dfilter.group_double
+	suite_dfilter.group_ether
 	suite_dfilter.group_function
 	suite_dfilter.group_integer
-	suite_dfilter.group_integer_1byte
 	suite_dfilter.group_ipv4
+	suite_dfilter.group_ipv6
 	suite_dfilter.group_membership
-	suite_dfilter.group_slice
 	suite_dfilter.group_scanner
-	suite_dfilter.group_string_type
-	suite_dfilter.group_stringz
+	suite_dfilter.group_slice
+	suite_dfilter.group_string
 	suite_dfilter.group_syntax
-	suite_dfilter.group_time_relative
-	suite_dfilter.group_time_type
+	suite_dfilter.group_time
 	suite_dfilter.group_tvb
-	suite_dfilter.group_uint64
 	suite_dissection
 	suite_dissectors.group_asterix
 	suite_extcaps
@@ -3942,12 +3938,12 @@ set(_test_group_list
 	suite_follow_multistream
 	suite_io
 	suite_mergecap
-	suite_netperfmeter
 	suite_nameres
+	suite_netperfmeter
 	suite_outputformats
 	suite_release
-	suite_text2pcap
 	suite_sharkd
+	suite_text2pcap
 	suite_unittests
 	suite_wslua
 )

@@ -183,3 +183,19 @@ class case_string(unittest.TestCase):
     def test_value_string_1(self, checkDFilterCount):
         dfilter = 'tcp.checksum.status == "Unverified" || tcp.checksum.status == "Good"'
         checkDFilterCount(dfilter, 1)
+
+@fixtures.uses_fixtures
+class case_stringz(unittest.TestCase):
+    trace_file = "tftp.pcap"
+
+    def test_stringz_1(self, checkDFilterCount):
+        dfilter = 'tftp.type == octet'
+        checkDFilterCount(dfilter, 1)
+
+    def test_stringz_2(self, checkDFilterCount):
+        dfilter = 'tftp.type == "octet"'
+        checkDFilterCount(dfilter, 1)
+
+    def test_stringz_3(self, checkDFilterCount):
+        dfilter = 'tftp.type == junk'
+        checkDFilterCount(dfilter, 0)
