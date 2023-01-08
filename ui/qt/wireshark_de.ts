@@ -3415,14 +3415,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>&amp;Ln Sub-Stream insgesamt.</numerusform>
             <numerusform>&amp;Ln Sub-Streams insgesamt.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Max. QUIC Stream ID für die ausgewählte Verbindung: %Ln</numerusform>
             <numerusform>Max. QUIC Stream ID für die ausgewählte Verbindung: %Ln</numerusform>
         </translation>
@@ -3456,6 +3456,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>
             <numerusform>%n Stream.</numerusform>
             <numerusform>&amp;Ln Stream insgesamt.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Max sub stream ID for the selected stream: %Ln</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3820,6 +3827,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Clear all graphs.</source>
         <translation>Alle Graphen löschen.</translation>
+    </message>
+    <message>
+        <source>Move this graph upwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move this graph downwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -5868,6 +5883,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Erlaube Sortierung der Liste</translation>
     </message>
     <message>
+        <source>Maximum number of cached rows (affects sorting)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable mouse-over colorization</source>
         <translation>Mouse-Over Einfärbung aktivieren</translation>
     </message>
@@ -7095,6 +7118,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 </context>
 <context>
     <name>PacketListModel</name>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
         <translation>&quot;%1&quot; wird sortiert…</translation>

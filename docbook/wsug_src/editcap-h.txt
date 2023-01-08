@@ -1,4 +1,4 @@
-Editcap (Wireshark) 4.1.0 (v4.1.0rc0-55-gccf720d95daf)
+Editcap (Wireshark) 4.1.0 (v4.1.0rc0-1347-g840a0d302513)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -35,6 +35,7 @@ Duplicate packet removal:
   --skip-radiotap-header skip radiotap header when checking for packet duplicates.
                          Useful when processing packets captured by multiple radios
                          on the same channel in the vicinity of each other.
+  --set-unused           set unused byts to zero in sll link addr.
 
 Packet manipulation:
   -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.
