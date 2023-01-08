@@ -1406,6 +1406,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-llc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lldp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-llrp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-llt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lltd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lmi.c

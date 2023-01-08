@@ -96,6 +96,7 @@ Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
 DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
 DECT DLC protocol layer (DECT-DLC)
 DECT NWK protocol layer (DECT-NWK)
+Low Level Signalling (ATSC3 LLS)
 --
 
 === Updated Protocol Support
