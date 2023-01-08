@@ -62,6 +62,14 @@ static int hf_usbll_transfer_fragment_error = -1;
 static int hf_usbll_transfer_fragment_count = -1;
 static int hf_usbll_transfer_reassembled_in = -1;
 static int hf_usbll_transfer_reassembled_length = -1;
+/* Fields defined by USB 2.0 ECN: Link Power Management (LPM) and
+ * USB 2.0 ECN Errata for Link Power Management 9/28/2011
+ */
+static int hf_usbll_subpid = -1;
+static int hf_usbll_lpm_link_state = -1;
+static int hf_usbll_lpm_besl = -1;
+static int hf_usbll_lpm_remote_wake = -1;
+static int hf_usbll_lpm_reserved = -1;
 
 static int ett_usbll = -1;
 static int ett_usbll_transfer_fragment = -1;
@@ -91,6 +99,8 @@ static const fragment_items usbll_frag_items = {
 };
 
 static expert_field ei_invalid_pid = EI_INIT;
+static expert_field ei_invalid_subpid = EI_INIT;
+static expert_field ei_conflicting_subpid = EI_INIT;
 static expert_field ei_undecoded = EI_INIT;
 static expert_field ei_wrong_crc5 = EI_INIT;
 static expert_field ei_wrong_split_crc5 = EI_INIT;
@@ -136,7 +146,7 @@ static gint global_dissect_unknown_speed_as = USB_SPEED_UNKNOWN;
 #define USB_PID_DATA_DATA0         0xC3
 #define USB_PID_HANDSHAKE_ACK      0xD2
 #define USB_PID_TOKEN_OUT          0xE1
-#define USB_PID_SPECIAL_RESERVED   0xF0
+#define USB_PID_SPECIAL_EXT        0xF0
 static const value_string usb_packetid_vals[] = {
     {USB_PID_DATA_MDATA,         "MDATA"},
     {USB_PID_HANDSHAKE_STALL,    "STALL"},
@@ -153,11 +163,90 @@ static const value_string usb_packetid_vals[] = {
     {USB_PID_DATA_DATA0,         "DATA0"},
     {USB_PID_HANDSHAKE_ACK,      "ACK"},
     {USB_PID_TOKEN_OUT,          "OUT"},
-    {USB_PID_SPECIAL_RESERVED,   "Reserved"},
+    {USB_PID_SPECIAL_EXT,        "EXT"},
     {0, NULL}
 };
 static value_string_ext usb_packetid_vals_ext =
     VALUE_STRING_EXT_INIT(usb_packetid_vals);
+
+/* EXT PID and SubPIDs are defined in USB 2.0 ECN: Link Power Management (LPM)
+ * Currently only LPM SubPID is defined, all other are reserved. The reserved
+ * PIDs are either conflicting with USB 2.0 Token PIDs (and can not be reused
+ * as SubPID in order to maintain backwards compatibility) or not yet defined
+ * (reserved for future use, because old devices will simply reject them).
+ */
+#define USB_SUBPID_RESERVED_MDATA     0x0F
+#define USB_SUBPID_RESERVED_STALL     0x1E
+#define USB_SUBPID_CONFLICT_SETUP     0x2D
+#define USB_SUBPID_CONFLICT_PRE       0x3C
+#define USB_SUBPID_RESERVED_DATA1     0x4B
+#define USB_SUBPID_RESERVED_NAK       0x5A
+#define USB_SUBPID_CONFLICT_IN        0x69
+#define USB_SUBPID_CONFLICT_SPLIT     0x78
+#define USB_SUBPID_RESERVED_DATA2     0x87
+#define USB_SUBPID_RESERVED_NYET      0x96
+#define USB_SUBPID_CONFLICT_SOF       0xA5
+#define USB_SUBPID_CONFLICT_PING      0xB4
+#define USB_SUBPID_LPM                0xC3
+#define USB_SUBPID_RESERVED_ACK       0xD2
+#define USB_SUBPID_CONFLICT_OUT       0xE1
+#define USB_SUBPID_RESERVED_EXT       0xF0
+static const value_string usb_subpid_vals[] = {
+    {USB_SUBPID_RESERVED_MDATA,  "Reserved (MDATA)"},
+    {USB_SUBPID_RESERVED_STALL,  "Reserved (STALL)"},
+    {USB_SUBPID_CONFLICT_SETUP,  "Reserved (conflict with SETUP)"},
+    {USB_SUBPID_CONFLICT_PRE,    "Reserved (conflict with PRE)"},
+    {USB_SUBPID_RESERVED_DATA1,  "Reserved (DATA1)"},
+    {USB_SUBPID_RESERVED_NAK,    "Reserved (NAK)"},
+    {USB_SUBPID_CONFLICT_IN,     "Reserved (conflict with IN)"},
+    {USB_SUBPID_CONFLICT_SPLIT,  "Reserved (conflict with SPLIT)"},
+    {USB_SUBPID_RESERVED_DATA2,  "Reserved (DATA2)"},
+    {USB_SUBPID_RESERVED_NYET,   "Reserved (NYET)"},
+    {USB_SUBPID_CONFLICT_SOF,    "Reserved (conflict with SOF)"},
+    {USB_SUBPID_CONFLICT_PING,   "Reserved (conflict with PING)"},
+    {USB_SUBPID_LPM,             "LPM"},
+    {USB_SUBPID_RESERVED_ACK,    "Reserved (ACK)"},
+    {USB_SUBPID_CONFLICT_OUT,    "Reserved (conflict with OUT)"},
+    {USB_SUBPID_RESERVED_EXT,    "Reserved (EXT)"},
+    {0, NULL}
+};
+static value_string_ext usb_subpid_vals_ext =
+    VALUE_STRING_EXT_INIT(usb_subpid_vals);
+
+static void lpm_link_state_str(gchar *buf, guint32 value)
+{
+    if (value == 0x01) {
+        snprintf(buf, ITEM_LABEL_LENGTH, "L1 (Sleep)");
+    } else {
+        snprintf(buf, ITEM_LABEL_LENGTH, "Reserved for future use");
+    }
+}
+
+static guint besl_to_us(guint8 besl)
+{
+    unsigned int us;
+    if (besl == 0) {
+        us = 125;
+    } else if (besl == 1) {
+        us = 150;
+    } else if (besl <= 5) {
+        us = 100 * besl;
+    } else {
+        us = 1000 * (besl - 5);
+    }
+    return us;
+}
+
+static void lpm_besl_str(gchar *buf, guint32 value)
+{
+    snprintf(buf, ITEM_LABEL_LENGTH, "%d us (%d)", besl_to_us(value), value);
+}
+
+static const value_string usb_lpm_remote_wake_vals[] = {
+    {0, "Disable"},
+    {1, "Enable"},
+    {0, NULL},
+};
 
 static const value_string usb_start_complete_vals[] = {
     {0, "Start"},
@@ -328,6 +417,15 @@ typedef enum usbll_state {
     STATE_CSPLIT_ISOCHRONOUS_IN_MDATA,
     STATE_CSPLIT_ISOCHRONOUS_IN_ERR,
     STATE_CSPLIT_ISOCHRONOUS_IN_NYET,
+    /* USB 2.0 ECN: Link Power Management (LPM) */
+    STATE_EXT,
+    STATE_SUBPID_INVALID,
+    STATE_SUBPID_NOT_REUSABLE,
+    STATE_SUBPID_LPM,
+    STATE_SUBPID_LPM_ACK,
+    STATE_SUBPID_LPM_NYET,
+    STATE_SUBPID_LPM_STALL,
+    STATE_SUBPID_RESERVED,
 } usbll_state_t;
 
 typedef enum usbll_ep_type {
@@ -456,7 +554,34 @@ static const reassembly_table_functions usbll_reassembly_table_functions = {
 static usbll_state_t
 usbll_next_state(usbll_state_t state, guint8 pid)
 {
-    if (pid == USB_PID_TOKEN_SOF)
+    if (state == STATE_EXT)
+    {
+        switch (pid)
+        {
+            case USB_SUBPID_RESERVED_MDATA:        return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_RESERVED_STALL:        return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_CONFLICT_SETUP:        return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_CONFLICT_PRE:          return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_RESERVED_DATA1:        return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_RESERVED_NAK:          return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_CONFLICT_IN:           return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_CONFLICT_SPLIT:        return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_RESERVED_DATA2:        return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_RESERVED_NYET:         return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_CONFLICT_SOF:          return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_CONFLICT_PING:         return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_LPM:                   return STATE_SUBPID_LPM;
+            case USB_SUBPID_RESERVED_ACK:          return STATE_SUBPID_RESERVED;
+            case USB_SUBPID_CONFLICT_OUT:          return STATE_SUBPID_NOT_REUSABLE;
+            case USB_SUBPID_RESERVED_EXT:          return STATE_SUBPID_RESERVED;
+            default:                               return STATE_SUBPID_INVALID;
+        }
+    }
+    else if (pid == USB_PID_SPECIAL_EXT)
+    {
+        return STATE_EXT;
+    }
+    else if (pid == USB_PID_TOKEN_SOF)
     {
         return STATE_IDLE;
     }
@@ -575,6 +700,7 @@ usbll_next_state(usbll_state_t state, guint8 pid)
             case STATE_SSPLIT_BULK_IN:             return STATE_SSPLIT_BULK_IN_ACK;
             case STATE_CSPLIT_BULK_OUT:            return STATE_CSPLIT_BULK_OUT_ACK;
             case STATE_CSPLIT_INTERRUPT_OUT:       return STATE_CSPLIT_INTERRUPT_OUT_ACK;
+            case STATE_SUBPID_LPM:                 return STATE_SUBPID_LPM_ACK;
             default:                               return STATE_INVALID;
         }
     }
@@ -616,6 +742,7 @@ usbll_next_state(usbll_state_t state, guint8 pid)
             case STATE_CSPLIT_BULK_IN:             return STATE_CSPLIT_BULK_IN_STALL;
             case STATE_CSPLIT_INTERRUPT_OUT:       return STATE_CSPLIT_INTERRUPT_OUT_STALL;
             case STATE_CSPLIT_INTERRUPT_IN:        return STATE_CSPLIT_INTERRUPT_IN_STALL;
+            case STATE_SUBPID_LPM:                 return STATE_SUBPID_LPM_STALL;
             default:                               return STATE_INVALID;
         }
     }
@@ -634,6 +761,7 @@ usbll_next_state(usbll_state_t state, guint8 pid)
             case STATE_CSPLIT_INTERRUPT_OUT:     return STATE_CSPLIT_INTERRUPT_OUT_NYET;
             case STATE_CSPLIT_INTERRUPT_IN:      return STATE_CSPLIT_INTERRUPT_IN_NYET;
             case STATE_CSPLIT_ISOCHRONOUS_IN:    return STATE_CSPLIT_ISOCHRONOUS_IN_NYET;
+            case STATE_SUBPID_LPM:               return STATE_SUBPID_LPM_NYET;
             default:                             return STATE_INVALID;
         }
     }
@@ -646,10 +774,6 @@ usbll_next_state(usbll_state_t state, guint8 pid)
             case STATE_CSPLIT_ISOCHRONOUS_IN:    return STATE_CSPLIT_ISOCHRONOUS_IN_ERR;
             default:                             return STATE_IDLE;
         }
-    }
-    else if (pid == USB_PID_SPECIAL_RESERVED)
-    {
-        /* TODO: Link Power Management */
     }
 
     /* SPLIT is not suitable for this function as the state cannot be
@@ -740,6 +864,21 @@ static gboolean usbll_is_non_split_token(usbll_state_t state)
         case STATE_OUT:
         case STATE_PING:
         case STATE_SETUP:
+        case STATE_EXT:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+static gboolean usbll_is_extended_subpid(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_SUBPID_INVALID:
+        case STATE_SUBPID_NOT_REUSABLE:
+        case STATE_SUBPID_LPM:
+        case STATE_SUBPID_RESERVED:
             return TRUE;
         default:
             return FALSE;
@@ -950,6 +1089,11 @@ usbll_generate_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, usbl
         case STATE_PING:
         case STATE_SETUP:
         case STATE_SETUP_DATA0:
+        case STATE_EXT:
+        case STATE_SUBPID_INVALID:
+        case STATE_SUBPID_NOT_REUSABLE:
+        case STATE_SUBPID_LPM:
+        case STATE_SUBPID_RESERVED:
             DISSECTOR_ASSERT(data->transaction != NULL);
             usbll_set_address(tree, tvb, pinfo,
                               data->transaction->address, data->transaction->endpoint,
@@ -968,6 +1112,9 @@ usbll_generate_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, usbl
         case STATE_PING_NAK:
         case STATE_PING_STALL:
         case STATE_SETUP_ACK:
+        case STATE_SUBPID_LPM_ACK:
+        case STATE_SUBPID_LPM_NYET:
+        case STATE_SUBPID_LPM_STALL:
             DISSECTOR_ASSERT(data->transaction != NULL);
             usbll_set_address(tree, tvb, pinfo,
                               data->transaction->address, data->transaction->endpoint,
@@ -1888,6 +2035,46 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
     return offset;
 }
 
+static void check_for_extended_subpid(guint8 pid, usbll_data_t *data)
+{
+    if (data->prev && data->prev->transaction_state == STATE_EXT)
+    {
+        data->transaction_state = usbll_next_state(STATE_EXT, pid);
+
+        if (data->transaction_state != STATE_SUBPID_INVALID)
+        {
+            DISSECTOR_ASSERT(data->prev != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction != NULL);
+            data->transaction = data->prev->transaction;
+        }
+    }
+}
+
+static gint
+dissect_usbll_lpm_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    guint16          attributes_bits;
+
+    static int * const attributes_fields[] = {
+        &hf_usbll_lpm_link_state,
+        &hf_usbll_lpm_besl,
+        &hf_usbll_lpm_remote_wake,
+        &hf_usbll_lpm_reserved,
+        NULL
+    };
+
+    attributes_bits = tvb_get_letohs(tvb, offset);
+
+    proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, attributes_fields, attributes_bits);
+    proto_tree_add_checksum(tree, tvb, offset,
+                            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
+                            crc5_usb_11bit_input(attributes_bits),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+
+    return offset;
+}
+
 static usbll_data_t *
 usbll_restore_data(packet_info *pinfo)
 {
@@ -1931,72 +2118,97 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_item       *item;
     proto_tree       *tree;
     gint              offset = 0;
-    guint32           pid;
+    guint8            pid;
+    gboolean          is_subpid;
     const gchar      *str;
 
     item = proto_tree_add_item(parent_tree, proto_usbll, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_usbll);
 
-    item = proto_tree_add_item_ret_uint(tree, hf_usbll_pid, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pid);
-    offset++;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBLL");
-    str = try_val_to_str(pid, usb_packetid_vals);
-    if (str) {
-        col_set_str(pinfo->cinfo, COL_INFO, str);
-    } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid Packet ID (0x%02x)", pid);
-        expert_add_info(pinfo, item, &ei_invalid_pid);
-    }
+    pid = tvb_get_guint8(tvb, offset);
 
     if (PINFO_FD_VISITED(pinfo)) {
         usbll_data_ptr = usbll_restore_data(pinfo);
     } else {
         usbll_data_ptr = usbll_create_data(pinfo);
+        check_for_extended_subpid(pid, usbll_data_ptr);
     }
 
-    switch (pid)
-    {
-        case USB_PID_TOKEN_SETUP:
-        case USB_PID_TOKEN_OUT:
-        case USB_PID_TOKEN_IN:
-        case USB_PID_SPECIAL_PING:
-            offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, usbll_data_ptr, speed);
-            break;
+    is_subpid = usbll_is_extended_subpid(usbll_data_ptr->transaction_state);
+    if (is_subpid) {
+        proto_tree_add_item(tree, hf_usbll_subpid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        str = try_val_to_str(pid, usb_subpid_vals);
+    } else {
+        proto_tree_add_item(tree, hf_usbll_pid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        str = try_val_to_str(pid, usb_packetid_vals);
+    }
+    offset++;
 
-        case USB_PID_DATA_DATA0:
-        case USB_PID_DATA_DATA1:
-        case USB_PID_DATA_DATA2:
-        case USB_PID_DATA_MDATA:
-            offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
-            break;
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBLL");
+    if (str) {
+        col_set_str(pinfo->cinfo, COL_INFO, str);
+    } else if (is_subpid) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid SubPID (0x%02x)", pid);
+        expert_add_info(pinfo, item, &ei_invalid_subpid);
+    } else {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid Packet ID (0x%02x)", pid);
+        expert_add_info(pinfo, item, &ei_invalid_pid);
+    }
 
-        case USB_PID_HANDSHAKE_ACK:
-        case USB_PID_HANDSHAKE_NAK:
-        case USB_PID_HANDSHAKE_NYET:
-        case USB_PID_HANDSHAKE_STALL:
-            offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
-            break;
+    if (is_subpid) {
+        switch (pid)
+        {
+            case USB_SUBPID_LPM:
+                offset = dissect_usbll_lpm_token(tvb, pinfo, tree, offset);
+                break;
 
-        case USB_PID_TOKEN_SOF:
-            offset = dissect_usbll_sof(tvb, pinfo, tree, offset);
-            break;
+            default:
+                break;
+        }
+    } else {
+        switch (pid)
+        {
+            case USB_PID_TOKEN_SETUP:
+            case USB_PID_TOKEN_OUT:
+            case USB_PID_TOKEN_IN:
+            case USB_PID_SPECIAL_PING:
+            case USB_PID_SPECIAL_EXT:
+                offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, usbll_data_ptr, speed);
+                break;
 
-        case USB_PID_SPECIAL_SPLIT:
-            offset = dissect_usbll_split(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
-            break;
-        case USB_PID_SPECIAL_PRE_OR_ERR:
-            break;
-        case USB_PID_SPECIAL_RESERVED:
-            break;
-        default:
-            break;
+            case USB_PID_DATA_DATA0:
+            case USB_PID_DATA_DATA1:
+            case USB_PID_DATA_DATA2:
+            case USB_PID_DATA_MDATA:
+                offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+                break;
+
+            case USB_PID_HANDSHAKE_ACK:
+            case USB_PID_HANDSHAKE_NAK:
+            case USB_PID_HANDSHAKE_NYET:
+            case USB_PID_HANDSHAKE_STALL:
+                offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+                break;
+
+            case USB_PID_TOKEN_SOF:
+                offset = dissect_usbll_sof(tvb, pinfo, tree, offset);
+                break;
+
+            case USB_PID_SPECIAL_SPLIT:
+                offset = dissect_usbll_split(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+                break;
+            case USB_PID_SPECIAL_PRE_OR_ERR:
+                break;
+            default:
+                break;
+        }
     }
 
     usbll_generate_address(tree, tvb, pinfo, usbll_data_ptr);
-    if (usbll_data_ptr->transaction_state == STATE_INVALID)
-    {
+    if (usbll_data_ptr->transaction_state == STATE_INVALID) {
         expert_add_info(pinfo, item, &ei_invalid_pid_sequence);
+    } else if (usbll_data_ptr->transaction_state == STATE_SUBPID_NOT_REUSABLE) {
+        expert_add_info(pinfo, item, &ei_conflicting_subpid);
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -2170,10 +2382,34 @@ proto_register_usbll(void)
         { &hf_usbll_transfer_reassembled_length,
             {"Reassembled length", "usbll.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+
+        /* USB 2.0 Link Power Management Addendum */
+        { &hf_usbll_subpid,
+            { "SubPID", "usbll.subpid",
+              FT_UINT8, BASE_HEX|BASE_EXT_STRING, &usb_subpid_vals_ext, 0x00,
+              "Extended Token Packet SubPID", HFILL }},
+        { &hf_usbll_lpm_link_state,
+            { "bLinkState", "usbll.lpm_link_state",
+              FT_UINT16, BASE_CUSTOM, CF_FUNC(lpm_link_state_str), 0x000F,
+              NULL, HFILL }},
+        { &hf_usbll_lpm_besl,
+            { "BESL", "usbll.lpm_besl",
+              FT_UINT16, BASE_CUSTOM, CF_FUNC(lpm_besl_str), 0x00F0,
+              "Best Effort Service Latency", HFILL}},
+        { &hf_usbll_lpm_remote_wake,
+            { "bRemoteWake", "usbll.lpm_remote_wake",
+              FT_UINT16, BASE_DEC, VALS(usb_lpm_remote_wake_vals), 0x0100,
+              NULL, HFILL }},
+        { &hf_usbll_lpm_reserved,
+            { "Reserved", "usbll.lpm_reserved",
+              FT_UINT16, BASE_DEC, NULL, 0x0600,
+              NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
         { &ei_invalid_pid, { "usbll.invalid_pid", PI_MALFORMED, PI_ERROR, "Invalid USB Packet ID", EXPFILL }},
+        { &ei_invalid_subpid, { "usbll.invalid_subpid", PI_MALFORMED, PI_ERROR, "Invalid SubPID", EXPFILL }},
+        { &ei_conflicting_subpid, { "usbll.conflicting_subpid", PI_MALFORMED, PI_ERROR, "Token PID cannot be reused as SubPID", EXPFILL }},
         { &ei_undecoded, { "usbll.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
         { &ei_wrong_crc5, { "usbll.crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
         { &ei_wrong_split_crc5, { "usbll.split_crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
