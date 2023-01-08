@@ -304,6 +304,8 @@ main(int argc, char **argv)
 
     if (opt_noisy)
         ws_log_set_noisy_filter(LOG_DOMAIN_DFILTER);
+    else if (opt_flex || opt_lemon)
+        ws_log_set_debug_filter(LOG_DOMAIN_DFILTER);
 
     /*
      * Get credential information for later use.
