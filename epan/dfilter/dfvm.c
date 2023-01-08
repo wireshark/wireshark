@@ -320,20 +320,33 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print)
 
 	switch (insn->op) {
 		case DFVM_CHECK_EXISTS:
-		case DFVM_CHECK_EXISTS_R:
 			wmem_strbuf_append_printf(buf, "%s", arg1_str);
 			break;
 
+		case DFVM_CHECK_EXISTS_R:
+			wmem_strbuf_append_printf(buf, "%s#[%s]", arg1_str, arg2_str);
+			break;
+
 		case DFVM_READ_TREE:
-		case DFVM_READ_TREE_R:
 			wmem_strbuf_append_printf(buf, "%s", arg1_str);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
+		case DFVM_READ_TREE_R:
+			wmem_strbuf_append_printf(buf, "%s#[%s]", arg1_str, arg3_str);
+			indent2(buf, col_start);
+			append_to_register(buf, arg2_str);
+			break;
+
 		case DFVM_READ_REFERENCE:
-		case DFVM_READ_REFERENCE_R:
 			wmem_strbuf_append_printf(buf, "${%s}", arg1_str);
+			indent2(buf, col_start);
+			append_to_register(buf, arg2_str);
+			break;
+
+		case DFVM_READ_REFERENCE_R:
+			wmem_strbuf_append_printf(buf, "${%s#[%s]}", arg1_str, arg3_str);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
