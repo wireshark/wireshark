@@ -52,8 +52,10 @@ option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
 option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
 option(ENABLE_WERROR     "Treat warnings as errors" ON)
-option(ENABLE_DEBUG      "Enable debug code" ON)
-option(ENABLE_DEBUG_MBS  "Enable extra debug checks for detecting invalid multibyte (UTF-8) strings" OFF)
+# Debugging is enabled for "Debug" and "RelWithDebInfo" build types.
+option(ENABLE_DEBUG      "Enable debugging for all build configurations" OFF)
+# UTF-8 debugging is enabled for "Debug" and "RelWithDebInfo" build types.
+option(ENABLE_DEBUG_UTF_8  "Enable UTF-8 sanity checks for all build configurations" OFF)
 option(ENABLE_DEBUG_A2W  "Enable line directive from .cnf file" OFF)
 
 option(ENABLE_CCACHE     "Speed up compiling and linking using ccache if possible" OFF)

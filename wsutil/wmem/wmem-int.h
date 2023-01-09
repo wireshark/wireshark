@@ -15,10 +15,10 @@
 
 #include <glib.h>
 
-#ifdef WS_DISABLE_DEBUG
-#define ASSERT(...)     (void)0
-#else
+#ifdef WS_DEBUG
 #define ASSERT(...)     g_assert(__VA_ARGS__)
+#else
+#define ASSERT(...)     (void)0
 #endif /* WS_DISABLE_DEBUG */
 
 #endif /* __WMEM_INT_H__ */

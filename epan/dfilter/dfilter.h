@@ -150,7 +150,7 @@ dfilter_log_full(const char *domain, enum ws_log_level level,
 			const char *file, long line, const char *func,
 			dfilter_t *dfcode, const char *msg);
 
-#ifndef WS_DISABLE_DEBUG
+#ifdef WS_DEBUG
 #define dfilter_log(dfcode, msg) \
 	dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_NOISY,	\
 				__FILE__, __LINE__, __func__,	\

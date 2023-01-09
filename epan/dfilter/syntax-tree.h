@@ -190,11 +190,7 @@ log_test_full(enum ws_log_level level,
 			const char *file, int line, const char *func,
 			stnode_t *node, const char *msg);
 
-#ifdef WS_DISABLE_DEBUG
-#define log_node(node) (void)0;
-#define log_test(node) (void)0;
-#define LOG_NODE(node) (void)0;
-#else
+#ifdef WS_DEBUG
 #define log_node(node) \
 	log_node_full(LOG_LEVEL_NOISY, __FILE__, __LINE__, __func__, node, #node)
 #define log_test(node) \
@@ -206,6 +202,10 @@ log_test_full(enum ws_log_level level,
 		else					\
 			log_node(node);			\
 	} while (0)
+#else
+#define log_node(node) (void)0
+#define log_test(node) (void)0
+#define LOG_NODE(node) (void)0
 #endif
 
 char *
@@ -214,9 +214,7 @@ dump_syntax_tree_str(stnode_t *root);
 void
 log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg, char **cache_ptr);
 
-#ifdef WS_DISABLE_DEBUG
-#define ws_assert_magic(obj, mnum) (void)0
-#else
+#ifdef WS_DEBUG
 #define ws_assert_magic(obj, mnum) \
 	do { \
 		ws_assert(obj); \
@@ -228,6 +226,8 @@ log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg, char **cache
 				(obj)->magic, (mnum)); \
 		} \
 	} while(0)
+#else
+#define ws_assert_magic(obj, mnum) (void)0
 #endif
 
 #endif /* SYNTAX_TREE_H */

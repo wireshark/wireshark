@@ -17,16 +17,16 @@
 /******************************************************************************/
 /* Debug section: internal function to print debug information						*/
 /*																										*/
-#ifndef WS_DISABLE_DEBUG
+#ifdef WS_DEBUG
 
 #define DEBUG_DUMP(name, ptr, size, level) \
     ws_log_buffer_full(WS_LOG_DOMAIN, level, __FILE__, __LINE__, G_STRFUNC, ptr, size, 72, name);
 
-#else	/* defined WS_DISABLE_DEBUG */
+#else	/* defined WS_DEBUG */
 
 #define DEBUG_DUMP(name, ptr, size, level)
 
-#endif	/* ?defined WS_DISABLE_DEBUG */
+#endif	/* ?defined WS_DEBUG */
 
 
 #endif	/* ?defined _DOT11DECRYPT_DEBUG_H	*/

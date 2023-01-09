@@ -30,10 +30,10 @@
 #define _LOG_DOMAIN ""
 #endif
 
-#ifdef WS_DISABLE_DEBUG
-#define _LOG_DEBUG_ENABLED false
-#else
+#ifdef WS_DEBUG
 #define _LOG_DEBUG_ENABLED true
+#else
+#define _LOG_DEBUG_ENABLED false
 #endif
 
 /*
@@ -308,7 +308,7 @@ void ws_log_fatal_full(const char *domain, enum ws_log_level level,
 
 /*
  * The if condition avoids -Wunused warnings for variables used only with
- * !WS_DISABLE_DEBUG, typically inside a ws_debug() call. The compiler will
+ * WS_DEBUG, typically inside a ws_debug() call. The compiler will
  * optimize away the dead execution branch.
  */
 #define _LOG_IF_ACTIVE(active, level, file, line, func, ...) \

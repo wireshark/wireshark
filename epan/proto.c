@@ -583,10 +583,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	register_type_length_mismatch();
 	register_number_string_decodinws_error();
 	register_string_errors();
-
-#ifndef WS_DISABLE_DEBUG
 	ftypes_register_pseudofields();
-#endif
 
 	/* Have each built-in dissector register its protocols, fields,
 	   dissector tables, and dissectors to be called through a
