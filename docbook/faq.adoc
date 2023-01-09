@@ -632,9 +632,8 @@ Also, if at all possible, please send a copy of the capture file that
 caused the problem. When capturing packets, Wireshark normally writes
 captured packets to a temporary file, which will probably be in `/tmp`
 or `/var/tmp` on UNIX-flavored OSes, `\TEMP` on the main system disk
-(normally `\Documents and Settings\`your login name
-`\Local Settings\Temp` on the main system disk on Windows XP and
-Server 2003, and `\Users\your login name\AppData\Local\Temp` on the main
+(normally `\Documents and Settings\<your login name>\Local Settings\Temp` on the main system disk on Windows XP and
+Server 2003, and `\Users\<your login name>\AppData\Local\Temp` on the main
 system disk on Windows Vista and later, so the capture file will
 probably be there. If you are capturing on a single interface, it will
 have a name of the form,
