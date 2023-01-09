@@ -105,6 +105,8 @@ print_usage(int status)
     fprintf(fp, "  -0, --optimize=0    do not optimize (check syntax)\n");
     fprintf(fp, "  -h, --help          display this help and exit\n");
     fprintf(fp, "  -v, --version       print version\n");
+    fprintf(fp, "\n");
+    ws_log_print_usage(fp);
     exit(status);
 }
 
