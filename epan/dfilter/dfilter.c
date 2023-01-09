@@ -425,16 +425,16 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 	df_yyset_extra(&state, scanner);
 
+#ifdef NDEBUG
+	if (flags & DF_DEBUG_FLEX || flags & DF_DEBUG_LEMON) {
+		ws_message("Compile Wireshark without NDEBUG to enable Flex and/or Lemon debug traces");
+	}
+#else
 	/* Enable/disable debugging for Flex. */
 	df_yyset_debug(flags & DF_DEBUG_FLEX, scanner);
 
-#ifndef NDEBUG
 	/* Enable/disable debugging for Lemon. */
 	DfilterTrace(flags & DF_DEBUG_LEMON ? stderr : NULL, "lemon> ");
-#else
-	if (flags & DF_DEBUG_LEMON) {
-		ws_message("Compile Wireshark without NDEBUG to enable Lemon debug traces");
-	}
 #endif
 
 	while (1) {

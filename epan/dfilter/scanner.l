@@ -21,11 +21,6 @@
 %option warn
 
 /*
- * Generate debug code (output is off by default for reentrant scanners).
- */
-%option debug
-
-/*
  * We want a reentrant scanner.
  */
 %option reentrant
