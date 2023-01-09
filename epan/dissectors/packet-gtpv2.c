@@ -10864,7 +10864,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mm_context_ensct,
           {"ENSCT (EPS NAS Security Context Type)", "gtpv2.mm_context_ensct",
-           FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_eps_nas_security_context_type_vals), 0x01,
+           FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_eps_nas_security_context_type_vals), 0x03,
            NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_samb_ri,
