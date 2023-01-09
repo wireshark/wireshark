@@ -76,8 +76,8 @@ static int hf_metamako_egress_seqnum = -1;
 static int hf_metamako_time_abs = -1;
 static int hf_metamako_time_rel = -1;
 static int hf_metamako_flags = -1;
-static int hf_metamako_srcport = -1;
-static int hf_metamako_srcdevice = -1;
+static int hf_metamako_src_port = -1;
+static int hf_metamako_src_device = -1;
 static int hf_metamako_time_diff = -1;
 static int hf_metamako_fcs = -1;
 static int hf_metamako_fcs_status = -1;
@@ -428,8 +428,8 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     ENC_BIG_ENDIAN, &time_rel, NULL, NULL);
   proto_item_set_generated(item);
 
-  /* [Timestamp difference from pcap time] */
-  nstime_delta(&time_diff, &metamako_time, &pinfo->abs_ts);
+  /* [Timestamp difference - capture timestamp minus trailer timestamp] */
+  nstime_delta(&time_diff, &pinfo->abs_ts, &metamako_time);
   item = proto_tree_add_time(timestamp_tree, hf_metamako_time_diff, tvb, offset, 8, &time_diff);
   proto_item_set_generated(item);
   offset += 8;
@@ -440,13 +440,13 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 
   /* Source device */
   metamako_srcdevice = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(metamako_tree, hf_metamako_srcdevice, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(metamako_tree, hf_metamako_src_device, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_item_append_text(ti, ", Source Device: %d", metamako_srcdevice);
   offset += 2;
 
   /* Source port */
   metamako_srcport = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(metamako_tree, hf_metamako_srcport, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(metamako_tree, hf_metamako_src_port, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_item_append_text(ti, ", Source Port: %d", metamako_srcport);
   offset++;
 
@@ -515,19 +515,19 @@ proto_register_metamako(void)
         NULL, HFILL }},
 
     { &hf_metamako_time_abs, {
-        "Time Stamp", "metamako.time.abs",
+        "Timestamp", "metamako.time.abs",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_metamako_time_rel, {
-        "Time Stamp", "metamako.time.rel",
+        "Timestamp", "metamako.time.rel",
         FT_RELATIVE_TIME, ENC_BIG_ENDIAN, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_metamako_time_diff, {
         "Time Difference", "metamako.time.diff",
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "Difference from capture timestamp", HFILL }},
+        "Capture timestamp minus trailer timestamp", HFILL }},
 
   {&hf_metamako_flags, {
         "Flags", "metamako.flags",
@@ -564,13 +564,13 @@ proto_register_metamako(void)
         FT_UINT8, BASE_HEX, VALS(tfs_orig_fcs_status_vals), 0x01,
         NULL, HFILL}},
 
-    { &hf_metamako_srcdevice, {
-        "Source Device ID", "metamako.srcdevice",
+    { &hf_metamako_src_device, {
+        "Source Device ID", "metamako.src.device_id",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_metamako_srcport, {
-        "Source Port", "metamako.srcport",
+    { &hf_metamako_src_port, {
+        "Source Port", "metamako.src.port",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
