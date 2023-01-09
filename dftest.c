@@ -41,7 +41,10 @@
 #include "ui/version_info.h"
 
 static int opt_verbose = 0;
-static int opt_noisy = 0;
+#define DFTEST_LOG_NONE     0
+#define DFTEST_LOG_DEBUG    1
+#define DFTEST_LOG_NOISY    2
+static int opt_log_level = DFTEST_LOG_NONE;
 static int opt_flex = 0;
 static int opt_lemon = 0;
 static int opt_syntax_tree = 0;
@@ -252,7 +255,7 @@ main(int argc, char **argv)
                 opt_verbose = 1;
                 break;
             case 'd':
-                opt_noisy = 1;
+                opt_log_level = DFTEST_LOG_NOISY;
                 break;
             case 'f':
                 opt_flex = 1;
@@ -302,10 +305,14 @@ main(int argc, char **argv)
         print_usage(EXIT_FAILURE);
     }
 
-    if (opt_noisy)
+    if (opt_log_level == DFTEST_LOG_NOISY) {
         ws_log_set_noisy_filter(LOG_DOMAIN_DFILTER);
-    else if (opt_flex || opt_lemon)
+    }
+    else if (opt_flex || opt_lemon) {
+        /* Enable some dfilter logs with flex/lemon traces for context. */
         ws_log_set_debug_filter(LOG_DOMAIN_DFILTER);
+        opt_log_level = DFTEST_LOG_DEBUG;
+    }
 
     /*
      * Get credential information for later use.
@@ -394,6 +401,11 @@ main(int argc, char **argv)
     if (!compile_filter(expanded_text, &df, timer)) {
         exit_status = 2;
         goto out;
+    }
+
+    /* If logging is enabled add an empty line. */
+    if (opt_log_level > DFTEST_LOG_NONE) {
+        printf("\n");
     }
 
     if (df == NULL) {
