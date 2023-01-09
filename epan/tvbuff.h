@@ -1029,7 +1029,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
 
 /**
  * Uncompresses a zlib compressed packet inside a tvbuff at offset with
- * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if
+ * length comprlen.  Returns an uncompressed tvbuffer attached to parent if
  * uncompression succeeded or NULL if uncompression failed.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
@@ -1051,7 +1051,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_brotli(tvbuff_t *tvb, const int offset,
 
 /**
  * Uncompresses a brotli compressed packet inside a tvbuff at offset with
- * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if
+ * length comprlen.  Returns an uncompressed tvbuffer attached to parent if
  * uncompression succeeded or NULL if uncompression failed.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_brotli(tvbuff_t *parent, tvbuff_t *tvb,
@@ -1075,7 +1075,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77(tvbuff_t *tvb,
 /**
  * Uncompresses a Microsoft Plain LZ77 compressed payload inside a
  * tvbuff at offset with length comprlen.  Returns an uncompressed
- * tvbuffer attached to tvb if uncompression succeeded or NULL if
+ * tvbuffer attached to parent if uncompression succeeded or NULL if
  * uncompression failed.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77(tvbuff_t *parent,
@@ -1099,7 +1099,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77huff(tvbuff_t *tvb,
 /**
  * Uncompresses a Microsoft LZ77+Huffman compressed payload inside a
  * tvbuff at offset with length comprlen.  Returns an uncompressed
- * tvbuffer attached to tvb if uncompression succeeded or NULL if
+ * tvbuffer attached to parent if uncompression succeeded or NULL if
  * uncompression failed.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77huff(tvbuff_t *parent,
@@ -1123,8 +1123,8 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lznt1(tvbuff_t *tvb,
 /**
  * Uncompresses a Microsoft LZNT1 compressed payload inside
  * a tvbuff at offset with length comprlen.  Returns an uncompressed
- * tvbuffer if uncompression succeeded or NULL if uncompression
- * failed.
+ * tvbuffer attached to parent if uncompression succeeded or NULL if
+ * uncompression failed.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
     tvbuff_t *tvb, const int offset, int comprlen);
@@ -1145,8 +1145,8 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb,
 /**
  * Uncompresses a ZSTD compressed payload inside a
  * tvbuff at offset with length comprlen.  Returns an uncompressed
- * tvbuffer if uncompression succeeded or NULL if uncompression
- * failed.
+ * tvbuffer attached to parent if uncompression succeeded or NULL
+ * if uncompression failed.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_zstd(tvbuff_t *parent,
     tvbuff_t *tvb, const int offset, int comprlen);
