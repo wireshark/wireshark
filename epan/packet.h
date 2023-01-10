@@ -598,6 +598,8 @@ WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(dissector_t d
     const int proto, const char* name);
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name_and_description(dissector_t dissector,
     const int proto, const char* name, const char* description);
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_data(dissector_cb_t dissector,
+    const int proto, void* cb_data);
 
 /** Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.

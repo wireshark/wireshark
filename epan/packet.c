@@ -3296,6 +3296,12 @@ create_dissector_handle_with_name_and_description(dissector_t dissector,
 	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, description, NULL);
 }
 
+dissector_handle_t
+create_dissector_handle_with_data(dissector_cb_t dissector, const int proto, void* cb_data)
+{
+	return new_dissector_handle(DISSECTOR_TYPE_CALLBACK, dissector, proto, NULL, NULL, cb_data);
+}
+
 /* Destroy an anonymous handle for a dissector. */
 static void
 destroy_dissector_handle(dissector_handle_t handle)
