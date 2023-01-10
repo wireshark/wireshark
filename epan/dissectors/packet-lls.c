@@ -157,7 +157,7 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_item *smt_entry_item = proto_tree_add_item(lls_tree, hf_lls_smt_entry, tvb, offset, smt_entry_payload_length + 4, ENC_NA);
             proto_tree *smt_entry_tree = proto_item_add_subtree(smt_entry_item, ett_lls_smt_entry);
 
-            guint16 smt_entry_table_id = tvb_get_guint8(tvb, offset);
+            guint8 smt_entry_table_id = tvb_get_guint8(tvb, offset);
             const gchar *table_type_short = val_to_str_const(smt_entry_table_id, hf_lls_table_type_short_vals, "Unknown");
             proto_item_append_text(smt_entry_item, " (%u) Table ID=%u (%s)", i, smt_entry_table_id, table_type_short);
             col_append_fstr(pinfo->cinfo, COL_INFO, "/%s", table_type_short);
