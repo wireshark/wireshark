@@ -1089,7 +1089,7 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 		guint8 padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
 		guint8 *decrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, padded_length);
 		guint8 *encrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, padded_length);
-		memcpy(encrypted_buffer, tvb_get_ptr(tvb, current_offset, frmpayload_length), frmpayload_length);
+		tvb_memcpy(tvb, encrypted_buffer, current_offset, frmpayload_length);
 		if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt)) {
 			tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, frmpayload_length, frmpayload_length);
 			add_new_data_source(pinfo, next_tvb, "Decrypted payload");
