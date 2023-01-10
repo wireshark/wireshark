@@ -125,10 +125,13 @@ WS_DLL_PUBLIC
 GSList *
 dfilter_get_warnings(dfilter_t *df);
 
+#define DF_DUMP_REFERENCES	(1U << 0)
+#define DF_DUMP_SHOW_FTYPE	(1U << 1)
+
 /* Print bytecode of dfilter to fp */
 WS_DLL_PUBLIC
 void
-dfilter_dump(FILE *fp, dfilter_t *df);
+dfilter_dump(FILE *fp, dfilter_t *df, uint16_t flags);
 
 /* Text after macro expansion. */
 WS_DLL_PUBLIC

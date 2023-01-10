@@ -50,6 +50,7 @@ static int opt_lemon = 0;
 static int opt_syntax_tree = 0;
 static int opt_timer = 0;
 static long opt_optimize = 1;
+static int opt_show_types = 0;
 
 static gdouble elapsed_expand = 0;
 static gdouble elapsed_compile = 0;
@@ -103,6 +104,7 @@ print_usage(int status)
     fprintf(fp, "  -s, --syntax        print syntax tree\n");
     fprintf(fp, "  -t, --timer         print elapsed compilation time\n");
     fprintf(fp, "  -0, --optimize=0    do not optimize (check syntax)\n");
+    fprintf(fp, "      --types         show field value types\n");
     fprintf(fp, "  -h, --help          display this help and exit\n");
     fprintf(fp, "  -v, --version       print version\n");
     fprintf(fp, "\n");
@@ -243,6 +245,7 @@ main(int argc, char **argv)
         { "timer",    ws_no_argument,   0,  't' },
         { "verbose",  ws_no_argument,   0,  'V' },
         { "optimize", ws_required_argument, 0, 1000 },
+        { "types",    ws_no_argument,   0, 2000 },
         { NULL,       0,                0,  0   }
     };
     int opt;
@@ -285,6 +288,9 @@ main(int argc, char **argv)
                     printf("Error: %s\n", g_strerror(errno));
                     print_usage(EXIT_FAILURE);
                 }
+                break;
+            case 2000:
+                opt_show_types = 1;
                 break;
             case 'v':
                 show_help_header(NULL);
@@ -419,7 +425,10 @@ main(int argc, char **argv)
     if (opt_syntax_tree)
         print_syntax_tree(df);
 
-    dfilter_dump(stdout, df);
+    uint16_t dump_flags = 0;
+    if (opt_show_types)
+        dump_flags |= DF_DUMP_SHOW_FTYPE;
+    dfilter_dump(stdout, df, dump_flags);
 
     print_warnings(df);
 

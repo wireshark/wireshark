@@ -246,6 +246,29 @@ dfvm_value_tostr(dfvm_value_t *v)
 	return s;
 }
 
+static char *
+value_type_tostr(dfvm_value_t *v, gboolean show_ftype)
+{
+	const char *s;
+
+	if (!v || !show_ftype)
+		return ws_strdup("");
+
+	switch (v->type) {
+		case HFINFO:
+		case RAW_HFINFO:
+			s = ftype_name(v->value.hfinfo->type);
+			break;
+		case FVALUE:
+			s = fvalue_type_name(v->value.fvalue);
+			break;
+		default:
+			return ws_strdup("");
+			break;
+	}
+	return ws_strdup_printf(" <%s>", s);
+}
+
 static GSList *
 dump_str_stack_push(GSList *stack, const char *str)
 {
@@ -303,10 +326,12 @@ append_to_register(wmem_strbuf_t *buf, const char *reg)
 }
 
 static void
-append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print)
+append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
+							uint16_t flags)
 {
 	dfvm_value_t	*arg1, *arg2, *arg3;
 	char 		*arg1_str, *arg2_str, *arg3_str;
+	char 		*arg1_str_type, *arg2_str_type, *arg3_str_type;
 	size_t		col_start;
 
 	arg1 = insn->arg1;
@@ -315,44 +340,54 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print)
 	arg1_str = dfvm_value_tostr(arg1);
 	arg2_str = dfvm_value_tostr(arg2);
 	arg3_str = dfvm_value_tostr(arg3);
+	arg1_str_type = value_type_tostr(arg1, flags & DF_DUMP_SHOW_FTYPE);
+	arg2_str_type = value_type_tostr(arg2, flags & DF_DUMP_SHOW_FTYPE);
+	arg3_str_type = value_type_tostr(arg3, flags & DF_DUMP_SHOW_FTYPE);
 
 	col_start = buf->len;
 
 	switch (insn->op) {
 		case DFVM_CHECK_EXISTS:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "%s%s",
+						arg1_str, arg1_str_type);
 			break;
 
 		case DFVM_CHECK_EXISTS_R:
-			wmem_strbuf_append_printf(buf, "%s#[%s]", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s#[%s]%s",
+						arg1_str, arg2_str, arg1_str_type);
 			break;
 
 		case DFVM_READ_TREE:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "%s%s",
+						arg1_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_READ_TREE_R:
-			wmem_strbuf_append_printf(buf, "%s#[%s]", arg1_str, arg3_str);
+			wmem_strbuf_append_printf(buf, "%s#[%s]%s",
+						arg1_str, arg3_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_READ_REFERENCE:
-			wmem_strbuf_append_printf(buf, "${%s}", arg1_str);
+			wmem_strbuf_append_printf(buf, "${%s}%s",
+						arg1_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_READ_REFERENCE_R:
-			wmem_strbuf_append_printf(buf, "${%s#[%s]}", arg1_str, arg3_str);
+			wmem_strbuf_append_printf(buf, "${%s#[%s]}%s",
+						arg1_str, arg3_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_PUT_FVALUE:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "%s%s",
+						arg1_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
@@ -374,110 +409,131 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print)
 			break;
 
 		case DFVM_SLICE:
-			wmem_strbuf_append_printf(buf, "%s[%s]", arg1_str, arg3_str);
+			wmem_strbuf_append_printf(buf, "%s[%s]%s",
+						arg1_str, arg3_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_LENGTH:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "%s%s",
+						arg1_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_ALL_EQ:
-			wmem_strbuf_append_printf(buf, "%s === %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s === %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ANY_EQ:
-			wmem_strbuf_append_printf(buf, "%s == %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s == %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_NE:
-			wmem_strbuf_append_printf(buf, "%s != %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s != %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ANY_NE:
-			wmem_strbuf_append_printf(buf, "%s !== %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s !== %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_GT:
 		case DFVM_ANY_GT:
-			wmem_strbuf_append_printf(buf, "%s > %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s > %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_GE:
 		case DFVM_ANY_GE:
-			wmem_strbuf_append_printf(buf, "%s >= %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s >= %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_LT:
 		case DFVM_ANY_LT:
-			wmem_strbuf_append_printf(buf, "%s < %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s < %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_LE:
 		case DFVM_ANY_LE:
-			wmem_strbuf_append_printf(buf, "%s <= %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s <= %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_NOT_ALL_ZERO:
-			wmem_strbuf_append_printf(buf, "%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "%s%s",
+						arg1_str, arg1_str_type);
 			break;
 
 		case DFVM_ALL_CONTAINS:
 		case DFVM_ANY_CONTAINS:
-			wmem_strbuf_append_printf(buf, "%s contains %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s contains %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_MATCHES:
 		case DFVM_ANY_MATCHES:
-			wmem_strbuf_append_printf(buf, "%s matches %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s matches %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_ALL_IN_RANGE:
 		case DFVM_ANY_IN_RANGE:
-			wmem_strbuf_append_printf(buf, "%s in { %s .. %s }", arg1_str, arg2_str, arg3_str);
+			wmem_strbuf_append_printf(buf, "%s%s in { %s%s .. %s%s }",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type, arg3_str, arg3_str_type);
 			break;
 
 		case DFVM_BITWISE_AND:
-			wmem_strbuf_append_printf(buf, "%s & %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s & %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
 			break;
 
 		case DFVM_UNARY_MINUS:
-			wmem_strbuf_append_printf(buf, "-%s", arg1_str);
+			wmem_strbuf_append_printf(buf, "-%s%s",
+						arg1_str, arg1_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg2_str);
 			break;
 
 		case DFVM_ADD:
-			wmem_strbuf_append_printf(buf, "%s + %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s + %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
 			break;
 
 		case DFVM_SUBTRACT:
-			wmem_strbuf_append_printf(buf, "%s - %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s - %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
 			break;
 
 		case DFVM_MULTIPLY:
-			wmem_strbuf_append_printf(buf, "%s * %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s * %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
 			break;
 
 		case DFVM_DIVIDE:
-			wmem_strbuf_append_printf(buf, "%s / %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s / %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
 			break;
 
 		case DFVM_MODULO:
-			wmem_strbuf_append_printf(buf, "%s %% %s", arg1_str, arg2_str);
+			wmem_strbuf_append_printf(buf, "%s%s %% %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			indent2(buf, col_start);
 			append_to_register(buf, arg3_str);
 			break;
@@ -495,6 +551,9 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print)
 	g_free(arg1_str);
 	g_free(arg2_str);
 	g_free(arg3_str);
+	g_free(arg1_str_type);
+	g_free(arg2_str_type);
+	g_free(arg3_str_type);
 }
 
 static void
@@ -529,7 +588,7 @@ append_references(wmem_strbuf_t *buf, GHashTable *references, gboolean raw)
 }
 
 char *
-dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
+dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 {
 	int		id, length;
 	dfvm_insn_t	*insn;
@@ -539,13 +598,13 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 
 	buf = wmem_strbuf_new(alloc, NULL);
 
-	if (print_references && g_hash_table_size(df->references) > 0) {
+	if ((flags & DF_DUMP_REFERENCES) && g_hash_table_size(df->references) > 0) {
 		wmem_strbuf_append(buf, "References:\n");
 		append_references(buf, df->references, FALSE);
 		wmem_strbuf_append_c(buf, '\n');
 	}
 
-	if (print_references && g_hash_table_size(df->raw_references) > 0) {
+	if ((flags & DF_DUMP_REFERENCES) && g_hash_table_size(df->raw_references) > 0) {
 		wmem_strbuf_append(buf, "Raw references:\n");
 		append_references(buf, df->raw_references, TRUE);
 		wmem_strbuf_append_c(buf, '\n');
@@ -566,7 +625,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 			default:
 				indent1(buf, col_start);
-				append_op_args(buf, insn, &stack_print);
+				append_op_args(buf, insn, &stack_print, flags);
 				break;
 		}
 	}
@@ -575,9 +634,9 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 }
 
 void
-dfvm_dump(FILE *f, dfilter_t *df)
+dfvm_dump(FILE *f, dfilter_t *df, uint16_t flags)
 {
-	char *str = dfvm_dump_str(NULL, df, FALSE);
+	char *str = dfvm_dump_str(NULL, df, flags);
 	fputs(str, f);
 	fputc('\n', f);
 	wmem_free(NULL, str);

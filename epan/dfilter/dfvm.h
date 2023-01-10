@@ -140,10 +140,10 @@ dfvm_value_t*
 dfvm_value_new_guint(guint num);
 
 void
-dfvm_dump(FILE *f, dfilter_t *df);
+dfvm_dump(FILE *f, dfilter_t *df, uint16_t flags);
 
 char *
-dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references);
+dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df,  uint16_t flags);
 
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree);

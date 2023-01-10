@@ -628,9 +628,9 @@ dfilter_get_warnings(dfilter_t *df)
 }
 
 void
-dfilter_dump(FILE *fp, dfilter_t *df)
+dfilter_dump(FILE *fp, dfilter_t *df, uint16_t flags)
 {
-	dfvm_dump(fp, df);
+	dfvm_dump(fp, df, flags);
 }
 
 const char *
