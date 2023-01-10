@@ -537,7 +537,8 @@ Commit Check:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
-    - bash ./tools/pre-commit "HEAD~$NUM_COMMITS"
+    - git status
+    - bash ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS"
     - tools/validate-commit.py
 
 GCC Release Build:
