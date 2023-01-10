@@ -299,7 +299,7 @@ indent(wmem_strbuf_t *buf, size_t offset, size_t start)
 static void
 append_to_register(wmem_strbuf_t *buf, const char *reg)
 {
-	wmem_strbuf_append_printf(buf, " >> %s", reg);
+	wmem_strbuf_append_printf(buf, " -> %s", reg);
 }
 
 static void
