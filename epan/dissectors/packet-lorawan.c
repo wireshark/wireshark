@@ -1126,7 +1126,7 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 		memcpy(msg + 6, &dev_address, 4);
 		memcpy(msg + 10, &fcnt, 4);
 		msg[15] = frame_length;
-		memcpy(msg + 16, tvb_get_ptr(tvb, 0, frame_length), frame_length);
+		tvb_memcpy(tvb, msg + 16, 0, frame_length);
 		proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(msg, frame_length + 16, session_key->nwkskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	} else {
 		proto_item *checksum_item = proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,

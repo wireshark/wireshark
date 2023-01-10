@@ -2225,7 +2225,7 @@ dissect_e2ap_T_gnb_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   /* Limit length, but really can't be > 5 bytes.. */
   e2ap_data->gnb_id_len = MIN((offset-start_offset)/8, MAX_GNB_ID_BYTES);
-  memcpy(&e2ap_data->gnb_id_bytes, tvb_get_ptr(tvb, start_offset/8, e2ap_data->gnb_id_len), e2ap_data->gnb_id_len);
+  tvb_memcpy(tvb, &e2ap_data->gnb_id_bytes, start_offset/8, e2ap_data->gnb_id_len);
   update_conversation_from_gnb_id(actx);
 
 
