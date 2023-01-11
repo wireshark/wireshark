@@ -49,8 +49,8 @@ void proto_reg_handoff_mysql(void);
 #define MARIADB_RPL_VERSION_HACK "5.5.5-"
 
 /* client/server capabilities
- * Source: http://dev.mysql.com/doc/internals/en/capability-flags.html
- * Source: mysql_com.h
+ * Docs:   https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
+ * Source: https://github.com/mysql/mysql-server/blob/8.0/include/mysql_com.h
  */
 #define MYSQL_CAPS_LP 0x0001 /* CLIENT_LONG_PASSWORD/CLIENT_IS_MYSQL */
 #define MYSQL_CAPS_FR 0x0002 /* CLIENT_FOUND_ROWS */
@@ -206,6 +206,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_COMPRESS_NONE   0
 #define MYSQL_COMPRESS_INIT   1
 #define MYSQL_COMPRESS_ACTIVE 2
+#define MYSQL_COMPRESS_PAYLOAD 3
 
 /* Generic Response Codes */
 #define MYSQL_RESPONSE_OK   0x00
@@ -1346,6 +1347,8 @@ static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, proto_tree* tree, int offset, guint64 *res, guint8 *is_null);
 
 static int mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field);
+static int dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
+static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_);
 
 static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x01, 0, mysql_dissect_exec_tiny },
@@ -2420,13 +2423,13 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 }
 
 /*
- * Decode the header of a compressed packet
- * https://dev.mysql.com/doc/internals/en/compressed-packet-header.html
+ * Decode a compressed packet
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression.html
  */
 static int
-mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, packet_info *pinfo)
+mysql_dissect_compressed(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, packet_info *pinfo, mysql_conn_data_t *conn_data)
 {
-	tvbuff_t *next_tvb;
+	tvbuff_t *next_tvb, *next_tvb2;
 	guint clen, ulen;
 
 	clen = tvb_get_letoh24(tvb, offset);
@@ -2444,9 +2447,32 @@ mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tre
 		next_tvb = tvb_child_uncompress(tvb, tvb, offset, clen);
 		if (next_tvb) {
 			add_new_data_source(pinfo, next_tvb, "compressed data");
-			// call_dissector(mysql_handle, next_tvb, pinfo, mysql_tree);
+
+			int next_offset = 0;
+			while (tvb_reported_length_remaining(next_tvb, next_offset) > 0) {
+				guint32 pdulen = tvb_get_letoh24(next_tvb, next_offset) + 4;
+				next_tvb2 = tvb_new_subset_length(next_tvb, next_offset, pdulen);
+
+				conn_data->compressed_state = MYSQL_COMPRESS_PAYLOAD;
+				dissect_mysql_pdu(next_tvb2, pinfo, mysql_tree, NULL);
+				conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+
+				next_offset += pdulen;
+			}
+			offset += clen;
 		} else {
 			expert_add_info_format(pinfo, mysql_tree, &ei_mysql_compression, "Can't uncompress packet");
+		}
+	} else {
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			guint32 pdulen = tvb_get_letoh24(tvb, offset) + 4;
+			next_tvb = tvb_new_subset_length(tvb, offset, pdulen);
+
+			conn_data->compressed_state = MYSQL_COMPRESS_PAYLOAD;
+			dissect_mysql_pdu(next_tvb, pinfo, mysql_tree, NULL);
+			conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+
+			offset += pdulen;
 		}
 	}
 
@@ -2960,7 +2986,6 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 
 	}
-
 
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		fle = tvb_get_fle(tvb, tree, offset, &extra, NULL);
@@ -3700,7 +3725,8 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	if ((conn_data->frame_start_compressed) && (pinfo->num > conn_data->frame_start_compressed)) {
 		if (conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE) {
-			offset = mysql_dissect_compressed_header(tvb, offset, tree, pinfo);
+			offset = mysql_dissect_compressed(tvb, offset, tree, pinfo, conn_data);
+			return tvb_reported_length(tvb);
 		}
 	}
 
