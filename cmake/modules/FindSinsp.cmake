@@ -13,7 +13,9 @@
 #  SINSP_FOUND          - True if libsinsp found.
 #  SINSP_INCLUDE_DIRS   - Where to find sinsp.h, scap.h, etc.
 #  SINSP_LINK_LIBRARIES - List of libraries when using libsinsp.
-#  SINSP_PLUGINS        - List of plugins.
+
+# You must manually set the following variables:
+#  SINSP_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
 
 # To do:
 #  SINSP_DLL_DIR        - (Windows) Path to the libsinsp and libscap DLLs
@@ -21,6 +23,8 @@
 
 include( FindWSWinLibs )
 FindWSWinLibs( "libsinsp-.*" "SINSP_HINTS" )
+
+include(CMakeDependentOption)
 
 if( NOT WIN32)
   find_package(PkgConfig)
@@ -135,11 +139,6 @@ if(NOT SINSP_FOUND)
   endif()
 endif()
 
-find_path(SINSP_PLUGIN_DIR
-  NAMES registry.yaml
-  HINTS "${SINSP_PLUGINDIR}"
-)
-
 # As https://cmake.org/cmake/help/latest/command/link_directories.html
 # says, "Prefer to pass full absolute paths to libraries where possible,
 # since this ensures the correct library will always be linked," so use
@@ -150,16 +149,10 @@ find_package_handle_standard_args(Sinsp
   REQUIRED_VARS
     SINSP_INCLUDE_DIRS
     SINSP_LINK_LIBRARIES
-    SINSP_PLUGIN_DIR
   # VERSION_VAR SINSP_VERSION
 )
 
 if(SINSP_FOUND)
-  if (WIN32)
-    set(SINSP_PLUGINS ${SINSP_PLUGIN_DIR}/plugins/cloudtrail/cloudtrail.dll)
-  else()
-    set(SINSP_PLUGINS ${SINSP_PLUGIN_DIR}/plugins/cloudtrail/libcloudtrail.so)
-  endif()
 #   if (WIN32)
 #     set ( SINSP_DLL_DIR "${SINSP_HINTS}/bin"
 #       CACHE PATH "Path to sinsp DLL"
@@ -176,7 +169,8 @@ if(SINSP_FOUND)
 else()
   set(SINSP_INCLUDE_DIRS)
   set(SINSP_LINK_LIBRARIES)
-  set(SINSP_PLUGINS)
 endif()
 
-mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES SINSP_PLUGINS)
+cmake_dependent_option(SINSP_PLUGINS "Paths to Falco plugins. Semicolon-separated" "" SINSP_FOUND "")
+
+mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES)
