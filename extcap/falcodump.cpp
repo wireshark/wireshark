@@ -961,15 +961,33 @@ int main(int argc, char **argv)
             goto end;
         }
         sinsp_evt *evt;
+#define FALCODUMP_SCAP_EVENT_TIMEOUT 5 // seconds; arbitrary
+        GTimer *event_timer = g_timer_new();
         ws_noisy("Starting capture loop.");
         while (!extcap_end_application) {
             try {
                 int32_t res = inspector.next(&evt);
-                if (res != SCAP_SUCCESS) {
+                switch (res) {
+                case SCAP_TIMEOUT:
+                {
+                    double elapsed = g_timer_elapsed(event_timer, NULL);
+                    if (elapsed > FALCODUMP_SCAP_EVENT_TIMEOUT) {
+                        ws_warning("Inspector timed out after %0.1f seconds", elapsed);
+                        extcap_end_application = true;
+                    }
                     break;
                 }
-                dumper.dump(evt);
-                dumper.flush();
+                case SCAP_FILTERED_EVENT:
+                    break;
+                case SCAP_SUCCESS:
+                    dumper.dump(evt);
+                    dumper.flush();
+                    break;
+                default:
+                    ws_noisy("Inspector exited with %d", res);
+                    extcap_end_application = true;
+                    break;
+                }
             } catch (sinsp_exception &e) {
                 ws_warning("%s", e.what());
                 goto end;
