@@ -58,7 +58,7 @@ add_model_name_to_string(gpointer key, gpointer value _U_,
         g_string_append(info->str, info->sep);
 
     /* Now add the model name. */
-    g_string_append(info->str, (char *)key);
+    g_string_append(info->str, g_strstrip((char *)key));
 
     /*
      * There will *definitely* need to be a separator for any subsequent
