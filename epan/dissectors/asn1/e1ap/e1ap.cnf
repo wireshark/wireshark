@@ -344,6 +344,8 @@ id-MCForwardingResourceIndication               ProtocolIE-ID
 id-MCForwardingResourceResponse                 ProtocolIE-ID
 id-MCForwardingResourceRelease                  ProtocolIE-ID
 id-MCForwardingResourceReleaseIndication        ProtocolIE-ID
+id-PDCP-COUNT-Reset                             ProtocolIE-ID
+id-MBSSessionAssociatedInfoNonSupportToSupport  ProtocolIE-ID
 
 #.END
 
@@ -536,6 +538,8 @@ MCForwardingResourceIndication               N e1ap.extension id-MCForwardingRes
 MCForwardingResourceResponse                 N e1ap.extension id-MCForwardingResourceResponse
 MCForwardingResourceRelease                  N e1ap.extension id-MCForwardingResourceRelease
 MCForwardingResourceReleaseIndication        N e1ap.extension id-MCForwardingResourceReleaseIndication
+PDCP-COUNT-Reset                             N e1ap.extension id-PDCP-COUNT-Reset
+MBSSessionAssociatedInfoNonSupportToSupport  N e1ap.extension id-MBSSessionAssociatedInfoNonSupportToSupport
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset

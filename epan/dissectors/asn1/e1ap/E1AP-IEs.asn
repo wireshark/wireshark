@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.2.0 (2022-09)
+-- 3GPP TS 37.483 V17.3.0 (2022-12)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -73,6 +73,8 @@ IMPORTS
 	id-MCForwardingResourceResponse,
 	id-MCForwardingResourceRelease,
 	id-MCForwardingResourceReleaseIndication,
+	id-PDCP-COUNT-Reset,
+	id-MBSSessionAssociatedInfoNonSupportToSupport,
 	maxnoofMBSAreaSessionIDs,
 	maxnoofSharedNG-UTerminations,
 	maxnoofMRBs,
@@ -1093,7 +1095,8 @@ DRB-To-Modify-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-EarlyForwardingCOUNTInfo		CRITICALITY reject	EXTENSION EarlyForwardingCOUNTInfo			PRESENCE optional}|
 	{ID id-DAPSRequestInfo				CRITICALITY ignore	EXTENSION DAPSRequestInfo					PRESENCE optional}|
 	{ID id-EarlyDataForwardingIndicator	CRITICALITY ignore	EXTENSION EarlyDataForwardingIndicator	PRESENCE optional}|
-	{ID id-SDTindicatorMod				CRITICALITY reject	EXTENSION SDTindicatorMod					PRESENCE optional},
+	{ID id-SDTindicatorMod				CRITICALITY reject	EXTENSION SDTindicatorMod					PRESENCE optional}|
+	{ID id-PDCP-COUNT-Reset				CRITICALITY reject	EXTENSION PDCP-COUNT-Reset					PRESENCE optional	},
 	...
 }
 
@@ -1841,6 +1844,19 @@ MBSNGUInformationAtNGRAN-ExtIEs E1AP-PROTOCOL-IES ::= {
 	...
 }
 
+
+MBSSessionAssociatedInfoNonSupportToSupport ::= SEQUENCE {
+	ue-Reference-ID						GNB-CU-CP-UE-E1AP-ID,
+	pDU-Session-ID						PDU-Session-ID,
+	associatedQoSFlowInformationList	MBSSessionAssociatedInformationList,
+	iE-Extensions		ProtocolExtensionContainer { {MBSSessionAssociatedInfoNonSupportToSupport-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MBSSessionAssociatedInfoNonSupportToSupport-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 MBSSessionAssociatedInformation ::= SEQUENCE {
 	mbsSessionAssociatedInformationList		MBSSessionAssociatedInformationList,
 	mbsSessionForwardingAddress				TransportLayerAddress,
@@ -1893,13 +1909,14 @@ MBS-Support-Info-ToRemove-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 
 MCBearerContextToSetup ::= SEQUENCE {
 	snssai								SNSSAI,
-	mcMRBToSetupList						MCMRBSetupConfiguration,
-	requestedAction									RequestedAction4AvailNGUTermination		OPTIONAL,
+	mcMRBToSetupList					MCMRBSetupConfiguration					OPTIONAL,
+	requestedAction						RequestedAction4AvailNGUTermination		OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCBearerContextToSetup-ExtIEs} }	OPTIONAL,
 	...
 }
 
 MCBearerContextToSetup-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional},
 	...
 }
 
@@ -1923,10 +1940,10 @@ MCMRBSetupConfiguration-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 -- MCBearerContextToSetupResponse
 
 MCBearerContextToSetupResponse ::= SEQUENCE {
-	mcBearerContextNGU-TNLInfoatNGRAN			MCBearerContextNGU-TNLInfoatNGRAN			OPTIONAL,
-	mcMRBSetupResponseList					MCMRBSetupResponseList,
+	mcBearerContextNGU-TNLInfoatNGRAN		MCBearerContextNGU-TNLInfoatNGRAN		OPTIONAL,
+	mcMRBSetupResponseList					MCMRBSetupResponseList					OPTIONAL,
 	mcMRBFailedList							MCMRBFailedList							OPTIONAL,
-	availableMCMRBConfig						MCMRBSetupConfiguration					OPTIONAL,
+	availableMCMRBConfig					MCMRBSetupConfiguration					OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCBearerContextToSetupResponse-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1951,7 +1968,7 @@ MCMRBSetupResponseList-Item ::= SEQUENCE {
 	mrb-ID								MRB-ID,
 	qosflow-setup						QoS-Flow-List,
 	qosflow-failed						QoS-Flow-Failed-List		OPTIONAL,
-	mBSInitialHFNRefSN					MBS-Initial-HFN-Ref-SN		OPTIONAL,
+	mBS-PDCP-COUNT						MBS-PDCP-COUNT				OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCMRBSetupResponseList-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1960,7 +1977,7 @@ MCMRBSetupResponseList-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-MBS-Initial-HFN-Ref-SN	::= BIT STRING (SIZE (32))
+MBS-PDCP-COUNT	::= BIT STRING (SIZE (32))
 
 MCMRBFailedList ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF MCMRBFailedList-Item
 
@@ -1981,18 +1998,20 @@ MCMRBFailedList-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 MCBearerContextToModify ::= SEQUENCE {
 	mcBearerContextNGUTNLInfoat5GC					MCBearerContextNGUTNLInfoat5GC				OPTIONAL,
 	mcBearerContextNGUTnlInfoatNGRANRequest			MCBearerContextNGUTnlInfoatNGRANRequest		OPTIONAL,
-	mbsMulticastF1UContextDescriptor					MBSMulticastF1UContextDescriptor				OPTIONAL,
+	mbsMulticastF1UContextDescriptor				MBSMulticastF1UContextDescriptor			OPTIONAL,
 -- This IE shall be present if either the MC MRB To Setup or Modify List IE or the MC MRB To Remove List IE or both IEs are included.
+	requestedAction									RequestedAction4AvailNGUTermination			OPTIONAL,
 	mcMRBToSetupModifyList							MCMRBSetupModifyConfiguration				OPTIONAL,
-	mcMRBToRemoveList								MCMRBRemoveConfiguration						OPTIONAL,
+	mcMRBToRemoveList								MCMRBRemoveConfiguration					OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCBearerContextToModify-ExtIEs} }	OPTIONAL,
 	...
 }
 
 MCBearerContextToModify-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-MCForwardingResourceRequest		CRITICALITY ignore	EXTENSION MCForwardingResourceRequest		PRESENCE optional}|
-	{ID id-MCForwardingResourceIndication	CRITICALITY ignore	EXTENSION MCForwardingResourceIndication	PRESENCE optional}|
-	{ID id-MCForwardingResourceRelease		CRITICALITY ignore	EXTENSION MCForwardingResourceRelease		PRESENCE optional},
+	{ID id-MCForwardingResourceRequest					CRITICALITY ignore	EXTENSION MCForwardingResourceRequest						PRESENCE optional}|
+	{ID id-MCForwardingResourceIndication				CRITICALITY ignore	EXTENSION MCForwardingResourceIndication					PRESENCE optional}|
+	{ID id-MCForwardingResourceRelease					CRITICALITY ignore	EXTENSION MCForwardingResourceRelease						PRESENCE optional}|
+	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional},
 	...
 }
 
@@ -2029,7 +2048,7 @@ MCMRBSetupModifyConfiguration-Item ::= SEQUENCE {
 	mbs-pdcp-config					PDCP-Configuration				OPTIONAL,
 	qoS-Flow-QoS-Parameter-List		QoS-Flow-QoS-Parameter-List		OPTIONAL,
 	mrbQoS							QoSFlowLevelQoSParameters		OPTIONAL,
-	mbsInitialHFNRefSNReq			MBS-Initial-HFN-Ref-SN-Req		OPTIONAL,
+	mbs-PDCP-COUNT-Req				MBS-PDCP-COUNT-Req				OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCMRBSetupModifyConfiguration-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2067,7 +2086,7 @@ MBSMulticastF1UContextDescriptor-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 
 MCMRBRemoveConfiguration ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF MRB-ID
 
-MBS-Initial-HFN-Ref-SN-Req ::=	ENUMERATED {true, ... }
+MBS-PDCP-COUNT-Req ::=	ENUMERATED {true, ... }
 
 
 -- MCBearerContextToModifyResponse
@@ -2106,7 +2125,7 @@ MCMRBSetupModifyResponseList-Item ::= SEQUENCE {
 	qosflow-setup						QoS-Flow-List			OPTIONAL,
 	qosflow-failed						QoS-Flow-Failed-List		OPTIONAL,
 	mcBearerContextF1UTNLInfoatCU		UP-TNL-Information		OPTIONAL,
-	mBSInitialHFNRefSN					MBS-Initial-HFN-Ref-SN	OPTIONAL,
+	mBS-PDCP-COUNT						MBS-PDCP-COUNT			OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCMRBSetupModifyResponseList-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2135,7 +2154,7 @@ MCMRBModifyRequiredConfiguration ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF MCMRBMod
 
 MCMRBModifyRequiredConfiguration-Item ::= SEQUENCE {
 	mrb-ID							MRB-ID,
-	mBSInitialHFNRefSN					MBS-Initial-HFN-Ref-SN	OPTIONAL,
+	mBS-PDCP-COUNT					MBS-PDCP-COUNT															OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { MCMRBModifyRequiredConfiguration-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2582,6 +2601,11 @@ PDCP-Configuration-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-EHC-Parameters								CRITICALITY ignore	EXTENSION EHC-Parameters									PRESENCE optional}|
 	{ ID id-UDC-Parameters								CRITICALITY ignore	EXTENSION UDC-Parameters									PRESENCE optional}|
 	{ ID id-DiscardTimerExtended								CRITICALITY reject	EXTENSION DiscardTimerExtended									PRESENCE optional},
+	...
+}
+
+PDCP-COUNT-Reset	::=	ENUMERATED	{
+	true,
 	...
 }
 

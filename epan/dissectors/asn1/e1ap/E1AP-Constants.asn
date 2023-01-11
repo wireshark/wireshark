@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.2.0 (2022-09)
+-- 3GPP TS 37.483 V17.3.0 (2022-12)
 -- **************************************************************
 --
 -- Constant definitions
@@ -295,6 +295,8 @@ id-MCForwardingResourceIndication								ProtocolIE-ID ::= 180
 id-MCForwardingResourceResponse									ProtocolIE-ID ::= 181
 id-MCForwardingResourceRelease									ProtocolIE-ID ::= 182
 id-MCForwardingResourceReleaseIndication						ProtocolIE-ID ::= 183
+id-PDCP-COUNT-Reset												ProtocolIE-ID ::= 184
+id-MBSSessionAssociatedInfoNonSupportToSupport					ProtocolIE-ID ::= 185
 
 
 END

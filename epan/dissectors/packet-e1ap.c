@@ -5,7 +5,7 @@
 
 /* packet-e1ap.c
  * Routines for E-UTRAN E1 Application Protocol (E1AP) packet dissection
- * Copyright 2018-2022, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2023, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 37.483 V17.2.0 (2022-09)
+ * References: 3GPP TS 37.483 V17.3.0 (2022-12)
  */
 
 #include "config.h"
@@ -299,7 +299,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_MCForwardingResourceIndication = 180,
   id_MCForwardingResourceResponse = 181,
   id_MCForwardingResourceRelease = 182,
-  id_MCForwardingResourceReleaseIndication = 183
+  id_MCForwardingResourceReleaseIndication = 183,
+  id_PDCP_COUNT_Reset = 184,
+  id_MBSSessionAssociatedInfoNonSupportToSupport = 185
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -393,6 +395,7 @@ static int hf_e1ap_HW_CapacityIndicator_PDU = -1;  /* HW_CapacityIndicator */
 static int hf_e1ap_IgnoreMappingRuleIndication_PDU = -1;  /* IgnoreMappingRuleIndication */
 static int hf_e1ap_Inactivity_Timer_PDU = -1;     /* Inactivity_Timer */
 static int hf_e1ap_MaxCIDEHCDL_PDU = -1;          /* MaxCIDEHCDL */
+static int hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU = -1;  /* MBSSessionAssociatedInfoNonSupportToSupport */
 static int hf_e1ap_MCBearerContextToSetup_PDU = -1;  /* MCBearerContextToSetup */
 static int hf_e1ap_MCBearerContextToSetupResponse_PDU = -1;  /* MCBearerContextToSetupResponse */
 static int hf_e1ap_MCBearerContextToModify_PDU = -1;  /* MCBearerContextToModify */
@@ -417,6 +420,7 @@ static int hf_e1ap_New_UL_TNL_Information_Required_PDU = -1;  /* New_UL_TNL_Info
 static int hf_e1ap_NPNSupportInfo_PDU = -1;       /* NPNSupportInfo */
 static int hf_e1ap_NPNContextInfo_PDU = -1;       /* NPNContextInfo */
 static int hf_e1ap_Extended_NR_CGI_Support_List_PDU = -1;  /* Extended_NR_CGI_Support_List */
+static int hf_e1ap_PDCP_COUNT_Reset_PDU = -1;     /* PDCP_COUNT_Reset */
 static int hf_e1ap_PDU_Session_Resource_Data_Usage_List_PDU = -1;  /* PDU_Session_Resource_Data_Usage_List */
 static int hf_e1ap_PDCP_StatusReportIndication_PDU = -1;  /* PDCP_StatusReportIndication */
 static int hf_e1ap_PDUSession_PairID_PDU = -1;    /* PDUSession_PairID */
@@ -821,6 +825,8 @@ static int hf_e1ap_unicast = -1;                  /* UP_TNL_Information */
 static int hf_e1ap_ipmcAddress = -1;              /* TransportLayerAddress */
 static int hf_e1ap_ipsourceAddress = -1;          /* TransportLayerAddress */
 static int hf_e1ap_gtpDLTEID = -1;                /* GTP_TEID */
+static int hf_e1ap_ue_Reference_ID = -1;          /* GNB_CU_CP_UE_E1AP_ID */
+static int hf_e1ap_associatedQoSFlowInformationList = -1;  /* MBSSessionAssociatedInformationList */
 static int hf_e1ap_mbsSessionAssociatedInformationList = -1;  /* MBSSessionAssociatedInformationList */
 static int hf_e1ap_mbsSessionForwardingAddress = -1;  /* TransportLayerAddress */
 static int hf_e1ap_MBSSessionAssociatedInformationList_item = -1;  /* MBSSessionAssociatedInformation_Item */
@@ -836,7 +842,7 @@ static int hf_e1ap_mcMRBSetupResponseList = -1;   /* MCMRBSetupResponseList */
 static int hf_e1ap_mcMRBFailedList = -1;          /* MCMRBFailedList */
 static int hf_e1ap_availableMCMRBConfig = -1;     /* MCMRBSetupConfiguration */
 static int hf_e1ap_MCMRBSetupResponseList_item = -1;  /* MCMRBSetupResponseList_Item */
-static int hf_e1ap_mBSInitialHFNRefSN = -1;       /* MBS_Initial_HFN_Ref_SN */
+static int hf_e1ap_mBS_PDCP_COUNT = -1;           /* MBS_PDCP_COUNT */
 static int hf_e1ap_MCMRBFailedList_item = -1;     /* MCMRBFailedList_Item */
 static int hf_e1ap_mcBearerContextNGUTNLInfoat5GC = -1;  /* MCBearerContextNGUTNLInfoat5GC */
 static int hf_e1ap_mcBearerContextNGUTnlInfoatNGRANRequest = -1;  /* MCBearerContextNGUTnlInfoatNGRANRequest */
@@ -847,7 +853,7 @@ static int hf_e1ap_ngRANNGUTNLRequested = -1;     /* T_ngRANNGUTNLRequested */
 static int hf_e1ap_MCMRBSetupModifyConfiguration_item = -1;  /* MCMRBSetupModifyConfiguration_Item */
 static int hf_e1ap_f1uTNLatDU = -1;               /* MCBearerContextF1UTNLInfoatDU */
 static int hf_e1ap_mrbQoS = -1;                   /* QoSFlowLevelQoSParameters */
-static int hf_e1ap_mbsInitialHFNRefSNReq = -1;    /* MBS_Initial_HFN_Ref_SN_Req */
+static int hf_e1ap_mbs_PDCP_COUNT_Req = -1;       /* MBS_PDCP_COUNT_Req */
 static int hf_e1ap_mbsF1UInfoatDU = -1;           /* UP_TNL_Information */
 static int hf_e1ap_multicastF1UContextReferenceE1 = -1;  /* MulticastF1UContextReferenceE1 */
 static int hf_e1ap_mc_F1UCtxtusage = -1;          /* T_mc_F1UCtxtusage */
@@ -1263,6 +1269,7 @@ static gint ett_e1ap_MBSF1UInformationAtDU = -1;
 static gint ett_e1ap_MBSNGUInformationAt5GC = -1;
 static gint ett_e1ap_MBSNGUInformationAt5GC_Multicast = -1;
 static gint ett_e1ap_MBSNGUInformationAtNGRAN = -1;
+static gint ett_e1ap_MBSSessionAssociatedInfoNonSupportToSupport = -1;
 static gint ett_e1ap_MBSSessionAssociatedInformation = -1;
 static gint ett_e1ap_MBSSessionAssociatedInformationList = -1;
 static gint ett_e1ap_MBSSessionAssociatedInformation_Item = -1;
@@ -1886,6 +1893,8 @@ static const value_string e1ap_ProtocolIE_ID_vals[] = {
   { id_MCForwardingResourceResponse, "id-MCForwardingResourceResponse" },
   { id_MCForwardingResourceRelease, "id-MCForwardingResourceRelease" },
   { id_MCForwardingResourceReleaseIndication, "id-MCForwardingResourceReleaseIndication" },
+  { id_PDCP_COUNT_Reset, "id-PDCP-COUNT-Reset" },
+  { id_MBSSessionAssociatedInfoNonSupportToSupport, "id-MBSSessionAssociatedInfoNonSupportToSupport" },
   { 0, NULL }
 };
 
@@ -7461,6 +7470,23 @@ dissect_e1ap_MBSSessionAssociatedInformationList(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const per_sequence_t MBSSessionAssociatedInfoNonSupportToSupport_sequence[] = {
+  { &hf_e1ap_ue_Reference_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_GNB_CU_CP_UE_E1AP_ID },
+  { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_associatedQoSFlowInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MBSSessionAssociatedInformationList },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_MBSSessionAssociatedInfoNonSupportToSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_MBSSessionAssociatedInfoNonSupportToSupport, MBSSessionAssociatedInfoNonSupportToSupport_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MBSSessionAssociatedInformation_sequence[] = {
   { &hf_e1ap_mbsSessionAssociatedInformationList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MBSSessionAssociatedInformationList },
   { &hf_e1ap_mbsSessionForwardingAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_TransportLayerAddress },
@@ -7512,7 +7538,7 @@ dissect_e1ap_MCMRBSetupConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static const per_sequence_t MCBearerContextToSetup_sequence[] = {
   { &hf_e1ap_snssai         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SNSSAI },
-  { &hf_e1ap_mcMRBToSetupList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MCMRBSetupConfiguration },
+  { &hf_e1ap_mcMRBToSetupList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCMRBSetupConfiguration },
   { &hf_e1ap_requestedAction, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_RequestedAction4AvailNGUTermination },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -7553,7 +7579,7 @@ dissect_e1ap_MCBearerContextNGU_TNLInfoatNGRAN(tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_e1ap_MBS_Initial_HFN_Ref_SN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e1ap_MBS_PDCP_COUNT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      32, 32, FALSE, NULL, 0, NULL, NULL);
 
@@ -7565,7 +7591,7 @@ static const per_sequence_t MCMRBSetupResponseList_Item_sequence[] = {
   { &hf_e1ap_mrb_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MRB_ID },
   { &hf_e1ap_qosflow_setup  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_List },
   { &hf_e1ap_qosflow_failed , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_Failed_List },
-  { &hf_e1ap_mBSInitialHFNRefSN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_Initial_HFN_Ref_SN },
+  { &hf_e1ap_mBS_PDCP_COUNT , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_PDCP_COUNT },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -7625,7 +7651,7 @@ dissect_e1ap_MCMRBFailedList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static const per_sequence_t MCBearerContextToSetupResponse_sequence[] = {
   { &hf_e1ap_mcBearerContextNGU_TNLInfoatNGRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCBearerContextNGU_TNLInfoatNGRAN },
-  { &hf_e1ap_mcMRBSetupResponseList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MCMRBSetupResponseList },
+  { &hf_e1ap_mcMRBSetupResponseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCMRBSetupResponseList },
   { &hf_e1ap_mcMRBFailedList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCMRBFailedList },
   { &hf_e1ap_availableMCMRBConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCMRBSetupConfiguration },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
@@ -7749,14 +7775,14 @@ dissect_e1ap_MCBearerContextF1UTNLInfoatDU(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const value_string e1ap_MBS_Initial_HFN_Ref_SN_Req_vals[] = {
+static const value_string e1ap_MBS_PDCP_COUNT_Req_vals[] = {
   {   0, "true" },
   { 0, NULL }
 };
 
 
 static int
-dissect_e1ap_MBS_Initial_HFN_Ref_SN_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e1ap_MBS_PDCP_COUNT_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
 
@@ -7771,7 +7797,7 @@ static const per_sequence_t MCMRBSetupModifyConfiguration_Item_sequence[] = {
   { &hf_e1ap_mbs_pdcp_config, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Configuration },
   { &hf_e1ap_qoS_Flow_QoS_Parameter_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_QoS_Parameter_List },
   { &hf_e1ap_mrbQoS         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoSFlowLevelQoSParameters },
-  { &hf_e1ap_mbsInitialHFNRefSNReq, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_Initial_HFN_Ref_SN_Req },
+  { &hf_e1ap_mbs_PDCP_COUNT_Req, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_PDCP_COUNT_Req },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -7817,6 +7843,7 @@ static const per_sequence_t MCBearerContextToModify_sequence[] = {
   { &hf_e1ap_mcBearerContextNGUTNLInfoat5GC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCBearerContextNGUTNLInfoat5GC },
   { &hf_e1ap_mcBearerContextNGUTnlInfoatNGRANRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCBearerContextNGUTnlInfoatNGRANRequest },
   { &hf_e1ap_mbsMulticastF1UContextDescriptor, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBSMulticastF1UContextDescriptor },
+  { &hf_e1ap_requestedAction, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_RequestedAction4AvailNGUTermination },
   { &hf_e1ap_mcMRBToSetupModifyList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCMRBSetupModifyConfiguration },
   { &hf_e1ap_mcMRBToRemoveList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MCMRBRemoveConfiguration },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
@@ -7853,7 +7880,7 @@ static const per_sequence_t MCMRBSetupModifyResponseList_Item_sequence[] = {
   { &hf_e1ap_qosflow_setup  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_List },
   { &hf_e1ap_qosflow_failed , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_Failed_List },
   { &hf_e1ap_mcBearerContextF1UTNLInfoatCU, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
-  { &hf_e1ap_mBSInitialHFNRefSN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_Initial_HFN_Ref_SN },
+  { &hf_e1ap_mBS_PDCP_COUNT , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_PDCP_COUNT },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -7902,7 +7929,7 @@ dissect_e1ap_MCBearerContextToModifyResponse(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t MCMRBModifyRequiredConfiguration_Item_sequence[] = {
   { &hf_e1ap_mrb_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MRB_ID },
-  { &hf_e1ap_mBSInitialHFNRefSN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_Initial_HFN_Ref_SN },
+  { &hf_e1ap_mBS_PDCP_COUNT , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBS_PDCP_COUNT },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -8657,6 +8684,21 @@ dissect_e1ap_Extended_NR_CGI_Support_List(tvbuff_t *tvb _U_, int offset _U_, asn
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_Extended_NR_CGI_Support_List, Extended_NR_CGI_Support_List_sequence_of,
                                                   1, maxnoofExtNRCGI, FALSE);
+
+  return offset;
+}
+
+
+static const value_string e1ap_PDCP_COUNT_Reset_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_PDCP_COUNT_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -12156,6 +12198,14 @@ static int dissect_MaxCIDEHCDL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MBSSessionAssociatedInfoNonSupportToSupport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_MBSSessionAssociatedInfoNonSupportToSupport(tvb, offset, &asn1_ctx, tree, hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MCBearerContextToSetup_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -12345,6 +12395,14 @@ static int dissect_Extended_NR_CGI_Support_List_PDU(tvbuff_t *tvb _U_, packet_in
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_Extended_NR_CGI_Support_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_Extended_NR_CGI_Support_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDCP_COUNT_Reset_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDCP_COUNT_Reset(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDCP_COUNT_Reset_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -14005,6 +14063,10 @@ void proto_register_e1ap(void) {
       { "MaxCIDEHCDL", "e1ap.MaxCIDEHCDL",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU,
+      { "MBSSessionAssociatedInfoNonSupportToSupport", "e1ap.MBSSessionAssociatedInfoNonSupportToSupport_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_MCBearerContextToSetup_PDU,
       { "MCBearerContextToSetup", "e1ap.MCBearerContextToSetup_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14100,6 +14162,10 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_Extended_NR_CGI_Support_List_PDU,
       { "Extended-NR-CGI-Support-List", "e1ap.Extended_NR_CGI_Support_List",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDCP_COUNT_Reset_PDU,
+      { "PDCP-COUNT-Reset", "e1ap.PDCP_COUNT_Reset",
+        FT_UINT32, BASE_DEC, VALS(e1ap_PDCP_COUNT_Reset_vals), 0,
         NULL, HFILL }},
     { &hf_e1ap_PDU_Session_Resource_Data_Usage_List_PDU,
       { "PDU-Session-Resource-Data-Usage-List", "e1ap.PDU_Session_Resource_Data_Usage_List",
@@ -15717,6 +15783,14 @@ void proto_register_e1ap(void) {
       { "gtpDLTEID", "e1ap.gtpDLTEID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "GTP_TEID", HFILL }},
+    { &hf_e1ap_ue_Reference_ID,
+      { "ue-Reference-ID", "e1ap.ue_Reference_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GNB_CU_CP_UE_E1AP_ID", HFILL }},
+    { &hf_e1ap_associatedQoSFlowInformationList,
+      { "associatedQoSFlowInformationList", "e1ap.associatedQoSFlowInformationList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MBSSessionAssociatedInformationList", HFILL }},
     { &hf_e1ap_mbsSessionAssociatedInformationList,
       { "mbsSessionAssociatedInformationList", "e1ap.mbsSessionAssociatedInformationList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -15777,10 +15851,10 @@ void proto_register_e1ap(void) {
       { "MCMRBSetupResponseList-Item", "e1ap.MCMRBSetupResponseList_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_mBSInitialHFNRefSN,
-      { "mBSInitialHFNRefSN", "e1ap.mBSInitialHFNRefSN",
+    { &hf_e1ap_mBS_PDCP_COUNT,
+      { "mBS-PDCP-COUNT", "e1ap.mBS_PDCP_COUNT",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "MBS_Initial_HFN_Ref_SN", HFILL }},
+        NULL, HFILL }},
     { &hf_e1ap_MCMRBFailedList_item,
       { "MCMRBFailedList-Item", "e1ap.MCMRBFailedList_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -15821,10 +15895,10 @@ void proto_register_e1ap(void) {
       { "mrbQoS", "e1ap.mrbQoS_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "QoSFlowLevelQoSParameters", HFILL }},
-    { &hf_e1ap_mbsInitialHFNRefSNReq,
-      { "mbsInitialHFNRefSNReq", "e1ap.mbsInitialHFNRefSNReq",
-        FT_UINT32, BASE_DEC, VALS(e1ap_MBS_Initial_HFN_Ref_SN_Req_vals), 0,
-        "MBS_Initial_HFN_Ref_SN_Req", HFILL }},
+    { &hf_e1ap_mbs_PDCP_COUNT_Req,
+      { "mbs-PDCP-COUNT-Req", "e1ap.mbs_PDCP_COUNT_Req",
+        FT_UINT32, BASE_DEC, VALS(e1ap_MBS_PDCP_COUNT_Req_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_mbsF1UInfoatDU,
       { "mbsF1UInfoatDU", "e1ap.mbsF1UInfoatDU",
         FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
@@ -16956,6 +17030,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_MBSNGUInformationAt5GC,
     &ett_e1ap_MBSNGUInformationAt5GC_Multicast,
     &ett_e1ap_MBSNGUInformationAtNGRAN,
+    &ett_e1ap_MBSSessionAssociatedInfoNonSupportToSupport,
     &ett_e1ap_MBSSessionAssociatedInformation,
     &ett_e1ap_MBSSessionAssociatedInformationList,
     &ett_e1ap_MBSSessionAssociatedInformation_Item,
@@ -17416,6 +17491,8 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.extension", id_MCForwardingResourceResponse, create_dissector_handle(dissect_MCForwardingResourceResponse_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_MCForwardingResourceRelease, create_dissector_handle(dissect_MCForwardingResourceRelease_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_MCForwardingResourceReleaseIndication, create_dissector_handle(dissect_MCForwardingResourceReleaseIndication_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.extension", id_PDCP_COUNT_Reset, create_dissector_handle(dissect_PDCP_COUNT_Reset_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.extension", id_MBSSessionAssociatedInfoNonSupportToSupport, create_dissector_handle(dissect_MBSSessionAssociatedInfoNonSupportToSupport_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_reset, create_dissector_handle(dissect_Reset_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.sout", id_reset, create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_errorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_e1ap));
