@@ -15,12 +15,12 @@
 /* Exit codes */
 #define INVALID_OPTION               1
 #define INVALID_INTERFACE            2
-#define INVALID_FILE                 2
-#define INVALID_FILTER               2
-#define INVALID_CAPABILITY           2
-#define IFACE_HAS_NO_LINK_TYPES      2
-#define IFACE_HAS_NO_TIMESTAMP_TYPES 2
-#define INIT_FAILED                  2
-#define OPEN_ERROR                   2
+#define INVALID_FILE                 3
+#define INVALID_FILTER               4
+#define INVALID_CAPABILITY           5
+#define IFACE_HAS_NO_LINK_TYPES      6
+#define IFACE_HAS_NO_TIMESTAMP_TYPES 7
+#define INIT_FAILED                  8
+#define OPEN_ERROR                   9
 
 #endif /* __EXIT_CODES_H__ */

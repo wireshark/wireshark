@@ -39,6 +39,7 @@
 #include "ui/cmdarg_err.h"
 #include "ui/failure_message.h"
 #include "ui/version_info.h"
+#include "ui/exit_codes.h"
 
 static int opt_verbose = 0;
 #define DFTEST_LOG_NONE     0
@@ -280,13 +281,13 @@ main(int argc, char **argv)
             case 1000:
                 if (strlen(ws_optarg) > 1 || !g_ascii_isdigit(*ws_optarg)) {
                     printf("Error: \"%s\" is not a valid number 0-9\n", ws_optarg);
-                    print_usage(EXIT_FAILURE);
+                    print_usage(INVALID_OPTION);
                 }
                 errno = 0;
                 opt_optimize = strtol(ws_optarg, NULL, 10);
                 if (errno) {
                     printf("Error: %s\n", g_strerror(errno));
-                    print_usage(EXIT_FAILURE);
+                    print_usage(INVALID_OPTION);
                 }
                 break;
             case 2000:
@@ -398,7 +399,7 @@ main(int argc, char **argv)
     /* Expand macros. */
     expanded_text = expand_filter(text, timer);
     if (expanded_text == NULL) {
-        exit_status = 2;
+        exit_status = INVALID_FILTER;
         goto out;
     }
 
@@ -407,7 +408,7 @@ main(int argc, char **argv)
 
     /* Compile it */
     if (!compile_filter(expanded_text, &df, timer)) {
-        exit_status = 2;
+        exit_status = INVALID_FILTER;
         goto out;
     }
 
@@ -418,7 +419,7 @@ main(int argc, char **argv)
 
     if (df == NULL) {
         printf("Filter is empty.\n");
-        exit_status = 1;
+        exit_status = INVALID_FILTER;
         goto out;
     }
 

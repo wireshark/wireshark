@@ -39,7 +39,7 @@ class case_dumpcap_options(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
     def test_dumpcap_interface_chars(self, cmd_dumpcap, base_env):
         '''Valid dumpcap parameters requiring capture permissions'''
-        valid_returns = [self.exit_ok, self.exit_error]
+        valid_returns = [self.exit_ok, self.exit_invalid_interface]
         for char_arg in 'DL':
             process = self.runProcess((cmd_dumpcap, '-' + char_arg), env=base_env)
             self.assertIn(process.returncode, valid_returns)
@@ -83,7 +83,7 @@ class case_basic_clopts(subprocesstest.SubprocessTestCase):
     def test_nonexistent_file(self, cmd_tshark, capture_file):
         # $TSHARK - r ThisFileDontExist.pcap > ./testout.txt 2 > &1
         self.assertRun((cmd_tshark, '-r', capture_file('__ceci_nest_pas_une.pcap')),
-                       expected_return=self.exit_error)
+                       expected_return=self.exit_invalid_file_error)
 
 
 @fixtures.mark_usefixtures('test_env')
@@ -105,7 +105,7 @@ class case_tshark_options(subprocesstest.SubprocessTestCase):
     def test_tshark_interface_chars(self, cmd_tshark, cmd_dumpcap):
         '''Valid tshark parameters requiring capture permissions'''
         # These options require dumpcap
-        valid_returns = [self.exit_ok, self.exit_error]
+        valid_returns = [self.exit_ok, self.exit_invalid_capability]
         for char_arg in 'DL':
             process = self.runProcess((cmd_tshark, '-' + char_arg))
             self.assertIn(process.returncode, valid_returns)

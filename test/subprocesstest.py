@@ -118,8 +118,18 @@ class SubprocessTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.exit_ok = 0
+
+        # See ui/exit_codes.h
         self.exit_command_line = 1
-        self.exit_error = 2
+        self.exit_invalid_interface = 2
+        self.exit_invalid_file_error = 3
+        self.exit_invalid_filter_error = 4
+        self.exit_invalid_capability = 5
+        self.exit_iface_no_link_types = 6
+        self.exit_iface_has_no_timestamp_types = 7
+        self.exit_init_failed = 8
+        self.exit_open_error = 9
+
         self.exit_code = None
         self.log_fname = None
         self.log_fd = None
