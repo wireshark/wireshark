@@ -6,7 +6,7 @@
 /* packet-ngap.c
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2018-2022, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2023, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v17.2.0 (2022-09)
+ * References: 3GPP TS 38.413 v17.3.0 (2022-12)
  */
 
 #include "config.h"
@@ -156,6 +156,7 @@ static int proto_json = -1;
 #define maxnoofUEAppLayerMeas          16
 #define maxnoofSNSSAIforQMC            16
 #define maxnoofTAforQMC                8
+#define maxnoofThresholdsForExcessPacketDelay 255
 
 typedef enum _ProcedureCode_enum {
   id_AMFConfigurationUpdate =   0,
@@ -578,7 +579,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_M6ReportAmount = 338,
   id_M7ReportAmount = 339,
   id_IncludeBeamMeasurementsIndication = 340,
-  id_M6DelayThreshold = 341,
+  id_ExcessPacketDelayThresholdConfiguration = 341,
   id_PagingCause = 342,
   id_PagingCauseIndicationForVoiceService = 343,
   id_PEIPSassistanceInformation = 344,
@@ -743,6 +744,7 @@ static int hf_ngap_EndpointIPAddressAndPort_PDU = -1;  /* EndpointIPAddressAndPo
 static int hf_ngap_EndIndication_PDU = -1;        /* EndIndication */
 static int hf_ngap_EUTRA_CGI_PDU = -1;            /* EUTRA_CGI */
 static int hf_ngap_EUTRA_PagingeDRXInformation_PDU = -1;  /* EUTRA_PagingeDRXInformation */
+static int hf_ngap_ExcessPacketDelayThresholdConfiguration_PDU = -1;  /* ExcessPacketDelayThresholdConfiguration */
 static int hf_ngap_ExpectedUEActivityBehaviour_PDU = -1;  /* ExpectedUEActivityBehaviour */
 static int hf_ngap_Extended_AMFName_PDU = -1;     /* Extended_AMFName */
 static int hf_ngap_ExtendedPacketDelayBudget_PDU = -1;  /* ExtendedPacketDelayBudget */
@@ -812,7 +814,6 @@ static int hf_ngap_MulticastGroupPagingAreaList_PDU = -1;  /* MulticastGroupPagi
 static int hf_ngap_IncludeBeamMeasurementsIndication_PDU = -1;  /* IncludeBeamMeasurementsIndication */
 static int hf_ngap_M4ReportAmountMDT_PDU = -1;    /* M4ReportAmountMDT */
 static int hf_ngap_M5ReportAmountMDT_PDU = -1;    /* M5ReportAmountMDT */
-static int hf_ngap_M6DelayThreshold_PDU = -1;     /* M6DelayThreshold */
 static int hf_ngap_M6ReportAmountMDT_PDU = -1;    /* M6ReportAmountMDT */
 static int hf_ngap_M7ReportAmountMDT_PDU = -1;    /* M7ReportAmountMDT */
 static int hf_ngap_NAS_PDU_PDU = -1;              /* NAS_PDU */
@@ -1396,6 +1397,9 @@ static int hf_ngap_EUTRA_CGIList_item = -1;       /* EUTRA_CGI */
 static int hf_ngap_EUTRA_CGIListForWarning_item = -1;  /* EUTRA_CGI */
 static int hf_ngap_eUTRA_paging_eDRX_Cycle = -1;  /* EUTRA_Paging_eDRX_Cycle */
 static int hf_ngap_eUTRA_paging_Time_Window = -1;  /* EUTRA_Paging_Time_Window */
+static int hf_ngap_ExcessPacketDelayThresholdConfiguration_item = -1;  /* ExcessPacketDelayThresholdItem */
+static int hf_ngap_fiveQi = -1;                   /* FiveQI */
+static int hf_ngap_excessPacketDelayThresholdValue = -1;  /* ExcessPacketDelayThresholdValue */
 static int hf_ngap_expectedActivityPeriod = -1;   /* ExpectedActivityPeriod */
 static int hf_ngap_expectedIdlePeriod = -1;       /* ExpectedIdlePeriod */
 static int hf_ngap_sourceOfUEActivityBehaviourInformation = -1;  /* SourceOfUEActivityBehaviourInformation */
@@ -2293,6 +2297,8 @@ static gint ett_ngap_EUTRA_CGI = -1;
 static gint ett_ngap_EUTRA_CGIList = -1;
 static gint ett_ngap_EUTRA_CGIListForWarning = -1;
 static gint ett_ngap_EUTRA_PagingeDRXInformation = -1;
+static gint ett_ngap_ExcessPacketDelayThresholdConfiguration = -1;
+static gint ett_ngap_ExcessPacketDelayThresholdItem = -1;
 static gint ett_ngap_ExpectedUEActivityBehaviour = -1;
 static gint ett_ngap_ExpectedUEBehaviour = -1;
 static gint ett_ngap_ExpectedUEMovingTrajectory = -1;
@@ -4015,7 +4021,7 @@ static const value_string ngap_ProtocolIE_ID_vals[] = {
   { id_M6ReportAmount, "id-M6ReportAmount" },
   { id_M7ReportAmount, "id-M7ReportAmount" },
   { id_IncludeBeamMeasurementsIndication, "id-IncludeBeamMeasurementsIndication" },
-  { id_M6DelayThreshold, "id-M6DelayThreshold" },
+  { id_ExcessPacketDelayThresholdConfiguration, "id-ExcessPacketDelayThresholdConfiguration" },
   { id_PagingCause, "id-PagingCause" },
   { id_PagingCauseIndicationForVoiceService, "id-PagingCauseIndicationForVoiceService" },
   { id_PEIPSassistanceInformation, "id-PEIPSassistanceInformation" },
@@ -9307,6 +9313,69 @@ dissect_ngap_EventType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
+static const value_string ngap_ExcessPacketDelayThresholdValue_vals[] = {
+  {   0, "ms0dot25" },
+  {   1, "ms0dot5" },
+  {   2, "ms1" },
+  {   3, "ms2" },
+  {   4, "ms4" },
+  {   5, "ms5" },
+  {   6, "ms10" },
+  {   7, "ms20" },
+  {   8, "ms30" },
+  {   9, "ms40" },
+  {  10, "ms50" },
+  {  11, "ms60" },
+  {  12, "ms70" },
+  {  13, "ms80" },
+  {  14, "ms90" },
+  {  15, "ms100" },
+  {  16, "ms150" },
+  {  17, "ms300" },
+  {  18, "ms500" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ngap_ExcessPacketDelayThresholdValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     19, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ExcessPacketDelayThresholdItem_sequence[] = {
+  { &hf_ngap_fiveQi         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_FiveQI },
+  { &hf_ngap_excessPacketDelayThresholdValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_ExcessPacketDelayThresholdValue },
+  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ngap_ExcessPacketDelayThresholdItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ngap_ExcessPacketDelayThresholdItem, ExcessPacketDelayThresholdItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ExcessPacketDelayThresholdConfiguration_sequence_of[1] = {
+  { &hf_ngap_ExcessPacketDelayThresholdConfiguration_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ngap_ExcessPacketDelayThresholdItem },
+};
+
+static int
+dissect_ngap_ExcessPacketDelayThresholdConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ngap_ExcessPacketDelayThresholdConfiguration, ExcessPacketDelayThresholdConfiguration_sequence_of,
+                                                  1, maxnoofThresholdsForExcessPacketDelay, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t Extended_AMFName_sequence[] = {
   { &hf_ngap_aMFNameVisibleString, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_AMFNameVisibleString },
   { &hf_ngap_aMFNameUTF8String, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_AMFNameUTF8String },
@@ -14134,30 +14203,6 @@ static int
 dissect_ngap_M5ReportAmountMDT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string ngap_M6DelayThreshold_vals[] = {
-  {   0, "ms0dot25" },
-  {   1, "ms0dot5" },
-  {   2, "ms1" },
-  {   3, "ms2" },
-  {   4, "ms4" },
-  {   5, "ms10" },
-  {   6, "ms20" },
-  {   7, "ms50" },
-  {   8, "ms100" },
-  {   9, "ms500" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ngap_M6DelayThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -23232,6 +23277,14 @@ static int dissect_EUTRA_PagingeDRXInformation_PDU(tvbuff_t *tvb _U_, packet_inf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_ExcessPacketDelayThresholdConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ngap_ExcessPacketDelayThresholdConfiguration(tvb, offset, &asn1_ctx, tree, hf_ngap_ExcessPacketDelayThresholdConfiguration_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ExpectedUEActivityBehaviour_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -23781,14 +23834,6 @@ static int dissect_M5ReportAmountMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_ngap_M5ReportAmountMDT(tvb, offset, &asn1_ctx, tree, hf_ngap_M5ReportAmountMDT_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_M6DelayThreshold_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_ngap_M6DelayThreshold(tvb, offset, &asn1_ctx, tree, hf_ngap_M6DelayThreshold_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27304,7 +27349,7 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.extension", id_M6ReportAmount, create_dissector_handle(dissect_M6ReportAmountMDT_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_M7ReportAmount, create_dissector_handle(dissect_M7ReportAmountMDT_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_IncludeBeamMeasurementsIndication, create_dissector_handle(dissect_IncludeBeamMeasurementsIndication_PDU, proto_ngap));
-  dissector_add_uint("ngap.extension", id_M6DelayThreshold, create_dissector_handle(dissect_M6DelayThreshold_PDU, proto_ngap));
+  dissector_add_uint("ngap.extension", id_ExcessPacketDelayThresholdConfiguration, create_dissector_handle(dissect_ExcessPacketDelayThresholdConfiguration_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_PagingCauseIndicationForVoiceService, create_dissector_handle(dissect_PagingCauseIndicationForVoiceService_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_PEIPSassistanceInformation, create_dissector_handle(dissect_PEIPSassistanceInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_TAINSAGSupportList, create_dissector_handle(dissect_TAINSAGSupportList_PDU, proto_ngap));
@@ -27950,6 +27995,10 @@ void proto_register_ngap(void) {
       { "EUTRA-PagingeDRXInformation", "ngap.EUTRA_PagingeDRXInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_ExcessPacketDelayThresholdConfiguration_PDU,
+      { "ExcessPacketDelayThresholdConfiguration", "ngap.ExcessPacketDelayThresholdConfiguration",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_ExpectedUEActivityBehaviour_PDU,
       { "ExpectedUEActivityBehaviour", "ngap.ExpectedUEActivityBehaviour_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -28225,10 +28274,6 @@ void proto_register_ngap(void) {
     { &hf_ngap_M5ReportAmountMDT_PDU,
       { "M5ReportAmountMDT", "ngap.M5ReportAmountMDT",
         FT_UINT32, BASE_DEC, VALS(ngap_M5ReportAmountMDT_vals), 0,
-        NULL, HFILL }},
-    { &hf_ngap_M6DelayThreshold_PDU,
-      { "M6DelayThreshold", "ngap.M6DelayThreshold",
-        FT_UINT32, BASE_DEC, VALS(ngap_M6DelayThreshold_vals), 0,
         NULL, HFILL }},
     { &hf_ngap_M6ReportAmountMDT_PDU,
       { "M6ReportAmountMDT", "ngap.M6ReportAmountMDT",
@@ -30561,6 +30606,18 @@ void proto_register_ngap(void) {
     { &hf_ngap_eUTRA_paging_Time_Window,
       { "eUTRA-paging-Time-Window", "ngap.eUTRA_paging_Time_Window",
         FT_UINT32, BASE_DEC, VALS(ngap_EUTRA_Paging_Time_Window_vals), 0,
+        NULL, HFILL }},
+    { &hf_ngap_ExcessPacketDelayThresholdConfiguration_item,
+      { "ExcessPacketDelayThresholdItem", "ngap.ExcessPacketDelayThresholdItem_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_fiveQi,
+      { "fiveQi", "ngap.fiveQi",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_excessPacketDelayThresholdValue,
+      { "excessPacketDelayThresholdValue", "ngap.excessPacketDelayThresholdValue",
+        FT_UINT32, BASE_DEC, VALS(ngap_ExcessPacketDelayThresholdValue_vals), 0,
         NULL, HFILL }},
     { &hf_ngap_expectedActivityPeriod,
       { "expectedActivityPeriod", "ngap.expectedActivityPeriod",
@@ -33552,6 +33609,8 @@ void proto_register_ngap(void) {
     &ett_ngap_EUTRA_CGIList,
     &ett_ngap_EUTRA_CGIListForWarning,
     &ett_ngap_EUTRA_PagingeDRXInformation,
+    &ett_ngap_ExcessPacketDelayThresholdConfiguration,
+    &ett_ngap_ExcessPacketDelayThresholdItem,
     &ett_ngap_ExpectedUEActivityBehaviour,
     &ett_ngap_ExpectedUEBehaviour,
     &ett_ngap_ExpectedUEMovingTrajectory,

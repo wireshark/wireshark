@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.2.0 (2022-09)
+-- 3GPP TS 38.413 V17.3.0 (2022-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -67,7 +67,7 @@ IMPORTS
 	id-M4ReportAmount,
 	id-M5ReportAmount,
 	id-M6ReportAmount,
-	id-M6DelayThreshold,
+	id-ExcessPacketDelayThresholdConfiguration,
 	id-M7ReportAmount,
 	id-MaximumIntegrityProtectedDataRate-DL,
 	id-MBS-AreaSessionID,
@@ -241,7 +241,8 @@ IMPORTS
 	maxnoofWLANName,
 	maxnoofXnExtTLAs,
 	maxnoofXnGTP-TLAs,
-	maxnoofXnTLAs
+	maxnoofXnTLAs,
+	maxnoofThresholdsForExcessPacketDelay
 
 FROM NGAP-Constants
 
@@ -1718,6 +1719,24 @@ EventType ::= ENUMERATED {
 	stop-change-of-serve-cell,
 	stop-ue-presence-in-area-of-interest,
 	cancel-location-reporting-for-the-ue,
+	...
+}
+
+ExcessPacketDelayThresholdConfiguration ::= SEQUENCE (SIZE(1..maxnoofThresholdsForExcessPacketDelay)) OF ExcessPacketDelayThresholdItem
+
+ExcessPacketDelayThresholdItem ::= SEQUENCE {
+	fiveQi		FiveQI,
+	excessPacketDelayThresholdValue			ExcessPacketDelayThresholdValue,
+	iE-Extensions		ProtocolExtensionContainer { { ExcessPacketDelayThresholdItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ExcessPacketDelayThresholdItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ExcessPacketDelayThresholdValue ::= ENUMERATED {
+ms0dot25, ms0dot5, ms1, ms2, ms4, ms5, ms10, ms20, ms30, ms40, ms50, ms60, ms70, ms80, ms90, ms100, ms150, ms300, ms500,
 	...
 }
 
@@ -3642,12 +3661,10 @@ M6Configuration ::= SEQUENCE {
 
 M6Configuration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-M6ReportAmount		CRITICALITY ignore	EXTENSION M6ReportAmountMDT		PRESENCE optional		}|
-	{ ID id-M6DelayThreshold	CRITICALITY ignore	EXTENSION M6DelayThreshold		PRESENCE optional		},
-	-- The above IE shall be present if the M6 Links to Log IE is set to the value “uplink” or “both-uplink-and-downlink”
+	{ ID id-ExcessPacketDelayThresholdConfiguration	CRITICALITY ignore	EXTENSION ExcessPacketDelayThresholdConfiguration		PRESENCE optional		},
 	...
 }
 
-M6DelayThreshold ::= ENUMERATED {ms0dot25, ms0dot5, ms1, ms2, ms4, ms10, ms20, ms50, ms100, ms500, ...}
 
 M6ReportAmountMDT ::= ENUMERATED {r1, r2, r4, r8, r16, r32, r64, infinity, ...}
 

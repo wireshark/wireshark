@@ -1652,7 +1652,7 @@ id-M5ReportAmount                                  ProtocolIE-ID
 id-M6ReportAmount                                  ProtocolIE-ID
 id-M7ReportAmount                                  ProtocolIE-ID
 id-IncludeBeamMeasurementsIndication               ProtocolIE-ID
-id-M6DelayThreshold                                ProtocolIE-ID
+id-ExcessPacketDelayThresholdConfiguration         ProtocolIE-ID
 id-PagingCause                                     ProtocolIE-ID
 id-PagingCauseIndicationForVoiceService            ProtocolIE-ID
 id-PEIPSassistanceInformation                      ProtocolIE-ID
@@ -2036,7 +2036,7 @@ M5ReportAmountMDT                                      N ngap.extension id-M5Rep
 M6ReportAmountMDT                                      N ngap.extension id-M6ReportAmount
 M7ReportAmountMDT                                      N ngap.extension id-M7ReportAmount
 IncludeBeamMeasurementsIndication                      N ngap.extension id-IncludeBeamMeasurementsIndication
-M6DelayThreshold                                       N ngap.extension id-M6DelayThreshold
+ExcessPacketDelayThresholdConfiguration                N ngap.extension id-ExcessPacketDelayThresholdConfiguration
 PagingCauseIndicationForVoiceService                   N ngap.extension id-PagingCauseIndicationForVoiceService
 PEIPSassistanceInformation                             N ngap.extension id-PEIPSassistanceInformation
 TAINSAGSupportList                                     N ngap.extension id-TAINSAGSupportList
