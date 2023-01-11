@@ -467,9 +467,12 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
 void ColoringRulesDialog::on_buttonBox_accepted()
 {
     QString err;
+    int ret = QDialog::Accepted;
     if (!colorRuleModel_.writeColors(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
+        ret = QDialog::Rejected;
     }
+    done(ret);
 }
 
 void ColoringRulesDialog::on_buttonBox_helpRequested()
