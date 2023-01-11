@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.2.0 (2022-09)
+-- 3GPP TS 38.473 V17.3.0 (2022-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -114,6 +114,7 @@ id-measurementActivation					ProcedureCode ::= 77
 id-QoEInformationTransfer					ProcedureCode ::= 78
 id-PDCMeasurementTerminationCommand			ProcedureCode ::= 79
 id-PDCMeasurementFailureIndication 			ProcedureCode ::= 80
+id-PosSystemInformationDeliveryCommand		ProcedureCode ::= 81
 
 
 
@@ -254,6 +255,7 @@ maxnoofMBSSessionsofUE					INTEGER ::= 256
 maxnoofSLdestinations					INTEGER ::= 32
 maxnoofNSAGs							INTEGER ::= 256
 maxnoofSDTBearers						INTEGER ::= 72
+maxnoofPosSITypes						INTEGER ::= 32
 
 
 
@@ -840,8 +842,8 @@ id-Unknown-563										ProtocolIE-ID ::= 563
 id-NumberOfTRPRxTEG									ProtocolIE-ID ::= 564
 id-NumberOfTRPRxTxTEG								ProtocolIE-ID ::= 565
 id-TRPTxTEGAssociation								ProtocolIE-ID ::= 566
-id-TRPTEGIDInformation								ProtocolIE-ID ::= 567
-id-TRPRXTEGID										ProtocolIE-ID ::= 568
+id-TRPTEGInformation								ProtocolIE-ID ::= 567
+id-TRPRx-TEGInformation								ProtocolIE-ID ::= 568
 id-TRP-PRS-Info-List								ProtocolIE-ID ::= 569
 id-PRS-Measurement-Info-List						ProtocolIE-ID ::= 570
 id-PRSConfigRequestType								ProtocolIE-ID ::= 571
@@ -861,7 +863,7 @@ id-NRPagingeDRXInformationforRRCINACTIVE			ProtocolIE-ID ::= 583
 id-NR-TADV											ProtocolIE-ID ::= 584
 id-QoEInformation									ProtocolIE-ID ::= 585
 id-CG-SDTQueryIndication							ProtocolIE-ID ::= 586
-id-SDT-MAC-PHY-CG-Config								ProtocolIE-ID ::= 587
+id-SDT-MAC-PHY-CG-Config							ProtocolIE-ID ::= 587
 id-CG-SDTKeptIndicator								ProtocolIE-ID ::= 588
 id-CG-SDTindicatorSetup								ProtocolIE-ID ::= 589
 id-CG-SDTindicatorMod								ProtocolIE-ID ::= 590
@@ -942,9 +944,9 @@ id-PEISubgroupingSupportIndication					ProtocolIE-ID ::= 664
 id-NeedForGapsInfoNR								ProtocolIE-ID ::= 665
 id-NeedForGapNCSGInfoNR								ProtocolIE-ID ::= 666
 id-NeedForGapNCSGInfoEUTRA							ProtocolIE-ID ::= 667
-id-TRPTxTimingErrorMargin							ProtocolIE-ID ::= 668
-id-TRPRxTimingErrorMargin							ProtocolIE-ID ::= 669
-id-TRPRxTxTimingErrorMargin							ProtocolIE-ID ::= 670
+id-procedure-code-668-not-to-be-used				ProtocolIE-ID ::= 668
+id-procedure-code-669-not-to-be-used				ProtocolIE-ID ::= 669
+id-procedure-code-670-not-to-be-used				ProtocolIE-ID ::= 670
 id-Source-MRB-ID									ProtocolIE-ID ::= 671
 id-PosMeasurementPeriodicityNR-AoA					ProtocolIE-ID ::= 672
 id-RedCapIndication									ProtocolIE-ID ::= 673
@@ -952,5 +954,17 @@ id-SRSPosRRCInactiveConfig							ProtocolIE-ID ::= 674
 id-SDTBearerConfigurationQueryIndication			ProtocolIE-ID ::= 675
 id-SDTBearerConfigurationInfo						ProtocolIE-ID ::= 676
 id-UL-GapFR2-Config									ProtocolIE-ID ::= 677
+id-ConfigRestrictInfoDAPS							ProtocolIE-ID ::= 678
+id-UE-MulticastMRBs-Setup-List						ProtocolIE-ID ::= 679
+id-UE-MulticastMRBs-Setup-Item						ProtocolIE-ID ::= 680
+id-MulticastF1UContextReferenceCU					ProtocolIE-ID ::= 681
+id-PosSItypeList									ProtocolIE-ID ::= 682
+id-DAPS-HO-Status									ProtocolIE-ID ::= 683
+id-UplinkTxDirectCurrentTwoCarrierListInfo			ProtocolIE-ID ::= 684
+id-UE-MulticastMRBs-ToBeSetup-atModify-List			ProtocolIE-ID ::= 685
+id-UE-MulticastMRBs-ToBeSetup-atModify-Item			ProtocolIE-ID ::= 686
+id-MC-PagingCell-List								ProtocolIE-ID ::= 687
+id-MC-PagingCell-Item								ProtocolIE-ID ::= 688
+id-SRSPosRRCInactiveQueryIndication					ProtocolIE-ID ::= 689
 
 END

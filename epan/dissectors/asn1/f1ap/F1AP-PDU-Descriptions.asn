@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.2.0 (2022-09)
+-- 3GPP TS 38.473 V17.3.0 (2022-12)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -159,7 +159,9 @@ FROM F1AP-CommonDataTypes
 	MeasurementPreconfigurationConfirm,
 	MeasurementPreconfigurationRefuse,
 	MeasurementActivation,
-	QoEInformationTransfer
+	QoEInformationTransfer,
+	PosSystemInformationDeliveryCommand
+
 
 
 
@@ -243,7 +245,8 @@ FROM F1AP-PDU-Contents
 	id-pRSConfigurationExchange,
 	id-measurementPreconfiguration,
 	id-measurementActivation,
-	id-QoEInformationTransfer
+	id-QoEInformationTransfer,
+	id-PosSystemInformationDeliveryCommand
 
 
 FROM F1AP-Constants
@@ -404,7 +407,8 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {
 	pDCMeasurementTerminationCommand			|
 	pDCMeasurementFailureIndication				|
 	measurementActivation						|
-	qoEInformationTransfer						,
+	qoEInformationTransfer						|
+	posSystemInformationDelivery,
 	...
 }
 -- **************************************************************
@@ -939,6 +943,12 @@ measurementActivation		F1AP-ELEMENTARY-PROCEDURE ::= {
 qoEInformationTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		QoEInformationTransfer
 	PROCEDURE CODE			id-QoEInformationTransfer
+	CRITICALITY				ignore
+}
+
+posSystemInformationDelivery F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PosSystemInformationDeliveryCommand
+	PROCEDURE CODE			id-PosSystemInformationDeliveryCommand
 	CRITICALITY				ignore
 }
 

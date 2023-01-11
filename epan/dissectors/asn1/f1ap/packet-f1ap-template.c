@@ -1,6 +1,6 @@
 /* packet-f1ap.c
  * Routines for E-UTRAN F1 Application Protocol (F1AP) packet dissection
- * Copyright 2018-2022, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2023, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V17.2.0 (2022-09)
+ * References: 3GPP TS 38.473 V17.3.0 (2022-12)
  */
 
 #include "config.h"
@@ -146,6 +146,8 @@ static gint ett_f1ap_SidelinkConfigurationContainer = -1;
 static gint ett_f1ap_SRSPosRRCInactiveConfig = -1;
 static gint ett_f1ap_successfulHOReportContainer = -1;
 static gint ett_f1ap_UL_GapFR2_Config = -1;
+static gint ett_f1ap_ConfigRestrictInfoDAPS = -1;
+static gint ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -304,6 +306,7 @@ struct f1ap_tap_t {
 #define MTYPE_MEASUREMENT_PRECONFIGURATION_REFUSE          132
 #define MTYPE_MEASUREMENT_ACTIVATION                       133
 #define MTYPE_QOE_INFORMATION_TRANSFER                     134
+#define MTYPE_POS_SYSTEM_INFORMATION_DELIVERY_COMMAND      135
 
 static const value_string mtype_names[] = {
     { MTYPE_RESET,     "Reset" },
@@ -441,6 +444,7 @@ static const value_string mtype_names[] = {
     { MTYPE_MEASUREMENT_PRECONFIGURATION_REFUSE, "MeasurementPreconfigurationRefuse" },
     { MTYPE_MEASUREMENT_ACTIVATION, "MeasurementActivation" },
     { MTYPE_QOE_INFORMATION_TRANSFER, "QoEInformationTransfer" },
+    { MTYPE_POS_SYSTEM_INFORMATION_DELIVERY_COMMAND, "PosSystemInformationDeliveryCommand" },
     { 0,  NULL }
 };
 static value_string_ext mtype_names_ext = VALUE_STRING_EXT_INIT(mtype_names);
@@ -845,6 +849,8 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SRSPosRRCInactiveConfig,
     &ett_f1ap_successfulHOReportContainer,
     &ett_f1ap_UL_GapFR2_Config,
+    &ett_f1ap_ConfigRestrictInfoDAPS,
+    &ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo,
 #include "packet-f1ap-ettarr.c"
   };
 

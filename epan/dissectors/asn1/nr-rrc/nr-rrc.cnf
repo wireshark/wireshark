@@ -63,6 +63,7 @@ DRX-Config_PDU
 CG-Config_PDU
 CG-ConfigInfo_PDU
 CondReconfigExecCondSCG-r17_PDU
+ConfigRestrictInfoDAPS-r16_PDU
 ConfigRestrictInfoSCG_PDU
 FeatureSetEntryIndex_PDU
 FreqBandList_PDU
@@ -142,6 +143,7 @@ UERadioPagingInformation_PDU
 UL-DCCH-Message_PDU
 UL-GapFR2-Config-r17_PDU
 UplinkTxDirectCurrentList_PDU
+UplinkTxDirectCurrentTwoCarrierList-r16_PDU
 VisitedCellInfoList-r16_PDU
 
 #.PDU
@@ -152,6 +154,7 @@ BCCH-BCH-Message                   @bcch.bch
 BCCH-DL-SCH-Message                @bcch.dl.sch
 CellGroupConfig
 CondReconfigExecCondSCG-r17
+ConfigRestrictInfoDAPS-r16
 CG-Config
 CG-ConfigInfo
 ConfigRestrictInfoSCG
@@ -246,6 +249,7 @@ UL-CCCH1-Message                   @ul.ccch1
 UL-DCCH-Message                    @ul.dcch
 UL-GapFR2-Config-r17
 UplinkTxDirectCurrentList
+UplinkTxDirectCurrentTwoCarrierList-r16
 VisitedCellInfoList-r16
 #.END
 

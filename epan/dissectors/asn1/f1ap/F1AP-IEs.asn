@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.2.0 (2022-09)
+-- 3GPP TS 38.473 V17.3.0 (2022-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -155,8 +155,8 @@ IMPORTS
 	id-NumberOfTRPRxTEG,
 	id-NumberOfTRPRxTxTEG,
 	id-TRPTxTEGAssociation,
-	id-TRPTEGIDInformation,
-	id-TRPRXTEGID,
+	id-TRPTEGInformation,
+	id-TRPRx-TEGInformation,
 	id-TRPBeamAntennaInformation,
 	id-Redcap-Bcast-Information,
 	id-NR-TADV,
@@ -189,12 +189,11 @@ IMPORTS
 	id-NeedForGapsInfoNR,
 	id-NeedForGapNCSGInfoNR,
 	id-NeedForGapNCSGInfoEUTRA,
-	id-TRPTxTimingErrorMargin,
-	id-TRPRxTimingErrorMargin,
-	id-TRPRxTxTimingErrorMargin,
 	id-Source-MRB-ID,
 	id-RedCapIndication,
 	id-UL-GapFR2-Config,
+	id-ConfigRestrictInfoDAPS,
+	id-MulticastF1UContextReferenceCU,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -300,7 +299,8 @@ IMPORTS
 	maxnoofMBSSessionsofUE,
 	maxnoofSLdestinations,
 	maxnoofNSAGs,
-	maxnoofSDTBearers
+	maxnoofSDTBearers,
+	maxnoofPosSITypes
 
 
 FROM F1AP-Constants
@@ -983,9 +983,9 @@ BroadcastMRBs-SetupMod-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 BroadcastMRBs-ToBeModified-Item ::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	mRB-QoSInformation				QoSInformation					OPTIONAL,
+	mRB-QoSInformation				QoSFlowLevelQoSParameters		OPTIONAL,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List	OPTIONAL,
-	bcBearerCtxtF1U-TNLInfoatCU	BCBearerContextF1U-TNLInfo			OPTIONAL,
+	bcBearerCtxtF1U-TNLInfoatCU		BCBearerContextF1U-TNLInfo		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeModified-Item-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1006,7 +1006,7 @@ BroadcastMRBs-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 BroadcastMRBs-ToBeSetup-Item ::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	mRB-QoSInformation				QoSInformation,
+	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	bcBearerCtxtF1U-TNLInfoatCU		BCBearerContextF1U-TNLInfo	,
 	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeSetup-Item-ExtIEs} },
@@ -1019,9 +1019,9 @@ BroadcastMRBs-ToBeSetup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 BroadcastMRBs-ToBeSetupMod-Item ::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	mRB-QoSInformation				QoSInformation,
+	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
-	bcBearerCtxtF1U-TNLInfoatCU	BCBearerContextF1U-TNLInfo		OPTIONAL,
+	bcBearerCtxtF1U-TNLInfoatCU		BCBearerContextF1U-TNLInfo		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeSetupMod-Item-ExtIEs} },
 	...
 }
@@ -1506,6 +1506,8 @@ ConditionalIntraDUMobilityInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::={
 	...
 }
 
+ConfigRestrictInfoDAPS ::= OCTET STRING
+
 ConfiguredTACIndication ::= ENUMERATED {
 	true,
 	...
@@ -1641,11 +1643,14 @@ CUtoDURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MBSInterestIndication			CRITICALITY ignore	EXTENSION MBSInterestIndication						PRESENCE optional }|
 	{ ID id-NeedForGapsInfoNR				CRITICALITY ignore	EXTENSION NeedForGapsInfoNR							PRESENCE optional }|
 	{ ID id-NeedForGapNCSGInfoNR			CRITICALITY ignore	EXTENSION NeedForGapNCSGInfoNR						PRESENCE optional }|
-	{ ID id-NeedForGapNCSGInfoEUTRA			CRITICALITY ignore	EXTENSION NeedForGapNCSGInfoEUTRA					PRESENCE optional },
+	{ ID id-NeedForGapNCSGInfoEUTRA			CRITICALITY ignore	EXTENSION NeedForGapNCSGInfoEUTRA					PRESENCE optional }|
+	{ ID id-ConfigRestrictInfoDAPS			CRITICALITY ignore	EXTENSION ConfigRestrictInfoDAPS					PRESENCE optional },
 	...
 }
 
 -- D
+
+DAPS-HO-Status::= ENUMERATED{initiation,... }
 
 DCBasedDuplicationConfigured::= ENUMERATED{true,..., false}
 
@@ -2929,7 +2934,7 @@ GNB-RxTxTimeDiff ::= SEQUENCE {
 
 GNB-RxTxTimeDiff-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-ExtendedAdditionalPathList		CRITICALITY ignore EXTENSION ExtendedAdditionalPathList 	PRESENCE optional}|
-	{ ID id-TRPTEGIDInformation				CRITICALITY ignore EXTENSION TRPTEGIDInformation			PRESENCE optional },
+	{ ID id-TRPTEGInformation				CRITICALITY ignore EXTENSION TRPTEGInformation			PRESENCE optional },
 	...
 }
 
@@ -3675,6 +3680,14 @@ MBS-ServiceAreaInformationItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+MC-PagingCell-Item ::= SEQUENCE {
+	nRCGI			NRCGI,
+	iE-Extensions	ProtocolExtensionContainer { { MC-PagingCell-ItemExtIEs } }	OPTIONAL
+}
+
+MC-PagingCell-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
 MIB-message ::= OCTET STRING
@@ -3721,6 +3734,8 @@ MRB-ProgressInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
 }
 
 MulticastF1UContextReferenceF1 ::= OCTET STRING (SIZE(4))
+
+MulticastF1UContextReferenceCU ::= OCTET STRING (SIZE(4))
 
 MultipleULAoA ::= SEQUENCE {
 	multipleULAoA					MultipleULAoA-List,
@@ -3824,7 +3839,7 @@ MulticastMRBs-SetupMod-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 MulticastMRBs-ToBeModified-Item ::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	mRB-QoSInformation				QoSInformation					OPTIONAL,
+	mRB-QoSInformation				QoSFlowLevelQoSParameters		OPTIONAL,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List	OPTIONAL,
 	mBS-DL-PDCP-SN-Length			PDCPSNLength 					OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeModified-Item-ExtIEs} } OPTIONAL,
@@ -3847,7 +3862,7 @@ MulticastMRBs-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 MulticastMRBs-ToBeSetup-Item ::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	mRB-QoSInformation				QoSInformation,
+	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	mBS-DL-PDCP-SN-Length			PDCPSNLength,
 	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeSetup-Item-ExtIEs} },
@@ -3860,7 +3875,7 @@ MulticastMRBs-ToBeSetup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 MulticastMRBs-ToBeSetupMod-Item ::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	mRB-QoSInformation				QoSInformation,
+	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	mBS-DL-PDCP-SN-Length			PDCPSNLength,
 	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeSetupMod-Item-ExtIEs} },
@@ -5009,6 +5024,18 @@ PosResourceSetTypeAP-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+PosSItypeList ::= SEQUENCE (SIZE(1.. maxnoofPosSITypes)) OF PosSItype-Item
+PosSItype-Item ::= SEQUENCE {
+	posItype			PosSItype   ,
+	iE-Extensions	ProtocolExtensionContainer { { PosSItype-ItemExtIEs } } OPTIONAL
+}
+
+PosSItype-ItemExtIEs    F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PosSItype ::= INTEGER (1..32, ...)
+
 PosSRSResourceID-List ::= SEQUENCE (SIZE (1..maxnoSRS-PosResourcePerSet)) OF SRSPosResourceID
 
 PosSRSResource-Item ::= SEQUENCE {
@@ -5809,7 +5836,7 @@ ResourceTypePos-ExtIEs F1AP-PROTOCOL-IES ::= {
 }
 
 ResourceTypePeriodicPos ::= SEQUENCE {
-	periodicity			ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ...},
+	periodicity			ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ..., slot128, slot256, slot512, slot20480},
 	offset				INTEGER(0..81919, ...),
 	iE-Extensions		ProtocolExtensionContainer { { ResourceTypePeriodicPos-ExtIEs} }	OPTIONAL
 }
@@ -5819,7 +5846,7 @@ ResourceTypePeriodicPos-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 }
 
 ResourceTypeSemi-persistentPos ::= SEQUENCE {
-	periodicity			ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ...},
+	periodicity			ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ..., slot128, slot256, slot512, slot20480},
 	offset				INTEGER(0..81919, ...),
 	iE-Extensions		ProtocolExtensionContainer { { ResourceTypeSemi-persistentPos-ExtIEs} }	OPTIONAL
 }
@@ -5951,6 +5978,7 @@ ResponseTime-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+RxTxTimingErrorMargin ::= ENUMERATED {tc0dot5, tc1, tc2, tc4, tc8, tc12, tc16, tc20, tc24, tc32, tc40, tc48, tc64, tc80, tc96, tc128, ...}
 
 -- S
 
@@ -6896,6 +6924,8 @@ SRSInfo ::= SEQUENCE {
 
 SRSPosRRCInactiveConfig ::= OCTET STRING
 
+SRSPosRRCInactiveQueryIndication ::= ENUMERATED {true, ...}
+
 PosSRSInfo ::= SEQUENCE {
 	posSRSResourceID		SRSPosResourceID,
 	...
@@ -7170,38 +7200,35 @@ TDD-InfoRel16-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 TDD-UL-DLConfigCommonNR ::= OCTET STRING
 
-TRPTEGIDInformation ::= CHOICE {
+TRPTEGInformation ::= CHOICE {
 	rxTx-TEG			RxTxTEG,
 	rx-TEG				RxTEG,
-	choice-extension		ProtocolIE-SingleContainer { { TRPTEGIDInformation-ExtIEs} }
+	choice-extension		ProtocolIE-SingleContainer { { TRPTEGInformation-ExtIEs} }
 }
 
-TRPTEGIDInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
+TRPTEGInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
 
 RxTxTEG ::= SEQUENCE {
-	tRP-RxTx-TEGID		INTEGER (0..255),
-	tRP-Tx-TEGID		INTEGER (0..7)	OPTIONAL,
+	tRP-RxTx-TEGInformation			TRP-RxTx-TEGInformation,
+	tRP-Tx-TEGInformation			TRP-Tx-TEGInformation		OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { RxTxTEG-ExtIEs } }		OPTIONAL,
 	...
 }
 
 RxTxTEG-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-TRPRxTxTimingErrorMargin		CRITICALITY ignore EXTENSION TimingErrorMargin 	PRESENCE optional }|
-	{ ID id-TRPTxTimingErrorMargin			CRITICALITY ignore EXTENSION TimingErrorMargin 	PRESENCE optional },
 	...
 }
+
 RxTEG ::= SEQUENCE {
-	tRP-Rx-TEGID			INTEGER (0..31),
-	tRP-Tx-TEGID			INTEGER (0..7),
+	tRP-Rx-TEGInformation		TRP-Rx-TEGInformation,
+	tRP-Tx-TEGInformation		TRP-Tx-TEGInformation,
 	iE-Extensions			ProtocolExtensionContainer { { RxTEG-ExtIEs } }		OPTIONAL,
 	...
 }
 
 RxTEG-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-TRPRxTimingErrorMargin			CRITICALITY ignore EXTENSION TimingErrorMargin 	PRESENCE optional }|
-	{ ID id-TRPTxTimingErrorMargin			CRITICALITY ignore EXTENSION TimingErrorMargin 	PRESENCE optional },
 	...
 }
 
@@ -7246,7 +7273,7 @@ TimeStampSlotIndex-ExtIEs F1AP-PROTOCOL-IES ::= {
 
 TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
 
-TimingErrorMargin 			::= ENUMERATED {m0Tc, m2Tc, m4Tc, m6Tc, m8Tc, m12Tc, m16Tc, m20Tc, m24Tc, m32Tc, m40Tc, m48Tc, m56Tc, m64Tc, m72Tc, m80Tc, ...}
+TimingErrorMargin ::= ENUMERATED {m0Tc, m2Tc, m4Tc, m6Tc, m8Tc, m12Tc, m16Tc, m20Tc, m24Tc, m32Tc, m40Tc, m48Tc, m56Tc, m64Tc, m72Tc, m80Tc, ...}
 
 TimingMeasurementQuality ::= SEQUENCE {
 	measurementQuality		INTEGER(0..31),
@@ -7638,18 +7665,51 @@ TRPReferencePointType-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
 
+TRP-Rx-TEGInformation ::= SEQUENCE {
+	tRP-Rx-TEGID					INTEGER (0..31),
+	tRP-Rx-TimingErrorMargin		TimingErrorMargin,
+	iE-Extensions		ProtocolExtensionContainer { { TRP-Rx-TEGInformation-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-Rx-TEGInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-RxTx-TEGInformation ::= SEQUENCE {
+	tRP-RxTx-TEGID					INTEGER (0..255),
+	tRP-RxTx-TimingErrorMargin		RxTxTimingErrorMargin,
+	iE-Extensions		ProtocolExtensionContainer { { TRP-RxTx-TEGInformation-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-RxTx-TEGInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+TRP-Tx-TEGInformation ::= SEQUENCE {
+	tRP-Tx-TEGID					INTEGER (0..7),
+	tRP-Tx-TimingErrorMargin		TimingErrorMargin,
+	iE-Extensions		ProtocolExtensionContainer { { TRP-Tx-TEGInformation-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-Tx-TEGInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 TRPTxTEGAssociation ::= SEQUENCE (SIZE(1.. maxnoTRPTEGs)) OF TRPTEG-Item
 
 TRPTEG-Item ::= SEQUENCE {
-		tRP-Tx-TEG-ID			INTEGER (0..7),
-		dl-PRSResourceSetID		PRS-Resource-Set-ID,
+		tRP-Tx-TEGInformation		TRP-Tx-TEGInformation,
+		dl-PRSResourceSetID			PRS-Resource-Set-ID,
 		dl-PRSResourceID-List	SEQUENCE (SIZE(1.. maxnoofPRS-ResourcesPerSet)) OF DLPRSResourceID-Item OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { TRPTEGItem-ExtIEs } } OPTIONAL,
 	...
 }
 
 TRPTEGItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-TRPTxTimingErrorMargin			CRITICALITY ignore EXTENSION TimingErrorMargin 	PRESENCE optional },
 	...
 }
 
@@ -7842,20 +7902,21 @@ UE-MulticastMRBs-ConfirmedToBeModified-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 UE-MulticastMRBs-RequiredToBeModified-Item::= SEQUENCE {
-	mRB-ID						MRB-ID,
-	mrb-type-reconfiguration	ENUMERATED {true, ...}	OPTIONAL,
-	mrb-reconfigured-RLCtype	ENUMERATED {
-											rlc-um-ptp,
-											rlc-am-ptp,
-											rlc-um-dl-ptm,
-											two-rlc-um-dl-ptp-and-dl-ptm,
-											three-rlc-um-dl-ptp-ul-ptp-dl-ptm,
-											two-rlc-am-ptp-um-dl-ptm,
-											...}								OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { { UE-MulticastMRBs-RequiredToBeModified-Item-ExtIEs } } OPTIONAL
+	mRB-ID							MRB-ID,
+	mrb-type-reconfiguration		ENUMERATED {true, ...}							OPTIONAL,
+	mrb-reconfigured-RLCtype		ENUMERATED {
+												rlc-um-ptp,
+												rlc-am-ptp,
+												rlc-um-dl-ptm,
+												two-rlc-um-dl-ptp-and-dl-ptm,
+												three-rlc-um-dl-ptp-ul-ptp-dl-ptm,
+												two-rlc-am-ptp-um-dl-ptm,
+												...}								OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { UE-MulticastMRBs-RequiredToBeModified-Item-ExtIEs } } OPTIONAL
 }
 
 UE-MulticastMRBs-RequiredToBeModified-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-MulticastF1UContextReferenceCU				CRITICALITY reject	EXTENSION MulticastF1UContextReferenceCU					PRESENCE optional},
 	...
 }
 
@@ -7868,6 +7929,15 @@ UE-MulticastMRBs-RequiredToBeReleased-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UE-MulticastMRBs-Setup-Item	::= SEQUENCE {
+	mRB-ID							MRB-ID,
+	multicastF1UContextReferenceCU	MulticastF1UContextReferenceCU	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { UE-MulticastMRBs-Setup-Item-ExtIEs } } OPTIONAL
+}
+
+UE-MulticastMRBs-Setup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 UE-MulticastMRBs-ToBeReleased-Item	::= SEQUENCE {
 	mRB-ID					MRB-ID,
@@ -7887,6 +7957,17 @@ UE-MulticastMRBs-ToBeSetup-Item	::= SEQUENCE {
 
 UE-MulticastMRBs-ToBeSetup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Source-MRB-ID		CRITICALITY ignore EXTENSION MRB-ID		PRESENCE optional },
+	...
+}
+
+UE-MulticastMRBs-ToBeSetup-atModify-Item	::= SEQUENCE {
+	mRB-ID									MRB-ID,
+	mbsPTPRetransmissionTunnelRequired		MBSPTPRetransmissionTunnelRequired			OPTIONAL,
+	mbsPTPForwardingRequiredInformation		MRB-ProgressInformation						OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { UE-MulticastMRBs-ToBeSetup-atModify-Item-ExtIEs } } OPTIONAL
+}
+
+UE-MulticastMRBs-ToBeSetup-atModify-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -7965,6 +8046,8 @@ UL-RTOA-Measurement ::= SEQUENCE {
 }
 
 UL-RTOA-Measurement-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ExtendedAdditionalPathList	CRITICALITY ignore EXTENSION ExtendedAdditionalPathList	PRESENCE optional}|
+	{ ID id-TRPRx-TEGInformation		CRITICALITY ignore EXTENSION TRP-Rx-TEGInformation		PRESENCE optional},
 	...
 }
 
@@ -7978,15 +8061,7 @@ UL-RTOA-MeasurementItem ::= CHOICE {
 	choice-extension			ProtocolIE-SingleContainer { { UL-RTOA-MeasurementItem-ExtIEs } }
 }
 
--- WS modification: define a specific type
-TRPRXTEGID ::= INTEGER (0..31)
-
 UL-RTOA-MeasurementItem-ExtIEs F1AP-PROTOCOL-IES ::= {
-	{ ID id-ExtendedAdditionalPathList	CRITICALITY ignore TYPE ExtendedAdditionalPathList	PRESENCE optional}|
--- WS modification: define a specific type
---	{ ID id-TRPRXTEGID					CRITICALITY ignore TYPE INTEGER (0..31)				PRESENCE optional }|
-	{ ID id-TRPRXTEGID					CRITICALITY ignore TYPE TRPRXTEGID				PRESENCE optional }|
-	{ ID id-TRPRxTimingErrorMargin		CRITICALITY ignore TYPE TimingErrorMargin 		PRESENCE optional },
 	...
 }
 
@@ -8047,6 +8122,8 @@ Uncertainty ::= INTEGER (0..32767, ...)
 UplinkChannelBW-PerSCS-List ::= SEQUENCE (SIZE (1..maxnoSCSs)) OF SCS-SpecificCarrier
 
 UplinkTxDirectCurrentListInformation ::= OCTET STRING
+
+UplinkTxDirectCurrentTwoCarrierListInfo ::= OCTET STRING
 
 UPTransportLayerInformation		::= CHOICE {
 	gTPTunnel		GTPTunnel,
