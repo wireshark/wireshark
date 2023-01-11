@@ -22,6 +22,20 @@ if(POLICY CMP0083)
 endif()
 
 if(WIN32)
+	if(DEFINED ENV{MSYSTEM})
+		set(_msystem $ENV{MSYSTEM})
+		set(_repository False)
+		message(STATUS "Using MSYS2 with MSYSTEM=${_msystem}")
+	else()
+		set(_msystem False)
+		set(_repository True)
+		message(STATUS "Using 3rd party repository")
+	endif()
+	set(USE_MSYSTEM ${_msystem} CACHE INTERNAL "Use MSYS2 subsystem")
+	set(USE_REPOSITORY ${_repository} CACHE INTERNAL "Use Wireshark 3rd Party Repository")
+endif()
+
+if(WIN32 AND NOT USE_MSYSTEM)
 	set(_project_name Wireshark)
 	set(_log_project_name Logray)
 else()
@@ -101,27 +115,11 @@ endif()
 # %WIRESHARK_TARGET_PLATFORM%.
 
 if(WIN32)
-	# Are we using MSYS2? If we are we don't use our own third party
-	# libraries.
-	if(DEFINED ENV{MSYSTEM})
-		set(_msystem $ENV{MSYSTEM})
-		set(_repository False)
-		message(STATUS "Using MSYS2 with MSYSTEM=${_msystem}")
-	else()
-		set(_msystem False)
-		set(_repository True)
-		message(STATUS "Using 3rd party repository")
-	endif()
-	set(USE_MSYSTEM ${_msystem} CACHE INTERNAL "Use MSYS2 subsystem")
-	set(USE_REPOSITORY ${_repository} CACHE INTERNAL "Use Wireshark 3rd Party Repository")
-
 	if(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
 		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
 		set(WIRESHARK_TARGET_PLATFORM ${_target_platform})
 	elseif(USE_MSYSTEM MATCHES "MINGW64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
-	elseif(USE_MSYSTEM MATCHES "MINGW32")
-		set(WIRESHARK_TARGET_PLATFORM win32)
 	elseif(USE_MSYSTEM)
 		message(WARNING "Building for MSYSTEM=${USE_MSYSTEM} is not officially supported")
 	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
@@ -226,7 +224,7 @@ endif()
 #
 
 # Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
-if(WIN32)
+if(WIN32 AND NOT USE_MSYSTEM)
 	# Override some values on Windows, to match the existing
 	# convention of installing everything to a single root folder.
 	set(CMAKE_INSTALL_BINDIR ".")
@@ -315,7 +313,7 @@ include(CheckSymbolExists)
 # Studio has had supported them since Visual Studio 2005/MSVCR80,
 # and we require newer versions, so we know we have them.
 #
-if(NOT WIN32)
+if(NOT MSVC)
 	include(FindLFS)
 	if(LFS_FOUND)
 		#
@@ -1166,7 +1164,7 @@ if(BUILD_wireshark OR BUILD_logray)
 		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
 			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
 		# XXX We used to recommend setting QT5_BASE_DIR. Remove after the 4.0 branch is created.
-		elseif(WIN32 AND DEFINED ENV{QT5_BASE_DIR})
+		elseif(WIN32 AND NOT USE_MSYSTEM AND DEFINED ENV{QT5_BASE_DIR})
 			message(WARNING "Support for QT5_BASE_DIR will be removed in a future release.")
 			set(QT5_BASE_PATH "$ENV{QT5_BASE_DIR}")
 			set(CMAKE_PREFIX_PATH "${QT5_BASE_PATH}")
@@ -1342,7 +1340,7 @@ if(GNUTLS_FOUND)
 	# Check that the support is present in case GnuTLS was compiled
 	# --without-p11-kit as macos-setup.sh did until December 2020.
 	cmake_push_check_state()
-	if(WIN32)
+	if(WIN32 AND NOT MINGW)
 		set(CMAKE_REQUIRED_DEFINITIONS -Dssize_t=int)
 	endif()
 	set(CMAKE_REQUIRED_INCLUDES ${GNUTLS_INCLUDE_DIRS})
@@ -1374,13 +1372,8 @@ if (QT_FOUND)
 	)
 	# Use qmake to find windeployqt and macdeployqt. Ideally one of
 	# the modules in ${QTDIR}/lib/cmake would do this for us.
-	if(WIN32)
-		if (USE_qt6 AND USE_MSYSTEM)
-			set(_windeployqt_name "windeployqt-qt6")
-		else()
-			set(_windeployqt_name "windeployqt")
-		endif()
-		find_program(QT_WINDEPLOYQT_EXECUTABLE ${_windeployqt_name}
+	if(WIN32 AND NOT USE_MSYSTEM)
+		find_program(QT_WINDEPLOYQT_EXECUTABLE windeployqt
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the windeployqt utility."
 		)
@@ -1483,11 +1476,12 @@ include( UseCheckAPI )
 # macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
 # If you change the nesting level be sure to check also the INSTALL_RPATH
 # target property.
-if (WIN32)
+if(WIN32 AND NOT USE_MSYSTEM)
 	set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The extcap dir")
-else ()
+else()
 	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The extcap dir")
 endif()
+set(EXTCAP_INSTALL_FULL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}")
 
 if(APPLE)
 	#
@@ -1508,11 +1502,12 @@ else()
 endif()
 
 # Directory where plugins and Lua dissectors can be found.
-if(WIN32)
+if(WIN32 AND NOT USE_MSYSTEM)
 	set(PLUGIN_INSTALL_LIBDIR "plugins" CACHE INTERNAL "The plugin dir")
 else()
 	set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/plugins" CACHE INTERNAL "The plugin dir")
 endif()
+set(PLUGIN_INSTALL_FULL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}")
 set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PLUGIN_PATH_ID}")
 set(PLUGIN_VERSION_DIR "plugins/${PLUGIN_PATH_ID}")
 
@@ -1668,7 +1663,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 		# Xcode
 		set(_logray_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logray.app/Contents/PlugIns/logray/${PLUGIN_PATH_ID}")
 	endif()
-elseif(WIN32 AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
+elseif(MSVC AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
 	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${PLUGIN_VERSION_DIR}")
 	set(_logray_plugin_dir ${_plugin_dir})
 else()
@@ -2215,7 +2210,7 @@ endif()
 # List of extra dependencies for the "copy_data_files" target
 set(copy_data_files_depends)
 
-if(WIN32)
+if(WIN32 AND NOT USE_MSYSTEM)
 	foreach(_install_as_txt_file COPYING NEWS README.md README.windows)
 		# On Windows, install some files with a .txt extension so that they're
 		# double-clickable.
@@ -2610,7 +2605,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_WIRESHARK_BUNDLE_FILES})
-	if(WIN32)
+	if(MSVC)
 		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT wireshark)
 	endif()
 	set(PROGLIST ${PROGLIST} wireshark)
@@ -2625,7 +2620,9 @@ if(BUILD_wireshark AND QT_FOUND)
 	if(MSVC)
 		set_target_properties(wireshark PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 	endif()
-	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
+	if (USE_MSYSTEM)
+		set_target_properties(wireshark PROPERTIES OUTPUT_NAME wireshark)
+	elseif(ENABLE_APPLICATION_BUNDLE OR WIN32)
 		set_target_properties(wireshark PROPERTIES OUTPUT_NAME Wireshark)
 	endif()
 
@@ -3210,7 +3207,7 @@ if(BUILD_dcerpcidl2wrs)
 	install(TARGETS idl2wrs RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if (WIN32)
+if(MSVC)
 	find_package( MSVC_REDIST )
 
 	# Must come after executable targets are defined.
@@ -3728,7 +3725,7 @@ if(CLEAN_C_FILES)
 	# the INCLUDE environment variable).
 	# This should apparently be handled for us via CMAKE_RC_FLAG_REGEX
 	# in CMakeRCInformation.cmake but that doesn't appear to work.
-	if(WIN32)
+	if(MSVC)
 		list(FILTER CLEAN_C_FILES EXCLUDE REGEX ".*\\.rc")
 	endif()
 
@@ -3771,7 +3768,7 @@ install(FILES ${SHARK_PUBLIC_HEADERS}
 )
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
-if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
+if(BUILD_wireshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 	install(FILES resources/freedesktop/org.wireshark.Wireshark-mime.xml
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/mime/packages"
 		RENAME org.wireshark.Wireshark.xml
@@ -3821,7 +3818,7 @@ install(
 	PATTERN "Makefile.*" EXCLUDE
 )
 
-if(WIN32)
+if(WIN32 AND NOT USE_MSYSTEM)
 	# Note: CMake export mechanism misbehaves with a '.' in the
 	# path (incorrect relative path computation).
 	set(WIRESHARK_INSTALL_CMAKEDIR "cmake")
@@ -3880,7 +3877,7 @@ if (DOXYGEN_EXECUTABLE)
 		COMMAND ${DOXYGEN_EXECUTABLE} doxygen.cfg
 	)
 
-	if (WIN32)
+	if(WIN32 AND NOT USE_MSYSTEM)
 		add_custom_target(wsar_html_perms DEPENDS wsar_html)
 	else()
 		add_custom_target(wsar_html_perms
@@ -4012,7 +4009,7 @@ else (GIT_EXECUTABLE)
 endif (GIT_EXECUTABLE)
 set_target_properties(gen-authors PROPERTIES FOLDER "Documentation")
 
-if (WIN32)
+if(WIN32 AND NOT USE_MSYSTEM)
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/Get-HardenFlags.ps1 _win_harden_flags)
 	add_custom_target(hardening-check
 		COMMAND ${POWERSHELL_COMMAND} "${_win_harden_flags}" "${_dll_output_dir_win}"
@@ -4020,7 +4017,7 @@ if (WIN32)
 		COMMENT "Checking binaries for security features"
 	)
 	set_target_properties(hardening-check PROPERTIES FOLDER "Tests")
-else ()
+else()
 	find_program(HARDENING_CHECK_EXECUTABLE hardening-check
 		DOC "Path to the hardening-check utility."
 	)

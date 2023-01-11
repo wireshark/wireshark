@@ -7,9 +7,24 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-add_definitions(-DPLUGIN_DIR=\"${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}\")
-add_definitions(-DEXTCAP_DIR=\"${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}\")
-add_definitions(-DDATA_DIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}\")
+if(UNIX OR USE_MSYSTEM)
+	if(USE_MSYSTEM)
+		# Windows binaries are relocatable and do not need a prefix.
+		file(TO_NATIVE_PATH "${PLUGIN_INSTALL_LIBDIR}" _dir)
+		string(REPLACE "\\" "\\\\" _plugin_dir "${_dir}")
+		file(TO_NATIVE_PATH "${EXTCAP_INSTALL_LIBDIR}" _dir)
+		string(REPLACE "\\" "\\\\" _extcap_dir "${_dir}")
+		file(TO_NATIVE_PATH "${CMAKE_INSTALL_DATADIR}" _dir)
+		string(REPLACE "\\" "\\\\" _data_dir "${_dir}")
+	elseif(UNIX)
+		set(_plugin_dir "${PLUGIN_INSTALL_FULL_LIBDIR}")
+		set(_extcap_dir "${EXTCAP_INSTALL_FULL_LIBDIR}")
+		set(_data_dir "${CMAKE_INSTALL_FULL_DATADIR}")
+	endif()
+	add_definitions(-DPLUGIN_DIR=\"${_plugin_dir}\")
+	add_definitions(-DEXTCAP_DIR=\"${_extcap_dir}\")
+	add_definitions(-DDATA_DIR=\"${_data_dir}\")
+endif()
 
 add_subdirectory(wmem)
 

@@ -51,6 +51,8 @@
 #define PLUGINS_DIR_NAME    "plugins"
 #define PROFILES_INFO_NAME  "profile_files.txt"
 
+#define _S G_DIR_SEPARATOR_S
+
 /*
  * Application configuration namespace. Used to construct configuration
  * paths and environment variables.
@@ -72,6 +74,12 @@ char *persconffile_dir = NULL;
 char *datafile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
+
+/* Directory from which the executable came. */
+static char *progfile_dir = NULL;
+#ifdef __MINGW64__
+static char *install_prefix = NULL;
+#endif
 
 static gboolean do_store_persconffiles = FALSE;
 static GHashTable *profile_files = NULL;
@@ -208,11 +216,6 @@ test_for_fifo(const char *path)
     else
         return 0;
 }
-
-/*
- * Directory from which the executable came.
- */
-static char *progfile_dir;
 
 #ifdef __APPLE__
 /*
@@ -531,6 +534,19 @@ static void trim_progfile_dir(void)
     g_free(extcap_progfile_dir);
 }
 
+#ifdef __MINGW64__
+static char *
+trim_last_dir_from_path(const char *_path)
+{
+    char *path = ws_strdup(_path);
+    char *last_dir = find_last_pathname_separator(path);
+    if (last_dir) {
+        *last_dir = '\0';
+    }
+    return path;
+}
+#endif
+
 /*
  * Construct the path name of a non-extcap Wireshark executable file,
  * given the program name.  The executable name doesn't include ".exe";
@@ -562,19 +578,10 @@ get_executable_path(const char *program_name)
  * and save it for future use.  Returns NULL on success, and a
  * g_mallocated string containing an error on failure.
  */
+#ifdef _WIN32
 char *
-configuration_init(
-#ifdef _WIN32
-    const char* arg0 _U_,
-#else
-    const char* arg0,
-#endif
-    const char *namespace_name
-)
+configuration_init_w32(const char* arg0 _U_)
 {
-    set_configuration_namespace(namespace_name);
-
-#ifdef _WIN32
     TCHAR prog_pathname_w[_MAX_PATH+2];
     char *prog_pathname;
     DWORD error;
@@ -599,7 +606,7 @@ configuration_init(
         progfile_dir = g_path_get_dirname(prog_pathname);
         if (progfile_dir != NULL) {
             trim_progfile_dir();
-            return NULL;    /* we succeeded */
+            /* we succeeded */
         } else {
             /*
              * OK, no. What do we do now?
@@ -634,7 +641,32 @@ configuration_init(
         return ws_strdup_printf("GetModuleFileName failed: %s (%u)",
             msg, error);
     }
-#else
+
+#ifdef __MINGW64__
+    /*
+     * We already have the program_dir. Find the installation prefix.
+     * This is one level up from the bin_dir. If the program_dir does
+     * not end with "bin" then assume we are running in the build directory
+     * and the "installation prefix" (staging directory) is the same as
+     * the program_dir.
+     */
+    if (g_str_has_suffix(progfile_dir, _S"bin")) {
+        install_prefix = trim_last_dir_from_path(progfile_dir);
+    }
+    else {
+        install_prefix = g_strdup(progfile_dir);
+        running_in_build_directory_flag = TRUE;
+    }
+#endif /* __MINGW64__ */
+
+    return NULL;
+}
+
+#else /* !_WIN32 */
+
+char *
+configuration_init_posix(const char* arg0)
+{
     const char *execname;
     char *prog_pathname;
     char *curdir;
@@ -865,6 +897,18 @@ configuration_init(
         g_free(prog_pathname);
         return retstr;
     }
+}
+#endif /* ?_WIN32 */
+
+char *
+configuration_init(const char* arg0, const char *namespace_name)
+{
+    set_configuration_namespace(namespace_name);
+
+#ifdef _WIN32
+    return configuration_init_w32(arg0);
+#else
+    return configuration_init_posix(arg0);
 #endif
 }
 
@@ -918,7 +962,13 @@ get_datafile_dir(void)
     if (datafile_dir != NULL)
         return datafile_dir;
 
-#ifdef _WIN32
+#if defined(__MINGW64__)
+    if (running_in_build_directory_flag) {
+        datafile_dir = g_strdup(install_prefix);
+    } else {
+        datafile_dir = g_build_filename(install_prefix, DATA_DIR, (gchar *)NULL);
+    }
+#elif defined(_WIN32)
     /*
      * Do we have the pathname of the program?  If so, assume we're
      * running an installed version of the program.  If we fail,
@@ -1020,7 +1070,13 @@ static void
 init_plugin_dir(void)
 {
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-#ifdef _WIN32
+#if defined(__MINGW64__)
+    if (running_in_build_directory_flag) {
+        plugin_dir = g_build_filename(install_prefix, "plugins", (gchar *)NULL);
+    } else {
+        plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (gchar *)NULL);
+    }
+#elif defined(_WIN32)
     /*
      * On Windows, the data file directory is the installation
      * directory; the plugins are stored under it.
@@ -1166,7 +1222,9 @@ get_plugins_pers_dir_with_version(void)
  */
 static char *extcap_dir = NULL;
 
-static void init_extcap_dir(void) {
+static void
+init_extcap_dir(void)
+{
     const char *extcap_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("EXTCAP_DIR");
     if (g_getenv(extcap_dir_envar) && !started_with_special_privs()) {
         /*
@@ -1175,7 +1233,14 @@ static void init_extcap_dir(void) {
          */
         extcap_dir = g_strdup(g_getenv(extcap_dir_envar));
     }
-#ifdef _WIN32
+
+#if defined(__MINGW64__)
+    else if (running_in_build_directory_flag) {
+        extcap_dir = g_build_filename(install_prefix, "extcap", (gchar *)NULL);
+    } else {
+        extcap_dir = g_build_filename(install_prefix, EXTCAP_DIR, (gchar *)NULL);
+    }
+#elif defined(_WIN32)
     else {
         /*
          * On Windows, the data file directory is the installation
@@ -2519,6 +2584,10 @@ free_progdirs(void)
     persconfprofile = NULL;
     g_free(progfile_dir);
     progfile_dir = NULL;
+#ifdef __MINGW64__
+    g_free(install_prefix);
+    install_prefix = NULL;
+#endif
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;
