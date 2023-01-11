@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.2.0 (2022-09)
+-- 3GPP TS 36.413 V17.3.0 (2022-12)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -1140,7 +1140,8 @@ E-RABSetupResponseIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-eNB-UE-S1AP-ID							CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
 	{ ID id-E-RABSetupListBearerSURes				CRITICALITY ignore	TYPE E-RABSetupListBearerSURes	PRESENCE optional	}|
 	{ ID id-E-RABFailedToSetupListBearerSURes		CRITICALITY ignore	TYPE E-RABList					PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional	}|
+	{ ID id-UserLocationInformation					CRITICALITY ignore	TYPE UserLocationInformation	PRESENCE optional },
 	...
 }
 
@@ -1233,7 +1234,8 @@ E-RABModifyResponseIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABModifyListBearerModRes		CRITICALITY ignore	TYPE E-RABModifyListBearerModRes		PRESENCE optional	}|
 	{ ID id-E-RABFailedToModifyList			CRITICALITY ignore	TYPE E-RABList							PRESENCE optional	}|
 	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	}|
-	{ ID id-SecondaryRATDataUsageReportList		CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList			PRESENCE optional	},
+	{ ID id-SecondaryRATDataUsageReportList		CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList			PRESENCE optional	}|
+	{ ID id-UserLocationInformation			CRITICALITY ignore	TYPE UserLocationInformation			PRESENCE optional },
 	...
 }
 
@@ -2433,8 +2435,8 @@ DeactivateTraceIEs S1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 CellTrafficTrace ::= SEQUENCE {
-     protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
-     ...
+protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
+...
 }
 
 CellTrafficTraceIEs S1AP-PROTOCOL-IES ::= {

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.2.0 (2022-09)
+-- 3GPP TS 36.413 V17.3.0 (2022-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -3002,8 +3002,8 @@ TransportLayerAddress		::= BIT STRING (SIZE(1..160, ...))
 TraceActivation ::= SEQUENCE {
 	e-UTRAN-Trace-ID					E-UTRAN-Trace-ID,
 	interfacesToTrace					InterfacesToTrace,
-     traceDepth							TraceDepth,
-     traceCollectionEntityIPAddress		TransportLayerAddress,
+traceDepth							TraceDepth,
+traceCollectionEntityIPAddress		TransportLayerAddress,
 	iE-Extensions						ProtocolExtensionContainer { { TraceActivation-ExtIEs} }	OPTIONAL,
 	...
 }
