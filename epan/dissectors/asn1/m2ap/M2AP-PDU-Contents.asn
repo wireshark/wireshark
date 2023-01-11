@@ -1,4 +1,4 @@
--- 3GPP TS 36.443 V15.0.0 (2018-09)
+-- 3GPP TS 36.443 V17.0.1 (2022-04)
 -- **************************************************************
 --
 -- PDU definitions for M2AP.
@@ -37,6 +37,7 @@ IMPORTS
 	MBSFN-Subframe-Configuration,
 	MCCH-Update-Time,
 	MCCHrelatedBCCH-ConfigPerMBSFNArea-Item,
+	MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item,
 	MCE-MBMS-M2AP-ID,
 	MCEname,
 	PMCH-Configuration,
@@ -87,6 +88,8 @@ FROM M2AP-Containers
 	id-MCEname,
 	id-MCCHrelatedBCCH-ConfigPerMBSFNArea,
 	id-MCCHrelatedBCCH-ConfigPerMBSFNArea-Item,
+	id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea,
+	id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item,
 	id-TimeToWait,
 	id-ENB-MBMS-Configuration-data-List-ConfigUpdate,
 	id-ENB-MBMS-Configuration-data-ConfigUpdate-Item,
@@ -398,7 +401,8 @@ M2SetupResponse-Ies M2AP-PROTOCOL-IES ::= {
 	{ ID id-GlobalMCE-ID							CRITICALITY reject	TYPE GlobalMCE-ID							PRESENCE mandatory }|
 	{ ID id-MCEname									CRITICALITY ignore	TYPE MCEname								PRESENCE optional }|
 	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea			PRESENCE mandatory }|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional },
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional }|
+	{ ID id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea	CRITICALITY reject	TYPE MCCHrelatedBCCH-ExtConfigPerMBSFNArea		PRESENCE optional },
 	...
 }
 
@@ -406,6 +410,13 @@ MCCHrelatedBCCH-ConfigPerMBSFNArea ::= SEQUENCE (SIZE(1.. maxnoofMBSFNareas)) OF
 
 MCCHrelatedBCCH-ConfigPerMBSFNArea-ItemIEs 	M2AP-PROTOCOL-IES ::= {
 	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea-Item		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea-Item	PRESENCE mandatory },
+	...
+}
+
+MCCHrelatedBCCH-ExtConfigPerMBSFNArea ::= SEQUENCE (SIZE(1.. maxnoofMBSFNareas)) OF ProtocolIE-Single-Container { { MCCHrelatedBCCH-ExtConfigPerMBSFNArea-ItemIEs } }
+
+MCCHrelatedBCCH-ExtConfigPerMBSFNArea-ItemIEs 	M2AP-PROTOCOL-IES ::= {
+	{ ID id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item	CRITICALITY reject	TYPE MCCHrelatedBCCH-ExtConfigPerMBSFNArea-Item		PRESENCE mandatory },
 	...
 }
 
@@ -465,7 +476,8 @@ ENBConfigurationUpdateAcknowledge ::= SEQUENCE {
 
 ENBConfigurationUpdateAcknowledge-Ies M2AP-PROTOCOL-IES ::= {
 	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea				CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea		PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional }|
+	{ ID id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea	CRITICALITY reject	TYPE MCCHrelatedBCCH-ExtConfigPerMBSFNArea		PRESENCE optional },
 	...
 }
 
@@ -504,7 +516,8 @@ MCEConfigurationUpdate ::= SEQUENCE {
 MCEConfigurationUpdate-Ies M2AP-PROTOCOL-IES ::= {
 	{ ID id-GlobalMCE-ID							CRITICALITY reject	TYPE GlobalMCE-ID						PRESENCE optional }|
 	{ ID id-MCEname									CRITICALITY ignore	TYPE MCEname							PRESENCE optional }|
-	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea		PRESENCE optional },
+	{ ID id-MCCHrelatedBCCH-ConfigPerMBSFNArea		CRITICALITY reject	TYPE MCCHrelatedBCCH-ConfigPerMBSFNArea		PRESENCE optional }|
+	{ ID id-MCCHrelatedBCCH-ExtConfigPerMBSFNArea	CRITICALITY reject	TYPE MCCHrelatedBCCH-ExtConfigPerMBSFNArea		PRESENCE optional },
 	...
 }
 
