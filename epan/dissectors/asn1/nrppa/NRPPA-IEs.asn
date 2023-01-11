@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.6.0 (2021-12)
+-- 3GPP TS 38.455 V17.3.0 (2022-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -7,15 +7,15 @@
 -- **************************************************************
 
 NRPPA-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) nrppa (4) version1 (1) nrppa-IEs (2) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
-IMPORTS	
-	
+IMPORTS
+
 	id-MeasurementQuantities-Item,
 	id-CGI-NR,
 	id-SFNInitialisationTime-NR,
@@ -71,11 +71,43 @@ IMPORTS
 	maxNoSSBs,
 	maxnoofPRSresourceSet,
 	maxnoofPRSresource,
+	maxnoofULAoAs,
+	maxNoPathExtended,
+	maxnoARPs,
+	maxnoTRPTEGs,
+	maxnoUETEGs,
+	maxFreqLayers,
+	maxnoPRSTRPs,
+	maxNumResourcesPerAngle,
+	maxnoAzimuthAngles,
+	maxnoElevationAngles,
 	id-Cell-ID,
 	id-TRPInformationTypeItem,
 	id-SrsFrequency,
 	id-TRPType,
-	id-SRSSpatialRelationPerSRSResource
+	id-SRSSpatialRelationPerSRSResource,
+	id-PRS-Resource-ID,
+	id-OnDemandPRS,
+	id-AoA-SearchWindow,
+	id-ZoA,
+	id-MultipleULAoA,
+	id-UL-SRS-RSRPP,
+	id-SRSResourcetype,
+	id-ExtendedAdditionalPathList,
+	id-ARPLocationInfo,
+	id-ARP-ID,
+	id-LoS-NLoSInformation,
+	id-NumberOfTRPRxTEG,
+	id-NumberOfTRPRxTxTEG,
+	id-TRPTxTEGAssociation,
+	id-TRPTEGInformation,
+	id-TRP-Rx-TEGInformation,
+	id-TRPBeamAntennaInformation,
+	id-NR-TADV,
+	id-pathPower,
+	id-SRSPortIndex,
+	id-UETxTimingErrorMargin
+
 
 
 
@@ -91,7 +123,7 @@ FROM NRPPA-CommonDataTypes
 
 	ProtocolExtensionContainer{},
 	ProtocolIE-Single-Container{},
-	
+
 	NRPPA-PROTOCOL-EXTENSION,
 	NRPPA-PROTOCOL-IES
 
@@ -130,18 +162,125 @@ AdditionalPathList ::= SEQUENCE (SIZE (1.. maxNoPath)) OF AdditionalPathListItem
 
 AdditionalPathListItem ::= SEQUENCE {
 	relativeTimeOfPath	RelativePathDelay,
-	pathQuality			TrpMeasurementQuality	OPTIONAL,  
+	pathQuality			TrpMeasurementQuality	OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { AdditionalPathListItem-ExtIEs} } OPTIONAL,
 	...
 }
 
 AdditionalPathListItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-MultipleULAoA	CRITICALITY ignore EXTENSION MultipleULAoA PRESENCE	optional}|
+	{ ID id-pathPower		CRITICALITY ignore EXTENSION UL-SRS-RSRPP PRESENCE	optional},
+	...
+}
+
+ExtendedAdditionalPathList ::= SEQUENCE (SIZE (1.. maxNoPathExtended)) OF ExtendedAdditionalPathList-Item
+
+
+ExtendedAdditionalPathList-Item ::= SEQUENCE {
+	relativeTimeOfPath	RelativePathDelay,
+	pathQuality			TrpMeasurementQuality	OPTIONAL,
+	multipleULAoA		MultipleULAoA  			OPTIONAL,
+	pathPower			UL-SRS-RSRPP			OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { ExtendedAdditionalPathList-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ExtendedAdditionalPathList-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AoA-AssistanceInfo ::= SEQUENCE {
+	angleMeasurement	AngleMeasurementType,
+	lCS-to-GCS-Translation	LCS-to-GCS-Translation		OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { AoA-AssistanceInfo-ExtIEs } } OPTIONAL,
+	...
+}
+
+AoA-AssistanceInfo-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 AperiodicSRSResourceTriggerList ::= SEQUENCE (SIZE(1..maxnoSRSTriggerStates)) OF AperiodicSRSResourceTrigger
 
 AperiodicSRSResourceTrigger ::= INTEGER (1..3)
+
+AngleMeasurementType ::= CHOICE {
+	expected-ULAoA		Expected-UL-AoA,
+	expected-ZoA		Expected-ZoA-only,
+	choice-extension ProtocolIE-Single-Container { { AngleMeasurementType-ExtIEs } }
+}
+
+AngleMeasurementType-ExtIEs NRPPA-PROTOCOL-IES ::= {
+...
+}
+
+Expected-UL-AoA ::= SEQUENCE {
+	expected-Azimuth-AoA		Expected-Azimuth-AoA,
+	expected-Zenith-AoA		Expected-Zenith-AoA		OPTIONAL,
+	iE-extensions		ProtocolExtensionContainer { { Expected-UL-AoA-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Expected-UL-AoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Expected-ZoA-only ::= SEQUENCE {
+	expected-ZoA-only	Expected-Zenith-AoA,
+	iE-extensions		ProtocolExtensionContainer { { Expected-ZoA-only-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Expected-ZoA-only-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Expected-Azimuth-AoA ::= SEQUENCE {
+	expected-Azimuth-AoA-value			Expected-Value-AoA,
+	expected-Azimuth-AoA-uncertainty		Uncertainty-range-AoA,
+	iE-extensions		ProtocolExtensionContainer { { Expected-Azimuth-AoA-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Expected-Azimuth-AoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Expected-Zenith-AoA ::= SEQUENCE {
+	expected-Zenith-AoA-value			Expected-Value-ZoA,
+	expected-Zenith-AoA-uncertainty		Uncertainty-range-ZoA,
+	iE-extensions		ProtocolExtensionContainer { { Expected-Zenith-AoA-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Expected-Zenith-AoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ARP-ID ::= INTEGER (1..16, ...)
+
+ARPLocationInformation ::= SEQUENCE (SIZE (1..maxnoARPs)) OF ARPLocationInformation-Item
+
+ARPLocationInformation-Item ::= SEQUENCE {
+	aRP-ID				ARP-ID,
+	aRPLocationType		ARPLocationType,
+	iE-Extensions		ProtocolExtensionContainer { { ARPLocationInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+ARPLocationInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ARPLocationType ::= CHOICE {
+	aRPPositionRelativeGeodetic			RelativeGeodeticLocation,
+	aRPPositionRelativeCartesian		RelativeCartesianLocation,
+	choice-extension					ProtocolIE-Single-Container { { ARPLocationType-ExtIEs } }
+}
+
+ARPLocationType-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
 
 Assistance-Information ::= SEQUENCE {
 	systemInformation				SystemInformation,
@@ -209,17 +348,28 @@ BroadcastPeriodicity ::= ENUMERATED {
 	...
 }
 
-PositioningBroadcastCells ::= SEQUENCE (SIZE (1..maxnoBcastCell)) OF NG-RAN-CGI 
+PositioningBroadcastCells ::= SEQUENCE (SIZE (1..maxnoBcastCell)) OF NG-RAN-CGI
 
 BSSID ::= OCTET STRING (SIZE(6))
 
 -- C
 
+CarrierFreq ::= SEQUENCE {
+	pointA				INTEGER (0..3279165),
+	offsetToCarrier		INTEGER (0..2199, ...),
+	iE-Extensions		ProtocolExtensionContainer { {CarrierFreq-ExtIEs} } OPTIONAL,
+	...
+}
+
+CarrierFreq-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Cause ::= CHOICE {
 	radioNetwork		CauseRadioNetwork,
 	protocol			CauseProtocol,
 	misc				CauseMisc,
-	cause-Extension	ProtocolIE-Single-Container {{ Cause-ExtensionIE }}
+	choice-Extension	ProtocolIE-Single-Container {{ Cause-ExtensionIE }}
 }
 
 Cause-ExtensionIE NRPPA-PROTOCOL-IES ::= {
@@ -246,7 +396,9 @@ CauseRadioNetwork ::= ENUMERATED {
 	unspecified,
 	requested-item-not-supported,
 	requested-item-temporarily-not-available,
-	...
+	...,
+	serving-NG-RAN-node-changed,
+	requested-item-not-supported-on-time
 
 }
 
@@ -385,7 +537,7 @@ DL-PRSResourceSetARPLocation-ExtIEs NRPPA-PROTOCOL-IES ::= {
 
 DLPRSResourceARP ::= SEQUENCE {
 	dl-PRSResourceID			PRS-Resource-ID,
-	dL-PRSResourceARPLocation	DL-PRSResourceARPLocation,	
+	dL-PRSResourceARPLocation	DL-PRSResourceARPLocation,
 	iE-Extensions				ProtocolExtensionContainer { { DLPRSResourceARP-ExtIEs } } OPTIONAL,
 	...
 }
@@ -424,6 +576,11 @@ EUTRACellIdentifier ::= BIT STRING (SIZE (28))
 
 EARFCN ::= INTEGER (0..262143, ...)
 
+Expected-Value-AoA ::= INTEGER (0..3599)
+
+Expected-Value-ZoA ::= INTEGER (0..1799)
+
+
 -- F
 
 -- G
@@ -436,6 +593,7 @@ GeographicalCoordinates ::= SEQUENCE {
 }
 
 GeographicalCoordinates-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-ARPLocationInfo		CRITICALITY ignore EXTENSION ARPLocationInformation 	PRESENCE optional},
 	...
 }
 
@@ -449,6 +607,8 @@ GNB-RxTxTimeDiff ::= SEQUENCE {
 }
 
 GNB-RxTxTimeDiff-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-ExtendedAdditionalPathList	CRITICALITY ignore EXTENSION ExtendedAdditionalPathList PRESENCE optional}|
+	{ ID id-TRPTEGInformation		CRITICALITY ignore EXTENSION TRPTEGInformation	PRESENCE optional },
 
 	...
 }
@@ -461,7 +621,7 @@ GNBRxTxTimeDiffMeas ::= CHOICE {
 	k3			INTEGER (0.. 246257),
 	k4			INTEGER (0.. 123129),
 	k5			INTEGER (0.. 61565),
-	choice-extension		ProtocolIE-Single-Container { { GNBRxTxTimeDiffMeas-ExtIEs } } 
+	choice-extension		ProtocolIE-Single-Container { { GNBRxTxTimeDiffMeas-ExtIEs } }
 }
 
 GNBRxTxTimeDiffMeas-ExtIEs		NRPPA-PROTOCOL-IES ::= {
@@ -480,15 +640,15 @@ HESSID ::= OCTET STRING (SIZE(6))
 
 -- L
 
-LCS-to-GCS-TranslationAoA::= SEQUENCE {
+LCS-to-GCS-Translation::= SEQUENCE {
 	alpha				INTEGER (0..3599),
 	beta				INTEGER (0..3599),
 	gamma				INTEGER (0..3599),
-	iE-Extensions		ProtocolExtensionContainer { { LCS-to-GCS-TranslationAoA-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { LCS-to-GCS-Translation-ExtIEs} } OPTIONAL,
 	...
 }
 
-LCS-to-GCS-TranslationAoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+LCS-to-GCS-Translation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -520,10 +680,27 @@ LocationUncertainty-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+LoS-NLoSIndicatorHard ::= ENUMERATED {nlos, los}
+
+LoS-NLoSIndicatorSoft ::= INTEGER (0..10)
+
+LoS-NLoSInformation ::= CHOICE {
+	loS-NLoSIndicatorSoft		LoS-NLoSIndicatorSoft,
+	loS-NLoSIndicatorHard		LoS-NLoSIndicatorHard,
+	choice-Extension		ProtocolIE-Single-Container {{ LoS-NLoSInformation-ExtIEs}}
+
+}
+
+LoS-NLoSInformation-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
 
 -- M
 
 Measurement-ID ::= INTEGER (1.. 65536, ...)
+
+MeasurementAmount  ::= ENUMERATED {ma0, ma1, ma2, ma4, ma8, ma16, ma32, ma64}
 
 MeasurementBeamInfoRequest ::= ENUMERATED {true, ...}
 
@@ -556,7 +733,41 @@ MeasurementPeriodicity ::= ENUMERATED {
 	min60,
 	...,
 	ms20480,
-	ms40960
+	ms40960,
+	extended
+}
+
+MeasurementPeriodicityExtended ::= ENUMERATED {
+	ms160,
+	ms320,
+	ms1280,
+	ms2560,
+	ms61440,
+	ms81920,
+	ms368640,
+	ms737280,
+	ms1843200,
+	...
+
+}
+
+MeasurementPeriodicityNR-AoA ::= ENUMERATED {
+	ms160,
+	ms320,
+	ms640,
+	ms1280,
+	ms2560,
+	ms5120,
+	ms10240,
+	ms20480,
+	ms40960,
+	ms61440,
+	ms81920,
+	ms368640,
+	ms737280,
+	ms1843200,
+	...
+
 }
 
 MeasurementQuantities ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF ProtocolIE-Single-Container { {MeasurementQuantities-ItemIEs} }
@@ -587,18 +798,23 @@ MeasurementQuantitiesValue ::= ENUMERATED {
 	sS-RSRQ,
 	cSI-RSRP,
 	cSI-RSRQ,
-	angleOfArrivalNR
+	angleOfArrivalNR,
+	timingAdvanceNR
 }
+
+MeasurementTimeOccasion ::= ENUMERATED {o1, o4, ...}
+
+MeasurementCharacteristicsRequestIndicator ::= BIT STRING (SIZE (16))
 
 MeasuredResults ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF MeasuredResultsValue
 
-MeasuredResultsValue ::= CHOICE { 
+MeasuredResultsValue ::= CHOICE {
 	valueAngleOfArrival-EUTRA				INTEGER (0..719),
 	valueTimingAdvanceType1-EUTRA			INTEGER (0..7690),
 	valueTimingAdvanceType2-EUTRA			INTEGER (0..7690),
 	resultRSRP-EUTRA						ResultRSRP-EUTRA,
 	resultRSRQ-EUTRA						ResultRSRQ-EUTRA,
-	measuredResultsValue-Extension			ProtocolIE-Single-Container {{ MeasuredResultsValue-ExtensionIE }}
+	choice-Extension			ProtocolIE-Single-Container {{ MeasuredResultsValue-ExtensionIE }}
 }
 
 MeasuredResultsValue-ExtensionIE NRPPA-PROTOCOL-IES ::= {
@@ -606,9 +822,33 @@ MeasuredResultsValue-ExtensionIE NRPPA-PROTOCOL-IES ::= {
 	{ ID id-ResultSS-RSRQ		CRITICALITY ignore	TYPE ResultSS-RSRQ		PRESENCE mandatory	}|
 	{ ID id-ResultCSI-RSRP		CRITICALITY ignore	TYPE ResultCSI-RSRP		PRESENCE mandatory	}|
 	{ ID id-ResultCSI-RSRQ		CRITICALITY ignore	TYPE ResultCSI-RSRQ		PRESENCE mandatory	}|
-	{ ID id-AngleOfArrivalNR	CRITICALITY ignore	TYPE UL-AoA				PRESENCE mandatory	},
+	{ ID id-AngleOfArrivalNR	CRITICALITY ignore	TYPE UL-AoA				PRESENCE mandatory	}|
+	{ ID id-NR-TADV				CRITICALITY ignore	TYPE NR-TADV			PRESENCE mandatory	},
 	...
 }
+
+MultipleULAoA ::= SEQUENCE {
+	multipleULAoA					MultipleULAoA-List,
+	iE-Extensions					ProtocolExtensionContainer { { MultipleULAoA-ExtIEs} } OPTIONAL,
+	...
+}
+
+MultipleULAoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MultipleULAoA-List ::= SEQUENCE (SIZE(1.. maxnoofULAoAs)) OF MultipleULAoA-Item
+
+MultipleULAoA-Item ::= CHOICE {
+	uL-AoA		UL-AoA,
+	ul-ZoA		ZoA,
+	choice-extension ProtocolIE-Single-Container { { MultipleULAoA-Item-ExtIEs } }
+}
+
+MultipleULAoA-Item-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
 
 -- N
 
@@ -642,7 +882,7 @@ NGRANHighAccuracyAccessPointPosition ::= SEQUENCE {
 	orientationOfMajorAxis		INTEGER (0..179),
 	horizontalConfidence		INTEGER (0..100),
 	uncertaintyAltitude			INTEGER (0..255),
-	verticalConfidence			INTEGER (0..100), 
+	verticalConfidence			INTEGER (0..100),
 	iE-Extensions				ProtocolExtensionContainer { { NGRANHighAccuracyAccessPointPosition-ExtIEs} } OPTIONAL,
 	...
 }
@@ -665,7 +905,7 @@ NG-RAN-CGI-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 NG-RANCell ::= CHOICE {
 	eUTRA-CellID	EUTRACellIdentifier,
 	nR-CellID		NRCellIdentifier,
-	nG-RANCell-Extension			ProtocolIE-Single-Container {{ NG-RANCell-ExtensionIE }}
+	choice-Extension			ProtocolIE-Single-Container {{ NG-RANCell-ExtensionIE }}
 }
 
 NG-RANCell-ExtensionIE NRPPA-PROTOCOL-IES ::= {
@@ -685,20 +925,22 @@ NR-PRS-Beam-Information ::= SEQUENCE {
  	...
 }
 
-NR-PRS-Beam-Information-IEs NRPPA-PROTOCOL-EXTENSION ::= { 
+NR-PRS-Beam-Information-IEs NRPPA-PROTOCOL-EXTENSION ::= {
  ...
 }
 
 NR-PRS-Beam-InformationItem ::= SEQUENCE {
 	pRSresourceSetID 	PRS-Resource-Set-ID,
-	pRSAngleItem 		SEQUENCE (SIZE(1..maxPRS-ResourcesPerSet)) OF PRSAngleItem,
+	pRSAngle 		SEQUENCE (SIZE(1..maxPRS-ResourcesPerSet)) OF PRSAngleItem,
 	iE-Extensions	ProtocolExtensionContainer { { NR-PRS-Beam-InformationItem-ExtIEs} } OPTIONAL,
 	...
 }
 
-NR-PRS-Beam-InformationItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= { 
+NR-PRS-Beam-InformationItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
  ...
 }
+
+NR-TADV ::= INTEGER (0.. 7690)
 
 NumberOfAntennaPorts-EUTRA ::= ENUMERATED {
 		n1-or-n2,
@@ -722,9 +964,28 @@ NumberOfFrequencyHoppingBands ::= ENUMERATED {
 	...
 }
 
+NumberOfTRPRxTEG ::= ENUMERATED {two, three, four, six, eight, ...}
+
+NumberOfTRPRxTxTEG ::= ENUMERATED {two, three, four, six, eight, ...}
+
 NZP-CSI-RS-ResourceID::= INTEGER  (0..191)
 
 -- O
+
+OnDemandPRS-Info ::= SEQUENCE {
+	onDemandPRSRequestAllowed				BIT STRING (SIZE (16)),
+	allowedResourceSetPeriodicityValues		BIT STRING (SIZE (24))	OPTIONAL,
+	allowedPRSBandwidthValues				BIT STRING (SIZE (64))	OPTIONAL,
+	allowedResourceRepetitionFactorValues	BIT STRING (SIZE (8))	OPTIONAL,
+	allowedResourceNumberOfSymbolsValues	BIT STRING (SIZE (8))	OPTIONAL,
+	allowedCombSizeValues					BIT STRING (SIZE (8))	OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { OnDemandPRS-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+OnDemandPRS-Info-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 OTDOACells ::= SEQUENCE (SIZE (1.. maxCellinRANnode)) OF SEQUENCE {
 	oTDOACellInfo					OTDOACell-Information,
@@ -744,7 +1005,7 @@ OTDOACell-Information-Item ::= CHOICE {
 	tAC											TAC,
 	eARFCN										EARFCN,
 	pRS-Bandwidth-EUTRA							PRS-Bandwidth-EUTRA,
-	pRS-ConfigurationIndex-EUTRA				PRS-ConfigurationIndex-EUTRA, 
+	pRS-ConfigurationIndex-EUTRA				PRS-ConfigurationIndex-EUTRA,
 	cPLength-EUTRA								CPLength-EUTRA,
 	numberOfDlFrames-EUTRA						NumberOfDlFrames-EUTRA,
 	numberOfAntennaPorts-EUTRA					NumberOfAntennaPorts-EUTRA,
@@ -759,7 +1020,7 @@ OTDOACell-Information-Item ::= CHOICE {
 	dL-Bandwidth-EUTRA							DL-Bandwidth-EUTRA,
 	pRSOccasionGroup-EUTRA						PRSOccasionGroup-EUTRA,
 	pRSFrequencyHoppingConfiguration-EUTRA		PRSFrequencyHoppingConfiguration-EUTRA,
-	oTDOACell-Information-Item-Extension		ProtocolIE-Single-Container {{ OTDOACell-Information-Item-ExtensionIE }}
+	choice-Extension		ProtocolIE-Single-Container {{ OTDOACell-Information-Item-ExtensionIE }}
 }
 
 OTDOACell-Information-Item-ExtensionIE NRPPA-PROTOCOL-IES ::= {
@@ -786,7 +1047,7 @@ OTDOA-Information-Item ::= ENUMERATED {
 		tpid,
 		tpType,
 		crsCPlength,
-		dlBandwidth, 
+		dlBandwidth,
 		multipleprsConfigurationsperCell,
 		prsOccasionGroup,
 		prsFrequencyHoppingConfiguration,
@@ -822,7 +1083,7 @@ OtherRATMeasurementResult ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF OtherRATMeasure
 OtherRATMeasuredResultsValue ::= CHOICE {
 	resultGERAN									ResultGERAN,
 	resultUTRAN									ResultUTRAN,
-	otherRATMeasuredResultsValue-Extension		ProtocolIE-Single-Container {{ OtherRATMeasuredResultsValue-ExtensionIE }}
+	choice-Extension		ProtocolIE-Single-Container {{ OtherRATMeasuredResultsValue-ExtensionIE }}
 }
 
 
@@ -848,10 +1109,10 @@ PathlossReferenceInformation ::= SEQUENCE {
 
 PathlossReferenceInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 
-PathlossReferenceSignal ::= CHOICE { 
+PathlossReferenceSignal ::= CHOICE {
 	sSB-Reference					SSB,
 	dL-PRS-Reference				DL-PRS,
 	choice-Extension				ProtocolIE-Single-Container {{ PathlossReferenceSignal-ExtensionIE }}
@@ -901,46 +1162,51 @@ PosSIB-Segments-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 }
 
 PosSIB-Type ::= ENUMERATED {
-	posSibType1-1, 
-	posSibType1-2, 
-	posSibType1-3, 
-	posSibType1-4, 
+	posSibType1-1,
+	posSibType1-2,
+	posSibType1-3,
+	posSibType1-4,
 	posSibType1-5,
-	posSibType1-6, 
+	posSibType1-6,
 	posSibType1-7,
-	posSibType1-8, 
-	posSibType2-1, 
-	posSibType2-2, 
+	posSibType1-8,
+	posSibType2-1,
+	posSibType2-2,
 	posSibType2-3,
-	posSibType2-4, 
-	posSibType2-5, 
-	posSibType2-6, 
-	posSibType2-7, 
+	posSibType2-4,
+	posSibType2-5,
+	posSibType2-6,
+	posSibType2-7,
 	posSibType2-8,
-	posSibType2-9, 
-	posSibType2-10, 
-	posSibType2-11, 
-	posSibType2-12, 
-	posSibType2-13, 
-	posSibType2-14, 
-	posSibType2-15, 
+	posSibType2-9,
+	posSibType2-10,
+	posSibType2-11,
+	posSibType2-12,
+	posSibType2-13,
+	posSibType2-14,
+	posSibType2-15,
 	posSibType2-16,
-	posSibType2-17, 
-	posSibType2-18, 
-	posSibType2-19, 
-	posSibType2-20, 
-	posSibType2-21, 
-	posSibType2-22, 
+	posSibType2-17,
+	posSibType2-18,
+	posSibType2-19,
+	posSibType2-20,
+	posSibType2-21,
+	posSibType2-22,
 	posSibType2-23,
 	posSibType2-24,
-	posSibType2-25, 
-	posSibType3-1, 
+	posSibType2-25,
+	posSibType3-1,
 	posSibType4-1,
 	posSibType5-1,
-	posSibType6-1,  
+	posSibType6-1,
 	posSibType6-2,
-	posSibType6-3,  
-	...
+	posSibType6-3,
+	...,
+	posSibType1-9,
+	posSibType1-10,
+	posSibType6-4,
+	posSibType6-5,
+	posSibType6-6
 }
 
 PosSRSResource-List ::= SEQUENCE (SIZE (1..maxnoSRS-PosResources)) OF PosSRSResource-Item
@@ -965,14 +1231,16 @@ PosSRSResource-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 }
 
 
+PosSRSResourceID-List ::= SEQUENCE (SIZE (1..maxnoSRS-PosResources)) OF SRSPosResourceID
+
 PosSRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoSRS-PosResourceSets)) OF PosSRSResourceSet-Item
 
-PosSRSResourceID-List ::= SEQUENCE (SIZE (1..maxnoSRS-PosResourcePerSet)) OF SRSPosResourceID
- 
+PosSRSResourceIDPerSet-List ::= SEQUENCE (SIZE (1..maxnoSRS-PosResourcePerSet)) OF SRSPosResourceID
+
 
 PosSRSResourceSet-Item ::= SEQUENCE {
 	possrsResourceSetID				INTEGER(0..15),
-	possRSResourceID-List			PosSRSResourceID-List,
+	possRSResourceIDPerSet-List		PosSRSResourceIDPerSet-List,
 	posresourceSetType				PosResourceSetType,
 	iE-Extensions		ProtocolExtensionContainer { { PosSRSResourceSet-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1023,6 +1291,8 @@ PosResourceSetTypeAperiodic-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+PreconfigurationResult ::= BIT STRING (SIZE(8))
+
 PRS-Bandwidth-EUTRA ::= ENUMERATED {
 		bw6,
 		bw15,
@@ -1044,11 +1314,12 @@ PRSAngleItem  ::= SEQUENCE {
 }
 
 PRSAngleItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-PRS-Resource-ID		CRITICALITY ignore EXTENSION PRS-Resource-ID		PRESENCE optional },
 	...
 }
 
 PRSInformationPos  ::= SEQUENCE {
-	pRS-IDPos					INTEGER(0..255),	
+	pRS-IDPos					INTEGER(0..255),
 	pRS-Resource-Set-IDPos		INTEGER(0..7),
 	pRS-Resource-IDPos			INTEGER(0..63)	OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { PRSInformationPos-ExtIEs} } OPTIONAL,
@@ -1059,8 +1330,10 @@ PRSInformationPos-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+PRSConfigRequestType ::= ENUMERATED {configure, off, ...}
+
 PRSConfiguration ::= SEQUENCE {
-	pRSResourceSet-List				PRSResourceSet-List,	
+	pRSResourceSet-List				PRSResourceSet-List,
 	iE-Extensions					ProtocolExtensionContainer { { PRSConfiguration-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1085,7 +1358,7 @@ PRSMutingConfiguration-EUTRA ::= CHOICE {
 	two-hundred-and-fifty-six							BIT STRING (SIZE (256)),
 	five-hundred-and-twelve								BIT STRING (SIZE (512)),
 	one-thousand-and-twenty-four						BIT STRING (SIZE (1024)),
-	pRSMutingConfiguration-EUTRA-Extension			ProtocolIE-Single-Container {{ PRSMutingConfiguration-EUTRA-ExtensionIE }}
+	choice-Extension			ProtocolIE-Single-Container {{ PRSMutingConfiguration-EUTRA-ExtensionIE }}
 }
 
 PRSMutingConfiguration-EUTRA-ExtensionIE NRPPA-PROTOCOL-IES ::= {
@@ -1114,9 +1387,25 @@ PRSFrequencyHoppingConfiguration-EUTRA-Item-IEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+PRS-Measurements-Info-List ::= SEQUENCE (SIZE(1..maxFreqLayers)) OF PRS-Measurements-Info-List-Item
+
+PRS-Measurements-Info-List-Item ::= SEQUENCE {
+	pointA						INTEGER (0..3279165),
+	measPRSPeriodicity			ENUMERATED {ms20, ms40, ms80, ms160, ...},
+	measPRSOffset				INTEGER (0..159, ...),
+	measurementPRSLength		ENUMERATED {ms1dot5, ms3, ms3dot5, ms4, ms5dot5, ms6, ms10, ms20},
+	iE-Extensions	ProtocolExtensionContainer { { PRS-Measurements-Info-List-Item-ExtIEs} } OPTIONAL,
+		...
+}
+
+PRS-Measurements-Info-List-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 PRSMuting::= SEQUENCE {
-	pRSMutingOption1			PRSMutingOption1,
-	pRSMutingOption2			PRSMutingOption2,
+	pRSMutingOption1			PRSMutingOption1		OPTIONAL,
+	pRSMutingOption2			PRSMutingOption2		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { PRSMuting-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1162,7 +1451,7 @@ PRSResource-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 
 PRSResource-QCLInfo  ::= CHOICE {
 	qCLSourceSSB		PRSResource-QCLSourceSSB,
-	qCLSourcePRS		PRSResource-QCLSourcePRS,		
+	qCLSourcePRS		PRSResource-QCLSourcePRS,
 	choice-Extension		ProtocolIE-Single-Container {{ PRSResource-QCLInfo-ExtIEs }}
 }
 
@@ -1172,7 +1461,7 @@ PRSResource-QCLInfo-ExtIEs NRPPA-PROTOCOL-IES ::= {
 
 PRSResource-QCLSourceSSB ::= SEQUENCE {
 	pCI-NR				INTEGER(0..1007),
-	sSB-Index 			SSB-Index	 OPTIONAL,		
+	sSB-Index 			SSB-Index	 OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { PRSResource-QCLSourceSSB-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1183,7 +1472,7 @@ PRSResource-QCLSourceSSB-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 
 PRSResource-QCLSourcePRS ::= SEQUENCE {
 	qCLSourcePRSResourceSetID		PRS-Resource-Set-ID,
-	qCLSourcePRSResourceID 			PRS-Resource-ID OPTIONAL,		
+	qCLSourcePRSResourceID 			PRS-Resource-ID OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { PRSResource-QCLSourcePRS-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1210,7 +1499,7 @@ PRSResourceSet-Item ::= SEQUENCE {
 	resourceNumberofSymbols			ENUMERATED{n2,n4,n6,n12,...},
 	pRSMuting						PRSMuting 		OPTIONAL,
 	pRSResourceTransmitPower		INTEGER(-60..50),
-	pRSResource-List				PRSResource-List,	
+	pRSResource-List				PRSResource-List,
 	iE-Extensions					ProtocolExtensionContainer { { PRSResourceSet-Item-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1225,12 +1514,99 @@ PRS-Resource-Set-ID ::= INTEGER(0..7)
 
 PRS-ID ::= INTEGER(0..255)
 
+PRSTransmissionOffIndication ::= CHOICE {
+	pRSTransmissionOffPerTRP				NULL,
+	pRSTransmissionOffPerResourceSet		PRSTransmissionOffPerResourceSet,
+	pRSTransmissionOffPerResource			PRSTransmissionOffPerResource,
+	choice-Extension		ProtocolIE-Single-Container {{ PRSTransmissionOffIndication-ExtIEs }}
+}
+
+PRSTransmissionOffIndication-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+PRSTransmissionOffPerResource ::= SEQUENCE (SIZE (1..maxnoofPRSresourceSet)) OF PRSTransmissionOffPerResource-Item
+
+PRSTransmissionOffPerResource-Item  ::= SEQUENCE {
+	pRSResourceSetID								PRS-Resource-Set-ID,
+	pRSTransmissionOffIndicationPerResourceList		SEQUENCE (SIZE(1.. maxnoofPRSresource)) OF PRSTransmissionOffIndicationPerResource-Item,
+	iE-Extensions		ProtocolExtensionContainer { { PRSTransmissionOffPerResource-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+PRSTransmissionOffPerResource-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PRSTransmissionOffIndicationPerResource-Item  ::= SEQUENCE {
+	pRSResourceID		PRS-Resource-ID,
+	iE-Extensions		ProtocolExtensionContainer { { PRSTransmissionOffIndicationPerResource-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+PRSTransmissionOffIndicationPerResource-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PRSTransmissionOffInformation ::= SEQUENCE {
+	pRSTransmissionOffIndication	PRSTransmissionOffIndication,
+	iE-Extensions					ProtocolExtensionContainer { { PRSTransmissionOffInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+PRSTransmissionOffInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PRSTransmissionOffPerResourceSet ::= SEQUENCE (SIZE (1..maxnoofPRSresourceSet)) OF PRSTransmissionOffPerResourceSet-Item
+
+PRSTransmissionOffPerResourceSet-Item  ::= SEQUENCE {
+	pRSResourceSetID		PRS-Resource-Set-ID,
+	iE-Extensions			ProtocolExtensionContainer { { PRSTransmissionOffPerResourceSet-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+PRSTransmissionOffPerResourceSet-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PRSTRPList ::= SEQUENCE (SIZE(1.. maxnoTRPs)) OF PRSTRPItem
+
+PRSTRPItem ::= SEQUENCE {
+		tRP-ID		TRP-ID,
+		requestedDLPRSTransmissionCharacteristics	RequestedDLPRSTransmissionCharacteristics	OPTIONAL,
+-- The IE shall be present if the PRS Configuration Request Type IE is set to “configure” --
+		pRSTransmissionOffInformation				PRSTransmissionOffInformation				OPTIONAL,
+-- The IE shall be present if the PRS Configuration Request Type IE is set to “off” --
+		iE-Extensions	ProtocolExtensionContainer { { PRSTRPItem-ExtIEs} } OPTIONAL,
+		...
+}
+
+PRSTRPItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+PRSTransmissionTRPList ::= SEQUENCE (SIZE(1.. maxnoTRPs)) OF PRSTransmissionTRPItem
+
+PRSTransmissionTRPItem ::= SEQUENCE {
+		tRP-ID				TRP-ID,
+		pRSConfiguration	PRSConfiguration,
+	iE-Extensions	ProtocolExtensionContainer { { PRSTransmissionTRPItem-ExtIEs} } OPTIONAL,
+		...
+}
+
+PRSTransmissionTRPItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 -- Q
 
 -- R
 
-ReferenceSignal ::= CHOICE { 
+ReferenceSignal ::= CHOICE {
 	nZP-CSI-RS								NZP-CSI-RS-ResourceID,
 	sSB										SSB,
 	sRS										SRSResourceID,
@@ -1255,8 +1631,8 @@ ReferencePoint-ExtIEs NRPPA-PROTOCOL-IES ::= {
 }
 
 CoordinateID ::= INTEGER (0..511, ...)
-RelativeGeodeticLocation ::= SEQUENCE { 
-	milli-Arc-SecondUnits		ENUMERATED {zerodot03, zerodot3, three, ...},	heightUnits					ENUMERATED {mm, cm, m, ...}, 
+RelativeGeodeticLocation ::= SEQUENCE {
+	milli-Arc-SecondUnits		ENUMERATED {zerodot03, zerodot3, three, ...},	heightUnits					ENUMERATED {mm, cm, m, ...},
 	deltaLatitude				INTEGER (-1024.. 1023),
 	deltaLongitude				INTEGER (-1024.. 1023),
 	deltaHeight					INTEGER (-1024.. 1023),
@@ -1304,6 +1680,49 @@ ReportCharacteristics ::= ENUMERATED {
 	...
 }
 
+RequestedDLPRSTransmissionCharacteristics ::= SEQUENCE {
+	requestedDLPRSResourceSet-List		RequestedDLPRSResourceSet-List,
+	numberofFrequencyLayers				INTEGER(1..4)			OPTIONAL,
+	startTimeAndDuration				StartTimeAndDuration	OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { RequestedDLPRSTransmissionCharacteristics-ExtIEs} } OPTIONAL,
+	...
+}
+
+RequestedDLPRSTransmissionCharacteristics-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RequestedDLPRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoofPRSresourceSet)) OF RequestedDLPRSResourceSet-Item
+
+RequestedDLPRSResourceSet-Item ::= SEQUENCE {
+	pRSbandwidth					INTEGER(1..63)	OPTIONAL,
+	combSize						ENUMERATED{n2, n4, n6, n12, ...}	OPTIONAL,
+	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,...}	OPTIONAL,
+	resourceRepetitionFactor		ENUMERATED{rf1,rf2,rf4,rf6,rf8,rf16,rf32,...}		OPTIONAL,
+	resourceNumberofSymbols			ENUMERATED{n2,n4,n6,n12,...}						OPTIONAL,
+	requestedDLPRSResource-List		RequestedDLPRSResource-List			OPTIONAL,
+	resourceSetStartTimeAndDuration	StartTimeAndDuration			OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { RequestedDLPRSResourceSet-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+RequestedDLPRSResourceSet-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RequestedDLPRSResource-List::= SEQUENCE (SIZE (1..maxnoofPRSresource)) OF RequestedDLPRSResource-Item
+
+RequestedDLPRSResource-Item  ::= SEQUENCE {
+	qCLInfo					PRSResource-QCLInfo		OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { RequestedDLPRSResource-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+RequestedDLPRSResource-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 RequestedSRSTransmissionCharacteristics ::= SEQUENCE {
 	numberOfTransmissions	INTEGER (0..500,...)							OPTIONAL,
 -- The IE shall be present if the Resource Type IE is set to “periodic” --
@@ -1321,7 +1740,7 @@ RequestedSRSTransmissionCharacteristics-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 }
 
 
-SRSResourceSet-Item ::= SEQUENCE { 
+SRSResourceSet-Item ::= SEQUENCE {
 	numberOfSRSResourcePerSet		INTEGER (1..16, ...)			OPTIONAL,
 	periodicityList					PeriodicityList					OPTIONAL,
 	spatialRelationInformation		SpatialRelationInfo		OPTIONAL,
@@ -1334,6 +1753,8 @@ SRSResourceSet-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	{ ID id-SRSSpatialRelationPerSRSResource	CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource PRESENCE optional},
 	...
 }
+
+RequestType ::= ENUMERATED {activate, deactivate, ...}
 
 ResourceSetType  ::= CHOICE {
 	periodic			ResourceSetTypePeriodic,
@@ -1388,7 +1809,7 @@ ResourceType ::= CHOICE {
 ResourceType-ExtIEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
- 
+
 ResourceTypePeriodic ::= SEQUENCE {
 	periodicity		 		  ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, ...},
 	offset					INTEGER(0..2559, ...),
@@ -1434,7 +1855,7 @@ ResourceTypePos-ExtIEs NRPPA-PROTOCOL-IES ::= {
 }
 
 ResourceTypePeriodicPos ::= SEQUENCE {
-periodicity		   ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ...},
+periodicity		   ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ..., slot128, slot256, slot512, slot20480},
 offset				INTEGER(0..81919, ...),
 	iE-Extensions		ProtocolExtensionContainer { { ResourceTypePeriodicPos-ExtIEs} }	OPTIONAL,
 	...
@@ -1445,7 +1866,7 @@ ResourceTypePeriodicPos-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 }
 
 ResourceTypeSemi-persistentPos ::= SEQUENCE {
-periodicity		   ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ...},
+periodicity		   ENUMERATED{slot1, slot2, slot4, slot5, slot8, slot10, slot16, slot20, slot32, slot40, slot64, slot80, slot160, slot320, slot640, slot1280, slot2560, slot5120, slot10240, slot40960, slot81920, ..., slot128, slot256, slot512, slot20480},
 offset				INTEGER(0..81919, ...),
 	iE-Extensions		ProtocolExtensionContainer { { ResourceTypeSemi-persistentPos-ExtIEs} }	OPTIONAL,
 	...
@@ -1464,6 +1885,18 @@ slotOffset          INTEGER (0..32),
 ResourceTypeAperiodicPos-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+ResponseTime ::= SEQUENCE {
+	time          INTEGER (1..128,...),
+	timeUnit	  ENUMERATED {second, ten-seconds, ten-milliseconds,...},
+	iE-Extensions		ProtocolExtensionContainer { { ResponseTime-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ResponseTime-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 ResultCSI-RSRP ::= SEQUENCE (SIZE (1.. maxCellReportNR)) OF ResultCSI-RSRP-Item
 
@@ -1684,6 +2117,8 @@ ResultUTRAN-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 
 RSSI ::= INTEGER (0..63, ...)
 
+RxTxTimingErrorMargin ::= ENUMERATED {tc0dot5, tc1, tc2, tc4, tc8, tc12, tc16, tc20, tc24, tc32, tc40, tc48, tc64, tc80, tc96, tc128, ...}
+
 -- S
 
 SCS-SpecificCarrier ::= SEQUENCE {
@@ -1696,7 +2131,7 @@ iE-Extensions					ProtocolExtensionContainer { { SCS-SpecificCarrier-ExtIEs } } 
 
 SCS-SpecificCarrier-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 
 Search-window-information ::= SEQUENCE {
@@ -1726,7 +2161,7 @@ SpatialDirectionInformation ::= SEQUENCE {
 
 SpatialDirectionInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 
 SpatialRelationInfo ::= SEQUENCE {
@@ -1784,7 +2219,7 @@ SpatialRelationPos ::= CHOICE {
 SpatialInformationPos-ExtIEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
- 
+
 
 
 SRSConfig  ::= SEQUENCE {
@@ -1824,27 +2259,29 @@ SRSConfiguration ::= SEQUENCE {
 
 SRSConfiguration-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 SrsFrequency ::= INTEGER (0..3279165)
+
+SRSPortIndex ::= ENUMERATED{id1000, id1001, id1002, id1003, ...}
 
 SRSPosResourceID ::= INTEGER (0..63)
 
 SRSResource::= SEQUENCE {
-	sRSResourceID                   SRSResourceID,
-	nrofSRS-Ports                   ENUMERATED {port1, ports2, ports4},
+	sRSResourceID					SRSResourceID,
+	nrofSRS-Ports					ENUMERATED {port1, ports2, ports4},
 	transmissionComb				TransmissionComb,
-	startPosition                   INTEGER (0..13),
-    nrofSymbols                     ENUMERATED {n1, n2, n4},
-    repetitionFactor              	ENUMERATED {n1, n2, n4},
-    freqDomainPosition              INTEGER (0..67),
-	freqDomainShift                 INTEGER (0..268),
-	c-SRS                           INTEGER (0..63),
-	b-SRS                           INTEGER (0..3),
-	b-hop                           INTEGER (0..3),
-	groupOrSequenceHopping          ENUMERATED { neither, groupHopping, sequenceHopping },
+	startPosition					INTEGER (0..13),
+	nrofSymbols						ENUMERATED {n1, n2, n4},
+	repetitionFactor				ENUMERATED {n1, n2, n4},
+	freqDomainPosition				INTEGER (0..67),
+	freqDomainShift					INTEGER (0..268),
+	c-SRS							INTEGER (0..63),
+	b-SRS							INTEGER (0..3),
+	b-hop							INTEGER (0..3),
+	groupOrSequenceHopping			ENUMERATED { neither, groupHopping, sequenceHopping },
 	resourceType					ResourceType,
-	sequenceId                      INTEGER (0..1023),
+	sequenceId						INTEGER (0..1023),
 	iE-Extensions					ProtocolExtensionContainer { { SRSResource-ExtIEs } } OPTIONAL,
 	...
 }
@@ -1857,7 +2294,7 @@ SRSResourceID ::= INTEGER (0..63)
 
 SRSResource-List ::= SEQUENCE (SIZE (1..maxnoSRS-Resources)) OF SRSResource
 
-SRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoSRS-ResourceSets)) OF SRSResourceSet 
+SRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoSRS-ResourceSets)) OF SRSResourceSet
 
 SRSResourceID-List::= SEQUENCE (SIZE (1..maxnoSRS-ResourcePerSet)) OF SRSResourceID
 
@@ -1885,6 +2322,32 @@ SRSResourceTrigger-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SRSResourcetype ::= SEQUENCE {
+	sRSResourceTypeChoice					SRSResourceTypeChoice,
+	iE-Extensions		ProtocolExtensionContainer { { SRSResourcetype-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SRSResourcetype-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-SRSPortIndex	CRITICALITY ignore EXTENSION SRSPortIndex	PRESENCE optional},
+	...
+}
+
+SRSResourceTypeChoice ::= CHOICE {
+	sRSResourceInfo			SRSInfo,
+	posSRSResourceInfo		PosSRSInfo,
+	...
+}
+
+SRSInfo ::= SEQUENCE {
+	sRSResource			SRSResourceID,
+	...
+}
+
+PosSRSInfo ::= SEQUENCE {
+	posSRSResourceID		SRSPosResourceID,
+	...
+}
 
 
 SSBInfo ::= SEQUENCE {
@@ -1940,6 +2403,17 @@ SSB-Index ::= INTEGER(0..63)
 
 SSID ::= OCTET STRING (SIZE(1..32))
 
+StartTimeAndDuration ::= SEQUENCE {
+	startTime			RelativeTime1900				OPTIONAL,
+	duration			INTEGER (0..90060, ...)			OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { StartTimeAndDuration-ExtIEs} }	OPTIONAL,
+	...
+}
+
+StartTimeAndDuration-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 SystemFrameNumber ::= INTEGER (0..1023)
 
 SystemInformation ::= SEQUENCE (SIZE (1.. maxNrOfPosSImessage)) OF SEQUENCE {
@@ -1968,10 +2442,43 @@ TDD-Config-EUTRA-Item-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+TRPTEGInformation ::= CHOICE {
+	rxTx-TEG			RxTxTEG,
+	rx-TEG				RxTEG,
+	choice-extension		ProtocolIE-Single-Container { { TRPTEGInformation-ExtIEs} }
+}
+
+TRPTEGInformation-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+RxTxTEG ::= SEQUENCE {
+	tRP-RxTx-TEGInformation			TRP-RxTx-TEGInformation,
+	tRP-Tx-TEGInformation			TRP-Tx-TEGInformation		OPTIONAL,
+	iE-extensions		ProtocolExtensionContainer { { RxTxTEG-ExtIEs } }	OPTIONAL,
+	...
+}
+
+RxTxTEG-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RxTEG ::= SEQUENCE {
+	tRP-Rx-TEGInformation		TRP-Rx-TEGInformation,
+	tRP-Tx-TEGInformation		TRP-Tx-TEGInformation,
+	iE-extensions      ProtocolExtensionContainer { { RxTEG-ExtIEs } }	OPTIONAL,
+	...
+}
+
+RxTEG-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TimingErrorMargin ::= ENUMERATED {tc0, tc2, tc4, tc6, tc8, tc12, tc16, tc20, tc24, tc32, tc40, tc48, tc56, tc64, tc72, tc80, ...}
 
 TF-Configuration ::= SEQUENCE {
 	sSB-frequency				INTEGER (0..3279165),
-	sSB-subcarrier-spacing		ENUMERATED {kHz15, kHz30, kHz120, kHz240, ...},
+	sSB-subcarrier-spacing		ENUMERATED {kHz15, kHz30, kHz120, kHz240, ..., kHz60},
 	sSB-Transmit-power			INTEGER (-60..50),
 	sSB-periodicity				ENUMERATED {ms5, ms10, ms20, ms40, ms80, ms160, ...},
 	sSB-half-frame-offset		INTEGER(0..1),
@@ -2052,6 +2559,77 @@ TransmissionCombPos-ExtIEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
 
+TRPBeamAntennaInformation ::= SEQUENCE {
+	choice-TRP-Beam-Antenna-Info-Item		Choice-TRP-Beam-Antenna-Info-Item,
+	iE-Extensions			ProtocolExtensionContainer {{ TRPBeamAntennaInformation-ExtIEs}}				OPTIONAL,
+	...
+}
+
+TRPBeamAntennaInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Choice-TRP-Beam-Antenna-Info-Item ::= CHOICE {
+	reference					TRP-ID,
+	explicit					TRP-BeamAntennaExplicitInformation,
+	noChange					NULL,
+	choice-extension				ProtocolIE-Single-Container { { Choice-TRP-Beam-Info-Item-ExtIEs } }
+}
+
+Choice-TRP-Beam-Info-Item-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+TRP-BeamAntennaExplicitInformation ::= SEQUENCE {
+	trp-BeamAntennaAngles					TRP-BeamAntennaAngles,
+	lcs-to-gcs-translation	 				LCS-to-GCS-Translation										OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer {{ TRP-BeamAntennaExplicitInformation-ExtIEs}}				OPTIONAL,
+	...
+}
+
+TRP-BeamAntennaExplicitInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-BeamAntennaAngles ::= SEQUENCE (SIZE (1.. maxnoAzimuthAngles)) OF TRP-BeamAntennaAnglesList-Item
+
+TRP-BeamAntennaAnglesList-Item ::= SEQUENCE {
+	trp-azimuth-angle					INTEGER (0..359),
+	trp-azimuth-angle-fine				INTEGER (0..9)	OPTIONAL,
+	trp-elevation-angle-list			SEQUENCE (SIZE (1.. maxnoElevationAngles)) OF TRP-ElevationAngleList-Item,
+	iE-Extensions			ProtocolExtensionContainer {{ TRP-BeamAntennaAnglesList-Item-ExtIEs}}			OPTIONAL,
+	...
+}
+
+TRP-BeamAntennaAnglesList-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-ElevationAngleList-Item ::= SEQUENCE {
+	trp-elevation-angle					INTEGER (0..180),
+	trp-elevation-angle-fine			INTEGER (0..9)	OPTIONAL,
+	trp-beam-power-list					SEQUENCE (SIZE (2..maxNumResourcesPerAngle)) OF TRP-Beam-Power-Item,
+	iE-Extensions			ProtocolExtensionContainer {{ TRP-ElevationAngleList-Item-ExtIEs}}			OPTIONAL,
+	...
+}
+
+TRP-ElevationAngleList-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-Beam-Power-Item ::= SEQUENCE {
+	pRSResourceSetID				PRS-Resource-Set-ID		OPTIONAL,
+	pRSResourceID					PRS-Resource-ID,
+	relativePower				INTEGER (0..30), --negative value
+	relativePowerFine				INTEGER (0..9)			OPTIONAL, --negative value
+	iE-Extensions			ProtocolExtensionContainer {{ TRP-Beam-Power-Item-ExtIEs}}					OPTIONAL,
+	...
+}
+
+TRP-Beam-Power-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 TRPMeasurementQuantities ::= SEQUENCE (SIZE (1..maxnoPosMeas)) OF TRPMeasurementQuantitiesList-Item
 
 TRPMeasurementQuantitiesList-Item ::= SEQUENCE {
@@ -2066,11 +2644,13 @@ TRPMeasurementQuantitiesList-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 }
 
 TRPMeasurementQuantities-Item ::= ENUMERATED {
-	gNB-RxTxTimeDiff, 
-	uL-SRS-RSRP, 
-	uL-AoA, 
-	uL-RTOA, 
-	...
+	gNB-RxTxTimeDiff,
+	uL-SRS-RSRP,
+	uL-AoA,
+	uL-RTOA,
+	...,
+	multiple-UL-AoA,
+	uL-SRS-RSRPP
 }
 
 TrpMeasurementResult ::= SEQUENCE (SIZE (1.. maxnoPosMeas)) OF TrpMeasurementResultItem
@@ -2084,6 +2664,9 @@ TrpMeasurementResultItem ::= SEQUENCE {
 }
 
 TrpMeasurementResultItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-SRSResourcetype	CRITICALITY ignore EXTENSION SRSResourcetype PRESENCE optional}|
+	{ ID id-ARP-ID		CRITICALITY ignore EXTENSION ARP-ID 	PRESENCE optional}|
+	{ ID id-LoS-NLoSInformation		CRITICALITY ignore EXTENSION LoS-NLoSInformation		PRESENCE optional },
 	...
 }
 
@@ -2096,6 +2679,9 @@ TrpMeasuredResultsValue ::= CHOICE {
 }
 
 TrpMeasuredResultsValue-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-ZoA		CRITICALITY reject TYPE ZoA PRESENCE mandatory}|
+	{ ID id-MultipleULAoA	CRITICALITY reject TYPE MultipleULAoA PRESENCE mandatory}|
+	{ ID id-UL-SRS-RSRPP	CRITICALITY reject TYPE UL-SRS-RSRPP PRESENCE mandatory},
 	...
 }
 
@@ -2136,21 +2722,24 @@ TrpMeasurementAngleQuality-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 TRP-MeasurementRequestList ::= SEQUENCE (SIZE (1..maxNoOfMeasTRPs)) OF TRP-MeasurementRequestItem
 
 TRP-MeasurementRequestItem ::= SEQUENCE {
-	tRP-ID							TRP-ID, 
-	search-window-information		Search-window-information	OPTIONAL, 
+	tRP-ID							TRP-ID,
+	search-window-information		Search-window-information	OPTIONAL,
 	iE-extensions					ProtocolExtensionContainer { { TRP-MeasurementRequestItem-ExtIEs } } OPTIONAL,
 	...
 }
 
 TRP-MeasurementRequestItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
-	{ ID id-Cell-ID		CRITICALITY ignore EXTENSION CGI-NR		PRESENCE optional },
+	{ ID id-Cell-ID		CRITICALITY ignore EXTENSION CGI-NR		PRESENCE optional }|
+	{ ID id-AoA-SearchWindow		CRITICALITY ignore EXTENSION AoA-AssistanceInfo		PRESENCE optional }|
+	{ ID id-NumberOfTRPRxTEG		CRITICALITY ignore EXTENSION NumberOfTRPRxTEG		PRESENCE optional }|
+	{ ID id-NumberOfTRPRxTxTEG		CRITICALITY ignore EXTENSION NumberOfTRPRxTxTEG		PRESENCE optional },
 	...
 }
 
 TRP-MeasurementResponseList ::= SEQUENCE (SIZE (1..maxNoOfMeasTRPs)) OF TRP-MeasurementResponseItem
 
 TRP-MeasurementResponseItem ::= SEQUENCE {
-	tRP-ID							TRP-ID, 
+	tRP-ID							TRP-ID,
 	measurementResult				TrpMeasurementResult,
 	iE-extensions					ProtocolExtensionContainer { { TRP-MeasurementResponseItem-ExtIEs } } OPTIONAL,
 	...
@@ -2160,6 +2749,23 @@ TRP-MeasurementResponseItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	{ ID id-Cell-ID		CRITICALITY ignore EXTENSION CGI-NR		PRESENCE optional },
 	...
 }
+
+
+TRP-MeasurementUpdateList ::= SEQUENCE (SIZE (1..maxNoOfMeasTRPs)) OF TRP-MeasurementUpdateItem
+
+TRP-MeasurementUpdateItem ::= SEQUENCE {
+	tRP-ID						TRP-ID,
+	aoA-window-information		AoA-AssistanceInfo	OPTIONAL,
+	iE-extensions					ProtocolExtensionContainer { { TRP-MeasurementUpdateItem-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-MeasurementUpdateItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-NumberOfTRPRxTEG		CRITICALITY ignore EXTENSION NumberOfTRPRxTEG		PRESENCE optional }|
+	{ ID id-NumberOfTRPRxTxTEG		CRITICALITY ignore EXTENSION NumberOfTRPRxTxTEG		PRESENCE optional },
+	...
+}
+
 
 TRPInformationListTRPResp ::= SEQUENCE (SIZE (1.. maxnoTRPs)) OF SEQUENCE {
 	tRPInformation					TRPInformation,
@@ -2187,7 +2793,7 @@ TRPInformationTypeResponseList ::= SEQUENCE (SIZE (1..maxnoTRPInfoTypes)) OF TRP
 TRPInformationTypeResponseItem ::= CHOICE {
 	pCI-NR										INTEGER  (0..1007),
 	cGI-NR									CGI-NR,
-	aRFCN										INTEGER (0..3279165), 
+	aRFCN										INTEGER (0..3279165),
 	pRSConfiguration							PRSConfiguration,
 	sSBinformation								SSBInfo,
 	sFNInitialisationTime						RelativeTime1900,
@@ -2197,7 +2803,10 @@ TRPInformationTypeResponseItem ::= CHOICE {
 }
 
 TRPInformationTypeResponseItem-ExtIEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-TRPType		CRITICALITY reject TYPE TRPType		PRESENCE mandatory },
+	{ ID id-TRPType						CRITICALITY reject TYPE TRPType					PRESENCE mandatory }|
+	{ ID id-OnDemandPRS				CRITICALITY reject TYPE OnDemandPRS-Info		PRESENCE mandatory}|
+	{ ID id-TRPTxTEGAssociation			CRITICALITY reject TYPE TRPTxTEGAssociation		PRESENCE mandatory}|
+	{ ID id-TRPBeamAntennaInformation	CRITICALITY reject TYPE TRPBeamAntennaInformation	PRESENCE mandatory },
 	...
 
 }
@@ -2213,7 +2822,7 @@ TRPInformationTypeItemTRPReq NRPPA-PROTOCOL-IES ::= {
 TRPInformationTypeItem ::= ENUMERATED {
 		nrPCI,
 		nG-RAN-CGI,
-		arfcn, 
+		arfcn,
 		pRSConfig,
 		sSBInfo,
 		sFNInitTime,
@@ -2221,7 +2830,10 @@ TRPInformationTypeItem ::= ENUMERATED {
 		geoCoord,
 
 		...,
-		trp-type
+		trp-type,
+		ondemandPRSInfo,
+		trpTxTeg,
+		beam-antenna-info
 }
 
 TRPList ::= SEQUENCE (SIZE(1.. maxnoTRPs)) OF TRPItem
@@ -2282,6 +2894,21 @@ TRPPositionReferenced-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+TRP-PRS-Information-List ::= SEQUENCE (SIZE(1.. maxnoPRSTRPs)) OF TRP-PRS-Information-List-Item
+
+TRP-PRS-Information-List-Item ::= SEQUENCE {
+		tRP-ID				TRP-ID,
+		nR-PCI				NR-PCI,
+		cGI-NR				CGI-NR					OPTIONAL,
+		pRSConfiguration							PRSConfiguration,
+		iE-Extensions	ProtocolExtensionContainer { { TRP-PRS-Information-List-Item-ExtIEs} } OPTIONAL,
+		...
+}
+
+TRP-PRS-Information-List-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 TRPReferencePointType ::= CHOICE {
 	tRPPositionRelativeGeodetic			RelativeGeodeticLocation,
 	tRPPositionRelativeCartesian		RelativeCartesianLocation,
@@ -2291,6 +2918,64 @@ TRPReferencePointType ::= CHOICE {
 TRPReferencePointType-ExtIEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
+
+TRP-Rx-TEGInformation ::= SEQUENCE {
+	tRP-Rx-TEGID					INTEGER (0..31),
+	tRP-Rx-TimingErrorMargin		TimingErrorMargin,
+	iE-Extensions		ProtocolExtensionContainer { { TRP-Rx-TEGInformation-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-Rx-TEGInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-RxTx-TEGInformation ::= SEQUENCE {
+	tRP-RxTx-TEGID					INTEGER (0..255),
+	tRP-RxTx-TimingErrorMargin		RxTxTimingErrorMargin,
+	iE-Extensions		ProtocolExtensionContainer { { TRP-RxTx-TEGInformation-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-RxTx-TEGInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRP-Tx-TEGInformation ::= SEQUENCE {
+	tRP-Tx-TEGID					INTEGER (0..7),
+	tRP-Tx-TimingErrorMargin		TimingErrorMargin,
+	iE-Extensions		ProtocolExtensionContainer { { TRP-Tx-TEGInformation-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRP-Tx-TEGInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRPTxTEGAssociation ::= SEQUENCE (SIZE(1.. maxnoTRPTEGs)) OF TRPTEGItem
+
+TRPTEGItem ::= SEQUENCE {
+		tRP-Tx-TEGInformation	TRP-Tx-TEGInformation,
+		dl-PRSResourceSetID		PRS-Resource-Set-ID,
+		dl-PRSResourceID-List	SEQUENCE (SIZE(1.. maxPRS-ResourcesPerSet)) OF DLPRSResourceID-Item	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { TRPTEGItem-ExtIEs } } OPTIONAL,
+	...
+}
+
+TRPTEGItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DLPRSResourceID-Item ::= SEQUENCE {
+	dl-PRSResourceID		PRS-Resource-ID,
+	iE-Extensions			ProtocolExtensionContainer { { DLPRSResource-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+DLPRSResource-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 TRPType ::= ENUMERATED {
 	prsOnlyTP,
@@ -2314,6 +2999,57 @@ UARFCN ::= INTEGER (0..16383, ...)
 
 UE-Measurement-ID ::= INTEGER (1..15, ..., 16..256)
 
+UEReportingInformation::= SEQUENCE {
+	reportingAmount				ENUMERATED {ma0, ma1, ma2, ma4, ma8, ma16, ma32, ma64},
+	reportingInterval			ENUMERATED {none, one, two, four, eight, ten, sixteen, twenty, thirty-two, sixty-four, ...},
+	iE-extensions			ProtocolExtensionContainer { { UEReportingInformation-ExtIEs } }	OPTIONAL,
+	...
+}
+
+UEReportingInformation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UE-TEG-ReportingPeriodicity ::= ENUMERATED {
+	ms160,
+	ms320,
+	ms1280,
+	ms2560,
+	ms61440,
+	ms81920,
+	ms368640,
+	ms737280,
+	...
+}
+
+UETxTEGAssociationList ::= SEQUENCE (SIZE(1.. maxnoUETEGs)) OF UETxTEGAssociationItem
+
+UETxTEGAssociationItem ::= SEQUENCE {
+		uE-Tx-TEG-ID				INTEGER (0..7),
+		posSRSResourceID-List		PosSRSResourceID-List,
+		timeStamp					TimeStamp,
+		carrierFreq					CarrierFreq				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { UETxTEGAssociationItem-ExtIEs } } OPTIONAL,
+	...
+}
+
+UETxTEGAssociationItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-UETxTimingErrorMargin			CRITICALITY ignore EXTENSION TimingErrorMargin 	PRESENCE optional },
+	...
+}
+
+SRSResourceID-Item ::= SEQUENCE {
+	sRSResourceID                   SRSResourceID,
+	iE-Extensions			ProtocolExtensionContainer { { SRSResourceID-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SRSResourceID-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UE-TEG-Info-Request ::= ENUMERATED {onDemand, periodic, stop, ...}
+
 UTRA-EcN0 ::= INTEGER (0..49, ...)
 
 UTRA-RSCP ::= INTEGER (-5..91, ...)
@@ -2322,7 +3058,7 @@ UTRA-RSCP ::= INTEGER (-5..91, ...)
 UL-AoA ::= SEQUENCE {
 	azimuthAoA					INTEGER (0..3599),
 	zenithAoA					INTEGER (0..1799)				OPTIONAL,
-	lCS-to-GCS-TranslationAoA	LCS-to-GCS-TranslationAoA		OPTIONAL,
+	lCS-to-GCS-Translation	LCS-to-GCS-Translation		OPTIONAL,
 	iE-extensions			ProtocolExtensionContainer { { UL-AoA-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -2334,11 +3070,13 @@ UL-AoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 
 UL-RTOAMeasurement ::= SEQUENCE {
 		uLRTOAmeas			ULRTOAMeas,
-		additionalPathList	AdditionalPathList	OPTIONAL, 
+		additionalPathList	AdditionalPathList	OPTIONAL,
 	iE-extensions			ProtocolExtensionContainer { { UL-RTOAMeasurement-ExtIEs } }	OPTIONAL,	...
 }
 
 UL-RTOAMeasurement-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-ExtendedAdditionalPathList	CRITICALITY ignore EXTENSION ExtendedAdditionalPathList	PRESENCE optional}|
+	{ ID id-TRP-Rx-TEGInformation		CRITICALITY ignore EXTENSION TRP-Rx-TEGInformation		PRESENCE optional},
 	...
 }
 
@@ -2348,7 +3086,7 @@ ULRTOAMeas::= CHOICE {
 	k2		INTEGER (0.. 492513),
 	k3		INTEGER (0.. 246257),
 	k4		INTEGER (0.. 123129),
-	k5		INTEGER (0.. 61565),	
+	k5		INTEGER (0.. 61565),
 	choice-extension		ProtocolIE-Single-Container { { ULRTOAMeas-ExtIEs } }
 }
 ULRTOAMeas-ExtIEs NRPPA-PROTOCOL-IES ::= {
@@ -2357,7 +3095,22 @@ ULRTOAMeas-ExtIEs NRPPA-PROTOCOL-IES ::= {
 
 UL-SRS-RSRP ::= INTEGER (0..126)
 
+UL-SRS-RSRPP ::= SEQUENCE {
+	firstPathRSRPP				INTEGER (0..126),
+	iE-extensions			ProtocolExtensionContainer { { UL-SRS-RSRPP-ExtIEs } }	OPTIONAL,
+	...
+}
+
+UL-SRS-RSRPP-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 UplinkChannelBW-PerSCS-List ::= SEQUENCE (SIZE (1..maxnoSCSs)) OF SCS-SpecificCarrier
+
+
+Uncertainty-range-AoA ::= INTEGER (0..3599)
+
+Uncertainty-range-ZoA ::= INTEGER (0..1799)
 
 
 -- V
@@ -2435,5 +3188,17 @@ WLANOperatingClass ::= INTEGER (0..255)
 -- Y
 
 -- Z
+
+ZoA ::= SEQUENCE {
+	zenithAoA					INTEGER (0..1799),
+	lCS-to-GCS-Translation	LCS-to-GCS-Translation		OPTIONAL,
+	iE-extensions			ProtocolExtensionContainer { { ZoA-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ZoA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 END

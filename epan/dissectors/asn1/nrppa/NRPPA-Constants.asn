@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.6.0 (2021-12)
+-- 3GPP TS 38.455 V17.3.0 (2022-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 NRPPA-Constants {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) nrppa (4) version1 (1) nrppa-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -45,6 +45,9 @@ id-MeasurementFailureIndication									ProcedureCode ::= 15
 id-tRPInformationExchange										ProcedureCode ::= 16
 id-positioningActivation										ProcedureCode ::= 17
 id-positioningDeactivation										ProcedureCode ::= 18
+id-pRSConfigurationExchange										ProcedureCode ::= 19
+id-measurementPreconfiguration									ProcedureCode ::= 20
+id-measurementActivation										ProcedureCode ::= 21
 
 -- **************************************************************
 --
@@ -70,7 +73,7 @@ maxNoPath									INTEGER ::= 2
 maxNrOfPosSImessage							INTEGER ::= 32
 maxnoAssistInfoFailureListItems				INTEGER ::= 32
 maxNrOfSegments								INTEGER ::= 64
-maxNrOfPosSIBs								INTEGER ::= 32 
+maxNrOfPosSIBs								INTEGER ::= 32
 maxNoOfMeasTRPs								INTEGER ::= 64
 maxnoTRPs									INTEGER ::= 65535
 maxnoTRPInfoTypes							INTEGER ::= 64
@@ -93,6 +96,16 @@ maxPRS-ResourcesPerSet						INTEGER ::= 64
 maxNoSSBs									INTEGER ::= 255
 maxnoofPRSresourceSet						INTEGER ::= 8
 maxnoofPRSresource							INTEGER ::= 64
+maxnoofULAoAs								INTEGER ::= 8
+maxNoPathExtended							INTEGER ::= 8
+maxnoARPs									INTEGER ::=	16
+maxnoUETEGs									INTEGER ::= 256
+maxnoTRPTEGs								INTEGER ::= 8
+maxFreqLayers								INTEGER ::= 4
+maxNumResourcesPerAngle						INTEGER ::= 24
+maxnoAzimuthAngles							INTEGER ::= 3600
+maxnoElevationAngles						INTEGER ::= 1801
+maxnoPRSTRPs								INTEGER ::= 256
 
 
 
@@ -164,5 +177,49 @@ id-Cell-ID														ProtocolIE-ID ::= 60
 id-SrsFrequency													ProtocolIE-ID ::= 61
 id-TRPType														ProtocolIE-ID ::= 62
 id-SRSSpatialRelationPerSRSResource								ProtocolIE-ID ::= 63
+id-MeasurementPeriodicityExtended								ProtocolIE-ID ::= 64
+id-PRS-Resource-ID												ProtocolIE-ID ::= 65
+id-PRSTRPList													ProtocolIE-ID ::= 66
+id-PRSTransmissionTRPList										ProtocolIE-ID ::= 67
+id-OnDemandPRS												ProtocolIE-ID ::= 68
+id-AoA-SearchWindow												ProtocolIE-ID ::= 69
+id-TRP-MeasurementUpdateList									ProtocolIE-ID ::= 70
+id-ZoA															ProtocolIE-ID ::= 71
+id-ResponseTime													ProtocolIE-ID ::= 72
+id-UEReportingInformation										ProtocolIE-ID ::= 73
+id-MultipleULAoA												ProtocolIE-ID ::= 74
+id-UL-SRS-RSRPP													ProtocolIE-ID ::= 75
+id-SRSResourcetype												ProtocolIE-ID ::= 76
+id-ExtendedAdditionalPathList									ProtocolIE-ID ::= 77
+id-ARPLocationInfo												ProtocolIE-ID ::= 78
+id-ARP-ID														ProtocolIE-ID ::= 79
+id-LoS-NLoSInformation											ProtocolIE-ID ::= 80
+id-UETxTEGAssociationList										ProtocolIE-ID ::= 81
+id-NumberOfTRPRxTEG												ProtocolIE-ID ::= 82
+id-NumberOfTRPRxTxTEG											ProtocolIE-ID ::= 83
+id-TRPTxTEGAssociation											ProtocolIE-ID ::= 84
+id-TRPTEGInformation											ProtocolIE-ID ::= 85
+id-TRP-Rx-TEGInformation													ProtocolIE-ID ::= 86
+id-TRP-PRS-Information-List										ProtocolIE-ID ::= 87
+id-PRS-Measurements-Info-List									ProtocolIE-ID ::= 88
+id-PRSConfigRequestType											ProtocolIE-ID ::= 89
+id-UE-TEG-Info-Request											ProtocolIE-ID ::= 90
+id-MeasurementTimeOccasion										ProtocolIE-ID ::= 91
+id-MeasurementCharacteristicsRequestIndicator					ProtocolIE-ID ::= 92
+id-TRPBeamAntennaInformation									ProtocolIE-ID ::= 93
+id-NR-TADV														ProtocolIE-ID ::= 94
+id-MeasurementAmount											ProtocolIE-ID ::= 95
+id-pathPower													ProtocolIE-ID ::= 96
+id-PreconfigurationResult										ProtocolIE-ID ::= 97
+id-RequestType													ProtocolIE-ID ::= 98
+id-UE-TEG-ReportingPeriodicity									ProtocolIE-ID ::= 99
+id-SRSPortIndex													ProtocolIE-ID ::= 100
+id-procedure-code-101-not-to-be-used							ProtocolIE-ID ::= 101
+id-procedure-code-102-not-to-be-used							ProtocolIE-ID ::= 102
+id-procedure-code-103-not-to-be-used							ProtocolIE-ID ::= 103
+id-UETxTimingErrorMargin										ProtocolIE-ID ::= 104
+id-MeasurementPeriodicityNR-AoA									ProtocolIE-ID ::= 105
+
+
 
 END

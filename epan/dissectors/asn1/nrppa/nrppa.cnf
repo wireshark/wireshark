@@ -15,6 +15,7 @@ ProtocolIE-ID
 Presence
 ProtocolIE-ContainerList
 PRS-ID
+SRSResourceID-Item
 
 #.EXPORTS
 Assistance-Information_PDU
@@ -101,71 +102,116 @@ id-MeasurementFailureIndication      ProcedureCode
 id-tRPInformationExchange            ProcedureCode
 id-positioningActivation             ProcedureCode
 id-positioningDeactivation           ProcedureCode
+id-pRSConfigurationExchange          ProcedureCode
+id-measurementPreconfiguration       ProcedureCode
+id-measurementActivation             ProcedureCode
 
 # ProtocolIE-ID
 
-id-Cause                                   ProtocolIE-ID
-id-CriticalityDiagnostics                  ProtocolIE-ID
-id-LMF-UE-Measurement-ID                   ProtocolIE-ID
-id-ReportCharacteristics                   ProtocolIE-ID
-id-MeasurementPeriodicity                  ProtocolIE-ID
-id-MeasurementQuantities                   ProtocolIE-ID
-id-RAN-UE-Measurement-ID                   ProtocolIE-ID
-id-E-CID-MeasurementResult                 ProtocolIE-ID
-id-OTDOACells                              ProtocolIE-ID
-id-OTDOA-Information-Type-Group            ProtocolIE-ID
-id-OTDOA-Information-Type-Item             ProtocolIE-ID
-id-MeasurementQuantities-Item              ProtocolIE-ID
-id-RequestedSRSTransmissionCharacteristics ProtocolIE-ID
-id-Cell-Portion-ID                         ProtocolIE-ID
-id-OtherRATMeasurementQuantities           ProtocolIE-ID
-id-OtherRATMeasurementQuantities-Item      ProtocolIE-ID
-id-OtherRATMeasurementResult               ProtocolIE-ID
-id-WLANMeasurementQuantities               ProtocolIE-ID
-id-WLANMeasurementQuantities-Item          ProtocolIE-ID
-id-WLANMeasurementResult                   ProtocolIE-ID
-id-TDD-Config-EUTRA-Item                   ProtocolIE-ID
-id-Assistance-Information                  ProtocolIE-ID
-id-Broadcast                               ProtocolIE-ID
-id-AssistanceInformationFailureList        ProtocolIE-ID
-id-SRSConfiguration                        ProtocolIE-ID
-id-MeasurementResult                       ProtocolIE-ID
-id-TRP-ID                                  ProtocolIE-ID
-id-TRPInformationTypeListTRPReq            ProtocolIE-ID
-id-TRPInformationListTRPResp               ProtocolIE-ID
-id-MeasurementBeamInfoRequest              ProtocolIE-ID
-id-ResultSS-RSRP                           ProtocolIE-ID
-id-ResultSS-RSRQ                           ProtocolIE-ID
-id-ResultCSI-RSRP                          ProtocolIE-ID
-id-ResultCSI-RSRQ                          ProtocolIE-ID
-id-AngleOfArrivalNR                        ProtocolIE-ID
-id-GeographicalCoordinates                 ProtocolIE-ID
-id-PositioningBroadcastCells               ProtocolIE-ID
-id-LMF-Measurement-ID                      ProtocolIE-ID
-id-RAN-Measurement-ID                      ProtocolIE-ID
-id-TRP-MeasurementRequestList              ProtocolIE-ID
-id-TRP-MeasurementResponseList             ProtocolIE-ID
-id-TRP-MeasurementReportList               ProtocolIE-ID
-id-SRSType                                 ProtocolIE-ID
-id-ActivationTime                          ProtocolIE-ID
-id-SRSResourceSetID                        ProtocolIE-ID
-id-TRPList                                 ProtocolIE-ID
-id-SRSSpatialRelation                      ProtocolIE-ID
-id-SystemFrameNumber                       ProtocolIE-ID
-id-SlotNumber                              ProtocolIE-ID
-id-SRSResourceTrigger                      ProtocolIE-ID
-id-TRPMeasurementQuantities                ProtocolIE-ID
-id-AbortTransmission                       ProtocolIE-ID
-id-SFNInitialisationTime                   ProtocolIE-ID
-id-ResultNR                                ProtocolIE-ID
-id-ResultEUTRA                             ProtocolIE-ID
-id-TRPInformationTypeItem                  ProtocolIE-ID
-id-CGI-NR                                  ProtocolIE-ID
-id-SFNInitialisationTime-NR                ProtocolIE-ID
-id-Cell-ID                                 ProtocolIE-ID
-id-SrsFrequency                            ProtocolIE-ID
-id-TRPType                                 ProtocolIE-ID
-id-SRSSpatialRelationPerSRSResource        ProtocolIE-ID
+id-Cause                                      ProtocolIE-ID
+id-CriticalityDiagnostics                     ProtocolIE-ID
+id-LMF-UE-Measurement-ID                      ProtocolIE-ID
+id-ReportCharacteristics                      ProtocolIE-ID
+id-MeasurementPeriodicity                     ProtocolIE-ID
+id-MeasurementQuantities                      ProtocolIE-ID
+id-RAN-UE-Measurement-ID                      ProtocolIE-ID
+id-E-CID-MeasurementResult                    ProtocolIE-ID
+id-OTDOACells                                 ProtocolIE-ID
+id-OTDOA-Information-Type-Group               ProtocolIE-ID
+id-OTDOA-Information-Type-Item                ProtocolIE-ID
+id-MeasurementQuantities-Item                 ProtocolIE-ID
+id-RequestedSRSTransmissionCharacteristics    ProtocolIE-ID
+id-Cell-Portion-ID                            ProtocolIE-ID
+id-OtherRATMeasurementQuantities              ProtocolIE-ID
+id-OtherRATMeasurementQuantities-Item         ProtocolIE-ID
+id-OtherRATMeasurementResult                  ProtocolIE-ID
+id-WLANMeasurementQuantities                  ProtocolIE-ID
+id-WLANMeasurementQuantities-Item             ProtocolIE-ID
+id-WLANMeasurementResult                      ProtocolIE-ID
+id-TDD-Config-EUTRA-Item                      ProtocolIE-ID
+id-Assistance-Information                     ProtocolIE-ID
+id-Broadcast                                  ProtocolIE-ID
+id-AssistanceInformationFailureList           ProtocolIE-ID
+id-SRSConfiguration                           ProtocolIE-ID
+id-MeasurementResult                          ProtocolIE-ID
+id-TRP-ID                                     ProtocolIE-ID
+id-TRPInformationTypeListTRPReq               ProtocolIE-ID
+id-TRPInformationListTRPResp                  ProtocolIE-ID
+id-MeasurementBeamInfoRequest                 ProtocolIE-ID
+id-ResultSS-RSRP                              ProtocolIE-ID
+id-ResultSS-RSRQ                              ProtocolIE-ID
+id-ResultCSI-RSRP                             ProtocolIE-ID
+id-ResultCSI-RSRQ                             ProtocolIE-ID
+id-AngleOfArrivalNR                           ProtocolIE-ID
+id-GeographicalCoordinates                    ProtocolIE-ID
+id-PositioningBroadcastCells                  ProtocolIE-ID
+id-LMF-Measurement-ID                         ProtocolIE-ID
+id-RAN-Measurement-ID                         ProtocolIE-ID
+id-TRP-MeasurementRequestList                 ProtocolIE-ID
+id-TRP-MeasurementResponseList                ProtocolIE-ID
+id-TRP-MeasurementReportList                  ProtocolIE-ID
+id-SRSType                                    ProtocolIE-ID
+id-ActivationTime                             ProtocolIE-ID
+id-SRSResourceSetID                           ProtocolIE-ID
+id-TRPList                                    ProtocolIE-ID
+id-SRSSpatialRelation                         ProtocolIE-ID
+id-SystemFrameNumber                          ProtocolIE-ID
+id-SlotNumber                                 ProtocolIE-ID
+id-SRSResourceTrigger                         ProtocolIE-ID
+id-TRPMeasurementQuantities                   ProtocolIE-ID
+id-AbortTransmission                          ProtocolIE-ID
+id-SFNInitialisationTime                      ProtocolIE-ID
+id-ResultNR                                   ProtocolIE-ID
+id-ResultEUTRA                                ProtocolIE-ID
+id-TRPInformationTypeItem                     ProtocolIE-ID
+id-CGI-NR                                     ProtocolIE-ID
+id-SFNInitialisationTime-NR                   ProtocolIE-ID
+id-Cell-ID                                    ProtocolIE-ID
+id-SrsFrequency                               ProtocolIE-ID
+id-TRPType                                    ProtocolIE-ID
+id-SRSSpatialRelationPerSRSResource           ProtocolIE-ID
+id-MeasurementPeriodicityExtended             ProtocolIE-ID
+id-PRS-Resource-ID                            ProtocolIE-ID
+id-PRSTRPList                                 ProtocolIE-ID
+id-PRSTransmissionTRPList                     ProtocolIE-ID
+id-OnDemandPRS                                ProtocolIE-ID
+id-AoA-SearchWindow                           ProtocolIE-ID
+id-TRP-MeasurementUpdateList                  ProtocolIE-ID
+id-ZoA                                        ProtocolIE-ID
+id-ResponseTime                               ProtocolIE-ID
+id-UEReportingInformation                     ProtocolIE-ID
+id-MultipleULAoA                              ProtocolIE-ID
+id-UL-SRS-RSRPP                               ProtocolIE-ID
+id-SRSResourcetype                            ProtocolIE-ID
+id-ExtendedAdditionalPathList                 ProtocolIE-ID
+id-ARPLocationInfo                            ProtocolIE-ID
+id-ARP-ID                                     ProtocolIE-ID
+id-LoS-NLoSInformation                        ProtocolIE-ID
+id-UETxTEGAssociationList                     ProtocolIE-ID
+id-NumberOfTRPRxTEG                           ProtocolIE-ID
+id-NumberOfTRPRxTxTEG                         ProtocolIE-ID
+id-TRPTxTEGAssociation                        ProtocolIE-ID
+id-TRPTEGInformation                          ProtocolIE-ID
+id-TRP-Rx-TEGInformation                      ProtocolIE-ID
+id-TRP-PRS-Information-List                   ProtocolIE-ID
+id-PRS-Measurements-Info-List                 ProtocolIE-ID
+id-PRSConfigRequestType                       ProtocolIE-ID
+id-UE-TEG-Info-Request                        ProtocolIE-ID
+id-MeasurementTimeOccasion                    ProtocolIE-ID
+id-MeasurementCharacteristicsRequestIndicator ProtocolIE-ID
+id-TRPBeamAntennaInformation                  ProtocolIE-ID
+id-NR-TADV                                    ProtocolIE-ID
+id-MeasurementAmount                          ProtocolIE-ID
+id-pathPower                                  ProtocolIE-ID
+id-PreconfigurationResult                     ProtocolIE-ID
+id-RequestType                                ProtocolIE-ID
+id-UE-TEG-ReportingPeriodicity                ProtocolIE-ID
+id-SRSPortIndex                               ProtocolIE-ID
+id-procedure-code-101-not-to-be-used          ProtocolIE-ID
+id-procedure-code-102-not-to-be-used          ProtocolIE-ID
+id-procedure-code-103-not-to-be-used          ProtocolIE-ID
+id-UETxTimingErrorMargin                      ProtocolIE-ID
+id-MeasurementPeriodicityNR-AoA               ProtocolIE-ID
 
 #.REGISTER
 #NRPPA-PROTOCOL-IES
@@ -224,6 +270,31 @@ SFNInitialisationTime-EUTRA                N nrppa.ies id-SFNInitialisationTime-
 CGI-NR                                     N nrppa.ies id-Cell-ID
 SrsFrequency                               N nrppa.ies id-SrsFrequency
 TRPType                                    N nrppa.ies id-TRPType
+MeasurementPeriodicityExtended             N nrppa.ies id-MeasurementPeriodicityExtended
+PRSTRPList                                 N nrppa.ies id-PRSTRPList
+PRSTransmissionTRPList                     N nrppa.ies id-PRSTransmissionTRPList
+OnDemandPRS-Info                           N nrppa.ies id-OnDemandPRS
+TRP-MeasurementUpdateList                  N nrppa.ies id-TRP-MeasurementUpdateList
+ZoA                                        N nrppa.ies id-ZoA
+ResponseTime                               N nrppa.ies id-ResponseTime
+UEReportingInformation                     N nrppa.ies id-UEReportingInformation
+MultipleULAoA                              N nrppa.ies id-MultipleULAoA
+UL-SRS-RSRPP                               N nrppa.ies id-UL-SRS-RSRPP
+UETxTEGAssociationList                     N nrppa.ies id-UETxTEGAssociationList
+TRPTxTEGAssociation                        N nrppa.ies id-TRPTxTEGAssociation
+TRP-PRS-Information-List                   N nrppa.ies id-TRP-PRS-Information-List
+PRS-Measurements-Info-List                 N nrppa.ies id-PRS-Measurements-Info-List
+PRSConfigRequestType                       N nrppa.ies id-PRSConfigRequestType
+UE-TEG-Info-Request                        N nrppa.ies id-UE-TEG-Info-Request
+MeasurementTimeOccasion                    N nrppa.ies id-MeasurementTimeOccasion
+MeasurementCharacteristicsRequestIndicator N nrppa.ies id-MeasurementCharacteristicsRequestIndicator
+TRPBeamAntennaInformation                  N nrppa.ies id-TRPBeamAntennaInformation
+NR-TADV                                    N nrppa.ies id-NR-TADV
+MeasurementAmount                          N nrppa.ies id-MeasurementAmount
+PreconfigurationResult                     N nrppa.ies id-PreconfigurationResult
+RequestType                                N nrppa.ies id-RequestType
+UE-TEG-ReportingPeriodicity                N nrppa.ies id-UE-TEG-ReportingPeriodicity
+MeasurementPeriodicityNR-AoA               N nrppa.ies id-MeasurementPeriodicityNR-AoA
 
 
 #NRPPA-PROTOCOL-EXTENSION
@@ -231,6 +302,21 @@ TRPType                                    N nrppa.ies id-TRPType
 GeographicalCoordinates                    N nrppa.extension id-GeographicalCoordinates
 SpatialRelationInfo                        N nrppa.extension id-SRSSpatialRelation
 SpatialRelationPerSRSResource              N nrppa.extension id-SRSSpatialRelationPerSRSResource
+PRS-Resource-ID                            N nrppa.extension id-PRS-Resource-ID
+AoA-AssistanceInfo                         N nrppa.extension id-AoA-SearchWindow
+MultipleULAoA                              N nrppa.extension id-MultipleULAoA
+SRSResourcetype                            N nrppa.extension id-SRSResourcetype
+ExtendedAdditionalPathList                 N nrppa.extension id-ExtendedAdditionalPathList
+ARPLocationInformation                     N nrppa.extension id-ARPLocationInfo
+ARP-ID                                     N nrppa.extension id-ARP-ID
+LoS-NLoSInformation                        N nrppa.extension id-LoS-NLoSInformation
+NumberOfTRPRxTEG                           N nrppa.extension id-NumberOfTRPRxTEG
+NumberOfTRPRxTxTEG                         N nrppa.extension id-NumberOfTRPRxTxTEG
+TRPTEGInformation                          N nrppa.extension id-TRPTEGInformation
+TRP-Rx-TEGInformation                      N nrppa.extension id-TRP-Rx-TEGInformation
+UL-SRS-RSRPP                               N nrppa.extension id-pathPower
+SRSPortIndex                               N nrppa.extension id-SRSPortIndex
+TimingErrorMargin                          N nrppa.extension id-UETxTimingErrorMargin
 
 
 #LPPA-ELEMENTARY-PROCEDURE
@@ -283,3 +369,13 @@ PositioningActivationResponse              N nrppa.proc.sout id-positioningActiv
 PositioningActivationFailure               N nrppa.proc.uout id-positioningActivation
 
 PositioningDeactivation                    N nrppa.proc.imsg id-positioningDeactivation
+
+PRSConfigurationRequest                    N nrppa.proc.imsg id-pRSConfigurationExchange
+PRSConfigurationResponse                   N nrppa.proc.sout id-pRSConfigurationExchange
+PRSConfigurationFailure                    N nrppa.proc.uout id-pRSConfigurationExchange
+
+MeasurementPreconfigurationRequired        N nrppa.proc.imsg id-measurementPreconfiguration
+MeasurementPreconfigurationConfirm         N nrppa.proc.sout id-measurementPreconfiguration
+MeasurementPreconfigurationRefuse          N nrppa.proc.uout id-measurementPreconfiguration
+
+MeasurementActivation                      N nrppa.proc.imsg id-measurementActivation

@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.6.0 (2021-12)
+-- 3GPP TS 38.455 V17.3.0 (2022-12)
 --9.3.4	PDU Definitions
 --
 -- **************************************************************
@@ -8,10 +8,10 @@
 -- **************************************************************
 
 NRPPA-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) nrppa (4) version1 (1) nrppa-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -22,7 +22,7 @@ BEGIN
 -- **************************************************************
 
 IMPORTS
-	
+
 	Cause,
 	CriticalityDiagnostics,
 	E-CID-MeasurementResult,
@@ -50,6 +50,7 @@ IMPORTS
 	TRPInformationListTRPResp,
 	TRP-MeasurementRequestList,
 	TRP-MeasurementResponseList,
+	TRP-MeasurementUpdateList,
 	MeasurementBeamInfoRequest,
 	PositioningBroadcastCells,
 	SRSResourceSetID,
@@ -60,9 +61,26 @@ IMPORTS
 	SystemFrameNumber,
 	SlotNumber,
 	RelativeTime1900,
-	SpatialRelationPerSRSResource
+	SpatialRelationPerSRSResource,
+	MeasurementPeriodicityExtended,
+	PRSTRPList,
+	PRSTransmissionTRPList,
+	ResponseTime,
+	UEReportingInformation,
+	UETxTEGAssociationList,
+	TRP-PRS-Information-List,
+	PRS-Measurements-Info-List,
+	UE-TEG-Info-Request,
+	MeasurementCharacteristicsRequestIndicator,
+	MeasurementTimeOccasion,
+	PRSConfigRequestType,
+	MeasurementAmount,
+	PreconfigurationResult,
+	RequestType,
+	UE-TEG-ReportingPeriodicity,
+	MeasurementPeriodicityNR-AoA
 
-	
+
 FROM NRPPA-IEs
 
 	PrivateIE-Container{},
@@ -75,7 +93,7 @@ FROM NRPPA-IEs
 	NRPPA-PROTOCOL-IES
 FROM NRPPA-Containers
 
-	
+
 	maxnoOTDOAtypes,
 	id-Cause,
 	id-CriticalityDiagnostics,
@@ -108,6 +126,7 @@ FROM NRPPA-Containers
 	id-TRP-MeasurementRequestList,
 	id-TRP-MeasurementResponseList,
 	id-TRP-MeasurementReportList,
+	id-TRP-MeasurementUpdateList,
 	id-MeasurementBeamInfoRequest,
 	id-PositioningBroadcastCells,
 	id-SRSType,
@@ -115,15 +134,33 @@ FROM NRPPA-Containers
 	id-SRSResourceSetID,
 	id-TRPList,
 	id-SRSSpatialRelation,
-	id-AbortTransmission, 
+	id-AbortTransmission,
 	id-SystemFrameNumber,
 	id-SlotNumber,
 	id-SRSResourceTrigger,
 	id-SFNInitialisationTime,
-	id-SRSSpatialRelationPerSRSResource
+	id-SRSSpatialRelationPerSRSResource,
+	id-MeasurementPeriodicityExtended,
+	id-PRSTRPList,
+	id-PRSTransmissionTRPList,
+	id-ResponseTime,
+	id-UEReportingInformation,
+	id-UETxTEGAssociationList,
+	id-TRP-PRS-Information-List,
+	id-PRS-Measurements-Info-List,
+	id-UE-TEG-Info-Request,
+	id-MeasurementCharacteristicsRequestIndicator,
+	id-MeasurementTimeOccasion,
+	id-PRSConfigRequestType,
+	id-MeasurementAmount,
+	id-PreconfigurationResult,
+	id-RequestType,
+	id-UE-TEG-ReportingPeriodicity,
+	id-MeasurementPeriodicityNR-AoA
 
 
-	
+
+
 FROM NRPPA-Constants;
 
 -- **************************************************************
@@ -138,13 +175,15 @@ E-CIDMeasurementInitiationRequest ::= SEQUENCE {
 }
 
 E-CIDMeasurementInitiationRequest-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-LMF-UE-Measurement-ID			CRITICALITY reject	TYPE UE-Measurement-ID						PRESENCE mandatory}|
+	{ ID id-LMF-UE-Measurement-ID			CRITICALITY reject	TYPE UE-Measurement-ID					PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics				PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity				PRESENCE conditional}|
 -- The IE shall be present if the Report Characteritics IE is set to “periodic” --
 	{ ID id-MeasurementQuantities			CRITICALITY reject	TYPE MeasurementQuantities				PRESENCE mandatory}|
 	{ ID id-OtherRATMeasurementQuantities	CRITICALITY ignore	TYPE OtherRATMeasurementQuantities		PRESENCE optional}|
-	{ ID id-WLANMeasurementQuantities		CRITICALITY ignore	TYPE WLANMeasurementQuantities			PRESENCE optional},
+	{ ID id-WLANMeasurementQuantities		CRITICALITY ignore	TYPE WLANMeasurementQuantities			PRESENCE optional}|
+	{ ID id-MeasurementPeriodicityNR-AoA	CRITICALITY reject	TYPE MeasurementPeriodicityNR-AoA		PRESENCE conditional},
+-- The IE shall be present if the Report Characteritics IE is set to “periodic” and the MeasurementQuantities-Item IE in the MeasurementQuantities IE is set to the value "angleOfArrivalNR" --
 	...
 }
 
@@ -230,7 +269,7 @@ E-CIDMeasurementReport-IEs NRPPA-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- E-CID MEASUREMENT TERMINATION 
+-- E-CID MEASUREMENT TERMINATION
 --
 -- **************************************************************
 
@@ -262,15 +301,15 @@ OTDOAInformationRequest-IEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
 
-OTDOA-Information-Type ::= SEQUENCE (SIZE(1..maxnoOTDOAtypes)) OF ProtocolIE-Single-Container { { OTDOA-Information-TypeIEs} }
+OTDOA-Information-Type ::= SEQUENCE (SIZE(1..maxnoOTDOAtypes)) OF ProtocolIE-Single-Container { { OTDOA-Information-Type-ItemIEs} }
 
-OTDOA-Information-TypeIEs	NRPPA-PROTOCOL-IES ::= {
+OTDOA-Information-Type-ItemIEs	NRPPA-PROTOCOL-IES ::= {
 	{ ID id-OTDOA-Information-Type-Item		CRITICALITY reject	TYPE OTDOA-Information-Type-Item	PRESENCE mandatory},
 	...
 }
 
 OTDOA-Information-Type-Item ::= SEQUENCE {
-	oTDOA-Information-Type-Item		OTDOA-Information-Item,
+	oTDOA-Information-Item		OTDOA-Information-Item,
 	iE-Extensions					ProtocolExtensionContainer { { OTDOA-Information-Type-ItemExtIEs} } OPTIONAL,
 	...
 }
@@ -363,7 +402,7 @@ ErrorIndication ::= SEQUENCE {
 }
 
 ErrorIndication-IEs NRPPA-PROTOCOL-IES ::= {
-	
+
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional},
 	...
@@ -396,7 +435,11 @@ PositioningInformationRequest ::= SEQUENCE {
 }
 
 PositioningInformationRequest-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-RequestedSRSTransmissionCharacteristics	CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional},
+	{ ID id-RequestedSRSTransmissionCharacteristics	CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional	}|
+	{ ID id-UEReportingInformation					CRITICALITY ignore	TYPE UEReportingInformation							PRESENCE optional	}|
+	{ ID id-UE-TEG-Info-Request						CRITICALITY ignore	TYPE UE-TEG-Info-Request								PRESENCE optional	}|
+	{ ID id-UE-TEG-ReportingPeriodicity				CRITICALITY reject	TYPE UE-TEG-ReportingPeriodicity					PRESENCE conditional	},
+-- The IE shall be present if the UE TEG Info Request IE is set to “periodic”
 	...
 }
 
@@ -413,8 +456,9 @@ PositioningInformationResponse ::= SEQUENCE {
 
 PositioningInformationResponse-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
-	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900		PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
+	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional},
 	...
 }
 
@@ -448,7 +492,8 @@ PositioningInformationUpdate ::= SEQUENCE {
 
 PositioningInformationUpdate-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
-	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900		PRESENCE optional},
+	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
+	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional},
 	...
 }
 
@@ -464,17 +509,23 @@ MeasurementRequest ::= SEQUENCE {
 }
 
 MeasurementRequest-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-LMF-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
-	{ ID id-TRP-MeasurementRequestList		CRITICALITY reject	TYPE TRP-MeasurementRequestList PRESENCE mandatory}|
+	{ ID id-LMF-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
+	{ ID id-TRP-MeasurementRequestList		CRITICALITY reject	TYPE TRP-MeasurementRequestList	PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics		PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity		PRESENCE conditional}|
 -- The IE shall be present if the Report Characteritics IE is set to “periodic” –
-	{ ID id-TRPMeasurementQuantities			CRITICALITY reject	TYPE TRPMeasurementQuantities		PRESENCE mandatory}|
-	{ ID id-SFNInitialisationTime			CRITICALITY ignore	TYPE RelativeTime1900		PRESENCE optional}|
+	{ ID id-TRPMeasurementQuantities		CRITICALITY reject	TYPE TRPMeasurementQuantities	PRESENCE mandatory}|
+	{ ID id-SFNInitialisationTime			CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
 	{ ID id-SRSConfiguration				CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
 	{ ID id-MeasurementBeamInfoRequest		CRITICALITY ignore	TYPE MeasurementBeamInfoRequest	PRESENCE optional}|
 	{ ID id-SystemFrameNumber				CRITICALITY ignore	TYPE SystemFrameNumber			PRESENCE optional}|
-	{ ID id-SlotNumber						CRITICALITY ignore	TYPE SlotNumber					PRESENCE optional},
+	{ ID id-SlotNumber						CRITICALITY ignore	TYPE SlotNumber					PRESENCE optional}|
+	{ ID id-MeasurementPeriodicityExtended	CRITICALITY reject	TYPE MeasurementPeriodicityExtended PRESENCE conditional}|
+-- The IE shall be present the MeasurementPeriodicity IE is set to the value "extended"
+	{ ID id-ResponseTime					CRITICALITY ignore	TYPE ResponseTime				PRESENCE optional}|
+	{ ID id-MeasurementCharacteristicsRequestIndicator			CRITICALITY ignore	TYPE MeasurementCharacteristicsRequestIndicator	PRESENCE optional}|
+	{ ID id-MeasurementTimeOccasion			CRITICALITY ignore	TYPE MeasurementTimeOccasion	PRESENCE optional}|
+	{ ID id-MeasurementAmount				CRITICALITY ignore	TYPE MeasurementAmount			PRESENCE optional},
 	...
 }
 
@@ -530,7 +581,7 @@ MeasurementReport-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-LMF-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-RAN-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-TRP-MeasurementReportList			CRITICALITY reject	TYPE TRP-MeasurementResponseList PRESENCE mandatory},
-	
+
 	...
 }
 
@@ -546,9 +597,12 @@ MeasurementUpdate ::= SEQUENCE {
 }
 
 MeasurementUpdate-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-LMF-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
-	{ ID id-RAN-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}| 
-	{ ID id-SRSConfiguration		CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional},
+	{ ID id-LMF-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-RAN-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
+	{ ID id-TRP-MeasurementUpdateList	CRITICALITY reject	TYPE TRP-MeasurementUpdateList	PRESENCE optional}|
+	{ ID id-MeasurementCharacteristicsRequestIndicator	CRITICALITY ignore	TYPE	MeasurementCharacteristicsRequestIndicator	PRESENCE optional}|
+	{ ID id-MeasurementTimeOccasion		CRITICALITY ignore	TYPE MeasurementTimeOccasion	PRESENCE optional},
 	...
 }
 
@@ -656,12 +710,12 @@ PositioningActivationRequestIEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSType					CRITICALITY reject	TYPE SRSType					PRESENCE mandatory	} |
 	{ ID id-ActivationTime			CRITICALITY ignore	TYPE RelativeTime1900				PRESENCE optional	},
 	...
-} 
+}
 
 SRSType ::= CHOICE {
 	semipersistentSRS				SemipersistentSRS,
-	aperiodicSRS					AperiodicSRS, 
-	sRSType-extension				ProtocolIE-Single-Container { { SRSType-ExtIEs} }
+	aperiodicSRS					AperiodicSRS,
+	choice-Extension				ProtocolIE-Single-Container { { SRSType-ExtIEs} }
 }
 
 SRSType-ExtIEs NRPPA-PROTOCOL-IES ::= {
@@ -674,7 +728,7 @@ SemipersistentSRS ::= SEQUENCE {
 	...
 }
 
-SemipersistentSRS-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {		
+SemipersistentSRS-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	{ ID id-SRSSpatialRelation					CRITICALITY ignore	EXTENSION SpatialRelationInfo					PRESENCE optional}|
 	{ ID id-SRSSpatialRelationPerSRSResource		CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource	PRESENCE optional},
 	...
@@ -682,7 +736,7 @@ SemipersistentSRS-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 
 AperiodicSRS ::= SEQUENCE {
 	aperiodic					ENUMERATED{true,...},
-	sRSResourceTrigger			SRSResourceTrigger OPTIONAL, 
+	sRSResourceTrigger			SRSResourceTrigger OPTIONAL,
 	iE-Extensions				ProtocolExtensionContainer { {AperiodicSRS-ExtIEs} } OPTIONAL,
 	...
 }
@@ -745,7 +799,126 @@ PositioningDeactivation ::= SEQUENCE {
 PositioningDeactivationIEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-AbortTransmission			CRITICALITY ignore	TYPE AbortTransmission		PRESENCE mandatory	} ,
 	...
-} 
+}
+
+-- **************************************************************
+--
+-- PRS CONFIGURATION REQUEST
+--
+-- **************************************************************
+
+PRSConfigurationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{PRSConfigurationRequest-IEs}},
+	...
+}
+
+PRSConfigurationRequest-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-PRSConfigRequestType	CRITICALITY reject	TYPE PRSConfigRequestType				PRESENCE mandatory}|
+	{ ID id-PRSTRPList				CRITICALITY ignore	TYPE PRSTRPList							PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- PRS CONFIGURATION RESPONSE
+--
+-- **************************************************************
+
+PRSConfigurationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ PRSConfigurationResponse-IEs}},
+	...
+}
+
+PRSConfigurationResponse-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-PRSTransmissionTRPList	CRITICALITY ignore	TYPE PRSTransmissionTRPList			PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- PRS CONFIGURATION FAILURE
+--
+-- **************************************************************
+
+PRSConfigurationFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ PRSConfigurationFailure-IEs}},
+	...
+}
+
+PRSConfigurationFailure-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- MEASUREMENT PRECONFIGURATION REQUIRED
+--
+-- **************************************************************
+
+MeasurementPreconfigurationRequired ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ MeasurementPreconfigurationRequired-IEs}},
+	...
+}
+
+MeasurementPreconfigurationRequired-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-TRP-PRS-Information-List	CRITICALITY ignore	TYPE TRP-PRS-Information-List	PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- MEASUREMENT PRECONFIGURATION CONFIRM
+--
+-- **************************************************************
+
+MeasurementPreconfigurationConfirm::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ MeasurementPreconfigurationConfirm-IEs}},
+	...
+}
+
+MeasurementPreconfigurationConfirm-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-PreconfigurationResult		CRITICALITY	ignore	TYPE PreconfigurationResult		PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- MEASUREMENT PRECONFIGURATION REFUSE
+--
+-- **************************************************************
+
+MeasurementPreconfigurationRefuse::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ MeasurementPreconfigurationRefuse-IEs}},
+	...
+}
+
+MeasurementPreconfigurationRefuse-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- MEASUREMENT ACTIVATION
+--
+-- **************************************************************
+
+MeasurementActivation::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MeasurementActivation-IEs} },
+	...
+}
+
+MeasurementActivation-IEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-RequestType					CRITICALITY reject	TYPE RequestType 					PRESENCE mandatory}|
+	{ ID id-PRS-Measurements-Info-List	CRITICALITY ignore	TYPE PRS-Measurements-Info-List		PRESENCE optional},
+	...
+}
 
 
 END
