@@ -5444,7 +5444,7 @@ proto_register_diameter_3gpp(void)
         },
 
         { &hf_diameter_3gpp_highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10,
-        { "highAccuracyEllipsoidPointWithScalableUncertaintyEllipse", "diameter.3gpp.highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10",
+        { "highAccuracyEllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid", "diameter.3gpp.highaccuracyellipsoidpointwithaltitudeandscalableuncertaintyellipsoid_bit10",
           FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000400,
           NULL, HFILL }
         },
