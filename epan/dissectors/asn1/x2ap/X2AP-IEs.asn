@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.2.0 (2022-09)
+-- 3GPP TS 36.423 V17.3.0 (2022-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -161,7 +161,8 @@ IMPORTS
 	maxnoofCSIRSneighbourCells,
 	maxnoofCSIRSneighbourCellsInMTC,
 	maxCellinengNB,
-	maxnoofSensorName
+	maxnoofSensorName,
+	maxnoofTargetSgNBsMinusOne
 
 
 FROM X2AP-Constants
@@ -276,6 +277,19 @@ CSI-RS-MTC-Neighbour-Item ::= SEQUENCE {
 
 
 CSI-RS-MTC-Neighbour-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AdditionalListofForwardingGTPTunnelEndpoint ::= SEQUENCE (SIZE(1..maxnoofTargetSgNBsMinusOne)) OF AdditionalListofForwardingGTPTunnelEndpoint-Item
+
+AdditionalListofForwardingGTPTunnelEndpoint-Item ::= SEQUENCE {
+	uL-GTPtunnelEndpoint			GTPtunnelEndpoint													OPTIONAL,
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { AdditionalListofForwardingGTPTunnelEndpoint-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+AdditionalListofForwardingGTPTunnelEndpoint-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -617,7 +631,7 @@ CPACcandidatePSCells-item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 CPCindicator ::= ENUMERATED {cpc-initiation, cpc-modification, cpc-cancel, ...}
 
 
-CPCdataforwarding ::= ENUMERATED {cpc-triggered, early-data-transmission-stop, ...}
+CPCdataforwarding ::= ENUMERATED {cpc-triggered, early-data-transmission-stop, ..., coordination-only}
 
 
 CPAinformation-REQ ::= SEQUENCE {
@@ -772,7 +786,7 @@ CPACinformation-REQD-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 CHO-DC-EarlyDataForwarding ::= ENUMERATED {stop, ...}
 
-CHO-DC-Indicator ::= ENUMERATED {true, ...}
+CHO-DC-Indicator ::= ENUMERATED {true, ..., coordination-only}
 
 CNTypeRestrictions ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF CNTypeRestrictionsItem
 

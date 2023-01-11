@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.2.0 (2022-09)
+-- 3GPP TS 36.423 V17.3.0 (2022-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -261,7 +261,8 @@ IMPORTS
 	SecurityIndication,
 	SecurityResult,
 	TraceCollectionEntityIPAddress,
-	SCGreconfigNotification
+	SCGreconfigNotification,
+	AdditionalListofForwardingGTPTunnelEndpoint
 
 
 
@@ -643,6 +644,7 @@ FROM X2AP-Containers
 	id-SecurityIndication,
 	id-SecurityResult,
 	id-SCGreconfigNotification,
+	id-AdditionalListofForwardingGTPTunnelEndpoint,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -3907,6 +3909,7 @@ E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-AdditionalListofForwardingGTPTunnelEndpoint				CRITICALITY ignore	EXTENSION AdditionalListofForwardingGTPTunnelEndpoint						PRESENCE optional },
 	...
 }
 

@@ -1652,6 +1652,7 @@ id-RAT-Restrictions						ProtocolIE-ID
 id-SCGreconfigNotification					ProtocolIE-ID
 id-MIMOPRBusageInformation					ProtocolIE-ID
 id-SensorMeasurementConfiguration				ProtocolIE-ID
+id-AdditionalListofForwardingGTPTunnelEndpoint			ProtocolIE-ID
 
 #.REGISTER
 
@@ -2088,6 +2089,7 @@ SecurityResult							N x2ap.extension id-SecurityResult
 RAT-Restrictions						N x2ap.extension id-RAT-Restrictions
 MIMOPRBusageInformation						N x2ap.extension id-MIMOPRBusageInformation
 SensorMeasurementConfiguration					N x2ap.extension id-SensorMeasurementConfiguration
+AdditionalListofForwardingGTPTunnelEndpoint			N x2ap.extension id-AdditionalListofForwardingGTPTunnelEndpoint
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

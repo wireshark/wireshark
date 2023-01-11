@@ -8,7 +8,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2022, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2023, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V17.2.0 (2022-09)
+ * 3GPP TS 36.423 V17.3.0 (2022-12)
  */
 
 #include "config.h"
@@ -124,6 +124,7 @@ void proto_register_x2ap(void);
 #define maxnoofCSIRSneighbourCells     16
 #define maxnoofCSIRSneighbourCellsInMTC 16
 #define maxnoofSensorName              3
+#define maxnoofTargetSgNBsMinusOne     7
 
 typedef enum _ProcedureCode_enum {
   id_handoverPreparation =   0,
@@ -629,7 +630,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_RAT_Restrictions = 437,
   id_SCGreconfigNotification = 438,
   id_MIMOPRBusageInformation = 439,
-  id_SensorMeasurementConfiguration = 440
+  id_SensorMeasurementConfiguration = 440,
+  id_AdditionalListofForwardingGTPTunnelEndpoint = 441
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -714,6 +716,7 @@ static int hf_x2ap_ABSInformation_PDU = -1;       /* ABSInformation */
 static int hf_x2ap_ABS_Status_PDU = -1;           /* ABS_Status */
 static int hf_x2ap_ActivationID_PDU = -1;         /* ActivationID */
 static int hf_x2ap_Additional_Measurement_Timing_Configuration_List_PDU = -1;  /* Additional_Measurement_Timing_Configuration_List */
+static int hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_PDU = -1;  /* AdditionalListofForwardingGTPTunnelEndpoint */
 static int hf_x2ap_AdditionLocationInformation_PDU = -1;  /* AdditionLocationInformation */
 static int hf_x2ap_AdditionalRRMPriorityIndex_PDU = -1;  /* AdditionalRRMPriorityIndex */
 static int hf_x2ap_AdditionalSpecialSubframe_Info_PDU = -1;  /* AdditionalSpecialSubframe_Info */
@@ -1220,6 +1223,9 @@ static int hf_x2ap_CSI_RS_Neighbour_List_item = -1;  /* CSI_RS_Neighbour_Item */
 static int hf_x2ap_nr_cgi = -1;                   /* NRCGI */
 static int hf_x2ap_csi_RS_MTC_Neighbour_List = -1;  /* CSI_RS_MTC_Neighbour_List */
 static int hf_x2ap_CSI_RS_MTC_Neighbour_List_item = -1;  /* CSI_RS_MTC_Neighbour_Item */
+static int hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_item = -1;  /* AdditionalListofForwardingGTPTunnelEndpoint_Item */
+static int hf_x2ap_uL_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
+static int hf_x2ap_dL_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
 static int hf_x2ap_additionalspecialSubframePatterns = -1;  /* AdditionalSpecialSubframePatterns */
 static int hf_x2ap_cyclicPrefixDL = -1;           /* CyclicPrefixDL */
 static int hf_x2ap_cyclicPrefixUL = -1;           /* CyclicPrefixUL */
@@ -1751,7 +1757,6 @@ static int hf_x2ap_locationReportingInformation = -1;  /* LocationReportingInfor
 static int hf_x2ap_E_RABs_ToBeSetup_List_item = -1;  /* ProtocolIE_Single_Container */
 static int hf_x2ap_e_RAB_Level_QoS_Parameters = -1;  /* E_RAB_Level_QoS_Parameters */
 static int hf_x2ap_dL_Forwarding = -1;            /* DL_Forwarding */
-static int hf_x2ap_uL_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
 static int hf_x2ap_source_GlobalSeNB_ID = -1;     /* GlobalENB_ID */
 static int hf_x2ap_seNB_UE_X2AP_ID = -1;          /* UE_X2AP_ID */
 static int hf_x2ap_seNB_UE_X2AP_ID_Extension = -1;  /* UE_X2AP_ID_Extension */
@@ -1892,7 +1897,6 @@ static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReq_List_item = -1;  /* ProtocolIE
 static int hf_x2ap_resource_configuration_04 = -1;  /* T_resource_configuration_04 */
 static int hf_x2ap_sgNBPDCPpresent_04 = -1;       /* E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPpresent */
 static int hf_x2ap_sgNBPDCPnotpresent_04 = -1;    /* E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_dL_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
 static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList_item = -1;  /* ProtocolIE_Single_Container */
 static int hf_x2ap_resource_configuration_05 = -1;  /* T_resource_configuration_05 */
 static int hf_x2ap_sgNBPDCPpresent_05 = -1;       /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPpresent */
@@ -2064,6 +2068,8 @@ static gint ett_x2ap_CSI_RS_Neighbour_List = -1;
 static gint ett_x2ap_CSI_RS_Neighbour_Item = -1;
 static gint ett_x2ap_CSI_RS_MTC_Neighbour_List = -1;
 static gint ett_x2ap_CSI_RS_MTC_Neighbour_Item = -1;
+static gint ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint = -1;
+static gint ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item = -1;
 static gint ett_x2ap_AdditionalSpecialSubframe_Info = -1;
 static gint ett_x2ap_AdditionalSpecialSubframeExtension_Info = -1;
 static gint ett_x2ap_AllocationAndRetentionPriority = -1;
@@ -3374,6 +3380,7 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_SCGreconfigNotification, "id-SCGreconfigNotification" },
   { id_MIMOPRBusageInformation, "id-MIMOPRBusageInformation" },
   { id_SensorMeasurementConfiguration, "id-SensorMeasurementConfiguration" },
+  { id_AdditionalListofForwardingGTPTunnelEndpoint, "id-AdditionalListofForwardingGTPTunnelEndpoint" },
   { 0, NULL }
 };
 
@@ -3960,6 +3967,94 @@ dissect_x2ap_Additional_Measurement_Timing_Configuration_List(tvbuff_t *tvb _U_,
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_x2ap_Additional_Measurement_Timing_Configuration_List, Additional_Measurement_Timing_Configuration_List_sequence_of,
                                                   1, maxnoofMTCItems, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x2ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+  int len;
+
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 160, TRUE, NULL, 0, &parameter_tvb, &len);
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
+  if (len == 32) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  } else if (len == 128) {
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, 16, ENC_NA);
+  } else if (len == 160) {
+    /* IPv4 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+    /* IPv6 */
+     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_x2ap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GTPtunnelEndpoint_sequence[] = {
+  { &hf_x2ap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_TransportLayerAddress },
+  { &hf_x2ap_gTP_TEID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_GTP_TEI },
+  { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_x2ap_GTPtunnelEndpoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_x2ap_GTPtunnelEndpoint, GTPtunnelEndpoint_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalListofForwardingGTPTunnelEndpoint_Item_sequence[] = {
+  { &hf_x2ap_uL_GTPtunnelEndpoint, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_GTPtunnelEndpoint },
+  { &hf_x2ap_dL_GTPtunnelEndpoint, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_GTPtunnelEndpoint },
+  { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item, AdditionalListofForwardingGTPTunnelEndpoint_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalListofForwardingGTPTunnelEndpoint_sequence_of[1] = {
+  { &hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item },
+};
+
+static int
+dissect_x2ap_AdditionalListofForwardingGTPTunnelEndpoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint, AdditionalListofForwardingGTPTunnelEndpoint_sequence_of,
+                                                  1, maxnoofTargetSgNBsMinusOne, FALSE);
 
   return offset;
 }
@@ -5126,6 +5221,7 @@ dissect_x2ap_CPCindicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static const value_string x2ap_CPCdataforwarding_vals[] = {
   {   0, "cpc-triggered" },
   {   1, "early-data-transmission-stop" },
+  {   2, "coordination-only" },
   { 0, NULL }
 };
 
@@ -5133,7 +5229,7 @@ static const value_string x2ap_CPCdataforwarding_vals[] = {
 static int
 dissect_x2ap_CPCdataforwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -5470,6 +5566,7 @@ dissect_x2ap_CHO_DC_EarlyDataForwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static const value_string x2ap_CHO_DC_Indicator_vals[] = {
   {   0, "true" },
+  {   1, "coordination-only" },
   { 0, NULL }
 };
 
@@ -5477,7 +5574,7 @@ static const value_string x2ap_CHO_DC_Indicator_vals[] = {
 static int
 dissect_x2ap_CHO_DC_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -5851,38 +5948,6 @@ dissect_x2ap_CoverageModificationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_x2ap_CoverageModificationList, CoverageModificationList_sequence_of,
                                                   1, maxCellineNB, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x2ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *parameter_tvb = NULL;
-  proto_tree *subtree;
-  int len;
-
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, NULL, 0, &parameter_tvb, &len);
-
-  if (!parameter_tvb)
-    return offset;
-
-  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
-  if (len == 32) {
-    /* IPv4 */
-     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
-  } else if (len == 128) {
-    /* IPv6 */
-     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, 16, ENC_NA);
-  } else if (len == 160) {
-    /* IPv4 */
-     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
-    /* IPv6 */
-     proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
-  }
-
 
   return offset;
 }
@@ -8523,32 +8588,6 @@ dissect_x2ap_GTPTLAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_x2ap_GTPTLAs, GTPTLAs_sequence_of,
                                                   1, maxnoofGTPTLAs, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x2ap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t GTPtunnelEndpoint_sequence[] = {
-  { &hf_x2ap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_TransportLayerAddress },
-  { &hf_x2ap_gTP_TEID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_GTP_TEI },
-  { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_x2ap_GTPtunnelEndpoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_x2ap_GTPtunnelEndpoint, GTPtunnelEndpoint_sequence);
 
   return offset;
 }
@@ -19329,6 +19368,14 @@ static int dissect_Additional_Measurement_Timing_Configuration_List_PDU(tvbuff_t
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_AdditionalListofForwardingGTPTunnelEndpoint_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_AdditionalListofForwardingGTPTunnelEndpoint(tvb, offset, &asn1_ctx, tree, hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_AdditionLocationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -23481,6 +23528,10 @@ void proto_register_x2ap(void) {
       { "Additional-Measurement-Timing-Configuration-List", "x2ap.Additional_Measurement_Timing_Configuration_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_PDU,
+      { "AdditionalListofForwardingGTPTunnelEndpoint", "x2ap.AdditionalListofForwardingGTPTunnelEndpoint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_x2ap_AdditionLocationInformation_PDU,
       { "AdditionLocationInformation", "x2ap.AdditionLocationInformation",
         FT_UINT32, BASE_DEC, VALS(x2ap_AdditionLocationInformation_vals), 0,
@@ -25505,6 +25556,18 @@ void proto_register_x2ap(void) {
       { "CSI-RS-MTC-Neighbour-Item", "x2ap.CSI_RS_MTC_Neighbour_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_item,
+      { "AdditionalListofForwardingGTPTunnelEndpoint-Item", "x2ap.AdditionalListofForwardingGTPTunnelEndpoint_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_uL_GTPtunnelEndpoint,
+      { "uL-GTPtunnelEndpoint", "x2ap.uL_GTPtunnelEndpoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GTPtunnelEndpoint", HFILL }},
+    { &hf_x2ap_dL_GTPtunnelEndpoint,
+      { "dL-GTPtunnelEndpoint", "x2ap.dL_GTPtunnelEndpoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GTPtunnelEndpoint", HFILL }},
     { &hf_x2ap_additionalspecialSubframePatterns,
       { "additionalspecialSubframePatterns", "x2ap.additionalspecialSubframePatterns",
         FT_UINT32, BASE_DEC, VALS(x2ap_AdditionalSpecialSubframePatterns_vals), 0,
@@ -27629,10 +27692,6 @@ void proto_register_x2ap(void) {
       { "dL-Forwarding", "x2ap.dL_Forwarding",
         FT_UINT32, BASE_DEC, VALS(x2ap_DL_Forwarding_vals), 0,
         NULL, HFILL }},
-    { &hf_x2ap_uL_GTPtunnelEndpoint,
-      { "uL-GTPtunnelEndpoint", "x2ap.uL_GTPtunnelEndpoint_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GTPtunnelEndpoint", HFILL }},
     { &hf_x2ap_source_GlobalSeNB_ID,
       { "source-GlobalSeNB-ID", "x2ap.source_GlobalSeNB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -28193,10 +28252,6 @@ void proto_register_x2ap(void) {
       { "sgNBPDCPnotpresent", "x2ap.sgNBPDCPnotpresent_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPnotpresent", HFILL }},
-    { &hf_x2ap_dL_GTPtunnelEndpoint,
-      { "dL-GTPtunnelEndpoint", "x2ap.dL_GTPtunnelEndpoint_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GTPtunnelEndpoint", HFILL }},
     { &hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList_item,
       { "ProtocolIE-Single-Container", "x2ap.ProtocolIE_Single_Container_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -28667,6 +28722,8 @@ void proto_register_x2ap(void) {
     &ett_x2ap_CSI_RS_Neighbour_Item,
     &ett_x2ap_CSI_RS_MTC_Neighbour_List,
     &ett_x2ap_CSI_RS_MTC_Neighbour_Item,
+    &ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint,
+    &ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item,
     &ett_x2ap_AdditionalSpecialSubframe_Info,
     &ett_x2ap_AdditionalSpecialSubframeExtension_Info,
     &ett_x2ap_AllocationAndRetentionPriority,
@@ -29742,6 +29799,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_RAT_Restrictions, create_dissector_handle(dissect_RAT_Restrictions_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_MIMOPRBusageInformation, create_dissector_handle(dissect_MIMOPRBusageInformation_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_SensorMeasurementConfiguration, create_dissector_handle(dissect_SensorMeasurementConfiguration_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_AdditionalListofForwardingGTPTunnelEndpoint, create_dissector_handle(dissect_AdditionalListofForwardingGTPTunnelEndpoint_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));
