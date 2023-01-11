@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.2.0 (2022-09)
+-- 3GPP TS 38.423 V17.3.0 (2022-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -132,6 +132,9 @@ IMPORTS
 	id-TAINSAGSupportList,
 	id-earlyMeasurement,
 	id-BeamMeasurementsReportConfiguration,
+	id-CoverageModificationCause,
+	id-UERLFReportContainerLTEExtension,
+	id-ExcessPacketDelayThresholdConfiguration,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -239,7 +242,9 @@ IMPORTS
 	maxnoofSRBs,
 	maxnoofSMBR,
 	maxnoofNSAGs,
-	maxnoofRBsetsPerCell1
+	maxnoofRBsetsPerCell1,
+	maxnoofTargetSNsMinusOne,
+	maxnoofThresholdsForExcessPacketDelay
 
 FROM XnAP-Constants
 
@@ -258,6 +263,18 @@ FROM XnAP-Containers;
 
 
 -- A
+
+AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated ::= SEQUENCE (SIZE(1..maxnoofTargetSNsMinusOne)) OF AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated-Item
+
+AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated-Item ::= SEQUENCE {
+	pDUSessionResourceChangeConfirmInfo-SNterminated				PDUSessionResourceChangeConfirmInfo-SNterminated,
+	iE-Extensions		ProtocolExtensionContainer { { AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 AdditionLocationInformation ::= ENUMERATED {
 	includePSCell,
@@ -1047,7 +1064,7 @@ ControlPlaneTrafficType ::= INTEGER (1..3, ...)
 
 CHO-MRDC-EarlyDataForwarding ::= ENUMERATED {stop, ...}
 
-CHO-MRDC-Indicator ::= ENUMERATED {true, ...}
+CHO-MRDC-Indicator ::= ENUMERATED {true, ..., coordination-only }
 
 
 
@@ -1155,6 +1172,11 @@ COUNT-PDCP-SN18-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+CoverageModificationCause ::=	ENUMERATED {
+	coverage,
+	cell-edge-capacity,
+	...}
+
 Coverage-Modification-List ::= SEQUENCE (SIZE (0..maxnoofCellsinNG-RANnode)) OF Coverage-Modification-List-Item
 
 Coverage-Modification-List-Item ::= SEQUENCE {
@@ -1163,11 +1185,12 @@ Coverage-Modification-List-Item ::= SEQUENCE {
 	cellDeploymentStatusIndicator	CellDeploymentStatusIndicator			OPTIONAL,
 	cellReplacingInfo				CellReplacingInfo						OPTIONAL,
 -- Included in case the Cell Deployment Status Indicator IE is present
-	sSB-Coverage-Modification-List  SSB-Coverage-Modification-List,
-	iE-Extension			ProtocolExtensionContainer { { Coverage-Modification-Item-ExtIEs} } OPTIONAL,
+	sSB-Coverage-Modification-List	SSB-Coverage-Modification-List,
+	iE-Extension			ProtocolExtensionContainer { { Coverage-Modification-List-Item-ExtIEs} } OPTIONAL,
 	...
 }
-Coverage-Modification-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+Coverage-Modification-List-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+{ ID id-CoverageModificationCause		CRITICALITY ignore	EXTENSION CoverageModificationCause 		PRESENCE optional},
 	...
 }
 
@@ -1289,7 +1312,7 @@ CPAInformationModReqAck-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-CPC-DataForwarding-Indicator ::= ENUMERATED {triggered, early-data-transmission-stop, ...}
+CPC-DataForwarding-Indicator ::= ENUMERATED {triggered, early-data-transmission-stop, ..., coordination-only}
 
 
 CPACInformationModRequired ::= SEQUENCE {
@@ -1966,6 +1989,24 @@ EventL1-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 MeasurementThresholdL1LoggedMDT ::= CHOICE {
 	threshold-RSRP				Threshold-RSRP,
 	threshold-RSRQ				Threshold-RSRQ,
+	...
+}
+
+ExcessPacketDelayThresholdConfiguration ::= SEQUENCE (SIZE(1..maxnoofThresholdsForExcessPacketDelay)) OF ExcessPacketDelayThresholdItem
+
+ExcessPacketDelayThresholdItem ::= SEQUENCE {
+	fiveQI									FiveQI,
+	excessPacketDelayThresholdValue			ExcessPacketDelayThresholdValue,
+	iE-Extensions		ProtocolExtensionContainer { { ExcessPacketDelayThresholdItem-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ExcessPacketDelayThresholdItem-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ExcessPacketDelayThresholdValue ::= ENUMERATED {
+	ms0dot25, ms0dot5, ms1, ms2, ms4, ms5, ms10, ms20, ms30, ms40, ms50, ms60, ms70, ms80, ms90, ms100, ms150, ms300, ms500,
 	...
 }
 
@@ -3071,7 +3112,8 @@ M6Configuration ::= SEQUENCE {
 }
 
 M6Configuration-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-M6ReportAmount		CRITICALITY ignore	EXTENSION M6ReportAmountMDT 		PRESENCE optional		},
+	{ ID id-M6ReportAmount							CRITICALITY ignore	EXTENSION M6ReportAmountMDT 									PRESENCE optional}|
+	{ ID id-ExcessPacketDelayThresholdConfiguration	CRITICALITY ignore	EXTENSION ExcessPacketDelayThresholdConfiguration		PRESENCE optional},
 	...
 }
 
@@ -6743,13 +6785,13 @@ SSB-Coverage-Modification-List ::= SEQUENCE (SIZE (0..maxnoofSSBAreas)) OF SSB-C
 SSB-Coverage-Modification-List-Item ::= SEQUENCE {
 	sSBIndex						INTEGER(0..63),
 	sSBCoverageState				INTEGER (0..15, ...),
-	iE-Extension			ProtocolExtensionContainer { { SSB-Coverage-Modification-Item-ExtIEs} } OPTIONAL,
+	iE-Extension			ProtocolExtensionContainer { { SSB-Coverage-Modification-List-Item-ExtIEs} } OPTIONAL,
 
 	...
 }
 
 
-SSB-Coverage-Modification-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+SSB-Coverage-Modification-List-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -7466,11 +7508,30 @@ UERLFReportContainer ::= CHOICE {
 	choice-Extension		ProtocolIE-Single-Container { {UERLFReportContainer-ExtIEs} }
 }
 UERLFReportContainer-ExtIEs XNAP-PROTOCOL-IES ::= {
+	{ID id-UERLFReportContainerLTEExtension  CRITICALITY ignore  TYPE UERLFReportContainerLTEExtension		PRESENCE mandatory},
 	...
 }
 
 UERLFReportContainerLTE ::= OCTET STRING
 -- This IE is a transparent container and shall be encoded as the RLF-Report-r9 IE contained in the UEInformationResponse message (TS 36.331 [14])
+
+
+UERLFReportContainerLTEExtension ::= SEQUENCE {
+	ueRLFReportContainerLTE					UERLFReportContainerLTE,
+	ueRLFReportContainerLTEExtendBand		UERLFReportContainerLTEExtendBand,
+	iE-Extensions					ProtocolExtensionContainer { { UERLFReportContainerLTEExtension-ExtIEs} } OPTIONAL,
+	...
+}
+
+
+UERLFReportContainerLTEExtendBand ::= OCTET STRING
+-- This IE is a transparent container and includes the rLF-Report-v9e0 contained in the UEInformationResponse message (TS 36.331 [14])
+
+
+UERLFReportContainerLTEExtension-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 UERLFReportContainerNR ::= OCTET STRING
 -- This IE is a transparent container and shall be encoded as the nr-RLF-Report-r16 IE contained in the UEInformationResponse message (TS 38.331 [10])

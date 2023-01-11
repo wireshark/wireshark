@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.2.0 (2022-09)
+-- 3GPP TS 38.423 V17.3.0 (2022-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -192,6 +192,8 @@ maxnoofNeighbour-NG-RAN-Nodes				INTEGER ::= 256
 maxnoofSRBs									INTEGER ::= 5
 maxnoofSMBR									INTEGER ::= 8
 maxnoofNSAGs								INTEGER ::= 256
+maxnoofTargetSNsMinusOne					INTEGER ::= 7
+maxnoofThresholdsForExcessPacketDelay		INTEGER ::= 255
 
 -- **************************************************************
 --
@@ -568,6 +570,10 @@ id-TAINSAGSupportList																				ProtocolIE-ID ::= 364
 id-SCGreconfigNotification																			ProtocolIE-ID ::= 365
 id-earlyMeasurement																					ProtocolIE-ID ::= 366
 id-BeamMeasurementsReportConfiguration																ProtocolIE-ID ::= 367
+id-CoverageModificationCause																			ProtocolIE-ID ::= 368
+id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated									ProtocolIE-ID ::= 369
+id-UERLFReportContainerLTEExtension																ProtocolIE-ID ::= 370
+id-ExcessPacketDelayThresholdConfiguration															ProtocolIE-ID ::= 371
 
 
 END

@@ -787,6 +787,15 @@ Threshold-SINR DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_Threshold_SINR_fmt)
     dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY UERLFReportContainerLTEExtendBand VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_UERLFReportContainerLTEExtendBand);
+    dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY UERLFReportContainerNR VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1147,373 +1156,377 @@ id-cPCCancel                                            ProcedureCode
 id-partialUEContextTransfer                             ProcedureCode
 
 # ProtocolIE-ID
-id-ActivatedServedCells                             ProtocolIE-ID
-id-ActivationIDforCellActivation                    ProtocolIE-ID
-id-admittedSplitSRB                                 ProtocolIE-ID
-id-admittedSplitSRBrelease                          ProtocolIE-ID
-id-AMF-Region-Information                           ProtocolIE-ID
-id-AssistanceDataForRANPaging                       ProtocolIE-ID
-id-BearersSubjectToCounterCheck                     ProtocolIE-ID
-id-Cause                                            ProtocolIE-ID
-id-cellAssistanceInfo-NR                            ProtocolIE-ID
-id-ConfigurationUpdateInitiatingNodeChoice          ProtocolIE-ID
-id-CriticalityDiagnostics                           ProtocolIE-ID
-id-XnUAddressInfoperPDUSession-List                 ProtocolIE-ID
-id-DRBsSubjectToStatusTransfer-List                 ProtocolIE-ID
-id-ExpectedUEBehaviour                              ProtocolIE-ID
-id-GlobalNG-RAN-node-ID                             ProtocolIE-ID
-id-GUAMI                                            ProtocolIE-ID
-id-indexToRatFrequSelectionPriority                 ProtocolIE-ID
-id-initiatingNodeType-ResourceCoordRequest          ProtocolIE-ID
-id-List-of-served-cells-E-UTRA                      ProtocolIE-ID
-id-List-of-served-cells-NR                          ProtocolIE-ID
-id-LocationReportingInformation                     ProtocolIE-ID
-id-MAC-I                                            ProtocolIE-ID
-id-MaskedIMEISV                                     ProtocolIE-ID
-id-M-NG-RANnodeUEXnAPID                             ProtocolIE-ID
-id-MN-to-SN-Container                               ProtocolIE-ID
-id-MobilityRestrictionList                          ProtocolIE-ID
-id-new-NG-RAN-Cell-Identity                         ProtocolIE-ID
-id-newNG-RANnodeUEXnAPID                            ProtocolIE-ID
-id-UEReportRRCTransfer                              ProtocolIE-ID
-id-oldNG-RANnodeUEXnAPID                            ProtocolIE-ID
-id-OldtoNewNG-RANnodeResumeContainer                ProtocolIE-ID
-id-PagingDRX                                        ProtocolIE-ID
-id-PCellID                                          ProtocolIE-ID
-id-PDCPChangeIndication                             ProtocolIE-ID
-id-PDUSessionAdmittedAddedAddReqAck                 ProtocolIE-ID
-id-PDUSessionAdmittedModSNModConfirm                ProtocolIE-ID
-id-PDUSessionAdmitted-SNModResponse                 ProtocolIE-ID
-id-PDUSessionNotAdmittedAddReqAck                   ProtocolIE-ID
-id-PDUSessionNotAdmitted-SNModResponse              ProtocolIE-ID
-id-PDUSessionReleasedList-RelConf                   ProtocolIE-ID
-id-PDUSessionReleasedSNModConfirm                   ProtocolIE-ID
-id-PDUSessionResourcesActivityNotifyList            ProtocolIE-ID
-id-PDUSessionResourcesAdmitted-List                 ProtocolIE-ID
-id-PDUSessionResourcesNotAdmitted-List              ProtocolIE-ID
-id-PDUSessionResourcesNotifyList                    ProtocolIE-ID
-id-PDUSession-SNChangeConfirm-List                  ProtocolIE-ID
-id-PDUSession-SNChangeRequired-List                 ProtocolIE-ID
-id-PDUSessionToBeAddedAddReq                        ProtocolIE-ID
-id-PDUSessionToBeModifiedSNModRequired              ProtocolIE-ID
-id-PDUSessionToBeReleasedList-RelRqd                ProtocolIE-ID
-id-PDUSessionToBeReleased-RelReq                    ProtocolIE-ID
-id-PDUSessionToBeReleasedSNModRequired              ProtocolIE-ID
-id-RANPagingArea                                    ProtocolIE-ID
-id-PagingPriority                                   ProtocolIE-ID
-id-requestedSplitSRB                                ProtocolIE-ID
-id-requestedSplitSRBrelease                         ProtocolIE-ID
-id-ResetRequestTypeInfo                             ProtocolIE-ID
-id-ResetResponseTypeInfo                            ProtocolIE-ID
-id-RespondingNodeTypeConfigUpdateAck                ProtocolIE-ID
-id-respondingNodeType-ResourceCoordResponse         ProtocolIE-ID
-id-ResponseInfo-ReconfCompl                         ProtocolIE-ID
-id-RRCConfigIndication                              ProtocolIE-ID
-id-RRCResumeCause                                   ProtocolIE-ID
-id-SCGConfigurationQuery                            ProtocolIE-ID
-id-selectedPLMN                                     ProtocolIE-ID
-id-ServedCellsToActivate                            ProtocolIE-ID
-id-servedCellsToUpdate-E-UTRA                       ProtocolIE-ID
-id-ServedCellsToUpdateInitiatingNodeChoice          ProtocolIE-ID
-id-servedCellsToUpdate-NR                           ProtocolIE-ID
-id-s-ng-RANnode-SecurityKey                         ProtocolIE-ID
-id-S-NG-RANnodeUE-AMBR                              ProtocolIE-ID
-id-S-NG-RANnodeUEXnAPID                             ProtocolIE-ID
-id-SN-to-MN-Container                               ProtocolIE-ID
-id-sourceNG-RANnodeUEXnAPID                         ProtocolIE-ID
-id-SplitSRB-RRCTransfer                             ProtocolIE-ID
-id-TAISupport-list                                  ProtocolIE-ID
-id-TimeToWait                                       ProtocolIE-ID
-id-Target2SourceNG-RANnodeTranspContainer           ProtocolIE-ID
-id-targetCellGlobalID                               ProtocolIE-ID
-id-targetNG-RANnodeUEXnAPID                         ProtocolIE-ID
-id-target-S-NG-RANnodeID                            ProtocolIE-ID
-id-TraceActivation                                  ProtocolIE-ID
-id-UEContextID                                      ProtocolIE-ID
-id-UEContextInfoHORequest                           ProtocolIE-ID
-id-UEContextInfoRetrUECtxtResp                      ProtocolIE-ID
-id-UEContextInfo-SNModRequest                       ProtocolIE-ID
-id-UEContextKeptIndicator                           ProtocolIE-ID
-id-UEContextRefAtSN-HORequest                       ProtocolIE-ID
-id-UEHistoryInformation                             ProtocolIE-ID
-id-UEIdentityIndexValue                             ProtocolIE-ID
-id-UERANPagingIdentity                              ProtocolIE-ID
-id-UESecurityCapabilities                           ProtocolIE-ID
-id-UserPlaneTrafficActivityReport                   ProtocolIE-ID
-id-XnRemovalThreshold                               ProtocolIE-ID
-id-DesiredActNotificationLevel                      ProtocolIE-ID
-id-AvailableDRBIDs                                  ProtocolIE-ID
-id-AdditionalDRBIDs                                 ProtocolIE-ID
-id-SpareDRBIDs                                      ProtocolIE-ID
-id-RequiredNumberOfDRBIDs                           ProtocolIE-ID
-id-TNLA-To-Add-List                                 ProtocolIE-ID
-id-TNLA-To-Update-List                              ProtocolIE-ID
-id-TNLA-To-Remove-List                              ProtocolIE-ID
-id-TNLA-Setup-List                                  ProtocolIE-ID
-id-TNLA-Failed-To-Setup-List                        ProtocolIE-ID
-id-PDUSessionToBeReleased-RelReqAck                 ProtocolIE-ID
-id-S-NG-RANnodeMaxIPDataRate-UL                     ProtocolIE-ID
-id-PDUSessionResourceSecondaryRATUsageList          ProtocolIE-ID
-id-Additional-UL-NG-U-TNLatUPF-List                 ProtocolIE-ID
-id-SecondarydataForwardingInfoFromTarget-List       ProtocolIE-ID
-id-LocationInformationSNReporting                   ProtocolIE-ID
-id-LocationInformationSN                            ProtocolIE-ID
-id-LastE-UTRANPLMNIdentity                          ProtocolIE-ID
-id-S-NG-RANnodeMaxIPDataRate-DL                     ProtocolIE-ID
-id-MaxIPrate-DL                                     ProtocolIE-ID
-id-SecurityResult                                   ProtocolIE-ID
-id-S-NSSAI                                          ProtocolIE-ID
-id-MR-DC-ResourceCoordinationInfo                   ProtocolIE-ID
-id-AMF-Region-Information-To-Add                    ProtocolIE-ID
-id-AMF-Region-Information-To-Delete                 ProtocolIE-ID
-id-OldQoSFlowMap-ULendmarkerexpected                ProtocolIE-ID
-id-RANPagingFailure                                 ProtocolIE-ID
-id-UERadioCapabilityForPaging                       ProtocolIE-ID
-id-PDUSessionDataForwarding-SNModResponse           ProtocolIE-ID
-id-DRBsNotAdmittedSetupModifyList                   ProtocolIE-ID
-id-Secondary-MN-Xn-U-TNLInfoatM                     ProtocolIE-ID
-id-NE-DC-TDM-Pattern                                ProtocolIE-ID
-id-PDUSessionCommonNetworkInstance                  ProtocolIE-ID
-id-BPLMN-ID-Info-EUTRA                              ProtocolIE-ID
-id-BPLMN-ID-Info-NR                                 ProtocolIE-ID
-id-InterfaceInstanceIndication                      ProtocolIE-ID
-id-S-NG-RANnode-Addition-Trigger-Ind                ProtocolIE-ID
-id-DefaultDRB-Allowed                               ProtocolIE-ID
-id-DRB-IDs-takenintouse                             ProtocolIE-ID
-id-SplitSessionIndicator                            ProtocolIE-ID
-id-CNTypeRestrictionsForEquivalent                  ProtocolIE-ID
-id-CNTypeRestrictionsForServing                     ProtocolIE-ID
-id-DRBs-transferred-to-MN                           ProtocolIE-ID
-id-ULForwardingProposal                             ProtocolIE-ID
-id-EndpointIPAddressAndPort                         ProtocolIE-ID
-id-IntendedTDD-DL-ULConfiguration-NR                ProtocolIE-ID
-id-TNLConfigurationInfo                             ProtocolIE-ID
-id-PartialListIndicator-NR                          ProtocolIE-ID
-id-MessageOversizeNotification                      ProtocolIE-ID
-id-CellAndCapacityAssistanceInfo-NR                 ProtocolIE-ID
-id-NG-RANTraceID                                    ProtocolIE-ID
-id-NonGBRResources-Offered                          ProtocolIE-ID
-id-FastMCGRecoveryRRCTransfer-SN-to-MN              ProtocolIE-ID
-id-RequestedFastMCGRecoveryViaSRB3                  ProtocolIE-ID
-id-AvailableFastMCGRecoveryViaSRB3                  ProtocolIE-ID
-id-RequestedFastMCGRecoveryViaSRB3Release           ProtocolIE-ID
-id-ReleaseFastMCGRecoveryViaSRB3                    ProtocolIE-ID
-id-FastMCGRecoveryRRCTransfer-MN-to-SN              ProtocolIE-ID
-id-ExtendedRATRestrictionInformation                ProtocolIE-ID
-id-QoSMonitoringRequest                             ProtocolIE-ID
-id-FiveGCMobilityRestrictionListContainer           ProtocolIE-ID
-id-PartialListIndicator-EUTRA                       ProtocolIE-ID
-id-CellAndCapacityAssistanceInfo-EUTRA              ProtocolIE-ID
-id-CHOinformation-Req                               ProtocolIE-ID
-id-CHOinformation-Ack                               ProtocolIE-ID
-id-targetCellsToCancel                              ProtocolIE-ID
-id-requestedTargetCellGlobalID                      ProtocolIE-ID
-id-procedureStage                                   ProtocolIE-ID
-id-DAPSRequestInfo                                  ProtocolIE-ID
-id-DAPSResponseInfo-List                            ProtocolIE-ID
-id-CHO-MRDC-Indicator                               ProtocolIE-ID
-id-OffsetOfNbiotChannelNumberToDL-EARFCN            ProtocolIE-ID
-id-OffsetOfNbiotChannelNumberToUL-EARFCN            ProtocolIE-ID
-id-NBIoT-UL-DL-AlignmentOffset                      ProtocolIE-ID
-id-LTEV2XServicesAuthorized                         ProtocolIE-ID
-id-NRV2XServicesAuthorized                          ProtocolIE-ID
-id-LTEUESidelinkAggregateMaximumBitRate             ProtocolIE-ID
-id-NRUESidelinkAggregateMaximumBitRate              ProtocolIE-ID
-id-PC5QoSParameters                                 ProtocolIE-ID
-id-AlternativeQoSParaSetList                        ProtocolIE-ID
-id-CurrentQoSParaSetIndex                           ProtocolIE-ID
-id-MobilityInformation                              ProtocolIE-ID
-id-InitiatingCondition-FailureIndication            ProtocolIE-ID
-id-UEHistoryInformationFromTheUE                    ProtocolIE-ID
-id-HandoverReportType                               ProtocolIE-ID
-id-HandoverCause                                    ProtocolIE-ID
-id-SourceCellCGI                                    ProtocolIE-ID
-id-TargetCellCGI                                    ProtocolIE-ID
-id-ReEstablishmentCellCGI                           ProtocolIE-ID
-id-TargetCellinEUTRAN                               ProtocolIE-ID
-id-SourceCellCRNTI                                  ProtocolIE-ID
-id-UERLFReportContainer                             ProtocolIE-ID
-id-NGRAN-Node1-Measurement-ID                       ProtocolIE-ID
-id-NGRAN-Node2-Measurement-ID                       ProtocolIE-ID
-id-RegistrationRequest                              ProtocolIE-ID
-id-ReportCharacteristics                            ProtocolIE-ID
-id-CellToReport                                     ProtocolIE-ID
-id-ReportingPeriodicity                             ProtocolIE-ID
-id-CellMeasurementResult                            ProtocolIE-ID
-id-NG-RANnode1CellID                                ProtocolIE-ID
-id-NG-RANnode2CellID                                ProtocolIE-ID
-id-NG-RANnode1MobilityParameters                    ProtocolIE-ID
-id-NG-RANnode2ProposedMobilityParameters            ProtocolIE-ID
-id-MobilityParametersModificationRange              ProtocolIE-ID
-id-TDDULDLConfigurationCommonNR                     ProtocolIE-ID
-id-CarrierList                                      ProtocolIE-ID
-id-ULCarrierList                                    ProtocolIE-ID
-id-FrequencyShift7p5khz                             ProtocolIE-ID
-id-SSB-PositionsInBurst                             ProtocolIE-ID
-id-NRCellPRACHConfig                                ProtocolIE-ID
-id-RACHReportInformation                            ProtocolIE-ID
-id-IABNodeIndication                                ProtocolIE-ID
-id-Redundant-UL-NG-U-TNLatUPF                       ProtocolIE-ID
-id-CNPacketDelayBudgetDownlink                      ProtocolIE-ID
-id-CNPacketDelayBudgetUplink                        ProtocolIE-ID
-id-Additional-Redundant-UL-NG-U-TNLatUPF-List       ProtocolIE-ID
-id-RedundantCommonNetworkInstance                   ProtocolIE-ID
-id-TSCTrafficCharacteristics                        ProtocolIE-ID
-id-RedundantQoSFlowIndicator                        ProtocolIE-ID
-id-Redundant-DL-NG-U-TNLatNG-RAN                    ProtocolIE-ID
-id-ExtendedPacketDelayBudget                        ProtocolIE-ID
-id-Additional-PDCP-Duplication-TNL-List             ProtocolIE-ID
-id-RedundantPDUSessionInformation                   ProtocolIE-ID
-id-UsedRSNInformation                               ProtocolIE-ID
-id-RLCDuplicationInformation                        ProtocolIE-ID
-id-NPN-Broadcast-Information                        ProtocolIE-ID
-id-NPNPagingAssistanceInformation                   ProtocolIE-ID
-id-NPNMobilityInformation                           ProtocolIE-ID
-id-NPN-Support                                      ProtocolIE-ID
-id-MDT-Configuration                                ProtocolIE-ID
-id-MDTPLMNList                                      ProtocolIE-ID
-id-TraceCollectionEntityURI                         ProtocolIE-ID
-id-UERadioCapabilityID                              ProtocolIE-ID
-id-CSI-RSTransmissionIndication                     ProtocolIE-ID
-id-SNTriggered                                      ProtocolIE-ID
-id-DLCarrierList                                    ProtocolIE-ID
-id-ExtendedTAISliceSupportList                      ProtocolIE-ID
-id-cellAssistanceInfo-EUTRA                         ProtocolIE-ID
-id-ConfiguredTACIndication                          ProtocolIE-ID
-id-secondary-SN-UL-PDCP-UP-TNLInfo                  ProtocolIE-ID
-id-pdcpDuplicationConfiguration                     ProtocolIE-ID
-id-duplicationActivation                            ProtocolIE-ID
-id-NPRACHConfiguration                              ProtocolIE-ID
-id-QosMonitoringReportingFrequency                  ProtocolIE-ID
-id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated   ProtocolIE-ID
-id-DL-scheduling-PDCCH-CCE-usage                    ProtocolIE-ID
-id-UL-scheduling-PDCCH-CCE-usage                    ProtocolIE-ID
-id-SFN-Offset                                       ProtocolIE-ID
-id-QoSMonitoringDisabled                            ProtocolIE-ID
-id-ExtendedUEIdentityIndexValue                     ProtocolIE-ID
-id-EUTRAPagingeDRXInformation                       ProtocolIE-ID
-id-CHO-MRDC-EarlyDataForwarding                     ProtocolIE-ID
-id-SCGIndicator                                     ProtocolIE-ID
-id-UESpecificDRX                                    ProtocolIE-ID
-id-PDUSessionExpectedUEActivityBehaviour            ProtocolIE-ID
-id-QoS-Mapping-Information                          ProtocolIE-ID
-id-AdditionLocationInformation                      ProtocolIE-ID
-id-dataForwardingInfoFromTargetE-UTRANnode          ProtocolIE-ID
-id-DirectForwardingPathAvailability                 ProtocolIE-ID
-id-SourceNG-RAN-node-ID                             ProtocolIE-ID
-id-SourceDLForwardingIPAddress                      ProtocolIE-ID
-id-SourceNodeDLForwardingIPAddress                  ProtocolIE-ID
-id-ExtendedReportIntervalMDT                        ProtocolIE-ID
-id-SecurityIndication                               ProtocolIE-ID
-id-RRCConnReestab-Indicator                         ProtocolIE-ID
-id-TargetNodeID                                     ProtocolIE-ID
-id-ManagementBasedMDTPLMNList                       ProtocolIE-ID
-id-PrivacyIndicator                                 ProtocolIE-ID
-id-TraceCollectionEntityIPAddress                   ProtocolIE-ID
-id-M4ReportAmount                                   ProtocolIE-ID
-id-M5ReportAmount                                   ProtocolIE-ID
-id-M6ReportAmount                                   ProtocolIE-ID
-id-M7ReportAmount                                   ProtocolIE-ID
-id-BeamMeasurementIndicationM1                      ProtocolIE-ID
-id-MBS-Session-ID                                   ProtocolIE-ID
-id-UEIdentityIndexList-MBSGroupPaging               ProtocolIE-ID
-id-MulticastRANPagingArea                           ProtocolIE-ID
-id-Supported-MBS-FSA-ID-List                        ProtocolIE-ID
-id-MBS-SessionInformation-List                      ProtocolIE-ID
-id-MBS-SessionInformationResponse-List              ProtocolIE-ID
-id-MBS-SessionAssociatedInformation                 ProtocolIE-ID
-id-SuccessfulHOReportInformation                    ProtocolIE-ID
-id-SliceRadioResourceStatus-List                    ProtocolIE-ID
-id-CompositeAvailableCapacitySupplementaryUplink    ProtocolIE-ID
-id-SCGUEHistoryInformation                          ProtocolIE-ID
-id-SSBOffsets-List                                  ProtocolIE-ID
-id-NG-RANnode2SSBOffsetModificationRange            ProtocolIE-ID
-id-Coverage-Modification-List                       ProtocolIE-ID
-id-NR-U-Channel-List                                ProtocolIE-ID
-id-SourcePSCellCGI                                  ProtocolIE-ID
-id-FailedPSCellCGI                                  ProtocolIE-ID
-id-SCGFailureReportContainer                        ProtocolIE-ID
-id-SNMobilityInformation                            ProtocolIE-ID
-id-SourcePSCellID                                   ProtocolIE-ID
-id-SuitablePSCellCGI                                ProtocolIE-ID
-id-PSCellChangeHistory                              ProtocolIE-ID
-id-CHOConfiguration                                 ProtocolIE-ID
-id-NR-U-ChannelInfo-List                            ProtocolIE-ID
-id-PSCellHistoryInformationRetrieve                 ProtocolIE-ID
-id-NG-RANnode2SSBOffsetsModificationRange           ProtocolIE-ID
-id-MIMOPRBusageInformation                          ProtocolIE-ID
-id-F1CTrafficContainer                              ProtocolIE-ID
-id-IAB-MT-Cell-List                                 ProtocolIE-ID
-id-NoPDUSessionIndication                           ProtocolIE-ID
-id-IAB-TNL-Address-Request                          ProtocolIE-ID
-id-IAB-TNL-Address-Response                         ProtocolIE-ID
-id-TrafficToBeAddedList                             ProtocolIE-ID
-id-TrafficToBeModifiedList                          ProtocolIE-ID
-id-TrafficToBeReleaseInformation                    ProtocolIE-ID
-id-TrafficAddedList                                 ProtocolIE-ID
-id-TrafficModifiedList                              ProtocolIE-ID
-id-TrafficNotAddedList                              ProtocolIE-ID
-id-TrafficNotModifiedList                           ProtocolIE-ID
-id-TrafficRequiredToBeModifiedList                  ProtocolIE-ID
-id-TrafficRequiredModifiedList                      ProtocolIE-ID
-id-TrafficReleasedList                              ProtocolIE-ID
-id-IABTNLAddressToBeAdded                           ProtocolIE-ID
-id-IABTNLAddressToBeReleasedList                    ProtocolIE-ID
-id-nonF1-Terminating-IAB-DonorUEXnAPID              ProtocolIE-ID
-id-F1-Terminating-IAB-DonorUEXnAPID                 ProtocolIE-ID
-id-BoundaryNodeCellsList                            ProtocolIE-ID
-id-ParentNodeCellsList                              ProtocolIE-ID
-id-tdd-GNB-DU-Cell-Resource-Configuration           ProtocolIE-ID
-id-UL-GNB-DU-Cell-Resource-Configuration            ProtocolIE-ID
-id-DL-GNB-DU-Cell-Resource-Configuration            ProtocolIE-ID
-id-permutation                                      ProtocolIE-ID
-id-IABTNLAddressException                           ProtocolIE-ID
-id-CHOinformation-AddReq                            ProtocolIE-ID
-id-CHOinformation-ModReq                            ProtocolIE-ID
-id-SurvivalTime                                     ProtocolIE-ID
-id-TimeSynchronizationAssistanceInformation         ProtocolIE-ID
-id-SCGActivationRequest                             ProtocolIE-ID
-id-SCGActivationStatus                              ProtocolIE-ID
-id-CPAInformationRequest                            ProtocolIE-ID
-id-CPAInformationAck                                ProtocolIE-ID
-id-CPCInformationRequired                           ProtocolIE-ID
-id-CPCInformationConfirm                            ProtocolIE-ID
-id-CPAInformationModReq                             ProtocolIE-ID
-id-CPAInformationModReqAck                          ProtocolIE-ID
-id-CPC-DataForwarding-Indicator                     ProtocolIE-ID
-id-CPCInformationUpdate                             ProtocolIE-ID
-id-CPACInformationModRequired                       ProtocolIE-ID
-id-QMCConfigInfo                                    ProtocolIE-ID
-id-ProtocolIE-ID338-NotToBeUsed                     ProtocolIE-ID
-id-Additional-Measurement-Timing-Configuration-List ProtocolIE-ID
-id-PDUSession-PairID                                ProtocolIE-ID
-id-Local-NG-RAN-Node-Identifier                     ProtocolIE-ID
-id-Neighbour-NG-RAN-Node-List                       ProtocolIE-ID
-id-Local-NG-RAN-Node-Identifier-Removal             ProtocolIE-ID
-id-FiveGProSeAuthorized                             ProtocolIE-ID
-id-FiveGProSePC5QoSParameters                       ProtocolIE-ID
-id-FiveGProSeUEPC5AggregateMaximumBitRate           ProtocolIE-ID
-id-ServedCellSpecificInfoReq-NR                     ProtocolIE-ID
-id-NRPagingeDRXInformation                          ProtocolIE-ID
-id-NRPagingeDRXInformationforRRCINACTIVE            ProtocolIE-ID
-id-Redcap-Bcast-Information                         ProtocolIE-ID
-id-SDTSupportRequest                                ProtocolIE-ID
-id-SDT-SRB-between-NewNode-OldNode                  ProtocolIE-ID
-id-SDT-Termination-Request                          ProtocolIE-ID
-id-SDTPartialUEContextInfo                          ProtocolIE-ID
-id-SDTDataForwardingDRBList                         ProtocolIE-ID
-id-PagingCause                                      ProtocolIE-ID
-id-PEIPSassistanceInformation                       ProtocolIE-ID
-id-UESliceMaximumBitRateList                        ProtocolIE-ID
-id-S-NG-RANnodeUE-Slice-MBR                         ProtocolIE-ID
-id-PositioningInformation                           ProtocolIE-ID
-id-UEAssistantIdentifier                            ProtocolIE-ID
-id-ManagementBasedMDTPLMNModificationList           ProtocolIE-ID
-id-F1-terminatingIAB-donorIndicator                 ProtocolIE-ID
-id-TAINSAGSupportList                               ProtocolIE-ID
-id-SCGreconfigNotification                          ProtocolIE-ID
-id-earlyMeasurement                                 ProtocolIE-ID
-id-BeamMeasurementsReportConfiguration              ProtocolIE-ID
+id-ActivatedServedCells                                             ProtocolIE-ID
+id-ActivationIDforCellActivation                                    ProtocolIE-ID
+id-admittedSplitSRB                                                 ProtocolIE-ID
+id-admittedSplitSRBrelease                                          ProtocolIE-ID
+id-AMF-Region-Information                                           ProtocolIE-ID
+id-AssistanceDataForRANPaging                                       ProtocolIE-ID
+id-BearersSubjectToCounterCheck                                     ProtocolIE-ID
+id-Cause                                                            ProtocolIE-ID
+id-cellAssistanceInfo-NR                                            ProtocolIE-ID
+id-ConfigurationUpdateInitiatingNodeChoice                          ProtocolIE-ID
+id-CriticalityDiagnostics                                           ProtocolIE-ID
+id-XnUAddressInfoperPDUSession-List                                 ProtocolIE-ID
+id-DRBsSubjectToStatusTransfer-List                                 ProtocolIE-ID
+id-ExpectedUEBehaviour                                              ProtocolIE-ID
+id-GlobalNG-RAN-node-ID                                             ProtocolIE-ID
+id-GUAMI                                                            ProtocolIE-ID
+id-indexToRatFrequSelectionPriority                                 ProtocolIE-ID
+id-initiatingNodeType-ResourceCoordRequest                          ProtocolIE-ID
+id-List-of-served-cells-E-UTRA                                      ProtocolIE-ID
+id-List-of-served-cells-NR                                          ProtocolIE-ID
+id-LocationReportingInformation                                     ProtocolIE-ID
+id-MAC-I                                                            ProtocolIE-ID
+id-MaskedIMEISV                                                     ProtocolIE-ID
+id-M-NG-RANnodeUEXnAPID                                             ProtocolIE-ID
+id-MN-to-SN-Container                                               ProtocolIE-ID
+id-MobilityRestrictionList                                          ProtocolIE-ID
+id-new-NG-RAN-Cell-Identity                                         ProtocolIE-ID
+id-newNG-RANnodeUEXnAPID                                            ProtocolIE-ID
+id-UEReportRRCTransfer                                              ProtocolIE-ID
+id-oldNG-RANnodeUEXnAPID                                            ProtocolIE-ID
+id-OldtoNewNG-RANnodeResumeContainer                                ProtocolIE-ID
+id-PagingDRX                                                        ProtocolIE-ID
+id-PCellID                                                          ProtocolIE-ID
+id-PDCPChangeIndication                                             ProtocolIE-ID
+id-PDUSessionAdmittedAddedAddReqAck                                 ProtocolIE-ID
+id-PDUSessionAdmittedModSNModConfirm                                ProtocolIE-ID
+id-PDUSessionAdmitted-SNModResponse                                 ProtocolIE-ID
+id-PDUSessionNotAdmittedAddReqAck                                   ProtocolIE-ID
+id-PDUSessionNotAdmitted-SNModResponse                              ProtocolIE-ID
+id-PDUSessionReleasedList-RelConf                                   ProtocolIE-ID
+id-PDUSessionReleasedSNModConfirm                                   ProtocolIE-ID
+id-PDUSessionResourcesActivityNotifyList                            ProtocolIE-ID
+id-PDUSessionResourcesAdmitted-List                                 ProtocolIE-ID
+id-PDUSessionResourcesNotAdmitted-List                              ProtocolIE-ID
+id-PDUSessionResourcesNotifyList                                    ProtocolIE-ID
+id-PDUSession-SNChangeConfirm-List                                  ProtocolIE-ID
+id-PDUSession-SNChangeRequired-List                                 ProtocolIE-ID
+id-PDUSessionToBeAddedAddReq                                        ProtocolIE-ID
+id-PDUSessionToBeModifiedSNModRequired                              ProtocolIE-ID
+id-PDUSessionToBeReleasedList-RelRqd                                ProtocolIE-ID
+id-PDUSessionToBeReleased-RelReq                                    ProtocolIE-ID
+id-PDUSessionToBeReleasedSNModRequired                              ProtocolIE-ID
+id-RANPagingArea                                                    ProtocolIE-ID
+id-PagingPriority                                                   ProtocolIE-ID
+id-requestedSplitSRB                                                ProtocolIE-ID
+id-requestedSplitSRBrelease                                         ProtocolIE-ID
+id-ResetRequestTypeInfo                                             ProtocolIE-ID
+id-ResetResponseTypeInfo                                            ProtocolIE-ID
+id-RespondingNodeTypeConfigUpdateAck                                ProtocolIE-ID
+id-respondingNodeType-ResourceCoordResponse                         ProtocolIE-ID
+id-ResponseInfo-ReconfCompl                                         ProtocolIE-ID
+id-RRCConfigIndication                                              ProtocolIE-ID
+id-RRCResumeCause                                                   ProtocolIE-ID
+id-SCGConfigurationQuery                                            ProtocolIE-ID
+id-selectedPLMN                                                     ProtocolIE-ID
+id-ServedCellsToActivate                                            ProtocolIE-ID
+id-servedCellsToUpdate-E-UTRA                                       ProtocolIE-ID
+id-ServedCellsToUpdateInitiatingNodeChoice                          ProtocolIE-ID
+id-servedCellsToUpdate-NR                                           ProtocolIE-ID
+id-s-ng-RANnode-SecurityKey                                         ProtocolIE-ID
+id-S-NG-RANnodeUE-AMBR                                              ProtocolIE-ID
+id-S-NG-RANnodeUEXnAPID                                             ProtocolIE-ID
+id-SN-to-MN-Container                                               ProtocolIE-ID
+id-sourceNG-RANnodeUEXnAPID                                         ProtocolIE-ID
+id-SplitSRB-RRCTransfer                                             ProtocolIE-ID
+id-TAISupport-list                                                  ProtocolIE-ID
+id-TimeToWait                                                       ProtocolIE-ID
+id-Target2SourceNG-RANnodeTranspContainer                           ProtocolIE-ID
+id-targetCellGlobalID                                               ProtocolIE-ID
+id-targetNG-RANnodeUEXnAPID                                         ProtocolIE-ID
+id-target-S-NG-RANnodeID                                            ProtocolIE-ID
+id-TraceActivation                                                  ProtocolIE-ID
+id-UEContextID                                                      ProtocolIE-ID
+id-UEContextInfoHORequest                                           ProtocolIE-ID
+id-UEContextInfoRetrUECtxtResp                                      ProtocolIE-ID
+id-UEContextInfo-SNModRequest                                       ProtocolIE-ID
+id-UEContextKeptIndicator                                           ProtocolIE-ID
+id-UEContextRefAtSN-HORequest                                       ProtocolIE-ID
+id-UEHistoryInformation                                             ProtocolIE-ID
+id-UEIdentityIndexValue                                             ProtocolIE-ID
+id-UERANPagingIdentity                                              ProtocolIE-ID
+id-UESecurityCapabilities                                           ProtocolIE-ID
+id-UserPlaneTrafficActivityReport                                   ProtocolIE-ID
+id-XnRemovalThreshold                                               ProtocolIE-ID
+id-DesiredActNotificationLevel                                      ProtocolIE-ID
+id-AvailableDRBIDs                                                  ProtocolIE-ID
+id-AdditionalDRBIDs                                                 ProtocolIE-ID
+id-SpareDRBIDs                                                      ProtocolIE-ID
+id-RequiredNumberOfDRBIDs                                           ProtocolIE-ID
+id-TNLA-To-Add-List                                                 ProtocolIE-ID
+id-TNLA-To-Update-List                                              ProtocolIE-ID
+id-TNLA-To-Remove-List                                              ProtocolIE-ID
+id-TNLA-Setup-List                                                  ProtocolIE-ID
+id-TNLA-Failed-To-Setup-List                                        ProtocolIE-ID
+id-PDUSessionToBeReleased-RelReqAck                                 ProtocolIE-ID
+id-S-NG-RANnodeMaxIPDataRate-UL                                     ProtocolIE-ID
+id-PDUSessionResourceSecondaryRATUsageList                          ProtocolIE-ID
+id-Additional-UL-NG-U-TNLatUPF-List                                 ProtocolIE-ID
+id-SecondarydataForwardingInfoFromTarget-List                       ProtocolIE-ID
+id-LocationInformationSNReporting                                   ProtocolIE-ID
+id-LocationInformationSN                                            ProtocolIE-ID
+id-LastE-UTRANPLMNIdentity                                          ProtocolIE-ID
+id-S-NG-RANnodeMaxIPDataRate-DL                                     ProtocolIE-ID
+id-MaxIPrate-DL                                                     ProtocolIE-ID
+id-SecurityResult                                                   ProtocolIE-ID
+id-S-NSSAI                                                          ProtocolIE-ID
+id-MR-DC-ResourceCoordinationInfo                                   ProtocolIE-ID
+id-AMF-Region-Information-To-Add                                    ProtocolIE-ID
+id-AMF-Region-Information-To-Delete                                 ProtocolIE-ID
+id-OldQoSFlowMap-ULendmarkerexpected                                ProtocolIE-ID
+id-RANPagingFailure                                                 ProtocolIE-ID
+id-UERadioCapabilityForPaging                                       ProtocolIE-ID
+id-PDUSessionDataForwarding-SNModResponse                           ProtocolIE-ID
+id-DRBsNotAdmittedSetupModifyList                                   ProtocolIE-ID
+id-Secondary-MN-Xn-U-TNLInfoatM                                     ProtocolIE-ID
+id-NE-DC-TDM-Pattern                                                ProtocolIE-ID
+id-PDUSessionCommonNetworkInstance                                  ProtocolIE-ID
+id-BPLMN-ID-Info-EUTRA                                              ProtocolIE-ID
+id-BPLMN-ID-Info-NR                                                 ProtocolIE-ID
+id-InterfaceInstanceIndication                                      ProtocolIE-ID
+id-S-NG-RANnode-Addition-Trigger-Ind                                ProtocolIE-ID
+id-DefaultDRB-Allowed                                               ProtocolIE-ID
+id-DRB-IDs-takenintouse                                             ProtocolIE-ID
+id-SplitSessionIndicator                                            ProtocolIE-ID
+id-CNTypeRestrictionsForEquivalent                                  ProtocolIE-ID
+id-CNTypeRestrictionsForServing                                     ProtocolIE-ID
+id-DRBs-transferred-to-MN                                           ProtocolIE-ID
+id-ULForwardingProposal                                             ProtocolIE-ID
+id-EndpointIPAddressAndPort                                         ProtocolIE-ID
+id-IntendedTDD-DL-ULConfiguration-NR                                ProtocolIE-ID
+id-TNLConfigurationInfo                                             ProtocolIE-ID
+id-PartialListIndicator-NR                                          ProtocolIE-ID
+id-MessageOversizeNotification                                      ProtocolIE-ID
+id-CellAndCapacityAssistanceInfo-NR                                 ProtocolIE-ID
+id-NG-RANTraceID                                                    ProtocolIE-ID
+id-NonGBRResources-Offered                                          ProtocolIE-ID
+id-FastMCGRecoveryRRCTransfer-SN-to-MN                              ProtocolIE-ID
+id-RequestedFastMCGRecoveryViaSRB3                                  ProtocolIE-ID
+id-AvailableFastMCGRecoveryViaSRB3                                  ProtocolIE-ID
+id-RequestedFastMCGRecoveryViaSRB3Release                           ProtocolIE-ID
+id-ReleaseFastMCGRecoveryViaSRB3                                    ProtocolIE-ID
+id-FastMCGRecoveryRRCTransfer-MN-to-SN                              ProtocolIE-ID
+id-ExtendedRATRestrictionInformation                                ProtocolIE-ID
+id-QoSMonitoringRequest                                             ProtocolIE-ID
+id-FiveGCMobilityRestrictionListContainer                           ProtocolIE-ID
+id-PartialListIndicator-EUTRA                                       ProtocolIE-ID
+id-CellAndCapacityAssistanceInfo-EUTRA                              ProtocolIE-ID
+id-CHOinformation-Req                                               ProtocolIE-ID
+id-CHOinformation-Ack                                               ProtocolIE-ID
+id-targetCellsToCancel                                              ProtocolIE-ID
+id-requestedTargetCellGlobalID                                      ProtocolIE-ID
+id-procedureStage                                                   ProtocolIE-ID
+id-DAPSRequestInfo                                                  ProtocolIE-ID
+id-DAPSResponseInfo-List                                            ProtocolIE-ID
+id-CHO-MRDC-Indicator                                               ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToDL-EARFCN                            ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToUL-EARFCN                            ProtocolIE-ID
+id-NBIoT-UL-DL-AlignmentOffset                                      ProtocolIE-ID
+id-LTEV2XServicesAuthorized                                         ProtocolIE-ID
+id-NRV2XServicesAuthorized                                          ProtocolIE-ID
+id-LTEUESidelinkAggregateMaximumBitRate                             ProtocolIE-ID
+id-NRUESidelinkAggregateMaximumBitRate                              ProtocolIE-ID
+id-PC5QoSParameters                                                 ProtocolIE-ID
+id-AlternativeQoSParaSetList                                        ProtocolIE-ID
+id-CurrentQoSParaSetIndex                                           ProtocolIE-ID
+id-MobilityInformation                                              ProtocolIE-ID
+id-InitiatingCondition-FailureIndication                            ProtocolIE-ID
+id-UEHistoryInformationFromTheUE                                    ProtocolIE-ID
+id-HandoverReportType                                               ProtocolIE-ID
+id-HandoverCause                                                    ProtocolIE-ID
+id-SourceCellCGI                                                    ProtocolIE-ID
+id-TargetCellCGI                                                    ProtocolIE-ID
+id-ReEstablishmentCellCGI                                           ProtocolIE-ID
+id-TargetCellinEUTRAN                                               ProtocolIE-ID
+id-SourceCellCRNTI                                                  ProtocolIE-ID
+id-UERLFReportContainer                                             ProtocolIE-ID
+id-NGRAN-Node1-Measurement-ID                                       ProtocolIE-ID
+id-NGRAN-Node2-Measurement-ID                                       ProtocolIE-ID
+id-RegistrationRequest                                              ProtocolIE-ID
+id-ReportCharacteristics                                            ProtocolIE-ID
+id-CellToReport                                                     ProtocolIE-ID
+id-ReportingPeriodicity                                             ProtocolIE-ID
+id-CellMeasurementResult                                            ProtocolIE-ID
+id-NG-RANnode1CellID                                                ProtocolIE-ID
+id-NG-RANnode2CellID                                                ProtocolIE-ID
+id-NG-RANnode1MobilityParameters                                    ProtocolIE-ID
+id-NG-RANnode2ProposedMobilityParameters                            ProtocolIE-ID
+id-MobilityParametersModificationRange                              ProtocolIE-ID
+id-TDDULDLConfigurationCommonNR                                     ProtocolIE-ID
+id-CarrierList                                                      ProtocolIE-ID
+id-ULCarrierList                                                    ProtocolIE-ID
+id-FrequencyShift7p5khz                                             ProtocolIE-ID
+id-SSB-PositionsInBurst                                             ProtocolIE-ID
+id-NRCellPRACHConfig                                                ProtocolIE-ID
+id-RACHReportInformation                                            ProtocolIE-ID
+id-IABNodeIndication                                                ProtocolIE-ID
+id-Redundant-UL-NG-U-TNLatUPF                                       ProtocolIE-ID
+id-CNPacketDelayBudgetDownlink                                      ProtocolIE-ID
+id-CNPacketDelayBudgetUplink                                        ProtocolIE-ID
+id-Additional-Redundant-UL-NG-U-TNLatUPF-List                       ProtocolIE-ID
+id-RedundantCommonNetworkInstance                                   ProtocolIE-ID
+id-TSCTrafficCharacteristics                                        ProtocolIE-ID
+id-RedundantQoSFlowIndicator                                        ProtocolIE-ID
+id-Redundant-DL-NG-U-TNLatNG-RAN                                    ProtocolIE-ID
+id-ExtendedPacketDelayBudget                                        ProtocolIE-ID
+id-Additional-PDCP-Duplication-TNL-List                             ProtocolIE-ID
+id-RedundantPDUSessionInformation                                   ProtocolIE-ID
+id-UsedRSNInformation                                               ProtocolIE-ID
+id-RLCDuplicationInformation                                        ProtocolIE-ID
+id-NPN-Broadcast-Information                                        ProtocolIE-ID
+id-NPNPagingAssistanceInformation                                   ProtocolIE-ID
+id-NPNMobilityInformation                                           ProtocolIE-ID
+id-NPN-Support                                                      ProtocolIE-ID
+id-MDT-Configuration                                                ProtocolIE-ID
+id-MDTPLMNList                                                      ProtocolIE-ID
+id-TraceCollectionEntityURI                                         ProtocolIE-ID
+id-UERadioCapabilityID                                              ProtocolIE-ID
+id-CSI-RSTransmissionIndication                                     ProtocolIE-ID
+id-SNTriggered                                                      ProtocolIE-ID
+id-DLCarrierList                                                    ProtocolIE-ID
+id-ExtendedTAISliceSupportList                                      ProtocolIE-ID
+id-cellAssistanceInfo-EUTRA                                         ProtocolIE-ID
+id-ConfiguredTACIndication                                          ProtocolIE-ID
+id-secondary-SN-UL-PDCP-UP-TNLInfo                                  ProtocolIE-ID
+id-pdcpDuplicationConfiguration                                     ProtocolIE-ID
+id-duplicationActivation                                            ProtocolIE-ID
+id-NPRACHConfiguration                                              ProtocolIE-ID
+id-QosMonitoringReportingFrequency                                  ProtocolIE-ID
+id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated                   ProtocolIE-ID
+id-DL-scheduling-PDCCH-CCE-usage                                    ProtocolIE-ID
+id-UL-scheduling-PDCCH-CCE-usage                                    ProtocolIE-ID
+id-SFN-Offset                                                       ProtocolIE-ID
+id-QoSMonitoringDisabled                                            ProtocolIE-ID
+id-ExtendedUEIdentityIndexValue                                     ProtocolIE-ID
+id-EUTRAPagingeDRXInformation                                       ProtocolIE-ID
+id-CHO-MRDC-EarlyDataForwarding                                     ProtocolIE-ID
+id-SCGIndicator                                                     ProtocolIE-ID
+id-UESpecificDRX                                                    ProtocolIE-ID
+id-PDUSessionExpectedUEActivityBehaviour                            ProtocolIE-ID
+id-QoS-Mapping-Information                                          ProtocolIE-ID
+id-AdditionLocationInformation                                      ProtocolIE-ID
+id-dataForwardingInfoFromTargetE-UTRANnode                          ProtocolIE-ID
+id-DirectForwardingPathAvailability                                 ProtocolIE-ID
+id-SourceNG-RAN-node-ID                                             ProtocolIE-ID
+id-SourceDLForwardingIPAddress                                      ProtocolIE-ID
+id-SourceNodeDLForwardingIPAddress                                  ProtocolIE-ID
+id-ExtendedReportIntervalMDT                                        ProtocolIE-ID
+id-SecurityIndication                                               ProtocolIE-ID
+id-RRCConnReestab-Indicator                                         ProtocolIE-ID
+id-TargetNodeID                                                     ProtocolIE-ID
+id-ManagementBasedMDTPLMNList                                       ProtocolIE-ID
+id-PrivacyIndicator                                                 ProtocolIE-ID
+id-TraceCollectionEntityIPAddress                                   ProtocolIE-ID
+id-M4ReportAmount                                                   ProtocolIE-ID
+id-M5ReportAmount                                                   ProtocolIE-ID
+id-M6ReportAmount                                                   ProtocolIE-ID
+id-M7ReportAmount                                                   ProtocolIE-ID
+id-BeamMeasurementIndicationM1                                      ProtocolIE-ID
+id-MBS-Session-ID                                                   ProtocolIE-ID
+id-UEIdentityIndexList-MBSGroupPaging                               ProtocolIE-ID
+id-MulticastRANPagingArea                                           ProtocolIE-ID
+id-Supported-MBS-FSA-ID-List                                        ProtocolIE-ID
+id-MBS-SessionInformation-List                                      ProtocolIE-ID
+id-MBS-SessionInformationResponse-List                              ProtocolIE-ID
+id-MBS-SessionAssociatedInformation                                 ProtocolIE-ID
+id-SuccessfulHOReportInformation                                    ProtocolIE-ID
+id-SliceRadioResourceStatus-List                                    ProtocolIE-ID
+id-CompositeAvailableCapacitySupplementaryUplink                    ProtocolIE-ID
+id-SCGUEHistoryInformation                                          ProtocolIE-ID
+id-SSBOffsets-List                                                  ProtocolIE-ID
+id-NG-RANnode2SSBOffsetModificationRange                            ProtocolIE-ID
+id-Coverage-Modification-List                                       ProtocolIE-ID
+id-NR-U-Channel-List                                                ProtocolIE-ID
+id-SourcePSCellCGI                                                  ProtocolIE-ID
+id-FailedPSCellCGI                                                  ProtocolIE-ID
+id-SCGFailureReportContainer                                        ProtocolIE-ID
+id-SNMobilityInformation                                            ProtocolIE-ID
+id-SourcePSCellID                                                   ProtocolIE-ID
+id-SuitablePSCellCGI                                                ProtocolIE-ID
+id-PSCellChangeHistory                                              ProtocolIE-ID
+id-CHOConfiguration                                                 ProtocolIE-ID
+id-NR-U-ChannelInfo-List                                            ProtocolIE-ID
+id-PSCellHistoryInformationRetrieve                                 ProtocolIE-ID
+id-NG-RANnode2SSBOffsetsModificationRange                           ProtocolIE-ID
+id-MIMOPRBusageInformation                                          ProtocolIE-ID
+id-F1CTrafficContainer                                              ProtocolIE-ID
+id-IAB-MT-Cell-List                                                 ProtocolIE-ID
+id-NoPDUSessionIndication                                           ProtocolIE-ID
+id-IAB-TNL-Address-Request                                          ProtocolIE-ID
+id-IAB-TNL-Address-Response                                         ProtocolIE-ID
+id-TrafficToBeAddedList                                             ProtocolIE-ID
+id-TrafficToBeModifiedList                                          ProtocolIE-ID
+id-TrafficToBeReleaseInformation                                    ProtocolIE-ID
+id-TrafficAddedList                                                 ProtocolIE-ID
+id-TrafficModifiedList                                              ProtocolIE-ID
+id-TrafficNotAddedList                                              ProtocolIE-ID
+id-TrafficNotModifiedList                                           ProtocolIE-ID
+id-TrafficRequiredToBeModifiedList                                  ProtocolIE-ID
+id-TrafficRequiredModifiedList                                      ProtocolIE-ID
+id-TrafficReleasedList                                              ProtocolIE-ID
+id-IABTNLAddressToBeAdded                                           ProtocolIE-ID
+id-IABTNLAddressToBeReleasedList                                    ProtocolIE-ID
+id-nonF1-Terminating-IAB-DonorUEXnAPID                              ProtocolIE-ID
+id-F1-Terminating-IAB-DonorUEXnAPID                                 ProtocolIE-ID
+id-BoundaryNodeCellsList                                            ProtocolIE-ID
+id-ParentNodeCellsList                                              ProtocolIE-ID
+id-tdd-GNB-DU-Cell-Resource-Configuration                           ProtocolIE-ID
+id-UL-GNB-DU-Cell-Resource-Configuration                            ProtocolIE-ID
+id-DL-GNB-DU-Cell-Resource-Configuration                            ProtocolIE-ID
+id-permutation                                                      ProtocolIE-ID
+id-IABTNLAddressException                                           ProtocolIE-ID
+id-CHOinformation-AddReq                                            ProtocolIE-ID
+id-CHOinformation-ModReq                                            ProtocolIE-ID
+id-SurvivalTime                                                     ProtocolIE-ID
+id-TimeSynchronizationAssistanceInformation                         ProtocolIE-ID
+id-SCGActivationRequest                                             ProtocolIE-ID
+id-SCGActivationStatus                                              ProtocolIE-ID
+id-CPAInformationRequest                                            ProtocolIE-ID
+id-CPAInformationAck                                                ProtocolIE-ID
+id-CPCInformationRequired                                           ProtocolIE-ID
+id-CPCInformationConfirm                                            ProtocolIE-ID
+id-CPAInformationModReq                                             ProtocolIE-ID
+id-CPAInformationModReqAck                                          ProtocolIE-ID
+id-CPC-DataForwarding-Indicator                                     ProtocolIE-ID
+id-CPCInformationUpdate                                             ProtocolIE-ID
+id-CPACInformationModRequired                                       ProtocolIE-ID
+id-QMCConfigInfo                                                    ProtocolIE-ID
+id-ProtocolIE-ID338-NotToBeUsed                                     ProtocolIE-ID
+id-Additional-Measurement-Timing-Configuration-List                 ProtocolIE-ID
+id-PDUSession-PairID                                                ProtocolIE-ID
+id-Local-NG-RAN-Node-Identifier                                     ProtocolIE-ID
+id-Neighbour-NG-RAN-Node-List                                       ProtocolIE-ID
+id-Local-NG-RAN-Node-Identifier-Removal                             ProtocolIE-ID
+id-FiveGProSeAuthorized                                             ProtocolIE-ID
+id-FiveGProSePC5QoSParameters                                       ProtocolIE-ID
+id-FiveGProSeUEPC5AggregateMaximumBitRate                           ProtocolIE-ID
+id-ServedCellSpecificInfoReq-NR                                     ProtocolIE-ID
+id-NRPagingeDRXInformation                                          ProtocolIE-ID
+id-NRPagingeDRXInformationforRRCINACTIVE                            ProtocolIE-ID
+id-Redcap-Bcast-Information                                         ProtocolIE-ID
+id-SDTSupportRequest                                                ProtocolIE-ID
+id-SDT-SRB-between-NewNode-OldNode                                  ProtocolIE-ID
+id-SDT-Termination-Request                                          ProtocolIE-ID
+id-SDTPartialUEContextInfo                                          ProtocolIE-ID
+id-SDTDataForwardingDRBList                                         ProtocolIE-ID
+id-PagingCause                                                      ProtocolIE-ID
+id-PEIPSassistanceInformation                                       ProtocolIE-ID
+id-UESliceMaximumBitRateList                                        ProtocolIE-ID
+id-S-NG-RANnodeUE-Slice-MBR                                         ProtocolIE-ID
+id-PositioningInformation                                           ProtocolIE-ID
+id-UEAssistantIdentifier                                            ProtocolIE-ID
+id-ManagementBasedMDTPLMNModificationList                           ProtocolIE-ID
+id-F1-terminatingIAB-donorIndicator                                 ProtocolIE-ID
+id-TAINSAGSupportList                                               ProtocolIE-ID
+id-SCGreconfigNotification                                          ProtocolIE-ID
+id-earlyMeasurement                                                 ProtocolIE-ID
+id-BeamMeasurementsReportConfiguration                              ProtocolIE-ID
+id-CoverageModificationCause                                        ProtocolIE-ID
+id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated ProtocolIE-ID
+id-UERLFReportContainerLTEExtension                                 ProtocolIE-ID
+id-ExcessPacketDelayThresholdConfiguration                          ProtocolIE-ID
 
 #.REGISTER
 
@@ -1774,121 +1787,125 @@ UESliceMaximumBitRateList                         N xnap.ies id-S-NG-RANnodeUE-S
 MDTPLMNModificationList                           N xnap.ies id-ManagementBasedMDTPLMNModificationList
 F1-terminatingIAB-donorIndicator                  N xnap.ies id-F1-terminatingIAB-donorIndicator
 SCGreconfigNotification                           N xnap.ies id-SCGreconfigNotification
+UERLFReportContainerLTEExtension                  N xnap.ies id-UERLFReportContainerLTEExtension
 
 #XNAP-PROTOCOL-EXTENSION
-Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
-SecondarydataForwardingInfoFromTarget-List        N xnap.extension id-SecondarydataForwardingInfoFromTarget-List
-PLMN-Identity                                     N xnap.extension id-LastE-UTRANPLMNIdentity
-MaxIPrate                                         N xnap.extension id-MaxIPrate-DL
-SecurityResult                                    N xnap.extension id-SecurityResult
-S-NSSAI                                           N xnap.extension id-S-NSSAI
-QoSFlows-List                                     N xnap.extension id-OldQoSFlowMap-ULendmarkerexpected
-DRB-List-withCause                                N xnap.extension id-DRBsNotAdmittedSetupModifyList
-UPTransportLayerInformation                       N xnap.extension id-Secondary-MN-Xn-U-TNLInfoatM
-PDUSessionCommonNetworkInstance                   N xnap.extension id-PDUSessionCommonNetworkInstance
-BPLMN-ID-Info-EUTRA                               N xnap.extension id-BPLMN-ID-Info-EUTRA
-BPLMN-ID-Info-NR                                  N xnap.extension id-BPLMN-ID-Info-NR
-DefaultDRB-Allowed                                N xnap.extension id-DefaultDRB-Allowed
-DRB-List                                          N xnap.extension id-DRB-IDs-takenintouse
-SplitSessionIndicator                             N xnap.extension id-SplitSessionIndicator
-CNTypeRestrictionsForEquivalent                   N xnap.extension id-CNTypeRestrictionsForEquivalent
-CNTypeRestrictionsForServing                      N xnap.extension id-CNTypeRestrictionsForServing
-ULForwardingProposal                              N xnap.extension id-ULForwardingProposal
-FiveGCMobilityRestrictionListContainer            N xnap.extension id-FiveGCMobilityRestrictionListContainer
-IntendedTDD-DL-ULConfiguration-NR                 N xnap.extension id-IntendedTDD-DL-ULConfiguration-NR
-PartialListIndicator                              N xnap.extension id-PartialListIndicator-NR
-CellAndCapacityAssistanceInfo-NR                  N xnap.extension id-CellAndCapacityAssistanceInfo-NR
-NonGBRResources-Offered                           N xnap.extension id-NonGBRResources-Offered
-ExtendedRATRestrictionInformation                 N xnap.extension id-ExtendedRATRestrictionInformation
-QosMonitoringRequest                              N xnap.extension id-QoSMonitoringRequest
-DAPSRequestInfo                                   N xnap.extension id-DAPSRequestInfo
-OffsetOfNbiotChannelNumberToEARFCN                N xnap.extension id-OffsetOfNbiotChannelNumberToDL-EARFCN
-OffsetOfNbiotChannelNumberToEARFCN                N xnap.extension id-OffsetOfNbiotChannelNumberToUL-EARFCN
-NBIoT-UL-DL-AlignmentOffset                       N xnap.extension id-NBIoT-UL-DL-AlignmentOffset
-LTEUESidelinkAggregateMaximumBitRate              N xnap.extension id-LTEUESidelinkAggregateMaximumBitRate
-NRUESidelinkAggregateMaximumBitRate               N xnap.extension id-NRUESidelinkAggregateMaximumBitRate
-AlternativeQoSParaSetList                         N xnap.extension id-AlternativeQoSParaSetList
-QoSParaSetNotifyIndex                             N xnap.extension id-CurrentQoSParaSetIndex
-TDDULDLConfigurationCommonNR                      N xnap.extension id-TDDULDLConfigurationCommonNR
-NRCarrierList                                     N xnap.extension id-CarrierList
-NRCarrierList                                     N xnap.extension id-ULCarrierList
-FrequencyShift7p5khz                              N xnap.extension id-FrequencyShift7p5khz
-SSB-PositionsInBurst                              N xnap.extension id-SSB-PositionsInBurst
-NRCellPRACHConfig                                 N xnap.extension id-NRCellPRACHConfig
-UPTransportLayerInformation                       N xnap.extension id-Redundant-UL-NG-U-TNLatUPF
-ExtendedPacketDelayBudget                         N xnap.extension id-CNPacketDelayBudgetDownlink
-ExtendedPacketDelayBudget                         N xnap.extension id-CNPacketDelayBudgetUplink
-Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-Redundant-UL-NG-U-TNLatUPF-List
-PDUSessionCommonNetworkInstance                   N xnap.extension id-RedundantCommonNetworkInstance
-TSCTrafficCharacteristics                         N xnap.extension id-TSCTrafficCharacteristics
-RedundantQoSFlowIndicator                         N xnap.extension id-RedundantQoSFlowIndicator
-UPTransportLayerInformation                       N xnap.extension id-Redundant-DL-NG-U-TNLatNG-RAN
-ExtendedPacketDelayBudget                         N xnap.extension id-ExtendedPacketDelayBudget
-Additional-PDCP-Duplication-TNL-List              N xnap.extension id-Additional-PDCP-Duplication-TNL-List
-RedundantPDUSessionInformation                    N xnap.extension id-RedundantPDUSessionInformation
-RedundantPDUSessionInformation                    N xnap.extension id-UsedRSNInformation
-RLCDuplicationInformation                         N xnap.extension id-RLCDuplicationInformation
-NPN-Broadcast-Information                         N xnap.extension id-NPN-Broadcast-Information
-NPNPagingAssistanceInformation                    N xnap.extension id-NPNPagingAssistanceInformation
-NPNMobilityInformation                            N xnap.extension id-NPNMobilityInformation
-NPN-Support                                       N xnap.extension id-NPN-Support
-MDT-Configuration                                 N xnap.extension id-MDT-Configuration
-MDTPLMNList                                       N xnap.extension id-MDTPLMNList
-URIaddress                                        N xnap.extension id-TraceCollectionEntityURI
-UERadioCapabilityID                               N xnap.extension id-UERadioCapabilityID
-CSI-RSTransmissionIndication                      N xnap.extension id-CSI-RSTransmissionIndication
-ExtendedSliceSupportList                          N xnap.extension id-ExtendedTAISliceSupportList
-ConfiguredTACIndication                           N xnap.extension id-ConfiguredTACIndication
-UPTransportParameters                             N xnap.extension id-secondary-SN-UL-PDCP-UP-TNLInfo
-PDCPDuplicationConfiguration                      N xnap.extension id-pdcpDuplicationConfiguration
-DuplicationActivation                             N xnap.extension id-duplicationActivation
-NPRACHConfiguration                               N xnap.extension id-NPRACHConfiguration
-QosMonitoringReportingFrequency                   N xnap.extension id-QosMonitoringReportingFrequency
-QoSFlowsMappedtoDRB-SetupResponse-MNterminated    N xnap.extension id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated
-DL-scheduling-PDCCH-CCE-usage                     N xnap.extension id-DL-scheduling-PDCCH-CCE-usage
-UL-scheduling-PDCCH-CCE-usage                     N xnap.extension id-UL-scheduling-PDCCH-CCE-usage
-SFN-Offset                                        N xnap.extension id-SFN-Offset
-QoSMonitoringDisabled                             N xnap.extension id-QoSMonitoringDisabled
-ExpectedUEActivityBehaviour                       N xnap.extension id-PDUSessionExpectedUEActivityBehaviour
-QoS-Mapping-Information                           N xnap.extension id-QoS-Mapping-Information
-Cause                                             N xnap.extension id-Cause
-AdditionLocationInformation                       N xnap.extension id-AdditionLocationInformation
-DataForwardingInfoFromTargetE-UTRANnode           N xnap.extension id-dataForwardingInfoFromTargetE-UTRANnode
-TransportLayerAddress                             N xnap.extension id-SourceDLForwardingIPAddress
-TransportLayerAddress                             N xnap.extension id-SourceNodeDLForwardingIPAddress
-ExtendedReportIntervalMDT                         N xnap.extension id-ExtendedReportIntervalMDT
-SecurityIndication                                N xnap.extension id-SecurityIndication
-RRCConnReestab-Indicator                          N xnap.extension id-RRCConnReestab-Indicator
-M4ReportAmountMDT                                 N xnap.extension id-M4ReportAmount
-M5ReportAmountMDT                                 N xnap.extension id-M5ReportAmount
-M6ReportAmountMDT                                 N xnap.extension id-M6ReportAmount
-M7ReportAmountMDT                                 N xnap.extension id-M7ReportAmount
-BeamMeasurementIndicationM1                       N xnap.extension id-BeamMeasurementIndicationM1
-Supported-MBS-FSA-ID-List                         N xnap.extension id-Supported-MBS-FSA-ID-List
-MBS-SessionInformation-List                       N xnap.extension id-MBS-SessionInformation-List
-MBS-SessionAssociatedInformation                  N xnap.extension id-MBS-SessionAssociatedInformation
-SliceRadioResourceStatus-List                     N xnap.extension id-SliceRadioResourceStatus-List
-CompositeAvailableCapacity                        N xnap.extension id-CompositeAvailableCapacitySupplementaryUplink
-NR-U-Channel-List                                 N xnap.extension id-NR-U-Channel-List
-NR-U-ChannelInfo-List                             N xnap.extension id-NR-U-ChannelInfo-List
-MIMOPRBusageInformation                           N xnap.extension id-MIMOPRBusageInformation
-NoPDUSessionIndication                            N xnap.extension id-NoPDUSessionIndication
-GNB-DU-Cell-Resource-Configuration                N xnap.extension id-tdd-GNB-DU-Cell-Resource-Configuration
-GNB-DU-Cell-Resource-Configuration                N xnap.extension id-UL-GNB-DU-Cell-Resource-Configuration
-GNB-DU-Cell-Resource-Configuration                N xnap.extension id-DL-GNB-DU-Cell-Resource-Configuration
-Permutation                                       N xnap.extension id-permutation
-SurvivalTime                                      N xnap.extension id-SurvivalTime
-Additional-Measurement-Timing-Configuration-List  N xnap.extension id-Additional-Measurement-Timing-Configuration-List
-PDUSession-PairID                                 N xnap.extension id-PDUSession-PairID
-NRUESidelinkAggregateMaximumBitRate               N xnap.extension id-FiveGProSeUEPC5AggregateMaximumBitRate
-ServedCellSpecificInfoReq-NR                      N xnap.extension id-ServedCellSpecificInfoReq-NR
-Redcap-Bcast-Information                          N xnap.extension id-Redcap-Bcast-Information
-UESliceMaximumBitRateList                         N xnap.extension id-UESliceMaximumBitRateList
-PositioningInformation                            N xnap.extension id-PositioningInformation
-NG-RANnodeUEXnAPID                                N xnap.extension id-UEAssistantIdentifier
-TAINSAGSupportList                                N xnap.extension id-TAINSAGSupportList
-EarlyMeasurement                                  N xnap.extension id-earlyMeasurement
-BeamMeasurementsReportConfiguration               N xnap.extension id-BeamMeasurementsReportConfiguration
+Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
+SecondarydataForwardingInfoFromTarget-List                       N xnap.extension id-SecondarydataForwardingInfoFromTarget-List
+PLMN-Identity                                                    N xnap.extension id-LastE-UTRANPLMNIdentity
+MaxIPrate                                                        N xnap.extension id-MaxIPrate-DL
+SecurityResult                                                   N xnap.extension id-SecurityResult
+S-NSSAI                                                          N xnap.extension id-S-NSSAI
+QoSFlows-List                                                    N xnap.extension id-OldQoSFlowMap-ULendmarkerexpected
+DRB-List-withCause                                               N xnap.extension id-DRBsNotAdmittedSetupModifyList
+UPTransportLayerInformation                                      N xnap.extension id-Secondary-MN-Xn-U-TNLInfoatM
+PDUSessionCommonNetworkInstance                                  N xnap.extension id-PDUSessionCommonNetworkInstance
+BPLMN-ID-Info-EUTRA                                              N xnap.extension id-BPLMN-ID-Info-EUTRA
+BPLMN-ID-Info-NR                                                 N xnap.extension id-BPLMN-ID-Info-NR
+DefaultDRB-Allowed                                               N xnap.extension id-DefaultDRB-Allowed
+DRB-List                                                         N xnap.extension id-DRB-IDs-takenintouse
+SplitSessionIndicator                                            N xnap.extension id-SplitSessionIndicator
+CNTypeRestrictionsForEquivalent                                  N xnap.extension id-CNTypeRestrictionsForEquivalent
+CNTypeRestrictionsForServing                                     N xnap.extension id-CNTypeRestrictionsForServing
+ULForwardingProposal                                             N xnap.extension id-ULForwardingProposal
+FiveGCMobilityRestrictionListContainer                           N xnap.extension id-FiveGCMobilityRestrictionListContainer
+IntendedTDD-DL-ULConfiguration-NR                                N xnap.extension id-IntendedTDD-DL-ULConfiguration-NR
+PartialListIndicator                                             N xnap.extension id-PartialListIndicator-NR
+CellAndCapacityAssistanceInfo-NR                                 N xnap.extension id-CellAndCapacityAssistanceInfo-NR
+NonGBRResources-Offered                                          N xnap.extension id-NonGBRResources-Offered
+ExtendedRATRestrictionInformation                                N xnap.extension id-ExtendedRATRestrictionInformation
+QosMonitoringRequest                                             N xnap.extension id-QoSMonitoringRequest
+DAPSRequestInfo                                                  N xnap.extension id-DAPSRequestInfo
+OffsetOfNbiotChannelNumberToEARFCN                               N xnap.extension id-OffsetOfNbiotChannelNumberToDL-EARFCN
+OffsetOfNbiotChannelNumberToEARFCN                               N xnap.extension id-OffsetOfNbiotChannelNumberToUL-EARFCN
+NBIoT-UL-DL-AlignmentOffset                                      N xnap.extension id-NBIoT-UL-DL-AlignmentOffset
+LTEUESidelinkAggregateMaximumBitRate                             N xnap.extension id-LTEUESidelinkAggregateMaximumBitRate
+NRUESidelinkAggregateMaximumBitRate                              N xnap.extension id-NRUESidelinkAggregateMaximumBitRate
+AlternativeQoSParaSetList                                        N xnap.extension id-AlternativeQoSParaSetList
+QoSParaSetNotifyIndex                                            N xnap.extension id-CurrentQoSParaSetIndex
+TDDULDLConfigurationCommonNR                                     N xnap.extension id-TDDULDLConfigurationCommonNR
+NRCarrierList                                                    N xnap.extension id-CarrierList
+NRCarrierList                                                    N xnap.extension id-ULCarrierList
+FrequencyShift7p5khz                                             N xnap.extension id-FrequencyShift7p5khz
+SSB-PositionsInBurst                                             N xnap.extension id-SSB-PositionsInBurst
+NRCellPRACHConfig                                                N xnap.extension id-NRCellPRACHConfig
+UPTransportLayerInformation                                      N xnap.extension id-Redundant-UL-NG-U-TNLatUPF
+ExtendedPacketDelayBudget                                        N xnap.extension id-CNPacketDelayBudgetDownlink
+ExtendedPacketDelayBudget                                        N xnap.extension id-CNPacketDelayBudgetUplink
+Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-Redundant-UL-NG-U-TNLatUPF-List
+PDUSessionCommonNetworkInstance                                  N xnap.extension id-RedundantCommonNetworkInstance
+TSCTrafficCharacteristics                                        N xnap.extension id-TSCTrafficCharacteristics
+RedundantQoSFlowIndicator                                        N xnap.extension id-RedundantQoSFlowIndicator
+UPTransportLayerInformation                                      N xnap.extension id-Redundant-DL-NG-U-TNLatNG-RAN
+ExtendedPacketDelayBudget                                        N xnap.extension id-ExtendedPacketDelayBudget
+Additional-PDCP-Duplication-TNL-List                             N xnap.extension id-Additional-PDCP-Duplication-TNL-List
+RedundantPDUSessionInformation                                   N xnap.extension id-RedundantPDUSessionInformation
+RedundantPDUSessionInformation                                   N xnap.extension id-UsedRSNInformation
+RLCDuplicationInformation                                        N xnap.extension id-RLCDuplicationInformation
+NPN-Broadcast-Information                                        N xnap.extension id-NPN-Broadcast-Information
+NPNPagingAssistanceInformation                                   N xnap.extension id-NPNPagingAssistanceInformation
+NPNMobilityInformation                                           N xnap.extension id-NPNMobilityInformation
+NPN-Support                                                      N xnap.extension id-NPN-Support
+MDT-Configuration                                                N xnap.extension id-MDT-Configuration
+MDTPLMNList                                                      N xnap.extension id-MDTPLMNList
+URIaddress                                                       N xnap.extension id-TraceCollectionEntityURI
+UERadioCapabilityID                                              N xnap.extension id-UERadioCapabilityID
+CSI-RSTransmissionIndication                                     N xnap.extension id-CSI-RSTransmissionIndication
+ExtendedSliceSupportList                                         N xnap.extension id-ExtendedTAISliceSupportList
+ConfiguredTACIndication                                          N xnap.extension id-ConfiguredTACIndication
+UPTransportParameters                                            N xnap.extension id-secondary-SN-UL-PDCP-UP-TNLInfo
+PDCPDuplicationConfiguration                                     N xnap.extension id-pdcpDuplicationConfiguration
+DuplicationActivation                                            N xnap.extension id-duplicationActivation
+NPRACHConfiguration                                              N xnap.extension id-NPRACHConfiguration
+QosMonitoringReportingFrequency                                  N xnap.extension id-QosMonitoringReportingFrequency
+QoSFlowsMappedtoDRB-SetupResponse-MNterminated                   N xnap.extension id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated
+DL-scheduling-PDCCH-CCE-usage                                    N xnap.extension id-DL-scheduling-PDCCH-CCE-usage
+UL-scheduling-PDCCH-CCE-usage                                    N xnap.extension id-UL-scheduling-PDCCH-CCE-usage
+SFN-Offset                                                       N xnap.extension id-SFN-Offset
+QoSMonitoringDisabled                                            N xnap.extension id-QoSMonitoringDisabled
+ExpectedUEActivityBehaviour                                      N xnap.extension id-PDUSessionExpectedUEActivityBehaviour
+QoS-Mapping-Information                                          N xnap.extension id-QoS-Mapping-Information
+Cause                                                            N xnap.extension id-Cause
+AdditionLocationInformation                                      N xnap.extension id-AdditionLocationInformation
+DataForwardingInfoFromTargetE-UTRANnode                          N xnap.extension id-dataForwardingInfoFromTargetE-UTRANnode
+TransportLayerAddress                                            N xnap.extension id-SourceDLForwardingIPAddress
+TransportLayerAddress                                            N xnap.extension id-SourceNodeDLForwardingIPAddress
+ExtendedReportIntervalMDT                                        N xnap.extension id-ExtendedReportIntervalMDT
+SecurityIndication                                               N xnap.extension id-SecurityIndication
+RRCConnReestab-Indicator                                         N xnap.extension id-RRCConnReestab-Indicator
+M4ReportAmountMDT                                                N xnap.extension id-M4ReportAmount
+M5ReportAmountMDT                                                N xnap.extension id-M5ReportAmount
+M6ReportAmountMDT                                                N xnap.extension id-M6ReportAmount
+M7ReportAmountMDT                                                N xnap.extension id-M7ReportAmount
+BeamMeasurementIndicationM1                                      N xnap.extension id-BeamMeasurementIndicationM1
+Supported-MBS-FSA-ID-List                                        N xnap.extension id-Supported-MBS-FSA-ID-List
+MBS-SessionInformation-List                                      N xnap.extension id-MBS-SessionInformation-List
+MBS-SessionAssociatedInformation                                 N xnap.extension id-MBS-SessionAssociatedInformation
+SliceRadioResourceStatus-List                                    N xnap.extension id-SliceRadioResourceStatus-List
+CompositeAvailableCapacity                                       N xnap.extension id-CompositeAvailableCapacitySupplementaryUplink
+NR-U-Channel-List                                                N xnap.extension id-NR-U-Channel-List
+NR-U-ChannelInfo-List                                            N xnap.extension id-NR-U-ChannelInfo-List
+MIMOPRBusageInformation                                          N xnap.extension id-MIMOPRBusageInformation
+NoPDUSessionIndication                                           N xnap.extension id-NoPDUSessionIndication
+GNB-DU-Cell-Resource-Configuration                               N xnap.extension id-tdd-GNB-DU-Cell-Resource-Configuration
+GNB-DU-Cell-Resource-Configuration                               N xnap.extension id-UL-GNB-DU-Cell-Resource-Configuration
+GNB-DU-Cell-Resource-Configuration                               N xnap.extension id-DL-GNB-DU-Cell-Resource-Configuration
+Permutation                                                      N xnap.extension id-permutation
+SurvivalTime                                                     N xnap.extension id-SurvivalTime
+Additional-Measurement-Timing-Configuration-List                 N xnap.extension id-Additional-Measurement-Timing-Configuration-List
+PDUSession-PairID                                                N xnap.extension id-PDUSession-PairID
+NRUESidelinkAggregateMaximumBitRate                              N xnap.extension id-FiveGProSeUEPC5AggregateMaximumBitRate
+ServedCellSpecificInfoReq-NR                                     N xnap.extension id-ServedCellSpecificInfoReq-NR
+Redcap-Bcast-Information                                         N xnap.extension id-Redcap-Bcast-Information
+UESliceMaximumBitRateList                                        N xnap.extension id-UESliceMaximumBitRateList
+PositioningInformation                                           N xnap.extension id-PositioningInformation
+NG-RANnodeUEXnAPID                                               N xnap.extension id-UEAssistantIdentifier
+TAINSAGSupportList                                               N xnap.extension id-TAINSAGSupportList
+EarlyMeasurement                                                 N xnap.extension id-earlyMeasurement
+BeamMeasurementsReportConfiguration                              N xnap.extension id-BeamMeasurementsReportConfiguration
+CoverageModificationCause                                        N xnap.extension id-CoverageModificationCause
+AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated N xnap.extension id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated
+ExcessPacketDelayThresholdConfiguration                          N xnap.extension id-ExcessPacketDelayThresholdConfiguration
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.2.0 (2022-09)
+-- 3GPP TS 38.423 V17.3.0 (2022-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -244,7 +244,8 @@ IMPORTS
 	PagingCause,
 	MDTPLMNModificationList,
 	F1-terminatingIAB-donorIndicator,
-	SRB-ID
+	SRB-ID,
+	AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated
 
 
 FROM XnAP-IEs
@@ -530,6 +531,7 @@ FROM XnAP-Containers
 	id-S-NG-RANnodeUE-Slice-MBR,
 	id-ManagementBasedMDTPLMNModificationList,
 	id-F1-terminatingIAB-donorIndicator,
+	id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated,
 
 
 
@@ -1821,6 +1823,7 @@ PDUSession-SNChangeConfirm-Item ::= SEQUENCE {
 }
 
 PDUSession-SNChangeConfirm-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated		CRITICALITY ignore	EXTENSION			AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated				PRESENCE optional},
 	...
 }
 
@@ -2622,7 +2625,7 @@ ResourceStatusRequest ::= SEQUENCE {
 ResourceStatusRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NGRAN-Node1-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-NGRAN-Node2-Measurement-ID			CRITICALITY ignore	TYPE Measurement-ID					PRESENCE conditional}|
--- This IE shall be present if the Registration Request IE is set to the value "stop", "partial stop" or "add".
+-- This IE shall be present if the Registration Request IE is set to the value "stop" or "add".
 	{ ID id-RegistrationRequest					CRITICALITY reject	TYPE RegistrationRequest			PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics				CRITICALITY reject	TYPE ReportCharacteristics			PRESENCE conditional}|
 -- This IE shall be present if the Registration Request IE is set to the value "start".
