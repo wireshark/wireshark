@@ -24,6 +24,7 @@ ws_srcdir = '@CMAKE_SOURCE_DIR@'
 ws_bindir = '@CMAKE_BINARY_DIR@'
 ws_app = 'Wireshark.app'
 ws_readme = 'Read me first.html'
+ws_donate = 'Donate to the Wireshark Foundation.html'
 ws_install_chmodbpf = 'Install ChmodBPF.pkg'
 ws_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
 ws_install_path_helper = 'Add Wireshark to the system path.pkg'
@@ -73,6 +74,7 @@ size = None
 files = [
     os.path.join(ws_bindir, 'run', ws_app),
     os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_readme),
+    os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_donate),
 ]
 
 # Symlinks to create
@@ -93,15 +95,19 @@ symlinks = {
 badge_icon = os.path.join(ws_srcdir, 'packaging', 'macosx', 'wsiconvol.icns')
 #badge_icon = icon_from_app(application)
 
+# Window position in ((x, y), (w, h)) format
+window_rect = ((600, 200), (360, 550))
+
 # Where to put the icons
 icon_locations = {
     ws_app:                     ( 80,  64),
-    'Applications':             (240,  64),
-    ws_readme:                  (160, 170),
-    ws_install_chmodbpf:        ( 80, 276),
-    ws_uninstall_chmodbpf:      (250, 276),
-    ws_install_path_helper:     ( 80, 382),
-    ws_uninstall_path_helper:   (250, 382),
+    'Applications':             (250,  64),
+    ws_readme:                  ( 80, 180),
+    ws_donate:                  (250, 180),
+    ws_install_chmodbpf:        ( 80, 296),
+    ws_uninstall_chmodbpf:      (250, 296),
+    ws_install_path_helper:     ( 80, 402),
+    ws_uninstall_path_helper:   (250, 402),
     }
 
 # .. Window configuration ......................................................
@@ -134,9 +140,6 @@ show_toolbar = False
 show_pathbar = False
 show_sidebar = False
 sidebar_width = 180
-
-# Window position in ((x, y), (w, h)) format
-window_rect = ((600, 200), (350, 525))
 
 # Select the default view; must be one of
 #

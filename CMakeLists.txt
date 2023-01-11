@@ -3396,6 +3396,20 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_read_me_first.adoc
 	)
 
+	set(_wireshark_donate "packaging/macosx/wireshark/Donate to the Wireshark Foundation.html")
+	ADD_CUSTOM_COMMAND(
+	OUTPUT
+		${_wireshark_donate}
+	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
+		--backend html
+		--out-file ${_wireshark_donate}
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		--attribute min-macos-version=${MIN_MACOS_VERSION}
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc
+	)
+
 	set(_wireshark_dsym_installation "packaging/macosx/wireshark/Debugging symbols installation.html")
 	ADD_CUSTOM_COMMAND(
 	OUTPUT
@@ -3409,7 +3423,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_dsym_installation.adoc
 	)
 
-	add_custom_target(wireshark_dmg_readmes DEPENDS ${_wireshark_read_me_first} ${_wireshark_dsym_installation} )
+	add_custom_target(wireshark_dmg_readmes DEPENDS ${_wireshark_read_me_first} ${_wireshark_donate} ${_wireshark_dsym_installation} )
 	add_dependencies(wireshark_dmg_prep wireshark_dmg_readmes)
 
 	ADD_CUSTOM_TARGET( wireshark_dmg

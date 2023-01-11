@@ -1,0 +1,15 @@
+// Required attributes:
+// include-dir
+
+include::{include-dir}/attributes.adoc[]
+:stylesheet: {include-dir}/ws.css
+
+== The Wireshark Founation
+
+The https://wiresharkfoundation.org/[Wireshark Foundation] is a non-profit organization helping as many people as possible understand their networks as much as possible.
+As time goes on, more and more of our daily life happens using software, and that software relies on network connectivity.
+By hosting educational conferences, the Wireshark Foundation provides industry professionals and students with the knowledge and understanding required to ensure that the networks and systems we depend on are reliable, fast, and secure.
+
+The Wireshark Foundation fosters open source development and explores new ways of educating the public.
+
+You can learn more and donate at https://wiresharkfoundation.org/[wiresharkfoundation.org].
