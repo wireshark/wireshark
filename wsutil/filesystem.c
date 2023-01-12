@@ -2004,62 +2004,6 @@ set_persdatafile_dir(const char *p)
     persdatafile_dir = g_strdup(p);
 }
 
-#ifdef _WIN32
-/*
- * Returns the user's home directory on Win32.
- */
-static const char *
-get_home_dir(void)
-{
-    static const char *home = NULL;
-    const char *homedrive, *homepath;
-    char *homestring;
-    char *lastsep;
-
-    /* Return the cached value, if available */
-    if (home)
-        return home;
-
-    /*
-     * XXX - should we use USERPROFILE anywhere in this process?
-     * Is there a chance that it might be set but one or more of
-     * HOMEDRIVE or HOMEPATH isn't set?
-     */
-    homedrive = g_getenv("HOMEDRIVE");
-    if (homedrive != NULL) {
-        homepath = g_getenv("HOMEPATH");
-        if (homepath != NULL) {
-            /*
-             * This is cached, so we don't need to worry about
-             * allocating multiple ones of them.
-             */
-            homestring = ws_strdup_printf("%s%s", homedrive, homepath);
-
-            /*
-             * Trim off any trailing slash or backslash.
-             */
-            lastsep = find_last_pathname_separator(homestring);
-            if (lastsep != NULL && *(lastsep + 1) == '\0') {
-                /*
-                 * Last separator is the last character
-                 * in the string.  Nuke it.
-                 */
-                *lastsep = '\0';
-            }
-            home = homestring;
-        } else
-            home = homedrive;
-    } else {
-        /*
-         * Give up and use C:.
-         */
-        home = "C:";
-    }
-
-    return home;
-}
-#endif
-
 /*
  * Construct the path name of a personal configuration file, given the
  * file name.
