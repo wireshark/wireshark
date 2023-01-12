@@ -9,18 +9,22 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: 'Setup MSYS2'
+      - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
           update: true
-      - name: Install deps
-        run: |
-          echo 'Run deps script'
-          ./tools/msys2-setup.sh --install-all --noconfirm
+          install: base-devel
       - name: Build
         run: |
-          echo 'Run build script'
-          ./tools/msys2-build.sh
+          mkdir build && cd build
+          wget "https://raw.githubusercontent.com/wireshark/wireshark/$GITHUB_SHA/packaging/msys2/mingw-w64-wireshark-git/PKGBUILD"
+          makepkg-mingw --cleanbuild --syncdeps --force --install --noconfirm
+      - name: Show version
+        run: |
+          wireshark.exe --version
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: build/mingw-w64-*-wireshark*-any.pkg.tar.zst
