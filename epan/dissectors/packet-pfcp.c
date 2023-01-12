@@ -12652,7 +12652,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_qfi,
         { "QFI", "pfcp.qfi_value",
-            FT_UINT8, BASE_HEX, NULL, 0x7f,
+            FT_UINT8, BASE_HEX, NULL, 0x3f,
             NULL, HFILL }
         },
         { &hf_pfcp_query_urr_reference,
