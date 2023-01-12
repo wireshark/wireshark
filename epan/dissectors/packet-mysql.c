@@ -4122,7 +4122,7 @@ void proto_register_mysql(void)
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_optional_metadata,
-		{ "Client can hanle optional resultset metadata","mysql.caps.optional_metadata",
+		{ "Client can handle optional resultset metadata","mysql.caps.optional_metadata",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_RM,
 		NULL, HFILL }},
 
@@ -5081,7 +5081,7 @@ void proto_register_mysql(void)
 		{ &ei_mysql_command, { "mysql.command.invalid", PI_PROTOCOL, PI_WARN, "Unknown/invalid command code", EXPFILL }},
 		{ &ei_mysql_unknown_response, { "mysql.unknown_response", PI_UNDECODED, PI_WARN, "unknown/invalid response", EXPFILL }},
 		{ &ei_mysql_invalid_length, { "mysql.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
-		{ &ei_mysql_compression, { "mysql.uncompress_failure", PI_MALFORMED, PI_WARN, "Uncompression faled", EXPFILL }},
+		{ &ei_mysql_compression, { "mysql.uncompress_failure", PI_MALFORMED, PI_WARN, "Uncompression failed", EXPFILL }},
 	};
 
 	module_t *mysql_module;
