@@ -1,52 +1,38 @@
-This document contains instructions to build Wireshark natively on Windows
+This document contains instructions to build and install Wireshark on Windows
 using GCC and MinGW-w64 with the MSYS2 distribution.
 
-Steps to setup the build environment:
+How to setup MSYS2:
 
 1. Download and install MSYS2 from https://www.msys2.org.
 
 2. Open the MSYS2 MSYS shell.
 
-3. Update with "pacman -Syu" as many times as necessary. You may also wish
-   to install base-devel at this point: pacman -S base-devel. Anytime you
+3. Update with "pacman -Syu" as many times as necessary. You also need to
+   have base-devel installed: pacman -S base-devel. Anytime you
    want to run pacman it's recommended to do so from the MSYS shell.
 
-4. Install pactoys for convenience:
+How to build the Wireshark MSYS2 package:
 
-     $ pacman -S pactoys
+1. Open the MSYS2 MSYS shell.
 
-5. Install the dependencies. From the source directory run:
+2. Create a build directory and copy the PKGBUILD from the source tree:
 
-     $ ./tools/msys2-setup.sh --install-all
-   
-   Individual packages can be installed using pacboy:
+    $ mkdir build && cd build
+    $ wget https://gitlab.com/wireshark/wireshark/-/raw/master/packaging/msys2/mingw-w64-wireshark-git/PKGBUILD
 
-     $ pacboy -S toolchain:x cmake:x ninja:x ccache:x
+3. Build the package:
 
-   There isn't a native git package provided with MSYS2 so it's recommended that
-   you continue using the Git-For-Windows installer (or see [1]).
+    $ makepkg-mingw -sCLf
 
-From this point on it's a typical ninja build:
+4. Install it:
 
-1. Open the MSYS2 MINGW64 shell.
+    $ pacman -U mingw-w64-*-wireshark-*-any.pkg.tar.zst
 
-2. Create the build directory. This example will assume the build directory
-   is under the source directory:
+The application must be run from the MINGW64 shell.
 
-     $ cd $srcdir && mkdir build && cd build
+Currently the Wireshark MinGW-w64 build has the following limitations:
 
-3. Run cmake:
-
-     $ cmake -DENABLE_CCACHE=Yes -DENABLE_WERROR=No ..
-
-4. Build by running "ninja" in the build directory:
-
-     $ ninja
-
-Currently the Wireshark MinGW-w64 build using MSYS2 has the following
-limitations:
-
-* The ETW extcap (etwdump) does not build.
+* The ETW extcap (etwdump) is not supported.
 
 * Some optional dependencies are not available in the official MSYS2
   repositories. These are:
@@ -58,12 +44,7 @@ limitations:
     - SBC codec
     - BCG729 codec
 
-* There is no Wireshark binary package available. More work is
-  needed to implement this. To be decided if it will use NSIS or something
-  else.
+* There is currently no way to build a stand-alone distributable binary
+  package, similar to the Wireshark NSIS installer built using Visual Studio.
 
 * Many compiler warnings to be fixed.
-
-References:
-
-[1]https://github.com/git-for-windows/git/wiki/Install-inside-MSYS2-proper
