@@ -32,8 +32,6 @@ option(BUILD_dpauxmon      "Build dpauxmon" ON)
 option(BUILD_randpktdump   "Build randpktdump" ON)
 option(BUILD_wifidump      "BUild wifidump" ON)
 if(WIN32 AND NOT MINGW)
-	# XXX - I don't think building etwdump is possible with MinGW-w64 as of
-	# version 9.0 but I would like to be 100% certain.
 	option(BUILD_etwdump	   "Build etwdump" ON)
 else()
 	option(BUILD_etwdump	   "Build etwdump" OFF)
@@ -51,7 +49,12 @@ option(BUILD_sharkd        "Build sharkd" ON)
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
 option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
-option(ENABLE_WERROR     "Treat warnings as errors" ON)
+if (USE_MSYSTEM)
+	# XXX Doesn't build cleanly yet with GCC.
+	option(ENABLE_WERROR     "Treat warnings as errors" OFF)
+else()
+	option(ENABLE_WERROR     "Treat warnings as errors" ON)
+endif()
 # Debugging is enabled for "Debug" and "RelWithDebInfo" build types.
 option(ENABLE_DEBUG      "Enable debugging for all build configurations" OFF)
 # UTF-8 debugging is enabled for "Debug" and "RelWithDebInfo" build types.
