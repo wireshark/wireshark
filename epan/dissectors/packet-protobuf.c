@@ -506,13 +506,13 @@ abs_time_to_rfc3339(wmem_allocator_t *scope, const nstime_t *nstime, bool use_ut
     if (use_utc) {
         tm = gmtime(&nstime->secs);
         if (tm != NULL)
-            strftime(datetime_format, sizeof(datetime_format), "%FT%T%%sZ", tm);
+            strftime(datetime_format, sizeof(datetime_format), "%Y-%m-%dT%H:%M:%S%%sZ", tm);
         else
             snprintf(datetime_format, sizeof(datetime_format), "Not representable");
     } else {
         tm = localtime(&nstime->secs);
         if (tm != NULL)
-            strftime(datetime_format, sizeof(datetime_format), "%FT%T%%s%z", tm);
+            strftime(datetime_format, sizeof(datetime_format), "%Y-%m-%dT%H:%M:%S%%s%z", tm);
         else
             snprintf(datetime_format, sizeof(datetime_format), "Not representable");
     }

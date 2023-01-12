@@ -125,7 +125,7 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
                                SECURITY_ATTRIBUTES *sa, DWORD suggested_buffer_size)
 {
     HANDLE read_pipe, write_pipe;
-    guchar *name = ws_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08x.%08x",
+    guchar *name = ws_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08lx.%08lx",
                                    GetCurrentProcessId(),
                                    InterlockedIncrement(&pipe_serial_number));
     gunichar2 *wname = g_utf8_to_utf16(name, -1, NULL, NULL, NULL);
@@ -336,7 +336,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         {
             if (GetLastError() != ERROR_IO_PENDING)
             {
-                ws_debug("ReadFile on child stdout pipe failed. Error %d", GetLastError());
+                ws_debug("ReadFile on child stdout pipe failed. Error %ld", GetLastError());
                 pending_stdout = FALSE;
             }
         }
@@ -345,7 +345,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         {
             if (GetLastError() != ERROR_IO_PENDING)
             {
-                ws_debug("ReadFile on child stderr pipe failed. Error %d", GetLastError());
+                ws_debug("ReadFile on child stderr pipe failed. Error %ld", GetLastError());
                 pending_stderr = FALSE;
             }
         }
@@ -396,7 +396,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                             pending_stdout = FALSE;
                             continue;
                         }
-                        ws_debug("GetOverlappedResult on stdout failed. Error %d", GetLastError());
+                        ws_debug("GetOverlappedResult on stdout failed. Error %ld", GetLastError());
                     }
                     if (process_finished && (bytes_read == 0))
                     {
@@ -409,7 +409,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                     {
                         if (GetLastError() != ERROR_IO_PENDING)
                         {
-                            ws_debug("ReadFile on child stdout pipe failed. Error %d", GetLastError());
+                            ws_debug("ReadFile on child stdout pipe failed. Error %ld", GetLastError());
                             pending_stdout = FALSE;
                         }
                     }
@@ -425,7 +425,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                             pending_stderr = FALSE;
                             continue;
                         }
-                        ws_debug("GetOverlappedResult on stderr failed. Error %d", GetLastError());
+                        ws_debug("GetOverlappedResult on stderr failed. Error %ld", GetLastError());
                     }
                     if (process_finished && (bytes_read == 0))
                     {
@@ -436,7 +436,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                     {
                         if (GetLastError() != ERROR_IO_PENDING)
                         {
-                            ws_debug("ReadFile on child stderr pipe failed. Error %d", GetLastError());
+                            ws_debug("ReadFile on child stderr pipe failed. Error %ld", GetLastError());
                             pending_stderr = FALSE;
                         }
                     }
@@ -444,7 +444,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
             }
             else
             {
-                ws_debug("WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+                ws_debug("WaitForMultipleObjects returned 0x%08lX. Error %ld", dw, GetLastError());
             }
         }
 
@@ -721,7 +721,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
                 break;
 
             default:
-                ws_debug("ConnectNamedPipe failed with %d\n.", error);
+                ws_debug("ConnectNamedPipe failed with %ld\n.", error);
                 result = FALSE;
             }
         }
@@ -776,7 +776,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
                         TRUE);                     // wait
                     if (!success)
                     {
-                        ws_debug("Error %d \n.", GetLastError());
+                        ws_debug("Error %ld \n.", GetLastError());
                         result = FALSE;
                     }
                     pipeinsts[i].pendingIO = FALSE;
@@ -785,7 +785,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         }
         else
         {
-            ws_debug("WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+            ws_debug("WaitForMultipleObjects returned 0x%08lX. Error %ld", dw, GetLastError());
             result = FALSE;
         }
     }

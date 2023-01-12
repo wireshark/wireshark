@@ -417,7 +417,7 @@ static void snort_reaper(GPid pid, gint status _U_, gpointer data)
         session->working = session->running = FALSE;
         /* XXX, cleanup */
     } else {
-        g_print("Errrrmm snort_reaper() %d != %d\n", session->pid, pid);
+        g_print("Errrrmm snort_reaper() %"PRIdMAX" != %"PRIdMAX"\n", (intmax_t)session->pid, (intmax_t)pid);
     }
 
     /* Close the snort pid (may only make a difference on Windows?) */

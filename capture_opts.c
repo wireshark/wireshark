@@ -194,7 +194,7 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
         ws_log(log_domain, log_level, "Promiscuous Mode[%02d]: %s", i, interface_opts->promisc_mode?"TRUE":"FALSE");
         ws_log(log_domain, log_level, "Extcap[%02d]          : %s", i, interface_opts->extcap ? interface_opts->extcap : "(unspecified)");
         ws_log(log_domain, log_level, "Extcap FIFO[%02d]     : %s", i, interface_opts->extcap_fifo ? interface_opts->extcap_fifo : "(unspecified)");
-        ws_log(log_domain, log_level, "Extcap PID[%02d]      : %d", i, interface_opts->extcap_pid);
+        ws_log(log_domain, log_level, "Extcap PID[%02d]      : %"PRIdMAX, i, (intmax_t)interface_opts->extcap_pid);
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         ws_log(log_domain, log_level, "Buffer size[%02d]     : %d (MB)", i, interface_opts->buffer_size);
 #endif

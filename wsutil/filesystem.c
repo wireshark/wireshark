@@ -624,7 +624,7 @@ configuration_init_w32(const char* arg0 _U_)
             /*
              * Gak.  We can't format the message.
              */
-            return ws_strdup_printf("GetModuleFileName failed: %u (FormatMessage failed: %u)",
+            return ws_strdup_printf("GetModuleFileName failed: %lu (FormatMessage failed: %lu)",
                 error, GetLastError());
         }
         msg = utf_16to8(msg_w);
@@ -638,7 +638,7 @@ configuration_init_w32(const char* arg0 _U_)
             msg[msglen - 1] = '\0';
             msg[msglen - 2] = '\0';
         }
-        return ws_strdup_printf("GetModuleFileName failed: %s (%u)",
+        return ws_strdup_printf("GetModuleFileName failed: %s (%lu)",
             msg, error);
     }
 

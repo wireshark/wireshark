@@ -1255,8 +1255,8 @@ void extcap_request_stop(capture_session *cap_session)
             continue;
         }
 
-        ws_debug("Extcap [%s] - Requesting stop PID: %d", interface_opts->name,
-              interface_opts->extcap_pid);
+        ws_debug("Extcap [%s] - Requesting stop PID: %"PRIdMAX, interface_opts->name,
+              (intmax_t)interface_opts->extcap_pid);
 
 #ifndef _WIN32
         if (interface_opts->extcap_pid != WS_INVALID_PID)
@@ -1499,8 +1499,8 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         if (interface_opts->extcap_pid == pid)
         {
-            ws_debug("Extcap [%s] - Closing spawned PID: %d", interface_opts->name,
-                     interface_opts->extcap_pid);
+            ws_debug("Extcap [%s] - Closing spawned PID: %"PRIdMAX, interface_opts->name,
+                     (intmax_t)interface_opts->extcap_pid);
             interface_opts->extcap_pid = WS_INVALID_PID;
             extcap_watch_removed(cap_session, interface_opts);
             break;
@@ -1648,13 +1648,13 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, HANDLE *ha
 
     if (*handle_out == INVALID_HANDLE_VALUE)
     {
-        ws_debug("Error creating pipe => (%d)", GetLastError());
+        ws_debug("Error creating pipe => (%ld)", GetLastError());
         g_free (pipename);
         return FALSE;
     }
     else
     {
-        ws_debug("Wireshark Created pipe =>(%s) handle (%" PRIuPTR ")", pipename, *handle_out);
+        ws_debug("Wireshark Created pipe =>(%s) handle (%" PRIuMAX ")", pipename, (uintmax_t)*handle_out);
         *fifo = g_strdup(pipename);
     }
 
