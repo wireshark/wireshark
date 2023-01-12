@@ -16,6 +16,7 @@
 #define UDS_SID_MASK    0xBF
 #define UDS_REPLY_MASK  0x40
 
+#define UDS_SERVICES_MIN     0x10
 #define UDS_SERVICES_DSC     0x10
 #define UDS_SERVICES_ER      0x11
 #define UDS_SERVICES_CDTCI   0x14

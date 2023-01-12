@@ -603,12 +603,15 @@ static dissector_handle_t uds_handle;
 static dissector_handle_t uds_handle_doip;
 static dissector_handle_t uds_handle_iso10681;
 static dissector_handle_t uds_handle_iso15765;
+static dissector_handle_t obd_ii_handle;
 
 /*** Subdissectors ***/
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;
 
 /*** Configuration ***/
+static gboolean uds_dissect_small_sids_with_obd_ii = TRUE;
+
 typedef struct _address_string {
     guint    address;
     gchar   *name;
@@ -1006,6 +1009,11 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     sid = tvb_get_guint8(tvb, UDS_SID_OFFSET);
     service = sid & UDS_SID_MASK;
+
+    if (service < UDS_SERVICES_MIN && uds_dissect_small_sids_with_obd_ii && (obd_ii_handle != NULL)) {
+        return call_dissector(obd_ii_handle, tvb_new_subset_length_caplen(tvb, UDS_SID_OFFSET, -1, -1), pinfo, tree);
+    }
+
     service_name = val_to_str(service, uds_services, "Unknown (0x%02x)");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-7s   %-36s", (sid & UDS_REPLY_MASK)? "Reply": "Request", service_name);
@@ -1940,6 +1948,11 @@ proto_register_uds(void)
     prefs_register_uat_preference(uds_module, "_uds_address_list", "UDS Address List",
         "A table to define names of UDS Addresses", uds_address_uat);
 
+    prefs_register_bool_preference(uds_module, "dissect_small_sids_with_obd_ii",
+        "Dissect Service Identifiers smaller 0x10 with OBD II Dissector?",
+        "Dissect Service Identifiers smaller 0x10 with OBD II Dissector?",
+        &uds_dissect_small_sids_with_obd_ii);
+
     heur_subdissector_list = register_heur_dissector_list("uds", proto_uds);
 }
 
@@ -1948,6 +1961,7 @@ proto_reg_handoff_uds(void)
 {
     dissector_add_for_decode_as("iso10681.subdissector", uds_handle_iso10681);
     dissector_add_for_decode_as("iso15765.subdissector", uds_handle_iso15765);
+    obd_ii_handle = find_dissector("obd-ii-uds");
 }
 
 /*

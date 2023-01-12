@@ -1362,7 +1362,7 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 }
 
 static int
-dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_obdii_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	iso15765_info_t iso15765_info;
 	guint32         can_id_only;
@@ -1457,9 +1457,52 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static int
+dissect_obdii_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    struct obdii_packet_info  oinfo;
+
+    proto_tree               *obdii_tree;
+    proto_item               *ti;
+
+    guint8                    data_bytes;
+    guint8                    mode;
+    gboolean                  response;
+
+    data_bytes = tvb_reported_length(tvb);
+    mode = tvb_get_guint8(tvb, OBDII_MODE_POS);
+    response = (mode & 0x40) == 0x40;
+    mode = mode & 0xbf;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OBD-II");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_obdii, tvb, 0, -1, ENC_NA);
+    obdii_tree = proto_item_add_subtree(ti, ett_obdii);
+
+    proto_tree_add_uint(obdii_tree, hf_obdii_mode, tvb, OBDII_MODE_POS, 1, mode);
+
+    memset(&oinfo, 0, sizeof(oinfo));
+    oinfo.pinfo = pinfo;
+    oinfo.can_id = 0;
+    oinfo.data_bytes = data_bytes;
+    oinfo.mode = mode;
+
+    if (!response) {
+        return dissect_obdii_query(tvb, &oinfo, obdii_tree);
+    } else {
+        return dissect_obdii_response(tvb, &oinfo, obdii_tree);
+    }
+
+    /* never here */
+    DISSECTOR_ASSERT_NOT_REACHED();
+
+    return tvb_captured_length(tvb);
+}
+
+static int
 dissect_obdii_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_obdii(tvb, pinfo, tree, data) != 0;
+    return dissect_obdii_iso15765(tvb, pinfo, tree, data) != 0;
 }
 
 void
@@ -1712,9 +1755,10 @@ proto_reg_handoff_obdii(void)
 {
 	dissector_handle_t obdii_handle;
 
-	obdii_handle = create_dissector_handle(dissect_obdii, proto_obdii);
-
+	obdii_handle = create_dissector_handle(dissect_obdii_iso15765, proto_obdii);
 	dissector_add_for_decode_as("iso15765.subdissector", obdii_handle);
+
+	register_dissector("obd-ii-uds", dissect_obdii_uds, proto_obdii);
 
 	/* heuristics default off since these standardized IDs might be reused outside automotive systems */
 	heur_dissector_add("can", dissect_obdii_heur, "OBD-II Heuristic", "obd-ii_can_heur", proto_obdii, HEURISTIC_DISABLE);
