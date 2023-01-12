@@ -53,7 +53,6 @@ option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
 option(ENABLE_WERROR     "Treat warnings as errors" ON)
 option(ENABLE_DEBUG      "Enable debug code" ON)
-option(ENABLE_ASSERT     "Enable assertions" ON)
 option(ENABLE_DEBUG_MBS  "Enable extra debug checks for detecting invalid multibyte (UTF-8) strings" OFF)
 option(ENABLE_DEBUG_A2W  "Enable line directive from .cnf file" OFF)
 

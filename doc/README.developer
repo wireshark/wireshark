@@ -569,8 +569,8 @@ used for that purpose.
 
 Use assertions to catch logic errors in your program. A failed assertion
 indicates a bug in the code. Use ws_assert() instead of g_assert() to
-test a logic condition. Note that ws_assert() will be removed with
-WS_DISABLE_ASSERT. Therefore assertions should not have any side-effects,
+test a logic condition. Note that ws_assert() can be removed at compile
+time. Therefore assertions should not have any side-effects,
 otherwise the program may behave inconsistently.
 
 Use ws_assert_not_reached() instead of g_assert_not_reached() for

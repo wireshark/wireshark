@@ -10,18 +10,14 @@
 
 #include "config.h"
 
-/* Because ws_assert() dependes on ws_error() we do not use it
- * here and fall back on assert() instead. */
-#if defined(WS_DISABLE_ASSERT) && !defined(NDEBUG)
-#define NDEBUG
-#endif
-
 #include "wslog.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+/* Because ws_assert() dependes on ws_error() we do not use it
+ * here and fall back on assert() instead. */
 #include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -40,12 +36,7 @@
 #include "console_win32.h"
 #endif
 
-
-#ifndef WS_DISABLE_ASSERT
 #define ASSERT(expr)    assert(expr)
-#else
-#define ASSERT(expr)    (void)(expr);
-#endif
 
 /* Runtime log level. */
 #define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"

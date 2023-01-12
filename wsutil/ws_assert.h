@@ -16,7 +16,7 @@
 #include <string.h>
 #include <wsutil/wslog.h>
 
-#ifdef WS_DISABLE_ASSERT
+#ifdef WS_DISABLE_DEBUG
 #define _ASSERT_ENABLED false
 #else
 #define _ASSERT_ENABLED true
@@ -27,9 +27,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * We don't want to execute the expression with WS_DISABLE_ASSERT because
+ * We don't want to execute the expression with WS_DISABLE_DEBUG because
  * it might be time and space costly and the goal here is to optimize for
- * WS_DISABLE_ASSERT. However removing it completely is not good enough
+ * WS_DISABLE_DEBUG. However removing it completely is not good enough
  * because it might generate many unused variable warnings. So we use
  * if (false) and let the compiler optimize away the dead execution branch.
  */
@@ -40,7 +40,7 @@ extern "C" {
         } while (0)
 
 /*
- * ws_abort_if_fail() is not conditional on WS_DISABLE_ASSERT.
+ * ws_abort_if_fail() is not conditional on WS_DISABLE_DEBUG.
  * Usually used to appease a static analyzer.
  */
 #define ws_abort_if_fail(expr) \
@@ -48,7 +48,7 @@ extern "C" {
 
 /*
  * ws_assert() cannot produce side effects, otherwise code will
- * behave differently because of WS_DISABLE_ASSERT, and probably introduce
+ * behave differently because of WS_DISABLE_DEBUG, and probably introduce
  * some difficult to track bugs.
  */
 #define ws_assert(expr) \
@@ -70,7 +70,7 @@ extern "C" {
         } while (0)
 
 /*
- * We don't want to disable ws_assert_not_reached() with WS_DISABLE_ASSERT.
+ * We don't want to disable ws_assert_not_reached() with WS_DISABLE_DEBUG.
  * That would blast compiler warnings everywhere for no benefit, not
  * even a miniscule performance gain. Reaching this function is always
  * a programming error and will unconditionally abort execution.
