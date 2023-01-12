@@ -1288,7 +1288,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 	pid_len = oinfo->data_bytes - 1;
 	if (pid_len == 0)
 	{
-		if (oinfo->mode != 0x07)
+		if (oinfo->mode != 0x04 && oinfo->mode != 0x07)
 			return 0;
 		pid = 0; /* Should never be required but set to satisfy petri-dish */
 	}
@@ -1309,6 +1309,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;
 
+	case 0x04:
 	case 0x07:
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s", oinfo->can_id, mode_str);
 		break;
@@ -1332,6 +1333,10 @@ static int
 dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "Response[%.3x] %s ", oinfo->can_id, val_to_str(oinfo->mode, obdii_mode_vals, "Unknown (%.2x)"));
+
+	if (oinfo->mode == 0x04 && oinfo->data_bytes == 0x01) {
+		return tvb_captured_length(tvb);
+	}
 
 	oinfo->value_bytes = oinfo->data_bytes - OBDII_VAL_OFF;
 
@@ -1417,7 +1422,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	if (id_is_response)
 	{
-		if (data_bytes < 2)
+		if (mode != 0x44 && data_bytes < 2)
 			return 0;
 		if (mode < 0x40)
 			return 0;
