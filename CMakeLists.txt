@@ -2793,11 +2793,12 @@ if(BUILD_logray AND QT_FOUND)
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
-if (BUILD_logray AND SINSP_FOUND)
+if (BUILD_logray AND FALCO_PLUGINS)
 	add_custom_target(copy_falco_plugins)
 	add_custom_command(TARGET copy_falco_plugins
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${LOGRAY_PLUGIN_DIR}/falco
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SINSP_PLUGINS} ${LOGRAY_PLUGIN_DIR}/falco
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FALCO_PLUGINS} ${LOGRAY_PLUGIN_DIR}/falco
+		VERBATIM
 	)
 	add_dependencies(logray copy_falco_plugins)
 endif()

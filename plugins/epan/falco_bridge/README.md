@@ -14,7 +14,7 @@ It requires [libsinsp and libscap](https://github.com/falcosecurity/libs/).
 cmake \
     -DSINSP_INCLUDEDIR=/path/to/falcosecurity-libs \
     -DSINSP_LIBDIR=/path/to/falcosecurity-libs/ \
-    -DSINSP_PLUGINS="/path/to/plugin1;/path/to/plugin2;/path/to/plugin3" \
+    -DFALCO_PLUGINS="/path/to/plugin1;/path/to/plugin2;/path/to/plugin3" \
     [other cmake args]
 ```
 

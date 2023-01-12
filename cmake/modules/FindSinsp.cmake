@@ -15,7 +15,7 @@
 #  SINSP_LINK_LIBRARIES - List of libraries when using libsinsp.
 
 # You must manually set the following variables:
-#  SINSP_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
+#  FALCO_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
 
 # To do:
 #  SINSP_DLL_DIR        - (Windows) Path to the libsinsp and libscap DLLs
@@ -171,6 +171,6 @@ else()
   set(SINSP_LINK_LIBRARIES)
 endif()
 
-cmake_dependent_option(SINSP_PLUGINS "Paths to Falco plugins. Semicolon-separated" "" SINSP_FOUND "")
+cmake_dependent_option(FALCO_PLUGINS "Paths to Falco plugins. Semicolon-separated" "" SINSP_FOUND "")
 
 mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES)
