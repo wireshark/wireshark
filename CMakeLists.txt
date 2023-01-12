@@ -3506,8 +3506,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	# Should we add appimaged's monitored directories
 	# as HINTS?
 	# https://github.com/AppImage/appimaged
-	find_program(LINUXDEPLOYQT_EXECUTABLE linuxdeployqt)
-	find_program(APPIMAGETOOL_EXECUTABLE appimagetool)
+	find_program(LINUXDEPLOY_EXECUTABLE NAMES linuxdeploy-x86_64.AppImage linuxdeploy)
+	find_program(_linuxdeploy_plugin_qt NAMES linuxdeploy-plugin-qt-x86_64.AppImage linuxdeploy-plugin-qt)
+	find_program(APPIMAGETOOL_EXECUTABLE NAMES appimagetool-x86_64.AppImage
+ appimagetool)
 endif()
 
 
@@ -3649,50 +3651,47 @@ if(RPMBUILD_EXECUTABLE)
 	)
 endif()
 
-if(LINUXDEPLOYQT_EXECUTABLE AND APPIMAGETOOL_EXECUTABLE)
-	# The documentation at https://github.com/probonopd/linuxdeployqt
-	# says that you need to set CMAKE_BUILD_TYPE=Release and
-	# CMAKE_INSTALL_PREFIX=/usr. I (gcc) also had to set
-	# CMAKE_INSTALL_LIBDIR=/usr/lib.
-	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" AND CMAKE_INSTALL_LIBDIR STREQUAL "/usr/lib" )
+if(LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
+	# Require production builds (/usr + Release).
+	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" )
 		add_custom_target(wireshark_appimage_prerequisites)
 		add_dependencies(wireshark_appimage_prerequisites ${PROGLIST})
 	else()
 		add_custom_target(wireshark_appimage_prerequisites
-			COMMAND echo "CMAKE_BUILD_TYPE isn't Release or CMAKE_INSTALL_PREFIX isn't /usr or CMAKE_INSTALL_LIBDIR isn't /usr/lib."
+			COMMAND echo "CMAKE_BUILD_TYPE isn't Release or CMAKE_INSTALL_PREFIX isn't /usr."
 			COMMAND false
 		)
 	endif()
-	set (_ai_appdir "${CMAKE_BINARY_DIR}/packaging/appimage/appdir")
+	set (_wireshark_ai_appdir ${CMAKE_BINARY_DIR}/packaging/appimage/wireshark.appdir)
 	add_custom_target(wireshark_appimage_appdir
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${_ai_appdir}"
-		COMMAND env DESTDIR=${_ai_appdir}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_wireshark_ai_appdir}
+		COMMAND env DESTDIR=${_wireshark_ai_appdir}
 			${CMAKE_COMMAND} --build . --target install
 		DEPENDS wireshark_appimage_prerequisites
 	)
-	set(_exe_args)
+	set(_wireshark_appimage_exe_args)
 	foreach(_prog ${PROGLIST})
-		# XXX Is this the correct path?
-		list(APPEND _exe_args "-executable=${_ai_appdir}/usr/bin/${_prog}")
+		# XXX This needs to be more robust.
+		if (${_prog} STREQUAL "dftest" OR ${_prog} STREQUAL "logray")
+			continue()
+		endif()
+		list(APPEND _wireshark_appimage_exe_args --executable=${_wireshark_ai_appdir}/usr/bin/${_prog})
 	endforeach()
-	# linuxdeployqt currently clobbers AppRun:
-	# https://github.com/probonopd/linuxdeployqt/issues/159
-	# When that's fixed we will no longer need appimagetool. Until
-	# then, we need to prep and package in two steps:
-	# https://github.com/probonopd/linuxdeployqt/wiki/Custom-wrapper-script-instead-of-AppRun
+	# It looks like linuxdeploy can't handle executables in nonstandard
+	# locations, so use it to prep our staging directory here and use
+	# appimagetool to to build the appimage.
 	add_custom_target(wireshark_appimage_prep
-		COMMAND ${LINUXDEPLOYQT_EXECUTABLE}
-			"${_ai_appdir}/usr/share/applications/org.wireshark.Wireshark.desktop"
-			${_exe_args}
-		COMMAND rm -f "${_ai_appdir}/AppRun"
-		COMMAND install
-			"${CMAKE_SOURCE_DIR}/packaging/appimage/AppRun"
-			"${_ai_appdir}/AppRun"
+		COMMAND env LD_LIBRARY_PATH=${_wireshark_ai_appdir}/${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR} ${LINUXDEPLOY_EXECUTABLE}
+			--appdir=${_wireshark_ai_appdir}
+			${_wireshark_appimage_exe_args}
+			--desktop-file=${_wireshark_ai_appdir}/usr/share/applications/org.wireshark.Wireshark.desktop
+			--icon-file=${CMAKE_SOURCE_DIR}/resources/icons/wsicon256.png
+			--custom-apprun=${CMAKE_SOURCE_DIR}/packaging/appimage/Wireshark-AppRun
+			--plugin=qt
 		DEPENDS wireshark_appimage_appdir
 	)
 	add_custom_target(wireshark_appimage
-		COMMAND env VERSION=${PROJECT_VERSION} ${APPIMAGETOOL_EXECUTABLE} appdir
-		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/appimage"
+		COMMAND env VERSION=${PROJECT_VERSION} ${APPIMAGETOOL_EXECUTABLE} ${_wireshark_ai_appdir}
 		DEPENDS wireshark_appimage_prep
 	)
 endif()
@@ -4058,7 +4057,7 @@ if(SHELLCHECK_EXECUTABLE)
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
 			resources/stock_icons/svg-to-png.sh
-			packaging/appimage/AppRun
+			packaging/appimage/Wireshark-AppRun
 			"packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
