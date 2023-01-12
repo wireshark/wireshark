@@ -4767,10 +4767,10 @@ static int decode_bgp_link_nlri_link_descriptors(tvbuff_t *tvb,
             break;
 
             case BGP_NLRI_TLV_IPV6_NEIGHBOR_ADDRESS:
-                if(sub_length != BGP_NLRI_TLV_IPV6_NEIGHBOR_ADDRESS){
+                if(sub_length != BGP_NLRI_TLV_LEN_IPV6_NEIGHBOR_ADDRESS){
                     expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error,
                                            "Unexpected IPv6 Neighbor Address TLV's length (%u), it must be %u bytes!",
-                                           sub_length, BGP_NLRI_TLV_IPV6_NEIGHBOR_ADDRESS);
+                                           sub_length, BGP_NLRI_TLV_LEN_IPV6_NEIGHBOR_ADDRESS);
                     return -1;
                 }
                 tlv_sub_item = proto_tree_add_item(tlv_tree,
