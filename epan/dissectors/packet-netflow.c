@@ -1697,6 +1697,29 @@ static const value_string v10_template_types_ixia[] = {
     {  286, "QUIC Network RTT (us)"},
     {  287, "QUIC RTT for Application Packets (us)"},
     {  288, "The Name of the Matched Filter"},
+    {  289, "GTP IMSI"},
+    {  290, "GTP ULI SAI LAC"},
+    {  291, "GTP ULI RAI RAC"},
+    {  292, "GTP ULI TAC"},
+    {  293, "GTP ULI ECGI E NODEB ID"},
+    {  294, "GTP ULI CELL ID"},
+    {  295, "GTP ULI LAC"},
+    {  296, "GTP ULI MCC"},
+    {  297, "GTP ULI MNC"},
+    {  298, "GTP MSISDN"},
+    {  299, "GTP IMEI"},
+    {  300, "GTP RAT Type"},
+    {  301, "GTP Endpoint GSM Generation"},
+    {  302, "GTP Uplink TEID"},
+    {  303, "GTP Downlink TEID"},
+    {  304, "GTP Uplink Tunnel IPv4 Address"},
+    {  305, "GTP Downlink Tunnel IPv4 Address"},
+    {  306, "GTP Uplink Tunnel IPv6 Address"},
+    {  307, "GTP Downlink Tunnel IPv6 Address"},
+    {  308, "GTP Uplink QCI/QFI"},
+    {  309, "GTP Downlink QCI/QFI"},
+    {  310, "GTP Uplink APN/DNN"},
+    {  311, "GTP Downlink APN/DNN"},
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -3486,6 +3509,29 @@ static int      hf_pie_ixia_quicConnSetupTime           = -1;
 static int      hf_pie_ixia_quicConnRTT                 = -1;
 static int      hf_pie_ixia_quicAppResponseTime         = -1;
 static int      hf_pie_ixia_matchedFilterName           = -1;
+static int      hf_pie_ixia_gtp_IMSI                    = -1;
+static int      hf_pie_ixia_gtp_ULI_SAI_SAC             = -1;
+static int      hf_pie_ixia_gtp_ULI_RAI_RAC             = -1;
+static int      hf_pie_ixia_gtp_ULI_TAC                 = -1;
+static int      hf_pie_ixia_gtp_ULI_ECGI_E_NODEB_ID     = -1;
+static int      hf_pie_ixia_gtp_ULI_CELL_ID             = -1;
+static int      hf_pie_ixia_gtp_ULI_LAC                 = -1;
+static int      hf_pie_ixia_gtp_ULI_MCC                 = -1;
+static int      hf_pie_ixia_gtp_ULI_MNC                 = -1;
+static int      hf_pie_ixia_gtp_MSISDN                  = -1;
+static int      hf_pie_ixia_gtp_IMEI                    = -1;
+static int      hf_pie_ixia_gtp_RAT_type                = -1;
+static int      hf_pie_ixia_gtp_ep_gen                  = -1;
+static int      hf_pie_ixia_gtp_up_TEID                 = -1;
+static int      hf_pie_ixia_gtp_down_TEID               = -1;
+static int      hf_pie_ixia_gtp_up_ipv4_addr            = -1;
+static int      hf_pie_ixia_gtp_down_ipv4_addr          = -1;
+static int      hf_pie_ixia_gtp_up_ipv6_addr            = -1;
+static int      hf_pie_ixia_gtp_down_ipv6_addr          = -1;
+static int      hf_pie_ixia_gtp_up_QCI_QFI              = -1;
+static int      hf_pie_ixia_gtp_down_QCI_QFI            = -1;
+static int      hf_pie_ixia_gtp_up_APN_DNN              = -1;
+static int      hf_pie_ixia_gtp_down_APN_DNN            = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -10756,7 +10802,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_conn_avg_rtt,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
-	case ((VENDOR_IXIA << 16) | 284):
+        case ((VENDOR_IXIA << 16) | 284):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_udpAppResponseTime,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
@@ -10772,10 +10818,102 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_quicAppResponseTime,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
-	case ((VENDOR_IXIA << 16) | 288):
-	    ti = proto_tree_add_item(pdutree, hf_pie_ixia_matchedFilterName,
-			              tvb, offset, length, ENC_ASCII);
-	    break;
+        case ((VENDOR_IXIA << 16) | 288):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_matchedFilterName,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 289):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_IMSI,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 290):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_SAI_SAC,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 291):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_RAI_RAC,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 292):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_TAC,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 293):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_ECGI_E_NODEB_ID,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 294):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_CELL_ID,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 295):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_LAC,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 296):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_MCC,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 297):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_MNC,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 298):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_MSISDN,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 299):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_IMEI,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 300):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_RAT_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 301):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ep_gen,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 302):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_up_TEID,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 303):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_down_TEID,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 304):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_up_ipv4_addr,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 305):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_down_ipv4_addr,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 306):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_up_ipv6_addr,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 307):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_down_ipv6_addr,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 308):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_up_QCI_QFI,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 309):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_down_QCI_QFI,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 310):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_up_APN_DNN,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 311):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_down_APN_DNN,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
             /* END Ixia Communications */
 
             /* START Netscaler Communications */
@@ -18931,6 +19069,167 @@ proto_register_netflow(void)
          {"Matched Filter Name", "cflow.pie.ixia.matchedFilterName",
           FT_STRING, BASE_NONE, NULL, 0x0,
           "The Name of the Matched Filter", HFILL}
+        },
+
+        /* ixia, 3054 / 289 */
+        {&hf_pie_ixia_gtp_IMSI,
+         {"GTP IMSI", "cflow.pie.ixia.gtp-IMSI",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP IMSI", HFILL}
+        },
+
+        /* ixia, 3054 / 290 */
+        {&hf_pie_ixia_gtp_ULI_SAI_SAC,
+         {"GTP ULI SAI SAC", "cflow.pie.ixia.gtpULI-SAI-SAC",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP ULI SAI SAC", HFILL}
+        },
+
+        /* ixia, 3054 / 291 */
+        {&hf_pie_ixia_gtp_ULI_RAI_RAC,
+         {"GTP ULI RAI RAC", "cflow.pie.ixia.gtpULI-RAI-RAC",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP ULI RAI RAC", HFILL}
+        },
+
+        /* ixia, 3054 / 292 */
+        {&hf_pie_ixia_gtp_ULI_TAC,
+         {"GTP ULI TAI TAC", "cflow.pie.ixia.gtpULI-TAC",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP ULI TAC", HFILL}
+        },
+
+        /* ixia, 3054 / 293 */
+        {&hf_pie_ixia_gtp_ULI_ECGI_E_NODEB_ID,
+         {"GTP ULI ECGI E NODEB ID", "cflow.pie.ixia.gtpULI-ECGI-E-NODEB-ID",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP ULI ECGI E NODEB ID", HFILL}
+        },
+
+        /* ixia, 3054 / 294 */
+        {&hf_pie_ixia_gtp_ULI_CELL_ID,
+         {"GTP CGI CELL ID", "cflow.pie.ixia.gtpULI-CELL-ID",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP CELL ID", HFILL}
+        },
+
+        /* ixia, 3054 / 295 */
+        {&hf_pie_ixia_gtp_ULI_LAC,
+         {"GTP CGI LAC", "cflow.pie.ixia.gtpULI-LAC",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP LAC", HFILL}
+        },
+
+        /* ixia, 3054 / 296 */
+        {&hf_pie_ixia_gtp_ULI_MCC,
+         {"GTP ULI MCC", "cflow.pie.ixia.gtpULI-MCC",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP ULI MCC", HFILL}
+        },
+
+        /* ixia, 3054 / 297 */
+        {&hf_pie_ixia_gtp_ULI_MNC,
+         {"GTP ULI MNC", "cflow.pie.ixia.gtpULI-MNC",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP ULI MNC", HFILL}
+        },
+
+        /* ixia, 3054 / 298 */
+        {&hf_pie_ixia_gtp_MSISDN,
+         {"GTP MSISDN", "cflow.pie.ixia.gtp-MSISDN",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP MSISDN", HFILL}
+        },
+
+        /* ixia, 3054 / 299 */
+        {&hf_pie_ixia_gtp_IMEI,
+         {"GTP IMEI", "cflow.pie.ixia.gtp-IMEI",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Mobile Session GTP IMEI", HFILL}
+        },
+
+        /* ixia, 3054 / 300 */
+        {&hf_pie_ixia_gtp_RAT_type,
+         {"GTP RAT Type", "cflow.pie.ixia.gtp-RAT-type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session Radio Access Technology Type", HFILL}
+        },
+
+        /* ixia, 3054 / 301 */
+        {&hf_pie_ixia_gtp_ep_gen,
+         {"GTP Endpoint Generation", "cflow.pie.ixia.gtp-ep-gen",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session Endpoint GSM Generation", HFILL}
+        },
+
+        /* ixia, 3054 / 302 */
+        {&hf_pie_ixia_gtp_up_TEID,
+         {"GTP Uplink TEID", "cflow.pie.ixia.gtp-uplink-TEID",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Mobile Session Uplink Tunnel Endpoint ID", HFILL}
+        },
+
+        /* ixia, 3054 / 303 */
+        {&hf_pie_ixia_gtp_down_TEID,
+         {"GTP Downlink TEID", "cflow.pie.ixia.gtp-downlink-TEID",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Mobile Session Downlink Tunnel Endpoint ID", HFILL}
+        },
+
+        /* ixia, 3054 / 304 */
+        {&hf_pie_ixia_gtp_up_ipv4_addr,
+         {"GTP Uplink Tunnel IPv4 Address", "cflow.pie.ixia.gtp-uplink-tun-ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "Mobile Session Uplink Tunnel IPv4 Address", HFILL}
+        },
+
+        /* ixia, 3054 / 305 */
+        {&hf_pie_ixia_gtp_down_ipv4_addr,
+         {"GTP Downlink Tunnel IPv4 Address", "cflow.pie.ixia.gtp-downlink-tun-ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "Mobile Session Downlink Tunnel IPv4 Address", HFILL}
+        },
+
+        /* ixia, 3054 / 306 */
+        {&hf_pie_ixia_gtp_up_ipv6_addr,
+         {"GTP Uplink Tunnel IPv6 Address", "cflow.pie.ixia.gtp-uplink-tun-ipv6",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          "Mobile Session Uplink Tunnel IPv6 Address", HFILL}
+        },
+
+        /* ixia, 3054 / 307 */
+        {&hf_pie_ixia_gtp_down_ipv6_addr,
+         {"GTP Downlink Tunnel IPv6 Address", "cflow.pie.ixia.gtp-downlink-tun-ipv6",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          "Mobile Session Downlink Tunnel IPv6 Address", HFILL}
+        },
+
+        /* ixia, 3054 / 308 */
+        {&hf_pie_ixia_gtp_up_QCI_QFI,
+         {"GTP Uplink QCI/QFI", "cflow.pie.ixia.gtp-uplink-QCI-QFI",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session Uplink QCI or QFI", HFILL}
+        },
+
+        /* ixia, 3054 / 309 */
+        {&hf_pie_ixia_gtp_down_QCI_QFI,
+         {"GTP Downlink QCI/QFI", "cflow.pie.ixia.gtp-downlink-QCI-QFI",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Mobile Session Downlink QCI or QFI", HFILL}
+        },
+
+        /* ixia, 3054 / 310 */
+        {&hf_pie_ixia_gtp_up_APN_DNN,
+         {"GTP Uplink APN/DNN", "cflow.pie.ixia.gtp-uplink-APN-DNN",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Mobile Session Uplink Access Point Name or Data Network Name", HFILL}
+        },
+
+        /* ixia, 3054 / 311 */
+        {&hf_pie_ixia_gtp_down_APN_DNN,
+         {"GTP Downlink APN/DNN", "cflow.pie.ixia.gtp-downlink-APN-DNN",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Mobile Session Downlink Access Point Name or Data Network Name", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
