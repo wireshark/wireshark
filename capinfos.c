@@ -141,7 +141,6 @@ static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 
 // Strongest to weakest
 #define HASH_SIZE_SHA256 32
-#define HASH_SIZE_RMD160 20
 #define HASH_SIZE_SHA1   20
 
 #define HASH_STR_SIZE (65) /* Max hash size * 2 + '\0' */
@@ -743,7 +742,6 @@ print_stats(const gchar *filename, capture_info *cf_info)
     }
     if (cap_file_hashes) {
         printf     ("SHA256:              %s\n", file_sha256);
-        printf     ("RIPEMD160:           %s\n", file_rmd160);
         printf     ("SHA1:                %s\n", file_sha1);
     }
     if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
@@ -857,7 +855,6 @@ print_stats_table_header(void)
     if (cap_packet_rate)    print_stats_table_header_label("Average packet rate (packets/sec)");
     if (cap_file_hashes) {
         print_stats_table_header_label("SHA256");
-        print_stats_table_header_label("RIPEMD160");
         print_stats_table_header_label("SHA1");
     }
     if (cap_order)          print_stats_table_header_label("Strict time order");
@@ -1182,7 +1179,6 @@ calculate_hashes(const char *filename)
             }
             gcry_md_final(hd);
             hash_to_str(gcry_md_read(hd, GCRY_MD_SHA256), HASH_SIZE_SHA256, file_sha256);
-            hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, file_rmd160);
             hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, file_sha1);
         }
         if (fh) fclose(fh);
@@ -1489,7 +1485,7 @@ print_usage(FILE *output)
     fprintf(output, "  -E display the capture file encapsulation\n");
     fprintf(output, "  -I display the capture file interface information\n");
     fprintf(output, "  -F display additional capture file information\n");
-    fprintf(output, "  -H display the SHA256, RIPEMD160, and SHA1 hashes of the file\n");
+    fprintf(output, "  -H display the SHA256 and SHA1 hashes of the file\n");
     fprintf(output, "  -k display the capture comment\n");
     fprintf(output, "\n");
     fprintf(output, "Size infos:\n");
@@ -1842,10 +1838,9 @@ main(int argc, char *argv[])
     if (cap_file_hashes) {
         gcry_check_version(NULL);
         gcry_md_open(&hd, GCRY_MD_SHA256, 0);
-        if (hd) {
-            gcry_md_enable(hd, GCRY_MD_RMD160);
+        if (hd)
             gcry_md_enable(hd, GCRY_MD_SHA1);
-        }
+
         hash_buf = (char *)g_malloc(HASH_BUF_SIZE);
     }
 
