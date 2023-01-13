@@ -107,7 +107,7 @@ extern "C" {
  * the major UN*X C compilers support __thread and the major Windows C
  * compilers support __declspec(thread).
  */
-#ifdef _WIN32
+#ifdef _MSC_VER
   #define WS_THREAD_LOCAL __declspec(thread)
 #else
   #define WS_THREAD_LOCAL __thread
