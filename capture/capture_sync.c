@@ -94,7 +94,7 @@
 #include <wsutil/ws_pipe.h>
 
 #ifdef _WIN32
-static void create_dummy_signal_pipe();
+static void create_dummy_signal_pipe(void);
 static HANDLE dummy_signal_pipe; /* Dummy named pipe which lets the child check for a dropped connection */
 static gchar *dummy_control_id;
 #else
@@ -2094,7 +2094,7 @@ sync_pipe_signame(int sig)
 
 #ifdef _WIN32
 
-static void create_dummy_signal_pipe() {
+static void create_dummy_signal_pipe(void) {
     gchar *dummy_signal_pipe_name;
 
     if (dummy_signal_pipe != NULL) return;

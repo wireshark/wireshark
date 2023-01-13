@@ -450,7 +450,7 @@ ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *stream)
 
 /* DLL loading */
 static gboolean
-init_dll_load_paths()
+init_dll_load_paths(void)
 {
     TCHAR path_w[MAX_PATH];
 

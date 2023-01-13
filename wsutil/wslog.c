@@ -781,7 +781,7 @@ static void glib_log_handler(const char *domain, GLogLevelFlags flags,
 
 
 #ifdef _WIN32
-static void load_registry()
+static void load_registry(void)
 {
     LONG lResult;
     DWORD ptype;
@@ -836,7 +836,7 @@ void ws_log_init(const char *progname,
                         glib_log_handler, NULL);
 
 #ifdef _WIN32
-    load_registry(vcmdarg_err);
+    load_registry();
 
     /* if the user wants a console to be always there, well, we should open one for him */
     if (ws_log_console_open == LOG_CONSOLE_OPEN_ALWAYS) {
