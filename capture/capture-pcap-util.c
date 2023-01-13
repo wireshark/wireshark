@@ -557,8 +557,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		ai = (struct sockaddr_in *)(void *)addr;
 		if_addr = (if_addr_t *)g_malloc(sizeof(*if_addr));
 		if_addr->ifat_type = IF_AT_IPv4;
-		if_addr->addr.ip4_addr =
-		    *((guint32 *)&(ai->sin_addr.s_addr));
+		if_addr->addr.ip4_addr = ai->sin_addr.s_addr;
 		if_info->addrs = g_slist_prepend(if_info->addrs, if_addr);
 		break;
 
