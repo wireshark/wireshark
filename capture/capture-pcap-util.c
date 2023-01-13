@@ -449,8 +449,8 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	} else if (description && (strstr(description, "Wireless") != NULL ||
 	    strstr(description,"802.11") != NULL)) {
 		if_info->type = IF_WIRELESS;
-	} else if (description && strstr(description, "AirPcap") != NULL ||
-	    strstr(name, "airpcap") != NULL) {
+	} else if (description && (strstr(description, "AirPcap") != NULL ||
+	    strstr(name, "airpcap") != NULL)) {
 		if_info->type = IF_AIRPCAP;
 	} else if (description && strstr(description, "Bluetooth") != NULL ) {
 		if_info->type = IF_BLUETOOTH;
