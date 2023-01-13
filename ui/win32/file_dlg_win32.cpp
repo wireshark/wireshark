@@ -1054,7 +1054,6 @@ append_file_extension_type(GArray *sa, int et)
 
     /* Construct the list of patterns. */
     extensions_list = wtap_get_file_extension_type_extensions(et);
-    g_string_printf(pattern_str, "");
     sep = '\0';
     for (extension = extensions_list; extension != NULL;
          extension = g_slist_next(extension)) {
@@ -1188,7 +1187,6 @@ append_file_type(GArray *sa, int ft)
            g_string_printf(pattern_str, ALL_FILES_WILDCARD);
     } else {
         /* Construct the list of patterns. */
-        g_string_printf(pattern_str, "");
         sep = '\0';
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
