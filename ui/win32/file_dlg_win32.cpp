@@ -988,8 +988,8 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     g_format_type = (unsigned int) SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
 
                     /* The list of file formats is sorted. Get the format by name. */
-                    guint label_len;
-                    label_len = (guint) SendMessage(cur_ctrl, CB_GETLBTEXTLEN, (WPARAM) g_format_type, 0);
+                    LRESULT label_len;
+                    label_len = SendMessage(cur_ctrl, CB_GETLBTEXTLEN, (WPARAM) g_format_type, 0);
                     if (label_len != CB_ERR) {
                         TCHAR *label = g_new(TCHAR, label_len+1);
                         SendMessage(cur_ctrl, CB_GETLBTEXT, (WPARAM) g_format_type, (LPARAM) label);
