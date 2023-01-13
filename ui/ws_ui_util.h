@@ -43,7 +43,7 @@ typedef struct window_geometry_s {
 extern void main_window_update(void);
 
 /* Exit routine provided by UI-specific code. */
-extern void exit_application(int status);
+WS_NORETURN extern void exit_application(int status);
 
 /* XXX - Yes this isn't the best place, but they are used by file_dlg_win32.c, which is supposed
          to be GUI independent, but has lots of GTK leanings.  But if you put these in a GTK UI
