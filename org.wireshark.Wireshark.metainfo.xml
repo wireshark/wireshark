@@ -43,8 +43,18 @@
     </description>
     <url type="homepage">https://www.wireshark.org</url>
     <screenshots>
-	<screenshot type="default">https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
-	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
+	<screenshot type="default">
+          <caption>Wireshark's main window</caption>
+          <image type="source">https://www.wireshark.org/docs/wsug_html/wsug_graphics/ws-main.png</image>
+        </screenshot>
+	<screenshot>
+          <caption>Wireshark I/O Graph</caption>
+          <image type="source">https://www.wireshark.org/docs/wsug_html/wsug_graphics/ws-stats-iographs.png</image>
+        </screenshot>
+        <screenshot>
+          <caption>Wireshark Conversations</caption>
+          <image type="source">https://www.wireshark.org/docs/wsug_html/wsug_graphics/ws-stats-conversations.png</image>
+          </screenshot>
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
