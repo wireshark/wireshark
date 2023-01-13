@@ -252,7 +252,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
 			if_info->type = IF_USB;
 	}
 }
-#else
+#elif !defined(_WIN32)
 /*
  * On other UN*Xes, if there is a description, it's a friendly
  * name, and there is no vendor description.  ("Other UN*Xes"
