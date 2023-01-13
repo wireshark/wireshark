@@ -299,10 +299,11 @@ int TrafficDataFilterProxy::mapToSourceColumn(int proxyColumn) const
                     column++;
             }
             ConversationDataModel * convModel = qobject_cast<ConversationDataModel *>(model);
-            if (convModel->showConversationId() && column > ConversationDataModel::CONV_COLUMN_BYTES)
+            if (!convModel->showConversationId() && column > ConversationDataModel::CONV_COLUMN_BYTES) {
                 column++;
+            }
             if (! model->showTotalColumn()) {
-                if (column > ConversationDataModel::CONV_COLUMN_BYTES)
+                if (column > ConversationDataModel::CONV_COLUMN_CONV_ID)
                     column+=2;
             }
         }
