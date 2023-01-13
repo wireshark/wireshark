@@ -26,6 +26,8 @@
  * - tap stats by flow?
  * - for U-Plane, track back to last C-Plane frame for that eAxC
  *     - use upCompHdr values from C-Plane if not overridden by U-Plane?
+ * - Radio transport layer (eCPRI) fragmentation / reassembly
+ * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  */
 
 /* Prototypes */
@@ -98,6 +100,7 @@ static int hf_oran_lbtResult = -1;
 static int hf_oran_lteTxopSymbols = -1;
 static int hf_oran_initialPartialSF = -1;
 static int hf_oran_reserved = -1;
+static int hf_oran_ext11_reserved = -1;
 static int hf_oran_reserved_bits = -1;
 
 /* static int hf_oran_bfwCompParam = -1; */
@@ -448,6 +451,22 @@ static const value_string beam_group_type_vals[] = {
     {0, NULL}
 };
 
+/*******************************************************/
+/* Overall state of a flow (eAxC)                      */
+typedef struct {
+    guint32  last_cplane_frame;
+    nstime_t last_cplane_frame_ts;
+    /* TODO: add udCompHdr info for subsequence U-Plane frames? */
+
+    /* First U-PLane frame following 'last_cplane' frame */
+    guint32  first_uplane_frame;
+    nstime_t first_uplane_frame_ts;
+} flow_state_t;
+
+/* Table maintained on first pass from eAxC (guint16) -> flow_state_t* */
+static wmem_tree_t *flow_states_table = NULL;
+
+
 #if 0
 static const range_string bfw_comp_parms[] = {
     {0, 0, NULL}
@@ -508,7 +527,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 
 /* 3.1.3.1.6 (real time control data / IQ data transfer message series identifier */
 static void
-addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
+addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, guint16 *eAxC)
 {
     /* Subtree */
     proto_item *item;
@@ -516,8 +535,9 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
     guint64 duPortId, bandSectorId, ccId, ruPortId = 0;
     gint id_offset = *offset;
 
-    if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) && /* all parts above 0 */
-         ((pref_du_port_id_bits + pref_bandsector_id_bits + pref_cc_id_bits + pref_ru_port_id_bits) == 16))) {                  /* and adding up to 16 bits */
+    /* All parts of eAxC should be above 0, and should total 16 bits */
+    if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) &&
+         ((pref_du_port_id_bits + pref_bandsector_id_bits + pref_cc_id_bits + pref_ru_port_id_bits) == 16))) {
         expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
         *offset += 2;
         return;
@@ -526,6 +546,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
     guint bit_offset = *offset * 8;
 
     /* N.B. For sequence analysis / tapping, just interpret these 2 bytes as eAxC ID... */
+    *eAxC = tvb_get_guint16(tvb, *offset, ENC_BIG_ENDIAN);
 
     /* DU Port ID */
     proto_tree_add_bits_ret_val(oran_pcid_tree, hf_oran_du_port_id, tvb, bit_offset, pref_du_port_id_bits, &duPortId, ENC_BIG_ENDIAN);
@@ -745,7 +766,6 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* Get bits, and convert to float. */
         guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
         gfloat value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
-
         /* Add to tree. */
         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
         bit_offset += iq_width;
@@ -808,7 +828,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_uint(oran_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
         offset++;
 
-        /* ef (extension flag) */
+        /* [ef] (extension flag) */
         switch (sectionType) {
             case SEC_C_NORMAL:            /* Section Type "1" */
             case SEC_C_PRACH:             /* Section Type "3" */
@@ -1230,11 +1250,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 if (disableBFWs) {
                     proto_item_append_text(extension_ti, " (disableBFWs)");
                 }
-
                 /* RAD */
                 proto_tree_add_item(extension_tree, hf_oran_rad,
                                     tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* 6 reserved bits */
+                proto_tree_add_item(extension_tree, hf_oran_ext11_reserved, tvb,
+                                    offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
                 /* numBundPrb */
@@ -1452,7 +1473,17 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_append_text(protocol_item, "-C");
     proto_tree *oran_tree = proto_item_add_subtree(protocol_item, ett_oran);
 
-    addPcOrRtcid(tvb, oran_tree, &offset, "ecpriRtcid");
+    guint16 eAxC;
+    addPcOrRtcid(tvb, oran_tree, &offset, "ecpriRtcid", &eAxC);
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* TODO: create or update conversation for stream eAxC */
+    }
+    else {
+        /* TODO: show stored state for this stream */
+    }
+
+    /* Message identifier */
     addSeqid(tvb, oran_tree, &offset);
 
     proto_item *sectionHeading;
@@ -1610,7 +1641,16 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Transport header */
     /* Real-time control data / IQ data transfer message series identifier */
-    addPcOrRtcid(tvb, oran_tree, &offset, "ecpriPcid");
+    guint16 eAxC;
+    addPcOrRtcid(tvb, oran_tree, &offset, "ecpriPcid", &eAxC);
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* TODO: create or update conversation for stream eAxC */
+    }
+    else {
+        /* TODO: show stored state for this stream */
+    }
+
     /* Message identifier */
     addSeqid(tvb, oran_tree, &offset);
 
@@ -1814,7 +1854,7 @@ proto_register_oran(void)
          { "DU Port ID", "oran_fh_cus.du_port_id",
            FT_UINT16, BASE_DEC,
            NULL, 0x0,
-           NULL, HFILL }
+           "Width set in dissector preference", HFILL }
        },
 
        /* Section 3.1.3.1.6 */
@@ -1822,7 +1862,7 @@ proto_register_oran(void)
          { "BandSector ID", "oran_fh_cus.bandsector_id",
            FT_UINT16, BASE_DEC,
            NULL, 0x0,
-           NULL, HFILL }
+           "Width set in dissector preference", HFILL }
        },
 
        /* Section 3.1.3.1.6 */
@@ -1830,7 +1870,7 @@ proto_register_oran(void)
          { "CC ID", "oran_fh_cus.cc_id",
            FT_UINT16, BASE_DEC,
            NULL, 0x0,
-           NULL, HFILL }
+           "Width set in dissector preference", HFILL }
        },
 
         /* Section 3.1.3.1.6 */
@@ -1838,7 +1878,7 @@ proto_register_oran(void)
           { "RU Port ID", "oran_fh_cus.ru_port_id",
             FT_UINT16, BASE_DEC,
             NULL, 0x0,
-            NULL, HFILL }
+            "Width set in dissector preference", HFILL }
         },
 
         /* Section 3.1.3.1.7 */
@@ -2440,6 +2480,14 @@ proto_register_oran(void)
           HFILL}
         },
 
+        {&hf_oran_ext11_reserved,
+         {"Reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x3f,
+          NULL,
+          HFILL}
+        },
+
         /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_iqWidth,
          {"IQ Bit Width", "oran_fh_cus.bfwCompHdr_iqWidth",
@@ -2741,7 +2789,7 @@ proto_register_oran(void)
           { "Num weights per bundle", "oran_fh_cus.num_weights_per_bundle",
             FT_UINT16, BASE_DEC,
             NULL, 0x0,
-            "From preference",
+            "From dissector preference",
             HFILL }
         },
 
@@ -2878,13 +2926,13 @@ proto_register_oran(void)
 
     /* Register bit width/compression preferences separately by direction. */
     prefs_register_uint_preference(oran_module, "oran.du_port_id_bits", "DU Port ID bits [a]",
-        "The bit width of DU Port ID, sum of a,b,c&d must be 16", 10, &pref_du_port_id_bits);
+        "The bit width of DU Port ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_du_port_id_bits);
     prefs_register_uint_preference(oran_module, "oran.bandsector_id_bits", "BandSector ID bits [b]",
-        "The bit width of BandSector ID, sum of a,b,c&d must be 16", 10, &pref_bandsector_id_bits);
+        "The bit width of BandSector ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_bandsector_id_bits);
     prefs_register_uint_preference(oran_module, "oran.cc_id_bits", "CC ID bits [c]",
-        "The bit width of CC ID, sum of a,b,c&d must be 16", 10, &pref_cc_id_bits);
+        "The bit width of CC ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_cc_id_bits);
     prefs_register_uint_preference(oran_module, "oran.ru_port_id_bits", "RU Port ID bits [d]",
-        "The bit width of RU Port ID, sum of a,b,c&d must be 16", 10, &pref_ru_port_id_bits);
+        "The bit width of RU Port ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_ru_port_id_bits);
 
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
         "The bit width of a sample in the Uplink (if no udcompHdr)", 10, &pref_sample_bit_width_uplink);
@@ -2917,6 +2965,8 @@ proto_register_oran(void)
         "When enabled, for U-Plane frames show each I and Q value in PRB.", &pref_showIQSampleValues);
 
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
+
+    flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 /* Simpler form of proto_reg_handoff_oran which can be used if there are
