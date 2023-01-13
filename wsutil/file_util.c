@@ -491,7 +491,7 @@ init_dll_load_paths(void)
 }
 
 gboolean
-ws_init_dll_search_path()
+ws_init_dll_search_path(void)
 {
     gboolean dll_dir_set = FALSE;
     wchar_t *program_path_w;
@@ -631,7 +631,7 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
 static HANDLE local_running_mutex = NULL;
 static HANDLE global_running_mutex = NULL;
 
-void create_app_running_mutex() {
+void create_app_running_mutex(void) {
     SECURITY_DESCRIPTOR sec_descriptor;
     SECURITY_ATTRIBUTES sec_attributes;
     SECURITY_ATTRIBUTES *sa;
@@ -658,7 +658,7 @@ void create_app_running_mutex() {
     global_running_mutex = CreateMutex(sa, FALSE, _T("Global\\Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
 }
 
-void close_app_running_mutex() {
+void close_app_running_mutex(void) {
     if (local_running_mutex) {
         CloseHandle(local_running_mutex);
         local_running_mutex = NULL;
