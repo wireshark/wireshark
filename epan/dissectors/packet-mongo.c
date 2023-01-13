@@ -128,6 +128,7 @@ static const value_string compressor_vals[] = {
 #define BSON_ELEMENT_TYPE_INT32         16  /* 0x10 */
 #define BSON_ELEMENT_TYPE_TIMESTAMP     17  /* 0x11 */
 #define BSON_ELEMENT_TYPE_INT64         18  /* 0x12 */
+#define BSON_ELEMENT_TYPE_DECIMAL128    19  /* 0x13 */
 #define BSON_ELEMENT_TYPE_MIN_KEY      255  /* 0xFF */
 #define BSON_ELEMENT_TYPE_MAX_KEY      127  /* 0x7F */
 
@@ -150,6 +151,7 @@ static const value_string element_type_vals[] = {
   { BSON_ELEMENT_TYPE_INT32,          "Int32" },
   { BSON_ELEMENT_TYPE_TIMESTAMP,      "Timestamp" },
   { BSON_ELEMENT_TYPE_INT64,          "Int64" },
+  { BSON_ELEMENT_TYPE_DECIMAL128,     "128-bit decimal floating point" },
   { BSON_ELEMENT_TYPE_MIN_KEY,        "Min Key" },
   { BSON_ELEMENT_TYPE_MAX_KEY,        "Max Key" },
   { 0, NULL }
@@ -225,6 +227,7 @@ static int hf_mongo_element_length = -1;
 static int hf_mongo_element_value_boolean = -1;
 static int hf_mongo_element_value_int32 = -1;
 static int hf_mongo_element_value_int64 = -1;
+static int hf_mongo_element_value_decimal128 = -1;
 static int hf_mongo_element_value_double = -1;
 static int hf_mongo_element_value_string = -1;
 static int hf_mongo_element_value_string_length = -1;
@@ -470,6 +473,12 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
       case BSON_ELEMENT_TYPE_INT64:
         proto_tree_add_item(element_sub_tree, hf_mongo_element_value_int64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
+        break;
+      case BSON_ELEMENT_TYPE_DECIMAL128:
+        /* TODO Implement routine to convert to decimal128 for now, simply display bytes */
+        /* https://github.com/mongodb/specifications/blob/master/source/bson-decimal128/decimal128.rst */
+        proto_tree_add_item(element_sub_tree, hf_mongo_element_value_decimal128, tvb, offset, 16, ENC_NA);
+        offset += 16;
         break;
       default:
         break;
@@ -1355,6 +1364,11 @@ proto_register_mongo(void)
     { &hf_mongo_element_value_int64,
       { "Value", "mongo.element.value.int64",
       FT_INT64, BASE_DEC, NULL, 0x0,
+      "Element Value", HFILL }
+    },
+    { &hf_mongo_element_value_decimal128,
+      { "Value", "mongo.element.value.decimal128",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Element Value", HFILL }
     },
     { &hf_mongo_element_value_double,
