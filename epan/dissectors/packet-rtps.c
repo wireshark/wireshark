@@ -10535,7 +10535,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   guint32 status_info = 0xffffffff;
   gboolean from_builtin_writer;
   proto_item *octet_item;
-  coherent_set_entity_info coherent_set_entity_info_object;
+  coherent_set_entity_info coherent_set_entity_info_object = {0};
 
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTPS_DATA_FLAGS, flags);
 
@@ -10916,7 +10916,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
   gboolean from_builtin_writer;
   guint32 status_info = 0xffffffff;
   proto_item *octet_item;
-  coherent_set_entity_info coherent_set_entity_info_object;
+  coherent_set_entity_info coherent_set_entity_info_object = {0};
 
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTPS_DATA_FRAG_FLAGS, flags);
 

@@ -1064,7 +1064,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 	tvbuff_t   *payload_tvb;
 	guint	    payload_length = offset_end - offset;
 	const char *coap_ctype_str_dis;
-	http_message_info_t message_info;
+	http_message_info_t message_info = {0};
 	char	    str_payload[80];
 
 	/* coinfo->ctype_value == DEFAULT_COAP_CTYPE_VALUE: No Content-Format option present */
