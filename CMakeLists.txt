@@ -3724,7 +3724,7 @@ if(CLEAN_C_FILES)
 	# the INCLUDE environment variable).
 	# This should apparently be handled for us via CMAKE_RC_FLAG_REGEX
 	# in CMakeRCInformation.cmake but that doesn't appear to work.
-	if(MSVC)
+	if(WIN32)
 		list(FILTER CLEAN_C_FILES EXCLUDE REGEX ".*\\.rc")
 	endif()
 
