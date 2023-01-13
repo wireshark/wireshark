@@ -208,18 +208,16 @@ get_compiled_version_info(gather_feature_func gather_compile)
 #endif
 
 #ifdef WS_DEBUG
-	g_string_append(str, ", debug build (");
+	g_string_append(str, ", debug build");
 #else
-	g_string_append(str, ", release build (");
+	g_string_append(str, ", release build");
 #endif
 
 #ifdef WS_DEBUG_UTF_8
-	g_string_append(str, " +utf8");
-#else
-	g_string_append(str, " -utf8");
+	g_string_append(str, " (+utf8)");
 #endif
 
-	g_string_append(str, ").");
+	g_string_append(str, ".");
 	end_string(str);
 	free_features(&l);
 
