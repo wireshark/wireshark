@@ -201,7 +201,6 @@ ph_stats_new(capture_file *cf)
     guint32	framenum;
     frame_data	*frame;
     progdlg_t	*progbar = NULL;
-    gboolean	stop_flag;
     int		count;
     wtap_rec	rec;
     Buffer	buf;
@@ -211,6 +210,14 @@ ph_stats_new(capture_file *cf)
     int		progbar_quantum;
 
     if (!cf) return NULL;
+
+    if (cf->read_lock) {
+        ws_warning("Failing to compute protocol hierarchy stats on \"%s\" since a read is in progress", cf->filename);
+        return NULL;
+    }
+    cf->read_lock = TRUE;
+
+    cf->stop_flag = FALSE;
 
     pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
 
@@ -232,8 +239,6 @@ ph_stats_new(capture_file *cf)
     /* Progress so far. */
     progbar_val = 0.0f;
 
-    stop_flag = FALSE;
-
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
 
@@ -250,7 +255,7 @@ ph_stats_new(capture_file *cf)
             progbar = delayed_create_progress_dlg(
                     cf->window, "Computing",
                     "protocol hierarchy statistics",
-                    TRUE, &stop_flag, progbar_val);
+                    TRUE, &cf->stop_flag, progbar_val);
 
         /* Update the progress bar, but do it only N_PROGBAR_UPDATES
            times; when we update it, we have to run the GTK+ main
@@ -275,7 +280,7 @@ ph_stats_new(capture_file *cf)
             progbar_nextstep += progbar_quantum;
         }
 
-        if (stop_flag) {
+        if (cf->stop_flag) {
             /* Well, the user decided to abort the statistics.
                computation process  Just stop. */
             break;
@@ -310,7 +315,7 @@ ph_stats_new(capture_file *cf)
                  * just abort rather than popping up
                  * the statistics window.
                  */
-                stop_flag = TRUE;
+                cf->stop_flag = TRUE;
                 break;
             }
 
@@ -328,15 +333,18 @@ ph_stats_new(capture_file *cf)
     if (progbar != NULL)
         destroy_progress_dlg(progbar);
 
-    if (stop_flag) {
+    if (cf->stop_flag) {
         /*
          * We quit in the middle; throw away the statistics
          * and return NULL, so our caller doesn't pop up a
          * window with the incomplete statistics.
          */
         ph_stats_free(ps);
-        return NULL;
+        ps = NULL;
     }
+
+    ws_assert(cf->read_lock);
+    cf->read_lock = FALSE;
 
     return ps;
 }

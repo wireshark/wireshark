@@ -2461,6 +2461,11 @@ void WiresharkMainWindow::setMenusForCaptureFile(bool force_disable)
     main_ui_->actionFileSave->setEnabled(can_save);
     main_ui_->actionFileSaveAs->setEnabled(can_save_as);
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(enable);
+    /* The Protocol Hierarchy statistics run on all the packets that
+     * pass the current filter, don't enable if a read or rescan is
+     * still in progress.
+     */
+    main_ui_->actionStatisticsProtocolHierarchy->setEnabled(enable);
     /*
      * "Export Specified Packets..." should be available only if
      * we can write the file out in at least one format.
