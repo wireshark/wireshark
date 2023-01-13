@@ -16,7 +16,7 @@
 
 #include "grammar.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4671)
 #endif
 
