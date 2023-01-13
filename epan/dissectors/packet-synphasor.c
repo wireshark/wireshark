@@ -1631,7 +1631,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		pmu_elev = tvb_get_ntohieee_float(tvb, offset + 8);
 
 		/* PMU_LAT */
-		if ((isinf(pmu_lat) == 1) || (isinf(pmu_lat) == -1)) {
+		if (isinf(pmu_lat)) {
 			proto_tree_add_float_format_value(wgs84_tree, hf_conf_pmu_lat_unknown, tvb, offset,
 					      4, INFINITY, "%s", unspecified_location);
 		}
@@ -1641,7 +1641,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += 4;
 
 		/* PMU_LON */
-		if ((isinf(pmu_long) == 1) || (isinf(pmu_long) == -1)) {
+		if (isinf(pmu_long)) {
 			proto_tree_add_float_format_value(wgs84_tree, hf_conf_pmu_lon_unknown, tvb, offset,
 					      4, INFINITY, "%s", unspecified_location);
 		}
@@ -1651,7 +1651,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += 4;
 
 		/* PMU_ELEV */
-		if ((isinf(pmu_elev) == 1) || (isinf(pmu_elev) == -1)) {
+		if (isinf(pmu_elev)) {
 			proto_tree_add_float_format_value(wgs84_tree, hf_conf_pmu_elev_unknown, tvb, offset,
 					      4, INFINITY, "%s", unspecified_location);
 		}
