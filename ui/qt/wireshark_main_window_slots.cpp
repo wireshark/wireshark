@@ -1168,7 +1168,7 @@ void WiresharkMainWindow::setEditCommentsMenu()
 void WiresharkMainWindow::setMenusForSelectedPacket()
 {
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE, is_exported_pdu = FALSE;
+             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE, is_websocket = FALSE, is_exported_pdu = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1243,6 +1243,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
             /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
             is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
+            is_websocket = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "websocket");
             is_exported_pdu = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "exported_pdu");
             /* For Exported PDU there is a tag inserting IP addresses into the SRC and DST columns */
             if (is_exported_pdu &&
@@ -1297,6 +1298,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
     main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
     main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
+    main_ui_->actionAnalyzeFollowWebsocketStream->setEnabled(is_websocket);
     main_ui_->actionAnalyzeFollowSIPCall->setEnabled(is_sip);
 
     foreach(QAction *cc_action, cc_actions) {

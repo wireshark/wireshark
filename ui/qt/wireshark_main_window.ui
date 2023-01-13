@@ -424,6 +424,7 @@
      <addaction name="actionAnalyzeFollowHTTPStream"/>
      <addaction name="actionAnalyzeFollowHTTP2Stream"/>
      <addaction name="actionAnalyzeFollowQUICStream"/>
+     <addaction name="actionAnalyzeFollowWebsocketStream"/>
      <addaction name="actionAnalyzeFollowSIPCall"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
@@ -1783,6 +1784,14 @@
    </property>
    <property name="text">
     <string>QUIC Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowWebsocketStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Websocket Stream</string>
    </property>
   </action>
   <action name="actionAnalyzeFollowSIPCall">

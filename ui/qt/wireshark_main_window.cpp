@@ -655,6 +655,9 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(main_ui_->actionAnalyzeFollowQUICStream, &QAction::triggered, this,
             [this]() { this->openFollowStreamDialogForType(FOLLOW_QUIC); },
             Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowWebsocketStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_WEBSOCKET); },
+            Qt::QueuedConnection);
     connect(main_ui_->actionAnalyzeFollowSIPCall, &QAction::triggered, this,
             [this]() { this->openFollowStreamDialogForType(FOLLOW_SIP); },
             Qt::QueuedConnection);

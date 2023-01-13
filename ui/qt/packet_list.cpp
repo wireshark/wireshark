@@ -699,6 +699,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTP2Stream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowQUICStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowWebsocketStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSIPCall"));
 
     ctx_menu->addSeparator();

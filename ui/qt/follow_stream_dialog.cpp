@@ -116,6 +116,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     case FOLLOW_SIP:
         follower_ = get_follow_by_name("SIP");
         break;
+    case FOLLOW_WEBSOCKET:
+        follower_ = get_follow_by_name("WebSocket");
+        break;
     default :
         ws_assert_not_reached();
     }
@@ -587,6 +590,7 @@ FollowStreamDialog::readStream()
     case FOLLOW_QUIC:
     case FOLLOW_TLS :
     case FOLLOW_SIP :
+    case FOLLOW_WEBSOCKET :
         ret = readFollowStream();
         break;
 

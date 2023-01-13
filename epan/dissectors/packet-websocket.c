@@ -13,7 +13,9 @@
 #include "config.h"
 #include <wsutil/wslog.h>
 
+#include <epan/addr_resolv.h>
 #include <epan/conversation.h>
+#include <epan/follow.h>
 #include <epan/proto_data.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -74,6 +76,8 @@ typedef struct {
   guint decompr_len;
 } websocket_packet_t;
 #endif
+
+static int websocket_follow_tap = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_websocket = -1;
@@ -691,6 +695,10 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       tvb_payload = tvb_new_subset_length_caplen(tvb, payload_offset, payload_length, payload_length);
     }
     dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, fin, opcode, websocket_conv, pmc, tvb_raw_offset(tvb));
+
+    if (have_tap_listener(websocket_follow_tap)) {
+      tap_queue_packet(websocket_follow_tap, pinfo, tvb_payload);
+    }
   }
 
   return tvb_captured_length(tvb);
@@ -977,6 +985,11 @@ proto_register_websocket(void)
       "Negotiated WebSocket protocol", proto_websocket, FT_STRING, BASE_NONE);
 
   reassembly_table_register(&ws_reassembly_table, &addresses_reassembly_table_functions);
+
+  websocket_follow_tap = register_tap("websocket_follow"); /* websocket follow tap */
+  register_follow_stream(proto_websocket, "websocket_follow", tcp_follow_conv_filter, tcp_follow_index_filter,
+                         tcp_follow_address_filter,	tcp_port_to_display, follow_tvb_tap_listener,
+                         get_tcp_stream_count, NULL);
 
   proto_register_field_array(proto_websocket, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

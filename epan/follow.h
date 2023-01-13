@@ -47,6 +47,7 @@ typedef enum {
     FOLLOW_HTTP2,
     FOLLOW_QUIC,
     FOLLOW_SIP,
+    FOLLOW_WEBSOCKET,
 } follow_type_t;
 
 /* Show Type */
