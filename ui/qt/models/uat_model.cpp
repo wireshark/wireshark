@@ -239,8 +239,9 @@ int UatModel::columnCount(const QModelIndex &parent) const
 
 QModelIndex UatModel::appendEntry(QVariantList rowData)
 {
-    // A row with less entries could be added, where the remaining entries are empty
-    if (rowData.count() == 0 || rowData.count() < rowCount())
+    // Don't add an empty row, or a row with more entries than we have columns,
+    // but a row with fewer can be added, where the remaining entries are empty
+    if (rowData.count() == 0 || rowData.count() > columnCount())
         return QModelIndex();
 
     QModelIndex newIndex;
