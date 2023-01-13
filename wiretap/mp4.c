@@ -15,6 +15,8 @@
 #include "wtap-int.h"
 
 static const guint8 mp4_magic[] = { 'f', 't', 'y', 'p' };
+static const guint8 mp4_magic_sidx[] = { 's', 'i', 'd', 'x' };
+static const guint8 mp4_magic_styp[] = { 's', 't', 'y', 'p' };
 
 static int mp4_file_type_subtype = -1;
 
@@ -36,7 +38,9 @@ mp4_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_NOT_MINE;
 
 	if (bytes_read == sizeof (magic_buf) &&
-			memcmp(magic_buf + 4, mp4_magic, sizeof (mp4_magic)))
+			memcmp(magic_buf + 4, mp4_magic, sizeof (mp4_magic)) &&
+			memcmp(magic_buf + 4, mp4_magic_sidx, sizeof (mp4_magic_sidx)) &&
+			memcmp(magic_buf + 4, mp4_magic_styp, sizeof (mp4_magic_styp)))
 		return WTAP_OPEN_NOT_MINE;
 
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
