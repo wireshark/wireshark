@@ -29,8 +29,6 @@
 void proto_register_lwm2mtlv(void);
 void proto_reg_handoff_lwm2mtlv(void);
 
-static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, const char *uri_path);
-
 static int proto_lwm2mtlv = -1;
 
 static int hf_lwm2mtlv_object_name               = -1;
@@ -120,6 +118,8 @@ typedef struct _lwm2m_resource_t {
 	gint    ett_id;
 	char   *field_name;
 } lwm2m_resource_t;
+
+static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, gint object_id, gint resource_id);
 
 /* RESOURCE_FILL initializes all the dynamic fields in a lwm2m_resource_t. */
 #define RESOURCE_FILL NULL, -1, NULL
@@ -818,7 +818,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 }
 
 static void
-addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const char *uri_path, const lwm2m_resource_t *resource)
+addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, gint object_id, gint resource_id, const lwm2m_resource_t *resource)
 {
 	guint valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
@@ -832,27 +832,17 @@ addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mEleme
 		addValueInterpretations(pinfo, tvb, tlv_tree, element, resource);
 	} else {
 		tvbuff_t* sub = tvb_new_subset_length(tvb, valueOffset, element->length_of_value);
-		parseArrayOfElements(pinfo, sub, tlv_tree, uri_path);
+		parseArrayOfElements(pinfo, sub, tlv_tree, object_id, resource_id);
 	}
 }
 
 static void
-addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const char *uri_path)
+addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, gint object_id, gint resource_id)
 {
 	proto_tree *element_tree = NULL;
 	const lwm2m_resource_t *resource = NULL;
 
-	gchar **ids = wmem_strsplit(pinfo->pool, uri_path, "/", 5);
-	if (ids && ids[0] && ids[1] && ids[2] && ids[3]) {
-		/* URI path is defined as:
-		 *  ids[1] = Object ID
-		 *  ids[2] = Object Instance
-		 *  ids[3] = Resource ID
-		 *  ids[4] = Resource Instance
-		 */
-		guint object_id = (guint)strtol(ids[1], NULL, 10);
-		guint resource_id = (guint)strtol(ids[3], NULL, 10);
-
+	if (object_id != -1 && resource_id != -1) {
 		/* First search user configured objects */
 		resource = lwm2m_search_fields(object_id, resource_id, element->length_of_value,
 					       &uat_allocated_fields, lwm2m_uat_resources, num_lwm2m_uat_resources);
@@ -866,7 +856,7 @@ addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElem
 
 	element_tree = addElementTree(pinfo, tvb, tlv_tree, element, resource);
 	addTlvHeaderTree(tvb, element_tree, element);
-	addValueTree(pinfo, tvb, element_tree, element, uri_path, resource);
+	addValueTree(pinfo, tvb, element_tree, element, object_id, resource_id, resource);
 }
 
 static guint64
@@ -914,24 +904,23 @@ static guint parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
 	return element->totalLength;
 }
 
-static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, const char *uri_path)
+static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, gint object_id, gint resource_id)
 {
 	guint length;
 	guint offset = 0;
 	guint elementLength = 0;
 	guint element_count = 0;
 	lwm2mElement_t element;
-	const char *next_uri_path = NULL;
 
 	length = tvb_reported_length(tvb);
 
 	while ( length > 0 ) {
 		tvbuff_t* sub = tvb_new_subset_length(tvb, offset, length);
 		elementLength = parseTLVHeader(sub, &element);
-		if (uri_path) {
-			next_uri_path = wmem_strdup_printf(pinfo->pool, "%s/%d", uri_path, element.identifier);
+		if (element.type == RESOURCE || element.type == RESOURCE_ARRAY) {
+			resource_id = (gint)element.identifier;
 		}
-		addTlvElement(pinfo, sub, tlv_tree, &element, next_uri_path);
+		addTlvElement(pinfo, sub, tlv_tree, &element, object_id, resource_id);
 		element_count++;
 
 		length -= elementLength;
@@ -951,24 +940,36 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_tree* lwm2mtlv_tree;
 	proto_item* lwm2mtlv_item;
 	http_message_info_t *message_info = (http_message_info_t *) data;
-	const char *uri_path = NULL;
+	gint object_id = -1;
+	gint resource_id = -1;
 
 	if (message_info && message_info->media_str && message_info->media_str[0]) {
-		uri_path = message_info->media_str;
+		gchar **ids = wmem_strsplit(pinfo->pool, message_info->media_str, "/", 5);
+
+		/* URI path is defined as:
+		 *  ids[1] = Object ID
+		 *  ids[2] = Object Instance
+		 *  ids[3] = Resource ID
+		 *  ids[4] = Resource Instance
+		 */
+		if (ids && ids[0] && ids[1]) {
+			object_id = (gint)strtol(ids[1], NULL, 10);
+
+			if (ids[2] && ids[3]) {
+				resource_id = (gint)strtol(ids[1], NULL, 10);
+			}
+		}
 	}
 
 	if (tree) { /* we are being asked for details */
 		lwm2mtlv_item = proto_tree_add_item(tree, proto_lwm2mtlv, tvb, 0, -1, ENC_NA);
 		lwm2mtlv_tree = proto_item_add_subtree(lwm2mtlv_item, ett_lwm2mtlv);
 
-		gchar **ids = wmem_strsplit(pinfo->pool, uri_path, "/", 3);
-		if (ids && ids[0] && ids[1]) {
-			/* ids[1] = Object ID */
-			guint object_id = (guint)strtol(ids[1], NULL, 10);
+		if (object_id != -1) {
 			const gchar *object_name = NULL;
 
 			for (guint i = 0; i < num_lwm2m_uat_object_names; i++) {
-				if (object_id == lwm2m_uat_object_names[i].object_id) {
+				if ((guint)object_id == lwm2m_uat_object_names[i].object_id) {
 					object_name = lwm2m_uat_object_names[i].name;
 					break;
 				}
@@ -985,7 +986,7 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			}
 		}
 
-		parseArrayOfElements(pinfo, tvb, lwm2mtlv_tree, uri_path);
+		parseArrayOfElements(pinfo, tvb, lwm2mtlv_tree, object_id, resource_id);
 	}
 	return tvb_captured_length(tvb);
 }
