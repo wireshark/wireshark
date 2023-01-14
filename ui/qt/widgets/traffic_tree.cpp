@@ -264,7 +264,10 @@ TrafficDataFilterProxy::TrafficDataFilterProxy(QObject *parent) :
     _filterColumn(-1),
     _filterOn(-1),
     _filterText(QString())
-{}
+{
+    setSortRole(ATapDataModel::UNFORMATTED_DISPLAYDATA);
+}
+
 
 void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString filterText)
 {
@@ -427,9 +430,6 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
 
         return result;
     }
-
-    if (datA.canConvert<double>() && datB.canConvert<double>())
-        return datA.toDouble() < datB.toDouble();
 
     return QSortFilterProxyModel::lessThan(source_left, source_right);
 }
