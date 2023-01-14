@@ -32,7 +32,7 @@ ENTERPRISES_HEADER = """\
 DECIMAL_PATTERN = r"^(\d+)"
 # up to three spaces because of formatting errors in the source
 ORGANIZATION_PATTERN = r"^   ?(\S.*)"
-FORMERLY_PATTERN = r" \((formerly .*)\)"
+FORMERLY_PATTERN = r" \(((formerly|previously) .*)\)"
 
 
 def generate_enterprise_files(file_content):
