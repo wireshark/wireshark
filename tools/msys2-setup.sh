@@ -49,6 +49,8 @@ for arg; do
 	esac
 done
 
+PACKAGE_PREFIX="${MINGW_PACKAGE_PREFIX:-mingw-w64-x86_64}"
+
 #
 # Lua is kind of a mess. Lua 5.2 is not available. Some packages depend
 # on LuaJIT and it conflicts with Lua 5.1. This will probably have to
@@ -56,44 +58,44 @@ done
 #
 BASIC_LIST="base-devel \
 	git \
-	mingw-w64-x86_64-brotli \
-	mingw-w64-x86_64-c-ares \
-	mingw-w64-x86_64-cmake \
-	mingw-w64-x86_64-glib2 \
-	mingw-w64-x86_64-gnutls \
-	mingw-w64-x86_64-libgcrypt \
-	mingw-w64-x86_64-libilbc \
-	mingw-w64-x86_64-libmaxminddb \
-	mingw-w64-x86_64-nghttp2 \
-	mingw-w64-x86_64-libpcap \
-	mingw-w64-x86_64-libssh \
-	mingw-w64-x86_64-libxml2 \
-	mingw-w64-x86_64-lz4 \
-	mingw-w64-x86_64-minizip \
-	mingw-w64-x86_64-ninja \
-	mingw-w64-x86_64-opus \
-	mingw-w64-x86_64-pcre2 \
-	mingw-w64-x86_64-python \
-	mingw-w64-x86_64-qt6-base \
-	mingw-w64-x86_64-qt6-multimedia \
-	mingw-w64-x86_64-qt6-tools \
-	mingw-w64-x86_64-qt6-5compat \
-	mingw-w64-x86_64-snappy \
-	mingw-w64-x86_64-spandsp \
-	mingw-w64-x86_64-speexdsp \
-	mingw-w64-x86_64-toolchain \
-	mingw-w64-x86_64-winsparkle \
-	mingw-w64-x86_64-zlib \
-	mingw-w64-x86_64-zstd"
+	${PACKAGE_PREFIX}-brotli \
+	${PACKAGE_PREFIX}-c-ares \
+	${PACKAGE_PREFIX}-cmake \
+	${PACKAGE_PREFIX}-glib2 \
+	${PACKAGE_PREFIX}-gnutls \
+	${PACKAGE_PREFIX}-libgcrypt \
+	${PACKAGE_PREFIX}-libilbc \
+	${PACKAGE_PREFIX}-libmaxminddb \
+	${PACKAGE_PREFIX}-nghttp2 \
+	${PACKAGE_PREFIX}-libpcap \
+	${PACKAGE_PREFIX}-libssh \
+	${PACKAGE_PREFIX}-libxml2 \
+	${PACKAGE_PREFIX}-lz4 \
+	${PACKAGE_PREFIX}-minizip \
+	${PACKAGE_PREFIX}-ninja \
+	${PACKAGE_PREFIX}-opus \
+	${PACKAGE_PREFIX}-pcre2 \
+	${PACKAGE_PREFIX}-python \
+	${PACKAGE_PREFIX}-qt6-base \
+	${PACKAGE_PREFIX}-qt6-multimedia \
+	${PACKAGE_PREFIX}-qt6-tools \
+	${PACKAGE_PREFIX}-qt6-5compat \
+	${PACKAGE_PREFIX}-snappy \
+	${PACKAGE_PREFIX}-spandsp \
+	${PACKAGE_PREFIX}-speexdsp \
+	${PACKAGE_PREFIX}-toolchain \
+	${PACKAGE_PREFIX}-winsparkle \
+	${PACKAGE_PREFIX}-zlib \
+	${PACKAGE_PREFIX}-zstd"
 
-ADDITIONAL_LIST="mingw-w64-x86_64-asciidoctor \
-	mingw-w64-x86_64-ccache \
-	mingw-w64-x86_64-doxygen \
-	mingw-w64-x86_64-perl \
-	mingw-w64-x86_64-libxslt"
+ADDITIONAL_LIST="${PACKAGE_PREFIX}-asciidoctor \
+	${PACKAGE_PREFIX}-ccache \
+	${PACKAGE_PREFIX}-doxygen \
+	${PACKAGE_PREFIX}-perl \
+	${PACKAGE_PREFIX}-libxslt"
 
-TESTDEPS_LIST="mingw-w64-x86_64-python-pytest \
-	mingw-w64-x86_64-python-pytest-xdist"
+TESTDEPS_LIST="${PACKAGE_PREFIX}-python-pytest \
+	${PACKAGE_PREFIX}-python-pytest-xdist"
 
 ACTUAL_LIST=$BASIC_LIST
 
@@ -122,5 +124,5 @@ fi
 
 if [ $LUA -ne 0 ]
 then
-	printf "\n*** Lua 5.1 can be installed with: pacman -S mingw-w64-x86_64-lua51\n"
+	printf "\n*** Lua 5.1 can be installed with: pacman -S ${PACKAGE_PREFIX}-lua51\n"
 fi

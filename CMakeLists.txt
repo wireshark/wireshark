@@ -118,10 +118,22 @@ if(WIN32)
 	if(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
 		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
 		set(WIRESHARK_TARGET_PLATFORM ${_target_platform})
-	elseif(USE_MSYSTEM MATCHES "MINGW64")
+	elseif(USE_MSYSTEM MATCHES "MINGW64|CLANG64|UCRT64")
+		# https://www.msys2.org/docs/environments
+		#    MSYS2 comes with different environments/subsystems and
+		#    the first thing you have to decide is which one to use.
+		#    The differences among the environments are mainly environment
+		#    variables, default compilers/linkers, architecture,
+		#    system libraries used etc. If you are unsure, go with UCRT64.
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	elseif(USE_MSYSTEM)
-		message(WARNING "Building for MSYSTEM=${USE_MSYSTEM} is not officially supported")
+		if($ENV{MSYSTEM_CARCH} MATCHES "x86_64")
+			set(WIRESHARK_TARGET_PLATFORM win64)
+		elseif($ENV{MSYSTEM_CARCH} MATCHES "i686")
+			set(WIRESHARK_TARGET_PLATFORM win32)
+		else()
+			set(WIRESHARK_TARGET_PLATFORM "$ENV{MSYSTEM_CARCH}")
+		endif()
 	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
