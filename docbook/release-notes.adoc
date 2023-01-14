@@ -132,6 +132,11 @@ https://sharkfest.wireshark.org[SharkFest].
 // Official Wireshark training and certification are available from
 // https://www.wiresharktraining.com/[Wireshark University].
 
+== How You Can Help
+
+The Wireshark Foundation helps as many people as possible understand their networks as much as possible.
+You can find out more and donate at https://wiresharkfoundation.org[wiresharkfoundation.org].
+
 == Frequently Asked Questions
 
 A complete FAQ is available on the
