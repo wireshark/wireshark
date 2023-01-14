@@ -321,6 +321,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     datetime_ticker_(new QCPAxisTickerDateTime)
 {
     ui->setupUi(this);
+    ui->hintLabel->setSmallText();
     loadGeometry();
 
     setWindowSubtitle(tr("I/O Graphs"));
@@ -1033,8 +1034,10 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
     QString hint;
     Qt::CursorShape shape = Qt::ArrowCursor;
 
+    // XXX: ElidedLabel doesn't support rich text / HTML, we
+    // used to bold this error
     if (!hint_err_.isEmpty()) {
-        hint += QString("<b>%1</b> ").arg(hint_err_);
+        hint += QString("%1 ").arg(hint_err_);
     }
     if (event) {
         if (event->buttons().testFlag(Qt::LeftButton)) {
@@ -1102,8 +1105,6 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
         }
     }
 
-    hint.prepend("<small><i>");
-    hint.append("</i></small>");
     ui->hintLabel->setText(hint);
 }
 
