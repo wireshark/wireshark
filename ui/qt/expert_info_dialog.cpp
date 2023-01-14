@@ -42,6 +42,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
     display_filter_(displayFilter)
 {
     ui->setupUi(this);
+    ui->hintLabel->setSmallText();
 
     proxyModel_->setSourceModel(expert_info_model_);
     ui->expertInfoTreeView->setModel(proxyModel_);
@@ -195,8 +196,6 @@ void ExpertInfoDialog::updateWidgets()
     }
 
     ui->limitCheckBox->setToolTip(tooltip);
-    hint.prepend("<small><i>");
-    hint.append("</i></small>");
     ui->hintLabel->setText(hint);
 
     ui->groupBySummaryCheckBox->setEnabled(!file_closed_);
