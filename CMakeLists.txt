@@ -477,16 +477,6 @@ if(WIN32)
 		# This avoids conflicts with the C++ standard library.
 		#
 		-DNOMINMAX
-		#
-		# Make sure everyone is using the same API and that it's sufficient
-		# for our needs.
-		# This should match the following:
-		# - The <compatibility><application> section in resources\wireshark.exe.manifest.in
-		# - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
-		# - The VersionNT parts of packaging\wix\Prerequisites.wxi
-		#
-		-DNTDDI_VERSION=NTDDI_WIN7
-		-D_WIN32_WINNT=_WIN32_WINNT_WIN7
 	)
 endif()
 
