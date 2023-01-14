@@ -329,13 +329,95 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
             QVariant data = srcIdx.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
 
             bool filtered = false;
-            if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                filtered = data.toLongLong() < _filterText.toLongLong();
-            else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                filtered = data.toLongLong() > _filterText.toLongLong();
-            else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL) {
-                filtered = data.toLongLong() == _filterText.toLongLong();
+            /* QVariant comparisons coerce to the first parameter type, so
+             * putting data first and converting the string to it is important.
+             */
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            /* QVariant::compare coerces strings to numeric types, but does
+             * not try to automatically convert them to datetime related types.
+             */
+            QVariant rhs = QVariant(_filterText);
+            if (data.userType() == QMetaType::QDateTime) {
+                /* When we display start time in absolute format, we only
+                 * display the time portion, so users will expect to enter
+                 * time-only filters. Convert to QTime instead of QDateTime.
+                 * (Sorting in the table will use the date as well, but it's
+                 * unreasonable to expect users to type in a date that they
+                 * can't see when filtering.)
+                 */
+                QTime filterTime = QTime::fromString(_filterText, Qt::ISODateWithMs);
+                if (filterTime.isValid()) {
+                    rhs.setValue(filterTime);
+                } else {
+                    rhs = QVariant();
+                }
+                data.setValue(data.toTime());
             }
+            QPartialOrdering result = QVariant::compare(data, rhs);
+            if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                filtered = result < 0;
+            else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                filtered = result > 0;
+            else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                filtered = result == 0;
+#else
+            /* The comparisons are deprecated in 5.15. This is most of the
+             * implementation of QAbstractItemModelPrivate::isVariantLessThan
+             * from the Qt source.
+             */
+            if (_filterText.isEmpty())
+                filtered = true;
+            else if (data.isNull())
+                filtered = false;
+            else {
+                switch (data.userType()) {
+                case QMetaType::Int:
+                case QMetaType::UInt:
+                case QMetaType::LongLong:
+                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                        filtered = data.toLongLong() < _filterText.toLongLong();
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                        filtered = data.toLongLong() > _filterText.toLongLong();
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                        filtered = data.toLongLong() == _filterText.toLongLong();
+                    break;
+                case QMetaType::Float:
+                case QMetaType::Double:
+                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                        filtered = data.toDouble() < _filterText.toDouble();
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                        filtered = data.toDouble() > _filterText.toDouble();
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                        filtered = data.toDouble() == _filterText.toDouble();
+                    break;
+                case QMetaType::QDateTime:
+                case QMetaType::QTime:
+                    /* When we display start time in absolute format, we only
+                     * display the time portion, so users will expect to enter
+                     * time-only filters. Convert to QTime instead of QDateTime.
+                     */
+                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                        filtered = data.toTime() < QTime::fromString(_filterText, Qt::ISODateWithMs);
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                        filtered = data.toTime() > QTime::fromString(_filterText, Qt::ISODateWithMs);
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                        filtered = data.toTime() == QTime::fromString(_filterText, Qt::ISODateWithMs);
+                    break;
+                case QMetaType::QString:
+                default:
+                    /* XXX: We don't do UTF-8 aware coallating in Packet List
+                     * (because it's slow), but possibly could here.
+                     */
+                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                        filtered = data.toString() < _filterText;
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                        filtered = data.toString() > _filterText;
+                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                        filtered = data.toString() == _filterText;
+                    break;
+                }
+            }
+#endif
 
             if (!filtered)
                 return false;

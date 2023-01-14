@@ -447,9 +447,14 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
                 qlonglong totalPackets = (qlonglong)(item->tx_frames_total + item->rx_frames_total);
                 qlonglong packets = (qlonglong)(item->tx_frames + item->rx_frames);
                 percent = totalPackets == 0 ? 0 : (double) packets * 100 / (double) totalPackets;
-                return QString::number(percent, 'f', 2) + "%";
             }
-            return role == Qt::DisplayRole ? QString::number(percent, 'f', 2) + "%" : (QVariant)percent;
+            QString rounded = QString::number(percent, 'f', 2);
+            /* Qt guarantees that this roundtrip conversion compares equally,
+             * so filtering with equality will work as expected.
+             * Perhaps the UNFORMATTED_DISPLAYDATA role shoud be split
+             * into one used for raw data export, and one used for comparisons.
+             */
+            return role == Qt::DisplayRole ? rounded + "%" : QVariant(rounded.toDouble());
         }
         case ENDP_COLUMN_PKT_AB:
             return role == Qt::DisplayRole ? QString("%L1").arg((qlonglong)item->tx_frames) : QVariant((qlonglong) item->tx_frames);
@@ -704,7 +709,14 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
                 qlonglong packets = (qlonglong)(conv_item->tx_frames + conv_item->rx_frames);
                 percent = totalPackets == 0 ? 0 : (double) packets * 100 / (double) totalPackets;
             }
-            return role == Qt::DisplayRole ? QString::number(percent, 'f', 2) + "%" : (QVariant)percent;
+            QString rounded = QString::number(percent, 'f', 2);
+            /* Qt guarantees that this roundtrip conversion compares equally,
+             * so filtering with equality will work as expected.
+             * XXX: Perhaps the UNFORMATTED_DISPLAYDATA role shoud be split
+             * into one used for raw data export and comparisions with each
+             * other, and another for comparing with filters?
+             */
+            return role == Qt::DisplayRole ? rounded + "%" : QVariant(rounded.toDouble());
         }
         case CONV_COLUMN_PKT_AB:
         {
@@ -727,7 +739,11 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             if (_absoluteTime) {
                 nstime_t *abs_time = &conv_item->start_abs_time;
                 QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
-                return role == Qt::DisplayRole ? abs_dt.toString("hh:mm:ss.zzzz") : (QVariant)abs_dt;
+                /* XXX: Should the display include the date as well? More
+                 * clutter, but captures can span midnight. It's probably
+                 * fine so long as the capture isn't more than 24 hours.
+                 */
+                return role == Qt::DisplayRole ? abs_dt.time().toString(Qt::ISODateWithMs) : QVariant(abs_dt);
             } else {
                 return role == Qt::DisplayRole ?
                     QString::number(nstime_to_sec(&conv_item->start_time), 'f', width) :
