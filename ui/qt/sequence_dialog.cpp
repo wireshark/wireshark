@@ -78,6 +78,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     QAction *action;
 
     ui->setupUi(this);
+    ui->hintLabel->setSmallText();
 
     QCustomPlot *sp = ui->sequencePlot;
     setWindowSubtitle(info_ ? tr("Call Flow") : tr("Flow"));
@@ -402,8 +403,6 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
         }
     }
 
-    hint.prepend("<small><i>");
-    hint.append("</i></small>");
     ui->hintLabel->setText(hint);
 }
 
