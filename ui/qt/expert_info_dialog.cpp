@@ -42,6 +42,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
 {
     ui->setupUi(this);
     ui->hintLabel->setSmallText();
+    ui->limitCheckBox->setChecked(! display_filter_.isEmpty());
 
     proxyModel_->setSourceModel(expert_info_model_);
     ui->expertInfoTreeView->setModel(proxyModel_);
@@ -170,7 +171,6 @@ void ExpertInfoDialog::captureEvent(CaptureEvent e)
 void ExpertInfoDialog::updateWidgets()
 {
     ui->limitCheckBox->setEnabled(! file_closed_ && ! display_filter_.isEmpty());
-    ui->limitCheckBox->setChecked(! display_filter_.isEmpty());
 
     ui->actionShowError->setEnabled(expert_info_model_->numEvents(ExpertInfoModel::severityError) > 0);
     ui->actionShowWarning->setEnabled(expert_info_model_->numEvents(ExpertInfoModel::severityWarn) > 0);
