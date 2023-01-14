@@ -38,9 +38,7 @@
 #  define localtime_r my_localtime_r
 static struct tm *localtime_r __P ((const time_t *, struct tm *));
 static struct tm *
-localtime_r (t, tp)
-     const time_t *t;
-     struct tm *tp;
+localtime_r (const time_t *t, struct tm *tp)
 {
   struct tm *l = localtime (t);
   if (! l)
@@ -240,14 +238,14 @@ static char *
 #ifdef _LIBC
 internal_function
 #endif
-strptime_internal (rp, fmt, tm, decided, era_cnt)
-     const char *rp;
-     const char *fmt;
-     struct tm *tm;
-     enum locale_status *decided;
-     int era_cnt;
+strptime_internal (
+     const char *rp,
+     const char *fmt,
+     struct tm *tm,
+     enum locale_status *decided,
+     int era_cnt)
 {
-  const char *rp_backup;
+//  const char *rp_backup;
   int cnt;
   int val;
   int have_I, is_pm;
@@ -259,13 +257,13 @@ strptime_internal (rp, fmt, tm, decided, era_cnt)
 #ifdef _NL_CURRENT
   size_t num_eras;
 #endif
-  struct era_entry *era;
+//  struct era_entry *era;
 
   have_I = is_pm = 0;
   century = -1;
   want_century = 0;
   want_era = 0;
-  era = NULL;
+//  era = NULL;
 
   have_wday = want_xday = have_yday = have_mon = have_mday = 0;
 
@@ -296,7 +294,7 @@ strptime_internal (rp, fmt, tm, decided, era_cnt)
 #endif
 
       /* Make back up of current processing pointer.  */
-      rp_backup = rp;
+      //rp_backup = rp;
 
       switch (*fmt++)
         {
@@ -973,10 +971,10 @@ strptime_internal (rp, fmt, tm, decided, era_cnt)
 
 
 char *
-strptime_gnulib (buf, format, tm)
-     const char *buf;
-     const char *format;
-     struct tm *tm;
+strptime_gnulib (
+     const char *buf,
+     const char *format,
+     struct tm *tm)
 {
   enum locale_status decided;
 
