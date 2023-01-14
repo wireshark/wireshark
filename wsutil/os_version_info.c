@@ -208,7 +208,9 @@ get_os_version_info(GString *str)
 
 	HMODULE ntdll_module = LoadLibrary(_T("ntdll.dll"));
 	if (ntdll_module) {
+DIAG_OFF(cast-function-type)
 		RtlGetVersionP = (RtlGetVersionProc) GetProcAddress(ntdll_module, "RtlGetVersion");
+DIAG_ON(cast-function-type)
 	}
 
 	if (RtlGetVersionP) {

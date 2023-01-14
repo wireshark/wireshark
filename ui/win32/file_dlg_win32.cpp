@@ -94,6 +94,7 @@ static GetThreadDpiAwarenessContextProc GetThreadDpiAwarenessContextP;
 static SetThreadDpiAwarenessContextProc SetThreadDpiAwarenessContextP;
 static gboolean got_proc_addresses = FALSE;
 
+DIAG_OFF(cast-function-type)
 static gboolean get_proc_addresses(void) {
     if (got_proc_addresses) return TRUE;
 
@@ -111,6 +112,7 @@ static gboolean get_proc_addresses(void) {
     got_proc_addresses = got_all;
     return got_all;
 }
+DIAG_ON(cast-function-type)
 
 // Enabling DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 causes issues
 // when dragging our open file dialog between differently-DPIed
