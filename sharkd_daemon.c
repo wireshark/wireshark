@@ -130,7 +130,7 @@ socket_init(char *path)
             return INVALID_SOCKET;
 
         s_in.sin_family = AF_INET;
-        ws_inet_pton4(path, &(s_in.sin_addr.s_addr));
+        ws_inet_pton4(path, (ws_in4_addr *)&(s_in.sin_addr.s_addr));
         s_in.sin_port = g_htons(port);
         *port_sep = ':';
 
