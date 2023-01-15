@@ -163,6 +163,9 @@
 /* Define to use Lua */
 #cmakedefine HAVE_LUA 1
 
+/* Define to 1 if we have Lua with Unicode for Windows patches. */
+#cmakedefine HAVE_LUA_UNICODE 1
+
 /* Define to use MIT kerberos */
 #cmakedefine HAVE_MIT_KERBEROS 1
 

@@ -24,7 +24,6 @@ function print_usage() {
 
 ADDITIONAL=0
 TESTDEPS=0
-LUA=0
 OPTIONS=
 for arg; do
 	case $arg in
@@ -41,7 +40,6 @@ for arg; do
 		--install-all)
 			ADDITIONAL=1
 			TESTDEPS=1
-			LUA=1
 			;;
 		*)
 			OPTIONS="$OPTIONS $arg"
@@ -52,9 +50,10 @@ done
 PACKAGE_PREFIX="${MINGW_PACKAGE_PREFIX:-mingw-w64-x86_64}"
 
 #
-# Lua is kind of a mess. Lua 5.2 is not available. Some packages depend
-# on LuaJIT and it conflicts with Lua 5.1. This will probably have to
-# be fixed by the MSYS2 maintainers. Take a hands off approach for now.
+# Lua packaging is kind of a mess. Lua 5.2 is not available. Some packages have
+# a hard dependy on LuaJIT and it conflicts with Lua 5.1 and vice-versa.
+# This will probably have to be fixed by the MSYS2 maintainers.
+# XXX Is this still true?
 #
 BASIC_LIST="base-devel \
 	git \
@@ -70,6 +69,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-libpcap \
 	${PACKAGE_PREFIX}-libssh \
 	${PACKAGE_PREFIX}-libxml2 \
+	${PACKAGE_PREFIX}-lua51 \
 	${PACKAGE_PREFIX}-lz4 \
 	${PACKAGE_PREFIX}-minizip \
 	${PACKAGE_PREFIX}-ninja \
@@ -120,9 +120,4 @@ fi
 if [ $TESTDEPS -eq 0 ]
 then
 	printf "\n*** Test deps not installed. Rerun with --install-test-deps to have them.\n"
-fi
-
-if [ $LUA -ne 0 ]
-then
-	printf "\n*** Lua 5.1 can be installed with: pacman -S ${PACKAGE_PREFIX}-lua51\n"
 fi

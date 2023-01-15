@@ -100,6 +100,15 @@ IF(LUA_FOUND)
     )
     mark_as_advanced( LUA_DLL_DIR LUA_DLL )
   endif()
+  if(LUA_DLL_DIR MATCHES ".*/lua-.*-unicode-.*")
+    # Do we have Lua with Unicode for Windows patches?
+    # https://github.com/Lekensteyn/lua-unicode
+    # XXX Would be better if it was possible to
+    # detect a Lua-unicode build from C and Lua code
+    # but upstream rejected patches for that so we do
+    # it here.
+    set(HAVE_LUA_UNICODE True)
+  endif()
 ELSE(LUA_FOUND)
   SET( LUA_LIBRARIES )
   SET( LUA_INCLUDE_DIRS )

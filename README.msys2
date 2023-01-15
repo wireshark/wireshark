@@ -30,9 +30,12 @@ How to build the Wireshark MSYS2 package:
 
 The application must be run from the MINGW64 shell.
 
-Currently the Wireshark MinGW-w64 build has the following limitations:
+Currently the MinGW-w64 build has the following limitations compared to
+the MSVC build:
 
-* The ETW extcap (etwdump) is not supported.
+* The Event Tracing for Windows (ETW) extcap is not supported.
+
+* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have UTF-8 patches[1]. 
 
 * Some optional dependencies are not available in the official MSYS2
   repositories. These are:
@@ -40,11 +43,12 @@ Currently the Wireshark MinGW-w64 build has the following limitations:
     - AirPcap
     - libsmi
     - Kerberos
-    - Lua-unicode (Lua 5.1 is available and can be used instead)
     - SBC codec
     - BCG729 codec
 
 * There is currently no way to build a stand-alone distributable binary
   package, similar to the Wireshark NSIS installer built using Visual Studio.
 
-* Many compiler warnings to be fixed.
+References:
+
+[1]https://github.com/Lekensteyn/lua-unicode

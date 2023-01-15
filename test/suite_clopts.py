@@ -209,6 +209,8 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
         '''Folders output with unicode'''
         if not features.have_lua:
             self.skipTest('Test requires Lua scripting support.')
+        if sys.platform == 'win32' and not features.have_lua_unicode:
+            self.skipTest('Test requires a patched Lua build with UTF-8 support.')
         proc = self.assertRun((cmd_tshark, '-G', 'folders'), env=unicode_env.env)
         out = proc.stdout_str
         pluginsdir = [x.split('\t', 1)[1] for x in out.splitlines() if x.startswith('Personal Lua Plugins:')]
