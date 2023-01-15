@@ -183,7 +183,7 @@ static const struct tvb_ops tvb_composite_ops = {
  * Composite tvb
  *
  * A composite TVB references the concatenation of one or more TVBs, each of
- * them MUST be part be part of the same chain (the same memory "scope"). The
+ * them MUST be part of the same chain (the same memory "scope"). The
  * caller of tvb_new_composite MUST immediately call tvb_composite_append or
  * tvb_composite_prepend to ensure that the composite TVB is properly freed as
  * needed.
