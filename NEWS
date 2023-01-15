@@ -59,16 +59,16 @@ Wireshark 4.1.0 Release Notes
 
    DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer
    (DECT-NWK), DECT proprietary Mitel OMM/RFP Protocol (also named
-   AaMiDe), Management Component Transport Protocol (MCTP), Management
-   Component Transport Protocol - Control Protocol (MCTP CP),
-   Non-volatile Memory Express - Management Interface (NVMe-MI) over
-   MCTP, SAP Enqueue Server (SAPEnqueue), SAP HANA SQL Command Network
-   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
-   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
-   (SAPROUTER), SAP Secure Network Connection (SNC), Support for almost
-   all WoW 1.12 messages has been added., and World of Warcraft World
-   (WOWW) display filters have been changed to be more internally
-   consistent.
+   AaMiDe), Low Level Signalling (ATSC3 LLS), Management Component
+   Transport Protocol (MCTP), Management Component Transport Protocol -
+   Control Protocol (MCTP CP), Non-volatile Memory Express - Management
+   Interface (NVMe-MI) over MCTP, SAP Enqueue Server (SAPEnqueue), SAP
+   HANA SQL Command Network Protocol (SAPHDB), SAP Internet Graphic
+   Server (SAP IGS), SAP Message Server (SAPMS), SAP Network Interface
+   (SAPNI), SAP Router (SAPROUTER), SAP Secure Network Connection (SNC),
+   Support for almost all WoW 1.12 messages has been added., and World
+   of Warcraft World (WOWW) display filters have been changed to be more
+   internally consistent.
 
   Updated Protocol Support
 
@@ -119,9 +119,15 @@ Wireshark 4.1.0 Release Notes
   You can learn protocol analysis and meet Wireshark’s developers at
   SharkFest[7].
 
+ How You Can Help
+
+  The Wireshark Foundation helps as many people as possible understand
+  their networks as much as possible. You can find out more and donate
+  at wiresharkfoundation.org[8].
+
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[9].
 
  References
 
@@ -132,4 +138,5 @@ Wireshark 4.1.0 Release Notes
    5. https://www.wireshark.org/lists/
    6. https://gitlab.com/wireshark/wireshark/-/issues
    7. https://sharkfest.wireshark.org
-   8. https://www.wireshark.org/faq.html
+   8. https://wiresharkfoundation.org
+   9. https://www.wireshark.org/faq.html

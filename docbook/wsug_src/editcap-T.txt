@@ -1,4 +1,5 @@
 editcap: The available encapsulation types for the "-T" flag are:
+    alp - ATSC Link-Layer Protocol (A/330) packets
     ap1394 - Apple IP-over-IEEE 1394
     arcnet - ARCNET
     arcnet_linux - Linux ARCNET
