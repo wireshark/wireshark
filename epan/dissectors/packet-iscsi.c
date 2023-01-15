@@ -193,6 +193,7 @@ static gint ett_iscsi_ISID = -1;
 /* #endif */
 
 static expert_field ei_iscsi_keyvalue_invalid = EI_INIT;
+static expert_field ei_iscsi_opcode_invalid = EI_INIT;
 
 enum iscsi_digest {
     ISCSI_DIGEST_AUTO,
@@ -710,10 +711,10 @@ handleDataSegmentAsTextKeys(iscsi_session_t *iscsi_session, packet_info *pinfo, 
 
 /* Code to actually dissect the packets */
 static void
-dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len, iscsi_session_t *iscsi_session, conversation_t *conversation) {
+dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, guint32 data_segment_len, iscsi_session_t *iscsi_session, conversation_t *conversation) {
 
     guint original_offset = offset;
-    proto_tree *ti = NULL;
+    proto_tree *ti = NULL, *opcode_item = NULL;
     guint8 scsi_status = 0;
     gboolean S_bit=FALSE;
     gboolean A_bit=FALSE;
@@ -730,6 +731,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint32 data_offset=0;
     wmem_tree_key_t key[3];
     guint32 itt;
+    const char* opcode_str = val_to_str_const(opcode, iscsi_opcodes, "Unknown");
 
     if(paddedDataSegmentLength & 3)
         paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -921,8 +923,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                                             opcode_str);
         ti = proto_item_add_subtree(tp, ett_iscsi);
     }
-    proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-                        offset + 0, 1, opcode);
+    opcode_item = proto_tree_add_item(ti, hf_iscsi_Opcode, tvb,
+                        offset + 0, 1, ENC_NA);
+    if (!try_val_to_str(opcode, iscsi_opcodes)) {
+        expert_add_info(pinfo, opcode_item, &ei_iscsi_opcode_invalid);
+    }
     if((opcode & TARGET_OPCODE_BIT) == 0) {
         /* initiator -> target */
         gint b = tvb_get_guint8(tvb, offset + 0);
@@ -1535,8 +1540,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         offset=end_offset;
     } else if(opcode == ISCSI_OPCODE_REJECT) {
         proto_tree *tt;
-        int next_opcode;
-        const char *next_opcode_str;
+        guint8 next_opcode;
 
         /* Reject */
         proto_tree_add_item(ti, hf_iscsi_Reject_Reason, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
@@ -1550,12 +1554,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, ENC_BIG_ENDIAN);
         offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 
-        next_opcode = tvb_get_guint8(tvb, offset) & 0x3f;
-        next_opcode_str = try_val_to_str(next_opcode, iscsi_opcodes);
+        next_opcode = tvb_get_guint8(tvb, offset) & OPCODE_MASK;
 
         tt = proto_tree_add_subtree(ti, tvb, offset, -1, ett_iscsi_RejectHeader, NULL, "Rejected Header");
 
-        dissect_iscsi_pdu(tvb, pinfo, tt, offset, next_opcode, next_opcode_str, 0, iscsi_session, conversation);
+        dissect_iscsi_pdu(tvb, pinfo, tt, offset, next_opcode, 0, iscsi_session, conversation);
     } else if(opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I0 ||
               opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I1 ||
               opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I2 ||
@@ -2277,7 +2280,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 
     /* process multiple iSCSI PDUs per packet */
     while(available_bytes >= 48 || (iscsi_desegment && available_bytes >= 8)) {
-        const char *opcode_str = NULL;
         guint32 data_segment_len;
         guint32 pduLen = 48;
         guint8 secondPduByte = tvb_get_guint8(tvb, offset + 1);
@@ -2289,7 +2291,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         opcode = tvb_get_guint8(tvb, offset + 0);
         opcode &= OPCODE_MASK;
 
-        opcode_str = try_val_to_str(opcode, iscsi_opcodes);
         if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION ||
            opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE ||
            opcode == ISCSI_OPCODE_R2T ||
@@ -2300,7 +2301,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         else
             data_segment_len = tvb_get_ntohl(tvb, offset + 4) & 0x00ffffff;
 
-        if(opcode_str == NULL) {
+        if (!try_val_to_str(opcode, iscsi_opcodes)) {
             badPdu = TRUE;
         }
 
@@ -2500,7 +2501,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         else
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
 
-        dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, iscsi_session, conversation);
+        dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, data_segment_len, iscsi_session, conversation);
         if(pduLen > available_bytes)
             pduLen = available_bytes;
         offset += pduLen;
@@ -2642,7 +2643,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_Opcode,
           { "Opcode", "iscsi.opcode",
-            FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), 0,
+            FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), OPCODE_MASK,
             NULL, HFILL }
         },
 /* #ifdef DRAFT08 */
@@ -3072,7 +3073,9 @@ proto_register_iscsi(void)
 
     static ei_register_info ei[] = {
         { &ei_iscsi_keyvalue_invalid, { "iscsi.keyvalue.invalid", PI_MALFORMED, PI_ERROR,
-            "Invalid key/value pair", EXPFILL }}
+            "Invalid key/value pair", EXPFILL }},
+        { &ei_iscsi_opcode_invalid, { "iscsi.opcode.invalid", PI_MALFORMED, PI_ERROR,
+            "Invalid opcode", EXPFILL }},
     };
 
     /* Register the protocol name and description */
