@@ -246,6 +246,7 @@ static int hf_woww_code = -1;
 static int hf_woww_coded = -1;
 static int hf_woww_comment = -1;
 static int hf_woww_compressed_chat_data = -1;
+static int hf_woww_compressed_data = -1;
 static int hf_woww_container_slots = -1;
 static int hf_woww_content = -1;
 static int hf_woww_cooldown_count = -1;
@@ -286,6 +287,7 @@ static int hf_woww_deadline = -1;
 static int hf_woww_deaths = -1;
 static int hf_woww_debug_log_format = -1;
 static int hf_woww_decompressed_addon_info_size = -1;
+static int hf_woww_decompressed_size = -1;
 static int hf_woww_delay = -1;
 static int hf_woww_delay_in_seconds = -1;
 static int hf_woww_delay_time = -1;
@@ -826,7 +828,6 @@ static int hf_woww_type_flags = -1;
 static int hf_woww_unimplemented = -1;
 static int hf_woww_unit_stand_state = -1;
 static int hf_woww_unit_target = -1;
-static int hf_woww_unknown_bytes = -1;
 static int hf_woww_unknown_flags = -1;
 static int hf_woww_unknown_float = -1;
 static int hf_woww_unknown_guid = -1;
@@ -11291,9 +11292,9 @@ add_body_fields(guint32 opcode,
             break;
         case CMSG_UPDATE_ACCOUNT_DATA:
             ptvcursor_add(ptv, hf_woww_data_type, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unknown_bytes, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_compressed_data, len, ENC_NA);
             break;
         case CMSG_USE_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
@@ -17078,6 +17079,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_compressed_data,
+            { "Compressed Data", "woww.compressed.data",
+                FT_BYTES, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_container_slots,
             { "Container Slots", "woww.container.slots",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17314,6 +17321,12 @@ proto_register_woww(void)
         },
         { &hf_woww_decompressed_addon_info_size,
             { "Decompressed Addon Info Size", "woww.decompressed.addon.info.size",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_decompressed_size,
+            { "Decompressed Size", "woww.decompressed.size",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -20555,12 +20568,6 @@ proto_register_woww(void)
         { &hf_woww_unit_target,
             { "Unit Target", "woww.unit.target",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_unknown_bytes,
-            { "Unknown Bytes", "woww.unknown.bytes",
-                FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
