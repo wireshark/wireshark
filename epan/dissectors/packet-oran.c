@@ -518,10 +518,10 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
         write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs)", section_id);
         break;
     case 1:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %d)", section_id, start_prbx);
+        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u)", section_id, start_prbx);
         break;
     default:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %d-%d)", section_id, start_prbx, start_prbx + num_prbx - 1);
+        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u)", section_id, start_prbx, start_prbx + num_prbx - 1);
     }
 }
 
@@ -735,7 +735,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* Create Bundle root */
     proto_item *bundle_ti = proto_tree_add_string_format(tree, hf_oran_bfw,
                                                          tvb, bfw_offset, 0, "",
-                                                         "%s: (PRBs %u-%u)",
+                                                         "%s: (PRBs %3u-%3u)",
                                                          bundle_name,
                                                          first_prb, last_prb);
     proto_tree *bundle_tree = proto_item_add_subtree(bundle_ti, ett_oran_bfw);
@@ -781,9 +781,9 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_append_text(bfw_ti, "Q%u=%f)", m, value);
     }
 
-    proto_item_set_len(bundle_ti, bit_offset/8 - prb_offset);
+    proto_item_set_len(bundle_ti, (bit_offset+7)/8 - prb_offset);
 
-    return bit_offset/8;
+    return (bit_offset+7)/8;
 }
 
 /* N.B. these are the green parts of the tables showing Section Types, differing by section Type */
