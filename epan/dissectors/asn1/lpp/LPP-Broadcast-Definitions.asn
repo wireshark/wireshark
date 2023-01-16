@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V17.2.0 (2022-09)
+-- 3GPP TS 37.355 V17.3.0 (2022-12)
 
 LPP-Broadcast-Definitions
 
@@ -18,15 +18,15 @@ FROM LPP-PDU-Definitions;
 AssistanceDataSIBelement-r15 ::= SEQUENCE {
 	valueTag-r15						INTEGER (0..63)					OPTIONAL, -- Need OP
 	expirationTime-r15					UTCTime							OPTIONAL, -- Need OP
-	cipheringKeyData-r15				CipheringKeyData-r15 			OPTIONAL, -- Need OP
+	cipheringKeyData-r15				CipheringKeyData-r15			OPTIONAL, -- Need OP
 	segmentationInfo-r15				SegmentationInfo-r15			OPTIONAL, -- Need OP
 	assistanceDataElement-r15			OCTET STRING,
 	...
 }
 
 CipheringKeyData-r15 ::= SEQUENCE {
-	cipherSetID-r15 					INTEGER (0..65535),
-	d0-r15 								BIT STRING (SIZE (1..128)),
+	cipherSetID-r15						INTEGER (0..65535),
+	d0-r15								BIT STRING (SIZE (1..128)),
 	...
 }
 
@@ -46,7 +46,7 @@ OTDOA-UE-Assisted-r15 ::= SEQUENCE {
 
 
 NR-UEB-TRP-LocationData-r16 ::= SEQUENCE {
-	nr-trp-LocationInfo-r16 			NR-TRP-LocationInfo-r16,
+	nr-trp-LocationInfo-r16				NR-TRP-LocationInfo-r16,
 	nr-dl-prs-BeamInfo-r16				NR-DL-PRS-BeamInfo-r16			OPTIONAL,	-- Need ON
 	...
 }

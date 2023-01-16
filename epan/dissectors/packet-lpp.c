@@ -5,7 +5,7 @@
 
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2022 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2023 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 17.2.0 Release 17
+ * Ref 3GPP TS 37.355 version 17.3.0 Release 17
  * http://www.3gpp.org
  */
 
@@ -603,6 +603,10 @@ static int hf_lpp_scs15_r16_01 = -1;              /* T_scs15_r16_01 */
 static int hf_lpp_scs30_r16_01 = -1;              /* T_scs30_r16_01 */
 static int hf_lpp_scs60_r16_01 = -1;              /* T_scs60_r16_01 */
 static int hf_lpp_scs120_r16_01 = -1;             /* T_scs120_r16_01 */
+static int hf_lpp_scs15_v1690 = -1;               /* T_scs15_v1690 */
+static int hf_lpp_scs30_v1690 = -1;               /* T_scs30_v1690 */
+static int hf_lpp_scs60_v1690 = -1;               /* T_scs60_v1690 */
+static int hf_lpp_scs120_v1690 = -1;              /* T_scs120_v1690 */
 static int hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17 = -1;  /* T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17 */
 static int hf_lpp_prs_ProcessingWindowType1A_r17 = -1;  /* T_prs_ProcessingWindowType1A_r17 */
 static int hf_lpp_prs_ProcessingWindowType1B_r17 = -1;  /* T_prs_ProcessingWindowType1B_r17 */
@@ -796,6 +800,7 @@ static int hf_lpp_posSRS_RRC_Inactive_InInitialUL_BWP_r17 = -1;  /* PosSRS_RRC_I
 static int hf_lpp_posSRS_RRC_Inactive_OutsideInitialUL_BWP_r17 = -1;  /* PosSRS_RRC_Inactive_OutsideInitialUL_BWP_r17 */
 static int hf_lpp_olpc_SRS_PosRRC_Inactive_r17 = -1;  /* OLPC_SRS_Pos_r16 */
 static int hf_lpp_spatialRelationsSRS_PosRRC_Inactive_r17 = -1;  /* SpatialRelationsSRS_Pos_r16 */
+static int hf_lpp_posSRS_SP_RRC_Inactive_InInitialUL_BWP_r17 = -1;  /* PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17 */
 static int hf_lpp_olpc_SRS_PosBasedOnPRS_Serving_r16 = -1;  /* T_olpc_SRS_PosBasedOnPRS_Serving_r16 */
 static int hf_lpp_olpc_SRS_PosBasedOnSSB_Neigh_r16 = -1;  /* T_olpc_SRS_PosBasedOnSSB_Neigh_r16 */
 static int hf_lpp_olpc_SRS_PosBasedOnPRS_Neigh_r16 = -1;  /* T_olpc_SRS_PosBasedOnPRS_Neigh_r16 */
@@ -812,12 +817,12 @@ static int hf_lpp_maxNumberPeriodicSRS_PosResourcesPerBWP_r16 = -1;  /* T_maxNum
 static int hf_lpp_maxNumberAP_SRS_PosResourcesPerBWP_r16 = -1;  /* T_maxNumberAP_SRS_PosResourcesPerBWP_r16 */
 static int hf_lpp_maxNumberSP_SRS_PosResourcesPerBWP_r16 = -1;  /* T_maxNumberSP_SRS_PosResourcesPerBWP_r16 */
 static int hf_lpp_maxNumOfSRSposResourceSets_r17 = -1;  /* T_maxNumOfSRSposResourceSets_r17 */
-static int hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17 = -1;  /* T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17 */
-static int hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17 = -1;  /* T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17 */
+static int hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17 = -1;  /* T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17 */
+static int hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17 = -1;  /* T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17 */
 static int hf_lpp_maxNumOfPeriodicSRSposResources_r17 = -1;  /* T_maxNumOfPeriodicSRSposResources_r17 */
 static int hf_lpp_maxNumOfPeriodicSRSposResourcesPerSlot_r17 = -1;  /* T_maxNumOfPeriodicSRSposResourcesPerSlot_r17 */
-static int hf_lpp_maxNumOfSemiPeristentSRSposResources_r17 = -1;  /* T_maxNumOfSemiPeristentSRSposResources_r17 */
-static int hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17 = -1;  /* T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17 */
+static int hf_lpp_dummy1 = -1;                    /* T_dummy1 */
+static int hf_lpp_dummy2 = -1;                    /* T_dummy2 */
 static int hf_lpp_maxSRSposBandwidthForEachSCS_withinCC_FR1_r17 = -1;  /* T_maxSRSposBandwidthForEachSCS_withinCC_FR1_r17 */
 static int hf_lpp_maxSRSposBandwidthForEachSCS_withinCC_FR2_r17 = -1;  /* T_maxSRSposBandwidthForEachSCS_withinCC_FR2_r17 */
 static int hf_lpp_maxNumOfSRSposResourceSets_r17_01 = -1;  /* T_maxNumOfSRSposResourceSets_r17_01 */
@@ -825,12 +830,14 @@ static int hf_lpp_maxNumOfPeriodicSRSposResources_r17_01 = -1;  /* T_maxNumOfPer
 static int hf_lpp_maxNumOfPeriodicSRSposResourcesPerSlot_r17_01 = -1;  /* T_maxNumOfPeriodicSRSposResourcesPerSlot_r17_01 */
 static int hf_lpp_differentNumerologyBetweenSRSposAndInitialBWP_r17 = -1;  /* T_differentNumerologyBetweenSRSposAndInitialBWP_r17 */
 static int hf_lpp_srsPosWithoutRestrictionOnBWP_r17 = -1;  /* T_srsPosWithoutRestrictionOnBWP_r17 */
-static int hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01 = -1;  /* T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01 */
-static int hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01 = -1;  /* T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01 */
+static int hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01 = -1;  /* T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01 */
+static int hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01 = -1;  /* T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01 */
 static int hf_lpp_differentCenterFreqBetweenSRSposAndInitialBWP_r17 = -1;  /* T_differentCenterFreqBetweenSRSposAndInitialBWP_r17 */
 static int hf_lpp_maxNumOfSemiPersistentSRSposResources_r17 = -1;  /* T_maxNumOfSemiPersistentSRSposResources_r17 */
-static int hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01 = -1;  /* T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01 */
+static int hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17 = -1;  /* T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17 */
 static int hf_lpp_switchingTimeSRS_TX_OtherTX_r17 = -1;  /* T_switchingTimeSRS_TX_OtherTX_r17 */
+static int hf_lpp_maxNumOfSemiPersistentSRSposResources_r17_01 = -1;  /* T_maxNumOfSemiPersistentSRSposResources_r17_01 */
+static int hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01 = -1;  /* T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01 */
 static int hf_lpp_referencePointGeographicLocation_r16 = -1;  /* T_referencePointGeographicLocation_r16 */
 static int hf_lpp_location3D_r16 = -1;            /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
 static int hf_lpp_ha_location3D_r16 = -1;         /* HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15 */
@@ -2554,8 +2561,8 @@ static int hf_lpp_nr_DL_AoD_MeasurementCapability_r16 = -1;  /* NR_DL_AoD_Measur
 static int hf_lpp_nr_PosCalcAssistanceSupport_r17_01 = -1;  /* T_nr_PosCalcAssistanceSupport_r17_01 */
 static int hf_lpp_nr_los_nlos_AssistanceDataSupport_r17_01 = -1;  /* T_nr_los_nlos_AssistanceDataSupport_r17_01 */
 static int hf_lpp_nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17_01 = -1;  /* T_nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17_01 */
-static int hf_lpp_nr_DL_PRS_BeamInfoSup_r17 = -1;  /* T_nr_DL_PRS_BeamInfoSup_r17 */
 static int hf_lpp_dl_PRS_ResourcePrioritySubset_Sup_r17 = -1;  /* T_dl_PRS_ResourcePrioritySubset_Sup_r17 */
+static int hf_lpp_nr_DL_PRS_BeamInfoSup_r17 = -1;  /* T_nr_DL_PRS_BeamInfoSup_r17 */
 static int hf_lpp_nr_DL_AoD_On_Demand_DL_PRS_Support_r17 = -1;  /* NR_On_Demand_DL_PRS_Support_r17 */
 static int hf_lpp_nr_los_nlos_IndicatorSupport_r17_01 = -1;  /* T_nr_los_nlos_IndicatorSupport_r17_01 */
 static int hf_lpp_nr_dl_prs_AssistanceDataValidity_r17_01 = -1;  /* T_nr_dl_prs_AssistanceDataValidity_r17_01 */
@@ -2565,8 +2572,8 @@ static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_r16 = -1;  /* INTEGER_1_8 */
 static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_r16 = -1;  /* INTEGER_1_8 */
 static int hf_lpp_dl_AoD_MeasCapabilityBandList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_AoD_MeasCapabilityPerBand_r16 */
 static int hf_lpp_dl_AoD_MeasCapabilityBandList_r16_item = -1;  /* DL_AoD_MeasCapabilityPerBand_r16 */
-static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_r17 = -1;  /* T_maxDL_PRS_RSRP_MeasurementFR1_r17 */
-static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_r17 = -1;  /* T_maxDL_PRS_RSRP_MeasurementFR2_r17 */
+static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_v1730 = -1;  /* T_maxDL_PRS_RSRP_MeasurementFR1_v1730 */
+static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_v1730 = -1;  /* T_maxDL_PRS_RSRP_MeasurementFR2_v1730 */
 static int hf_lpp_simul_NR_DL_AoD_DL_TDOA_r16 = -1;  /* T_simul_NR_DL_AoD_DL_TDOA_r16 */
 static int hf_lpp_simul_NR_DL_AoD_Multi_RTT_r16 = -1;  /* T_simul_NR_DL_AoD_Multi_RTT_r16 */
 static int hf_lpp_maxDL_PRS_FirstPathRSRP_MeasPerTRP_r17 = -1;  /* T_maxDL_PRS_FirstPathRSRP_MeasPerTRP_r17 */
@@ -3117,6 +3124,7 @@ static gint ett_lpp_SpatialRelationsSRS_Pos_r16 = -1;
 static gint ett_lpp_SRS_PosResourcesPerBand_r16 = -1;
 static gint ett_lpp_PosSRS_RRC_Inactive_InInitialUL_BWP_r17 = -1;
 static gint ett_lpp_PosSRS_RRC_Inactive_OutsideInitialUL_BWP_r17 = -1;
+static gint ett_lpp_PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17 = -1;
 static gint ett_lpp_ReferencePoint_r16 = -1;
 static gint ett_lpp_T_referencePointGeographicLocation_r16 = -1;
 static gint ett_lpp_RelativeLocation_r16 = -1;
@@ -9109,6 +9117,7 @@ static const value_string lpp_T_maxNrOfTRP_AcrossFreqs_r16_vals[] = {
   {   5, "n64" },
   {   6, "n128" },
   {   7, "n256" },
+  {   8, "n24-v1690" },
   { 0, NULL }
 };
 
@@ -9116,7 +9125,7 @@ static const value_string lpp_T_maxNrOfTRP_AcrossFreqs_r16_vals[] = {
 static int
 dissect_lpp_T_maxNrOfTRP_AcrossFreqs_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -10029,11 +10038,92 @@ dissect_lpp_T_scs120_r16_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const value_string lpp_T_scs15_v1690_vals[] = {
+  {   0, "n6" },
+  {   1, "n12" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_scs15_v1690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_scs30_v1690_vals[] = {
+  {   0, "n6" },
+  {   1, "n12" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_scs30_v1690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_scs60_v1690_vals[] = {
+  {   0, "n6" },
+  {   1, "n12" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_scs60_v1690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_scs120_v1690_vals[] = {
+  {   0, "n6" },
+  {   1, "n12" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_scs120_v1690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_eag_1_sequence[] = {
+  { &hf_lpp_scs15_v1690     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_scs15_v1690 },
+  { &hf_lpp_scs30_v1690     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_scs30_v1690 },
+  { &hf_lpp_scs60_v1690     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_scs60_v1690 },
+  { &hf_lpp_scs120_v1690    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_scs120_v1690 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_T_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_maxNumOfDL_PRS_ResProcessedPerSlot_r16_sequence[] = {
   { &hf_lpp_scs15_r16_01    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_scs15_r16_01 },
   { &hf_lpp_scs30_r16_01    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_scs30_r16_01 },
   { &hf_lpp_scs60_r16_01    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_scs60_r16_01 },
   { &hf_lpp_scs120_r16_01   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_scs120_r16_01 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_T_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -11076,7 +11166,7 @@ dissect_lpp_T_maxNumOfSRSposResourceSets_r17(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_vals[] = {
+static const value_string lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n4" },
@@ -11089,7 +11179,7 @@ static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_
 
 
 static int
-dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      7, NULL, FALSE, 0, NULL);
 
@@ -11097,7 +11187,7 @@ dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17(tvbuff_t *tvb 
 }
 
 
-static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_vals[] = {
+static const value_string lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n3" },
@@ -11113,7 +11203,7 @@ static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesP
 
 
 static int
-dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      10, NULL, FALSE, 0, NULL);
 
@@ -11166,7 +11256,7 @@ dissect_lpp_T_maxNumOfPeriodicSRSposResourcesPerSlot_r17(tvbuff_t *tvb _U_, int 
 }
 
 
-static const value_string lpp_T_maxNumOfSemiPeristentSRSposResources_r17_vals[] = {
+static const value_string lpp_T_dummy1_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n4" },
@@ -11179,7 +11269,7 @@ static const value_string lpp_T_maxNumOfSemiPeristentSRSposResources_r17_vals[] 
 
 
 static int
-dissect_lpp_T_maxNumOfSemiPeristentSRSposResources_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_dummy1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      7, NULL, FALSE, 0, NULL);
 
@@ -11187,7 +11277,7 @@ dissect_lpp_T_maxNumOfSemiPeristentSRSposResources_r17(tvbuff_t *tvb _U_, int of
 }
 
 
-static const value_string lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_vals[] = {
+static const value_string lpp_T_dummy2_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n3" },
@@ -11203,7 +11293,7 @@ static const value_string lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17
 
 
 static int
-dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_dummy2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      10, NULL, FALSE, 0, NULL);
 
@@ -11213,12 +11303,12 @@ dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17(tvbuff_t *tvb _U_
 
 static const per_sequence_t PosSRS_RRC_Inactive_InInitialUL_BWP_r17_sequence[] = {
   { &hf_lpp_maxNumOfSRSposResourceSets_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSRSposResourceSets_r17 },
-  { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17 },
-  { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17 },
+  { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17 },
+  { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17 },
   { &hf_lpp_maxNumOfPeriodicSRSposResources_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicSRSposResources_r17 },
   { &hf_lpp_maxNumOfPeriodicSRSposResourcesPerSlot_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicSRSposResourcesPerSlot_r17 },
-  { &hf_lpp_maxNumOfSemiPeristentSRSposResources_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPeristentSRSposResources_r17 },
-  { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17 },
+  { &hf_lpp_dummy1          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_dummy1 },
+  { &hf_lpp_dummy2          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_dummy2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -11373,7 +11463,7 @@ dissect_lpp_T_srsPosWithoutRestrictionOnBWP_r17(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01_vals[] = {
+static const value_string lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n4" },
@@ -11386,7 +11476,7 @@ static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_
 
 
 static int
-dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      7, NULL, FALSE, 0, NULL);
 
@@ -11394,7 +11484,7 @@ dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01(tvbuff_t *t
 }
 
 
-static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01_vals[] = {
+static const value_string lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n3" },
@@ -11410,7 +11500,7 @@ static const value_string lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesP
 
 
 static int
-dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      10, NULL, FALSE, 0, NULL);
 
@@ -11454,7 +11544,7 @@ dissect_lpp_T_maxNumOfSemiPersistentSRSposResources_r17(tvbuff_t *tvb _U_, int o
 }
 
 
-static const value_string lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01_vals[] = {
+static const value_string lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n3" },
@@ -11470,7 +11560,7 @@ static const value_string lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17
 
 
 static int
-dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      10, NULL, FALSE, 0, NULL);
 
@@ -11505,11 +11595,11 @@ static const per_sequence_t PosSRS_RRC_Inactive_OutsideInitialUL_BWP_r17_sequenc
   { &hf_lpp_maxNumOfPeriodicSRSposResourcesPerSlot_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicSRSposResourcesPerSlot_r17_01 },
   { &hf_lpp_differentNumerologyBetweenSRSposAndInitialBWP_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_differentNumerologyBetweenSRSposAndInitialBWP_r17 },
   { &hf_lpp_srsPosWithoutRestrictionOnBWP_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_srsPosWithoutRestrictionOnBWP_r17 },
-  { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01 },
-  { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01 },
+  { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01 },
+  { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01 },
   { &hf_lpp_differentCenterFreqBetweenSRSposAndInitialBWP_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_differentCenterFreqBetweenSRSposAndInitialBWP_r17 },
   { &hf_lpp_maxNumOfSemiPersistentSRSposResources_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPersistentSRSposResources_r17 },
-  { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01 },
+  { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17 },
   { &hf_lpp_switchingTimeSRS_TX_OtherTX_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_switchingTimeSRS_TX_OtherTX_r17 },
   { NULL, 0, 0, NULL }
 };
@@ -11539,11 +11629,85 @@ dissect_lpp_SRS_CapabilityPerBand_r16_eag_1(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const value_string lpp_T_maxNumOfSemiPersistentSRSposResources_r17_01_vals[] = {
+  {   0, "n1" },
+  {   1, "n2" },
+  {   2, "n4" },
+  {   3, "n8" },
+  {   4, "n16" },
+  {   5, "n32" },
+  {   6, "n64" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_maxNumOfSemiPersistentSRSposResources_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     7, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01_vals[] = {
+  {   0, "n1" },
+  {   1, "n2" },
+  {   2, "n3" },
+  {   3, "n4" },
+  {   4, "n5" },
+  {   5, "n6" },
+  {   6, "n8" },
+  {   7, "n10" },
+  {   8, "n12" },
+  {   9, "n14" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     10, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17_sequence[] = {
+  { &hf_lpp_maxNumOfSemiPersistentSRSposResources_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPersistentSRSposResources_r17_01 },
+  { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17, PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SRS_CapabilityPerBand_r16_eag_2_sequence[] = {
+  { &hf_lpp_posSRS_SP_RRC_Inactive_InInitialUL_BWP_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_SRS_CapabilityPerBand_r16_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, SRS_CapabilityPerBand_r16_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t SRS_CapabilityPerBand_r16_sequence[] = {
   { &hf_lpp_freqBandIndicatorNR_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_FreqBandIndicatorNR_r16 },
   { &hf_lpp_olpc_SRS_Pos_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_OLPC_SRS_Pos_r16 },
   { &hf_lpp_spatialRelationsSRS_Pos_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SpatialRelationsSRS_Pos_r16 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_SRS_CapabilityPerBand_r16_eag_1 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_SRS_CapabilityPerBand_r16_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -12165,7 +12329,7 @@ dissect_lpp_SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_AoD_MeasCapabilityPerBand_r16(t
 }
 
 
-static const value_string lpp_T_maxDL_PRS_RSRP_MeasurementFR1_r17_vals[] = {
+static const value_string lpp_T_maxDL_PRS_RSRP_MeasurementFR1_v1730_vals[] = {
   {   0, "n16" },
   {   1, "n24" },
   { 0, NULL }
@@ -12173,7 +12337,7 @@ static const value_string lpp_T_maxDL_PRS_RSRP_MeasurementFR1_r17_vals[] = {
 
 
 static int
-dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR1_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR1_v1730(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
 
@@ -12181,7 +12345,7 @@ dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR1_r17(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const value_string lpp_T_maxDL_PRS_RSRP_MeasurementFR2_r17_vals[] = {
+static const value_string lpp_T_maxDL_PRS_RSRP_MeasurementFR2_v1730_vals[] = {
   {   0, "n16" },
   {   1, "n24" },
   { 0, NULL }
@@ -12189,7 +12353,7 @@ static const value_string lpp_T_maxDL_PRS_RSRP_MeasurementFR2_r17_vals[] = {
 
 
 static int
-dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR2_v1730(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
 
@@ -12198,8 +12362,8 @@ dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR2_r17(tvbuff_t *tvb _U_, int offset _U
 
 
 static const per_sequence_t NR_DL_AoD_MeasurementCapability_r16_eag_1_sequence[] = {
-  { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR1_r17 },
-  { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR2_r17 },
+  { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_v1730, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR1_v1730 },
+  { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_v1730, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_maxDL_PRS_RSRP_MeasurementFR2_v1730 },
   { NULL, 0, 0, NULL }
 };
 
@@ -12275,7 +12439,7 @@ dissect_lpp_T_nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17_01(tvbuff_t *tvb _U_, int off
 }
 
 
-static const value_string lpp_T_nr_DL_PRS_BeamInfoSup_r17_vals[] = {
+static const value_string lpp_T_dl_PRS_ResourcePrioritySubset_Sup_r17_vals[] = {
   {   0, "sameSet" },
   {   1, "differentSet" },
   {   2, "sameOrDifferentSet" },
@@ -12284,7 +12448,7 @@ static const value_string lpp_T_nr_DL_PRS_BeamInfoSup_r17_vals[] = {
 
 
 static int
-dissect_lpp_T_nr_DL_PRS_BeamInfoSup_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_dl_PRS_ResourcePrioritySubset_Sup_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, FALSE, 0, NULL);
 
@@ -12292,14 +12456,14 @@ dissect_lpp_T_nr_DL_PRS_BeamInfoSup_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const value_string lpp_T_dl_PRS_ResourcePrioritySubset_Sup_r17_vals[] = {
+static const value_string lpp_T_nr_DL_PRS_BeamInfoSup_r17_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_dl_PRS_ResourcePrioritySubset_Sup_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_nr_DL_PRS_BeamInfoSup_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -12371,8 +12535,8 @@ static const per_sequence_t NR_DL_AoD_ProvideCapabilities_r16_eag_1_sequence[] =
   { &hf_lpp_nr_PosCalcAssistanceSupport_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_PosCalcAssistanceSupport_r17_01 },
   { &hf_lpp_nr_los_nlos_AssistanceDataSupport_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_los_nlos_AssistanceDataSupport_r17_01 },
   { &hf_lpp_nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17_01 },
-  { &hf_lpp_nr_DL_PRS_BeamInfoSup_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_BeamInfoSup_r17 },
   { &hf_lpp_dl_PRS_ResourcePrioritySubset_Sup_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_dl_PRS_ResourcePrioritySubset_Sup_r17 },
+  { &hf_lpp_nr_DL_PRS_BeamInfoSup_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_BeamInfoSup_r17 },
   { &hf_lpp_nr_DL_AoD_On_Demand_DL_PRS_Support_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_NR_On_Demand_DL_PRS_Support_r17 },
   { &hf_lpp_nr_los_nlos_IndicatorSupport_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_los_nlos_IndicatorSupport_r17_01 },
   { &hf_lpp_scheduledLocationRequestSupported_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ScheduledLocationTimeSupportPerMode_r17 },
@@ -15887,14 +16051,14 @@ dissect_lpp_ARFCN_ValueEUTRA_v9a0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const per_sequence_t T_eag_1_01_sequence[] = {
+static const per_sequence_t T_eag_1_02_sequence[] = {
   { &hf_lpp_earfcn_v9a0     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lpp_T_eag_1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_01_sequence);
+dissect_lpp_T_eag_1_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_02_sequence);
 
   return offset;
 }
@@ -15904,7 +16068,7 @@ static const per_sequence_t T_eUTRA_sequence[] = {
   { &hf_lpp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalIdEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
   { &hf_lpp_earfcn          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueEUTRA },
-  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_T_eag_1_01 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_T_eag_1_02 },
   { NULL, 0, 0, NULL }
 };
 
@@ -22028,14 +22192,14 @@ dissect_lpp_T_sib1_SF_TDD_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const per_sequence_t T_eag_1_sequence[] = {
+static const per_sequence_t T_eag_1_01_sequence[] = {
   { &hf_lpp_sib1_SF_TDD_r15 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_sib1_SF_TDD_r15 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lpp_T_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_sequence);
+dissect_lpp_T_eag_1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_01_sequence);
 
   return offset;
 }
@@ -22046,7 +22210,7 @@ static const per_sequence_t T_partB_r14_sequence[] = {
   { &hf_lpp_nprs_startSF_r14, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_nprs_startSF_r14 },
   { &hf_lpp_nprs_NumSF_r14  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_nprs_NumSF_r14 },
   { &hf_lpp_nprs_MutingInfoB_r14, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_nprs_MutingInfoB_r14 },
-  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_T_eag_1 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_T_eag_1_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -35454,6 +35618,22 @@ void proto_register_lpp(void) {
       { "scs120-r16", "lpp.scs120_r16",
         FT_UINT32, BASE_DEC, VALS(lpp_T_scs120_r16_01_vals), 0,
         "T_scs120_r16_01", HFILL }},
+    { &hf_lpp_scs15_v1690,
+      { "scs15-v1690", "lpp.scs15_v1690",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_scs15_v1690_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_scs30_v1690,
+      { "scs30-v1690", "lpp.scs30_v1690",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_scs30_v1690_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_scs60_v1690,
+      { "scs60-v1690", "lpp.scs60_v1690",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_scs60_v1690_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_scs120_v1690,
+      { "scs120-v1690", "lpp.scs120_v1690",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_scs120_v1690_vals), 0,
+        NULL, HFILL }},
     { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17,
       { "supportedDL-PRS-ProcessingSamples-RRC-CONNECTED-r17", "lpp.supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17_vals), 0,
@@ -36226,6 +36406,10 @@ void proto_register_lpp(void) {
       { "spatialRelationsSRS-PosRRC-Inactive-r17", "lpp.spatialRelationsSRS_PosRRC_Inactive_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SpatialRelationsSRS_Pos_r16", HFILL }},
+    { &hf_lpp_posSRS_SP_RRC_Inactive_InInitialUL_BWP_r17,
+      { "posSRS-SP-RRC-Inactive-InInitialUL-BWP-r17", "lpp.posSRS_SP_RRC_Inactive_InInitialUL_BWP_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lpp_olpc_SRS_PosBasedOnPRS_Serving_r16,
       { "olpc-SRS-PosBasedOnPRS-Serving-r16", "lpp.olpc_SRS_PosBasedOnPRS_Serving_r16",
         FT_UINT32, BASE_DEC, VALS(lpp_T_olpc_SRS_PosBasedOnPRS_Serving_r16_vals), 0,
@@ -36290,14 +36474,14 @@ void proto_register_lpp(void) {
       { "maxNumOfSRSposResourceSets-r17", "lpp.maxNumOfSRSposResourceSets_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSRSposResourceSets_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17,
-      { "maxNumOfPeriodicAndSemiPeristentSRSposResources-r17", "lpp.maxNumOfPeriodicAndSemiPeristentSRSposResources_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_vals), 0,
+    { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17,
+      { "maxNumOfPeriodicAndSemiPersistentSRSposResources-r17", "lpp.maxNumOfPeriodicAndSemiPersistentSRSposResources_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17,
-      { "maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot-r17", "lpp.maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_vals), 0,
-        "T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17", HFILL }},
+    { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17,
+      { "maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot-r17", "lpp.maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_vals), 0,
+        "T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17", HFILL }},
     { &hf_lpp_maxNumOfPeriodicSRSposResources_r17,
       { "maxNumOfPeriodicSRSposResources-r17", "lpp.maxNumOfPeriodicSRSposResources_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicSRSposResources_r17_vals), 0,
@@ -36306,14 +36490,14 @@ void proto_register_lpp(void) {
       { "maxNumOfPeriodicSRSposResourcesPerSlot-r17", "lpp.maxNumOfPeriodicSRSposResourcesPerSlot_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicSRSposResourcesPerSlot_r17_vals), 0,
         "T_maxNumOfPeriodicSRSposResourcesPerSlot_r17", HFILL }},
-    { &hf_lpp_maxNumOfSemiPeristentSRSposResources_r17,
-      { "maxNumOfSemiPeristentSRSposResources-r17", "lpp.maxNumOfSemiPeristentSRSposResources_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPeristentSRSposResources_r17_vals), 0,
+    { &hf_lpp_dummy1,
+      { "dummy1", "lpp.dummy1",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_dummy1_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17,
-      { "maxNumOfSemiPersistentSRSposResourcesPerSlot-r17", "lpp.maxNumOfSemiPersistentSRSposResourcesPerSlot_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_vals), 0,
-        "T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17", HFILL }},
+    { &hf_lpp_dummy2,
+      { "dummy2", "lpp.dummy2",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_dummy2_vals), 0,
+        NULL, HFILL }},
     { &hf_lpp_maxSRSposBandwidthForEachSCS_withinCC_FR1_r17,
       { "maxSRSposBandwidthForEachSCS-withinCC-FR1-r17", "lpp.maxSRSposBandwidthForEachSCS_withinCC_FR1_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maxSRSposBandwidthForEachSCS_withinCC_FR1_r17_vals), 0,
@@ -36342,14 +36526,14 @@ void proto_register_lpp(void) {
       { "srsPosWithoutRestrictionOnBWP-r17", "lpp.srsPosWithoutRestrictionOnBWP_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_srsPosWithoutRestrictionOnBWP_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01,
-      { "maxNumOfPeriodicAndSemiPeristentSRSposResources-r17", "lpp.maxNumOfPeriodicAndSemiPeristentSRSposResources_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01_vals), 0,
-        "T_maxNumOfPeriodicAndSemiPeristentSRSposResources_r17_01", HFILL }},
-    { &hf_lpp_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01,
-      { "maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot-r17", "lpp.maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01_vals), 0,
-        "T_maxNumOfPeriodicAndSemiPeristentSRSposResourcesPerSlot_r17_01", HFILL }},
+    { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01,
+      { "maxNumOfPeriodicAndSemiPersistentSRSposResources-r17", "lpp.maxNumOfPeriodicAndSemiPersistentSRSposResources_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01_vals), 0,
+        "T_maxNumOfPeriodicAndSemiPersistentSRSposResources_r17_01", HFILL }},
+    { &hf_lpp_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01,
+      { "maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot-r17", "lpp.maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01_vals), 0,
+        "T_maxNumOfPeriodicAndSemiPersistentSRSposResourcesPerSlot_r17_01", HFILL }},
     { &hf_lpp_differentCenterFreqBetweenSRSposAndInitialBWP_r17,
       { "differentCenterFreqBetweenSRSposAndInitialBWP-r17", "lpp.differentCenterFreqBetweenSRSposAndInitialBWP_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_differentCenterFreqBetweenSRSposAndInitialBWP_r17_vals), 0,
@@ -36358,14 +36542,22 @@ void proto_register_lpp(void) {
       { "maxNumOfSemiPersistentSRSposResources-r17", "lpp.maxNumOfSemiPersistentSRSposResources_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPersistentSRSposResources_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01,
+    { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17,
       { "maxNumOfSemiPersistentSRSposResourcesPerSlot-r17", "lpp.maxNumOfSemiPersistentSRSposResourcesPerSlot_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01_vals), 0,
-        "T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_vals), 0,
+        "T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17", HFILL }},
     { &hf_lpp_switchingTimeSRS_TX_OtherTX_r17,
       { "switchingTimeSRS-TX-OtherTX-r17", "lpp.switchingTimeSRS_TX_OtherTX_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_switchingTimeSRS_TX_OtherTX_r17_vals), 0,
         NULL, HFILL }},
+    { &hf_lpp_maxNumOfSemiPersistentSRSposResources_r17_01,
+      { "maxNumOfSemiPersistentSRSposResources-r17", "lpp.maxNumOfSemiPersistentSRSposResources_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPersistentSRSposResources_r17_01_vals), 0,
+        "T_maxNumOfSemiPersistentSRSposResources_r17_01", HFILL }},
+    { &hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01,
+      { "maxNumOfSemiPersistentSRSposResourcesPerSlot-r17", "lpp.maxNumOfSemiPersistentSRSposResourcesPerSlot_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01_vals), 0,
+        "T_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01", HFILL }},
     { &hf_lpp_referencePointGeographicLocation_r16,
       { "referencePointGeographicLocation-r16", "lpp.referencePointGeographicLocation_r16",
         FT_UINT32, BASE_DEC, VALS(lpp_T_referencePointGeographicLocation_r16_vals), 0,
@@ -43258,14 +43450,14 @@ void proto_register_lpp(void) {
       { "nr-DL-PRS-ExpectedAoD-or-AoA-Sup-r17", "lpp.nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_nr_DL_PRS_ExpectedAoD_or_AoA_Sup_r17_01", HFILL }},
-    { &hf_lpp_nr_DL_PRS_BeamInfoSup_r17,
-      { "nr-DL-PRS-BeamInfoSup-r17", "lpp.nr_DL_PRS_BeamInfoSup_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_BeamInfoSup_r17_vals), 0,
-        NULL, HFILL }},
     { &hf_lpp_dl_PRS_ResourcePrioritySubset_Sup_r17,
       { "dl-PRS-ResourcePrioritySubset-Sup-r17", "lpp.dl_PRS_ResourcePrioritySubset_Sup_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_dl_PRS_ResourcePrioritySubset_Sup_r17_vals), 0,
         "T_dl_PRS_ResourcePrioritySubset_Sup_r17", HFILL }},
+    { &hf_lpp_nr_DL_PRS_BeamInfoSup_r17,
+      { "nr-DL-PRS-BeamInfoSup-r17", "lpp.nr_DL_PRS_BeamInfoSup_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_BeamInfoSup_r17_vals), 0,
+        NULL, HFILL }},
     { &hf_lpp_nr_DL_AoD_On_Demand_DL_PRS_Support_r17,
       { "nr-DL-AoD-On-Demand-DL-PRS-Support-r17", "lpp.nr_DL_AoD_On_Demand_DL_PRS_Support_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43302,13 +43494,13 @@ void proto_register_lpp(void) {
       { "DL-AoD-MeasCapabilityPerBand-r16", "lpp.DL_AoD_MeasCapabilityPerBand_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_r17,
-      { "maxDL-PRS-RSRP-MeasurementFR1-r17", "lpp.maxDL_PRS_RSRP_MeasurementFR1_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxDL_PRS_RSRP_MeasurementFR1_r17_vals), 0,
+    { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_v1730,
+      { "maxDL-PRS-RSRP-MeasurementFR1-v1730", "lpp.maxDL_PRS_RSRP_MeasurementFR1_v1730",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxDL_PRS_RSRP_MeasurementFR1_v1730_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_r17,
-      { "maxDL-PRS-RSRP-MeasurementFR2-r17", "lpp.maxDL_PRS_RSRP_MeasurementFR2_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_maxDL_PRS_RSRP_MeasurementFR2_r17_vals), 0,
+    { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_v1730,
+      { "maxDL-PRS-RSRP-MeasurementFR2-v1730", "lpp.maxDL_PRS_RSRP_MeasurementFR2_v1730",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_maxDL_PRS_RSRP_MeasurementFR2_v1730_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_simul_NR_DL_AoD_DL_TDOA_r16,
       { "simul-NR-DL-AoD-DL-TDOA-r16", "lpp.simul_NR_DL_AoD_DL_TDOA_r16",
@@ -44645,6 +44837,7 @@ void proto_register_lpp(void) {
     &ett_lpp_SRS_PosResourcesPerBand_r16,
     &ett_lpp_PosSRS_RRC_Inactive_InInitialUL_BWP_r17,
     &ett_lpp_PosSRS_RRC_Inactive_OutsideInitialUL_BWP_r17,
+    &ett_lpp_PosSRS_SP_RRC_Inactive_InInitialUL_BWP_r17,
     &ett_lpp_ReferencePoint_r16,
     &ett_lpp_T_referencePointGeographicLocation_r16,
     &ett_lpp_RelativeLocation_r16,
