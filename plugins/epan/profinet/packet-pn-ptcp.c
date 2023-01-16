@@ -933,7 +933,7 @@ proto_register_pn_ptcp (void)
 
         { &hf_pn_ptcp_tl_length,
           { "TypeLength.Length", "pn_ptcp.tl_length",
-            FT_UINT16, BASE_DEC, 0x0, 0x1FF,
+            FT_UINT16, BASE_DEC, 0x0, 0x01FF,
             NULL, HFILL }},
 
         { &hf_pn_ptcp_tl_type,

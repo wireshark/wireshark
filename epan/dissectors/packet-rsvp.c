@@ -8873,85 +8873,85 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_sender_tspec_regenerator_section,
          { "Section/Regenerator Section layer transparency", "rsvp.sender_tspec.regenerator_section",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_multiplex_section,
          { "Line/Multiplex Section layer transparency", "rsvp.sender_tspec.multiplex_section",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_J0_transparency,
          { "J0 transparency", "rsvp.sender_tspec.J0_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_SOH_RSOH_DCC_transparency,
          { "SOH/RSOH DCC transparency", "rsvp.sender_tspec.SOH_RSOH_DCC_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_LOH_MSOH_DCC_transparency,
          { "LOH/MSOH DCC transparency", "rsvp.sender_tspec.LOH_MSOH_DCC_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_LOH_MSOH_extended_DCC_transparency,
          { "LOH/MSOH Extended DCC transparency", "rsvp.sender_tspec.LOH_MSOH_extended_DCC_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_K1_K2_transparency,
          { "K1/K2 transparency", "rsvp.sender_tspec.K1_K2_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_E1_transparency,
          { "E1 transparency", "rsvp.sender_tspec.E1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_F1_transparency,
          { "F1 transparency", "rsvp.sender_tspec.F1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000100,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_E2_transparency,
          { "E2 transparency", "rsvp.sender_tspec.E2_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0200,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000200,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_B1_transparency,
          { "B1 transparency", "rsvp.sender_tspec.B1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0400,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000400,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_B2_transparency,
          { "B2 transparency", "rsvp.sender_tspec.B2_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0800,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000800,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_M0_transparency,
          { "M0 transparency", "rsvp.sender_tspec.M0_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00001000,
            NULL, HFILL }
         },
 
         {&hf_rsvp_sender_tspec_M1_transparency,
          { "M1 transparency", "rsvp.sender_tspec.M1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00002000,
            NULL, HFILL }
         },
 
@@ -8969,85 +8969,85 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_flowspec_regenerator_section,
          { "Section/Regenerator Section layer transparency", "rsvp.flowspec.regenerator_section",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_multiplex_section,
          { "Line/Multiplex Section layer transparency", "rsvp.flowspec.multiplex_section",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_J0_transparency,
          { "J0 transparency", "rsvp.flowspec.J0_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_SOH_RSOH_DCC_transparency,
          { "SOH/RSOH DCC transparency", "rsvp.flowspec.SOH_RSOH_DCC_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_LOH_MSOH_DCC_transparency,
          { "LOH/MSOH DCC transparency", "rsvp.flowspec.LOH_MSOH_DCC_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_LOH_MSOH_extended_DCC_transparency,
          { "LOH/MSOH Extended DCC transparency", "rsvp.flowspec.LOH_MSOH_extended_DCC_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_K1_K2_transparency,
          { "K1/K2 transparency", "rsvp.flowspec.K1_K2_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_E1_transparency,
          { "E1 transparency", "rsvp.flowspec.E1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_F1_transparency,
          { "F1 transparency", "rsvp.flowspec.F1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000100,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_E2_transparency,
          { "E2 transparency", "rsvp.flowspec.E2_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0200,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000200,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_B1_transparency,
          { "B1 transparency", "rsvp.flowspec.B1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0400,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000400,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_B2_transparency,
          { "B2 transparency", "rsvp.flowspec.B2_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0800,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000800,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_M0_transparency,
          { "M0 transparency", "rsvp.flowspec.M0_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00001000,
            NULL, HFILL }
         },
 
         {&hf_rsvp_flowspec_M1_transparency,
          { "M1 transparency", "rsvp.flowspec.M1_transparency",
-           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000,
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00002000,
            NULL, HFILL }
         },
 
@@ -9480,12 +9480,12 @@ proto_register_rsvp(void)
         },
         {&hf_rsvp_3gpp_obj_tft_opcode,
          { "TFT Operation Code", "rsvp.3gpp_obj.tft_opcode",
-           FT_UINT32, BASE_DEC, VALS(rsvp_3gpp_obj_tft_opcode_vals), 0x000ff00,
+           FT_UINT32, BASE_DEC, VALS(rsvp_3gpp_obj_tft_opcode_vals), 0x0000ff00,
            NULL, HFILL }
         },
         {&hf_rsvp_3gpp_obj_tft_n_pkt_flt,
          { "Number of Packet filters", "rsvp.3gpp_obj.tft_n_pkt_flt",
-           FT_UINT32, BASE_DEC, NULL, 0x00000ff,
+           FT_UINT32, BASE_DEC, NULL, 0x000000ff,
            NULL, HFILL }
         },
         { &hf_rsvp_3gpp_obj_flow_id,

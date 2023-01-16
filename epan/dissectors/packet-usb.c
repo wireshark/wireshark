@@ -6507,7 +6507,7 @@ proto_register_usb(void)
 
         { &hf_usb_wMaxPacketSize_size,
           { "Maximum Packet Size", "usb.wMaxPacketSize.size",
-            FT_UINT16, BASE_DEC, NULL, 0x3FF,
+            FT_UINT16, BASE_DEC, NULL, 0x03FF,
             NULL, HFILL }},
 
         { &hf_usb_wMaxPacketSize_slots,

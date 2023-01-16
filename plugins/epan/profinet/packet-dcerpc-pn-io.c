@@ -14597,12 +14597,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_0,
       { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_0), 0x01,
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_0), 0x00000001,
         NULL, HFILL }
     },
     { &hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_1,
       { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_1), 0x01,
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_1), 0x00000001,
         NULL, HFILL }
     },
     { &hf_pn_io_sr_properties_Reserved_1,
@@ -14677,7 +14677,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_iocr_properties_reserved_3,
       { "Reserved3", "pn_io.iocr_properties.reserved3",
-        FT_UINT32, BASE_HEX, NULL, 0xF000000,
+        FT_UINT32, BASE_HEX, NULL, 0x0F000000,
         NULL, HFILL }
     },
     { &hf_pn_io_iocr_properties_fast_forwarding_mac_adr,
@@ -14702,17 +14702,17 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_DistributedWatchDogFactor,
       { "SFIOCRProperties.DistributedWatchDogFactor", "pn_io.SFIOCRProperties.DistributedWatchDogFactor",
-        FT_UINT32, BASE_HEX, NULL, 0x0FF,
+        FT_UINT32, BASE_HEX, NULL, 0x000000FF,
         NULL, HFILL }
     },
     { &hf_pn_io_RestartFactorForDistributedWD,
       { "SFIOCRProperties.RestartFactorForDistributedWD", "pn_io.SFIOCRProperties.RestartFactorForDistributedWD",
-        FT_UINT32, BASE_HEX, NULL, 0xff00,
+        FT_UINT32, BASE_HEX, NULL, 0x0000ff00,
         NULL, HFILL }
     },
     { &hf_pn_io_SFIOCRProperties_DFPmode,
       { "SFIOCRProperties.DFPmode", "pn_io.SFIOCRProperties.DFPmode",
-        FT_UINT32, BASE_HEX, NULL, 0xFF0000,
+        FT_UINT32, BASE_HEX, NULL, 0x00FF0000,
         NULL, HFILL }
     },
     { &hf_pn_io_SFIOCRProperties_reserved_1,
@@ -15112,7 +15112,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_control_command_reserved_7_15,
       { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved_7_15",
-        FT_UINT16, BASE_HEX, NULL, 0x0FF80,
+        FT_UINT16, BASE_HEX, NULL, 0xFF80,
         NULL, HFILL }
     },
     { &hf_pn_io_control_block_properties,
@@ -16543,12 +16543,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_tx_phase_assignment_begin_value,
       { "AssignedValueForReservedBegin", "pn_io.tx_phase_assignment_begin_value",
-        FT_UINT16, BASE_DEC, NULL, 0x0F,
+        FT_UINT16, BASE_DEC, NULL, 0x000F,
         NULL, HFILL }
     },
     { &hf_pn_io_tx_phase_assignment_orange_begin,
       { "AssignedValueForOrangeBegin", "pn_io.tx_phase_assignment_orange_begin",
-        FT_UINT16, BASE_DEC, NULL, 0x0F0,
+        FT_UINT16, BASE_DEC, NULL, 0x00F0,
         NULL, HFILL }
     },
     { &hf_pn_io_tx_phase_assignment_end_reserved,
@@ -16558,7 +16558,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_tx_phase_assignment_reserved,
       { "Reserved should be 0", "pn_io.tx_phase_assignment_reserved",
-        FT_UINT16, BASE_DEC, NULL, 0x0F000,
+        FT_UINT16, BASE_DEC, NULL, 0xF000,
         NULL, HFILL }
     },
     { &hf_pn_ir_rx_phase_assignment,
@@ -16921,12 +16921,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_mrp_check_reserved_1,
       { "MRP_Check.reserved_1", "pn_io.mrp_check_reserved_1",
-        FT_UINT32, BASE_HEX, NULL, 0x0FFFFFC,
+        FT_UINT32, BASE_HEX, NULL, 0xFFFFFC,
         NULL, HFILL }
     },
     { &hf_pn_io_mrp_check_reserved_2,
       { "MRP_Check.reserved_2", "pn_io.mrp_check_reserved_2",
-        FT_UINT32, BASE_HEX, NULL, 0x0FF000000,
+        FT_UINT32, BASE_HEX, NULL, 0xFF000000,
         NULL, HFILL }
     },
     { &hf_pn_io_mrp_rtmode,
@@ -17238,12 +17238,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_rs_alarm_info_reserved_8_15,
       { "RSAlarmInfo.Reserved2", "pn_io.rs_alarm_info_reserved_8_15",
-        FT_UINT16, BASE_HEX, NULL, 0x0FF00,
+        FT_UINT16, BASE_HEX, NULL, 0xFF00,
         NULL, HFILL }
     },
     { &hf_pn_io_rs_alarm_info_reserved_0_7,
       { "RSAlarmInfo.Reserved1", "pn_io.rs_alarm_info_reserved_0_7",
-        FT_UINT16, BASE_HEX, NULL, 0x000FF,
+        FT_UINT16, BASE_HEX, NULL, 0x00FF,
         NULL, HFILL }
     },
     { &hf_pn_io_rs_alarm_info,

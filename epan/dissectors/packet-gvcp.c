@@ -3917,25 +3917,25 @@ void proto_register_gvcp(void)
 
 		{ &hf_gvcp_sc_packet_resend_destination_option_supported_v2_0,
 		{ "Resend Destination Option Supported", "gvcp.bootstrap.sccx.resenddestinationoptionsupported",
-		FT_BOOLEAN, 32, NULL, 0x8,
+		FT_BOOLEAN, 32, NULL, 0x00000008,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_packet_resend_all_in_transmission_supported_v2_0,
 		{ "All In Transmission Supported", "gvcp.bootstrap.sccx.allintransmissionsupported",
-		FT_BOOLEAN, 32, NULL, 0x4,
+		FT_BOOLEAN, 32, NULL, 0x00000004,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_unconditional_streaming_supported,
 		{ "Unconditional Streaming Supported", "gvcp.bootstrap.sccx.unconditionalstreamingsupported",
-		FT_BOOLEAN, 32, NULL, 0x2,
+		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_extended_chunk_data_supported,
 		{ "Extended Chunk Data Supported", "gvcp.bootstrap.sccx.extendedchunkdatasupported",
-		FT_BOOLEAN, 32, NULL, 0x1,
+		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
 		}},
 
@@ -3943,43 +3943,43 @@ void proto_register_gvcp(void)
 
 		{ &hf_gvcp_sc_gendc_enabled_v2_2,
 		{ "GenDC Enabled", "gvcp.bootstrap.sccfgx.gendcenabled",
-		FT_BOOLEAN, 32, NULL, 0x80,
+		FT_BOOLEAN, 32, NULL, 0x00000080,
 		NULL, HFILL
 		} },
 
 		{ &hf_gvcp_sc_multi_part_enabled_v2_1,
 		{ "Multi-part Enabled", "gvcp.bootstrap.sccfgx.multipartenabled",
-		FT_BOOLEAN, 32, NULL, 0x40,
+		FT_BOOLEAN, 32, NULL, 0x00000040,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_large_leader_trailer_enabled_v2_1,
 		{ "Large Leader/Trailer Enabled", "gvcp.bootstrap.sccfgx.largeleadertrailerenabled",
-		FT_BOOLEAN, 32, NULL, 0x20,
+		FT_BOOLEAN, 32, NULL, 0x00000020,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_packet_resend_destination_option_enabled_v2_0,
 		{ "Resend Destination Option Enabled", "gvcp.bootstrap.sccfgx.resenddestinationoptionenabled",
-		FT_BOOLEAN, 32, NULL, 0x8,
+		FT_BOOLEAN, 32, NULL, 0x00000008,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_packet_resend_all_in_transmission_enabled_v2_0,
 		{ "All In Transmission Enabled", "gvcp.bootstrap.sccfgx.allintransmissionenabled",
-		FT_BOOLEAN, 32, NULL, 0x4,
+		FT_BOOLEAN, 32, NULL, 0x00000004,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_unconditional_streaming_enabled,
 		{ "Unconditional Streaming Enabled", "gvcp.bootstrap.sccfgx.unconditionalstreamingenabled",
-		FT_BOOLEAN, 32, NULL, 0x2,
+		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
 		{ &hf_gvcp_sc_extended_chunk_data_enabled,
 		{ "Extended Chunk Data Enabled", "gvcp.bootstrap.sccfgx.extendedchunkdataenabled",
-		FT_BOOLEAN, 32, NULL, 0x1,
+		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
 		}},
 
@@ -4278,7 +4278,7 @@ void proto_register_gvcp(void)
 		}},
 
 		{ &hf_gvcp_custom_memory_addr,
-		{ "Custom Memory Address", "gvcp.bootstrap.custom.register.write",
+		{ "Custom Memory Address", "gvcp.bootstrap.custom.memory.write",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL
 		}},

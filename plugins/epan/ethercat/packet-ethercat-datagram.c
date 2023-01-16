@@ -2592,11 +2592,11 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_alctrl_errack,
            {"Error Ack", "ecat.reg.alctrl.errack",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
          },
          { &hf_ecat_reg_alctrl_id,
            {"Id", "ecat.reg.alctrl.id",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
          },
          { &hf_ecat_reg_alstatus,
            {"AL Status (0x130)", "ecat.reg.alstatus",
@@ -2604,15 +2604,15 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_alstatus_status,
            {"Al Status", "ecat.reg.alstatus.status",
-           FT_UINT16, BASE_HEX, VALS(vals_esc_reg_120), 0x0f, NULL, HFILL }
+           FT_UINT16, BASE_HEX, VALS(vals_esc_reg_120), 0x000f, NULL, HFILL }
          },
          { &hf_ecat_reg_alstatus_err,
            {"Error", "ecat.reg.alstatus.err",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
+		   FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
          },
          { &hf_ecat_reg_alstatus_id,
            {"Id", "ecat.reg.alstatus.id",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
          },
          { &hf_ecat_reg_alstatuscode,
            {"AL Status Code (0x134)", "ecat.reg.alstatuscode",
@@ -2720,23 +2720,23 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_pdiL_latchin,
            {"Latch input", "ecat.reg.irqmask.pdiL.latchin",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
          },
          { &hf_ecat_reg_pdiL_sync0,
            {"SYNC 0", "ecat.reg.irqmask.pdiL.sync0",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x04, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0004, NULL, HFILL }
          },
          { &hf_ecat_reg_pdiL_sync1,
            {"SYNC 1", "ecat.reg.irqmask.pdiL.sync1",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x08, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0008, NULL, HFILL }
          },
          { &hf_ecat_reg_pdiL_smchg,
            {"SM changed", "ecat.reg.irqmask.pdiL.smchg",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
          },
          { &hf_ecat_reg_pdiL_eepromcmdpen,
            {"EEPROM command pending", "ecat.reg.irqmask.pdiL.eepromcmdpen",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
          },
          { &hf_ecat_reg_pdiL_sm0,
            {"SM 0", "ecat.reg.irqmask.pdiL.sm0",
@@ -2828,27 +2828,27 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_pdi1_alctrl,
            {"AL Ctrl", "ecat.reg.irq.pdi1.alctrl",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x1, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0001, NULL, HFILL }
          },
          { &hf_ecat_reg_pdi1_latchin,
            {"Latch input", "ecat.reg.irq.pdi1.latchin",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
          },
          { &hf_ecat_reg_pdi1_sync0,
            {"SYNC 0", "ecat.reg.irq.pdi1.sync0",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x04, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0004, NULL, HFILL }
          },
          { &hf_ecat_reg_pdi1_sync1,
            {"SYNC 1", "ecat.reg.irq.pdi1.sync1",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x08, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0008, NULL, HFILL }
          },
          { &hf_ecat_reg_pdi1_smchg,
            {"SM changed", "ecat.reg.irq.pdi1.smchg",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
          },
          { &hf_ecat_reg_pdi1_eepromcmdpen,
            {"EEPROM command pending", "ecat.reg.irq.pdi1.eepromcmdpen",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
          },
          { &hf_ecat_reg_pdi1_sm0,
            {"SM 0", "ecat.reg.irq.pdi1.sm0",
@@ -3099,6 +3099,9 @@ void proto_register_ecat(void)
            {"Phy MIO Ctrl/Status (0x510)", "ecat.reg.mio.ctrlstat",
            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
          },
+
+         /* TODO: check these masks (ecat_esc_reg_510) against spec.
+          * In particular hf_ecat_reg_mio_ctrlstat_offsphy is non-contiguous and overlaps wracc1 */
          { &hf_ecat_reg_mio_ctrlstat_wracc1,
            {"Write access", "ecat.reg.mio.ctrlstat.wracc1",
            FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0001, NULL, HFILL }
@@ -3123,6 +3126,7 @@ void proto_register_ecat(void)
            {"Busy", "ecat.reg.mio.ctrlstat.busy",
            FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x8000, NULL, HFILL }
          },
+
          { &hf_ecat_reg_mio_addr,
            {"Phy MIO Address (0x512)", "ecat.reg.mio.addr",
            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
@@ -3373,19 +3377,19 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_syncman_enable,
            {"Enable", "ecat.syncman.enable",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x1, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0001, NULL, HFILL }
          },
          { &hf_ecat_reg_syncman_repeatreq,
            {"Repeat request", "ecat.syncman.repeatreq",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
          },
          { &hf_ecat_reg_syncman_latchsmchg_ecat,
            {"Latch SyncMan Change ECAT", "ecat.syncman.latchsmchg.ecat",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x40, NULL, HFILL }
+		   FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0040, NULL, HFILL }
          },
          { &hf_ecat_reg_syncman_latchsmchg_pdi,
            {"Latch SyncMan Change PDI", "ecat.syncman.latchsmchg.pdi",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x80, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0080, NULL, HFILL }
          },
          { &hf_ecat_reg_syncman_deactivate,
            {"Deactivate", "ecat.syncman.deactivate",

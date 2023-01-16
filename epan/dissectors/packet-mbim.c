@@ -10277,7 +10277,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_data_subclass_5gnedc,
             { "5G NE-DC", "mbim.control.data_subclass.5gnedc",
-               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x0000004,
+               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000004,
               NULL, HFILL }
         },
         { &hf_mbim_data_subclass_5gelte,

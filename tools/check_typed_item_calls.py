@@ -273,7 +273,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'v120.lli',  # non-contiguous field (http://www.acacia-net.com/wwwcla/protocol/v120_l2.htm)
                                 'stun.type.class',
                                 'bssgp.csg_id', 'tiff.t6.unused', 'artnet.ip_prog_reply.unused',
-                                'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu'
+                                'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu',
+                                'stun.type.method' # figure 3 in rfc 5389
 
                               }
 ##################################################################################################

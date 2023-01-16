@@ -3439,12 +3439,12 @@ proto_register_gsm_sms(void)
                 NULL, HFILL }
             },
             { &hf_gsm_sms_formatting_mode_alignment,
-              { "Alignment", "gsm_sms.udh_created",
+              { "Alignment", "gsm_sms.formatting_mode.alignment",
                 FT_UINT8, BASE_DEC, VALS(alignment_values), 0x03,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_formatting_mode_font_size,
-              { "Font Size", "gsm_sms.udh_created",
+              { "Font Size", "gsm_sms.formatting_mode.font_size",
                 FT_UINT8, BASE_DEC, VALS(font_size_values), 0x0C,
                 NULL, HFILL }
             },

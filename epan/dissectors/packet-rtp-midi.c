@@ -6762,7 +6762,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_p),
-				0x80,
+				0x000080,
 				NULL, HFILL
 			}
 		},
@@ -6774,7 +6774,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_c),
-				0x40,
+				0x000040,
 				NULL, HFILL
 			}
 		},
@@ -6786,7 +6786,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_m),
-				0x20,
+				0x000020,
 				NULL, HFILL
 			}
 		},
@@ -6798,7 +6798,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_w),
-				0x10,
+				0x000010,
 				NULL, HFILL
 			}
 		},
@@ -6810,7 +6810,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_n),
-				0x08,
+				0x000008,
 				NULL, HFILL
 			}
 		},
@@ -6822,7 +6822,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_e),
-				0x04,
+				0x000004,
 				NULL, HFILL
 			}
 		},
@@ -6834,7 +6834,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_t),
-				0x02,
+				0x000002,
 				NULL, HFILL
 			}
 		},
@@ -6846,7 +6846,7 @@ proto_register_rtp_midi( void )
 				FT_BOOLEAN,
 				24,
 				TFS(&rtp_midi_cj_flag_a),
-				0x01,
+				0x000001,
 				NULL, HFILL
 			}
 		},
