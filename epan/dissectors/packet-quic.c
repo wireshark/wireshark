@@ -4551,7 +4551,7 @@ quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_
     return FALSE;
 }
 
-gboolean
+static gboolean
 quic_get_sub_stream_id(guint streamid, guint sub_stream_id, gboolean le, guint *sub_stream_id_out)
 {
     if (le) {
