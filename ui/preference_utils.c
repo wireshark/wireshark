@@ -219,7 +219,7 @@ column_prefs_has_custom(const gchar *custom_field)
             continue;
 
         cfmt = (fmt_data *) clp->data;
-        if (cfmt->fmt == COL_CUSTOM && strcmp(custom_field, cfmt->custom_fields) == 0) {
+        if (cfmt->fmt == COL_CUSTOM && cfmt->custom_occurrence == 0 && strcmp(custom_field, cfmt->custom_fields) == 0) {
             colnr = i;
             break;
         }
