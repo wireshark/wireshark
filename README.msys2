@@ -5,49 +5,49 @@ How to setup MSYS2:
 
 1. Download and install MSYS2 from https://www.msys2.org.
 
-2. Open the MSYS2 MSYS shell.
+2. Open the MSYS shell.
 
 3. Update with "pacman -Syu" as many times as necessary. You also need to
-   have base-devel installed: pacman -S base-devel. Anytime you
-   want to run pacman it's recommended to do so from the MSYS shell.
+   have base-devel installed:
+   
+    $ pacman -S base-devel.
 
 How to build the Wireshark MSYS2 package:
 
-1. Open the MSYS2 MSYS shell.
+1. Open the UCRT64 shell.
 
-2. Create a build directory and copy the PKGBUILD from the source tree:
+2. (Optional) Build and install some missing dependencies in the MSYS2 repository.
 
-    $ mkdir build && cd build
-    $ wget https://gitlab.com/wireshark/wireshark/-/raw/master/packaging/msys2/mingw-w64-wireshark-git/PKGBUILD
+    $ cd $srcdir/packaging/msys2/mingw-w64-bcg729
+    $ makepkg-mingw -si
 
-3. Build the package:
+    $ cd $srcdir/packaging/msys2/mingw-w64-libsmi
+    $ makepkg-mingw -si
 
-    $ makepkg-mingw -sCLf
+    $ cd $srcdir/packaging/msys2/mingw-w64-sbc
+    $ makepkg-mingw -si
 
-4. Install it:
+3. Build and install Wireshark
 
-    $ pacman -U mingw-w64-*-wireshark-*-any.pkg.tar.zst
+    $ cd $srcdir/packaging/msys2/mingw-w64-wireshark-git
+    $ makepkg-mingw -si
 
-The application must be run from the MINGW64 shell.
+The application should be launched using the same shell (UCRT64 in this case).
 
-Currently the MinGW-w64 build has the following limitations compared to
-the MSVC build:
+Currently the MSYS2 build has the following limitations compared to
+the build using Visual Studio (MSVC):
 
-* The Event Tracing for Windows (ETW) extcap is not supported.
+* The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
 * Lua version is 5.1 (MSVC uses Lua 5.2) and does not have UTF-8 patches[1]. 
 
-* Some optional dependencies are not available in the official MSYS2
-  repositories. These are:
+* Kerberos dependency for enhanced Kerberos dissection is not available
+  in the repositories.
 
-    - AirPcap
-    - libsmi
-    - Kerberos
-    - SBC codec
-    - BCG729 codec
+* AirPcap is not available and there is no plan to support it.
 
 * There is currently no way to build a stand-alone distributable binary
-  package, similar to the Wireshark NSIS installer built using Visual Studio.
+  installer, similar to the Wireshark NSIS installer using MSVC.
 
 References:
 

@@ -213,11 +213,11 @@ extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_l
 
 static void smi_free(void *ptr) {
 
-#if (SMI_VERSION_MAJOR >= 0) && (SMI_VERSION_MINOR >= 4) && (SMI_VERSION_PATCHLEVEL >= 8)
+#if (SMI_VERSION_MAJOR > 0) || (SMI_VERSION_MINOR > 4) || (SMI_VERSION_PATCHLEVEL >= 8)
        smiFree(ptr);
 #else
  #ifdef _WIN32
- #error Invalid Windows libsmi version ?? !!
+ #error Unsupported Windows libsmi version < 0.4.8
  #endif
 #define xx_free free  /* hack so checkAPIs.pl doesn't complain */
        xx_free(ptr);

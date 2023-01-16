@@ -1,0 +1,38 @@
+# Maintainer: Wireshark Core Team <wireshark-dev@wireshark.org>
+
+_realname=libsmi
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=0.5.0
+pkgrel=1
+pkgdesc="C library allowing NM apps and MIB and PIB authoring tools to access SMI MIB info (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32')
+url='http://www.ibr.cs.tu-bs.de/projects/libsmi/'
+license=('Custom')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc")
+source=("https://www.ibr.cs.tu-bs.de/projects/${_realname}/download/${_realname}-${pkgver}.tar.gz")
+sha256sums=('f21accdadb1bb328ea3f8a13fc34d715baac6e2db66065898346322c725754d3')
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  ../"${_realname}-${pkgver}"/configure \
+    --prefix="${MINGW_PREFIX}" \
+    --build="${MINGW_CHOST}" \
+    --host="${MINGW_CHOST}" \
+    --target="${MINGW_CHOST}" \
+    --enable-static \
+    --enable-shared
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  make install DESTDIR="${pkgdir}"
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
+}
