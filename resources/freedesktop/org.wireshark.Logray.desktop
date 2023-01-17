@@ -1,0 +1,19 @@
+[Desktop Entry]
+# The format of this file is specified at
+# https://specifications.freedesktop.org/desktop-entry-spec/1.0/
+# The entries are in the order they are listed in version 1.0
+Type=Application
+# This is the version of the spec for this file, not the application version.
+Version=1.0
+Name=Logray
+Name[vi]=Logray
+GenericName=Log Analyzer
+Comment=Log capture and analysis
+Icon=org.wireshark.Logray
+TryExec=logray
+Exec=logray %f
+Terminal=false
+MimeType=application/x-scap
+# Category entry according to:
+# https://specifications.freedesktop.org/menu-spec/1.0/
+Categories=System;Monitor;Qt;

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2014 Richard Hughes <richard@hughsie.com>
+    The specification for this file can be found at
+    https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
+-->
+
+<application>
+    <id type="desktop">org.wireshark.Logray</id>
+    <name>Logray</name>
+    <summary>Logray is a feature-filled log analyzer</summary>
+    <content_rating type="oars-1.1"/>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-2.0</project_license>
+    <!-- NOTE: the below description was copied from packaging/rpm/SPECS/wireshark.spec.in -->
+    <description>
+    <p>
+	Logray lets you capture and analyze log data from a variety of sources.
+    </p>
+    <p>
+	It has many powerful features including a rich display filter language
+        and a number of ways to view log data.
+    </p>
+    </description>
+    <url type="homepage">https://www.wireshark.org</url>
+    <screenshots>
+    </screenshots>
+    <update_contact>wireshark-dev_at_wireshark.org</update_contact>
+    <releases>
+    </releases>
+</application>
