@@ -762,7 +762,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         } else if (hf_id_ptr) {
             proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
         } else {
-            /* we don't continue with unknown mssage type */
+            /* we don't continue with unknown message type */
         }
         break;
 
