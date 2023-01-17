@@ -6834,7 +6834,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				if (offset_e && (offset_e < (size - 1)))
 					expr[offset_e++] = ',';
 
-				if (hfinfo->strings && FIELD_DISPLAY(hfinfo->display) == BASE_NONE && (IS_FT_INT(hfinfo->type) || IS_FT_UINT(hfinfo->type))) {
+				if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) == BASE_NONE && (IS_FT_INT(hfinfo->type) || IS_FT_UINT(hfinfo->type))) {
 					/* Integer types with BASE_NONE never get the numeric value. */
 					if (IS_FT_INT32(hfinfo->type)) {
 						hf_str_val = hf_try_val_to_str_const(fvalue_get_sinteger(&finfo->value), hfinfo, "Unknown");
