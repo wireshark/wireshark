@@ -2337,6 +2337,42 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item_append_text(trr, ", %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_ptr_domain_name, tvb, cur_offset, used_bytes, name_out);
 
+      if (gbl_resolv_flags.dns_pkt_addr_resolution && (dns_class & 0x7f) == C_IN &&
+          !PINFO_FD_VISITED(pinfo)) {
+        guint32 addr_int;
+        char** name_tokens;
+
+        name_tokens = g_strsplit(name, ".", 33);
+
+        if (g_strv_length(name_tokens) == 6) {
+          if (g_ascii_strcasecmp(name_tokens[4], "in-addr") == 0 &&
+              g_ascii_strcasecmp(name_tokens[5], "arpa") == 0) {
+            char* addr_str = g_strjoin(".", name_tokens[3], name_tokens[2], name_tokens[1], name_tokens[0], NULL);
+            if (ws_inet_pton4(addr_str, &addr_int)) {
+              add_ipv4_name(addr_int, name_out, FALSE);
+            }
+            g_free(addr_str);
+          }
+        } else if (g_strv_length(name_tokens) == 33) {
+          if (g_ascii_strcasecmp(name_tokens[32], "ip6.arpa") == 0) {
+            ws_in6_addr address_ipv6;
+
+            wmem_strbuf_t *address_buf = wmem_strbuf_new_sized(pinfo->pool, 40);
+            for (size_t i = 31; i > 0; i--) {
+              wmem_strbuf_append(address_buf, name_tokens[i]);
+              if (i % 4 == 0) {
+                wmem_strbuf_append_c(address_buf, ':');
+              }
+            }
+            wmem_strbuf_append(address_buf, name_tokens[0]);
+            if (ws_inet_pton6(wmem_strbuf_get_str(address_buf), &address_ipv6)) {
+                add_ipv6_name(&address_ipv6, name_out, FALSE);
+            }
+            wmem_strbuf_destroy(address_buf);
+          }
+        }
+        g_strfreev(name_tokens);
+      }
     }
     break;
 
