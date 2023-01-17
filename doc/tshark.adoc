@@ -1361,8 +1361,8 @@ want to generate the statistics; currently the supported ones are:
   "zbee_nwk"  ZigBee Network Layer addresses
 
 The table is presented with one line for each conversation which displays
-the number of frames/bytes in each direction, the total number of 
-frames/bytes, relative start time and duration. 
+the number of frames/bytes in each direction, the total number of
+frames/bytes, relative start time and duration.
 The table is sorted according to the total number of frames.
 --
 
@@ -2861,12 +2861,16 @@ with root (or setuid) permissions on *NIX.
 --
 
 WIRESHARK_DATA_DIR::
-+
---
-This environment variable causes the various data files to be loaded from
-a directory other than the standard locations.  It has no effect when the
-program in question is running with root (or setuid) permissions on *NIX.
---
+Overrides the default global configuration directory.
+It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
+
+WIRESHARK_EXTCAP_DIR::
+Overrides the default extcap directory.
+It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
+
+WIRESHARK_PLUGIN_DIR::
+Overrides the default plugin directory.
+It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
 
 ERF_RECORDS_TO_CHECK::
 +

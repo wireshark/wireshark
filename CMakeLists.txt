@@ -3654,6 +3654,7 @@ if(RPMBUILD_EXECUTABLE)
 endif()
 
 if(LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
+	configure_file(packaging/appimage/Wireshark-AppRun.in ${CMAKE_BINARY_DIR}/packaging/appimage/Wireshark-AppRun @ONLY)
 	# Require production builds (/usr + Release).
 	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" )
 		add_custom_target(wireshark_appimage_prerequisites)
@@ -3688,7 +3689,7 @@ if(LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE
 			${_wireshark_appimage_exe_args}
 			--desktop-file=${_wireshark_ai_appdir}/usr/share/applications/org.wireshark.Wireshark.desktop
 			--icon-file=${CMAKE_SOURCE_DIR}/resources/icons/wsicon256.png
-			--custom-apprun=${CMAKE_SOURCE_DIR}/packaging/appimage/Wireshark-AppRun
+			--custom-apprun=${CMAKE_BINARY_DIR}/packaging/appimage/Wireshark-AppRun
 			--plugin=qt
 		DEPENDS wireshark_appimage_appdir
 	)
@@ -4087,7 +4088,7 @@ if(SHELLCHECK_EXECUTABLE)
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
 			resources/stock_icons/svg-to-png.sh
-			packaging/appimage/Wireshark-AppRun
+			packaging/appimage/Wireshark-AppRun.in
 			"packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in

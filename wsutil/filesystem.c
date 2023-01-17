@@ -1033,6 +1033,11 @@ get_datafile_dir(void)
          */
         datafile_dir = g_strdup(progfile_dir);
     } else {
+        /*
+         * XXX We might want want to make this relative to progfile_dir, which would
+         * allow installation into arbitrary directories and provide better AppImage
+         * support.
+         */
         datafile_dir = g_strdup(DATA_DIR);
     }
 #endif
@@ -1142,6 +1147,11 @@ init_plugin_dir(void)
         }
 #endif
         else {
+            /*
+             * XXX We might want want to make this relative to progfile_dir, which would
+             * allow installation into arbitrary directories and provide better AppImage
+             * support.
+             */
             plugin_dir = g_strdup(PLUGIN_DIR);
         }
     }
@@ -1277,6 +1287,11 @@ init_extcap_dir(void)
     }
 #endif
     else {
+        /*
+         * XXX We might want want to make this relative to progfile_dir, which would
+         * allow installation into arbitrary directories and provide better AppImage
+         * support.
+         */
         extcap_dir = g_strdup(EXTCAP_DIR);
     }
 #endif
