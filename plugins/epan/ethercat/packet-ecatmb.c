@@ -361,8 +361,7 @@ static void CANopenSdoReqFormatter(PETHERCAT_SDO_HEADER pSdo, char *szText, gint
 static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, guint foe_length)
 {
    ETHERCAT_FOE_HEADER foe;
-   char tmp[50];
-   memset(tmp, 0, sizeof(tmp));
+   char *tmp = NULL;
 
    init_foe_header(&foe, tvb, offset);
 
@@ -371,18 +370,19 @@ static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
    case ECAT_FOE_OPMODE_RRQ:
    case ECAT_FOE_OPMODE_WRQ:
    case ECAT_FOE_OPMODE_ERR:
-      if ( foe_length > ETHERCAT_FOE_HEADER_LEN )
-         tvb_memcpy(tvb, tmp, offset+ETHERCAT_FOE_HEADER_LEN, MIN(foe_length-ETHERCAT_FOE_HEADER_LEN, sizeof(tmp)-1));
+      if ( foe_length > ETHERCAT_FOE_HEADER_LEN ) {
+         tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+ETHERCAT_FOE_HEADER_LEN, MIN(foe_length-ETHERCAT_FOE_HEADER_LEN, 49), ENC_ASCII);
+      }
       break;
    }
 
    switch ( foe.OpMode )
    {
    case ECAT_FOE_OPMODE_RRQ:
-      snprintf ( szText, nMax, "FoE RRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
+      snprintf ( szText, nMax, "FoE RRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp ? tmp : "");
       break;
    case ECAT_FOE_OPMODE_WRQ:
-      snprintf ( szText, nMax, "FoE WRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
+      snprintf ( szText, nMax, "FoE WRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp ? tmp : "");
       break;
    case ECAT_FOE_OPMODE_DATA:
       snprintf ( szText, nMax, "FoE DATA (%d) : %d Bytes", foe.aFoeHeaderDataUnion.v.PacketNo, foe_length-ETHERCAT_FOE_HEADER_LEN);
@@ -391,7 +391,7 @@ static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
       snprintf ( szText, nMax, "FoE ACK (%d)", foe.aFoeHeaderDataUnion.v.PacketNo);
       break;
    case ECAT_FOE_OPMODE_ERR:
-      snprintf ( szText, nMax, "FoE ERR (%d) : '%s'", foe.aFoeHeaderDataUnion.ErrorCode, tmp);
+      snprintf ( szText, nMax, "FoE ERR (%d) : '%s'", foe.aFoeHeaderDataUnion.ErrorCode, tmp ? tmp : "");
       break;
    case ECAT_FOE_OPMODE_BUSY:
       if ( foe.aFoeHeaderDataUnion.v2.Entire > 0 )
