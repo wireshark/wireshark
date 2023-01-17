@@ -4267,6 +4267,11 @@ if(MSVC)
 	endforeach()
 endif()
 
+# -----------------------------------------------------------------------------
+# Packaging (CPack)
+# -----------------------------------------------------------------------------
+include(ConfigCPack.cmake)
+
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
