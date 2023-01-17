@@ -12764,7 +12764,7 @@ proto_register_bgp(void)
         { "TE Default Metric TLV", "bgp.ls.tlv.te_default_metric", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_te_default_metric_value_old,
-        { "TE Default Metric (old format)", "bgp.ls.tlv.te_default_metric_value", FT_UINT24,
+        { "TE Default Metric (old format)", "bgp.ls.tlv.te_default_metric_value.old", FT_UINT24,
           BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ls_tlv_te_default_metric_value,
         { "TE Default Metric", "bgp.ls.tlv.te_default_metric_value", FT_UINT32,
