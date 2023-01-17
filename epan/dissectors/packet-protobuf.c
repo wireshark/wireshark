@@ -760,8 +760,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
                 proto_item_append_text(ti_field, "= %s", buf);
             }
         } else if (hf_id_ptr) {
-            ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
-            subtree = proto_item_add_subtree(ti, ett_protobuf_message);
+            proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
         } else {
             /* we don't continue with unknown mssage type */
         }
