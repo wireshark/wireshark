@@ -3725,7 +3725,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	if ((conn_data->frame_start_compressed) && (pinfo->num > conn_data->frame_start_compressed)) {
 		if (conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE) {
-			offset = mysql_dissect_compressed(tvb, offset, tree, pinfo, conn_data);
+			mysql_dissect_compressed(tvb, offset, tree, pinfo, conn_data);
 			return tvb_reported_length(tvb);
 		}
 	}
