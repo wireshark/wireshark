@@ -44,6 +44,7 @@
 #include <QWidgetAction>
 #include <QLineEdit>
 #include <QActionGroup>
+#include <QTime>
 
 MenuEditAction::MenuEditAction(QString text, QString hintText, QObject * parent) :
     QWidgetAction(parent),
