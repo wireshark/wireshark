@@ -3653,7 +3653,7 @@ if(RPMBUILD_EXECUTABLE)
 	)
 endif()
 
-if(LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
+if(BUILD_wireshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
 	configure_file(packaging/appimage/Wireshark-AppRun.in ${CMAKE_BINARY_DIR}/packaging/appimage/Wireshark-AppRun @ONLY)
 	# Require production builds (/usr + Release).
 	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" )
@@ -3699,9 +3699,56 @@ if(LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE
 	)
 endif()
 
+if(BUILD_logray AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
+	configure_file(packaging/appimage/Logray-AppRun.in ${CMAKE_BINARY_DIR}/packaging/appimage/Logray-AppRun @ONLY)
+	# Require production builds (/usr + Release).
+	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" )
+		add_custom_target(logray_appimage_prerequisites)
+		add_dependencies(logray_appimage_prerequisites ${PROGLIST})
+	else()
+		add_custom_target(logray_appimage_prerequisites
+			COMMAND echo "CMAKE_BUILD_TYPE isn't Release or CMAKE_INSTALL_PREFIX isn't /usr."
+			COMMAND false
+		)
+	endif()
+	set (_logray_ai_appdir ${CMAKE_BINARY_DIR}/packaging/appimage/logray.appdir)
+	add_custom_target(logray_appimage_appdir
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_logray_ai_appdir}
+		COMMAND env DESTDIR=${_logray_ai_appdir}
+			${CMAKE_COMMAND} --build . --target install
+		DEPENDS logray_appimage_prerequisites
+	)
+	set(_logray_appimage_exe_args)
+	foreach(_prog ${PROGLIST})
+		# XXX This needs to be more robust.
+		if (${_prog} STREQUAL "dftest" OR ${_prog} STREQUAL "logray")
+			continue()
+		endif()
+		list(APPEND _logray_appimage_exe_args --executable=${_logray_ai_appdir}/usr/bin/${_prog})
+	endforeach()
+	# It looks like linuxdeploy can't handle executables in nonstandard
+	# locations, so use it to prep our staging directory here and use
+	# appimagetool to to build the appimage.
+	add_custom_target(logray_appimage_prep
+		COMMAND env LD_LIBRARY_PATH=${_logray_ai_appdir}/${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR} ${LINUXDEPLOY_EXECUTABLE}
+			--appdir=${_logray_ai_appdir}
+			${_logray_appimage_exe_args}
+			--desktop-file=${_logray_ai_appdir}/usr/share/applications/org.wireshark.Logray.desktop
+			--icon-file=${CMAKE_SOURCE_DIR}/resources/icons/lricon256.png
+			--custom-apprun=${CMAKE_BINARY_DIR}/packaging/appimage/Logray-AppRun
+			--plugin=qt
+		DEPENDS logray_appimage_appdir
+	)
+	add_custom_target(logray_appimage
+		COMMAND env VERSION=${LOG_PROJECT_VERSION} ${APPIMAGETOOL_EXECUTABLE} ${_logray_ai_appdir}
+		DEPENDS logray_appimage_prep
+	)
+endif()
+
 set(CLEAN_C_FILES
 	${dumpcap_FILES}
 	${wireshark_FILES}
+	${logray_FILES}
 	${tshark_FILES}
 	${tfshark_FILES}
 	${rawshark_FILES}
@@ -3809,7 +3856,7 @@ if(BUILD_logray AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 		install(FILES resources/freedesktop/org.wireshark.Logray.desktop
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
-	foreach(size 16 24 32 48 64 128 256)
+	foreach(size 16 32 48 64 128 256)
 		install(FILES resources/icons/lricon${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
 			RENAME org.wireshark.Logray.png)
@@ -4088,6 +4135,7 @@ if(SHELLCHECK_EXECUTABLE)
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
 			resources/stock_icons/svg-to-png.sh
+			packaging/appimage/Logray-AppRun.in
 			packaging/appimage/Wireshark-AppRun.in
 			"packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 			packaging/macosx/osx-app.sh.in
