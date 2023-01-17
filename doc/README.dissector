@@ -1247,6 +1247,22 @@ in tfs.h, included via packet.h.
 Custom fields (BASE_CUSTOM) should use CF_FUNC(&custom_format_func) for the
 'strings' field.
 
+-- Frame numbers
+FT_FRAMENUMs can use the 'strings' field to indicate their purpose by
+setting the field to 'FRAMENUM_TYPE(x)', where x is one of the values of
+the ft_framenum_type enum:
+
+    FT_FRAMENUM_NONE
+    FT_FRAMENUM_REQUEST
+    FT_FRAMENUM_RESPONSE
+    FT_FRAMENUM_ACK
+    FT_FRAMENUM_DUP_ACK
+    FT_FRAMENUM_RETRANS_PREV
+    FT_FRAMENUM_RETRANS_NEXT
+
+The packet list uses the value to determine the related packet symbol to draw.
+Note that 'strings' field NULL is equal to FRAMENUM_TYPE(FT_FRAMENUM_NONE).
+
 -- Note to plugin authors
 Data cannot get exported from DLLs. For this reason plugin authors cannot use
 existing fieldconvert strings (e.g. from existing dissectors or those from
