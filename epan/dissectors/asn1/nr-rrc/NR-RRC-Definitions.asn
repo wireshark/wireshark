@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.2.0 (2022-09)
+-- 3GPP TS 38.331 V17.3.0 (2022-12)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1120,7 +1120,6 @@ SDT-CG-Config-r17 ::= OCTET STRING (CONTAINING SDT-MAC-PHY-CG-Config-r17)
 
 SDT-MAC-PHY-CG-Config-r17 ::=       SEQUENCE {
     -- CG-SDT specific configuration
-
     cg-SDT-ConfigLCH-RestrictionToAddModList-r17 SEQUENCE (SIZE(1..maxLC-ID)) OF  CG-SDT-ConfigLCH-Restriction-r17 OPTIONAL,   -- Need N
     cg-SDT-ConfigLCH-RestrictionToReleaseList-r17 SEQUENCE (SIZE(1..maxLC-ID)) OF  LogicalChannelIdentity  OPTIONAL,   -- Need N
     cg-SDT-ConfigInitialBWP-NUL-r17       CHOICE {release NULL, setup BWP-UplinkDedicatedSDT-r17}                     OPTIONAL,   -- Need M
@@ -1166,7 +1165,7 @@ SRS-PosRRC-InactiveConfig-r17 ::=       SEQUENCE {
     bwp-NUL-r17                             BWP                                                                 OPTIONAL,    -- Need S
     bwp-SUL-r17                             BWP                                                                 OPTIONAL,    -- Need S
     inactivePosSRS-TimeAlignmentTimer-r17   TimeAlignmentTimer                                                  OPTIONAL,    -- Need M
-    inactivePosSRS-RSRP-changeThreshold-r17 RSRP-ChangeThreshold-r17                                            OPTIONAL     -- Need M
+    inactivePosSRS-RSRP-ChangeThreshold-r17 RSRP-ChangeThreshold-r17                                            OPTIONAL     -- Need M
 }
 
 RSRP-ChangeThreshold-r17 ::= ENUMERATED {dB4, dB6, dB8, dB10, dB14, dB18, dB22, dB26, dB30, dB34, spare6, spare5, spare4, spare3, spare2, spare1}
@@ -1899,7 +1898,7 @@ UEAssistanceInformation-v1700-IEs ::= SEQUENCE {
     nonSDT-DataIndication-r17             SEQUENCE {
         resumeCause-r17                       ResumeCause                       OPTIONAL
     }                                                                           OPTIONAL,
-    scg-DeactivationPreference            ENUMERATED { scgDeactivationPreferred, noPreference }    OPTIONAL,
+    scg-DeactivationPreference-r17        ENUMERATED { scgDeactivationPreferred, noPreference }    OPTIONAL,
     uplinkData-r17                        ENUMERATED { true }                   OPTIONAL,
     rrm-MeasRelaxationFulfilment-r17      BOOLEAN                               OPTIONAL,
     propagationDelayDifference-r17        PropagationDelayDifference-r17        OPTIONAL,
@@ -2726,6 +2725,9 @@ SIB3 ::=                            SEQUENCE {
     [[
     intraFreqNeighHSDN-CellList-r17     IntraFreqNeighHSDN-CellList-r17                                 OPTIONAL,    -- Need R
     intraFreqNeighCellList-v1710        IntraFreqNeighCellList-v1710                                    OPTIONAL     -- Need R
+    ]],
+    [[
+    channelAccessMode2-r17              ENUMERATED {enabled}                                            OPTIONAL     -- Need R
     ]]
 }
 
@@ -2778,6 +2780,9 @@ SIB4 ::=                            SEQUENCE {
     ]],
     [[
     interFreqCarrierFreqList-v1720      InterFreqCarrierFreqList-v1720              OPTIONAL   -- Need R
+    ]],
+    [[
+    interFreqCarrierFreqList-v1730      InterFreqCarrierFreqList-v1730              OPTIONAL   -- Need R
     ]]
 }
 
@@ -2788,6 +2793,8 @@ InterFreqCarrierFreqList-v1610 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCar
 InterFreqCarrierFreqList-v1700 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1700
 
 InterFreqCarrierFreqList-v1720 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1720
+
+InterFreqCarrierFreqList-v1730 ::=  SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1730
 
 InterFreqCarrierFreqInfo ::=        SEQUENCE {
     dl-CarrierFreq                      ARFCN-ValueNR,
@@ -2838,6 +2845,10 @@ InterFreqCarrierFreqInfo-v1700 ::=  SEQUENCE {
 
 InterFreqCarrierFreqInfo-v1720 ::=  SEQUENCE {
     smtc4list-r17                       SSB-MTC4List-r17                                            OPTIONAL     -- Need R
+}
+
+InterFreqCarrierFreqInfo-v1730 ::=  SEQUENCE {
+    channelAccessMode2-r17              ENUMERATED {enabled}                                        OPTIONAL     -- Need R
 }
 
 InterFreqNeighHSDN-CellList-r17 ::= SEQUENCE (SIZE (1..maxCellInter)) OF PCI-Range
@@ -3099,7 +3110,7 @@ SIB15-r17 ::=                          SEQUENCE {
 
 ApplicableDisasterInfo-r17    ::= CHOICE {
     noDisasterRoaming-r17             NULL,
-    disasterRoamingFromAnyPLMN-r17    NULL,
+    disasterRelatedIndication-r17     NULL,
     commonPLMNs-r17                   NULL,
     dedicatedPLMNs-r17                SEQUENCE (SIZE (1..maxPLMN)) OF PLMN-Identity
 }
@@ -3158,7 +3169,7 @@ TRS-ResourceSet-r17 ::=                SEQUENCE {
 
 SIB18-r17 ::=               SEQUENCE {
     gin-ElementList-r17         SEQUENCE (SIZE (1..maxGIN-r17)) OF GIN-Element-r17            OPTIONAL,   -- Need R
-    gins-PerSNPN-List-r17       SEQUENCE (SIZE (1..maxNPN-r16)) OF GINs-PerSNPN-r17           OPTIONAL,   -- Need R
+    gins-PerSNPN-List-r17       SEQUENCE (SIZE (1..maxNPN-r16)) OF GINs-PerSNPN-r17           OPTIONAL,   -- Need S
     lateNonCriticalExtension    OCTET STRING                                                  OPTIONAL,
     ...
 }
@@ -3210,7 +3221,7 @@ MCCH-Config-r17 ::= SEQUENCE {
     mcch-WindowStartSlot-r17             INTEGER (0..79),
     mcch-WindowDuration-r17              ENUMERATED {sl2, sl4, sl8, sl10, sl20, sl40,sl80, sl160}     OPTIONAL, -- Need S
     mcch-ModificationPeriod-r17          ENUMERATED {rf2, rf4, rf8, rf16, rf32, rf64, rf128, rf256,
-                                        	 rf512, rf1024, r2048, rf4096, rf8192, rf16384, rf32768, rf65536}
+                                         rf512, rf1024, r2048, rf4096, rf8192, rf16384, rf32768, rf65536}
 }
 
 MCCH-RepetitionPeriodAndOffset-r17 ::= CHOICE {
@@ -3618,7 +3629,7 @@ BWP-DownlinkDedicated ::=           SEQUENCE {
     dl-PPW-PreConfigToAddModList-r17    DL-PPW-PreConfigToAddModList-r17                                  OPTIONAL,   -- Need N
     dl-PPW-PreConfigToReleaseList-r17   DL-PPW-PreConfigToReleaseList-r17                                 OPTIONAL,   -- Need N
     nonCellDefiningSSB-r17              NonCellDefiningSSB-r17                                            OPTIONAL,   -- Need R
-    servingCellMO-r17                   MeasObjectId                                                  OPTIONAL -- Cond MeasObject-NCDSSB
+    servingCellMO-r17                   MeasObjectId                                                  OPTIONAL -- Cond MeasObject-NCD-SSB
     ]]
 }
 
@@ -3718,6 +3729,12 @@ BWP-UplinkDedicated ::=             SEQUENCE {
     [[
     pucch-ConfigMulticast1-r17          CHOICE {release NULL, setup PUCCH-Config }                                           OPTIONAL,  -- Need M
     pucch-ConfigMulticast2-r17          CHOICE {release NULL, setup PUCCH-Config }                                           OPTIONAL   -- Need M
+    ]],
+    [[
+    pathlossReferenceRSToAddModList-r17     SEQUENCE (SIZE (1..maxNrofPathlossReferenceRSs-r17)) OF PathlossReferenceRS-r17
+                                                                                                                OPTIONAL, -- Need N
+    pathlossReferenceRSToReleaseList-r17    SEQUENCE (SIZE (1..maxNrofPathlossReferenceRSs-r17)) OF PathlossReferenceRS-Id-r17
+                                                                                                                OPTIONAL  -- Need N
     ]]
 }
 
@@ -3920,7 +3937,7 @@ SCellConfig ::=                     SEQUENCE {
 SCellSIB20-r17 ::= OCTET STRING (CONTAINING SystemInformation)
 
 DeactivatedSCG-Config-r17 ::=       SEQUENCE {
-    bfd-and-RLM                         BOOLEAN,
+    bfd-and-RLM-r17                     BOOLEAN,
     ...
 }
 
@@ -3953,8 +3970,8 @@ IntraBandCC-CombinationReqList-r17::=   SEQUENCE {
 IntraBandCC-Combination-r17::=      SEQUENCE (SIZE(1.. maxNrofServingCells)) OF CC-State-r17
 
 CC-State-r17::=                     SEQUENCE {
-    dlCarrier-r17                       CarrierState-r17  OPTIONAL,
-    ulCarrier-r17                       CarrierState-r17  OPTIONAL
+    dlCarrier-r17                       CarrierState-r17                             OPTIONAL, -- Need N
+    ulCarrier-r17                       CarrierState-r17                             OPTIONAL  -- Need N
 }
 
 CarrierState-r17::=                 CHOICE {
@@ -4236,6 +4253,14 @@ CodebookConfig-r17  ::=               SEQUENCE  {
     }
 }
 
+CodebookConfig-v1730  ::=             SEQUENCE  {
+    codebookType                          CHOICE   {
+        type1                                 SEQUENCE  {
+            codebookMode                          INTEGER (1..2)                                    OPTIONAL   -- Need R
+        }
+    }
+}
+
 -- TAG-CODEBOOKCONFIG-STOP
 -- TAG-COMMONLOCATIONINFO-START
 
@@ -4371,7 +4396,11 @@ ConfiguredGrantConfig ::=           SEQUENCE {
     harq-ProcID-Offset2-v1700               INTEGER (16..31)                                            OPTIONAL,   -- Need R
     configuredGrantTimer-v1700              INTEGER(33..288)                                            OPTIONAL,   -- Need R
     cg-minDFI-Delay-v1710                   INTEGER (238..3584)                                         OPTIONAL    -- Need R
-        ]]
+    ]],
+    [[
+    harq-ProcID-Offset-v1730                INTEGER (16..31)                                            OPTIONAL,   -- Need R
+    cg-nrofSlots-r17                        INTEGER (1..320)                                            OPTIONAL    -- Need R
+    ]]
 }
 
 CG-UCI-OnPUSCH ::= CHOICE {
@@ -4472,7 +4501,7 @@ ControlResourceSet ::=              SEQUENCE {
     controlResourceSetId-v1610          ControlResourceSetId-v1610                                OPTIONAL  -- Need S
     ]],
     [[
-    followUnifiedTCIstate-r17           ENUMERATED {enabled}                                      OPTIONAL  -- Need R
+    followUnifiedTCI-State-r17           ENUMERATED {enabled}                                      OPTIONAL  -- Need R
     ]]
 }
 
@@ -4764,6 +4793,9 @@ CSI-ReportConfig ::=                SEQUENCE {
         reportSlotOffsetListDCI-0-2-r17     SEQUENCE (SIZE (1.. maxNrofUL-Allocations-r16)) OF INTEGER(0..128)  OPTIONAL,   -- Need R
         reportSlotOffsetListDCI-0-1-r17     SEQUENCE (SIZE (1.. maxNrofUL-Allocations-r16)) OF INTEGER(0..128)  OPTIONAL    -- Need R
     }                                                                                                           OPTIONAL    -- Need R
+    ]],
+    [[
+    codebookConfig-v1730                CodebookConfig-v1730                                                    OPTIONAL    -- Need R
     ]]
 }
 
@@ -4987,7 +5019,7 @@ DedicatedNAS-Message ::=        OCTET STRING
 
 DL-PPW-PreConfig-r17 ::= SEQUENCE {
     dl-PPW-ID-r17            DL-PPW-ID-r17,
-    dl-PPW-Periodicity-and-StartSlot-r17     DL-PPW-Periodicity-and-StartSlot-r17,
+    dl-PPW-PeriodicityAndStartSlot-r17     DL-PPW-PeriodicityAndStartSlot-r17,
     length-r17                               INTEGER (1..160),
     type-r17                                 ENUMERATED {type1A, type1B, type2}                            OPTIONAL, -- Cond MultiType
     priority-r17                             ENUMERATED {st1, st2, st3}                                    OPTIONAL  -- Cond MultiState
@@ -4995,85 +5027,85 @@ DL-PPW-PreConfig-r17 ::= SEQUENCE {
 
 DL-PPW-ID-r17 ::= INTEGER  (0..maxNrofPPW-ID-1-r17)
 
-DL-PPW-Periodicity-and-StartSlot-r17 ::= CHOICE {
-    scs15-r17                                CHOICE {
-                      n4-r17                     INTEGER (0..3),
-                      n5-r17                     INTEGER (0..4),
-                      n8-r17                     INTEGER (0..7),
-                      n10-r17                    INTEGER (0..9),
-                      n16-r17                    INTEGER (0..15),
-                      n20-r17                    INTEGER (0..19),
-                      n32-r17                    INTEGER (0..31),
-                      n40-r17                    INTEGER (0..39),
-                      n64-r17                    INTEGER (0..63),
-                      n80-r17                    INTEGER (0..79),
-                      n160-r17                   INTEGER (0..159),
-                      n320-r17                   INTEGER (0..319),
-                      n640-r17                   INTEGER (0..639),
-                      n1280-r17                  INTEGER (0..1279),
-                      n2560-r17                  INTEGER (0..2559),
-                      n5120-r17                  INTEGER (0..5119),
-                      n10240-r17                 INTEGER (0..10239),
+DL-PPW-PeriodicityAndStartSlot-r17 ::= CHOICE {
+    scs15                                    CHOICE {
+                      n4                         INTEGER (0..3),
+                      n5                         INTEGER (0..4),
+                      n8                         INTEGER (0..7),
+                      n10                        INTEGER (0..9),
+                      n16                        INTEGER (0..15),
+                      n20                        INTEGER (0..19),
+                      n32                        INTEGER (0..31),
+                      n40                        INTEGER (0..39),
+                      n64                        INTEGER (0..63),
+                      n80                        INTEGER (0..79),
+                      n160                       INTEGER (0..159),
+                      n320                       INTEGER (0..319),
+                      n640                       INTEGER (0..639),
+                      n1280                      INTEGER (0..1279),
+                      n2560                      INTEGER (0..2559),
+                      n5120                      INTEGER (0..5119),
+                      n10240                     INTEGER (0..10239),
                      ...
     },
-    scs30-r17                                CHOICE {
-                      n8-r17                     INTEGER (0..7),
-                      n10-r17                    INTEGER (0..9),
-                      n16-r17                    INTEGER (0..15),
-                      n20-r17                    INTEGER (0..19),
-                      n32-r17                    INTEGER (0..31),
-                      n40-r17                    INTEGER (0..39),
-                      n64-r17                    INTEGER (0..63),
-                      n80-r17                    INTEGER (0..79),
-                      n128-r17                   INTEGER (0..127),
-                      n160-r17                   INTEGER (0..159),
-                      n320-r17                   INTEGER (0..319),
-                      n640-r17                   INTEGER (0..639),
-                      n1280-r17                  INTEGER (0..1279),
-                      n2560-r17                  INTEGER (0..2559),
-                      n5120-r17                  INTEGER (0..5119),
-                      n10240-r17                 INTEGER (0..10239),
-                      n20480-r17                 INTEGER (0..20479),
+    scs30                                    CHOICE {
+                      n8                         INTEGER (0..7),
+                      n10                        INTEGER (0..9),
+                      n16                        INTEGER (0..15),
+                      n20                        INTEGER (0..19),
+                      n32                        INTEGER (0..31),
+                      n40                        INTEGER (0..39),
+                      n64                        INTEGER (0..63),
+                      n80                        INTEGER (0..79),
+                      n128                       INTEGER (0..127),
+                      n160                       INTEGER (0..159),
+                      n320                       INTEGER (0..319),
+                      n640                       INTEGER (0..639),
+                      n1280                      INTEGER (0..1279),
+                      n2560                      INTEGER (0..2559),
+                      n5120                      INTEGER (0..5119),
+                      n10240                     INTEGER (0..10239),
+                      n20480                     INTEGER (0..20479),
                       ...
     },
-    scs60-r17                                CHOICE {
-                      n16-r17                    INTEGER (0..15),
-                      n20-r17                    INTEGER (0..19),
-                      n32-r17                    INTEGER (0..31),
-                      n40-r17                    INTEGER (0..39),
-                      n64-r17                    INTEGER (0..63),
-                      n80-r17                    INTEGER (0..79),
-                      n128-r17                   INTEGER (0..127),
-                      n160-r17                   INTEGER (0..159),
-                      n256-r17                   INTEGER (0..255),
-                      n320-r17                   INTEGER (0..319),
-                      n640-r17                   INTEGER (0..639),
-                      n1280-r17                  INTEGER (0..1279),
-                      n2560-r17                  INTEGER (0..2559),
-                      n5120-r17                  INTEGER (0..5119),
-                      n10240-r17                 INTEGER (0..10239),
-                      n20480-r17                 INTEGER (0..20479),
-                      n40960-r17                 INTEGER (0..40959),
+    scs60                                    CHOICE {
+                      n16                        INTEGER (0..15),
+                      n20                        INTEGER (0..19),
+                      n32                        INTEGER (0..31),
+                      n40                        INTEGER (0..39),
+                      n64                        INTEGER (0..63),
+                      n80                        INTEGER (0..79),
+                      n128                       INTEGER (0..127),
+                      n160                       INTEGER (0..159),
+                      n256                       INTEGER (0..255),
+                      n320                       INTEGER (0..319),
+                      n640                       INTEGER (0..639),
+                      n1280                      INTEGER (0..1279),
+                      n2560                      INTEGER (0..2559),
+                      n5120                      INTEGER (0..5119),
+                      n10240                     INTEGER (0..10239),
+                      n20480                     INTEGER (0..20479),
+                      n40960                     INTEGER (0..40959),
                       ...
     },
-    scs120-r17                               CHOICE {
-                      n32-r17                    INTEGER (0..31),
-                      n40-r17                    INTEGER (0..39),
-                      n64-r17                    INTEGER (0..63),
-                      n80-r17                    INTEGER (0..79),
-                      n128-r17                   INTEGER (0..127),
-                      n160-r17                   INTEGER (0..159),
-                      n256-r17                   INTEGER (0..255),
-                      n320-r17                   INTEGER (0..319),
-                      n512-r17                   INTEGER (0..511),
-                      n640-r17                   INTEGER (0..639),
-                      n1280-r17                  INTEGER (0..1279),
-                      n2560-r17                  INTEGER (0..2559),
-                      n5120-r17                  INTEGER (0..5119),
-                      n10240-r17                 INTEGER (0..10239),
-                      n20480-r17                 INTEGER (0..20479),
-                      n40960-r17                 INTEGER (0..40959),
-                      n81920-r17                 INTEGER (0..81919),
+    scs120                                   CHOICE {
+                      n32                        INTEGER (0..31),
+                      n40                        INTEGER (0..39),
+                      n64                        INTEGER (0..63),
+                      n80                        INTEGER (0..79),
+                      n128                       INTEGER (0..127),
+                      n160                       INTEGER (0..159),
+                      n256                       INTEGER (0..255),
+                      n320                       INTEGER (0..319),
+                      n512                       INTEGER (0..511),
+                      n640                       INTEGER (0..639),
+                      n1280                      INTEGER (0..1279),
+                      n2560                      INTEGER (0..2559),
+                      n5120                      INTEGER (0..5119),
+                      n10240                     INTEGER (0..10239),
+                      n20480                     INTEGER (0..20479),
+                      n40960                     INTEGER (0..40959),
+                      n81920                     INTEGER (0..81919),
                      ...
     },
     ...
@@ -5518,14 +5550,14 @@ GapPriority-r17 ::=                       INTEGER (1..maxNrOfGapPri-r17)
 -- TAG-HIGHSPEEDCONFIG-START
 
 HighSpeedConfig-r16 ::=  SEQUENCE {
-    highSpeedMeasFlag-r16    ENUMERATED {true}        OPTIONAL,   -- Need R
+    highSpeedMeasFlag-r16    ENUMERATED {true}        OPTIONAL,   -- Cond SpCellOnly
     highSpeedDemodFlag-r16   ENUMERATED {true}        OPTIONAL,   -- Need R
     ...
 }
 
 HighSpeedConfig-v1700 ::=  SEQUENCE {
-    highSpeedMeasCA-Scell-r17    ENUMERATED {true}        OPTIONAL,   -- Need R
-    highSpeedMeasInterFreq-r17   ENUMERATED {true}        OPTIONAL,   -- Need R
+    highSpeedMeasCA-Scell-r17    ENUMERATED {true}        OPTIONAL,   -- Cond SCellOnly
+    highSpeedMeasInterFreq-r17   ENUMERATED {true}        OPTIONAL,   -- Cond SpCellOnly2
     highSpeedDemodCA-Scell-r17   ENUMERATED {true}        OPTIONAL,   -- Need R
     ...
 }
@@ -6111,6 +6143,10 @@ SSB-ConfigMobility::=               SEQUENCE {
     deriveSSB-IndexFromCellInter-r17    ServCellIndex                                                   OPTIONAL,   -- Need R
     ssb-PositionQCL-Common-r17          SSB-PositionQCL-Relation-r17                                OPTIONAL,   -- Cond SharedSpectrum2
     ssb-PositionQCL-Cells-r17           CHOICE {release NULL, setup SSB-PositionQCL-CellList-r17}                     OPTIONAL    -- Need M
+    ]],
+    [[
+    cca-CellsToAddModList-r17           PCI-List                                                        OPTIONAL,   -- Need N
+    cca-CellsToRemoveList-r17           PCI-List                                                        OPTIONAL    -- Need N
     ]]
 }
 
@@ -7094,6 +7130,24 @@ NZP-CSI-RS-ResourceSetId ::=        INTEGER (0..maxNrofNZP-CSI-RS-ResourceSets-1
 P-Max ::=                           INTEGER (-30..33)
 
 -- TAG-P-MAX-STOP
+-- TAG-PATHLOSSREFERENCERS-START
+
+PathlossReferenceRS-r17 ::=   SEQUENCE {
+    pathlossReferenceRS-Id-r17          PathlossReferenceRS-Id-r17,
+    referenceSignal-r17                 CHOICE {
+        ssb-Index                           SSB-Index,
+        csi-RS-Index                        NZP-CSI-RS-ResourceId
+    },
+    additionalPCI-r17                   AdditionalPCIIndex-r17                                         OPTIONAL  -- Cond RS-SSB
+}
+
+
+-- TAG-PATHLOSSREFERENCERS-STOP
+-- TAG-PATHLOSSREFERENCERS-ID-START
+
+PathlossReferenceRS-Id-r17 ::= INTEGER (0..maxNrofPathlossReferenceRSs-1-r17)
+
+-- TAG-PATHLOSSREFERENCERS-ID-STOP
 -- TAG-PCIARFCNEUTRA-START
 
 PCI-ARFCN-EUTRA-r16 ::=             SEQUENCE {
@@ -7241,7 +7295,7 @@ PDCCH-ConfigCommon ::=              SEQUENCE {
     }                                                                                           OPTIONAL     -- Cond InitialBWP-Paging
     ]],
     [[
-    followUnifiedTCIstate-v1720           ENUMERATED {enabled}                                  OPTIONAL     -- Need R
+    followUnifiedTCI-State-v1720           ENUMERATED {enabled}                                  OPTIONAL     -- Need R
     ]]
 }
 
@@ -7478,18 +7532,18 @@ PDSCH-Config ::=                        SEQUENCE {
     pdsch-HARQ-ACK-EnhType3DCI-Field-1-2-r17     ENUMERATED {enabled}                                           OPTIONAL,   -- Need R
     pdsch-HARQ-ACK-RetxDCI-1-2-r17               ENUMERATED {enabled}                                           OPTIONAL,   -- Need R
     pucch-sSCellDynDCI-1-2-r17                   ENUMERATED {enabled}                                           OPTIONAL,   -- Need R
-    dl-OrJoint-TCIStateList-r17                  CHOICE {
+    dl-OrJointTCI-StateList-r17                  CHOICE {
         explicitlist                                 SEQUENCE {
-            dl-OrJoint-TCI-State-ToAddModList-r17        SEQUENCE (SIZE (1..maxNrofTCI-States)) OF TCI-State
+            dl-OrJointTCI-StateToAddModList-r17        SEQUENCE (SIZE (1..maxNrofTCI-States)) OF TCI-State
                                                                                                                 OPTIONAL,   -- Need N
-            dl-OrJoint-TCI-State-ToReleaseList-r17       SEQUENCE (SIZE (1..maxNrofTCI-States)) OF TCI-StateId
+            dl-OrJointTCI-StateToReleaseList-r17       SEQUENCE (SIZE (1..maxNrofTCI-States)) OF TCI-StateId
                                                                                                                 OPTIONAL    -- Need N
         },
         unifiedTCI-StateRef-r17                  ServingCellAndBWP-Id-r17
     }                                                                                                           OPTIONAL,   -- Need R
     beamAppTime-r17                              ENUMERATED {n1, n2, n4, n7, n14, n28, n42, n56, n70, n84, n98, n112, n224, n336, spare2,
                                                             spare1}                                             OPTIONAL,   -- Need R
-    pdsch-TimeDomainAllocationListForMultiPDSCH-r17 CHOICE {release NULL, setup MultiPDSCH-TDRA-List-r17 }                   OPTIONAL,   -- Need M
+    dummy                                        CHOICE {release NULL, setup Dummy-TDRA-List }                                    OPTIONAL,   -- Need M
     dmrs-FD-OCC-DisabledForRank1-PDSCH-r17          ENUMERATED {true}                                           OPTIONAL,   -- Need R
     minimumSchedulingOffsetK0-r17                   CHOICE {release NULL, setup MinSchedulingOffsetK0-Values-r17 }           OPTIONAL,   -- Need M
     harq-ProcessNumberSizeDCI-1-2-v1700          INTEGER (0..5)                                                 OPTIONAL,   -- Need R
@@ -7499,6 +7553,9 @@ PDSCH-Config ::=                        SEQUENCE {
     xOverheadMulticast-r17                       ENUMERATED {xOh6, xOh12, xOh18}                                OPTIONAL,   -- Need S
     priorityIndicatorDCI-4-2-r17                 ENUMERATED {enabled}                                           OPTIONAL,   -- Need S
     sizeDCI-4-2-r17                              INTEGER (20..maxDCI-4-2-Size-r17)                              OPTIONAL    -- Need R
+    ]],
+    [[
+    pdsch-TimeDomainAllocationListForMultiPDSCH-r17 CHOICE {release NULL, setup MultiPDSCH-TDRA-List-r17 }                   OPTIONAL    -- Need M
     ]]
 }
 
@@ -7575,10 +7632,15 @@ PDSCH-TimeDomainResourceAllocation-r16 ::=  SEQUENCE {
     ...,
     [[
     k0-v1710                                INTEGER(33..128)                                               OPTIONAL    -- Need S
+    ]],
+    [[
+    repetitionNumber-v1730                  ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n16}                   OPTIONAL   -- Cond Format1-2
     ]]
 }
 
-MultiPDSCH-TDRA-List-r17 ::= SEQUENCE (SIZE(1.. maxNrofDL-Allocations)) OF MultiPDSCH-TDRA-r17
+Dummy-TDRA-List ::= SEQUENCE (SIZE(1.. maxNrofDL-Allocations)) OF MultiPDSCH-TDRA-r17
+
+MultiPDSCH-TDRA-List-r17 ::= SEQUENCE (SIZE(1.. maxNrofDL-AllocationsExt-r17)) OF MultiPDSCH-TDRA-r17
 
 MultiPDSCH-TDRA-r17 ::= SEQUENCE {
     pdsch-TDRA-List-r17                 SEQUENCE (SIZE(1..maxNrofMultiplePDSCHs-r17)) OF PDSCH-TimeDomainResourceAllocation-r16,
@@ -7712,6 +7774,9 @@ PhysicalCellGroupConfig ::=         SEQUENCE {
     ]],
     [[
     simultaneousSR-PUSCH-diffPUCCH-Groups-r17      ENUMERATED {enabled}                         OPTIONAL    -- Cond twoPUCCHgroup
+    ]],
+    [[
+    intraBandNC-PRACH-simulTx-r17     ENUMERATED {enabled}                                      OPTIONAL    -- Need R
     ]]
 }
 
@@ -8378,7 +8443,7 @@ PUSCH-PathlossReferenceRS-r16 ::=   SEQUENCE {
     }
 }
 
-PUSCH-PathlossReferenceRS-v1710 ::= SEQUENCE {
+DummyPathlossReferenceRS-v1710 ::= SEQUENCE {
     pusch-PathlossReferenceRS-Id-r17    PUSCH-PathlossReferenceRS-Id-r17,
     additionalPCI-r17                   AdditionalPCIIndex-r17                                         OPTIONAL  -- Need R
 }
@@ -8414,8 +8479,7 @@ PUSCH-PowerControl-v1610 ::=        SEQUENCE {
                                                                                                                 OPTIONAL, -- Need N
     sri-PUSCH-MappingToReleaseList2-r17 SEQUENCE (SIZE (1..maxNrofSRI-PUSCH-Mappings)) OF SRI-PUSCH-PowerControlId OPTIONAL, -- Need N
     p0-PUSCH-SetList2-r17               SEQUENCE (SIZE (1..maxNrofSRI-PUSCH-Mappings)) OF P0-PUSCH-Set-r16      OPTIONAL, -- Need R
-
-    pathlossReferenceRSToAddModListExt-v1710 SEQUENCE (SIZE (1..maxNrofPUSCH-PathlossReferenceRSs-r16)) OF PUSCH-PathlossReferenceRS-v1710                                                                                                           OPTIONAL  -- Need N
+    dummy SEQUENCE (SIZE (1..maxNrofPUSCH-PathlossReferenceRSs-r16)) OF DummyPathlossReferenceRS-v1710          OPTIONAL  -- Need N
     ]]
 }
 
@@ -8611,7 +8675,7 @@ RACH-ConfigCommon ::=               SEQUENCE {
     ]],
     [[
     ra-PrioritizationForSlicing-r17         RA-PrioritizationForSlicing-r17                          OPTIONAL,   -- Cond InitialBWP-Only
-    featureCombinationPreamblesList-r17     SEQUENCE (SIZE(1..maxFeatureCombPreamblesPerRACHResource-r17)) OF FeatureCombinationPreambles-r17 OPTIONAL -- Cond AdditionalRACH-AndRedCap
+    featureCombinationPreamblesList-r17     SEQUENCE (SIZE(1..maxFeatureCombPreamblesPerRACHResource-r17)) OF FeatureCombinationPreambles-r17 OPTIONAL -- Cond AdditionalRACH
     ]]
 }
 
@@ -8654,7 +8718,7 @@ RACH-ConfigCommonTwoStepRA-r16 ::=                   SEQUENCE {
     ...,
     [[
     ra-PrioritizationForSlicingTwoStep-r17               RA-PrioritizationForSlicing-r17              OPTIONAL, -- Cond InitialBWP-Only
-    featureCombinationPreamblesList-r17 SEQUENCE (SIZE(1..maxFeatureCombPreamblesPerRACHResource-r17)) OF FeatureCombinationPreambles-r17 OPTIONAL  -- Cond AdditionalRACH-AndRedCap
+    featureCombinationPreamblesList-r17 SEQUENCE (SIZE(1..maxFeatureCombPreamblesPerRACHResource-r17)) OF FeatureCombinationPreambles-r17 OPTIONAL  -- Cond AdditionalRACH
     ]]
 }
 
@@ -9542,7 +9606,7 @@ RLC-BearerConfig ::=                        SEQUENCE {
 
 MulticastRLC-BearerConfig-r17 ::=           SEQUENCE {
     servedMBS-RadioBearer-r17                   MRB-Identity-r17,
-    isPTM-Entity-r17                            ENUMERATED {true}                                   OPTIONAL    -- NEED S
+    isPTM-Entity-r17                            ENUMERATED {true}                                   OPTIONAL    -- Need S
 }
 
 LogicalChannelIdentityExt-r17 ::=           INTEGER (320..65855)
@@ -10297,6 +10361,9 @@ ServingCellConfigCommonSIB ::=      SEQUENCE {
     discoveryBurstWindowLength-v1700    ENUMERATED {ms0dot125, ms0dot25, ms0dot5, ms0dot75, ms1, ms1dot25} OPTIONAL,  -- Need R
     highSpeedConfigFR2-r17              HighSpeedConfigFR2-r17                                      OPTIONAL, -- Need R
     uplinkConfigCommon-v1700            UplinkConfigCommonSIB-v1700                                 OPTIONAL  -- Need R
+    ]],
+    [[
+    enhancedMeasurementLEO-r17          ENUMERATED {true}                                           OPTIONAL  -- Need R
     ]]
 }
 
@@ -10624,7 +10691,7 @@ SRS-ResourceSet ::=                     SEQUENCE {
     [[
     usagePDC-r17                            ENUMERATED {true}                                              OPTIONAL, -- Need R
     availableSlotOffsetList-r17             SEQUENCE (SIZE(1..4)) OF AvailableSlotOffset-r17               OPTIONAL, -- Need R
-    followUnifiedTCIstateSRS-r17            ENUMERATED {enabled}                                           OPTIONAL  -- Need R
+    followUnifiedTCI-StateSRS-r17           ENUMERATED {enabled}                                           OPTIONAL  -- Need R
     ]]
 }
 
@@ -10743,10 +10810,16 @@ SRS-Resource ::=                        SEQUENCE {
         combOffset-n8-r17                       INTEGER (0..7),
         cyclicShift-n8-r17                      INTEGER (0..5)
     }                                                                                                      OPTIONAL,   -- Need R
-    srs-TCIState-r17                        CHOICE {
-        srs-UL-TCIState-r17                     TCI-UL-State-Id-r17,
-        srs-DLorJoint-TCIState-r17              TCI-StateId
+    srs-TCI-State-r17                       CHOICE {
+        srs-UL-TCI-State                        TCI-UL-State-Id-r17,
+        srs-DLorJointTCI-State                  TCI-StateId
     }                                                                                                      OPTIONAL    -- Need R
+    ]],
+    [[
+    repetitionFactor-v1730                  ENUMERATED {n3}                                                OPTIONAL,   -- Need R
+    srs-DLorJointTCI-State-v1730            SEQUENCE {
+        cellAndBWP-r17                          ServingCellAndBWP-Id-r17
+    }                                                                                                 OPTIONAL -- Cond DLorJointTCI-SRS
     ]]
 }
 
@@ -11084,9 +11157,8 @@ TCI-State ::=                       SEQUENCE {
     ...,
     [[
     additionalPCI-r17                   AdditionalPCIIndex-r17                                      OPTIONAL,   -- Need R
-    pathlossReferenceRS-Id-r17          PUSCH-PathlossReferenceRS-Id-r17                            OPTIONAL,   -- Cond JointTCI
+    pathlossReferenceRS-Id-r17          PathlossReferenceRS-Id-r17                                  OPTIONAL,   -- Cond JointTCI1
     ul-powerControl-r17                 Uplink-powerControlId-r17                                   OPTIONAL    -- Cond JointTCI
-
     ]]
 
 }
@@ -11121,9 +11193,8 @@ TCI-UL-State-r17 ::=             SEQUENCE {
     },
     additionalPCI-r17                AdditionalPCIIndex-r17                                OPTIONAL,   -- Need R
     ul-powerControl-r17              Uplink-powerControlId-r17                             OPTIONAL,   -- Need R
-    pathlossReferenceRS-Id-r17       PUSCH-PathlossReferenceRS-Id-r17                      OPTIONAL,   -- Need R
+    pathlossReferenceRS-Id-r17       PathlossReferenceRS-Id-r17                            OPTIONAL,   -- Cond Mandatory
     ...
-
 }
 
 -- TAG-TCI-UL-STATE-STOP
@@ -11565,6 +11636,8 @@ BandCombinationList-v1700 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1720 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1720
 
+BandCombinationList-v1730 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1730
+
 BandCombinationList-UplinkTxSwitch-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-r16
 
 BandCombinationList-UplinkTxSwitch-v1630 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1630
@@ -11582,6 +11655,8 @@ BandCombinationList-UplinkTxSwitch-v16a0 ::= SEQUENCE (SIZE (1..maxBandComb)) OF
 BandCombinationList-UplinkTxSwitch-v1700 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1700
 
 BandCombinationList-UplinkTxSwitch-v1720 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1720
+
+BandCombinationList-UplinkTxSwitch-v1730 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1730
 
 BandCombination ::=                 SEQUENCE {
     bandList                            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters,
@@ -11682,6 +11757,12 @@ BandCombination-v1720 ::=          SEQUENCE {
     ca-ParametersNRDC-v1720            CA-ParametersNRDC-v1720                  OPTIONAL
 }
 
+BandCombination-v1730 ::=          SEQUENCE {
+    ca-ParametersNR-v1730              CA-ParametersNR-v1730                    OPTIONAL,
+    ca-ParametersNRDC-v1730            CA-ParametersNRDC-v1730                  OPTIONAL,
+    bandList-v1730                     SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters-v1730  OPTIONAL
+}
+
 BandCombination-UplinkTxSwitch-r16 ::= SEQUENCE {
     bandCombination-r16                 BandCombination,
     bandCombination-v1540               BandCombination-v1540                      OPTIONAL,
@@ -11735,6 +11816,10 @@ BandCombination-UplinkTxSwitch-v1700 ::= SEQUENCE {
 BandCombination-UplinkTxSwitch-v1720 ::= SEQUENCE {
     bandCombination-v1720                    BandCombination-v1720                 OPTIONAL,
     uplinkTxSwitching-OptionSupport2T2T-r17  ENUMERATED {switchedUL, dualUL, both} OPTIONAL
+}
+
+BandCombination-UplinkTxSwitch-v1730 ::= SEQUENCE {
+    bandCombination-v1730                    BandCombination-v1730                 OPTIONAL
 }
 
 ULTxSwitchingBandPair-r16 ::=       SEQUENCE {
@@ -11801,9 +11886,16 @@ BandParameters-v1710 ::=         SEQUENCE {
     }                                                                              OPTIONAL
 }
 
+BandParameters-v1730 ::= SEQUENCE {
+    -- R1 39-3-2	Affected bands for inter-band CA during SRS carrier switching
+    srs-SwitchingAffectedBandsListNR-r17    SEQUENCE (SIZE (1..maxSimultaneousBands)) OF SRS-SwitchingAffectedBandsNR-r17
+}
+
 ScalingFactorSidelink-r16 ::=       ENUMERATED {f0p4, f0p75, f0p8, f1}
 
 IntraBandPowerClass-r16 ::=         ENUMERATED {pc2, pc3, spare6, spare5, spare4, spare3, spare2, spare1}
+
+SRS-SwitchingAffectedBandsNR-r17 ::= BIT STRING (SIZE (1..maxSimultaneousBands))
 
 -- TAG-BANDCOMBINATIONLIST-STOP
 -- TAG-BANDCOMBINATIONLISTSIDELINKEUTRANR-START
@@ -11873,6 +11965,34 @@ BandParametersSidelink-r16 ::= SEQUENCE {
 }
 
 -- TAG-BANDCOMBINATIONLISTSIDELINKEUTRANR-STOP
+-- TAG-BANDCOMBINATIONLISTSLDISCOVERY-START
+
+BandCombinationListSL-Discovery-r17 ::= SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParametersSidelinkDiscovery-r17
+
+BandParametersSidelinkDiscovery-r17 ::= SEQUENCE {
+    sl-CrossCarrierScheduling-r17            ENUMERATED {supported}                            OPTIONAL,
+    --R1 32-4: Transmitting NR sidelink mode 2 with partial sensing
+    sl-TransmissionMode2-PartialSensing-r17  SEQUENCE {
+        harq-TxProcessModeTwoSidelink-r17        ENUMERATED {n8, n16},
+        scs-CP-PatternTxSidelinkModeTwo-r17      CHOICE {
+            fr1-r17                                  SEQUENCE {
+                scs-15kHz-r17                            BIT STRING (SIZE (16))                OPTIONAL,
+                scs-30kHz-r17                            BIT STRING (SIZE (16))                OPTIONAL,
+                scs-60kHz-r17                            BIT STRING (SIZE (16))                OPTIONAL
+            },
+            fr2-r17                                  SEQUENCE {
+                scs-60kHz-r17                            BIT STRING (SIZE (16))                OPTIONAL,
+                scs-120kHz-r17                           BIT STRING (SIZE (16))                OPTIONAL
+            }
+        }                                                                                      OPTIONAL,
+        extendedCP-Mode2PartialSensing-r17           ENUMERATED {supported}                    OPTIONAL,
+        dl-openLoopPC-Sidelink-r17                   ENUMERATED {supported}                    OPTIONAL
+    }                                                                                          OPTIONAL,
+    --R1 32-5a-1: Transmitting Inter-UE coordination scheme 1 in NR sidelink mode 2
+    tx-IUC-Scheme1-Mode2Sidelink-r17         ENUMERATED {supported}                            OPTIONAL
+}
+
+-- TAG-BANDCOMBINATIONLISTSLDISCOVERY-STOP
 -- TAG-CA-BANDWIDTHCLASSEUTRA-START
 
 CA-BandwidthClassEUTRA ::=          ENUMERATED {a, b, c, d, e, f, ...}
@@ -11880,7 +12000,8 @@ CA-BandwidthClassEUTRA ::=          ENUMERATED {a, b, c, d, e, f, ...}
 -- TAG-CA-BANDWIDTHCLASSEUTRA-STOP
 -- TAG-CA-BANDWIDTHCLASSNR-START
 
-CA-BandwidthClassNR ::=             ENUMERATED {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, ...}
+-- R4 17-6: new CA BW Classes R2~R12
+CA-BandwidthClassNR ::=             ENUMERATED {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, ...,r2-v1730, r3-v1730, r4-v1730, r5-v1730, r6-v1730, r7-v1730, r8-v1730, r9-v1730, r10-v1730, r11-v1730, r12-v1730 }
 
 -- TAG-CA-BANDWIDTHCLASSNR-STOP
 -- TAG-CA-PARAMETERSEUTRA-START
@@ -12197,6 +12318,41 @@ CA-ParametersNR-v1720 ::= SEQUENCE {
                                                                                                   OPTIONAL
 }
 
+CA-ParametersNR-v1730 ::= SEQUENCE {
+    -- R1 30-4a: DM-RS bundling for PUSCH repetition type A (per BC)
+    dmrs-BundlingPUSCH-RepTypeAPerBC-r17                   ENUMERATED {supported}                         OPTIONAL,
+    -- R1 30-4b: DM-RS bundling for PUSCH repetition type B(per BC)
+    dmrs-BundlingPUSCH-RepTypeBPerBC-r17                   ENUMERATED {supported}                         OPTIONAL,
+    -- R1 30-4c: DM-RS bundling for TB processing over multi-slot PUSCH(per BC)
+    dmrs-BundlingPUSCH-multiSlotPerBC-r17                  ENUMERATED {supported}                         OPTIONAL,
+    -- R1 30-4d: DMRS bundling for PUCCH repetitions(per BC)
+    dmrs-BundlingPUCCH-RepPerBC-r17                        ENUMERATED {supported}                         OPTIONAL,
+    -- R1 30-4g: Restart DM-RS bundling (per BC)
+    dmrs-BundlingRestartPerBC-r17                          ENUMERATED {supported}                         OPTIONAL,
+    -- R1 30-4h: DM-RS bundling for non-back-to-back transmission (per BC)
+    dmrs-BundlingNonBackToBackTX-PerBC-r17                 ENUMERATED {supported}                         OPTIONAL,
+    -- R1 39-3-1: Stay on the target CC for SRS carrier switching
+    stayOnTargetCC-SRS-CarrierSwitch-r17                   ENUMERATED {supported}                         OPTIONAL,
+    -- R1 33-3-3a: FDM-ed Type-1 and Type-2 HARQ-ACK codebooks for multiplexing HARQ-ACK for unicast and HARQ-ACK for multicast
+    fdm-CodebookForMux-UnicastMulticastHARQ-ACK-r17        ENUMERATED {supported}                         OPTIONAL,
+    -- R1 33-3-3b: Mode 2 TDM-ed Type-1 and Type-2 HARQ-ACK codebook for multiplexing HARQ-ACK for unicast and HARQ-ACK for multicast
+    mode2-TDM-CodebookForMux-UnicastMulticastHARQ-ACK-r17  ENUMERATED {supported}                         OPTIONAL,
+    -- R1 33-3-4: Mode 1 for type1 codebook generation
+    mode1-ForType1-CodebookGeneration-r17                  ENUMERATED {supported}                         OPTIONAL,
+    -- R1 33-5-1j: NACK-only based HARQ-ACK feedback for multicast corresponding to a specific sequence or a PUCCH transmission
+    -- for SPS group-commmon PDSCH for multicast
+    nack-OnlyFeedbackSpecificResourceForSPS-Multicast-r17  ENUMERATED {supported}                         OPTIONAL,
+    -- R1 33-8-2: Up to 2 PUCCH resources configuration for multicast feedback for dynamically scheduled multicast
+    multiPUCCH-ConfigForMulticast-r17                      ENUMERATED {supported}                         OPTIONAL,
+    -- R1 33-8-3: PUCCH resource configuration for multicast feedback for SPS GC-PDSCH
+    pucch-ConfigForSPS-Multicast-r17                       ENUMERATED {supported}                         OPTIONAL,
+    -- The following parameter is associated with R1 33-2a, R1 33-3-3a, and R1 33-3-3b, and is not a RAN1 FG.
+    maxNumberG-RNTI-HARQ-ACK-Codebook-r17                  INTEGER (1..4)                                 OPTIONAL,
+    -- R1 33-3-5: Feedback multiplexing for unicast PDSCH and group-common PDSCH for multicast with same priority and different codebook
+    -- type
+    mux-HARQ-ACK-UnicastMulticast-r17                      ENUMERATED {supported}                         OPTIONAL
+}
+
 CrossCarrierSchedulingSCell-SpCell-r17 ::= SEQUENCE {
     supportedSCS-Combinations-r17              SEQUENCE {
         scs15kHz-15kHz-r17                         ENUMERATED {supported}                         OPTIONAL,
@@ -12368,6 +12524,10 @@ CA-ParametersNRDC-v1720 ::=                  SEQUENCE {
     ca-ParametersNR-ForDC-v1720                  CA-ParametersNR-v1720                        OPTIONAL
 }
 
+CA-ParametersNRDC-v1730 ::=                  SEQUENCE {
+    ca-ParametersNR-ForDC-v1730                   CA-ParametersNR-v1730                        OPTIONAL
+}
+
 -- TAG-CA-PARAMETERS-NRDC-STOP
 -- TAG-CARRIERAGGREGATIONVARIANT-START
 
@@ -12507,10 +12667,10 @@ CodebookParametersfetype2-r17 ::= SEQUENCE {
     -- R1 23-9-1  Basic Features of Further Enhanced Port-Selection Type II Codebook (FeType-II)
     fetype2basic-r17        SEQUENCE (SIZE (1.. maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16),
     -- R1 23-9-2  Support of M=2 and R=1 for FeType-II
-    fetype2Rank1-r17        SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
+    fetype2R1-r17           SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                        OPTIONAL,
     -- R1 23-9-4  Support of R = 2 for FeType-II
-    fetype2Rank2-r17        SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
+    fetype2R2-r17           SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
                                                        OPTIONAL,
     -- R1 23-9-3  Support of rank 3, 4 for FeType-II
     fetype2Rank3Rank4-r17   ENUMERATED {supported}     OPTIONAL
@@ -12666,10 +12826,10 @@ CodebookParametersfetype2PerBC-r17 ::= SEQUENCE {
     -- R1 23-9-1	Basic Features of Further Enhanced Port-Selection Type II Codebook (FeType-II)
     fetype2basic-r17    SEQUENCE (SIZE (1.. maxNrofCSI-RS-ResourcesExt-r16)) OF INTEGER (0..maxNrofCSI-RS-ResourcesAlt-1-r16),
     -- R1 23-9-2	Support of M=2 and R=1 for FeType-II
-    fetype2Rank1-r17    SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
+    fetype2R1-r17       SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
                                   OPTIONAL,
     -- R1 23-9-4	Support of R = 2 for FeType-II
-    fetype2Rank2-r17    SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
+    fetype2R2-r17       SEQUENCE (SIZE (1..maxNrofCSI-RS-ResourcesExt-r17)) OF INTEGER (0.. maxNrofCSI-RS-ResourcesAlt-1-r16)
                                   OPTIONAL
 }
 
@@ -12952,7 +13112,7 @@ FeatureSetDownlink-v1700 ::= SEQUENCE {
     }                                                                        OPTIONAL,
     -- R1  23-2-4	Simultaneous configuration of PDCCH repetition and multi-DCI based multi-TRP
     mTRP-PDCCH-multiDCI-multiTRP-r17 ENUMERATED {supported}                  OPTIONAL,
-    -- R1 33-2: 	Dynamic scheduling for multicast for PCell
+    -- R1 33-2:	Dynamic scheduling for multicast for PCell
     dynamicMulticastPCell-r17        ENUMERATED {supported}                  OPTIONAL,
     -- R1 23-2-1	PDCCH repetition
     mTRP-PDCCH-Repetition-r17        SEQUENCE {
@@ -12974,8 +13134,13 @@ FeatureSetDownlink-v1720 ::=                SEQUENCE {
             scs-120kHz-r17                              ENUMERATED {n1, n2, n4, n6, n8, n12, n16, n24, n32, n48, n64}    OPTIONAL
         }
     }                                                                                                                    OPTIONAL,
-    -- R1 33-5-1: SPS group-common PDSCH for multicast
+    -- R1 33-5-1: SPS group-common PDSCH for multicast on PCell
     sps-Multicast-r17                           ENUMERATED {supported}                                                   OPTIONAL
+}
+
+FeatureSetDownlink-v1730 ::=                SEQUENCE {
+    -- R1 25-19b: Support of PRS as spatial relation RS for SRS
+    prs-AsSpatialRelationRS-For-SRS-r17         ENUMERATED {supported}                                                   OPTIONAL
 }
 
 PDCCH-MonitoringOccasions-r16 ::= SEQUENCE {
@@ -13066,9 +13231,9 @@ FeatureSetDownlinkPerCC-v1620 ::=   SEQUENCE {
 FeatureSetDownlinkPerCC-v1700 ::=   SEQUENCE {
     supportedMinBandwidthDL-r17             SupportedBandwidth-v1700                                                OPTIONAL,
     broadcastSCell-r17                     ENUMERATED {supported}                                                  OPTIONAL,
-    -- R1 33-2g: 	MIMO layers for multicast PDSCH
+    -- R1 33-2g: MIMO layers for multicast PDSCH
     maxNumberMIMO-LayersMulticastPDSCH-r17  ENUMERATED {n2, n4, n8}                                                 OPTIONAL,
-    -- R1 33-2h: 	Dynamic scheduling for multicast for SCell
+    -- R1 33-2h: Dynamic scheduling for multicast for SCell
     dynamicMulticastSCell-r17               ENUMERATED {supported}                                                  OPTIONAL,
     supportedBandwidthDL-v1710              SupportedBandwidth-v1700                                                OPTIONAL,
     -- R4 24-1/24-2/24-3/24-4/24-5
@@ -13078,10 +13243,21 @@ FeatureSetDownlinkPerCC-v1700 ::=   SEQUENCE {
 FeatureSetDownlinkPerCC-v1720 ::=   SEQUENCE {
     -- R1 33-2j: Supported maximum modulation order used for maximum data rate calculation for multicast PDSCH
     maxModulationOrderForMulticastDataRateCalculation-r17  ENUMERATED {qam64, qam256, qam1024}                  OPTIONAL,
-    -- R1 33-1-2: 	FDM-ed unicast PDSCH and group-common PDSCH for broadcast
+    -- R1 33-1-2: FDM-ed unicast PDSCH and group-common PDSCH for broadcast
     fdm-BroadcastUnicast-r17            ENUMERATED {supported}                                                  OPTIONAL,
-    -- R1 33-3-2: 	FDM-ed unicast PDSCH and group-common PDSCH for multicast
+    -- R1 33-3-2: FDM-ed unicast PDSCH and one group-common PDSCH for multicast
     fdm-MulticastUnicast-r17            ENUMERATED {supported}                                                  OPTIONAL
+}
+
+FeatureSetDownlinkPerCC-v1730 ::=           SEQUENCE {
+    -- R1 33-3-3: Intra-slot TDM-ed unicast PDSCH and group-common PDSCH
+    intraSlotTDM-UnicastGroupCommonPDSCH-r17    ENUMERATED {yes, no}                    OPTIONAL,
+    -- R1 33-5-3: One SPS group-common PDSCH configuration for multicast for SCell
+    sps-MulticastSCell-r17                      ENUMERATED {supported}                  OPTIONAL,
+    -- R1 33-5-4: Up to 8 SPS group-common PDSCH configurations per CFR for multicast for SCell
+    sps-MulticastSCellMultiConfig-r17           INTEGER (1..8)                          OPTIONAL,
+    -- R1 33-1-1: Dynamic slot-level repetition for broadcast MTCH
+    dci-BroadcastWith16Repetitions-r17          ENUMERATED {supported}                  OPTIONAL
 }
 
 MultiDCI-MultiTRP-r16 ::=           SEQUENCE {
@@ -13156,6 +13332,10 @@ FeatureSets ::=    SEQUENCE {
     featureSetsDownlink-v1720           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v1720         OPTIONAL,
     featureSetsDownlinkPerCC-v1720      SEQUENCE (SIZE (1..maxPerCC-FeatureSets)) OF FeatureSetDownlinkPerCC-v1720      OPTIONAL,
     featureSetsUplink-v1720             SEQUENCE (SIZE (1..maxUplinkFeatureSets)) OF FeatureSetUplink-v1720             OPTIONAL
+    ]],
+    [[
+    featureSetsDownlink-v1730           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v1730         OPTIONAL,
+    featureSetsDownlinkPerCC-v1730      SEQUENCE (SIZE (1..maxPerCC-FeatureSets)) OF FeatureSetDownlinkPerCC-v1730      OPTIONAL
     ]]
 }
 
@@ -13902,7 +14082,16 @@ MeasAndMobParametersCommon ::=          SEQUENCE {
     serviceLinkPropDelayDiffReporting-r17   ENUMERATED {supported}                  OPTIONAL,
     -- R4 19-1-4 Network controlled small gap (NCSG) performing measurement based on flagderiveSSB-IndexFromCell-inter
     ncsg-SymbolLevelScheduleRestrictionInter-r17  ENUMERATED {supported}            OPTIONAL
-    ]]}
+    ]],
+    [[
+    eventD1-MeasReportTrigger-r17           ENUMERATED {supported}                  OPTIONAL,
+    independentGapConfig-maxCC-r17          SEQUENCE {
+        fr1-Only-r17                            INTEGER (1..32)                     OPTIONAL,
+        fr2-Only-r17                            INTEGER (1..32)                     OPTIONAL,
+        fr1-AndFR2-r17                          INTEGER (1..32)                     OPTIONAL
+    }                                                                               OPTIONAL
+    ]]
+}
 
 MeasAndMobParametersXDD-Diff ::=        SEQUENCE {
     intraAndInterF-MeasAndReport            ENUMERATED {supported}                  OPTIONAL,
@@ -13989,6 +14178,10 @@ MeasAndMobParametersMRDC-v1700 ::=      SEQUENCE {
     measAndMobParametersMRDC-Common-v1700      MeasAndMobParametersMRDC-Common-v1700        OPTIONAL
 }
 
+MeasAndMobParametersMRDC-v1730 ::=      SEQUENCE {
+    measAndMobParametersMRDC-Common-v1730   MeasAndMobParametersMRDC-Common-v1730           OPTIONAL
+}
+
 MeasAndMobParametersMRDC-Common ::=     SEQUENCE {
     independentGapConfig                    ENUMERATED {supported}                          OPTIONAL
 }
@@ -14018,6 +14211,14 @@ MeasAndMobParametersMRDC-Common-v1700 ::=   SEQUENCE {
     condHandoverWithSCG-NEDC-r17                        ENUMERATED {supported}              OPTIONAL
 }
 
+MeasAndMobParametersMRDC-Common-v1730 ::= SEQUENCE {
+    independentGapConfig-maxCC-r17          SEQUENCE {
+        fr1-Only-r17                            INTEGER (1..32)                             OPTIONAL,
+        fr2-Only-r17                            INTEGER (1..32)                             OPTIONAL,
+        fr1-AndFR2-r17                          INTEGER (1..32)                             OPTIONAL
+    }
+}
+
 MeasAndMobParametersMRDC-XDD-Diff ::=   SEQUENCE {
     sftd-MeasPSCell                         ENUMERATED {supported}                          OPTIONAL,
     sftd-MeasNR-Cell                        ENUMERATED {supported}                          OPTIONAL
@@ -14043,7 +14244,7 @@ MIMO-LayersUL ::=   ENUMERATED {oneLayer, twoLayers, fourLayers}
 
 MIMO-ParametersPerBand ::=          SEQUENCE {
     tci-StatePDSCH                      SEQUENCE {
-        maxNumberConfiguredTCIstatesPerCC   ENUMERATED {n4, n8, n16, n32, n64, n128}                                   OPTIONAL,
+        maxNumberConfiguredTCI-StatesPerCC  ENUMERATED {n4, n8, n16, n32, n64, n128}                                   OPTIONAL,
         maxNumberActiveTCI-PerBWP           ENUMERATED {n1, n2, n4, n8}                                                OPTIONAL
     }                                                                                                              OPTIONAL,
     additionalActiveTCI-StatePDCCH              ENUMERATED {supported}                                             OPTIONAL,
@@ -14438,6 +14639,9 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
     sfn-QCL-TypeD-Collision-twoTCI-r17          ENUMERATED {supported}                                         OPTIONAL,
     -- R1-23-7-1c	Basic Features of CSI Enhancement for Multi-TRP - number of CPUs
     mTRP-CSI-numCPU-r17                         ENUMERATED {n2, n3, n4}                                        OPTIONAL
+    ]],
+    [[
+    supportRepNumPDSCH-TDRA-DCI-1-2-r17         ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n16}                   OPTIONAL
     ]]
 }
 
@@ -14594,7 +14798,7 @@ MRDC-Parameters-v1620 ::=    SEQUENCE {
     tdm-restrictionDualTX-FDD-endc-r16   ENUMERATED {supported}                          OPTIONAL
 }
 
-MRDC-Parameters-v1630 ::= 	SEQUENCE {
+MRDC-Parameters-v1630 ::= SEQUENCE {
     -- R4 2-20 Maximum uplink duty cycle for FDD+TDD EN-DC power class 2
     maxUplinkDutyCycle-interBandENDC-FDD-TDD-PC2-r16  SEQUENCE {
         maxUplinkDutyCycle-FDD-TDD-EN-DC1-r16             ENUMERATED {n30, n40, n50, n60, n70, n80, n90, n100}    OPTIONAL,
@@ -14933,6 +15137,19 @@ Phy-ParametersCommon ::=            SEQUENCE {
     ta-BasedPDC-TN-NonSharedSpectrumChAccess-r17 ENUMERATED {supported}             OPTIONAL,
     -- R1 31-11: Directional Collision Handling in DC operation
     directionalCollisionDC-IAB-r17              ENUMERATED {supported}              OPTIONAL
+    ]],
+    [[
+    -- R1 33-6-1: DL priority indication for multicast in DCI
+    priorityIndicatorInDCI-Multicast-r17        ENUMERATED {supported}              OPTIONAL,
+    -- R1 33-6-1a: DL priority configuration for SPS multicast
+    priorityIndicatorInDCI-SPS-Multicast-r17    ENUMERATED {supported}              OPTIONAL,
+    -- R1 33-6-2: Two HARQ-ACK codebooks simultaneously constructed for supporting HARQ-ACK codebooks with different priorities
+    -- for unicast and multicast at a UE
+    twoHARQ-ACK-CodebookForUnicastAndMulticast-r17 ENUMERATED {supported}           OPTIONAL,
+    -- R1 33-6-3: More than one PUCCH for HARQ-ACK transmission for multicast or for unicast and multicast within a slot
+    multiPUCCH-HARQ-ACK-ForMulticastUnicast-r17 ENUMERATED {supported}              OPTIONAL,
+    srs-AdditionalRepetition-r17                ENUMERATED {supported}              OPTIONAL,
+    pusch-Repetition-CG-SDT-r17                 ENUMERATED {supported}              OPTIONAL
     ]]
 }
 
@@ -15343,6 +15560,12 @@ RF-Parameters ::=                                   SEQUENCE {
     [[
     supportedBandCombinationList-v1720                  BandCombinationList-v1720                   OPTIONAL,
     supportedBandCombinationList-UplinkTxSwitch-v1720   BandCombinationList-UplinkTxSwitch-v1720    OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1730                  BandCombinationList-v1730                   OPTIONAL,
+    supportedBandCombinationList-UplinkTxSwitch-v1730   BandCombinationList-UplinkTxSwitch-v1730    OPTIONAL,
+    supportedBandCombinationListSL-RelayDiscovery-v1730 BandCombinationListSL-Discovery-r17         OPTIONAL,
+    supportedBandCombinationListSL-NonRelayDiscovery-v1730 BandCombinationListSL-Discovery-r17      OPTIONAL
     ]]
 }
 
@@ -15600,7 +15823,7 @@ BandNR ::=                          SEQUENCE {
         tdd-r17                                   ENUMERATED {n2, n4, n8, n16}             OPTIONAL
     }                                                                                      OPTIONAL,
     -- R1 30-6: Repetition of PUSCH transmission scheduled by RAR UL grant and DCI format 0_0 with CRC scrambled by TC-RNTI
-    pusch-RepetitionCRC-r17                   ENUMERATED {supported}                       OPTIONAL,
+    pusch-RepetitionMsg3-r17                  ENUMERATED {supported}                       OPTIONAL,
     sharedSpectrumChAccessParamsPerBand-v1710 SharedSpectrumChAccessParamsPerBand-v1710    OPTIONAL,
     -- R4 25-2: Parallel measurements on cells belonging to a different NGSO satellite than a serving satellite without scheduling restrictions
     -- on normal operations with the serving cell
@@ -15625,7 +15848,7 @@ BandNR ::=                          SEQUENCE {
      -- R4 15-3 UE support of CBW for 480kHz SCS
     channelBWs-DL-SCS-480kHz-FR2-2-r17        BIT STRING (SIZE (8))                        OPTIONAL,
     channelBWs-UL-SCS-480kHz-FR2-2-r17        BIT STRING (SIZE (8))                        OPTIONAL,
-    	 -- R4 15-4 UE support of CBW for 960kHz SCS
+    -- R4 15-4 UE support of CBW for 960kHz SCS
     channelBWs-DL-SCS-960kHz-FR2-2-r17        BIT STRING (SIZE (8))                        OPTIONAL,
     channelBWs-UL-SCS-960kHz-FR2-2-r17        BIT STRING (SIZE (8))                        OPTIONAL,
     -- R4 17-1 UL gap for Tx power management
@@ -15695,6 +15918,24 @@ BandNR ::=                          SEQUENCE {
     -- R2: UE support of CBW for 120kHz SCS
     channelBWs-DL-SCS-120kHz-FR2-2-r17                              BIT STRING (SIZE (8))                                      OPTIONAL,
     channelBWs-UL-SCS-120kHz-FR2-2-r17                              BIT STRING (SIZE (8))                                      OPTIONAL
+    ]],
+    [[
+    -- R1 30-4a: DM-RS bundling for PUSCH repetition type A
+    dmrs-BundlingPUSCH-RepTypeA-r17                                 ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4b: DM-RS bundling for PUSCH repetition type B
+    dmrs-BundlingPUSCH-RepTypeB-r17                                 ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4c: DM-RS bundling for TB processing over multi-slot PUSCH
+    dmrs-BundlingPUSCH-multiSlot-r17                                ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4d: DMRS bundling for PUCCH repetitions
+    dmrs-BundlingPUCCH-Rep-r17                                      ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4e: Enhanced inter-slot frequency hopping with inter-slot bundling for PUSCH
+    interSlotFreqHopInterSlotBundlingPUSCH-r17                      ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4f: Enhanced inter-slot frequency hopping for PUCCH repetitions with DMRS bundling
+    interSlotFreqHopPUCCH-r17                                       ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4g: Restart DM-RS bundling
+    dmrs-BundlingRestart-r17                                        ENUMERATED {supported}                                     OPTIONAL,
+    -- R1 30-4h: DM-RS bundling for non-back-to-back transmission
+    dmrs-BundlingNonBackToBackTX-r17                                ENUMERATED {supported}                                     OPTIONAL
     ]]
 }
 
@@ -15763,6 +16004,11 @@ RF-ParametersMRDC ::=                   SEQUENCE {
         supportedBandCombinationList-v1720                  BandCombinationList-v1720               OPTIONAL
     }                                                                                               OPTIONAL,
     supportedBandCombinationList-UplinkTxSwitch-v1720   BandCombinationList-UplinkTxSwitch-v1720    OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1730                  BandCombinationList-v1730                   OPTIONAL,
+    supportedBandCombinationListNEDC-Only-v1730         BandCombinationList-v1730                   OPTIONAL,
+    supportedBandCombinationList-UplinkTxSwitch-v1730   BandCombinationList-UplinkTxSwitch-v1730    OPTIONAL
     ]]
 }
 
@@ -16144,6 +16390,9 @@ UE-CapabilityRequestFilterCommon ::=            SEQUENCE {
     ]],
     [[
     requestedCellGrouping-r16      SEQUENCE (SIZE (1..maxCellGroupings-r16)) OF CellGrouping-r16    OPTIONAL    -- Cond NRDC
+    ]],
+    [[
+    fallbackGroupFiveRequest-r17   ENUMERATED {true}                                    OPTIONAL     -- Need N
     ]]
 }
 
@@ -16207,6 +16456,11 @@ UE-MRDC-Capability-v1610 ::=        SEQUENCE {
 
 UE-MRDC-Capability-v1700 ::=        SEQUENCE {
     measAndMobParametersMRDC-v1700      MeasAndMobParametersMRDC-v1700,
+    nonCriticalExtension                UE-MRDC-Capability-v1730                                                        OPTIONAL
+}
+
+UE-MRDC-Capability-v1730 ::=        SEQUENCE {
+    measAndMobParametersMRDC-v1730      MeasAndMobParametersMRDC-v1730                                                  OPTIONAL,
     nonCriticalExtension                SEQUENCE {}                                                                     OPTIONAL
 }
 
@@ -17513,7 +17767,7 @@ SL-L2RelayUE-Config-r17 ::=        SEQUENCE {
 
 SL-RemoteUE-ToAddMod-r17 ::=       SEQUENCE {
     sl-L2IdentityRemote-r17            SL-DestinationIdentity-r16,
-    sl-SRAP-Config-Relay-r17           SL-SRAP-Config-r17                                                    OPTIONAL,    -- Need M
+    sl-SRAP-ConfigRelay-r17           SL-SRAP-Config-r17                                                    OPTIONAL,    -- Need M
     ...
 }
 
@@ -18212,7 +18466,6 @@ DRX-ConfigPTM-r17 ::=             SEQUENCE {
             sl160, sl320, spare15, spare14, spare13, spare12, spare11, spare10, spare9,
             spare8, spare7, spare6, spare5, spare4, spare3, spare2, spare1
     }                                                                      OPTIONAL,   -- Cond HARQFeedback
-
     drx-LongCycleStartOffsetPTM-r17   CHOICE {
         ms10                              INTEGER(0..9),
         ms20                              INTEGER(0..19),
@@ -18269,7 +18522,7 @@ MBS-SessionInfo-r17 ::=          SEQUENCE {
     mtch-SchedulingInfo-r17          DRX-ConfigPTM-Index-r17                      OPTIONAL, -- Need S
     mtch-NeighbourCell-r17           BIT STRING (SIZE(maxNeighCellMBS-r17))       OPTIONAL, -- Need S
     pdsch-ConfigIndex-r17            PDSCH-ConfigIndex-r17                        OPTIONAL, -- Need S
-    mtch-SSB-MappingWindowIndex-r17  MTCH-SSB-MappingWindowIndex-r17              OPTIONAL  -- Need R
+    mtch-SSB-MappingWindowIndex-r17  MTCH-SSB-MappingWindowIndex-r17              OPTIONAL  -- Cond MTCH-Mapping
 }
 
 DRX-ConfigPTM-Index-r17 ::=          INTEGER (0..maxNrofDRX-ConfigPTM-1-r17)
@@ -18426,6 +18679,8 @@ maxNrofCondCells-r16                    INTEGER ::= 8       -- Max number of con
 maxNrofCondCells-1-r17                  INTEGER ::= 7       -- Max number of conditional candidate SpCells minus 1
 maxNrofCSI-RS-ResourcesToAverage        INTEGER ::= 16      -- Max number for the (max) number of CSI-RS to average to determine cell measurement
 maxNrofDL-Allocations                   INTEGER ::= 16      -- Maximum number of PDSCH time domain resource allocations
+maxNrofDL-AllocationsExt-r17            INTEGER ::= 64      -- Maximum number of PDSCH time domain resource allocations for multi-PDSCH
+                                                            -- scheduling
 maxNrofPDU-Sessions-r17                 INTEGER ::= 256     -- Maximum number of PDU Sessions
 maxNrofSR-ConfigPerCellGroup            INTEGER ::= 8       -- Maximum number of SR configurations per cell group
 maxLCG-ID                               INTEGER ::= 7       -- Maximum value of LCG ID
@@ -18578,6 +18833,10 @@ maxNrofPUSCH-PathlossReferenceRSs-1-r16 INTEGER ::= 63      -- Maximum number of
                                                             -- extended minus 1
 maxNrofPUSCH-PathlossReferenceRSsDiff-r16  INTEGER ::= 60   -- Difference between maxNrofPUSCH-PathlossReferenceRSs-r16 and
                                                             -- maxNrofPUSCH-PathlossReferenceRSs
+maxNrofPathlossReferenceRSs-r17         INTEGER ::= 64      -- Maximum number of RSs used as pathloss reference for PUSCH, PUCCH, SRS
+                                                            -- power control for unified TCI state operation
+maxNrofPathlossReferenceRSs-1-r17       INTEGER ::= 63      -- Maximum number of RSs used as pathloss reference for PUSCH, PUCCH, SRS
+                                                            -- power control for unified TCI state operation minus 1
 maxNrofNAICS-Entries                    INTEGER ::= 8       -- Maximum number of supported NAICS capability set
 maxBands                                INTEGER ::= 1024    -- Maximum number of supported bands in UE capability.
 maxBandsMRDC                            INTEGER ::= 1280
@@ -18630,7 +18889,7 @@ maxCellSFTD                             INTEGER ::= 3       -- Maximum number of
 maxReportConfigId                       INTEGER ::= 64
 maxNrofCodebooks                        INTEGER ::= 16      -- Maximum number of codebooks supported by the UE
 maxNrofCSI-RS-ResourcesExt-r16          INTEGER ::= 16      -- Maximum number of codebook resources supported by the UE for eType2/Codebook combo
-maxNrofCSI-RS-ResourcesExt-r17          INTEGER ::= 8       -- Maximum number of codebook resources for fetype2Rank1 and fetype2Rank2
+maxNrofCSI-RS-ResourcesExt-r17          INTEGER ::= 8       -- Maximum number of codebook resources for fetype2R1 and fetype2R2
 maxNrofCSI-RS-Resources                 INTEGER ::= 7       -- Maximum number of codebook resources supported by the UE
 maxNrofCSI-RS-ResourcesAlt-r16          INTEGER ::= 512     -- Maximum number of alternative codebook resources supported by the UE
 maxNrofCSI-RS-ResourcesAlt-1-r16        INTEGER ::= 511     -- Maximum number of alternative codebook resources supported by the UE minus 1

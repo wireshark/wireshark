@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.2.0 (2022-09)
+-- 3GPP TS 38.331 V17.3.0 (2022-12)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -92,7 +92,7 @@ CG-CandidateList-r17-IEs ::=        SEQUENCE {
 }
 
 CG-CandidateInfo-r17 ::=            SEQUENCE {
-   	cg-CandidateInfoId-r17              CG-CandidateInfoId-r17,
+    cg-CandidateInfoId-r17              CG-CandidateInfoId-r17,
     candidateCG-Config-r17             OCTET STRING (CONTAINING CG-Config)
 }
 
@@ -314,6 +314,12 @@ CG-Config-v1640-IEs ::=             SEQUENCE {
 CG-Config-v1700-IEs ::=             SEQUENCE {
     candidateCellInfoListCPC-r17        CandidateCellInfoListCPC-r17                    OPTIONAL,
     twoPHRModeSCG-r17                   ENUMERATED {enabled}                            OPTIONAL,
+    nonCriticalExtension                CG-Config-v1730-IEs                             OPTIONAL
+}
+
+CG-Config-v1730-IEs ::=             SEQUENCE {
+    fr1-Carriers-SCG-r17                INTEGER (1..32)                                 OPTIONAL,
+    fr2-Carriers-SCG-r17                INTEGER (1..32)                                 OPTIONAL,
     nonCriticalExtension                SEQUENCE {}                                     OPTIONAL
 }
 
@@ -463,7 +469,7 @@ CG-ConfigInfo-v1540-IEs ::=     SEQUENCE {
     nonCriticalExtension            CG-ConfigInfo-v1560-IEs                                           OPTIONAL
 }
 
-CG-ConfigInfo-v1560-IEs ::=	 SEQUENCE {
+CG-ConfigInfo-v1560-IEs ::=  SEQUENCE {
     candidateCellInfoListMN-EUTRA       OCTET STRING                                                  OPTIONAL,
     candidateCellInfoListSN-EUTRA       OCTET STRING                                                  OPTIONAL,
     sourceConfigSCG-EUTRA               OCTET STRING                                                  OPTIONAL,
@@ -529,6 +535,12 @@ CG-ConfigInfo-v1700-IEs ::=             SEQUENCE {
     candidateCellListCPC-r17                CandidateCellListCPC-r17                     OPTIONAL,
     twoPHRModeMCG-r17                       ENUMERATED {enabled}                         OPTIONAL,
     lowMobilityEvaluationConnectedInPCell-r17 ENUMERATED {enabled}                       OPTIONAL,
+    nonCriticalExtension                    CG-ConfigInfo-v1730-IEs                      OPTIONAL
+}
+
+CG-ConfigInfo-v1730-IEs ::=             SEQUENCE {
+    fr1-Carriers-MCG-r17                    INTEGER (1..32)                              OPTIONAL,
+    fr2-Carriers-MCG-r17                    INTEGER (1..32)                              OPTIONAL,
     nonCriticalExtension                    SEQUENCE {}                                  OPTIONAL
 }
 
@@ -664,8 +676,10 @@ MeasConfigMN ::= SEQUENCE {
     ...,
     [[
     measGapConfigFR2                    CHOICE {release NULL, setup GapConfig }                                OPTIONAL
+    ]],
+    [[
+    interFreqNoGap-r16                  ENUMERATED {true}                                         OPTIONAL
     ]]
-
 }
 
 MRDC-AssistanceInfo ::= SEQUENCE {

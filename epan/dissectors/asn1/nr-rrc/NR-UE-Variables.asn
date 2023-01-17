@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.2.0 (2022-09)
+-- 3GPP TS 38.331 V17.3.0 (2022-12)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -85,7 +85,7 @@ VarConnEstFailReport-r16 ::= SEQUENCE {
 -- TAG-VARCONNESTFAILREPORT-STOP
 -- TAG-VARCONNESTFAILREPORTLIST-START
 
-VarConnEstFailReportLIST-r17 ::= SEQUENCE {
+VarConnEstFailReportList-r17 ::= SEQUENCE {
     connEstFailReportList-r17        SEQUENCE (SIZE (1..maxCEFReport-r17)) OF VarConnEstFailReport-r16
 }
 

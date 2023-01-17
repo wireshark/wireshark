@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.2.0 (2022-09)
+-- 3GPP TS 38.331 V17.3.0 (2022-12)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -37,7 +37,7 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     sl-MeasPreConfig-r16                        SL-MeasConfigCommon-r16                                               OPTIONAL,
     sl-OffsetDFN-r16                            INTEGER (1..1000)                                                     OPTIONAL,
     t400-r16                                    ENUMERATED{ms100, ms200, ms300, ms400, ms600, ms1000, ms1500, ms2000} OPTIONAL,
-    sl-MaxNumConsecutiveDTX-r16                 ENUMERATED {n1, n2, n3, n4, n6, n8, n16, n32}	                      OPTIONAL,
+    sl-MaxNumConsecutiveDTX-r16                 ENUMERATED {n1, n2, n3, n4, n6, n8, n16, n32}                         OPTIONAL,
     sl-SSB-PriorityNR-r16                       INTEGER (1..8)                                                        OPTIONAL,
     sl-PreconfigGeneral-r16                     SL-PreconfigGeneral-r16                                               OPTIONAL,
     sl-UE-SelectedPreConfig-r16                 SL-UE-SelectedConfig-r16                                              OPTIONAL,
