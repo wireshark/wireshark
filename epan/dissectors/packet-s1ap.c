@@ -3538,6 +3538,7 @@ dissect_s1ap_CELevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CELevel);
+    volatile int saved_offset = offset;
     if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
         (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
       TRY {
@@ -3556,6 +3557,7 @@ dissect_s1ap_CELevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
       }
       ENDTRY;
     }
+    offset = saved_offset;
   }
 
 
@@ -7727,6 +7729,7 @@ dissect_s1ap_LastVisitedUTRANCellInformation(tvbuff_t *tvb _U_, int offset _U_, 
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedUTRANCellInformation);
+    volatile int saved_offset = offset;
     TRY {
       dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -7734,6 +7737,7 @@ dissect_s1ap_LastVisitedUTRANCellInformation(tvbuff_t *tvb _U_, int offset _U_, 
       show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;
+    offset = saved_offset;
   }
 
 
@@ -7774,6 +7778,7 @@ dissect_s1ap_LastVisitedNGRANCellInformation(tvbuff_t *tvb _U_, int offset _U_, 
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedNGRANCellInformation);
+    volatile int saved_offset = offset;
     TRY {
       dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -7781,6 +7786,7 @@ dissect_s1ap_LastVisitedNGRANCellInformation(tvbuff_t *tvb _U_, int offset _U_, 
       show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;
+    offset = saved_offset;
   }
 
 
@@ -8892,6 +8898,7 @@ dissect_s1ap_NB_IoT_RLF_Report_Container(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NB_IoT_RLF_Report_Container);
+    volatile int saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_NB_r16_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -8899,6 +8906,7 @@ dissect_s1ap_NB_IoT_RLF_Report_Container(tvbuff_t *tvb _U_, int offset _U_, asn1
       show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;
+    offset = saved_offset;
   }
 
 
@@ -9864,13 +9872,15 @@ dissect_s1ap_UE_RLF_Report_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
-      TRY {
-        dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      }
-      CATCH_BOUNDS_ERRORS {
-        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
-      }
-      ENDTRY;
+    volatile int saved_offset = offset;
+    TRY {
+      dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
+    offset = saved_offset;
   }
 
 
@@ -9891,6 +9901,7 @@ dissect_s1ap_UE_RLF_Report_Container_for_extended_bands(tvbuff_t *tvb _U_, int o
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container_for_extended_bands);
+    volatile int saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_v9e0_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -9898,6 +9909,7 @@ dissect_s1ap_UE_RLF_Report_Container_for_extended_bands(tvbuff_t *tvb _U_, int o
       show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;
+    offset = saved_offset;
   }
 
 
@@ -9938,6 +9950,7 @@ dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   if (g_s1ap_dissect_container) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
+    volatile int saved_offset = offset;
 
     switch(s1ap_data->transparent_container_type){
       case SOURCE_TO_TARGET_TRANSPARENT_CONTAINER:
@@ -9974,6 +9987,7 @@ dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
       default:
         break;
     }
+    offset = saved_offset;
   }
 
 
@@ -10594,7 +10608,7 @@ dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer(tvbuff_t *tvb _U_, int o
     show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   }
   ENDTRY;
-    offset = _offset;
+  offset = _offset;
 
 
 
@@ -10923,8 +10937,8 @@ static const per_sequence_t TargeteNB_ToSourceeNB_TransparentContainer_sequence[
 
 static int
 dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-    volatile guint32 _offset;
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  volatile guint32 _offset;
 
   s1ap_data->transparent_container_type = TARGET_TO_SOURCE_TRANSPARENT_CONTAINER;
   _offset = offset;
@@ -10936,7 +10950,7 @@ dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int o
     show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   }
   ENDTRY;
-    offset = _offset;
+  offset = _offset;
 
 
   return offset;
@@ -14537,6 +14551,7 @@ dissect_s1ap_T_uERLFReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
+    volatile int saved_offset = offset;
     TRY {
       dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     }
@@ -14544,6 +14559,7 @@ dissect_s1ap_T_uERLFReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
       show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;
+    offset = saved_offset;
   }
 
 

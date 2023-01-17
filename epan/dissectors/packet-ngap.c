@@ -8136,6 +8136,7 @@ dissect_ngap_CoverageEnhancementLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   if (cov_enh_level_tvb && ngap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_CoverageEnhancementLevel);
+    volatile int saved_offset = offset;
     if ((ngap_is_nbiot_ue(actx->pinfo) && (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_AUTOMATIC)) ||
         (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_NBIOT)) {
       TRY {
@@ -8154,6 +8155,7 @@ dissect_ngap_CoverageEnhancementLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
       }
       ENDTRY;
     }
+    offset = saved_offset;
   }
 
 
@@ -14277,6 +14279,7 @@ dissect_ngap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
     } else {
       if (nas_5gs_handle) {
         proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NAS_PDU);
+        volatile int saved_offset;
         TRY {
           call_dissector(nas_5gs_handle, parameter_tvb, actx->pinfo, subtree);
         }
@@ -14284,6 +14287,7 @@ dissect_ngap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
           show_exception(tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;
+        offset = saved_offset;
       }
     }
   }
