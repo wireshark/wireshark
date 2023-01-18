@@ -1,3 +1,4 @@
 usr/share/wireshark/*
+usr/share/doc/wireshark/*
 etc/wireshark/init.lua
 packaging/debian/maxmind_db_paths /usr/share/wireshark

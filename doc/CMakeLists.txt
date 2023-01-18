@@ -133,10 +133,16 @@ if(ASCIIDOCTOR_FOUND)
 	)
 endif()
 
-#
-# Installation of HTML manuals is done
-# elsewhere to CMAKE_INSTALL_DATADIR.
-#
+list(APPEND HTML_INSTALL_FILES
+	${CMAKE_SOURCE_DIR}/resources/share/doc/wireshark/ipmap.html
+)
+
+install(
+	FILES
+		${HTML_INSTALL_FILES}
+	DESTINATION
+		${CMAKE_INSTALL_DOCDIR}
+)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

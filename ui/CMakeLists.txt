@@ -122,8 +122,6 @@ if(MSVC)
 	)
 endif()
 
-add_definitions(-DDOC_DIR="${CMAKE_INSTALL_FULL_DOCDIR}")
-
 CHECKAPI(
 	NAME
 	  ui-base

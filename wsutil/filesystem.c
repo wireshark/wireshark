@@ -74,6 +74,7 @@ char *persconffile_dir = NULL;
 char *datafile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
+char *doc_dir = NULL;
 
 /* Directory from which the executable came. */
 static char *progfile_dir = NULL;
@@ -1042,6 +1043,59 @@ get_datafile_dir(void)
     }
 #endif
     return datafile_dir;
+}
+
+const char *
+get_doc_dir(void)
+{
+    if (doc_dir != NULL)
+        return doc_dir;
+
+#if defined(__MINGW64__)
+    if (running_in_build_directory_flag) {
+        doc_dir = g_strdup(install_prefix);
+    } else {
+        doc_dir = g_build_filename(install_prefix, DOC_DIR, (gchar *)NULL);
+    }
+#elif defined(_WIN32)
+    if (progfile_dir != NULL) {
+        doc_dir = g_strdup(progfile_dir);
+    } else {
+        /* Fall back on the default installation directory. */
+        doc_dir = g_strdup("C:\\Program Files\\Wireshark\\");
+    }
+#else
+
+    /* No environment variable for this. */
+    if (false) {
+        ;
+    }
+#ifdef __APPLE__
+    /*
+     * If we're running from an app bundle and weren't started
+     * with special privileges, use the Contents/Resources/share/wireshark
+     * subdirectory of the app bundle.
+     *
+     * (appbundle_dir is not set to a non-null value if we're
+     * started with special privileges, so we need only check
+     * it; we don't need to call started_with_special_privs().)
+     */
+    else if (appbundle_dir != NULL) {
+        doc_dir = ws_strdup_printf("%s/Contents/Resources/%s",
+                                        appbundle_dir, DOC_DIR);
+    }
+#endif
+    else if (running_in_build_directory_flag && progfile_dir != NULL) {
+        /*
+         * We're (probably) being run from the build directory and
+         * weren't started with special privileges.
+         */
+        doc_dir = g_strdup(progfile_dir);
+    } else {
+        doc_dir = g_strdup(DOC_DIR);
+    }
+#endif
+    return doc_dir;
 }
 
 /*
@@ -2530,6 +2584,27 @@ data_file_url(const gchar *filename)
     return uri;
 }
 
+gchar *
+doc_file_url(const gchar *filename)
+{
+    gchar *file_path;
+    gchar *uri;
+
+    /* Absolute path? */
+    if(g_path_is_absolute(filename)) {
+        file_path = g_strdup(filename);
+    } else {
+        file_path = ws_strdup_printf("%s/%s", get_doc_dir(), filename);
+    }
+
+    /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
+
+    /* convert filename to uri */
+    uri = g_filename_to_uri(file_path, NULL, NULL);
+    g_free(file_path);
+    return uri;
+}
+
 void
 free_progdirs(void)
 {
@@ -2543,6 +2618,8 @@ free_progdirs(void)
     persconfprofile = NULL;
     g_free(progfile_dir);
     progfile_dir = NULL;
+    g_free(doc_dir);
+    doc_dir = NULL;
 #ifdef __MINGW64__
     g_free(install_prefix);
     install_prefix = NULL;

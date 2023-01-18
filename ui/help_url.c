@@ -43,12 +43,15 @@ user_guide_url(const gchar *page) {
         g_string_printf(url, "file:///%s/%s", ug_dir->str, page);
     }
     g_string_free(ug_dir, TRUE);
-#elif defined(DOC_DIR)
-    if (g_file_test(DOC_DIR "/guides/wsug_html_chunked", G_FILE_TEST_IS_DIR)) {
-        /* try to open the HTML page from wireshark.org instead */
-        g_string_printf(url, "file://" DOC_DIR "/guides/wsug_html_chunked/%s", page);
+#else
+    char *path = g_build_filename(get_doc_dir(), "wsug_html_chunked", page, NULL);
+    if (g_file_test(path, G_FILE_TEST_IS_REGULAR)) {
+        /* try to open the HTML page from the filesystem */
+        g_string_printf(url, "file://%s", path);
     }
-#endif /* _WIN32 / DOC_DIR */
+    g_free(path);
+    path = NULL;
+#endif /* _WIN32 */
 
 
     /* Fall back to wireshark.org. */
@@ -107,34 +110,34 @@ topic_action_url(topic_action_e action)
 
     /* local manual pages */
     case(LOCALPAGE_MAN_WIRESHARK):
-        url = data_file_url("wireshark.html");
+        url = doc_file_url("wireshark.html");
         break;
     case(LOCALPAGE_MAN_WIRESHARK_FILTER):
-        url = data_file_url("wireshark-filter.html");
+        url = doc_file_url("wireshark-filter.html");
         break;
     case(LOCALPAGE_MAN_CAPINFOS):
-        url = data_file_url("capinfos.html");
+        url = doc_file_url("capinfos.html");
         break;
     case(LOCALPAGE_MAN_DUMPCAP):
-        url = data_file_url("dumpcap.html");
+        url = doc_file_url("dumpcap.html");
         break;
     case(LOCALPAGE_MAN_EDITCAP):
-        url = data_file_url("editcap.html");
+        url = doc_file_url("editcap.html");
         break;
     case(LOCALPAGE_MAN_MERGECAP):
-        url = data_file_url("mergecap.html");
+        url = doc_file_url("mergecap.html");
         break;
     case(LOCALPAGE_MAN_RAWSHARK):
-        url = data_file_url("rawshark.html");
+        url = doc_file_url("rawshark.html");
         break;
     case(LOCALPAGE_MAN_REORDERCAP):
-        url = data_file_url("reordercap.html");
+        url = doc_file_url("reordercap.html");
         break;
     case(LOCALPAGE_MAN_TEXT2PCAP):
-        url = data_file_url("text2pcap.html");
+        url = doc_file_url("text2pcap.html");
         break;
     case(LOCALPAGE_MAN_TSHARK):
-        url = data_file_url("tshark.html");
+        url = doc_file_url("tshark.html");
         break;
 
     /* local help pages (User's Guide) */
@@ -202,7 +205,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChAdvExpert.html");
         break;
     case(HELP_EXTCAP_OPTIONS_DIALOG):
-        url = data_file_url("extcap.html");
+        url = doc_file_url("extcap.html");
         break;
     case(HELP_STATS_SUMMARY_DIALOG):
         url = user_guide_url("ChStatSummary.html");

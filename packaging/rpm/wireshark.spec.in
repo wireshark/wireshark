@@ -472,14 +472,11 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %defattr(-,root,root)
 %doc AUTHORS COPYING NEWS README.md
+%doc %{_datadir}/doc/wireshark/*.html
 
 # Include the User Guide:
 %if %{with guides}
 %docdir %{_datadir}/doc/wireshark/
-# HTML manuals are installed to %%{_datadir}/wireshark because that is
-# where Wireshark's Help menu expects to launch them from.
-%exclude %{_datadir}/doc/wireshark/*.html
-%{_datadir}/doc/wireshark/
 %endif
 
 # Don't pick up any of the wireshark (GUI) binaries here

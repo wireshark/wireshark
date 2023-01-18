@@ -1935,11 +1935,13 @@ set(INSTALL_FILES
 	resources/share/wireshark/colorfilters
 	resources/share/wireshark/dfilter_macros
 	resources/share/wireshark/dfilters
-	resources/share/wireshark/ipmap.html
 	resources/share/wireshark/pdml2html.xsl
 	resources/share/wireshark/smi_modules
 	services
 	wka
+)
+set(DOC_FILES
+	resources/share/doc/wireshark/ipmap.html
 )
 
 if (BUILD_logray)
@@ -1953,6 +1955,8 @@ endif()
 if (ASCIIDOCTOR_FOUND)
 	list(APPEND INSTALL_FILES
 		${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
+	)
+	list(APPEND DOC_FILES
 		${CMAKE_BINARY_DIR}/doc/androiddump.html
 		${CMAKE_BINARY_DIR}/doc/udpdump.html
 		${CMAKE_BINARY_DIR}/doc/capinfos.html
@@ -1975,20 +1979,20 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 	)
 	if(MAXMINDDB_FOUND)
-		list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
 	endif()
 
 	if (BUILD_corbaidl2wrs)
-		list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
 	endif()
 	if (BUILD_xxx2deb)
-		list(APPEND INSTALL_FILES
+		list(APPEND DOC_FILES
 			${CMAKE_BINARY_DIR}/doc/asn2deb.html
 			${CMAKE_BINARY_DIR}/doc/idl2deb.html
 		)
 	endif()
 	if (BUILD_logray)
-		list(APPEND LOG_INSTALL_FILES
+		list(APPEND DOC_FILES
 			${CMAKE_BINARY_DIR}/doc/falcodump.html
 		)
 	endif()
@@ -1996,7 +2000,7 @@ endif()
 
 if(NOT WIN32)
 	# We do this for Windows further down in the copy_data_files target.
-	list(APPEND INSTALL_FILES COPYING)
+	list(APPEND DOC_FILES COPYING)
 endif()
 
 if(USE_REPOSITORY)
@@ -2228,7 +2232,7 @@ if(WIN32 AND NOT USE_MSYSTEM)
 	endforeach()
 endif()
 
-foreach(_install_file ${INSTALL_FILES})
+foreach(_install_file ${INSTALL_FILES} ${DOC_FILES})
 	get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
 	get_filename_component(_install_basename "${_install_file}" NAME)
 	set(_output_file "${DATAFILE_DIR}/${_install_basename}")
