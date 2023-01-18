@@ -285,6 +285,18 @@ static void load_plugins(sinsp &inspector) {
         ws_dir_close(dir);
     }
     g_free(plugin_path);
+
+    plugin_path = g_build_filename(get_plugins_pers_dir_with_version(), "falco", NULL);
+
+    if ((dir = ws_dir_open(plugin_path, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            char *libname = g_build_filename(plugin_path, ws_dir_get_name(file), NULL);
+            inspector.register_plugin(libname);
+            g_free(libname);
+        }
+        ws_dir_close(dir);
+    }
+    g_free(plugin_path);
 }
 
 // Given a key, try to find its value in a JSON object.

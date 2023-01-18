@@ -377,7 +377,8 @@ proto_register_falcoplugin(void)
     WS_DIR *dir;
     WS_DIRENT *file;
     char *filename;
-    char *dname = g_build_filename(get_plugins_dir_with_version(), "falco", NULL);
+    char *spdname = g_build_filename(get_plugins_dir_with_version(), "falco", NULL);
+    char *ppdname = g_build_filename(get_plugins_pers_dir_with_version(), "falco", NULL);
 
     /*
      * We scan the plugins directory twice. The first time we count how many
@@ -385,7 +386,14 @@ proto_register_falcoplugin(void)
      * amount of memory. The second time we actually load and configure
      * each plugin.
      */
-    if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
+    if ((dir = ws_dir_open(spdname, 0, NULL)) != NULL) {
+        while ((ws_dir_read_name(dir)) != NULL) {
+            nbridges++;
+        }
+        ws_dir_close(dir);
+    }
+
+    if ((dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
         while ((ws_dir_read_name(dir)) != NULL) {
             nbridges++;
         }
@@ -397,15 +405,26 @@ proto_register_falcoplugin(void)
     bridges = g_new0(bridge_info, nbridges);
     nbridges = 0;
 
-    if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
+    if ((dir = ws_dir_open(spdname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
-            filename = g_build_filename(dname, ws_dir_get_name(file), NULL);
+            filename = g_build_filename(spdname, ws_dir_get_name(file), NULL);
             import_plugin(filename);
             g_free(filename);
         }
         ws_dir_close(dir);
     }
-    g_free(dname);
+
+    if ((dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            filename = g_build_filename(ppdname, ws_dir_get_name(file), NULL);
+            import_plugin(filename);
+            g_free(filename);
+        }
+        ws_dir_close(dir);
+    }
+
+    g_free(spdname);
+    g_free(ppdname);
 
     /*
      * Setup protocol subtree array
