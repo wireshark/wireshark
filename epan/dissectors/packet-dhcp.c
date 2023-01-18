@@ -183,7 +183,8 @@ static int hf_dhcp_option_value = -1;
 static int hf_dhcp_option_value_8 = -1;
 static int hf_dhcp_option_value_16 = -1;
 static int hf_dhcp_option_value_u32 = -1;
-static int hf_dhcp_option_value_i32 = -1;
+static int hf_dhcp_option_value_s_secs = -1;
+static int hf_dhcp_option_value_u_secs = -1;
 static int hf_dhcp_option_value_stringz = -1;
 static int hf_dhcp_option_value_ip_address = -1;
 static int hf_dhcp_option_value_boolean = -1;
@@ -1637,6 +1638,28 @@ static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 255 */ { "End",					opaque, NULL }
 };
 
+static void
+dhcp_time_in_s_secs_fmt(gchar *s, guint32 v)
+{
+	/* Only used by option 2 Time Offset, which is deprecated. */
+	char* secs_str = signed_time_secs_to_str(NULL, (gint32)v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", secs_str, (gint32)v);
+	wmem_free(NULL, secs_str);
+}
+
+static void
+dhcp_time_in_u_secs_fmt(gchar *s, guint32 v)
+{
+	/* RFC 2131: 3.3 Interpretation and representation of time values */
+	if (v != 0xffffffff) {
+		char* secs_str = unsigned_time_secs_to_str(NULL, v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", secs_str, v);
+		wmem_free(NULL, secs_str);
+	} else {
+		snprintf(s, ITEM_LABEL_LENGTH, "infinity (%d)", v);
+	}
+}
+
 /*-------------------------------------
  * UAT for BOOTP
  *-------------------------------------
@@ -1721,8 +1744,6 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 			 gint *hf, struct basic_types_hfs* hf_default)
 {
 	int	i, left;
-	gint32	time_s_secs;
-	guint32 time_u_secs;
 	int	consumed = 0;
 
 	switch (ftype) {
@@ -1861,9 +1882,7 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 		}
 
 		if (hf != NULL) {
-			time_s_secs = tvb_get_ntohil(tvb, offset);
-			proto_tree_add_int_format_value(tree, *hf,
-				tvb, offset, 4, time_s_secs, "(%ds) %s", time_s_secs, signed_time_secs_to_str(wmem_packet_scope(), time_s_secs));
+			proto_tree_add_item(tree, *hf, tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
 		else if (hf_default->time_in_s_secs != NULL)
 			proto_tree_add_item(tree, *hf_default->time_in_s_secs, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1878,10 +1897,7 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 		}
 
 		if (hf != NULL) {
-			time_u_secs = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint_format_value(tree, *hf,
-				tvb, offset, 4, time_u_secs, "(%us) %s", time_u_secs,
-				((time_u_secs == 0xffffffff) ? "infinity" : unsigned_time_secs_to_str(wmem_packet_scope(), time_u_secs)));
+			proto_tree_add_item(tree, *hf, tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
 		else if (hf_default->time_in_u_secs != NULL)
 			proto_tree_add_item(tree, *hf_default->time_in_u_secs, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1910,8 +1926,8 @@ dissect_dhcpopt_basic_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		&hf_dhcp_option_value_16,
 		&hf_dhcp_option_value_16,
 		&hf_dhcp_option_value_u32,
-		&hf_dhcp_option_value_i32,
-		&hf_dhcp_option_value_u32
+		&hf_dhcp_option_value_s_secs,
+		&hf_dhcp_option_value_u_secs,
 	};
 
 	opt = dhcp_get_opt(option_data->option);
@@ -7912,9 +7928,14 @@ proto_register_dhcp(void)
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "32-bit DHCP/BOOTP option value", HFILL }},
 
-		{ &hf_dhcp_option_value_i32,
-		  { "Value", "dhcp.option.value.int",
-		    FT_INT32, BASE_DEC, NULL, 0x0,
+		{ &hf_dhcp_option_value_s_secs,
+		  { "Value", "dhcp.option.value.secs",
+		    FT_INT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_s_secs_fmt), 0x0,
+		    "32-bit DHCP/BOOTP option value", HFILL }},
+
+		{ &hf_dhcp_option_value_u_secs,
+		  { "Value", "dhcp.option.value.usecs",
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "32-bit DHCP/BOOTP option value", HFILL }},
 
 		{ &hf_dhcp_option_value_stringz,
@@ -7944,7 +7965,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_time_offset,
 		  { "Time Offset", "dhcp.option.time_offset",
-		    FT_INT32, BASE_DEC, NULL, 0x00,
+		    FT_INT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_s_secs_fmt), 0x0,
 		    "Option 2: Time Offset", HFILL }},
 
 		{ &hf_dhcp_option_router,
@@ -8059,7 +8080,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_path_mtu_aging_timeout,
 		  { "Path MTU Aging Timeout", "dhcp.option.path_mtu_aging_timeout",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 24: Path MTU Aging Timeout", HFILL }},
 
 		{ &hf_dhcp_option_path_mtu_plateau_table_item,
@@ -8119,7 +8140,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_arp_cache_timeout,
 		  { "ARP Cache Timeout", "dhcp.option.arp_cache_timeout",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 35: ARP Cache Timeout", HFILL }},
 
 		{ &hf_dhcp_option_ethernet_encapsulation,
@@ -8134,7 +8155,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_tcp_keepalive_interval,
 		  { "TCP Keepalive Interval", "dhcp.option.tcp_keepalive_interval",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 38: TCP Keepalive Interval", HFILL }},
 
 		{ &hf_dhcp_option_tcp_keepalive_garbage,
@@ -8737,7 +8758,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_ip_address_lease_time,
 		  { "IP Address Lease Time", "dhcp.option.ip_address_lease_time",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 51: IP Address Lease Time", HFILL }},
 
 		{ &hf_dhcp_option_option_overload,
@@ -8772,12 +8793,12 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_renewal_time_value,
 		  { "Renewal Time Value", "dhcp.option.renewal_time_value",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 58: Renewal Time Value", HFILL }},
 
 		{ &hf_dhcp_option_rebinding_time_value,
 		  { "Rebinding Time Value", "dhcp.option.rebinding_time_value",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 59: Rebinding Time Value", HFILL }},
 
 		{ &hf_dhcp_option_vendor_class_id,
@@ -9406,7 +9427,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_client_last_transaction_time,
 		  { "Client last transaction time", "dhcp.option.client_last_transaction_time",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 91: Client last transaction time", HFILL }},
 
 		{ &hf_dhcp_option_associated_ip_option,
@@ -9786,7 +9807,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_option_bulk_lease_start_time_of_state,
 		  { "Start Time Of State", "dhcp.option.bulk_lease.start_time_of_state",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "DHCPv4 Bulk Leasequery Start Time Of State", HFILL }},
 
 		{ &hf_dhcp_option_bulk_lease_query_start,
