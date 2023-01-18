@@ -2188,6 +2188,8 @@ set_target_properties(dissectors PROPERTIES
 
 install(FILES ${DISSECTOR_PUBLIC_HEADERS}
 	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/dissectors"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 set(CHECKAPI_FILE_LIST "${CMAKE_CURRENT_BINARY_DIR}/files.txt")

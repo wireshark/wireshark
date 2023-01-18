@@ -3766,6 +3766,8 @@ set(SHARK_PUBLIC_HEADERS
 
 install(FILES ${SHARK_PUBLIC_HEADERS}
 	DESTINATION ${PROJECT_INSTALL_INCLUDEDIR}
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
@@ -3824,6 +3826,9 @@ install(
 		"${CMAKE_BINARY_DIR}/wireshark.pc"
 	DESTINATION
 		${CMAKE_INSTALL_LIBDIR}/pkgconfig
+	COMPONENT
+		"Development"
+	EXCLUDE_FROM_ALL
 )
 
 install(
@@ -3875,10 +3880,15 @@ install(
 		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
 	DESTINATION
 		${WIRESHARK_INSTALL_CMAKEDIR}
+	COMPONENT
+		"Development"
+	EXCLUDE_FROM_ALL
 )
 
 install(EXPORT WiresharkTargets
 	DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 if (DOXYGEN_EXECUTABLE)

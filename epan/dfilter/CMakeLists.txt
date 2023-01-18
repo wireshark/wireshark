@@ -93,6 +93,8 @@ set_target_properties(dfilter PROPERTIES
 
 install(FILES ${DFILTER_PUBLIC_HEADERS}
 	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/dfilter"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 CHECKAPI(

@@ -390,6 +390,8 @@ install(TARGETS epan
 
 install(FILES ${LIBWIRESHARK_PUBLIC_HEADERS}
 	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 add_executable(exntest EXCLUDE_FROM_ALL exntest.c except.c)

@@ -94,6 +94,8 @@ set_target_properties(wmem_test PROPERTIES
 
 install(FILES ${WMEM_PUBLIC_HEADERS}
 	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil/wmem"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 CHECKAPI(

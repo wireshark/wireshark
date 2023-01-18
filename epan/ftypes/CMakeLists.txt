@@ -59,6 +59,8 @@ set_target_properties(ftypes PROPERTIES
 
 install(FILES ${FTYPE_PUBLIC_HEADERS}
 	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/ftypes"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
 )
 
 CHECKAPI(
