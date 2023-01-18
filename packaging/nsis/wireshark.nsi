@@ -1103,13 +1103,6 @@ File "${STAGING_DIR}\captype.exe"
 File "${STAGING_DIR}\captype.html"
 SectionEnd
 
-Section "DFTest" SecDFTest
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\dftest.exe"
-File "${STAGING_DIR}\dftest.html"
-SectionEnd
-
 Section "Editcap" SecEditcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1253,7 +1246,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCaptype} "Print the type(format) of capture files."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Show display filter byte-code, for debugging dfilter routines."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool - read IPv4 and IPv6 addresses and print their IP geolocation information."

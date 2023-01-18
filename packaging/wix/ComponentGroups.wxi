@@ -361,24 +361,6 @@
     </ComponentGroup>
   </Fragment>
 
-  <!-- DFTest -->
-  <Fragment>
-    <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="cmpDFTest_exe" Guid="*">
-        <File Id="filDFTest_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.exe" />
-      </Component>
-      <Component Id="cmpDFTest_html" Guid="*">
-        <File Id="filDFTest_html" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.html" />
-      </Component>
-    </DirectoryRef>
-  </Fragment>
-  <Fragment>
-    <ComponentGroup Id="CG.Tools.DFTest">
-      <ComponentRef Id="cmpDFTest_exe" />
-      <ComponentRef Id="cmpDFTest_html" />
-    </ComponentGroup>
-  </Fragment>
-
   <!-- Capinfos -->
   <Fragment>
     <DirectoryRef Id="INSTALLFOLDER">
