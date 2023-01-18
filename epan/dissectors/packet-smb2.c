@@ -463,6 +463,8 @@ static int hf_smb2_share_caps_assymetric = -1;
 static int hf_smb2_share_caps_redirect_to_owner = -1;
 static int hf_smb2_create_flags = -1;
 static int hf_smb2_lock_count = -1;
+static int hf_smb2_lock_sequence_number = -1;
+static int hf_smb2_lock_sequence_index = -1;
 static int hf_smb2_min_count = -1;
 static int hf_smb2_remaining_bytes = -1;
 static int hf_smb2_channel_info_offset = -1;
@@ -6159,8 +6161,9 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb2_lock_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	/* reserved */
-	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	/* Lock Sequence Number/Index */
+	proto_tree_add_item(tree, hf_smb2_lock_sequence_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_lock_sequence_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* fid */
@@ -12764,6 +12767,16 @@ proto_register_smb2(void)
 		{ &hf_smb2_lock_count,
 			{ "Lock Count", "smb2.lock_count", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_lock_sequence_number,
+			{ "Lock Sequence Number", "smb2.lock_sequence_number", FT_UINT32, BASE_DEC,
+			NULL, 0x0000000F, NULL, HFILL }
+		},
+
+		{ &hf_smb2_lock_sequence_index,
+			{ "Lock Sequence Number", "smb2.lock_sequence_index", FT_UINT32, BASE_DEC,
+			NULL, 0xFFFFFFF0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_capabilities,
