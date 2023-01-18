@@ -3852,19 +3852,6 @@ else()
 	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake")
 endif()
 
-install(
-	FILES
-		# Qt6 extends CMAKE_MODULE_PATH, so use our local version
-		${WS_CMAKE_MODULE_PATH}/FindGLIB2.cmake
-		${WS_CMAKE_MODULE_PATH}/FindWSLibrary.cmake
-		${WS_CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
-		${WS_CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
-		${WS_CMAKE_MODULE_PATH}/LocatePythonModule.cmake
-		${WS_CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
-	DESTINATION
-		${WIRESHARK_INSTALL_CMAKEDIR}
-)
-
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(WiresharkConfig.cmake.in
