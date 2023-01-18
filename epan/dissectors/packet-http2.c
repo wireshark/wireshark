@@ -237,6 +237,9 @@ typedef struct {
     http2_data_stream_body_info_t data_stream_body_info;
     http2_data_stream_reassembly_info_t data_stream_reassembly_info;
     http2_header_stream_info_t header_stream_info;
+    gboolean is_window_initialized;
+    /* Current window size of the one-way session */
+    gint32 current_window_size;
 } http2_oneway_stream_info_t;
 
 /* struct to hold per-stream information for both directions */
@@ -273,12 +276,21 @@ typedef struct {
 #endif
     guint32 current_stream_id;
     tcp_flow_t *fwd_flow;
+    /* Initial window size of new streams (in both directions) */
+    guint32 initial_new_stream_window_size[2];
+    /* Curent window size of the connection (in both directions) */
+    gint32 current_connection_window_size[2];
 } http2_session_t;
 
 typedef struct http2_follow_tap_data {
     tvbuff_t *tvb;
     guint64  stream_id;
 } http2_follow_tap_data_t;
+
+typedef struct http2_adjust_window {
+    gint32 windowSizeDiff;
+    guint32 flow_index;
+} http2_adjust_window_t;
 
 #ifdef HAVE_NGHTTP2
 /* Decode as functions */
@@ -320,6 +332,10 @@ static const guint8* st_str_http2_type = "Type";
 
 static int st_node_http2 = -1;
 static int st_node_http2_type = -1;
+
+#define PROTO_DATA_KEY_HEADER 0
+#define PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE 1
+#define PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE 2
 
 /* Packet Header */
 static int proto_http2 = -1;
@@ -423,6 +439,11 @@ static int hf_http2_continuation_padding = -1;
 static int hf_http2_altsvc_origin_len = -1;
 static int hf_http2_altsvc_origin = -1;
 static int hf_http2_altsvc_field_value = -1;
+/* Calculated */
+static int hf_http2_calculated_window_size_connection_before = -1;
+static int hf_http2_calculated_window_size_connection_after = -1;
+static int hf_http2_calculated_window_size_stream_before = -1;
+static int hf_http2_calculated_window_size_stream_after = -1;
 #if HAVE_NGHTTP2
 /* HTTP2 header static fields */
 static int hf_http2_headers_status = -1;
@@ -1324,6 +1345,32 @@ static const value_string http2_settings_vals[] = {
     { 0, NULL }
 };
 
+/*
+ * "When an HTTP/2 connection is first established, new streams
+ *  are created with an initial flow-control window size of 65,535
+ *  octets. The connection flow-control window is also 65,535
+ *  octets. Both endpoints can adjust the initial window size for
+ *  new streams by including a value for SETTINGS_INITIAL_WINDOW_SIZE
+ *  in the SETTINGS frame. The connection flow-control window can
+ *  only be changed using WINDOW_UPDATE frames."
+ * https://www.ietf.org/rfc/rfc9113.html#section-6.9.2-1
+ */
+#define INITIAL_WINDOW_SIZE 65535
+
+static guint32
+select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
+{
+    struct tcp_analysis *tcpd;
+
+    tcpd = get_tcp_conversation_data(NULL, pinfo);
+
+    if(tcpd->fwd == h2session->fwd_flow) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 #ifdef HAVE_NGHTTP2
 static gboolean
 hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
@@ -1336,10 +1383,11 @@ hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, vo
 }
 
 static http2_stream_info_t*
-get_stream_info(http2_session_t *http2_session)
+get_stream_info(packet_info *pinfo, http2_session_t *http2_session, gboolean initializeOppositeDirection)
 {
     guint32 stream_id = http2_session->current_stream_id;
     wmem_map_t *stream_map = http2_session->per_stream_info;
+    guint32 flow_index = select_http2_flow_index(pinfo, http2_session);
 
     http2_stream_info_t *stream_info = (http2_stream_info_t *)wmem_map_lookup(stream_map, GINT_TO_POINTER(stream_id));
     if (stream_info == NULL) {
@@ -1348,7 +1396,25 @@ get_stream_info(http2_session_t *http2_session)
         stream_info->oneway_stream_info[1].header_stream_info.stream_header_list = wmem_list_new(wmem_file_scope());
         stream_info->stream_id = stream_id;
         stream_info->reassembly_mode = HTTP2_DATA_REASSEMBLY_MODE_END_STREAM;
+        stream_info->oneway_stream_info[0].is_window_initialized = FALSE;
+        stream_info->oneway_stream_info[0].current_window_size = INITIAL_WINDOW_SIZE;
+        stream_info->oneway_stream_info[1].is_window_initialized = FALSE;
+        stream_info->oneway_stream_info[1].current_window_size = INITIAL_WINDOW_SIZE;
         wmem_map_insert(stream_map, GINT_TO_POINTER(stream_id), stream_info);
+    }
+
+    /* The first time the stream info is requested for a
+     * particular direction, initialize the window size
+     * in that direction to the current initial window size for
+     * that direction. Flip what we're checking around if
+     * initializeOppositeDirection is TRUE.
+     */
+    if (initializeOppositeDirection) {
+        flow_index ^= 1;
+    }
+    if (!stream_info->oneway_stream_info[flow_index].is_window_initialized) {
+        stream_info->oneway_stream_info[flow_index].current_window_size = http2_session->initial_new_stream_window_size[flow_index];
+        stream_info->oneway_stream_info[flow_index].is_window_initialized = TRUE;
     }
 
     return stream_info;
@@ -1390,6 +1456,10 @@ get_http2_session(packet_info *pinfo, conversation_t* conversation)
         h2session->fwd_flow = tcpd->fwd;
         h2session->settings_queue[0] = wmem_queue_new(wmem_file_scope());
         h2session->settings_queue[1] = wmem_queue_new(wmem_file_scope());
+        h2session->initial_new_stream_window_size[0] = INITIAL_WINDOW_SIZE;
+        h2session->initial_new_stream_window_size[1] = INITIAL_WINDOW_SIZE;
+        h2session->current_connection_window_size[0] = INITIAL_WINDOW_SIZE;
+        h2session->current_connection_window_size[1] = INITIAL_WINDOW_SIZE;
 
         conversation_add_proto_data(conversation, proto_http2, h2session);
     }
@@ -1428,20 +1498,6 @@ http2_get_stream_id(packet_info *pinfo _U_)
 static const gchar*
 get_real_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_direction);
 
-static guint32
-select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
-{
-    struct tcp_analysis *tcpd;
-
-    tcpd = get_tcp_conversation_data(NULL, pinfo);
-
-    if(tcpd->fwd == h2session->fwd_flow) {
-        return 0;
-    } else {
-        return 1;
-    }
-}
-
 static http2_frame_num_t
 get_http2_frame_num(tvbuff_t *tvb, packet_info *pinfo)
 {
@@ -1468,7 +1524,7 @@ get_http2_frame_num(tvbuff_t *tvb, packet_info *pinfo)
 static http2_oneway_stream_info_t*
 get_oneway_stream_info(packet_info *pinfo, http2_session_t* http2_session, gboolean the_other_direction)
 {
-    http2_stream_info_t *http2_stream_info = get_stream_info(http2_session);
+    http2_stream_info_t *http2_stream_info = get_stream_info(pinfo, http2_session, FALSE);
     guint32 flow_index = select_http2_flow_index(pinfo, http2_session);
     if (the_other_direction) {
         /* need stream info of the other direction,
@@ -1813,7 +1869,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     /* Store away if the stream is associated with a CONNECT request */
     if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0 &&
                 strcmp(header_value, HTTP2_HEADER_METHOD_CONNECT) == 0) {
-        http2_stream_info_t *stream_info = get_stream_info(h2session);
+        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->is_stream_http_connect = TRUE;
     }
 
@@ -1821,7 +1877,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_TYPE) == 0) {
         http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
         if (body_info->content_type == NULL) {
-            http2_stream_info_t *stream_info = get_stream_info(h2session);
+            http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
             body_info->content_type = get_content_type_only(header_value, header_value_length);
             body_info->content_type_parameters = get_content_type_parameters_only(header_value, header_value_length);
             stream_info->reassembly_mode = http2_get_data_reassembly_mode(body_info->content_type);
@@ -1968,7 +2024,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         http2_hdrcache_map = wmem_map_new(wmem_file_scope(), http2_hdrcache_hash, http2_hdrcache_equal);
     }
 
-    header_data = (http2_header_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0);
+    header_data = (http2_header_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_HEADER);
     header_list = header_data->header_list;
 
     if(!PINFO_FD_VISITED(pinfo)) {
@@ -2804,7 +2860,7 @@ should_attempt_to_reassemble_data_frame(http2_data_stream_reassembly_info_t *rea
     }
 
     /* Is this data frame part of an established tunnel? Don't try to reassemble the data if that is the case */
-    http2_stream_info_t *stream_info = get_stream_info(http2_session);
+    http2_stream_info_t *stream_info = get_stream_info(pinfo, http2_session, FALSE);
     if (stream_info->is_stream_http_connect) {
         return FALSE;
     }
@@ -2815,7 +2871,7 @@ should_attempt_to_reassemble_data_frame(http2_data_stream_reassembly_info_t *rea
 static guint32
 get_reassembly_id_from_stream(packet_info *pinfo, http2_session_t* session)
 {
-    http2_stream_info_t *stream_info = get_stream_info(session);
+    http2_stream_info_t *stream_info = get_stream_info(pinfo, session, FALSE);
     guint32 flow_index = select_http2_flow_index(pinfo, session);
 
     /* With a stream ID being 31 bits, use the most significant bit to determine the flow direction of the
@@ -2882,7 +2938,7 @@ dissect_http2_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, http2_session
     }
 
     /* Is this part of a tunneled connection? */
-    http2_stream_info_t *stream_info = get_stream_info(http2_session);
+    http2_stream_info_t *stream_info = get_stream_info(pinfo, http2_session, FALSE);
     if (stream_info->is_stream_http_connect) {
         proto_item_append_text(http2_tree, " (tunneled data)");
     }
@@ -3199,7 +3255,7 @@ dissect_http2_data_body(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2se
 {
     try_init_stream_with_fake_headers(tvb, pinfo, h2session, http2_tree, offset);
 
-    http2_stream_info_t *stream_info = get_stream_info(h2session);
+    http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
     if (stream_info->reassembly_mode == HTTP2_DATA_REASSEMBLY_MODE_STREAMING) {
         reassemble_http2_data_according_to_subdissector(tvb, pinfo, h2session, http2_tree, offset, flags, length);
         return;
@@ -3297,6 +3353,72 @@ http2_get_header_value(packet_info *pinfo _U_, const gchar* name _U_, gboolean t
 }
 #endif
 
+/* Increment or decrement the accumulated connection and/or stream window
+ * sizes based on the flow direction, stream ID and increaseWindow parameter.
+ * In other words, if increaseWindow is TRUE, then we're processing a
+ * WINDOW_UPDATE frame; otherwise, we're processing a DATA frame.
+ */
+static void
+adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_session, proto_tree *http2_tree, gint32 adjustment, gboolean increaseWindow)
+{
+    guint32 flow_index = select_http2_flow_index(pinfo, http2_session);
+    gint32 finalAdjustment = ((increaseWindow ? 1 : -1) * adjustment);
+
+    if (increaseWindow) {
+        /* The WINDOW_UPDATE comes in for the other direction */
+        flow_index ^= 1;
+    }
+
+    /* Always decrease the connection window after sending data,
+     * but only increase the connection window for a WINDOW_UPDATE on stream 0 (the connection). */
+    if (!increaseWindow || http2_session->current_stream_id == 0) {
+        gint32* window_size_connection_before = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE);
+        gint32 window_size_connection_after;
+
+        if (!window_size_connection_before) {
+            /* There may be multiple passes, so we must use proto_data to keep state */
+            window_size_connection_before = wmem_new0(wmem_file_scope(), gint32);
+            (*window_size_connection_before) = http2_session->current_connection_window_size[flow_index];
+            http2_session->current_connection_window_size[flow_index] += finalAdjustment;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE, window_size_connection_before);
+        }
+
+        proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_connection_before,
+                                                    tvb, 0, 0, (*window_size_connection_before)));
+
+        window_size_connection_after = (*window_size_connection_before) + finalAdjustment;
+
+        proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_connection_after,
+                                                    tvb, 0, 0, window_size_connection_after));
+    }
+
+#ifdef HAVE_NGHTTP2
+    /* Always decrease the stream window after sending data,
+     * but only increase the stream window for a WINDOW_UPDATE on stream > 0 (not the connection). */
+    if (!increaseWindow || http2_session->current_stream_id > 0) {
+        http2_stream_info_t *http2_stream_info = get_stream_info(pinfo, http2_session, increaseWindow);
+        gint32* window_size_stream_before = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE);
+        gint32 window_size_stream_after;
+
+        if (!window_size_stream_before) {
+            /* There may be multiple passes, so we must use proto_data to keep state */
+            window_size_stream_before = wmem_new0(wmem_file_scope(), gint32);
+            (*window_size_stream_before) = http2_stream_info->oneway_stream_info[flow_index].current_window_size;
+            http2_stream_info->oneway_stream_info[flow_index].current_window_size += finalAdjustment;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE, window_size_stream_before);
+        }
+
+        proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_stream_before, tvb, 0, 0,
+                                                    (*window_size_stream_before)));
+
+        window_size_stream_after = (*window_size_stream_before) + finalAdjustment;
+
+        proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_stream_after, tvb, 0, 0,
+                                                    window_size_stream_after));
+    }
+#endif
+}
+
 /* Data (0) */
 static int
 dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_session, proto_tree *http2_tree,
@@ -3316,6 +3438,8 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
         proto_tree_add_item(http2_tree, hf_http2_data_padding, tvb, offset, padding, ENC_NA);
         offset += padding;
     }
+
+    adjust_window_size(tvb, pinfo, http2_session, http2_tree, (gint32)datalen, FALSE);
 
     return offset;
 }
@@ -3340,7 +3464,7 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
     /* Trailing headers coming after a DATA stream should have END_STREAM set. DATA should be complete
      * so try to reassemble DATA fragments if that is the case */
     if(IS_HTTP2_END_STREAM(flags)) {
-        info = get_stream_info(h2session);
+        info = get_stream_info(pinfo, h2session, FALSE);
         switch (info->reassembly_mode) {
         case HTTP2_DATA_REASSEMBLY_MODE_END_STREAM:
             head = fragment_end_seq_next(&http2_body_reassembly_table, pinfo, get_reassembly_id_from_stream(pinfo, h2session), NULL);
@@ -3430,6 +3554,16 @@ dissect_http2_rst_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http
     return offset;
 }
 
+#ifdef HAVE_NGHTTP2
+static void
+adjust_existing_window(void *key _U_, void *value, void *userData _U_)
+{
+    http2_stream_info_t *stream_info = (http2_stream_info_t *)value;
+    http2_adjust_window_t *adjustWindow = (http2_adjust_window_t *)userData;
+    stream_info->oneway_stream_info[adjustWindow->flow_index].current_window_size += adjustWindow->windowSizeDiff;
+}
+#endif
+
 /* Settings */
 static int
 #ifdef HAVE_NGHTTP2
@@ -3482,7 +3616,45 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
                 proto_tree_add_item(settings_tree, hf_http2_settings_max_concurrent_streams, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
             case HTTP2_SETTINGS_INITIAL_WINDOW_SIZE:
-                proto_tree_add_item(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+                {
+                    guint32 newInitialWindowSize;
+                    guint32 flow_index;
+
+                    proto_tree_add_item_ret_uint(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_BIG_ENDIAN, &newInitialWindowSize);
+
+                    flow_index = select_http2_flow_index(pinfo, h2session);
+
+                    /* This new initial window size will be applied to
+                     * any new future streams going in the other direction.
+                     * Note that this setting does not apply to the connection:
+                     * https://lists.w3.org/Archives/Public/ietf-http-wg/2023JanMar/0003.html
+                     */
+                    flow_index ^= 1;
+
+                    h2session->initial_new_stream_window_size[flow_index] = newInitialWindowSize;
+
+#ifdef HAVE_NGHTTP2
+                    {
+                        guint32 previousInitialWindowSize = h2session->initial_new_stream_window_size[flow_index];
+                        gint32 windowSizeDiff = newInitialWindowSize - previousInitialWindowSize;
+
+                        /* "When the value of SETTINGS_INITIAL_WINDOW_SIZE changes,
+                        *  a receiver MUST adjust the size of all stream flow-control
+                        *  windows that it maintains by the difference between the
+                        *  new value and the old value."
+                        * https://www.ietf.org/rfc/rfc9113.html#section-6.9.2-3
+                        */
+                        if (windowSizeDiff != 0) {
+                            http2_adjust_window_t userData;
+
+                            userData.windowSizeDiff = windowSizeDiff;
+                            userData.flow_index = flow_index;
+
+                            wmem_map_foreach(h2session->per_stream_info, adjust_existing_window, &userData);
+                        }
+                    }
+#endif
+                }
             break;
             case HTTP2_SETTINGS_MAX_FRAME_SIZE:
                 proto_tree_add_item(settings_tree, hf_http2_settings_max_frame_size, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3611,12 +3783,15 @@ dissect_http2_goaway(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
 
 /* Window Update */
 static int
-dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* http2_session, proto_tree *http2_tree, guint offset, guint8 flags _U_)
 {
+    gint32 wsi;
 
     proto_tree_add_item(http2_tree, hf_http2_window_update_r, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(http2_tree, hf_http2_window_update_window_size_increment, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(http2_tree, hf_http2_window_update_window_size_increment, tvb, offset, 4, ENC_BIG_ENDIAN, &wsi);
     offset += 4;
+
+    adjust_window_size(tvb, pinfo, http2_session, http2_tree, wsi, TRUE);
 
     return offset;
 }
@@ -3755,13 +3930,13 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     http2_tree = proto_item_add_subtree(ti, ett_http2);
 
-    if(!p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0)) {
+    if(!p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_HEADER)) {
         http2_header_data_t *header_data;
 
         header_data = wmem_new0(wmem_file_scope(), http2_header_data_t);
         header_data->header_list = wmem_list_new(wmem_file_scope());
 
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, 0, header_data);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_HEADER, header_data);
     }
 
 
@@ -3891,7 +4066,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         break;
 
         case HTTP2_WINDOW_UPDATE: /* Window Update (8) */
-            dissect_http2_window_update(tvb, pinfo, http2_tree, offset, flags);
+            dissect_http2_window_update(tvb, pinfo, http2_session, http2_tree, offset, flags);
         break;
 
         case HTTP2_CONTINUATION: /* Continuation (9) */
@@ -4341,7 +4516,7 @@ proto_register_http2(void)
               "Indicates the maximum number of concurrent streams that the sender will allow", HFILL }
         },
         { &hf_http2_settings_initial_window_size,
-            { "Initial Windows Size", "http2.settings.initial_window_size",
+            { "Initial Window Size", "http2.settings.initial_window_size",
                FT_UINT32, BASE_DEC, NULL, 0x0,
               "Indicates the sender's initial window size (in bytes) for stream level flow control", HFILL }
         },
@@ -4495,6 +4670,27 @@ proto_register_http2(void)
               NULL, HFILL }
         },
 
+        /* Calculated */
+        { &hf_http2_calculated_window_size_connection_before,
+            { "Connection window size (before)", "http2.calculated.connection.window_size.before",
+              FT_INT32, BASE_DEC, NULL, 0x0,
+              "The sender's current window size (in bytes) for this connection (before sending)", HFILL }
+        },
+        { &hf_http2_calculated_window_size_connection_after,
+            { "Connection window size (after)", "http2.calculated.connection.window_size.after",
+              FT_INT32, BASE_DEC, NULL, 0x0,
+              "The sender's current window size (in bytes) for this connection (after sending)", HFILL }
+        },
+        { &hf_http2_calculated_window_size_stream_before,
+            { "Stream window size (before)", "http2.calculated.stream.window_size.before",
+              FT_INT32, BASE_DEC, NULL, 0x0,
+              "The sender's current window size (in bytes) for this stream (before sending)", HFILL }
+        },
+        { &hf_http2_calculated_window_size_stream_after,
+            { "Stream window size (after)", "http2.calculated.stream.window_size.after",
+              FT_INT32, BASE_DEC, NULL, 0x0,
+              "The sender's current window size (in bytes) for this stream (after sending)", HFILL }
+        },
     };
 
     static gint *ett[] = {
