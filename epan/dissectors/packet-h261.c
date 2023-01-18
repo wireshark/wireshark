@@ -67,7 +67,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	col_set_str(pinfo->cinfo, COL_INFO, "H.261 message");
 
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, -1, ENC_NA );
+		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, -1, ENC_NA);
 		h261_tree = proto_item_add_subtree( ti, ett_h261 );
 
 		proto_tree_add_bitmask_list(h261_tree, tvb, offset, 1, bits, ENC_NA);
@@ -80,7 +80,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		offset++;
 
 		/* QUANT 3rd octet, 5 bits (starting at bit 2!) */
-		proto_tree_add_item( h261_tree, hf_h261_quant, tvb, offset, 1, ENC_NA );
+		proto_tree_add_item( h261_tree, hf_h261_quant, tvb, offset, 1, ENC_NA);
 
 		/* HMVD 3rd octet 2 bits, 4th octet 3 bits */
 		proto_tree_add_item( h261_tree, hf_h261_hmvd, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -91,7 +91,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		offset++;
 
 		/* The rest of the packet is the H.261 stream */
-		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, -1, ENC_NA );
+		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, -1, ENC_NA);
 	}
 	return tvb_captured_length(tvb);
 }
