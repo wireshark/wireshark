@@ -3891,6 +3891,12 @@ install(EXPORT WiresharkTargets
 	EXCLUDE_FROM_ALL
 )
 
+# This isn't strictly needed but it makes working around debhelper's
+# cleverness a lot easier.
+add_custom_target(install-headers
+	COMMAND ${CMAKE_COMMAND} -DCOMPONENT=Development -P cmake_install.cmake
+)
+
 if (DOXYGEN_EXECUTABLE)
 	# API reference
 	# We don't have a good way of tracking dependencies, so we simply
