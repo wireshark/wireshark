@@ -12135,7 +12135,7 @@ add_ff_fils_discovery(proto_tree *tree, tvbuff_t *tvb,
   if(fc & PA_FILS_FC_SHORT_SSID) {
      /* Always 4 bytes for Short SSID */
      /* TODO add check of SSID Length */
-    proto_tree_add_item(tree, hf_ieee80211_ff_fils_discovery_short_ssid, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_ieee80211_ff_fils_discovery_short_ssid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
   } else {
     ssid_length = (fc & PA_FILS_FC_SSID_LENGTH) + 1;
@@ -29177,7 +29177,7 @@ dissect_short_ssid(tvbuff_t *tvb, packet_info *pinfo _U_,
 
   while(len > 0){
 
-    proto_tree_add_item(tree, hf_ieee80211_short_ssid, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_ieee80211_short_ssid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     len -=4;
   }
