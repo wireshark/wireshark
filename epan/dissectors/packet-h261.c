@@ -87,7 +87,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		offset++;
 
 		/* VMVD 4th octet, last 5 bits */
-		proto_tree_add_item( h261_tree, hf_h261_vmvd, tvb, offset, 1, 0x1F );
+		proto_tree_add_item( h261_tree, hf_h261_vmvd, tvb, offset, 1, ENC_NA);
 		offset++;
 
 		/* The rest of the packet is the H.261 stream */
