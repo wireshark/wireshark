@@ -15,7 +15,46 @@
 
    The following vulnerabilities have been fixed:
 
+     • wnpa-sec-2023-02[2] NFS dissector memory leak. Issue 18628[3].
+
+     • wnpa-sec-2023-03[4] Dissection engine crash. Issue 18766[5].
+
+     • wnpa-sec-2023-04[6] GNW dissector crash. Issue 18779[7].
+
+     • wnpa-sec-2023-05[8] iSCSI dissector crash. Issue 18796[9].
+
+     • wnpa-sec-2023-06[10] Multiple dissector excessive loops. Issue
+       18711[11]. Issue 18720[12], Issue 18737[13].
+
+     • wnpa-sec-2023-07[14] TIPC dissector crash. Issue 18770[15].
+
    The following bugs have been fixed:
+
+     • Qt: After modifying coloring rules, the coloring rule applied to
+       the first packet reflects the coloring rules previously in
+       effect. Issue 12475[16].
+
+     • Help file doesn’t display for extcap interfaces Issue 15592[17].
+
+     • Dissector bug, protocol DRBD Issue 16689[18].
+
+     • For USB traffic on XHC20 interface destination is always given as
+       Host Issue 16768[19].
+
+     • Wrong pointer conversion in get_data_source_tvb_by_name() Issue
+       18517[20].
+
+     • Wrong number of bits skipped while decoding an empty UTF8String
+       on UPER packet Issue 18702[21].
+
+     • Uninitialized values in various dissectors Issue 18742[22].
+
+     • Q.850 - error in label for cause 0x7F Issue 18780[23].
+
+     • Uninitialized values in CoAP and RTPS dissectors Issue 18785[24].
+
+     • Screenshots in AppStream metainfo.xml file not available Issue
+       18801[25].
 
   New and Updated Features
 
@@ -24,6 +63,10 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   BEEP, BGP, BPv6, BSSGP, CoAP, GNW, GSM A-bis P-GSL, GSM BSSMAP,
+   iSCSI, ISUP, Kafka, LwM2M-TLV, NAS-5GS, NFS, OPUS, RLC, ROHC, RTPS,
+   TCP, Telnet, and USB
 
   New and Updated Capture File Support
 
@@ -43,7 +86,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[26] on the Wireshark web site.
 
  File Locations
 
@@ -58,28 +101,52 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[27] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[28].
 
-  Bugs and feature requests can be reported on the issue tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[29].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[6].
+  at wiresharkfoundation.org[30].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[31].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/download.html
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://gitlab.com/wireshark/wireshark/-/issues
-   6. https://wiresharkfoundation.org
-   7. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/security/wnpa-sec-2023-02
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18628
+   4. https://www.wireshark.org/security/wnpa-sec-2023-03
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18766
+   6. https://www.wireshark.org/security/wnpa-sec-2023-04
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18779
+   8. https://www.wireshark.org/security/wnpa-sec-2023-05
+   9. https://gitlab.com/wireshark/wireshark/-/issues/18796
+  10. https://www.wireshark.org/security/wnpa-sec-2023-06
+  11. https://gitlab.com/wireshark/wireshark/-/issues/18711
+  12. https://gitlab.com/wireshark/wireshark/-/issues/18720
+  13. https://gitlab.com/wireshark/wireshark/-/issues/18737
+  14. https://www.wireshark.org/security/wnpa-sec-2023-07
+  15. https://gitlab.com/wireshark/wireshark/-/issues/18770
+  16. https://gitlab.com/wireshark/wireshark/-/issues/12475
+  17. https://gitlab.com/wireshark/wireshark/-/issues/15592
+  18. https://gitlab.com/wireshark/wireshark/-/issues/16689
+  19. https://gitlab.com/wireshark/wireshark/-/issues/16768
+  20. https://gitlab.com/wireshark/wireshark/-/issues/18517
+  21. https://gitlab.com/wireshark/wireshark/-/issues/18702
+  22. https://gitlab.com/wireshark/wireshark/-/issues/18742
+  23. https://gitlab.com/wireshark/wireshark/-/issues/18780
+  24. https://gitlab.com/wireshark/wireshark/-/issues/18785
+  25. https://gitlab.com/wireshark/wireshark/-/issues/18801
+  26. https://www.wireshark.org/download.html
+  27. https://ask.wireshark.org/
+  28. https://www.wireshark.org/lists/
+  29. https://gitlab.com/wireshark/wireshark/-/issues
+  30. https://wiresharkfoundation.org
+  31. https://www.wireshark.org/faq.html

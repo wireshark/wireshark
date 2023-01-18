@@ -1,0 +1,675 @@
+commit bbd730c3e6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 17 16:19:04 2023 -0800
+
+    Prep for 3.6.11
+
+    [skip ci]
+
+commit 17d13b09fe
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 17 12:42:32 2023 -0800
+
+    NSIS: Update the donation page
+
+    Update the plea text and URL.
+
+    (cherry picked from commit 2d8cdec477de5b5aedd4bffeaea1886b629bdeb7)
+
+commit cef6790c1a
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Jan 16 12:34:30 2023 +0100
+
+    ui: Check occurrence when check for existing custom column
+
+    Add a check for occurrence in column_prefs_has_custom() to allow
+    "Apply as Column" if column already exists with occurrence set.
+
+    (cherry picked from commit d851134d898577d771d049cfd3166c7d5579e177)
+
+commit fa82aec631
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jan 15 18:57:46 2023 -0500
+
+    iSCSI: Handle invalid opcodes inside Reject message
+
+    Allow dissect_iscsi_pdu to handle iSCSI messages with invalid
+    opcodes, so that it does not crash when receiving them in Reject
+    messages.
+
+    Fix #18796
+
+    (cherry picked from commit 1e1e733d8cae8e6f6b6f463160061896cb1daed2)
+
+commit 289c2595e6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 1 20:38:35 2022 -0500
+
+    kafka: Don't try to decompress if the length is zero.
+
+    There's no point in trying to decompress a message with
+    length zero, and some of the third party decompression
+    libraries (e.g. zstd) can give unexpected results that
+    lead to infinite loops if we do so. A message length zero
+    is almost surely a file with errors.
+
+    (cherry picked from commit 0e119321837e6ec69fe6cb04aee04935e0386d7a)
+
+commit 0712353e9f
+Author: Louis Scalbert <louis.scalbert@6wind.com>
+Date:   Thu Jan 12 18:08:59 2023 +0100
+
+    BGP: fix BGP-LS IPv6 Neighbor Address TLV s length
+
+    Fix the following issue:
+
+    > [Expert Info (Error/Protocol): Unexpected IPv6 Neighbor Address TLV's length (16), it must be 262 bytes!]
+
+    Fixes: 10345a6b2e ("From Miroslav Miklus via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9504 Enhance BGP dissector : bgp-ls dissector (draft-ietf-idr-ls-distribution-04)")
+    Signed-off-by: Louis Scalbert <louis.scalbert@6wind.com>
+
+    (cherry picked from commit 176662e9576d12342e4557639dd136c6ee1d65cc)
+
+commit f974f24681
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 15 16:37:26 2023 +0000
+
+    [Automatic update for 2023-01-15]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 99f75c96a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jan 14 11:00:39 2023 -0800
+
+    Release notes: Add a link to the foundation site
+
+    (cherry picked from commit 4ee71f77e6b663a057aa75633d29c244fc761953)
+
+commit 49b3e5b456
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 14 13:05:38 2023 -0500
+
+    Qt: ElidedLabel escapes HTML
+
+    ElidedLabel escapes HTML after !9261, so use its own methods to make text
+    small and italicized instead of passing in rich text.
+
+    IOGraphDialog used to make an error message, if it existed, bold.
+    Perhaps ElidedLabel should have a way to have prepended bold
+    text for such usage.
+
+    (cherry picked from commit 0c3c3e9342fbfe90cc71f1b44f28c4e606772da0)
+
+commit d5281ba452
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 14 12:19:45 2023 -0500
+
+    Qt: Set small text for ExpertInfoDialog filter
+
+    ElidedLabel has its own method to set small text and italicize.
+    After !9261, any HTML that is passed into it appears escaped,
+    which we don't want.
+
+    (cherry picked from commit 44847363660fc92fded95356b71c32c47ed0e682)
+
+commit 0650db5c26
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Jan 14 13:02:48 2023 +0100
+
+    lwm2mtlv: Fix resource id lookup
+
+    The LwM2M object instance and resource id may be given in both the
+    CoAP Uri-Path and the LwM2M TLV header, and in this case the created
+    uri_path is wrong and resource id lookup will fail.
+
+    Change the logic to get object id from CoAP Uri-Path and resource id
+    from either Uri-Path or LwM2M TLV header.
+
+    (cherry picked from commit c0dd9620c547a29f64858e77cd4a6bacc5864adb)
+
+commit eb70fcec9b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 13 18:02:34 2023 -0800
+
+    CMake: Update a compiler version check
+
+    It looks like AppleClang 10 and 11 generate bogus missing braces
+    warnings as well. The macOS Intel builder, which has AppleClang
+    11.0.0.11000033 installed, is failing with
+
+    wireshark/epan/dissectors/packet-rtps.c:11403:63: error: suggest braces around initialization of subobject [-Werror,-Wmissing-braces]
+      coherent_set_entity_info coherent_set_entity_info_object = {0};
+                                                                  ^
+                                                                  {}
+
+    (cherry picked from commit dd07fb5a15a3cae4f83d29418ef515bed40f658a)
+
+commit 17632792ae
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 13 13:37:33 2023 -0800
+
+    Resources: Use more reliable AppStream screenshot URLs
+
+    Link to User's Guide screenshots, which should be more reliable.
+    Fixes #18801
+
+    (cherry picked from commit dd601b1d8e13d4b346303f25fc9a1a0f835c9e73)
+
+commit d0bc67abaa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 13 10:37:34 2023 -0800
+
+    CoAP+RTPS: Initialize some variables
+
+    Fix
+
+        ==10365== Conditional jump or move depends on uninitialised value(s)
+        ==10365==    at 0x81514B4: get_hfi_length (epan/proto.c:5981)
+        ==10365==    by 0x815A0A5: proto_tree_add_pi (epan/proto.c:5953)
+        ==10365==    by 0x815F41B: proto_tree_add_uint64 (epan/proto.c:5542)
+        ==10365==    by 0x6BF362C: dissect_msg_tag (epan/dissectors/packet-cose.c:462)
+        ==10365==    by 0x6BF1A27: dissect_cose_mac (epan/dissectors/packet-cose.c:656)
+        ==10365==    by 0x813511A: call_dissector_through_handle (epan/packet.c:757)
+        ==10365==    by 0x8130E58: call_dissector_work (epan/packet.c:850)
+        ==10365==    by 0x8131604: dissector_try_string_new (epan/packet.c:1751)
+        ==10365==    by 0x8131686: dissector_try_string (epan/packet.c:1776)
+        ==10365==    by 0x6BD8C60: dissect_coap_payload (epan/dissectors/packet-coap.c:1115)
+        ==10365==    by 0x6BDAD34: dissect_coap_message (epan/dissectors/packet-coap.c:1403)
+        ==10365==    by 0x6BD8ECB: dissect_coap (epan/dissectors/packet-coap.c:1526)
+        ==10365==
+        ==10365== Conditional jump or move depends on uninitialised value(s)
+        ==10365==    at 0x81517EC: get_hfi_length (epan/proto.c:6115)
+        ==10365==    by 0x815A0A5: proto_tree_add_pi (epan/proto.c:5953)
+        ==10365==    by 0x815F41B: proto_tree_add_uint64 (epan/proto.c:5542)
+        ==10365==    by 0x6BF362C: dissect_msg_tag (epan/dissectors/packet-cose.c:462)
+        ==10365==    by 0x6BF1A27: dissect_cose_mac (epan/dissectors/packet-cose.c:656)
+        ==10365==    by 0x813511A: call_dissector_through_handle (epan/packet.c:757)
+        ==10365==    by 0x8130E58: call_dissector_work (epan/packet.c:850)
+        ==10365==    by 0x8131604: dissector_try_string_new (epan/packet.c:1751)
+        ==10365==    by 0x8131686: dissector_try_string (epan/packet.c:1776)
+        ==10365==    by 0x6BD8C60: dissect_coap_payload (epan/dissectors/packet-coap.c:1115)
+        ==10365==    by 0x6BDAD34: dissect_coap_message (epan/dissectors/packet-coap.c:1403)
+        ==10365==    by 0x6BD8ECB: dissect_coap (epan/dissectors/packet-coap.c:1526)
+
+    and
+
+        ==10365== Conditional jump or move depends on uninitialised value(s)
+        ==10365==    at 0x748EB90: hash_by_guid (epan/dissectors/packet-rtps.c:6006)
+        ==10365==    by 0xC522FD5: wmem_map_lookup (wsutil/wmem/wmem_map.c:264)
+        ==10365==    by 0x74A2E33: rtps_util_detect_coherent_set_end_empty_data_case (epan/dissectors/packet-rtps.c:3294)
+        ==10365==    by 0x74A1054: dissect_RTPS_DATA (epan/dissectors/packet-rtps.c:10829)
+        ==10365==    by 0x748E606: dissect_rtps_submessage_v2 (epan/dissectors/packet-rtps.c:12064)
+        ==10365==    by 0x748DFBE: dissect_rtps_submessages (epan/dissectors/packet-rtps.c:12439)
+        ==10365==    by 0x74A3FC9: dissect_rtps (epan/dissectors/packet-rtps.c:12357)
+        ==10365==    by 0x748EDD2: dissect_rtps_udp (epan/dissectors/packet-rtps.c:12459)
+        ==10365==    by 0x81334CA: dissector_try_heuristic (epan/packet.c:2864)
+        ==10365==    by 0x76A8FF6: decode_udp_ports (epan/dissectors/packet-udp.c:712)
+        ==10365==    by 0x76AB875: dissect (epan/dissectors/packet-udp.c:1267)
+        ==10365==    by 0x76A9DAD: dissect_udp (epan/dissectors/packet-udp.c:1273)
+
+    Fixes #18785
+
+    (cherry picked from commit 9754448044eb75e3087bf8c078eb50b481f82e9d)
+
+commit 5976e465d9
+Author: YDKK <13453291-YDKK@users.noreply.gitlab.com>
+Date:   Thu Jan 12 12:41:56 2023 +0000
+
+    opus: Fix TOC configuration parameter definitions
+
+    (cherry picked from commit b0cb719672abc64c27e1477d01591a731ee6bc6c)
+
+commit 9dd172aff8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 11 17:11:49 2023 -0500
+
+    Qt: Accept ColoringRulesDialog after writing colors
+
+    Instead of connecting ColoringRulesDialog's buttonBox accepted()
+    signal to two different slots (once in the .ui file, and one
+    automatically from a name), accept the dialog only after writing
+    the colors.
+
+    This prevents starting to recolor the PacketList before the new color
+    list has been been written.
+
+    Fix #12475. Fix #15471.
+
+    (cherry picked from commit 06ba70405875bbaff2381fa3bbd3f445f5e67438)
+
+commit 302cc57b9b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 8 16:42:26 2023 +0000
+
+    [Automatic update for 2023-01-08]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 086700bcc0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 4 10:11:32 2023 -0800
+
+    GNW: Ensure that tvbuff proto data has the proper scope.
+
+    Add security tvbuffs to our proto data using pinfo->pool.
+    Fixes #18779.
+
+    (cherry picked from commit 693dc40936a9eeac0e1c10ff496b3d327e25642b)
+
+commit b824bb0c3f
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Thu Jan 5 20:01:41 2023 +0000
+
+    isup: fix typo on cause indicator
+
+    Internetworking -> Interworking
+
+    Close #18780
+
+    (cherry picked from commit 99385f1644457c0593350ff73353f3877c76a0a0)
+
+commit 2405643755
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Oct 23 21:44:21 2021 -0400
+
+    tcp: Throw exception instead of ASSERT for unknown PDU length
+
+    If a subdissector requests one more segment for a PDU of unknown length,
+    but we can't do reassembly for whatever reason, that's not necesarily a
+    dissector bug (while it could be the result of a bad heuristic, it can
+    happen from a checksum failing validation or reassembly preferences
+    disabled.)
+
+    The correct error is a FragmentBoundsError (dissector requested bytes
+    that it couldn't get due to not being reassembled), which is what
+    we would also throw if the returned PDU length were greater than the
+    tvb length instead of unknown. Fix #16689.
+
+    (cherry picked from commit b5989badb4da086d67128fbd17234d51cd721021)
+
+commit 4489af7919
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Wed Jan 4 12:59:46 2023 +0100
+
+    packet.c: Wrong pointer conversion in get_data_source_tvb_by_name()
+
+    Closes #18517
+    Solution by Zhao Ziqing
+
+    (cherry picked from commit d4cd1d9d1d78a4e5ce289616628aa7d0685922a0)
+
+commit 129d018445
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 14 14:10:14 2022 -0800
+
+    NSIS: Add an initial donation page.
+
+    Add a donation page to the Wireshark installer.
+
+    (cherry picked from commit 963dba2d60cb10b5fe7537de623d09ffb773afc0)
+
+commit 26f4d889ba
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 30 18:03:14 2022 -0800
+
+    macOS: Don't try to copy a nonexistent plist
+
+    In the ChmodBPF postinstall script, don't try to copy
+    org.wireshark.ChmodBPF.plist from a nonexistent location.
+
+    Ping #18734.
+
+    (cherry picked from commit b15eb8a82fd7974684786251ddb2b84a019a779e)
+
+commit 6b088d3042
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Dec 31 12:22:00 2022 -0800
+
+    Qt: Escape HTML when setting ElidedLabel text
+
+    ElidedLabels use Qt's rich text internally, but we need to make sure the
+    text we're passed via setText() is plain.
+
+    Fixes #18774
+
+    (cherry picked from commit d9adb6f712a63dca13957802664d37c52ea4181c)
+
+commit cd54ceaedf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Dec 26 09:32:43 2022 -0800
+
+    Qt: Fix an IAX2 Analysis dialog memory leak.
+
+    Fix
+
+    *** CID 1517838:  Resource leaks  (RESOURCE_LEAK)
+    /builds/wireshark/wireshark/ui/qt/iax2_analysis_dialog.cpp: 311 in Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &, CaptureFile &)()
+    305         }
+    306
+    307         if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) {
+    308             err_str_ = tr("Please select an IAX2 packet.");
+    309             save_payload_error_ = TAP_IAX2_NO_PACKET_SELECTED;
+    310             updateWidgets();
+    >>>     CID 1517838:  Resource leaks  (RESOURCE_LEAK)
+    >>>     Variable "sfcode" going out of scope leaks the storage it points to.
+    311             return;
+    312         }
+    313
+    314         if (!cf_read_current_record(cap_file_.capFile())) close();
+    315
+    316         frame_data *fdata = cap_file_.capFile()->current_frame;
+
+    (cherry picked from commit e93989c56a9bb2dd54f9c2b9bf7b5caf2d22f150)
+
+commit 5925028371
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 27 12:57:14 2022 -0800
+
+    epan: Initialize variables in various dissectors
+
+    Fix the following valgrind warnings:
+
+    ==15172== Conditional jump or move depends on uninitialised value(s)
+    ==15172==    at 0x78B0849: unescape_and_tvbuffify_telnet_option (epan/dissectors/packet-telnet.c:1043)
+
+    ==15172== Conditional jump or move depends on uninitialised value(s)
+    ==15172==    at 0x76917C8: dissect_rohc_ir_rtp_profile_dynamic (epan/dissectors/packet-rohc.c:1667)
+
+    ==15172== Conditional jump or move depends on uninitialised value(s)
+    ==15172==    at 0x70DCBF1: dissect_gsm_rlcmac_downlink (epan/dissectors/packet-gsm_rlcmac.c:9770)
+
+    ==15172== Conditional jump or move depends on uninitialised value(s)
+    ==15172==    at 0x6C7958E: set_mime_hdr_flags (epan/dissectors/packet-beep.c:392)
+
+    Fixes #18742
+
+    (cherry picked from commit afe5ed0aa5c33e9c4eb5d86d122fcc22266c191d)
+
+commit 78a8875f24
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 30 12:32:07 2022 -0800
+
+    TIPC: Add a recursion check
+
+    Add a recursion check.
+    Fixes #18770.
+
+    (cherry picked from commit 659b830aef88753d7b1ba67230d30add31f7d24e)
+
+commit 7ea979f88f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 1 16:38:35 2023 +0000
+
+    [Automatic update for 2023-01-01]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 088279a064
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Jan 1 10:22:36 2023 +0100
+
+    Happy New Year 2023
+
+commit c9433c341b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 30 14:42:01 2022 -0500
+
+    conversation: Remove conversation from the correct table
+
+    In conversation_set_addr2, if the existing conversation has a port2,
+    remove it from the _no_addr2 hashtable, not the _no_port2 hashtable.
+
+    Fix #18766
+
+    (backported from 55ffdb08bb5c12cfd5e2fee05f8c01d23ceaf9a3)
+
+commit 21f5e58801
+Author: João Valverde <j@v6e.pt>
+Date:   Sat Dec 18 01:28:32 2021 +0000
+
+    Fix dissector -Wrestrict warnings
+
+    [31/254] Building C object epan/dissectors/CMakeFiles/dissectors.dir/packet-bssgp.c.o
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-bssgp.c: In function ‘de_bssgp_cell_id’:
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-bssgp.c:859:9: warning: ‘snprintf’ argument 4 overlaps destination object ‘add_string’ [-Wrestrict]
+      859 |         snprintf(add_string, string_len, "%s, CI %u", add_string, ci);
+          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-bssgp.c: In function ‘de_bssgp_rim_routing_inf’:
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-bssgp.c:2313:17: warning: ‘snprintf’ argument 4 overlaps destination object ‘add_string’ [-Wrestrict]
+     2313 |                 snprintf(add_string, string_len, " %s, RNC-ID %u", add_string, rnc_id);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-bssgp.c: In function ‘de_bssgp_rnc_identifier’:
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-bssgp.c:2767:9: warning: ‘snprintf’ argument 4 overlaps destination object ‘add_string’ [-Wrestrict]
+     2767 |         snprintf(add_string, string_len, " %s, RNC-ID %u", add_string, rnc_id);
+          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [85/254] Building C object epan/dissectors/CMakeFiles/dissectors.dir/packet-gsm_a_bssmap.c.o
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-gsm_a_bssmap.c: In function ‘be_cell_id_type’:
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-gsm_a_bssmap.c:1842:21: warning: ‘snprintf’ argument 4 overlaps destination object ‘add_string’ [-Wrestrict]
+     1842 |                     snprintf(add_string, string_len, "%s/RNC-ID (%u)", add_string, value);
+          |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-gsm_a_bssmap.c:1869:17: warning: ‘snprintf’ argument 4 overlaps destination object ‘add_string’ [-Wrestrict]
+     1869 |                 snprintf(add_string, string_len, "%s/CI (%u)", add_string, value);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [137/254] Building C object epan/dissectors/CMakeFiles/dissectors.dir/packet-mswsp.c.o
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-mswsp.c: In function ‘get_name_from_fullpropspec’:
+    /home/jpv/code/wireshark/wireshark/epan/dissectors/packet-mswsp.c:2975:25: warning: ‘snprintf’ argument 4 overlaps destination object ‘dest’ [-Wrestrict]
+     2975 |                         snprintf(dest, bufsize, "%s <INVALID>", dest);
+          |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Partial fix for #18744.
+
+    (cherry picked from commit 92b4e3277c89aa9b618a73f293748e3381f0e6ae)
+
+    Conflicts:
+            epan/dissectors/packet-bssgp.c
+            epan/dissectors/packet-gsm_a_bssmap.c
+            epan/dissectors/packet-mswsp.c
+
+commit 42dba0be3a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 18 11:59:39 2022 -0800
+
+    Tools: Check the last modified date in make-tls-ct-logids.py
+
+    In "update" mode, exclude the last modified time when comparing against
+    the current code block.
+
+    (cherry picked from commit 47fa90e41e2f72cb3f35ef4c2b143b495118d0e6)
+
+commit 3e73371a27
+Author: João Valverde <j@v6e.pt>
+Date:   Sat Nov 12 19:58:21 2022 +0000
+
+    NFS: Fix string decoding to use UTF-8
+
+    Use tvb_get_string_enc() to read a string.
+
+    I think NFSv3 doesn't specify an encoding so interoperabilty
+    is dicey. I believe NFSv4 specifies UTF-8.
+
+    Fixes #18628.
+
+    (cherry picked from commit ae0c38a07a64a7c002d64b31e13c349ee4919791)
+
+commit e31c9d7af3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 25 16:38:05 2022 +0000
+
+    [Automatic update for 2022-12-25]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 56861c115d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 21 18:37:05 2022 -0800
+
+    wsutil: Make progfile_dir the main program file directory.
+
+    If our program file directory has a trailing "/extcap" or "\extcap",
+    trim it off. This should let extcaps determine the proper data file and
+    plugin directories. Fixes #15592.
+
+    (cherry picked from commit 5dcefc77777f47407801f8c51d3951fcb675da6e)
+
+commit 2e551335f5
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 22 18:28:04 2022 -0800
+
+    Fix display of help file path name in error dialog.
+
+    Display it as a pathname in the native format (e.g., C:\this\is\wrong),
+    not as the path component of the URL supplied (e.g., /C/this/is/wrong).
+
+    Fixes some confusion that appeared in a comment in #15592 (but not the
+    underlying bug - fixing that bug should prevent that dialog from popping
+    up in the first place).
+
+    (cherry picked from commit 63bd8fde634cb5c33d9d6e170735554d28674b52)
+
+commit 05d02add82
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Dec 22 10:02:41 2022 +0100
+
+    ASN.1 PER: fix dissect_per_restricted_character_string_sorted()
+
+    Avoid incrementing offset if it was already changed when trying to fetch
+    length. Closes #18702
+
+    (cherry picked from commit e9176b652dc4f76dd9708d1ac94a41eeb16b540a)
+
+commit ca6c8c6927
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 18 16:37:02 2022 +0000
+
+    [Automatic update for 2022-12-18]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 2aa7856bf7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 15 16:16:00 2022 -0800
+
+    RTPS: Add offset overflow checking.
+
+    Add and use check_offset_addition, which adds an expert item and throws
+    an exception if we're about to overflow our offset.
+
+    Fixes #18737
+
+    (cherry picked from commit b0cf030b30a9b63e678fee294321642beb42b724)
+
+    Conflicts:
+            epan/dissectors/packet-rtps.c
+
+commit 70a7ba7ed7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 13 20:24:39 2022 -0500
+
+    UMTS RLC: AMD and UMD PDUs can be larger than 255 bytes
+
+    AMD and UMD PDUs can be larger than 255 bytes, so the
+    offset should not be stored in a guint8. Otherwise,
+    the offset overflows and the last 256 bytes of the PDU
+    are added as an extra "fragment."
+
+    (cherry picked from commit 10666fb7c319feeb52a9fad0a139cd406a6895a6)
+
+commit d86defabff
+Author: Brendan Meath <bmeath@proton.me>
+Date:   Wed Dec 14 18:55:55 2022 +0000
+
+    NAS-5GS: change TLV to TLV_E for CAG Information list IE
+
+    (cherry picked from commit 3a43d97898c80dff10ad876a77ce91245e6a6b8f)
+
+    Conflicts:
+            epan/dissectors/packet-nas_5gs.c
+
+    (cherry picked from commit fc0afb18ecc8a7e3c20100da703149bd0e18ee82)
+
+commit d1f5073d2e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 13 12:56:16 2022 -0800
+
+    NCP: Add offset overflow checking.
+
+    Add and use check_offset_addition, which adds an expert item and throws
+    an exception if we're about to overflow our offset.
+
+    Fixes #18720
+
+    (cherry picked from commit dcf00fc3bdbd0884208b017b30d387d0fc0d2b93)
+
+commit 2517e806ab
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 13 07:33:19 2022 -0500
+
+    bpv6: Fix possible infinite loop
+
+    display_extension_block is supposed to return the current offset,
+    not the number of bytes remaining. The number of bytes remaining
+    can be less than the current offset and cause an infinite loop.
+
+    In the case of an error, set lastheader and return the current
+    offset in order to break out of the main processing loop.
+
+    Fix #18711.
+
+    (cherry picked from commit 2fd04b6ba9d830cd1324572530237b6fea58f96e)
+
+commit cdfc6d8374
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Fri Dec 9 09:17:03 2022 +0100
+
+    github: install cmake and winflexbison alongside other windows pkgs.
+
+    (cherry picked from commit c64eaf87afa65b01fe73a8befdc5716aee34e876)
+
+commit 81706637be
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 11 16:38:17 2022 +0000
+
+    [Automatic update for 2022-12-11]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 002bb51612
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Sat Dec 10 19:34:16 2022 +0100
+
+    USB: Fix Darwin source and destination handling
+
+    Set the direction based on request type in a similar manner as it done
+    for other URB types, i.e. set source to host on URB submit. Correctly
+    set bus number based on locationID upper 8 bits.
+
+    Fixes #16768
+
+    (cherry picked from commit cf6fd1248f58cba161885f030cf0ed038ddd6377)
+
+commit b912ce6fb4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 7 17:50:56 2022 -0800
+
+    Docs: Remove some leftover Perl POD markup.
+
+    (cherry picked from commit 48bb59d096c9217a986e7d57a836a42495bc3ff8)
+
+commit af9bbdca0a
+Author: Odysseus Yang <wiresharkyyh@outlook.com>
+Date:   Thu Dec 8 20:42:58 2022 +0000
+
+    MBIM: Remove repeated hf_mbim_ms_device_slot_mapping_info_map_count
+
+    (cherry picked from commit c19f31247fef67b54ce15c81391d1f54175a6f87)
+
+commit 71c6c2ad01
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 7 10:05:00 2022 -0800
+
+    Version: 3.6.10 → 3.6.11
+
+    [skip ci]
