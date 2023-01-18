@@ -13,6 +13,8 @@
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * The current implementation is based on the
    * ORAN-WG4.CUS.0-v01.00 specification, dated 2019/01/31.
+   * N.B. by now, descriptions have been taken from a variety of versions, so some section number references
+   * referring to earlier specs are now out of date.
    */
 #include <config.h>
 
@@ -103,7 +105,7 @@ static int hf_oran_reserved = -1;
 static int hf_oran_ext11_reserved = -1;
 static int hf_oran_reserved_bits = -1;
 
-/* static int hf_oran_bfwCompParam = -1; */
+static int hf_oran_bfwCompHdr = -1;
 static int hf_oran_bfwCompHdr_iqWidth = -1;
 static int hf_oran_bfwCompHdr_compMeth = -1;
 static int hf_oran_num_bf_weights = -1;
@@ -177,6 +179,8 @@ static gint ett_oran_offset_start_prb_num_prb = -1;
 static gint ett_oran_prb_cisamples = -1;
 static gint ett_oran_cisample = -1;
 static gint ett_oran_udcomphdr = -1;
+static gint ett_oran_bfwcomphdr = -1;
+
 
 
 /* Expert info */
@@ -599,14 +603,28 @@ static gfloat digital_power_scaling(gfloat f)
     return f / (1 << 15);
 }
 
+/* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
 static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
                               guint32 *iq_width, guint32 *comp_meth, proto_item **comp_meth_ti)
 {
-    proto_tree_add_item_ret_uint(tree, hf_oran_bfwCompHdr_iqWidth,
+    /* Subtree */
+    proto_item *bfwcomphdr_ti = proto_tree_add_string_format(tree, hf_oran_bfwCompHdr,
+                                                            tvb, offset, 1, "",
+                                                            "bfwCompHdr");
+    proto_tree *bfwcomphdr_tree = proto_item_add_subtree(bfwcomphdr_ti, ett_oran_bfwcomphdr);
+
+    /* Width and method */
+    proto_tree_add_item_ret_uint(bfwcomphdr_tree, hf_oran_bfwCompHdr_iqWidth,
                                  tvb, offset, 1, ENC_BIG_ENDIAN,  iq_width);
-    *comp_meth_ti = proto_tree_add_item_ret_uint(tree, hf_oran_bfwCompHdr_compMeth,
+    *comp_meth_ti = proto_tree_add_item_ret_uint(bfwcomphdr_tree, hf_oran_bfwCompHdr_compMeth,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN, comp_meth);
     offset++;
+
+    /* Summary */
+    proto_item_append_text(bfwcomphdr_ti, " (IqWidth=%u, compMeth=%s)",
+                           *iq_width,
+                           val_to_str_const(*comp_meth, bfw_comp_headers_comp_meth, "Unknown"));
+
     return offset;
 }
 
@@ -2488,6 +2506,15 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
+        {&hf_oran_bfwCompHdr,
+         {"bfwCompHdr", "oran_fh_cus.bfwCompHdr",
+          FT_STRING, BASE_NONE,
+          NULL, 0xf0,
+          NULL,
+          HFILL}
+        },
+
         /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_iqWidth,
          {"IQ Bit Width", "oran_fh_cus.bfwCompHdr_iqWidth",
@@ -2893,7 +2920,8 @@ proto_register_oran(void)
         &ett_oran_offset_start_prb_num_prb,
         &ett_oran_prb_cisamples,
         &ett_oran_cisample,
-        &ett_oran_udcomphdr
+        &ett_oran_udcomphdr,
+        &ett_oran_bfwcomphdr
     };
 
     expert_module_t* expert_oran;
