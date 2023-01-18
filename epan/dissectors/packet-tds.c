@@ -5382,17 +5382,43 @@ dissect_tds_returnstatus_token(tvbuff_t *tvb, guint offset, proto_tree *tree, td
     return cur - offset;
 }
 
+/*
+    The SSPI token returned during the login process.
+
+    2.2.7.22 SSPI
+    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/07e2bb7b-8ba6-445f-89b1-cc76d8bfa9c6
+        Token Stream-Specific Rules:
+          TokenType        =   BYTE
+          SSPIBuffer       =   US_VARBYTE
+
+        Token Stream Definition:
+          SSPI             =   TokenType
+                               SSPIBuffer
+
+    2.2.5.2 Data Stream Types
+    https://learn.microsoft.com/en-us/openspecs/sql_server_protocols/ms-sstds/4c628f3a-d824-4371-8201-d65c6c164d14
+        Generic Bytes
+           Similar to the variable-length character stream, variable-length byte streams are defined by a length
+           field followed by the data itself.
+             US_VARBYTE       =   USHORTLEN *BYTE
+*/
 static int
-dissect_tds_sspi_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tds_sspi_token(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
     guint cur = offset, len_field_val;
     int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-    len_field_val = tvb_get_guint16(tvb, cur, encoding) * 2;
+    len_field_val = tvb_get_guint16(tvb, cur, encoding);
     cur += 2;
 
     if (len_field_val) {
-        proto_tree_add_item(tree, hf_tds_sspi_buffer, tvb, cur, len_field_val, ENC_NA);
+        tvbuff_t *nt_tvb= tvb_new_subset_remaining(tvb, cur);
+
+        if(tvb_strneql(tvb, cur, "NTLMSSP", 7) == 0)
+            call_dissector(ntlmssp_handle, nt_tvb, pinfo, tree);
+        else
+            call_dissector(gssapi_handle, nt_tvb, pinfo, tree);
+
         cur += len_field_val;
     }
 
@@ -6761,7 +6787,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                     token_sz = dissect_tds_sessionstate_token(tvb, pos + 1, token_tree) + 1;
                     break;
                 case TDS_SSPI_TOKEN:
-                    token_sz = dissect_tds_sspi_token(tvb, pos + 1, token_tree) + 1;
+                    token_sz = dissect_tds_sspi_token(tvb, pos + 1, pinfo, token_tree) + 1;
                     break;
                 default:
                     token_sz = 0;
