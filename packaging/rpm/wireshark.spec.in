@@ -471,7 +471,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog INSTALL NEWS README*
+%doc AUTHORS COPYING NEWS README.md
 
 # Include the User Guide:
 %if %{with guides}
