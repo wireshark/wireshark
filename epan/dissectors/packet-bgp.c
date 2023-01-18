@@ -12030,7 +12030,7 @@ proto_register_bgp(void)
         { "Originating Router", "bgp.mcast_vpn_nlri_origin_router_ipv6", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_mcast_vpn_nlri_source_as,
-        { "Source AS", "bgp.mcast_vpn_nlri_source_as", FT_UINT16,
+        { "Source AS", "bgp.mcast_vpn_nlri_source_as", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
        { &hf_bgp_mcast_vpn_nlri_source_length,
         { "Multicast Source Length", "bgp.mcast_vpn_nlri_source_length", FT_UINT8,

@@ -8614,7 +8614,7 @@ proto_register_acn(void)
     /* Broker Vector */
     { &hf_rdmnet_broker_vector,
       { "Broker Vector", "rdmnet.broker_vector",
-        FT_UINT8, BASE_DEC, VALS(rdmnet_broker_vector_vals), 0x0,
+        FT_UINT16, BASE_DEC, VALS(rdmnet_broker_vector_vals), 0x0,
         NULL, HFILL }
     },
     /* Broker Client Protocol Vector */
@@ -8804,7 +8804,7 @@ proto_register_acn(void)
     /* EPT Vector */
     { &hf_rdmnet_ept_vector,
       { "EPT Vector", "rdmnet.ept_vector",
-        FT_UINT8, BASE_DEC, VALS(rdmnet_ept_vector_vals), 0x0,
+        FT_UINT32, BASE_DEC, VALS(rdmnet_ept_vector_vals), 0x0,
         NULL, HFILL }
     },
     /* EPT Destination CID */

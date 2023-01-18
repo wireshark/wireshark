@@ -1919,7 +1919,7 @@ proto_register_tecmp_payload(void) {
             FT_BOOLEAN, 32, TFS(&tfs_tecmp_payload_data_id_type), 0x80000000, NULL, HFILL }},
         { &hf_tecmp_payload_data_id_11,
             { "ID (11bit)", "tecmp.payload.data.can_id_11",
-            FT_UINT32, BASE_HEX_DEC, NULL, 0x7FF, NULL, HFILL }},
+            FT_UINT32, BASE_HEX_DEC, NULL, 0x000007FF, NULL, HFILL }},
         { &hf_tecmp_payload_data_id_29,
             { "ID (29bit)", "tecmp.payload.data.can_id_29",
             FT_UINT32, BASE_HEX_DEC, NULL, 0x1FFFFFFF, NULL, HFILL }},

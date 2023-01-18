@@ -452,7 +452,7 @@ static guint dissect_norm_cmd_squelch(proto_tree *tree, packet_info *pinfo,
     offset = dissect_feccode(tree, tvb, offset, pinfo, 0);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_item(tree, hf_cc_transport_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(tree, hf_cc_transport_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
     }
     return offset;
 }

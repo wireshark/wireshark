@@ -11961,7 +11961,7 @@ proto_register_amqp(void)
             "Previously transferred messages", HFILL}},
         {&hf_amqp_0_10_method_message_transfer_reject_code, {
             "Reject-code", "amqp.message.reject.reject-code",
-            FT_UINT8, BASE_DEC, VALS(amqp_0_10_message_transfer_reject_codes), 0x0,
+            FT_UINT16, BASE_DEC, VALS(amqp_0_10_message_transfer_reject_codes), 0x0,
             "Message reject code", HFILL}},
         {&hf_amqp_0_10_method_message_reject_text, {
             "Text", "amqp.message.reject.text",

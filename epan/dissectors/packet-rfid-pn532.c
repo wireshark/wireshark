@@ -2006,7 +2006,7 @@ void proto_register_pn532(void)
          {"Not Used", "pn532.txmode.not_used.2_3", FT_UINT8, BASE_HEX,
           NULL, 0xC0, NULL, HFILL}},
         {&hf_pn532_txmode_tx_framing,
-         {"Tx Framing", "pn532.txmode.not_used.2_3", FT_UINT8, BASE_HEX,
+         {"Tx Framing", "pn532.txmode.tx_framing", FT_UINT8, BASE_HEX,
           VALS(pn532_txframing_vals), 0x03, NULL, HFILL}},
         {&hf_pn532_baudrate,
          {"Baudrate", "pn532.baudrate", FT_UINT8, BASE_HEX,

@@ -140,7 +140,7 @@ dissect_ecp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	ecp_unknown_tlv_tree = proto_tree_add_subtree(tree, tvb, offset, (tempLen + 2), ett_ecp, NULL, "Unknown TLV");
 
-	proto_tree_add_item(ecp_unknown_tlv_tree, hf_ecp_subtype, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ecp_unknown_tlv_tree, hf_ecp_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	return -1;
 }

@@ -3691,7 +3691,7 @@ void proto_register_catapult_dct2000(void)
 
         { &hf_catapult_dct2000_ueid,
             { "UE Id",
-              "dct2000.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ueid", FT_UINT32, BASE_DEC, NULL, 0x0,
               "User Equipment Identifier", HFILL
             }
         },

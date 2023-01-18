@@ -1625,13 +1625,13 @@ proto_register_acdr(void)
         },
         { &hf_acdr_mii_sequence,
             { "MII sequence number", "acdr.mii_sequence_num",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_acdr_mii_packet_size,
             { "MII packet size", "acdr.mii_packet_size",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },

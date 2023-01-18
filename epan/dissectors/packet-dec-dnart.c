@@ -1291,7 +1291,7 @@ proto_register_dec_rt(void)
             NULL, HFILL }},
         { &hf_dec_rt_tiinfo,
           { "Routing information",    "dec_dna.ctl.tiinfo",
-            FT_UINT8,    BASE_HEX,    VALS(rt_tiinfo_vals), 0x0,
+            FT_UINT16,    BASE_HEX,    VALS(rt_tiinfo_vals), 0x0,
             NULL, HFILL }},
         { &hf_dec_rt_blk_size,
           { "Block size",            "dec_dna.ctl.blk_size",

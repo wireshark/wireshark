@@ -868,6 +868,7 @@ void proto_register_ubertooth(void);
 void proto_reg_handoff_ubertooth(void);
 
 
+/* TODO: rewrite to use e.g. proto_tree_add_bitmask() ? */
 static void
 dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 register_id)
 {
@@ -2954,7 +2955,7 @@ proto_register_ubertooth(void)
         },
         { &hf_cc2400_lmtst_lna_current,
             { "Main current in the LNA",                   "ubertooth.register.value.lmtst.lna_current",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_lna_current_vals_ext, 0x003,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_lna_current_vals_ext, 0x0003,
             NULL, HFILL }
         },
         { &hf_cc2400_manor_vga_reset_n,
@@ -3079,7 +3080,7 @@ proto_register_ubertooth(void)
         },
         { &hf_cc2400_mdmtst1_bsync_threshold,
             { "B-Sync Threshold",                          "ubertooth.register.value.mdmtst1.bsync_threshold",
-            FT_UINT16, BASE_DEC, NULL, 0x07F,
+            FT_UINT16, BASE_DEC, NULL, 0x007F,
             NULL, HFILL }
         },
         { &hf_cc2400_dactst_reserved,

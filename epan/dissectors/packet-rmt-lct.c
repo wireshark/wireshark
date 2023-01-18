@@ -324,6 +324,8 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         lct_tree = proto_item_add_subtree(ti, ett_main);
 
         /* Fill the LCT subtree */
+
+        /* LCT version number (4 bits) */
         proto_tree_add_item(lct_tree, hf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         ti = proto_tree_add_item(lct_tree, hf_fsize_header, tvb, offset, 2, ENC_BIG_ENDIAN);

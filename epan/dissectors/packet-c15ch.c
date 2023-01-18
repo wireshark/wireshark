@@ -8425,7 +8425,7 @@ void proto_register_c15ch(void)
         },
         { &hf_c15ch_orig_iptime,
             { "IP Time", "c15.orig.iptime",
-            FT_UINT8, BASE_HEX,
+            FT_UINT32, BASE_HEX,
             NULL,
             0x0, NULL, HFILL}
         },
@@ -10675,7 +10675,7 @@ void proto_register_c15ch(void)
         },
         { &hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_alert_info,
             { "IP GWE Alert Info", "c15.iinc_gwe.ptrk_setup.ip_gwe_alert_info",
-            FT_UINT8, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL,
             0x0, NULL, HFILL}
         },
@@ -11272,7 +11272,7 @@ void proto_register_c15ch(void)
        /* TODO */
         { &hf_c15ch_out_gwe_digit_scan_voip_dgmp_override,
             { "VOIP DGMP Override", "c15.out_gwe.digit_scan.voip_dgmp_override",
-            FT_UINT8, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL,
             0x0, NULL, HFILL}
         },

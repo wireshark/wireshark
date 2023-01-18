@@ -546,7 +546,7 @@ proto_register_vcdu(void)
 #if 0
         { &hf_smex_spare,
           { "Spare",           "vcdu.smex.spare",
-            FT_UINT16, BASE_DEC, NULL, 0x03f,
+            FT_UINT16, BASE_DEC, NULL, 0x003f,
             "SMEX Spare", HFILL }
         },
 #endif

@@ -118,7 +118,7 @@ proto_register_tdmoe(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_tdmoe_subaddress,
-		  { "Subaddress",	"tdmoe.subaddress", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  { "Subaddress",	"tdmoe.subaddress", FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_tdmoe_samples,
 		  { "Samples",	"tdmoe.samples", FT_UINT8, BASE_DEC, NULL, 0x0,

@@ -9184,7 +9184,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_radio_receive_state,
               { "Radio Receive State", "dis.radio.receive_state",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioReceiveState_Strings), 0x0,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_RadioReceiveState_Strings), 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_radio_input_source,

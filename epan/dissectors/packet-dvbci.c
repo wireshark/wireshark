@@ -6056,7 +6056,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_lsc_dst_port,
           { "Destination port", "dvb-ci.lsc.dst_port",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_lsc_proto,
           { "Protocol", "dvb-ci.lsc.protocol",

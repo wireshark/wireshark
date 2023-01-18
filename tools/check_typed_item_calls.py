@@ -37,7 +37,7 @@ errors_found = 0
 
 def name_has_one_of(name, substring_list):
     for word in substring_list:
-        if name.find(word) != -1:
+        if name.lower().find(word) != -1:
             return True
     return False
 
@@ -274,8 +274,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'stun.type.class',
                                 'bssgp.csg_id', 'tiff.t6.unused', 'artnet.ip_prog_reply.unused',
                                 'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu',
-                                'stun.type.method' # figure 3 in rfc 5389
-
+                                'stun.type.method', # figure 3 in rfc 5389
+                                'tds.done.status' # covers all bits in bitset
                               }
 ##################################################################################################
 
@@ -399,6 +399,9 @@ class Item:
         # Do see non-contiguous bits often for these..
         if name_has_one_of(self.hf, ['reserved', 'unknown']):
             return
+        if name_has_one_of(self.label, ['reserved', 'unknown']):
+            return
+
 
         # Walk past any l.s. 0 bits
         n = 0
