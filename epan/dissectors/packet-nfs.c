@@ -10414,7 +10414,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					" Offset: %" PRIu64
 					" Len: %" PRIu64,
 					sid_hash, file_offset, length64);
-			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, tree);
+			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, newftree);
 			break;
 
 		case NFS4_OP_OFFLOAD_CANCEL:
@@ -11006,7 +11006,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_IO_ADVISE:
-			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, tree);
+			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, newftree);
 			break;
 
 		case NFS4_OP_OFFLOAD_STATUS:
