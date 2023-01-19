@@ -1927,7 +1927,6 @@ set(INSTALL_DIRS
 # Installed into ${DATAFILE_DIR}
 set(INSTALL_FILES
 	Acknowledgements.md
-	docbook/ws.css
 	enterprises.tsv
 	gpl-2.0-standalone.html
 	manuf
@@ -1943,6 +1942,7 @@ set(DOC_FILES
 	resources/share/doc/wireshark/ipmap.html
 	resources/share/doc/wireshark/pdml2html.xsl
 	doc/README.xml-output
+	docbook/ws.css
 )
 
 if (BUILD_logray)
