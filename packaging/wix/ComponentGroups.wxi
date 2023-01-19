@@ -87,7 +87,6 @@
         <ComponentRef Id="cmpREADME_txt" />
         <ComponentRef Id="cmpREADME_windows_txt" />
         <ComponentRef Id="cmpAUTHORS_SHORT" />
-        <ComponentRef Id="cmpGpl2_Standalone_html" />
         <ComponentRef Id="cmpManuf" />
         <ComponentRef Id="cmpWka" />
         <ComponentRef Id="cmpServices" />
