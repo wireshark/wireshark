@@ -3185,15 +3185,12 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
          break;
 
       case LIST_SERVICES:
-         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
-         break;
-
       case LIST_IDENTITY:
-         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
-         break;
-
       case LIST_INTERFACES:
-         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
+         if (packet_type == ENIP_RESPONSE_PACKET)
+         {
+            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
+         }
          break;
 
       case REGISTER_SESSION:
