@@ -358,7 +358,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->searchShortcuts, &QLineEdit::textChanged, shortcutProxyModel, &AStringListListSortFilterProxyModel::setFilter);
 
     /* Acknowledgements */
-    f_acknowledgements.setFileName(get_datafile_path("Acknowledgements.md"));
+    f_acknowledgements.setFileName(":/about/Acknowledgements.md");
 
     f_acknowledgements.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_acks(&f_acknowledgements);
@@ -380,7 +380,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 #endif
 
     /* License */
-    f_license.setFileName(get_datafile_path("gpl-2.0-standalone.html"));
+    f_license.setFileName(":/about/gpl-2.0-standalone.html");
 
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);

@@ -1926,9 +1926,7 @@ set(INSTALL_DIRS
 
 # Installed into ${DATAFILE_DIR}
 set(INSTALL_FILES
-	Acknowledgements.md
 	enterprises.tsv
-	gpl-2.0-standalone.html
 	manuf
 	resources/share/wireshark/cfilters
 	resources/share/wireshark/colorfilters
