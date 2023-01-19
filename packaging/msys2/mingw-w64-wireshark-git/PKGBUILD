@@ -45,13 +45,14 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              'git')
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-source=("${_realname}"::"git+https://gitlab.com/wireshark/wireshark.git")
+_commit=${PKG_COMMIT:-HEAD}
+source=("${_realname}"::"git+https://gitlab.com/wireshark/wireshark.git#commit=${_commit}")
 sha256sums=('SKIP')
 
 pkgver() {
   cd "${_realname}"
 
-  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g;s/^v//g'
+  git describe --long "${_commit}" | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g;s/^v//g'
 }
 
 build() {

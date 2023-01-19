@@ -16,9 +16,11 @@ jobs:
           update: true
           install: base-devel
       - name: Build
+        env:
+          PKG_COMMIT: ${{ github.sha }}
         run: |
           mkdir build && cd build
-          wget "https://raw.githubusercontent.com/wireshark/wireshark/$GITHUB_SHA/packaging/msys2/mingw-w64-wireshark-git/PKGBUILD"
+          wget "https://raw.githubusercontent.com/wireshark/wireshark/${PKG_COMMIT}/packaging/msys2/mingw-w64-wireshark-git/PKGBUILD"
           makepkg-mingw --cleanbuild --syncdeps --force --install --noconfirm
       - name: Show version
         run: |
