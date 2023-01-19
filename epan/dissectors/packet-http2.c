@@ -3618,42 +3618,43 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
             case HTTP2_SETTINGS_INITIAL_WINDOW_SIZE:
                 {
                     guint32 newInitialWindowSize;
-                    guint32 flow_index;
 
                     proto_tree_add_item_ret_uint(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_BIG_ENDIAN, &newInitialWindowSize);
 
-                    flow_index = select_http2_flow_index(pinfo, h2session);
+                    if (h2session) {
+                        guint32 flow_index = select_http2_flow_index(pinfo, h2session);
 
-                    /* This new initial window size will be applied to
-                     * any new future streams going in the other direction.
-                     * Note that this setting does not apply to the connection:
-                     * https://lists.w3.org/Archives/Public/ietf-http-wg/2023JanMar/0003.html
-                     */
-                    flow_index ^= 1;
+                        /* This new initial window size will be applied to
+                         * any new future streams going in the other direction.
+                         * Note that this setting does not apply to the connection:
+                         * https://lists.w3.org/Archives/Public/ietf-http-wg/2023JanMar/0003.html
+                         */
+                        flow_index ^= 1;
 
-                    h2session->initial_new_stream_window_size[flow_index] = newInitialWindowSize;
+                        h2session->initial_new_stream_window_size[flow_index] = newInitialWindowSize;
 
 #ifdef HAVE_NGHTTP2
-                    {
-                        guint32 previousInitialWindowSize = h2session->initial_new_stream_window_size[flow_index];
-                        gint32 windowSizeDiff = newInitialWindowSize - previousInitialWindowSize;
+                        {
+                            guint32 previousInitialWindowSize = h2session->initial_new_stream_window_size[flow_index];
+                            gint32 windowSizeDiff = newInitialWindowSize - previousInitialWindowSize;
 
-                        /* "When the value of SETTINGS_INITIAL_WINDOW_SIZE changes,
-                        *  a receiver MUST adjust the size of all stream flow-control
-                        *  windows that it maintains by the difference between the
-                        *  new value and the old value."
-                        * https://www.ietf.org/rfc/rfc9113.html#section-6.9.2-3
-                        */
-                        if (windowSizeDiff != 0) {
-                            http2_adjust_window_t userData;
+                            /* "When the value of SETTINGS_INITIAL_WINDOW_SIZE changes,
+                            *  a receiver MUST adjust the size of all stream flow-control
+                            *  windows that it maintains by the difference between the
+                            *  new value and the old value."
+                            * https://www.ietf.org/rfc/rfc9113.html#section-6.9.2-3
+                            */
+                            if (windowSizeDiff != 0) {
+                                http2_adjust_window_t userData;
 
-                            userData.windowSizeDiff = windowSizeDiff;
-                            userData.flow_index = flow_index;
+                                userData.windowSizeDiff = windowSizeDiff;
+                                userData.flow_index = flow_index;
 
-                            wmem_map_foreach(h2session->per_stream_info, adjust_existing_window, &userData);
+                                wmem_map_foreach(h2session->per_stream_info, adjust_existing_window, &userData);
+                            }
                         }
-                    }
 #endif
+                    }
                 }
             break;
             case HTTP2_SETTINGS_MAX_FRAME_SIZE:
