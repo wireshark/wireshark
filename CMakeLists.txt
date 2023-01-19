@@ -1935,13 +1935,14 @@ set(INSTALL_FILES
 	resources/share/wireshark/colorfilters
 	resources/share/wireshark/dfilter_macros
 	resources/share/wireshark/dfilters
-	resources/share/wireshark/pdml2html.xsl
 	resources/share/wireshark/smi_modules
 	services
 	wka
 )
 set(DOC_FILES
 	resources/share/doc/wireshark/ipmap.html
+	resources/share/doc/wireshark/pdml2html.xsl
+	doc/README.xml-output
 )
 
 if (BUILD_logray)
@@ -3798,6 +3799,13 @@ install(
 		WORLD_READ
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}
+)
+
+install(
+	FILES
+		${DOC_FILES}
+	DESTINATION
+		${CMAKE_INSTALL_DOCDIR}
 )
 
 set(SHARK_PUBLIC_HEADERS

@@ -133,10 +133,6 @@ if(ASCIIDOCTOR_FOUND)
 	)
 endif()
 
-list(APPEND HTML_INSTALL_FILES
-	${CMAKE_SOURCE_DIR}/resources/share/doc/wireshark/ipmap.html
-)
-
 install(
 	FILES
 		${HTML_INSTALL_FILES}
