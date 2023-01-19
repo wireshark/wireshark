@@ -533,24 +533,22 @@ void FollowStreamDialog::resetStream()
     g_list_free(follow_info_.payload);
 
     //Only TCP stream uses fragments
-    if (follow_type_ == FOLLOW_TCP) {
-        for (cur = follow_info_.fragments[0]; cur; cur = gxx_list_next(cur)) {
-            follow_record = gxx_list_data(follow_record_t *, cur);
-            if (follow_record->data) {
-                g_byte_array_free(follow_record->data, TRUE);
-            }
-            g_free(follow_record);
+    for (cur = follow_info_.fragments[0]; cur; cur = gxx_list_next(cur)) {
+        follow_record = gxx_list_data(follow_record_t *, cur);
+        if (follow_record->data) {
+            g_byte_array_free(follow_record->data, TRUE);
         }
-        follow_info_.fragments[0] = Q_NULLPTR;
-        for (cur = follow_info_.fragments[1]; cur; cur = gxx_list_next(cur)) {
-            follow_record = gxx_list_data(follow_record_t *, cur);
-            if (follow_record->data) {
-                g_byte_array_free(follow_record->data, TRUE);
-            }
-            g_free(follow_record);
-        }
-        follow_info_.fragments[1] = Q_NULLPTR;
+        g_free(follow_record);
     }
+    follow_info_.fragments[0] = Q_NULLPTR;
+    for (cur = follow_info_.fragments[1]; cur; cur = gxx_list_next(cur)) {
+        follow_record = gxx_list_data(follow_record_t *, cur);
+        if (follow_record->data) {
+            g_byte_array_free(follow_record->data, TRUE);
+        }
+        g_free(follow_record);
+    }
+    follow_info_.fragments[1] = Q_NULLPTR;
 
     free_address(&follow_info_.client_ip);
     free_address(&follow_info_.server_ip);
