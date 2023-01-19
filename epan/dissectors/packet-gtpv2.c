@@ -9149,12 +9149,12 @@ void proto_register_gtpv2(void)
     static hf_register_info hf_gtpv2[] = {
         { &hf_gtpv2_response_in,
         { "Response In", "gtpv2.response_in",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
         "The response to this GTP request is in this frame", HFILL }
         },
         { &hf_gtpv2_response_to,
         { "Response To", "gtpv2.response_to",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
         "This is a response to the GTP request in this frame", HFILL }
         },
         { &hf_gtpv2_response_time,
