@@ -320,8 +320,13 @@ find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
 
   if (dependent_frame && frames) {
     dependent_fd = frame_data_sequence_find(frames, dependent_frame);
-    dependent_fd->dependent_of_displayed = 1;
-    g_slist_foreach(dependent_fd->dependent_frames, find_and_mark_frame_depended_upon, frames);
+    /* Don't recurse for packets we've already marked. Note we assume that no
+     * packet depends on a future packet; we assume that in other places too.
+     */
+    if (!(dependent_fd->dependent_of_displayed || dependent_fd->passed_dfilter)) {
+      dependent_fd->dependent_of_displayed = 1;
+      g_slist_foreach(dependent_fd->dependent_frames, find_and_mark_frame_depended_upon, frames);
+    }
   }
 }
 
