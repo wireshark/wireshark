@@ -101,7 +101,6 @@ private:
     QPushButton             *b_save_;
     QPushButton             *b_back_;
 
-    follow_type_t           follow_type_;
     follow_info_t           follow_info_;
     register_follow_t*      follower_;
     show_type_t             show_type_;

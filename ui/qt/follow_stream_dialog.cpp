@@ -69,7 +69,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     WiresharkDialog(parent, cf),
     ui(new Ui::FollowStreamDialog),
     b_find_(NULL),
-    follow_type_(type),
     follower_(NULL),
     show_type_(SHOW_ASCII),
     truncated_(false),
@@ -578,24 +577,11 @@ FollowStreamDialog::readStream()
     last_packet_ = 0;
     turns_ = 0;
 
-    switch(follow_type_) {
-
-    case FOLLOW_TCP :
-    case FOLLOW_UDP :
-    case FOLLOW_DCCP :
-    case FOLLOW_HTTP :
-    case FOLLOW_HTTP2:
-    case FOLLOW_QUIC:
-    case FOLLOW_TLS :
-    case FOLLOW_SIP :
-    case FOLLOW_WEBSOCKET :
+    if (follower_) {
         ret = readFollowStream();
-        break;
-
-    default :
+    } else {
         ret = (frs_return_t)0;
         ws_assert_not_reached();
-        break;
     }
 
     ui->teStreamContent->moveCursor(QTextCursor::Start);
@@ -993,19 +979,13 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(cap_file_.capFile()->edt, &cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
     }
     if (follow_filter.isEmpty()) {
-        if (follow_type_ == FOLLOW_QUIC) {
-            QMessageBox::warning(this,
-                                 tr("Error creating filter for this stream."),
-                                 tr("QUIC streams not found on the selected packet."));
-        } else {
-            // XXX: This error probably has to do with tunneling, where
-            // the addresses or ports changed after the TCP or UDP layer.
-            // (The appropriate layer must be present, or else the GUI
-            // doesn't allow the option to be selected.)
-            QMessageBox::warning(this,
-                                 tr("Error creating filter for this stream."),
-                                 tr("A transport or network layer header is needed."));
-        }
+        // XXX: This error probably has to do with tunneling (#18231), where
+        // the addresses or ports changed after the TCP or UDP layer.
+        // (The appropriate layer must be present, or else the GUI
+        // doesn't allow the option to be selected.)
+        QMessageBox::warning(this,
+                             tr("Error creating filter for this stream."),
+                             tr("%1 stream not found on the selected packet.").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_)))));
         return false;
     }
 
