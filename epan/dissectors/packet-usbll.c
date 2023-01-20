@@ -1330,6 +1330,21 @@ usbll_reset_endpoint_info(usbll_endpoint_info_t *info, usbll_ep_type_t type, gui
     info->requested_transfer_length = 0;
 }
 
+static void usbll_reset_device_endpoints(int addr)
+{
+    int ep;
+    DISSECTOR_ASSERT((addr >= 0) && (addr <= 127));
+
+    /* Endpoint 0 is always control type */
+    usbll_reset_endpoint_info(&ep_info_in[addr][0], USBLL_EP_CONTROL, 0);
+    usbll_reset_endpoint_info(&ep_info_out[addr][0], USBLL_EP_CONTROL, 0);
+    for (ep = 1; ep < 16; ep++)
+    {
+        usbll_reset_endpoint_info(&ep_info_in[addr][ep], USBLL_EP_UNKNOWN, 0);
+        usbll_reset_endpoint_info(&ep_info_out[addr][ep], USBLL_EP_UNKNOWN, 0);
+    }
+}
+
 static void usbll_init_endpoint_tables(void)
 {
     /* Address is 7 bits (0 - 127), while endpoint is 4 bits (0 - 15) */
@@ -1347,15 +1362,7 @@ static void usbll_init_endpoint_tables(void)
 
     for (addr = 0; addr < 128; addr++)
     {
-        int ep;
-        /* Endpoint 0 is always control type */
-        usbll_reset_endpoint_info(&ep_info_in[addr][0], USBLL_EP_CONTROL, 0);
-        usbll_reset_endpoint_info(&ep_info_out[addr][0], USBLL_EP_CONTROL, 0);
-        for (ep = 1; ep < 16; ep++)
-        {
-            usbll_reset_endpoint_info(&ep_info_in[addr][ep], USBLL_EP_UNKNOWN, 0);
-            usbll_reset_endpoint_info(&ep_info_out[addr][ep], USBLL_EP_UNKNOWN, 0);
-        }
+        usbll_reset_device_endpoints(addr);
     }
 }
 
@@ -1575,6 +1582,16 @@ static gboolean is_get_device_descriptor(guint8 setup[8])
            (length >= 8); /* atleast 8 bytes needed to get bMaxPacketSize0 */
 }
 
+static gboolean is_set_address(guint8 setup[8])
+{
+    guint16 addr = setup[2] | (setup[3] << 8);
+    guint16 index = setup[4] | (setup[5] << 8);
+    guint16 length = setup[6] | (setup[7] << 8);
+    return (setup[0] == USB_DIR_OUT) &&
+           (setup[1] == USB_SETUP_SET_ADDRESS) &&
+           (addr <= 127) && (index == 0x00) && (length == 0x00);
+}
+
 static gint
 dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                    guint8 pid, usbll_data_t *data)
@@ -1686,6 +1703,19 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                 if (is_get_device_descriptor(setup))
                 {
                     ep_in->data = USBLL_TRANSFER_GET_DEVICE_DESCRIPTOR;
+                }
+                else if (is_set_address(setup))
+                {
+                    int addr = setup[2];
+                    if (addr > 0)
+                    {
+                        /* Prevent transfer reassembly across reset boundary.
+                         * Do not reset for default address (0) because there
+                         * can only be control transfers to default address
+                         * and we don't want to lose max packet size info.
+                         */
+                        usbll_reset_device_endpoints(addr);
+                    }
                 }
 
                 wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
