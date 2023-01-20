@@ -2987,25 +2987,6 @@ void LograyMainWindow::applyExportObject()
     export_dialog->show();
 }
 
-void LograyMainWindow::openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index) {
-    FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
-    connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
-    connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
-    fsd->addCodecs(text_codec_map_);
-    fsd->show();
-    if (use_stream_index) {
-        // If a specific conversation was requested, then ignore any previous
-        // display filters and display all related packets.
-        fsd->follow("", true, stream_num, sub_stream_num);
-    } else {
-        fsd->follow(getFilter());
-    }
-}
-
-void LograyMainWindow::openFollowStreamDialogForType(follow_type_t type) {
-    openFollowStreamDialog(type, 0, 0, false);
-}
-
 // -z expert
 void LograyMainWindow::statCommandExpertInfo(const char *, void *)
 {

@@ -304,16 +304,19 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         ctx_menu->addMenu(&colorize_menu_);
 
         main_menu_item = window()->findChild<QMenu *>("menuFollow");
-        submenu = new QMenu(main_menu_item->title(), ctx_menu);
-        ctx_menu->addMenu(submenu);
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowDCCPStream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTP2Stream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowQUICStream"));
-        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSIPCall"));
+        if (main_menu_item) {
+            submenu = new QMenu(main_menu_item->title(), ctx_menu);
+            ctx_menu->addMenu(submenu);
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowDCCPStream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTP2Stream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowQUICStream"));
+            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSIPCall"));
+        }
+
         ctx_menu->addSeparator();
     }
 

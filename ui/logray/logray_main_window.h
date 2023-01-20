@@ -431,9 +431,6 @@ private slots:
     void applyConversationFilter();
     void applyExportObject();
 
-    void openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index = true);
-    void openFollowStreamDialogForType(follow_type_t type);
-
     void statCommandExpertInfo(const char *, void *);
 
     void on_actionHelpContents_triggered();
