@@ -107,15 +107,23 @@ def generate_git_contributors_text(contributors_emails, git_authors_emails):
     return "\n".join(output_lines)
 
 
-def main():
-    stdoutu8 = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+# Read authos file until we find gitlog entries, then stop
+def read_authors(parsed_args):
+    lines = []
+    with open(parsed_args.authors[0], 'r', encoding='utf-8') as fh:
+        for line in fh.readlines():
+            if '= From git log =' in line:
+                break
+            lines.append(line)
+    return ''.join(lines)
 
+
+def main():
     parser = argparse.ArgumentParser(description="Generate the AUTHORS file combining existing AUTHORS file with git commit log.")
     parser.add_argument("authors", metavar='authors', nargs=1, help="path to AUTHORS file")
     parsed_args = parser.parse_args()
 
-    with open(parsed_args.authors[0], encoding='utf-8') as fh:
-        author_content = fh.read()
+    author_content = read_authors(parsed_args)
 
     # Collect the listed contributors emails so that we don't duplicate them
     # in the listing of git contributors
@@ -125,9 +133,11 @@ def main():
     git_contributors_text = generate_git_contributors_text(contributors_emails, git_authors_emails)
 
     # Now we can write our output:
-    git_contributor_header = '\n\n= From git log =\n\n'
+    git_contributor_header = '= From git log =\n\n'
     output = author_content + git_contributor_header + git_contributors_text + '\n'
-    stdoutu8.write(output)
+
+    with open(parsed_args.authors[0], 'w', encoding='utf-8') as fh:
+        fh.write(output)
 
 
 if __name__ == '__main__':
