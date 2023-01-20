@@ -208,15 +208,15 @@ FolderListModel::FolderListModel(QObject * parent):
 
 #ifdef HAVE_LUA
     /* pers plugins */
-    appendRow(QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir() << tr("lua scripts"));
+    appendRow(QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir() << tr("Lua scripts"));
 
     /* global plugins */
-    appendRow(QStringList() << tr("Global Lua Plugins") << get_plugins_dir() << tr("lua scripts"));
+    appendRow(QStringList() << tr("Global Lua Plugins") << get_plugins_dir() << tr("Lua scripts"));
 #endif
 
     /* Extcap */
-    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_persconffile_path("extcap", FALSE)).trimmed() << tr("Extcap Plugins search path"));
-    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()).trimmed() << tr("Extcap Plugins search path"));
+    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_persconffile_path("extcap", FALSE)).trimmed() << tr("external capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()).trimmed() << tr("external capture (extcap) plugins"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */
