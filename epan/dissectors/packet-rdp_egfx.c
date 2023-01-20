@@ -200,7 +200,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 	proto_tree *tree;
 	proto_tree *subtree;
 	gint offset = 0;
-	guint16 cmdId = 0;
+	guint32 cmdId = 0;
 	guint32 pduLength;
 	guint32 i;
 
@@ -215,8 +215,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		item = proto_tree_add_item(parent_tree, proto_rdp_egfx, tvb, offset, pduLength, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_rdp_egfx);
 
-		cmdId = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(tree, hf_egfx_cmdId, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_egfx_cmdId, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cmdId);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_egfx_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -230,6 +229,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			return offset;
 		}
 
+		gint nextOffset = offset + (pduLength - 8);
 		switch (cmdId) {
 		case RDPGFX_CMDID_CAPSADVERTISE: {
 			guint16 capsSetCount = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -265,7 +265,6 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			offset += 4;
 
 			proto_tree_add_item_ret_uint(subtree, hf_egfx_cap_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &capsDataLength);
-			offset += 4 + capsDataLength;
 			break;
 		}
 
@@ -274,7 +273,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			proto_tree *monitors_tree;
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Reset graphics");
 
-			subtree = proto_tree_add_subtree(tree, tvb, offset, pduLength-4, ett_egfx_reset, NULL, "Reset graphics");
+			subtree = proto_tree_add_subtree(tree, tvb, offset, pduLength-8, ett_egfx_reset, NULL, "Reset graphics");
 			proto_tree_add_item(subtree, hf_egfx_reset_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
@@ -311,8 +310,6 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 				proto_tree_add_item(monitor_tree, hf_egfx_reset_monitorDefFlags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 			}
-
-			offset += (pduLength - 8);
 			break;
 		}
 
@@ -323,14 +320,12 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_egfx_start_frameid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
 			break;
 		}
 
 		case RDPGFX_CMDID_ENDFRAME:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "End frame");
 			proto_tree_add_item(tree, hf_egfx_end_frameid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
 			break;
 
 		case RDPGFX_CMDID_FRAMEACKNOWLEDGE:
@@ -343,7 +338,6 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			offset += 4;
 
 			proto_tree_add_item(subtree, hf_egfx_ack_total_decoded, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
 			break;
 
 		case RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE:
@@ -359,13 +353,77 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			offset += 2;
 
 			proto_tree_add_item(subtree, hf_egfx_ackqoe_timediffedr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
+			break;
+
+		case RDPGFX_CMDID_CREATESURFACE:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Create Surface");
+			break;
+
+		case RDPGFX_CMDID_MAPSURFACETOOUTPUT:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Output");
+			break;
+
+		case RDPGFX_CMDID_WIRETOSURFACE_1:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Wire To Surface 1");
+			break;
+
+		case RDPGFX_CMDID_WIRETOSURFACE_2:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Wire To Surface 2");
+			break;
+
+		case RDPGFX_CMDID_DELETEENCODINGCONTEXT:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Delete Encoding Context");
+			break;
+
+		case RDPGFX_CMDID_SOLIDFILL:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Solid Fill");
+			break;
+
+		case RDPGFX_CMDID_SURFACETOSURFACE:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Surface To Surface");
+			break;
+
+		case RDPGFX_CMDID_SURFACETOCACHE:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Surface To Cache");
+			break;
+
+		case RDPGFX_CMDID_CACHETOSURFACE:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Cache To Surface");
+			break;
+
+		case RDPGFX_CMDID_EVICTCACHEENTRY:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Evict Cache Entry");
+			break;
+
+		case RDPGFX_CMDID_DELETESURFACE:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Delete Surface");
+			break;
+
+		case RDPGFX_CMDID_CACHEIMPORTOFFER:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Cache Import Offer");
+			break;
+
+		case RDPGFX_CMDID_CACHEIMPORTREPLY:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Cache Import Reply");
+			break;
+
+		case RDPGFX_CMDID_MAPSURFACETOWINDOW:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Window");
+			break;
+
+		case RDPGFX_CMDID_MAPSURFACETOSCALEDOUTPUT:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Scaled Output");
+			break;
+
+		case RDPGFX_CMDID_MAPSURFACETOSCALEDWINDOW:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Scaled Window");
 			break;
 
 		default:
-			offset += (pduLength - 8);
 			break;
 		}
+
+		offset = nextOffset;
 	}
 	return offset;
 }
