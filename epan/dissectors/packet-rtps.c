@@ -547,6 +547,7 @@ static dissector_table_t rtps_type_name_table;
 #define ENTITYKIND_RTI_BUILTIN_READER_WITH_KEY      (0x87)
 
 /* Submessage Type */
+#define SUBMESSAGE_HEADER_EXTENSION                (0x0)
 #define SUBMESSAGE_PAD                                  (0x01)
 #define SUBMESSAGE_DATA                                 (0x02)
 #define SUBMESSAGE_NOKEY_DATA                           (0x03)
@@ -873,6 +874,7 @@ static int hf_rtps_latency_budget_duration              = -1;
 static int hf_rtps_lifespan_duration                    = -1;
 static int hf_rtps_persistence                          = -1;
 static int hf_rtps_info_ts_timestamp                    = -1;
+static int hf_rtps_timestamp                            = -1;
 static int hf_rtps_locator_kind                         = -1;
 static int hf_rtps_locator_port                         = -1;
 /* static int hf_rtps_logical_port                         = -1; */
@@ -1134,6 +1136,7 @@ static int hf_rtps_flag_alive                                   = -1;
 static int hf_rtps_flag_data_present_v1                         = -1;
 static int hf_rtps_flag_multisubmessage                         = -1;
 static int hf_rtps_flag_endianness                              = -1;
+static int hf_rtps_flag_additional_authenticated_data           = -1;
 static int hf_rtps_flag_status_info                             = -1;
 static int hf_rtps_flag_data_present_v2                         = -1;
 static int hf_rtps_flag_inline_qos_v2                           = -1;
@@ -1275,6 +1278,14 @@ static int hf_rtps_flag_udpv4_wan_locator_r                     = -1;
 static int hf_rtps_flag_udpv4_wan_binding_ping_e                = -1;
 static int hf_rtps_flag_udpv4_wan_binding_ping_l                = -1;
 static int hf_rtps_flag_udpv4_wan_binding_ping_b                = -1;
+static int hf_rtps_header_extension_flags                       = -1;
+static int hf_rtps_flag_header_extension_message_length         = -1;
+static int hf_rtps_flag_header_extension_uextension             = -1;
+static int hf_rtps_flag_header_extension_wextension             = -1;
+static int hf_rtps_flag_header_extension_checksum1              = -1;
+static int hf_rtps_flag_header_extension_checksum2              = -1;
+static int hf_rtps_flag_header_extension_parameters             = -1;
+static int hf_rtps_flag_header_extension_timestamp              = -1;
 
 static int hf_rtps_fragments                                    = -1;
 static int hf_rtps_fragment                                     = -1;
@@ -1288,6 +1299,10 @@ static int hf_rtps_reassembled_in                               = -1;
 static int hf_rtps_reassembled_length                           = -1;
 static int hf_rtps_reassembled_data                             = -1;
 static int hf_rtps_encapsulation_extended_compression_options   = -1;
+static int hf_rtps_message_length                               = -1;
+static int hf_rtps_header_extension_checksum                    = -1;
+static int hf_rtps_uextension                                   = -1;
+static int hf_rtps_wextension                                   = -1;
 
 /* Subtree identifiers */
 static gint ett_rtps_dissection_tree = -1;
@@ -1530,6 +1545,7 @@ static const value_string submessage_id_vals[] = {
 };
 
 static const value_string submessage_id_valsv2[] = {
+  { SUBMESSAGE_HEADER_EXTENSION,        "HEADER_EXTENSION" },
   { SUBMESSAGE_PAD,                     "PAD" },
   { SUBMESSAGE_RTPS_DATA,               "DATA" },
   { SUBMESSAGE_RTPS_DATA_FRAG,          "DATA_FRAG" },
@@ -2240,7 +2256,7 @@ static int* const RTPS_SAMPLE_INFO_FLAGS16[] = {
   &hf_rtps_flag_data_present16,                 /* Bit 3 */
   &hf_rtps_flag_offsetsn_present,               /* Bit 2 */
   &hf_rtps_flag_inline_qos16_v2,                /* Bit 1 */
-  &hf_rtps_flag_timestamp_present,              /* Bit 0 */
+  &hf_rtps_flag_header_extension_timestamp,     /* Bit 0 */
   NULL
 };
 
@@ -2376,7 +2392,7 @@ static int* const SECURE_PREFIX_FLAGS[] = {
   &hf_rtps_flag_reserved10,                     /* Bit 4 */
   &hf_rtps_flag_reserved08,                     /* Bit 3 */
   &hf_rtps_flag_reserved04,                     /* Bit 2 */
-  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_additional_authenticated_data,   /* Bit 1 */
   &hf_rtps_flag_endianness,                     /* Bit 0 */
   NULL
 };
@@ -2557,6 +2573,17 @@ static int* const SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS[] = {
   NULL
 };
 
+static int* const HEADER_EXTENSION_MASK_FLAGS[] = {
+  &hf_rtps_flag_header_extension_parameters,      /* Bit 7 */
+  &hf_rtps_flag_header_extension_checksum1,       /* Bit 6 */
+  &hf_rtps_flag_header_extension_checksum2,       /* Bit 5 */
+  &hf_rtps_flag_header_extension_wextension,      /* Bit 4 */
+  &hf_rtps_flag_header_extension_uextension,      /* Bit 3 */
+  &hf_rtps_flag_header_extension_timestamp,       /* Bit 2 */
+  &hf_rtps_flag_header_extension_message_length,  /* Bit 1 */
+  &hf_rtps_flag_endianness,                       /* Bit 0 */
+  NULL
+};
 
 /**TCP get DomainId feature constants**/
 #define RTPS_UNKNOWN_DOMAIN_ID_VAL -1
@@ -10285,6 +10312,106 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   append_status_info(pinfo, wid, status_info);
 }
 
+
+static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, gint offset, guint8 flags,
+  const guint encoding, proto_tree* tree, int octets_to_next_header, guint16 vendor_id) {
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * | DATA_HE       |P|C|C|W|U|T|L|E|      octetsToNextHeader       |
+   * +---------------+---------------+---------------+---------------+
+   * | MessageLength messageLength            (Only if L == 1 )      |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + TimeStamp rtpsSendTimestamp            (Only if T == 1 )      +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * | UExtension4 uExtension                 (Only if U == 1 )      |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + WExtension8 wExtension8                (Only if W == 1 )      +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + Checksum messageChecksum               (Only if CC != 00 )    +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + ParameterList parameters               (Only if P != 0 )      +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * C1,C2 == 01 -> 4 bytes checksum
+   * C1,C2 == 10 -> 8 bytes checksum
+   * C1,C2 == 11 -> 16 bytes checksum
+   */
+#define RTPS_HE_ENDIANESS_FLAG         (0x01)
+#define RTPS_HE_MESSAGE_LENGTH_FLAG    (0x02)
+#define RTPS_HE_TIMESTAMP_FLAG         (0x04)
+#define RTPS_HE_UEXTENSION_FLAG        (0x08)
+#define RTPS_HE_WEXTENSION_FLAG        (0x10)
+#define RTPS_HE_CHECKSUM_2_FLAG        (0x20)
+#define RTPS_HE_CHECKSUM_1_FLAG        (0x40)
+#define RTPS_HE_PARAMETERS_FLAG        (0x80)
+
+  guint8 checksum_type = 0;
+  gint initial_offset = offset;
+
+  ++offset;
+  proto_tree_add_bitmask_value(tree, tvb, offset, hf_rtps_header_extension_flags, ett_rtps_flags, HEADER_EXTENSION_MASK_FLAGS, flags);
+  ++offset;
+  proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset, 2, encoding);
+  offset += 2;
+  if ((flags & RTPS_HE_MESSAGE_LENGTH_FLAG) == RTPS_HE_MESSAGE_LENGTH_FLAG) {
+    proto_tree_add_item(tree, hf_rtps_message_length, tvb, offset, 4, encoding);
+    offset += 4;
+  }
+  if ((flags & RTPS_HE_TIMESTAMP_FLAG) == RTPS_HE_TIMESTAMP_FLAG) {
+    rtps_util_add_timestamp(tree,
+      tvb, offset,
+      encoding,
+      hf_rtps_timestamp);
+    offset += 8;
+  }
+  if ((flags & RTPS_HE_UEXTENSION_FLAG) == RTPS_HE_UEXTENSION_FLAG) {
+    proto_tree_add_item(tree, hf_rtps_uextension, tvb, offset, 4, encoding);
+    offset += 4;
+  }
+  if ((flags & RTPS_HE_WEXTENSION_FLAG) == RTPS_HE_WEXTENSION_FLAG) {
+    proto_tree_add_item(tree, hf_rtps_wextension, tvb, offset, 8, encoding);
+    offset += 8;
+  }
+  checksum_type = (flags & (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG));
+  if (checksum_type != 0) {
+    gint checksum_len = 0;
+    switch (checksum_type) {
+      /* 32-bit checksum */
+      case RTPS_HE_CHECKSUM_2_FLAG:
+        checksum_len = 4;
+        break;
+      /* 64-bit checksum */
+      case RTPS_HE_CHECKSUM_1_FLAG:
+        checksum_len = 8;
+        break;
+      /* 128-bit checksum */
+      case (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG):
+        checksum_len = 16;
+        break;
+    default:
+      break;
+    }
+    proto_tree_add_item(tree, hf_rtps_header_extension_checksum, tvb, offset, checksum_len, encoding);
+    offset += checksum_len;
+  }
+  if ((flags & RTPS_HE_PARAMETERS_FLAG) == RTPS_HE_PARAMETERS_FLAG) {
+    guint parameter_endianess = ((flags & RTPS_HE_ENDIANESS_FLAG) == RTPS_HE_ENDIANESS_FLAG)
+      ? ENC_LITTLE_ENDIAN
+      : ENC_BIG_ENDIAN;
+    dissect_parameter_sequence(tree, pinfo, tvb, offset, parameter_endianess,
+      octets_to_next_header - (offset - initial_offset),
+      "Parameters", 0x0200, NULL, vendor_id, FALSE, NULL);
+  }
+}
+
 static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                 const guint encoding, int octets_to_next_header, proto_tree *tree,
                 guint16 vendor_id, endpoint_guid *guid) {
@@ -12935,6 +13062,9 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
 {
   switch (submessageId)
   {
+  case SUBMESSAGE_HEADER_EXTENSION:
+    dissect_HEADER_EXTENSION(tvb, pinfo, offset, flags, encoding, rtps_submessage_tree, octets_to_next_header, vendor_id);
+    break;
     case SUBMESSAGE_DATA_FRAG:
       dissect_DATA_FRAG(tvb, pinfo, offset, flags, encoding,
           octets_to_next_header, rtps_submessage_tree, vendor_id, guid);
@@ -14139,6 +14269,12 @@ void proto_register_rtps(void) {
         "Time using the RTPS time_t standard format", HFILL }
     },
 
+    { &hf_rtps_timestamp,
+      { "Timestamp", "rtps.timestamp",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
+        "Time using the RTPS time_t standard format", HFILL }
+    },
+
     { &hf_rtps_locator_kind,
       { "Kind", "rtps.locator.kind",
         FT_UINT32, BASE_HEX, VALS(rtps_locator_kind_vals), 0,
@@ -15030,6 +15166,10 @@ void proto_register_rtps(void) {
         "CRC", "rtps.sm.rti_crc",
         FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
     },
+    { &hf_rtps_message_length, {
+        "RTPS Message Length", "rtps.message_length",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
 
     /* Flag bits */
     { &hf_rtps_flag_reserved80, {
@@ -15136,6 +15276,10 @@ void proto_register_rtps(void) {
         "Endianness bit", "rtps.flag.endianness",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
     },
+    { &hf_rtps_flag_additional_authenticated_data, {
+        "Additional Authenticated Data bit", "rtps.flag.additional_authenticated_data",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
     { &hf_rtps_flag_inline_qos_v2, {
         "Inline QoS", "rtps.flag.inline_qos",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
@@ -15211,6 +15355,50 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_status_info_flags,
       { "Flags", "rtps.param.status_info",
         FT_UINT32, BASE_HEX, NULL, 0, "bitmask representing the flags in PID_STATUS_INFO", HFILL }
+    },
+    { &hf_rtps_header_extension_flags,
+      { "Flags", "rtps.header_extension_flags",
+        FT_UINT8, BASE_HEX, NULL, 0, "bitmask representing header extension flags", HFILL }
+    },
+    { &hf_rtps_flag_header_extension_parameters, {
+        "Header Extension Parameter List Present", "rtps.flag.header_extension.parameter_list",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_PARAMETERS_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_checksum2, {
+        "Header Extension Message Checksum 2", "rtps.flag.header_extension.message_checksum2",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_CHECKSUM_2_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_checksum1, {
+        "Header Extension Message Checksum 1", "rtps.flag.header_extension.message_checksum1",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_CHECKSUM_1_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_wextension, {
+        "Header Extension W Extension Present", "rtps.flag.header_extension.wextension",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_WEXTENSION_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_uextension, {
+        "Header Extension U Extension Present", "rtps.flag.header_extension.uextension",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_UEXTENSION_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_timestamp, {
+        "Header Extension Timestamp Present", "rtps.flag.header_extension.timestamp",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_TIMESTAMP_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_message_length, {
+        "Header Extension Message Length", "rtps.flag.header_extension.message_legth",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_MESSAGE_LENGTH_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_header_extension_checksum, {
+        "Header Extension Checksum", "rtps.header_extension.checksum",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_uextension, {
+        "Header Extension uExtension", "rtps.uextension",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_wextension, {
+        "Header Extension wExtension", "rtps.wextension",
+        FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_flag_unregistered, {
         "Unregistered", "rtps.flag.unregistered",
