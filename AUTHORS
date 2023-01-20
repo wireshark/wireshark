@@ -2621,7 +2621,7 @@ Kees Cook		<kees[AT]outflux.net> {
 	TiVoConnect Discovery Protocol
 }
 
-Thomas Dreibholz	<dreibh[AT]iem.uni-due.de>/<dreibh[AT]simula.no> {
+Thomas Dreibholz	<dreibh[AT]simula.no> {
 	Calculation Application Protocol support
 	Component Status Protocol support
 	Fractal Generator Protocol support
