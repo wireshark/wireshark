@@ -8862,6 +8862,10 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                         add_gtp_session(pinfo->num, session);
                     }
                 }
+                else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
+                    /* If MBEAREQ and not already in the list then we create a new session*/
+                    add_gtp_session(pinfo->num, gtp_session_count++);
+                }
             }
         }
     }
