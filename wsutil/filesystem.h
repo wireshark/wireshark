@@ -136,6 +136,15 @@ WS_DLL_PUBLIC const char *get_doc_dir(void);
  * The returned file name was g_malloc()'d so it must be g_free()d when the
  * caller is done with it.
  */
+WS_DLL_PUBLIC char *get_docfile_path(const char *filename);
+
+/*
+ * Construct the path URL of a global documentation file, given the
+ * file name.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
+ */
 WS_DLL_PUBLIC char *doc_file_url(const char *filename);
 
 /*

@@ -2130,6 +2130,28 @@ get_datafile_path(const char *filename)
 }
 
 /*
+ * Construct the path name of a global documentation file, given the
+ * file name.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
+ */
+char *
+get_docfile_path(const char *filename)
+{
+    if (running_in_build_directory_flag) {
+        /* We're running in the build directory and the requested file is a
+         * generated (or a test) file.  Return the file name in the build
+         * directory (not in the source/data directory).
+         * (Oh the things we do to keep the source directory pristine...)
+         */
+        return g_build_filename(get_progfile_dir(), filename, (char *)NULL);
+    } else {
+        return g_build_filename(get_doc_dir(), filename, (char *)NULL);
+    }
+}
+
+/*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */
