@@ -1774,13 +1774,16 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
     if (redissect) {
         /*
-         * Decryption secrets are read while sequentially processing records and
-         * then passed to the dissector. During redissection, the previous secrets
-         * are lost (see epan_free above), but they are not read again from the
-         * file as only packet records are re-read. Therefore reset the wtap secrets
-         * callback such that wtap resupplies the secrets callback with previously
-         * read secrets.
+         * Decryption secrets and name resolution blocks are read while
+         * sequentially processing records and then passed to the dissector.
+         * During redissection, the previous information is lost (see epan_free
+         * above), but they are not read again from the file as only packet
+         * records are re-read. Therefore reset the wtap secrets and name
+         * resolution callbacks such that wtap resupplies the callbacks with
+         * previously read information.
          */
+        wtap_set_cb_new_ipv4(cf->provider.wth, add_ipv4_name);
+        wtap_set_cb_new_ipv6(cf->provider.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
         wtap_set_cb_new_secrets(cf->provider.wth, secrets_wtap_callback);
     }
 

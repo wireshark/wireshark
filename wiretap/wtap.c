@@ -1490,14 +1490,81 @@ wtap_cleareof(wtap *wth) {
 	file_clearerr(wth->fh);
 }
 
+static inline void
+wtapng_process_nrb_ipv4(wtap *wth, wtap_block_t nrb)
+{
+	const wtapng_nrb_mandatory_t *nrb_mand = (wtapng_nrb_mandatory_t*)wtap_block_get_mandatory_data(nrb);
+
+	if (wth->add_new_ipv4) {
+		for (GList *elem = nrb_mand->ipv4_addr_list; elem != NULL; elem = elem->next) {
+			hashipv4_t *tp = elem->data;
+			wth->add_new_ipv4(tp->addr, tp->name, FALSE);
+		}
+	}
+}
+
+static inline void
+wtapng_process_nrb_ipv6(wtap *wth, wtap_block_t nrb)
+{
+	const wtapng_nrb_mandatory_t *nrb_mand = (wtapng_nrb_mandatory_t*)wtap_block_get_mandatory_data(nrb);
+
+	if (wth->add_new_ipv6) {
+		for (GList *elem = nrb_mand->ipv6_addr_list; elem != NULL; elem = elem->next) {
+			hashipv6_t *tp = elem->data;
+			wth->add_new_ipv6(tp->addr, tp->name, FALSE);
+		}
+	}
+}
+
 void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4) {
-	if (wth)
-		wth->add_new_ipv4 = add_new_ipv4;
+	if (!wth)
+		return;
+
+	wth->add_new_ipv4 = add_new_ipv4;
+
+	/* Are there any existing NRBs? (XXX: Unlike with DSBs, the
+         * GArray of nrb_hdrs is not initialized until the first one
+         * is encountered.  */
+	if (!wth->nrb_hdrs)
+		return;
+	/*
+	 * Send all NRBs that were read so far to the new callback. file.c
+	 * relies on this to support redissection (during redissection, the
+	 * previous name resolutions are lost and has to be resupplied).
+	 */
+	for (guint i = 0; i < wth->nrb_hdrs->len; i++) {
+		wtap_block_t nrb = g_array_index(wth->nrb_hdrs, wtap_block_t, i);
+		wtapng_process_nrb_ipv4(wth, nrb);
+	}
 }
 
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
-	if (wth)
-		wth->add_new_ipv6 = add_new_ipv6;
+	if (!wth)
+		return;
+
+	wth->add_new_ipv6 = add_new_ipv6;
+
+	/* Are there any existing NRBs? (XXX: Unlike with DSBs, the
+         * GArray of nrb_hdrs is not initialized until the first one
+         * is encountered.  */
+	if (!wth->nrb_hdrs)
+		return;
+	/*
+	 * Send all NRBs that were read so far to the new callback. file.c
+	 * relies on this to support redissection (during redissection, the
+	 * previous name resolutions are lost and has to be resupplied).
+	 */
+	for (guint i = 0; i < wth->nrb_hdrs->len; i++) {
+		wtap_block_t nrb = g_array_index(wth->nrb_hdrs, wtap_block_t, i);
+		wtapng_process_nrb_ipv6(wth, nrb);
+	}
+}
+
+void
+wtapng_process_nrb(wtap *wth, wtap_block_t nrb)
+{
+	wtapng_process_nrb_ipv4(wth, nrb);
+	wtapng_process_nrb_ipv6(wth, nrb);
 }
 
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets) {

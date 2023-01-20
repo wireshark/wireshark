@@ -250,8 +250,6 @@ typedef struct interface_info_s {
 typedef struct {
     guint current_section_number; /**< Section number of the current section being read sequentially */
     GArray *sections;             /**< Sections found in the capture file. */
-    wtap_new_ipv4_callback_t add_new_ipv4;
-    wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
 
 /*
@@ -2305,7 +2303,6 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
 
 static gboolean
 pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
-                                  pcapng_t *pn,
                                   section_info_t *section_info,
                                   wtapng_block_t *wblock,
                                   int *err, gchar **err_info)
@@ -2318,6 +2315,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
     guint record_len, opt_cont_buf_len;
     char *namep;
     int namelen;
+    wtapng_nrb_mandatory_t *nrb_mand;
 
     /*
      * Is this block long enough to be an NRB?
@@ -2340,6 +2338,11 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
     if (wblock->block == NULL) {
         wblock->block = wtap_block_create(WTAP_BLOCK_NAME_RESOLUTION);
     }
+
+    /*
+     * Set the mandatory values for the block.
+     */
+    nrb_mand = (wtapng_nrb_mandatory_t *)wtap_block_get_mandatory_data(wblock->block);
 
     /*
      * Start out with a buffer big enough for an IPv6 address and one
@@ -2416,29 +2419,30 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                 }
                 block_read += nrb.record_len;
 
-                if (pn->add_new_ipv4) {
+                /*
+                 * Scan through all the names in
+                 * the record and add them.
+                 */
+                memcpy(&v4_addr,
+                       ws_buffer_start_ptr(&nrb_rec), 4);
+                /* IPv4 address is in big-endian order in the file always, which is how we store
+                   it internally as well, so don't byte-swap it */
+                for (namep = (char *)ws_buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
+                     record_len != 0;
+                     namep += namelen, record_len -= namelen) {
                     /*
-                     * Scan through all the names in
-                     * the record and add them.
+                     * Scan forward for a null
+                     * byte.
                      */
-                    memcpy(&v4_addr,
-                           ws_buffer_start_ptr(&nrb_rec), 4);
-                    /* IPv4 address is in big-endian order in the file always, which is how we store
-                       it internally as well, so don't byte-swap it */
-                    for (namep = (char *)ws_buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
-                         record_len != 0;
-                         namep += namelen, record_len -= namelen) {
-                        /*
-                         * Scan forward for a null
-                         * byte.
-                         */
-                        namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
-                        if (namelen == -1) {
-                            ws_buffer_free(&nrb_rec);
-                            return FALSE;      /* fail */
-                        }
-                        pn->add_new_ipv4(v4_addr, namep, FALSE);
+                    namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
+                    if (namelen == -1) {
+                        ws_buffer_free(&nrb_rec);
+                        return FALSE;      /* fail */
                     }
+                    hashipv4_t *tp = g_new0(hashipv4_t, 1);
+                    tp->addr = v4_addr;
+                    (void) g_strlcpy(tp->name, namep, MAXNAMELEN);
+                    nrb_mand->ipv4_addr_list = g_list_prepend(nrb_mand->ipv4_addr_list, tp);
                 }
 
                 if (!wtap_read_bytes(fh, NULL, PADDING4(nrb.record_len), err, err_info)) {
@@ -2484,22 +2488,22 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                 }
                 block_read += nrb.record_len;
 
-                if (pn->add_new_ipv6) {
-                    for (namep = (char *)ws_buffer_start_ptr(&nrb_rec) + 16, record_len = nrb.record_len - 16;
-                         record_len != 0;
-                         namep += namelen, record_len -= namelen) {
-                        /*
-                         * Scan forward for a null
-                         * byte.
-                         */
-                        namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
-                        if (namelen == -1) {
-                            ws_buffer_free(&nrb_rec);
-                            return FALSE;      /* fail */
-                        }
-                        pn->add_new_ipv6(ws_buffer_start_ptr(&nrb_rec),
-                                         namep, FALSE);
+                for (namep = (char *)ws_buffer_start_ptr(&nrb_rec) + 16, record_len = nrb.record_len - 16;
+                     record_len != 0;
+                     namep += namelen, record_len -= namelen) {
+                    /*
+                     * Scan forward for a null
+                     * byte.
+                     */
+                    namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
+                    if (namelen == -1) {
+                        ws_buffer_free(&nrb_rec);
+                        return FALSE;      /* fail */
                     }
+                    hashipv6_t *tp = g_new0(hashipv6_t, 1);
+                    memcpy(tp->addr, ws_buffer_start_ptr(&nrb_rec), sizeof tp->addr);
+                    (void) g_strlcpy(tp->name, namep, MAXNAMELEN);
+                    nrb_mand->ipv6_addr_list = g_list_prepend(nrb_mand->ipv6_addr_list, tp);
                 }
 
                 if (!wtap_read_bytes(fh, NULL, PADDING4(nrb.record_len), err, err_info)) {
@@ -3282,7 +3286,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return FALSE;
                 break;
             case(BLOCK_TYPE_NRB):
-                if (!pcapng_read_name_resolution_block(fh, &bh, pn, section_info, wblock, err, err_info))
+                if (!pcapng_read_name_resolution_block(fh, &bh, section_info, wblock, err, err_info))
                     return FALSE;
                 break;
             case(BLOCK_TYPE_ISB):
@@ -3360,6 +3364,22 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
         iface_info.fcslen = -1;
 
     g_array_append_val(section_info->interfaces, iface_info);
+}
+
+/* Process an NRB that we have just read. */
+static void
+pcapng_process_nrb(wtap *wth, wtapng_block_t *wblock)
+{
+    wtapng_process_nrb(wth, wblock->block);
+
+    if (wth->nrb_hdrs == NULL) {
+        wth->nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+    }
+    /* Store NRB such that it can be saved by the dumper.
+     * XXX: NRBs are not saved yet by the dumper, only the resolved
+     * and used lookups passed into via wtap_dump_set_addrinfo_list()
+     */
+    g_array_append_val(wth->nrb_hdrs, wblock->block);
 }
 
 /* Process a DSB that we have just read. */
@@ -3514,14 +3534,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     pcapng->sections = g_array_sized_new(FALSE, FALSE, sizeof(section_info_t), 1);
     g_array_append_val(pcapng->sections, first_section);
 
-    /*
-     * Set the callbacks for new addresses to null; if our caller wants
-     * to be called, they will set them to point to the appropriate
-     * caller.
-     */
-    pcapng->add_new_ipv4 = NULL;
-    pcapng->add_new_ipv6 = NULL;
-
     wth->subtype_read = pcapng_read;
     wth->subtype_seek_read = pcapng_seek_read;
     wth->subtype_close = pcapng_close;
@@ -3603,9 +3615,6 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     wblock.frame_buffer  = buf;
     wblock.rec = rec;
 
-    pcapng->add_new_ipv4 = wth->add_new_ipv4;
-    pcapng->add_new_ipv6 = wth->add_new_ipv6;
-
     /* read next block */
     while (1) {
         *data_offset = file_tell(wth->fh);
@@ -3678,10 +3687,8 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
             case(BLOCK_TYPE_NRB):
                 /* More name resolution entries */
                 ws_debug("block type BLOCK_TYPE_NRB");
-                if (wth->nrb_hdrs == NULL) {
-                    wth->nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-                }
-                g_array_append_val(wth->nrb_hdrs, wblock.block);
+                pcapng_process_nrb(wth, &wblock);
+                /* Do not free wblock.block, it is consumed by pcapng_process_nrb */
                 break;
 
             case(BLOCK_TYPE_ISB):

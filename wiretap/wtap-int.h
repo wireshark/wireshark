@@ -341,6 +341,12 @@ void
 wtap_add_idb(wtap *wth, wtap_block_t idb);
 
 /**
+ * Invokes the callback with the given name resolution block.
+ */
+void
+wtapng_process_nrb(wtap *wth, wtap_block_t nrb);
+
+/**
  * Invokes the callback with the given decryption secrets block.
  */
 void

@@ -1595,8 +1595,45 @@ static void shb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
 
 static void nrb_create(wtap_block_t block)
 {
-    block->mandatory_data = NULL;
+    block->mandatory_data = g_new0(wtapng_nrb_mandatory_t, 1);
 }
+
+static void nrb_free_mand(wtap_block_t block)
+{
+    wtapng_nrb_mandatory_t *mand = (wtapng_nrb_mandatory_t *)block->mandatory_data;
+    g_list_free_full(mand->ipv4_addr_list, g_free);
+    g_list_free_full(mand->ipv6_addr_list, g_free);
+}
+
+#if 0
+static gpointer copy_hashipv4(gconstpointer src, gpointer user_data _U_
+{
+    hashipv4_t *src_ipv4 = (hashipv4_t*)src;
+    hashipv4_t *dst = g_new0(hashipv4_t, 1);
+    dst->addr = src_ipv4->addr;
+    (void) g_strlcpy(dst->name, src_ipv4->name, MAXNAMELEN);
+    return dst;
+}
+
+static gpointer copy_hashipv4(gconstpointer src, gpointer user_data _U_
+{
+    hashipv6_t *src_ipv6 = (hashipv6_t*)src;
+    hashipv6_t *dst = g_new0(hashipv6_t, 1);
+    dst->addr = src_ipv4->addr;
+    (void) g_strlcpy(dst->name, src_ipv4->name, MAXNAMELEN);
+    return dst;
+}
+
+static void nrb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
+{
+    wtapng_nrb_mandatory_t *src = (wtapng_nrb_mandatory_t *)src_block->mandatory_data;
+    wtapng_nrb_mandatory_t *dst = (wtapng_nrb_mandatory_t *)dest_block->mandatory_data;
+    g_list_free_full(dst->ipv4_addr_list, g_free);
+    g_list_free_full(dst->ipv6_addr_list, g_free);
+    dst->ipv4_addr_list = g_list_copy_deep(src->ipv4_addr_list, copy_hashipv4, NULL);
+    dst->ipv6_addr_list = g_list_copy_deep(src->ipv6_addr_list, copy_hashipv6, NULL);
+}
+#endif
 
 static void isb_create(wtap_block_t block)
 {
@@ -1799,8 +1836,18 @@ void wtap_opttypes_initialize(void)
         "NRB",                      /* name */
         "Name Resolution Block",    /* description */
         nrb_create,                 /* create */
-        NULL,                       /* free_mand */
-        NULL,                       /* copy_mand */
+        nrb_free_mand,              /* free_mand */
+        /* We eventually want to copy these, when dumper actually
+         * writes them out. If we're actually processing packets,
+         * as opposed to just reading and writing a file without
+         * printing (e.g., editcap), do we still want to copy all
+         * the pre-existing NRBs, or do we want to limit it to
+         * the actually used addresses, as currently?
+         */
+#if 0
+        nrb_copy_mand,              /* copy_mand */
+#endif
+        NULL,
         NULL                        /* options */
     };
     static const wtap_opttype_t ns_dnsname = {
