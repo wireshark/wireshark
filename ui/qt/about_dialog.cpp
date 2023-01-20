@@ -215,8 +215,8 @@ FolderListModel::FolderListModel(QObject * parent):
 #endif
 
     /* Extcap */
-    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_persconffile_path("extcap", FALSE)).trimmed() << tr("external capture (extcap) plugins"));
-    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()).trimmed() << tr("external capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_extcap_pers_dir()) << tr("external capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()) << tr("external capture (extcap) plugins"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */

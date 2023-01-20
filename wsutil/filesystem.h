@@ -103,6 +103,11 @@ WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(void);
 WS_DLL_PUBLIC const char *get_extcap_dir(void);
 
 /*
+ * Get the personal extcap dir.
+ */
+WS_DLL_PUBLIC const char *get_extcap_pers_dir(void);
+
+/*
  * Get the flag indicating whether we're running from a build
  * directory.
  */
