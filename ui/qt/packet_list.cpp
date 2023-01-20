@@ -998,7 +998,7 @@ void PacketList::drawCurrentPacket()
 {
     QModelIndex current_index = currentIndex();
     if (selectionModel() && current_index.isValid()) {
-        selectionModel()->clearCurrentIndex();
+        selectionModel()->clearSelection();
         selectionModel()->setCurrentIndex(current_index, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     }
 }
