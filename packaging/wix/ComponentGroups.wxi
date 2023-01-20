@@ -39,9 +39,6 @@
         <Component Id="cmpREADME_windows_txt" Guid="*">
           <File Id="filREADME_windows_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.windows.txt" />
         </Component>
-        <Component Id="cmpAUTHORS_SHORT" Guid="*">
-          <File Id="filAUTHORS_SHORT" KeyPath="yes" Source="$(var.Staging.Dir)\AUTHORS-SHORT" />
-        </Component>
         <Component Id="cmpManuf" Guid="*">
           <File Id="filManuf" KeyPath="yes" Source="$(var.Staging.Dir)\manuf" />
         </Component>
@@ -86,7 +83,6 @@
         <ComponentRef Id="cmpNEWS_txt" />
         <ComponentRef Id="cmpREADME_txt" />
         <ComponentRef Id="cmpREADME_windows_txt" />
-        <ComponentRef Id="cmpAUTHORS_SHORT" />
         <ComponentRef Id="cmpManuf" />
         <ComponentRef Id="cmpWka" />
         <ComponentRef Id="cmpServices" />

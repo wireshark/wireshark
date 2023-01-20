@@ -4,7 +4,3 @@
 *.html
 *.tmp
 wireshark.pod
-
-# Misc #
-########
-AUTHORS-SHORT-FORMAT

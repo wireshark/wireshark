@@ -81,7 +81,6 @@ epan/dissectors/dcerpc/*-stamp
 ########
 doc/*.html
 doc/*.[14]
-doc/AUTHORS-SHORT
 doc/ws.css
 docbook/developer-guide*.xml
 docbook/user-guide*.xml

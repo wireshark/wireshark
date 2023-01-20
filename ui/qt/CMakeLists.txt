@@ -655,6 +655,24 @@ foreach(_file ${WIRESHARK_QT_TS})
 endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
 
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/authors.qrc"
+"<RCC>\n"
+"    <qresource prefix=\"/about\">\n"
+"        <file compress-algo=\"zstd\">authors.csv</file>\n"
+"    </qresource>\n"
+"</RCC>\n"
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-authors-csv.py
+			< ${CMAKE_SOURCE_DIR}/AUTHORS
+			> ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/tools/make-authors-csv.py
+		${CMAKE_SOURCE_DIR}/AUTHORS
+)
+
 set(WIRESHARK_QT_QRC
 	../../resources/about.qrc
 	../../resources/languages/languages.qrc
@@ -662,6 +680,8 @@ set(WIRESHARK_QT_QRC
 	../../resources/stock_icons.qrc
 	../../resources/wsicon.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/authors.csv
 )
 
 if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")

@@ -1952,9 +1952,6 @@ if (BUILD_logray)
 endif()
 
 if (ASCIIDOCTOR_FOUND)
-	list(APPEND INSTALL_FILES
-		${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
-	)
 	list(APPEND DOC_FILES
 		${CMAKE_BINARY_DIR}/doc/androiddump.html
 		${CMAKE_BINARY_DIR}/doc/udpdump.html
