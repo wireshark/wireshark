@@ -33,6 +33,9 @@ follow existing conventions for architecture-dependent files.
 The extcap personal folder is now ``$HOME/.local/lib/extcap``.
 Previously it was ``$XDG_CONFIG_HOME/wireshark/extcap``.
 
+The installation target no longer installs development headers by default.
+That must be done explicitly using ``cmake --install <builddir> --component Development``.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
