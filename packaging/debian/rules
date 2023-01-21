@@ -55,7 +55,11 @@ override_dh_strip:
 
 override_dh_auto_install:
 	dh_auto_install
+ifeq ($(MAKE),ninja)
+	DESTDIR=$(CURDIR)/debian/tmp $(MAKE) -C $(CURDIR)/obj-* install-headers
+else
 	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp -C $(CURDIR)/obj-* install-headers
+endif
 	rm -f debian/*.shlibs
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
 	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
