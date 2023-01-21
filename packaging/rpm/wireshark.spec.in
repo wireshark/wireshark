@@ -398,17 +398,12 @@ make %{?_smp_mflags} -C %{__cmake_builddir}
 cd %{__cmake_builddir}
 %endif
 
-%if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
 %if %{with ninja}
 %ninja_install
 DESTDIR=%{buildroot} %{__ninja} %{__ninja_common_opts} install-headers
 %else
 make DESTDIR=$RPM_BUILD_ROOT -C %{__cmake_builddir} install
 make DESTDIR=$RPM_BUILD_ROOT -C %{__cmake_builddir} install-headers
-%endif
-%else
-%cmake_install
-%cmake_install --component Development
 %endif
 
 %if %{with guides}
