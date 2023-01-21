@@ -600,7 +600,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
             //amp_control_sub_tree = proto_item_add_subtree(amp_message_tree, ett_amp);
             amp_control_tree = proto_tree_add_subtree(amp_message_tree, tvb, offset-1, -1,
                                             ett_amp_message, &amp_message, "Perform-Control");
-            proto_tree_add_item(amp_control_tree, hf_amp_cbor_header, tvb, offset, 1, 0x00);
+            proto_tree_add_item(amp_control_tree, hf_amp_cbor_header, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
 
         case 0x03: // Table Set
@@ -608,7 +608,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
             //amp_table_sub_tree = proto_item_add_subtree(amp_items_tree, ett_amp);
             amp_table_tree = proto_tree_add_subtree(amp_items_tree, tvb, offset, -1,
                                             ett_amp_message, &amp_message, "AMP Message: Table-Set");
-            proto_tree_add_item(amp_table_tree, hf_amp_cbor_header, tvb, offset, 1, 0x00);
+            proto_tree_add_item(amp_table_tree, hf_amp_cbor_header, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
             break;

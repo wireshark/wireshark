@@ -4728,10 +4728,7 @@ static guint32
 dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, int blob_offset, int end_offset)
 {
   /* Declarations for blobs*/
-  guint8     version;
-  guint8     range;
   guint8     blob_type;
-  guint8     range_number;
   guint16    field_number = 1;
   proto_item *bi;
   proto_tree *blob_tree = NULL;
@@ -4745,19 +4742,16 @@ dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, in
   blob_offset += 4;
 
   /* Add Blob version item to tree */
-  version = tvb_get_guint8(tvb, blob_offset);
-  proto_tree_add_item(blob_tree, hf_acn_blob_version, tvb, blob_offset, 1, version);
+  proto_tree_add_item(blob_tree, hf_acn_blob_version, tvb, blob_offset, 1, ENC_BIG_ENDIAN);
   blob_offset += 1;
 
   /* Add Blob Start and End Range Info */
-  range = tvb_get_guint8(tvb, blob_offset);
-  proto_tree_add_item(blob_tree, hf_acn_blob_range_type, tvb, blob_offset, 1, range);
+  proto_tree_add_item(blob_tree, hf_acn_blob_range_type, tvb, blob_offset, 1, ENC_BIG_ENDIAN);
   /* range_type = val_to_str(range, acn_blob_range_type_vals, "not valid (%d)"); */
   blob_offset += 1;
 
   /* Add Blob Range Number */
-  range_number = tvb_get_guint8(tvb, blob_offset);
-  proto_tree_add_item(blob_tree, hf_acn_blob_range_number, tvb, blob_offset, 1, range_number);
+  proto_tree_add_item(blob_tree, hf_acn_blob_range_number, tvb, blob_offset, 1, ENC_BIG_ENDIAN);
   blob_offset += 1;
 
   /* Add Blob Meta-Type */
@@ -4767,7 +4761,7 @@ dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, in
     blob_type = get_blob_type_from_fields(tvb, blob_offset + 1, end_offset);
   }
 
-  proto_tree_add_item(blob_tree, hf_acn_blob_type, tvb, blob_offset, 1, blob_type);
+  proto_tree_add_uint(blob_tree, hf_acn_blob_type, tvb, blob_offset, 1, blob_type);
 
   blob_name = val_to_str(blob_type, acn_blob_type_vals, "not valid (%d)");
   proto_item_append_text(bi, ": %s", blob_name);

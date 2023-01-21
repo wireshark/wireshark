@@ -12098,9 +12098,8 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   }
 
   /* octetsToSLEncapsulationId */
-  octetsToSLEncapsulationId = tvb_get_guint32(tvb, offset, encoding);
-  proto_tree_add_item(tree, hf_rtps_data_batch_octets_to_sl_encap_id, tvb,
-                        offset, 4, octetsToSLEncapsulationId);
+  proto_tree_add_item_ret_uint(tree, hf_rtps_data_batch_octets_to_sl_encap_id, tvb,
+                               offset, 4, encoding, &octetsToSLEncapsulationId);
   offset += 4;
   sampleListOffset = offset + octetsToSLEncapsulationId;
 

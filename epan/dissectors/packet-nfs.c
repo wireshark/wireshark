@@ -9277,7 +9277,7 @@ dissect_nfs4_write_response(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	subtree = proto_item_add_subtree(sub_fitem, ett_nfs4_callback_stateids_sub);
 	for (i = 0; i < count; i++) {
-		ss_fitem = proto_tree_add_item(subtree,
+		ss_fitem = proto_tree_add_uint(subtree,
 				hf_nfs4_callback_stateids_index,
 				tvb, offset, 4, i);
 
@@ -9310,7 +9310,7 @@ dissect_nfs4_source_servers(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	subtree = proto_item_add_subtree(sub_fitem, ett_nfs4_source_servers_sub);
 	for (i = 0; i < source_servers; i++) {
-		ss_fitem = proto_tree_add_item(subtree,
+		ss_fitem = proto_tree_add_uint(subtree,
 				hf_nfs4_source_server_index,
 				tvb, offset, 4, i);
 

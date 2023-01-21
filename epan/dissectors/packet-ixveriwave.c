@@ -2260,14 +2260,15 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
-    guint8      rate_mcs_index = 0, vw_plcp_info, vw_bssid;
+    guint8      rate_mcs_index = 0, vw_bssid;
     guint8      plcp_type;
     guint8      vht_ndp_flag, vht_mu_mimo_flg;
     float       phyRate;
 
     proto_tree *vwict, *vw_infoC_tree = NULL;
-    guint16     vw_vcid, vw_seqnum, mpdu_length;
-    guint8      vht_user_pos;
+    guint16     vw_vcid, mpdu_length;
+    guint32     vw_seqnum;
+    guint32     vht_user_pos;
     guint8      plcp_default;
 
     proto_item *vwl1i;
@@ -2500,10 +2501,9 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (plcp_type == PLCP_TYPE_VHT_MIXED)
     {
         // Extract SU/MU MIMO flag from RX L1 Info
-        vht_user_pos = tvb_get_guint8(tvb, offset);
-
+        vht_user_pos  = tvb_get_guint8(tvb, offset);
         vwict = proto_tree_add_item(vw_l1info_tree,
-                hf_radiotap_l1infoc, tvb, offset, 1, vht_user_pos);
+                hf_radiotap_l1infoc, tvb, offset, 1, ENC_NA);
         vw_infoC_tree = proto_item_add_subtree(vwict, ett_radiotap_infoc);
 
         vht_ndp_flag = (vht_user_pos & 0x80) >> 7;
@@ -2528,14 +2528,14 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     mpdu_length = tvb_get_letohs(tvb, offset);
     if (cmd_type != 1) //Checking for Rx and Tx
     {
-        proto_tree_add_item(vw_l1info_tree, hf_ixveriwave_frame_length, tvb, offset, 2, mpdu_length);
+        proto_tree_add_item(vw_l1info_tree, hf_ixveriwave_frame_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }
     offset      += 2;
 
     //RadioTapHeader New format for PLCP section
-    vw_plcp_info = tvb_get_guint8(tvb, offset);
+    //vw_plcp_info = tvb_get_guint8(tvb, offset);
 
-    vwplt = proto_tree_add_item(tap_tree, hf_radiotap_plcp_info, tvb, offset, 16, vw_plcp_info);
+    vwplt = proto_tree_add_item(tap_tree, hf_radiotap_plcp_info, tvb, offset, 16, ENC_NA);
     vw_plcpinfo_tree = proto_item_add_subtree(vwplt, ett_radiotap_plcp);
 
     switch (plcp_type)
@@ -2832,9 +2832,8 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_flowvalid, tvb, offset, 1, ENC_NA);
     offset++;
 
-    vw_seqnum = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
-                            tvb, offset, 1, vw_seqnum);
+    proto_tree_add_item_ret_uint(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
+                                 tvb, offset, 1, ENC_NA, &vw_seqnum);
     offset++;
     if (flowv == 1)
     {

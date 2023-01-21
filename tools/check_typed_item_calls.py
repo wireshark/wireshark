@@ -62,7 +62,7 @@ common_hf_var_names = { 'hf_index', 'hf_item', 'hf_idx', 'hf_x', 'hf_id', 'hf_co
                         'hf_cause_value', 'hf_uuid',
                         'hf_endian', 'hf_ip', 'hf_port', 'hf_suff', 'hf_string', 'hf_uint',
                         'hf_tag', 'hf_type', 'hf_hdr', 'hf_field', 'hf_opcode', 'hf_size',
-                        'hf_entry' }
+                        'hf_entry', 'field' }
 
 # A check for a particular API function.
 class APICheck:
@@ -179,13 +179,13 @@ class ProtoTreeAddItemCheck(APICheck):
             # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
             #                     const gint start, gint length, const guint encoding)
             self.fun_name = 'proto_tree_add_item'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\(\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
         else:
             # proto_item *
             # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
             #               const guint encoding)
             self.fun_name = 'ptvcursor_add'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([a-zA-Z_0-9]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([a-zA-Z_0-9]+),\s*([a-zA-Z0-9_\-\>]+)')
 
 
         self.lengths = {}
@@ -230,7 +230,19 @@ class ProtoTreeAddItemCheck(APICheck):
                             to_check += (lines[line_number-1+i] + '\n')
                     m = self.p.search(to_check)
                     if m:
-                        self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
+                        enc = m.group(3)
+                        hf_name = m.group(1)
+                        if not enc.startswith('ENC_'):
+                            if not enc in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
+                                            'p_mq_parm', 'iEnc', 'strid_enc', 'iCod', 'nl_data', 'argp', 'gquic_info', 'writer_encoding',
+                                            'tds_get_int2_encoding', 'tds_get_int4_encoding',
+                                            'DREP_ENC_INTEGER' }:
+                                global warnings_found
+
+                                print('Warning:', self.file + ':' + str(line_number),
+                                      self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
+                                warnings_found += 1
+                        self.calls.append(Call(hf_name, line_number=line_number, length=m.group(2)))
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -696,8 +708,9 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
+
         # N.B. re extends all the way to HFILL to avoid greedy matching
-        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([\&A-Za-z0-9x\_<\|\s\(\)]*)\s*,\s*([a-zA-Z0-9x_]*)\s*,\s*.*\s*,\s*HFILL', contents)
+        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_]*?)\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -707,7 +720,6 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
                              check_label=check_label,
                              mask_exact_width=mask_exact_width,
                              check_consecutive=(not is_generated and check_consecutive))
-            #print('item is', hf, items[hf])
     return items
 
 

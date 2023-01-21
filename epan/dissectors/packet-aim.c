@@ -2292,8 +2292,7 @@ static const aim_tlv aim_motd_tlvs[] = {
 static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset,
-	                    2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, aim_motd_tlvs);
 }

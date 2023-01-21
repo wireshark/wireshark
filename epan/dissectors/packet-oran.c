@@ -1913,7 +1913,7 @@ proto_register_oran(void)
           { "Data Direction", "oran_fh_cus.data_direction",
             FT_UINT8, BASE_DEC,
             VALS(data_direction_vals), 0x80,
-            "This parameter indicates the gNB data direction.",
+            "This parameter indicates the gNB data direction",
             HFILL }
         },
 
@@ -1924,7 +1924,7 @@ proto_register_oran(void)
           NULL, 0x70,
           "This parameter defines the payload protocol version valid for the "
           "following IEs in the application layer. In this version of the "
-          "specification payloadVersion=001b shall be used.",
+          "specification payloadVersion=001b shall be used",
           HFILL}
         },
 
@@ -1945,7 +1945,7 @@ proto_register_oran(void)
           "also a frequency offset (see freqOffset) applied before the "
           "PRACH filter.  NOTE: Filter index is commanded from lls-CU to RU. "
           "Likewise, it is not mandatory to command special filters, and "
-          "filter index = 0000b is also allowed for PRACH.",
+          "filter index = 0000b is also allowed for PRACH",
           HFILL}
         },
 
@@ -1976,7 +1976,7 @@ proto_register_oran(void)
           "in one sub-frame are counted by this parameter, slotId running "
           "from 0 to Nslot-1. In this version of the specification the "
           "maximum Nslot=16, All other values of the 6 bits are reserved for "
-          "future use.",
+          "future use",
           HFILL}
         },
 
@@ -1995,7 +1995,7 @@ proto_register_oran(void)
           FT_UINT8, BASE_DEC,
           NULL, 0x3f,
           "This parameter identifies the first symbol number within slot, to "
-          "which the information of this message is applies.",
+          "which the information of this message is applies",
           HFILL}
         },
 
@@ -2015,7 +2015,7 @@ proto_register_oran(void)
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(section_types), 0x00,
           "This parameter determines the characteristics of U-plane data to "
-          "be transferred or received from a beam with one pattern id.",
+          "be transferred or received from a beam with one pattern id",
           HFILL}
         },
 
@@ -2530,8 +2530,8 @@ proto_register_oran(void)
      { "beamforming weight compression parameter", "oran_fh_cus.bfwCompParam",
         various, | BASE_RANGE_STRING,
         RVALS(bfw_comp_parms), 0x0,
-        "This parameter applies to the compression method specified by th"
-        "e associated sectionID's bfwCompMeth value.",
+        "This parameter applies to the compression method specified by the"
+        "associated sectionID's bfwCompMeth value",
         HFILL }
     },
 #endif
@@ -2601,7 +2601,7 @@ proto_register_oran(void)
          {"Pair", "oran_fh_cus.offStartPrb_numPrb",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          "Pair of offStartPrb and numPrb.",
+          "Pair of offStartPrb and numPrb",
           HFILL}
         },
 
@@ -2609,14 +2609,14 @@ proto_register_oran(void)
          {"offStartPrb", "oran_fh_cus.offStartPrb",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
-          "Offset of PRB range start.",
+          "Offset of PRB range start",
           HFILL}
         },
         {&hf_oran_num_prb,
          {"numPrb", "oran_fh_cus.numPrb",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
-          "Number of PRBs in PRB range.",
+          "Number of PRBs in PRB range",
           HFILL}
         },
 
@@ -2637,27 +2637,26 @@ proto_register_oran(void)
           "This parameter is the starting PRB of a user plane section. For "
           "one C-Plane message, there may be multiple U-Plane messages "
           "associated with it and requiring defining from which PRB the contained "
-          "IQ data are applicable.",
+          "IQ data are applicable",
           HFILL}
         },
 
         /* Section 6.3.3.12 */
-        {&hf_oran_numPrbu,
+        { &hf_oran_numPrbu,
          {"Number of PRBs per User Plane Section", "oran_fh_cus.numPrbu",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
-          "This parameter defines the PRBs where the user plane section is "
-          "valid.",
+          "This parameter defines the PRBs where the user plane section is valid",
           HFILL}
         },
 
         /* Section 6.3.3.13 */
-        {&hf_oran_udCompHdrMeth,
+        { &hf_oran_udCompHdrMeth,
          {"User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(ud_comp_header_meth), 0x0f,
           "This parameter defines the compression method for "
-          "the user data in every section in the C-Plane message.",
+          "the user data in every section in the C-Plane message",
           HFILL}
          },
 
@@ -2667,7 +2666,7 @@ proto_register_oran(void)
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(ud_comp_header_width), 0xf0,
           "This parameter defines the IQ bit width "
-          "for the user data in every section in the C-Plane message.",
+          "for the user data in every section in the C-Plane message",
           HFILL}
         },
 
@@ -2727,7 +2726,7 @@ proto_register_oran(void)
             "This parameter exponent applicable to the I & Q mantissas. "
             "NOTE : Exponent is used for all mantissa sample sizes(i.e. 6bit "
             "- 16bit). Likewise, a native \"uncompressed\" format is not supported "
-            "within this specification.",
+            "within this specification",
             HFILL }
         },
 
@@ -2752,8 +2751,7 @@ proto_register_oran(void)
           { "RefA", "oran_fh_cus.refa",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "This is a calculated field for the RefA ID, which provides a "
-            "reference in time.",
+            "This is a calculated field for the RefA ID, which provides a reference in time",
             HFILL }
         },
 

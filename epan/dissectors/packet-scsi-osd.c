@@ -652,7 +652,7 @@ dissect_osd_offset(packet_info *pinfo, tvbuff_t *tvb, int offset,
                 exponent = -(((~exponent)&7)+1);
                 if (exponent <=- 6 && mantissa != 0xFFFFFFF) {
                     proto_item *item;
-                    item = proto_tree_add_item(tree, field, tvb, offset, 4, value);
+                    item = proto_tree_add_uint(tree, field, tvb, offset, 4, value);
                     expert_add_info(pinfo, item, &ei_osd2_invalid_offset);
                     *raw_value_ptr = 0xFFFFFFFF;
                     return;

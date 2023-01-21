@@ -1611,12 +1611,11 @@ static guint32 vsip_ErrorVAResponse(proto_tree *tree, packet_info *pinfo, tvbuff
 static guint32 vsip_dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree  *tree)
 {
     int soffset = offset;
-    guint16 version;
+    guint32 version;
     guint8 type;
     proto_item *ti;
 
-    version = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_vsip_Version, tvb, offset, 2, version);
+    proto_tree_add_item_ret_uint(tree, hf_vsip_Version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
     offset += 2;
 
     type = tvb_get_guint8(tvb, offset);
@@ -1632,7 +1631,7 @@ static guint32 vsip_dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, p
         proto_tree_add_item(tree, hf_vsip_PacketSize, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
-    else if(version == 256)
+    else if (version == 256)
     {
         proto_tree_add_item(tree, hf_vsip_PacketSize, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

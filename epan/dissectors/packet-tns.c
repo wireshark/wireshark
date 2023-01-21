@@ -694,7 +694,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner, tvb, offset, len, ENC_ASCII);
 				offset += len + (skip == 1 ? 1 : 0);
 
-				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_vsnum, tvb, offset, 4, skip == 1 ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_vsnum, tvb, offset, 4, (skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
 				offset += 4;
 			}
 			else if ( opi == OPI_OSESSKEY || opi == OPI_OAUTH )

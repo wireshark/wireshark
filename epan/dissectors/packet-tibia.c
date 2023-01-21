@@ -844,7 +844,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
                                 proto_item *it = ptvcursor_add(ptvc, hf_tibia_worldlist_entry_id, 1, ENC_NA);
                                 ptvcursor_push_subtree(ptvc, it, ett_world);
 
-                                ptvcursor_add(ptvc, hf_tibia_worldlist_entry_name, 2, convo->has.string_enc | ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptvc, hf_tibia_worldlist_entry_name, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
                                 guint ipv4addr_len = tvb_get_letohs(tvb, ptvcursor_current_offset(ptvc));
                                 char *ipv4addr_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, ptvcursor_current_offset(ptvc) + 2, ipv4addr_len, ENC_LITTLE_ENDIAN | convo->has.string_enc);
                                 guint32 ipv4addr = ipv4tonl(ipv4addr_str);
@@ -867,7 +867,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
                             while (char_count--) {
                                 proto_item *it = ptvcursor_add(ptvc, hf_tibia_worldlist_entry_id, 1, ENC_NA);
                                 ptvcursor_push_subtree(ptvc, it, ett_char);
-                                ptvcursor_add(ptvc, hf_tibia_charlist_entry_name, 2, convo->has.string_enc | ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptvc, hf_tibia_charlist_entry_name, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
 
 
                                 ptvcursor_pop_subtree(ptvc);
@@ -881,7 +881,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
                             ptvcursor_add_with_subtree(ptvc, hf_tibia_charlist, SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett_charlist);
 
                             while (char_count--) {
-                                proto_item *it = ptvcursor_add(ptvc, hf_tibia_charlist_entry_name, 2, convo->has.string_enc | ENC_LITTLE_ENDIAN);
+                                proto_item *it = ptvcursor_add(ptvc, hf_tibia_charlist_entry_name, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
                                 ptvcursor_push_subtree(ptvc, it, ett_char);
 
                                 ptvcursor_add(ptvc, hf_tibia_charlist_entry_world, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
@@ -1566,7 +1566,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         proto_tree_add_item(infotree, hf_tibia_unknown, tvb_decrypted, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(infotree, hf_tibia_client_gpu, tvb_decrypted, offset, 9, convo->has.string_enc|ENC_NA);
+        proto_tree_add_item(infotree, hf_tibia_client_gpu, tvb_decrypted, offset, 9, ENC_NA | convo->has.string_enc);
         offset += 9;
 
         proto_tree_add_item(infotree, hf_tibia_client_vram, tvb_decrypted, offset, 2, ENC_LITTLE_ENDIAN);
