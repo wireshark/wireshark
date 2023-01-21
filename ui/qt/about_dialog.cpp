@@ -79,8 +79,12 @@ AStringListListModel(parent)
 #endif
 
     while (!ReadFile_authors.atEnd()) {
-        QStringList entry = ReadFile_authors.readLine().split(",", Qt::SkipEmptyParts);
-
+        QString line = ReadFile_authors.readLine();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        QStringList entry = line.split(",", Qt::SkipEmptyParts);
+#else
+        QStringList entry = QStringList() << line.section(',', 0, 0) << line.section(',', 1, 1);
+#endif
         if (entry.size() == 2) {
             appendRow(entry);
         }
