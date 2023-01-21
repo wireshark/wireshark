@@ -425,6 +425,64 @@ typedef struct {
 
 static GHashTable *option_handlers[NUM_BT_INDICES];
 
+/* Return whether this block type is handled interally, or
+ * if it is returned to the caller in pcapng_read().
+ * This is used by pcapng_open() to decide if it can process
+ * the block.
+ * Note that for block types that are registered from plugins,
+ * we don't know the true answer without actually reading the block,
+ * or even if there is a fixed answer for all blocks of that type,
+ * so we err on the side of not processing.
+ */
+static gboolean
+get_block_type_internal(guint block_type)
+{
+    switch (block_type) {
+
+    case BLOCK_TYPE_SHB:
+    case BLOCK_TYPE_IDB:
+    case BLOCK_TYPE_NRB:
+    case BLOCK_TYPE_DSB:
+    case BLOCK_TYPE_ISB: /* XXX: ISBs should probably not be internal. */
+        return TRUE;
+
+    case BLOCK_TYPE_PB:
+    case BLOCK_TYPE_EPB:
+    case BLOCK_TYPE_SPB:
+        return FALSE;
+
+    case BLOCK_TYPE_CB_COPY:
+    case BLOCK_TYPE_CB_NO_COPY:
+    case BLOCK_TYPE_SYSDIG_EVENT:
+    case BLOCK_TYPE_SYSDIG_EVENT_V2:
+    case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
+    case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
+        return FALSE;
+
+    default:
+#ifdef HAVE_PLUGINS
+        /*
+         * Do we have a handler for this block type?
+         */
+        if (block_handlers != NULL &&
+            (g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type))) != NULL) {
+                /* Yes. We don't know if the handler sets this block internal
+                 * or needs to return it to the pcap_read() caller without
+                 * reading it. Since this is called by pcap_open(), play it
+                 * safe and tell pcap_open() to stop processing blocks.
+                 * (XXX: Maybe the block type handler registration interface
+                 * should include some way of indicating whether blocks are
+                 * handled internally, which should hopefully be the same
+                 * for all blocks of a type.)
+                 */
+                return FALSE;
+        }
+#endif
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static gboolean
 get_block_type_index(guint block_type, guint *bt_index)
 {
@@ -1213,6 +1271,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         return PCAPNG_BLOCK_ERROR;
     }
 
+    memset(section_info, 0, sizeof(section_info_t));
     section_info->byte_swapped  = byte_swapped;
     section_info->version_major = version_major;
     section_info->version_minor = version_minor;
@@ -3392,6 +3451,112 @@ pcapng_process_dsb(wtap *wth, wtapng_block_t *wblock)
     g_array_append_val(wth->dsbs, wblock->block);
 }
 
+static void
+pcapng_process_internal_block(wtap *wth, pcapng_t *pcapng, section_info_t *current_section, section_info_t new_section, wtapng_block_t *wblock, const gint64 *data_offset)
+{
+    wtap_block_t wtapng_if_descr;
+    wtap_block_t if_stats;
+    wtapng_if_stats_mandatory_t *if_stats_mand_block, *if_stats_mand;
+    wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
+
+    switch (wblock->type) {
+
+        case(BLOCK_TYPE_SHB):
+            ws_debug("another section header block");
+
+            /*
+             * Add this SHB to the table of SHBs.
+             */
+            g_array_append_val(wth->shb_hdrs, wblock->block);
+
+            /*
+             * Update the current section number, and add
+             * the updated section_info_t to the array of
+             * section_info_t's for this file.
+             */
+            pcapng->current_section_number++;
+            new_section.interfaces = g_array_new(FALSE, FALSE, sizeof(interface_info_t));
+            new_section.shb_off = *data_offset;
+            g_array_append_val(pcapng->sections, new_section);
+            break;
+
+        case(BLOCK_TYPE_IDB):
+            /* A new interface */
+            ws_debug("block type BLOCK_TYPE_IDB");
+            pcapng_process_idb(wth, current_section, wblock);
+            wtap_block_unref(wblock->block);
+            break;
+
+        case(BLOCK_TYPE_DSB):
+            /* Decryption secrets. */
+            ws_debug("block type BLOCK_TYPE_DSB");
+            pcapng_process_dsb(wth, wblock);
+            /* Do not free wblock->block, it is consumed by pcapng_process_dsb */
+            break;
+
+        case(BLOCK_TYPE_NRB):
+            /* More name resolution entries */
+            ws_debug("block type BLOCK_TYPE_NRB");
+            pcapng_process_nrb(wth, wblock);
+            /* Do not free wblock->block, it is consumed by pcapng_process_nrb */
+            break;
+
+        case(BLOCK_TYPE_ISB):
+            /*
+             * Another interface statistics report
+             *
+             * XXX - given that they're reports, we should be
+             * supplying them in read calls, and displaying them
+             * in the "packet" list, so you can see what the
+             * statistics were *at the time when the report was
+             * made*.
+             *
+             * The statistics from the *last* ISB could be displayed
+             * in the summary, but if there are packets after the
+             * last ISB, that could be misleading.
+             *
+             * If we only display them if that ISB has an isb_endtime
+             * option, which *should* only appear when capturing ended
+             * on that interface (so there should be no more packet
+             * blocks or ISBs for that interface after that point,
+             * that would be the best way of showing "summary"
+             * statistics.
+             */
+            ws_debug("block type BLOCK_TYPE_ISB");
+            if_stats_mand_block = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
+            if (wth->interface_data->len <= if_stats_mand_block->interface_id) {
+                ws_debug("BLOCK_TYPE_ISB wblock.if_stats.interface_id %u >= number_of_interfaces",
+                         if_stats_mand_block->interface_id);
+            } else {
+                /* Get the interface description */
+                wtapng_if_descr = g_array_index(wth->interface_data, wtap_block_t, if_stats_mand_block->interface_id);
+                wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wtapng_if_descr);
+                if (wtapng_if_descr_mand->num_stat_entries == 0) {
+                    /* First ISB found, no previous entry */
+                    ws_debug("block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
+                    wtapng_if_descr_mand->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+                }
+
+                if_stats = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
+                if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(if_stats);
+                if_stats_mand->interface_id  = if_stats_mand_block->interface_id;
+                if_stats_mand->ts_high       = if_stats_mand_block->ts_high;
+                if_stats_mand->ts_low        = if_stats_mand_block->ts_low;
+
+                wtap_block_copy(if_stats, wblock->block);
+                g_array_append_val(wtapng_if_descr_mand->interface_statistics, if_stats);
+                wtapng_if_descr_mand->num_stat_entries++;
+            }
+            wtap_block_unref(wblock->block);
+            break;
+
+        default:
+            /* XXX - improve handling of "unknown" blocks */
+            ws_debug("Unknown block type 0x%08x", wblock->type);
+            break;
+    }
+}
+
 /* classic wtap: open capture file */
 wtap_open_return_val
 pcapng_open(wtap *wth, int *err, gchar **err_info)
@@ -3543,7 +3708,21 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      * wtap_dumper can refer to it right after opening the capture file. */
     wth->dsbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
-    /* Loop over all IDBs that appear before any packets */
+    /* Most other capture types (such as pcap) support a single link-layer
+     * type, indicated in the header, and don't support WTAP_ENCAP_PER_PACKET.
+     * Most programs that write such capture files want to know the link-layer
+     * type when initially opening the destination file, and (unlike Wireshark)
+     * don't want to read the entire source file to find all the link-layer
+     * types before writing (particularly if reading from a pipe or FIFO.)
+     *
+     * In support of this, read all the internally-processed, non packet
+     * blocks that appear before the first packet block (EPB or SPB).
+     *
+     * Note that such programs will still have issues when trying to read
+     * a pcapng that has a new link-layer type in an IDB in the middle of
+     * the file, as they will discover in the middle that no, they can't
+     * successfully write the output file as desired.
+     */
     while (1) {
         /* peek at next block */
         /* Try to read the (next) block header */
@@ -3551,10 +3730,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         if (!wtap_read_bytes_or_eof(wth->fh, &bh, sizeof bh, err, err_info)) {
             if (*err == 0) {
                 /* EOF */
-                ws_debug("No more IDBs available...");
+                ws_debug("No more blocks available...");
                 break;
             }
-            ws_debug("Check for more IDBs, wtap_read_bytes_or_eof() failed, err = %d.",
+            ws_debug("Check for more initial blocks, wtap_read_bytes_or_eof() failed, err = %d.",
                      *err);
             return WTAP_OPEN_ERROR;
         }
@@ -3572,27 +3751,36 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
         }
 
-        ws_debug("Check for more IDBs, block_type 0x%08x",
+        ws_debug("Check for more initial internal blocks, block_type 0x%08x",
                  bh.block_type);
 
-        /* XXX - This code expects that the PCAPNG Sections start with IDBs but the PCAPNG RFC does not say that!? */
-        if (bh.block_type != BLOCK_TYPE_IDB) {
-            break;  /* No more IDBs */
+        if (!get_block_type_internal(bh.block_type)) {
+            break;  /* Next block has to be returned in pcap_read */
         }
-
+        /* Note that some custom block types, unlike packet blocks,
+         * don't need to be preceded by an IDB and so theoretically
+         * we could skip past them here. However, then there's no good
+         * way to both later return those blocks in pcap_read() and
+         * ensure that we don't read and process the IDBs (and other
+         * internal block types) a second time.
+         *
+         * pcapng_read_systemd_journal_export_block() sets the file level
+         * link-layer type if it's still UNKNOWN. We could do the same here
+         * for it and possibly other types based on block type, even without
+         * reading them.
+         */
         if (!pcapng_read_block(wth, wth->fh, pcapng, current_section,
                               &new_section, &wblock, err, err_info)) {
             wtap_block_unref(wblock.block);
             if (*err == 0) {
-                ws_debug("No more IDBs available...");
+                ws_debug("No more initial blocks available...");
                 break;
             } else {
-                ws_debug("couldn't read IDB");
+                ws_debug("couldn't read block");
                 return WTAP_OPEN_ERROR;
             }
         }
-        pcapng_process_idb(wth, current_section, &wblock);
-        wtap_block_unref(wblock.block);
+        pcapng_process_internal_block(wth, pcapng, current_section, new_section, &wblock, &saved_offset);
         ws_debug("Read IDB number_of_interfaces %u, wtap_encap %i",
                  wth->interface_data->len, wth->file_encap);
     }
@@ -3607,10 +3795,6 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
     section_info_t *current_section, new_section;
     wtapng_block_t wblock;
-    wtap_block_t wtapng_if_descr;
-    wtap_block_t if_stats;
-    wtapng_if_stats_mandatory_t *if_stats_mand_block, *if_stats_mand;
-    wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
 
     wblock.frame_buffer  = buf;
     wblock.rec = rec;
@@ -3649,102 +3833,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
          * This is a block type we process internally, rather than
          * returning it for the caller to process.
          */
-        switch (wblock.type) {
-
-            case(BLOCK_TYPE_SHB):
-                ws_debug("another section header block");
-
-                /*
-                 * Add this SHB to the table of SHBs.
-                 */
-                g_array_append_val(wth->shb_hdrs, wblock.block);
-
-                /*
-                 * Update the current section number, and add
-                 * the updated section_info_t to the array of
-                 * section_info_t's for this file.
-                 */
-                pcapng->current_section_number++;
-                new_section.interfaces = g_array_new(FALSE, FALSE, sizeof(interface_info_t));
-                new_section.shb_off = *data_offset;
-                g_array_append_val(pcapng->sections, new_section);
-                break;
-
-            case(BLOCK_TYPE_IDB):
-                /* A new interface */
-                ws_debug("block type BLOCK_TYPE_IDB");
-                pcapng_process_idb(wth, current_section, &wblock);
-                wtap_block_unref(wblock.block);
-                break;
-
-            case(BLOCK_TYPE_DSB):
-                /* Decryption secrets. */
-                ws_debug("block type BLOCK_TYPE_DSB");
-                pcapng_process_dsb(wth, &wblock);
-                /* Do not free wblock.block, it is consumed by pcapng_process_dsb */
-                break;
-
-            case(BLOCK_TYPE_NRB):
-                /* More name resolution entries */
-                ws_debug("block type BLOCK_TYPE_NRB");
-                pcapng_process_nrb(wth, &wblock);
-                /* Do not free wblock.block, it is consumed by pcapng_process_nrb */
-                break;
-
-            case(BLOCK_TYPE_ISB):
-                /*
-                 * Another interface statistics report
-                 *
-                 * XXX - given that they're reports, we should be
-                 * supplying them in read calls, and displaying them
-                 * in the "packet" list, so you can see what the
-                 * statistics were *at the time when the report was
-                 * made*.
-                 *
-                 * The statistics from the *last* ISB could be displayed
-                 * in the summary, but if there are packets after the
-                 * last ISB, that could be misleading.
-                 *
-                 * If we only display them if that ISB has an isb_endtime
-                 * option, which *should* only appear when capturing ended
-                 * on that interface (so there should be no more packet
-                 * blocks or ISBs for that interface after that point,
-                 * that would be the best way of showing "summary"
-                 * statistics.
-                 */
-                ws_debug("block type BLOCK_TYPE_ISB");
-                if_stats_mand_block = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(wblock.block);
-                if (wth->interface_data->len <= if_stats_mand_block->interface_id) {
-                    ws_debug("BLOCK_TYPE_ISB wblock.if_stats.interface_id %u >= number_of_interfaces",
-                             if_stats_mand_block->interface_id);
-                } else {
-                    /* Get the interface description */
-                    wtapng_if_descr = g_array_index(wth->interface_data, wtap_block_t, if_stats_mand_block->interface_id);
-                    wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wtapng_if_descr);
-                    if (wtapng_if_descr_mand->num_stat_entries == 0) {
-                        /* First ISB found, no previous entry */
-                        ws_debug("block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
-                        wtapng_if_descr_mand->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-                    }
-
-                    if_stats = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
-                    if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(if_stats);
-                    if_stats_mand->interface_id  = if_stats_mand_block->interface_id;
-                    if_stats_mand->ts_high       = if_stats_mand_block->ts_high;
-                    if_stats_mand->ts_low        = if_stats_mand_block->ts_low;
-
-                    wtap_block_copy(if_stats, wblock.block);
-                    g_array_append_val(wtapng_if_descr_mand->interface_statistics, if_stats);
-                    wtapng_if_descr_mand->num_stat_entries++;
-                }
-                wtap_block_unref(wblock.block);
-                break;
-
-            default:
-                /* XXX - improve handling of "unknown" blocks */
-                ws_debug("Unknown block type 0x%08x", wblock.type);
-                break;
-        }
+        pcapng_process_internal_block(wth, pcapng, current_section, new_section, &wblock, data_offset);
     }
 
     /*ws_debug("Read length: %u Packet length: %u", bytes_read, rec->rec_header.packet_header.caplen);*/
