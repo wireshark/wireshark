@@ -2215,7 +2215,7 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_serviceparams_enc_values,
-      { "Encoded Values", "awdl.serviceparams.valuess",
+      { "Encoded Values", "awdl.serviceparams.values",
         FT_NONE, BASE_NONE, NULL, 0,
         "Encodes up to 256 unique 1-byte values. Calculation adds offsets to values.", HFILL
       }

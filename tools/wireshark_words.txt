@@ -75,6 +75,7 @@ asn1
 asn1cnf
 asn2deb
 asn2wrs
+assignee
 assignor
 assoc
 assymetric
@@ -443,6 +444,7 @@ earfcn
 ebcdic
 ecdhe
 ecdsa
+ecpri
 editcap
 eeprom
 egprs
@@ -476,6 +478,7 @@ enttec
 enumerates
 enumerations
 enumerator
+envchange
 epasv
 epdcch
 epsem
@@ -510,6 +513,7 @@ extensibility
 extensible
 extern
 exthdr
+extlen
 extrainformation
 eyesdn
 facch
@@ -616,6 +620,8 @@ homeplug
 hopcount
 hostname
 howto
+hpfeeds
+hresult
 hsdpa
 hsdsch
 hspdsch
@@ -683,6 +689,7 @@ instdir
 instrumented
 interferer
 interleaving
+interop
 interruptible
 interworking
 inuse
@@ -726,6 +733,7 @@ ixveriwave
 jacobson
 jetds
 jsonraw
+k12xx
 kademlia
 kasme
 kasumi
@@ -820,6 +828,7 @@ meteorological
 metermod
 México
 mgmtmsg
+microapp
 microbit
 midamble
 millimeters
@@ -835,6 +844,7 @@ mitel
 mitsubishi
 mkdir
 mmdbresolve
+modbus
 mode01
 mode7
 modepage
@@ -1331,6 +1341,7 @@ sharkd
 shomiti
 siapp
 sidelink
+signaal
 signaling
 signon
 simulcast
@@ -1552,6 +1563,7 @@ uncalibrated
 uncategorized
 unchannelized
 unciphered
+uncoloured
 uncompensated
 uncompress
 uncompressed
@@ -1560,6 +1572,7 @@ uncompression
 unconfigurable
 unconfigured
 unconfirm
+uncontended
 uncorrectable
 undecidable
 undecipherable
@@ -1611,6 +1624,7 @@ unmerged
 unmodulated
 unmute
 unmuted
+unnumb
 unoptimized
 unordered
 unparsable
@@ -1716,6 +1730,7 @@ wikipedia
 wikis
 wimax
 wimaxasncp
+winflexbison
 winget
 winpcap
 winspool

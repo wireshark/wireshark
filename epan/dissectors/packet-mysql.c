@@ -254,7 +254,7 @@ static const value_string mysql_command_vals[] = {
 	{MYSQL_BINLOG_DUMP_GTID, "Send Binlog GTID"},
 	{MYSQL_RESET_CONNECTION, "Reset Connection"},
 	{MYSQL_CLONE, "Native cloning"},
-	{MYSQL_SUBSCRIBE_GROUP_REPLICATION_STREAM, "Subscribe Group Repliction Stream"},
+	{MYSQL_SUBSCRIBE_GROUP_REPLICATION_STREAM, "Subscribe Group Replication Stream"},
 	{MARIADB_STMT_BULK_EXECUTE, "Execute Bulk Statement"},
 	{0, NULL}
 };

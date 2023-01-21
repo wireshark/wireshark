@@ -11018,7 +11018,7 @@ static const value_string nokia_l2tp_params_algorithm_vals[] = {
 
 static const value_string nokia_l2tp_params_avp_hiding_vals[] = {
     {0, "Nothing"},
-    {1, "Senitive Only"},
+    {1, "Sensitive Only"},
     {2, "All"},
     {0, NULL}
 };

@@ -386,18 +386,18 @@ root_keys_update_cb(void *r, char **err)
 	root_key_t *rec = (root_key_t *)r;
 
 	if (rec->deveui_string == NULL) {
-		*err = g_strdup("End-device indentifier can't be empty");
+		*err = g_strdup("End-device identifier can't be empty");
 		return FALSE;
 	}
 	if (!rec->deveui) {
 		rec->deveui = g_byte_array_new();
 	}
 	if (!hex_str_to_bytes(rec->deveui_string, rec->deveui, FALSE)) {
-		*err = g_strdup("End-device indentifier must be hexadecimal");
+		*err = g_strdup("End-device identifier must be hexadecimal");
 		return FALSE;
 	}
 	if (rec->deveui->len != 8) {
-		*err = g_strdup("End-device indentifier must be 8 bytes hexadecimal");
+		*err = g_strdup("End-device identifier must be 8 bytes hexadecimal");
 		return FALSE;
 	}
 	byte_array_reverse(rec->deveui);
