@@ -25,6 +25,9 @@
 #include <wsutil/wmem/wmem.h>
 #include <epan/conversation.h>
 
+#include <epan/tap.h>
+#include <ui/tap-credentials.h>
+
 #include "packet-sapni.h"
 #include "packet-sapsnc.h"
 
@@ -134,6 +137,7 @@ static const value_string saprouter_admin_command_vals[] = {
 	{ 0, NULL}
 };
 
+static int credentials_tap = -1;
 
 static int proto_saprouter = -1;
 
@@ -295,6 +299,14 @@ dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 		/* If a password was found, add a expert warning in the security category */
 		if (len > 1){
 			expert_add_info(pinfo, route_password, &ei_saprouter_route_password_found);
+
+			/* Add the password to the credential tap */
+			tap_credential_t *auth =  wmem_new0(pinfo->pool, tap_credential_t);
+			auth->num = pinfo->num;
+			auth->password_hf_id = hf_saprouter_route_string_password;
+			auth->proto = "SAP Router Route String password";
+			auth->username = wmem_strdup(pinfo->pool, TAP_CREDENTIALS_PLACEHOLDER);
+			tap_queue_packet(credentials_tap, pinfo, auth);
 		}
 		offset += len;
 
@@ -491,6 +503,14 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 				if (tvb_offset_exists(tvb, offset) && (tvb_strsize(tvb, offset) > 0)){
 					admin_password = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_password, tvb, offset, tvb_strsize(tvb, offset), ENC_ASCII|ENC_NA);
 					expert_add_info(pinfo, admin_password, &ei_saprouter_info_password_found);
+
+					/* Add the password to the credential tap */
+					tap_credential_t *auth =  wmem_new0(pinfo->pool, tap_credential_t);
+					auth->num = pinfo->num;
+					auth->password_hf_id = hf_saprouter_admin_password;
+					auth->proto = "SAP Router Info Request password";
+					auth->username = wmem_strdup(pinfo->pool, TAP_CREDENTIALS_PLACEHOLDER);
+					tap_queue_packet(credentials_tap, pinfo, auth);
 				}
 				break;
 			}
@@ -894,6 +914,9 @@ proto_register_saprouter(void)
 	prefs_register_range_preference(saprouter_module, "tcp_ports", "SAP Router Protocol TCP port numbers", "Port numbers used for SAP Router Protocol (default " SAPROUTER_PORT_RANGE ")", &global_saprouter_port_range, MAX_TCP_PORT);
 
 	prefs_register_bool_preference(saprouter_module, "snc_dissection", "Dissect SAP SNC frames", "Whether the SAP Router Protocol dissector should call the SAP SNC dissector for SNC frames", &global_saprouter_snc_dissection);
+
+	/* Register the tap*/
+	credentials_tap = register_tap("credentials");
 
 }
 
