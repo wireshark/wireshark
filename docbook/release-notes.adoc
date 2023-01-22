@@ -30,7 +30,7 @@ The speex code that was previously bundled has been removed.
 
 The personal extcap plugin folder location on Unix has been changed to
 follow existing conventions for architecture-dependent files.
-The extcap personal folder is now ``$HOME/.local/lib/extcap``.
+The extcap personal folder is now ``$HOME/.local/lib/wireshark/extcap``.
 Previously it was ``$XDG_CONFIG_HOME/wireshark/extcap``.
 
 The installation target no longer installs development headers by default.
