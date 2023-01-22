@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar al portapapeles</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -1450,11 +1450,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Opcionalmente especifica un directorio temporal para archivos de captura sin nombre.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Directory for temporary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Directorio para archivos temporales</translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1466,7 +1466,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation>Dejar en blanco para usar archivo temporal</translation>
+        <translation>Deje en blanco para usar archivo temporal</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
@@ -1971,7 +1971,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar bytes como volcado hexadecimal + ASCII</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
@@ -1979,7 +1979,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>…como volcado hexadecimal</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
@@ -3214,8 +3214,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Complementos personales de Lua</translation>
     </message>
     <message>
-        <source>lua scripts</source>
-        <translation>scripts de lua</translation>
+        <source>Lua scripts</source>
+        <oldsource>lua scripts</oldsource>
+        <translation type="unfinished">scripts de lua</translation>
     </message>
     <message>
         <source>Global Lua Plugins</source>
@@ -3223,11 +3224,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Extcap Plugins search path</source>
-        <translation>ruta de búsqueda de complementos de Extcap</translation>
+        <translation type="vanished">ruta de búsqueda de complementos de Extcap</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
         <translation>Ruta personal de Extcap</translation>
+    </message>
+    <message>
+        <source>external capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3295,7 +3300,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation>Volcado hex</translation>
+        <translation>Volcado hexadecimal</translation>
     </message>
     <message>
         <source>UTF-8</source>
@@ -3371,7 +3376,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QUIC streams not found on the selected packet.</source>
+        <source>%1 stream not found on the selected packet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3392,10 +3397,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -4473,11 +4474,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si debe realizar un procesado adicional para detectar el inicio de la representación ASCII al final de una línea hexadecimal+ASCII incluso si parecen bytes hexadecimales.&lt;/p&gt;&lt;p&gt;No active si el volcado hexadecimal no contiene ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificación ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -4545,7 +4546,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>IP version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Versión IP:</translation>
     </message>
     <message>
         <source>Interface name:</source>
@@ -4605,7 +4606,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet y IP</translation>
     </message>
     <message>
         <source>IP</source>
@@ -4613,19 +4614,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IP y UDP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IP y TCP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IP y SCTP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo para cada trama con una cabecera ethernet, IP y SCTP (Datos)</translation>
     </message>
     <message>
         <source>Source address:</source>
@@ -4645,11 +4646,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>The IP source address for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>La dirección IP de origen para cada trama</translation>
     </message>
     <message>
         <source>The IP destination address for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>La dirección IP de destino para cada trama</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4749,7 +4750,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Import From Hex Dump</source>
-        <translation>Importar desde volcado hex</translation>
+        <translation>Importar desde volcado hexadecimal</translation>
     </message>
     <message>
         <source>Import</source>
@@ -10401,7 +10402,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Hex value</source>
-        <translation>Valor hex</translation>
+        <translation>Valor hexadecimal</translation>
     </message>
     <message>
         <source>String</source>
@@ -10433,7 +10434,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>That&apos;s not a valid hex string.</source>
-        <translation>Esta no es una cadena hex valida.</translation>
+        <translation>Esta no es una cadena hexadecimal valida.</translation>
     </message>
     <message>
         <source>You didn&apos;t specify any text for which to search.</source>
@@ -10904,7 +10905,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation>Volcado hex</translation>
+        <translation>Volcado hexadecimal</translation>
     </message>
     <message>
         <source>HTML</source>
@@ -12282,45 +12283,6 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: palette(text);
-  text-decoration: none;
-}
-a:hover {
-  color: palette(text);
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12961,7 +12923,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Import from Hex Dump…</source>
-        <translation>&amp;Importar desde volcado hex…</translation>
+        <translation>&amp;Importar desde volcado hexadecimal…</translation>
     </message>
     <message>
         <source>Save this capture file</source>
@@ -13204,6 +13166,10 @@ a:hover {
     <message>
         <source>QUIC Stream</source>
         <translation>Secuencia QUIC</translation>
+    </message>
+    <message>
+        <source>Websocket Stream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SIP Call</source>

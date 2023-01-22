@@ -3231,8 +3231,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kişisel Lua Eklentileri</translation>
     </message>
     <message>
-        <source>lua scripts</source>
-        <translation>lua betikleri</translation>
+        <source>Lua scripts</source>
+        <oldsource>lua scripts</oldsource>
+        <translation type="unfinished">lua betikleri</translation>
     </message>
     <message>
         <source>Global Lua Plugins</source>
@@ -3240,11 +3241,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Extcap Plugins search path</source>
-        <translation>Extcap Eklentileri arama yolu</translation>
+        <translation type="vanished">Extcap Eklentileri arama yolu</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
         <translation>Kişisel Excap yolu</translation>
+    </message>
+    <message>
+        <source>external capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3397,8 +3402,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Lütfen %1 paketinin seçili olduğundan emin olun.</translation>
     </message>
     <message>
+        <source>%1 stream not found on the selected packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>QUIC streams not found on the selected packet.</source>
-        <translation>QUIC akışları seçilen pakette bulunamadı.</translation>
+        <translation type="vanished">QUIC akışları seçilen pakette bulunamadı.</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -3422,7 +3431,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
-        <translation>Bir aktarım veya ağ katmanı başlığı gereklidir.</translation>
+        <translation type="vanished">Bir aktarım veya ağ katmanı başlığı gereklidir.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
@@ -3432,8 +3441,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Seçilen akış için azami alt akış kimliği: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -3801,11 +3810,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move this graph upwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu grafiği yukarı doğru götür.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu grafiği aşağı doğru götür.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -5853,11 +5862,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Maximum number of cached rows (affects sorting)</source>
-        <translation type="unfinished"></translation>
+        <translation>Azami önbelleğe alınmış satır sayısı (sıralamayı etkiler)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bu sayıdan daha fazla satır görüntülenirse, paket incelemesi gerektiren sütunlara göre sıralama devre dışı bırakılır. Bu sayıyı artırmak, sütun değerlerini önbelleğe alarak bellek tüketimini artırır.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
@@ -7087,11 +7096,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Sütun</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 yalnızca %2 veya daha az görünür satırla sıralanabilir; Düzen tercihlerinde önbellek boyutunu artırın</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
@@ -12391,61 +12400,22 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: palette(text);
-  text-decoration: none;
-}
-a:hover {
-  color: palette(text);
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head&gt;
+        <translation>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:bağlantı {
-  renk: palet(metin);
-  metin-süsleme: hiçbiri;
+  renk: paleti(metin);
+  metin süslemesi: yok;
 }
-a:hover {
-  renk: palet(metin);
-  metin-süsleme: altçizgili;
+a:üzerine gelin{
+  renk: paleti(metin);
+  metin süslemesi: altı çizili;
 }
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
 
 &lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Kullanıcı Klavuzu&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Kullanıcı Kılavuzu&lt;/a&gt;&lt;/th&gt;
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
@@ -12453,11 +12423,11 @@ a:hover {
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Sorular ve Yanıtlar&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Sorular ve Cevaplar&lt;/a&gt;&lt;/th&gt;
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mail Listesi&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Posta Listeleri&lt;/a&gt;&lt;/th&gt;
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
@@ -12466,6 +12436,10 @@ a:hover {
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
 &lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Wireshark Discord&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Bağış yap&lt;/a&gt;&lt;/th&gt;
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -13350,6 +13324,10 @@ a:hover {
     <message>
         <source>QUIC Stream</source>
         <translation>QUIC Akışı</translation>
+    </message>
+    <message>
+        <source>Websocket Stream</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SIP Call</source>

@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2023-01-13)
+# (last updated 2023-01-20)
 
 0	Reserved
 1	NxNetworks
@@ -7054,7 +7054,7 @@
 7051	Epicom S.A.
 7052	Dipl.-Ing. Markus Leist
 7053	Videon CableSystems Alberta Inc.
-7054	Mazu Networks, Inc.
+7054	Riverbed Technology	# formerly 'Mazu Networks, Inc.'
 7055	Cox Communications, Inc.
 7056	Senterprise Inc.
 7057	SuSE Linux AG
@@ -13646,7 +13646,7 @@
 13658	Teddy's Network
 13659	The Worley Companies
 13660	U.S. Army CECOM
-13661	The University of Manchester	# formerly 'UMIST'
+13661	The University of Manchester
 13662	Universidad de Palermo
 13663	VRGroup.com
 13664	VSS KB, a.s.
@@ -47515,7 +47515,7 @@
 47565	Forcepoint LLC
 47566	Uniper SE
 47567	Seifert Logistics GmbH
-47568	Pantel International
+47568	InterTalk Critical Information Systems
 47569	FIAMM SoNick S.A.
 47570	Ennnot
 47571	Glowpoint
@@ -56320,7 +56320,7 @@
 56385	LLC Lotsiya
 56386	Praxispunkt GmbH
 56387	DFINITY USA, LLC
-56388	Thales Austria GmbH
+56388	GTS Ground Transport Systems Austria GmbH
 56389	The Munshi Group
 56390	Wuhan Yangtze Computing Technologies Co.,LTD
 56391	Digital Devices GmbH
@@ -59843,3 +59843,41 @@
 59919	Thomas Katholnig
 59920	IndigoCare
 59921	California Coast Physicians, Inc.
+59922	KIDZ Medical Services
+59923	Shenzhen Megarevo Technology Co., Ltd.
+59924	Keith Lee Hong Sun
+59925	NOC Network & IT-Services e.U.
+59926	SchoolsFirst Federal Credit Union
+59927	Alkaloid AD
+59928	EVERON ENERGY SYSTEMS PVT. LTD.
+59929	Deloitte China
+59930	b2e.cloud
+59931	Fachhochschule Nordwestschweiz
+59932	Xuan Khai Tran
+59933	Firscom
+59934	Jiansong Yang
+59935	Matthew Grant
+59936	BaseBit
+59937	Nij Smellinghe
+59938	IDeTRUST GmbH
+59939	BMK Group GmbH & Co. KG
+59940	Sussex Community NHS Foundation Trust
+59941	Alexey Saidov
+59942	MyAVR.ru
+59943	Legacy Medical Management LLC
+59944	Third Helix Technology Inc
+59945	P&K Equipment Inc
+59946	Identiv
+59947	Viettel Telecom
+59948	Institut für Mathematik der Universität Würzburg
+59949	Kentox Consulting
+59950	ziwig
+59951	Thibaut Mouly
+59952	Ubiq Systems Pty Ltd
+59953	Graphiant Inc.
+59954	Laisky
+59955	Sofinet LLC
+59956	Overon
+59957	Patrick Sexton
+59958	Bäckebrons Sågverk Aktiebolag
+59959	Onslow County Public Schools
