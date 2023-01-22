@@ -2305,7 +2305,7 @@ static const value_string usb_vendors_vals[] = {
     { 0x13ec, "Zydacron" },
     { 0x13ee, "MosArt" },
     { 0x13fd, "Initio Corporation" },
-    { 0x13fe, "Kingston Technology Company Inc." },
+    { 0x13fe, "Phison Electronics Corp." },
     { 0x1400, "Axxion Group Corp." },
     { 0x1402, "Bowe Bell & Howell" },
     { 0x1403, "Sitronix" },
