@@ -3124,7 +3124,7 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 	}
 
 	/* default (Only use for show fields) */
-	if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_default);
 	}
 	return offset;
