@@ -1,4 +1,4 @@
-Wireshark 4.0.3 Release Notes
+Wireshark 4.0.4 Release Notes
 
  What is Wireshark?
 
@@ -15,64 +15,7 @@ Wireshark 4.0.3 Release Notes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2023-01[2] EAP dissector crash. Issue 18622[3].
-
-     • wnpa-sec-2023-02[4] NFS dissector memory leak. Issue 18628[5].
-
-     • wnpa-sec-2023-03[6] Dissection engine crash. Issue 18766[7].
-
-     • wnpa-sec-2023-04[8] GNW dissector crash. Issue 18779[9].
-
-     • wnpa-sec-2023-05[10] iSCSI dissector crash. Issue 18796[11].
-
-     • wnpa-sec-2023-06[12] Multiple dissector excessive loops. Issue
-       18711[13]. Issue 18720[14], Issue 18737[15].
-
-     • wnpa-sec-2023-07[16] TIPC dissector crash. Issue 18770[17].
-
    The following bugs have been fixed:
-
-     • Qt: After modifying coloring rules, the coloring rule applied to
-       the first packet reflects the coloring rules previously in
-       effect. Issue 12475[18].
-
-     • Help file doesn’t display for extcap interfaces. Issue 15592[19].
-
-     • For USB traffic on XHC20 interface destination is always given as
-       Host. Issue 16768[20].
-
-     • Wireshark Expert Info - cannot deselect the limit to display
-       filter tick box. Issue 18461[21].
-
-     • Wrong pointer conversion in get_data_source_tvb_by_name() Issue
-       18517[22].
-
-     • Wrong number of bits skipped while decoding an empty UTF8String
-       on UPER packet. Issue 18702[23].
-
-     • Crash when analyzing protobuf packets. Issue 18730[24].
-
-     • Uninitialized values in various dissectors. Issue 18742[25].
-
-     • String (GeoIP country/city) ordering doesn’t work in Endpoints.
-       Issue 18749[26].
-
-     • Wireshark crashes with an assertion failure on stray minus in
-       filter. Issue 18750[27].
-
-     • IO Graph: Add new graph only works until the 10th graph. Issue
-       18762[28].
-
-     • Fuzz job crash output: fuzz-2022-12-30-11007.pcap. Issue
-       18770[29].
-
-     • Q.850 - error in label for cause 0x7F. Issue 18780[30].
-
-     • Uninitialized values in CoAP and RTPS dissectors. Issue
-       18785[31].
-
-     • Screenshots in AppStream metainfo.xml file not available. Issue
-       18801[32].
 
   New and Updated Features
 
@@ -83,10 +26,6 @@ Wireshark 4.0.3 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   ASTERIX, BEEP, BGP, BPv6, CoAP, EAP, GNW, GSM A-bis P-GSL, iSCSI,
-   ISUP, LwM2M-TLV, MBIM, NBAP, NFS, OBD-II, OPUS, ProtoBuf, RLC, ROHC,
-   RTPS, Telnet, TIPC, and USB
 
   New and Updated Capture File Support
 
@@ -106,7 +45,7 @@ Wireshark 4.0.3 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[33] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -121,63 +60,32 @@ Wireshark 4.0.3 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[34] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[35].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[36].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[37].
+  SharkFest[6].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[38].
+  at wiresharkfoundation.org[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[39].
+  A complete FAQ is available on the Wireshark web site[8].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/security/wnpa-sec-2023-01
-   3. https://gitlab.com/wireshark/wireshark/-/issues/18622
-   4. https://www.wireshark.org/security/wnpa-sec-2023-02
-   5. https://gitlab.com/wireshark/wireshark/-/issues/18628
-   6. https://www.wireshark.org/security/wnpa-sec-2023-03
-   7. https://gitlab.com/wireshark/wireshark/-/issues/18766
-   8. https://www.wireshark.org/security/wnpa-sec-2023-04
-   9. https://gitlab.com/wireshark/wireshark/-/issues/18779
-  10. https://www.wireshark.org/security/wnpa-sec-2023-05
-  11. https://gitlab.com/wireshark/wireshark/-/issues/18796
-  12. https://www.wireshark.org/security/wnpa-sec-2023-06
-  13. https://gitlab.com/wireshark/wireshark/-/issues/18711
-  14. https://gitlab.com/wireshark/wireshark/-/issues/18720
-  15. https://gitlab.com/wireshark/wireshark/-/issues/18737
-  16. https://www.wireshark.org/security/wnpa-sec-2023-07
-  17. https://gitlab.com/wireshark/wireshark/-/issues/18770
-  18. https://gitlab.com/wireshark/wireshark/-/issues/12475
-  19. https://gitlab.com/wireshark/wireshark/-/issues/15592
-  20. https://gitlab.com/wireshark/wireshark/-/issues/16768
-  21. https://gitlab.com/wireshark/wireshark/-/issues/18461
-  22. https://gitlab.com/wireshark/wireshark/-/issues/18517
-  23. https://gitlab.com/wireshark/wireshark/-/issues/18702
-  24. https://gitlab.com/wireshark/wireshark/-/issues/18730
-  25. https://gitlab.com/wireshark/wireshark/-/issues/18742
-  26. https://gitlab.com/wireshark/wireshark/-/issues/18749
-  27. https://gitlab.com/wireshark/wireshark/-/issues/18750
-  28. https://gitlab.com/wireshark/wireshark/-/issues/18762
-  29. https://gitlab.com/wireshark/wireshark/-/issues/18770
-  30. https://gitlab.com/wireshark/wireshark/-/issues/18780
-  31. https://gitlab.com/wireshark/wireshark/-/issues/18785
-  32. https://gitlab.com/wireshark/wireshark/-/issues/18801
-  33. https://www.wireshark.org/download.html
-  34. https://ask.wireshark.org/
-  35. https://www.wireshark.org/lists/
-  36. https://gitlab.com/wireshark/wireshark/-/issues
-  37. https://sharkfest.wireshark.org
-  38. https://wiresharkfoundation.org
-  39. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://sharkfest.wireshark.org
+   7. https://wiresharkfoundation.org
+   8. https://www.wireshark.org/faq.html
