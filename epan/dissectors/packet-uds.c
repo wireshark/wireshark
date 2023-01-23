@@ -1367,7 +1367,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_services, "Unknown (0x%02x)"));
             proto_tree_add_item_ret_uint(subtree, hf_uds_err_code, tvb, UDS_ERR_CODE_OFFSET, UDS_ERR_CODE_LEN,
                                 ENC_BIG_ENDIAN, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (SID: %s)", val_to_str(enum_val, uds_response_codes, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str(enum_val, uds_response_codes, "Unknown (0x%02x)"));
             break;
         }
         case UDS_SERVICES_CDTCS: {
