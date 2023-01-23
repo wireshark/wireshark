@@ -13,6 +13,8 @@
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * The current implementation is based on the
    * ORAN-WG4.CUS.0-v01.00 specification, dated 2019/01/31.
+   * N.B. by now, descriptions have been taken from a variety of versions, so some section number references
+   * referring to earlier specs are now out of date.
    */
 #include <config.h>
 
@@ -103,7 +105,7 @@ static int hf_oran_reserved = -1;
 static int hf_oran_ext11_reserved = -1;
 static int hf_oran_reserved_bits = -1;
 
-/* static int hf_oran_bfwCompParam = -1; */
+static int hf_oran_bfwCompHdr = -1;
 static int hf_oran_bfwCompHdr_iqWidth = -1;
 static int hf_oran_bfwCompHdr_compMeth = -1;
 static int hf_oran_num_bf_weights = -1;
@@ -177,6 +179,7 @@ static gint ett_oran_offset_start_prb_num_prb = -1;
 static gint ett_oran_prb_cisamples = -1;
 static gint ett_oran_cisample = -1;
 static gint ett_oran_udcomphdr = -1;
+static gint ett_oran_bfwcomphdr = -1;
 
 
 /* Expert info */
@@ -272,6 +275,7 @@ static const range_string filter_indices[] = {
     {0, 0, NULL}
 };
 
+/* Section types from Table 7.3.1-1 */
 enum section_c_types {
     SEC_C_UNUSED_RB = 0,
     SEC_C_NORMAL = 1,
@@ -280,31 +284,34 @@ enum section_c_types {
     SEC_C_RSVD4 = 4,
     SEC_C_UE_SCHED = 5,
     SEC_C_CH_INFO = 6,
-    SEC_C_LAA = 7
+    SEC_C_LAA = 7,
+    SEC_C_ACK_NACK_FEEDBACK = 8
 };
 
 static const range_string section_types[] = {
-    {SEC_C_UNUSED_RB,   SEC_C_UNUSED_RB, "Unused Resource Blocks or symbols in Downlink or Uplink"},
-    {SEC_C_NORMAL,      SEC_C_NORMAL,    "Most DL/UL radio channels"},
-    {SEC_C_RSVD2,       SEC_C_RSVD2,     "Reserved for future use"},
-    {SEC_C_PRACH,       SEC_C_PRACH,     "PRACH and mixed-numerology channels"},
-    {SEC_C_RSVD4,       SEC_C_RSVD4,     "Reserved for future use"},
-    {SEC_C_UE_SCHED,    SEC_C_UE_SCHED,  "UE scheduling information(UE-ID assignment to section)"},
-    {SEC_C_CH_INFO,     SEC_C_CH_INFO,   "Channel information"},
-    {SEC_C_LAA,         SEC_C_LAA,       "LAA"},
-    {8,                 255,             "Reserved for future use"},
+    {SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink"},
+    {SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels"},
+    {SEC_C_RSVD2,             SEC_C_RSVD2,             "Reserved for future use"},
+    {SEC_C_PRACH,             SEC_C_PRACH,             "PRACH and mixed-numerology channels"},
+    {SEC_C_RSVD4,             SEC_C_RSVD4,             "Reserved for future use"},
+    {SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "UE scheduling information (UE-ID assignment to section)"},
+    {SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information"},
+    {SEC_C_LAA,               SEC_C_LAA,               "LAA"},
+    {SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "ACK/NACK Feedback"},
+    {9,                       255,                     "Reserved for future use"},
     {0, 0, NULL} };
 
 static const range_string section_types_short[] = {
-    { SEC_C_UNUSED_RB,  SEC_C_UNUSED_RB,    "(Unused RBs)" },
-    { SEC_C_NORMAL,     SEC_C_NORMAL,       "(Most channels)" },
-    { SEC_C_RSVD2,      SEC_C_RSVD2,        "(reserved)" },
-    { SEC_C_PRACH,      SEC_C_PRACH,        "(PRACH/mixed-\u03bc)" },
-    { SEC_C_RSVD4,      SEC_C_RSVD4,        "(reserved)" },
-    { SEC_C_UE_SCHED,   SEC_C_UE_SCHED,     "(UE scheduling info)" },
-    { SEC_C_CH_INFO,    SEC_C_CH_INFO,      "(Channel info)" },
-    { SEC_C_LAA,        SEC_C_LAA,          "(LAA)" },
-    { 8,                255,                "Reserved for future use" },
+    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "(Unused RBs)" },
+    { SEC_C_NORMAL,            SEC_C_NORMAL,            "(Most channels)" },
+    { SEC_C_RSVD2,             SEC_C_RSVD2,             "(reserved)" },
+    { SEC_C_PRACH,             SEC_C_PRACH,             "(PRACH/mixed-\u03bc)" },
+    { SEC_C_RSVD4,             SEC_C_RSVD4,             "(reserved)" },
+    { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "(UE scheduling info)" },
+    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)" },
+    { SEC_C_LAA,               SEC_C_LAA,               "(LAA)" },
+    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)"},
+    { 9,                       255,                     "Reserved for future use" },
     { 0, 0, NULL }
 };
 
@@ -327,14 +334,15 @@ static const range_string ud_comp_header_meth[] = {
 
 static const range_string frame_structure_fft[] = {
     {0,  0,  "Reserved(no FFT / iFFT processing)"},
-    {1,  7,  "Reserved"},
+    {1,  6,  "Reserved"},
+    {7,  7,  "FFT size 128"},
     {8,  8,  "FFT size 256"},
     {9,  9,  "FFT size 512"},
     {10, 10, "FFT size 1024"},
     {11, 11, "FFT size 2048"},
     {12, 12, "FFT size 4096"},
     {13, 13, "FFT size 1536"},
-    {14, 14, "FFT size 128"},
+    {14, 14, "FFT size 3072"},
     {15, 15, "Reserved"},
     {0, 0, NULL}
 };
@@ -355,11 +363,14 @@ static const range_string subcarrier_spacings[] = {
 };
 
 static const range_string laaMsgTypes[] = {
-    {0, 0,  "LBT_PDSCH_REQ - lls - CU to RU request to obtain a PDSCH channel"},
-    {1, 1,  "LBT_DRS_REQ - lls - CU to RU request to obtain the channel and send DRS"},
-    {2, 2,  "LBT_PDSCH_RSP - RU to lls - CU response, channel acq success or failure"},
-    {3, 3,  "LBT_DRS_RSP - RU to lls - CU response, DRS sending success or failure"},
-    {4, 15, "reserved for future methods"},
+    {0, 0,  "LBT_PDSCH_REQ - lls - O-DU to O-RU request to obtain a PDSCH channel"},
+    {1, 1,  "LBT_DRS_REQ - lls - O-DU to O-RU request to obtain the channel and send DRS"},
+    {2, 2,  "LBT_PDSCH_RSP - O-RU to O-DU response, channel acq success or failure"},
+    {3, 3,  "LBT_DRS_RSP - O-RU to O-DU response, DRS sending success or failure"},
+    {4, 4,  "LBT_Buffer_Error - O-RU to O-DU response, reporting buffer overflow"},
+    {5, 5,  "LBT_CWCONFIG_REQ - O-DU to O-RU request, congestion window configuration"},
+    {6, 6,  "LBT_CWCONFIG_REQ - O-RU to O-DU request, congestion window config"},
+    {8, 15, "reserved for future methods"},
     {0, 0, NULL}
 };
 
@@ -599,14 +610,28 @@ static gfloat digital_power_scaling(gfloat f)
     return f / (1 << 15);
 }
 
+/* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
 static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
                               guint32 *iq_width, guint32 *comp_meth, proto_item **comp_meth_ti)
 {
-    proto_tree_add_item_ret_uint(tree, hf_oran_bfwCompHdr_iqWidth,
+    /* Subtree */
+    proto_item *bfwcomphdr_ti = proto_tree_add_string_format(tree, hf_oran_bfwCompHdr,
+                                                            tvb, offset, 1, "",
+                                                            "bfwCompHdr");
+    proto_tree *bfwcomphdr_tree = proto_item_add_subtree(bfwcomphdr_ti, ett_oran_bfwcomphdr);
+
+    /* Width and method */
+    proto_tree_add_item_ret_uint(bfwcomphdr_tree, hf_oran_bfwCompHdr_iqWidth,
                                  tvb, offset, 1, ENC_BIG_ENDIAN,  iq_width);
-    *comp_meth_ti = proto_tree_add_item_ret_uint(tree, hf_oran_bfwCompHdr_compMeth,
+    *comp_meth_ti = proto_tree_add_item_ret_uint(bfwcomphdr_tree, hf_oran_bfwCompHdr_compMeth,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN, comp_meth);
     offset++;
+
+    /* Summary */
+    proto_item_append_text(bfwcomphdr_ti, " (IqWidth=%u, compMeth=%s)",
+                           *iq_width,
+                           val_to_str_const(*comp_meth, bfw_comp_headers_comp_meth, "Unknown"));
+
     return offset;
 }
 
@@ -2488,6 +2513,16 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
+        {&hf_oran_bfwCompHdr,
+         {"bfwCompHdr", "oran_fh_cus.bfwCompHdr",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+
+
         /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_iqWidth,
          {"IQ Bit Width", "oran_fh_cus.bfwCompHdr_iqWidth",
@@ -2891,7 +2926,8 @@ proto_register_oran(void)
         &ett_oran_offset_start_prb_num_prb,
         &ett_oran_prb_cisamples,
         &ett_oran_cisample,
-        &ett_oran_udcomphdr
+        &ett_oran_udcomphdr,
+        &ett_oran_bfwcomphdr
     };
 
     expert_module_t* expert_oran;
