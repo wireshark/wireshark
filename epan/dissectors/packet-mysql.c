@@ -2081,6 +2081,12 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 					offset = mysql_field_add_lestring(tvb, offset, query_attrs_tree, hf_mysql_query_attribute_value);
 				}
 			}
+		} else if ((conn_data->clnt_caps_ext == 0) && (conn_data->srv_caps_ext == 0)){
+			// No server/client capabilities, probably in the middle of a conversation
+			// As the query isn't likely to start with 0x00 this probably means these are
+			// query attributes we need to skip
+			if (tvb_get_guint8(tvb, offset) == 0)
+				offset += 2;
 		}
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII);
@@ -2841,7 +2847,8 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
 
 		/* 4.1+ protocol only: 2 bytes number of warnings */
-		if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
+		if ((conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU)
+			|| ((conn_data->clnt_caps == 0) && (conn_data->srv_caps == 0))) {
 			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			lenstr = tvb_get_ntohs(tvb, offset);
 			offset += 2;
@@ -2878,6 +2885,12 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			}
 		}
 	} else {
+		if ((tvb_reported_length_remaining(tvb, offset) > 0)
+			&& ((conn_data->clnt_caps == 0) && (conn_data->srv_caps == 0))) {
+			// No client or server capabilities to work with, Let's try to skip over session state
+			offset += tvb_get_fle(tvb, tree, offset, &lenstr, NULL);
+		}
+
 		/* optional: message string */
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
 			if(lenstr > (guint64)tvb_reported_length_remaining(tvb, offset))
