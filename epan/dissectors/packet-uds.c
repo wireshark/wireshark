@@ -275,6 +275,22 @@ void proto_reg_handoff_uds(void);
 
 /* Services */
 static const value_string uds_services[]= {
+        {OBD_SERVICES_0x01,  "OBD - Request Current Powertrain Diagnostic Data"},
+        {OBD_SERVICES_0x02,  "OBD - Request Powertrain Freeze Frame Data"},
+        {OBD_SERVICES_0x03,  "OBD - Request Emission-Related Diagnostic Trouble Codes"},
+        {OBD_SERVICES_0x04,  "OBD - Clear/Reset Emission-Related Diagnostic Information"},
+        {OBD_SERVICES_0x05,  "OBD - Request Oxygen Sensor Monitoring Test Results"},
+        {OBD_SERVICES_0x06,  "OBD - Request On-Board Monitoring Test Results for Specific Monitored Systems"},
+        {OBD_SERVICES_0x07,  "OBD - Request Emission-Related Diagnostic Trouble Codes Detected During Current or Last Completed Driving Cycle"},
+        {OBD_SERVICES_0x08,  "OBD - Request Control of On-Board System, Test or Component"},
+        {OBD_SERVICES_0x09,  "OBD - Request Vehicle Information"},
+        {OBD_SERVICES_0x0A,  "OBD - Request Emission-Related Diagnostic Trouble Codes with Permanent Status"},
+        {OBD_SERVICES_0x0B,  "OBD - Unknown Service"},
+        {OBD_SERVICES_0x0C,  "OBD - Unknown Service"},
+        {OBD_SERVICES_0x0D,  "OBD - Unknown Service"},
+        {OBD_SERVICES_0x0E,  "OBD - Unknown Service"},
+        {OBD_SERVICES_0x0F,  "OBD - Unknown Service"},
+
         {UDS_SERVICES_DSC,   "Diagnostic Session Control"},
         {UDS_SERVICES_ER,    "ECU Reset"},
         {UDS_SERVICES_CDTCI, "Clear Diagnostic Information"},

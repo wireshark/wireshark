@@ -16,6 +16,22 @@
 #define UDS_SID_MASK    0xBF
 #define UDS_REPLY_MASK  0x40
 
+#define OBD_SERVICES_0x01    0x01
+#define OBD_SERVICES_0x02    0x02
+#define OBD_SERVICES_0x03    0x03
+#define OBD_SERVICES_0x04    0x04
+#define OBD_SERVICES_0x05    0x05
+#define OBD_SERVICES_0x06    0x06
+#define OBD_SERVICES_0x07    0x07
+#define OBD_SERVICES_0x08    0x08
+#define OBD_SERVICES_0x09    0x09
+#define OBD_SERVICES_0x0A    0x0A
+#define OBD_SERVICES_0x0B    0x0B
+#define OBD_SERVICES_0x0C    0x0C
+#define OBD_SERVICES_0x0D    0x0D
+#define OBD_SERVICES_0x0E    0x0E
+#define OBD_SERVICES_0x0F    0x0F
+
 #define UDS_SERVICES_MIN     0x10
 #define UDS_SERVICES_DSC     0x10
 #define UDS_SERVICES_ER      0x11
