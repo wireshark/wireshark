@@ -144,6 +144,7 @@ static int hf_woww_amount_of_required_items = -1;
 static int hf_woww_amount_of_rights = -1;
 static int hf_woww_amount_of_signatures = -1;
 static int hf_woww_amount_of_spells = -1;
+static int hf_woww_amount_of_splines = -1;
 static int hf_woww_amount_of_states = -1;
 static int hf_woww_amount_of_strings = -1;
 static int hf_woww_amount_of_targets = -1;
@@ -7527,7 +7528,7 @@ typedef enum {
     SPLINE_FLAG_UNKNOWN6 = 0x00000020,
     SPLINE_FLAG_UNKNOWN7 = 0x00000040,
     SPLINE_FLAG_UNKNOWN8 = 0x00000080,
-    SPLINE_FLAG_RUNMODE = 0x00000100,
+    SPLINE_FLAG_RUN_MODE = 0x00000100,
     SPLINE_FLAG_FLYING = 0x00000200,
     SPLINE_FLAG_NO_SPLINE = 0x00000400,
     SPLINE_FLAG_UNKNOWN12 = 0x00000800,
@@ -9789,6 +9790,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_rights = 0;
     guint32 amount_of_signatures = 0;
     guint32 amount_of_spells = 0;
+    guint32 amount_of_splines = 0;
     guint32 amount_of_states = 0;
     guint32 amount_of_strings = 0;
     guint32 amount_of_targets = 0;
@@ -9810,6 +9812,7 @@ add_body_fields(guint32 opcode,
     guint32 mask = 0;
     guint32 message_type = 0;
     guint32 miss_info = 0;
+    guint32 move_type = 0;
     guint32 node_count = 0;
     guint32 number_of_battlegrounds = 0;
     guint32 reason = 0;
@@ -14422,9 +14425,33 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_spline_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN, &move_type);
+            if (move_type == MONSTER_MOVE_TYPE_FACING_TARGET) {
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_ANGLE) {
+                ptvcursor_add(ptv, hf_woww_angle, 4, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_SPOT) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            ptvcursor_add(ptv, hf_woww_spline_flag, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_splines, 4, ENC_LITTLE_ENDIAN, &amount_of_splines);
+            for (i = 0; i < amount_of_splines; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_MONSTER_MOVE_TRANSPORT:
+            add_packed_guid(ptv, pinfo);
             add_packed_guid(ptv, pinfo);
             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
             ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
@@ -14432,7 +14459,30 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_spline_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN, &move_type);
+            if (move_type == MONSTER_MOVE_TYPE_FACING_TARGET) {
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_ANGLE) {
+                ptvcursor_add(ptv, hf_woww_angle, 4, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_SPOT) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            ptvcursor_add(ptv, hf_woww_spline_flag, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_splines, 4, ENC_LITTLE_ENDIAN, &amount_of_splines);
+            for (i = 0; i < amount_of_splines; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_MOUNTRESULT:
             ptvcursor_add(ptv, hf_woww_mount_result, 4, ENC_LITTLE_ENDIAN);
@@ -14561,6 +14611,9 @@ add_body_fields(guint32 opcode,
             if (mask & GROUP_UPDATE_FLAGS_AURAS) {
                 add_aura_mask(ptv);
             }
+            if (mask & GROUP_UPDATE_FLAGS_AURAS_2) {
+                add_aura_mask(ptv);
+            }
             if (mask & GROUP_UPDATE_FLAGS_PET_GUID) {
                 ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             }
@@ -14622,6 +14675,9 @@ add_body_fields(guint32 opcode,
             }
             if (mask & GROUP_UPDATE_FLAGS_AURAS) {
                 add_aura_mask(ptv);
+            }
+            if (mask & GROUP_UPDATE_FLAGS_PET_GUID) {
+                ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             }
             if (mask & GROUP_UPDATE_FLAGS_PET_NAME) {
                 add_cstring(ptv, &hf_woww_pet_name);
@@ -16463,6 +16519,12 @@ proto_register_woww(void)
         },
         { &hf_woww_amount_of_spells,
             { "Amount Of Spells", "woww.amount.of.spells",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_amount_of_splines,
+            { "Amount Of Splines", "woww.amount.of.splines",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
