@@ -12775,7 +12775,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_lock_sequence_index,
-			{ "Lock Sequence Number", "smb2.lock_sequence_index", FT_UINT32, BASE_DEC,
+			{ "Lock Sequence Index", "smb2.lock_sequence_index", FT_UINT32, BASE_DEC,
 			NULL, 0xFFFFFFF0, NULL, HFILL }
 		},
 
