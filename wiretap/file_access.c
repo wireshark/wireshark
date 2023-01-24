@@ -92,6 +92,7 @@
 #include "blf.h"
 #include "eri_enb_log.h"
 #include "autosar_dlt.h"
+#include "rtpdump.h"
 
 
 /*
@@ -172,6 +173,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "JPEG/JFIF files", FALSE, "jpg;jpeg;jfif" },
 	{ "JavaScript Object Notation file", FALSE, "json" },
 	{ "MP4 file", FALSE, "mp4" },
+	{ "RTPDump file", FALSE, "rtp;rtpdump" },
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
@@ -399,6 +401,7 @@ static const struct open_info open_info_base[] = {
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "BLF Logfile",                            OPEN_INFO_MAGIC,     blf_open,                 "blf",      NULL, NULL },
 	{ "AUTOSAR DLT Logfile",                    OPEN_INFO_MAGIC,     autosar_dlt_open,         "dlt",      NULL, NULL },
+	{ "RTPDump files",                          OPEN_INFO_MAGIC,     rtpdump_open,             "rtp;rtpdump", NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
 	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               "mplog",    NULL, NULL },
 	{ "Unigraf DPA-400 capture",                OPEN_INFO_MAGIC,     dpa400_open,              "bin",      NULL, NULL },
