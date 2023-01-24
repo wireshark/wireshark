@@ -27,6 +27,7 @@
 #include "file_wrappers.h"
 #include "required_file_handlers.h"
 #include <wsutil/buffer.h>
+#include <wsutil/str_util.h>
 
 #include "lanalyzer.h"
 #include "ngsniffer.h"
@@ -676,7 +677,13 @@ get_file_extension(const char *pathname)
 	}
 
 	/*
-	 * Yes.  Split it into components separated by ".".
+	 * Yes. Fold it to lowercase, since open_routines[] has
+	 * its extensions in lowercase.
+	 */
+	ascii_strdown_inplace(filename);
+
+	/*
+	 * Split it into components separated by ".".
 	 */
 	components = g_strsplit(filename, ".", 0);
 	g_free(filename);
