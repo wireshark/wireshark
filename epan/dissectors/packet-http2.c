@@ -252,6 +252,8 @@ typedef struct {
     http2_oneway_stream_info_t oneway_stream_info[2];
     gboolean is_stream_http_connect;
     guint32 stream_id;
+    guint32 request_in_frame_num;
+    guint32 response_in_frame_num;
     enum http2_data_reassembly_mode_t reassembly_mode;
 } http2_stream_info_t;
 #endif
@@ -505,6 +507,9 @@ static int hf_http2_origin_origin = -1;
 /* Priority Update */
 static int hf_http2_priority_update_stream_id = -1;
 static int hf_http2_priority_update_field_value = -1;
+/* Generated fields */
+static int hf_http2_request_in = -1;
+static int hf_http2_response_in = -1;
 
 /*
  * These values *should* be large enough to handle most use cases while
@@ -1840,6 +1845,16 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
         if (body_info->content_encoding == NULL) {
             body_info->content_encoding = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
         }
+    }
+
+    /* Store the frame number so we can enhance the display of request/response */
+    if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0) {
+        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
+        stream_info->request_in_frame_num = pinfo->num;
+    }
+    if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
+        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
+        stream_info->response_in_frame_num = pinfo->num;
     }
 
     /* Is this a partial content? */
@@ -3493,12 +3508,12 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
     /* Mark this frame as the first header frame seen and last if the END_HEADERS flag
      * is set. We use this to ensure when we read header values, we are not reading ones
      * that have come from a PUSH_PROMISE header (and associated CONTINUATION frames) */
-    http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo, h2session, FALSE);
-    if (stream_info->header_start_in == 0) {
-        stream_info->header_start_in = get_http2_frame_num(tvb, pinfo);
+    http2_header_stream_info_t *header_stream_info = get_header_stream_info(pinfo, h2session, FALSE);
+    if (header_stream_info->header_start_in == 0) {
+        header_stream_info->header_start_in = get_http2_frame_num(tvb, pinfo);
     }
-    if (stream_info->header_end_in == 0 && flags & HTTP2_FLAGS_END_HEADERS) {
-        stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
+    if (header_stream_info->header_end_in == 0 && flags & HTTP2_FLAGS_END_HEADERS) {
+        header_stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
     }
 #endif
 
@@ -3516,6 +3531,18 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
 #ifdef HAVE_NGHTTP2
     /* decompress the header block */
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+    http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
+
+    /* Display request/response links */
+    if (pinfo->num > stream_info->request_in_frame_num && stream_info->request_in_frame_num > 0) {
+        /* Response frame */
+        proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_request_in, tvb, 0, 0, stream_info->request_in_frame_num));
+    }
+    if (pinfo->num == stream_info->request_in_frame_num && stream_info->response_in_frame_num > 0) {
+        /* Request frame */
+        proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_response_in, tvb, 0, 0, stream_info->response_in_frame_num));
+    }
+
 #else
     proto_tree_add_expert_format(http2_tree, pinfo, &ei_http2_header_size, tvb, offset, headlen,
             "Wireshark must be built with nghttp2 for HTTP/2 HEADERS support");
@@ -4669,6 +4696,16 @@ proto_register_http2(void)
             { "Priority Update Field Value", "http2.priority_update_field_value",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_http2_request_in,
+            { "Request in frame", "http2.request_in",
+              FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+              "This frame is a response to a HTTP2 request contained in frame with this number", HFILL }
+        },
+        { &hf_http2_response_in,
+            { "Response in frame", "http2.response_in",
+              FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+              "This request will be responded in the frame with this number", HFILL }
         },
 
         /* Calculated */
