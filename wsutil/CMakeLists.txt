@@ -7,28 +7,20 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-if(UNIX OR USE_MSYSTEM)
-	if(USE_MSYSTEM)
-		# Windows binaries are relocatable and do not need a prefix.
-		file(TO_NATIVE_PATH "${PLUGIN_INSTALL_LIBDIR}" _dir)
-		string(REPLACE "\\" "\\\\" _plugin_dir "${_dir}")
-		file(TO_NATIVE_PATH "${EXTCAP_INSTALL_LIBDIR}" _dir)
-		string(REPLACE "\\" "\\\\" _extcap_dir "${_dir}")
-		file(TO_NATIVE_PATH "${CMAKE_INSTALL_DATADIR}" _dir)
-		string(REPLACE "\\" "\\\\" _data_dir "${_dir}")
-		file(TO_NATIVE_PATH "${CMAKE_INSTALL_DOCDIR}" _dir)
-		string(REPLACE "\\" "\\\\" _doc_dir "${_dir}")
-	elseif(UNIX)
-		set(_plugin_dir "${PLUGIN_INSTALL_FULL_LIBDIR}")
-		set(_extcap_dir "${EXTCAP_INSTALL_FULL_LIBDIR}")
-		set(_data_dir "${CMAKE_INSTALL_FULL_DATADIR}")
-		set(_doc_dir "${CMAKE_INSTALL_FULL_DOCDIR}")
-	endif()
-	add_definitions(-DPLUGIN_DIR=\"${_plugin_dir}\")
-	add_definitions(-DEXTCAP_DIR=\"${_extcap_dir}\")
-	add_definitions(-DDATA_DIR=\"${_data_dir}\")
-	add_definitions(-DDOC_DIR=\"${_doc_dir}\")
-endif()
+file(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" PATH_INSTALL_PREFIX)
+string(REPLACE "\\" "\\\\" PATH_INSTALL_PREFIX "${PATH_INSTALL_PREFIX}")
+file(TO_NATIVE_PATH "${CMAKE_INSTALL_DATADIR}" PATH_DATA_DIR)
+string(REPLACE "\\" "\\\\" PATH_DATA_DIR "${PATH_DATA_DIR}")
+file(TO_NATIVE_PATH "${CMAKE_INSTALL_DOCDIR}" PATH_DOC_DIR)
+string(REPLACE "\\" "\\\\" PATH_DOC_DIR "${PATH_DOC_DIR}")
+file(TO_NATIVE_PATH "${PLUGIN_INSTALL_LIBDIR}" PATH_PLUGIN_DIR)
+string(REPLACE "\\" "\\\\" PATH_PLUGIN_DIR "${PATH_PLUGIN_DIR}")
+file(TO_NATIVE_PATH "${EXTCAP_INSTALL_LIBDIR}" PATH_EXTCAP_DIR)
+string(REPLACE "\\" "\\\\" PATH_EXTCAP_DIR "${PATH_EXTCAP_DIR}")
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/path_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/path_config.h)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(wmem)
 

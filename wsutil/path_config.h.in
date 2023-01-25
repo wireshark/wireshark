@@ -1,0 +1,10 @@
+#ifndef __PATH_CONFIG_H__
+#define __PATH_CONFIG_H__
+
+#define INSTALL_PREFIX  "@PATH_INSTALL_PREFIX@"
+#define DATA_DIR        "@PATH_DATA_DIR@"
+#define DOC_DIR         "@PATH_DOC_DIR@"
+#define PLUGIN_DIR      "@PATH_PLUGIN_DIR@"
+#define EXTCAP_DIR      "@PATH_EXTCAP_DIR@"
+
+#endif

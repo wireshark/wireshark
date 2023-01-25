@@ -47,6 +47,8 @@
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
 
+#include "path_config.h"
+
 #define PROFILES_DIR    "profiles"
 #define PLUGINS_DIR_NAME    "plugins"
 #define EXTCAP_DIR_NAME     "extcap"
@@ -79,9 +81,7 @@ char *doc_dir = NULL;
 
 /* Directory from which the executable came. */
 static char *progfile_dir = NULL;
-#ifdef __MINGW64__
 static char *install_prefix = NULL;
-#endif
 
 static gboolean do_store_persconffiles = FALSE;
 static GHashTable *profile_files = NULL;
@@ -536,7 +536,6 @@ static void trim_progfile_dir(void)
     g_free(extcap_progfile_dir);
 }
 
-#ifdef __MINGW64__
 static char *
 trim_last_dir_from_path(const char *_path)
 {
@@ -547,7 +546,6 @@ trim_last_dir_from_path(const char *_path)
     }
     return path;
 }
-#endif
 
 /*
  * Construct the path name of a non-extcap Wireshark executable file,
@@ -679,6 +677,9 @@ configuration_init_posix(const char* arg0)
     char *retstr;
     char *path;
     char *dir_end;
+
+    /* Hard-coded value used if we cannot obtain the path of the running executable. */
+    install_prefix = g_strdup(INSTALL_PREFIX);
 
     /*
      * Check whether XXX_RUN_FROM_BUILD_DIRECTORY is set in the
@@ -888,7 +889,6 @@ configuration_init_posix(const char* arg0)
          */
         progfile_dir = prog_pathname;
         trim_progfile_dir();
-        return NULL;
     } else {
         /*
          * This "shouldn't happen"; we apparently
@@ -899,6 +899,24 @@ configuration_init_posix(const char* arg0)
         g_free(prog_pathname);
         return retstr;
     }
+
+    /*
+     * We already have the program_dir. Find the installation prefix.
+     * This is one level up from the bin_dir. If the program_dir does
+     * not end with "bin" then assume we are running in the build directory
+     * and the "installation prefix" (staging directory) is the same as
+     * the program_dir.
+     */
+    g_free(install_prefix);
+    if (g_str_has_suffix(progfile_dir, _S"bin")) {
+        install_prefix = trim_last_dir_from_path(progfile_dir);
+    }
+    else {
+        install_prefix = g_strdup(progfile_dir);
+        running_in_build_directory_flag = TRUE;
+    }
+
+    return NULL;
 }
 #endif /* ?_WIN32 */
 
@@ -1035,12 +1053,7 @@ get_datafile_dir(void)
          */
         datafile_dir = g_strdup(progfile_dir);
     } else {
-        /*
-         * XXX We might want want to make this relative to progfile_dir, which would
-         * allow installation into arbitrary directories and provide better AppImage
-         * support.
-         */
-        datafile_dir = g_strdup(DATA_DIR);
+        datafile_dir = g_build_filename(install_prefix, DATA_DIR, (char *)NULL);
     }
 #endif
     return datafile_dir;
@@ -1093,7 +1106,7 @@ get_doc_dir(void)
          */
         doc_dir = g_strdup(progfile_dir);
     } else {
-        doc_dir = g_strdup(DOC_DIR);
+        doc_dir = g_build_filename(install_prefix, DOC_DIR, (char *)NULL);
     }
 #endif
     return doc_dir;
@@ -1203,12 +1216,7 @@ init_plugin_dir(void)
         }
 #endif
         else {
-            /*
-             * XXX We might want want to make this relative to progfile_dir, which would
-             * allow installation into arbitrary directories and provide better AppImage
-             * support.
-             */
-            plugin_dir = g_strdup(PLUGIN_DIR);
+            plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
         }
     }
 #endif
@@ -1343,12 +1351,7 @@ init_extcap_dir(void)
     }
 #endif
     else {
-        /*
-         * XXX We might want want to make this relative to progfile_dir, which would
-         * allow installation into arbitrary directories and provide better AppImage
-         * support.
-         */
-        extcap_dir = g_strdup(EXTCAP_DIR);
+        extcap_dir = g_build_filename(install_prefix, EXTCAP_DIR, (char *)NULL);
     }
 #endif
 }
