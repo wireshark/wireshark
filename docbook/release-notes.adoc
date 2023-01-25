@@ -36,6 +36,9 @@ Previously it was ``$XDG_CONFIG_HOME/wireshark/extcap``.
 The installation target no longer installs development headers by default.
 That must be done explicitly using ``cmake --install <builddir> --component Development``.
 
+The Wireshark installation is relocatable on Linux (and other ELF platforms
+with support for relative RPATHs).
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 

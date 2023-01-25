@@ -333,6 +333,38 @@ install(TARGETS wsutil
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+add_library(wsutil_static STATIC
+	${WSUTIL_FILES}
+	$<TARGET_OBJECTS:wmem>
+)
+
+target_compile_definitions(wsutil_static PRIVATE
+	ENABLE_STATIC
+	BUILD_WSUTIL
+)
+
+target_link_libraries(wsutil_static
+	PUBLIC
+		${GLIB2_LIBRARIES}
+		${GMODULE2_LIBRARIES}
+		${GNUTLS_LIBRARIES}
+		${PCRE2_LIBRARIES}
+		${GCRYPT_LIBRARIES}
+	PRIVATE
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${CMAKE_DL_LIBS}
+		${M_LIBRARIES}
+		${WIN_IPHLPAPI_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
+)
+
+target_include_directories(wsutil_static
+	SYSTEM PUBLIC
+		${GCRYPT_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+		${PCRE2_INCLUDE_DIRS}
+)
+
 add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
