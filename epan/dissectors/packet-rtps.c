@@ -13098,6 +13098,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   endpoint_guid *guid_copy;
   guint32 magic_number;
   gchar domain_id_str[RTPS_UNKNOWN_DOMAIN_ID_STR_LEN] = RTPS_UNKNOWN_DOMAIN_ID_STR;
+  gboolean is_domain_id_calculated = FALSE;
+  const char* not_accuracy_str = "";
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
    */
@@ -13210,9 +13212,17 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       participant_idx = (pinfo->destport - PORT_BASE) / 1000;
       nature    = (pinfo->destport % 10);
     } else {
+        if (pinfo->ptype == PT_TCP || pinfo->destport < PORT_BASE) {
+          domain_id = get_domain_id_from_tcp_discovered_participants(discovered_tcp_participants, &guid);
+        } else {
+          domain_id = (pinfo->destport - PORT_BASE) / 250;
+          is_domain_id_calculated = TRUE;
+        }
+      /*
       domain_id = (pinfo->ptype == PT_TCP) ?
         get_domain_id_from_tcp_discovered_participants(discovered_tcp_participants, &guid) :
         (pinfo->destport - PORT_BASE) / 250;
+      */
       doffset = (pinfo->destport - PORT_BASE - domain_id * 250);
       if (doffset == 0) {
         nature = PORT_METATRAFFIC_MULTICAST;
@@ -13226,24 +13236,32 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           nature = PORT_USERTRAFFIC_UNICAST;
         }
       }
+      if (domain_id > 232 || domain_id < 0) {
+        domain_id = RTPS_UNKNOWN_DOMAIN_ID_VAL;
+      }
     }
     /* Used string for the domain participant to show Unknown if the domainId is not known when using TCP*/
     if (domain_id != RTPS_UNKNOWN_DOMAIN_ID_VAL) {
       snprintf(domain_id_str, RTPS_UNKNOWN_DOMAIN_ID_STR_LEN,
         "%"PRId32, domain_id);
+      if (is_domain_id_calculated) {
+        not_accuracy_str = " (Based on calculated domainId. Might not be accurate)";
+      }
     }
     if ((nature == PORT_METATRAFFIC_UNICAST) || (nature == PORT_USERTRAFFIC_UNICAST) ||
         (version < 0x0200)) {
       mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
-                        ett_rtps_default_mapping, NULL, "Default port mapping: domainId=%s, "
-                        "participantIdx=%d, nature=%s",
+                        ett_rtps_default_mapping, NULL, "Default port mapping%s: domainId=%s, "
+                        "participantIdx=%d, nature=%s %s",
+                        not_accuracy_str,
                         domain_id_str,
                         participant_idx,
                         val_to_str(nature, nature_type_vals, "%02x"));
     } else {
       mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
-                        ett_rtps_default_mapping, NULL, "Default port mapping: %s, domainId=%s",
+                        ett_rtps_default_mapping, NULL, "Default port mapping%s: %s, domainId=%s",
                         val_to_str(nature, nature_type_vals, "%02x"),
+                        not_accuracy_str,
                         domain_id_str);
     }
 
