@@ -42,6 +42,8 @@ static int hf_greb_attr_val_ipv6 = -1;
 static int hf_greb_attr_val_ipv4 = -1;
 static int hf_greb_attr_val_time = -1;
 static int hf_greb_attr_val_string = -1;
+static int hf_greb_attr_DSL_prot = -1;
+static int hf_greb_attr_dt_bras_name = -1;
 
 static int hf_greb_attr_filter_commit = -1;
 static int hf_greb_attr_filter_ack = -1;
@@ -85,14 +87,20 @@ static const value_string greb_message_types[] = {
     {GREB_TUNNEL_TEAR_DOWN, "Tunnel tear down"},
 #define GREB_NOTIFY 6
     {GREB_NOTIFY, "Notify"},
+#define GREB_LINK_DETECTION 10
+    {GREB_LINK_DETECTION, "Link Detection (Telekom specific)"},
     {0, NULL}
 };
 
 static const value_string greb_tunnel_types[] = {
-#define GREB_TUNNEL_FIRST 0x0001
+#define GREB_TUNNEL_LTE 0b0000
+    {GREB_TUNNEL_LTE, "LTE-GRE tunnel (Telekom specific)"},
+#define GREB_TUNNEL_FIRST 0b0001
     {GREB_TUNNEL_FIRST, "first tunnel (most likely the DSL GRE tunnel)"},
-#define GREB_TUNNEL_SECOND 0x0010
+#define GREB_TUNNEL_SECOND 0b0010
     {GREB_TUNNEL_SECOND, "second tunnel (most likely the LTE GRE tunnel)" },
+#define GREB_TUNNEL_DSL 0b1000
+    {GREB_TUNNEL_DSL, "DSL Tunnel (Telekom specific)" },
     {0, NULL}
 };
 
@@ -121,6 +129,26 @@ static const value_string greb_error_codes[] = {
     {GREB_ERROR_BACKEND_COMMUNICATION_FAILURE_LTE, "HAAP Backend failure on LTE tunnel establishment"},
 #define GREB_ERROR_BACKEND_COMMUNICATION_FAILURE_DSL 12
     {GREB_ERROR_BACKEND_COMMUNICATION_FAILURE_DSL, "HAAP Backend failure on DSL tunnel establishment"},
+#define GREB_ERROR_DT_HAAP_UNREACHABLE_DSL 401
+    {GREB_ERROR_DT_HAAP_UNREACHABLE_DSL, "DSL GRE tunnel to the HAAP failed (Telekom specific)"},
+#define GREB_ERROR_DT_HAAP_UNREACHABLE_LTE 402
+    {GREB_ERROR_DT_HAAP_UNREACHABLE_LTE, "LTE GRE tunnel to the HAAP failed (Telekom specific)"},
+#define GREB_ERROR_DT_UID_NOT_MATCHING 403
+    {GREB_ERROR_DT_UID_NOT_MATCHING, "Mismatch of LTE and DSL User IDs (Telekom specific)"},
+#define GREB_ERROR_DT_SECOND_SESSION_WITH_UID 404
+    {GREB_ERROR_DT_SECOND_SESSION_WITH_UID, "Session with the same User ID already exists (Telekom specific)"},
+#define GREB_ERROR_DT_CIN_NOT_PERMITTED 405
+    {GREB_ERROR_DT_CIN_NOT_PERMITTED, "Client uses a not permitted CIN (Telekom specific)"},
+#define GREB_ERROR_DT_DSL_TUNNEL_FAILED 406
+    {GREB_ERROR_DT_DSL_TUNNEL_FAILED, "Communication error during the DSL Tunnel setup (Telekom specific)"},
+#define GREB_ERROR_DT_LTE_TUNNEL_FAILED 407
+    {GREB_ERROR_DT_LTE_TUNNEL_FAILED, "Communication error during the LTE Tunnel setup (Telekom specific)"},
+#define GREB_ERROR_DT_MAINTENANCE 501
+    {GREB_ERROR_DT_MAINTENANCE, "Terminated for maintenance (Telekom specific)"},
+#define GREB_ERROR_DT_LTE_PARAM_UPDATE 502
+    {GREB_ERROR_DT_LTE_PARAM_UPDATE, "LTE terminated to update parameters (Telekom specific)"},
+#define GREB_ERROR_DT_DSL_PARAM_UPDATE 503
+    {GREB_ERROR_DT_DSL_PARAM_UPDATE, "DSL terminated to update parameters (Telekom specific)"},
     {0,NULL}
 };
 
@@ -193,9 +221,34 @@ static const value_string greb_attribute_types[] = {
     {GREB_ATTRB_IDLE_HELLO_STATE, "Idle hello state"},
 #define GREB_ATTRB_TUNNEL_VERIFICATION 35
     {GREB_ATTRB_TUNNEL_VERIFICATION, "Tunnel verification"},
+#define GREB_ATTRB_DT_DSL_PROT 53
+    {GREB_ATTRB_DT_DSL_PROT, "DSL protocol / link type (Telekom specific)"},
+#define GREB_ATTRB_DT_BRAS_NAME 54
+    {GREB_ATTRB_DT_BRAS_NAME, "Broadband Remote Access Server name (Telekom specific)"},
+#define GREB_ATTRB_DT_DOWN_REORDER_TIME 56
+    {GREB_ATTRB_DT_DOWN_REORDER_TIME, "Max. downstream reordering buffer time (Telekom specific)"},
+#define GREB_ATTRB_DT_COM_UP_BURST_TIME 57
+    {GREB_ATTRB_DT_COM_UP_BURST_TIME, "Committed upstream burst time (Telekom specific)"},
+#define GREB_ATTRB_DT_UPSTREAM_RATE 59
+    {GREB_ATTRB_DT_UPSTREAM_RATE, "DSL synchronization Rate upstream (Telekom specific)"},
     {255, "FIN"},
     {0, NULL}
 };
+
+static const value_string greb_DT_DSL_prots[] = {
+#define DT_UNDEF 0
+    {DT_UNDEF, "Undefined"},
+#define DT_ADSL_B 1
+    {DT_ADSL_B, "ADSL/ADSL2/ADSL2+ Annex B"},
+#define DT_ADSL_J 2
+    {DT_ADSL_J, "ADSL2+ Annex J"},
+#define DT_VDSL 3
+    {DT_VDSL, "VDSL2"},
+#define DT_VDSL_VEC 3
+    {DT_VDSL_VEC, "VDSL2 Vectoring"},
+    {0, NULL}
+};
+
 
 static const value_string greb_filter_types[] = {
 #define GREB_ATTRB_FILTER_FQDN 1
@@ -226,6 +279,8 @@ static const value_string greb_filter_types[] = {
     {GREB_ATTRB_FILTER_SIPRPORT, "Source IP Range&Port"},
 #define GREB_ATTRB_FILTER_DIPRPORT 14
     {GREB_ATTRB_FILTER_DIPRPORT, "Destination IP Range&Port"},
+#define GREB_ATTRB_DT_COMBO 15
+    {GREB_ATTRB_DT_COMBO, "Combination (Telekom specific)"},
     {0, NULL}
 };
 
@@ -390,8 +445,17 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         ENC_UTF_8 | ENC_NA);
                     break;
 
+                case GREB_ATTRB_DT_BRAS_NAME:
+                    proto_tree_add_item(attrb_tree, hf_greb_attr_dt_bras_name, tvb, offset, attrb_length,
+                        ENC_UTF_8 | ENC_NA);
+                    break;
+
                 case GREB_ATTRB_ERROR:
                     proto_tree_add_item(attrb_tree, hf_greb_attr_error, tvb, offset, attrb_length, ENC_BIG_ENDIAN);
+                    break;
+
+                case GREB_ATTRB_DT_DSL_PROT:
+                    proto_tree_add_item(attrb_tree, hf_greb_attr_DSL_prot, tvb, offset, attrb_length, ENC_BIG_ENDIAN);
                     break;
 
                 default:
@@ -456,6 +520,14 @@ proto_register_greb(void)
         { &hf_greb_attr_filter_ack,
             { "Ack", "grebonding.attr.val.filter.ack",
                 FT_UINT8, BASE_DEC, VALS(greb_filter_ack_codes), 0, NULL, HFILL }
+        },
+        { &hf_greb_attr_DSL_prot,
+            { "DSL Protocol", "grebonding.attr.val.dslproto",
+                FT_UINT8, BASE_DEC, VALS(greb_DT_DSL_prots), 0, NULL, HFILL }
+        },
+        { &hf_greb_attr_dt_bras_name,
+            { "Broadband Remote Access Server (BRAS) name", "grebonding.attr.val.bras_name",
+                FT_STRING, BASE_NONE, NULL, 0, "", HFILL }
         },
         { &hf_greb_attr_filter_packetsum,
             { "Packet sum", "grebonding.attr.val.filter.packetsum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
