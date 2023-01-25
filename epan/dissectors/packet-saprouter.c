@@ -887,8 +887,8 @@ proto_register_saprouter(void)
 
 	/* Register the expert info */
 	static ei_register_info ei[] = {
-		{ &ei_saprouter_route_password_found, { "saprouter.routestring.password", PI_SECURITY, PI_WARN, "Route password found", EXPFILL }},
-		{ &ei_saprouter_info_password_found, { "saprouter.password", PI_SECURITY, PI_WARN, "Info password found", EXPFILL }},
+		{ &ei_saprouter_route_password_found, { "saprouter.routestring.password.found", PI_SECURITY, PI_WARN, "Route password found", EXPFILL }},
+		{ &ei_saprouter_info_password_found, { "saprouter.password.found", PI_SECURITY, PI_WARN, "Info password found", EXPFILL }},
 		{ &ei_saprouter_route_invalid_length, { "saprouter.routestring.routelength.invalid", PI_MALFORMED, PI_WARN, "The route string length is invalid", EXPFILL }},
 		{ &ei_saprouter_invalid_client_ids, { "saprouter.client_ids.invalid", PI_MALFORMED, PI_WARN, "Client IDs list is malformed", EXPFILL }},
 	};

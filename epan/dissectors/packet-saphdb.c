@@ -1422,12 +1422,12 @@ proto_register_saphdb(void)
 	static ei_register_info ei[] = {
 		{ &ei_saphdb_compressed_unknown, { "saphdb.compressed", PI_UNDECODED, PI_WARN, "The packet is compressed, and decompression is not supported", EXPFILL }},
 		{ &ei_saphdb_option_part_unknown, { "saphdb.segment.part.option.unknown", PI_UNDECODED, PI_WARN, "The Option Part has a unknown type that is not dissected", EXPFILL }},
-		{ &ei_saphdb_segments_incorrect_order, { "saphdb.segment.segmentno", PI_MALFORMED, PI_ERROR, "The segments are in incorrect order or are invalid", EXPFILL }},
-		{ &ei_saphdb_segments_number_incorrect, { "saphdb.noofsegm", PI_MALFORMED, PI_ERROR, "The number of segments is incorrect", EXPFILL }},
-		{ &ei_saphdb_segment_length, { "saphdb.segment.segmentlength", PI_MALFORMED, PI_ERROR, "The segment length is incorrect", EXPFILL }},
-		{ &ei_saphdb_buffer_length, { "saphdb.segment.part.bufferlength", PI_MALFORMED, PI_ERROR, "The part buffer length is incorrect", EXPFILL }},
-		{ &ei_saphdb_parts_number_incorrect, { "saphdb.segment.noofparts", PI_MALFORMED, PI_ERROR, "The number of parts is incorrect", EXPFILL }},
-		{ &ei_saphdb_varpartlenght_incorrect, { "saphdb.varpartlength", PI_MALFORMED, PI_ERROR, "The length is incorrect", EXPFILL }},
+		{ &ei_saphdb_segments_incorrect_order, { "saphdb.segment.segmentno.invalid", PI_MALFORMED, PI_ERROR, "The segments are in incorrect order or are invalid", EXPFILL }},
+		{ &ei_saphdb_segments_number_incorrect, { "saphdb.noofsegm.invalid", PI_MALFORMED, PI_ERROR, "The number of segments is incorrect", EXPFILL }},
+		{ &ei_saphdb_segment_length, { "saphdb.segment.segmentlength.invalid", PI_MALFORMED, PI_ERROR, "The segment length is incorrect", EXPFILL }},
+		{ &ei_saphdb_buffer_length, { "saphdb.segment.part.bufferlength.invalid", PI_MALFORMED, PI_ERROR, "The part buffer length is incorrect", EXPFILL }},
+		{ &ei_saphdb_parts_number_incorrect, { "saphdb.segment.noofparts.invalid", PI_MALFORMED, PI_ERROR, "The number of parts is incorrect", EXPFILL }},
+		{ &ei_saphdb_varpartlenght_incorrect, { "saphdb.varpartlength.invalid", PI_MALFORMED, PI_ERROR, "The length is incorrect", EXPFILL }},
 	};
 
 	module_t *saphdb_module;
