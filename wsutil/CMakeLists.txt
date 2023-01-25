@@ -410,6 +410,45 @@ install(FILES ${WSUTIL_PUBLIC_HEADERS}
 	EXCLUDE_FROM_ALL
 )
 
+add_library(wsutil_static STATIC
+	${WSUTIL_FILES}
+)
+
+target_compile_definitions(wsutil_static PRIVATE
+	ENABLE_STATIC
+	BUILD_WSUTIL
+)
+
+target_link_libraries(wsutil_static
+	PUBLIC
+		${GLIB2_LIBRARIES}
+	PRIVATE
+		${GMODULE2_LIBRARIES}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${CMAKE_DL_LIBS}
+		${GCRYPT_LIBRARIES}
+		${GNUTLS_LIBRARIES}
+		${ZLIB_LIBRARIES}
+		${PCRE2_LIBRARIES}
+		${WIN_IPHLPAPI_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
+)
+
+target_include_directories(wsutil_static SYSTEM
+	PUBLIC
+		${GLIB2_INCLUDE_DIRS}
+		${GCRYPT_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+	PRIVATE
+		${GMODULE2_INCLUDE_DIRS}
+		${ZLIB_INCLUDE_DIRS}
+		${PCRE2_INCLUDE_DIRS}
+)
+
+if(NOT VCSVERSION_OVERRIDE)
+	add_dependencies(wsutil_static vcs_version)
+endif()
+
 add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c ${WMEM_FILES})
 
 target_link_libraries(wmem_test wsutil)

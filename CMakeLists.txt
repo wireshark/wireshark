@@ -270,26 +270,25 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 		# Some systems support $ORIGIN in RPATH to enable relocatable
 		# binaries. In other cases, only absolute paths can be used.
 		# https://www.lekensteyn.nl/rpath.html
+		#
+		# Also note that some systems (notably those using GNU libc)
+		# silently ignore $ORIGIN in RPATH for binaries that are
+		# setuid root or use privileged capabilities.
+		#
 		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
 			set(_enable_rpath_origin TRUE)
-			if(BUILD_dumpcap AND ENABLE_PCAP)
-				# dumpcap will most likely be installed with
-				# capabilities or setuid. Relative RPATHs that
-				# resolve to non-standard library directories
-				# are ignored for such binaries and since we
-				# cannot achieve relocatable builds, just
-				# disable it by default.
-				set(_enable_rpath_origin FALSE)
-			endif()
-			# Provide a knob to optionally force absolute rpaths,
-			# to support old/buggy systems and as a user preference
-			# for hardening.
-			set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
-				"Use $ORIGIN with INSTALL_RPATH")
-			mark_as_advanced(ENABLE_RPATH_ORIGIN)
 		else()
-			set(ENABLE_RPATH_ORIGIN FALSE)
+			set(_enable_rpath_origin FALSE)
 		endif()
+
+		# Provide a knob to optionally force absolute rpaths,
+		# to support old/buggy systems and as a user preference
+		# for hardening.
+		# XXX Should this be a CMake option?
+		set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
+			"Use $ORIGIN with INSTALL_RPATH")
+		mark_as_advanced(ENABLE_RPATH_ORIGIN)
+
 		if(ENABLE_RPATH_ORIGIN)
 			set(LIBRARY_INSTALL_RPATH     "$ORIGIN")
 			set(EXECUTABLE_INSTALL_RPATH  "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
@@ -3120,28 +3119,47 @@ endif()
 if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
 		writecap
-		wsutil
-		caputils
-		iface_monitor
+		wsutil_static
 		pcap::pcap
 		${CAP_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${NL_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 	)
+	if(UNIX)
+		list(APPEND CAPUTILS_SRC
+			capture/capture-pcap-util-unix.c)
+	endif()
+	if(WIN32)
+		list(APPEND CAPUTILS_SRC
+			capture/capture_win_ifnames.c
+			capture/capture-wpcap.c
+		)
+	endif()
+	list(APPEND CAPUTILS_SRC
+		capture/capture-pcap-util.c
+	)
+	if (AIRPCAP_FOUND)
+		list(APPEND CAPUTILS_SRC capture/airpcap_loader.c)
+	endif()
 	set(dumpcap_FILES
-		$<TARGET_OBJECTS:capture_opts>
-		$<TARGET_OBJECTS:cli_main>
+		capture_opts.c
+		cli_main.c
 		dumpcap.c
 		ringbuffer.c
 		sync_pipe_write.c
+		capture/iface_monitor.c
+		capture/ws80211_utils.c
+		${CAPUTILS_SRC}
 	)
 	set_executable_resources(dumpcap "Dumpcap" UNIQUE_RC)
 	add_executable(dumpcap ${dumpcap_FILES})
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
-	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS})
+	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS} ${NL_INCLUDE_DIRS})
+	target_compile_definitions(dumpcap PRIVATE ENABLE_STATIC)
 	executable_link_mingw_unicode(dumpcap)
 	install(TARGETS dumpcap
 			RUNTIME	DESTINATION ${CMAKE_INSTALL_BINDIR}
