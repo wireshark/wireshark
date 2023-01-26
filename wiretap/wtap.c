@@ -440,31 +440,31 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 wtap_block_t
 wtap_file_get_nrb(wtap *wth)
 {
-	if ((wth == NULL) || (wth->nrb_hdrs == NULL) || (wth->nrb_hdrs->len == 0))
+	if ((wth == NULL) || (wth->nrbs == NULL) || (wth->nrbs->len == 0))
 		return NULL;
 
-	return g_array_index(wth->nrb_hdrs, wtap_block_t, 0);
+	return g_array_index(wth->nrbs, wtap_block_t, 0);
 }
 
 GArray*
 wtap_file_get_nrb_for_new_file(wtap *wth)
 {
 	guint nrb_count;
-	wtap_block_t nrb_hdr_src, nrb_hdr_dest;
-	GArray* nrb_hdrs;
+	wtap_block_t nrb_src, nrb_dest;
+	GArray* nrbs;
 
-	if ((wth == NULL || wth->nrb_hdrs == NULL) || (wth->nrb_hdrs->len == 0))
+	if ((wth == NULL || wth->nrbs == NULL) || (wth->nrbs->len == 0))
 		return NULL;
 
-	nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	nrbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
-	for (nrb_count = 0; nrb_count < wth->nrb_hdrs->len; nrb_count++) {
-		nrb_hdr_src = g_array_index(wth->nrb_hdrs, wtap_block_t, nrb_count);
-		nrb_hdr_dest = wtap_block_make_copy(nrb_hdr_src);
-		g_array_append_val(nrb_hdrs, nrb_hdr_dest);
+	for (nrb_count = 0; nrb_count < wth->nrbs->len; nrb_count++) {
+		nrb_src = g_array_index(wth->nrbs, wtap_block_t, nrb_count);
+		nrb_dest = wtap_block_make_copy(nrb_src);
+		g_array_append_val(nrbs, nrb_dest);
 	}
 
-	return nrb_hdrs;
+	return nrbs;
 }
 
 void
@@ -479,10 +479,10 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 	params->tsprec = wtap_file_tsprec(wth);
 	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
 	params->idb_inf = wtap_file_get_idb_info(wth);
-	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
 	/* Assume that the input handle remains open until the dumper is closed.
 	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
 	 * as they become available. */
+	params->nrbs_growing = wth->nrbs;
 	params->dsbs_growing = wth->dsbs;
 	params->dont_copy_idbs = FALSE;
 }
@@ -503,12 +503,18 @@ wtap_dump_params_init_no_idbs(wtap_dump_params *params, wtap *wth)
 	params->tsprec = wtap_file_tsprec(wth);
 	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
 	params->idb_inf = wtap_file_get_idb_info(wth);
-	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
 	/* Assume that the input handle remains open until the dumper is closed.
 	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
 	 * as they become available. */
+	params->nrbs_growing = wth->nrbs;
 	params->dsbs_growing = wth->dsbs;
 	params->dont_copy_idbs = TRUE;
+}
+
+void
+wtap_dump_params_discard_name_resolution(wtap_dump_params *params)
+{
+	params->nrbs_growing = NULL;
 }
 
 void
@@ -523,7 +529,6 @@ wtap_dump_params_cleanup(wtap_dump_params *params)
 {
 	wtap_block_array_free(params->shb_hdrs);
 	/* params->idb_inf is currently expected to be freed by the caller. */
-	wtap_block_array_free(params->nrb_hdrs);
 
 	memset(params, 0, sizeof(*params));
 }
@@ -1477,7 +1482,7 @@ wtap_close(wtap *wth)
 	}
 
 	wtap_block_array_free(wth->shb_hdrs);
-	wtap_block_array_free(wth->nrb_hdrs);
+	wtap_block_array_free(wth->nrbs);
 	wtap_block_array_free(wth->interface_data);
 	wtap_block_array_free(wth->dsbs);
 
@@ -1522,18 +1527,16 @@ void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4) {
 
 	wth->add_new_ipv4 = add_new_ipv4;
 
-	/* Are there any existing NRBs? (XXX: Unlike with DSBs, the
-         * GArray of nrb_hdrs is not initialized until the first one
-         * is encountered.  */
-	if (!wth->nrb_hdrs)
+	/* Are there any existing NRBs? */
+	if (!wth->nrbs)
 		return;
 	/*
 	 * Send all NRBs that were read so far to the new callback. file.c
 	 * relies on this to support redissection (during redissection, the
 	 * previous name resolutions are lost and has to be resupplied).
 	 */
-	for (guint i = 0; i < wth->nrb_hdrs->len; i++) {
-		wtap_block_t nrb = g_array_index(wth->nrb_hdrs, wtap_block_t, i);
+	for (guint i = 0; i < wth->nrbs->len; i++) {
+		wtap_block_t nrb = g_array_index(wth->nrbs, wtap_block_t, i);
 		wtapng_process_nrb_ipv4(wth, nrb);
 	}
 }
@@ -1544,18 +1547,16 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
 
 	wth->add_new_ipv6 = add_new_ipv6;
 
-	/* Are there any existing NRBs? (XXX: Unlike with DSBs, the
-         * GArray of nrb_hdrs is not initialized until the first one
-         * is encountered.  */
-	if (!wth->nrb_hdrs)
+	/* Are there any existing NRBs? */
+	if (!wth->nrbs)
 		return;
 	/*
 	 * Send all NRBs that were read so far to the new callback. file.c
 	 * relies on this to support redissection (during redissection, the
 	 * previous name resolutions are lost and has to be resupplied).
 	 */
-	for (guint i = 0; i < wth->nrb_hdrs->len; i++) {
-		wtap_block_t nrb = g_array_index(wth->nrb_hdrs, wtap_block_t, i);
+	for (guint i = 0; i < wth->nrbs->len; i++) {
+		wtap_block_t nrb = g_array_index(wth->nrbs, wtap_block_t, i);
 		wtapng_process_nrb_ipv6(wth, nrb);
 	}
 }

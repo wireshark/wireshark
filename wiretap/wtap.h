@@ -1448,11 +1448,12 @@ typedef struct addrinfo_lists {
  * from wtap_dump_*, but its pointer fields must remain valid until
  * wtap_dump_close is called.
  *
- * @note The shb_hdr, idb_inf, and nrb_hdr arguments will be used until
+ * @note The shb_hdr and idb_inf arguments will be used until
  *     wtap_dump_close() is called, but will not be free'd by the dumper. If
  *     you created them, you must free them yourself after wtap_dump_close().
  *     dsbs_initial will be freed by wtap_dump_close(),
  *     dsbs_growing typically refers to another wth->dsbs.
+ *     nrbs_growing typically refers to another wth->nrbs.
  *
  * @see wtap_dump_params_init, wtap_dump_params_cleanup.
  */
@@ -1462,7 +1463,9 @@ typedef struct wtap_dump_params {
     int         tsprec;                     /**< Per-file time stamp precision */
     GArray     *shb_hdrs;                   /**< The section header block(s) information, or NULL. */
     wtapng_iface_descriptions_t *idb_inf;   /**< The interface description information, or NULL. */
-    GArray     *nrb_hdrs;                   /**< The name resolution blocks(s) comment/custom_opts information, or NULL. */
+    const GArray *nrbs_growing;             /**< NRBs that will be written while writing packets, or NULL.
+                                                 This array may grow since the dumper was opened and will subsequently
+                                                 be written before newer packets are written in wtap_dump. */
     GArray     *dsbs_initial;               /**< The initial Decryption Secrets Block(s) to be written, or NULL. */
     const GArray *dsbs_growing;             /**< DSBs that will be written while writing packets, or NULL.
                                                  This array may grow since the dumper was opened and will subsequently
@@ -2034,6 +2037,16 @@ WS_DLL_PUBLIC
 void wtap_dump_params_init_no_idbs(wtap_dump_params *params, wtap *wth);
 
 /**
+ * Remove any name resolution information from the per-file information;
+ * used if we're stripping name resolution as we write the file.
+ *
+ * @param params The parameters for wtap_dump_* from which to remove the
+ * name resolution..
+ */
+WS_DLL_PUBLIC
+void wtap_dump_params_discard_name_resolution(wtap_dump_params *params);
+
+/**
  * Remove any decryption secret information from the per-file information;
  * used if we're stripping decryption secrets as we write the file.
  *
@@ -2154,11 +2167,13 @@ gboolean wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
+void wtap_dump_discard_name_resolution(wtap_dumper *wdh);
+WS_DLL_PUBLIC
 void wtap_dump_discard_decryption_secrets(wtap_dumper *wdh);
 
 /**
  * Closes open file handles and frees memory associated with wdh. Note that
- * shb_hdr, idb_inf and nrb_hdr are not freed by this routine.
+ * shb_hdr and idb_inf are not freed by this routine.
  *
  * @param wdh handle for the file we're closing.
  * @param[out] needs_reload if not null, points to a gboolean that will

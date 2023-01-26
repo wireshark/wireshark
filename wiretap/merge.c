@@ -910,7 +910,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
                       const idb_merge_mode mode, guint snaplen,
                       merge_progress_callback_t* cb,
                       wtapng_iface_descriptions_t *idb_inf,
-                      GArray *dsb_combined,
+                      GArray *nrb_combined, GArray *dsb_combined,
                       int *err, gchar **err_info, guint *err_fileno,
                       guint32 *err_framenum)
 {
@@ -1010,6 +1010,14 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
          * If any DSBs were read before this record, be sure to pass those now
          * such that wtap_dump can pick it up.
          */
+        if (nrb_combined && in_file->wth->nrbs) {
+            GArray *in_nrb = in_file->wth->nrbs;
+            for (guint i = in_file->nrbs_seen; i < in_nrb->len; i++) {
+                wtap_block_t wblock = g_array_index(in_nrb, wtap_block_t, i);
+                g_array_append_val(nrb_combined, wblock);
+                in_file->nrbs_seen++;
+            }
+        }
         if (dsb_combined && in_file->wth->dsbs) {
             GArray *in_dsb = in_file->wth->dsbs;
             for (guint i = in_file->dsbs_seen; i < in_dsb->len; i++) {
@@ -1031,6 +1039,33 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
         cb->callback_func(MERGE_EVENT_DONE, count, in_files, in_file_count, cb->data);
 
     if (status == MERGE_OK || status == MERGE_USER_ABORTED) {
+        /* Check for any NRBs or DSBs read after the last packet records. */
+        if (nrb_combined) {
+            for (guint j = 0; j < in_file_count; j++) {
+                in_file = &in_files[j];
+                GArray *in_nrb = in_file->wth->nrbs;
+                if (in_nrb) {
+                    for (guint i = in_file->nrbs_seen; i < in_nrb->len; i++) {
+                        wtap_block_t wblock = g_array_index(in_nrb, wtap_block_t, i);
+                        g_array_append_val(nrb_combined, wblock);
+                        in_file->nrbs_seen++;
+                    }
+                }
+            }
+        }
+        if (dsb_combined) {
+            for (guint j = 0; j < in_file_count; j++) {
+                in_file = &in_files[j];
+                GArray *in_dsb = in_file->wth->dsbs;
+                if (in_dsb) {
+                    for (guint i = in_file->dsbs_seen; i < in_dsb->len; i++) {
+                        wtap_block_t wblock = g_array_index(in_dsb, wtap_block_t, i);
+                        g_array_append_val(dsb_combined, wblock);
+                        in_file->dsbs_seen++;
+                    }
+                }
+            }
+        }
         if (!wtap_dump_close(pdh, NULL, err, err_info))
             status = MERGE_ERR_CANT_CLOSE_OUTFILE;
     } else {
@@ -1080,6 +1115,7 @@ merge_files_common(const gchar* out_filename, /* filename in normal output mode,
     wtap_dumper        *pdh;
     GArray             *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
+    GArray             *nrb_combined = NULL;
     GArray             *dsb_combined = NULL;
 
     ws_assert(in_file_count > 0);
@@ -1146,9 +1182,17 @@ merge_files_common(const gchar* out_filename, /* filename in normal output mode,
         idb_inf = generate_merged_idbs(in_files, in_file_count, &mode);
         ws_debug("IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
-        /* XXX other blocks like NRB are now discarded. */
+        /* XXX other blocks like ISB are now discarded. */
         params.shb_hdrs = shb_hdrs;
         params.idb_inf = idb_inf;
+    }
+    if (wtap_file_type_subtype_supports_block(file_type,
+                                              WTAP_BLOCK_NAME_RESOLUTION) != BLOCK_NOT_SUPPORTED) {
+        nrb_combined = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        params.nrbs_growing = nrb_combined;
+    }
+    if (wtap_file_type_subtype_supports_block(file_type,
+                                              WTAP_BLOCK_DECRYPTION_SECRETS) != BLOCK_NOT_SUPPORTED) {
         dsb_combined = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
         params.dsbs_growing = dsb_combined;
     }
@@ -1168,6 +1212,9 @@ merge_files_common(const gchar* out_filename, /* filename in normal output mode,
         g_free(in_files);
         wtap_block_array_free(shb_hdrs);
         wtap_free_idb_info(idb_inf);
+        if (nrb_combined) {
+            g_array_free(nrb_combined, TRUE);
+        }
         if (dsb_combined) {
             g_array_free(dsb_combined, TRUE);
         }
@@ -1180,13 +1227,16 @@ merge_files_common(const gchar* out_filename, /* filename in normal output mode,
 
     status = merge_process_packets(pdh, file_type, in_files, in_file_count,
                                    do_append, mode, snaplen, cb,
-                                   idb_inf, dsb_combined,
+                                   idb_inf, nrb_combined, dsb_combined,
                                    err, err_info,
                                    err_fileno, err_framenum);
 
     g_free(in_files);
     wtap_block_array_free(shb_hdrs);
     wtap_free_idb_info(idb_inf);
+    if (nrb_combined) {
+        g_array_free(nrb_combined, TRUE);
+    }
     if (dsb_combined) {
         g_array_free(dsb_combined, TRUE);
     }

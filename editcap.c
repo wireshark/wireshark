@@ -1851,7 +1851,9 @@ main(int argc, char *argv[])
          * XXX - what about non-packet records in the file after this?
          * We can *probably* ignore IDBs after this point, as they
          * presumably indicate that we weren't capturing on that
-         * interface at this point, but what about, for example, NRBs?
+         * interface at this point, but what about, for example, ISBs?
+         * (NRBs and DSBs are now written when wtap_dump_close() calls
+         * pcapng_dump_finish().)
          */
         if (max_packet_number <= read_count)
             break;

@@ -3431,14 +3431,11 @@ pcapng_process_nrb(wtap *wth, wtapng_block_t *wblock)
 {
     wtapng_process_nrb(wth, wblock->block);
 
-    if (wth->nrb_hdrs == NULL) {
-        wth->nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+    if (wth->nrbs == NULL) {
+        wth->nrbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
     }
-    /* Store NRB such that it can be saved by the dumper.
-     * XXX: NRBs are not saved yet by the dumper, only the resolved
-     * and used lookups passed into via wtap_dump_set_addrinfo_list()
-     */
-    g_array_append_val(wth->nrb_hdrs, wblock->block);
+    /* Store NRB such that it can be saved by the dumper. */
+    g_array_append_val(wth->nrbs, wblock->block);
 }
 
 /* Process a DSB that we have just read. */
@@ -3704,9 +3701,11 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_close = pcapng_close;
     wth->file_type_subtype = pcapng_file_type_subtype;
 
-    /* Always initialize the list of Decryption Secret Blocks such that a
-     * wtap_dumper can refer to it right after opening the capture file. */
+    /* Always initialize the lists of Decryption Secret Blocks and
+     * Name Resolution Blocks such that a wtap_dumper can refer to
+     * them right after opening the capture file. */
     wth->dsbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+    wth->nrbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
     /* Most other capture types (such as pcap) support a single link-layer
      * type, indicated in the header, and don't support WTAP_ENCAP_PER_PACKET.
@@ -5558,26 +5557,24 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
 }
 
 static void
-put_nrb_options(wtap_dumper *wdh, guint8 *opt_ptr)
+put_nrb_options(wtap_dumper *wdh _U_, wtap_block_t nrb, guint8 *opt_ptr)
 {
-    if (wdh->nrb_hdrs && wdh->nrb_hdrs->len > 0) {
-        wtap_block_t nrb_hdr = g_array_index(wdh->nrb_hdrs, wtap_block_t, 0);
-        struct pcapng_option option_hdr;
+    struct pcapng_option option_hdr;
 
-        wtap_block_foreach_option(nrb_hdr, put_nrb_option, &opt_ptr);
+    wtap_block_foreach_option(nrb, put_nrb_option, &opt_ptr);
 
-        /* Put end of options */
-        option_hdr.type = OPT_EOFOPT;
-        option_hdr.value_length = 0;
-        memcpy(opt_ptr, &option_hdr, 4);
-    }
+    /* Put end of options */
+    option_hdr.type = OPT_EOFOPT;
+    option_hdr.value_length = 0;
+    memcpy(opt_ptr, &option_hdr, 4);
 }
 
 static gboolean
-pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
+pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *err)
 {
     pcapng_block_header_t bh;
     pcapng_name_resolution_block_t nrb;
+    wtapng_nrb_mandatory_t *mand_data = (wtapng_nrb_mandatory_t *)wtap_block_get_mandatory_data(sdata);
     guint32 options_size;
     size_t max_rec_data_size;
     guint8 *block_data;
@@ -5589,7 +5586,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     hashipv6_t *ipv6_hash_list_entry;
     int i;
 
-    if (wtap_addrinfo_list_empty(wdh->addrinfo_lists)) {
+    if (!mand_data) {
         /*
          * No name/address pairs to write.
          * XXX - what if we have options?
@@ -5598,13 +5595,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     }
 
     /* Calculate the space needed for options. */
-    options_size = 0;
-    if (wdh->nrb_hdrs && wdh->nrb_hdrs->len > 0) {
-        wtap_block_t nrb_hdr = g_array_index(wdh->nrb_hdrs, wtap_block_t, 0);
-
-        /* Compute size of all the options */
-        options_size = compute_options_size(nrb_hdr, compute_nrb_option_size);
-    }
+    options_size = compute_options_size(sdata, compute_nrb_option_size);
 
     /*
      * Make sure we can fit at least one maximum-sized record, plus
@@ -5647,9 +5638,9 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     /*
      * Write out the IPv4 resolved addresses, if any.
      */
-    if (wdh->addrinfo_lists->ipv4_addr_list){
+    if (mand_data->ipv4_addr_list){
         i = 0;
-        ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
+        ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(mand_data->ipv4_addr_list, i);
         while(ipv4_hash_list_entry != NULL){
 
             nrb.record_type = NRES_IP4RECORD;
@@ -5660,7 +5651,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
                  * discard it.
                  */
                 i++;
-                ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
+                ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(mand_data->ipv4_addr_list, i);
                 continue;
             }
             namelen = (guint16)(hostnamelen + 1);
@@ -5682,10 +5673,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
 
                 /*
                  * Put the options into the block.
-                 *
-                 * XXX - this puts the same options in all NRBs.
                  */
-                put_nrb_options(wdh, block_data + block_off);
+                put_nrb_options(wdh, sdata, block_data + block_off);
                 block_off += options_size;
                 bh.block_total_length += options_size;
 
@@ -5722,15 +5711,13 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             ws_debug("added IPv4 record for %s", ipv4_hash_list_entry->name);
 
             i++;
-            ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
+            ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(mand_data->ipv4_addr_list, i);
         }
-        g_list_free(wdh->addrinfo_lists->ipv4_addr_list);
-        wdh->addrinfo_lists->ipv4_addr_list = NULL;
     }
 
-    if (wdh->addrinfo_lists->ipv6_addr_list){
+    if (mand_data->ipv6_addr_list){
         i = 0;
-        ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
+        ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(mand_data->ipv6_addr_list, i);
         while(ipv6_hash_list_entry != NULL){
 
             nrb.record_type = NRES_IP6RECORD;
@@ -5741,7 +5728,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
                  * discard it.
                  */
                 i++;
-                ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
+                ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(mand_data->ipv6_addr_list, i);
                 continue;
             }
             namelen = (guint16)(hostnamelen + 1);
@@ -5763,10 +5750,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
 
                 /*
                  * Put the options into the block.
-                 *
-                 * XXX - this puts the same options in all NRBs.
                  */
-                put_nrb_options(wdh, block_data + block_off);
+                put_nrb_options(wdh, sdata, block_data + block_off);
                 block_off += options_size;
                 bh.block_total_length += options_size;
 
@@ -5803,10 +5788,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             ws_debug("added IPv6 record for %s", ipv6_hash_list_entry->name);
 
             i++;
-            ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
+            ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(mand_data->ipv6_addr_list, i);
         }
-        g_list_free(wdh->addrinfo_lists->ipv6_addr_list);
-        wdh->addrinfo_lists->ipv6_addr_list = NULL;
     }
 
     /* Append the end-of-records record */
@@ -5817,7 +5800,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     /*
      * Put the options into the block.
      */
-    put_nrb_options(wdh, block_data + block_off);
+    put_nrb_options(wdh, sdata, block_data + block_off);
     block_off += options_size;
     bh.block_total_length += options_size;
 
@@ -6077,13 +6060,8 @@ static gboolean pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
 	return pcapng_write_if_descr_block(wdh, idb_copy, err);
 }
 
-static gboolean pcapng_dump(wtap_dumper *wdh,
-                            const wtap_rec *rec,
-                            const guint8 *pd, int *err, gchar **err_info)
+static gboolean pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
 {
-#ifdef HAVE_PLUGINS
-    block_handler *handler;
-#endif
 
     /* Write (optional) Decryption Secrets Blocks that were collected while
      * reading packet blocks. */
@@ -6098,6 +6076,80 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
         }
     }
 
+    /* Write any hostname resolution info from wtap_dump_set_addrinfo_list() */
+    if (!wtap_addrinfo_list_empty(wdh->addrinfo_lists)) {
+        /*
+         * XXX: get_addrinfo_list() returns a list of all known and used
+         * resolved addresses, regardless of origin: existing NRBs, externally
+         * resolved, DNS packet data, a hosts file, and manual host resolution
+         * through the GUI. It does not include the source for each.
+         *
+         * If it did, we could instead create multiple NRBs, one for each
+         * server (as the options can only be included once per block.)
+         * Instead, we copy the options from the first already existing NRB
+         * (if there is one), since some of the name resolutions may be
+         * from that block.
+         */
+        wtap_block_t nrb;
+        if (wdh->nrbs_growing && wdh->nrbs_growing->len) {
+            nrb = wtap_block_make_copy(g_array_index(wdh->nrbs_growing, wtap_block_t, 0));
+        } else {
+            nrb = wtap_block_create(WTAP_BLOCK_NAME_RESOLUTION);
+        }
+        wtapng_nrb_mandatory_t *mand_data = (wtapng_nrb_mandatory_t *)wtap_block_get_mandatory_data(nrb);
+        mand_data->ipv4_addr_list = wdh->addrinfo_lists->ipv4_addr_list;
+        mand_data->ipv6_addr_list = wdh->addrinfo_lists->ipv6_addr_list;
+
+        if (!pcapng_write_name_resolution_block(wdh, nrb, err)) {
+            return FALSE;
+        }
+        mand_data->ipv4_addr_list = NULL;
+        mand_data->ipv6_addr_list = NULL;
+        wtap_block_unref(nrb);
+        g_list_free(wdh->addrinfo_lists->ipv4_addr_list);
+        wdh->addrinfo_lists->ipv4_addr_list = NULL;
+        g_list_free(wdh->addrinfo_lists->ipv6_addr_list);
+        wdh->addrinfo_lists->ipv6_addr_list = NULL;
+        /* Since the addrinfo lists include information from existing NRBs,
+         * avoid writing them to avoid duplication.
+         *
+         * XXX: Perhaps we don't want to include information from the NRBs
+         * in get_addrinfo_list at all, so that we could write existing
+         * NRBs as-is.
+         *
+         * This is still not well oriented for one-pass programs, where we
+         * don't have addrinfo_lists until we've already written the
+         * NRBs. We should not write both in such a situation. See bug 15502.
+         */
+        wtap_dump_discard_name_resolution(wdh);
+    }
+
+    /* Write (optional) Name Resolution Blocks that were collected while
+     * reading packet blocks. */
+    if (wdh->nrbs_growing) {
+        for (guint i = wdh->nrbs_growing_written; i < wdh->nrbs_growing->len; i++) {
+            wtap_block_t nrb = g_array_index(wdh->nrbs_growing, wtap_block_t, i);
+            if (!pcapng_write_name_resolution_block(wdh, nrb, err)) {
+                return FALSE;
+            }
+            ++wdh->nrbs_growing_written;
+        }
+    }
+
+    return TRUE;
+}
+
+static gboolean pcapng_dump(wtap_dumper *wdh,
+                            const wtap_rec *rec,
+                            const guint8 *pd, int *err, gchar **err_info)
+{
+#ifdef HAVE_PLUGINS
+    block_handler *handler;
+#endif
+
+    if (!pcapng_write_internal_blocks(wdh, err)) {
+        return FALSE;
+    }
 
     ws_debug("encap = %d (%s) rec type = %u",
              rec->rec_header.packet_header.pkt_encap,
@@ -6182,8 +6234,10 @@ static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err,
 {
     guint i, j;
 
-    /* Flush any hostname resolution info we may have */
-    pcapng_write_name_resolution_block(wdh, err);
+    /* Flush any hostname resolution or decryption secrets info we may have */
+    if (!pcapng_write_internal_blocks(wdh, err)) {
+        return FALSE;
+    }
 
     for (i = 0; i < wdh->interface_data->len; i++) {
 

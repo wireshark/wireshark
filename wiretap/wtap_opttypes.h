@@ -230,7 +230,7 @@ typedef struct wtapng_if_descr_mandatory_s {
 /**
  * Holds the required data from a WTAP_BLOCK_NAME_RESOLUTION.
  */
-typedef struct wtapnf_nrb_mandatory_s {
+typedef struct wtapng_nrb_mandatory_s {
     GList       *ipv4_addr_list;
     GList       *ipv6_addr_list;
 }  wtapng_nrb_mandatory_t;

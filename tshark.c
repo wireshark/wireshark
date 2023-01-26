@@ -3826,6 +3826,26 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (save_file != NULL) {
         if (second_pass_status != PASS_WRITE_ERROR) {
             if (pdh && out_file_name_res) {
+                /* XXX: This doesn't work as expected. First, it should be
+                 * moved to between the first and second passes (if doing
+                 * two-pass mode), so that the new NRB appears before packets,
+                 * which is better for subsequent one-pass mode. It never works
+                 * well in one-pass mode.
+                 *
+                 * Second, it only writes hosts that we've done lookups for,
+                 * which means unless packet details are printed (or there's
+                 * a display filter that matches something that will do a host
+                 * lookup, e.g. -Y "ip") it doesn't actually have anything
+                 * in the list to save. Notably, that includes the case of
+                 * "tshark [-2] -H hosts.txt -r <infile> -w <outfile>",
+                 * which a user would certainly expect to dissect packets,
+                 * lookup hostnames, and add them to an NRB for later use.
+                 * A workaround is if "-V > /dev/null" is added, but who
+                 * expects that?
+                 *
+                 * A third issue is that name resolution blocks aren't
+                 * written for live captures.
+                 */
                 if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
                     cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
                             wtap_file_type_subtype_name(out_file_type));

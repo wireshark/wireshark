@@ -2272,7 +2272,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	/* Set Section Header Block data */
 	wdh->shb_hdrs = params->shb_hdrs;
 	/* Set Name Resolution Block data */
-	wdh->nrb_hdrs = params->nrb_hdrs;
+	wdh->nrbs_growing = params->nrbs_growing;
 	/* Set Interface Description Block data */
 	if (interfaces && interfaces->len) {
 		if (!params->dont_copy_idbs) {	/* XXX */
@@ -2702,6 +2702,18 @@ wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 		return FALSE;
 	wdh->addrinfo_lists = addrinfo_lists;
 	return TRUE;
+}
+
+void
+wtap_dump_discard_name_resolution(wtap_dumper *wdh)
+{
+	/* As below for DSBs. */
+	if (wdh->nrbs_growing) {
+		/*
+		 * Pretend we've written all of them.
+		 */
+		wdh->nrbs_growing_written = wdh->nrbs_growing->len;
+	}
 }
 
 void
