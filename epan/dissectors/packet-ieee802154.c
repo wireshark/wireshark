@@ -5933,14 +5933,14 @@ static tap_packet_status ieee802154_endpoint_packet(void *pit, packet_info *pinf
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean ieee802154_filter_valid(packet_info *pinfo)
+static gboolean ieee802154_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "wpan")
             && ((pinfo->dl_src.type == ieee802_15_4_short_address_type) || (pinfo->dl_src.type == AT_EUI64))
             && ((pinfo->dl_dst.type == ieee802_15_4_short_address_type) || (pinfo->dl_dst.type == AT_EUI64));
 }
 
-static gchar* ieee802154_build_filter(packet_info *pinfo)
+static gchar* ieee802154_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     return ws_strdup_printf("wpan.%s eq %s and wpan.%s eq %s",
             (pinfo->dl_src.type == ieee802_15_4_short_address_type) ? "addr16" : "addr64",
@@ -7409,7 +7409,7 @@ void proto_register_ieee802154(void)
     ieee802154_tap = register_tap(IEEE802154_PROTOABBREV_WPAN);
 
     register_conversation_table(proto_ieee802154, TRUE, ieee802154_conversation_packet, ieee802154_endpoint_packet);
-    register_conversation_filter(IEEE802154_PROTOABBREV_WPAN, "IEEE 802.15.4", ieee802154_filter_valid, ieee802154_build_filter);
+    register_conversation_filter(IEEE802154_PROTOABBREV_WPAN, "IEEE 802.15.4", ieee802154_filter_valid, ieee802154_build_filter, NULL);
 } /* proto_register_ieee802154 */
 
 

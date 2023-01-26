@@ -1405,13 +1405,13 @@ ltp_endp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _
 }
 
 static gboolean
-ltp_filter_valid(packet_info *pinfo)
+ltp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
 	return proto_is_frame_protocol(pinfo->layers, "ltp");
 }
 
 static gchar*
-ltp_build_filter(packet_info *pinfo)
+ltp_build_filter(packet_info *pinfo, void *user_data _U_)
 {
 	gchar *result = NULL;
 	int layer_num = 1;
@@ -1889,7 +1889,7 @@ proto_register_ltp(void)
 
 	set_address(&ltp_addr_receiver, AT_STRINGZ, (int) strlen(ltp_conv_receiver) + 1, ltp_conv_receiver);
 	register_conversation_table(proto_ltp, TRUE, ltp_conv_packet, ltp_endp_packet);
-	register_conversation_filter("ltp", "LTP", ltp_filter_valid, ltp_build_filter);
+	register_conversation_filter("ltp", "LTP", ltp_filter_valid, ltp_build_filter, NULL);
 	ltp_tap = register_tap("ltp");
 
 	static const reassembly_table_functions ltp_session_reassembly_table_functions = {

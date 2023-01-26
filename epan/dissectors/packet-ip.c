@@ -539,13 +539,13 @@ ip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 }
 
 static gboolean
-ip_filter_valid(packet_info *pinfo)
+ip_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "ip");
 }
 
 static gchar*
-ip_build_filter(packet_info *pinfo)
+ip_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     return ws_strdup_printf("ip.addr eq %s and ip.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
@@ -3014,7 +3014,7 @@ proto_register_ip(void)
 
   register_decode_as(&ip_da);
   register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_endpoint_packet);
-  register_conversation_filter("ip", "IPv4", ip_filter_valid, ip_build_filter);
+  register_conversation_filter("ip", "IPv4", ip_filter_valid, ip_build_filter, NULL);
 
   ip_cap_handle = register_capture_dissector("ip", capture_ip, proto_ip);
 

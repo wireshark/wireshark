@@ -983,7 +983,7 @@ typedef struct _enip_conv_info_t {
  * Conversation filter
  */
 static gboolean
-enip_io_conv_valid(packet_info *pinfo)
+enip_io_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
    cip_conn_info_t* conn = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
 
@@ -995,7 +995,7 @@ enip_io_conv_valid(packet_info *pinfo)
 }
 
 static gchar *
-enip_io_conv_filter(packet_info *pinfo)
+enip_io_conv_filter(packet_info *pinfo, void *user_data _U_)
 {
    char      *buf;
    cip_conn_info_t* conn = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
@@ -1029,7 +1029,7 @@ enip_io_conv_filter(packet_info *pinfo)
 }
 
 static gboolean
-enip_exp_conv_valid(packet_info *pinfo)
+enip_exp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
    cip_conn_info_t* conn = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
 
@@ -1041,7 +1041,7 @@ enip_exp_conv_valid(packet_info *pinfo)
 }
 
 static gchar *
-enip_exp_conv_filter(packet_info *pinfo)
+enip_exp_conv_filter(packet_info *pinfo, void *user_data _U_)
 {
    char      *buf;
    cip_conn_info_t* conn = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
@@ -1073,22 +1073,22 @@ enip_exp_conv_filter(packet_info *pinfo)
    return buf;
 }
 
-static gboolean cip_connection_conv_valid(packet_info *pinfo)
+static gboolean cip_connection_conv_valid(packet_info *pinfo, void *user_data)
 {
-   return enip_io_conv_valid(pinfo) || enip_exp_conv_valid(pinfo);
+   return enip_io_conv_valid(pinfo, user_data) || enip_exp_conv_valid(pinfo, user_data);
 }
 
-static gchar* cip_connection_conv_filter(packet_info *pinfo)
+static gchar* cip_connection_conv_filter(packet_info *pinfo, void *user_data)
 {
    char* buf = NULL;
 
-   if (enip_io_conv_valid(pinfo))
+   if (enip_io_conv_valid(pinfo, user_data))
    {
-      buf = enip_io_conv_filter(pinfo);
+      buf = enip_io_conv_filter(pinfo, user_data);
    }
-   else if (enip_exp_conv_valid(pinfo))
+   else if (enip_exp_conv_valid(pinfo, user_data))
    {
-      buf = enip_exp_conv_filter(pinfo);
+      buf = enip_exp_conv_filter(pinfo, user_data);
    }
 
    return buf;
@@ -5064,7 +5064,7 @@ proto_register_enip(void)
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
 
-   register_conversation_filter("enip", "CIP Connection", cip_connection_conv_valid, cip_connection_conv_filter);
+   register_conversation_filter("enip", "CIP Connection", cip_connection_conv_valid, cip_connection_conv_filter, NULL);
 
    subdissector_decode_as_io_table = register_decode_as_next_proto(proto_enip, "cip.io", "CIP I/O Payload", enip_prompt);
 } /* end of proto_register_enip() */

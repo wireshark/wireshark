@@ -57,7 +57,7 @@ fill_named_table(gpointer key, gpointer value _U_, gpointer user_data)
                 title = QString("UInt64 %1").arg(uint64_count++);
                 break;
             case CE_INT:
-                title = QString("UInt %1").arg(int_count++);
+                title = QString("Int %1").arg(int_count++);
                 break;
             case CE_CONVERSATION_TYPE:
                 html_table->append(QString("<th>Endpoint</th>"));

@@ -571,13 +571,13 @@ guint32 get_dccp_stream_count(void)
 }
 
 static gboolean
-dccp_filter_valid(packet_info *pinfo)
+dccp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "dccp");
 }
 
 static gchar*
-dccp_build_filter(packet_info *pinfo)
+dccp_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* DCCP over IPv4 */
@@ -1988,7 +1988,7 @@ proto_register_dccp(void)
         &dccp_relative_seq);
 
     register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_endpoint_packet);
-    register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter);
+    register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter, NULL);
     register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
                            dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count, NULL);
 

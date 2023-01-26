@@ -328,7 +328,7 @@ GList *cba_pdevs;
 const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 
 static gboolean
-cba_filter_valid(packet_info *pinfo)
+cba_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
 
@@ -336,7 +336,7 @@ cba_filter_valid(packet_info *pinfo)
 }
 
 static gchar*
-cba_build_filter(packet_info *pinfo)
+cba_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     gboolean is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
@@ -5107,7 +5107,7 @@ proto_register_dcom_cba_acco (void)
     proto_ICBAAccoSync = proto_register_protocol ("ICBAAccoSync", "ICBAAccoSync", "cba_acco_sync");
     proto_register_subtree_array (ett5, array_length (ett5));
 
-    register_conversation_filter("cba", "PN-CBA", cba_filter_valid, cba_build_filter);
+    register_conversation_filter("cba", "PN-CBA", cba_filter_valid, cba_build_filter, NULL);
 }
 
 

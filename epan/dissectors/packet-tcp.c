@@ -1030,13 +1030,13 @@ tcpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 static gboolean
-tcp_filter_valid(packet_info *pinfo)
+tcp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "tcp");
 }
 
 static gchar*
-tcp_build_filter(packet_info *pinfo)
+tcp_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* TCP over IPv4 */
@@ -9707,7 +9707,7 @@ proto_register_tcp(void)
     register_decode_as(&tcp_da);
 
     register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_endpoint_packet);
-    register_conversation_filter("tcp", "TCP", tcp_filter_valid, tcp_build_filter);
+    register_conversation_filter("tcp", "TCP", tcp_filter_valid, tcp_build_filter, NULL);
 
     register_seq_analysis("tcp", "TCP Flows", proto_tcp, NULL, 0, tcp_seq_analysis_packet);
 

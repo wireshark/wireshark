@@ -25,6 +25,11 @@ You can find the global and per-user plugin folder locations on your system in A
 
 1. Build your desired [Falco plugin](https://github.com/falcosecurity/plugins/) and place it in the "falco" plugin directory.
 
+## Conversations
+
+Falco plugins can mark individual fields with a conversation flag (EPF_CONVERSATION).
+The Falco Bridge dissector treats each of these as separate conversations, and for features such as navigation and packet list marking, the _first_ conversation field is used for matching packets.
+
 ## Licensing
 
 libsinsp and libscap are released under the Apache 2.0 license.

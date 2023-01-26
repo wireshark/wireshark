@@ -2257,12 +2257,12 @@ static tap_packet_status bp_endp_packet(void *pit, packet_info *pinfo, epan_diss
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean bp_filter_valid(packet_info *pinfo) {
+static gboolean bp_filter_valid(packet_info *pinfo, void *user_data _U_) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     return bundle != NULL;
 }
 
-static gchar * bp_build_filter(packet_info *pinfo) {
+static gchar * bp_build_filter(packet_info *pinfo, void *user_data _U_) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     if (!bundle) {
         return NULL;
@@ -2360,7 +2360,7 @@ void proto_register_bpv7(void) {
 
     bp_tap = register_tap("bpv7");
     register_conversation_table(proto_bp, TRUE, bp_conv_packet, bp_endp_packet);
-    register_conversation_filter("bpv7", "BPv7", bp_filter_valid, bp_build_filter);
+    register_conversation_filter("bpv7", "BPv7", bp_filter_valid, bp_build_filter, NULL);
 
     proto_bp_admin = proto_register_protocol(
         "BPv7 Administrative Record", /* name */

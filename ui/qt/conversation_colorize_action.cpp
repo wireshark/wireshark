@@ -33,9 +33,9 @@ void ConversationAction::setPacketInfo(struct _packet_info *pinfo)
 {
     bool enable = false;
     if (conv_filter_ && pinfo) {
-        enable = conv_filter_->is_filter_valid(pinfo);
+        enable = conv_filter_->is_filter_valid(pinfo, conv_filter_->user_data);
         if (enable) {
-            filter_ba_ = gchar_free_to_qbytearray(conv_filter_->build_filter_string(pinfo));
+            filter_ba_ = gchar_free_to_qbytearray(conv_filter_->build_filter_string(pinfo, conv_filter_->user_data));
         }
     }
     setEnabled(enable);
@@ -56,7 +56,7 @@ bool ConversationAction::isFilterValid(struct _packet_info *pinfo)
 {
     bool valid = false;
     if (conv_filter_ && pinfo) {
-        valid = conv_filter_->is_filter_valid(pinfo);
+        valid = conv_filter_->is_filter_valid(pinfo, conv_filter_->user_data);
     }
     return valid;
 }

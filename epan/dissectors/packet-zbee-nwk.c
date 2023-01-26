@@ -1851,12 +1851,12 @@ static tap_packet_status zbee_nwk_endpoint_packet(void *pit, packet_info *pinfo,
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean zbee_nwk_filter_valid(packet_info *pinfo)
+static gboolean zbee_nwk_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "zbee_nwk");
 }
 
-static gchar* zbee_nwk_build_filter(packet_info *pinfo)
+static gchar* zbee_nwk_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     return ws_strdup_printf("zbee_nwk.addr eq %s and zbee_nwk.addr eq %s",
             address_to_str(pinfo->pool, &pinfo->net_src),
@@ -2359,7 +2359,7 @@ void proto_register_zbee_nwk(void)
     zbee_nwk_tap = register_tap(ZBEE_PROTOABBREV_NWK);
 
     register_conversation_table(proto_zbee_nwk, TRUE, zbee_nwk_conversation_packet, zbee_nwk_endpoint_packet);
-    register_conversation_filter(ZBEE_PROTOABBREV_NWK, "ZigBee Network Layer", zbee_nwk_filter_valid, zbee_nwk_build_filter);
+    register_conversation_filter(ZBEE_PROTOABBREV_NWK, "ZigBee Network Layer", zbee_nwk_filter_valid, zbee_nwk_build_filter, NULL);
 } /* proto_register_zbee_nwk */
 
 /**

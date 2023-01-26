@@ -195,13 +195,13 @@ eth_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 }
 
 static gboolean
-eth_filter_valid(packet_info *pinfo)
+eth_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return (pinfo->dl_src.type == AT_ETHER);
 }
 
 static gchar*
-eth_build_filter(packet_info *pinfo)
+eth_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     return ws_strdup_printf("eth.addr eq %s and eth.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->dl_src),
@@ -1156,7 +1156,7 @@ proto_register_eth(void)
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_endpoint_packet);
-  register_conversation_filter("eth", "Ethernet", eth_filter_valid, eth_build_filter);
+  register_conversation_filter("eth", "Ethernet", eth_filter_valid, eth_build_filter, NULL);
 
   register_capture_dissector("eth", capture_eth, proto_eth);
 }
