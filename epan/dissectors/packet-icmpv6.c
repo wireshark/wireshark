@@ -1063,6 +1063,21 @@ static const value_string nd_opt_naack_status_val[] = {
     { 0,    NULL }
 };
 
+static const value_string nd_opt_earo_status_val[] = {
+    { 0,  "Success" },
+    { 1,  "Duplicate Address" },
+    { 2,  "Neighbor Cache Full" },
+    { 3,  "Moved" },
+    { 4,  "Removed" },
+    { 5,  "Validation Requested" },
+    { 6,  "Duplicate Source Address" },
+    { 7,  "Invalid Source Address" },
+    { 8,  "Registered Address Topologically Incorrect" },
+    { 9,  "6LBR Registry Saturated" },
+    { 10, "Validation Failed" },
+    { 0,  NULL }
+};
+
 #define ND_OPT_EARO_FLAG_I        0x30
 #define ND_OPT_EARO_FLAG_R        0x40
 #define ND_OPT_EARO_FLAG_T        0x80
@@ -1076,9 +1091,9 @@ static const value_string nd_opt_earo_flag_val[] = {
 #define ND_OPT_6CO_FLAG_CID      0x0F
 #define ND_OPT_6CO_FLAG_RESERVED 0xE0
 
-static const value_string nd_opt_6lowpannd_status_val[] = {
+static const value_string nd_opt_da_status_val[] = {
     { 0, "Success" },
-    { 1, "Duplicate Exists" },
+    { 1, "Duplicate Address" },
     { 2, "Neighbor Cache Full" },
     { 0, NULL }
 };
@@ -2453,7 +2468,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* EUI-64 */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, " : Register %s %s", tvb_eui64_to_str(pinfo->pool, tvb, opt_offset), val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
+                proto_item_append_text(ti, " : Register %s %s", tvb_eui64_to_str(pinfo->pool, tvb, opt_offset), val_to_str(status, nd_opt_earo_status_val, "Unknown %d"));
                 opt_offset += 8;
 
             }
@@ -5203,7 +5218,7 @@ proto_register_icmpv6(void)
           { "Domain Names", "icmpv6.opt.dnssl", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_aro_status,
-          { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x00,
+          { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_status_val), 0x00,
             "Indicates the status of a registration in the NA response", HFILL }},
         { &hf_icmpv6_opt_earo_opaque,
           { "Opaque", "icmpv6.opt.earo.opaque", FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -6082,7 +6097,7 @@ proto_register_icmpv6(void)
 
         /* 6lowpan-nd: Neighbour Discovery for 6LoWPAN Networks */
         { &hf_icmpv6_da_status,
-          { "Status", "icmpv6.6lowpannd.da.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x0,
+          { "Status", "icmpv6.6lowpannd.da.status", FT_UINT8, BASE_DEC, VALS(nd_opt_da_status_val), 0x0,
             "Indicates the status of a registration in the DAC", HFILL }},
         { &hf_icmpv6_da_rsv,
           { "Reserved", "icmpv6.6lowpannd.da.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
