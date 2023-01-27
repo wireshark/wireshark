@@ -82,6 +82,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 7731: MPL Control Message
  * RFC 8335: PROBE: A Utility for Probing Interfaces
  * RFC 8781: Discovering PREF64 in Router Advertisements
+ * RFC 8505: Registration Extensions for IPv6 over Low-Power Wireless Personal Area Network (6LoWPAN) Neighbor Discovery
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
@@ -221,6 +222,12 @@ static int hf_icmpv6_opt_dnssl_lifetime = -1;
 static int hf_icmpv6_opt_dnssl = -1;
 
 static int hf_icmpv6_opt_aro_status = -1;
+static int hf_icmpv6_opt_earo_opaque = -1;
+static int hf_icmpv6_opt_earo_flag = -1;
+static int hf_icmpv6_opt_earo_flag_i = -1;
+static int hf_icmpv6_opt_earo_flag_t = -1;
+static int hf_icmpv6_opt_earo_flag_r = -1;
+static int hf_icmpv6_opt_earo_tid = -1;
 static int hf_icmpv6_opt_aro_registration_lifetime = -1;
 static int hf_icmpv6_opt_aro_eui64 = -1;
 static int hf_icmpv6_opt_6co_context_length = -1;
@@ -573,6 +580,7 @@ static gint ett_icmpv6_flag_map = -1;
 static gint ett_icmpv6_flag_route_info = -1;
 static gint ett_icmpv6_flag_6lowpan = -1;
 static gint ett_icmpv6_flag_efo = -1;
+static gint ett_icmpv6_flag_earo = -1;
 static gint ett_icmpv6_rpl_opt = -1;
 static gint ett_icmpv6_rpl_metric_type = -1;
 static gint ett_icmpv6_rpl_metric_flags = -1;
@@ -1053,6 +1061,15 @@ static const value_string nd_opt_naack_status_val[] = {
     { 4,    "PCoA supplied, do not send FBU" },
     { 128,  "LLA is unrecognized" },
     { 0,    NULL }
+};
+
+#define ND_OPT_EARO_FLAG_I        0x30
+#define ND_OPT_EARO_FLAG_R        0x40
+#define ND_OPT_EARO_FLAG_T        0x80
+
+static const value_string nd_opt_earo_flag_val[] = {
+    { 0, "Default" },
+    { 0, NULL }
 };
 
 #define ND_OPT_6CO_FLAG_C        0x10
@@ -2406,15 +2423,29 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             {
                 /* 6lowpan-ND */
                 guint8 status;
+                static int * const earo_flags[] = {
+                    &hf_icmpv6_opt_earo_flag_i,
+                    &hf_icmpv6_opt_earo_flag_r,
+                    &hf_icmpv6_opt_earo_flag_t,
+                    NULL
+                };
 
                 /* Status */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                 status = tvb_get_guint8(tvb, opt_offset);
                 opt_offset += 1;
 
-                /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 3, ENC_NA);
-                opt_offset += 3;
+                /* EARO Opaque */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_earo_opaque, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                opt_offset += 1;
+
+                /* EARO Flags */
+                proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_opt_earo_flag, ett_icmpv6_flag_earo, earo_flags, ENC_BIG_ENDIAN);
+                opt_offset += 1;
+
+                /* EARO Transaction ID */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_earo_tid, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                opt_offset += 1;
 
                 /* Lifetime */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_registration_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
@@ -5174,6 +5205,24 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_aro_status,
           { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x00,
             "Indicates the status of a registration in the NA response", HFILL }},
+        { &hf_icmpv6_opt_earo_opaque,
+          { "Opaque", "icmpv6.opt.earo.opaque", FT_UINT8, BASE_HEX, NULL, 0x00,
+            "An opaque field whose content is dictated by flag I", HFILL }},
+        { &hf_icmpv6_opt_earo_flag,
+          { "Flags", "icmpv6.opt.earo.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_earo_flag_i,
+          { "I", "icmpv6.opt.earo.flag.i", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_flag_val), ND_OPT_EARO_FLAG_I,
+            "Indicates the contents of the Opaque field", HFILL }},
+        { &hf_icmpv6_opt_earo_flag_r,
+          { "R", "icmpv6.opt.earo.flag.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_EARO_FLAG_R,
+            "Request reachability services for the Registered Address from a Routing Registrar", HFILL }},
+        { &hf_icmpv6_opt_earo_flag_t,
+          { "T", "icmpv6.opt.earo.flag.t", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_EARO_FLAG_T,
+            "When 0, the Transaction ID field must be ignored", HFILL }},
+        { &hf_icmpv6_opt_earo_tid,
+          { "TID (Transaction ID)", "icmpv6.opt.earo.tid", FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Unsigned integer maintained by the node and incremented with each registration.", HFILL }},
         { &hf_icmpv6_opt_aro_registration_lifetime,
           { "Registration  Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
             "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
@@ -6114,6 +6163,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6_flag_prefix,
         &ett_icmpv6_flag_map,
         &ett_icmpv6_flag_route_info,
+        &ett_icmpv6_flag_earo,
         &ett_icmpv6_flag_6lowpan,
         &ett_icmpv6_flag_efo,
         &ett_icmpv6_rpl_opt,
