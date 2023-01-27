@@ -475,6 +475,8 @@ static int hf_extras_flags_dcp_snapshot_marker_memory = -1;
 static int hf_extras_flags_dcp_snapshot_marker_disk = -1;
 static int hf_extras_flags_dcp_snapshot_marker_chk = -1;
 static int hf_extras_flags_dcp_snapshot_marker_ack = -1;
+static int hf_extras_flags_dcp_snapshot_marker_history = -1;
+static int hf_extras_flags_dcp_snapshot_marker_may_contain_dups = -1;
 static int hf_extras_flags_dcp_include_xattrs = -1;
 static int hf_extras_flags_dcp_no_value = -1;
 static int hf_extras_flags_dcp_include_delete_times = -1;
@@ -1127,6 +1129,8 @@ static int * const snapshot_marker_flags [] = {
     &hf_extras_flags_dcp_snapshot_marker_disk,
     &hf_extras_flags_dcp_snapshot_marker_chk,
     &hf_extras_flags_dcp_snapshot_marker_ack,
+    &hf_extras_flags_dcp_snapshot_marker_history,
+    &hf_extras_flags_dcp_snapshot_marker_may_contain_dups,
     NULL
 };
 
@@ -3846,6 +3850,8 @@ proto_register_couchbase(void)
     { &hf_extras_flags_dcp_snapshot_marker_disk, {"Disk", "couchbase.extras.flags.dcp_snapshot_marker_disk", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL } },
     { &hf_extras_flags_dcp_snapshot_marker_chk, {"Chk", "couchbase.extras.flags.dcp_snapshot_marker_chk", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL } },
     { &hf_extras_flags_dcp_snapshot_marker_ack, {"Ack", "couchbase.extras.flags.dcp_snapshot_marker_ack", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008, NULL, HFILL } },
+    { &hf_extras_flags_dcp_snapshot_marker_history, {"History", "couchbase.extras.flags.dcp_snapshot_marker_history", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0010, NULL, HFILL } },
+    { &hf_extras_flags_dcp_snapshot_marker_may_contain_dups, {"May Contain Duplicates", "couchbase.extras.flags.dcp_snapshot_marker_may_contain_duplicates", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0020, NULL, HFILL } },
     { &hf_extras_flags_dcp_include_xattrs, {"Include XATTRs", "couchbase.extras.flags.dcp_include_xattrs", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, "Indicates the server should include documents XATTRs", HFILL} },
     { &hf_extras_flags_dcp_no_value, {"No Value", "couchbase.extras.flags.dcp_no_value", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008, "Indicates the server should strip off values", HFILL} },
     { &hf_extras_flags_dcp_collections, {"Enable Collections", "couchbase.extras.flags.dcp_collections", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0010, "Indicates the server should stream collections", HFILL} },
