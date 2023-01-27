@@ -342,18 +342,23 @@ starts a comment that runs to the end of the line:
   capture.prom_mode: TRUE
 
 The global preferences file is looked for in the __wireshark__ directory
-under the __share__ subdirectory of the main installation directory (for
-example, __/usr/local/share/wireshark/preferences__) on UNIX-compatible
-systems, and in the main installation directory (for example,
-__C:\Program Files\Wireshark\preferences__) on Windows systems.
+under the __share__ subdirectory of the main installation directory.  On
+macOS, this would typically be
+__/Application/Wireshark.app/Contents/Resources/share__; on other
+UNIX-compatible systems, such as Linux, \*BSD, Solaris, and AIX, this
+would typically be __/usr/share/wireshark/preferences__ for
+system-installed packages and __/usr/local/share/wireshark/preferences__
+for locally-installed packages; on Windows, this would typically be
+__C:\Program Files\Wireshark\preferences__.
 
-The personal preferences file is looked for in
-__$XDG_CONFIG_HOME/wireshark/preferences__
-(or, if __$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
-is present, __$HOME/.wireshark/preferences__) on
-UNIX-compatible systems and __%APPDATA%\Wireshark\preferences__ (or, if
-%APPDATA% isn't defined, __%USERPROFILE%\Application
- Data\Wireshark\preferences__) on Windows systems.
+On UNIX-compatible systems, the personal preferences file is looked for
+in __$XDG_CONFIG_HOME/wireshark/preferences__, (or, if
+__$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
+does exist, __$HOME/.wireshark/preferences__); this is typically
+__$HOME/.config/wireshark/preferences__.  On Windows,
+the personal preferences file is looked for in
+__%APPDATA%\Wireshark\preferences__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark\preferences__).
 --
 
 Disabled (Enabled) Protocols::
@@ -386,8 +391,9 @@ whitespace. The same directory as for the personal preferences file is
 used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
-__hosts__ file will not be consulted for capture filter name resolution.
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX, and by Npcap or
+WinPcap on Windows.  As such the Wireshark personal __hosts__ file will
+not be consulted for capture filter name resolution.
 --
 
 Name Resolution (subnets)::
@@ -430,8 +436,9 @@ lines of an __ethers__ file:
   00.00.00.00.00.00          Zero_broadcast
 
 The global __ethers__ file is looked for in the __/etc__ directory on
-UNIX-compatible systems, and in the main installation directory (for
-example, __C:\Program Files\Wireshark__) on Windows systems.
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
+and in the main installation directory (for example, __C:\Program
+Files\Wireshark__) on Windows systems.
 
 The personal __ethers__ file is looked for in the same directory as the personal
 preferences file.
@@ -501,8 +508,9 @@ For example, these four lines are valid lines of an __ipxnets__ file:
   110f                     FileServer3
 
 The global __ipxnets__ file is looked for in the __/etc__ directory on
-UNIX-compatible systems, and in the main installation directory (for
-example, __C:\Program Files\Wireshark__) on Windows systems.
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
+and in the main installation directory (for example, __C:\Program
+Files\Wireshark__) on Windows systems.
 
 The personal __ipxnets__ file is looked for in the same directory as the
 personal preferences file.
@@ -510,13 +518,20 @@ personal preferences file.
 
 == ENVIRONMENT VARIABLES
 
+// Should this be moved to an include file?
+
 WIRESHARK_CONFIG_DIR::
 +
 --
-This environment variable overrides the location of personal configuration
-files. It defaults to __$XDG_CONFIG_HOME/wireshark__ (or __$HOME/.wireshark__ if
-the former is missing while the latter exists). On Windows,
-__%APPDATA%\Wireshark__ is used instead. Available since Wireshark 3.0.
+This environment variable overrides the location of personal
+configuration files.  On UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, it defaults to __$XDG_CONFIG_HOME/wireshark__
+(or, if that directory doesn't exist but __$HOME/.wireshark__ does
+exist, __$HOME/.wireshark__); this is typically
+__$HOME/.config/wireshark__.  On Windows, it defaults to
+__%APPDATA%\Wireshark__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark__).  Available since
+Wireshark 3.0.
 --
 
 WIRESHARK_DEBUG_WMEM_OVERRIDE::
@@ -532,10 +547,11 @@ details.
 WIRESHARK_RUN_FROM_BUILD_DIRECTORY::
 +
 --
-This environment variable causes the plugins and other data files to be loaded
-from the build directory (where the program was compiled) rather than from the
-standard locations.  It has no effect when the program in question is running
-with root (or setuid) permissions on *NIX.
+This environment variable causes the plugins and other data files to be
+loaded from the build directory (where the program was compiled) rather
+than from the standard locations.  It has no effect when the program in
+question is running with root (or setuid) permissions on UNIX-compatible
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX.
 --
 
 WIRESHARK_DATA_DIR::
@@ -543,7 +559,8 @@ WIRESHARK_DATA_DIR::
 --
 This environment variable causes the various data files to be loaded from
 a directory other than the standard locations.  It has no effect when the
-program in question is running with root (or setuid) permissions on *NIX.
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
 --
 
 ERF_RECORDS_TO_CHECK::

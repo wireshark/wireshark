@@ -265,8 +265,9 @@ to 2 MiB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
-This is available on UNIX systems with libpcap 1.0.0 or later and on
-Windows.  It is not available on UNIX systems with earlier versions of
+This is available on UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows. 
+It is not available on UNIX-compatible systems with earlier versions of
 libpcap.
 
 This option can occur multiple times.  If used before the first
@@ -323,21 +324,12 @@ protocols that can be selected with an ethertype.
 +
 --
 Print a list of the interfaces on which *TShark* can capture, and
-exit.  For each network interface, a number and an
-interface name, possibly followed by a text description of the
-interface, is printed.  The interface name or the number can be supplied
-to the *-i* option to specify an interface on which to capture.
-
-This can be useful on systems that don't have a command to list them
-(UNIX systems lacking *ifconfig -a* or Linux systems lacking
-*ip link show*). The number can be useful on Windows systems, where
-the interface name might be a long name or a GUID.
-
-Note that "can capture" means that *TShark* was able to open that
-device to do a live capture.  Depending on your system you may need to
-run *TShark* from an account with special privileges (for example, as
-root) to be able to capture network traffic.  If *tshark -D* is not run
-from such an account, it will not list any interfaces.
+exit.  For each network interface, a number and an interface name,
+possibly followed by a text description of the interface, is printed. 
+The interface name or the number can be supplied to the *-i* flag to
+specify an interface on which to capture.  The number can be useful on
+Windows systems, where the interfaces have long names that usually
+contain a GUID.
 --
 
 -e  <field>::
@@ -590,11 +582,9 @@ https://en.wikipedia.org/wiki/Hosts_(file).
 Set the name of the network interface or pipe to use for live packet
 capture.
 
-Network interface names should match one of the names listed in
-"*tshark -D*" (described above); a number, as reported by
-"*tshark -D*", can also be used.  If you're using UNIX, "*netstat
- -i*", "*ifconfig -a*" or "*ip link*" might also work to list interface names,
-although not all versions of UNIX support the *-a* option to *ifconfig*.
+Network interface names should match one of the names listed in "*tshark
+-D*" (described above); a number, as reported by "*tshark -D*", can also
+be used.
 
 If no interface is specified, *TShark* searches the list of
 interfaces, choosing the first non-loopback interface if there are any
@@ -972,9 +962,10 @@ whether the *-V* option was specified.  This is the default.
 --temp-dir <directory>::
 +
 --
-Specifies the directory into which temporary files (including capture files)
-are to be written. The default behaviour is to use your system's temporary
-directory (typically __/tmp__ on Linux, and __C:\\Temp__ on Windows).
+Specifies the directory into which temporary files (including capture
+files) are to be written.  The default behaviour is to use your system's
+temporary directory (typically __/tmp__ on UNIX-compatible systems, such
+as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
 --
 
 -u <seconds type>::
@@ -2645,18 +2636,23 @@ starts a comment that runs to the end of the line:
   capture.prom_mode: TRUE
 
 The global preferences file is looked for in the __wireshark__ directory
-under the __share__ subdirectory of the main installation directory (for
-example, __/usr/local/share/wireshark/preferences__) on UNIX-compatible
-systems, and in the main installation directory (for example,
-__C:\Program Files\Wireshark\preferences__) on Windows systems.
+under the __share__ subdirectory of the main installation directory.  On
+macOS, this would typically be
+__/Application/Wireshark.app/Contents/Resources/share__; on other
+UNIX-compatible systems, such as Linux, \*BSD, Solaris, and AIX, this
+would typically be __/usr/share/wireshark/preferences__ for
+system-installed packages and __/usr/local/share/wireshark/preferences__
+for locally-installed packages; on Windows, this would typically be
+__C:\Program Files\Wireshark\preferences__.
 
-The personal preferences file is looked for in
-__$XDG_CONFIG_HOME/wireshark/preferences__
-(or, if __$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
-is present, __$HOME/.wireshark/preferences__) on
-UNIX-compatible systems and __%APPDATA%\Wireshark\preferences__ (or, if
-%APPDATA% isn't defined, __%USERPROFILE%\Application
- Data\Wireshark\preferences__) on Windows systems.
+On UNIX-compatible systems, the personal preferences file is looked for
+in __$XDG_CONFIG_HOME/wireshark/preferences__, (or, if
+__$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
+does exist, __$HOME/.wireshark/preferences__); this is typically
+__$HOME/.config/wireshark/preferences__.  On Windows,
+the personal preferences file is looked for in
+__%APPDATA%\Wireshark\preferences__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark\preferences__).
 --
 
 Disabled (Enabled) Protocols::
@@ -2689,8 +2685,9 @@ whitespace.  The same directory as for the personal preferences file is
 used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
-__hosts__ file will not be consulted for capture filter name resolution.
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX, and by Npcap or
+WinPcap on Windows.  As such the Wireshark personal __hosts__ file will
+not be consulted for capture filter name resolution.
 --
 
 Name Resolution (subnets)::
@@ -2733,8 +2730,9 @@ lines of an __ethers__ file:
   00.00.00.00.00.00          Zero_broadcast
 
 The global __ethers__ file is looked for in the __/etc__ directory on
-UNIX-compatible systems, and in the main installation directory (for
-example, __C:\Program Files\Wireshark__) on Windows systems.
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
+and in the main installation directory (for example, __C:\Program
+Files\Wireshark__) on Windows systems.
 
 The personal __ethers__ file is looked for in the same directory as the personal
 preferences file.
@@ -2804,8 +2802,9 @@ For example, these four lines are valid lines of an __ipxnets__ file:
   110f                     FileServer3
 
 The global __ipxnets__ file is looked for in the __/etc__ directory on
-UNIX-compatible systems, and in the main installation directory (for
-example, __C:\Program Files\Wireshark__) on Windows systems.
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
+and in the main installation directory (for example, __C:\Program
+Files\Wireshark__) on Windows systems.
 
 The personal __ipxnets__ file is looked for in the same directory as the
 personal preferences file.
@@ -2818,9 +2817,10 @@ output might not be valid. For example, a dissector might generate
 invalid UTF-8 character sequences. Programs reading *TShark* output
 should expect UTF-8 and be prepared for invalid output.
 
-If *TShark* detects that it is writing to a TTY on UNIX or Linux and
-the locale does not support UTF-8, output will be re-encoded to match the
-current locale.
+If *TShark* detects that it is writing to a TTY on a UNIX-compatible
+system, such as Linux, macOS, \*BSD, Solaris, and AIX, and the locale
+does not support UTF-8, output will be re-encoded to match the current
+locale.
 
 If *TShark* detects that it is writing to the console on Windows,
 dissection output will be encoded as UTF-16LE. Other output will be
@@ -2835,10 +2835,15 @@ and using a modern terminal application if possible.
 WIRESHARK_CONFIG_DIR::
 +
 --
-This environment variable overrides the location of personal configuration
-files. It defaults to __$XDG_CONFIG_HOME/wireshark__ (or __$HOME/.wireshark__ if
-the former is missing while the latter exists). On Windows,
-__%APPDATA%\Wireshark__ is used instead. Available since Wireshark 3.0.
+This environment variable overrides the location of personal
+configuration files.  On UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, it defaults to __$XDG_CONFIG_HOME/wireshark__
+(or, if that directory doesn't exist but __$HOME/.wireshark__ does
+exist, __$HOME/.wireshark__); this is typically
+__$HOME/.config/wireshark__.  On Windows, it defaults to
+__%APPDATA%\Wireshark__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark__).  Available since
+Wireshark 3.0.
 --
 
 WIRESHARK_DEBUG_WMEM_OVERRIDE::
@@ -2854,23 +2859,39 @@ details.
 WIRESHARK_RUN_FROM_BUILD_DIRECTORY::
 +
 --
-This environment variable causes the plugins and other data files to be loaded
-from the build directory (where the program was compiled) rather than from the
-standard locations.  It has no effect when the program in question is running
-with root (or setuid) permissions on *NIX.
+This environment variable causes the plugins and other data files to be
+loaded from the build directory (where the program was compiled) rather
+than from the standard locations.  It has no effect when the program in
+question is running with root (or setuid) permissions on UNIX-compatible
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX.
 --
 
 WIRESHARK_DATA_DIR::
-Overrides the default global configuration directory.
-It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
++
+--
+This environment variable causes the various data files to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
+--
 
 WIRESHARK_EXTCAP_DIR::
-Overrides the default extcap directory.
-It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
++
+--
+This environment variable causes the various extcap programs and scripts
+to be run from a directory other than the standard locations.  It has no
+effect when the program in question is running with root (or setuid)
+permissions on UNIX-compatible systems.
+--
 
 WIRESHARK_PLUGIN_DIR::
-Overrides the default plugin directory.
-It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
++
+--
+This environment variable causes the various plugins to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
+--
 
 ERF_RECORDS_TO_CHECK::
 +

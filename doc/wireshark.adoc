@@ -250,8 +250,9 @@ to 2 MiB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
-This is available on UNIX systems with libpcap 1.0.0 or later and on
-Windows.  It is not available on UNIX systems with earlier versions of
+This is available on UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows. 
+It is not available on UNIX-compatible systems with earlier versions of
 libpcap.
 
 This option can occur multiple times.  If used before the first
@@ -304,21 +305,12 @@ See the xref:tshark.html[tshark](1) manual page for more examples.
 +
 --
 Print a list of the interfaces on which *Wireshark* can capture, and
-exit.  For each network interface, a number and an
-interface name, possibly followed by a text description of the
-interface, is printed.  The interface name or the number can be supplied
-to the *-i* flag to specify an interface on which to capture.
-
-This can be useful on systems that don't have a command to list them
-(UNIX systems lacking *ifconfig -a* or Linux systems lacking
-*ip link show*). The number can be useful on Windows systems, where
-the interface name might be a long name or a GUID.
-
-Note that "can capture" means that *Wireshark* was able to open
-that device to do a live capture; if, on your system, a program doing a
-network capture must be run from an account with special privileges (for
-example, as root), then, if *Wireshark* is run with the *-D* flag and
-is not run from such an account, it will not list any interfaces.
+exit.  For each network interface, a number and an interface name,
+possibly followed by a text description of the interface, is printed. 
+The interface name or the number can be supplied to the *-i* flag to
+specify an interface on which to capture.  The number can be useful on
+Windows systems, where the interfaces have long names that usually
+contain a GUID.
 --
 
 --display <X display to use>::
@@ -326,7 +318,7 @@ is not run from such an account, it will not list any interfaces.
 --
 Specifies the X display to use.  A hostname and screen (otherhost:0.0)
 or just a screen (:0.0) can be specified.  This option is not available
-under Windows.
+under macOS or Windows.
 --
 
 --disable-protocol <proto_name>::
@@ -402,11 +394,9 @@ Hide the capture info dialog during live packet capture.
 Set the name of the network interface or pipe to use for live packet
 capture.
 
-Network interface names should match one of the names listed in
-"*wireshark -D*" (described above); a number, as reported by
-"*wireshark -D*", can also be used.  If you're using UNIX, "*netstat
- -i*", "*ifconfig -a*" or "*ip link*" might also work to list interface names,
-although not all versions of UNIX support the *-a* option to *ifconfig*.
+Network interface names should match one of the names listed in "*wireshark
+-D*" (described above); a number, as reported by "*tshark -D*", can also
+be used.
 
 If no interface is specified, *Wireshark* searches the list of
 interfaces, choosing the first non-loopback interface if there are any
@@ -673,9 +663,10 @@ The default format is relative.
 --temp-dir <directory>::
 +
 --
-Specifies the directory into which temporary files (including capture files)
-are to be written. The default behaviour is to use your system's temporary
-directory (typically __/tmp__ on Linux, and __C:\\Temp__ on Windows).
+Specifies the directory into which temporary files (including capture
+files) are to be written.  The default behaviour is to use your system's
+temporary directory (typically __/tmp__ on UNIX-compatible systems, such
+as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
 --
 
 --time-stamp-type <type>::
@@ -2266,11 +2257,12 @@ Printing Preferences::
 +
 --
 The radio buttons at the top of the __Printing__ page allow you choose
-between printing packets with the __File:Print Packet__ menu item as text
-or PostScript, and sending the output directly to a command or saving it
-to a file.  The __Command:__ text entry box, on UNIX-compatible systems,
+between printing packets with the __File:Print Packet__ menu item as
+text or PostScript, and sending the output directly to a command or
+saving it to a file.  The __Command:__ text entry box, on
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
 is the command to send files to (usually *lpr*), and the __File:__ entry
-box lets you enter the name of the file you wish to save to.
+box lets you enter the name of the file you wish to save to. 
 Additionally, you can select the __File:__ button to browse the file
 system for a particular save file.
 --
@@ -2603,11 +2595,11 @@ available on your system.
 The __Plugins List__ shows the name and version of each dissector plugin
 module found on your system.
 
-On Unix-compatible systems, the plugins are looked for in the following
-directories: the __lib/wireshark/plugins/$VERSION__ directory under the
-main installation directory (for example,
-__/usr/local/lib/wireshark/plugins/$VERSION__), and then
-__$HOME/.wireshark/plugins__.
+On Unix-compatible systems, such as Linux, macOS, \*BSD, Solaris, and
+AIX, the plugins are looked for in the following directories: the
+__lib/wireshark/plugins/$VERSION__ directory under the main installation
+directory (for example, __/usr/local/lib/wireshark/plugins/$VERSION__),
+and then __$HOME/.wireshark/plugins__.
 
 On Windows systems, the plugins are looked for in the following
 directories: __plugins\$VERSION__ directory under the main installation
@@ -2662,18 +2654,23 @@ starts a comment that runs to the end of the line:
   gui.scrollbar_on_right: TRUE
 
 The global preferences file is looked for in the __wireshark__ directory
-under the __share__ subdirectory of the main installation directory (for
-example, __/usr/local/share/wireshark/preferences__) on UNIX-compatible
-systems, and in the main installation directory (for example,
-__C:\Program Files\Wireshark\preferences__) on Windows systems.
+under the __share__ subdirectory of the main installation directory.  On
+macOS, this would typically be
+__/Application/Wireshark.app/Contents/Resources/share__; on other
+UNIX-compatible systems, such as Linux, \*BSD, Solaris, and AIX, this
+would typically be __/usr/share/wireshark/preferences__ for
+system-installed packages and __/usr/local/share/wireshark/preferences__
+for locally-installed packages; on Windows, this would typically be
+__C:\Program Files\Wireshark\preferences__.
 
-The personal preferences file is looked for in
-__$XDG_CONFIG_HOME/wireshark/preferences__
-(or, if __$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
-is present, __$HOME/.wireshark/preferences__) on
-UNIX-compatible systems and __%APPDATA%\Wireshark\preferences__ (or, if
-%APPDATA% isn't defined, __%USERPROFILE%\Application
- Data\Wireshark\preferences__) on Windows systems.
+On UNIX-compatible systems, the personal preferences file is looked for
+in __$XDG_CONFIG_HOME/wireshark/preferences__, (or, if
+__$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
+does exist, __$HOME/.wireshark/preferences__); this is typically
+__$HOME/.config/wireshark/preferences__.  On Windows,
+the personal preferences file is looked for in
+__%APPDATA%\Wireshark\preferences__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark\preferences__).
 
 Note: Whenever the preferences are saved by using the __Save__ button
 in the __Edit:Preferences__ dialog box, your personal preferences file
@@ -2736,9 +2733,11 @@ file syntax; each line contains one IP address and name, separated by
 whitespace.  The same directory as for the personal preferences file is used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal __hosts__ file
-will not be consulted for capture filter name resolution.
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX, and Npcap or
+WinPcap on Windows.  As such the Wireshark personal __hosts__ file will
+not be consulted for capture filter name resolution.
 --
+
 
 Name Resolution (subnets)::
 +
@@ -2782,15 +2781,17 @@ lines of an __ethers__ file:
   00.00.00.00.00.00          Zero_broadcast
 
 The global __ethers__ file is looked for in the __/etc__ directory on
-UNIX-compatible systems, and in the main installation directory (for
-example, __C:\Program Files\Wireshark__) on Windows systems.
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
+and in the main installation directory (for example, __C:\Program
+Files\Wireshark__) on Windows systems.
 
 The personal __ethers__ file is looked for in the same directory as the personal
 preferences file.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal __ethers__ file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+__ethers__ file will not be consulted for capture filter name
+resolution.
 --
 
 Name Resolution (manuf)::
@@ -2855,8 +2856,9 @@ For example, these four lines are valid lines of an __ipxnets__ file:
   110f                     FileServer3
 
 The global __ipxnets__ file is looked for in the __/etc__ directory on
-UNIX-compatible systems, and in the main installation directory (for
-example, __C:\Program Files\Wireshark__) on Windows systems.
+UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
+and in the main installation directory (for example, __C:\Program
+Files\Wireshark__) on Windows systems.
 
 The personal __ipxnets__ file is looked for in the same directory as the
 personal preferences file.
@@ -2943,10 +2945,15 @@ See above in the description of the About:Plugins page.
 WIRESHARK_CONFIG_DIR::
 +
 --
-This environment variable overrides the location of personal configuration
-files. It defaults to __$XDG_CONFIG_HOME/wireshark__ (or __$HOME/.wireshark__ if
-the former is missing while the latter exists). On Windows,
-__%APPDATA%\Wireshark__ is used instead. Available since Wireshark 3.0.
+This environment variable overrides the location of personal
+configuration files.  On UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, it defaults to __$XDG_CONFIG_HOME/wireshark__
+(or, if that directory doesn't exist but __$HOME/.wireshark__ does
+exist, __$HOME/.wireshark__); this is typically
+__$HOME/.config/wireshark__.  On Windows, it defaults to
+__%APPDATA%\Wireshark__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark__).  Available since
+Wireshark 3.0.
 --
 
 WIRESHARK_DEBUG_WMEM_OVERRIDE::
@@ -2962,23 +2969,39 @@ details.
 WIRESHARK_RUN_FROM_BUILD_DIRECTORY::
 +
 --
-This environment variable causes the plugins and other data files to be loaded
-from the build directory (where the program was compiled) rather than from the
-standard locations.  It has no effect when the program in question is running
-with root (or setuid) permissions on *NIX.
+This environment variable causes the plugins and other data files to be
+loaded from the build directory (where the program was compiled) rather
+than from the standard locations.  It has no effect when the program in
+question is running with root (or setuid) permissions on UNIX-compatible
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX.
 --
 
 WIRESHARK_DATA_DIR::
-Overrides the default global configuration directory.
-It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
++
+--
+This environment variable causes the various data files to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
+--
 
 WIRESHARK_EXTCAP_DIR::
-Overrides the default extcap directory.
-It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
++
+--
+This environment variable causes the various extcap programs and scripts
+to be run from a directory other than the standard locations.  It has no
+effect when the program in question is running with root (or setuid)
+permissions on UNIX-compatible systems.
+--
 
 WIRESHARK_PLUGIN_DIR::
-Overrides the default plugin directory.
-It has no effect when the program in question is running with root (or setuid) permissions on *NIX.
++
+--
+This environment variable causes the various plugins to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
+--
 
 ERF_RECORDS_TO_CHECK::
 +
