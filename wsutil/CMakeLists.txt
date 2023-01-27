@@ -260,6 +260,7 @@ set_source_files_properties(
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
+
 if (HAVE_SSE4_2)
 	# TODO with CMake 2.8.12, we could use COMPILE_OPTIONS and just append
 	# instead of this COMPILE_FLAGS duplication...
@@ -268,6 +269,14 @@ if (HAVE_SSE4_2)
 		PROPERTIES
 		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} ${SSE4_2_FLAG}"
 	)
+endif()
+
+if (ENABLE_APPLICATION_BUNDLE)
+	set_source_files_properties(
+		filesystem.c
+		PROPERTIES
+		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} -DENABLE_APPLICATION_BUNDLE"
+)
 endif()
 
 add_library(wsutil

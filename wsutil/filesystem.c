@@ -24,7 +24,7 @@
 #include <shlobj.h>
 #include <wsutil/unicode-utils.h>
 #else /* _WIN32 */
-#ifdef __APPLE__
+#ifdef ENABLE_APPLICATION_BUNDLE
 #include <mach-o/dyld.h>
 #endif
 #ifdef __linux__
@@ -219,7 +219,7 @@ test_for_fifo(const char *path)
         return 0;
 }
 
-#ifdef __APPLE__
+#ifdef ENABLE_APPLICATION_BUNDLE
 /*
  * Directory of the application bundle in which we're contained,
  * if we're contained in an application bundle.  Otherwise, NULL.
@@ -378,7 +378,7 @@ bool is_packet_configuration_namespace(void)
 static const char *
 get_current_executable_path(void)
 {
-#if defined(__APPLE__)
+#if defined(ENABLE_APPLICATION_BUNDLE)
     static char *executable_path;
     uint32_t path_buf_size;
 
@@ -837,7 +837,7 @@ configuration_init_posix(const char* arg0)
                         running_in_build_directory_flag = TRUE;
                     g_free(cmake_file);
                 }
-#ifdef __APPLE__
+#ifdef ENABLE_APPLICATION_BUNDLE
                 {
                     /*
                      * Scan up the path looking for a component
@@ -982,6 +982,18 @@ get_datafile_dir(void)
     if (datafile_dir != NULL)
         return datafile_dir;
 
+    const char *data_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("DATA_DIR");
+    if (g_getenv(data_dir_envar) && !started_with_special_privs()) {
+        /*
+         * The user specified a different directory for data files
+         * and we aren't running with special privileges.
+         * Let {WIRESHARK,LOGRAY}_DATA_DIR take precedence.
+         * XXX - We might be able to dispense with the priv check
+         */
+        datafile_dir = g_strdup(g_getenv(data_dir_envar));
+        return datafile_dir;
+    }
+
 #if defined(__MINGW64__)
     if (running_in_build_directory_flag) {
         datafile_dir = g_strdup(install_prefix);
@@ -1013,17 +1025,7 @@ get_datafile_dir(void)
         datafile_dir = g_strdup("C:\\Program Files\\Wireshark\\");
     }
 #else
-
-    const char *data_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("DATA_DIR");
-    if (g_getenv(data_dir_envar) && !started_with_special_privs()) {
-        /*
-         * The user specified a different directory for data files
-         * and we aren't running with special privileges.
-         * XXX - We might be able to dispense with the priv check
-         */
-        datafile_dir = g_strdup(g_getenv(data_dir_envar));
-    }
-#ifdef __APPLE__
+#ifdef ENABLE_APPLICATION_BUNDLE
     /*
      * If we're running from an app bundle and weren't started
      * with special privileges, use the Contents/Resources/share/wireshark
@@ -1065,6 +1067,11 @@ get_doc_dir(void)
     if (doc_dir != NULL)
         return doc_dir;
 
+    /* No environment variable for this. */
+    if (false) {
+        ;
+    }
+
 #if defined(__MINGW64__)
     if (running_in_build_directory_flag) {
         doc_dir = g_strdup(install_prefix);
@@ -1079,12 +1086,7 @@ get_doc_dir(void)
         doc_dir = g_strdup("C:\\Program Files\\Wireshark\\");
     }
 #else
-
-    /* No environment variable for this. */
-    if (false) {
-        ;
-    }
-#ifdef __APPLE__
+#ifdef ENABLE_APPLICATION_BUNDLE
     /*
      * If we're running from an app bundle and weren't started
      * with special privileges, use the Contents/Resources/share/wireshark
@@ -1143,6 +1145,17 @@ static char *extcap_pers_dir = NULL;
 static void
 init_plugin_dir(void)
 {
+    const char *plugin_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("PLUGIN_DIR");
+    if (g_getenv(plugin_dir_envar) && !started_with_special_privs()) {
+        /*
+         * The user specified a different directory for plugins
+         * and we aren't running with special privileges.
+         * Let {WIRESHARK,LOGRAY}_PLUGIN_DIR take precedence.
+         */
+        plugin_dir = g_strdup(g_getenv(plugin_dir_envar));
+        return;
+    }
+
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #if defined(__MINGW64__)
     if (running_in_build_directory_flag) {
@@ -1183,7 +1196,22 @@ init_plugin_dir(void)
         running_in_build_directory_flag = TRUE;
     }
 #else
-    if (running_in_build_directory_flag) {
+#ifdef ENABLE_APPLICATION_BUNDLE
+    /*
+     * If we're running from an app bundle and weren't started
+     * with special privileges, use the Contents/PlugIns/wireshark
+     * subdirectory of the app bundle.
+     *
+     * (appbundle_dir is not set to a non-null value if we're
+     * started with special privileges, so we need only check
+     * it; we don't need to call started_with_special_privs().)
+     */
+    else if (appbundle_dir != NULL) {
+        plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
+                                        CONFIGURATION_NAMESPACE_LOWER, (gchar *)NULL);
+    }
+#endif
+    else if (running_in_build_directory_flag) {
         /*
          * We're (probably) being run from the build directory and
          * weren't started with special privileges, so we'll use
@@ -1192,32 +1220,7 @@ init_plugin_dir(void)
          */
         plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (gchar *)NULL);
     } else {
-        const char *plugin_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("PLUGIN_DIR");
-        if (g_getenv(plugin_dir_envar) && !started_with_special_privs()) {
-            /*
-             * The user specified a different directory for plugins
-             * and we aren't running with special privileges.
-             */
-            plugin_dir = g_strdup(g_getenv(plugin_dir_envar));
-        }
-#ifdef __APPLE__
-        /*
-         * If we're running from an app bundle and weren't started
-         * with special privileges, use the Contents/PlugIns/wireshark
-         * subdirectory of the app bundle.
-         *
-         * (appbundle_dir is not set to a non-null value if we're
-         * started with special privileges, so we need only check
-         * it; we don't need to call started_with_special_privs().)
-         */
-        else if (appbundle_dir != NULL) {
-            plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
-                                          CONFIGURATION_NAMESPACE_LOWER, (gchar *)NULL);
-        }
-#endif
-        else {
-            plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
-        }
+        plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
     }
 #endif
 #endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
@@ -1336,7 +1339,7 @@ init_extcap_dir(void)
          */
         extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (gchar *)NULL);
     }
-#ifdef __APPLE__
+#ifdef ENABLE_APPLICATION_BUNDLE
     else if (appbundle_dir != NULL) {
         /*
          * If we're running from an app bundle and weren't started
@@ -2246,7 +2249,7 @@ file_open_error_message(int err, gboolean for_writing)
          * You need to make the pagefile bigger.
          */
 #define ENOMEM_REASON "the pagefile is too small"
-#elif defined(__APPLE__)
+#elif defined(ENABLE_APPLICATION_BUNDLE)
         /*
          * dynamic_pager couldn't, or wouldn't, create more swap files.
          */
