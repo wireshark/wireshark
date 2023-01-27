@@ -10,29 +10,19 @@ How to setup MSYS2:
 3. Update with "pacman -Syu" as many times as necessary. You also need to
    have base-devel installed:
    
-    $ pacman -S base-devel.
+    $ pacman -Syu base-devel.
 
 How to build the Wireshark MSYS2 package:
 
-1. Open the UCRT64 shell.
+1. Open the shell for the selected environment. If in doubt choose the UCRT64 shell.
 
-2. (Optional) Build and install some missing dependencies in the MSYS2 repository.
+2. Build and install Wireshark using the MSYS2 PKGBUILD:
 
-    $ cd $srcdir/packaging/msys2/mingw-w64-bcg729
+    $ cp -r $srcdir/packaging/msys2/mingw-w64-wireshark-git ./$builddir
+    $ cd $builddir
     $ makepkg-mingw -si
 
-    $ cd $srcdir/packaging/msys2/mingw-w64-libsmi
-    $ makepkg-mingw -si
-
-    $ cd $srcdir/packaging/msys2/mingw-w64-sbc
-    $ makepkg-mingw -si
-
-3. Build and install Wireshark
-
-    $ cd $srcdir/packaging/msys2/mingw-w64-wireshark-git
-    $ makepkg-mingw -si
-
-The application should be launched using the same shell (UCRT64 in this case).
+The application should be launched using the same shell.
 
 Currently the MSYS2 build has the following limitations compared to
 the build using Visual Studio (MSVC):
@@ -41,13 +31,13 @@ the build using Visual Studio (MSVC):
 
 * Lua version is 5.1 (MSVC uses Lua 5.2) and does not have UTF-8 patches[1]. 
 
-* Kerberos dependency for enhanced Kerberos dissection is not available
-  in the repositories.
+* Enhanced Kerberos dissection with decryption is not available.
 
-* AirPcap is not available and there is no plan to support it.
+* AirPcap SDK is not available. AirPcap is EOL and currently there is no plan to
+  add support for it with MSYS2 builds.
 
-* There is currently no way to build a stand-alone distributable binary
-  installer, similar to the Wireshark NSIS installer using MSVC.
+* TODO: Add a stand-alone distributable binary installer that can be
+  deployed outside the MSYS2 environment.
 
 References:
 

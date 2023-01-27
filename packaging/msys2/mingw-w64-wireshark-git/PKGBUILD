@@ -10,8 +10,7 @@ arch=('any')
 mingw_arch=('mingw64' 'ucrt64' 'clang64')
 url="https://www.wireshark.org"
 license=('GPL2')
-depends=(
-#         "${MINGW_PACKAGE_PREFIX}-bcg729"
+depends=("${MINGW_PACKAGE_PREFIX}-bcg729"
          "${MINGW_PACKAGE_PREFIX}-brotli"
          "${MINGW_PACKAGE_PREFIX}-c-ares"
          "${MINGW_PACKAGE_PREFIX}-glib2"
@@ -20,7 +19,7 @@ depends=(
          "${MINGW_PACKAGE_PREFIX}-libilbc"
          "${MINGW_PACKAGE_PREFIX}-libmaxminddb"
          "${MINGW_PACKAGE_PREFIX}-libpcap"
-#         "${MINGW_PACKAGE_PREFIX}-libsmi"
+         "${MINGW_PACKAGE_PREFIX}-libsmi"
          "${MINGW_PACKAGE_PREFIX}-libssh"
          "${MINGW_PACKAGE_PREFIX}-libxml2"
          "${MINGW_PACKAGE_PREFIX}-lua51"
@@ -32,7 +31,7 @@ depends=(
          "${MINGW_PACKAGE_PREFIX}-qt6-base"
          "${MINGW_PACKAGE_PREFIX}-qt6-multimedia"
          "${MINGW_PACKAGE_PREFIX}-qt6-5compat"
-#         "${MINGW_PACKAGE_PREFIX}-sbc"
+         "${MINGW_PACKAGE_PREFIX}-sbc"
          "${MINGW_PACKAGE_PREFIX}-snappy"
          "${MINGW_PACKAGE_PREFIX}-spandsp"
          "${MINGW_PACKAGE_PREFIX}-speexdsp"
