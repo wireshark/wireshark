@@ -691,6 +691,10 @@ static int hf_nfs4_io_error_op = -1;
 static int hf_nfs4_io_hints_mask = -1;
 static int hf_nfs4_io_hint_count = -1;
 static int hf_nfs4_io_advise_hint = -1;
+static int hf_nfs4_cb_recall_any_objs = -1;
+static int hf_nfs4_cb_recall_any_count = -1;
+static int hf_nfs4_cb_recall_any_mask = -1;
+static int hf_nfs4_cb_recall_any_item = -1;
 static int hf_nfs4_bytes_copied = -1;
 static int hf_nfs4_read_plus_contents = -1;
 static int hf_nfs4_read_plus_content_type = -1;
@@ -8700,6 +8704,49 @@ dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK, NULL);
 }
 
+static const value_string cb_recall_any_names[] = {
+/* RFC 5661 Network File System (NFS) Version 4 Minor Version 1 Protocol */
+#define RCA4_TYPE_MASK_RDATA_DLG		0
+	{	RCA4_TYPE_MASK_RDATA_DLG,		"Read Delegation"	},
+#define RCA4_TYPE_MASK_WDATA_DLG		1
+	{	RCA4_TYPE_MASK_WDATA_DLG,		"Write Delegation"	},
+#define RCA4_TYPE_MASK_DIR_DLG			2
+	{	RCA4_TYPE_MASK_DIR_DLG,			"Directory Delegation"	},
+#define RCA4_TYPE_MASK_FILE_LAYOUT		3
+	{	RCA4_TYPE_MASK_FILE_LAYOUT,		"File Layout"	},
+#define RCA4_TYPE_MASK_BLK_LAYOUT		4
+	{	RCA4_TYPE_MASK_BLK_LAYOUT,		"Block Layout"	},
+#define RCA4_TYPE_MASK_OBJ_LAYOUT_MIN		8
+	{	RCA4_TYPE_MASK_OBJ_LAYOUT_MIN,		"Object Layout Min"	},
+#define RCA4_TYPE_MASK_OBJ_LAYOUT_MAX		9
+	{	RCA4_TYPE_MASK_OBJ_LAYOUT_MAX,		"Object Layout Max"	},
+#define RCA4_TYPE_MASK_OTHER_LAYOUT_MIN		12
+	{	RCA4_TYPE_MASK_OTHER_LAYOUT_MIN,	"Other Layout Min"	},
+#define RCA4_TYPE_MASK_OTHER_LAYOUT_MAX		15
+	{	RCA4_TYPE_MASK_OTHER_LAYOUT_MAX,	"Other Layout Max"	},
+
+/* RFC 8435 Parallel NFS (pNFS) Flexible File Layout */
+#define RCA4_TYPE_MASK_FF_LAYOUT_MIN		16
+	{	RCA4_TYPE_MASK_FF_LAYOUT_MIN,		"Flexible File Layout Min"	},
+#define RCA4_TYPE_MASK_FF_LAYOUT_MAX		17
+	{	RCA4_TYPE_MASK_FF_LAYOUT_MAX,		"Flexible File Layout Max"	},
+	{	0,	NULL	}
+};
+static value_string_ext cb_recall_any_names_ext = VALUE_STRING_EXT_INIT(cb_recall_any_names);
+
+static int
+dissect_nfs4_cb_recall_any_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	static nfs4_bitmap_info_t bitmap_info = {
+		.vse_names_ext = &cb_recall_any_names_ext,
+		.hf_mask_count = &hf_nfs4_cb_recall_any_count,
+		.hf_mask_label = &hf_nfs4_cb_recall_any_mask,
+		.hf_item_label = &hf_nfs4_cb_recall_any_item,
+	};
+
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK, NULL);
+}
+
 static int
 dissect_nfs4_app_data_block(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *hash)
 {
@@ -11603,9 +11650,12 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_CB_LAYOUTRECALL:
 			offset = dissect_nfs4_cb_layoutrecall(tvb, offset, newftree, pinfo, civ);
 			break;
+		case NFS4_OP_CB_RECALL_ANY:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_cb_recall_any_objs, offset);
+			offset = dissect_nfs4_cb_recall_any_mask(tvb, offset, pinfo, newftree);
+			break;
 		case NFS4_OP_CB_NOTIFY:
 		case NFS4_OP_CB_PUSH_DELEG:
-		case NFS4_OP_CB_RECALL_ANY:
 		case NFS4_OP_CB_RECALLABLE_OBJ_AVAIL:
 		case NFS4_OP_CB_RECALL_SLOT:
 			break;
@@ -14183,6 +14233,22 @@ proto_register_nfs(void)
 		{ &hf_nfs4_io_advise_hint, {
 			"Hint", "nfs.hint.hint", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
 			&io_advise_names_ext, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_cb_recall_any_objs, {
+			"Objects to keep", "nfs.objects_to_keep", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_cb_recall_any_count, {
+			"Number of masks", "nfs.mask.count", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_cb_recall_any_mask, {
+			"Type mask", "nfs.mask", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_cb_recall_any_item, {
+			"Type", "nfs.mask.item", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+			&cb_recall_any_names_ext, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_bytes_copied, {
 			"bytes copied", "nfs.bytes_copied", FT_UINT64, BASE_DEC,
