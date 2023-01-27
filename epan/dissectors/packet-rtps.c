@@ -244,6 +244,7 @@ static dissector_table_t rtps_type_name_table;
 
 /* Traffic type */
 #define PORT_BASE                       (7400)
+#define DOMAIN_GAIN                     (250)
 #define PORT_METATRAFFIC_UNICAST        (0)
 #define PORT_USERTRAFFIC_MULTICAST      (1)
 #define PORT_METATRAFFIC_MULTICAST      (2)
@@ -2621,7 +2622,7 @@ typedef struct _coherent_set_track {
 static coherent_set_track coherent_set_tracking;
 static wmem_map_t * registry = NULL;
 static reassembly_table rtps_reassembly_table;
-static wmem_map_t *discovered_tcp_participants;
+static wmem_map_t *discovered_participants_domain_ids;
 
 static const fragment_items rtps_frag_items = {
     &ett_rtps_fragment,
@@ -6281,6 +6282,13 @@ static void rtps_util_store_type_mapping(packet_info *pinfo _U_, tvbuff_t *tvb, 
     }
 }
 
+static guint hash_by_participant_guid(gconstpointer key) {
+  const endpoint_guid* guid = (const endpoint_guid*)key;
+  gint vals[] = { guid->host_id, guid->app_id, guid->instance_id };
+  GBytes* gbytes = g_bytes_new(vals, sizeof(vals));
+  return g_bytes_hash(gbytes);
+}
+
 static guint hash_by_guid(gconstpointer key) {
   const endpoint_guid * guid = (const endpoint_guid *) key;
   DISSECTOR_ASSERT(guid->fields_present & GUID_HAS_APP_ID);
@@ -6289,6 +6297,12 @@ static guint hash_by_guid(gconstpointer key) {
 
 static gboolean compare_by_guid(gconstpointer guid_a, gconstpointer guid_b) {
   return memcmp(guid_a, guid_b, sizeof(endpoint_guid)) == 0;
+}
+
+static gboolean compare_by_participant_guid(gconstpointer guid_a, gconstpointer guid_b) {
+  const endpoint_guid* a = (const endpoint_guid*)guid_a;
+  const endpoint_guid* b = (const endpoint_guid*)guid_b;
+  return ((a->host_id == b->host_id) && (a->app_id == b->app_id) && (a->instance_id == b->instance_id));
 }
 
 static guint get_domain_id_from_tcp_discovered_participants(wmem_map_t *map, endpoint_guid* key) {
@@ -7146,21 +7160,19 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
       } else {
         ENSURE_LENGTH(4);
         proto_tree_add_item(rtps_parameter_tree, hf_rtps_domain_id, tvb, offset, 4, encoding);
-        /* If using TCP we need to store the information of the domainId for that participant guid */
-        if (pinfo->ptype == PT_TCP) {
-          /* Each packet stores its participant guid in the private table. This is done in dissect_rtps */
-          endpoint_guid *participant_guid = (endpoint_guid*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_TCPMAP_DOMAIN_ID_PROTODATA_KEY);
-          if (participant_guid != NULL) {
-            /* Since this information is fixed there is no need to update in a second pass */
-            if (!wmem_map_contains(discovered_tcp_participants, participant_guid)) {
-              gint domainId = tvb_get_gint32(tvb, offset, encoding);
-              participant_info *p_info = (participant_info*)wmem_new(wmem_file_scope(), participant_info);
-              p_info->domainId = domainId;
-              endpoint_guid *participant_guid_copy = (endpoint_guid*)wmem_memdup(wmem_file_scope(),
-                participant_guid, sizeof(endpoint_guid));
-              wmem_map_insert(discovered_tcp_participants,
-                (const void*)participant_guid_copy, (void*)p_info);
-            }
+
+        /* Each packet stores its participant guid in the private table. This is done in dissect_rtps */
+        endpoint_guid *participant_guid = (endpoint_guid*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_TCPMAP_DOMAIN_ID_PROTODATA_KEY);
+        if (participant_guid != NULL) {
+          /* Since this information is fixed there is no need to update in a second pass */
+          if (!wmem_map_contains(discovered_participants_domain_ids, participant_guid)) {
+            gint domainId = tvb_get_gint32(tvb, offset, encoding);
+            participant_info *p_info = (participant_info*)wmem_new(wmem_file_scope(), participant_info);
+            p_info->domainId = domainId;
+            endpoint_guid *participant_guid_copy = (endpoint_guid*)wmem_memdup(wmem_file_scope(),
+              participant_guid, sizeof(endpoint_guid));
+            wmem_map_insert(discovered_participants_domain_ids,
+              (const void*)participant_guid_copy, (void*)p_info);
           }
         }
       }
@@ -13206,33 +13218,32 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       /* If using TCP domainId cannot deduced from the port. It must be taken from the participant
        * discovery packets or Unknown.
        */
-      domain_id = (pinfo->ptype == PT_TCP) ?
-        get_domain_id_from_tcp_discovered_participants(discovered_tcp_participants, &guid) :
-        ((pinfo->destport - PORT_BASE)/10) % 100;
+      domain_id = get_domain_id_from_tcp_discovered_participants(discovered_participants_domain_ids, &guid);
+      if (pinfo->ptype != PT_TCP && domain_id == RTPS_UNKNOWN_DOMAIN_ID_VAL) {
+        domain_id = ((pinfo->destport - PORT_BASE) / 10) % 100;
+        is_domain_id_calculated = TRUE;
+      }
       participant_idx = (pinfo->destport - PORT_BASE) / 1000;
-      nature    = (pinfo->destport % 10);
+      nature = (pinfo->destport % 10);
     } else {
-        if (pinfo->ptype == PT_TCP || pinfo->destport < PORT_BASE) {
-          domain_id = get_domain_id_from_tcp_discovered_participants(discovered_tcp_participants, &guid);
-        } else {
-          domain_id = (pinfo->destport - PORT_BASE) / 250;
-          is_domain_id_calculated = TRUE;
-        }
-      /*
-      domain_id = (pinfo->ptype == PT_TCP) ?
-        get_domain_id_from_tcp_discovered_participants(discovered_tcp_participants, &guid) :
-        (pinfo->destport - PORT_BASE) / 250;
-      */
-      doffset = (pinfo->destport - PORT_BASE - domain_id * 250);
+      domain_id = get_domain_id_from_tcp_discovered_participants(discovered_participants_domain_ids, &guid);
+      if (pinfo->ptype != PT_TCP && pinfo->destport > PORT_BASE && domain_id == RTPS_UNKNOWN_DOMAIN_ID_VAL) {
+        domain_id = (pinfo->destport - PORT_BASE) / DOMAIN_GAIN;
+        is_domain_id_calculated = TRUE;
+      }
+      doffset = (pinfo->destport - PORT_BASE - domain_id * DOMAIN_GAIN);
       if (doffset == 0) {
         nature = PORT_METATRAFFIC_MULTICAST;
-      } else if (doffset == 1) {
+      }
+      else if (doffset == 1) {
         nature = PORT_USERTRAFFIC_MULTICAST;
-      } else {
+      }
+      else {
         participant_idx = (doffset - 10) / 2;
-        if ( (doffset - 10) % 2 == 0) {
+        if ((doffset - 10) % 2 == 0) {
           nature = PORT_METATRAFFIC_UNICAST;
-        } else {
+        }
+        else {
           nature = PORT_USERTRAFFIC_UNICAST;
         }
       }
@@ -13252,7 +13263,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         (version < 0x0200)) {
       mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
                         ett_rtps_default_mapping, NULL, "Default port mapping%s: domainId=%s, "
-                        "participantIdx=%d, nature=%s %s",
+                        "participantIdx=%d, nature=%s",
                         not_accuracy_str,
                         domain_id_str,
                         participant_idx,
@@ -13260,8 +13271,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     } else {
       mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
                         ett_rtps_default_mapping, NULL, "Default port mapping%s: %s, domainId=%s",
-                        val_to_str(nature, nature_type_vals, "%02x"),
                         not_accuracy_str,
+                        val_to_str(nature, nature_type_vals, "%02x"),
                         domain_id_str);
     }
 
@@ -16304,7 +16315,7 @@ void proto_register_rtps(void) {
   coherent_set_tracking.coherent_set_registry_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), coherent_set_key_hash_by_key, compare_by_coherent_set_key);
 
   coherent_set_tracking.entities_using_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
-  discovered_tcp_participants = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
+  discovered_participants_domain_ids = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_participant_guid, compare_by_participant_guid);
   /* In order to get this dissector from other dissectors */
   register_dissector("rtps", dissect_simple_rtps, proto_rtps);
 
