@@ -452,13 +452,10 @@ mark_frame_as_depended_upon(frame_data *fd, guint32 frame_num)
 		/* ws_assert(frame_num < fd->num) - we assume in several other
 		 * places in the code that frames don't depend on future
 		 * frames. */
-		/* XXX: Looking to see if the frame is already there is slow
-		 * if there's a lot of dependent frames, so this should
-		 * be a hash table or something.
-		 */
-		if (g_slist_find(fd->dependent_frames, GUINT_TO_POINTER(frame_num)) == NULL) {
-			fd->dependent_frames = g_slist_prepend(fd->dependent_frames, GUINT_TO_POINTER(frame_num));
+		if (fd->dependent_frames == NULL) {
+			fd->dependent_frames = g_hash_table_new(g_direct_hash, g_direct_equal);
 		}
+		g_hash_table_insert(fd->dependent_frames, GUINT_TO_POINTER(frame_num), NULL);
 	}
 }
 

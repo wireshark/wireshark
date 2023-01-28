@@ -299,7 +299,7 @@ frame_data_reset(frame_data *fdata)
   }
 
   if (fdata->dependent_frames) {
-    g_slist_free(fdata->dependent_frames);
+    g_hash_table_destroy(fdata->dependent_frames);
     fdata->dependent_frames = NULL;
   }
 }
@@ -313,7 +313,7 @@ frame_data_destroy(frame_data *fdata)
   }
 
   if (fdata->dependent_frames) {
-    g_slist_free(fdata->dependent_frames);
+    g_hash_table_destroy(fdata->dependent_frames);
     fdata->dependent_frames = NULL;
   }
 }
