@@ -54,8 +54,9 @@ void PacketListRecord::ensureColorized(capture_file *cap_file)
 
     bool dissect_color = !colorized_ || ( color_ver_ != rows_color_ver_ );
     if (dissect_color) {
-        /* Do not dissect columns to avoid thrashing cache */
-        dissect(cap_file, false, dissect_color);
+        /* Dissect columns only if it won't evict anything from cache */
+        bool dissect_columns = col_text_cache_.totalCost() < col_text_cache_.maxCost();
+        dissect(cap_file, dissect_columns, dissect_color);
     }
 }
 
