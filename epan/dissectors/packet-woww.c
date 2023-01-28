@@ -248,6 +248,7 @@ static int hf_woww_coded = -1;
 static int hf_woww_comment = -1;
 static int hf_woww_compressed_chat_data = -1;
 static int hf_woww_compressed_data = -1;
+static int hf_woww_compressed_move_opcode = -1;
 static int hf_woww_container_slots = -1;
 static int hf_woww_content = -1;
 static int hf_woww_cooldown_count = -1;
@@ -706,6 +707,7 @@ static int hf_woww_show_affiliation = -1;
 static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
 static int hf_woww_sin_angle = -1;
+static int hf_woww_size_struct = -1;
 static int hf_woww_skill = -1;
 static int hf_woww_skin = -1;
 static int hf_woww_skin_color = -1;
@@ -3888,6 +3890,24 @@ static const value_string e_inventory_type_strings[] =  {
 };
 
 typedef enum {
+    COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE = 0x0DD,
+    COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE_TRANSPORT = 0x2AE,
+    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_SET_RUN_SPEED = 0x2FE,
+    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_UNROOT = 0x304,
+    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_RUN_MODE = 0x30D,
+    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_WALK_MODE = 0x30E,
+} e_compressed_move_opcode;
+static const value_string e_compressed_move_opcode_strings[] =  {
+    { COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE, "Smsg Monster Move" },
+    { COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE_TRANSPORT, "Smsg Monster Move Transport" },
+    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_SET_RUN_SPEED, "Smsg Spline Set Run Speed" },
+    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_UNROOT, "Smsg Spline Move Unroot" },
+    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_RUN_MODE, "Smsg Spline Move Set Run Mode" },
+    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_WALK_MODE, "Smsg Spline Move Set Walk Mode" },
+    { 0, NULL }
+};
+
+typedef enum {
     FRIEND_STATUS_OFFLINE = 0x0,
     FRIEND_STATUS_ONLINE = 0x1,
     FRIEND_STATUS_AFK = 0x2,
@@ -3974,6 +3994,22 @@ static const value_string e_mail_type_strings[] =  {
     { MAIL_TYPE_CREATURE, "Creature" },
     { MAIL_TYPE_GAMEOBJECT, "Gameobject" },
     { MAIL_TYPE_ITEM, "Item" },
+    { 0, NULL }
+};
+
+typedef enum {
+    MONSTER_MOVE_TYPE_NORMAL = 0x0,
+    MONSTER_MOVE_TYPE_STOP = 0x1,
+    MONSTER_MOVE_TYPE_FACING_SPOT = 0x2,
+    MONSTER_MOVE_TYPE_FACING_TARGET = 0x3,
+    MONSTER_MOVE_TYPE_FACING_ANGLE = 0x4,
+} e_monster_move_type;
+static const value_string e_monster_move_type_strings[] =  {
+    { MONSTER_MOVE_TYPE_NORMAL, "Normal" },
+    { MONSTER_MOVE_TYPE_STOP, "Stop" },
+    { MONSTER_MOVE_TYPE_FACING_SPOT, "Facing Spot" },
+    { MONSTER_MOVE_TYPE_FACING_TARGET, "Facing Target" },
+    { MONSTER_MOVE_TYPE_FACING_ANGLE, "Facing Angle" },
     { 0, NULL }
 };
 
@@ -6652,22 +6688,6 @@ static const value_string e_player_chat_tag_strings[] =  {
 };
 
 typedef enum {
-    MONSTER_MOVE_TYPE_NORMAL = 0x0,
-    MONSTER_MOVE_TYPE_STOP = 0x1,
-    MONSTER_MOVE_TYPE_FACING_SPOT = 0x2,
-    MONSTER_MOVE_TYPE_FACING_TARGET = 0x3,
-    MONSTER_MOVE_TYPE_FACING_ANGLE = 0x4,
-} e_monster_move_type;
-static const value_string e_monster_move_type_strings[] =  {
-    { MONSTER_MOVE_TYPE_NORMAL, "Normal" },
-    { MONSTER_MOVE_TYPE_STOP, "Stop" },
-    { MONSTER_MOVE_TYPE_FACING_SPOT, "Facing Spot" },
-    { MONSTER_MOVE_TYPE_FACING_TARGET, "Facing Target" },
-    { MONSTER_MOVE_TYPE_FACING_ANGLE, "Facing Angle" },
-    { 0, NULL }
-};
-
-typedef enum {
     MOUNT_RESULT_INVALID_MOUNTEE = 0x0,
     MOUNT_RESULT_TOO_FAR_AWAY = 0x1,
     MOUNT_RESULT_ALREADY_MOUNTED = 0x2,
@@ -7480,6 +7500,42 @@ typedef enum {
 } e_faction_flag;
 
 typedef enum {
+    SPLINE_FLAG_NONE = 0x00000000,
+    SPLINE_FLAG_DONE = 0x00000001,
+    SPLINE_FLAG_FALLING = 0x00000002,
+    SPLINE_FLAG_UNKNOWN3 = 0x00000004,
+    SPLINE_FLAG_UNKNOWN4 = 0x00000008,
+    SPLINE_FLAG_UNKNOWN5 = 0x00000010,
+    SPLINE_FLAG_UNKNOWN6 = 0x00000020,
+    SPLINE_FLAG_UNKNOWN7 = 0x00000040,
+    SPLINE_FLAG_UNKNOWN8 = 0x00000080,
+    SPLINE_FLAG_RUN_MODE = 0x00000100,
+    SPLINE_FLAG_FLYING = 0x00000200,
+    SPLINE_FLAG_NO_SPLINE = 0x00000400,
+    SPLINE_FLAG_UNKNOWN12 = 0x00000800,
+    SPLINE_FLAG_UNKNOWN13 = 0x00001000,
+    SPLINE_FLAG_UNKNOWN14 = 0x00002000,
+    SPLINE_FLAG_UNKNOWN15 = 0x00004000,
+    SPLINE_FLAG_UNKNOWN16 = 0x00008000,
+    SPLINE_FLAG_FINAL_POINT = 0x00010000,
+    SPLINE_FLAG_FINAL_TARGET = 0x00020000,
+    SPLINE_FLAG_FINAL_ANGLE = 0x00040000,
+    SPLINE_FLAG_UNKNOWN19 = 0x00080000,
+    SPLINE_FLAG_CYCLIC = 0x00100000,
+    SPLINE_FLAG_ENTER_CYCLE = 0x00200000,
+    SPLINE_FLAG_FROZEN = 0x00400000,
+    SPLINE_FLAG_UNKNOWN23 = 0x00800000,
+    SPLINE_FLAG_UNKNOWN24 = 0x01000000,
+    SPLINE_FLAG_UNKNOWN25 = 0x02000000,
+    SPLINE_FLAG_UNKNOWN26 = 0x04000000,
+    SPLINE_FLAG_UNKNOWN27 = 0x08000000,
+    SPLINE_FLAG_UNKNOWN28 = 0x10000000,
+    SPLINE_FLAG_UNKNOWN29 = 0x20000000,
+    SPLINE_FLAG_UNKNOWN30 = 0x40000000,
+    SPLINE_FLAG_UNKNOWN31 = -0x7FFFFFFF,
+} e_spline_flag;
+
+typedef enum {
     UPDATE_FLAG_NONE = 0x00,
     UPDATE_FLAG_SELF = 0x01,
     UPDATE_FLAG_TRANSPORT = 0x02,
@@ -7517,42 +7573,6 @@ typedef enum {
     MOVEMENT_FLAGS_SAFE_FALL = 0x20000000,
     MOVEMENT_FLAGS_HOVER = 0x40000000,
 } e_movement_flags;
-
-typedef enum {
-    SPLINE_FLAG_NONE = 0x00000000,
-    SPLINE_FLAG_DONE = 0x00000001,
-    SPLINE_FLAG_FALLING = 0x00000002,
-    SPLINE_FLAG_UNKNOWN3 = 0x00000004,
-    SPLINE_FLAG_UNKNOWN4 = 0x00000008,
-    SPLINE_FLAG_UNKNOWN5 = 0x00000010,
-    SPLINE_FLAG_UNKNOWN6 = 0x00000020,
-    SPLINE_FLAG_UNKNOWN7 = 0x00000040,
-    SPLINE_FLAG_UNKNOWN8 = 0x00000080,
-    SPLINE_FLAG_RUN_MODE = 0x00000100,
-    SPLINE_FLAG_FLYING = 0x00000200,
-    SPLINE_FLAG_NO_SPLINE = 0x00000400,
-    SPLINE_FLAG_UNKNOWN12 = 0x00000800,
-    SPLINE_FLAG_UNKNOWN13 = 0x00001000,
-    SPLINE_FLAG_UNKNOWN14 = 0x00002000,
-    SPLINE_FLAG_UNKNOWN15 = 0x00004000,
-    SPLINE_FLAG_UNKNOWN16 = 0x00008000,
-    SPLINE_FLAG_FINAL_POINT = 0x00010000,
-    SPLINE_FLAG_FINAL_TARGET = 0x00020000,
-    SPLINE_FLAG_FINAL_ANGLE = 0x00040000,
-    SPLINE_FLAG_UNKNOWN19 = 0x00080000,
-    SPLINE_FLAG_CYCLIC = 0x00100000,
-    SPLINE_FLAG_ENTER_CYCLE = 0x00200000,
-    SPLINE_FLAG_FROZEN = 0x00400000,
-    SPLINE_FLAG_UNKNOWN23 = 0x00800000,
-    SPLINE_FLAG_UNKNOWN24 = 0x01000000,
-    SPLINE_FLAG_UNKNOWN25 = 0x02000000,
-    SPLINE_FLAG_UNKNOWN26 = 0x04000000,
-    SPLINE_FLAG_UNKNOWN27 = 0x08000000,
-    SPLINE_FLAG_UNKNOWN28 = 0x10000000,
-    SPLINE_FLAG_UNKNOWN29 = 0x20000000,
-    SPLINE_FLAG_UNKNOWN30 = 0x40000000,
-    SPLINE_FLAG_UNKNOWN31 = -0x7FFFFFFF,
-} e_spline_flag;
 
 typedef enum {
     SPELL_CAST_TARGET_FLAGS_SELF = 0x0000,
@@ -13702,10 +13722,6 @@ add_body_fields(guint32 opcode,
             add_packed_guid(ptv, pinfo);
             ptvcursor_add(ptv, hf_woww_allow_movement, 1, ENC_NA);
             break;
-        case SMSG_COMPRESSED_MOVES:
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
-            break;
         case SMSG_COOLDOWN_EVENT:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -17147,6 +17163,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_compressed_move_opcode,
+            { "Compressed Move Opcode", "woww.compressed.move.opcode",
+                FT_UINT16, BASE_HEX_DEC, VALS(e_compressed_move_opcode_strings), 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_container_slots,
             { "Container Slots", "woww.container.slots",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -19892,6 +19914,12 @@ proto_register_woww(void)
         { &hf_woww_sin_angle,
             { "Sin Angle", "woww.sin.angle",
                 FT_FLOAT, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_size_struct,
+            { "Size Struct", "woww.size.struct",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
