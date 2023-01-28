@@ -1194,12 +1194,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     if (dfcode != NULL) {
         fdata->passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
 
-        if (fdata->passed_dfilter) {
+        if (fdata->passed_dfilter && edt->pi.fd->dependent_frames) {
             /* This frame passed the display filter but it may depend on other
              * (potentially not displayed) frames.  Find those frames and mark them
              * as depended upon.
              */
-            g_slist_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+            g_hash_table_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
         }
     } else
         fdata->passed_dfilter = 1;

@@ -312,10 +312,10 @@ free_frame_data_sequence(frame_data_sequence *fds)
 }
 
 void
-find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
+find_and_mark_frame_depended_upon(gpointer key, gpointer value _U_, gpointer user_data)
 {
   frame_data   *dependent_fd;
-  guint32       dependent_frame = GPOINTER_TO_UINT(data);
+  guint32       dependent_frame = GPOINTER_TO_UINT(key);
   frame_data_sequence *frames   = (frame_data_sequence *)user_data;
 
   if (dependent_frame && frames) {
@@ -325,7 +325,9 @@ find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
      */
     if (!(dependent_fd->dependent_of_displayed || dependent_fd->passed_dfilter)) {
       dependent_fd->dependent_of_displayed = 1;
-      g_slist_foreach(dependent_fd->dependent_frames, find_and_mark_frame_depended_upon, frames);
+      if (dependent_fd->dependent_frames) {
+        g_hash_table_foreach(dependent_fd->dependent_frames, find_and_mark_frame_depended_upon, frames);
+      }
     }
   }
 }

@@ -3056,8 +3056,8 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
          * if a display filter was given and it matches this packet.
          */
         if (edt && cf->dfcode) {
-            if (dfilter_apply_edt(cf->dfcode, edt)) {
-                g_slist_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+            if (dfilter_apply_edt(cf->dfcode, edt) && edt->pi.fd->dependent_frames) {
+                g_hash_table_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
             }
 
             if (selected_frame_number != 0 && selected_frame_number == cf->count + 1) {
