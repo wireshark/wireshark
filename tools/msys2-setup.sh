@@ -57,6 +57,7 @@ PACKAGE_PREFIX="${MINGW_PACKAGE_PREFIX:-mingw-w64-x86_64}"
 #
 BASIC_LIST="base-devel \
 	git \
+	${PACKAGE_PREFIX}-bcg729 \
 	${PACKAGE_PREFIX}-brotli \
 	${PACKAGE_PREFIX}-c-ares \
 	${PACKAGE_PREFIX}-cmake \
@@ -67,6 +68,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-libmaxminddb \
 	${PACKAGE_PREFIX}-nghttp2 \
 	${PACKAGE_PREFIX}-libpcap \
+	${PACKAGE_PREFIX}-libsmi \
 	${PACKAGE_PREFIX}-libssh \
 	${PACKAGE_PREFIX}-libxml2 \
 	${PACKAGE_PREFIX}-lua51 \
@@ -80,6 +82,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-qt6-multimedia \
 	${PACKAGE_PREFIX}-qt6-tools \
 	${PACKAGE_PREFIX}-qt6-5compat \
+	${PACKAGE_PREFIX}-sbc \
 	${PACKAGE_PREFIX}-snappy \
 	${PACKAGE_PREFIX}-spandsp \
 	${PACKAGE_PREFIX}-speexdsp \
