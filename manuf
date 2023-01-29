@@ -44,24 +44,24 @@
 # https://gitlab.com/wireshark/wireshark/-/raw/master/manuf
 
 # https://standards-oui.ieee.org/cid/cid.csv:
-#   Content-Length: 13983
-#   Last-Modified: Sun, 22 Jan 2023 23:00:35 GMT
+#   Content-Length: 14062
+#   Last-Modified: Sun, 29 Jan 2023 15:00:37 GMT
 
 # https://standards-oui.ieee.org/iab/iab.csv:
 #   Content-Length: 381500
-#   Last-Modified: Sun, 22 Jan 2023 23:00:50 GMT
+#   Last-Modified: Sun, 29 Jan 2023 15:00:54 GMT
 
 # https://standards-oui.ieee.org/oui/oui.csv:
-#   Content-Length: 3096033
-#   Last-Modified: Sun, 22 Jan 2023 23:01:28 GMT
+#   Content-Length: 3096343
+#   Last-Modified: Sun, 29 Jan 2023 15:01:35 GMT
 
 # https://standards-oui.ieee.org/oui28/mam.csv:
-#   Content-Length: 506529
-#   Last-Modified: Sun, 22 Jan 2023 23:00:58 GMT
+#   Content-Length: 506699
+#   Last-Modified: Sun, 29 Jan 2023 15:01:03 GMT
 
 # https://standards-oui.ieee.org/oui36/oui36.csv:
-#   Content-Length: 478731
-#   Last-Modified: Sun, 22 Jan 2023 23:01:20 GMT
+#   Content-Length: 479297
+#   Last-Modified: Sun, 29 Jan 2023 15:01:24 GMT
 
 00:00:00	00:00:00	Officially Xerox, but 0:0:0:0:0:0 is more common
 00:00:01	Xerox	Xerox Corporation
@@ -16523,7 +16523,7 @@
 00:C0:37	Dynatem
 00:C0:38	RasterIm	Raster Image Processing System
 00:C0:39	Teridian	Teridian Semiconductor Corporation
-00:C0:3A	Men-Mikr	Men-Mikro Elektronik Gmbh
+00:C0:3A	duagonGe	duagon Germany GmbH
 00:C0:3B	Multiacc	Multiaccess Computing Corp.
 00:C0:3C	TowerTec	Tower Tech S.R.L.
 00:C0:3D	Wieseman	Wiesemann & Theis Gmbh
@@ -18296,6 +18296,7 @@
 0A:36:1C	Smardii
 0A:87:36	IEEE1901	IEEE 1901 Working Group
 0A:8E:62	DeltaSol	Delta Solutions LLC
+0A:A2:3B	Vitex	Vitex LLC
 0A:CD:8F	CiscoNor	Cisco Systems Norway
 0A:D9:C4	CraftDes	Craft Designs, Inc
 0A:E4:71	Caterpil	Caterpillar Inc.
@@ -20996,7 +20997,7 @@
 24:A0:74	Apple	Apple, Inc.
 24:A1:60	Espressi	Espressif Inc.
 24:A2:E1	Apple	Apple, Inc.
-24:A4:2C	KOUKAAM	KOUKAAM a.s.
+24:A4:2C	NETIOpro	NETIO products a.s.
 24:A4:3C	Ubiquiti	Ubiquiti Inc
 24:A4:87	HuaweiDe	Huawei Device Co., Ltd.
 24:A4:95	ThalesCa	Thales Canada Inc.
@@ -26117,6 +26118,8 @@
 54:08:3B:10:00:00/28	Annapurn	Annapurna labs
 54:08:3B:40:00:00/28	TorayMed	Toray Medical Company Limited
 54:08:3B:60:00:00/28	VectorAt	Vector Atomic
+54:08:3B:80:00:00/28	Update	Update Systems Inc.
+54:08:3B:A0:00:00/28	SilexIpa	Silex Ipari Automatizálási Zrt.
 54:09:10	Apple	Apple, Inc.
 54:09:55	zte	zte corporation
 54:09:8D	deistere	deister electronic GmbH
@@ -28236,6 +28239,7 @@
 68:F1:25	DataCont	Data Controls Inc.
 68:F3:8E	JuniperN	Juniper Networks
 68:F5:43	HuaweiTe	Huawei Technologies Co.,Ltd
+68:F6:3B	AmazonTe	Amazon Technologies Inc.
 68:F7:28	LCFCHeFe	LCFC(HeFei) Electronics Technology co., ltd
 68:F8:95	Redflow	Redflow Limited
 68:F9:56	Objetivo	Objetivos y Servicio de Valor Añadido
@@ -34762,6 +34766,7 @@
 80:BE:AF	Hangzhou	Hangzhou Hikvision Digital Technology Co.,Ltd.
 80:C1:6E	HewlettP	Hewlett Packard
 80:C3:BA	SonovaCo	Sonova Consumer Hearing GmbH
+80:C4:5D	IPGLaser	IPG Laser GmbH
 80:C5:01	OctoGate	OctoGate IT Security Systems GmbH
 80:C5:48	Shenzhen	Shenzhen Zowee Technology Co.,Ltd
 80:C5:E6	Microsof	Microsoft Corporation
@@ -35751,6 +35756,7 @@
 8C:1F:64:01:A0:00/36	Paragraf
 8C:1F:64:01:E0:00/36	SCIREQSc	SCIREQ Scientific Respiratory Equipment Inc
 8C:1F:64:02:40:00/36	ShinNiho	Shin Nihon Denshi Co., Ltd.
+8C:1F:64:02:50:00/36	SMITEC	SMITEC S.p.A.
 8C:1F:64:02:F0:00/36	SOLIDpow	SOLIDpower SpA
 8C:1F:64:03:30:00/36	IQHomeKf	IQ Home Kft.
 8C:1F:64:04:30:00/36	AperNet	AperNet, LLC
@@ -35831,6 +35837,7 @@
 8C:1F:64:17:C0:00/36	Zelp	Zelp Ltd
 8C:1F:64:17:E0:00/36	MI	MI Inc.
 8C:1F:64:18:70:00/36	Sicon	Sicon srl
+8C:1F:64:18:B0:00/36	M-Pulse	M-Pulse GmbH & Co.KG
 8C:1F:64:19:30:00/36	Sicon	Sicon srl
 8C:1F:64:19:40:00/36	Tiflex
 8C:1F:64:19:70:00/36	TEKVOX	TEKVOX, Inc
@@ -36478,6 +36485,7 @@
 8C:1F:64:BD:30:00/36	IOMaster	IO Master Technology
 8C:1F:64:BD:60:00/36	NOVAProd	NOVA Products GmbH
 8C:1F:64:BD:70:00/36	UnionEle	Union Electronic.
+8C:1F:64:BD:B0:00/36	Cardinal	Cardinal Scales Manufacturing Co
 8C:1F:64:BE:80:00/36	Technolo	Technologies Bacmove Inc.
 8C:1F:64:BE:E0:00/36	Sirius	Sirius LLC
 8C:1F:64:BF:00:00/36	Newtec	Newtec A/S
@@ -36562,9 +36570,11 @@
 8C:1F:64:D3:A0:00/36	AppliedM	Applied Materials
 8C:1F:64:D3:C0:00/36	KIBEnerg	"KIB Energo" LLC
 8C:1F:64:D4:00:00/36	BreasMed	Breas Medical AB
+8C:1F:64:D4:20:00/36	YUYAMAMF	YUYAMA MFG Co.,Ltd
 8C:1F:64:D4:40:00/36	MonarchI	Monarch Instrument
 8C:1F:64:D4:60:00/36	End2EndT	End 2 End Technologies
 8C:1F:64:D4:A0:00/36	Caproc	Caproc Oy
+8C:1F:64:D5:10:00/36	ZIGENLig	ZIGEN Lighting Solution co., ltd.
 8C:1F:64:D5:20:00/36	Critical	Critical Software SA
 8C:1F:64:D5:30:00/36	Gridnt
 8C:1F:64:D5:40:00/36	GrupoEpe	Grupo Epelsa S.L.
@@ -36603,6 +36613,7 @@
 8C:1F:64:DF:E0:00/36	Nuvation	Nuvation Energy
 8C:1F:64:E0:20:00/36	ITSTekni	ITS Teknik A/S
 8C:1F:64:E0:E0:00/36	Nokeval	Nokeval Oy
+8C:1F:64:E1:00:00/36	Scenario	Scenario Automation
 8C:1F:64:E1:20:00/36	PixusTec	Pixus Technologies Inc.
 8C:1F:64:E2:10:00/36	LG-LHTAi	LG-LHT Aircraft Solutions GmbH
 8C:1F:64:E2:D0:00/36	Private
@@ -40756,6 +40767,7 @@ B4:54:59	ChinaMob	China Mobile (Hangzhou) Information Technology Co., Ltd.
 B4:55:70	Borea
 B4:56:B9	Teraspek	Teraspek Technologies Co.,Ltd
 B4:56:E3	Apple	Apple, Inc.
+B4:56:FA	IOPSYSSo	IOPSYS Software Solutions
 B4:57:E6	Guangdon	Guangdong Oppo Mobile Telecommunications Corp.,Ltd
 B4:58:61	CRemote	CRemote, LLC
 B4:5C:A4	Thing-ta	Thing-talk Wireless Communication Technologies Corporation Limited
@@ -45719,6 +45731,7 @@ E8:47:3A	HonHaiPr	Hon Hai Precision Industry Co.,LTD
 E8:48:1F	Advanced	Advanced Automotive Antennas
 E8:48:B8	TP-Link	TP-Link Corporation Limited
 E8:49:43	YUGEInfo	YUGE Information technology Co. Ltd
+E8:4C:4A	AmazonTe	Amazon Technologies Inc.
 E8:4C:56	Intercep	Intercept Services Limited
 E8:4D:74	HuaweiTe	Huawei Technologies Co.,Ltd
 E8:4D:D0	HuaweiTe	Huawei Technologies Co.,Ltd

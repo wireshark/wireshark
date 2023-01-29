@@ -3231,17 +3231,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kişisel Lua Eklentileri</translation>
     </message>
     <message>
-        <source>Lua scripts</source>
-        <oldsource>lua scripts</oldsource>
-        <translation type="unfinished">lua betikleri</translation>
-    </message>
-    <message>
         <source>Global Lua Plugins</source>
         <translation>Genel Lua Eklentileri</translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
-        <translation type="vanished">Extcap Eklentileri arama yolu</translation>
+        <source>Lua scripts</source>
+        <translation>Lua betikleri</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3249,7 +3244,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>external capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>harici yakalama (extcap) eklentileri</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3403,11 +3398,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 stream not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QUIC streams not found on the selected packet.</source>
-        <translation type="vanished">QUIC akışları seçilen pakette bulunamadı.</translation>
+        <translation>Seçili pakette %1 akışı bulunamadı.</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -3428,10 +3419,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[Stream output truncated]</source>
         <translation>[Akış çıkışı kesildi]</translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
-        <translation type="vanished">Bir aktarım veya ağ katmanı başlığı gereklidir.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
@@ -13327,7 +13314,7 @@ a:üzerine gelin{
     </message>
     <message>
         <source>Websocket Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Websocket Akışı</translation>
     </message>
     <message>
         <source>SIP Call</source>

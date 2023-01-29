@@ -3227,17 +3227,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>个人 Lua 插件</translation>
     </message>
     <message>
-        <source>Lua scripts</source>
-        <oldsource>lua scripts</oldsource>
-        <translation type="unfinished">lua 脚本</translation>
-    </message>
-    <message>
         <source>Global Lua Plugins</source>
         <translation>全局 Lua 插件</translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
-        <translation type="vanished">Extcap 插件搜索路径</translation>
+        <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3420,10 +3415,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[Stream output truncated]</source>
         <translation>[流输出被截断]</translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
-        <translation type="vanished">需要传输层或网络层头部。</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>

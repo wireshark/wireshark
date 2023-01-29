@@ -3237,17 +3237,12 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Plugins Lua personnels</translation>
     </message>
     <message>
-        <source>Lua scripts</source>
-        <oldsource>lua scripts</oldsource>
-        <translation type="unfinished">scripts lua</translation>
-    </message>
-    <message>
         <source>Global Lua Plugins</source>
         <translation>Plugins Lua globaux</translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
-        <translation type="vanished">Chemin de recherche des plugins Extcap</translation>
+        <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3417,10 +3412,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QUIC streams not found on the selected packet.</source>
-        <translation type="vanished">Flux QUIC introuvables sur le paquet sélectionné.</translation>
-    </message>
-    <message>
         <source>Entire conversation (%1)</source>
         <translation>Conversation entière (%1)</translation>
     </message>
@@ -3439,10 +3430,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>[Stream output truncated]</source>
         <translation>[Sortie du flux tronquée]</translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
-        <translation type="vanished">Une en-tête de transport ou de la couche de réseau est nécessaire.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>

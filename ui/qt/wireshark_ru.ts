@@ -3247,17 +3247,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Личные Плагины Lua</translation>
     </message>
     <message>
-        <source>Lua scripts</source>
-        <oldsource>lua scripts</oldsource>
-        <translation type="unfinished">скрипты lua</translation>
-    </message>
-    <message>
         <source>Global Lua Plugins</source>
         <translation>Глобальные Плагины Lua</translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
-        <translation type="vanished">Путь поиска Плагинов Extcap</translation>
+        <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3432,10 +3427,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QUIC streams not found on the selected packet.</source>
-        <translation type="vanished">Потоки QUIC не найдены для выбранного пакета.</translation>
-    </message>
-    <message>
         <source>Entire conversation (%1)</source>
         <translation>Весь диалог (%1)</translation>
     </message>
@@ -3454,10 +3445,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[Stream output truncated]</source>
         <translation>[Вывод потока усечён]</translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
-        <translation type="vanished">Необходим заголовок транспортного или сетевого уровня.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>

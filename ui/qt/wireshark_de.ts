@@ -1558,7 +1558,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation>Pakte im pcap-ng Format mitschneiden</translation>
+        <translation>Pakete im pcap-ng Format mitschneiden</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3239,17 +3239,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Benutzerspezifische Lua Plugins</translation>
     </message>
     <message>
-        <source>Lua scripts</source>
-        <oldsource>lua scripts</oldsource>
-        <translation type="unfinished">lua scripts</translation>
-    </message>
-    <message>
         <source>Global Lua Plugins</source>
         <translation>Globale Lua Plugins</translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
-        <translation type="vanished">Suchpfad für Extcap Plugins</translation>
+        <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3419,10 +3414,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QUIC streams not found on the selected packet.</source>
-        <translation type="vanished">Keinen QUIC Stream für das ausgewählte Paket gefunden</translation>
-    </message>
-    <message>
         <source>Entire conversation (%1)</source>
         <translation>Gesamte Verbindung (%1)</translation>
     </message>
@@ -3441,10 +3432,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>[Stream output truncated]</source>
         <translation>[Streamausgabe gekürzt]</translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
-        <translation type="vanished">Ein Header der Transport- oder Netzwerkschicht wird benötigt.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>

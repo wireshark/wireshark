@@ -3239,17 +3239,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Personliga Lua-insticksmoduler</translation>
     </message>
     <message>
-        <source>Lua scripts</source>
-        <oldsource>lua scripts</oldsource>
-        <translation type="unfinished">lua-skript</translation>
-    </message>
-    <message>
         <source>Global Lua Plugins</source>
         <translation>Globala Lua-insticksmoduler</translation>
     </message>
     <message>
-        <source>Extcap Plugins search path</source>
-        <translation type="vanished">Extcap-insticksmodulers sökväg</translation>
+        <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3419,10 +3414,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QUIC streams not found on the selected packet.</source>
-        <translation type="vanished">QUIC-strömmar fanns inte i det valda paketet.</translation>
-    </message>
-    <message>
         <source>Entire conversation (%1)</source>
         <translation>Hela konversationen (%1)</translation>
     </message>
@@ -3441,10 +3432,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>[Stream output truncated]</source>
         <translation>[Strömutdatan avhuggen]</translation>
-    </message>
-    <message>
-        <source>A transport or network layer header is needed.</source>
-        <translation type="vanished">Ett huvud för transport- eller nätverksnivån behövs.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
