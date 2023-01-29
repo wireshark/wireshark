@@ -62,7 +62,9 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 # 40      Wireshark 3.7.0 Intel 64.dmg
 # 50      Wireshark dSYM 3.7.0 Intel 64.dmg
 
-format = defines.get('format', 'UDBZ')
+# https://developer.apple.com/forums/thread/128166
+# currently (Jan 2023) says to use UDZO
+format = defines.get('format', 'UDZO')
 
 # Compression level (if relevant)
 compression_level = 9
@@ -75,15 +77,15 @@ files = [
     os.path.join(ws_bindir, 'run', ws_app),
     os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_readme),
     os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_donate),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_path_helper),
 ]
 
 # Symlinks to create
 symlinks = {
     'Applications': '/Applications',
-    ws_install_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
-    ws_uninstall_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
-    ws_install_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
-    ws_uninstall_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_path_helper),
     }
 
 # Volume icon
