@@ -475,6 +475,7 @@ for plugin in "$pkgplugin"/*/*.so ; do
 done
 
 codesign_file () {
+	# https://developer.apple.com/forums/thread/128166
 	# https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html
 	# https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 	# https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/resolving_common_notarization_issues?language=objc

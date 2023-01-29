@@ -41,8 +41,11 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 # UDZO - UDIF zlib-compressed image
 # UDBZ - UDIF bzip2-compressed image (Mac OS X 10.4+ only)
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
+
 # Volume format (see hdiutil create -help)
-format = defines.get('format', 'UDBZ')
+# https://developer.apple.com/forums/thread/128166
+# currently (Jan 2023) says to use UDZO
+format = defines.get('format', 'UDZO')
 
 # Compression level (if relevant)
 compression_level = 9
@@ -54,15 +57,15 @@ size = None
 files = [
     os.path.join(ws_bindir, 'run', ws_app),
     os.path.join(ws_bindir, 'packaging', 'macosx', ws_readme),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
+    os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_path_helper),
 ]
 
 # Symlinks to create
 symlinks = {
     'Applications': '/Applications',
-    ws_install_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
-    ws_uninstall_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
-    ws_install_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
-    ws_uninstall_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_path_helper),
     }
 
 # Volume icon
