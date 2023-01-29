@@ -2647,7 +2647,7 @@ proto_register_eap(void)
       NULL, HFILL }},
 
     { &hf_eap_tls_outer_tlvs_len, {
-      "TEAP Outer TLVs Length", "eap.tls.len",
+      "TEAP Outer TLVs Length", "eap.tls.outer_tlvs_len",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
