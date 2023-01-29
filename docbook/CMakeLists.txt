@@ -39,24 +39,24 @@ set(GUIDE_INSTALL_DIRS)
 set(WSUG_TITLE "Wireshark User's Guide")
 
 set(WSUG_FILES
-	wsug_src/WSUG_app_files.adoc
-	wsug_src/WSUG_app_howitworks.adoc
-	wsug_src/WSUG_app_protocols.adoc
-	wsug_src/WSUG_app_messages.adoc
-	wsug_src/WSUG_app_tools.adoc
-	wsug_src/WSUG_chapter_advanced.adoc
-	wsug_src/WSUG_chapter_build_install.adoc
-	wsug_src/WSUG_chapter_capture.adoc
-	wsug_src/WSUG_chapter_customize.adoc
-	wsug_src/WSUG_chapter_introduction.adoc
-	wsug_src/WSUG_chapter_io.adoc
-	wsug_src/WSUG_chapter_mate.adoc
-	wsug_src/WSUG_chapter_statistics.adoc
-	wsug_src/WSUG_chapter_telephony.adoc
-	wsug_src/WSUG_chapter_troubleshoot.adoc
-	wsug_src/WSUG_chapter_use.adoc
-	wsug_src/WSUG_chapter_work.adoc
-	wsug_src/WSUG_preface.adoc
+	wsug_src/wsug_advanced.adoc
+	wsug_src/wsug_build_install.adoc
+	wsug_src/wsug_capture.adoc
+	wsug_src/wsug_customize.adoc
+	wsug_src/wsug_files.adoc
+	wsug_src/wsug_howitworks.adoc
+	wsug_src/wsug_introduction.adoc
+	wsug_src/wsug_io.adoc
+	wsug_src/wsug_mate.adoc
+	wsug_src/wsug_messages.adoc
+	wsug_src/wsug_preface.adoc
+	wsug_src/wsug_protocols.adoc
+	wsug_src/wsug_statistics.adoc
+	wsug_src/wsug_telephony.adoc
+	wsug_src/wsug_tools.adoc
+	wsug_src/wsug_troubleshoot.adoc
+	wsug_src/wsug_use.adoc
+	wsug_src/wsug_work.adoc
 	wsug_src/capinfos-h.txt
 	wsug_src/dumpcap-h.txt
 	wsug_src/editcap-F.txt
@@ -221,19 +221,19 @@ set(WSUG_GRAPHICS
 set(WSDG_TITLE "Wireshark Developer's Guide")
 
 set(WSDG_FILES
-	wsdg_src/WSDG_chapter_asn2wrs.adoc
-	wsdg_src/WSDG_chapter_build_intro.adoc
-	wsdg_src/WSDG_chapter_capture.adoc
-	wsdg_src/WSDG_chapter_dissection.adoc
-	wsdg_src/WSDG_chapter_env_intro.adoc
-	wsdg_src/WSDG_chapter_libraries.adoc
-	wsdg_src/WSDG_chapter_quick_setup.adoc
-	wsdg_src/WSDG_chapter_sources.adoc
-	wsdg_src/WSDG_chapter_tests.adoc
-	wsdg_src/WSDG_chapter_tools.adoc
-	wsdg_src/WSDG_chapter_userinterface.adoc
-	wsdg_src/WSDG_chapter_works.adoc
-	wsdg_src/WSDG_preface.adoc
+	wsdg_src/wsdg_asn2wrs.adoc
+	wsdg_src/wsdg_build_intro.adoc
+	wsdg_src/wsdg_capture.adoc
+	wsdg_src/wsdg_dissection.adoc
+	wsdg_src/wsdg_env_intro.adoc
+	wsdg_src/wsdg_libraries.adoc
+	wsdg_src/wsdg_quick_setup.adoc
+	wsdg_src/wsdg_sources.adoc
+	wsdg_src/wsdg_tests.adoc
+	wsdg_src/wsdg_tools.adoc
+	wsdg_src/wsdg_userinterface.adoc
+	wsdg_src/wsdg_works.adoc
+	wsdg_src/wsdg_preface.adoc
 	wsluarm.adoc
 	${COMMON_FILES}
 )
