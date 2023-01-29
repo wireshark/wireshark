@@ -2320,7 +2320,7 @@ proto_register_abis_oml(void)
 		},
 		{ &hf_attr_ipa_tr_f_qual,
 			{ "Frequency Quality", "gsm_abis_oml.fom.testrep.ipa.freq_qual",
-			  FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL }
+			  FT_UINT16, BASE_DEC, NULL, 0x00fc, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_f_err,
 			{ "Frequency Error", "gsm_abis_oml.fom.testrep.ipa.freq_err",

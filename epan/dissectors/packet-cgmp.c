@@ -98,7 +98,7 @@ proto_register_cgmp(void)
 			NULL, HFILL }},
 
 		{ &hf_cgmp_reserved,
-		{ "Reserved",	"cgmp.reserved", FT_UINT8, BASE_HEX, NULL, 0x0,
+		{ "Reserved",	"cgmp.reserved", FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_cgmp_count,

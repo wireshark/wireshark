@@ -4765,15 +4765,15 @@ proto_register_17221(void)
       },
       { &hf_adp_entity_id,
          { "Entity ID", "ieee17221.entity_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_adp_entity_model_id,
          { "Entity Model ID", "ieee17221.entity_model_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_adp_entity_cap,
          { "Entity Capabilities", "ieee17221.entity_capabilities",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* Entity Capability Flags Begin */
       { &hf_adp_entity_cap_efu_mode,
@@ -4823,11 +4823,11 @@ proto_register_17221(void)
       /* Entity Capability Flags End */
       { &hf_adp_talker_stream_srcs,
          { "Talker Stream Sources", "ieee17221.talker_stream_sources",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_adp_talker_cap,
          { "Talker Capabilities", "ieee17221.talker_capabilities",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* Talker Capability Flags Begin */
       { &hf_adp_talk_cap_implement,
@@ -4865,11 +4865,11 @@ proto_register_17221(void)
       /* Talker Capability Flags End */
       { &hf_adp_listener_stream_sinks,
          { "Listener Stream Sinks", "ieee17221.listener_stream_sinks",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_adp_listener_cap,
          { "Listener Capabilities", "ieee17221.listener_capabilities",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* Listener Capability Flags Begin */
       { &hf_adp_list_cap_implement,
@@ -4907,7 +4907,7 @@ proto_register_17221(void)
       /* Listener Capability Flags End */
       { &hf_adp_controller_cap,
          { "Controller Capabilities", "ieee17221.controller_capabilities",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* Controller Capability Flags Begin */
       { &hf_adp_cont_cap_implement,
@@ -4921,16 +4921,16 @@ proto_register_17221(void)
       /* Controller Capability Flags End */
       { &hf_adp_avail_index,
          { "Available Index", "ieee17221.available_index",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_adp_gptp_gm_id,
          { "gPTP Grandmaster ID", "ieee17221.gptp_grandmaster_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_adp_def_aud_format,
          { "Default Audio Format", "ieee17221.default_audio_format",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #endif
 #if 0
@@ -4979,7 +4979,7 @@ proto_register_17221(void)
       },
       { &hf_adp_def_aud_chan_formats,
          { "Channel Formats", "ieee17221.default_audio_format.channel_formats",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* Channel Formats Fields Start */
       { &hf_adp_chan_format_mono,
@@ -5052,17 +5052,17 @@ proto_register_17221(void)
 #if 0
       { &hf_adp_def_vid_format,
          { "Default Video Format", "ieee17221.default_video_format",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_adp_assoc_id,
          { "Association ID", "ieee17221.association_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_adp_entity_type,
          { "Entity Type", "ieee17221.entity_type",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #endif
       /*******************************************************************/
@@ -5080,43 +5080,43 @@ proto_register_17221(void)
       },
       { &hf_acmp_stream_id,
          { "Stream ID", "ieee17221.stream_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_controller_guid,
          { "Controller GUID", "ieee17221.controller_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_talker_guid,
          { "Talker GUID", "ieee17221.talker_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_listener_guid,
          { "Listener GUID", "ieee17221.listener_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_talker_unique_id,
          { "Talker Unique ID", "ieee17221.talker_unique_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_listener_unique_id,
          { "Listener Unique ID", "ieee17221.listener_unique_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_stream_dest_mac,
          { "Destination MAC address", "ieee17221.dest_mac",
-            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_connection_count,
          { "Connection Count", "ieee17221.connection_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_sequence_id,
          { "Sequence ID", "ieee17221.sequence_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_acmp_flags,
          { "Flags", "ieee17221.flags",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* ACMP Flags Begin */
       { &hf_acmp_flags_class_b,
@@ -5150,7 +5150,7 @@ proto_register_17221(void)
       /* ACMP Flags End */
       { &hf_acmp_vlan_id,
          { "Stream VLAN Id", "ieee17221.vlan_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /******* AECP ******/
       /* COMMON FIELDS */
@@ -5164,15 +5164,15 @@ proto_register_17221(void)
       },
       { &hf_aecp_target_guid,
          { "Target GUID", "ieee17221.target_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_controller_guid,
          { "Controller GUID", "ieee17221.controller_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_sequence_id,
          { "Sequence ID", "ieee17221.sequence_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_u_flag,
          { "U Flag", "ieee17221.u_flag",
@@ -5185,7 +5185,7 @@ proto_register_17221(void)
       /* Address Access Fields */
       { &hf_aecp_aa_count,
          { "Count", "ieee17221.count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_aa_tlv_mode,
          { "Tlv Mode", "ieee17221.tlv_mode",
@@ -5207,7 +5207,7 @@ proto_register_17221(void)
       },
       { &hf_aecp_descriptor_index,
          {"Descriptor Index", "ieee17221.descriptor_index",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* AECP Commands and Responses 1722.1 Sec 7.4 */
@@ -5218,13 +5218,13 @@ proto_register_17221(void)
       },
       { &hf_aecp_locked_guid,
          { "Locked GUID", "ieee17221.locked_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL}
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
       },
 
       /* READ_DESCRIPTOR */
       { &hf_aecp_configuration,
          { "Configuration", "ieee17221.configuration",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* WRITE_DESCRIPTOR */
@@ -5240,7 +5240,7 @@ proto_register_17221(void)
       },
       { &hf_aecp_owner_guid,
          { "Owner GUID", "ieee17221.owner_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* CONTROLLER_AVAILABLE */
@@ -5248,13 +5248,13 @@ proto_register_17221(void)
       /* SET_CLOCK_SOURCE / GET_CLOCK_SOURCE */
       { &hf_aecp_clock_source_id,
          { "Clock Source ID", "ieee17221.clock_source_id64",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* SET_STREAM_FORMAT */
       { &hf_aecp_stream_format,
          {"Stream Format", "ieee17221.stream_format64",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* GET_STREAM_FORMAT */
 
@@ -5265,15 +5265,15 @@ proto_register_17221(void)
       /* SET_SIGNAL_SELECTOR / GET_SIGNAL_SELECTOR */
       { &hf_aecp_signal_type,
          {"Signal Type", "ieee17221.signal_type",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_signal_index,
          {"Signal Index", "ieee17221.signal_index",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_signal_output,
          {"Signal Output", "ieee17221.signal_output",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* SET_MIXER / GET_MIXER */
@@ -5281,19 +5281,19 @@ proto_register_17221(void)
       /* SET_MATRIX / GET_MATRIX */
       { &hf_aecp_matrix_column,
          {"Matrix Column", "ieee17221.matrix_column",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_matrix_row,
          {"Matrix Row", "ieee17221.matrix_row",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_matrix_region_width,
          {"Region Width", "ieee17221.matrix_region_width",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_matrix_region_height,
          {"Region Height", "ieee17221.matrix_region_height",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_matrix_rep,
          {"Rep", "ieee17221.matrix_rep",
@@ -5309,12 +5309,12 @@ proto_register_17221(void)
       },
       { &hf_aecp_matrix_item_offset,
          {"Item Offset", "ieee17221.matrix_item_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aecp_matrix_affected_item_count,
          {"Affected Item Count", "ieee17221.matrix_affected_item_count",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
@@ -5325,20 +5325,20 @@ proto_register_17221(void)
       /* GET_AVB_INFO */
       { &hf_aecp_avb_info_ptp_grandmaster_id,
          {"gPTP Grandmaster ID", "ieee17221.avb_info_gptp_grandmaster_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_info_propegation_delay,
          {"Propagation Delay", "ieee17221.avb_info_propagation_delay",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_info_gptp_domain_number,
          {"gPTP Domain Number", "ieee17221.avb_info_gptp_domain_number",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aecp_avb_info_flags,
          {"Flags", "ieee17221.avbinfo_flags",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
@@ -5359,53 +5359,53 @@ proto_register_17221(void)
 
       { &hf_aecp_avb_info_msrp_mappings_count,
          {"MSRP Mappings Count", "ieee17221.msrp_mappings_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_avb_info_msrp_mappings,
          {"MSRP Mappings", "ieee17221.msrp_mappings",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_avb_info_msrp_mapping_traffic_class,
          {"MSRP Mapping Traffic Class", "ieee17221.msrp_mapping_traffic_class",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_info_msrp_mapping_priority,
          {"MSRP Mapping Priority", "ieee17221.msrp_mapping_priority",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_get_avb_info_msrp_vlan_id,
          {"MSRP VLAN ID", "ieee17221.msrp_vlan_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_map_index,
          {"Map Index", "ieee17221.map_index",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_number_of_maps,
          {"Number of Maps", "ieee17221.number_of_maps",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* GET_STREAM_INFO */
       { &hf_aecp_msrp_accumulated_latency,
          {"MSRP Accumulated Latency", "ieee17221.msrp_accumulated_latency",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_msrp_failure_code,
          {"MSRP Failure Code", "ieee17221.msrp_failure_code",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_msrp_failure_bridge_id,
          {"MSRP Failure Bridge ID", "ieee17221.msrp_failure_bridge_id",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aecp_stream_vlan_id,
          {"Stream VLAN ID", "ieee17221.stream_vlan_id",
-             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_aecp_stream_vlan_id_valid_flag,
@@ -5440,44 +5440,44 @@ proto_register_17221(void)
       /* SET_NAME / GET_NAME */
       { &hf_aecp_name_index,
          {"Name Index", "ieee17221.name_index",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_configuration_index,
          {"Configuration Index", "ieee17221.configuration_index",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_name,
          {"Name", "ieee17221.name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       /* SET_ASSOCIATION_ID / GET_ASSOCIATION_ID */
       { &hf_aecp_association_id,
          {"Association ID", "ieee17221.association_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* GET_AS_PATH */
       { &hf_aecp_as_path_count,
          {"Count", "ieee17221.as_path_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_as_path_sequences,
          {"Path Sequence", "ieee17221.as_path_sequences",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_get_as_info_clock_id,
          { "ClockId", "ieee17221.get_as_info_clock_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* AUTH_ADD_KEY */
       { &hf_aecp_keychain_id,
          {"Keychain ID", "ieee17221.keychain_id",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_keychain_id_small,
          {"Keychain ID", "ieee17221.keychain_id_small",
@@ -5489,7 +5489,7 @@ proto_register_17221(void)
       },
       { &hf_aecp_key_signature,
          {"Key Signature", "ieee17221.key_signature",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aecp_key_number,
@@ -5555,20 +5555,20 @@ proto_register_17221(void)
 
       { &hf_aecp_keychain_list_index,
          {"Keychain List Index", "ieee17221.keychain_list_index",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_keychain_number_of_keys,
          {"Keychain Number of Keys", "ieee17221.keychain_number_of_keys",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_keychain_number_of_lists,
          {"Keychain Number of Lists", "ieee17221.keychain_number_of_lists",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_key_eui,
          {"Key EUI", "ieee17221.key_eui",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_token_length,
          {"Token Length", "ieee17221.token_length",
@@ -5576,15 +5576,15 @@ proto_register_17221(void)
       },
       { &hf_aecp_key,
          {"Key", "ieee17221.key",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_auth_token,
          {"Auth Token", "ieee17221.auth_token",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_flags_32,
          {"Flags", "ieee17221.flags",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* AUTH_GET_KEY */
@@ -5715,122 +5715,122 @@ proto_register_17221(void)
       /* Counters */
       { &hf_aecp_avb_interface_link_up,
          {"Link Up", "ieee17221.link_up",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_link_down,
          {"Link Down", "ieee17221.link_down",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_packets_tx,
          {"Frames TX", "ieee17221.frames_tx",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_packets_rx,
          {"Frames RX", "ieee17221.frames_rx",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_rx_crc_error,
          {"RX CRC Error", "ieee17221.rx_crc_error",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_gptp_gm_changed,
          {"GPTP GM Changed", "ieee17221.gptp_gm_changed",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_clock_domain_unlocked,
          {"Clock Domain Unlocked", "ieee17221.clock_domain_unlocked",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_clock_domain_locked,
          {"Clock_Domain Locked", "ieee17221.clock_domain_locked",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_stream_input_media_unlocked,
          {"Media Unlocked", "ieee17221.media_unlocked",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_media_locked,
          {"Media Locked", "ieee17221.media_locked",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_stream_reset,
          {"Stream Reset", "ieee17221.stream_reset",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_seq_num_mismatch,
          {"Seq Num Mismatch", "ieee17221.seq_num_mismatch",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_media_reset,
          {"Media Reset", "ieee17221.media_reset",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_timestamp_uncertain,
          {"Timestamp Uncertain", "ieee17221.timestamp_uncertain",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_timestamp_valid,
          {"Timestamp Valid", "ieee17221.timestamp",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_timestamp_not_valid,
          {"Timestamp Not Valid", "ieee17221.timestamp_not",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_unsupported_format,
          {"Unsupported Format", "ieee17221.unsupported_format",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_late_timestamp,
          {"Late Timestamp", "ieee17221.late_timestamp",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_early_timestamp,
          {"Early Timestamp", "ieee17221.early_timestamp",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_packets_tx,
          {"Stream Packets TX", "ieee17221.stream_packets_tx",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_stream_input_packets_rx,
          {"Stream Packets RX", "ieee17221.stream_packets_rx",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_entity_specific1,
          {"Entity Specific 1", "ieee17221.entity_specific1",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific2,
          {"Entity Specific 2", "ieee17221.entity_specific2",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific3,
          {"Entity Specific 3", "ieee17221.entity_specific3",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific4,
          {"Entity Specific 4", "ieee17221.entity_specific4",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific5,
          {"Entity Specific 5", "ieee17221.entity_specific5",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific6,
          {"Entity Specific 6", "ieee17221.entity_specific6",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific7,
          {"Entity Specific 7", "ieee17221.entity_specific7",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_entity_specific8,
          {"Entity Specific 8", "ieee17221.entity_specific8",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* REBOOT */
@@ -5839,13 +5839,13 @@ proto_register_17221(void)
 #if 0
       { &hf_aecp_media_format,
          {"Media Format", "ieee17221.media_format",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
       { &hf_aecp_video_format,
          {"Video Format", "ieee17221.video_format",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aecp_sampling_rate_pull,
@@ -5867,16 +5867,16 @@ proto_register_17221(void)
 #endif
       { &hf_aecp_mac_address,
          { "MAC address", "ieee17221.mac_address",
-            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aecp_ipv4_address,
          {"IPV4 Address", "ieee17221.ipv4_address",
-            FT_IPv4, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_ipv6_address,
          {"IPv6 Address", "ieee17221.ipv6_address",
-            FT_IPv6, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
@@ -5886,11 +5886,11 @@ proto_register_17221(void)
 #if 0
       { &hf_aecp_query_period,
          {"Query Period (ms)", "ieee17221.query_period",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_query_limit,
          {"Query Limit", "ieee17221.query_limit",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_query_type,
          {"Query Type", "ieee17221.query_type",
@@ -5898,7 +5898,7 @@ proto_register_17221(void)
       },
       { &hf_aecp_query_id,
          {"Query ID", "ieee17221.query_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
@@ -5908,28 +5908,28 @@ proto_register_17221(void)
 #if 0
       { &hf_aecp_count,
          {"Count", "ieee17221.count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_descriptors,
          {"Descriptors Array", "ieee17221.descriptors",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       /* INCREMENT_CONTROL_VALUE / DECREMENT_CONTROL_VALUE */
       { &hf_aecp_values_count,
          {"Values Count", "ieee17221.values_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
       /* START_OPERATION */
       { &hf_aecp_operation_id,
          {"Operation ID", "ieee17221.operation_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_operation_type,
          {"Operation Type", "ieee17221.operation_type",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },/* draft spec says this is defined by control_type field *
          * start_operation does not include a control type field *
          * There is an operation type table 7.83 that has not    *
@@ -5941,7 +5941,7 @@ proto_register_17221(void)
       /* OPERATION_STATUS */
       { &hf_aecp_percent_complete,
          {"Percent Complete", "ieee17221.percent_complete",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* AUTH_GET_KEY_COUNT */
@@ -5953,11 +5953,11 @@ proto_register_17221(void)
       /* hf_aecp_descriptor_index */
       { &hf_aem_entity_id,
          {"Entity ID", "ieee17221.entity_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_entity_model_id,
          {"Entity Model ID", "ieee17221.entity_model_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* hf_adp_entity_cap
        * hf_adp_entity_cap_avdecc_ip
@@ -5977,240 +5977,240 @@ proto_register_17221(void)
       /* where appropriate use adp values */
       { &hf_aem_entity_name,
          {"Entity Name", "ieee17221.entity_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_vendor_name_string,
          {"Vendor Name String (ptr)", "ieee17221.vendor_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_model_name_string,
          {"Model Name String (ptr)", "ieee17221.model_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_firmware_version,
          {"Firmware Version", "ieee17221.firmware_version",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_group_name,
          {"Group Name", "ieee17221.group_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_serial_number,
          {"Serial Number", "ieee17221.serial_number",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_configurations_count,
          {"Configurations Count", "ieee17221.configurations_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_current_configuration,
          {"Current Configuration", "ieee17221.current_configuration",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* CONFIGURATION */
       { &hf_aem_configuration_name,
          {"Object Name", "ieee17221.configuration_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_configuration_name_string,
          {"Localized Description", "ieee17221.configuration_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_descriptor_counts_count,
          {"Descriptor Counts Count", "ieee17221.descriptor_counts_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_descriptor_counts_offset,
          {"Descriptor Counts Offset", "ieee17221.descriptor_counts_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_count,
          {"Count", "ieee17221.count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* AUDIO */
       { &hf_aem_number_of_stream_input_ports,
          {"Number Of Stream Input Ports", "ieee17221.number_of_stream_input_ports",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_stream_input_port,
          {"Base Stream Input Port", "ieee17221.base_stream_input_port",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_stream_output_ports,
          {"Number Of Stream Output Ports", "ieee17221.number_of_stream_output_ports",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_stream_output_port,
          {"Base Stream Output Port", "ieee17221.base_stream_output_port",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_external_input_ports,
          {"Number Of External Input Ports", "ieee17221.number_of_external_input_ports",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_external_input_port,
          {"Base External Input Port", "ieee17221.base_external_input_port",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_external_output_ports,
          {"Number Of External Output Ports", "ieee17221.number_of_external_output_ports",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_external_output_port,
          {"Base External Output Port", "ieee17221.base_external_output_port",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_internal_input_ports,
          {"Number Of Internal Input Ports", "ieee17221.number_of_internal_input_ports",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_internal_input_port,
          {"Base Internal Input Port", "ieee17221.base_internal_input_port",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_internal_output_ports,
          {"Number Of Internal Output Ports", "ieee17221.number_of_internal_output_ports",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_internal_output_port,
          {"Base Internal Output Port", "ieee17221.base_internal_output_port",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_source_id,
          {"Clock Source ID", "ieee17221.clock_source_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_domain_id,
          {"Clock Domain ID", "ieee17221.clock_domain_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_sources_offset,
          {"Clock Sources Offset", "ieee17221.clock_sources_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_source_index,
          {"Clock Source Index", "ieee17221.clock_source_index",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_sources_count,
          {"Clock Sources Count", "ieee17221.clock_sources_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_sources,
          {"Clock Sources", "ieee17221.clock_sources",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_sources_array,
          {"Clock Sources Array", "ieee17221.clock_sources_array",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_controls,
          {"Number Of Controls", "ieee17221.number_of_controls",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_control,
          {"Base Control", "ieee17221.base_control",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_control_blocks,
          {"Number Of Control Blocks", "ieee17221.number_of_control_blocks",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_control_block,
          {"Base Control Block", "ieee17221.base_control_block",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_object_name,
          {"Object Name", "ieee17221.object_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_localized_description,
          {"Localized Description", "ieee17221.localized_description",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_current_sample_rate,
          {"Current Sample Rate", "ieee17221.current_sample_rate",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_signal_selectors,
          {"Number of Signal Selectors", "ieee17221.num_signal_selectors",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_signal_selector,
          {"Base Signal Selector", "ieee17221.base_signal_selector",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_mixers,
          {"Number of Mixers", "ieee17221.num_mixers",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_mixer,
          {"Base Mixer", "ieee17221.base_mixer",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_matrices,
          {"Number of Matrices", "ieee17221.num_matrices",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_matrix,
          {"Base Matrix", "ieee17221.base_matrix",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_splitters,
          {"Number of Splitters", "ieee17221.num_splitters",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_splitter,
          {"Base Splitter", "ieee17221.base_splitter",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_combiners,
          {"Number of Combiners", "ieee17221.num_combiners",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_combiner,
          {"Base Combiner", "ieee17221.base_combiner",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_demultiplexers,
          {"Number of Demultiplexers", "ieee17221.num_demultiplexer",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_demultiplexer,
          {"Base Demultiplexer", "ieee17221.base_demultiplexer",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_multiplexers,
          {"Number of Multiplexers", "ieee17221.num_multiplexers",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_multiplexer,
          {"Base Multiplexer", "ieee17221.base_multiplexer",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_transcoders,
          {"Number of Transcoders", "ieee17221.num_transcoders",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_transcoder,
          {"Base Transcoder", "ieee17221.base_transcoder",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       /* sample rate is 3 bit pull field multiplier and 29 bit base freq in Hz */
       { &hf_aem_sample_rates_offset,
          {"Sample Rates Offset", "ieee17221.sample_rates_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_sample_rates_count,
          {"Sample Rates Count", "ieee17221.sample_rates_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_sample_rates,
          {"Sample Rates", "ieee17221.sample_rates",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       { &hf_aem_base_frequency,
@@ -6230,15 +6230,15 @@ proto_register_17221(void)
       /* STREAM_OUTPUT */
       { &hf_aem_stream_name,
          {"Object Name", "ieee17221.stream_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_stream_name_string,
          {"Localized Description", "ieee17221.stream_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_stream_flags,
          {"Stream Flags", "ieee17221.stream_flags",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_flags_clock_sync_source,
          {"Clock Sync Source Flag", "ieee17221.flags.clock_sync_source",
@@ -6255,85 +6255,85 @@ proto_register_17221(void)
 #if 0
       { &hf_aem_stream_channels,
          {"Stream Channels", "ieee17221.stream_channels",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_aem_formats_offset,
          {"Formats Offset", "ieee17221.formats_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_formats,
          {"Number Of Formats", "ieee17221.number_of_formats",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backup_talker_guid_0,
          {"Primary Backup Talker GUID", "ieee17221.backup_talker_guid_0",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backup_talker_unique_0,
          {"Primary Backup Talker Unique ID", "ieee17221.backup_talker_unique_0",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backup_talker_guid_1,
          {"Secondary Backup Talker GUID", "ieee17221.backup_talker_guid_1",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backup_talker_unique_1,
          {"Secondary Backup Talker Unique ID", "ieee17221.backup_talker_unique_1",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backup_talker_guid_2,
          {"Tertiary Backup Talker GUID", "ieee17221.backup_talker_guid_2",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backup_talker_unique_2,
          {"Tertiary Backup Talker Unique ID", "ieee17221.backup_talker_unique_2",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backedup_talker_guid,
          {"Backedup Talker GUID", "ieee17221.backedup_talker_guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_backedup_talker_unique,
          {"Backedup Talker Unique ID", "ieee17221.backedup_talker_unique",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_interface_id,
          {"AVB Interface ID", "ieee17221.avb_interface_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_buffer_length,
          {"Buffer Length", "ieee17221.buffer_length",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* array head. uses ett_aem_stream_formats */
       { &hf_aem_stream_formats,
          {"Stream Formats Array", "ieee17221.stream_formats",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       /* EXTERNAL_JACK_INPUT */
       /* EXTERNAL_JACK_OUTPUT*/
       { &hf_aem_jack_name,
          {"Object Name", "ieee17221.jack_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_jack_name_string,
          {"Localized Description", "ieee17221.jack_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_interface_name,
          {"Interface Name", "ieee17221.interface_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_interface_name_string,
          {"Interface Name String", "ieee17221.interface_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_jack_flags,
          {"Jack Flags", "ieee17221.jack_flags",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_flags_captive,
          {"Captive Flag", "ieee17221.flags.captive",
@@ -6347,7 +6347,7 @@ proto_register_17221(void)
       /* AUDIO_PORT_OUTPUT */
       { &hf_aem_port_flags,
          {"Port Flags", "ieee17221.port_flags",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_flags_async_sample_rate_conv,
          {"Asynchronous Sample Rate Converter Flag", "ieee17221.flags.async_sample_rate_conv",
@@ -6360,35 +6360,35 @@ proto_register_17221(void)
 #if 0
       { &hf_aem_audio_channels,
          {"Audio Channels", "ieee17221.audio_channels",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_aem_number_of_clusters,
          {"Number of Clusters", "ieee17221.number_of_clusters",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_cluster,
          {"Base Cluster", "ieee17221.base_cluster",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_audio_map,
          {"Base Audio Map", "ieee17221.base_audio_map",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_audio_maps,
          {"Number of Audio Maps", "ieee17221.num_audio_maps",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       /* VIDEO_PORT_INPUT */
       /* VIDEO_PORT_OUTPUT */
 #if 0
       { &hf_aem_stream_id,
          {"Stream Descriptor ID", "ieee17221.stream_descriptor_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_formats_count,
          {"Formats Count", "ieee17221.formats_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
@@ -6396,7 +6396,7 @@ proto_register_17221(void)
       /* EXTERNAL_PORT_OUTPUT */
       { &hf_aem_jack_id,
          {"Jack ID", "ieee17221.jack_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       /* SENSOR_PORT_INPUT */
       /* SENSOR_PORT_OUTPUT */
@@ -6405,65 +6405,65 @@ proto_register_17221(void)
 #if 0
       { &hf_aem_internal_id,
          {"Internal ID", "ieee17221.internal_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
       /* AVB_INTERFACE */
      { &hf_aem_avb_interface_flags,
          {"Interface Flags", "ieee17221.interface_flags",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_clock_identity,
          {"Clock Identity", "ieee17221.clock_identity",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_priority1,
          {"Priority1", "ieee17221.priority1",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_clock_class,
          {"Clock Class", "ieee17221.clock_class",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_offset_scaled_log_variance,
          {"Scaled Log Variance", "ieee17221.offset_scaled_log_variance",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_clock_accuracy,
          {"Clock Accuracy", "ieee17221.clock_accuracy",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_priority2,
          {"Priority2", "ieee17221.priority2",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_domain_number,
          {"Domain Number", "ieee17221.domain_number",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_avb_log_sync_interval,
          {"Log sync Interval", "ieee17221.log_sync_interval",
-            FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aem_avb_propagation_delay,
          {"Propagation Delay", "ieee17221.propagation_delay",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
       /* CLOCK_SOURCE */
       { &hf_aem_clock_source_name,
          {"Object Name", "ieee17221.clock_source_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_source_name_string,
          {"Localized Description", "ieee17221.clock_source_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_clock_source_flags,
          {"Clock Source Flags", "ieee17221.clock_source_flags",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       }, /* no flags currently defined */
       { &hf_aem_clock_source_type,
          {"Clock Source Type", "ieee17221.clock_source_type",
@@ -6475,65 +6475,65 @@ proto_register_17221(void)
       },
       { &hf_aem_clock_source_location_id,
          {"Clock Source Location ID", "ieee17221.clock_source_location_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       /* AUDIO_MAP */
       { &hf_aem_mappings_offset,
          {"Mappings Offset", "ieee17221.mappings_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_mappings,
          {"Number of Mappings", "ieee17221.number_of_mappings",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mappings,
          {"Mappings", "ieee17221.mappings",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mapping_stream_index,
          {"Mapping Stream Index", "ieee17221.mapping_stream_index",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mapping_stream_channel,
          {"Mapping Stream Channel", "ieee17221.mapping_stream_channel",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mapping_cluster_offset,
          {"Mapping Cluster Offset", "ieee17221.mapping_cluster_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mapping_cluster_channel,
          {"Mapping Cluster Channel", "ieee17221.mapping_cluster_channel",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       /* AUDIO_CLUSTER */
       { &hf_aem_channel_count,
          {"Channel Count", "ieee17221.channel_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_path_latency,
          {"Path Latency", "ieee17221.path_latency",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_am824_label,
          {"AM824 Label", "ieee17221.am824_label",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aem_cluster_name,
          {"Cluster Name", "ieee17221.cluster_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_cluster_name_string,
          {"Cluster Name String", "ieee17221.cluster_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
       /* CONTROL */
       { &hf_aem_control_type,
          {"Control Type", "ieee17221.control_type",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aem_control_location_type,
@@ -6542,7 +6542,7 @@ proto_register_17221(void)
       },
       { &hf_aem_control_location_id,
          {"Control Location ID", "ieee17221.control_location_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_aem_control_value_type,
@@ -6551,26 +6551,26 @@ proto_register_17221(void)
       },
       { &hf_aem_control_domain,
          {"Control Domain", "ieee17221.control_domain",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_values_offset,
          {"Values Offset", "ieee17221.values_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_values,
          {"Number Of Values", "ieee17221.number_of_values",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_control_latency,
          {"Control Latency", "ieee17221.control_latency",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* SIGNAL_SELECTOR */
 #if 0
       { &hf_aem_sources_offset,
          {"Sources Offset", "ieee17221.sources_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_current_signal_type,
          {"Current Signal Type", "ieee17221.current_signal_type",
@@ -6578,7 +6578,7 @@ proto_register_17221(void)
       },
       { &hf_aem_current_signal_id,
          {"Current Signal ID", "ieee17221.current_signal_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_default_signal_type,
          {"Default Signal Type", "ieee17221.default_signal_type",
@@ -6586,16 +6586,16 @@ proto_register_17221(void)
       },
       { &hf_aem_default_signal_id,
          {"Default Signal ID", "ieee17221.default_signal_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_aem_block_latency,
          {"Block Latency", "ieee17221.block_latency",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_reset_time,
          {"Reset Time", "ieee17221.reset_time",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_signal_type,
          {"Signal Type", "ieee17221.signal_type",
@@ -6603,75 +6603,75 @@ proto_register_17221(void)
       },
       { &hf_aem_signal_index,
          {"Signal Index", "ieee17221.signal_index",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_signal_output,
          {"Signal Output", "ieee17221.signal_output",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* MIXER */
 #if 0
       { &hf_aem_number_of_sources,
          {"Number of Sources", "ieee17221.number_of_sources",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_value_offset,
          {"Value Offset", "ieee17221.value_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* MATRIX */
       { &hf_aem_width,
          {"Width", "ieee17221.width",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_height,
          {"Height", "ieee17221.height",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_source,
          {"Base Source", "ieee17221.base_source",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_destinations,
          {"Number of Destinations", "ieee17221.num_destinations",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_destination,
          {"Base Destination", "ieee17221.base_destination",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #endif
 
       /* LOCALE */
       { &hf_aem_locale_identifier,
          {"Locale Identifier", "ieee17221.locale_identifier",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_number_of_strings,
          {"Number of Strings", "ieee17221.number_of_strings",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_base_strings,
          {"Base Strings", "ieee17221.base_strings",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
       /* STRINGS */
       { &hf_aem_string,
          {"String", "ieee17221.string",
-            FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       /* MATRIX SIGNAL */
       { &hf_aem_signals_count,
          {"Signals Count", "ieee17221.signals_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_signals_offset,
          {"Signals Offset", "ieee17221.signals_offset",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 
       /* MEMORY OBJECT */
@@ -6685,94 +6685,94 @@ proto_register_17221(void)
       },
       { &hf_aem_target_descriptor_id,
          {"Target Descriptor ID", "ieee17221.target_descriptor_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_start_address,
          {"Start Address", "ieee17221.start_address",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_length,
          {"Length", "ieee17221.length",
-            FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
 
 
       /* CONTROL VALUE TYPES */
       { &hf_aem_ctrl_int8,
          {"Control INT8", "ieee17221.ctrl_int8",
-            FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_uint8,
          {"Control UINT8", "ieee17221.ctrl_uint8",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_int16,
          {"Control INT16", "ieee17221.ctrl_int16",
-            FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_uint16,
          {"Control UINT16", "ieee17221.ctrl_uint16",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_int32,
          {"Control INT32", "ieee17221.ctrl_int32",
-            FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_uint32,
          {"Control UINT32", "ieee17221.ctrl_uint32",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_int64,
          {"Control INT64", "ieee17221.ctrl_int64",
-            FT_INT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_uint64,
          {"Control UINT64", "ieee17221.ctrl_uint64",
-            FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_float,
          {"Control FLOAT", "ieee17221.ctrl_float",
-            FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_double,
          {"Control DOUBLE", "ieee17221.ctrl_double",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_ctrl_vals,
          {"Control Values", "ieee17221.ctrl_vals",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_unit,
          {"Control Value Units", "ieee17221.units",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_string_ref,
          {"String Reference", "ieee17221.string_ref",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_guid,
          {"GUID", "ieee17221.guid",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_blob_size,
          {"Blob Size", "ieee17221.blob_size",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_binary_blob,
          {"Binary Blob", "ieee17221.binary_blob",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_sources,
          {"Sources", "ieee17221.sources",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_unknown_descriptor,
          {"Unknown or Malformed Descriptor", "ieee17221.unknown_descriptor",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_frequency,
          {"Frequency", "ieee17221.frequency",
-            FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 
       /* AEM MEDIA FORMAT FIELDS */
@@ -6782,7 +6782,7 @@ proto_register_17221(void)
 #if 0
       { &hf_aem_oui24,
          {"OUI-24", "ieee17221.oui24",
-            FT_UINT24, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mfd_type,
          {"MFD Type", "ieee17221.mfd_type",
@@ -6790,11 +6790,11 @@ proto_register_17221(void)
       },
       { &hf_aem_div,
          {"Div Flag", "ieee17221.div",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_interlace,
          {"Interlace Flag", "ieee17221.interlace",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_channels,
          {"Video Channel Count", "ieee17221.channels",
@@ -6810,15 +6810,15 @@ proto_register_17221(void)
       },
       { &hf_aem_aspect_x,
          {"Aspect X", "ieee17221.aspect_x",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_aspect_y,
          {"Aspect Y", "ieee17221.aspect_y",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_frame_rate,
          {"Frame Rate", "ieee17221.frame_rate",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_comp1,
          {"Comp 1", "ieee17221.comp1",
@@ -6838,21 +6838,21 @@ proto_register_17221(void)
       },
       { &hf_aem_mf_width,
          {"Width", "ieee17221.width",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_mf_height,
          {"Height", "ieee17221.height",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_cs_eui64,
          {"CS EUI64", "ieee17221.cs_eui64",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #endif
       /* BEGIN STREAM FORMAT (SF) FIELDS */
       { &hf_aem_stream_format,
          {"Stream Format", "ieee17221.stream_format",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_sf_version,
          {"Version", "ieee17221.sf_version",
@@ -6869,15 +6869,15 @@ proto_register_17221(void)
       },
       { &hf_aem_iidc_format,
          {"IIDC Format", "ieee17221.iidc_format",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_iidc_mode,
          {"IIDC Mode", "ieee17221.iidc_mode",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_iidc_rate,
          {"IIDC Rate", "ieee17221.iidc_rate",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_fmt,
          {"FMT", "ieee17221.fmt",
@@ -6893,7 +6893,7 @@ proto_register_17221(void)
       },
       { &hf_aem_dbs,
          {"DBS", "ieee17221.dbs",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_b_flag,
          {"Blocking Flag", "ieee17221.flags.b",
@@ -6905,11 +6905,11 @@ proto_register_17221(void)
       },
       { &hf_aem_label_iec_60958_cnt,
          {"Label IEC 60958 Count", "ieee17221.label_iec_60958_cnt",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_label_mbla_cnt,
          {"Label Multi-Bit Linear Audio Count", "ieee17221.label_mbla_cnt",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_label_midi_cnt,
          {"Label Midi Slot Count", "ieee17221.label_midi_cnt",
@@ -6921,20 +6921,20 @@ proto_register_17221(void)
       },
       { &hf_aem_video_mode,
          {"Video Mode", "ieee17221.video_mode",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_compress_mode,
          {"Compress Mode", "ieee17221.compress_mode",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aem_color_space,
          {"Color Space", "ieee17221.color_space",
-            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
 #if 0
       { &hf_aecp_values,
          {"Values", "ieee17221.values",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
 #endif
       { &hf_aecp_status_code,
@@ -6946,39 +6946,39 @@ proto_register_17221(void)
       /* SET/GET_STREAM_BACKUP */
       { &hf_aecp_backup_talker_entity_id_0,
          {"Backup Talker Entity ID 0", "ieee17221.backup_talker_entity_id_0",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backup_talker_unique_id_0,
          {"Backup Talker Unique ID 0", "ieee17221.backup_talker_unique_id_0",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backup_talker_entity_id_1,
          {"Backup Talker Entity ID 1", "ieee17221.backup_talker_entity_id_1",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backup_talker_unique_id_1,
          {"Backup Talker Unique ID 1", "ieee17221.backup_talker_unique_id_1",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backup_talker_entity_id_2,
          {"Backup Talker Entity ID 2", "ieee17221.backup_talker_entity_id_2",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backup_talker_unique_id_2,
          {"Backup Talker Unique ID 2", "ieee17221.backup_talker_unique_id_2",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backedup_talker_entity_id,
          {"Backed up Talker Entity ID", "ieee17221.backedup_talker_entity_id",
-            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_backedup_talker_unique_id,
          {"Backedup Talker Unique ID", "ieee17221.backedup_talker_unique_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_aecp_vendor_unique_protocol_id,
          {"Vendor Unique Protocol ID", "ieee17221.protocol_id",
-            FT_UINT48, BASE_HEX, NULL, 0x00, NULL, HFILL }
+            FT_UINT48, BASE_HEX, NULL, 0x0, NULL, HFILL }
       }
    };
 

@@ -3498,7 +3498,7 @@ proto_register_h264(void)
         },
         { &hf_h264_sei_ms_layer_desc_coded_width,
             { "Coded Width", "h264.sei.ms.layout.desc.coded_width",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_layer_desc_coded_height,

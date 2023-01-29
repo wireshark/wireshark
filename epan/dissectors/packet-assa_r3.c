@@ -8285,7 +8285,7 @@ void proto_register_r3 (void)
 
       { &hf_r3_firmwaredownload_length,
         { "Length", "r3.firmwaredownload.length",
-          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_r3_firmwaredownload_record,

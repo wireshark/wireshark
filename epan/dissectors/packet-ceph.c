@@ -7118,7 +7118,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_node_type, {
 			"Source Node Type", "ceph.node_type",
-			FT_UINT8, BASE_HEX, VALS(c_node_type_strings), 0,
+			FT_UINT32, BASE_HEX, VALS(c_node_type_strings), 0,
 			"The type of source node.", HFILL
 		} },
 		{ &hf_node_nonce, {
@@ -9301,7 +9301,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_msg_client_req_flags, {
 			"Flags", "ceph.msg.client_req.flags",
-			FT_UINT8, BASE_HEX, NULL, 0,
+			FT_UINT32, BASE_HEX, NULL, 0,
 			NULL, HFILL
 		} },
 		{ &hf_msg_client_req_retry, {
@@ -9601,7 +9601,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_msg_osd_opreply_ops_len, {
 			"Operation Count", "ceph.msg.osd_opreply.ops_len",
-			FT_UINT16, BASE_DEC, NULL, 0,
+			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
 		{ &hf_msg_osd_opreply_op, {
