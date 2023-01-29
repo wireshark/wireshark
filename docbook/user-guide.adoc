@@ -1,4 +1,3 @@
-//v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
 :doctype: book
 include::attributes.adoc[]
 
@@ -15,51 +14,51 @@ endif::[]
 
 :source-highlighter: coderay
 
-include::wsug_src/WSUG_preface.adoc[]
+include::wsug_src/wsug_preface.adoc[]
 
 include::common_src/typographic_conventions.adoc[]
 
 // Chapters
 
-include::wsug_src/WSUG_chapter_introduction.adoc[]
+include::wsug_src/wsug_introduction.adoc[]
 
-include::wsug_src/WSUG_chapter_build_install.adoc[]
+include::wsug_src/wsug_build_install.adoc[]
 
-include::wsug_src/WSUG_chapter_use.adoc[]
+include::wsug_src/wsug_use.adoc[]
 
-include::wsug_src/WSUG_chapter_capture.adoc[]
+include::wsug_src/wsug_capture.adoc[]
 
-include::wsug_src/WSUG_chapter_io.adoc[]
+include::wsug_src/wsug_io.adoc[]
 
-include::wsug_src/WSUG_chapter_work.adoc[]
+include::wsug_src/wsug_work.adoc[]
 
-include::wsug_src/WSUG_chapter_advanced.adoc[]
+include::wsug_src/wsug_advanced.adoc[]
 
-include::wsug_src/WSUG_chapter_statistics.adoc[]
+include::wsug_src/wsug_statistics.adoc[]
 
-include::wsug_src/WSUG_chapter_telephony.adoc[]
+include::wsug_src/wsug_telephony.adoc[]
 
-include::wsug_src/WSUG_chapter_wireless.adoc[]
+include::wsug_src/wsug_wireless.adoc[]
 
-include::wsug_src/WSUG_chapter_customize.adoc[]
+include::wsug_src/wsug_customize.adoc[]
 
-include::wsug_src/WSUG_chapter_mate.adoc[]
+include::wsug_src/wsug_mate.adoc[]
 
 // Needs to be reworked
-//include::wsug_src/WSUG_chapter_troubleshoot.adoc[]
+//include::wsug_src/wsug_troubleshoot.adoc[]
 
 // Appendices
-include::wsug_src/WSUG_app_messages.adoc[]
+include::wsug_src/wsug_messages.adoc[]
 
-include::wsug_src/WSUG_app_files.adoc[]
+include::wsug_src/wsug_files.adoc[]
 
-include::wsug_src/WSUG_app_protocols.adoc[]
+include::wsug_src/wsug_protocols.adoc[]
 
 // Needs to be reworked
-//include::wsug_src/WSUG_app_howitworks.adoc[]
+//include::wsug_src/wsug_howitworks.adoc[]
 
-include::wsug_src/WSUG_app_tools.adoc[]
+include::wsug_src/wsug_tools.adoc[]
 
 // License
 
-include::common_src/GPL_appendix.adoc[]
+include::common_src/gpl_appendix.adoc[]
