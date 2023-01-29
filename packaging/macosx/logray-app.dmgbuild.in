@@ -44,7 +44,9 @@ lr_uninstall_path_helper = 'Remove Logray from the system path.pkg'
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
 # Volume format (see hdiutil create -help)
 
-format = defines.get('format', 'UDBZ')
+# https://developer.apple.com/forums/thread/128166
+# currently (Jan 2023) says to use UDZO
+format = defines.get('format', 'UDZO')
 
 # Compression level (if relevant)
 compression_level = 9
@@ -61,10 +63,6 @@ files = [
 # Symlinks to create
 symlinks = {
     'Applications': '/Applications',
-    lr_install_chmodbpf: os.path.join(lr_app, 'Contents', 'Resources', 'Extras', lr_install_chmodbpf),
-    lr_uninstall_chmodbpf: os.path.join(lr_app, 'Contents', 'Resources', 'Extras', lr_uninstall_chmodbpf),
-    lr_install_path_helper: os.path.join(lr_app, 'Contents', 'Resources', 'Extras', lr_install_path_helper),
-    lr_uninstall_path_helper: os.path.join(lr_app, 'Contents', 'Resources', 'Extras', lr_uninstall_path_helper),
     }
 
 # Volume icon

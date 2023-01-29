@@ -39,6 +39,10 @@ lw_readme_dsym = 'Debugging symbols installation.html'
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
 # Volume format (see hdiutil create -help)
+
+# dSYMs are huge, so compress them with UDBZ despite what
+# https://developer.apple.com/forums/thread/128166
+# currently (Jan 2023) says.
 format = defines.get('format', 'UDBZ')
 
 # Compression level (if relevant)
