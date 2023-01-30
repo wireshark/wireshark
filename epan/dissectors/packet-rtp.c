@@ -149,6 +149,7 @@ static dissector_handle_t classicstun_heur_handle;
 static dissector_handle_t stun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
+static dissector_handle_t dtls_handle;
 static dissector_handle_t rtp_rfc2198_handle;
 
 static dissector_handle_t sprt_handle;
@@ -244,6 +245,7 @@ static int hf_rfc4571_header_len = -1;
 #define RTP0_CLASSICSTUN    2
 #define RTP0_T38     3
 #define RTP0_SPRT    4
+#define RTP0_RFC7983 5
 
 static const enum_val_t rtp_version0_types[] = {
     { "invalid", "Invalid or ZRTP packets", RTP0_INVALID },
@@ -251,9 +253,10 @@ static const enum_val_t rtp_version0_types[] = {
     { "classicstun", "CLASSIC-STUN packets", RTP0_CLASSICSTUN },
     { "t38", "T.38 packets", RTP0_T38 },
     { "sprt", "SPRT packets", RTP0_SPRT },
+    { "rfc7983", "Multiplexed as in RFC 7983", RTP0_RFC7983 },
     { NULL, NULL, 0 }
 };
-static gint global_rtp_version0_type = 0;
+static gint global_rtp_version0_type = 5;
 
 /* Forward declaration we need below */
 void proto_register_rtp(void);
@@ -1219,6 +1222,12 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     octet1 = tvb_get_guint8( tvb, offset );
     version = RTP_VERSION( octet1 );
 
+    /* XXX: Why are we calling these dissectors from the *heuristic*
+     * RTP dissector? These almost all have their own heuristic dissector,
+     * enabled by default (unlike RTP, which has a much less accurate
+     * heuristic.) We should just reject and let the protocols' own heuristic
+     * dissectors handle this.
+     */
     if (version == 0) {
         if (!(tvb_memeql(tvb, 4, (const guint8*)"ZRTP", 4)))
         {
@@ -1241,7 +1250,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 return TRUE;
 
             case RTP0_INVALID:
-
+            case RTP0_RFC7983:
             default:
                 return FALSE; /* Unknown or unsupported version */
             }
@@ -1946,14 +1955,55 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      * dissector RTP. In addition, STUN packets sharing one port are common
      * as well.
      *
-     * In practice, the default of RTP0_INVALID rejects packets and lets
-     * heuristic dissectors take a look. The STUN, ZRTP, and DTLS heuristic
-     * dissectors are all enabled by default so out of the box it more or
-     * less looks correct - at least on the second pass, on tshark there's
-     * incorrect RTP information in the tree.
-     * XXX: Maybe there should be a "according to RFC 7983" option in the enum?
+     * In practice, RTP0_INVALID rejects packets and lets heuristic dissectors
+     * take a look. The STUN, ZRTP, and DTLS heuristic dissectors are all
+     * enabled by default so out of the box it more or less looks correct - at
+     * least on the second pass, on tshark there's incorrect RTP information in
+     * the tree. However, the STUN heuristic dissector can change the
+     * dissector for the conversation to itself (the non-heuristic dissector
+     * does not), see #18832, and TURN ChannelData messages are impossible to
+     * heuristically detect.
      */
-    if (version == 0) {
+    if (global_rtp_version0_type == RTP0_RFC7983) {
+        switch (version) {
+        case 0:
+            if (octet1 < 4) {
+                call_dissector(stun_handle, tvb, pinfo, tree);
+                return tvb_captured_length(tvb);
+            } else if ((octet1 & 0xfc) == 0x10) {
+                call_dissector(zrtp_handle, tvb,pinfo, tree);
+                return tvb_captured_length(tvb);
+            } else if (octet1 > 19) {
+                call_dissector(dtls_handle, tvb,pinfo, tree);
+                return tvb_captured_length(tvb);
+            }
+            break;
+        case 1:
+            if (octet1 < 80) {
+                /* The STUN dissector will dissect TURN ChannelData
+                 * XXX: Maybe we should call the turnchannel dissector?
+                 *
+                 * Should we be assuming we have TURN ChannelData for
+                 * the RTP0_STUN and option too?
+                 */
+                call_dissector(stun_handle, tvb, pinfo, tree);
+                return tvb_captured_length(tvb);
+            }
+            break;
+        case 3:
+            if (octet1 == 0xFF) {
+                if (tvb_get_guint8( tvb, offset + 1 ) == 0x10) {
+                    /* Special MS-TURN Multiplexed TURN Channel */
+                    call_dissector(stun_handle, tvb, pinfo, tree);
+                    return tvb_captured_length(tvb);
+                }
+            }
+        /* FALLTHROUGH */
+        case 2:
+        default:
+            break;
+        }
+    } else if (version == 0) {
         switch (global_rtp_version0_type) {
         case RTP0_STUN:
             call_dissector(stun_handle, tvb, pinfo, tree);
@@ -3383,6 +3433,7 @@ proto_reg_handoff_rtp(void)
     stun_heur_handle = find_dissector_add_dependency("stun-heur", proto_rtp);
     t38_handle = find_dissector_add_dependency("t38_udp", proto_rtp);
     zrtp_handle = find_dissector_add_dependency("zrtp", proto_rtp);
+    dtls_handle = find_dissector_add_dependency("dtls", proto_rtp);
 
     sprt_handle = find_dissector_add_dependency("sprt", proto_rtp);
     v150fw_handle = find_dissector("v150fw");
