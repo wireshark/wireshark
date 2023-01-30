@@ -22,7 +22,7 @@ function(set_docbook_target_properties _target)
 endfunction(set_docbook_target_properties)
 
 set(COMMON_FILES
-	common_src/GPL_appendix.adoc
+	common_src/gpl_appendix.adoc
 	common_src/typographic_conventions.adoc
 )
 
