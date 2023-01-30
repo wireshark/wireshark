@@ -244,7 +244,7 @@ static const value_string greb_DT_DSL_prots[] = {
     {DT_ADSL_J, "ADSL2+ Annex J"},
 #define DT_VDSL 3
     {DT_VDSL, "VDSL2"},
-#define DT_VDSL_VEC 3
+#define DT_VDSL_VEC 4
     {DT_VDSL_VEC, "VDSL2 Vectoring"},
     {0, NULL}
 };
