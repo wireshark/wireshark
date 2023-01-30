@@ -5013,15 +5013,15 @@ proto_register_lldp(void)
 		},
 		{ &hf_dcbx_feature_pgid_prio_5,
 			{ "PGID for Prio 5", "lldp.dcbx.feature.pg.pgid_prio5", FT_UINT16, BASE_DEC,
-			NULL, 0xF00, 0, HFILL }
+			NULL, 0x0F00, 0, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_6,
 			{ "PGID for Prio 6", "lldp.dcbx.feature.pg.pgid_prio6", FT_UINT16, BASE_DEC,
-			NULL, 0xF0, 0, HFILL }
+			NULL, 0x00F0, 0, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_7,
 			{ "PGID for Prio 7", "lldp.dcbx.feature.pg.pgid_prio7", FT_UINT16, BASE_DEC,
-			NULL, 0xF, 0, HFILL }
+			NULL, 0x000F, 0, HFILL }
 		},
 		{ &hf_dcbx_feature_pg_per_0,
 			{ "Bandwidth for PGID 0", "lldp.dcbx.feature.pg.per0", FT_UINT8, BASE_DEC,
@@ -5777,11 +5777,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_media_l2_prio,
 			{ "L2 Priority", "lldp.media.l2_prio", FT_UINT24, BASE_DEC,
-			NULL, 0x1C0, NULL, HFILL }
+			NULL, 0x0001C0, NULL, HFILL }
 		},
 		{ &hf_media_dscp,
 			{ "DSCP Priority", "lldp.media.dscp", FT_UINT24, BASE_DEC,
-			NULL, 0x3F, NULL, HFILL }
+			NULL, 0x00003F, NULL, HFILL }
 		},
 		{ &hf_media_loc_data_format,
 			{ "Location Data Format", "lldp.media.loc.data_format", FT_UINT8, BASE_DEC,
@@ -6341,11 +6341,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_ex_avaya_mgnt_vlan,
 			{ "Mgmt VLAN", "lldp.extreme_avaya_ap.mgnt_vlan", FT_UINT24, BASE_DEC,
-			NULL, 0xfff, NULL, HFILL }
+			NULL, 0x000fff, NULL, HFILL }
 		},
 		{ &hf_ex_avaya_vlan,
 			{ "VLAN", "lldp.extreme_avaya_ap.vlan", FT_UINT16, BASE_DEC,
-			NULL, 0xfff, NULL, HFILL }
+			NULL, 0x0fff, NULL, HFILL }
 		},
 		{ &hf_ex_avaya_rsvd,
 			{ "Reserved", "lldp.extreme_avaya_ap.rsvd", FT_UINT8, BASE_DEC,

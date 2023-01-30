@@ -944,13 +944,13 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_request_conf_mtu,
       { "MTU",
         "tdma-v1.msg.request_conf.mtu",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         "TDMA MTU", HFILL }},
 
     { &hf_tdma_v1_msg_request_conf_cycle,
       { "Cycle",
         "tdma-v1.msg.request_conf.cycle",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "TDMA Cycle", HFILL }},
 
     /* TDMA ack conf */
@@ -970,13 +970,13 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_ack_conf_mtu,
       { "MTU",
         "tdma-v1.msg.ack_conf.mtu",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         "TDMA MTU", HFILL }},
 
     { &hf_tdma_v1_msg_ack_conf_cycle,
       { "Cycle",
         "tdma-v1.msg.ack_conf.cycle",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "TDMA Cycle", HFILL }},
 
     /* TDMA ack ack conf */

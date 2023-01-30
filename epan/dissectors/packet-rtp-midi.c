@@ -5123,7 +5123,7 @@ decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 				ett_rtp_midi_cj_chapter_e, NULL, RTP_MIDI_TREE_NAME_CJ_CHAPTER_E );
 
 	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_e_sflag, tvb, offset, 1, ENC_BIG_ENDIAN );
-	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_e_len, tvb, offset, 2, ENC_BIG_ENDIAN );
+	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_e_len, tvb, offset, 1, ENC_BIG_ENDIAN );
 
 	offset++;
 
@@ -5196,7 +5196,7 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	rtp_midi_cj_chapter_tree = proto_tree_add_subtree( tree, tvb, offset, 1 + ( log_count * 2 ), ett_rtp_midi_cj_chapter_a, NULL, RTP_MIDI_TREE_NAME_CJ_CHAPTER_A );
 
 	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_a_sflag, tvb, offset, 1, ENC_BIG_ENDIAN );
-	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_a_len, tvb, offset, 2, ENC_BIG_ENDIAN );
+	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_a_len, tvb, offset, 1, ENC_BIG_ENDIAN );
 
 	offset++;
 

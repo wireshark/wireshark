@@ -5839,7 +5839,7 @@ proto_register_usb(void)
 
         { &hf_usb_device_address,
           { "Device", "usb.device_address",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             "USB device address", HFILL }},
 
         { &hf_usb_bus_id,
@@ -6018,7 +6018,7 @@ proto_register_usb(void)
 
         { &hf_usb_win32_data_len,
           { "Packet Data Length", "usb.data_len",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_win32_control_stage,
@@ -6207,12 +6207,12 @@ proto_register_usb(void)
     /* --------------------------------- */
         { &hf_usb_iso_error_count,                /* host endian byte order */
           { "ISO error count", "usb.iso.error_count",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_iso_numdesc,
           { "Number of ISO descriptors", "usb.iso.numdesc",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         /* fields of struct mon_bin_isodesc from linux/drivers/usb/mon/mon_bin.c */
@@ -6811,7 +6811,7 @@ proto_register_usb(void)
         },
         { &hf_usbport_urb_header_status,
             { "URB Header Status",          "usbport.urb_header_status",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_usbport_urb_header_usbddevice_handle,

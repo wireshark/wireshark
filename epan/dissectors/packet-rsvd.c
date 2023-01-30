@@ -1111,11 +1111,11 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_disk_info_disk_type,
-                  { "DiskType", "rsvd.svhdx_disk_info_disk_type", FT_UINT16, BASE_HEX,
+                  { "DiskType", "rsvd.svhdx_disk_info_disk_type", FT_UINT32, BASE_HEX,
                      VALS(rsvd_disk_type_vals), 0, "Disk Type", HFILL }},
 
                 { &hf_svhdx_tunnel_disk_info_disk_format,
-                  { "DiskFormat", "rsvd.svhdx_disk_info_disk_format", FT_UINT16, BASE_HEX,
+                  { "DiskFormat", "rsvd.svhdx_disk_info_disk_format", FT_UINT32, BASE_HEX,
                      VALS(rsvd_disk_format_vals), 0, "Disk Format", HFILL }},
 
                 { &hf_svhdx_tunnel_disk_info_is_mounted,

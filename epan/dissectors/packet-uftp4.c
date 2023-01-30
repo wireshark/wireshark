@@ -2624,7 +2624,7 @@ void proto_register_uftp4(void)
         },
         { &hf_uftp_keyinfoack_reserved,
             { "Reserved", "uftp4.keyinfoack.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+            FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_keyinfoack_verify_data,
             { "Verify Data", "uftp4.keyinfoack.verify_data",

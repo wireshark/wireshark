@@ -4485,7 +4485,7 @@ static void decode_filter_rule_octext_string(proto_tree *tree, tvbuff_t *tvb, in
 			suboffset += 4;
 			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, suboffset, 4, ENC_BIG_ENDIAN);
 			suboffset += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, suboffset, 1, ENC_BIG_ENDIAN);
 			suboffset += 1;
 			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, suboffset, 1, ENC_BIG_ENDIAN);
 			suboffset += 1;

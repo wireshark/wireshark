@@ -256,7 +256,7 @@ proto_register_sync(void)
         },
         { &hf_sync_payload_crc,
             { "Payload CRC", "sync.payload_crc",
-            FT_UINT16, BASE_HEX, NULL, 0x3FF,
+            FT_UINT16, BASE_HEX, NULL, 0x03FF,
             NULL, HFILL }
         },
         { &hf_sync_length_of_packet,

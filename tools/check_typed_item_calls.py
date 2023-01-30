@@ -287,7 +287,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'bssgp.csg_id', 'tiff.t6.unused', 'artnet.ip_prog_reply.unused',
                                 'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu',
                                 'stun.type.method', # figure 3 in rfc 5389
-                                'tds.done.status' # covers all bits in bitset
+                                'tds.done.status', # covers all bits in bitset
+                                'hf_iax2_video_csub'  # RFC 5456, table 8.7
                               }
 ##################################################################################################
 
@@ -349,7 +350,16 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^ocfs2.dlm.lvb'),
         re.compile(r'^oran_fh_cus.reserved'),
         re.compile(r'^qnet6.kif.msgsend.msg.read.xtypes0-7'),
-        re.compile(r'^mih.sig_strength')
+        re.compile(r'^mih.sig_strength'),
+        re.compile(r'^couchbase.flex_frame.frame.len'),
+        re.compile(r'^nvme-rdma.read_to_host_req'),
+        re.compile(r'^rpcap.dummy'),
+        re.compile(r'^sflow.flow_sample.output_interface'),
+        re.compile(r'^socks.results'),
+        re.compile(r'^opa.mad.attributemodifier.p'),
+        re.compile(r'^v5ua.efa'),
+        re.compile(r'^zbncp.data.tx_power'),
+        re.compile(r'^zbncp.data.nwk_addr')
     ]
 
     for patt in ignore_patterns:

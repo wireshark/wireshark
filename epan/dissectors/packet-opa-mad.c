@@ -9927,7 +9927,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_PortInfo_BufferUnits_VL15CreditRate, {
                 "BufferUnits VL15Credit", "opa.portinfo.bufferunits.vl15credit",
-                FT_UINT32, BASE_HEX, NULL, 0x0000007C0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x000007C0, NULL, HFILL }
         },
         { &hf_opa_PortInfo_BufferUnits_CreditAck, {
                 "BufferUnits CreditAck", "opa.portinfo.bufferunits.creditack",
@@ -11011,7 +11011,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_MCMemberRecord_MLID, {
                 "MLID", "opa.mcmemberrecord.mlid",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_MCMemberRecord_MTUSelector, {
                 "MTU Selector", "opa.mcmemberrecord.mtuselector",
@@ -12216,11 +12216,11 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetGroupInfo_maxInternalMBps, {
                 "maxInternalMBps", "opa.pa.getgroupinfo.maxinternalmbps",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetGroupInfo_maxExternalMBps, {
                 "maxExternalMBps", "opa.pa.getgroupinfo.maxexternalmbps",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
 
         /* GetGroupConfig */
@@ -12928,7 +12928,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetImageInfo_lid, {
                 "lid", "opa.pa.getimageinfo.sminfo.lid",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetImageInfo_state, {
                 "state", "opa.pa.getimageinfo.sminfo.state",
@@ -13086,7 +13086,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFConfig_Port_NodeLID, {
                 "NodeLID", "opa.pa.getvfconfig.port.nodelid",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFConfig_Port_PortNumber, {
                 "PortNumber", "opa.pa.getvfconfig.port.portnumber",
@@ -13276,7 +13276,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFFocusPorts_nodeLID, {
                 "nodeLID", "opa.pa.getvffocusports.nodelid",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFFocusPorts_portNumber, {
                 "portNumber", "opa.pa.getvffocusports.portnumber",
@@ -13312,7 +13312,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFFocusPorts_neighborLid, {
                 "neighborLid", "opa.pa.getvffocusports.neighborlid",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFFocusPorts_neighborPortNumber, {
                 "neighborPortNumber", "opa.pa.getvffocusports.neighborportnumber",
