@@ -48,12 +48,15 @@ add_library(caputils STATIC
 
 target_link_libraries(caputils
 	PUBLIC
-		wsutil
 		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 	PRIVATE
+		wsutil
 		${NL_LIBRARIES}
 		${WIN_IPHLPAPI_LIBRARY}
 )
+if(WIN32)
+	target_link_libraries(caputils PRIVATE ${GMODULE2_LIBRARIES})
+endif()
 
 target_include_directories(caputils SYSTEM
 	PRIVATE

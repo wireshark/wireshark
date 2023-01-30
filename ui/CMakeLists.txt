@@ -40,7 +40,6 @@ set(NONGENERATED_UI_SRC
 	service_response_time.c
 	software_update.c
 	ssl_key_export.c
-	summary.c
 	tap_export_pdu.c
 	tap-iax2-analysis.c
 	tap-rtp-analysis.c
@@ -80,17 +79,28 @@ add_library(ui STATIC ${UI_SRC})
 
 target_link_libraries(ui
 	PRIVATE
-		caputils
+		wsutil
+)
+
+target_include_directories(ui
+	SYSTEM PRIVATE
+		${PCAP_INCLUDE_DIRS}
+		${WINSPARKLE_INCLUDE_DIRS}
+)
+
+add_library(summary STATIC summary.c)
+
+target_link_libraries(summary
+	PRIVATE
 		wiretap
+		epan
 		wsutil
 		${GCRYPT_LIBRARIES}
 	)
 
-target_include_directories(ui
+target_include_directories(summary
 	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
-		${GNUTLS_INCLUDE_DIRS}
-		${WINSPARKLE_INCLUDE_DIRS}
 )
 
 add_library(version_info STATIC version_info.c)

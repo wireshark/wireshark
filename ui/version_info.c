@@ -490,7 +490,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	}
 
 #ifdef HAVE_PLUGINS
-	if (g_module_supported()) {
+	if (plugins_supported()) {
 		g_string_append(str, ", binary plugins supported");
 	}
 #endif

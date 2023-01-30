@@ -49,7 +49,7 @@ int
 wtap_plugins_supported(void)
 {
 #ifdef HAVE_PLUGINS
-	return g_module_supported() ? 0 : 1;
+	return plugins_supported() ? 0 : 1;
 #else
 	return -1;
 #endif

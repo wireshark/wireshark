@@ -2591,6 +2591,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		wiretap
 		epan
 		version_info
+		summary
 		${QT_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
@@ -2696,6 +2697,7 @@ if(BUILD_logray AND QT_FOUND)
 		wiretap
 		epan
 		version_info
+		summary
 		${QT_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
@@ -2854,6 +2856,7 @@ if(BUILD_tshark)
 		caputils
 		wiretap
 		epan
+		wsutil
 		version_info
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -2935,7 +2938,6 @@ if(BUILD_sharkd)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 		${SPEEXDSP_LIBRARIES}
-		${M_LIBRARIES}
 	)
 	set(sharkd_FILES
 		#
@@ -2978,9 +2980,6 @@ if(BUILD_randpkt)
 		ui
 		wiretap
 		wsutil
-		${M_LIBRARIES}
-		${CARES_LIBRARIES}
-		${ZLIB_LIBRARIES}
 	)
 	set(randpkt_FILES
 		$<TARGET_OBJECTS:cli_main>
@@ -3006,7 +3005,6 @@ if(BUILD_text2pcap)
 		ui
 		epan
 		version_info
-		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)
 	set(text2pcap_FILES
@@ -3137,7 +3135,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		version_info
 		pcap::pcap
 		${CAP_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
