@@ -1793,7 +1793,7 @@ dissect_opt_tel(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_
                  less than the IPv6 minimum link MTU [RFC8200]
                  should be ignored.
 
-     Rtn-PMTU: n 15-bits.  The returned mimimum PMTU, carrying the 15
+     Rtn-PMTU: n 15-bits.  The returned minimum PMTU, carrying the 15
                  most significant bits of the latest received Min-PMTU
                  field.  The value zero means that no Reported MTU is
                  being returned.
