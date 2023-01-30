@@ -48,9 +48,9 @@ add_library(caputils STATIC
 
 target_link_libraries(caputils
 	PUBLIC
+		wsutil
 		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 	PRIVATE
-		wsutil_static
 		${NL_LIBRARIES}
 		${WIN_IPHLPAPI_LIBRARY}
 )

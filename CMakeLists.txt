@@ -269,25 +269,26 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 		# Some systems support $ORIGIN in RPATH to enable relocatable
 		# binaries. In other cases, only absolute paths can be used.
 		# https://www.lekensteyn.nl/rpath.html
-		#
-		# Also note that some systems (notably those using GNU libc)
-		# silently ignore $ORIGIN in RPATH for binaries that are
-		# setuid root or use privileged capabilities.
-		#
 		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
 			set(_enable_rpath_origin TRUE)
+			if(BUILD_dumpcap AND ENABLE_PCAP)
+				# dumpcap will most likely be installed with
+				# capabilities or setuid. Relative RPATHs that
+				# resolve to non-standard library directories
+				# are ignored for such binaries and since we
+				# cannot achieve relocatable builds, just
+				# disable it by default.
+				set(_enable_rpath_origin FALSE)
+			endif()
+			# Provide a knob to optionally force absolute rpaths,
+			# to support old/buggy systems and as a user preference
+			# for hardening.
+			set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
+				"Use $ORIGIN with INSTALL_RPATH")
+			mark_as_advanced(ENABLE_RPATH_ORIGIN)
 		else()
-			set(_enable_rpath_origin FALSE)
+			set(ENABLE_RPATH_ORIGIN FALSE)
 		endif()
-
-		# Provide a knob to optionally force absolute rpaths,
-		# to support old/buggy systems and as a user preference
-		# for hardening.
-		# XXX Should this be a CMake option?
-		set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
-			"Use $ORIGIN with INSTALL_RPATH")
-		mark_as_advanced(ENABLE_RPATH_ORIGIN)
-
 		if(ENABLE_RPATH_ORIGIN)
 			set(LIBRARY_INSTALL_RPATH     "$ORIGIN")
 			set(EXECUTABLE_INSTALL_RPATH  "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
@@ -3130,7 +3131,7 @@ endif()
 if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
 		writecap
-		wsutil_static
+		wsutil
 		caputils
 		ui
 		version_info
