@@ -1833,8 +1833,8 @@ de_nas_5gs_mm_conf_upd_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  * 9.11.3.18A   CAG information list
  */
 static true_false_string tfs_5gs_mm_cag_info_entry_cag_only = {
-    "the UE is allowed to access 5GS via non-CAG cells",
-    "the UE is not allowed to access 5GS via non-CAG cells"
+    "the UE is not allowed to access 5GS via non-CAG cells",
+    "the UE is allowed to access 5GS via non-CAG cells"
 };
 
 static guint16
