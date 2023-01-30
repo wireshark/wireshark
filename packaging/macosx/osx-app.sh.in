@@ -545,6 +545,7 @@ codesign_file () {
 
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--prefix "org.wireshark." \
 		--force \
 		--options runtime \
 		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \

@@ -53,6 +53,7 @@ codesign_file () {
 	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--prefix "org.wireshark." \
 		--force \
 		--timestamp \
 		--verbose \
