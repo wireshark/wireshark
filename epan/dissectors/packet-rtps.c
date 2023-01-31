@@ -800,6 +800,7 @@ static const char *const SM_EXTRA_TMINUS = "(t-)";
 /* Protocol Fields Identifiers */
 static int proto_rtps                           = -1;
 static int hf_rtps_magic                        = -1;
+static int hf_rtps_ping                         = -1;
 static int hf_rtps_protocol_version             = -1;
 static int hf_rtps_protocol_version_major       = -1;
 static int hf_rtps_protocol_version_minor       = -1;
@@ -10797,6 +10798,9 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   }
 }
 
+static void dissect_PING(tvbuff_t* tvb, gint offset, const guint encoding, int octets_to_next_header, proto_tree* tree) {
+  proto_tree_add_item(tree, hf_rtps_ping,tvb, offset, octets_to_next_header, encoding);
+}
 
 /* *********************************************************************** */
 /* *                            A C K N A C K                            * */
@@ -13242,10 +13246,13 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   gchar domain_id_str[RTPS_UNKNOWN_DOMAIN_ID_STR_LEN] = RTPS_UNKNOWN_DOMAIN_ID_STR;
   gboolean is_domain_id_calculated = FALSE;
   const char* not_accuracy_str = "";
+  gint length_remaining = 0;
+
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
    */
-  if (tvb_reported_length_remaining(tvb, offset) < 16)
+  length_remaining = tvb_reported_length_remaining(tvb, offset);
+  if (length_remaining < 16)
     return FALSE;
 
   magic_number = tvb_get_ntohl(tvb, offset);
@@ -13279,7 +13286,9 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   is_ping = rtps_is_ping(tvb, pinfo, offset+8);
 
-  if (!is_ping) {
+  if (is_ping) {
+    dissect_PING(tvb, offset + 8, ENC_BIG_ENDIAN, length_remaining - 8, rtps_tree);
+  } else {
     if (version < 0x0200)
       rtps_util_add_guid_prefix_v1(rtps_tree, tvb, offset+8,
                         hf_rtps_guid_prefix_v1, hf_rtps_host_id, hf_rtps_app_id,
@@ -13556,7 +13565,16 @@ static int dissect_simple_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 void proto_register_rtps(void) {
 
   static hf_register_info hf[] = {
-
+    { &hf_rtps_ping, {
+        "Ping String",
+        "rtps.ping_str",
+        FT_STRING,
+        BASE_NONE,
+        NULL,
+        0,
+        "RTPS Ping String",
+        HFILL }
+    },
     { &hf_rtps_magic, {
         "Magic",
         "rtps.magic",
