@@ -220,6 +220,7 @@ choplen
 chromaticities
 chromaticity
 chunked
+cicam
 cinfo
 ciphered
 ciphering
@@ -738,6 +739,7 @@ kademlia
 kasme
 kasumi
 kbytes
+kchip
 keepalive
 kerberos
 keydes
@@ -1295,6 +1297,7 @@ sabme
 sacch
 sanicap
 sanitize
+sapgui
 satisfiable
 scalability
 scaleout
@@ -1541,6 +1544,7 @@ ucast
 udpcp
 udpdump
 udphdr
+uievent
 uint16
 uint32
 uint8
