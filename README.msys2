@@ -1,35 +1,37 @@
-This document contains instructions to build and install Wireshark on Windows
+This document contains instructions on how to build and install Wireshark on Windows
 using GCC and MinGW-w64 with the MSYS2 distribution.
 
-How to setup MSYS2:
+The MSYS2 installer can be downloaded from https://www.msys2.org.
 
-1. Download and install MSYS2 from https://www.msys2.org.
+Wireshark is available as an MSYS2 binary package[1]. It can be installed using pacman,
+for example using the UCRT64 shell:
 
-2. Open the MSYS shell.
+    $ pacman -S mingw-w64-ucrt-x86_64-wireshark
 
-3. Update with "pacman -Syu" as many times as necessary. You also need to
-   have base-devel installed:
-   
-    $ pacman -Syu base-devel.
+If you wish to build wireshark from source code keep reading.
 
-How to build the Wireshark MSYS2 package:
+How to build Wireshark from source:
 
-1. Open the shell for the selected environment. If in doubt choose the UCRT64 shell.
+1. Open the shell for the selected 64-bit environment.
 
-2. Build and install Wireshark using the MSYS2 PKGBUILD:
+2. Build using CMake + Ninja:
 
-    $ cp -r $srcdir/packaging/msys2/mingw-w64-wireshark-git ./$builddir
-    $ cd $builddir
-    $ makepkg-mingw -si
+    $ cd $srcdir
+    $ mkdir build && cd build
+    $ cmake ..
+    $ ninja
+    $ ninja test        # optional
+    $ ninja install     # optional
 
-The application should be launched using the same shell.
+The application should be launched using the same shell. Alternatively you
+can also use the PKGBUILD included in the Wireshark distribution.
 
 Currently the MSYS2 build has the following limitations compared to
 the build using Visual Studio (MSVC):
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
-* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have UTF-8 patches[1]. 
+* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have UTF-8 patches[2].
 
 * Enhanced Kerberos dissection with decryption is not available.
 
@@ -41,4 +43,5 @@ the build using Visual Studio (MSVC):
 
 References:
 
-[1]https://github.com/Lekensteyn/lua-unicode
+[1]https://packages.msys2.org/base/mingw-w64-wireshark
+[2]https://github.com/Lekensteyn/lua-unicode
