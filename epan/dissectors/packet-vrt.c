@@ -116,8 +116,16 @@ static int hf_vrt_cif0_cif4 = -1; /* 1-bit CIF4 */
 static int hf_vrt_cif0_cif3 = -1; /* 1-bit CIF3 */
 static int hf_vrt_cif0_cif2 = -1; /* 1-bit CIF2 */
 static int hf_vrt_cif0_cif1 = -1; /* 1-bit CIF1 */
+/* TODO: complete CIF1 support (have partial CIF1 support) */
 static int hf_vrt_cif1_phase_offset = -1; /* 1-bit phase offset */
 static int hf_vrt_cif1_polarization = -1; /* 1-bit polarization */
+static int hf_vrt_cif1_range = -1; /* 1-bit range (distance) */
+static int hf_vrt_cif1_aux_freq = -1; /* 1-bit aux frequency */
+static int hf_vrt_cif1_aux_bandwidth = -1; /* 1-bit aux bandwidth */
+static int hf_vrt_cif1_io32 = -1; /* 1-bit discrete I/O (32-bit) */
+static int hf_vrt_cif1_io64 = -1; /* 1-bit discrete I/O (64-bit) */
+static int hf_vrt_cif1_v49_spec = -1; /* 1-bit V49 spec compliance */
+static int hf_vrt_cif1_ver = -1; /* 1-bit version and build code */
 static int hf_vrt_context_ref_pt_id = -1; /* 32-bit reference point identifier */
 static int hf_vrt_context_bandwidth = -1; /* 64-bit bandwidth */
 static int hf_vrt_context_if_freq = -1; /* 64-bit IF reference frequency */
@@ -183,6 +191,16 @@ static int hf_vrt_context_assoc_lists_asy_tag_data; /* Variable asynchronous-cha
 static int hf_vrt_context_phase_offset = -1; /* 16-bit phase offset */
 static int hf_vrt_context_pol_tilt = -1; /* 16-bit polarization tilt angle */
 static int hf_vrt_context_pol_ellipticity = -1; /* 16-bit polarization ellipticity angle */
+static int hf_vrt_context_range = -1; /* 32-bit range (distance) */
+static int hf_vrt_context_aux_freq = -1; /* 64-bit aux frequency */
+static int hf_vrt_context_aux_bandwidth = -1; /* 64-bit aux bandwidth */
+static int hf_vrt_context_io32 = -1; /* 32-bit discrete I/O */
+static int hf_vrt_context_io64 = -1; /* 64-bit discrete I/O */
+static int hf_vrt_context_v49_spec = -1; /* 32-bit V49 spec compliance */
+static int hf_vrt_context_ver_year = -1; /* 7-bit year */
+static int hf_vrt_context_ver_day = -1; /* 9-bit day */
+static int hf_vrt_context_ver_rev = -1; /* 6-bit revision */
+static int hf_vrt_context_ver_user = -1; /* 10-bit user defined */
 static int hf_vrt_ts_int = -1; /* 32-bit integer timestamp (opt.) */
 static int hf_vrt_ts_frac_picosecond = -1; /* 64-bit fractional timestamp (opt.) */
 static int hf_vrt_ts_frac_sample = -1; /* 64-bit fractional timestamp (opt.) */
@@ -220,9 +238,8 @@ static int hf_vrt_trailer_ind_user3 = -1; /* User indicator 3 */
 /* fixed sizes (in bytes) of context packet CIF field bits */
 static int context_size_cif0[32] = { 0, 4, 4, 4, 4, 4, 4, 4, 8, 8, 4, 52, 52, 44, 44, 8,
     4, 8, 4, 4, 8, 8, 4, 4, 4, 8, 8, 8, 8, 8, 4, 0 };
-/* partial CIF1 support - only upper 2 fields supported right now */
-static int context_size_cif1[32] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4 };
+static int context_size_cif1[32] = { 0, 8, 4, 4, 4, 8, 4, 0, 0, 0, 52, 0, 0, 8, 4, 8,
+    4, 4, 4, 4, 4, 0, 0, 0, 4, 4, 4, 4, 0, 4, 4, 4 };
 
 /* subtree state variables */
 static gint ett_vrt = -1;
@@ -244,6 +261,7 @@ static gint ett_rel_ephem = -1;
 static gint ett_gps_ascii = -1;
 static gint ett_assoc_lists = -1;
 static gint ett_pol = -1;
+static gint ett_ver = -1;
 
 /* constants (unit conversion) */
 static const double FEMTOSEC_PER_SEC = 1e-15;
@@ -253,6 +271,7 @@ static const double RADIX_DECIBEL_MILLIWATT = 1.0/128.0;
 static const double RADIX_DEGREES = 1.0/4194304.0;
 static const double RADIX_HERTZ = 1.0/1048576.0;
 static const double RADIX_METER = 1.0/32.0;
+static const double RADIX_METER_UNSIGNED = 1.0/64.0;
 static const double RADIX_METERS_PER_SECOND = 1.0/65536.0;
 static const double RADIX_RADIAN_PHASE = 1.0/128.0;
 static const double RADIX_RADIAN_POL = 1.0/8192.0;
@@ -269,6 +288,7 @@ static const int ETT_IDX_REL_EPHEM = 15;
 static const int ETT_IDX_GPS_ASCII = 16;
 static const int ETT_IDX_ASSOC_LISTS = 17;
 static const int ETT_IDX_POL = 18;
+static const int ETT_IDX_VER = 19;
 
 static const value_string packet_types[] = {
     {0x00, "IF data packet without stream ID"},
@@ -338,6 +358,14 @@ static const value_string data_item_format[] = {
     {0, NULL}
 };
 
+static const value_string standard_version_codes[] = {
+    {0x01, "Implements V49.0"},
+    {0x02, "Implements V49.1"},
+    {0x03, "Implements V49A"},
+    {0x04, "Implements V49.2"},
+    {0, NULL}
+};
+
 static int * const enable_hfs[] = {
     &hf_vrt_trailer_en_user3,
     &hf_vrt_trailer_en_user2,
@@ -374,6 +402,7 @@ static void dissect_cid(tvbuff_t *tvb, proto_tree *tree, int offset);
 static int dissect_context(tvbuff_t *tvb, proto_tree *tree, int offset);
 static int dissect_context_as_cif(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t cif, complex_dissector_t
     *complex_fptr, int **item_ptr, const int *size_ptr, int stop);
+static int dissect_context_array_of_records(proto_tree *tree _U_, tvbuff_t *tvb, int offset);
 static int dissect_context_assoc_lists(proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_context_cif0(proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_context_cif1(proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -391,6 +420,7 @@ static int dissect_context_rel_ephemeris(proto_tree *tree, tvbuff_t *tvb, int of
 static int dissect_context_signal_data_format(proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_context_state_event(proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_context_temperature(proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_context_ver(proto_tree *tree, tvbuff_t *tvb, int offset);
 static const char* get_engr_prefix(double *val);
 
 /* context simple field dissector function pointer array (mutually exclusive with complex below) */
@@ -401,9 +431,10 @@ static int* hf_vrt_context_cif0[32] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL
     &hf_vrt_context_rf_freq_offset, &hf_vrt_context_rf_freq, &hf_vrt_context_if_freq,
     &hf_vrt_context_bandwidth, &hf_vrt_context_ref_pt_id, NULL };
 
-static int* hf_vrt_context_cif1[32] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static int* hf_vrt_context_cif1[32] = { NULL, NULL, NULL, &hf_vrt_context_v49_spec, NULL,
+    &hf_vrt_context_io64, &hf_vrt_context_io32, NULL, NULL, NULL, NULL, NULL, NULL,
+    &hf_vrt_context_aux_bandwidth, NULL, &hf_vrt_context_aux_freq, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, &hf_vrt_context_range, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 
 /* context complex field dissector function pointer array */
@@ -415,9 +446,12 @@ static complex_dissector_t complex_dissector_cif0[32] = {
     NULL, NULL, NULL, dissect_context_gain, dissect_context_ref_level, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL };
 
+/* partial CIF1 support */
 static complex_dissector_t complex_dissector_cif1[32] = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, dissect_context_ver, NULL, NULL, NULL, NULL, dissect_context_array_of_records,
+    NULL, dissect_context_array_of_records, NULL, dissect_context_array_of_records, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    dissect_context_array_of_records, NULL,
     dissect_context_polarization, dissect_context_phase_offset };
 
 
@@ -655,6 +689,12 @@ static int dissect_context_as_cif(tvbuff_t *tvb, proto_tree *tree, int offset, u
     return offset;
 }
 
+static int dissect_context_array_of_records(proto_tree *tree _U_, tvbuff_t *tvb, int offset) {
+    // This is a placeholder that does not populate a proto tree, but computes & returns the
+    // variable field length so subsequent field indexing is correct.
+    return tvb_get_ntohl(tvb, offset)*4;
+}
+
 static int dissect_context_assoc_lists(proto_tree *tree, tvbuff_t *tvb, int offset) {
     // compute number of variable words in field
     guint32 word1 = tvb_get_ntohl(tvb, offset);
@@ -749,6 +789,13 @@ static int dissect_context_cif1(proto_tree *tree, tvbuff_t *tvb, int offset) {
     proto_tree *cif1_tree = proto_item_add_subtree(cif1_item, ett_cif1);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_phase_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_polarization, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_range, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_aux_freq, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_aux_bandwidth, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_io32, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_io64, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_v49_spec, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_ver, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
     return 0;
 }
 
@@ -919,6 +966,16 @@ static int dissect_context_temperature(proto_tree *tree, tvbuff_t *tvb, int offs
     return 0;
 }
 
+static int dissect_context_ver(proto_tree *tree, tvbuff_t *tvb, int offset) {
+    proto_tree *ver_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ETT_IDX_VER, NULL,
+                                                  "Version and build code");
+    proto_tree_add_item(ver_tree, hf_vrt_context_ver_year, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ver_tree, hf_vrt_context_ver_day, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ver_tree, hf_vrt_context_ver_rev, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ver_tree, hf_vrt_context_ver_user, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    return 0;
+}
+
 static void format_celsius(char *str, int16_t val) {
     snprintf(str, ITEM_LABEL_LENGTH, "%f °C", (double)val*RADIX_CELSIUS);
 }
@@ -943,6 +1000,12 @@ static void format_hertz(char *str, int64_t val) {
 
 static void format_meter(char *str, int32_t val) {
     double val_f64 = (double)val*RADIX_METER;
+    const char *prefix = get_engr_prefix(&val_f64);
+    snprintf(str, ITEM_LABEL_LENGTH, "%f %sm", val_f64, prefix);
+}
+
+static void format_meter_unsigned(char *str, uint32_t val) {
+    double val_f64 = (double)val*RADIX_METER_UNSIGNED;
     const char *prefix = get_engr_prefix(&val_f64);
     snprintf(str, ITEM_LABEL_LENGTH, "%f %sm", val_f64, prefix);
 }
@@ -1305,6 +1368,48 @@ proto_register_vrt(void)
             { "Polarization", "vrt.cif1.polarization",
             FT_BOOLEAN, 8,
             NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_range,
+            { "Range (distance)", "vrt.cif1.range",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_aux_freq,
+            { "Aux frequency", "vrt.cif1.auxfreq",
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_aux_bandwidth,
+            { "Aux bandwidth", "vrt.cif1.auxbw",
+            FT_BOOLEAN, 8,
+            NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_io32,
+            { "Discrete I/O (32-bit)", "vrt.cif1.io32",
+            FT_BOOLEAN, 8,
+            NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_io64,
+            { "Discrete I/O (64-bit)", "vrt.cif1.io64",
+            FT_BOOLEAN, 8,
+            NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_v49_spec,
+            { "V49 spec compliance", "vrt.cif1.v49spec",
+            FT_BOOLEAN, 8,
+            NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_ver,
+            { "Version and build code", "vrt.cif1.ver",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_vrt_cif[1],
@@ -2051,6 +2156,66 @@ proto_register_vrt(void)
             CF_FUNC(format_radian_pol), 0x00,
             NULL, HFILL }
         },
+        { &hf_vrt_context_range,
+            { "Range (distance)", "vrt.context.range",
+            FT_UINT32, BASE_CUSTOM,
+            CF_FUNC(format_meter_unsigned), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_aux_freq,
+            { "Aux frequency", "vrt.context.auxfreq",
+            FT_INT64, BASE_CUSTOM,
+            CF_FUNC(format_hertz), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_aux_bandwidth,
+            { "Aux bandwidth", "vrt.context.auxbw",
+            FT_INT64, BASE_CUSTOM,
+            CF_FUNC(format_hertz), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_io32,
+            { "Discrete I/O (32-bit)", "vrt.context.io32",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_io64,
+            { "Discrete I/O (64-bit)", "vrt.context.io64",
+            FT_UINT64, BASE_HEX,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_v49_spec,
+            { "V49 spec compliance", "vrt.context.v49spec",
+            FT_UINT32, BASE_HEX,
+            VALS(standard_version_codes), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_ver_year,
+            { "Year", "vrt.context.ver.year",
+            FT_UINT16, BASE_DEC,
+            NULL, 0xFE00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_ver_day,
+            { "Day", "vrt.context.ver.day",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x01FF,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_ver_rev,
+            { "Revision", "vrt.context.ver.rev",
+            FT_UINT16, BASE_DEC,
+            NULL, 0xFC00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_ver_user,
+            { "User defined", "vrt.context.ver.user",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x03FF,
+            NULL, HFILL }
+        },
         { &hf_vrt_data,
             { "Data", "vrt.data",
             FT_BYTES, BASE_NONE,
@@ -2271,7 +2436,8 @@ proto_register_vrt(void)
         &ett_rel_ephem, // ETT_IDX_REL_EPHEM
         &ett_gps_ascii, // ETT_IDX_GPS_ASCII
         &ett_assoc_lists, // ETT_IDX_ASSOC_LISTS
-        &ett_pol // ETT_IDX_POL
+        &ett_pol, // ETT_IDX_POL
+        &ett_ver, // ETT_IDX_VER
      };
 
     proto_vrt = proto_register_protocol ("VITA 49 radio transport protocol", "VITA 49", "vrt");
