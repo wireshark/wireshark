@@ -581,7 +581,7 @@ proto_register_mpls(void)
 
         {&hf_mpls_ttl,
          {"MPLS TTL", "mpls.ttl",
-          FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
+          FT_UINT32, BASE_DEC, NULL, 0x000000FF,
           NULL, HFILL }
         },
 

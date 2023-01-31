@@ -6150,15 +6150,15 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_dlv_sys_hint_t,
           { "terrestrial network (DVB-T/T2)", "dvb-ci.opp.dlv_sys_hint.t",
-             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x4, NULL, HFILL }
         },
         { &hf_dvbci_dlv_sys_hint_s,
           { "satellite network (DVB-S/S2)", "dvb-ci.opp.dlv_sys_hint.s",
-             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x2, NULL, HFILL }
         },
         { &hf_dvbci_dlv_sys_hint_c,
           { "cable network (DVB-C/C2)", "dvb-ci.opp.dlv_sys_hint.c",
-             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x1, NULL, HFILL }
         },
         { &hf_dvbci_refr_req_date,
           { "Refresh request date", "dvb-ci.opp.refresh_req_date",

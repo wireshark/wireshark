@@ -252,13 +252,13 @@ void proto_register_link16(void)
 {
     static hf_register_info hf[] = {
         { &hf_link16_wordformat,
-          { "Word Format", "link16.wordformat", FT_UINT16, BASE_DEC, VALS(WordFormat_Strings), 0x3,
+          { "Word Format", "link16.wordformat", FT_UINT16, BASE_DEC, VALS(WordFormat_Strings), 0x0003,
             NULL, HFILL }},
         { &hf_link16_label,
-          { "Label", "link16.label", FT_UINT16, BASE_DEC, VALS(Link16_Label_Strings), 0x7C,
+          { "Label", "link16.label", FT_UINT16, BASE_DEC, VALS(Link16_Label_Strings), 0x007C,
             NULL, HFILL }},
         { &hf_link16_sublabel,
-          { "Sublabel", "link16.sublabel", FT_UINT16, BASE_DEC, NULL, 0x380,
+          { "Sublabel", "link16.sublabel", FT_UINT16, BASE_DEC, NULL, 0x0380,
             NULL, HFILL }},
         { &hf_link16_mli,
           { "Message Length Indicator", "link16.mli", FT_UINT16, BASE_DEC, NULL, 0x1C00,

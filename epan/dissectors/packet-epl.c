@@ -5611,87 +5611,87 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit0,
 			{ "Isochronous", "epl.asnd.ires.features.bit0",
-				FT_BOOLEAN, 32, NULL, 0x0001, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit1,
 			{ "SDO by UDP/IP", "epl.asnd.ires.features.bit1",
-				FT_BOOLEAN, 32, NULL, 0x0002, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit2,
 			{ "SDO by ASnd", "epl.asnd.ires.features.bit2",
-				FT_BOOLEAN, 32, NULL, 0x0004, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit3,
 			{ "SDO by PDO", "epl.asnd.ires.features.bit3",
-				FT_BOOLEAN, 32, NULL, 0x0008, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000008, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit4,
 			{ "NMT Info Services", "epl.asnd.ires.features.bit4",
-				FT_BOOLEAN, 32, NULL, 0x0010, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit5,
 			{ "Ext. NMT State Commands", "epl.asnd.ires.features.bit5",
-				FT_BOOLEAN, 32, NULL, 0x0020, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit6,
 			{ "Dynamic PDO Mapping", "epl.asnd.ires.features.bit6",
-				FT_BOOLEAN, 32, NULL, 0x0040, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000040, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit7,
 			{ "NMT Service by UDP/IP", "epl.asnd.ires.features.bit7",
-				FT_BOOLEAN, 32, NULL, 0x0080, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000080, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit8,
 			{ "Configuration Manager", "epl.asnd.ires.features.bit8",
-				FT_BOOLEAN, 32, NULL, 0x0100, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit9,
 			{ "Multiplexed Access", "epl.asnd.ires.features.bit9",
-				FT_BOOLEAN, 32, NULL, 0x0200, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bitA,
 			{ "NodeID setup by SW", "epl.asnd.ires.features.bitA",
-				FT_BOOLEAN, 32, NULL, 0x0400, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bitB,
 			{ "MN Basic Ethernet Mode", "epl.asnd.ires.features.bitB",
-				FT_BOOLEAN, 32, NULL, 0x0800, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bitC,
 			{ "Routing Type 1 Support", "epl.asnd.ires.features.bitC",
-				FT_BOOLEAN, 32, NULL, 0x1000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00001000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bitD,
 			{ "Routing Type 2 Support", "epl.asnd.ires.features.bitD",
-				FT_BOOLEAN, 32, NULL, 0x2000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00002000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bitE,
 			{ "SDO Read/Write All", "epl.asnd.ires.features.bitE",
-				FT_BOOLEAN, 32, NULL, 0x4000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00004000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bitF,
 			{ "SDO Read/Write Multiple", "epl.asnd.ires.features.bitF",
-				FT_BOOLEAN, 32, NULL, 0x8000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00008000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit10,
 			{ "Multiple-ASend Support", "epl.asnd.ires.features.bit10",
-				FT_BOOLEAN, 32, NULL, 0x010000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00010000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit11,
 			{ "Ring Redundancy", "epl.asnd.ires.features.bit11",
-				FT_BOOLEAN, 32, NULL, 0x020000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00020000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit12,
 			{ "PResChaining", "epl.asnd.ires.features.bit12",
-				FT_BOOLEAN, 32, NULL, 0x040000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00040000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit13,
 			{ "Multiple PReq/PRes", "epl.asnd.ires.features.bit13",
-				FT_BOOLEAN, 32, NULL, 0x080000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00080000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit14,
 			{ "Dynamic Node Allocation", "epl.asnd.ires.features.bit14",
-				FT_BOOLEAN, 32, NULL, 0x100000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit21,
 			{ "Modular Device", "epl.asnd.ires.features.bit21",

@@ -89,7 +89,7 @@ proto_register_llt(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_llt_cluster_num,  { "Cluster number", "llt.cluster_num",
-					  FT_UINT8, BASE_DEC, NULL, 0,
+					  FT_UINT16, BASE_DEC, NULL, 0,
 					  "Cluster number that this node belongs to", HFILL } },
 
 		{ &hf_llt_message_type, { "Message type", "llt.message_type",

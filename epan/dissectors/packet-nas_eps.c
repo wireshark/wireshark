@@ -8303,7 +8303,7 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_esm_qci,
         { "Quality of Service Class Identifier (QCI)","nas_eps.esm.qci",
-        FT_UINT8,(BASE_DEC|BASE_RANGE_STRING), RVALS(nas_eps_qci_vals), 0x0,
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(nas_eps_qci_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_mbr_ul,

@@ -137,7 +137,7 @@ proto_register_brcm_tag(void)
       },
       { &hf_brcm_tag_frame_octet_cnt,
          { "Frame octet count", "brcm_tag.frame_octet_cnt",
-            FT_UINT16, BASE_DEC, NULL, 0xFFF, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }
       },
       { &hf_brcm_tag_dest_dev_id,
          { "Destination device ID", "brcm_tag.dest_dev_id",

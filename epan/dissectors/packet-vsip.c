@@ -929,7 +929,7 @@ static guint32 vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
    proto_tree_add_item(tree, hf_vsip_PingResp_ProductType, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
 
-   proto_tree_add_item(tree, hf_vsip_PingResp_Status, tvb, offset, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(tree, hf_vsip_PingResp_Status, tvb, offset, 1, ENC_BIG_ENDIAN);
    offset += 1;
 
    len = tvb_get_ntohs(tvb, offset);

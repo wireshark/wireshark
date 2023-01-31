@@ -13447,7 +13447,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_relay_key_req_params_relay_service_code,
         { "Relay service code", "nas_5gs.mm.relay_key_req_params.relay_service_code",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT24, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_relay_key_req_params_nonce_1,

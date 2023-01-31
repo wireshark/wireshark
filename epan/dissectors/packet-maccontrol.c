@@ -263,95 +263,95 @@ proto_register_macctrl(void)
 
     { &hf_macctrl_cbfc_enbv_c0,
       { "C0", "macc.cbfc.enbv.c0", FT_BOOLEAN, 16,
-        NULL, 0x01, NULL, HFILL }},
+        NULL, 0x0001, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c1,
       { "C1", "macc.cbfc.enbv.c1", FT_BOOLEAN, 16,
-        NULL, 0x02, NULL, HFILL }},
+        NULL, 0x0002, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c2,
       { "C2", "macc.cbfc.enbv.c2", FT_BOOLEAN, 16,
-        NULL, 0x04, NULL, HFILL }},
+        NULL, 0x0004, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c3,
       { "C3", "macc.cbfc.enbv.c3", FT_BOOLEAN, 16,
-        NULL, 0x08, NULL, HFILL }},
+        NULL, 0x0008, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c4,
       { "C4", "macc.cbfc.enbv.c4", FT_BOOLEAN, 16,
-        NULL, 0x10, NULL, HFILL }},
+        NULL, 0x0010, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c5,
       { "C5", "macc.cbfc.enbv.c5", FT_BOOLEAN, 16,
-        NULL, 0x20, NULL, HFILL }},
+        NULL, 0x0020, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c6,
       { "C6", "macc.cbfc.enbv.c6", FT_BOOLEAN, 16,
-        NULL, 0x40, NULL, HFILL }},
+        NULL, 0x0040, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c7,
       { "C7", "macc.cbfc.enbv.c7", FT_BOOLEAN, 16,
-        NULL, 0x80, NULL, HFILL }},
+        NULL, 0x0080, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c0,
       { "C0", "macc.cbfc.pause_time.c0", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c1,
       { "C1", "macc.cbfc.pause_time.c1", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c2,
       { "C2", "macc.cbfc.pause_time.c2", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c3,
       { "C3", "macc.cbfc.pause_time.c3", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c4,
       { "C4", "macc.cbfc.pause_time.c4", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c5,
       { "C5", "macc.cbfc.pause_time.c5", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c6,
       { "C6", "macc.cbfc.pause_time.c6", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c7,
       { "C7", "macc.cbfc.pause_time.c7", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_reg_flags,
       { "Flags", "macc.reg.flags", FT_UINT8, BASE_HEX,
-        VALS(reg_flags_vals), 0x00, NULL, HFILL }},
+        VALS(reg_flags_vals), 0x0, NULL, HFILL }},
 
     { &hf_reg_req_grants,
       { "Pending Grants", "macc.regreq.grants", FT_UINT8, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_reg_grants,
       { "Echoed Pending Grants", "macc.reg.grants", FT_UINT8, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_reg_port,
       { "Assigned Port (LLID)", "macc.reg.assignedport", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_reg_ack_port,
       { "Echoed Assigned Port (LLID)", "macc.regack.assignedport", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_reg_time,
       { "Sync Time", "macc.reg.synctime", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_reg_ack_time,
       { "Echoed Sync Time", "macc.regack.synctime", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }}
+        NULL, 0x0, NULL, HFILL }}
   };
 
   static gint *ett[] = {

@@ -6030,28 +6030,28 @@ void proto_register_wassp(void)
 			&hf_aeroscout_header,
 			{
 				"Location Base Service Header", "wassp.aeroscout.header", FT_BYTES, BASE_NONE, NULL,
-				0x00, "Aeroscout header", HFILL
+				0x0, "Aeroscout header", HFILL
 			}
 		},
 		{
 			&hf_aeroscout_header_magic_number,
 			{
 				"Header Magic Number", "wassp.aeroscout.header_magic", FT_UINT16, BASE_HEX, NULL,
-				0x00, "Aeroscout header magic number", HFILL
+				0x0, "Aeroscout header magic number", HFILL
 			}
 		},
 		{
 			&hf_aeroscout_request_id,
 			{
 				"Request ID", "wassp.aeroscout.request_id", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Aeroscout Request ID", HFILL
+				0x0, "Aeroscout Request ID", HFILL
 			}
 		},
 		{
 			&hf_aeroscout_code,
 			{
 				"Operation Code", "wassp.aeroscout.code", FT_UINT8, BASE_DEC, NULL,
-				0x00, "Aeroscout Operation Code", HFILL
+				0x0, "Aeroscout Operation Code", HFILL
 			}
 		},
 
@@ -6059,49 +6059,49 @@ void proto_register_wassp(void)
 			&hf_aeroscout_sub_code,
 			{
 				"Operation Sub Code", "wassp.aeroscout.sub_code", FT_UINT8, BASE_DEC, NULL,
-				0x00, "Aeroscout Operation Sub Code", HFILL
+				0x0, "Aeroscout Operation Sub Code", HFILL
 			}
 		},
 		{
 			&hf_aeroscout_datalength,
 			{
 				"Length of Data Payload", "wassp.aeroscout.datalength", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Aeroscout Length of Data Payload", HFILL
+				0x0, "Aeroscout Length of Data Payload", HFILL
 			}
 		},
 		{
 			&hf_lbs_vendor_id,
 			{
 				"Location Base Service Vendor ID", "wassp.lbs.vendor_id", FT_UINT16, BASE_DEC, NULL,
-				0x00, "LBS TAG Vendor ID", HFILL
+				0x0, "LBS TAG Vendor ID", HFILL
 			}
 		},
 		{
 			&hf_lbs_rsvd1,
 			{
 				"LBS Rsvd", "wassp.lbs.rsvd1", FT_UINT16, BASE_HEX, NULL,
-				0x00, "LBS TAG rsvd", HFILL
+				0x0, "LBS TAG rsvd", HFILL
 			}
 		},
 		{
 			&hf_lbs_ap_bssid,
 			{
 				"Location Base Service AccessPoint BSSID", "wassp.lbs.ap_bssid", FT_BYTES, BASE_NONE, NULL,
-				0x00, "LBS TAG ap bssid", HFILL
+				0x0, "LBS TAG ap bssid", HFILL
 			}
 		},
 		{
 			&hf_lbs_rsvd2,
 			{
 				"LBS Rsvd", "wassp.lbs.rsvd2", FT_UINT8, BASE_HEX, NULL,
-				0x00, "LBS TAG rsvd2", HFILL
+				0x0, "LBS TAG rsvd2", HFILL
 			}
 		},
 		{
 			&hf_lbs_rxchan,
 			{
 				"LBS rxchan", "wassp.lbs.rxchan", FT_UINT8, BASE_DEC, NULL,
-				0x00, "LBS TAG rxchan", HFILL
+				0x0, "LBS TAG rxchan", HFILL
 			}
 		},
 
@@ -6109,105 +6109,105 @@ void proto_register_wassp(void)
 			&hf_lsb_tstamp,
 			{
 				"Location Base Service Time Stamp", "wassp.lbs.tstamp", FT_UINT32, BASE_DEC, NULL,
-				0x00, "LBS TAG tstamp", HFILL
+				0x0, "LBS TAG tstamp", HFILL
 			}
 		},
 		{
 			&hf_hf_lsb_rsvd3,
 			{
 				"LBS Rsvd", "wassp.lbs.rsvd3", FT_UINT16, BASE_HEX, NULL,
-				0x00, "LBS TAG  rsvd3", HFILL
+				0x0, "LBS TAG  rsvd3", HFILL
 			}
 		},
 		{
 			&hf_lsb_rssi,
 			{
 				"Location Base Service RSSI", "wassp.lbs.rssi", FT_INT8, BASE_DEC, NULL,
-				0x00, "LBS TAG rssi", HFILL
+				0x0, "LBS TAG rssi", HFILL
 			}
 		},
 		{
 			&hf_lsb_rsvd,
 			{
 				"LBS Rsvd", "wassp.lbs.rsvd", FT_UINT8, BASE_HEX, NULL,
-				0x00, "LBS TAG rsvd4", HFILL
+				0x0, "LBS TAG rsvd4", HFILL
 			}
 		},
 		{
 			&hf_lsb_noise_floor,
 			{
 				"LBS Noise Floor", "wassp.lsb.noise_floor", FT_INT8, BASE_DEC, NULL,
-				0x00, "LBS TAG noise floor", HFILL
+				0x0, "LBS TAG noise floor", HFILL
 			}
 		},
 		{
 			&hf_lsb_rsvd4,
 			{
-				"LBS Rsvd", "wassp.lsb.rsvd4", FT_UINT8, BASE_HEX, NULL,
-				0x00, "LBS TAG rsvd5", HFILL
+				"LBS Rsvd", "wassp.lsb.rsvd4", FT_UINT24, BASE_HEX, NULL,
+				0x0, "LBS TAG rsvd5", HFILL
 			}
 		},
 		{
 			&hf_lsb_chan_rate,
 			{
 				"LBS channel Rate", "wassp.lsb.chan_rate", FT_UINT8, BASE_DEC, NULL,
-				0x00, "LBS TAG channel rate", HFILL
+				0x0, "LBS TAG channel rate", HFILL
 			}
 		},
 		{
 			&hf_lsb_rsvd5,
 			{
 				"LBS Rsvd", "wassp.lsb.rsvd5", FT_UINT8, BASE_HEX, NULL,
-				0x00, "LBS TAG rsvd6", HFILL
+				0x0, "LBS TAG rsvd6", HFILL
 			}
 		},
 		{
 			&hf_lsb_wh_fc,
 			{
 				"LBS Wireless Header Frame Control", "wassp.lsb.wh_fc", FT_UINT16, BASE_HEX, NULL,
-				0x00, "LBS TAG Frame Control", HFILL
+				0x0, "LBS TAG Frame Control", HFILL
 			}
 		},
 		{
 			&hf_lsb_wh_seq,
 			{
 				"LBS Wireless Header Sequence Number", "wassp.hf_lsb_wh_seq", FT_UINT16, BASE_HEX, NULL,
-				0x00, "LBS TAG Sequence Number", HFILL
+				0x0, "LBS TAG Sequence Number", HFILL
 			}
 		},
 		{
 			&hf_lsb_rsvd6,
 			{
 				"LBS Rsvd", "wassp.lsb.rsvd6", FT_UINT16, BASE_HEX, NULL,
-				0x00, "LBS TAG rsvd7", HFILL
+				0x0, "LBS TAG rsvd7", HFILL
 			}
 		},
 		{
 			&hf_lsb_wh_addr2,
 			{
 				"MAC address2", "wassp.data.mu_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "Mobile Unit Ethernet address", HFILL
+				0x0, "Mobile Unit Ethernet address", HFILL
 			}
 		},
 		{
 			&hf_lsb_wh_addr3,
 			{
 				"MAC address3", "wassp.data.mu_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "Mobile Unit Ethernet address", HFILL
+				0x0, "Mobile Unit Ethernet address", HFILL
 			}
 		},
 		{
 			&hf_lsb_wh_addr4,
 			{
 				"MAC address4", "wassp.data.mu_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "Mobile Unit Ethernet address", HFILL
+				0x0, "Mobile Unit Ethernet address", HFILL
 			}
 		},
 		{
 			&hf_wassp_version,
 			{
 				"Version", "wassp.version", FT_UINT8, BASE_DEC, NULL,
-				0x00, "Wassp Protocol Version", HFILL
+				0x0, "Wassp Protocol Version", HFILL
 			}
 		},
 		/* ru discover header */
@@ -6215,63 +6215,63 @@ void proto_register_wassp(void)
 			&hf_ru_rad_num,
 			{
 				"RU Random Number", "wassp.ru_xid", FT_UINT16, BASE_DEC, NULL,
-				0x00, "random number for checking the session", HFILL
+				0x0, "random number for checking the session", HFILL
 			}
 		},
 		{
 			&hf_ru_checksum,
 			{
 				"RU Messages Checksum", "wassp.ru_checksum", FT_UINT16, BASE_DEC, NULL,
-				0x00, "AccessPoint messages checksum", HFILL
+				0x0, "AccessPoint messages checksum", HFILL
 			}
 		},
 		{
 			&hf_ru_ac_op,
 			{
 				"Controller Operation", "wassp.ru_ac_op", FT_UINT16, BASE_DEC, NULL,
-				0x00, NULL, HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ru_ac_mode,
 			{
 				"Controller Operation Mode", "wassp.ru_ac_mode", FT_UINT16, BASE_DEC, NULL,
-				0x00, NULL, HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ru_mac,
 			{
 				"AP MAC address", "wassp.ru_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "AP Ethernet address", HFILL
+				0x0, "AP Ethernet address", HFILL
 			}
 		},
 		{
 			&hf_ru_discover_header,
 			{
 				"RU Discover Header", "wassp.ru.header", FT_BYTES, BASE_NONE, NULL ,
-				0x00, "AccessPoint Discover Header", HFILL
+				0x0, "AccessPoint Discover Header", HFILL
 			}
 		},
 		{
 			&hf_wassp_header,
 			{
 				"Wassp Header", "wassp.header", FT_BYTES, BASE_NONE, NULL ,
-				0x00, "Wassp Message Header", HFILL
+				0x0, "Wassp Message Header", HFILL
 			}
 		},
 		{
 			&hf_wassp_type,
 			{
 				"WASSP Type", "wassp.type", FT_UINT8, BASE_DEC,
-				VALS(wassp_header_types), 0x00, "Wassp message type", HFILL
+				VALS(wassp_header_types), 0x0, "Wassp message type", HFILL
 			}
 		},
 		{
 			&hf_wassp_seq_num_flag,
 			{
 				"Sequence Number & Flag", "wassp.seq_num_flag", FT_UINT16, BASE_DEC,  NULL,
-				0x00, "Sequence number and flag for multi-message", HFILL
+				0x0, "Sequence number and flag for multi-message", HFILL
 			}
 		},
 		{
@@ -6313,14 +6313,14 @@ void proto_register_wassp(void)
 			&hf_wassp_sessionid,
 			{
 				"Session ID", "wassp.session_id", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Concentrator Session ID", HFILL
+				0x0, "Concentrator Session ID", HFILL
 			}
 		},
 		{
 			&hf_wassp_length,
 			{
 				"Length", "wassp.length", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Length of Payload", HFILL
+				0x0, "Length of Payload", HFILL
 			}
 		},
 		/* wassp MU data  ---  start */
@@ -6336,28 +6336,28 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_data_header,
 			{
 				"Wassp MU Data Header", "wassp.mu_data_header", FT_BYTES, BASE_NONE, NULL,
-				0x00, "MU Data Header", HFILL
+				0x0, "MU Data Header", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_type,
 			{
 				"Type", "wassp.data.mu_type", FT_UINT8, BASE_DEC, NULL,
-				0x00, "Wassp MU message type", HFILL
+				0x0, "Wassp MU message type", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_qos,
 			{
 				"QOS", "wassp.data.mu_qos", FT_UINT8, BASE_DEC, NULL,
-				0x00, "Quality of Service identifier", HFILL
+				0x0, "Quality of Service identifier", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_action_ssid,
 			{
 				"Action & SSID/Vlan ID", "wassp.data.mu_action_ssid",  FT_UINT16, BASE_DEC,  NULL,
-				0x00, "Action and where device is currently registered", HFILL
+				0x0, "Action and where device is currently registered", HFILL
 			}
 		},
 		{
@@ -6379,28 +6379,28 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_resv0,
 			{
 				"Reserved0", "wassp.data.mu_resv0", FT_UINT16, BASE_HEX, VALS(mu_resv0_strings),
-				0x00, "MU data Reserved0 or Flag", HFILL
+				0x0, "MU data Reserved0 or Flag", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_resv1,
 			{
 				"Reserved1", "wassp.data.mu_resv1", FT_UINT16, BASE_DEC, NULL,
-				0x00, "MU data Reserved 1", HFILL
+				0x0, "MU data Reserved 1", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_assoc_status,
 			{
 				"Association Status", "wassp.data.mu_assoc_status", FT_UINT8, BASE_CUSTOM,  CF_FUNC(mu_association_status),
-				0x00, "MU Association Status", HFILL
+				0x0, "MU Association Status", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_mac,
 			{
 				"MAC address", "wassp.data.mu_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "Mobile Unit Ethernet address", HFILL
+				0x0, "Mobile Unit Ethernet address", HFILL
 			}
 		},
 		/*  netflow  */
@@ -6408,147 +6408,147 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_netflow_tree,
 			{
 				"WASSP MU Data NetFlow Tree", "wassp.mu.data.netflow.subtree", FT_NONE, BASE_NONE, NULL,
-				0x00, NULL, HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_header,
 			{
 				"Wassp MU Data NetFlow Header", "wassp.mu_data_netflow_header", FT_BYTES, BASE_NONE, NULL,
-				0x00, "MU Data NetFlow Header", HFILL
+				0x0, "MU Data NetFlow Header", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_version,
 			{
 				"Version", "wassp.data.mu_netflow_version", FT_UINT16, BASE_DEC, NULL,
-				0x00, "MU NetFlow Version", HFILL
+				0x0, "MU NetFlow Version", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_length,
 			{
 				"Length", "wassp.data.mu_netflow_length", FT_UINT16, BASE_DEC, NULL,
-				0x00, "MU NetFlow Length", HFILL
+				0x0, "MU NetFlow Length", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_flags,
 			{
 				"Flag", "wassp.data.mu_netflow_flag", FT_UINT16, BASE_HEX, NULL,
-				0x00, "MU NetFlow Flag", HFILL
+				0x0, "MU NetFlow Flag", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_uptime,
 			{
 				"UpTime", "wassp.data.mu_netflow_uptime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL,
-				0x00, "MU NetFlow Up Time", HFILL
+				0x0, "MU NetFlow Up Time", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_record,
 			{
 				"Record", "wassp.data.mu_netflow_record", FT_BYTES, BASE_NONE, NULL,
-				0x00, "MU NetFlow Record", HFILL
+				0x0, "MU NetFlow Record", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_in_bytes,
 			{
 				"InBytes", "wassp.data.mu_netflow_inbytes", FT_UINT32, BASE_DEC, NULL,
-				0x00, "MU NetFlow In Bytes", HFILL
+				0x0, "MU NetFlow In Bytes", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_in_packets,
 			{
 				"InPackets", "wassp.data.mu_netflow_inpackets", FT_UINT32, BASE_DEC, NULL,
-				0x00, "MU NetFlow In Packets", HFILL
+				0x0, "MU NetFlow In Packets", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_ip_protocol_number,
 			{
 				"Protocol", "wassp.data.mu_netflow_protocol", FT_UINT8, BASE_DEC, NULL,
-				0x00, "MU NetFlow IP Protocol", HFILL
+				0x0, "MU NetFlow IP Protocol", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_source_tos,
 			{
 				"Source TOS", "wassp.data.mu_netflow_tos", FT_UINT8, BASE_HEX, NULL,
-				0x00, "MU NetFlow Source TOS", HFILL
+				0x0, "MU NetFlow Source TOS", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_source_port,
 			{
 				"Source Port", "wassp.data.mu_netflow_source_port", FT_INT16, BASE_DEC, NULL,
-				0x00, "MU NetFlow Source Port", HFILL
+				0x0, "MU NetFlow Source Port", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_source_ip,
 			{
 				"IP", "wassp.data.mu_netflow_source_ip", FT_IPv4, BASE_NONE, NULL,
-				0x00, "MU NetFlow Source IP", HFILL
+				0x0, "MU NetFlow Source IP", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_input_snmp,
 			{
 				"In SNMP", "wassp.data.mu_netflow_in_snmp", FT_UINT16, BASE_DEC, NULL,
-				0x00, "MU NetFlow In Snmp", HFILL
+				0x0, "MU NetFlow In Snmp", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_dest_port,
 			{
 				"Dest Port", "wassp.data.mu_netflow_dest_port", FT_INT16, BASE_DEC, NULL,
-				0x00, "MU NetFlow Dest Port", HFILL
+				0x0, "MU NetFlow Dest Port", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_dest_ip,
 			{
 				"Dest IP", "wassp.data.mu_netflow_dest_ip", FT_IPv4, BASE_NONE, NULL,
-				0x00, "MU NetFlow Dest IP", HFILL
+				0x0, "MU NetFlow Dest IP", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_output_snmp,
 			{
 				"Out SNMP", "wassp.data.mu_netflow_out_snmp", FT_UINT16, BASE_DEC, NULL,
-				0x00, "MU NetFlow Out Snmp", HFILL
+				0x0, "MU NetFlow Out Snmp", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_last_time,
 			{
 				"Last Time", "wassp.data.mu_netflow_last_time", FT_UINT32, BASE_DEC, NULL,
-				0x00, "MU NetFlow Last Time", HFILL
+				0x0, "MU NetFlow Last Time", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_first_time,
 			{
 				"First Time", "wassp.data.mu_netflow_first_time", FT_UINT32, BASE_DEC, NULL,
-				0x00, "MU NetFlow First Time", HFILL
+				0x0, "MU NetFlow First Time", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_in_source_mac,
 			{
 				"Source Mac", "wassp.data.mu_netflow_source_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "MU NetFlow Source MAC Address", HFILL
+				0x0, "MU NetFlow Source MAC Address", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu_netflow_in_dest_mac,
 			{
 				"Dest Mac", "wassp.data.mu_netflow_dest_mac", FT_ETHER, BASE_NONE, NULL,
-				0x00, "MU NetFlow Dest MAC Address", HFILL
+				0x0, "MU NetFlow Dest MAC Address", HFILL
 			}
 		},
 		/* wassp TLV   */
@@ -6556,84 +6556,84 @@ void proto_register_wassp(void)
 			&hf_wassp_tlv_value,
 			{
 				"Wassp TLV", "wassp.tlv.value", FT_NONE, BASE_NONE, NULL,
-				0x00, "Wassp TLV in hexadecimal", HFILL
+				0x0, "Wassp TLV in hexadecimal", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_type_main,
 			{
 				"Type", "wassp.tlv.type", FT_UINT16, BASE_DEC, VALS(wassp_tlv_types),
-				0x00, "Wassp TLV type", HFILL
+				0x0, "Wassp TLV type", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_type_sub,
 			{
 				"Type", "wassp.tlv.type", FT_NONE, BASE_NONE, NULL,
-				0x00, "Wassp TLV type", HFILL
+				0x0, "Wassp TLV type", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_length,
 			{
 				"Length", "wassp.tlv.length", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Wassp TLV length", HFILL
+				0x0, "Wassp TLV length", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_value_octext,
 			{
 				"value", "wassp.tlv.value_octext", FT_BYTES, BASE_NONE, NULL,
-				0x00, "Wassp TLV Value in hexadecimal", HFILL
+				0x0, "Wassp TLV Value in hexadecimal", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_value_string,
 			{
 				"Value", "wassp.tlv.valuestr", FT_STRING, BASE_NONE, NULL,
-				0x00, "Wassp TLV Value in string format", HFILL
+				0x0, "Wassp TLV Value in string format", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_value_ip,
 			{
 				"Value", "wassp.tlv.valueip", FT_IPv4, BASE_NONE, NULL,
-				0x00, "Wassp TLV Value in IP format", HFILL
+				0x0, "Wassp TLV Value in IP format", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_value_int,
 			{
 				"Value", "wassp.tlv.valueint", FT_UINT8, BASE_DEC, NULL,
-				0x00, "Wassp TLV Value in an integer", HFILL
+				0x0, "Wassp TLV Value in an integer", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_eid_status,
 			{
 				"Status", "wassp.tlv.eid.status", FT_UINT32, BASE_DEC, VALS(wassp_eid_status_types),
-				0x00, "Explicit indication of request's status", HFILL
+				0x0, "Explicit indication of request's status", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_eid_action,
 			{
 				"action", "wassp.tlv.eid.action", FT_UINT32, BASE_DEC, VALS(wassp_eid_action_types),
-				0x00, "upgrade action request", HFILL
+				0x0, "upgrade action request", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_eid_rustate,
 			{
 				"RU State", "wassp.tlv.eid.rustate", FT_BOOLEAN, FT_UINT8, TFS(&wassp_eid_rustate_types),
-				0x00, "Remote Unit State", HFILL
+				0x0, "Remote Unit State", HFILL
 			}
 		},
 		{
 			&hf_wassp_ipaddress,
 			{
 				"IPv4 address", "wassp.ipaddress", FT_IPv4, BASE_NONE, NULL,
-				0x00, "IPv4 IP address", HFILL
+				0x0, "IPv4 IP address", HFILL
 			}
 		},
 		/*  fragmentation */
@@ -6648,14 +6648,14 @@ void proto_register_wassp(void)
 			&hf_wassp_fragment_overlap_conflict,
 			{
 				"Conflicting data in fragment overlap",    "wassp.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL,
-				0x00, "Overlapping fragments contained conflicting data", HFILL
+				0x0, "Overlapping fragments contained conflicting data", HFILL
 			}
 		},
 		{
 			&hf_wassp_fragment_multiple_tails,
 			{
 				"Multiple tail fragments found",    "wassp.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL,
-				0x00, "Several tails were found when defragmenting the packet", HFILL
+				0x0, "Several tails were found when defragmenting the packet", HFILL
 			}
 		},
 		{
@@ -6669,112 +6669,112 @@ void proto_register_wassp(void)
 			&hf_wassp_fragment_error,
 			{
 				"Defragmentation error", "wassp.fragment.error", FT_FRAMENUM, BASE_NONE, NULL,
-				0x00, "Defragmentation error due to illegal fragments", HFILL
+				0x0, "Defragmentation error due to illegal fragments", HFILL
 			}
 		},
 		{
 			&hf_wassp_fragment,
 			{
 				"WASSP Fragment", "wassp.fragment", FT_FRAMENUM, BASE_NONE, NULL,
-				0x00, "wassp Fragmented", HFILL
+				0x0, "wassp Fragmented", HFILL
 			}
 		},
 		{
 			&hf_wassp_fragments,
 			{
 				"WASSP Fragments", "wassp.fragments", FT_NONE, BASE_NONE, NULL,
-				0x00, "wassp more Fragments", HFILL
+				0x0, "wassp more Fragments", HFILL
 			}
 		},
 		{
 			&hf_wassp_fragment_count,
 			{
 				"WASSP Fragment count", "wassp.fragment.count", FT_UINT32, BASE_DEC, NULL,
-				0x00, "Fragment Count", HFILL
+				0x0, "Fragment Count", HFILL
 			}
 		},
 		{
 			&hf_wassp_reassembled_in,
 			{
 				"Reassembled WASSP in frame", "wassp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL,
-				0x00, "This WASSP frame is reassembled in this frame", HFILL
+				0x0, "This WASSP frame is reassembled in this frame", HFILL
 			}
 		},
 		{
 			&hf_wassp_reassembled_length,
 			{
 				"Reassembled WASSP length", "wassp.reassembled.length", FT_UINT32, BASE_DEC, NULL,
-				0x00, "The total length of the reassembled payload", HFILL
+				0x0, "The total length of the reassembled payload", HFILL
 			}
 		},
 		{
 			&hf_wassp_sub_tree,
 			{
 				"WASSP Sub TLV Block", "wassp.subtree", FT_NONE, BASE_NONE, NULL,
-				0x00, "WASSP sub tree", HFILL
+				0x0, "WASSP sub tree", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_unknown,
 			{
 				"WASSP unknown tlv", "wassp.tlv.unknown", FT_UINT32, BASE_DEC, NULL,
-				0x00, "Unknown tlv", HFILL
+				0x0, "Unknown tlv", HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_invalid,
 			{
 				"WASSP invalid tlv", "wassp.tlv.invalid", FT_UINT32, BASE_DEC, NULL,
-				0x00, "Invalid tlv", HFILL
+				0x0, "Invalid tlv", HFILL
 			}
 		},
 		{
 			&hf_wassp_topologykey,
 			{
 				"Topology Key", "wassp.topology_key", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Topology ID", HFILL
+				0x0, "Topology ID", HFILL
 			}
 		},
 		{
 			&hf_wassp_vlanid,
 			{
 				"Vlan ID", "wassp.vlan_id", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Vlan Number", HFILL
+				0x0, "Vlan Number", HFILL
 			}
 		},
 		{
 			&hf_wassp_topology_mode,
 			{
 				"Topology Mode", "wassp.topology_mode", FT_UINT16,BASE_CUSTOM,  CF_FUNC(topology_moder_print),
-				0x00, "Wassp Topology Mode", HFILL
+				0x0, "Wassp Topology Mode", HFILL
 			}
 		},
 		{
 			&hf_wassp_in_cir,
 			{
 				"Committed Information Rate(In direction)", "wassp.in_cir", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Committed Information Rate", HFILL
+				0x0, "Committed Information Rate", HFILL
 			}
 		},
 		{
 			&hf_wassp_out_cir,
 			{
 				"Committed Information Rate(out direction)", "wassp.out_cir", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Committed Information Rate", HFILL
+				0x0, "Committed Information Rate", HFILL
 			}
 		},
 		{
 			&hf_wassp_flag_1b,
 			{
 				"Flag (1 byte)", "wassp.flag.1b", FT_UINT8, BASE_HEX, NULL,
-				0x00, "Flag", HFILL
+				0x0, "Flag", HFILL
 			}
 		},
 		{
 			&hf_wassp_tos,
 			{
 				"Type of Service", "wassp.tos", FT_UINT8, BASE_HEX, NULL,
-				0x00, "Tos", HFILL
+				0x0, "Tos", HFILL
 			}
 		},
 		{
@@ -6788,14 +6788,14 @@ void proto_register_wassp(void)
 			&hf_wassp_tos_mask,
 			{
 				"Type of Service Mask", "wassp.tos.mask", FT_UINT8, BASE_HEX, NULL,
-				0x00, "ToS Mask", HFILL
+				0x0, "ToS Mask", HFILL
 			}
 		},
 		{
 			&hf_cos_tos_mask,
 			{
 				"Class of Service ToS Mask", "wassp.cos_tos.mask", FT_UINT8, BASE_HEX, NULL,
-				0x00, "Cos Tos Mask", HFILL
+				0x0, "Cos Tos Mask", HFILL
 			}
 		},
 		{
@@ -6830,140 +6830,140 @@ void proto_register_wassp(void)
 			&hf_wassp_filter_rule,
 			{
 				"WASSP Filter Rule", "wassp.filter.rule", FT_BYTES, BASE_NONE, NULL,
-				0x00, "Filter Rule", HFILL
+				0x0, "Filter Rule", HFILL
 			}
 		},
 		{
 			&hf_wassp_filter_flag,
 			{
 				"WASSP Filter Flag", "wassp.filter.flag", FT_UINT32, BASE_HEX, NULL,
-				0x00, "Filter Flag", HFILL
+				0x0, "Filter Flag", HFILL
 			}
 		},
 		{
 			&hf_filter_rule_port_range,
 			{
 				"TCP/UDP Port range", "wassp.port", FT_UINT32, BASE_CUSTOM,  CF_FUNC(port_range_print),
-				0x00, "WASSP TCP/UDP Port", HFILL
+				0x0, "WASSP TCP/UDP Port", HFILL
 			}
 		},
 		{
 			&hf_wassp_ipprotocol,
 			{
 				"IP Protocol", "wassp.ip_protocol", FT_UINT8, BASE_DEC, NULL,
-				0x00, "WASSP IP Protocol", HFILL
+				0x0, "WASSP IP Protocol", HFILL
 			}
 		},
 		{
 			&hf_wassp_netmasklength,
 			{
 				"Netmask Length Bit", "wassp.netmask_length", FT_UINT8, BASE_DEC, NULL,
-				0x00, "WASSP Netmask Length Bit", HFILL
+				0x0, "WASSP Netmask Length Bit", HFILL
 			}
 		},
 		{
 			&hf_wassp_macaddr,
 			{
 				"MAC address", "wassp.mac_address", FT_ETHER, BASE_NONE, NULL,
-				0x00, "WASSP MAC address", HFILL
+				0x0, "WASSP MAC address", HFILL
 			}
 		},
 		{
 			&hf_wassp_macaddr_mask,
 			{
 				"MAC address mask", "wassp.mac_address.mask", FT_ETHER, BASE_NONE, NULL,
-				0x00, "MAC mask", HFILL
+				0x0, "MAC mask", HFILL
 			}
 		},
 		{
 			&hf_wassp_ethernet_type,
 			{
 				"Ethernet Type", "wassp.ethernet_type", FT_UINT16, BASE_HEX, NULL,
-				0x00, "Ethernet Type Field", HFILL
+				0x0, "Ethernet Type Field", HFILL
 			}
 		},
 		{
 			&hf_wassp_reserve,
 			{
 				"Reserve", "wassp.reserve", FT_UINT16, BASE_DEC, NULL,
-				0x00, "Reserve value", HFILL
+				0x0, "Reserve value", HFILL
 			}
 		},
 		{
 			&hf_wassp_freq,
 			{
 				"Freq in MHz", "wassp.freq", FT_UINT16, BASE_DEC, NULL,
-				0x00, "WASSP Freq", HFILL
+				0x0, "WASSP Freq", HFILL
 			}
 		},
 		{
 			&hf_wassp_rss,
 			{
 				"RSS", "wassp.rss", FT_UINT16, BASE_DEC, NULL,
-				0x00, "WASSP RSS", HFILL
+				0x0, "WASSP RSS", HFILL
 			}
 		},
 		{
 			&hf_wassp_rssi,
 			{
 				"RSSI", "wassp.rssi", FT_UINT16, BASE_DEC, NULL,
-				0x00, "WASSP RSSI", HFILL
+				0x0, "WASSP RSSI", HFILL
 			}
 		},
 		{
 			&hf_wassp_threatstate,
 			{
 				"WASSP Threat State", "wassp.threat_state", FT_UINT8, BASE_HEX, VALS(threat_state_strings),
-				0x00, "WASSP Threat State (NA/Active/Inactive)", HFILL
+				0x0, "WASSP Threat State (NA/Active/Inactive)", HFILL
 			}
 		},
 		{
 			&hf_wassp_radioparams,
 			{
 				"Radio Params QOS", "wassp.radio_params", FT_UINT8, BASE_HEX, VALS(radio_params_strings),
-				0x00, "WASSP Radio Params QOS", HFILL
+				0x0, "WASSP Radio Params QOS", HFILL
 			}
 		},
 		{
 			&hf_wassp_channelfreq,
 			{
 				"Channel Frequency", "wassp.channel_freq", FT_UINT16, BASE_DEC, NULL,
-				0x00, "WASSP Channel Frequency", HFILL
+				0x0, "WASSP Channel Frequency", HFILL
 			}
 		},
 		{
 			&hf_wassp_mu,
 			{
 				"Total Mu", "wassp.mu", FT_UINT32, BASE_DEC, NULL,
-				0x00, "WASSP Total Mu", HFILL
+				0x0, "WASSP Total Mu", HFILL
 			}
 		},
 		{
 			&hf_wassp_apprules,
 			{
 				"Number of Application Rules", "wassp.num_apprules", FT_UINT16, BASE_DEC, NULL,
-				0x00, "WASSP number of app rules", HFILL
+				0x0, "WASSP number of app rules", HFILL
 			}
 		},
 		{
 			&hf_wassp_displayid,
 			{
 				"Display ID", "wassp.display_id", FT_UINT16, BASE_DEC, NULL,
-				0x00, "WASSP display ID", HFILL
+				0x0, "WASSP display ID", HFILL
 			}
 		},
 		{
 			&hf_wassp_txbytes,
 			{
 				"Tx Bytes", "wassp.tx_bytes", FT_UINT32, BASE_DEC, NULL,
-				0x00, "WASSP Tx Bytes", HFILL
+				0x0, "WASSP Tx Bytes", HFILL
 			}
 		},
 		{
 			&hf_wassp_rxbytes,
 			{
 				"Rx Bytes", "wassp.rx_bytes", FT_UINT32, BASE_DEC, NULL,
-				0x00, "WASSP Rx Bytes", HFILL
+				0x0, "WASSP Rx Bytes", HFILL
 			}
 		},
 	};

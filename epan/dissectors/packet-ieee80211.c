@@ -37182,7 +37182,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_block_ack_control_ack_policy,
      {"BA Ack Policy", "wlan.ba.control.ackpolicy",
-      FT_BOOLEAN, 16, TFS(&ieee80211_block_ack_control_ack_policy_flag), 0x01,
+      FT_BOOLEAN, 16, TFS(&ieee80211_block_ack_control_ack_policy_flag), 0x0001,
       "Block Ack Request (BAR) Ack Policy", HFILL }},
 
     {&hf_ieee80211_block_ack_control_type,
@@ -40142,7 +40142,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_partial_tsf_timer1,
      {"Partial TSF Timer", "wlan.ranging.rsta.partial_tsf_timer",
-      FT_UINT32, BASE_CUSTOM, CF_FUNC(partial_tsf_custom), 0xffff, NULL, HFILL }},
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(partial_tsf_custom), 0x0000ffff, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_duration1,
      {"Duration", "wlan.ranging.rsta.duration",
@@ -40150,7 +40150,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_passive_tb_ranging_reserved1,
      {"Reserved", "wlan.ranging.rsta.reserved1",
-      FT_BOOLEAN, 32, NULL, 0x800000, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00800000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_periodicity1,
      {"Periodicity", "wlan.ranging.rsta.periodicity1",
@@ -40166,11 +40166,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_passive_tb_ranging_reserved,
      {"Reserved", "wlan.ranging.rsta.reserved",
-      FT_BOOLEAN, 40, NULL, 0x800000, NULL, HFILL }},
+      FT_BOOLEAN, 40, NULL, 0x0000800000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_periodicity,
      {"Periodicity", "wlan.ranging.rsta.periodicity",
-      FT_UINT40, BASE_DEC, NULL, 0xff000000, NULL, HFILL }},
+      FT_UINT40, BASE_DEC, NULL, 0x00ff000000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_format_and_bandwidth,
       {"Format and Bandwidth", "wlan.ftm.rsta.format_and_bandwidth",
@@ -46685,37 +46685,37 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_extended_capabilities_b56_2,
      {"Alternate EDCA", "wlan.extcap.b56",
-      FT_BOOLEAN, 16, NULL, 0x01,
+      FT_BOOLEAN, 16, NULL, 0x0001,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b57_2,
      {"Unprotected TXOP Negotiation", "wlan.extcap.b57",
-      FT_BOOLEAN, 16, NULL, 0x02,
+      FT_BOOLEAN, 16, NULL, 0x0002,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b58_2,
      {"Protected TXOP Negotiation", "wlan.extcap.b58",
-      FT_BOOLEAN, 16, NULL, 0x04,
+      FT_BOOLEAN, 16, NULL, 0x0004,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b59_2,
      {"Reserved", "wlan.extcap.b59",
-      FT_UINT16, BASE_HEX, NULL, 0x08,
+      FT_UINT16, BASE_HEX, NULL, 0x0008,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b60_2,
      {"Protected QLoad Report", "wlan.extcap.b60",
-      FT_BOOLEAN, 16, NULL, 0x10,
+      FT_BOOLEAN, 16, NULL, 0x0010,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b61_2,
      {"TDLS Wider Bandwidth", "wlan.extcap.b61",
-      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x20,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0020,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b62_2,
      {"Operating Mode Notification", "wlan.extcap.b62",
-      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x40,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_max_num_msdus,
@@ -48674,35 +48674,35 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_cci_ac_constraint,
      {"AC Constraint", "wlan.htc.he.a_control.cci.ac_constraint",
-      FT_BOOLEAN, 32, NULL, 0x01, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
 
     {&hf_ieee80211_he_cci_rdg_more_ppdu,
      {"RDG/More PPDU", "wlan.htc.he.a_control.cci.rdg_more_ppdu",
-      FT_BOOLEAN, 32, NULL, 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL }},
 
     {&hf_ieee80211_he_cci_sr_ppdu_indic,
      {"PSRT PPDU", "wlan.htc.he.a_control.cci.sr_ppdu_indic",
-      FT_BOOLEAN, 32, NULL, 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL }},
 
     {&hf_ieee80211_he_cci_reserved,
      {"Reserved", "wlan.htc.he.a_control.cci.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0xF8, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x000000F8, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_rx_nss_ext,
      {"Rx NSS Extension", "wlan.htc.he.a_control.eht_om.rx_nss_ext",
-      FT_BOOLEAN, 32, NULL, 0x01, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_chan_w_ext,
      {"Channel Width Extension", "wlan.htc.he.a_control.eht_om.chan_w_ext",
-      FT_BOOLEAN, 32, NULL, 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_tx_nsts_ext,
      {"Tx NSTS Extension", "wlan.htc.he.a_control.eht_om.tx_nsts_ext",
-      FT_BOOLEAN, 32, NULL, 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_reserved,
      {"Reserved", "wlan.htc.he.a_control.eht_om.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0x38, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x00000038, NULL, HFILL }},
 
     {&hf_ieee80211_he_srs_ppdu_resp_dur,
      {"PPDU Response Duration", "wlan.htc.he.a_control.srs.ppdu_resp_dur",
@@ -49670,7 +49670,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_osen_rsn_cap_peerkey,
      {"PeerKey Enabled", "wlan.osen.rsn.capabilities.peerkey",
-      FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0x200, NULL, HFILL }},
+      FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0x0200, NULL, HFILL }},
 
     {&hf_ieee80211_osen_rsn_cap_flags,
      {"RSN Capability Flags", "wlan.osen.rsn.capabilities.flags",
@@ -50595,7 +50595,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trs_support,
      {"TRS Support", "wlan.ext_tag.he_mac_cap.Trs_support",
-      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), 0x0000040000,
+      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), 0x000000040000,
       NULL, HFILL }},
 
     {&hf_ieee80211_he_bsr_support,
@@ -50675,7 +50675,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_psr_responder,
      {"PSR Responder", "wlan.ext_tag.he_mac_cap.psr_responder",
-      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), 0x0800000000,
+      FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), 0x000800000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_he_ndp_feedback_report_support,
@@ -50705,7 +50705,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_2_996_tone_ru_support,
      {"UL 2x996-tone RU Support", "wlan.ext_tag.he_mac_cap.ul_2_996_tone_ru_support",
       FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
-      0x80000000000, NULL, HFILL }},
+      0x080000000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_control_ul_mu_data_disable_rx_support,
      {"OM Control UL MU Data Disable RX Support", "wlan.ext_tag.he_mac_cap.om_cntl_ul_mu_data_disable_rx_support",

@@ -339,7 +339,7 @@ proto_register_brdwlk(void)
           {"Packet Dropped", "brdwlk.drop", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
         { &hf_brdwlk_vsan,
-          {"VSAN", "brdwlk.vsan", FT_UINT16, BASE_DEC, NULL, 0xFFF, NULL,
+          {"VSAN", "brdwlk.vsan", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL,
            HFILL}},
         { &hf_brdwlk_plen,
           {"Original Packet Length", "brdwlk.plen", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,

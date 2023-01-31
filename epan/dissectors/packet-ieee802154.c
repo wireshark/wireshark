@@ -7086,11 +7086,11 @@ void proto_register_ieee802154(void)
             "New Mode Modulation Scheme", HFILL }},
 
         { &hf_ieee802154_tap_phr_fsk_ms_mode_mode,
-        { "Mode",  "wpan-tap.phr.fsk_ms.page", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_mode), IEEE802154_TAP_PHR_FSK_MS_MODE_MODE,
+        { "Mode",  "wpan-tap.phr.fsk_ms.mode", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_mode), IEEE802154_TAP_PHR_FSK_MS_MODE_MODE,
             "New Mode Mode", HFILL }},
 
         { &hf_ieee802154_tap_phr_fsk_ms_mode_addl_mode,
-        { "Additional Mode",  "wpan-tap.phr.fsk_ms.page", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_additional_modes), IEEE802154_TAP_PHR_FSK_MS_MODE_MODE,
+        { "Additional Mode",  "wpan-tap.phr.fsk_ms.mode", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_additional_modes), IEEE802154_TAP_PHR_FSK_MS_MODE_MODE,
             "New Mode Additional Mode", HFILL }},
 
         { &hf_ieee802154_tap_phr_wisun_fsk_ms_reserved,

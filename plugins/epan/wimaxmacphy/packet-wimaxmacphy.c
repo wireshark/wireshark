@@ -3208,8 +3208,7 @@ proto_register_wimaxmacphy(void)
                     "wimaxmacphy.prim_fast_feedback_sub_type",
                     FT_UINT16,
                     BASE_DEC,
-                    VALS(
-                        wimaxmacphy_prim_fast_feedback_sub_type_vals),
+                    VALS(wimaxmacphy_prim_fast_feedback_sub_type_vals),
                     0x7000,
                     NULL,
                     HFILL
@@ -3547,8 +3546,7 @@ proto_register_wimaxmacphy(void)
                     "wimaxmacphy.zone_disable_pusc_subchannel_rotation",
                     FT_UINT8,
                     BASE_DEC,
-                    VALS(
-                    wimaxmacphy_ul_zone_disable_pusc_subchannel_rotation_vals),
+                    VALS(wimaxmacphy_ul_zone_disable_pusc_subchannel_rotation_vals),
                     0x0f,
                     NULL,
                     HFILL
@@ -4423,8 +4421,7 @@ proto_register_wimaxmacphy(void)
                     "wimaxmacphy.burst_sounding_max_cyclic_shift_indx",
                     FT_UINT8,
                     BASE_DEC,
-                    VALS(
-                     wimaxmacphy_ul_burst_sounding_max_cyclic_shift_indx_vals),
+                    VALS(wimaxmacphy_ul_burst_sounding_max_cyclic_shift_indx_vals),
                     0x0,
                     NULL,
                     HFILL
@@ -4450,8 +4447,7 @@ proto_register_wimaxmacphy(void)
                     "wimaxmacphy.burst_sounding_decimation_offset_rand",
                     FT_UINT8,
                     BASE_DEC,
-                    VALS(
-                    wimaxmacphy_ul_burst_sounding_decimation_offset_rand_vals),
+                    VALS(wimaxmacphy_ul_burst_sounding_decimation_offset_rand_vals),
                     0x0,
                     NULL,
                     HFILL
@@ -5231,8 +5227,7 @@ proto_register_wimaxmacphy(void)
                     "wimaxmacphy.sub_burst_sounding_power_assignment_method",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(
-                      wimaxmacphy_ul_sub_burst_sounding_power_assignment_vals),
+                    VALS(wimaxmacphy_ul_sub_burst_sounding_power_assignment_vals),
                     0x0,
                     NULL,
                     HFILL
@@ -5258,8 +5253,7 @@ proto_register_wimaxmacphy(void)
                     "wimaxmacphy.sub_burst_sounding_allocation_mode",
                     FT_UINT8,
                     BASE_DEC,
-                    VALS(
-                       wimaxmacphy_ul_sub_burst_sounding_allocation_mode_vals),
+                    VALS(wimaxmacphy_ul_sub_burst_sounding_allocation_mode_vals),
                     0x0,
                     NULL,
                     HFILL

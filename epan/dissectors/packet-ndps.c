@@ -8648,7 +8648,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_len,
           { "Length",    "ndps.len",
-            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_limit_enc,

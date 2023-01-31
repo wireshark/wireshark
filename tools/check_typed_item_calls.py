@@ -359,7 +359,19 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^opa.mad.attributemodifier.p'),
         re.compile(r'^v5ua.efa'),
         re.compile(r'^zbncp.data.tx_power'),
-        re.compile(r'^zbncp.data.nwk_addr')
+        re.compile(r'^zbncp.data.nwk_addr'),
+        re.compile(r'^zbee_zcl_hvac.pump_config_control.attr.ctrl_mode'),
+        re.compile(r'^nat-pmp.external_port'),
+        re.compile(r'^zbee_zcl.attr.float'),
+        re.compile(r'^wpan-tap.phr.fsk_ms.mode'),
+        re.compile(r'^mysql.exec_flags'),
+        re.compile(r'^pim.metric_pref'),
+        re.compile(r'^modbus.regval_float'),
+        re.compile(r'^alcap.cau.value'),
+        re.compile(r'^bpv7.crc_field'),
+        re.compile(r'^at.chld.mode'),
+        re.compile(r'^btl2cap.psm'),
+        re.compile(r'^srvloc.srvtypereq.nameauthlistlen')
     ]
 
     for patt in ignore_patterns:
@@ -725,6 +737,8 @@ apiChecks.append(ProtoTreeAddItemCheck(True)) # for ptvcursor_add()
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" , code_string) # C-style comment
     code_string = re.sub(re.compile(r"//.*?\n" ) ,"" , code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"#if 0.*?#endif",re.DOTALL ) ,"" , code_string) # Ignored region
+
     return code_string
 
 # Test for whether the given file was automatically generated.
@@ -766,10 +780,11 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         contents = removeComments(contents)
 
         # N.B. re extends all the way to HFILL to avoid greedy matching
-        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_]*?)\s*,\s*HFILL', contents)
+        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
+            #print(hf)
             items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
                              type_modifier=m.group(5),
                              check_mask=check_mask,

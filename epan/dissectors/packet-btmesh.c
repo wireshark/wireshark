@@ -8841,7 +8841,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_net,
             { "NetKeyIndex", "btmesh.model.config_appkey_add.netkeyindexandappkeyindex.net",
-            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0x000FFF,
             NULL, HFILL }
         },
         { &hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_app,
@@ -8861,7 +8861,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_net,
             { "NetKeyIndex", "btmesh.model.config_appkey_update.netkeyindexandappkeyindex.net",
-            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0x000FFF,
             NULL, HFILL }
         },
         { &hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_app,
@@ -9136,7 +9136,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_net,
             { "NetKeyIndex", "btmesh.model.config_appkey_delete.netkeyindexandappkeyindex.net",
-            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0x000FFF,
             NULL, HFILL }
         },
         { &hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_app,
@@ -9201,7 +9201,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_net,
             { "NetKeyIndex", "btmesh.model.config_appkey_status.netkeyindexandappkeyindex.net",
-            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0x000FFF,
             NULL, HFILL }
         },
         { &hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_app,

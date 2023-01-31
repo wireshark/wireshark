@@ -2096,7 +2096,7 @@ void proto_register_icmp(void)
 		  NULL, HFILL}},
 
 		{&hf_icmp_mpls_s,
-		 {"Stack bit", "icmp.mpls.s", FT_BOOLEAN, 24,
+		 {"Stack bit", "icmp.mpls.s", FT_BOOLEAN, 8,
 		  TFS(&tfs_set_notset), 0x01,
 		  NULL, HFILL}},
 

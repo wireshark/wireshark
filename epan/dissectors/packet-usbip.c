@@ -993,12 +993,12 @@ proto_register_usbip(void)
 
         {&hf_usbip_direction,
          {"Direction",                     "usbip.endpoint_number.direction",
-          FT_UINT8, BASE_HEX, VALS(usb_endpoint_direction_vals), 0x1,
+          FT_UINT32, BASE_HEX, VALS(usb_endpoint_direction_vals), 0x00000001,
           "USB endpoint direction", HFILL}},
 
         {&hf_usbip_ep,
          {"Endpoint",                      "usbip.endpoint_number",
-          FT_UINT8, BASE_HEX, NULL, 0xf,
+          FT_UINT32, BASE_HEX, NULL, 0x0000000f,
           "USB endpoint number", HFILL}},
 
         {&hf_usbip_transfer_flags,

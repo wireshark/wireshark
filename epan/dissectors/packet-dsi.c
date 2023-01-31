@@ -434,11 +434,11 @@ proto_register_dsi(void)
 		    "Attention flag, don't reconnect bit", HFILL }},
 		{ &hf_dsi_attn_flag_time,
 		  { "Minutes",          "dsi.attn_flag.time",
-		    FT_UINT16, BASE_DEC, NULL, 0xfff,
+		    FT_UINT16, BASE_DEC, NULL, 0x0fff,
 		    "Number of minutes", HFILL }},
 		{ &hf_dsi_attn_flag_bitmap,
 		  { "Bitmap",          "dsi.attn_flag.bitmap",
-		    FT_UINT16, BASE_HEX, NULL, 0xfff,
+		    FT_UINT16, BASE_HEX, NULL, 0x0fff,
 		    "Attention extended bitmap", HFILL }},
 	};
 

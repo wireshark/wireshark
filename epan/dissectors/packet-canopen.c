@@ -1426,7 +1426,7 @@ proto_register_canopen(void)
         },
         { &hf_canopen_function_code,
           { "Function code", "canopen.function_code",
-            FT_UINT32, BASE_HEX, NULL, 0x780,
+            FT_UINT32, BASE_HEX, NULL, 0x00000780,
             NULL, HFILL }
         },
         { &hf_canopen_node_id,

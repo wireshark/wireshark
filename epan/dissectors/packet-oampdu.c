@@ -2954,42 +2954,42 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_s1_autoneg_hd,
             { "Half Duplex", "oampdu.s1.autoneg.hd",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x01,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0001,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_fd,
             { "Full Duplex", "oampdu.s1.autoneg.fd",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x02,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_10,
             { "10 Mbps", "oampdu.s1.autoneg.10",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x04,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0004,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_100,
             { "100 Mbps", "oampdu.s1.autoneg.100",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x08,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0008,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_1000,
             { "1000 Mbps", "oampdu.s1.autoneg.1000",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x10,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0010,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_10000,
             { "10Gbps", "oampdu.s1.autoneg.10000",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x20,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0020,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_fc,
             { "Flow Control", "oampdu.s1.autoneg.fc",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x40,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0040,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_mdi,
             { "Auto MDI/MDI-X", "oampdu.s1.autoneg.mdi",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x80,
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object,

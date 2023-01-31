@@ -2557,7 +2557,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x00000001,
                                 NULL, HFILL
                         }
                 },
@@ -2569,7 +2569,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x00000002,
                                 NULL, HFILL
                         }
                 },
@@ -2581,7 +2581,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0004,
+                                0x00000004,
                                 NULL, HFILL
                         }
                 },
@@ -2605,7 +2605,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x00000001,
                                 NULL, HFILL
                         }
                 },
@@ -2617,7 +2617,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x00000002,
                                 NULL, HFILL
                         }
                 },
@@ -2629,7 +2629,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0004,
+                                0x00000004,
                                 NULL, HFILL
                         }
                 },
@@ -2653,7 +2653,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x00000001,
                                 NULL, HFILL
                         }
                 },
@@ -2665,7 +2665,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x00000002,
                                 NULL, HFILL
                         }
                 },
@@ -2677,7 +2677,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0004,
+                                0x00000004,
                                 NULL, HFILL
                         }
                 },
@@ -2689,7 +2689,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0008,
+                                0x00000008,
                                 NULL, HFILL
                         }
                 },
@@ -2701,7 +2701,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0010,
+                                0x00000010,
                                 NULL, HFILL
                         }
                 },
@@ -2725,7 +2725,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x00000001,
                                 NULL, HFILL
                         }
                 },
@@ -2737,7 +2737,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x00000002,
                                 NULL, HFILL
                         }
                 },
@@ -2749,7 +2749,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0004,
+                                0x00000004,
                                 NULL, HFILL
                         }
                 },
@@ -2761,7 +2761,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0008,
+                                0x00000008,
                                 NULL, HFILL
                         }
                 },
@@ -2773,7 +2773,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0010,
+                                0x00000010,
                                 NULL, HFILL
                         }
                 },
@@ -2785,7 +2785,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0020,
+                                0x00000020,
                                 NULL, HFILL
                         }
                 },
@@ -2809,7 +2809,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x00000001,
                                 NULL, HFILL
                         }
                 },
@@ -2821,7 +2821,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x00000002,
                                 NULL, HFILL
                         }
                 },
@@ -2833,7 +2833,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0004,
+                                0x00000004,
                                 NULL, HFILL
                         }
                 },
@@ -2845,7 +2845,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0008,
+                                0x00000008,
                                 NULL, HFILL
                         }
                 },
@@ -2869,7 +2869,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x00000001,
                                 NULL, HFILL
                         }
                 },
@@ -2881,7 +2881,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x00000002,
                                 NULL, HFILL
                         }
                 },
