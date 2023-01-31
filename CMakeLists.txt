@@ -2588,6 +2588,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		ui
 		capchild
 		caputils
+		iface_monitor
 		wiretap
 		epan
 		version_info
@@ -2694,6 +2695,7 @@ if(BUILD_logray AND QT_FOUND)
 		ui
 		capchild
 		caputils
+		iface_monitor
 		wiretap
 		epan
 		version_info
@@ -3131,6 +3133,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		writecap
 		wsutil
 		caputils
+		iface_monitor
 		ui
 		version_info
 		pcap::pcap

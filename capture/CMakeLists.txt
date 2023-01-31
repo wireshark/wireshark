@@ -24,8 +24,6 @@ endif()
 set(CAPUTILS_SRC
 	${PLATFORM_CAPUTILS_SRC}
 	capture-pcap-util.c
-	iface_monitor.c
-	ws80211_utils.c
 )
 
 if (AIRPCAP_FOUND)
@@ -51,17 +49,11 @@ target_link_libraries(caputils
 		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 	PRIVATE
 		wsutil
-		${NL_LIBRARIES}
 		${WIN_IPHLPAPI_LIBRARY}
 )
 if(WIN32)
 	target_link_libraries(caputils PRIVATE ${GMODULE2_LIBRARIES})
 endif()
-
-target_include_directories(caputils SYSTEM
-	PRIVATE
-		${NL_INCLUDE_DIRS}
-)
 
 set_target_properties(caputils PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
@@ -99,6 +91,21 @@ set_target_properties(capchild PROPERTIES
 if(MSVC)
 	set_target_properties(capchild PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 endif()
+
+add_library(iface_monitor STATIC
+	iface_monitor.c
+	ws80211_utils.c
+)
+
+target_link_libraries(iface_monitor
+	PRIVATE
+		${NL_LIBRARIES}
+)
+
+target_include_directories(iface_monitor SYSTEM
+	PRIVATE
+		${NL_INCLUDE_DIRS}
+)
 
 CHECKAPI(
 	NAME
