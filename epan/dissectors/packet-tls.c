@@ -4815,6 +4815,7 @@ proto_reg_handoff_ssl(void)
     register_ber_oid_dissector("1.3.6.1.4.1.11129.2.4.5", dissect_tls_sct_ber, proto_tls, "SignedCertificateTimestampList");
 
     heur_dissector_add("tcp", dissect_ssl_heur, "SSL/TLS over TCP", "tls_tcp", proto_tls, HEURISTIC_ENABLE);
+    dissector_add_string("http.upgrade", "tls", tls_handle);
 }
 
 void
