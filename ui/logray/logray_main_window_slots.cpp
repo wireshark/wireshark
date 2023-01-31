@@ -1561,7 +1561,7 @@ void LograyMainWindow::addStatsPluginsToMenu() {
             }
 
             stats_tree_action = new QAction(stat_name, this);
-            stats_tree_action->setData(cfg->abbr);
+            stats_tree_action->setData(QString::fromUtf8(cfg->abbr));
             parent_menu->addAction(stats_tree_action);
             connect(stats_tree_action, &QAction::triggered, this, [this]() {
                 QAction* action = qobject_cast<QAction*>(sender());
