@@ -60,7 +60,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	jsmn.h
 	json_dumper.h
 	mpeg-audio.h
-	netlink.h
 	nstime.h
 	os_version_info.h
 	pint.h
