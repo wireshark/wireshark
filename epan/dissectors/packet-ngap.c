@@ -14279,7 +14279,7 @@ dissect_ngap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
     } else {
       if (nas_5gs_handle) {
         proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NAS_PDU);
-        volatile int saved_offset;
+        volatile int saved_offset = offset;
         TRY {
           call_dissector(nas_5gs_handle, parameter_tvb, actx->pinfo, subtree);
         }
