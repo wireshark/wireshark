@@ -10615,9 +10615,9 @@ static int dissect_pfcp_nokia_session_state_id(tvbuff_t *tvb, packet_info *pinfo
     return 8;
 }
 
-const true_false_string tfs_nokia_detailed_stats_ie = { "Egress", "Ingress" };
-const true_false_string tfs_nokia_detailed_stats_qp = { "Policer", "Queue" };
-const val64_string nokia_detailed_stats_length_values[] = {
+static const true_false_string tfs_nokia_detailed_stats_ie = { "Egress", "Ingress" };
+static const true_false_string tfs_nokia_detailed_stats_qp = { "Policer", "Queue" };
+static const val64_string nokia_detailed_stats_length_values[] = {
     {0, "Not present"},
     {1, "4 bytes"},
     {2, "8 bytes"},

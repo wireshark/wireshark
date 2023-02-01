@@ -2525,7 +2525,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 	}
 }
 
-const char *
+static const char *
 get_appl_string(guint8 item_id, guint8 item_sid){
 	const char *item_name_string = NULL;
 
