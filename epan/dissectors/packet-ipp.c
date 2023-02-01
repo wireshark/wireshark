@@ -22,6 +22,7 @@
 #include <epan/wmem_scopes.h>
 #include "packet-http.h"
 #include "packet-media-type.h"
+#include "packet-tls.h"
 
 void proto_register_ipp(void);
 void proto_reg_handoff_ipp(void);
@@ -1585,9 +1586,34 @@ void
 proto_reg_handoff_ipp(void)
 {
     /*
-     * Register ourselves as running atop HTTP and using port 631.
+     * IPP uses the same well-known TCP port, 631, for both running atop HTTP
+     * and atop HTTP over TLS (IPPS, RFC 7472). The latter includes both
+     * connections that start out as HTTP and upgrade to using TLS (RFC 2817)
+     * as well as connections that begin as TLS. Despite RFC 8010:
+     *   the "Content-Type" of the message body in each request and response
+     *   MUST be "application/ipp"
+     * a number of implementations fail to include the Content-Type in their
+     * chunked responses. (#18825, #5718, #6765).
+     *
+     * For that reason, we register IPP in the HTTP port-based dissector so
+     * that packets without a Content-Type on port 631 will use this dissector.
+     * (RFC 8010 also notes that HTTP/2 is an OPTIONAL transport layer; we
+     * don't have a port-based dissector dissector for HTTP/2, but hopefully
+     * any implementations that use HTTP/2 always send the Content-Type.)
+     * Note we check for port-based dissectors after the Content-Type; this
+     * is good because many IPP servers will respond to non-IPP HTTP requests
+     * on port 631 just as they would on ports 80 or 443.
+     *
+     * We can only have a single dissector in the TCP dissector table for
+     * port 631. If we don't register a fake helper protocol that tries
+     * each of TLS, HTTP/2, and HTTP in order (cf. #16541, #18016), we're
+     * currently better off having TLS be the registered dissector and HTTP
+     * be detected heuristically, because the non-heuristic HTTP dissector
+     * never rejects packets, even when it doesn't add anything to the tree.
      */
+    dissector_handle_t http_tls_handle = find_dissector_add_dependency("http-over-tls", proto_ipp);
     http_tcp_dissector_add(631, ipp_handle);
+    ssl_dissector_add(631, http_tls_handle);
     dissector_add_string("media_type", "application/ipp", ipp_handle);
 }
 

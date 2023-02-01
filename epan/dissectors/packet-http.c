@@ -2209,8 +2209,25 @@ dissecting_body:
 		 * a media type and instead use a specified port.
 		 */
 		if (handle == NULL) {
-			handle = dissector_get_uint_handle(port_subdissector_table,
-			    pinfo->match_uint);
+			/* If the HTTP dissector was called heuristically
+			 * (or the HTTP dissector was called from the TLS
+			 * dissector, which was called heuristically), then
+			 * match_uint doesn't get set (or is likely set to
+			 * 6 for IP_PROTO_TCP.) Some protocols (e.g., IPP)
+			 * use the same specified port for both HTTP and
+			 * HTTP over TLS, and one will be a heuristic match.
+			 * In those cases, look at the src or dest port.
+			 */
+			if (pinfo->match_uint == pinfo->srcport || pinfo->match_uint == pinfo->destport) {
+				handle = dissector_get_uint_handle(port_subdissector_table,
+				    pinfo->match_uint);
+			} else if (http_type == MEDIA_CONTAINER_HTTP_REQUEST) {
+				handle = dissector_get_uint_handle(port_subdissector_table,
+				    pinfo->destport);
+			} else if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
+				handle = dissector_get_uint_handle(port_subdissector_table,
+				    pinfo->srcport);
+			}
 		}
 
 		if (handle != NULL) {
@@ -3976,6 +3993,10 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	end_of_stream = (tcpinfo && IS_TH_FIN(tcpinfo->flags));
 	dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tcpinfo ? &tcpinfo->seq : NULL);
 
+	/* XXX - If we haven't seen any HTTP yet even after dissecting above,
+	 * should we return 0 here so that heuristic dissectors can get a
+	 * chance?
+	 */
 	return tvb_captured_length(tvb);
 }
 
