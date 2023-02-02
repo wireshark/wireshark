@@ -410,7 +410,7 @@ sm_fragment_temporary_key(const packet_info *pinfo,
     const gchar* addr = (const char*)data;
     sm_fragment_key *key;
 
-    if (addr == NULL || pinfo->src.data == NULL || pinfo->dst.data == NULL)
+    if (addr == NULL)
         return NULL;
 
     key = g_slice_new(sm_fragment_key);
@@ -430,7 +430,7 @@ sm_fragment_persistent_key(const packet_info *pinfo,
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
 
-    if (addr == NULL || pinfo->src.data == NULL || pinfo->dst.data == NULL)
+    if (addr == NULL)
         return NULL;
 
     key->addr_info = wmem_strdup(NULL, addr);
