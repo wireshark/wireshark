@@ -65,6 +65,9 @@ private slots:
     void saveAs();
 
 private:
+    /* Keep these enums in the same order (generally alphabetically)
+     * that they are added to the combo boxes.
+     */
     enum DecodeAsType {
         DecodeAsNone,
         DecodeAsBASE64,
@@ -78,13 +81,13 @@ private:
         ShowAsASCII,
         ShowAsASCIIandControl,
         ShowAsCArray,
-        ShowAsRustArray,
         ShowAsEBCDIC,
         ShowAsHexDump,
         ShowAsHTML,
         ShowAsImage,
         ShowAsJson,
         ShowAsRAW,
+        ShowAsRustArray,
         ShowAsCodec, // Ordered to match the UTF-8 combobox index
         ShowAsYAML,
     };
