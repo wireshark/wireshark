@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright 2014, Evan Huus (See AUTHORS file)
 #
 # Enhance (2016) by Alexis La Goutte (For use with Travis CI)
@@ -9,20 +9,126 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+set -e -u -o pipefail
+
 # Update to last brew release
-brew update
+if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ] ; then
+    brew update
+fi
 
-# install some libs needed by Wireshark
-brew install opus c-ares glib libgcrypt gnutls lua@5.1 cmake python nghttp2 snappy lz4 libxml2 ninja \
-  libmaxminddb libsmi spandsp brotli minizip zstd libssh libilbc speexdsp gettext pcre2 qt6 "$@"
+function print_usage() {
+    printf "\\nUtility to setup a macOS system for Wireshark Development using Homebrew.\\n"
+    printf "The basic usage installs the needed software\\n\\n"
+    printf "Usage: %s [--install-optional] [--install-dmg-deps] [...other options...]\\n" "$0"
+    printf "\\t--install-optional: install optional software as well\\n"
+    printf "\\t--install-dmg-deps: install packages required to build the .dmg file\\n"
+    printf "\\t--install-sparkle-deps: install the Sparkle automatic updater\\n"
+    printf "\\t--install-all: install everything\\n"
+    printf "\\t[other]: other options are passed as-is to apt\\n"
+}
 
-# install custom tap of sparkle v1 as homebrew now uses sparkle v2 per default which is not compatible
-curl -o /tmp/sparkle.rb https://raw.githubusercontent.com/Homebrew/homebrew-cask/c6dfe6baf1639998ba1707f68668cf8fa97bac9d/Casks/sparkle.rb
-brew install /tmp/sparkle.rb
-rm /tmp/sparkle.rb
+INSTALLED_FORMULAE=$( brew list --formulae )
+function install_formulae() {
+    INSTALL_LIST=()
+    for FORMULA in "$@" ; do
+        if ! grep --word-regexp "$FORMULA" > /dev/null 2>&1 <<<"$INSTALLED_FORMULAE" ; then
+            INSTALL_LIST+=( "$FORMULA" )
+        fi
+    done
+    if (( ${#INSTALL_LIST[@]} != 0 )); then
+        brew install "${INSTALL_LIST[@]}"
+    else
+        printf "Nothing to install.\n"
+    fi
+}
 
-# Uncomment to enable automatic updates using Sparkle
-# brew cask install sparkle
+ADDITIONAL=0
+DMGDEPS=0
+SPARKLEDEPS=0
+OPTIONS=()
+for arg; do
+    case $arg in
+        --help)
+            print_usage
+            exit 0
+            ;;
+        --install-optional)
+            ADDITIONAL=1
+            ;;
+        --install-dmg-deps)
+            DMGDEPS=1
+            ;;
+        --install-sparkle-deps)
+            DMGDEPS=1
+            ;;
+        --install-all)
+            ADDITIONAL=1
+            DMGDEPS=1
+            SPARKLEDEPS=1
+            ;;
+        *)
+            OPTIONS+=("$arg")
+            ;;
+    esac
+done
+
+BUILD_LIST=(
+    ccache
+    cmake
+    ninja
+)
+
+# Qt isn't technically required, but...
+REQUIRED_LIST=(
+    c-ares
+    glib
+    libgcrypt
+    pcre2
+    qt6
+)
+
+ADDITIONAL_LIST=(
+    brotli
+    gettext
+    gnutls
+    libilbc
+    libmaxminddb
+    libsmi
+    libssh
+    libxml2
+    lua@5.1
+    lz4
+    minizip
+    nghttp2
+    opus
+    snappy
+    spandsp
+    speexdsp
+    zstd
+)
+
+ACTUAL_LIST=( "${BUILD_LIST[@]}" "${REQUIRED_LIST[@]}" )
+
+# Now arrange for optional support libraries
+if [ $ADDITIONAL -ne 0 ] ; then
+    ACTUAL_LIST+=( "${ADDITIONAL_LIST[@]}" )
+fi
+
+if (( ${#OPTIONS[@]} != 0 )); then
+    ACTUAL_LIST+=( "${OPTIONS[@]}" )
+fi
+
+install_formulae "${ACTUAL_LIST[@]}"
+
+
+if [ $DMGDEPS -ne 0 ] ; then
+    pip3 install dmgbuild
+    pip3 install biplist
+fi
+
+if [ $SPARKLEDEPS -ne 0 ] ; then
+    brew cask install sparkle
+fi
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
 # brew install advancecomp optipng oxipng pngcrush
@@ -30,11 +136,9 @@ rm /tmp/sparkle.rb
 # Uncomment to enable generation of documentation
 # brew install asciidoctor
 
-# Uncomment to build dmg bundle
-# /usr/local/bin/pip3 install dmgbuild
-# /usr/local/bin/pip3 install biplist
-
-brew doctor
+if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ] ; then
+    brew doctor
+fi
 
 exit 0
 #
