@@ -1046,7 +1046,13 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
         cb->callback_func(MERGE_EVENT_DONE, count, in_files, in_file_count, cb->data);
 
     if (status == MERGE_OK || status == MERGE_USER_ABORTED) {
-        /* Check for any NRBs or DSBs read after the last packet records. */
+        /* Check for IDBs, NRBs, or DSBs read after the last packet records. */
+        if (wtap_file_type_subtype_supports_block(file_type,
+                                                  WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
+            if (!process_new_idbs(pdh, in_files, in_file_count, mode, idb_inf, err, err_info)) {
+                status = MERGE_ERR_CANT_WRITE_OUTFILE;
+            }
+        }
         if (nrb_combined) {
             for (guint j = 0; j < in_file_count; j++) {
                 in_file = &in_files[j];
@@ -1073,6 +1079,8 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
                 }
             }
         }
+    }
+    if (status == MERGE_OK || status == MERGE_USER_ABORTED) {
         if (!wtap_dump_close(pdh, NULL, err, err_info))
             status = MERGE_ERR_CANT_CLOSE_OUTFILE;
     } else {

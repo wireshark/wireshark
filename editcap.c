@@ -1122,7 +1122,7 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
          * That mean that the abstract interface provided by libwiretap
          * involves WTAP_BLOCK_IF_ID_AND_INFO blocks.
          */
-        if (wtap_file_type_subtype_supports_block(wtap_dump_file_type_subtype(pdh),
+        if (pdh != NULL && wtap_file_type_subtype_supports_block(wtap_dump_file_type_subtype(pdh),
                                                   WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
             wtap_block_t if_data_copy;
 
@@ -1849,11 +1849,9 @@ main(int argc, char *argv[])
     while (wtap_read(wth, &read_rec, &read_buf, &read_err, &read_err_info, &data_offset)) {
         /*
          * XXX - what about non-packet records in the file after this?
-         * We can *probably* ignore IDBs after this point, as they
-         * presumably indicate that we weren't capturing on that
-         * interface at this point, but what about, for example, ISBs?
-         * (NRBs and DSBs are now written when wtap_dump_close() calls
-         * pcapng_dump_finish().)
+         * NRBs, DSBs, and ISBs are now written when wtap_dump_close() calls
+         * pcapng_dump_finish(), and we handle IDBs below, but what about
+         * custom blocks?
          */
         if (max_packet_number <= read_count)
             break;
@@ -2387,6 +2385,18 @@ main(int argc, char *argv[])
             ret = INVALID_FILE;
             goto clean_exit;
         }
+    }
+
+    /*
+     * Process whatever IDBs we haven't seen yet.
+     */
+    if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
+        cfile_write_failure_message(argv[ws_optind], filename,
+                                    write_err, write_err_info,
+                                    read_count,
+                                    out_file_type_subtype);
+        ret = DUMP_ERROR;
+        goto clean_exit;
     }
 
     if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {

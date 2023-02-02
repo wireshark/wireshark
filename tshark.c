@@ -3583,9 +3583,19 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
         }
         wtap_rec_reset(&rec);
     }
-    if (*err != 0 && status == PASS_SUCCEEDED) {
-        /* Error reading from the input file. */
-        status = PASS_READ_ERROR;
+    if (status == PASS_SUCCEEDED) {
+        if (*err != 0) {
+            /* Error reading from the input file. */
+            status = PASS_READ_ERROR;
+        } else {
+            /*
+             * Process whatever IDBs we haven't seen yet.
+             */
+            if (!process_new_idbs(cf->provider.wth, pdh, err, err_info)) {
+                *err_framenum = framenum;
+                status = PASS_WRITE_ERROR;
+            }
+        }
     }
 
     if (edt)
