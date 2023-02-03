@@ -598,14 +598,18 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         tvbuff_t *new_tvb = NULL;
         iso15765_frame_t *iso15765_frame;
         guint16 frag_id = frag_id_low;
-
         /* Get frame information */
         iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table,
                                                              GUINT_TO_POINTER(iso15765_info->seq));
 
         if (iso15765_frame != NULL) {
             if (!(pinfo->fd->visited)) {
-                frag_id += ((iso15765_frame->frag_id_high[frag_id]++) * 16);
+                DISSECTOR_ASSERT(frag_id < 16);
+                guint16 tmp = iso15765_frame->frag_id_high[frag_id]++;
+                /* Make sure that we assert on using more than 4096 (16*255) segments.*/
+                DISSECTOR_ASSERT(iso15765_frame->frag_id_high[frag_id] != 0);
+                frag_id += tmp * 16;
+
                 /* Save the frag_id for subsequent dissection */
                 iso15765_info->frag_id = frag_id;
 

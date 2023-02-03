@@ -340,7 +340,12 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
             }
 
             if (!(pinfo->fd->visited)) {
-                frag_id += ((iso10681_frame->frag_id_high[frag_id]++) * 16);
+                DISSECTOR_ASSERT(frag_id < 16);
+                guint16 tmp = iso10681_frame->frag_id_high[frag_id]++;
+                /* Make sure that we assert on using more than 4096 (16*255) segments.*/
+                DISSECTOR_ASSERT(iso10681_frame->frag_id_high[frag_id] != 0);
+                frag_id += tmp * 16;
+
                 /* Save the frag_id for subsequent dissection */
                 iso10681_info->frag_id = frag_id;
             }
