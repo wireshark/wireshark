@@ -1654,7 +1654,7 @@ main(int argc, char *argv[])
                     exit_status = INVALID_OPTION;
                     goto clean_exit;
                 }
-            break;
+                break;
             default:
             case '?':        /* Bad flag - print usage message */
                 switch(ws_optopt) {
