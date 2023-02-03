@@ -1986,7 +1986,7 @@ main(int argc, char *argv[])
       extcap_cleanup();
 
 #ifdef HAVE_LIBPCAP
-      warn_about_capture_filter(rfilter);
+      warn_about_capture_filter(dfilter);
 #endif
 
       exit_status = INVALID_FILTER;
