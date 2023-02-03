@@ -11,6 +11,8 @@
 
 set -e -u -o pipefail
 
+eval "$(brew shellenv)"
+
 # Update to last brew release
 if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ] ; then
     brew update
@@ -42,9 +44,9 @@ function install_formulae() {
     fi
 }
 
-ADDITIONAL=0
-DMGDEPS=0
-SPARKLEDEPS=0
+INSTALL_OPTIONAL=0
+INSTALL_DMG_DEPS=0
+INSTALL_SPARKLE_DEPS=0
 OPTIONS=()
 for arg; do
     case $arg in
@@ -53,18 +55,18 @@ for arg; do
             exit 0
             ;;
         --install-optional)
-            ADDITIONAL=1
+            INSTALL_OPTIONAL=1
             ;;
         --install-dmg-deps)
-            DMGDEPS=1
+            INSTALL_DMG_DEPS=1
             ;;
         --install-sparkle-deps)
-            DMGDEPS=1
+            INSTALL_SPARKLE_DEPS=1
             ;;
         --install-all)
-            ADDITIONAL=1
-            DMGDEPS=1
-            SPARKLEDEPS=1
+            INSTALL_OPTIONAL=1
+            INSTALL_DMG_DEPS=1
+            INSTALL_SPARKLE_DEPS=1
             ;;
         *)
             OPTIONS+=("$arg")
@@ -85,6 +87,7 @@ REQUIRED_LIST=(
     libgcrypt
     pcre2
     qt6
+    speexdsp
 )
 
 ADDITIONAL_LIST=(
@@ -103,14 +106,13 @@ ADDITIONAL_LIST=(
     opus
     snappy
     spandsp
-    speexdsp
     zstd
 )
 
 ACTUAL_LIST=( "${BUILD_LIST[@]}" "${REQUIRED_LIST[@]}" )
 
 # Now arrange for optional support libraries
-if [ $ADDITIONAL -ne 0 ] ; then
+if [ $INSTALL_OPTIONAL -ne 0 ] ; then
     ACTUAL_LIST+=( "${ADDITIONAL_LIST[@]}" )
 fi
 
@@ -121,12 +123,12 @@ fi
 install_formulae "${ACTUAL_LIST[@]}"
 
 
-if [ $DMGDEPS -ne 0 ] ; then
+if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
     pip3 install dmgbuild
     pip3 install biplist
 fi
 
-if [ $SPARKLEDEPS -ne 0 ] ; then
+if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
     brew cask install sparkle
 fi
 
