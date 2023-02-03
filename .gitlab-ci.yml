@@ -205,6 +205,13 @@ variables:
     HOMEBREW_NO_INSTALL_UPGRADE: "1"
     HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
   before_script:
+    # At the time of this writing (January 2023), the macOS SaaS builder has the following PATH:
+    # /Users/gitlab/.asdf/shims:/Users/gitlab/.asdf/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
+    # The suite_clopts.case_tshark_extcap.test_tshark_extcap_interfaces test will fail because
+    # it sets an alternate HOME, which results in asdf returning
+    #   unknown command: python3. Perhaps you have to reshim?
+    # Make sure /usr/local/bin is first in order to work around asdf.
+    - export PATH=/usr/local/bin:$PATH
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - ./tools/macos-setup-brew.sh --install-optional
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
@@ -217,11 +224,11 @@ variables:
     - cd build
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DENABLE_CCACHE=ON ..
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DTEST_EXTRA_ARGS=--disable-capture ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja test-programs
-    - ../test/test.py --program-path ./run --disable-capture
+    - ctest --parallel 4 --output-on-failure
   after_script:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
