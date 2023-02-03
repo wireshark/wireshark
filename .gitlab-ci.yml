@@ -649,7 +649,7 @@ Windows Qt5 Build:
 
 macOS Build:
   extends: .build-macos
-  rules: !reference [.if-merge-request]
+  rules: !reference [.if-w-w-only-merge-request]
   needs: [ 'Commit Check' ]
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
