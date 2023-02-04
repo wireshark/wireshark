@@ -1621,7 +1621,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
      * so it probably doesn't have a single encapsulation for all
      * packets in the file.
      */
-    if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+    if (wth->file_encap == WTAP_ENCAP_NONE) {
         wth->file_encap = if_descr_mand->wtap_encap;
     } else {
         if (wth->file_encap != if_descr_mand->wtap_encap) {
@@ -3097,7 +3097,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
      */
     wblock->internal = FALSE;
 
-    if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+    if (wth->file_encap == WTAP_ENCAP_NONE) {
         /*
          * Nothing (most notably an IDB) has set a file encap at this point.
          * Do so here.
@@ -3666,7 +3666,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wtap_block_unref(wblock.block);
     wblock.block = NULL;
 
-    wth->file_encap = WTAP_ENCAP_UNKNOWN;
+    wth->file_encap = WTAP_ENCAP_NONE;
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
     pcapng = g_new(pcapng_t, 1);
@@ -6321,6 +6321,10 @@ static int pcapng_dump_can_write_encap(int wtap_encap)
 
     /* Per-packet encapsulation is supported. */
     if (wtap_encap == WTAP_ENCAP_PER_PACKET)
+        return 0;
+
+    /* No encapsulation type (yet) is supported. */
+    if (wtap_encap == WTAP_ENCAP_NONE)
         return 0;
 
     /* Is it a filetype-specific encapsulation that we support? */

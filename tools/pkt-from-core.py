@@ -77,6 +77,7 @@ class BackTrace:
 # Some values from wiretap; wiretap should be a shared
 # libray and a Python module should be created for it so
 # this program could just write a libpcap file directly.
+WTAP_ENCAP_NONE                       = -2
 WTAP_ENCAP_PER_PACKET                 = -1
 WTAP_ENCAP_UNKNOWN                    = 0
 WTAP_ENCAP_ETHERNET                   = 1
@@ -133,6 +134,7 @@ wtap_to_pcap_map = {
 
 
 wtap_name = {
+        WTAP_ENCAP_NONE                       : "None",
         WTAP_ENCAP_UNKNOWN                    : "Unknown",
         WTAP_ENCAP_ETHERNET                   : "Ethernet",
         WTAP_ENCAP_TOKEN_RING                 : "Token-Ring",

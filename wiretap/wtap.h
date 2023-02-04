@@ -31,7 +31,17 @@ extern "C" {
  * don't have a single encapsulation type for all packets in the file.
  *
  * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
- * if it's handed an unknown encapsulation.
+ * if it's handed an unknown encapsulation. It is also used by file
+ * types for encapsulations which are unsupported by libwiretap.
+ *
+ * WTAP_ENCAP_NONE is an initial value used by file types like pcapng
+ * that do not have a single file level encapsulation type. If and when
+ * something that indicate encapsulation is read, the encapsulation will
+ * change (possibly to WTAP_ENCAP_PER_PACKET) and appropriate IDBs will
+ * be generated. If a file type uses this value, it MUST provide IDBs
+ * (possibly fake) when the encapsulation changes; otherwise, it should
+ * return WTAP_ENCAP_UNKNOWN so that attempts to write an output file
+ * without reading the entire input file first fail gracefully.
  *
  * WTAP_ENCAP_FDDI_BITSWAPPED is for FDDI captures on systems where the
  * MAC addresses you get from the hardware are bit-swapped.  Ideally,
@@ -74,6 +84,7 @@ extern "C" {
  *     what older versions of "libpcap" on Linux turn the Ethernet
  *     header for loopback interfaces into (0.6.0 and later versions
  *     leave the Ethernet header alone and make it DLT_EN10MB). */
+#define WTAP_ENCAP_NONE                         -2
 #define WTAP_ENCAP_PER_PACKET                   -1
 #define WTAP_ENCAP_UNKNOWN                        0
 #define WTAP_ENCAP_ETHERNET                       1
