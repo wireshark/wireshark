@@ -200,7 +200,7 @@ const value_string coap_vals_observe_options[] = {
 #define COAP_OPT_URI_HOST		3
 #define COAP_OPT_ETAG			4
 #define COAP_OPT_IF_NONE_MATCH		5
-#define COAP_OPT_OBSERVE		6	/* core-observe-16 */
+#define COAP_OPT_OBSERVE		6	/* RFC 7641 / RFC 8613 */
 #define COAP_OPT_URI_PORT		7
 #define COAP_OPT_LOCATION_PATH		8
 #define COAP_OPT_OBJECT_SECURITY	9	/* RFC 8613 */
