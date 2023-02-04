@@ -180,20 +180,27 @@ merge_close_in_files(int in_file_count, merge_in_file_t in_files[])
  * then the wtap_dump_open call will fail with a reasonable
  * error condition.
  *
+ * @param file_type output file type
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
  * @return the frame type
  */
 static int
-merge_select_frame_type(int in_file_count, merge_in_file_t in_files[])
+merge_select_frame_type(const int file_type, int in_file_count, merge_in_file_t in_files[])
 {
     int i;
     int selected_frame_type;
 
     selected_frame_type = wtap_file_encap(in_files[0].wth);
+    if (!wtap_dump_can_write_encap(file_type, selected_frame_type)) {
+        return WTAP_ENCAP_UNKNOWN;
+    }
 
     for (i = 1; i < in_file_count; i++) {
         int this_frame_type = wtap_file_encap(in_files[i].wth);
+        if (!wtap_dump_can_write_encap(file_type, this_frame_type)) {
+            return WTAP_ENCAP_UNKNOWN;
+        }
         if (selected_frame_type != this_frame_type) {
             selected_frame_type = WTAP_ENCAP_PER_PACKET;
             break;
@@ -1150,14 +1157,11 @@ merge_files_common(const gchar* out_filename, /* filename in normal output mode,
      * interfaces, and only one IDB each, so it doesn't actually tell us
      * whether we can merge IDBs into one or not.
      *
-     * XXX: In the case that WTAP_ENCAP_PER_PACKET is returned, just because
-     * an output file format (e.g. pcapng) can write WTAP_ENCAP_PER_PACKET,
-     * that doesn't mean that the format can actually write all the IDBs,
-     * and the error in the latter case is currently confusing.
-     * (E.g., if one of the files is a normal packet file and the other is
-     * WTAP_ENCAP_JSON.)
+     * XXX: If an input file is WTAP_ENCAP_PER_PACKET, just because the
+     * output file format (e.g. pcapng) can write WTAP_ENCAP_PER_PACKET,
+     * that doesn't mean that the format can actually write all the IDBs.
      */
-    frame_type = merge_select_frame_type(in_file_count, in_files);
+    frame_type = merge_select_frame_type(file_type, in_file_count, in_files);
     ws_debug("got frame_type=%d", frame_type);
 
     if (cb)
