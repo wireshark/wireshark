@@ -1144,7 +1144,7 @@ ssh_tree_add_hostsignature(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     }
 
     if(offset-offset0!=(int)(4+sig_len)){
-        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", offset-offset0, sig_len);
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", offset-offset0, sig_len);
     }
 
     return 4+sig_len;
@@ -3531,8 +3531,8 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(msg_type_tree, hf_ssh_payload, packet_tvb, offset, len, ENC_NA);
     }
     if(dissected_len!=(int)len){
-//        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, len);
-        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes [%d]", dissected_len, len, msg_code);
+//        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, len);
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes [%d]", dissected_len, len, msg_code);
     }
     offset +=len;
 
@@ -3639,7 +3639,7 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
 //        proto_tree_add_item(blob_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                         dissected_len = ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree) - offset;
                         if(dissected_len!=(int)slen){
-                            expert_add_info_format(pinfo, blob_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, slen);
+                            expert_add_info_format(pinfo, blob_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, slen);
                         }
                         offset += slen;
                         if(bHaveSignature){
@@ -3650,7 +3650,7 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                                 signature_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_signautre, NULL, "Public key signature");
                                 dissected_len = ssh_dissect_public_key_signature(packet_tvb, pinfo, offset, signature_tree) - offset;
                                 if(dissected_len!=(int)slen){
-                                    expert_add_info_format(pinfo, signature_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, slen);
+                                    expert_add_info_format(pinfo, signature_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, slen);
                                 }
                                 offset += slen;
                         }
@@ -3706,7 +3706,7 @@ ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_blob, NULL, "Public key blob");
                 dissected_len = ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree) - offset;
                 if(dissected_len!=(int)slen){
-                    expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, slen);
+                    expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, slen);
                 }
                 offset += slen;
         }
@@ -3866,7 +3866,7 @@ ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                     blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, alen, ett_userauth_pk_blob, NULL, "Public key blob");
                     dissected_len = ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree) - offset;
                     if(dissected_len!=(int)alen){
-                        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, alen);
+                        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, alen);
                     }
                     offset += alen;
                 }

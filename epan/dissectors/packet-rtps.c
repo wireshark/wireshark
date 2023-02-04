@@ -15878,7 +15878,7 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_TIMESTAMP_FLAG, NULL, HFILL }
     },
     { &hf_rtps_flag_header_extension_message_length, {
-        "Header Extension Message Length", "rtps.flag.header_extension.message_legth",
+        "Header Extension Message Length", "rtps.flag.header_extension.message_length",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_MESSAGE_LENGTH_FLAG, NULL, HFILL }
     },
     { &hf_rtps_header_extension_checksum, {

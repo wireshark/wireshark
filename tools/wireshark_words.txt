@@ -89,6 +89,7 @@ attendee
 attrib
 attrs
 audigy
+authcitrix
 authen
 authenticates
 authenticator
@@ -396,6 +397,7 @@ dfilter
 dfilters
 dfsauth
 dftest
+dgotyp
 dgram
 dhcpv
 dialed
@@ -496,6 +498,7 @@ erspan
 España
 esperanto
 etheraddr
+ethercat
 ethers
 ethertype
 etlfile
@@ -805,6 +808,7 @@ mappable
 mariadb
 marvell
 mathieson
+matrixes
 maxlen
 maybefcs
 mbits
@@ -968,6 +972,7 @@ ntohs
 nullptr
 nvmeof
 nvram
+oampdu
 obfuscated
 objectid
 objkey
@@ -1008,6 +1013,7 @@ oscillatory
 oscore
 osdmap
 osmocom
+osmux
 ospf6
 outhdr
 pacch
@@ -1138,6 +1144,7 @@ queryset
 quiescing
 quintuplet
 quintuplets
+r3info
 radcom
 radeon
 radiotap
@@ -1451,6 +1458,7 @@ symantec
 synchronizer
 synchronizing
 synchronously
+syncman
 synphasor
 syntaxes
 sysdig
@@ -1678,6 +1686,7 @@ usability
 usbmon
 usbms
 usbpcap
+userauth
 userdata
 userinfo
 userlist
