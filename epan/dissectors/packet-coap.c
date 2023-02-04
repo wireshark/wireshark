@@ -210,13 +210,21 @@ const value_string coap_vals_observe_options[] = {
 #define COAP_OPT_URI_QUERY		15
 #define COAP_OPT_HOP_LIMIT		16	/* RFC 8768 */
 #define COAP_OPT_ACCEPT			17
+#define COAP_OPT_QBLOCK1		19	/* RFC 9177 */
 #define COAP_OPT_LOCATION_QUERY		20
+#define COAP_OPT_EDHOC			21	/* draft-ietf-core-oscore-edhoc*/
 #define COAP_OPT_BLOCK2			23	/* RFC 7959 / RFC 8323 */
 #define COAP_OPT_BLOCK1			27	/* RFC 7959 / RFC 8323 */
 #define COAP_OPT_SIZE2			28	/* RFC 7959 */
+#define COAP_OPT_QBLOCK2		31	/* RFC 9177 */
 #define COAP_OPT_PROXY_URI		35
 #define COAP_OPT_PROXY_SCHEME		39
 #define COAP_OPT_SIZE1			60
+#define COAP_OPT_ECHO			252	/* RFC 9175*/
+#define COAP_OPT_NO_RESPONSE		258	/* RFC 7967 / RFC 8613 */
+#define COAP_OPT_REQUEST_TAG		292	/* RFC 9175 */
+#define COAP_OPT_OCF_ACCEPT		2049	/* OCF Core specification */
+#define COAP_OPT_OCF_CONTENT		2053	/* OCF Core specification */
 
 static const value_string vals_opt_type[] = {
 	{ COAP_OPT_IF_MATCH,       "If-Match" },
@@ -232,7 +240,9 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_URI_QUERY,      "Uri-Query" },
 	{ COAP_OPT_HOP_LIMIT,      "Hop-Limit" },
 	{ COAP_OPT_ACCEPT,         "Accept" },
+	{ COAP_OPT_QBLOCK1,        "Q-Block1" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
+	{ COAP_OPT_EDHOC,          "EDHOC" },
 	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
 	{ COAP_OPT_PROXY_SCHEME,   "Proxy-Scheme" },
 	{ COAP_OPT_SIZE1,          "Size1" },
@@ -240,6 +250,12 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_BLOCK2,         "Block2" },
 	{ COAP_OPT_BLOCK1,         "Block1" },
 	{ COAP_OPT_SIZE2,          "Size2" },
+	{ COAP_OPT_QBLOCK2,        "Q-Block2" },
+	{ COAP_OPT_ECHO,           "Echo" },
+	{ COAP_OPT_NO_RESPONSE,    "No-Response" },
+	{ COAP_OPT_REQUEST_TAG,    "Request-Tag" },
+	{ COAP_OPT_OCF_ACCEPT,     "OCF-Accept-Content-Format-Version" },
+	{ COAP_OPT_OCF_CONTENT,    "OCF-Content-Format-Version" },
 	{ 0, NULL },
 };
 
@@ -261,7 +277,9 @@ struct coap_option_range_t {
 	{ COAP_OPT_URI_QUERY,       1, 255 },
 	{ COAP_OPT_HOP_LIMIT,       1,   1 },
 	{ COAP_OPT_ACCEPT,          0,   2 },
+	{ COAP_OPT_QBLOCK1,         0,   3 },
 	{ COAP_OPT_LOCATION_QUERY,  0, 255 },
+	{ COAP_OPT_EDHOC,           0,   0 },
 	{ COAP_OPT_PROXY_URI,       1,1034 },
 	{ COAP_OPT_PROXY_SCHEME,    1, 255 },
 	{ COAP_OPT_SIZE1,           0,   4 },
@@ -269,6 +287,12 @@ struct coap_option_range_t {
 	{ COAP_OPT_BLOCK2,          0,   3 },
 	{ COAP_OPT_BLOCK1,          0,   3 },
 	{ COAP_OPT_SIZE2,           0,   4 },
+	{ COAP_OPT_QBLOCK2,         0,   3 },
+	{ COAP_OPT_ECHO,            1,  40 },
+	{ COAP_OPT_NO_RESPONSE,     0,   1 },
+	{ COAP_OPT_REQUEST_TAG,     0,   8 },
+	{ COAP_OPT_OCF_ACCEPT,      2,   2 },
+	{ COAP_OPT_OCF_CONTENT,     2,   2 },
 };
 
 static const value_string vals_ctype[] = {
@@ -1021,6 +1045,18 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		dissect_coap_opt_uri_query(tvb, pinfo, item, subtree, offset,
 		    opt_length, coinfo, dissect_hf->hf.opt_uri_query);
 		break;
+	case COAP_OPT_ECHO:
+		dissect_coap_opt_hex_string(tvb, pinfo, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_echo);
+		break;
+	case COAP_OPT_REQUEST_TAG:
+		dissect_coap_opt_hex_string(tvb, pinfo, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_request_tag);
+		break;
+	case COAP_OPT_NO_RESPONSE:
+		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_no_response);
+		break;
 	case COAP_OPT_BLOCK2:
 		coinfo->block_option = 2;
 		dissect_coap_opt_block(tvb, item, subtree, offset,
@@ -1031,11 +1067,32 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		dissect_coap_opt_block(tvb, item, subtree, offset,
 		    opt_length, coinfo, dissect_hf);
 		break;
+	case COAP_OPT_QBLOCK2:
+		coinfo->block_option = 2;
+		dissect_coap_opt_block(tvb, item, subtree, offset,
+		    opt_length, coinfo, dissect_hf);
+		break;
+	case COAP_OPT_QBLOCK1:
+		coinfo->block_option = 1;
+		dissect_coap_opt_block(tvb, item, subtree, offset,
+		    opt_length, coinfo, dissect_hf);
+		break;
 	case COAP_OPT_IF_NONE_MATCH:
+		break;
+	case COAP_OPT_EDHOC:
 		break;
 	case COAP_OPT_SIZE2:
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
 		    opt_length, dissect_hf->hf.opt_block_size);
+		break;
+	// TODO: Dissection of OCF options could be improved
+	case COAP_OPT_OCF_CONTENT:
+		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_ocf_version);
+		break;
+	case COAP_OPT_OCF_ACCEPT:
+		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_ocf_accept_version);
 		break;
 	default:
 		dissect_coap_opt_hex_string(tvb, pinfo, item, subtree, offset,
