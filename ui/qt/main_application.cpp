@@ -409,11 +409,7 @@ void MainApplication::setMonospaceFont(const char *font_string) {
 
 int MainApplication::monospaceTextSize(const char *str)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     return QFontMetrics(mono_font_).horizontalAdvance(str);
-#else
-    return QFontMetrics(mono_font_).width(str);
-#endif
 }
 
 void MainApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent_file)
@@ -710,15 +706,13 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
     // Throw various settings at the wall with the hope that one of them will
     // enable context menu shortcuts QTBUG-69452, QTBUG-109590
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false);
-#endif
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     styleHints()->setShowShortcutsInContextMenus(true);
 #endif

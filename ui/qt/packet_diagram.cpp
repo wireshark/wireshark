@@ -322,19 +322,11 @@ private:
         QFontMetrics fm = QFontMetrics(layout_->regularFont());
 
         painter->setFont(layout_->regularFont());
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
         int label_w = fm.horizontalAdvance(label);
-#else
-        int label_w = fm.width(label);
-#endif
         if (label_w > label_rect.width()) {
             painter->setFont(layout_->smallFont());
             fm = QFontMetrics(layout_->smallFont());
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
             label_w = fm.horizontalAdvance(label);
-#else
-            label_w = fm.width(label);
-#endif
             if (label_w > label_rect.width()) {
                 // XXX Use parent+ItemClipsChildrenToShape or setScale instead?
                 label = fm.elidedText(label, Qt::ElideRight, label_rect.width());
@@ -564,11 +556,7 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
     qreal y_bottom = y_pos_ + bit_width;
     QGraphicsItem *tl_item = scene()->addLine(x, y_bottom, x + diag_w, y_bottom);
     QFontMetrics sfm = QFontMetrics(layout_->smallFont());
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     int space_w = sfm.horizontalAdvance(' ');
-#else
-    int space_w = sfm.width(' ');
-#endif
 #ifdef Q_OS_WIN
     // t_item->boundingRect() has a pixel of space on the left on my (gcc)
     // Windows VM.

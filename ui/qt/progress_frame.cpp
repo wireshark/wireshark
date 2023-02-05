@@ -161,11 +161,7 @@ struct progdlg *ProgressFrame::showProgress(const QString &title, bool animate, 
     ui->progressBar->setValue(value);
     QString elided_title = title;
     int max_w = fontMetrics().height() * 20; // em-widths, arbitrary
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     int title_w = fontMetrics().horizontalAdvance(title);
-#else
-    int title_w = fontMetrics().width(title);
-#endif
     if (title_w > max_w) {
         elided_title = fontMetrics().elidedText(title, Qt::ElideRight, max_w);
     }

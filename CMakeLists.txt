@@ -1294,11 +1294,11 @@ if(BUILD_wireshark OR BUILD_logray)
 			list(APPEND QT5_COMPILE_DEFINITIONS ${${_qt5_package}_COMPILE_DEFINITIONS})
 		endforeach()
 
-		if (Qt5Widgets_VERSION VERSION_LESS 5.10)
+		if (Qt5Widgets_VERSION VERSION_LESS 5.11)
 			message(FATAL_ERROR "Qt 5.12 or later is required.")
 		endif()
 		if (Qt5Widgets_VERSION VERSION_LESS 5.12)
-			message(WARNING "Wireshark can be build with this version of Qt, though 5.12 or higher is recommended.")
+			message(WARNING "Wireshark can be built with this version of Qt, though 5.12 or higher is recommended.")
 		endif()
 
 		if(APPLE AND "/usr/local/opt/qt5/lib/QtCore.framework" IN_LIST Qt5Core_INCLUDE_DIRS)

@@ -19,7 +19,7 @@ shopt -s extglob
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
-# The minimum supported version of Qt is 5.10, so the minimum supported version
+# The minimum supported version of Qt is 5.11, so the minimum supported version
 # of macOS is OS X 10.11 (El Capitan), aka Darwin 15.0.
 #
 if [[ $DARWIN_MAJOR_VERSION -lt 15 ]]; then
@@ -1242,11 +1242,11 @@ install_qt() {
         5)
             case $QT_MINOR_VERSION in
 
-            0|1|2|3|4|5|6|7|8|9)
+            0|1|2|3|4|5|6|7|8|9|10)
                 echo "Qt $QT_VERSION" is too old 1>&2
                 ;;
 
-            10|11|12|13|14)
+            11|12|13|14)
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
             *)
@@ -1301,12 +1301,8 @@ uninstall_qt() {
             5*)
                 case $installed_qt_minor_version in
 
-                0|1|2|3|4|5)
+                0|1|2|3|4|5|6|7|8)
                     echo "Qt $installed_qt_version" is too old 1>&2
-                    ;;
-
-                6|7|8)
-                    installed_qt_volume=qt-opensource-mac-x64-clang-$installed_qt_version.dmg
                     ;;
 
                 9|10|11|12|13|14)
