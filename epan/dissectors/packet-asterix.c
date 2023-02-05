@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 4e836018feb65f7af87991cdb7844f9a218fc161
+git revision: 4f7c23ea72048fc03dc82f76d1b418a171a1c9e3
 
 
 */
@@ -45520,6 +45520,157 @@ static const AsterixField **I063[] = {
 };
 DIAG_ON_PEDANTIC
 
+/* Category 065, edition 1.4 */
+static gint hf_065_V1_4_000 = -1;
+static gint hf_065_V1_4_000_VALUE = -1;
+static const value_string valstr_065_V1_4_000_VALUE[] = {
+    { 1, "SDPS Status" },
+    { 2, "End of Batch" },
+    { 3, "Service Status Report" },
+    { 0, NULL }
+};
+static const FieldPart I065_V1_4_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_065_V1_4_000_VALUE, NULL };
+static const FieldPart *I065_V1_4_000_PARTS[] = {
+    &I065_V1_4_000_VALUE,
+    NULL
+};
+static const AsterixField I065_V1_4_000 = { FIXED, 1, 0, 0, &hf_065_V1_4_000, I065_V1_4_000_PARTS, { NULL } };
+static gint hf_065_V1_4_010 = -1;
+static gint hf_065_V1_4_010_SAC = -1;
+static const FieldPart I065_V1_4_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_065_V1_4_010_SAC, NULL };
+static gint hf_065_V1_4_010_SIC = -1;
+static const FieldPart I065_V1_4_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_065_V1_4_010_SIC, NULL };
+static const FieldPart *I065_V1_4_010_PARTS[] = {
+    &I065_V1_4_010_SAC,
+    &I065_V1_4_010_SIC,
+    NULL
+};
+static const AsterixField I065_V1_4_010 = { FIXED, 2, 0, 0, &hf_065_V1_4_010, I065_V1_4_010_PARTS, { NULL } };
+static gint hf_065_V1_4_015 = -1;
+static gint hf_065_V1_4_015_VALUE = -1;
+static const FieldPart I065_V1_4_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_065_V1_4_015_VALUE, NULL };
+static const FieldPart *I065_V1_4_015_PARTS[] = {
+    &I065_V1_4_015_VALUE,
+    NULL
+};
+static const AsterixField I065_V1_4_015 = { FIXED, 1, 0, 0, &hf_065_V1_4_015, I065_V1_4_015_PARTS, { NULL } };
+static gint hf_065_V1_4_020 = -1;
+static gint hf_065_V1_4_020_VALUE = -1;
+static const FieldPart I065_V1_4_020_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_065_V1_4_020_VALUE, NULL };
+static const FieldPart *I065_V1_4_020_PARTS[] = {
+    &I065_V1_4_020_VALUE,
+    NULL
+};
+static const AsterixField I065_V1_4_020 = { FIXED, 1, 0, 0, &hf_065_V1_4_020, I065_V1_4_020_PARTS, { NULL } };
+static gint hf_065_V1_4_030 = -1;
+static gint hf_065_V1_4_030_VALUE = -1;
+static const FieldPart I065_V1_4_030_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_065_V1_4_030_VALUE, NULL };
+static const FieldPart *I065_V1_4_030_PARTS[] = {
+    &I065_V1_4_030_VALUE,
+    NULL
+};
+static const AsterixField I065_V1_4_030 = { FIXED, 3, 0, 0, &hf_065_V1_4_030, I065_V1_4_030_PARTS, { NULL } };
+static gint hf_065_V1_4_040 = -1;
+static gint hf_065_V1_4_040_NOGO = -1;
+static const value_string valstr_065_V1_4_040_NOGO[] = {
+    { 0, "Operational" },
+    { 1, "Degraded" },
+    { 2, "Not currently connected" },
+    { 3, "Unknown" },
+    { 0, NULL }
+};
+static const FieldPart I065_V1_4_040_NOGO = { 2, 1.0, FIELD_PART_UINT, &hf_065_V1_4_040_NOGO, NULL };
+static gint hf_065_V1_4_040_OVL = -1;
+static const value_string valstr_065_V1_4_040_OVL[] = {
+    { 0, "Default" },
+    { 1, "Overload" },
+    { 0, NULL }
+};
+static const FieldPart I065_V1_4_040_OVL = { 1, 1.0, FIELD_PART_UINT, &hf_065_V1_4_040_OVL, NULL };
+static gint hf_065_V1_4_040_TSV = -1;
+static const value_string valstr_065_V1_4_040_TSV[] = {
+    { 0, "Default" },
+    { 1, "Invalid Time Source" },
+    { 0, NULL }
+};
+static const FieldPart I065_V1_4_040_TSV = { 1, 1.0, FIELD_PART_UINT, &hf_065_V1_4_040_TSV, NULL };
+static gint hf_065_V1_4_040_PSS = -1;
+static const value_string valstr_065_V1_4_040_PSS[] = {
+    { 0, "Not applicable" },
+    { 1, "SDPS-1 selected" },
+    { 2, "SDPS-2 selected" },
+    { 3, "SDPS-3 selected" },
+    { 0, NULL }
+};
+static const FieldPart I065_V1_4_040_PSS = { 2, 1.0, FIELD_PART_UINT, &hf_065_V1_4_040_PSS, NULL };
+static gint hf_065_V1_4_040_STTN = -1;
+static const FieldPart I065_V1_4_040_STTN = { 1, 1.0, FIELD_PART_HEX, &hf_065_V1_4_040_STTN, NULL };
+static const FieldPart *I065_V1_4_040_PARTS[] = {
+    &I065_V1_4_040_NOGO,
+    &I065_V1_4_040_OVL,
+    &I065_V1_4_040_TSV,
+    &I065_V1_4_040_PSS,
+    &I065_V1_4_040_STTN,
+    &IXXX_1bit_spare,
+    NULL
+};
+static const AsterixField I065_V1_4_040 = { FIXED, 1, 0, 0, &hf_065_V1_4_040, I065_V1_4_040_PARTS, { NULL } };
+static gint hf_065_V1_4_050 = -1;
+static gint hf_065_V1_4_050_VALUE = -1;
+static const value_string valstr_065_V1_4_050_VALUE[] = {
+    { 1, "Service degradation" },
+    { 2, "Service degradation ended" },
+    { 3, "Main radar out of service" },
+    { 4, "Service interrupted by the operator" },
+    { 5, "Service interrupted due to contingency" },
+    { 6, "Ready for service restart after contingency" },
+    { 7, "Service ended by the operator" },
+    { 8, "Failure of user main radar" },
+    { 9, "Service restarted by the operator" },
+    { 10, "Main radar becoming operational" },
+    { 11, "Main radar becoming degraded" },
+    { 12, "Service continuity interrupted due to disconnection with adjacent unit" },
+    { 13, "Service continuity restarted" },
+    { 14, "Service synchronised on backup radar" },
+    { 15, "Service synchronised on main radar" },
+    { 16, "Main and backup radar, if any, failed" },
+    { 0, NULL }
+};
+static const FieldPart I065_V1_4_050_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_065_V1_4_050_VALUE, NULL };
+static const FieldPart *I065_V1_4_050_PARTS[] = {
+    &I065_V1_4_050_VALUE,
+    NULL
+};
+static const AsterixField I065_V1_4_050 = { FIXED, 1, 0, 0, &hf_065_V1_4_050, I065_V1_4_050_PARTS, { NULL } };
+static gint hf_065_V1_4_RE = -1;
+static const AsterixField I065_V1_4_RE = { EXP, 0, 0, 1, &hf_065_V1_4_RE, NULL, { NULL } };
+static gint hf_065_V1_4_SP = -1;
+static const AsterixField I065_V1_4_SP = { EXP, 0, 0, 1, &hf_065_V1_4_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I065_V1_4_uap[] = {
+    &I065_V1_4_010,
+    &I065_V1_4_000,
+    &I065_V1_4_015,
+    &I065_V1_4_030,
+    &I065_V1_4_020,
+    &I065_V1_4_040,
+    &I065_V1_4_050,
+    &IX_SPARE,
+    &IX_SPARE,
+    &IX_SPARE,
+    &IX_SPARE,
+    &IX_SPARE,
+    &I065_V1_4_RE,
+    &I065_V1_4_SP,
+    NULL
+};
+static const AsterixField **I065_V1_4[] = {
+    I065_V1_4_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
 /* Category 065, edition 1.5 */
 static gint hf_065_V1_5_000 = -1;
 static gint hf_065_V1_5_000_VALUE = -1;
@@ -46579,12 +46730,13 @@ static const enum_val_t I063_versions[] = {
 };
 
 DIAG_OFF_PEDANTIC
-static const AsterixField ***I065all[] = { I065, I065_V1_5 };
+static const AsterixField ***I065all[] = { I065, I065_V1_5, I065_V1_4 };
 DIAG_ON_PEDANTIC
 
 static const enum_val_t I065_versions[] = {
     { "I065", "Version 1.5 (latest)", 0 },
     { "I065_v1_5", "Version 1.5", 1 },
+    { "I065_v1_4", "Version 1.4", 2 },
     { NULL, NULL, 0 }
 };
 
@@ -54970,6 +55122,27 @@ void proto_register_asterix (void)
         { &hf_063_092_VALUE, { "PSR Elevation Bias, [°]", "asterix.063_092_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_063_RE, { "RE, Reserved Expansion Field", "asterix.063_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_063_SP, { "SP, Special Purpose Field", "asterix.063_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_000, { "000, Message Type", "asterix.065_V1_4_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_000_VALUE, { "Message Type", "asterix.065_V1_4_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_4_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_010, { "010, Data Source Identifier", "asterix.065_V1_4_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_010_SAC, { "SAC, System Area Code", "asterix.065_V1_4_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_010_SIC, { "SIC, System Identification Code", "asterix.065_V1_4_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_015, { "015, Service Identification", "asterix.065_V1_4_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_015_VALUE, { "Service Identification", "asterix.065_V1_4_015_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_020, { "020, Batch Number", "asterix.065_V1_4_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_020_VALUE, { "Batch Number", "asterix.065_V1_4_020_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_030, { "030, Time of Message", "asterix.065_V1_4_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_030_VALUE, { "Time of Message, [s]", "asterix.065_V1_4_030_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_040, { "040, SDPS Configuration and Status", "asterix.065_V1_4_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_040_NOGO, { "NOGO", "asterix.065_V1_4_040_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_4_040_NOGO), 0xc0, NULL, HFILL } },
+        { &hf_065_V1_4_040_OVL, { "OVL", "asterix.065_V1_4_040_OVL", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_4_040_OVL), 0x20, NULL, HFILL } },
+        { &hf_065_V1_4_040_TSV, { "TSV", "asterix.065_V1_4_040_TSV", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_4_040_TSV), 0x10, NULL, HFILL } },
+        { &hf_065_V1_4_040_PSS, { "PSS, Processing System Status", "asterix.065_V1_4_040_PSS", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_4_040_PSS), 0x0c, NULL, HFILL } },
+        { &hf_065_V1_4_040_STTN, { "STTN, Track Re-numbering Indication", "asterix.065_V1_4_040_STTN", FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL } },
+        { &hf_065_V1_4_050, { "050, Service Status Report", "asterix.065_V1_4_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_050_VALUE, { "Service Status Report", "asterix.065_V1_4_050_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_4_050_VALUE), 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_RE, { "RE, Reserved Expansion Field", "asterix.065_V1_4_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_065_V1_4_SP, { "SP, Special Purpose Field", "asterix.065_V1_4_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_065_V1_5_000, { "000, Message Type", "asterix.065_V1_5_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_065_V1_5_000_VALUE, { "Message Type", "asterix.065_V1_5_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_065_V1_5_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_065_V1_5_010, { "010, Data Source Identifier", "asterix.065_V1_5_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
