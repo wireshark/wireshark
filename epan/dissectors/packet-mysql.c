@@ -171,6 +171,52 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CLONE               32
 #define MYSQL_SUBSCRIBE_GROUP_REPLICATION_STREAM  33
 
+/* MySQL Native Cloning Commands */
+#define MYSQL_CLONE_COM_INIT    1
+#define MYSQL_CLONE_COM_ATTACH  2
+#define MYSQL_CLONE_COM_REINIT  3
+#define MYSQL_CLONE_COM_EXECUTE 4
+#define MYSQL_CLONE_COM_ACK     5
+#define MYSQL_CLONE_COM_EXIT    6
+
+/* decoding table: clone command */
+static const value_string mysql_clone_command_vals[] = {
+	{MYSQL_CLONE_COM_INIT,    "Init"},
+	{MYSQL_CLONE_COM_ATTACH,  "Attach"},
+	{MYSQL_CLONE_COM_REINIT,  "Re-init"},
+	{MYSQL_CLONE_COM_EXECUTE, "Execute"},
+	{MYSQL_CLONE_COM_ACK,     "Ack"},
+	{MYSQL_CLONE_COM_EXIT,    "Exit"},
+	{0, NULL}
+};
+
+/* MySQL Native Cloning Responses */
+#define MYSQL_CLONE_COM_RES_LOCS        1
+#define MYSQL_CLONE_COM_RES_DATA_DESC   2
+#define MYSQL_CLONE_COM_RES_DATA        3
+#define MYSQL_CLONE_COM_RES_PLUGIN      4
+#define MYSQL_CLONE_COM_RES_CONFIG      5
+#define MYSQL_CLONE_COM_RES_COLLATION   6
+#define MYSQL_CLONE_COM_RES_PLUGIN_V2   7
+#define MYSQL_CLONE_COM_RES_CONFIG_V3   8
+#define MYSQL_CLONE_COM_RES_COMPLETE   99
+#define MYSQL_CLONE_COM_RES_ERROR     100
+
+/* decoding table: clone command */
+static const value_string mysql_clone_response_vals[] = {
+	{MYSQL_CLONE_COM_RES_LOCS,      "Remote Resource Locator"},
+	{MYSQL_CLONE_COM_RES_DATA_DESC, "Remote Data Descriptor"},
+	{MYSQL_CLONE_COM_RES_DATA,      "Remote Data"},
+	{MYSQL_CLONE_COM_RES_PLUGIN,    "Plugin V1"},
+	{MYSQL_CLONE_COM_RES_CONFIG,    "Config"},
+	{MYSQL_CLONE_COM_RES_COLLATION, "Collation"},
+	{MYSQL_CLONE_COM_RES_PLUGIN_V2, "Plugin V2"},
+	{MYSQL_CLONE_COM_RES_CONFIG_V3, "Plugin V3"},
+	{MYSQL_CLONE_COM_RES_COMPLETE,  "Complete"},
+	{MYSQL_CLONE_COM_RES_ERROR,     "Error"},
+	{0, NULL}
+};
+
 /* MariaDB specific commands */
 #define MARIADB_STMT_BULK_EXECUTE 250
 
@@ -1089,6 +1135,8 @@ static int hf_mysql_binlog_gtid_data = -1;
 static int hf_mysql_binlog_gtid_data_length = -1;
 static int hf_mysql_binlog_hb_event_filename = -1;
 static int hf_mysql_binlog_hb_event_log_position = -1;
+static int hf_mysql_clone_command_code = -1;
+static int hf_mysql_clone_response_code = -1;
 static int hf_mysql_eof = -1;
 static int hf_mysql_num_fields = -1;
 static int hf_mysql_extra = -1;
@@ -1242,7 +1290,10 @@ typedef enum mysql_state {
 	AUTH_SHA2,
 	AUTH_PUBKEY,
 	AUTH_SHA2_RESPONSE,
-	BINLOG_DUMP
+	BINLOG_DUMP,
+	CLONE_INIT,
+	CLONE_ACTIVE,
+	CLONE_EXIT
 } mysql_state_t;
 
 static const value_string state_vals[] = {
@@ -2465,6 +2516,13 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		break;
 
+	case MYSQL_CLONE:
+		mysql_set_conn_state(pinfo, conn_data, CLONE_INIT);
+		break;
+
+	case MYSQL_RESET_CONNECTION:
+		break;
+
 	default:
 		ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
 		expert_add_info(pinfo, ti, &ei_mysql_command);
@@ -2617,6 +2675,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				/* This is the OK packet which follows the compressed protocol setup */
 				conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
 			}
+			if (current_state == CLONE_INIT)
+				mysql_set_conn_state(pinfo, conn_data, CLONE_ACTIVE);
 			break;
 		}
 		break;
@@ -3702,6 +3762,66 @@ mysql_dissect_sha2_response(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 	return offset + tvb_reported_length_remaining(tvb, offset);
 }
 
+static int
+mysql_dissect_clone_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int offset _U_,
+		       proto_tree *tree _U_, mysql_conn_data_t *conn_data _U_, proto_item *pi _U_, mysql_state_t current_state _U_)
+{
+	guint8 req_code = tvb_get_guint8(tvb, offset);
+	switch (req_code) {
+		case MYSQL_CLONE_COM_INIT:
+		case MYSQL_CLONE_COM_ATTACH:
+		case MYSQL_CLONE_COM_REINIT:
+		case MYSQL_CLONE_COM_EXECUTE:
+		case MYSQL_CLONE_COM_ACK:
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "%s"));
+			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
+			break;
+		case MYSQL_CLONE_COM_EXIT:
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "%s"));
+			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
+			mysql_set_conn_state(pinfo, conn_data, CLONE_EXIT);
+			break;
+		default:
+			col_append_str(pinfo->cinfo, COL_INFO, " Unknown Clone Command Code") ;
+			/* TODO, Set error etc */
+	}
+	offset++;
+
+	return offset;
+}
+
+static int
+mysql_dissect_clone_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
+		       proto_tree *tree, mysql_conn_data_t *conn_data, proto_item *pi _U_, mysql_state_t current_state)
+{
+	guint8 resp_code = tvb_get_guint8(tvb, offset);
+	switch (resp_code) {
+		case MYSQL_CLONE_COM_RES_LOCS:
+		case MYSQL_CLONE_COM_RES_DATA_DESC:
+		case MYSQL_CLONE_COM_RES_DATA:
+		case MYSQL_CLONE_COM_RES_PLUGIN:
+		case MYSQL_CLONE_COM_RES_CONFIG:
+		case MYSQL_CLONE_COM_RES_COLLATION:
+		case MYSQL_CLONE_COM_RES_PLUGIN_V2:
+		case MYSQL_CLONE_COM_RES_CONFIG_V3:
+		case MYSQL_CLONE_COM_RES_COMPLETE:
+			if (current_state == CLONE_EXIT)
+				mysql_set_conn_state(pinfo, conn_data, REQUEST);
+			/* fall through */
+		case MYSQL_CLONE_COM_RES_ERROR:
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(resp_code, mysql_clone_response_vals, "%s"));
+			proto_tree_add_item(tree, hf_mysql_clone_response_code, tvb, offset, 1, ENC_NA);
+			break;
+		default:
+			col_append_str(pinfo->cinfo, COL_INFO, " Unknown Clone Response Code") ;
+			/* TODO, Set error etc */
+	}
+	offset++;
+
+	return offset;
+}
+
+
 /*
  get length of string in packet buffer
 
@@ -3909,6 +4029,9 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		if (packet_number == 0 && mysql_frame_data_p->state == UNDEFINED) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Server Greeting ");
 			offset = mysql_dissect_greeting(tvb, pinfo, offset, mysql_tree, conn_data);
+		} else if ((mysql_frame_data_p->state == CLONE_ACTIVE) || (mysql_frame_data_p->state == CLONE_EXIT)) {
+			col_set_str(pinfo->cinfo, COL_INFO, "Clone Response");
+			offset = mysql_dissect_clone_response(tvb, pinfo, offset, mysql_tree, conn_data, ti, mysql_frame_data_p->state);
 		} else if (mysql_frame_data_p->state == AUTH_PUBKEY) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Public key ");
 			offset = mysql_dissect_pubkey(tvb, pinfo, offset, mysql_tree, conn_data, ti, mysql_frame_data_p->state);
@@ -3926,6 +4049,9 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					conn_data->compressed_state = MYSQL_COMPRESS_INIT;
 				}
 			}
+		} else if ((mysql_frame_data_p->state == CLONE_ACTIVE) || (mysql_frame_data_p->state == CLONE_EXIT)) {
+			col_set_str(pinfo->cinfo, COL_INFO, "Clone Request");
+			offset = mysql_dissect_clone_request(tvb, pinfo, offset, mysql_tree, conn_data, ti, mysql_frame_data_p->state);
 		} else if (mysql_frame_data_p->state == AUTH_SHA2_RESPONSE) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Caching_sha2_password response");
 			offset = mysql_dissect_sha2_response(tvb, pinfo, offset, mysql_tree, conn_data, ti, mysql_frame_data_p->state);
@@ -4823,6 +4949,16 @@ void proto_register_mysql(void)
 		{ "Binlog Position", "mysql.binlog.hb_event.log_position",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
 		"position of the next event", HFILL }},
+
+		{ &hf_mysql_clone_command_code,
+		{ "Clone Command Code", "mysql.clone.command_code",
+		FT_UINT8, BASE_HEX, VALS(mysql_clone_command_vals), 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_clone_response_code,
+		{ "Clone Response Code", "mysql.clone.response_code",
+		FT_UINT8, BASE_HEX, VALS(mysql_clone_response_vals), 0x0,
+		NULL, HFILL }},
 
 		{ &hf_mysql_eof,
 		{ "EOF marker", "mysql.eof",
