@@ -2151,6 +2151,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     guint8            pid;
     gboolean          is_subpid;
     const gchar      *str;
+    usbll_data_t     *data;
 
     item = proto_tree_add_item(parent_tree, proto_usbll, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_usbll);
@@ -2158,13 +2159,13 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     pid = tvb_get_guint8(tvb, offset);
 
     if (PINFO_FD_VISITED(pinfo)) {
-        usbll_data_ptr = usbll_restore_data(pinfo);
+        data = usbll_restore_data(pinfo);
     } else {
-        usbll_data_ptr = usbll_create_data(pinfo);
-        check_for_extended_subpid(pid, usbll_data_ptr);
+        data = usbll_data_ptr = usbll_create_data(pinfo);
+        check_for_extended_subpid(pid, data);
     }
 
-    is_subpid = usbll_is_extended_subpid(usbll_data_ptr->transaction_state);
+    is_subpid = usbll_is_extended_subpid(data->transaction_state);
     if (is_subpid) {
         proto_tree_add_item(tree, hf_usbll_subpid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         str = try_val_to_str(pid, usb_subpid_vals);
@@ -2203,21 +2204,21 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             case USB_PID_TOKEN_IN:
             case USB_PID_SPECIAL_PING:
             case USB_PID_SPECIAL_EXT:
-                offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, usbll_data_ptr, speed);
+                offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, data, speed);
                 break;
 
             case USB_PID_DATA_DATA0:
             case USB_PID_DATA_DATA1:
             case USB_PID_DATA_DATA2:
             case USB_PID_DATA_MDATA:
-                offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+                offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, data);
                 break;
 
             case USB_PID_HANDSHAKE_ACK:
             case USB_PID_HANDSHAKE_NAK:
             case USB_PID_HANDSHAKE_NYET:
             case USB_PID_HANDSHAKE_STALL:
-                offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+                offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, pid, data);
                 break;
 
             case USB_PID_TOKEN_SOF:
@@ -2225,7 +2226,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
                 break;
 
             case USB_PID_SPECIAL_SPLIT:
-                offset = dissect_usbll_split(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+                offset = dissect_usbll_split(tvb, pinfo, tree, offset, pid, data);
                 break;
             case USB_PID_SPECIAL_PRE_OR_ERR:
                 break;
@@ -2234,10 +2235,10 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         }
     }
 
-    usbll_generate_address(tree, tvb, pinfo, usbll_data_ptr);
-    if (usbll_data_ptr->transaction_state == STATE_INVALID) {
+    usbll_generate_address(tree, tvb, pinfo, data);
+    if (data->transaction_state == STATE_INVALID) {
         expert_add_info(pinfo, item, &ei_invalid_pid_sequence);
-    } else if (usbll_data_ptr->transaction_state == STATE_SUBPID_NOT_REUSABLE) {
+    } else if (data->transaction_state == STATE_SUBPID_NOT_REUSABLE) {
         expert_add_info(pinfo, item, &ei_conflicting_subpid);
     }
 
