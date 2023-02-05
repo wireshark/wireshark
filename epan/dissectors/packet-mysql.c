@@ -1061,9 +1061,11 @@ static int hf_mysql_exec_flags4 = -1;
 static int hf_mysql_exec_flags5 = -1;
 static int hf_mysql_exec_iter = -1;
 static int hf_mysql_binlog_position = -1;
+static int hf_mysql_binlog_position8 = -1;
 static int hf_mysql_binlog_flags = -1;
 static int hf_mysql_binlog_server_id = -1;
 static int hf_mysql_binlog_file_name = -1;
+static int hf_mysql_binlog_file_name_length = -1;
 static int hf_mysql_binlog_slave_hostname_length = -1;
 static int hf_mysql_binlog_slave_hostname = -1;
 static int hf_mysql_binlog_slave_user_length = -1;
@@ -1083,6 +1085,8 @@ static int hf_mysql_binlog_event_checksum = -1;
 static int hf_mysql_binlog_event_heartbeat_v2 = -1;
 static int hf_mysql_binlog_event_heartbeat_v2_otw = -1;
 static int hf_mysql_binlog_event_heartbeat_v2_otw_type = -1;
+static int hf_mysql_binlog_gtid_data = -1;
+static int hf_mysql_binlog_gtid_data_length = -1;
 static int hf_mysql_binlog_hb_event_filename = -1;
 static int hf_mysql_binlog_hb_event_log_position = -1;
 static int hf_mysql_eof = -1;
@@ -2366,6 +2370,35 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		break;
 
 	case MYSQL_BINLOG_DUMP_GTID:
+		// See mysql_binlog_open() in "sql-common/client.cc"
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		lenstr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(req_tree, hf_mysql_binlog_file_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_position8, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		if (tree && lenstr > 0) {
+			proto_tree_add_item(req_tree, hf_mysql_binlog_file_name, tvb, offset, lenstr, ENC_ASCII);
+		}
+		offset += lenstr;
+
+		lenstr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(req_tree, hf_mysql_binlog_gtid_data_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_gtid_data, tvb, offset, lenstr, ENC_ASCII);
+		offset += lenstr;
+
+		mysql_set_conn_state(pinfo, conn_data, BINLOG_DUMP);
+		break;
 	case MYSQL_BINLOG_DUMP:
 		proto_tree_add_item(req_tree, hf_mysql_binlog_position, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -4651,6 +4684,11 @@ void proto_register_mysql(void)
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"Position to start at", HFILL }},
 
+		{ &hf_mysql_binlog_position8,
+		{ "Binlog Position", "mysql.binlog.position8",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+		"Position to start at", HFILL }},
+
 		{ &hf_mysql_binlog_flags,
 		{ "Binlog Flags", "mysql.binlog.flags",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -4658,7 +4696,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_binlog_server_id,
 		{ "Binlog server id", "mysql.binlog.server_id",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"server_id of the slave", HFILL }},
 
 		{ &hf_mysql_binlog_slave_hostname_length,
@@ -4709,6 +4747,21 @@ void proto_register_mysql(void)
 		{ &hf_mysql_binlog_file_name,
 		{ "Binlog file name", "mysql.binlog.file_name",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_binlog_file_name_length,
+		{ "Binlog file name length", "mysql.binlog.file_name_length",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_binlog_gtid_data,
+		{ "Binlog GTID Data", "mysql.binlog.gtid_data",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_binlog_gtid_data_length,
+		{ "Binlog file GTID data length", "mysql.binlog.gtid_data_length",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_binlog_event_header_timestamp,
