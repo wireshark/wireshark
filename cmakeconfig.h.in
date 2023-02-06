@@ -309,6 +309,9 @@
 /* Define to 1 if the 'ssize_t' type exists. */
 #cmakedefine HAVE_SSIZE_T 1
 
+/* Define to 1 if we are using the msys2 environment to build. */
+#cmakedefine HAVE_MSYSTEM 1
+
 #if defined(_MSC_VER)
 #  define strncasecmp strnicmp
 #  define popen       _popen

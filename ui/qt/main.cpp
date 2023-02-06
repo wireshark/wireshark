@@ -342,7 +342,7 @@ check_and_warn_user_startup()
 }
 #endif
 
-#if defined(_WIN32) && !defined(__MINGW64__)
+#if defined(_WIN32) && !defined(HAVE_MSYSTEM)
 // Try to avoid library search path collisions. QCoreApplication will
 // search QT_INSTALL_PREFIX/plugins for platform DLLs before searching
 // the application directory. If
@@ -650,7 +650,7 @@ int main(int argc, char *qt_argv[])
 
     commandline_early_options(argc, argv);
 
-#if defined(_WIN32) && !defined(__MINGW64__)
+#if defined(_WIN32) && !defined(HAVE_MSYSTEM)
     win32_reset_library_path();
 #endif
 

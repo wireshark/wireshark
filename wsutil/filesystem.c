@@ -642,7 +642,7 @@ configuration_init_w32(const char* arg0 _U_)
             msg, error);
     }
 
-#ifdef __MINGW64__
+#ifdef HAVE_MSYSTEM
     /*
      * We already have the program_dir. Find the installation prefix.
      * This is one level up from the bin_dir. If the program_dir does
@@ -657,7 +657,7 @@ configuration_init_w32(const char* arg0 _U_)
         install_prefix = g_strdup(progfile_dir);
         running_in_build_directory_flag = TRUE;
     }
-#endif /* __MINGW64__ */
+#endif /* HAVE_MSYSTEM */
 
     return NULL;
 }
@@ -994,7 +994,7 @@ get_datafile_dir(void)
         return datafile_dir;
     }
 
-#if defined(__MINGW64__)
+#if defined(HAVE_MSYSTEM)
     if (running_in_build_directory_flag) {
         datafile_dir = g_strdup(install_prefix);
     } else {
@@ -1072,7 +1072,7 @@ get_doc_dir(void)
         ;
     }
 
-#if defined(__MINGW64__)
+#if defined(HAVE_MSYSTEM)
     if (running_in_build_directory_flag) {
         doc_dir = g_strdup(install_prefix);
     } else {
@@ -1157,7 +1157,7 @@ init_plugin_dir(void)
     }
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-#if defined(__MINGW64__)
+#if defined(HAVE_MSYSTEM)
     if (running_in_build_directory_flag) {
         plugin_dir = g_build_filename(install_prefix, "plugins", (gchar *)NULL);
     } else {
@@ -1311,7 +1311,7 @@ init_extcap_dir(void)
         extcap_dir = g_strdup(g_getenv(extcap_dir_envar));
     }
 
-#if defined(__MINGW64__)
+#if defined(HAVE_MSYSTEM)
     else if (running_in_build_directory_flag) {
         extcap_dir = g_build_filename(install_prefix, "extcap", (gchar *)NULL);
     } else {
