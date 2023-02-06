@@ -15,7 +15,7 @@
 
 #include <epan/packet.h>
 #include <wsutil/file_util.h>
-#include <wsutil/wsgcrypt.h>
+#include <gcrypt.h>
 #include "cfile.h"
 #include "ui/summary.h"
 

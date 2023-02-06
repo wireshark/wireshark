@@ -22,7 +22,7 @@
 #ifdef HAVE_LIBGNUTLS
 # include <gnutls/gnutls.h>
 # include <gnutls/abstract.h>
-# include <wsutil/wsgcrypt.h>
+# include <gcrypt.h>
 # include <wsutil/rsa.h>
 # include <epan/uat.h>
 # include <wsutil/report_message.h>

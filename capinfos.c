@@ -75,7 +75,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
 
-#include <wsutil/wsgcrypt.h>
+#include <gcrypt.h>
 
 #include "ui/failure_message.h"
 

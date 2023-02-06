@@ -12,8 +12,8 @@
 #ifndef __RSA_H__
 #define __RSA_H__
 
-#include "ws_symbol_export.h"
-#include "wsgcrypt.h"
+#include <wireshark.h>
+#include <gcrypt.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <stdio.h>

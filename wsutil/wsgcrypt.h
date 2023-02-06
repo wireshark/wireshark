@@ -16,15 +16,7 @@
 #define __WSGCRYPT_H__
 
 #include <wireshark.h>
-
-/* XXX: Turning off warnings here may not be necessary now that libgcrypt
- * 1.8.0 is the minimum version.
- */
-DIAG_OFF(deprecated-declarations)
-
 #include <gcrypt.h>
-
-DIAG_ON(deprecated-declarations)
 
 #define HASH_MD5_LENGTH      16
 #define HASH_SHA1_LENGTH     20

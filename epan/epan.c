@@ -8,10 +8,11 @@
  */
 
 #include "config.h"
+#include "epan.h"
 
 #include <stdarg.h>
 
-#include <wsutil/wsgcrypt.h>
+#include <gcrypt.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/gnutls.h>
@@ -23,7 +24,6 @@
 
 #include <epan/exceptions.h>
 
-#include "epan.h"
 #include "epan/frame_data.h"
 
 #include "dfilter/dfilter.h"

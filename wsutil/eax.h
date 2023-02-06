@@ -12,8 +12,7 @@
 #ifndef	_EAX_H
 #define	_EAX_H
 
-#include <glib.h>
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 typedef struct tagMAC_T
 {

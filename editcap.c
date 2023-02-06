@@ -27,6 +27,7 @@
 
 #include <time.h>
 #include <glib.h>
+#include <gcrypt.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -50,7 +51,6 @@
 #include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <wsutil/wsgcrypt.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>

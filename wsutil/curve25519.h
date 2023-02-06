@@ -13,8 +13,7 @@
 #ifndef __CURVE25519_H__
 #define __CURVE25519_H__
 
-#include "ws_symbol_export.h"
-#include "wsgcrypt.h"
+#include <wireshark.h>
 
 /*
  * Computes Q = X25519(n, P). In other words, given the secret key n, the public
