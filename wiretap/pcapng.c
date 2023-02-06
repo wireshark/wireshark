@@ -28,6 +28,7 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/unicode-utils.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -761,10 +762,7 @@ pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
     char *str;
 
     /* Validate UTF-8 encoding. */
-    if (g_utf8_validate(opt, optlen, NULL))
-        str = g_strndup(opt, optlen);
-    else
-        str = g_utf8_make_valid(opt, optlen);
+    str = ws_utf8_make_valid(NULL, opt, optlen);
 
     wtap_block_add_string_option_owned(wblock->block, option_code, str);
 }
