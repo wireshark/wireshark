@@ -2668,10 +2668,8 @@ free_progdirs(void)
     progfile_dir = NULL;
     g_free(doc_dir);
     doc_dir = NULL;
-#ifdef __MINGW64__
     g_free(install_prefix);
     install_prefix = NULL;
-#endif
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;
