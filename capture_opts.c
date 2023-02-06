@@ -25,12 +25,13 @@
 
 #include <glib.h>
 
+#include <ws_exit_codes.h>
+
 #include "capture_opts.h"
 #include "ringbuffer.h"
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
@@ -1075,7 +1076,7 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps,
         if (caps->data_link_types == NULL) {
             cmdarg_err("The capture device \"%s\" has no data link types.",
                        interface_opts->name);
-            return IFACE_HAS_NO_LINK_TYPES;
+            return WS_EXIT_IFACE_HAS_NO_LINK_TYPES;
         }
         if (caps->can_set_rfmon)
             printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
@@ -1100,7 +1101,7 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps,
         if (caps->timestamp_types == NULL) {
             cmdarg_err("The capture device \"%s\" has no timestamp types.",
                        interface_opts->name);
-            return IFACE_HAS_NO_TIMESTAMP_TYPES;
+            return WS_EXIT_IFACE_HAS_NO_TIMESTAMP_TYPES;
         }
         printf("Timestamp types of the interface (use option --time-stamp-type to set):\n");
         for (ts_entry = caps->timestamp_types; ts_entry != NULL;

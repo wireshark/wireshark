@@ -3812,6 +3812,7 @@ set(SHARK_PUBLIC_HEADERS
 	include/ws_codepoints.h
 	include/ws_compiler_tests.h
 	include/ws_diag_control.h
+	include/ws_exit_codes.h
 	include/ws_log_defs.h
 	include/ws_posix_compat.h
 	include/ws_symbol_export.h

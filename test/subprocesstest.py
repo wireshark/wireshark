@@ -64,7 +64,7 @@ class LoggingPopen(subprocess.Popen):
         super().__init__(proc_args, *args, **kwargs)
         self.stdout_str = ''
         self.stderr_str = ''
-    
+
     @staticmethod
     def trim_output(out_log, max_lines):
         lines = out_log.splitlines(True)
@@ -119,7 +119,7 @@ class SubprocessTestCase(unittest.TestCase):
         super().__init__(*args, **kwargs)
         self.exit_ok = 0
 
-        # See ui/exit_codes.h
+        # See ws_exit_codes.h
         self.exit_command_line = 1
         self.exit_invalid_interface = 2
         self.exit_invalid_file_error = 3

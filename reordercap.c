@@ -16,12 +16,12 @@
 #include <string.h>
 #include <glib.h>
 
+#include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>
 
 #include <wiretap/wtap.h>
 
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -205,7 +205,7 @@ main(int argc, char *argv[])
     ws_log_init("reordercap", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -248,7 +248,7 @@ main(int argc, char *argv[])
                 goto clean_exit;
             case '?':
                 print_usage(stderr);
-                ret = INVALID_OPTION;
+                ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
         }
     }
@@ -261,7 +261,7 @@ main(int argc, char *argv[])
     }
     else {
         print_usage(stderr);
-        ret = INVALID_OPTION;
+        ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -271,7 +271,7 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
         cfile_open_failure_message(infile, err, err_info);
-        ret = OPEN_ERROR;
+        ret = WS_EXIT_OPEN_ERROR;
         goto clean_exit;
     }
     DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
