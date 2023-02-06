@@ -325,7 +325,9 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
         case PT_TXTMOD_DISPLAY_FILTER:
         case PT_TXTMOD_PROTO_FIELD:
         case PT_TXTMOD_COLOR:
-        case PT_TXTMOD_STRING: {
+        case PT_TXTMOD_STRING:
+        case PT_TXTMOD_DISSECTOR:
+        {
             guint i;
 
             putc('"',fp);

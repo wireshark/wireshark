@@ -202,6 +202,8 @@ typedef enum _uat_text_mode_t {
 	 */
 	PT_TXTMOD_ENUM,
 	/* Read/Writes/displays the string value (not number!) */
+	PT_TXTMOD_DISSECTOR,
+	/* Shows a combobox of dissectors */
 
 	PT_TXTMOD_COLOR,
 	/* Reads/Writes/display color in #RRGGBB format */
@@ -726,10 +728,10 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 
 /*
- * PROTO macros
+ * DISSECTOR macros
  */
 
-#define UAT_PROTO_DEF(basename, field_name, dissector_field, name_field, rec_t) \
+#define UAT_DISSECTOR_DEF(basename, field_name, dissector_field, name_field, rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 	if (len) { \
 		gchar *tmp = g_strndup(buf,len); \
@@ -749,8 +751,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 		*out_ptr = g_strdup(""); *out_len = 0; } }
 
 
-#define UAT_FLD_PROTO(basename,field_name,title,desc) \
-	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_DISSECTOR(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_DISSECTOR,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * RANGE macros

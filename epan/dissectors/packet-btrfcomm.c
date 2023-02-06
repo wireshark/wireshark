@@ -134,12 +134,12 @@ static uat_rfcomm_channels_t  *rfcomm_channels          = NULL;
 static guint                  num_rfcomm_channels       = 0;
 
 UAT_DEC_CB_DEF(rfcomm_channels, channel, uat_rfcomm_channels_t)
-UAT_PROTO_DEF(rfcomm_channels, payload_proto, payload_proto, payload_proto_name, uat_rfcomm_channels_t)
+UAT_DISSECTOR_DEF(rfcomm_channels, payload_proto, payload_proto, payload_proto_name, uat_rfcomm_channels_t)
 
 static uat_field_t uat_rfcomm_channels_fields[] = {
     UAT_FLD_DEC(rfcomm_channels, channel, "RFCOMM Channel",
             "Range: 0-32"),
-    UAT_FLD_PROTO(rfcomm_channels, payload_proto, "Payload protocol",
+    UAT_FLD_DISSECTOR(rfcomm_channels, payload_proto, "Payload dissector",
             "Dissector name used to decode RFCOMM channel"),
     UAT_END_FIELDS
 };

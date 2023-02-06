@@ -210,11 +210,11 @@ static void user_free_cb(void* record)
 }
 
 UAT_VS_DEF(user_encap, encap, user_encap_t, guint, WTAP_ENCAP_USER0, ENCAP0_STR)
-UAT_PROTO_DEF(user_encap, payload_proto, payload_proto, payload_proto_name, user_encap_t)
+UAT_DISSECTOR_DEF(user_encap, payload_proto, payload_proto, payload_proto_name, user_encap_t)
 UAT_DEC_CB_DEF(user_encap, header_size, user_encap_t)
-UAT_PROTO_DEF(user_encap, header_proto, header_proto, header_proto_name, user_encap_t)
+UAT_DISSECTOR_DEF(user_encap, header_proto, header_proto, header_proto_name, user_encap_t)
 UAT_DEC_CB_DEF(user_encap, trailer_size, user_encap_t)
-UAT_PROTO_DEF(user_encap, trailer_proto, trailer_proto, trailer_proto_name, user_encap_t)
+UAT_DISSECTOR_DEF(user_encap, trailer_proto, trailer_proto, trailer_proto_name, user_encap_t)
 
 void proto_reg_handoff_user_encap(void)
 {
@@ -234,16 +234,16 @@ void proto_register_user_encap(void)
 
     static uat_field_t user_flds[] = {
         UAT_FLD_VS(user_encap,encap,"DLT",user_dlts,"The DLT"),
-        UAT_FLD_PROTO(user_encap,payload_proto,"Payload protocol",
-                      "Protocol to be used for the payload of this DLT"),
+        UAT_FLD_DISSECTOR(user_encap,payload_proto,"Payload dissector",
+                      "Dissector to be used for the payload of this DLT"),
         UAT_FLD_DEC(user_encap,header_size,"Header size",
                     "Size of an eventual header that precedes the actual payload, 0 means none"),
-        UAT_FLD_PROTO(user_encap,header_proto,"Header protocol",
-                      "Protocol to be used for the header (empty = data)"),
+        UAT_FLD_DISSECTOR(user_encap,header_proto,"Header dissector",
+                      "Dissector to be used for the header (empty = data)"),
         UAT_FLD_DEC(user_encap,trailer_size,"Trailer size",
                     "Size of an eventual trailer that follows the actual payload, 0 means none"),
-        UAT_FLD_PROTO(user_encap,trailer_proto,"Trailer protocol",
-                      "Protocol to be used for the trailer (empty = data)"),
+        UAT_FLD_DISSECTOR(user_encap,trailer_proto,"Trailer dissector",
+                      "Dissector to be used for the trailer (empty = data)"),
         UAT_END_FIELDS
     };
 

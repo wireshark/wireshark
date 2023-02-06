@@ -1085,10 +1085,10 @@ sscop:nbap, ...)
 
 [#ChUserDLTsSection]
 
-=== User DLTs protocol table
+=== User DLTs dissector table
 
 When a pcap file uses one of the user DLTs (147 to 162) Wireshark uses this
-table to know which protocol(s) to use for each user DLT.
+table to know which dissector(s) to use for each user DLT.
 
 This table is a user table, as described in <<ChUserTable>>, with the
 following fields:
@@ -1096,23 +1096,23 @@ following fields:
 DLT::
 One of the user dlts.
 
-Payload protocol::
-This is the name of the payload protocol (the lowest layer in the packet data).
-(e.g., “eth” for ethernet, “ip” for IPv4)
+Payload dissector::
+This is the name of the payload dissector (the lowest layer in the packet data).
+(e.g., “eth_withfcs, "eth_withoutfcs”, and "eth_maybefcs" respectively for Ethernet frames that do, do not, or might possibly include the FCS at the end, “ip” for trying IPv4 then IPv6)
 
 Header size::
-If there is a header protocol (before the payload protocol) this tells which
-size this header is. A value of 0 disables the header protocol.
+If there is a header (before the payload) this tells which
+size this header is. A value of 0 disables the header dissector.
 
-Header protocol::
-The name of the header protocol to be used (uses “data” as default).
+Header dissector::
+The name of the header dissector to be used (uses “data” as default).
 
 Trailer size::
-If there is a trailer protocol (after the payload protocol) this tells which
-size this trailer is. A value of 0 disables the trailer protocol.
+If there is a trailer (after the payload) this tells which
+size this trailer is. A value of 0 disables the trailer dissector.
 
-Trailer protocol::
-The name of the trailer protocol to be used (uses “data” as default).
+Trailer dissector::
+The name of the trailer dissector to be used (uses “data” as default).
 
 [#ChProtobufSearchPaths]
 
