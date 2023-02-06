@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include "wspcap.h"
+#include <pcap.h>
 
 #include <glib.h>
 

@@ -12,7 +12,7 @@
 #ifdef HAVE_LIBPCAP
 #include <glib.h>
 
-#include "wspcap.h"
+#include <pcap.h>
 
 #include "capture_opts.h"
 #include "ui/capture_globals.h"

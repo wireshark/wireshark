@@ -16,7 +16,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include "wspcap.h"
+#include <pcap.h>
 
 #include "capture_opts.h"
 
