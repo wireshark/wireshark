@@ -1019,7 +1019,7 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
 }
 
 gboolean
-extcap_has_configuration(const char *ifname, gboolean is_required)
+_extcap_requires_configuration_int(const char *ifname, gboolean check_required)
 {
     GList *arguments = 0;
     GList *walker = 0, * item = 0;
@@ -1039,10 +1039,11 @@ extcap_has_configuration(const char *ifname, gboolean is_required)
             {
                 extcap_arg *arg = (extcap_arg *)(item->data);
                 /* Should required options be present, or any kind of options */
-                if (!is_required)
+                if (!check_required)
                 {
                     found = TRUE;
                 }
+                /* Following branch is executed when check of required items is requested */
                 else if (arg->is_required)
                 {
                     const gchar *stored = NULL;
@@ -1060,13 +1061,7 @@ extcap_has_configuration(const char *ifname, gboolean is_required)
 
                     if (arg->is_required)
                     {
-                        /* If stored and defval is identical and the argument is required,
-                         * configuration is needed */
-                        if (defval && stored && g_strcmp0(stored, defval) == 0)
-                        {
-                            found = TRUE;
-                        }
-                        else if (!defval && (!stored || !*stored))
+                        if (!defval && (!stored || !*stored))
                         {
                             found = TRUE;
                         }
@@ -1089,6 +1084,18 @@ extcap_has_configuration(const char *ifname, gboolean is_required)
     extcap_free_if_configuration(arguments, TRUE);
 
     return found;
+}
+
+gboolean
+extcap_has_configuration(const char *ifname)
+{
+  return _extcap_requires_configuration_int(ifname, FALSE);
+}
+
+gboolean
+extcap_requires_configuration(const char *ifname)
+{
+  return _extcap_requires_configuration_int(ifname, TRUE);
 }
 
 static gboolean cb_verify_filter(extcap_callback_info_t cb_info)
