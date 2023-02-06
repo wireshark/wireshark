@@ -11,7 +11,6 @@ set(NONGENERATED_UI_SRC
 	alert_box.c
 	capture.c
 	capture_ui_utils.c
-	clopts_common.c
 	commandline.c
 	decode_as_utils.c
 	dissect_opts.c

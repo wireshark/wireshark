@@ -30,7 +30,7 @@
 #include <epan/dissectors/read_keytab_file.h>
 #endif
 
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>

@@ -30,7 +30,7 @@
 #include "capture_opts.h"
 #include "ringbuffer.h"
 
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>

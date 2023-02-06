@@ -38,7 +38,7 @@
 #include <epan/epan.h>
 
 #include <ws_exit_codes.h>
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>

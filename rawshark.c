@@ -51,7 +51,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>

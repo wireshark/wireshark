@@ -21,7 +21,7 @@
 
 #include <wsutil/version_info.h>
 
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_assert.h>

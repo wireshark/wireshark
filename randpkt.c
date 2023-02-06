@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include <ws_exit_codes.h>
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <ui/failure_message.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>

@@ -60,7 +60,7 @@
 #include <sys/un.h>
 #endif
 
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/privileges.h>
 
 #include "sync_pipe.h"
