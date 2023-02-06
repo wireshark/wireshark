@@ -25,7 +25,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-rpc.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 #define MICROSECS_PER_SEC   1000000
 #define NANOSECS_PER_SEC    1000000000

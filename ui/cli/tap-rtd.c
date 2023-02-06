@@ -19,7 +19,7 @@
 #include <epan/rtd_table.h>
 #include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 typedef struct _rtd_t {

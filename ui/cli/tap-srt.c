@@ -17,7 +17,7 @@
 #include <epan/srt_table.h>
 #include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 #define NANOSECS_PER_SEC 1000000000

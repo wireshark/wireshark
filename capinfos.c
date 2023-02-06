@@ -58,7 +58,7 @@
 
 #include <wiretap/wtap.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>

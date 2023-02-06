@@ -24,7 +24,7 @@
 #include "epan/timestats.h"
 #include "epan/stat_tap_ui.h"
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_camelsrt(void);
 

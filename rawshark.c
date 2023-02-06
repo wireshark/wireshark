@@ -42,7 +42,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>

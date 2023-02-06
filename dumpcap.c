@@ -31,7 +31,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>

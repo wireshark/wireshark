@@ -24,7 +24,7 @@
 
 #include <wsutil/wslog.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_httpstat(void);
 

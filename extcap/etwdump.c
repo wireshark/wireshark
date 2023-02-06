@@ -22,7 +22,7 @@
 #include <wsutil/wslog.h>
 
 #include <cli_main.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include "etl.h"
 
 #include <signal.h>

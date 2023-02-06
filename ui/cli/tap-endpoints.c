@@ -18,7 +18,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/conversation_table.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 typedef struct _endpoints_t {

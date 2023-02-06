@@ -72,7 +72,7 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <cli_main.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/text_import.h>
 #include <wsutil/version_info.h>
 #include <ui/failure_message.h>

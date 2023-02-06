@@ -31,7 +31,7 @@
 #include <glib.h>
 
 #include <wsutil/strtoi.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/tap.h>

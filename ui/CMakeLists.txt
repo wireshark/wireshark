@@ -12,7 +12,6 @@ set(NONGENERATED_UI_SRC
 	capture.c
 	capture_ui_utils.c
 	clopts_common.c
-	cmdarg_err.c
 	commandline.c
 	decode_as_utils.c
 	dissect_opts.c
