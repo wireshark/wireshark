@@ -9,8 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __UI_FILTERS_H__
-#define __UI_FILTERS_H__
+#ifndef __FILTER_FILES_H__
+#define __FILTER_FILES_H__
+
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,23 +54,27 @@ typedef struct {
  *
  * On error, report the error via the UI.
  */
+WS_DLL_PUBLIC
 void read_filter_list(filter_list_type_t list_type);
 
 /*
  * Get a pointer to the first entry in a filter list.
  */
+WS_DLL_PUBLIC
 GList *get_filter_list_first(filter_list_type_t list);
 
 /*
  * Add a new filter to the end of a list.
  * Returns a pointer to the newly-added entry.
  */
+WS_DLL_PUBLIC
 GList *add_to_filter_list(filter_list_type_t list, const char *name,
                           const char *expression);
 
 /*
  * Remove a filter from a list.
  */
+WS_DLL_PUBLIC
 void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
 
 /*
@@ -76,15 +82,17 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
  *
  * On error, report the error via the UI.
  */
+WS_DLL_PUBLIC
 void save_filter_list(filter_list_type_t list_type);
 
 /*
  * Free all filter lists
  */
+WS_DLL_PUBLIC
 void free_filter_lists(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __UI_FILTERS_H__ */
+#endif /* __FILTER_FILES_H__ */

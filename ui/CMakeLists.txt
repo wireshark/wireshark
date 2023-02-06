@@ -18,7 +18,6 @@ set(NONGENERATED_UI_SRC
 	help_url.c
 	failure_message.c
 	file_dialog.c
-	filter_files.c
 	firewall_rules.c
 	iface_toolbar.c
 	iface_lists.c

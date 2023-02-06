@@ -35,11 +35,10 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/filter_files.h>
 
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
-
-#include "ui/filter_files.h"
 
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
 

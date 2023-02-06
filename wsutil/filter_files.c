@@ -9,7 +9,8 @@
  */
 
 #include <config.h>
-#define WS_LOG_DOMAIN LOG_DOMAIN_MAIN
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+#include "filter_files.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -22,8 +23,6 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
-
-#include "ui/filter_files.h"
 
 /*
  * List of capture filters - saved.

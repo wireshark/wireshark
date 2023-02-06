@@ -16,7 +16,7 @@
 #include "capture_opts.h"
 
 #include <ui/capture_globals.h>
-#include <ui/filter_files.h>
+#include <wsutil/filter_files.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/capture_filter_edit.h>

@@ -123,6 +123,7 @@ set(WSUTIL_COMMON_FILES
 	eax.c
 	feature_list.c
 	filesystem.c
+	filter_files.c
 	g711.c
 	inet_addr.c
 	interface.c
