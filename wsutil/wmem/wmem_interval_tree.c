@@ -123,7 +123,7 @@ wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, voi
     wmem_tree_node_t *node;
     wmem_range_t *range = (wmem_range_t *)wmem_new(tree->data_allocator, wmem_range_t);
 
-    ASSERT(low <= high);
+    ws_assert(low <= high);
     range->low = low;
     range->high = high;
     range->max_edge = 0;
