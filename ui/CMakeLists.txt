@@ -80,6 +80,7 @@ add_library(ui STATIC ${UI_SRC})
 target_link_libraries(ui
 	PRIVATE
 		wsutil
+		wiretap
 )
 
 target_include_directories(ui
