@@ -74,7 +74,7 @@
 #include <cli_main.h>
 #include <ui/cmdarg_err.h>
 #include <ui/text_import.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <ui/failure_message.h>
 #include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>

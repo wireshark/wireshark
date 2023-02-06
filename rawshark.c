@@ -85,7 +85,7 @@
 #include <wiretap/pcap-encap.h>
 
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include "capture/capture-pcap-util.h"
 

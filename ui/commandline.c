@@ -19,7 +19,7 @@
 #include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>
 
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>

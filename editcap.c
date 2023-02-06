@@ -57,7 +57,7 @@
 #include <wsutil/strnatcmp.h>
 #include <wsutil/str_util.h>
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>

@@ -35,7 +35,7 @@
 #include <wsutil/wslog.h>
 
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>

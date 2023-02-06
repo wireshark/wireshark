@@ -99,7 +99,7 @@
 #include <wsutil/nstime.h>
 #include <wsutil/time_util.h>
 
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 

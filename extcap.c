@@ -43,14 +43,13 @@
 #include <wsutil/tempfile.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/version_info.h>
 
 #include "capture/capture_session.h"
 #include "capture_opts.h"
 
 #include "extcap.h"
 #include "extcap_parser.h"
-
-#include "ui/version_info.h"
 
 /* Number of seconds to wait for extcap process to exit after cleanup.
  * If extcap does not exit before the timeout, it is forcefully terminated.

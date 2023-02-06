@@ -2592,7 +2592,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		iface_monitor
 		wiretap
 		epan
-		version_info
 		summary
 		${QT_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
@@ -2605,6 +2604,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${WINSPARKLE_LIBRARIES}
 		$<$<BOOL:${WIN32}>:UxTheme.lib>
 		${SPEEXDSP_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${MINIZIP_LIBRARIES}
 	)
 
@@ -2699,7 +2699,6 @@ if(BUILD_logray AND QT_FOUND)
 		iface_monitor
 		wiretap
 		epan
-		version_info
 		summary
 		${QT_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
@@ -2860,7 +2859,6 @@ if(BUILD_tshark)
 		wiretap
 		epan
 		wsutil
-		version_info
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -2890,7 +2888,6 @@ if(BUILD_tfshark)
 		ui
 		wiretap
 		epan
-		version_info
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
@@ -2913,7 +2910,6 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		ui
 		wiretap
 		epan
-		version_info
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -2936,7 +2932,6 @@ if(BUILD_sharkd)
 		ui
 		wiretap
 		epan
-		version_info
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -2966,7 +2961,6 @@ if(BUILD_dftest)
 		ui
 		wiretap
 		epan
-		version_info
 	)
 	set(dftest_FILES
 		dftest.c
@@ -3007,7 +3001,6 @@ if(BUILD_text2pcap)
 		wsutil
 		ui
 		epan
-		version_info
 		${ZLIB_LIBRARIES}
 	)
 	set(text2pcap_FILES
@@ -3027,7 +3020,6 @@ if(BUILD_mergecap)
 	set(mergecap_LIBS
 		ui
 		wiretap
-		version_info
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
@@ -3047,7 +3039,6 @@ if(BUILD_reordercap)
 	set(reordercap_LIBS
 		ui
 		wiretap
-		version_info
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
@@ -3068,7 +3059,6 @@ if(BUILD_capinfos)
 		ui
 		wiretap
 		wsutil
-		version_info
 		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${CMAKE_DL_LIBS}
@@ -3091,7 +3081,6 @@ if(BUILD_captype)
 		ui
 		wiretap
 		wsutil
-		version_info
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
@@ -3111,7 +3100,6 @@ if(BUILD_editcap)
 	set(editcap_LIBS
 		ui
 		wiretap
-		version_info
 		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${CMAKE_DL_LIBS}
@@ -3136,7 +3124,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		caputils
 		iface_monitor
 		ui
-		version_info
 		pcap::pcap
 		${CAP_LIBRARIES}
 		${ZLIB_LIBRARIES}

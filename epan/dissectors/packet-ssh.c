@@ -58,7 +58,6 @@
 #include <wsutil/curve25519.h>
 #include <wsutil/pint.h>
 #include <wsutil/wslog.h>
-#include <ui/version_info.h>
 #include <epan/secrets.h>
 #include <wiretap/secrets-types.h>
 

@@ -39,7 +39,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>

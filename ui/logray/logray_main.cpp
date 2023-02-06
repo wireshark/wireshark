@@ -36,7 +36,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/ex-opt.h>

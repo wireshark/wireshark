@@ -104,31 +104,12 @@ target_include_directories(summary
 		${GCRYPT_INCLUDE_DIRS}
 )
 
-add_library(version_info STATIC version_info.c)
-
-if(NOT VCSVERSION_OVERRIDE)
-	add_dependencies(version_info vcs_version)
-endif()
-
-target_link_libraries(version_info
-	PRIVATE
-		wsutil
-		${ZLIB_LIBRARIES}
-		${PCRE2_LIBRARIES}
-)
-
-target_include_directories(version_info
-	SYSTEM PRIVATE
-		${ZLIB_INCLUDE_DIRS}
-		${PCRE2_INCLUDE_DIRS}
-)
-
-set_target_properties(ui version_info PROPERTIES
+set_target_properties(ui summary PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 )
 if(MSVC)
-	set_target_properties(ui version_info PROPERTIES
+	set_target_properties(ui summary PROPERTIES
 		LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}"
 	)
 endif()

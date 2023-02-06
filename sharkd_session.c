@@ -55,7 +55,7 @@
 #include <ui/rtp_stream.h>
 #include <ui/tap-rtp-common.h>
 #include <ui/tap-rtp-analysis.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <epan/to_str.h>
 
 #include <epan/addr_resolv.h>

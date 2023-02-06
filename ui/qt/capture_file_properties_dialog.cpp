@@ -17,7 +17,7 @@
 
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
-#include "ui/version_info.h"
+#include "wsutil/version_info.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"

@@ -40,7 +40,7 @@
 #include "ui/util.h"
 #include "ui/cmdarg_err.h"
 #include "ui/failure_message.h"
-#include "ui/version_info.h"
+#include "wsutil/version_info.h"
 
 static int opt_verbose = 0;
 #define DFTEST_LOG_NONE     0
