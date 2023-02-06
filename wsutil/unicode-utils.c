@@ -189,8 +189,8 @@ utf_8_validate(const guint8 *start, ssize_t length, const guint8 **end)
  * indication of whether there was an invalid character (i.e.
  * REPLACEMENT CHARACTER was used.)
  */
-guint8 *
-ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length)
+wmem_strbuf_t *
+ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length)
 {
     wmem_strbuf_t *str;
 
@@ -215,7 +215,14 @@ ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length)
         }
     }
 
-    return (guint8 *) wmem_strbuf_finalize(str);
+    return str;
+}
+
+guint8 *
+ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length)
+{
+    wmem_strbuf_t *str = ws_utf8_make_valid_strbuf(scope, ptr, length);
+    return wmem_strbuf_finalize(str);
 }
 
 #ifdef _WIN32

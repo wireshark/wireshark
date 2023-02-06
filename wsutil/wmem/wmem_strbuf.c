@@ -18,6 +18,8 @@
 #include "wmem-int.h"
 #include "wmem_strutl.h"
 
+#include <wsutil/unicode-utils.h>
+
 #define DEFAULT_MINIMUM_SIZE 16
 
 /* _ROOM accounts for the null-terminator, _RAW_ROOM does not.
@@ -444,16 +446,14 @@ wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endpptr)
 void
 wmem_strbuf_utf8_make_valid(wmem_strbuf_t *strbuf)
 {
-    /* Sanitize the contents to a temporary string. */
-    char *tmp = g_utf8_make_valid(strbuf->str, strbuf->len);
+    wmem_strbuf_t *tmp = ws_utf8_make_valid_strbuf(strbuf->allocator, strbuf->str, strbuf->len);
 
-    /* Reset the strbuf, keeping the backing memory allocation */
-    *strbuf->str = '\0';
-    strbuf->len = 0;
+    wmem_free(strbuf->allocator, strbuf->str);
+    strbuf->str = tmp->str;
+    strbuf->len = tmp->len;
+    strbuf->alloc_size = tmp->alloc_size;
 
-    /* Copy the temporary string to the strbuf. */
-    wmem_strbuf_append(strbuf, tmp);
-    g_free(tmp);
+    wmem_free(strbuf->allocator, tmp);
 }
 
 /*
