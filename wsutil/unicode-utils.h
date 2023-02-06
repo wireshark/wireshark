@@ -59,6 +59,16 @@ int ws_utf8_seqlen[256];
  */
 #define ws_utf8_char_len(ch)  (ws_utf8_seqlen[(ch)])
 
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by the pointer and length as a UTF-8 string, and return a
+ * pointer to a UTF-8 string, allocated using the wmem scope, with all
+ * ill-formed sequences replaced with the Unicode REPLACEMENT CHARACTER
+ * according to the recommended "best practices" given in the Unicode
+ * Standard and specified by W3C/WHATWG.
+ */
+WS_DLL_PUBLIC guint8 *
+ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length);
 
 #ifdef _WIN32
 
