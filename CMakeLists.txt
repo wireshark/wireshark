@@ -3123,7 +3123,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		wsutil
 		caputils
 		iface_monitor
-		ui
 		pcap::pcap
 		${CAP_LIBRARIES}
 		${ZLIB_LIBRARIES}
