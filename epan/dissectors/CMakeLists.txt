@@ -244,6 +244,16 @@ set(NCP2222_DISSECTOR_SRC
 
 source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 
+#
+# Note: In principle dissector headers are internal to libwireshark and not part
+# of any public API. The only possible reason I can see to expose these symbols is to allow
+# dissector plugins to share code with static dissectors (arguably there should be better mechanisms
+# for that too, that are more dynamic at runtime and more friendly to language bindings but I digress).
+# So at most only a small part of dissector header content belongs in any
+# sort of public API but historically there has been no separation and everything is balled
+# up as a DISSECTOR_PUBLIC_HEADER more or less automatically and indiscriminately (because of a lack
+# of clear guidelines). In the future this unsatistactory situation should be fixed somehow.
+#
 set(DISSECTOR_PUBLIC_HEADERS
 	cond_ace_token_enum.h
 	file-pcapng.h
