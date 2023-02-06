@@ -8494,7 +8494,7 @@ proto_register_acn(void)
     /* RPT Vector */
     { &hf_rdmnet_rpt_vector,
       { "RPT Vector", "rdmnet.rpt_vector",
-        FT_UINT8, BASE_DEC, VALS(rdmnet_rpt_vector_vals), 0x0,
+        FT_UINT32, BASE_DEC, VALS(rdmnet_rpt_vector_vals), 0x0,
         NULL, HFILL }
     },
     /* RPT Source UID */

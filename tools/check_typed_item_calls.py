@@ -371,7 +371,28 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^bpv7.crc_field'),
         re.compile(r'^at.chld.mode'),
         re.compile(r'^btl2cap.psm'),
-        re.compile(r'^srvloc.srvtypereq.nameauthlistlen')
+        re.compile(r'^srvloc.srvtypereq.nameauthlistlen'),
+        re.compile(r'^a11.ext.code'),
+        re.compile(r'^adwin_config.port'),
+        re.compile(r'^afp.unknown'),
+        re.compile(r'^ansi_a_bsmap.mid.digit_1'),
+        re.compile(r'^ber.unknown.OCTETSTRING'),
+        re.compile(r'^btatt.handle'),
+        re.compile(r'^btl2cap.option_flushto'),
+        re.compile(r'^cip.network_segment.prod_inhibit'),
+        re.compile(r'^cql.result.rows.table_name'),
+        re.compile(r'^dcom.sa.vartype'),
+        re.compile(r'^f5ethtrailer.slot'),
+        re.compile(r'^ipdr.cm_ipv6_addr'),
+        re.compile(r'^mojito.kuid'),
+        re.compile(r'^mtp3.priority'),
+        re.compile(r'^pw.cw.length'),
+        re.compile(r'^rlc.ciphered_data'),
+        re.compile(r'^vp8.pld.pictureid'),
+        re.compile(r'^gryphon.sched.channel'),
+        re.compile(r'^pn_io.ioxs'),
+        re.compile(r'^pn_dcp.block_qualifier_reset'),
+        re.compile(r'^pn_dcp.suboption_device_instance')
     ]
 
     for patt in ignore_patterns:
@@ -420,8 +441,10 @@ class Item:
             if (label.count('(') != label.count(')') or
                 label.count('[') != label.count(']') or
                 label.count('{') != label.count('}')):
-                print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
-                warnings_found += 1
+                # Ignore if includes quotes, as may be unbalanced.
+                if label.find("'") == -1:
+                    print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
+                    warnings_found += 1
             if item_type != 'FT_NONE' and label.endswith(':'):
                 print('Warning: ' + filename, hf, 'filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
                 warnings_found += 1
