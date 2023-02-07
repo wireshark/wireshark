@@ -3237,6 +3237,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 {
     column_info    *cinfo;
     gboolean        passed;
+    wtap_block_t    block = NULL;
 
     /* If we're not running a display filter and we're not printing any
        packet information, we don't need to do a dissection. This means
@@ -3279,6 +3280,9 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
             fdata->need_colorize = 1;
         }
 
+        /* epan_dissect_run (and epan_dissect_reset) unref the block.
+         * We need it later, e.g. in order to copy the options. */
+        block = wtap_block_ref(rec->block);
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                 fdata, cinfo);
@@ -3313,6 +3317,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 
     if (edt) {
         epan_dissect_reset(edt);
+        rec->block = block;
     }
     return passed || fdata->dependent_of_displayed;
 }
@@ -3889,6 +3894,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     frame_data      fdata;
     column_info    *cinfo;
     gboolean        passed;
+    wtap_block_t    block = NULL;
 
     /* Count this packet. */
     cf->count++;
@@ -3941,6 +3947,9 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
             fdata.need_colorize = 1;
         }
 
+        /* epan_dissect_run (and epan_dissect_reset) unref the block.
+         * We need it later, e.g. in order to copy the options. */
+        block = wtap_block_ref(rec->block);
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
                 &fdata, cinfo);
@@ -3983,6 +3992,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     if (edt) {
         epan_dissect_reset(edt);
         frame_data_destroy(&fdata);
+        rec->block = block;
     }
     return passed;
 }
