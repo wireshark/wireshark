@@ -746,12 +746,6 @@ dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
     const int  HWrevision_size       = 5;
     const int  SWrevisionprefix_size = 1;
     const int  SWrevision_size       = 9;
-    char      *deviceType;
-    char      *orderID;
-    char      *IMserialnumber;
-    char      *HWrevision;
-    char      *SWrevisionprefix;
-    char      *SWrevision;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_rsi_error,
@@ -792,53 +786,35 @@ dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
 
     /* SystemIdentification */
     /* DeviceType */
-    deviceType = (char *)wmem_alloc(pinfo->pool, deviceType_size + 1);
-    tvb_memcpy(tvb, (guint8 *)deviceType, offset, 25);
-    deviceType[deviceType_size] = '\0';
-    proto_tree_add_string(tree, hf_pn_rsi_device_type, tvb, offset, deviceType_size, deviceType);
+    proto_tree_add_item(tree, hf_pn_rsi_device_type, tvb, offset, deviceType_size, ENC_UTF_8);
     offset += deviceType_size + 1;
 
     /* Blank */
 
     /* OrderID */
-    orderID = (char *)wmem_alloc(pinfo->pool, orderID_size + 1);
-    tvb_memcpy(tvb, (guint8 *)orderID, offset, 20);
-    orderID[orderID_size] = '\0';
-    proto_tree_add_string(tree, hf_pn_rsi_order_id, tvb, offset, orderID_size, orderID);
+    proto_tree_add_item(tree, hf_pn_rsi_order_id, tvb, offset, orderID_size, ENC_UTF_8);
     offset += orderID_size + 1;
 
     /* Blank */
 
     /* IM_Serial_Number */
-    IMserialnumber = (char *)wmem_alloc(pinfo->pool, IMserialnumber_size + 1);
-    tvb_memcpy(tvb, (guint8 *)IMserialnumber, offset, 16);
-    IMserialnumber[IMserialnumber_size] = '\0';
-    proto_tree_add_string(tree, hf_pn_rsi_im_serial_number, tvb, offset, IMserialnumber_size, IMserialnumber);
+    proto_tree_add_item(tree, hf_pn_rsi_im_serial_number, tvb, offset, IMserialnumber_size, ENC_UTF_8);
     offset += IMserialnumber_size + 1;
 
     /* Blank */
 
     /* HWRevision */
-    HWrevision = (char *)wmem_alloc(pinfo->pool, HWrevision_size + 1);
-    tvb_memcpy(tvb, (guint8 *)HWrevision, offset, 5);
-    HWrevision[HWrevision_size] = '\0';
-    proto_tree_add_string(tree, hf_pn_rsi_hw_revision, tvb, offset, HWrevision_size, HWrevision);
+    proto_tree_add_item(tree, hf_pn_rsi_hw_revision, tvb, offset, HWrevision_size, ENC_UTF_8);
     offset += HWrevision_size + 1;
 
     /* Blank */
 
     /* SWRevisionPrefix */
-    SWrevisionprefix = (char *)wmem_alloc(pinfo->pool, SWrevisionprefix_size + 1);
-    tvb_memcpy(tvb, (guint8 *)SWrevisionprefix, offset, 1);
-    SWrevisionprefix[SWrevisionprefix_size] = '\0';
-    proto_tree_add_string(tree, hf_pn_rsi_sw_revision_prefix, tvb, offset, SWrevisionprefix_size, SWrevisionprefix);
+    proto_tree_add_item(tree, hf_pn_rsi_sw_revision_prefix, tvb, offset, SWrevisionprefix_size, ENC_UTF_8);
     offset += SWrevisionprefix_size;
 
     /* SWRevision */
-    SWrevision = (char *)wmem_alloc(pinfo->pool, SWrevision_size + 1);
-    tvb_memcpy(tvb, (guint8 *)SWrevision, offset, 9);
-    SWrevision[SWrevision_size] = '\0';
-    proto_tree_add_string(tree, hf_pn_rsi_sw_revision, tvb, offset, SWrevision_size, SWrevision);
+    proto_tree_add_item(tree, hf_pn_rsi_sw_revision, tvb, offset, SWrevision_size, ENC_UTF_8);
     offset += SWrevision_size;
     return offset;
 }
