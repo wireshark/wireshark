@@ -19,4 +19,8 @@ rm -rf "/Library/Application Support/Wireshark"
 
 rm -f "$CHMOD_BPF_PLIST"
 
+# ChmodBPF hasn't been a startup item since 2018 (ac4f3c0f4d).
 rm -rf /Library/StartupItems/ChmodBPF
+
+# https://gitlab.com/wireshark/wireshark/-/issues/18734
+pkgutil --forget org.wireshark.ChmodBPF.pkg
