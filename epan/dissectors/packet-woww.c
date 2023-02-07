@@ -119,6 +119,7 @@ static int hf_woww_amount_of_emotes = -1;
 static int hf_woww_amount_of_entries = -1;
 static int hf_woww_amount_of_events = -1;
 static int hf_woww_amount_of_extra_fields = -1;
+static int hf_woww_amount_of_faction_standings = -1;
 static int hf_woww_amount_of_factions = -1;
 static int hf_woww_amount_of_friends = -1;
 static int hf_woww_amount_of_gossip_items = -1;
@@ -338,8 +339,8 @@ static int hf_woww_extend_flag = -1;
 static int hf_woww_extra_attacks = -1;
 static int hf_woww_face = -1;
 static int hf_woww_facial_hair = -1;
+static int hf_woww_faction = -1;
 static int hf_woww_faction_flag = -1;
-static int hf_woww_faction_id = -1;
 static int hf_woww_fall_time = -1;
 static int hf_woww_far_sight_operation = -1;
 static int hf_woww_feed_pet_item = -1;
@@ -430,9 +431,9 @@ static int hf_woww_item_class_and_sub_class = -1;
 static int hf_woww_item_count = -1;
 static int hf_woww_item_creator = -1;
 static int hf_woww_item_display_id = -1;
-static int hf_woww_item_display_info = -1;
 static int hf_woww_item_enchant_id = -1;
 static int hf_woww_item_enchantment = -1;
+static int hf_woww_item_flag = -1;
 static int hf_woww_item_icon = -1;
 static int hf_woww_item_id = -1;
 static int hf_woww_item_level = -1;
@@ -463,7 +464,6 @@ static int hf_woww_kill_count = -1;
 static int hf_woww_killing_blows = -1;
 static int hf_woww_lag = -1;
 static int hf_woww_language = -1;
-static int hf_woww_language_id = -1;
 static int hf_woww_last_week_honor = -1;
 static int hf_woww_last_week_honorable = -1;
 static int hf_woww_leader = -1;
@@ -569,8 +569,8 @@ static int hf_woww_outbid_item_ids = -1;
 static int hf_woww_outfit_id = -1;
 static int hf_woww_owner = -1;
 static int hf_woww_page_id = -1;
-static int hf_woww_page_material = -1;
 static int hf_woww_page_text = -1;
+static int hf_woww_page_text_material = -1;
 static int hf_woww_party_operation = -1;
 static int hf_woww_party_result = -1;
 static int hf_woww_party_status = -1;
@@ -651,24 +651,19 @@ static int hf_woww_read_by_gm = -1;
 static int hf_woww_realm_name = -1;
 static int hf_woww_receiver = -1;
 static int hf_woww_records = -1;
-static int hf_woww_reputation_id = -1;
-static int hf_woww_reputation_list_id = -1;
-static int hf_woww_reputation_objective_faction = -1;
 static int hf_woww_reputation_objective_value = -1;
 static int hf_woww_reputation_rank = -1;
 static int hf_woww_request_items_text = -1;
 static int hf_woww_requested_rank = -1;
 static int hf_woww_required_city_rank = -1;
+static int hf_woww_required_faction_rank = -1;
 static int hf_woww_required_honor_rank = -1;
 static int hf_woww_required_item_count = -1;
 static int hf_woww_required_item_id = -1;
 static int hf_woww_required_kill_count = -1;
 static int hf_woww_required_level = -1;
 static int hf_woww_required_money = -1;
-static int hf_woww_required_opposite_faction = -1;
 static int hf_woww_required_opposite_reputation_value = -1;
-static int hf_woww_required_reputation_faction = -1;
-static int hf_woww_required_reputation_rank = -1;
 static int hf_woww_required_skill_rank = -1;
 static int hf_woww_required_skill_value = -1;
 static int hf_woww_required_spell = -1;
@@ -701,8 +696,8 @@ static int hf_woww_server_message_type = -1;
 static int hf_woww_server_seed = -1;
 static int hf_woww_set_assistant = -1;
 static int hf_woww_shadow_resistance = -1;
-static int hf_woww_sheath = -1;
 static int hf_woww_sheath_state = -1;
+static int hf_woww_sheathe_type = -1;
 static int hf_woww_show_affiliation = -1;
 static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
@@ -3908,6 +3903,394 @@ static const value_string e_compressed_move_opcode_strings[] =  {
 };
 
 typedef enum {
+    FACTION_NONE = 0x000,
+    FACTION_PLAYER_HUMAN = 0x001,
+    FACTION_PLAYER_ORC = 0x002,
+    FACTION_PLAYER_DWARF = 0x003,
+    FACTION_PLAYER_NIGHT_ELF = 0x004,
+    FACTION_PLAYER_UNDEAD = 0x005,
+    FACTION_PLAYER_TAUREN = 0x006,
+    FACTION_CREATURE = 0x007,
+    FACTION_PLAYER_GNOME = 0x008,
+    FACTION_PLAYER_TROLL = 0x009,
+    FACTION_MONSTER = 0x00E,
+    FACTION_DEFIAS_BROTHERHOOD = 0x00F,
+    FACTION_GNOLL_RIVERPAW = 0x010,
+    FACTION_GNOLL_REDRIDGE = 0x011,
+    FACTION_GNOLL_SHADOWHIDE = 0x012,
+    FACTION_MURLOC = 0x013,
+    FACTION_UNDEAD_SCOURGE = 0x014,
+    FACTION_BOOTY_BAY = 0x015,
+    FACTION_BEAST_SPIDER = 0x016,
+    FACTION_BEAST_BOAR = 0x017,
+    FACTION_WORGEN = 0x018,
+    FACTION_KOBOLD = 0x019,
+    FACTION_TROLL_BLOODSCALP = 0x01A,
+    FACTION_TROLL_SKULLSPLITTER = 0x01B,
+    FACTION_PREY = 0x01C,
+    FACTION_BEAST_WOLF = 0x01D,
+    FACTION_DEFIAS_BROTHERHOOD_TRAITOR = 0x01E,
+    FACTION_FRIENDLY = 0x01F,
+    FACTION_TROGG = 0x020,
+    FACTION_TROLL_FROSTMANE = 0x021,
+    FACTION_ORC_BLACKROCK = 0x022,
+    FACTION_VILLIAN = 0x023,
+    FACTION_VICTIM = 0x024,
+    FACTION_BEAST_BEAR = 0x025,
+    FACTION_OGRE = 0x026,
+    FACTION_KURZENS_MERCENARIES = 0x027,
+    FACTION_ESCORTEE = 0x028,
+    FACTION_VENTURE_COMPANY = 0x029,
+    FACTION_BEAST_RAPTOR = 0x02A,
+    FACTION_BASILISK = 0x02B,
+    FACTION_DRAGONFLIGHT_GREEN = 0x02C,
+    FACTION_LOST_ONES = 0x02D,
+    FACTION_BLACKSMITHING_ARMORSMITHING = 0x02E,
+    FACTION_IRONFORGE = 0x02F,
+    FACTION_DARK_IRON_DWARVES = 0x030,
+    FACTION_HUMAN_NIGHT_WATCH = 0x031,
+    FACTION_DRAGONFLIGHT_RED = 0x032,
+    FACTION_GNOLL_MOSSHIDE = 0x033,
+    FACTION_ORC_DRAGONMAW = 0x034,
+    FACTION_GNOME_LEPER = 0x035,
+    FACTION_GNOMEREGAN_EXILES = 0x036,
+    FACTION_LEOPARD = 0x037,
+    FACTION_SCARLET_CRUSADE = 0x038,
+    FACTION_GNOLL_ROTHIDE = 0x039,
+    FACTION_BEAST_GORILLA = 0x03A,
+    FACTION_THORIUM_BROTHERHOOD = 0x03B,
+    FACTION_NAGA = 0x03C,
+    FACTION_DALARAN = 0x03D,
+    FACTION_FORLORN_SPIRIT = 0x03E,
+    FACTION_DARKHOWL = 0x03F,
+    FACTION_GRELL = 0x040,
+    FACTION_FURBOLG = 0x041,
+    FACTION_HORDE_GENERIC = 0x042,
+    FACTION_HORDE = 0x043,
+    FACTION_UNDERCITY = 0x044,
+    FACTION_DARNASSUS = 0x045,
+    FACTION_SYNDICATE = 0x046,
+    FACTION_HILLSBRAD_MILITIA = 0x047,
+    FACTION_STORMWIND = 0x048,
+    FACTION_DEMON = 0x049,
+    FACTION_ELEMENTAL = 0x04A,
+    FACTION_SPIRIT = 0x04B,
+    FACTION_ORGRIMMAR = 0x04C,
+    FACTION_TREASURE = 0x04D,
+    FACTION_GNOLL_MUDSNOUT = 0x04E,
+    FACTION_HILLSBRAD_SOUTHSHORE_MAYOR = 0x04F,
+    FACTION_DRAGONFLIGHT_BLACK = 0x050,
+    FACTION_THUNDER_BLUFF = 0x051,
+    FACTION_TROLL_WITHERBARK = 0x052,
+    FACTION_LEATHERWORKING_ELEMENTAL = 0x053,
+    FACTION_QUILBOAR_RAZORMANE = 0x054,
+    FACTION_QUILBOAR_BRISTLEBACK = 0x055,
+    FACTION_LEATHERWORKING_DRAGONSCALE = 0x056,
+    FACTION_BLOODSAIL_BUCCANEERS = 0x057,
+    FACTION_BLACKFATHOM = 0x058,
+    FACTION_MAKRURA = 0x059,
+    FACTION_CENTAUR_KOLKAR = 0x05A,
+    FACTION_CENTAUR_GALAK = 0x05B,
+    FACTION_GELKIS_CLAN_CENTAUR = 0x05C,
+    FACTION_MAGRAM_CLAN_CENTAUR = 0x05D,
+    FACTION_MARAUDINE = 0x05E,
+    FACTION_THERAMORE = 0x06C,
+    FACTION_QUILBOAR_RAZORFEN = 0x06D,
+    FACTION_QUILBOAR_RAZORMANE_2 = 0x06E,
+    FACTION_QUILBOAR_DEATHSHEAD = 0x06F,
+    FACTION_ENEMY = 0x080,
+    FACTION_AMBIENT = 0x094,
+    FACTION_NETHERGARDE_CARAVAN = 0x0A8,
+    FACTION_STEAMWHEEDLE_CARTEL = 0x0A9,
+    FACTION_ALLIANCE_GENERIC = 0x0BD,
+    FACTION_NETHERGARDE = 0x0D1,
+    FACTION_WAILING_CAVERNS = 0x0E5,
+    FACTION_SILITHID = 0x0F9,
+    FACTION_SILVERMOON_REMNANT = 0x10D,
+    FACTION_ZANDALAR_TRIBE = 0x10E,
+    FACTION_BLACKSMITHING_WEAPONSMITHING = 0x121,
+    FACTION_SCORPID = 0x135,
+    FACTION_BEAST_BAT = 0x136,
+    FACTION_TITAN = 0x137,
+    FACTION_TASKMASTER_FIZZULE = 0x149,
+    FACTION_RAVENHOLDT = 0x15D,
+    FACTION_GADGETZAN = 0x171,
+    FACTION_GNOMEREGAN_BUG = 0x185,
+    FACTION_HARPY = 0x199,
+    FACTION_BURNING_BLADE = 0x1AD,
+    FACTION_SHADOWSILK_POACHER = 0x1C1,
+    FACTION_SEARING_SPIDER = 0x1C2,
+    FACTION_ALLIANCE = 0x1D5,
+    FACTION_RATCHET = 0x1D6,
+    FACTION_WILDHAMMER_CLAN = 0x1D7,
+    FACTION_GOBLIN_DARK_IRON_BAR_PATRON = 0x1E9,
+    FACTION_THE_LEAGUE_OF_ARATHOR = 0x1FD,
+    FACTION_THE_DEFILERS = 0x1FE,
+    FACTION_GIANT = 0x1FF,
+    FACTION_ARGENT_DAWN = 0x211,
+    FACTION_DARKSPEAR_TROLLS = 0x212,
+    FACTION_DRAGONFLIGHT_BRONZE = 0x213,
+    FACTION_DRAGONFLIGHT_BLUE = 0x214,
+    FACTION_LEATHERWORKING_TRIBAL = 0x225,
+    FACTION_ENGINEERING_GOBLIN = 0x226,
+    FACTION_ENGINEERING_GNOME = 0x227,
+    FACTION_BLACKSMITHING_HAMMERSMITHING = 0x239,
+    FACTION_BLACKSMITHING_AXESMITHING = 0x23A,
+    FACTION_BLACKSMITHING_SWORDSMITHING = 0x23B,
+    FACTION_TROLL_VILEBRANCH = 0x23C,
+    FACTION_SOUTHSEA_FREEBOOTERS = 0x23D,
+    FACTION_CAER_DARROW = 0x23E,
+    FACTION_FURBOLG_UNCORRUPTED = 0x23F,
+    FACTION_TIMBERMAW_HOLD = 0x240,
+    FACTION_EVERLOOK = 0x241,
+    FACTION_WINTERSABER_TRAINERS = 0x24D,
+    FACTION_CENARION_CIRCLE = 0x261,
+    FACTION_SHATTERSPEAR_TROLLS = 0x275,
+    FACTION_RAVASAUR_TRAINERS = 0x276,
+    FACTION_MAJORDOMO_EXECUTUS = 0x289,
+    FACTION_BEAST_CARRION_BIRD = 0x29D,
+    FACTION_BEAST_CAT = 0x29E,
+    FACTION_BEAST_CRAB = 0x29F,
+    FACTION_BEAST_CROCILISK = 0x2A0,
+    FACTION_BEAST_HYENA = 0x2A1,
+    FACTION_BEAST_OWL = 0x2A2,
+    FACTION_BEAST_SCORPID = 0x2A3,
+    FACTION_BEAST_TALLSTRIDER = 0x2A4,
+    FACTION_BEAST_TURTLE = 0x2A5,
+    FACTION_BEAST_WIND_SERPENT = 0x2A6,
+    FACTION_TRAINING_DUMMY = 0x2A7,
+    FACTION_DRAGONFLIGHT_BLACK_BAIT = 0x2B1,
+    FACTION_BATTLEGROUND_NEUTRAL = 0x2C5,
+    FACTION_FROSTWOLF_CLAN = 0x2D9,
+    FACTION_STORMPIKE_GUARD = 0x2DA,
+    FACTION_HYDRAXIAN_WATERLORDS = 0x2ED,
+    FACTION_SULFURON_FIRELORDS = 0x2EE,
+    FACTION_GIZLOCKS_DUMMY = 0x301,
+    FACTION_GIZLOCKS_CHARM = 0x302,
+    FACTION_GIZLOCK = 0x303,
+    FACTION_MORO_GAI = 0x315,
+    FACTION_SPIRIT_GUIDE_ALLIANCE = 0x316,
+    FACTION_SHEN_DRALAR = 0x329,
+    FACTION_OGRE_CAPTAIN_KROMCRUSH = 0x33D,
+    FACTION_SPIRIT_GUIDE_HORDE = 0x351,
+    FACTION_JAEDENAR = 0x365,
+    FACTION_WARSONG_OUTRIDERS = 0x379,
+    FACTION_SILVERWING_SENTINELS = 0x37A,
+    FACTION_ALLIANCE_FORCES = 0x37B,
+    FACTION_HORDE_FORCES = 0x37C,
+    FACTION_REVANTUSK_TROLLS = 0x37D,
+    FACTION_DARKMOON_FAIRE = 0x38D,
+    FACTION_BROOD_OF_NOZDORMU = 0x38E,
+    FACTION_MIGHT_OF_KALIMDOR = 0x390,
+    FACTION_ARMIES_OF_C_THUN = 0x393,
+    FACTION_SILITHID_ATTACKERS = 0x394,
+    FACTION_THE_IRONFORGE_BRIGADE = 0x395,
+    FACTION_RC_ENEMIES = 0x396,
+    FACTION_RC_OBJECTS = 0x397,
+    FACTION_RED = 0x398,
+    FACTION_BLUE = 0x399,
+    FACTION_SCOURGE_INVADERS = 0x3A0,
+    FACTION_TEST_FACTION_NOT_A_REAL_FACTION = 0x3A3,
+    FACTION_TOWOW_FLAG = 0x3B6,
+    FACTION_TOWOW_FLAG_TRIGGER_ALLIANCE_DND = 0x3B7,
+    FACTION_TOWOW_FLAG_TRIGGER_HORDE_DND = 0x3BA,
+} e_faction;
+static const value_string e_faction_strings[] =  {
+    { FACTION_NONE, "None" },
+    { FACTION_PLAYER_HUMAN, "Player Human" },
+    { FACTION_PLAYER_ORC, "Player Orc" },
+    { FACTION_PLAYER_DWARF, "Player Dwarf" },
+    { FACTION_PLAYER_NIGHT_ELF, "Player Night Elf" },
+    { FACTION_PLAYER_UNDEAD, "Player Undead" },
+    { FACTION_PLAYER_TAUREN, "Player Tauren" },
+    { FACTION_CREATURE, "Creature" },
+    { FACTION_PLAYER_GNOME, "Player Gnome" },
+    { FACTION_PLAYER_TROLL, "Player Troll" },
+    { FACTION_MONSTER, "Monster" },
+    { FACTION_DEFIAS_BROTHERHOOD, "Defias Brotherhood" },
+    { FACTION_GNOLL_RIVERPAW, "Gnoll Riverpaw" },
+    { FACTION_GNOLL_REDRIDGE, "Gnoll Redridge" },
+    { FACTION_GNOLL_SHADOWHIDE, "Gnoll Shadowhide" },
+    { FACTION_MURLOC, "Murloc" },
+    { FACTION_UNDEAD_SCOURGE, "Undead Scourge" },
+    { FACTION_BOOTY_BAY, "Booty Bay" },
+    { FACTION_BEAST_SPIDER, "Beast Spider" },
+    { FACTION_BEAST_BOAR, "Beast Boar" },
+    { FACTION_WORGEN, "Worgen" },
+    { FACTION_KOBOLD, "Kobold" },
+    { FACTION_TROLL_BLOODSCALP, "Troll Bloodscalp" },
+    { FACTION_TROLL_SKULLSPLITTER, "Troll Skullsplitter" },
+    { FACTION_PREY, "Prey" },
+    { FACTION_BEAST_WOLF, "Beast Wolf" },
+    { FACTION_DEFIAS_BROTHERHOOD_TRAITOR, "Defias Brotherhood Traitor" },
+    { FACTION_FRIENDLY, "Friendly" },
+    { FACTION_TROGG, "Trogg" },
+    { FACTION_TROLL_FROSTMANE, "Troll Frostmane" },
+    { FACTION_ORC_BLACKROCK, "Orc Blackrock" },
+    { FACTION_VILLIAN, "Villian" },
+    { FACTION_VICTIM, "Victim" },
+    { FACTION_BEAST_BEAR, "Beast Bear" },
+    { FACTION_OGRE, "Ogre" },
+    { FACTION_KURZENS_MERCENARIES, "Kurzens Mercenaries" },
+    { FACTION_ESCORTEE, "Escortee" },
+    { FACTION_VENTURE_COMPANY, "Venture Company" },
+    { FACTION_BEAST_RAPTOR, "Beast Raptor" },
+    { FACTION_BASILISK, "Basilisk" },
+    { FACTION_DRAGONFLIGHT_GREEN, "Dragonflight Green" },
+    { FACTION_LOST_ONES, "Lost Ones" },
+    { FACTION_BLACKSMITHING_ARMORSMITHING, "Blacksmithing Armorsmithing" },
+    { FACTION_IRONFORGE, "Ironforge" },
+    { FACTION_DARK_IRON_DWARVES, "Dark Iron Dwarves" },
+    { FACTION_HUMAN_NIGHT_WATCH, "Human Night Watch" },
+    { FACTION_DRAGONFLIGHT_RED, "Dragonflight Red" },
+    { FACTION_GNOLL_MOSSHIDE, "Gnoll Mosshide" },
+    { FACTION_ORC_DRAGONMAW, "Orc Dragonmaw" },
+    { FACTION_GNOME_LEPER, "Gnome Leper" },
+    { FACTION_GNOMEREGAN_EXILES, "Gnomeregan Exiles" },
+    { FACTION_LEOPARD, "Leopard" },
+    { FACTION_SCARLET_CRUSADE, "Scarlet Crusade" },
+    { FACTION_GNOLL_ROTHIDE, "Gnoll Rothide" },
+    { FACTION_BEAST_GORILLA, "Beast Gorilla" },
+    { FACTION_THORIUM_BROTHERHOOD, "Thorium Brotherhood" },
+    { FACTION_NAGA, "Naga" },
+    { FACTION_DALARAN, "Dalaran" },
+    { FACTION_FORLORN_SPIRIT, "Forlorn Spirit" },
+    { FACTION_DARKHOWL, "Darkhowl" },
+    { FACTION_GRELL, "Grell" },
+    { FACTION_FURBOLG, "Furbolg" },
+    { FACTION_HORDE_GENERIC, "Horde Generic" },
+    { FACTION_HORDE, "Horde" },
+    { FACTION_UNDERCITY, "Undercity" },
+    { FACTION_DARNASSUS, "Darnassus" },
+    { FACTION_SYNDICATE, "Syndicate" },
+    { FACTION_HILLSBRAD_MILITIA, "Hillsbrad Militia" },
+    { FACTION_STORMWIND, "Stormwind" },
+    { FACTION_DEMON, "Demon" },
+    { FACTION_ELEMENTAL, "Elemental" },
+    { FACTION_SPIRIT, "Spirit" },
+    { FACTION_ORGRIMMAR, "Orgrimmar" },
+    { FACTION_TREASURE, "Treasure" },
+    { FACTION_GNOLL_MUDSNOUT, "Gnoll Mudsnout" },
+    { FACTION_HILLSBRAD_SOUTHSHORE_MAYOR, "Hillsbrad Southshore Mayor" },
+    { FACTION_DRAGONFLIGHT_BLACK, "Dragonflight Black" },
+    { FACTION_THUNDER_BLUFF, "Thunder Bluff" },
+    { FACTION_TROLL_WITHERBARK, "Troll Witherbark" },
+    { FACTION_LEATHERWORKING_ELEMENTAL, "Leatherworking Elemental" },
+    { FACTION_QUILBOAR_RAZORMANE, "Quilboar Razormane" },
+    { FACTION_QUILBOAR_BRISTLEBACK, "Quilboar Bristleback" },
+    { FACTION_LEATHERWORKING_DRAGONSCALE, "Leatherworking Dragonscale" },
+    { FACTION_BLOODSAIL_BUCCANEERS, "Bloodsail Buccaneers" },
+    { FACTION_BLACKFATHOM, "Blackfathom" },
+    { FACTION_MAKRURA, "Makrura" },
+    { FACTION_CENTAUR_KOLKAR, "Centaur Kolkar" },
+    { FACTION_CENTAUR_GALAK, "Centaur Galak" },
+    { FACTION_GELKIS_CLAN_CENTAUR, "Gelkis Clan Centaur" },
+    { FACTION_MAGRAM_CLAN_CENTAUR, "Magram Clan Centaur" },
+    { FACTION_MARAUDINE, "Maraudine" },
+    { FACTION_THERAMORE, "Theramore" },
+    { FACTION_QUILBOAR_RAZORFEN, "Quilboar Razorfen" },
+    { FACTION_QUILBOAR_RAZORMANE_2, "Quilboar Razormane 2" },
+    { FACTION_QUILBOAR_DEATHSHEAD, "Quilboar Deathshead" },
+    { FACTION_ENEMY, "Enemy" },
+    { FACTION_AMBIENT, "Ambient" },
+    { FACTION_NETHERGARDE_CARAVAN, "Nethergarde Caravan" },
+    { FACTION_STEAMWHEEDLE_CARTEL, "Steamwheedle Cartel" },
+    { FACTION_ALLIANCE_GENERIC, "Alliance Generic" },
+    { FACTION_NETHERGARDE, "Nethergarde" },
+    { FACTION_WAILING_CAVERNS, "Wailing Caverns" },
+    { FACTION_SILITHID, "Silithid" },
+    { FACTION_SILVERMOON_REMNANT, "Silvermoon Remnant" },
+    { FACTION_ZANDALAR_TRIBE, "Zandalar Tribe" },
+    { FACTION_BLACKSMITHING_WEAPONSMITHING, "Blacksmithing Weaponsmithing" },
+    { FACTION_SCORPID, "Scorpid" },
+    { FACTION_BEAST_BAT, "Beast Bat" },
+    { FACTION_TITAN, "Titan" },
+    { FACTION_TASKMASTER_FIZZULE, "Taskmaster Fizzule" },
+    { FACTION_RAVENHOLDT, "Ravenholdt" },
+    { FACTION_GADGETZAN, "Gadgetzan" },
+    { FACTION_GNOMEREGAN_BUG, "Gnomeregan Bug" },
+    { FACTION_HARPY, "Harpy" },
+    { FACTION_BURNING_BLADE, "Burning Blade" },
+    { FACTION_SHADOWSILK_POACHER, "Shadowsilk Poacher" },
+    { FACTION_SEARING_SPIDER, "Searing Spider" },
+    { FACTION_ALLIANCE, "Alliance" },
+    { FACTION_RATCHET, "Ratchet" },
+    { FACTION_WILDHAMMER_CLAN, "Wildhammer Clan" },
+    { FACTION_GOBLIN_DARK_IRON_BAR_PATRON, "Goblin Dark Iron Bar Patron" },
+    { FACTION_THE_LEAGUE_OF_ARATHOR, "The League Of Arathor" },
+    { FACTION_THE_DEFILERS, "The Defilers" },
+    { FACTION_GIANT, "Giant" },
+    { FACTION_ARGENT_DAWN, "Argent Dawn" },
+    { FACTION_DARKSPEAR_TROLLS, "Darkspear Trolls" },
+    { FACTION_DRAGONFLIGHT_BRONZE, "Dragonflight Bronze" },
+    { FACTION_DRAGONFLIGHT_BLUE, "Dragonflight Blue" },
+    { FACTION_LEATHERWORKING_TRIBAL, "Leatherworking Tribal" },
+    { FACTION_ENGINEERING_GOBLIN, "Engineering Goblin" },
+    { FACTION_ENGINEERING_GNOME, "Engineering Gnome" },
+    { FACTION_BLACKSMITHING_HAMMERSMITHING, "Blacksmithing Hammersmithing" },
+    { FACTION_BLACKSMITHING_AXESMITHING, "Blacksmithing Axesmithing" },
+    { FACTION_BLACKSMITHING_SWORDSMITHING, "Blacksmithing Swordsmithing" },
+    { FACTION_TROLL_VILEBRANCH, "Troll Vilebranch" },
+    { FACTION_SOUTHSEA_FREEBOOTERS, "Southsea Freebooters" },
+    { FACTION_CAER_DARROW, "Caer Darrow" },
+    { FACTION_FURBOLG_UNCORRUPTED, "Furbolg Uncorrupted" },
+    { FACTION_TIMBERMAW_HOLD, "Timbermaw Hold" },
+    { FACTION_EVERLOOK, "Everlook" },
+    { FACTION_WINTERSABER_TRAINERS, "Wintersaber Trainers" },
+    { FACTION_CENARION_CIRCLE, "Cenarion Circle" },
+    { FACTION_SHATTERSPEAR_TROLLS, "Shatterspear Trolls" },
+    { FACTION_RAVASAUR_TRAINERS, "Ravasaur Trainers" },
+    { FACTION_MAJORDOMO_EXECUTUS, "Majordomo Executus" },
+    { FACTION_BEAST_CARRION_BIRD, "Beast Carrion Bird" },
+    { FACTION_BEAST_CAT, "Beast Cat" },
+    { FACTION_BEAST_CRAB, "Beast Crab" },
+    { FACTION_BEAST_CROCILISK, "Beast Crocilisk" },
+    { FACTION_BEAST_HYENA, "Beast Hyena" },
+    { FACTION_BEAST_OWL, "Beast Owl" },
+    { FACTION_BEAST_SCORPID, "Beast Scorpid" },
+    { FACTION_BEAST_TALLSTRIDER, "Beast Tallstrider" },
+    { FACTION_BEAST_TURTLE, "Beast Turtle" },
+    { FACTION_BEAST_WIND_SERPENT, "Beast Wind Serpent" },
+    { FACTION_TRAINING_DUMMY, "Training Dummy" },
+    { FACTION_DRAGONFLIGHT_BLACK_BAIT, "Dragonflight Black Bait" },
+    { FACTION_BATTLEGROUND_NEUTRAL, "Battleground Neutral" },
+    { FACTION_FROSTWOLF_CLAN, "Frostwolf Clan" },
+    { FACTION_STORMPIKE_GUARD, "Stormpike Guard" },
+    { FACTION_HYDRAXIAN_WATERLORDS, "Hydraxian Waterlords" },
+    { FACTION_SULFURON_FIRELORDS, "Sulfuron Firelords" },
+    { FACTION_GIZLOCKS_DUMMY, "Gizlocks Dummy" },
+    { FACTION_GIZLOCKS_CHARM, "Gizlocks Charm" },
+    { FACTION_GIZLOCK, "Gizlock" },
+    { FACTION_MORO_GAI, "Moro Gai" },
+    { FACTION_SPIRIT_GUIDE_ALLIANCE, "Spirit Guide Alliance" },
+    { FACTION_SHEN_DRALAR, "Shen Dralar" },
+    { FACTION_OGRE_CAPTAIN_KROMCRUSH, "Ogre Captain Kromcrush" },
+    { FACTION_SPIRIT_GUIDE_HORDE, "Spirit Guide Horde" },
+    { FACTION_JAEDENAR, "Jaedenar" },
+    { FACTION_WARSONG_OUTRIDERS, "Warsong Outriders" },
+    { FACTION_SILVERWING_SENTINELS, "Silverwing Sentinels" },
+    { FACTION_ALLIANCE_FORCES, "Alliance Forces" },
+    { FACTION_HORDE_FORCES, "Horde Forces" },
+    { FACTION_REVANTUSK_TROLLS, "Revantusk Trolls" },
+    { FACTION_DARKMOON_FAIRE, "Darkmoon Faire" },
+    { FACTION_BROOD_OF_NOZDORMU, "Brood Of Nozdormu" },
+    { FACTION_MIGHT_OF_KALIMDOR, "Might Of Kalimdor" },
+    { FACTION_ARMIES_OF_C_THUN, "Armies Of C Thun" },
+    { FACTION_SILITHID_ATTACKERS, "Silithid Attackers" },
+    { FACTION_THE_IRONFORGE_BRIGADE, "The Ironforge Brigade" },
+    { FACTION_RC_ENEMIES, "Rc Enemies" },
+    { FACTION_RC_OBJECTS, "Rc Objects" },
+    { FACTION_RED, "Red" },
+    { FACTION_BLUE, "Blue" },
+    { FACTION_SCOURGE_INVADERS, "Scourge Invaders" },
+    { FACTION_TEST_FACTION_NOT_A_REAL_FACTION, "Test Faction Not A Real Faction" },
+    { FACTION_TOWOW_FLAG, "Towow Flag" },
+    { FACTION_TOWOW_FLAG_TRIGGER_ALLIANCE_DND, "Towow Flag Trigger Alliance Dnd" },
+    { FACTION_TOWOW_FLAG_TRIGGER_HORDE_DND, "Towow Flag Trigger Horde Dnd" },
+    { 0, NULL }
+};
+
+typedef enum {
     FRIEND_STATUS_OFFLINE = 0x0,
     FRIEND_STATUS_ONLINE = 0x1,
     FRIEND_STATUS_AFK = 0x2,
@@ -6588,6 +6971,426 @@ static const value_string e_bonding_strings[] =  {
 };
 
 typedef enum {
+    PAGE_TEXT_MATERIAL_NONE = 0x0,
+    PAGE_TEXT_MATERIAL_PARCHMENT = 0x1,
+    PAGE_TEXT_MATERIAL_STONE = 0x2,
+    PAGE_TEXT_MATERIAL_MARBLE = 0x3,
+    PAGE_TEXT_MATERIAL_SILVER = 0x4,
+    PAGE_TEXT_MATERIAL_BRONZE = 0x5,
+    PAGE_TEXT_MATERIAL_VALENTINE = 0x6,
+} e_page_text_material;
+static const value_string e_page_text_material_strings[] =  {
+    { PAGE_TEXT_MATERIAL_NONE, "None" },
+    { PAGE_TEXT_MATERIAL_PARCHMENT, "Parchment" },
+    { PAGE_TEXT_MATERIAL_STONE, "Stone" },
+    { PAGE_TEXT_MATERIAL_MARBLE, "Marble" },
+    { PAGE_TEXT_MATERIAL_SILVER, "Silver" },
+    { PAGE_TEXT_MATERIAL_BRONZE, "Bronze" },
+    { PAGE_TEXT_MATERIAL_VALENTINE, "Valentine" },
+    { 0, NULL }
+};
+
+typedef enum {
+    SHEATHE_TYPE_NONE = 0x0,
+    SHEATHE_TYPE_MAIN_HAND = 0x1,
+    SHEATHE_TYPE_OFF_HAND = 0x2,
+    SHEATHE_TYPE_LARGE_WEAPON_LEFT = 0x3,
+    SHEATHE_TYPE_LARGE_WEAPON_RIGHT = 0x4,
+    SHEATHE_TYPE_HIP_WEAPON_LEFT = 0x5,
+    SHEATHE_TYPE_HIP_WEAPON_RIGHT = 0x6,
+    SHEATHE_TYPE_SHIELD = 0x7,
+} e_sheathe_type;
+static const value_string e_sheathe_type_strings[] =  {
+    { SHEATHE_TYPE_NONE, "None" },
+    { SHEATHE_TYPE_MAIN_HAND, "Main Hand" },
+    { SHEATHE_TYPE_OFF_HAND, "Off Hand" },
+    { SHEATHE_TYPE_LARGE_WEAPON_LEFT, "Large Weapon Left" },
+    { SHEATHE_TYPE_LARGE_WEAPON_RIGHT, "Large Weapon Right" },
+    { SHEATHE_TYPE_HIP_WEAPON_LEFT, "Hip Weapon Left" },
+    { SHEATHE_TYPE_HIP_WEAPON_RIGHT, "Hip Weapon Right" },
+    { SHEATHE_TYPE_SHIELD, "Shield" },
+    { 0, NULL }
+};
+
+typedef enum {
+    ITEM_SET_NONE = 0x000,
+    ITEM_SET_THE_GLADIATOR = 0x001,
+    ITEM_SET_DAL_RENDS_ARMS = 0x029,
+    ITEM_SET_SPIDERS_KISS = 0x041,
+    ITEM_SET_THE_POSTMASTER = 0x051,
+    ITEM_SET_CADAVEROUS_GARB = 0x079,
+    ITEM_SET_NECROPILE_RAIMENT = 0x07A,
+    ITEM_SET_BLOODMAIL_REGALIA = 0x07B,
+    ITEM_SET_DEATHBONE_GUARDIAN = 0x07C,
+    ITEM_SET_VOLCANIC_ARMOR = 0x08D,
+    ITEM_SET_STORMSHROUD_ARMOR = 0x08E,
+    ITEM_SET_DEVILSAUR_ARMOR = 0x08F,
+    ITEM_SET_IRONFEATHER_ARMOR = 0x090,
+    ITEM_SET_DEFIAS_LEATHER = 0x0A1,
+    ITEM_SET_EMBRACE_OF_THE_VIPER = 0x0A2,
+    ITEM_SET_CHAIN_OF_THE_SCARLET_CRUSADE = 0x0A3,
+    ITEM_SET_MAGISTERS_REGALIA = 0x0B5,
+    ITEM_SET_VESTMENTS_OF_THE_DEVOUT = 0x0B6,
+    ITEM_SET_DREADMIST_RAIMENT = 0x0B7,
+    ITEM_SET_SHADOWCRAFT_ARMOR = 0x0B8,
+    ITEM_SET_WILDHEART_RAIMENT = 0x0B9,
+    ITEM_SET_BEASTSTALKER_ARMOR = 0x0BA,
+    ITEM_SET_THE_ELEMENTS = 0x0BB,
+    ITEM_SET_LIGHTFORGE_ARMOR = 0x0BC,
+    ITEM_SET_BATTLEGEAR_OF_VALOR = 0x0BD,
+    ITEM_SET_ARCANIST_REGALIA = 0x0C9,
+    ITEM_SET_VESTMENTS_OF_PROPHECY = 0x0CA,
+    ITEM_SET_FELHEART_RAIMENT = 0x0CB,
+    ITEM_SET_NIGHTSLAYER_ARMOR = 0x0CC,
+    ITEM_SET_CENARION_RAIMENT = 0x0CD,
+    ITEM_SET_GIANTSTALKER_ARMOR = 0x0CE,
+    ITEM_SET_THE_EARTHFURY = 0x0CF,
+    ITEM_SET_LAWBRINGER_ARMOR = 0x0D0,
+    ITEM_SET_BATTLEGEAR_OF_MIGHT = 0x0D1,
+    ITEM_SET_NETHERWIND_REGALIA = 0x0D2,
+    ITEM_SET_VESTMENTS_OF_TRANSCENDENCE = 0x0D3,
+    ITEM_SET_NEMESIS_RAIMENT = 0x0D4,
+    ITEM_SET_BLOODFANG_ARMOR = 0x0D5,
+    ITEM_SET_STORMRAGE_RAIMENT = 0x0D6,
+    ITEM_SET_DRAGONSTALKER_ARMOR = 0x0D7,
+    ITEM_SET_THE_TEN_STORMS = 0x0D8,
+    ITEM_SET_JUDGEMENT_ARMOR = 0x0D9,
+    ITEM_SET_BATTLEGEAR_OF_WRATH = 0x0DA,
+    ITEM_SET_GARB_OF_THERO_SHAN = 0x0DD,
+    ITEM_SET_SHARD_OF_THE_GODS = 0x0F1,
+    ITEM_SET_SPIRIT_OF_ESKHANDAR = 0x105,
+    ITEM_SET_CHAMPIONS_BATTLEGEAR = 0x119,
+    ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEGEAR = 0x11A,
+    ITEM_SET_CHAMPIONS_EARTHSHAKER = 0x12D,
+    ITEM_SET_IMPERIAL_PLATE = 0x141,
+    ITEM_SET_CHAMPIONS_REGALIA = 0x155,
+    ITEM_SET_CHAMPIONS_RAIMENT = 0x156,
+    ITEM_SET_LIEUTENANT_COMMANDERS_REGALIA = 0x157,
+    ITEM_SET_LIEUTENANT_COMMANDERS_RAIMENT = 0x158,
+    ITEM_SET_CHAMPIONS_THREADS = 0x159,
+    ITEM_SET_LIEUTENANT_COMMANDERS_THREADS = 0x15A,
+    ITEM_SET_CHAMPIONS_VESTMENTS = 0x15B,
+    ITEM_SET_LIEUTENANT_COMMANDERS_VESTMENTS = 0x15C,
+    ITEM_SET_CHAMPIONS_PURSUIT = 0x169,
+    ITEM_SET_LIEUTENANT_COMMANDERS_PURSUIT = 0x16A,
+    ITEM_SET_LIEUTENANT_COMMANDERS_SANCTUARY = 0x17D,
+    ITEM_SET_CHAMPIONS_SANCTUARY = 0x17E,
+    ITEM_SET_WARLORDS_BATTLEGEAR = 0x17F,
+    ITEM_SET_FIELD_MARSHALS_BATTLEGEAR = 0x180,
+    ITEM_SET_WARLORDS_EARTHSHAKER = 0x182,
+    ITEM_SET_WARLORDS_REGALIA = 0x183,
+    ITEM_SET_FIELD_MARSHALS_REGALIA = 0x184,
+    ITEM_SET_FIELD_MARSHALS_RAIMENT = 0x185,
+    ITEM_SET_WARLORDS_RAIMENT = 0x186,
+    ITEM_SET_WARLORDS_THREADS = 0x187,
+    ITEM_SET_FIELD_MARSHALS_THREADS = 0x188,
+    ITEM_SET_WARLORDS_VESTMENTS = 0x189,
+    ITEM_SET_FIELD_MARSHALS_VESTMENTS = 0x18A,
+    ITEM_SET_FIELD_MARSHALS_PURSUIT = 0x18B,
+    ITEM_SET_WARLORDS_PURSUIT = 0x18C,
+    ITEM_SET_FIELD_MARSHALS_SANCTUARY = 0x18D,
+    ITEM_SET_WARLORDS_SANCTUARY = 0x18E,
+    ITEM_SET_LIEUTENANT_COMMANDERS_AEGIS = 0x191,
+    ITEM_SET_FIELD_MARSHALS_AEGIS = 0x192,
+    ITEM_SET_BLOODVINE_GARB = 0x1A5,
+    ITEM_SET_PRIMAL_BATSKIN = 0x1B9,
+    ITEM_SET_BLOOD_TIGER_HARNESS = 0x1BA,
+    ITEM_SET_BLOODSOUL_EMBRACE = 0x1BB,
+    ITEM_SET_THE_DARKSOUL = 0x1BC,
+    ITEM_SET_THE_TWIN_BLADES_OF_HAKKARI = 0x1CD,
+    ITEM_SET_ZANZILS_CONCENTRATION = 0x1CE,
+    ITEM_SET_PRIMAL_BLESSING = 0x1CF,
+    ITEM_SET_OVERLORDS_RESOLUTION = 0x1D0,
+    ITEM_SET_PRAYER_OF_THE_PRIMAL = 0x1D1,
+    ITEM_SET_MAJOR_MOJO_INFUSION = 0x1D2,
+    ITEM_SET_THE_HIGHLANDERS_RESOLUTION = 0x1D3,
+    ITEM_SET_THE_HIGHLANDERS_RESOLVE = 0x1D4,
+    ITEM_SET_THE_HIGHLANDERS_DETERMINATION = 0x1D5,
+    ITEM_SET_THE_HIGHLANDERS_FORTITUDE = 0x1D6,
+    ITEM_SET_THE_HIGHLANDERS_PURPOSE = 0x1D7,
+    ITEM_SET_THE_HIGHLANDERS_WILL = 0x1D8,
+    ITEM_SET_THE_HIGHLANDERS_INTENT = 0x1D9,
+    ITEM_SET_VINDICATORS_BATTLEGEAR = 0x1DA,
+    ITEM_SET_FREETHINKERS_ARMOR = 0x1DB,
+    ITEM_SET_AUGURS_REGALIA = 0x1DC,
+    ITEM_SET_PREDATORS_ARMOR = 0x1DD,
+    ITEM_SET_MADCAPS_OUTFIT = 0x1DE,
+    ITEM_SET_HARUSPEXS_GARB = 0x1DF,
+    ITEM_SET_CONFESSORS_RAIMENT = 0x1E0,
+    ITEM_SET_DEMONIACS_THREADS = 0x1E1,
+    ITEM_SET_ILLUSIONISTS_ATTIRE = 0x1E2,
+    ITEM_SET_THE_DEFILERS_DETERMINATION = 0x1E3,
+    ITEM_SET_THE_DEFILERS_FORTITUDE = 0x1E4,
+    ITEM_SET_THE_DEFILERS_INTENT = 0x1E5,
+    ITEM_SET_THE_DEFILERS_PURPOSE = 0x1E6,
+    ITEM_SET_THE_DEFILERS_RESOLUTION = 0x1E7,
+    ITEM_SET_THE_DEFILERS_WILL = 0x1E8,
+    ITEM_SET_BLACK_DRAGON_MAIL = 0x1E9,
+    ITEM_SET_GREEN_DRAGON_MAIL = 0x1EA,
+    ITEM_SET_BLUE_DRAGON_MAIL = 0x1EB,
+    ITEM_SET_TWILIGHT_TRAPPINGS = 0x1EC,
+    ITEM_SET_GENESIS_RAIMENT = 0x1ED,
+    ITEM_SET_SYMBOLS_OF_UNENDING_LIFE = 0x1EE,
+    ITEM_SET_BATTLEGEAR_OF_UNYIELDING_STRENGTH = 0x1EF,
+    ITEM_SET_CONQUERORS_BATTLEGEAR = 0x1F0,
+    ITEM_SET_DEATHDEALERS_EMBRACE = 0x1F1,
+    ITEM_SET_EMBLEMS_OF_VEILED_SHADOWS = 0x1F2,
+    ITEM_SET_DOOMCALLERS_ATTIRE = 0x1F3,
+    ITEM_SET_IMPLEMENTS_OF_UNSPOKEN_NAMES = 0x1F4,
+    ITEM_SET_STORMCALLERS_GARB = 0x1F5,
+    ITEM_SET_GIFT_OF_THE_GATHERING_STORM = 0x1F6,
+    ITEM_SET_ENIGMA_VESTMENTS = 0x1F7,
+    ITEM_SET_TRAPPINGS_OF_VAULTED_SECRETS = 0x1F8,
+    ITEM_SET_AVENGERS_BATTLEGEAR = 0x1F9,
+    ITEM_SET_BATTLEGEAR_OF_ETERNAL_JUSTICE = 0x1FA,
+    ITEM_SET_GARMENTS_OF_THE_ORACLE = 0x1FB,
+    ITEM_SET_FINERY_OF_INFINITE_WISDOM = 0x1FC,
+    ITEM_SET_STRIKERS_GARB = 0x1FD,
+    ITEM_SET_TRAPPINGS_OF_THE_UNSEEN_PATH = 0x1FE,
+    ITEM_SET_BATTLEGEAR_OF_HEROISM = 0x1FF,
+    ITEM_SET_DARKMANTLE_ARMOR = 0x200,
+    ITEM_SET_FERALHEART_RAIMENT = 0x201,
+    ITEM_SET_VESTMENTS_OF_THE_VIRTUOUS = 0x202,
+    ITEM_SET_BEASTMASTER_ARMOR = 0x203,
+    ITEM_SET_SOULFORGE_ARMOR = 0x204,
+    ITEM_SET_SORCERERS_REGALIA = 0x205,
+    ITEM_SET_DEATHMIST_RAIMENT = 0x206,
+    ITEM_SET_THE_FIVE_THUNDERS = 0x207,
+    ITEM_SET_IRONWEAVE_BATTLESUIT = 0x208,
+    ITEM_SET_DREAMWALKER_RAIMENT = 0x209,
+    ITEM_SET_CHAMPIONS_GUARD = 0x20A,
+    ITEM_SET_DREADNAUGHTS_BATTLEGEAR = 0x20B,
+    ITEM_SET_BONESCYTHE_ARMOR = 0x20C,
+    ITEM_SET_VESTMENTS_OF_FAITH = 0x20D,
+    ITEM_SET_FROSTFIRE_REGALIA = 0x20E,
+    ITEM_SET_THE_EARTHSHATTERER = 0x20F,
+    ITEM_SET_REDEMPTION_ARMOR = 0x210,
+    ITEM_SET_PLAGUEHEART_RAIMENT = 0x211,
+    ITEM_SET_CRYPTSTALKER_ARMOR = 0x212,
+    ITEM_SET_BATTLEGEAR_OF_UNDEAD_SLAYING = 0x215,
+    ITEM_SET_UNDEAD_SLAYERS_ARMOR = 0x216,
+    ITEM_SET_GARB_OF_THE_UNDEAD_SLAYER = 0x217,
+    ITEM_SET_REGALIA_OF_UNDEAD_CLEANSING = 0x218,
+    ITEM_SET_CHAMPIONS_BATTLEARMOR = 0x219,
+    ITEM_SET_CHAMPIONS_STORMCALLER = 0x21A,
+    ITEM_SET_CHAMPIONS_REFUGE = 0x21B,
+    ITEM_SET_CHAMPIONS_INVESTITURE = 0x21C,
+    ITEM_SET_CHAMPIONS_DREADGEAR = 0x21D,
+    ITEM_SET_CHAMPIONS_ARCANUM = 0x21E,
+    ITEM_SET_CHAMPIONS_PURSUANCE = 0x21F,
+    ITEM_SET_LIEUTENANT_COMMANDERS_REDOUBT = 0x220,
+    ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEARMOR = 0x221,
+    ITEM_SET_LIEUTENANT_COMMANDERS_ARCANUM = 0x222,
+    ITEM_SET_LIEUTENANT_COMMANDERS_DREADGEAR = 0x223,
+    ITEM_SET_LIEUTENANT_COMMANDERS_GUARD = 0x224,
+    ITEM_SET_LIEUTENANT_COMMANDERS_INVESTITURE = 0x225,
+    ITEM_SET_LIEUTENANT_COMMANDERS_PURSUANCE = 0x226,
+    ITEM_SET_LIEUTENANT_COMMANDERS_REFUGE = 0x227,
+} e_item_set;
+static const value_string e_item_set_strings[] =  {
+    { ITEM_SET_NONE, "None" },
+    { ITEM_SET_THE_GLADIATOR, "The Gladiator" },
+    { ITEM_SET_DAL_RENDS_ARMS, "Dal Rends Arms" },
+    { ITEM_SET_SPIDERS_KISS, "Spiders Kiss" },
+    { ITEM_SET_THE_POSTMASTER, "The Postmaster" },
+    { ITEM_SET_CADAVEROUS_GARB, "Cadaverous Garb" },
+    { ITEM_SET_NECROPILE_RAIMENT, "Necropile Raiment" },
+    { ITEM_SET_BLOODMAIL_REGALIA, "Bloodmail Regalia" },
+    { ITEM_SET_DEATHBONE_GUARDIAN, "Deathbone Guardian" },
+    { ITEM_SET_VOLCANIC_ARMOR, "Volcanic Armor" },
+    { ITEM_SET_STORMSHROUD_ARMOR, "Stormshroud Armor" },
+    { ITEM_SET_DEVILSAUR_ARMOR, "Devilsaur Armor" },
+    { ITEM_SET_IRONFEATHER_ARMOR, "Ironfeather Armor" },
+    { ITEM_SET_DEFIAS_LEATHER, "Defias Leather" },
+    { ITEM_SET_EMBRACE_OF_THE_VIPER, "Embrace Of The Viper" },
+    { ITEM_SET_CHAIN_OF_THE_SCARLET_CRUSADE, "Chain Of The Scarlet Crusade" },
+    { ITEM_SET_MAGISTERS_REGALIA, "Magisters Regalia" },
+    { ITEM_SET_VESTMENTS_OF_THE_DEVOUT, "Vestments Of The Devout" },
+    { ITEM_SET_DREADMIST_RAIMENT, "Dreadmist Raiment" },
+    { ITEM_SET_SHADOWCRAFT_ARMOR, "Shadowcraft Armor" },
+    { ITEM_SET_WILDHEART_RAIMENT, "Wildheart Raiment" },
+    { ITEM_SET_BEASTSTALKER_ARMOR, "Beaststalker Armor" },
+    { ITEM_SET_THE_ELEMENTS, "The Elements" },
+    { ITEM_SET_LIGHTFORGE_ARMOR, "Lightforge Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_VALOR, "Battlegear Of Valor" },
+    { ITEM_SET_ARCANIST_REGALIA, "Arcanist Regalia" },
+    { ITEM_SET_VESTMENTS_OF_PROPHECY, "Vestments Of Prophecy" },
+    { ITEM_SET_FELHEART_RAIMENT, "Felheart Raiment" },
+    { ITEM_SET_NIGHTSLAYER_ARMOR, "Nightslayer Armor" },
+    { ITEM_SET_CENARION_RAIMENT, "Cenarion Raiment" },
+    { ITEM_SET_GIANTSTALKER_ARMOR, "Giantstalker Armor" },
+    { ITEM_SET_THE_EARTHFURY, "The Earthfury" },
+    { ITEM_SET_LAWBRINGER_ARMOR, "Lawbringer Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_MIGHT, "Battlegear Of Might" },
+    { ITEM_SET_NETHERWIND_REGALIA, "Netherwind Regalia" },
+    { ITEM_SET_VESTMENTS_OF_TRANSCENDENCE, "Vestments Of Transcendence" },
+    { ITEM_SET_NEMESIS_RAIMENT, "Nemesis Raiment" },
+    { ITEM_SET_BLOODFANG_ARMOR, "Bloodfang Armor" },
+    { ITEM_SET_STORMRAGE_RAIMENT, "Stormrage Raiment" },
+    { ITEM_SET_DRAGONSTALKER_ARMOR, "Dragonstalker Armor" },
+    { ITEM_SET_THE_TEN_STORMS, "The Ten Storms" },
+    { ITEM_SET_JUDGEMENT_ARMOR, "Judgement Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_WRATH, "Battlegear Of Wrath" },
+    { ITEM_SET_GARB_OF_THERO_SHAN, "Garb Of Thero Shan" },
+    { ITEM_SET_SHARD_OF_THE_GODS, "Shard Of The Gods" },
+    { ITEM_SET_SPIRIT_OF_ESKHANDAR, "Spirit Of Eskhandar" },
+    { ITEM_SET_CHAMPIONS_BATTLEGEAR, "Champions Battlegear" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEGEAR, "Lieutenant Commanders Battlegear" },
+    { ITEM_SET_CHAMPIONS_EARTHSHAKER, "Champions Earthshaker" },
+    { ITEM_SET_IMPERIAL_PLATE, "Imperial Plate" },
+    { ITEM_SET_CHAMPIONS_REGALIA, "Champions Regalia" },
+    { ITEM_SET_CHAMPIONS_RAIMENT, "Champions Raiment" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_REGALIA, "Lieutenant Commanders Regalia" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_RAIMENT, "Lieutenant Commanders Raiment" },
+    { ITEM_SET_CHAMPIONS_THREADS, "Champions Threads" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_THREADS, "Lieutenant Commanders Threads" },
+    { ITEM_SET_CHAMPIONS_VESTMENTS, "Champions Vestments" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_VESTMENTS, "Lieutenant Commanders Vestments" },
+    { ITEM_SET_CHAMPIONS_PURSUIT, "Champions Pursuit" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_PURSUIT, "Lieutenant Commanders Pursuit" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_SANCTUARY, "Lieutenant Commanders Sanctuary" },
+    { ITEM_SET_CHAMPIONS_SANCTUARY, "Champions Sanctuary" },
+    { ITEM_SET_WARLORDS_BATTLEGEAR, "Warlords Battlegear" },
+    { ITEM_SET_FIELD_MARSHALS_BATTLEGEAR, "Field Marshals Battlegear" },
+    { ITEM_SET_WARLORDS_EARTHSHAKER, "Warlords Earthshaker" },
+    { ITEM_SET_WARLORDS_REGALIA, "Warlords Regalia" },
+    { ITEM_SET_FIELD_MARSHALS_REGALIA, "Field Marshals Regalia" },
+    { ITEM_SET_FIELD_MARSHALS_RAIMENT, "Field Marshals Raiment" },
+    { ITEM_SET_WARLORDS_RAIMENT, "Warlords Raiment" },
+    { ITEM_SET_WARLORDS_THREADS, "Warlords Threads" },
+    { ITEM_SET_FIELD_MARSHALS_THREADS, "Field Marshals Threads" },
+    { ITEM_SET_WARLORDS_VESTMENTS, "Warlords Vestments" },
+    { ITEM_SET_FIELD_MARSHALS_VESTMENTS, "Field Marshals Vestments" },
+    { ITEM_SET_FIELD_MARSHALS_PURSUIT, "Field Marshals Pursuit" },
+    { ITEM_SET_WARLORDS_PURSUIT, "Warlords Pursuit" },
+    { ITEM_SET_FIELD_MARSHALS_SANCTUARY, "Field Marshals Sanctuary" },
+    { ITEM_SET_WARLORDS_SANCTUARY, "Warlords Sanctuary" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_AEGIS, "Lieutenant Commanders Aegis" },
+    { ITEM_SET_FIELD_MARSHALS_AEGIS, "Field Marshals Aegis" },
+    { ITEM_SET_BLOODVINE_GARB, "Bloodvine Garb" },
+    { ITEM_SET_PRIMAL_BATSKIN, "Primal Batskin" },
+    { ITEM_SET_BLOOD_TIGER_HARNESS, "Blood Tiger Harness" },
+    { ITEM_SET_BLOODSOUL_EMBRACE, "Bloodsoul Embrace" },
+    { ITEM_SET_THE_DARKSOUL, "The Darksoul" },
+    { ITEM_SET_THE_TWIN_BLADES_OF_HAKKARI, "The Twin Blades Of Hakkari" },
+    { ITEM_SET_ZANZILS_CONCENTRATION, "Zanzils Concentration" },
+    { ITEM_SET_PRIMAL_BLESSING, "Primal Blessing" },
+    { ITEM_SET_OVERLORDS_RESOLUTION, "Overlords Resolution" },
+    { ITEM_SET_PRAYER_OF_THE_PRIMAL, "Prayer Of The Primal" },
+    { ITEM_SET_MAJOR_MOJO_INFUSION, "Major Mojo Infusion" },
+    { ITEM_SET_THE_HIGHLANDERS_RESOLUTION, "The Highlanders Resolution" },
+    { ITEM_SET_THE_HIGHLANDERS_RESOLVE, "The Highlanders Resolve" },
+    { ITEM_SET_THE_HIGHLANDERS_DETERMINATION, "The Highlanders Determination" },
+    { ITEM_SET_THE_HIGHLANDERS_FORTITUDE, "The Highlanders Fortitude" },
+    { ITEM_SET_THE_HIGHLANDERS_PURPOSE, "The Highlanders Purpose" },
+    { ITEM_SET_THE_HIGHLANDERS_WILL, "The Highlanders Will" },
+    { ITEM_SET_THE_HIGHLANDERS_INTENT, "The Highlanders Intent" },
+    { ITEM_SET_VINDICATORS_BATTLEGEAR, "Vindicators Battlegear" },
+    { ITEM_SET_FREETHINKERS_ARMOR, "Freethinkers Armor" },
+    { ITEM_SET_AUGURS_REGALIA, "Augurs Regalia" },
+    { ITEM_SET_PREDATORS_ARMOR, "Predators Armor" },
+    { ITEM_SET_MADCAPS_OUTFIT, "Madcaps Outfit" },
+    { ITEM_SET_HARUSPEXS_GARB, "Haruspexs Garb" },
+    { ITEM_SET_CONFESSORS_RAIMENT, "Confessors Raiment" },
+    { ITEM_SET_DEMONIACS_THREADS, "Demoniacs Threads" },
+    { ITEM_SET_ILLUSIONISTS_ATTIRE, "Illusionists Attire" },
+    { ITEM_SET_THE_DEFILERS_DETERMINATION, "The Defilers Determination" },
+    { ITEM_SET_THE_DEFILERS_FORTITUDE, "The Defilers Fortitude" },
+    { ITEM_SET_THE_DEFILERS_INTENT, "The Defilers Intent" },
+    { ITEM_SET_THE_DEFILERS_PURPOSE, "The Defilers Purpose" },
+    { ITEM_SET_THE_DEFILERS_RESOLUTION, "The Defilers Resolution" },
+    { ITEM_SET_THE_DEFILERS_WILL, "The Defilers Will" },
+    { ITEM_SET_BLACK_DRAGON_MAIL, "Black Dragon Mail" },
+    { ITEM_SET_GREEN_DRAGON_MAIL, "Green Dragon Mail" },
+    { ITEM_SET_BLUE_DRAGON_MAIL, "Blue Dragon Mail" },
+    { ITEM_SET_TWILIGHT_TRAPPINGS, "Twilight Trappings" },
+    { ITEM_SET_GENESIS_RAIMENT, "Genesis Raiment" },
+    { ITEM_SET_SYMBOLS_OF_UNENDING_LIFE, "Symbols Of Unending Life" },
+    { ITEM_SET_BATTLEGEAR_OF_UNYIELDING_STRENGTH, "Battlegear Of Unyielding Strength" },
+    { ITEM_SET_CONQUERORS_BATTLEGEAR, "Conquerors Battlegear" },
+    { ITEM_SET_DEATHDEALERS_EMBRACE, "Deathdealers Embrace" },
+    { ITEM_SET_EMBLEMS_OF_VEILED_SHADOWS, "Emblems Of Veiled Shadows" },
+    { ITEM_SET_DOOMCALLERS_ATTIRE, "Doomcallers Attire" },
+    { ITEM_SET_IMPLEMENTS_OF_UNSPOKEN_NAMES, "Implements Of Unspoken Names" },
+    { ITEM_SET_STORMCALLERS_GARB, "Stormcallers Garb" },
+    { ITEM_SET_GIFT_OF_THE_GATHERING_STORM, "Gift Of The Gathering Storm" },
+    { ITEM_SET_ENIGMA_VESTMENTS, "Enigma Vestments" },
+    { ITEM_SET_TRAPPINGS_OF_VAULTED_SECRETS, "Trappings Of Vaulted Secrets" },
+    { ITEM_SET_AVENGERS_BATTLEGEAR, "Avengers Battlegear" },
+    { ITEM_SET_BATTLEGEAR_OF_ETERNAL_JUSTICE, "Battlegear Of Eternal Justice" },
+    { ITEM_SET_GARMENTS_OF_THE_ORACLE, "Garments Of The Oracle" },
+    { ITEM_SET_FINERY_OF_INFINITE_WISDOM, "Finery Of Infinite Wisdom" },
+    { ITEM_SET_STRIKERS_GARB, "Strikers Garb" },
+    { ITEM_SET_TRAPPINGS_OF_THE_UNSEEN_PATH, "Trappings Of The Unseen Path" },
+    { ITEM_SET_BATTLEGEAR_OF_HEROISM, "Battlegear Of Heroism" },
+    { ITEM_SET_DARKMANTLE_ARMOR, "Darkmantle Armor" },
+    { ITEM_SET_FERALHEART_RAIMENT, "Feralheart Raiment" },
+    { ITEM_SET_VESTMENTS_OF_THE_VIRTUOUS, "Vestments Of The Virtuous" },
+    { ITEM_SET_BEASTMASTER_ARMOR, "Beastmaster Armor" },
+    { ITEM_SET_SOULFORGE_ARMOR, "Soulforge Armor" },
+    { ITEM_SET_SORCERERS_REGALIA, "Sorcerers Regalia" },
+    { ITEM_SET_DEATHMIST_RAIMENT, "Deathmist Raiment" },
+    { ITEM_SET_THE_FIVE_THUNDERS, "The Five Thunders" },
+    { ITEM_SET_IRONWEAVE_BATTLESUIT, "Ironweave Battlesuit" },
+    { ITEM_SET_DREAMWALKER_RAIMENT, "Dreamwalker Raiment" },
+    { ITEM_SET_CHAMPIONS_GUARD, "Champions Guard" },
+    { ITEM_SET_DREADNAUGHTS_BATTLEGEAR, "Dreadnaughts Battlegear" },
+    { ITEM_SET_BONESCYTHE_ARMOR, "Bonescythe Armor" },
+    { ITEM_SET_VESTMENTS_OF_FAITH, "Vestments Of Faith" },
+    { ITEM_SET_FROSTFIRE_REGALIA, "Frostfire Regalia" },
+    { ITEM_SET_THE_EARTHSHATTERER, "The Earthshatterer" },
+    { ITEM_SET_REDEMPTION_ARMOR, "Redemption Armor" },
+    { ITEM_SET_PLAGUEHEART_RAIMENT, "Plagueheart Raiment" },
+    { ITEM_SET_CRYPTSTALKER_ARMOR, "Cryptstalker Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_UNDEAD_SLAYING, "Battlegear Of Undead Slaying" },
+    { ITEM_SET_UNDEAD_SLAYERS_ARMOR, "Undead Slayers Armor" },
+    { ITEM_SET_GARB_OF_THE_UNDEAD_SLAYER, "Garb Of The Undead Slayer" },
+    { ITEM_SET_REGALIA_OF_UNDEAD_CLEANSING, "Regalia Of Undead Cleansing" },
+    { ITEM_SET_CHAMPIONS_BATTLEARMOR, "Champions Battlearmor" },
+    { ITEM_SET_CHAMPIONS_STORMCALLER, "Champions Stormcaller" },
+    { ITEM_SET_CHAMPIONS_REFUGE, "Champions Refuge" },
+    { ITEM_SET_CHAMPIONS_INVESTITURE, "Champions Investiture" },
+    { ITEM_SET_CHAMPIONS_DREADGEAR, "Champions Dreadgear" },
+    { ITEM_SET_CHAMPIONS_ARCANUM, "Champions Arcanum" },
+    { ITEM_SET_CHAMPIONS_PURSUANCE, "Champions Pursuance" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_REDOUBT, "Lieutenant Commanders Redoubt" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEARMOR, "Lieutenant Commanders Battlearmor" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_ARCANUM, "Lieutenant Commanders Arcanum" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_DREADGEAR, "Lieutenant Commanders Dreadgear" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_GUARD, "Lieutenant Commanders Guard" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_INVESTITURE, "Lieutenant Commanders Investiture" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_PURSUANCE, "Lieutenant Commanders Pursuance" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_REFUGE, "Lieutenant Commanders Refuge" },
+    { 0, NULL }
+};
+
+typedef enum {
+    BAG_FAMILY_NONE = 0x0,
+    BAG_FAMILY_ARROWS = 0x1,
+    BAG_FAMILY_BULLETS = 0x2,
+    BAG_FAMILY_SOUL_SHARDS = 0x3,
+    BAG_FAMILY_UNKNOWN4 = 0x4,
+    BAG_FAMILY_UNKNOWN5 = 0x5,
+    BAG_FAMILY_HERBS = 0x6,
+    BAG_FAMILY_ENCHANTING_SUPPLIES = 0x7,
+    BAG_FAMILY_ENGINEERING_SUPPLIES = 0x8,
+    BAG_FAMILY_KEYS = 0x9,
+} e_bag_family;
+static const value_string e_bag_family_strings[] =  {
+    { BAG_FAMILY_NONE, "None" },
+    { BAG_FAMILY_ARROWS, "Arrows" },
+    { BAG_FAMILY_BULLETS, "Bullets" },
+    { BAG_FAMILY_SOUL_SHARDS, "Soul Shards" },
+    { BAG_FAMILY_UNKNOWN4, "Unknown4" },
+    { BAG_FAMILY_UNKNOWN5, "Unknown5" },
+    { BAG_FAMILY_HERBS, "Herbs" },
+    { BAG_FAMILY_ENCHANTING_SUPPLIES, "Enchanting Supplies" },
+    { BAG_FAMILY_ENGINEERING_SUPPLIES, "Engineering Supplies" },
+    { BAG_FAMILY_KEYS, "Keys" },
+    { 0, NULL }
+};
+
+typedef enum {
     LOGOUT_RESULT_SUCCESS = 0x0,
     LOGOUT_RESULT_FAILURE_IN_COMBAT = 0x1,
     LOGOUT_RESULT_FAILURE_FROZEN_BY_GM = 0x2,
@@ -7604,6 +8407,26 @@ typedef enum {
     CHANNEL_FLAGS_LFG = 0x40,
     CHANNEL_FLAGS_VOICE = 0x80,
 } e_channel_flags;
+
+typedef enum {
+    ITEM_FLAG_NONE = 0x00000,
+    ITEM_FLAG_NO_PICKUP = 0x00001,
+    ITEM_FLAG_CONJURED = 0x00002,
+    ITEM_FLAG_LOOTABLE = 0x00004,
+    ITEM_FLAG_DEPRECATED = 0x00010,
+    ITEM_FLAG_INDESTRUCTIBLE = 0x00020,
+    ITEM_FLAG_PLAYER_CAST = 0x00040,
+    ITEM_FLAG_NO_EQUIP_COOLDOWN = 0x00080,
+    ITEM_FLAG_INT_BONUS_INSTEAD = 0x00100,
+    ITEM_FLAG_WRAPPER = 0x00200,
+    ITEM_FLAG_IGNORE_BAG_SPACE = 0x00400,
+    ITEM_FLAG_PARTY_LOOT = 0x00800,
+    ITEM_FLAG_CHARTER = 0x02000,
+    ITEM_FLAG_HAS_TEXT = 0x04000,
+    ITEM_FLAG_NO_DISENCHANT = 0x08000,
+    ITEM_FLAG_REAL_DURATION = 0x10000,
+    ITEM_FLAG_NO_CREATOR = 0x20000,
+} e_item_flag;
 
 typedef enum {
     ALLOWED_CLASS_ALL = 0x000,
@@ -9786,6 +10609,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_entries = 0;
     guint32 amount_of_events = 0;
     guint32 amount_of_extra_fields = 0;
+    guint32 amount_of_faction_standings = 0;
     guint32 amount_of_factions = 0;
     guint32 amount_of_friends = 0;
     guint32 amount_of_gossip_items = 0;
@@ -11216,11 +12040,11 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SET_FACTION_ATWAR:
-            ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_faction_flag, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SET_FACTION_INACTIVE:
-            ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_inactive, 1, ENC_NA);
             break;
         case CMSG_SET_SELECTION:
@@ -11238,7 +12062,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_slot, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SET_WATCHED_FACTION:
-            ptvcursor_add(ptv, hf_woww_reputation_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SPIRIT_HEALER_ACTIVATE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14154,9 +14978,9 @@ add_body_fields(guint32 opcode,
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
-                ptvcursor_add(ptv, hf_woww_item_display_info, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_quality, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_flags, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_flag, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_buy_price, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_sell_price, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_inventory_type, 4, ENC_LITTLE_ENDIAN);
@@ -14169,8 +14993,8 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_required_spell, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_honor_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_city_rank, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_reputation_faction, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_reputation_rank, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_required_faction_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_max_count, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stackable, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_container_slots, 4, ENC_LITTLE_ENDIAN);
@@ -14210,12 +15034,12 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_bonding, 4, ENC_LITTLE_ENDIAN);
                 add_cstring(ptv, &hf_woww_description);
                 ptvcursor_add(ptv, hf_woww_page_text, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_language_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_page_material, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_language, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_page_text_material, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_start_quest, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_lock_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_material, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_sheath, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_sheathe_type, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_random_property, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_block, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_set, 4, ENC_LITTLE_ENDIAN);
@@ -15073,9 +15897,9 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_quest_level, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_zone_or_sort, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_quest_type, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_reputation_objective_faction, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_reputation_objective_value, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_required_opposite_faction, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_required_opposite_reputation_value, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_next_quest_in_chain, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_money_reward, 4, ENC_LITTLE_ENDIAN);
@@ -15176,16 +16000,16 @@ add_body_fields(guint32 opcode,
             add_cstring(ptv, &hf_woww_message);
             break;
         case SMSG_SET_FACTION_STANDING:
-            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_factions, 4, ENC_LITTLE_ENDIAN, &amount_of_factions);
-            for (i = 0; i < amount_of_factions; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Faction");
-                ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_faction_standings, 4, ENC_LITTLE_ENDIAN, &amount_of_faction_standings);
+            for (i = 0; i < amount_of_faction_standings; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "FactionStanding");
+                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_standing, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             break;
         case SMSG_SET_FACTION_VISIBLE:
-            ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SET_FLAT_SPELL_MODIFIER:
             ptvcursor_add(ptv, hf_woww_eff, 1, ENC_LITTLE_ENDIAN);
@@ -15196,7 +16020,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_reactions, 4, ENC_LITTLE_ENDIAN, &amount_of_reactions);
             for (i = 0; i < amount_of_reactions; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ForcedReaction");
-                ptvcursor_add(ptv, hf_woww_faction_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_reputation_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
@@ -16389,6 +17213,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_amount_of_faction_standings,
+            { "Amount Of Faction Standings", "woww.amount.of.faction.standings",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_amount_of_factions,
             { "Amount Of Factions", "woww.amount.of.factions",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -16751,7 +17581,7 @@ proto_register_woww(void)
         },
         { &hf_woww_bag_family,
             { "Bag Family", "woww.bag.family",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_bag_family_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17703,15 +18533,15 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_faction_flag,
-            { "Faction Flag", "woww.faction.flag",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_faction,
+            { "Faction", "woww.faction",
+                FT_UINT16, BASE_HEX_DEC, VALS(e_faction_strings), 0,
                 NULL, HFILL
             }
         },
-        { &hf_woww_faction_id,
-            { "Faction Id", "woww.faction.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_faction_flag,
+            { "Faction Flag", "woww.faction.flag",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18255,12 +19085,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_display_info,
-            { "Item Display Info", "woww.item.display.info",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_item_enchant_id,
             { "Item Enchant Id", "woww.item.enchant.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18269,6 +19093,12 @@ proto_register_woww(void)
         },
         { &hf_woww_item_enchantment,
             { "Item Enchantment", "woww.item.enchantment",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_item_flag,
+            { "Item Flag", "woww.item.flag",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -18341,7 +19171,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_set,
             { "Item Set", "woww.item.set",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_item_set_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18450,12 +19280,6 @@ proto_register_woww(void)
         { &hf_woww_language,
             { "Language", "woww.language",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_language_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_language_id,
-            { "Language Id", "woww.language.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19089,15 +19913,15 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_page_material,
-            { "Page Material", "woww.page.material",
+        { &hf_woww_page_text,
+            { "Page Text", "woww.page.text",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
-        { &hf_woww_page_text,
-            { "Page Text", "woww.page.text",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_page_text_material,
+            { "Page Text Material", "woww.page.text.material",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_page_text_material_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19581,24 +20405,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_reputation_id,
-            { "Reputation Id", "woww.reputation.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_reputation_list_id,
-            { "Reputation List Id", "woww.reputation.list.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_reputation_objective_faction,
-            { "Reputation Objective Faction", "woww.reputation.objective.faction",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_reputation_objective_value,
             { "Reputation Objective Value", "woww.reputation.objective.value",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -19625,6 +20431,12 @@ proto_register_woww(void)
         },
         { &hf_woww_required_city_rank,
             { "Required City Rank", "woww.required.city.rank",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_required_faction_rank,
+            { "Required Faction Rank", "woww.required.faction.rank",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19665,26 +20477,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_required_opposite_faction,
-            { "Required Opposite Faction", "woww.required.opposite.faction",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_required_opposite_reputation_value,
             { "Required Opposite Reputation Value", "woww.required.opposite.reputation.value",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_required_reputation_faction,
-            { "Required Reputation Faction", "woww.required.reputation.faction",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_required_reputation_rank,
-            { "Required Reputation Rank", "woww.required.reputation.rank",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19881,15 +20675,15 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_sheath,
-            { "Sheath", "woww.sheath",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_sheath_state,
             { "Sheath State", "woww.sheath.state",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_sheath_state_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_sheathe_type,
+            { "Sheathe Type", "woww.sheathe.type",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_sheathe_type_strings), 0,
                 NULL, HFILL
             }
         },
