@@ -69,9 +69,11 @@ Argument type for UI filtering for raw, or UI type for selector:
     integer
     unsigned
     long (may include scientific / special notation)
-    float
+    double
+    string (display a textbox)
     selector (display selector table, all values as strings)
     boolean (display checkbox)
+    booleanflag (display checkbox)
     radio (display group of radio buttons with provided values, all values as strings)
     fileselect (display a dialog to select a file from the filesystem, value as string)
     multicheck (display a textbox for selecting multiple options, values as strings)
