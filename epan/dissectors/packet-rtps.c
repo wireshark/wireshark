@@ -9819,6 +9819,7 @@ gint rtps_prepare_encapsulated_data(
  *  could be used to define a custom compressor plugin for matching purposes.
  *
  */
+
 static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                         int  size, const char *label, guint16 vendor_id, gboolean is_discovery_data,
                         endpoint_guid * guid, gint32 frag_number /* -1 if no fragmentation */) {
@@ -9924,7 +9925,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
             }
             else if (frag_number != NOT_A_FRAGMENT) {
                 /* fragments should be dissected as raw bytes (not parametrized) */
-                proto_tree_add_item(dissected_data_holdeer_tree, hf_rtps_issue_data, tvb,
+                proto_tree_add_item(dissected_data_holdeer_tree, hf_rtps_issue_data, data_holder_tvb,
                     offset, size, ENC_NA);
                 break;
             }
@@ -9932,7 +9933,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
                 /* Instead of showing a warning like before, we now dissect the data as
                  * (id - length - value) members */
                 dissect_parametrized_serialized_data(dissected_data_holdeer_tree,
-                    tvb, offset, size, encapsulation_encoding);
+                    data_holder_tvb, offset, size, encapsulation_encoding);
             }
             break;
 
