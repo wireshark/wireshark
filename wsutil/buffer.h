@@ -46,11 +46,17 @@ void ws_buffer_cleanup(void);
 # define ws_buffer_end_ptr(buffer) ((buffer)->data + (buffer)->first_free)
 # define ws_buffer_append_buffer(buffer,src_buffer) ws_buffer_append((buffer), ws_buffer_start_ptr(src_buffer), ws_buffer_length(src_buffer))
 #else
+ WS_DLL_PUBLIC
  void ws_buffer_clean(Buffer* buffer);
- void ws_buffer_increase_length(Buffer* buffer, unsigned int bytes);
- unsigned gsize ws_buffer_length(Buffer* buffer);
+ WS_DLL_PUBLIC
+ void ws_buffer_increase_length(Buffer* buffer, gsize bytes);
+ WS_DLL_PUBLIC
+ gsize ws_buffer_length(Buffer* buffer);
+ WS_DLL_PUBLIC
  guint8* ws_buffer_start_ptr(Buffer* buffer);
+ WS_DLL_PUBLIC
  guint8* ws_buffer_end_ptr(Buffer* buffer);
+ WS_DLL_PUBLIC
  void ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
 #endif
 
