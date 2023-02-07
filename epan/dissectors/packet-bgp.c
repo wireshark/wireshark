@@ -54,6 +54,7 @@
  * RFC9104 Distribution of Traffic Engineering Extended Administrative Groups
            Using the Border Gateway Protocol - Link State
  * RFC8365 A Network Virtualization Overlay Solution Using Ethernet VPN (EVPN)
+ * draft-abraitis-bgp-version-capability-13
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -173,6 +174,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART  71  /* draft-uttaro-idr-bgp-persistence */
 #define BGP_CAPABILITY_CP_ORF                       72  /* [RFC7543] */
 #define BGP_CAPABILITY_FQDN                         73  /* draft-walton-bgp-hostname-capability */
+#define BGP_CAPABILITY_SOFT_VERSION                 75  /* draft-abraitis-bgp-version-capability */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco */
 #define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco */
 #define BGP_CAPABILITY_MULTISESSION_CISCO          131  /* Cisco */
@@ -1722,6 +1724,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability (Cisco)" },
     { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability (Cisco)" },
     { BGP_CAPABILITY_MULTISESSION_CISCO,            "Multisession BGP Capability (Cisco)" },
+    { BGP_CAPABILITY_SOFT_VERSION,                  "Software Version Capability" },
     { 0, NULL }
 };
 
@@ -2098,6 +2101,8 @@ static int hf_bgp_cap_bgpsec_version = -1;
 static int hf_bgp_cap_bgpsec_sendreceive = -1;
 static int hf_bgp_cap_bgpsec_reserved = -1;
 static int hf_bgp_cap_bgpsec_afi = -1;
+static int hf_bgp_cap_soft_version = -1;
+static int hf_bgp_cap_soft_version_len = -1;
 
 /* BGP update global header field */
 static int hf_bgp_update_withdrawn_routes_length = -1;
@@ -8048,6 +8053,18 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
 
             break;
+
+        case BGP_CAPABILITY_SOFT_VERSION:{
+            guint8 soft_version_len;
+
+            proto_tree_add_item(cap_tree, hf_bgp_cap_soft_version_len, tvb, offset, 1, ENC_NA);
+            soft_version_len = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            proto_tree_add_item(cap_tree, hf_bgp_cap_soft_version, tvb, offset, soft_version_len, ENC_ASCII);
+            offset += soft_version_len;
+            }
+            break;
             /* unknown capability */
         default:
             if (clen != 0) {
@@ -11261,6 +11278,12 @@ proto_register_bgp(void)
       { &hf_bgp_cap_bgpsec_afi,
         { "AFI", "bgp.cap.bgpsec.afi", FT_UINT16, BASE_DEC,
           VALS(afn_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_soft_version_len,
+        { "Software Version Length", "bgp.cap.software_version.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_soft_version,
+        { "Software Version", "bgp.cap.software_version", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
       /* BGP update */
 
       { &hf_bgp_update_withdrawn_routes_length,
