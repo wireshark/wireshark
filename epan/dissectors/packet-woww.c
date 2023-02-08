@@ -10617,7 +10617,6 @@ add_body_fields(guint32 opcode,
     guint32 effect = 0;
     guint32 exp_type = 0;
     guint32 flags = 0;
-    guint32 index = 0;
     guint32 info_block = 0;
     guint32 key_version = 0;
     guint32 listed_players = 0;
@@ -10635,6 +10634,7 @@ add_body_fields(guint32 opcode,
     guint32 status = 0;
     guint32 status_id = 0;
     guint32 target_flags = 0;
+    guint32 target_index = 0;
     guint32 update_flag = 0;
     guint32 update_type = 0;
     guint32 url_info = 0;
@@ -14134,8 +14134,8 @@ add_body_fields(guint32 opcode,
                 }
             }
             else {
-                ptvcursor_add_ret_uint(ptv, hf_woww_raid_target_index, 1, ENC_LITTLE_ENDIAN, &index);
-                if (index != RAID_TARGET_INDEX_REQUEST_ICONS) {
+                ptvcursor_add_ret_uint(ptv, hf_woww_raid_target_index, 1, ENC_LITTLE_ENDIAN, &target_index);
+                if (target_index != RAID_TARGET_INDEX_REQUEST_ICONS) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 }
             }
