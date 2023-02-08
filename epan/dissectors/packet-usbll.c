@@ -933,6 +933,45 @@ static gboolean usbll_is_data_from_host(usbll_state_t state)
     }
 }
 
+static gboolean usbll_is_endpoint_stall(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_IN_STALL:
+        case STATE_OUT_STALL:
+        case STATE_PING_STALL:
+        case STATE_CSPLIT_CONTROL_OUT_STALL:
+        case STATE_CSPLIT_CONTROL_IN_STALL:
+        case STATE_CSPLIT_BULK_OUT_STALL:
+        case STATE_CSPLIT_BULK_IN_STALL:
+        case STATE_CSPLIT_INTERRUPT_OUT_STALL:
+        case STATE_CSPLIT_INTERRUPT_IN_STALL:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+static gboolean usbll_is_stalled_data_from_host(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_OUT_STALL:
+        case STATE_PING_STALL:
+        case STATE_CSPLIT_CONTROL_OUT_STALL:
+        case STATE_CSPLIT_BULK_OUT_STALL:
+        case STATE_CSPLIT_INTERRUPT_OUT_STALL:
+            return TRUE;
+        case STATE_IN_STALL:
+        case STATE_CSPLIT_CONTROL_IN_STALL:
+        case STATE_CSPLIT_BULK_IN_STALL:
+        case STATE_CSPLIT_INTERRUPT_IN_STALL:
+            return FALSE;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+    }
+}
+
 static usb_speed_t usbll_get_data_transaction_speed(usbll_data_t *data)
 {
     switch (data->transaction_state)
@@ -2059,6 +2098,21 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
             DISSECTOR_ASSERT(data->prev != NULL);
             DISSECTOR_ASSERT(data->prev->transaction != NULL);
             data->transaction = data->prev->transaction;
+        }
+
+        if (usbll_is_endpoint_stall(data->transaction_state))
+        {
+            usbll_endpoint_info_t *ep_info;
+            gboolean               from_host;
+
+            from_host = usbll_is_stalled_data_from_host(data->transaction_state);
+            ep_info = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, from_host);
+
+            ep_info->last_data_pid = 0;
+            ep_info->active_transfer_key = 0;
+            ep_info->transfer_offset = 0;
+            ep_info->last_data_len = 0;
+            ep_info->requested_transfer_length = 0;
         }
     }
 
