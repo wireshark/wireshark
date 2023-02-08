@@ -1132,24 +1132,19 @@ void PacketList::fieldsChanged(capture_file *cf)
 // - Persist across freezes and thaws.
 // - Persist across file closing and opening.
 // - Save to recent when we save our profile (including shutting down).
-// - Not be affected by the behavior of stretchLastSection.
+// - Not be affected by the behavior of stretchLastSection. (XXX: We
+//   still save the stretched value to recent, sectionResized doesn't
+//   distinguish between a resize from being stretched and a manual change.)
 void PacketList::applyRecentColumnWidths()
 {
     // Either we've just started up or a profile has changed. Read
     // the recent settings, apply them, and save the header state.
-
-    int column_width = 0;
 
     for (int col = 0; col < prefs.num_cols; col++) {
         // The column must be shown before setting column width.
         // Visibility will be updated in setColumnVisibility().
         setColumnHidden(col, false);
         setRecentColumnWidth(col);
-        column_width += columnWidth(col);
-    }
-
-    if (column_width > width()) {
-        resize(column_width, height());
     }
 
     column_state_ = header()->saveState();
