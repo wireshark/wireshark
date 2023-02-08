@@ -18,7 +18,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include "wspcap.h"
+#include <pcap.h>
 
 #ifdef HAVE_LIBCAP
 # include <sys/capability.h>

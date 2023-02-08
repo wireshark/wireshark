@@ -152,8 +152,14 @@ get_appname_and_version(void)
 	return appname_with_version;
 }
 
-static void
-get_zlib_feature_info(feature_list l)
+void
+gather_pcre2_compile_info(feature_list l)
+{
+	with_feature(l, "PCRE2");
+}
+
+void
+gather_zlib_compile_info(feature_list l)
 {
 #ifdef HAVE_ZLIB
 #ifdef ZLIB_VERSION
@@ -191,8 +197,6 @@ get_compiled_version_info(gather_feature_func gather_compile)
 	with_feature(&l,
 		"GLib (version unknown)");
 #endif
-	with_feature(&l, "PCRE2");
-	get_zlib_feature_info(&l);
 
 	if (gather_compile != NULL) {
 		gather_compile(&l);
@@ -415,8 +419,8 @@ get_compiler_info(GString *str)
 	#endif
 }
 
-static inline void
-get_pcre2_runtime_version_info(feature_list l)
+void
+gather_pcre2_runtime_info(feature_list l)
 {
 	/* From pcre2_api(3):
 	 *     The where argument should point to a buffer that is at  least  24  code
@@ -439,6 +443,15 @@ get_pcre2_runtime_version_info(feature_list l)
 	buf_pcre2[size] = '\0';
 	with_feature(l, "PCRE2 %s", buf_pcre2);
 	g_free(buf_pcre2);
+}
+
+void
+gather_zlib_runtime_info(feature_list l)
+{
+    (void)l;
+#if defined(HAVE_ZLIB) && !defined(_WIN32)
+	with_feature(l, "zlib %s", zlibVersion());
+#endif
 }
 
 /*
@@ -469,10 +482,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 
 	with_feature(&l, "GLib %u.%u.%u",
 			glib_major_version, glib_minor_version, glib_micro_version);
-	get_pcre2_runtime_version_info(&l);
-#if defined(HAVE_ZLIB) && !defined(_WIN32)
-	with_feature(&l, "zlib %s", zlibVersion());
-#endif
+
 	if (gather_runtime != NULL) {
 		gather_runtime(&l);
 	}
@@ -490,7 +500,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	}
 
 #ifdef HAVE_PLUGINS
-	if (g_module_supported()) {
+	if (plugins_supported()) {
 		g_string_append(str, ", binary plugins supported");
 	}
 #endif

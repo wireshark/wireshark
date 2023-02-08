@@ -1669,7 +1669,7 @@ static const TLV_PARSER_ENTRY tlvMainTable[]  =
 	{ EID_MU_ASSOC_TIME, "MU Associated Time", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_ACTIVE_TIME, "MU Actived Time", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_REPORT_REQ, "Report Request", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_MU_URL, "MU Capive Portal Url", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_MU_URL, "MU Captive Portal Url", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_SESSION_LIFETIME, "MU Session Life Time", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_REAUTH_TIMER, "MU Re-Authentication Timer", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_ACCT_SESSION_ID_STRING, "MU Acct Session ID String", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -6372,7 +6372,7 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_action_field_value,
 			{
 				"SSID/Vlan ID", "wassp.data.mu_action_field_value",  FT_UINT16, BASE_DEC,  NULL,
-				0x0fff, "SSID value or VlanID vlaue", HFILL
+				0x0fff, "SSID value or VlanID value", HFILL
 			}
 		},
 		{

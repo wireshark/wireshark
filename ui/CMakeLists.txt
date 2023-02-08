@@ -40,7 +40,6 @@ set(NONGENERATED_UI_SRC
 	service_response_time.c
 	software_update.c
 	ssl_key_export.c
-	summary.c
 	tap_export_pdu.c
 	tap-iax2-analysis.c
 	tap-rtp-analysis.c
@@ -80,44 +79,37 @@ add_library(ui STATIC ${UI_SRC})
 
 target_link_libraries(ui
 	PRIVATE
-		caputils
+		wsutil
 		wiretap
+)
+
+target_include_directories(ui
+	SYSTEM PRIVATE
+		${PCAP_INCLUDE_DIRS}
+		${WINSPARKLE_INCLUDE_DIRS}
+)
+
+add_library(summary STATIC summary.c)
+
+target_link_libraries(summary
+	PRIVATE
+		wiretap
+		epan
 		wsutil
 		${GCRYPT_LIBRARIES}
 	)
 
-target_include_directories(ui
+target_include_directories(summary
 	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
-		${GNUTLS_INCLUDE_DIRS}
-		${WINSPARKLE_INCLUDE_DIRS}
 )
 
-add_library(version_info STATIC version_info.c)
-
-if(NOT VCSVERSION_OVERRIDE)
-	add_dependencies(version_info vcs_version)
-endif()
-
-target_link_libraries(version_info
-	PRIVATE
-		wsutil
-		${ZLIB_LIBRARIES}
-		${PCRE2_LIBRARIES}
-)
-
-target_include_directories(version_info
-	SYSTEM PRIVATE
-		${ZLIB_INCLUDE_DIRS}
-		${PCRE2_INCLUDE_DIRS}
-)
-
-set_target_properties(ui version_info PROPERTIES
+set_target_properties(ui summary PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 )
 if(MSVC)
-	set_target_properties(ui version_info PROPERTIES
+	set_target_properties(ui summary PROPERTIES
 		LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}"
 	)
 endif()

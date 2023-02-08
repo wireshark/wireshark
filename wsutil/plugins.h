@@ -12,7 +12,6 @@
 #define __PLUGINS_H__
 
 #include <wireshark.h>
-#include <gmodule.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +40,8 @@ WS_DLL_PUBLIC void plugins_dump_all(void);
 WS_DLL_PUBLIC int plugins_get_count(void);
 
 WS_DLL_PUBLIC void plugins_cleanup(plugins_t *plugins);
+
+WS_DLL_PUBLIC gboolean plugins_supported(void);
 
 #ifdef __cplusplus
 }

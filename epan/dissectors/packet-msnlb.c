@@ -554,7 +554,7 @@ proto_register_msnlb(void)
     },
     { &hf_msnlb_address_family,
       { "Address Family", "msnlb.address_family",
-        FT_UINT8, BASE_HEX_DEC,
+        FT_UINT16, BASE_HEX_DEC,
         VALS(nlb_address_family_vals), 0,
         NULL, HFILL }
     },

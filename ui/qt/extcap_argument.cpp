@@ -429,11 +429,6 @@ void ExtArgRadio::setDefaultValue()
 ExtArgBool::ExtArgBool(extcap_arg * argument, QObject * parent) :
         ExtcapArgument(argument, parent), boolBox(0) {}
 
-QWidget * ExtArgBool::createLabel(QWidget * parent)
-{
-    return new QWidget(parent);
-}
-
 QWidget * ExtArgBool::createEditor(QWidget * parent)
 {
     bool state = defaultBool();
@@ -486,7 +481,7 @@ QString ExtArgBool::prefValue()
 
 bool ExtArgBool::isValid()
 {
-    /* A bool is allways valid, but the base function checks on string length,
+    /* A bool is always valid, but the base function checks on string length,
      * which will fail with boolflags */
     return true;
 }

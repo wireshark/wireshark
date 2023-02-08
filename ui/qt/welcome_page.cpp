@@ -16,7 +16,7 @@
 #include "ui/capture_globals.h"
 #include "ui/urls.h"
 
-#include "ui/version_info.h"
+#include "wsutil/version_info.h"
 
 #include "welcome_page.h"
 #include <ui_welcome_page.h>

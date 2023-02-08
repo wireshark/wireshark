@@ -39,6 +39,7 @@ extern "C" {
  * put the libcap information into the string, as we currently
  * don't use libcap in TShark.
  */
+WS_DLL_PUBLIC
 void ws_init_version_info(const char *appname,
 		gather_feature_func gather_compile,
 		gather_feature_func gather_runtime);
@@ -48,7 +49,16 @@ void ws_init_version_info(const char *appname,
  * ws_init_version_info(), followed by a string giving the
  * application version.
  */
+WS_DLL_PUBLIC
 const char *get_appname_and_version(void);
+
+WS_DLL_PUBLIC
+void
+gather_pcre2_compile_info(feature_list l);
+
+WS_DLL_PUBLIC
+void
+gather_zlib_compile_info(feature_list l);
 
 /*
  * Get various library compile-time versions, put them in a GString,
@@ -57,7 +67,16 @@ const char *get_appname_and_version(void);
  * "gather_compile" is called (if non-null) to add any additional build-time
  * information.
  */
+WS_DLL_PUBLIC
 GString *get_compiled_version_info(gather_feature_func gather_compile);
+
+WS_DLL_PUBLIC
+void
+gather_pcre2_runtime_info(feature_list l);
+
+WS_DLL_PUBLIC
+void
+gather_zlib_runtime_info(feature_list l);
 
 /*
  * Get various library run-time versions, and the OS version, put them in
@@ -68,6 +87,7 @@ GString *get_compiled_version_info(gather_feature_func gather_compile);
  * put the libcap information into the string, as we currently
  * don't use libcap in TShark.
  */
+WS_DLL_PUBLIC
 GString *get_runtime_version_info(gather_feature_func gather_runtime);
 
 /*
@@ -75,22 +95,26 @@ GString *get_runtime_version_info(gather_feature_func gather_runtime);
  * from a tree checked out from Wireshark's version control system,
  * something identifying what version was checked out.
  */
+WS_DLL_PUBLIC
 const char *get_ws_vcs_version_info(void);
 
 /*
  * Shorter version of get_ws_vcs_version_info().
  */
+WS_DLL_PUBLIC
 const char *get_ws_vcs_version_info_short(void);
 
 /*
  * Return version number as integers.
  */
+WS_DLL_PUBLIC
 void get_ws_version_number(int *major, int *minor, int *micro);
 
 /*
  * Show the program name and version number information on the standard
  * output; this is used for command-line "show the version" options.
  */
+WS_DLL_PUBLIC
 void show_version(void);
 
 /*
@@ -98,12 +122,16 @@ void show_version(void);
  * description string, and a "See {URL} for more information" message.
  * This is used for command-line "help" options.
  */
+WS_DLL_PUBLIC
 void show_help_header(const char *description);
 
+WS_DLL_PUBLIC
 const char *get_copyright_info(void);
 
+WS_DLL_PUBLIC
 const char *get_license_info(void);
 
+WS_DLL_PUBLIC
 const char *get_license_info_short(void);
 
 #ifdef __cplusplus

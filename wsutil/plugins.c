@@ -300,6 +300,12 @@ plugins_cleanup(plugins_t *plugins)
     g_hash_table_destroy((GHashTable *)plugins);
 }
 
+gboolean
+plugins_supported(void)
+{
+    return g_module_supported();
+}
+
 /*
  * Editor modelines
  *

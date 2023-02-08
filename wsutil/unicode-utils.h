@@ -35,19 +35,19 @@ extern "C" {
 #endif
 
 #define _CHECK_UTF_8(level, str, len) \
-  do {                                                                \
-    const char *__uni_endptr;                                         \
-    if (DEBUG_UTF_8_ENABLED && (str) != NULL &&                       \
-                        !g_utf8_validate(str, len, &__uni_endptr)) {  \
-      ws_log_utf8(str, len, __uni_endptr);                            \
-    }                                                                 \
-  } while (0)
+    do {                                                                \
+        const char *__uni_endptr;                                       \
+        if (DEBUG_UTF_8_ENABLED && (str) != NULL &&                     \
+                        !g_utf8_validate(str, len, &__uni_endptr)) {    \
+            ws_log_utf8(str, len, __uni_endptr);                        \
+        }                                                               \
+    } while (0)
 
 #define WS_UTF_8_CHECK(str, len) \
-  _CHECK_UTF_8(LOG_LEVEL_DEBUG, str, len)
+    _CHECK_UTF_8(LOG_LEVEL_DEBUG, str, len)
 
 #define WS_UTF_8_DEBUG_HERE(str, len) \
-  _CHECK_UTF_8(LOG_LEVEL_ECHO, str, len)
+    _CHECK_UTF_8(LOG_LEVEL_ECHO, str, len)
 
 WSUTIL_EXPORT
 int ws_utf8_seqlen[256];
@@ -59,6 +59,16 @@ int ws_utf8_seqlen[256];
  */
 #define ws_utf8_char_len(ch)  (ws_utf8_seqlen[(ch)])
 
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by the pointer and length as a UTF-8 string, and return a
+ * pointer to a UTF-8 string, allocated using the wmem scope, with all
+ * ill-formed sequences replaced with the Unicode REPLACEMENT CHARACTER
+ * according to the recommended "best practices" given in the Unicode
+ * Standard and specified by W3C/WHATWG.
+ */
+WS_DLL_PUBLIC guint8 *
+ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length);
 
 #ifdef _WIN32
 
@@ -79,8 +89,8 @@ const wchar_t * utf_8to16(const char *utf8str);
  * @param fmt A standard printf() format string
  */
 WS_DLL_PUBLIC
-void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt,
-	...) G_GNUC_PRINTF(3, 4);
+void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...)
+G_GNUC_PRINTF(3, 4);
 
 /** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
  * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
@@ -100,7 +110,7 @@ gchar * utf_16to8(const wchar_t *utf16str);
  * @param argv The argument values (vector).
  */
 WS_DLL_PUBLIC
-char ** arg_list_utf_16to8(int argc, wchar_t *wc_argv[]);
+char **arg_list_utf_16to8(int argc, wchar_t *wc_argv[]);
 
 #endif /* _WIN32 */
 
@@ -109,11 +119,11 @@ char ** arg_list_utf_16to8(int argc, wchar_t *wc_argv[]);
  */
 
 #define IS_LEAD_SURROGATE(uchar2) \
-	((uchar2) >= 0xd800 && (uchar2) < 0xdc00)
+    ((uchar2) >= 0xd800 && (uchar2) < 0xdc00)
 #define IS_TRAIL_SURROGATE(uchar2) \
-	((uchar2) >= 0xdc00 && (uchar2) < 0xe000)
+    ((uchar2) >= 0xdc00 && (uchar2) < 0xe000)
 #define SURROGATE_VALUE(lead, trail) \
-	(((((lead) - 0xd800) << 10) | ((trail) - 0xdc00)) + 0x10000)
+    (((((lead) - 0xd800) << 10) | ((trail) - 0xdc00)) + 0x10000)
 
 #ifdef	__cplusplus
 }

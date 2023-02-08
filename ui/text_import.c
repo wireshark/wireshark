@@ -81,6 +81,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
+#include <ws_exit_codes.h>
 
 #include <time.h>
 #include <glib.h>
@@ -92,14 +93,13 @@
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
-#include <ui/exit_codes.h>
 #include <wsutil/report_message.h>
 #include <wsutil/exported_pdu_tlvs.h>
 
 #include <wsutil/nstime.h>
 #include <wsutil/time_util.h>
 
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 
@@ -1569,7 +1569,7 @@ text_import(text_import_info_t * const info)
          * Windows builds with 64 bit time_t by default now), so....
          */
         report_failure("localtime(right now) failed");
-        return INIT_FAILED;
+        return WS_EXIT_INIT_FAILED;
     }
     timecode_default = *now_tm;
     timecode_default.tm_isdst = -1;     /* Unknown for now, depends on time given to the strptime() function */
@@ -1692,20 +1692,20 @@ text_import(text_import_info_t * const info)
         case (WTAP_ENCAP_RAW_IP4):
             if (info->ipv6) {
                 report_failure("Encapsulation %s only supports IPv4 headers, not IPv6", wtap_encap_name(info->encapsulation));
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             break;
 
         case (WTAP_ENCAP_RAW_IP6):
             if (!info->ipv6) {
                 report_failure("Encapsulation %s only supports IPv6 headers, not IPv4", wtap_encap_name(info->encapsulation));
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             break;
 
         default:
             report_failure("Dummy IP header not supported with encapsulation: %s (%s)", wtap_encap_name(info->encapsulation), wtap_encap_description(info->encapsulation));
-            return INVALID_OPTION;
+            return WS_EXIT_INVALID_OPTION;
         }
     }
 
@@ -1722,7 +1722,7 @@ text_import(text_import_info_t * const info)
          * error, unlike malloc or g_try_malloc.
          */
         report_failure("FATAL ERROR: no memory for packet buffer");
-        return INIT_FAILED;
+        return WS_EXIT_INIT_FAILED;
     }
 
     if (info->mode == TEXT_IMPORT_HEXDUMP) {
@@ -1732,11 +1732,11 @@ text_import(text_import_info_t * const info)
             ret = 0;
             break;
         case (IMPORT_FAILURE):
-            ret = INVALID_FILE;
+            ret = WS_EXIT_INVALID_FILE;
             break;
         case (IMPORT_INIT_FAILED):
             report_failure("Can't initialize scanner: %s", g_strerror(errno));
-            ret = INIT_FAILED;
+            ret = WS_EXIT_INIT_FAILED;
             break;
         default:
             ret = 0;
@@ -1747,10 +1747,10 @@ text_import(text_import_info_t * const info)
             info->num_packets_read = ret;
             ret = 0;
         } else if (ret < 0) {
-            ret = INVALID_FILE;
+            ret = WS_EXIT_INVALID_FILE;
         }
     } else {
-        ret = INVALID_OPTION;
+        ret = WS_EXIT_INVALID_OPTION;
     }
     g_free(packet_buf);
     return ret;

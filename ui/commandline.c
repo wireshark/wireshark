@@ -16,13 +16,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>
 
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_assert.h>
 #ifdef _WIN32
@@ -275,7 +275,7 @@ void commandline_early_options(int argc, char *argv[])
                             pf_dir_path, g_strerror(errno));
 
                         g_free(pf_dir_path);
-                        exit(INVALID_FILE);
+                        exit(WS_EXIT_INVALID_FILE);
                     }
                     if (copy_persconffile_profile(ws_optarg, ws_optarg, TRUE, &pf_filename,
                             &pf_dir_path, &pf_dir_path2) == -1) {
@@ -285,7 +285,7 @@ void commandline_early_options(int argc, char *argv[])
                         g_free(pf_filename);
                         g_free(pf_dir_path);
                         g_free(pf_dir_path2);
-                        exit(INVALID_FILE);
+                        exit(WS_EXIT_INVALID_FILE);
                     }
                     set_profile_name (ws_optarg);
                 } else {
@@ -303,7 +303,7 @@ void commandline_early_options(int argc, char *argv[])
                         cmdarg_err("%s", err_str);
                         g_free(err_str);
                     }
-                    exit(INVALID_INTERFACE);
+                    exit(WS_EXIT_INVALID_INTERFACE);
                 }
 #ifdef _WIN32
                 create_console();

@@ -101,6 +101,11 @@ typedef struct coap_common_dissect {
 		int opt_block_mflag;
 		int opt_block_size;
 		int opt_uri_query;
+		int opt_echo;
+		int opt_no_response;
+		int opt_request_tag;
+		int opt_ocf_version;
+		int opt_ocf_accept_version;
 		int opt_unknown;
 		int opt_object_security_reserved;
 		int opt_object_security_kid_context_present;
@@ -148,7 +153,7 @@ coap_common_dissect_t name = {							\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1, 								\
+		-1, -1, -1, -1, -1, -1,						\
 		},								\
 	/* ett */ {								\
 		-1, -1,								\

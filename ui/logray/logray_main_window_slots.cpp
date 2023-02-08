@@ -822,7 +822,7 @@ void LograyMainWindow::startCapture(QStringList interfaces _U_) {
             /* device is EXTCAP and is selected. Check if all mandatory
              * settings are set.
              */
-            if (extcap_has_configuration(device->name, TRUE))
+            if (extcap_requires_configuration(device->name))
             {
                 /* Request openning of extcap options dialog */
                 QString device_name(device->name);

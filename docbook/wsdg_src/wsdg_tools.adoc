@@ -378,7 +378,7 @@ A description of `_MSC_VER` and `_MSC_FULL_VER`, and their relation to Visual St
 can be found at
 https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170[Microsoft-specific predefined macros].
 
-Information on the V{cpp} version can be found in the file _ui/version_info.c_.
+Information on the V{cpp} version can be found in the file _wsutil/version_info.c_.
 
 After correct installation of the toolchain, typing
 at the Visual Studio Command line prompt (cmd.exe):

@@ -16,10 +16,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <ws_exit_codes.h>
 #include <ui/clopts_common.h>
 #include <ui/failure_message.h>
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -134,7 +135,7 @@ main(int argc, char *argv[])
     ws_log_init("randpkt", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -169,7 +170,7 @@ main(int argc, char *argv[])
                 produce_max_bytes = get_positive_int(ws_optarg, "max bytes");
                 if (produce_max_bytes > 65536) {
                     cmdarg_err("max bytes is > 65536");
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -193,7 +194,7 @@ main(int argc, char *argv[])
 
             default:
                 usage(TRUE);
-                ret = INVALID_OPTION;
+                ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
                 break;
         }
@@ -204,7 +205,7 @@ main(int argc, char *argv[])
         produce_filename = argv[ws_optind];
     } else {
         usage(TRUE);
-        ret = INVALID_OPTION;
+        ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -214,7 +215,7 @@ main(int argc, char *argv[])
 
         example = randpkt_find_example(produce_type);
         if (!example) {
-            ret = INVALID_OPTION;
+            ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
 
@@ -232,7 +233,7 @@ main(int argc, char *argv[])
         produce_type = randpkt_parse_type(NULL);
         example = randpkt_find_example(produce_type);
         if (!example) {
-            ret = INVALID_OPTION;
+            ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
         ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
@@ -247,7 +248,7 @@ main(int argc, char *argv[])
 
             example = randpkt_find_example(produce_type);
             if (!example) {
-                ret = INVALID_OPTION;
+                ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             example->dump = savedump;

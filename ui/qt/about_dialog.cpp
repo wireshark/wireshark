@@ -38,7 +38,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/plugins.h"
-#include "ui/version_info.h"
+#include "wsutil/version_info.h"
 #include "ui/capture_globals.h"
 
 #include "extcap.h"

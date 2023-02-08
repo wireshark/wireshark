@@ -452,9 +452,9 @@ a MinGW toolchain, including MinGW-w64. The same concern applies to CMake
 code. Depending on the particular situation you may need to use if(WIN32) or
 if(MSVC) or if(MINGW).
 
-Wireshark uses Libgcrypt as general-purpose crypto library. To use it from
-your dissector, do not include gcrypt.h directly, but use the wrapper file
-wsutil/wsgcrypt.h instead.
+Wireshark uses Libgcrypt as general-purpose crypto library. Some Wireshark
+specific extensions are defined in wsutil/wsgcrypt.h. You might want to
+include that file instead.
 
 2. String handling
 

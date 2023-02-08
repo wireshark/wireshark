@@ -8,10 +8,11 @@
  */
 
 #include "config.h"
+#include "epan.h"
 
 #include <stdarg.h>
 
-#include <wsutil/wsgcrypt.h>
+#include <gcrypt.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/gnutls.h>
@@ -23,7 +24,6 @@
 
 #include <epan/exceptions.h>
 
-#include "epan.h"
 #include "epan/frame_data.h"
 
 #include "dfilter/dfilter.h"
@@ -32,8 +32,7 @@
 #include <wsutil/nstime.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
-
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -220,7 +219,7 @@ void epan_register_plugin(const epan_plugin *plug _U_)
 int epan_plugins_supported(void)
 {
 #ifdef HAVE_PLUGINS
-	return g_module_supported() ? 0 : 1;
+	return plugins_supported() ? 0 : 1;
 #else
 	return -1;
 #endif
@@ -777,6 +776,9 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
 void
 epan_gather_compile_info(feature_list l)
 {
+	gather_zlib_compile_info(l);
+	gather_pcre2_compile_info(l);
+
 	/* Lua */
 #ifdef HAVE_LUA
 #ifdef HAVE_LUA_UNICODE
@@ -874,6 +876,9 @@ epan_gather_compile_info(feature_list l)
 void
 epan_gather_runtime_info(feature_list l)
 {
+	gather_zlib_runtime_info(l);
+	gather_pcre2_runtime_info(l);
+
 	/* c-ares */
 	with_feature(l, "c-ares %s", ares_version(NULL));
 

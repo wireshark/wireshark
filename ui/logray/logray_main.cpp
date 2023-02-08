@@ -22,9 +22,9 @@
 #include <wsutil/console_win32.h>
 #endif
 
+#include <ws_exit_codes.h>
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -36,7 +36,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/ex-opt.h>
@@ -531,7 +531,7 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
     ws_noisy("Finished log init and parsing command line log arguments");
 
     /*
@@ -660,7 +660,7 @@ int main(int argc, char *qt_argv[])
         cmdarg_err("%s", err_msg);
         g_free(err_msg);
         cmdarg_err_cont("%s", please_report_bug());
-        ret_val = INIT_FAILED;
+        ret_val = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 
@@ -732,7 +732,7 @@ int main(int argc, char *qt_argv[])
        case any dissectors register preferences. */
     if (!epan_init(splash_update, NULL, TRUE)) {
         SimpleDialog::displayQueuedMessages(main_w);
-        ret_val = INIT_FAILED;
+        ret_val = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 #ifdef DEBUG_STARTUP_TIME
@@ -861,7 +861,7 @@ int main(int argc, char *qt_argv[])
                 cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
                 g_free(err_str);
                 g_free(err_str_secondary);
-                ret_val = INVALID_CAPABILITY;
+                ret_val = WS_EXIT_INVALID_CAPABILITY;
                 break;
             }
             ret_val = capture_opts_print_if_capabilities(caps, interface_opts,
@@ -912,7 +912,7 @@ int main(int argc, char *qt_argv[])
      * command-line options.
      */
     if (!setup_enabled_and_disabled_protocols()) {
-        ret_val = INVALID_OPTION;
+        ret_val = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 

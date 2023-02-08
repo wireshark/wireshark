@@ -2105,7 +2105,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x16){		/* Scrollbar Width */
 		check_length(pinfo, item_value_tree, 2, item_length, "Scrollbar Width");
-		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Toollbar Width");
+		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Scrolllbar Width");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x17){		/* Scrollbar Height */
 		check_length(pinfo, item_value_tree, 2, item_length, "Scrollbar Height");
@@ -3039,7 +3039,7 @@ proto_register_sapdiag(void)
 		{ &hf_sapdiag_dp_req_info_SET_SYSTEM_USER,
 			{ "Set System User Flag", "sapdiag.dp.reqinfo.set_system_user", FT_BOOLEAN, 8, NULL, SAPDIAG_DP_REQ_INFO_SET_SYSTEM_USER, NULL, HFILL }},
 		{ &hf_sapdiag_dp_req_info_DP_CANT_HANDLE_REQ,
-			{ "DP Can't handle req Flag", "sapdiag.dp.reqinfo.dp_cant_hanlde_req", FT_BOOLEAN, 8, NULL, SAPDIAG_DP_REQ_INFO_DP_CANT_HANDLE_REQ, NULL, HFILL }},
+			{ "DP Can't handle req Flag", "sapdiag.dp.reqinfo.dp_cant_handle_req", FT_BOOLEAN, 8, NULL, SAPDIAG_DP_REQ_INFO_DP_CANT_HANDLE_REQ, NULL, HFILL }},
 		{ &hf_sapdiag_dp_req_info_DP_AUTO_ABAP,
 			{ "DP Auto ABAP Flag", "sapdiag.dp.reqinfo.dp_auto_abap", FT_BOOLEAN, 8, NULL, SAPDIAG_DP_REQ_INFO_DP_AUTO_ABAP, NULL, HFILL }},
 		{ &hf_sapdiag_dp_req_info_DP_APPL_SERV_INFO,
@@ -3661,11 +3661,11 @@ proto_register_sapdiag(void)
 	range_convert_str(wmem_epan_scope(), &global_sapdiag_port_range, SAPDIAG_PORT_RANGE, MAX_TCP_PORT);
 	prefs_register_range_preference(sapdiag_module, "tcp_ports", "SAP Diag Protocol TCP port numbers", "Port numbers used for SAP Diag Protocol (default " SAPDIAG_PORT_RANGE ")", &global_sapdiag_port_range, MAX_TCP_PORT);
 
-	prefs_register_bool_preference(sapdiag_module, "rfc_dissection", "Dissect embeded SAP RFC calls", "Whether the SAP Diag Protocol dissector should call the SAP RFC dissector for embeded RFC calls", &global_sapdiag_rfc_dissection);
+	prefs_register_bool_preference(sapdiag_module, "rfc_dissection", "Dissect embedded SAP RFC calls", "Whether the SAP Diag Protocol dissector should call the SAP RFC dissector for embedded RFC calls", &global_sapdiag_rfc_dissection);
 
 	prefs_register_bool_preference(sapdiag_module, "snc_dissection", "Dissect SAP SNC frames", "Whether the SAP Diag Protocol dissector should call the SAP SNC dissector for SNC frames", &global_sapdiag_snc_dissection);
 
-	prefs_register_bool_preference(sapdiag_module, "highlight_unknown_items", "Highlight unknown SAP Diag Items", "Whether the SAP Diag Protocol dissector should highlight unknown SAP Diag item (migth be noise and generate a lot of expert warnings)", &global_sapdiag_highlight_items);
+	prefs_register_bool_preference(sapdiag_module, "highlight_unknown_items", "Highlight unknown SAP Diag Items", "Whether the SAP Diag Protocol dissector should highlight unknown SAP Diag item (might be noise and generate a lot of expert warnings)", &global_sapdiag_highlight_items);
 
 }
 

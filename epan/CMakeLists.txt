@@ -323,16 +323,15 @@ endif()
 
 target_link_libraries(epan
 	PUBLIC
-		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
 	PRIVATE
+		wiretap
 		${BROTLI_LIBRARIES}
 		${CARES_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${GIO2_LIBRARIES}
 		${GNUTLS_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
 		${KERBEROS_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${LUA_LIBRARIES}
@@ -366,7 +365,6 @@ target_include_directories(epan
 		${GCRYPT_INCLUDE_DIRS}
 		${GLIB2_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
-		${GTHREAD2_INCLUDE_DIRS}
 		${LIBXML2_INCLUDE_DIRS}
 		${LUA_INCLUDE_DIRS}
 		${LZ4_INCLUDE_DIRS}
@@ -404,7 +402,7 @@ set_target_properties(exntest PROPERTIES
 )
 
 add_executable(oids_test EXCLUDE_FROM_ALL oids_test.c)
-target_link_libraries(oids_test epan ${ZLIB_LIBRARIES})
+target_link_libraries(oids_test epan)
 set_target_properties(oids_test PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True

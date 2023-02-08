@@ -51,6 +51,7 @@
 #include <locale.h>
 #include <errno.h>
 
+#include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>
 
 #include <glib.h>
@@ -58,11 +59,10 @@
 #include <wiretap/wtap.h>
 
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
 #ifdef HAVE_PLUGINS
@@ -75,7 +75,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
 
-#include <wsutil/wsgcrypt.h>
+#include <gcrypt.h>
 
 #include "ui/failure_message.h"
 
@@ -1606,7 +1606,7 @@ main(int argc, char *argv[])
     ws_log_init("capinfos", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -1819,7 +1819,7 @@ main(int argc, char *argv[])
 
             case '?':              /* Bad flag - print usage message */
                 print_usage(stderr);
-                overall_error_status = INVALID_OPTION;
+                overall_error_status = WS_EXIT_INVALID_OPTION;
                 goto exit;
                 break;
         }
@@ -1827,7 +1827,7 @@ main(int argc, char *argv[])
 
     if ((argc - ws_optind) < 1) {
         print_usage(stderr);
-        overall_error_status = INVALID_OPTION;
+        overall_error_status = WS_EXIT_INVALID_OPTION;
         goto exit;
     }
 

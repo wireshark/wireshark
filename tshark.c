@@ -37,9 +37,9 @@
 #include <epan/exceptions.h>
 #include <epan/epan.h>
 
+#include <ws_exit_codes.h>
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -51,7 +51,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include "globals.h"
@@ -758,6 +758,34 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
         tap_listeners_require_dissection() || dissect_color;
 }
 
+#ifdef HAVE_LIBPCAP
+/*
+ * Check whether a purported *shark packet-matching expression (display
+ * or read filter) looks like a capture filter and, if so, print a
+ * warning.
+ *
+ * Used, for example, if the string in question isn't a valid packet-
+ * matching expression.
+ */
+static void
+warn_about_capture_filter(const char *rfilter)
+{
+    struct bpf_program   fcode;
+    pcap_t *pc;
+
+    pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
+    if (pc != NULL) {
+        if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
+            pcap_freecode(&fcode);
+            cmdarg_err_cont(
+                    "  Note: That read filter code looks like a valid capture filter;\n"
+                    "        maybe you mixed them up?");
+        }
+        pcap_close(pc);
+    }
+}
+#endif
+
 int
 main(int argc, char *argv[])
 {
@@ -804,7 +832,6 @@ main(int argc, char *argv[])
     int                  caps_queries = 0;
     GList               *if_list;
     gchar               *err_str, *err_str_secondary;
-    struct bpf_program   fcode;
 #else
     gboolean             capture_option_specified = FALSE;
     volatile int         max_packet_count = 0;
@@ -865,7 +892,7 @@ main(int argc, char *argv[])
     ws_log_init("tshark", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
     ws_debug("tshark started with %d args", argc);
@@ -946,7 +973,7 @@ main(int argc, char *argv[])
                             pf_dir_path, g_strerror(errno));
 
                         g_free(pf_dir_path);
-                        exit_status = INVALID_FILE;
+                        exit_status = WS_EXIT_INVALID_FILE;
                         goto clean_exit;
                     }
                     if (copy_persconffile_profile(ws_optarg, ws_optarg, TRUE, &pf_filename,
@@ -957,13 +984,13 @@ main(int argc, char *argv[])
                         g_free(pf_filename);
                         g_free(pf_dir_path);
                         g_free(pf_dir_path2);
-                        exit_status = INVALID_FILE;
+                        exit_status = WS_EXIT_INVALID_FILE;
                         goto clean_exit;
                     }
                     set_profile_name (ws_optarg);
                 } else {
                     cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1015,7 +1042,7 @@ main(int argc, char *argv[])
 #ifndef HAVE_LUA
     if (ex_opt_count("lua_script") > 0) {
         cmdarg_err("This version of TShark was not built with support for Lua scripting.");
-        exit_status = INIT_FAILED;
+        exit_status = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 #endif /* HAVE_LUA */
@@ -1046,7 +1073,7 @@ main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     if (!epan_init(NULL, NULL, TRUE)) {
-        exit_status = INIT_FAILED;
+        exit_status = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 
@@ -1136,7 +1163,7 @@ main(int argc, char *argv[])
                 glossary_option_help();
             else {
                 cmdarg_err("Invalid \"%s\" option for -G flag, enter -G help for more help.", argv[2]);
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
         }
@@ -1251,7 +1278,7 @@ main(int argc, char *argv[])
                         cmdarg_err("%s", err_str);
                         g_free(err_str);
                     }
-                    exit_status = INVALID_INTERFACE;
+                    exit_status = WS_EXIT_INVALID_INTERFACE;
                     goto clean_exit;
                 }
                 capture_opts_print_interfaces(if_list);
@@ -1272,7 +1299,7 @@ main(int argc, char *argv[])
                 if (!output_fields_set_option(output_fields, ws_optarg)) {
                     cmdarg_err("\"%s\" is not a valid field output option=value pair.", ws_optarg);
                     output_fields_list_options(stderr);
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1281,13 +1308,13 @@ main(int argc, char *argv[])
                 if (out_file_type < 0) {
                     cmdarg_err("\"%s\" isn't a valid capture file type", ws_optarg);
                     list_capture_types();
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
             case 'G':
                 cmdarg_err("-G only valid as first option");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
                 break;
             case 'j':
@@ -1310,7 +1337,7 @@ main(int argc, char *argv[])
                 } else {
                     cmdarg_err("Invalid -W argument \"%s\"; it must be one of:", ws_optarg);
                     cmdarg_err_cont("\t'n' write network address resolution information (pcapng only)");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1318,7 +1345,7 @@ main(int argc, char *argv[])
                 if (! add_hosts_file(ws_optarg))
                 {
                     cmdarg_err("Can't read host entries from \"%s\"", ws_optarg);
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 out_file_name_res = TRUE;
@@ -1385,19 +1412,19 @@ main(int argc, char *argv[])
                             cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
                                     errmsg ? ": " : "", errmsg ? errmsg : "");
                             g_free(errmsg);
-                            exit_status = INVALID_OPTION;
+                            exit_status = WS_EXIT_INVALID_OPTION;
                             goto clean_exit;
                             break;
 
                         case PREFS_SET_NO_SUCH_PREF:
                             cmdarg_err("-o flag \"%s\" specifies unknown preference", ws_optarg);
-                            exit_status = INVALID_OPTION;
+                            exit_status = WS_EXIT_INVALID_OPTION;
                             goto clean_exit;
                             break;
 
                         case PREFS_SET_OBSOLETE:
                             cmdarg_err("-o flag \"%s\" specifies obsolete preference", ws_optarg);
-                            exit_status = INVALID_OPTION;
+                            exit_status = WS_EXIT_INVALID_OPTION;
                             goto clean_exit;
                             break;
                     }
@@ -1426,7 +1453,7 @@ main(int argc, char *argv[])
                 /* output_action has been already set. It means multiple -T. */
                 if (output_action > WRITE_NONE) {
                     cmdarg_err("Multiple -T parameters are unsupported");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 print_packet_info = TRUE;
@@ -1495,14 +1522,14 @@ main(int argc, char *argv[])
                             "\t\"tabs\"    Similar to the text report except that each column of the\n"
                             "\t          human-readable one-line summary is delimited with an ASCII\n"
                             "\t          horizontal tab character.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
             case 'U':        /* Export PDUs to file */
                 if (strcmp(ws_optarg, "") == 0 || strcmp(ws_optarg, "?") == 0) {
                     list_export_pdu_taps();
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 pdu_export_arg = g_strdup(ws_optarg);
@@ -1548,7 +1575,7 @@ main(int argc, char *argv[])
                 if (!process_stat_cmd_arg(ws_optarg)) {
                     cmdarg_err("Invalid -z argument \"%s\"; it must be one of:", ws_optarg);
                     list_stat_cmd_args();
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1563,7 +1590,7 @@ main(int argc, char *argv[])
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
             case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
                 if (!dissect_opts_handle_opt(opt, ws_optarg)) {
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1575,7 +1602,7 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 if (!eo_tap_opt_add(ws_optarg)) {
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1615,7 +1642,7 @@ main(int argc, char *argv[])
                 } else {
                     fprintf(stderr, "tshark: \"%s\" is an invalid value for --hexdump <hexoption>\n", ws_optarg);
                     fprintf(stderr, "For valid <hexoption> values enter: tshark --hexdump help\n");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -1624,10 +1651,10 @@ main(int argc, char *argv[])
                  * Only active in two-pass mode. */
                 if (!ws_strtou32(ws_optarg, &endptr, &selected_frame_number) || *endptr != '\0') {
                     fprintf(stderr, "tshark: \"%s\" is not a valid frame number\n", ws_optarg);
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
-            break;
+                break;
             default:
             case '?':        /* Bad flag - print usage message */
                 switch(ws_optopt) {
@@ -1637,7 +1664,7 @@ main(int argc, char *argv[])
                     default:
                         print_usage(stderr);
                 }
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
                 break;
         }
@@ -1662,7 +1689,7 @@ main(int argc, char *argv[])
 
     if (no_duplicate_keys && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW) {
         cmdarg_err("--no-duplicate-keys can only be used with \"-T json\" and \"-T jsonraw\"");
-        exit_status = INVALID_OPTION;
+        exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -1670,13 +1697,13 @@ main(int argc, char *argv[])
     if ((WRITE_FIELDS != output_action && WRITE_XML != output_action && WRITE_JSON != output_action && WRITE_EK != output_action) && 0 != output_fields_num_fields(output_fields)) {
         cmdarg_err("Output fields were specified with \"-e\", "
                 "but \"-Tek, -Tfields, -Tjson or -Tpdml\" was not specified.");
-        exit_status = INVALID_OPTION;
+        exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     } else if (WRITE_FIELDS == output_action && 0 == output_fields_num_fields(output_fields)) {
         cmdarg_err("\"-Tfields\" was specified, but no fields were "
                 "specified with \"-e\".");
 
-        exit_status = INVALID_OPTION;
+        exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -1696,7 +1723,7 @@ main(int argc, char *argv[])
             if (dfilter != NULL) {
                 cmdarg_err("Display filters were specified both with \"-Y\" "
                         "and with additional command-line arguments.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             dfilter = get_args_as_string(argc, argv, ws_optind);
@@ -1707,7 +1734,7 @@ main(int argc, char *argv[])
             if (global_capture_opts.default_options.cfilter) {
                 cmdarg_err("A default capture filter was specified both with \"-f\""
                         " and with additional command-line arguments.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -1718,7 +1745,7 @@ main(int argc, char *argv[])
                 } else {
                     cmdarg_err("A capture filter was specified both with \"-f\""
                             " and with additional command-line arguments.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
             }
@@ -1744,7 +1771,7 @@ main(int argc, char *argv[])
         if (strcmp(save_file, "-") == 0 && print_packet_info) {
             cmdarg_err("You can't write both raw packet data and dissected packets"
                     " to the standard output.");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     }
@@ -1755,14 +1782,14 @@ main(int argc, char *argv[])
 #endif
     if (arg_error) {
         print_usage(stderr);
-        exit_status = INVALID_OPTION;
+        exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
     if (print_hex) {
         if (output_action != WRITE_TEXT && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW && output_action != WRITE_EK) {
             cmdarg_err("Raw packet hex data can only be printed as text, PostScript, JSON, JSONRAW or EK JSON");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     }
@@ -1772,7 +1799,7 @@ main(int argc, char *argv[])
 
         if (!print_details) {
             cmdarg_err("-O requires -V");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
 
@@ -1789,7 +1816,7 @@ main(int argc, char *argv[])
 
     if (rfilter != NULL && !perform_two_pass_analysis) {
         cmdarg_err("-R without -2 is deprecated. For single-pass filtering use -Y.");
-        exit_status = INVALID_OPTION;
+        exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -1801,13 +1828,13 @@ main(int argc, char *argv[])
             /* Yes - that's bogus. */
             cmdarg_err("You can't specify %s and a capture file to be read.",
                     caps_queries & CAPS_QUERY_LINK_TYPES ? "-L" : "--list-time-stamp-types");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
         /* No - did they specify a ring buffer option? */
         if (global_capture_opts.multi_files_on) {
             cmdarg_err("Ring buffer requested, but a capture isn't being done.");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     } else {
@@ -1823,37 +1850,37 @@ main(int argc, char *argv[])
             if (global_capture_opts.default_options.cfilter) {
                 cmdarg_err("Only read filters, not capture filters, "
                         "can be specified when reading a capture file.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             if (global_capture_opts.multi_files_on) {
                 cmdarg_err("Multiple capture files requested, but "
                         "a capture isn't being done.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             if (global_capture_opts.has_file_duration) {
                 cmdarg_err("Switching capture files after a time period was specified, but "
                         "a capture isn't being done.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             if (global_capture_opts.has_file_interval) {
                 cmdarg_err("Switching capture files after a time interval was specified, but "
                         "a capture isn't being done.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             if (global_capture_opts.has_ring_num_files) {
                 cmdarg_err("A ring buffer of capture files was specified, but "
                         "a capture isn't being done.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             if (global_capture_opts.has_autostop_files) {
                 cmdarg_err("A maximum number of capture files was specified, but "
                         "a capture isn't being done.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
 
@@ -1864,7 +1891,7 @@ main(int argc, char *argv[])
             if (global_capture_opts.has_autostop_duration) {
                 cmdarg_err("A maximum capture time was specified, but "
                         "a capture isn't being done.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
         } else {
@@ -1878,7 +1905,7 @@ main(int argc, char *argv[])
                  * to buffer packets until we've read all of them, but a live capture
                  * has no useful/meaningful definition of "all" */
                 cmdarg_err("Live captures do not support two-pass analysis.");
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
 
@@ -1892,12 +1919,12 @@ main(int argc, char *argv[])
                     use_pcapng = FALSE;
                 } else {
                     cmdarg_err("Live captures can only be saved in pcap or pcapng format.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 if (capture_comments != NULL && !use_pcapng) {
                     cmdarg_err("Capture comments can only be written to a pcapng file.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 if (global_capture_opts.multi_files_on) {
@@ -1908,13 +1935,13 @@ main(int argc, char *argv[])
                     if (strcmp(global_capture_opts.save_file, "-") == 0) {
                         cmdarg_err("Multiple capture files requested, but "
                                 "the capture is being written to the standard output.");
-                        exit_status = INVALID_OPTION;
+                        exit_status = WS_EXIT_INVALID_OPTION;
                         goto clean_exit;
                     }
                     if (global_capture_opts.output_to_pipe) {
                         cmdarg_err("Multiple capture files requested, but "
                                 "the capture file is a pipe.");
-                        exit_status = INVALID_OPTION;
+                        exit_status = WS_EXIT_INVALID_OPTION;
                         goto clean_exit;
                     }
                     if (!global_capture_opts.has_autostop_filesize &&
@@ -1923,7 +1950,7 @@ main(int argc, char *argv[])
                             !global_capture_opts.has_file_packets) {
                         cmdarg_err("Multiple capture files requested, but "
                                 "no maximum capture file size, duration, interval or packets were specified.");
-                        exit_status = INVALID_OPTION;
+                        exit_status = WS_EXIT_INVALID_OPTION;
                         goto clean_exit;
                     }
                 }
@@ -1931,12 +1958,12 @@ main(int argc, char *argv[])
                    and saving the packets. */
                 if (rfilter != NULL) {
                     cmdarg_err("Read filters aren't supported when capturing and saving the captured packets.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 if (dfilter != NULL) {
                     cmdarg_err("Display filters aren't supported when capturing and saving the captured packets.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 global_capture_opts.use_pcapng = use_pcapng;
@@ -1947,19 +1974,19 @@ main(int argc, char *argv[])
                 if (global_capture_opts.has_autostop_filesize) {
                     cmdarg_err("Maximum capture file size specified, but "
                             "capture isn't being saved to a file.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 if (global_capture_opts.multi_files_on) {
                     cmdarg_err("Multiple capture files requested, but "
                             "the capture isn't being saved to a file.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 if (capture_comments != NULL) {
                     cmdarg_err("Capture comments were specified, but "
                             "the capture isn't being saved to a file.");
-                    exit_status = INVALID_OPTION;
+                    exit_status = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
             }
@@ -1991,13 +2018,13 @@ main(int argc, char *argv[])
                         cmdarg_err_cont("    %s - %s", wtap_file_type_subtype_name(ft),
                                 wtap_file_type_subtype_description(ft));
                 }
-                exit_status = INVALID_OPTION;
+                exit_status = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
         }
         else {
             cmdarg_err("Capture comments were specified, but you aren't writing a capture file.");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     }
@@ -2008,7 +2035,7 @@ main(int argc, char *argv[])
         cmdarg_err("%s", err_msg);
         g_free(err_msg);
         cmdarg_err_cont("%s", please_report_bug());
-        exit_status = INIT_FAILED;
+        exit_status = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 
@@ -2033,7 +2060,7 @@ main(int argc, char *argv[])
                 cmdarg_err_cont("\t%s", (gchar *)it->data);
             }
             g_slist_free(invalid_fields);
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     }
@@ -2044,12 +2071,12 @@ main(int argc, char *argv[])
             global_capture_opts.output_to_pipe) {
         if (tap_listeners_require_dissection()) {
             cmdarg_err("Taps aren't supported when saving to a pipe.");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
         if (print_packet_info) {
             cmdarg_err("Printing dissected packets isn't supported when saving to a pipe.");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     }
@@ -2061,7 +2088,7 @@ main(int argc, char *argv[])
         if (in_file_type == WTAP_TYPE_AUTO) {
             cmdarg_err("\"%s\" isn't a valid read file format type", name? name : "");
             list_read_capture_types();
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
     }
@@ -2073,7 +2100,7 @@ main(int argc, char *argv[])
      * command-line options.
      */
     if (!setup_enabled_and_disabled_protocols()) {
-        exit_status = INVALID_OPTION;
+        exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -2092,19 +2119,10 @@ main(int argc, char *argv[])
             extcap_cleanup();
 
 #ifdef HAVE_LIBPCAP
-            pcap_t *pc;
-            pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
-            if (pc != NULL) {
-                if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
-                    cmdarg_err_cont(
-                            "  Note: That read filter code looks like a valid capture filter;\n"
-                            "        maybe you mixed them up?");
-                }
-                pcap_close(pc);
-            }
+            warn_about_capture_filter(rfilter);
 #endif
 
-            exit_status = INVALID_INTERFACE;
+            exit_status = WS_EXIT_INVALID_INTERFACE;
             goto clean_exit;
         }
     }
@@ -2117,19 +2135,10 @@ main(int argc, char *argv[])
             extcap_cleanup();
 
 #ifdef HAVE_LIBPCAP
-            pcap_t *pc;
-            pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
-            if (pc != NULL) {
-                if (pcap_compile(pc, &fcode, dfilter, 0, 0) != -1) {
-                    cmdarg_err_cont(
-                            "  Note: That display filter code looks like a valid capture filter;\n"
-                            "        maybe you mixed them up?");
-                }
-                pcap_close(pc);
-            }
+            warn_about_capture_filter(dfilter);
 #endif
 
-            exit_status = INVALID_FILTER;
+            exit_status = WS_EXIT_INVALID_FILTER;
             goto clean_exit;
         }
     }
@@ -2166,7 +2175,7 @@ main(int argc, char *argv[])
 
         if (!cf_name) {
             cmdarg_err("PDUs export requires a capture file (specify with -r).");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
         /* Take ownership of the '-w' output file. */
@@ -2177,7 +2186,7 @@ main(int argc, char *argv[])
 #endif
         if (exp_pdu_filename == NULL) {
             cmdarg_err("PDUs export requires an output file (-w).");
-            exit_status = INVALID_OPTION;
+            exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
 
@@ -2198,7 +2207,7 @@ main(int argc, char *argv[])
             exp_fd = ws_open(exp_pdu_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
             if (exp_fd == -1) {
                 cmdarg_err("%s: %s", exp_pdu_filename, file_open_error_message(errno, TRUE));
-                exit_status = INVALID_FILE;
+                exit_status = WS_EXIT_INVALID_FILE;
                 goto clean_exit;
             }
         }
@@ -2229,7 +2238,7 @@ main(int argc, char *argv[])
         if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) != CF_OK) {
             epan_cleanup();
             extcap_cleanup();
-            exit_status = INVALID_FILE;
+            exit_status = WS_EXIT_INVALID_FILE;
             goto clean_exit;
         }
 
@@ -2355,7 +2364,7 @@ main(int argc, char *argv[])
                     cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
                     g_free(err_str);
                     g_free(err_str_secondary);
-                    exit_status = INVALID_CAPABILITY;
+                    exit_status = WS_EXIT_INVALID_CAPABILITY;
                     break;
                 }
                 exit_status = capture_opts_print_if_capabilities(caps, interface_opts,
@@ -2403,7 +2412,7 @@ main(int argc, char *argv[])
         if (print_packet_info) {
             if (!write_preamble(&cfile)) {
                 show_print_file_io_error();
-                exit_status = INVALID_FILE;
+                exit_status = WS_EXIT_INVALID_FILE;
                 goto clean_exit;
             }
         }
@@ -3228,6 +3237,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 {
     column_info    *cinfo;
     gboolean        passed;
+    wtap_block_t    block = NULL;
 
     /* If we're not running a display filter and we're not printing any
        packet information, we don't need to do a dissection. This means
@@ -3270,6 +3280,9 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
             fdata->need_colorize = 1;
         }
 
+        /* epan_dissect_run (and epan_dissect_reset) unref the block.
+         * We need it later, e.g. in order to copy the options. */
+        block = wtap_block_ref(rec->block);
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                 fdata, cinfo);
@@ -3304,6 +3317,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 
     if (edt) {
         epan_dissect_reset(edt);
+        rec->block = block;
     }
     return passed || fdata->dependent_of_displayed;
 }
@@ -3574,9 +3588,19 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
         }
         wtap_rec_reset(&rec);
     }
-    if (*err != 0 && status == PASS_SUCCEEDED) {
-        /* Error reading from the input file. */
-        status = PASS_READ_ERROR;
+    if (status == PASS_SUCCEEDED) {
+        if (*err != 0) {
+            /* Error reading from the input file. */
+            status = PASS_READ_ERROR;
+        } else {
+            /*
+             * Process whatever IDBs we haven't seen yet.
+             */
+            if (!process_new_idbs(cf->provider.wth, pdh, err, err_info)) {
+                *err_framenum = framenum;
+                status = PASS_WRITE_ERROR;
+            }
+        }
     }
 
     if (edt)
@@ -3604,23 +3628,10 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
     char        *shb_user_appl;
     pass_status_t first_pass_status, second_pass_status;
-    gboolean pcapng_pcapng_workaround = false;
-    wtapng_iface_descriptions_t if_tmp;
 
     if (save_file != NULL) {
         /* Set up to write to the capture file. */
         wtap_dump_params_init_no_idbs(&params, cf->provider.wth);
-
-        /* workaround for pcapng -> pcapng (e.g., when pcapng starts with a custom block) */
-        if (out_file_type == wtap_pcapng_file_type_subtype() && params.encap == WTAP_ENCAP_UNKNOWN) {
-            pcapng_pcapng_workaround = true;
-            params.encap = WTAP_ENCAP_PER_PACKET;
-            params.dont_copy_idbs = true; /* make sure this stay true */
-            if (params.idb_inf->interface_data != NULL) {
-                /* lets fake an interface, which is not copied anyway */
-                g_array_insert_val(params.idb_inf->interface_data, 0, if_tmp);
-            }
-        }
 
         /* If we don't have an application name add TShark */
         if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
@@ -3643,11 +3654,6 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         } else {
             pdh = wtap_dump_open(save_file, out_file_type, WTAP_UNCOMPRESSED, &params,
                     &err, &err_info);
-        }
-
-        if (pcapng_pcapng_workaround) {
-            /* remove the fake interface before it will be used */
-            g_array_remove_index((params.idb_inf->interface_data), 0);
         }
 
         g_free(params.idb_inf);
@@ -3888,6 +3894,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     frame_data      fdata;
     column_info    *cinfo;
     gboolean        passed;
+    wtap_block_t    block = NULL;
 
     /* Count this packet. */
     cf->count++;
@@ -3940,6 +3947,9 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
             fdata.need_colorize = 1;
         }
 
+        /* epan_dissect_run (and epan_dissect_reset) unref the block.
+         * We need it later, e.g. in order to copy the options. */
+        block = wtap_block_ref(rec->block);
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
                 &fdata, cinfo);
@@ -3982,6 +3992,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     if (edt) {
         epan_dissect_reset(edt);
         frame_data_destroy(&fdata);
+        rec->block = block;
     }
     return passed;
 }

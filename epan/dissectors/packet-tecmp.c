@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2022 Dr. Lars Voelker
+ * Copyright 2019-2023 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -205,6 +205,7 @@ static int hf_tecmp_payload_status_dev_vendor_technica_buffer_fill_level = -1;
 static int hf_tecmp_payload_status_dev_vendor_technica_buffer_overflow = -1;
 static int hf_tecmp_payload_status_dev_vendor_technica_buffer_size = -1;
 static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle = -1;
+static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle_start = -1;
 static int hf_tecmp_payload_status_dev_vendor_technica_voltage = -1;
 static int hf_tecmp_payload_status_dev_vendor_technica_temperature = -1;
 static int hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis = -1;
@@ -842,7 +843,7 @@ tecmp_entry_header_present(tvbuff_t *tvb, guint offset) {
 
 static guint
 dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint tecmp_msg_type, guint16 data_type,
-                           gboolean first, guint16 *dataflags, guint32 *interface_id) {
+                           gboolean first, guint16 *dataflags, guint32 *interface_id, guint64 *timestamp_ns) {
     proto_item *ti;
     proto_tree *subtree = NULL;
     guint offset = offset_orig;
@@ -990,6 +991,10 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     ns = tvb_get_guint64(tvb, offset + 4, ENC_BIG_ENDIAN) & 0x3fffffffffffffff;
+
+    if (timestamp_ns != NULL) {
+        *timestamp_ns = ns;
+    }
 
     timestamp.secs = (time_t)(ns / 1000000000);
     timestamp.nsecs = (int)(ns % 1000000000);
@@ -1171,11 +1176,13 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 static void
-dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, guint8 vendor_id) {
+dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, guint8 vendor_id, guint64 timestamp_ns) {
     proto_tree *tree = NULL;
     proto_item *ti = NULL;
     gint offset = 0;
     guint tmp = 0;
+    guint64 tmp64 = 0;
+    nstime_t timestamp;
     gint temperature = 0;
 
     proto_item_append_text(ti_root, " (%s)", val_to_str(vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
@@ -1210,9 +1217,24 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
                                          4, tmp * 128, "%d MB", tmp * 128);
         offset += 4;
 
-        ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_lifecycle, tvb, offset, 8,
-                                 ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " %s", "ns");
+        ti = proto_tree_add_item_ret_uint64(tree, hf_tecmp_payload_status_dev_vendor_technica_lifecycle, tvb, offset, 8,
+                                 ENC_BIG_ENDIAN, &tmp64);
+
+        guint64 nanos = tmp64 % 1000000000;
+        guint64 secs = tmp64 / 1000000000;
+        guint64 mins = secs / 60;
+        secs -= mins * 60;
+        guint64 hours = mins / 24;
+        mins -= hours * 24;
+        proto_item_append_text(ti, " ns (%d:%02d:%02d.%09d)", (guint32)hours, (guint32)mins, (guint32)secs, (guint32)nanos);
+
+        if (tmp64 < timestamp_ns) {
+            timestamp_ns -= tmp64;
+            timestamp.secs = (time_t)(timestamp_ns / 1000000000);
+            timestamp.nsecs = (int)(timestamp_ns % 1000000000);
+            ti = proto_tree_add_time(tree, hf_tecmp_payload_status_dev_vendor_technica_lifecycle_start, tvb, offset, 8, &timestamp);
+            proto_item_set_generated(ti);
+        }
         offset += 8;
 
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -1269,7 +1291,7 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_item_append_text(ti, " Control Message");
         tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, TRUE, NULL, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, TRUE, NULL, NULL, NULL);
 
         col_set_str(pinfo->cinfo, COL_INFO, "TECMP Control Message");
 
@@ -1307,13 +1329,14 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint i = 0;
     guint tmp = 0;
     const gchar *descr;
+    guint64 timestamp_ns;
 
     if (tvb_captured_length_remaining(tvb, offset) >= 12) {
         length = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
         ti_tecmp_payload = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
         tecmp_tree = proto_item_add_subtree(ti_tecmp_payload, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, TRUE, NULL, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, TRUE, NULL, NULL, &timestamp_ns);
 
         proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_vendor_id, tvb, offset, 1, ENC_NA,
                                      &vendor_id);
@@ -1343,7 +1366,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_vendor_data, tvb,
                                                            offset, (gint)vendor_data_len, ENC_NA);
 
-                dissect_tecmp_status_device_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)vendor_id);
+                dissect_tecmp_status_device_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)vendor_id, timestamp_ns);
                 offset += vendor_data_len;
             }
             break;
@@ -1499,7 +1522,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item_append_text(ti_tecmp, " (%s)", val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id, NULL);
 
         first = FALSE;
 
@@ -1725,7 +1748,7 @@ dissect_tecmp_counter_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_append_text(ti, " Counter Event");
         tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, TRUE, NULL, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, TRUE, NULL, NULL, NULL);
 
         col_set_str(pinfo->cinfo, COL_INFO, "TECMP Counter Event");
 
@@ -1761,7 +1784,7 @@ dissect_tecmp_timesync_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_item_append_text(ti, " TimeSync Event");
         tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, TRUE, NULL, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, TRUE, NULL, NULL, NULL);
 
         col_set_str(pinfo->cinfo, COL_INFO, "TECMP TimeSync Event");
 
@@ -2040,6 +2063,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_status_dev_vendor_technica_lifecycle,
             { "Lifecycle", "tecmp.payload.status_dev.vendor_technica.lifecycle",
             FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_status_dev_vendor_technica_lifecycle_start,
+            { "Lifecycle Start", "tecmp.payload.status_dev.vendor_technica.lifecycle.start",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_voltage,
             { "Voltage", "tecmp.payload.status_dev.vendor_technica.voltage",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},

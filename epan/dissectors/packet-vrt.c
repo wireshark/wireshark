@@ -1593,7 +1593,7 @@ proto_register_vrt(void)
             NULL, HFILL }
         },
         { &hf_vrt_context_state_event_en_sample_loss,
-            { "Sample loss enable", "vrt.cif0.contextt.sampleloss.en",
+            { "Sample loss enable", "vrt.cif0.context.sampleloss.en",
             FT_BOOLEAN, 8,
             NULL, 0x01,
             NULL, HFILL }

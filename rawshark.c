@@ -36,13 +36,13 @@
 
 #include <errno.h>
 
+#include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>
 
 #include <glib.h>
 #include <epan/epan.h>
 
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
@@ -85,7 +85,7 @@
 #include <wiretap/pcap-encap.h>
 
 #include <cli_main.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include "capture/capture-pcap-util.h"
 
@@ -450,7 +450,7 @@ main(int argc, char *argv[])
     ws_log_init("rawshark", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -514,7 +514,7 @@ main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     if (!epan_init(NULL, NULL, TRUE)) {
-        ret = INIT_FAILED;
+        ret = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 
@@ -542,7 +542,7 @@ main(int argc, char *argv[])
             case 'd':        /* Payload type */
                 if (!set_link_type(ws_optarg)) {
                     cmdarg_err("Invalid link type or protocol \"%s\"", ws_optarg);
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -576,7 +576,7 @@ main(int argc, char *argv[])
 
                 if(setrlimit(RLIMIT_AS, &limit) != 0) {
                     cmdarg_err("setrlimit() returned error");
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -589,7 +589,7 @@ main(int argc, char *argv[])
                 if (badopt != '\0') {
                     cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'd', m', 'n', 'N', and 't'",
                                badopt);
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -606,19 +606,19 @@ main(int argc, char *argv[])
                         cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
                                 errmsg ? ": " : "", errmsg ? errmsg : "");
                         g_free(errmsg);
-                        ret = INVALID_OPTION;
+                        ret = WS_EXIT_INVALID_OPTION;
                         goto clean_exit;
                         break;
 
                     case PREFS_SET_NO_SUCH_PREF:
                         cmdarg_err("-o flag \"%s\" specifies unknown preference", ws_optarg);
-                        ret = INVALID_OPTION;
+                        ret = WS_EXIT_INVALID_OPTION;
                         goto clean_exit;
                         break;
 
                     case PREFS_SET_OBSOLETE:
                         cmdarg_err("-o flag \"%s\" specifies obsolete preference", ws_optarg);
-                        ret = INVALID_OPTION;
+                        ret = WS_EXIT_INVALID_OPTION;
                         goto clean_exit;
                         break;
                 }
@@ -636,7 +636,7 @@ main(int argc, char *argv[])
                 }
                 else {
                     cmdarg_err("Too many display filters");
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -646,7 +646,7 @@ main(int argc, char *argv[])
             case 'S':        /* Print string representations */
                 if (!parse_field_string_format(ws_optarg)) {
                     cmdarg_err("Invalid field string format");
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -684,7 +684,7 @@ main(int argc, char *argv[])
 "\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
                     cmdarg_err_cont(
 "or \"udoy\" for absolute UTC with YYYY/DOY date.");
-                    ret = INVALID_OPTION;
+                    ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
@@ -696,7 +696,7 @@ main(int argc, char *argv[])
             default:
             case '?':        /* Bad flag - print usage message */
                 print_usage(stderr);
-                ret = INVALID_OPTION;
+                ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
         }
     }
@@ -725,7 +725,7 @@ main(int argc, char *argv[])
             if (n_rfilters != 0) {
                 cmdarg_err("Read filters were specified both with \"-R\" "
                            "and with additional command-line arguments");
-                ret = INVALID_OPTION;
+                ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;
             }
             rfilters[n_rfilters] = get_args_as_string(argc, argv, ws_optind);
@@ -735,7 +735,7 @@ main(int argc, char *argv[])
     /* Make sure we got a dissector handle for our payload. */
     if (encap == WTAP_ENCAP_UNKNOWN) {
         cmdarg_err("No valid payload dissector specified.");
-        ret = INVALID_OPTION;
+        ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
@@ -745,7 +745,7 @@ main(int argc, char *argv[])
         cmdarg_err("%s", err_msg);
         g_free(err_msg);
         cmdarg_err_cont("%s", please_report_bug());
-        ret = INIT_FAILED;
+        ret = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
 
@@ -783,7 +783,7 @@ main(int argc, char *argv[])
         relinquish_special_privs_perm();
 
         if (raw_cf_open(&cfile, pipe_name) != CF_OK) {
-            ret = OPEN_ERROR;
+            ret = WS_EXIT_OPEN_ERROR;
             goto clean_exit;
         }
 
@@ -804,13 +804,13 @@ main(int argc, char *argv[])
 
         /* Process the packets in the file */
         if (!load_cap_file(&cfile)) {
-            ret = OPEN_ERROR;
+            ret = WS_EXIT_OPEN_ERROR;
             goto clean_exit;
         }
     } else {
         /* If you want to capture live packets, use TShark. */
         cmdarg_err("Input file or pipe name not specified.");
-        ret = OPEN_ERROR;
+        ret = WS_EXIT_OPEN_ERROR;
         goto clean_exit;
     }
 

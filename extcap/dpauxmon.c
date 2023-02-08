@@ -19,7 +19,6 @@
 
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/netlink.h>
 #include <wsutil/privileges.h>
 #include <wsutil/wslog.h>
 #include <writecap/pcapio.h>

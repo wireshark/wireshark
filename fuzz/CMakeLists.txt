@@ -30,7 +30,7 @@ set(fuzzshark_LIBS
 	ui
 	wiretap
 	epan
-	version_info
+	wsutil
 )
 if(OSS_FUZZ)
 	if("$ENV{LIB_FUZZING_ENGINE}" STREQUAL "")

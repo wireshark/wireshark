@@ -24,7 +24,7 @@ jobs:
         with:
           ruby-version: '2.6'
       - name: Install deps
-        run: ./tools/macos-setup-brew.sh
+        run: ./tools/macos-setup-brew.sh --install-optional
       - name: Install asciidoctor
         run: gem install asciidoctor
       - name: Mkdir

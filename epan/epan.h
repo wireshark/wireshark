@@ -10,7 +10,7 @@
 #ifndef __EPAN_H__
 #define __EPAN_H__
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include <wsutil/feature_list.h>
 #include <epan/tvbuff.h>
@@ -18,7 +18,6 @@
 #include <epan/frame_data.h>
 #include <epan/register.h>
 #include <wiretap/wtap_opttypes.h>
-#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {

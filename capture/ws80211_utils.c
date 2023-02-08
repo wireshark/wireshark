@@ -28,19 +28,13 @@ SPDX-License-Identifier: ISC
 #include <net/if.h>
 #include <sys/ioctl.h>
 
-DIAG_OFF_PEDANTIC
 #include <netlink/genl/genl.h>
-DIAG_ON_PEDANTIC
 #include <netlink/genl/family.h>
 #include <netlink/genl/ctrl.h>
-DIAG_OFF_PEDANTIC
 #include <netlink/msg.h>
-DIAG_ON_PEDANTIC
 #include <netlink/attr.h>
 
 #include <linux/nl80211.h>
-
-#include <wsutil/netlink.h>
 
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
 static int ws80211_get_protocol_features(int* features);

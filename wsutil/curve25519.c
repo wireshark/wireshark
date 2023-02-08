@@ -11,7 +11,7 @@
  */
 
 #include "curve25519.h"
-#include "ws_attributes.h"
+#include <gcrypt.h>
 
 static inline void
 copy_and_reverse(unsigned char *dest, const unsigned char *src, size_t n)

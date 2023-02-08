@@ -133,6 +133,9 @@ add_extensions(GSList *extensions, const gchar *extension,
  * *not* be placed here; if there's nothing to put in the last field
  * of the structure, don't put an entry here, not even one with an
  * empty string for the extensions list.
+ *
+ * All added file types, regardless of extension or lack thereof,
+ * must also be added open_info_base[] below.
  */
 static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", TRUE, "pcap;cap;dmp" },
@@ -244,10 +247,11 @@ add_extensions_for_file_extensions_type(int extension_type, GSList *extensions,
 }
 
 /* Return a list of file extensions that are used by the specified file
-   extension type.
-
-   All strings in the list are allocated with g_malloc() and must be freed
-   with g_free(). */
+ * extension type.
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ */
 GSList *
 wtap_get_file_extension_type_extensions(guint extension_type)
 {
@@ -276,21 +280,22 @@ wtap_get_file_extension_type_extensions(guint extension_type)
 }
 
 /* Return a list of all extensions that are used by all capture file
-   types, including compressed extensions, e.g. not just "pcap" but
-   also "pcap.gz" if we can read gzipped files.
-
-   "Capture files" means "include file types that correspond to
-   collections of network packets, but not file types that
-   store data that just happens to be transported over protocols
-   such as HTTP but that aren't collections of network packets",
-   so that it could be used for "All Capture Files" without picking
-   up JPEG files or files such as that - those aren't capture files,
-   and we *do* have them listed in the long list of individual file
-   types, so omitting them from "All Capture Files" is the right
-   thing to do.
-
-   All strings in the list are allocated with g_malloc() and must be freed
-   with g_free(). */
+ * types, including compressed extensions, e.g. not just "pcap" but
+ * also "pcap.gz" if we can read gzipped files.
+ *
+ * "Capture files" means "include file types that correspond to
+ * collections of network packets, but not file types that
+ * store data that just happens to be transported over protocols
+ * such as HTTP but that aren't collections of network packets",
+ * so that it could be used for "All Capture Files" without picking
+ * up JPEG files or files such as that - those aren't capture files,
+ * and we *do* have them listed in the long list of individual file
+ * types, so omitting them from "All Capture Files" is the right
+ * thing to do.
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ */
 GSList *
 wtap_get_all_capture_file_extensions_list(void)
 {
@@ -327,24 +332,26 @@ wtap_get_all_capture_file_extensions_list(void)
 }
 
 /*
- * The open_file_* routines should return:
+ * The open_file_* routines must return:
  *
- *	-1 on an I/O error;
+ *	WTAP_OPEN_ERROR on an I/O error;
  *
- *	1 if the file they're reading is one of the types it handles;
+ *	WTAP_OPEN_MINE if the file they're reading is one of the types
+ *	    it handles;
  *
- *	0 if the file they're reading isn't the type they're checking for.
+ *	WTAP_OPEN_NOT_MINE if the file they're reading isn't the type
+ *	    they're checking for.
  *
- * If the routine handles this type of file, it should set the "file_type"
+ * If the routine handles this type of file, it must set the "file_type"
  * field in the "struct wtap" to the type of the file.
  *
- * Note that the routine does not have to free the private data pointer on
+ * Note that the routine does *not* have to free the private data pointer on
  * error. The caller takes care of that by calling wtap_close on error.
  * (See https://gitlab.com/wireshark/wireshark/-/issues/8518)
  *
- * However, the caller does have to free the private data pointer when
- * returning 0, since the next file type will be called and will likely
- * just overwrite the pointer.
+ * However, the caller *does* have to free the private data pointer when
+ * returning WTAP_OPEN_NOT_MINE, since the next file type will be called
+ * and will likely just overwrite the pointer.
  *
  * The names are used in file open dialogs to select, for files that
  * don't have magic numbers and that could potentially be files of
@@ -549,7 +556,7 @@ wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
 	set_heuristic_routine();
 }
 
-/* De-registers a file reader by removign it from the GArray based on its name.
+/* De-registers a file reader by removing it from the GArray based on its name.
  * This function must NOT be called during wtap_open_offline(), since it changes the array.
  * Note: this function will error if it doesn't find the given name; if you want to handle
  * that condition more gracefully, call wtap_has_open_info() first.
@@ -632,9 +639,10 @@ wtap_uses_lua_filehandler(const wtap* wth)
 #endif
 
 /* returns the 'type' number to use for wtap_open_offline based on the
-   passed-in name (the name in the open_info struct). It returns WTAP_TYPE_AUTO
-   on failure, which is the number 0. The 'type' number is the entry's index+1,
-   because that's what wtap_open_offline() expects it to be. */
+ * passed-in name (the name in the open_info struct). It returns WTAP_TYPE_AUTO
+ * on failure, which is the number 0. The 'type' number is the entry's index+1,
+ * because that's what wtap_open_offline() expects it to be.
+ */
 unsigned int
 open_info_name_to_type(const char *name)
 {
@@ -779,12 +787,13 @@ heuristic_uses_extension(unsigned int i, const char *extension)
 }
 
 /* Opens a file and prepares a wtap struct.
-   If "do_random" is TRUE, it opens the file twice; the second open
-   allows the application to do random-access I/O without moving
-   the seek offset for sequential I/O, which is used by Wireshark
-   so that it can do sequential I/O to a capture file that's being
-   written to as new packets arrive independently of random I/O done
-   to display protocol trees for packets when they're selected. */
+ * If "do_random" is TRUE, it opens the file twice; the second open
+ * allows the application to do random-access I/O without moving
+ * the seek offset for sequential I/O, which is used by Wireshark
+ * so that it can do sequential I/O to a capture file that's being
+ * written to as new packets arrive independently of random I/O done
+ * to display protocol trees for packets when they're selected.
+ */
 wtap *
 wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_info,
 		  gboolean do_random)
@@ -976,12 +985,13 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	/* Try all file types that support magic numbers */
 	for (i = 0; i < heuristic_open_routine_idx; i++) {
 		/* Seek back to the beginning of the file; the open routine
-		   for the previous file type may have left the file
-		   position somewhere other than the beginning, and the
-		   open routine for this file type will probably want
-		   to start reading at the beginning.
-
-		   Initialize the data offset while we're at it. */
+		 * for the previous file type may have left the file
+		 * position somewhere other than the beginning, and the
+		 * open routine for this file type will probably want
+		 * to start reading at the beginning.
+		 *
+		 * Initialize the data offset while we're at it.
+		 */
 		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 			/* Error - give up */
 			wtap_close(wth);
@@ -1569,7 +1579,7 @@ wtap_dump_can_write_format(int ft, const GArray *file_encaps,
 	return TRUE;
 }
 
-/**
+/*
  * Return TRUE if we can write a file with the given GArray of
  * encapsulation types and the given bitmask of comment types.
  */
@@ -1619,7 +1629,7 @@ compare_file_type_subtypes_by_description(gconstpointer a, gconstpointer b)
 	              wtap_file_type_subtype_description(file_type_subtype_b));
 }
 
-/**
+/*
  * Get a GArray of file type/subtype values for file types/subtypes
  * that can be used to save a file of a given type/subtype with a given
  * GArray of encapsulation types and the given bitmask of comment types.
@@ -1733,7 +1743,7 @@ wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
 	return savable_file_types_subtypes;
 }
 
-/**
+/*
  * Get a GArray of all writable file type/subtype values.
  */
 GArray *
@@ -1797,7 +1807,9 @@ wtap_get_writable_file_types_subtypes(ft_sort_order sort_order)
 	return writable_file_types_subtypes;
 }
 
-/* String describing the file type/subtype. */
+/*
+ * String describing the file type/subtype.
+ */
 const char *
 wtap_file_type_subtype_description(int file_type_subtype)
 {
@@ -1808,7 +1820,9 @@ wtap_file_type_subtype_description(int file_type_subtype)
 		return file_type_subtype_table[file_type_subtype].description;
 }
 
-/* Name to use in, say, a command-line flag specifying the type/subtype. */
+/*
+ * Name to use in, say, a command-line flag specifying the type/subtype.
+ */
 const char *
 wtap_file_type_subtype_name(int file_type_subtype)
 {
@@ -1830,7 +1844,9 @@ wtap_register_compatibility_file_subtype_name(const char *old_name,
 	    g_strdup(new_name));
 }
 
-/* Translate a name to a capture file type/subtype. */
+/*
+ * Translate a name to a capture file type/subtype.
+ */
 int
 wtap_name_to_file_type_subtype(const char *name)
 {
@@ -1902,6 +1918,9 @@ wtap_pcapng_file_type_subtype(void)
 	return pcapng_file_type_subtype;
 }
 
+/*
+ * Determine if a file type/subtype can write a block of the given type.
+ */
 block_support_t
 wtap_file_type_subtype_supports_block(int file_type_subtype,
     wtap_block_type_t type)
@@ -1933,6 +1952,10 @@ wtap_file_type_subtype_supports_block(int file_type_subtype,
 	return BLOCK_NOT_SUPPORTED;
 }
 
+/*
+ * Determine if a file type/subtype, when writing a block of the given type,
+ * can support adding the given option to the block.
+ */
 option_support_t
 wtap_file_type_subtype_supports_option(int file_type_subtype,
     wtap_block_type_t type, guint option)
@@ -2053,13 +2076,14 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 }
 
 /* Return a list of file extensions that are used by the specified file type.
-
-   If include_compressed is TRUE, the list will include compressed
-   extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
-   gzipped files.
-
-   All strings in the list are allocated with g_malloc() and must be freed
-   with g_free(). */
+ *
+ * If include_compressed is TRUE, the list will include compressed
+ * extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
+ * gzipped files.
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ */
 GSList *
 wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed)
 {
@@ -2098,16 +2122,17 @@ wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed
 }
 
 /* Return a list of all extensions that are used by all file types that
-   we can read, including compressed extensions, e.g. not just "pcap" but
-   also "pcap.gz" if we can read gzipped files.
-
-   "File type" means "include file types that correspond to collections
-   of network packets, as well as file types that store data that just
-   happens to be transported over protocols such as HTTP but that aren't
-   collections of network packets, and plain text files".
-
-   All strings in the list are allocated with g_malloc() and must be freed
-   with g_free(). */
+ * we can read, including compressed extensions, e.g. not just "pcap" but
+ * also "pcap.gz" if we can read gzipped files.
+ *
+ * "File type" means "include file types that correspond to collections
+ * of network packets, as well as file types that store data that just
+ * happens to be transported over protocols such as HTTP but that aren't
+ * collections of network packets, and plain text files".
+ *
+ * All strings in the list are allocated with g_malloc() and must be freed
+ * with g_free().
+ */
 GSList *
 wtap_get_all_file_extensions_list(void)
 {
@@ -2147,8 +2172,10 @@ wtap_free_extensions_list(GSList *extensions)
 	g_slist_free(extensions);
 }
 
-/* Return the default file extension to use with the specified file type;
-   that's just the extension, without any ".". */
+/*
+ * Return the default file extension to use with the specified file type;
+ * that's just the extension, without any ".".
+ */
 const char *
 wtap_default_file_extension(int file_type_subtype)
 {
@@ -2159,6 +2186,9 @@ wtap_default_file_extension(int file_type_subtype)
 		return file_type_subtype_table[file_type_subtype].default_file_extension;
 }
 
+/*
+ * Return whether we know how to write the specified file type.
+ */
 gboolean
 wtap_dump_can_open(int file_type_subtype)
 {
@@ -2170,6 +2200,10 @@ wtap_dump_can_open(int file_type_subtype)
 	return TRUE;
 }
 
+/*
+ * Return whether we know how to write a compressed file of the specified
+ * file type.
+ */
 #ifdef HAVE_ZLIB
 gboolean
 wtap_dump_can_compress(int file_type_subtype)
@@ -2215,7 +2249,8 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	 * This will fail if file_type_subtype isn't a valid
 	 * file type/subtype value, so, if it doesn't fail,
 	 * we know file_type_subtype is within the bounds of
-	 * the table of file types/subtypes. */
+	 * the table of file types/subtypes.
+	 */
 	if (!wtap_dump_can_open(file_type_subtype)) {
 		/* Invalid type, or type we don't know how to write. */
 		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
@@ -2223,7 +2258,8 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	}
 
 	/* OK, we know how to write that file type/subtype; can we write
-	   the specified encapsulation type in that file type/subtype? */
+	 * the specified encapsulation type in that file type/subtype?
+	 */
 	*err = (*file_type_subtype_table[file_type_subtype].can_write_encap)(params->encap);
 	/* if the err said to check wslua's can_write_encap, try that */
 	if (*err == WTAP_ERR_CHECK_WSLUA
@@ -2239,16 +2275,17 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	}
 
 	/* Check whether we can open a capture file with that file type
-	   and that encapsulation, and, if the compression type isn't
-	   "uncompressed", whether we can write a *compressed* file
-	   of that file type. */
-	/* If we're doing compression, can this file type/subtype be
+	 * and that encapsulation, and, if the compression type isn't
+	 * "uncompressed", whether we can write a *compressed* file
+	 * of that file type.
+	 * If we're doing compression, can this file type/subtype be
 	   written in compressed form?
-
-	   (The particular type doesn't matter - if the file can't
-	   be written 100% sequentially, we can't compress it,
-	   because we can't go back and overwrite something we've
-	   already written. */
+	 *
+	 * (The particular type doesn't matter - if the file can't
+	 * be written 100% sequentially, we can't compress it,
+	 * because we can't go back and overwrite something we've
+	 * already written.
+	 */
 	if (compression_type != WTAP_UNCOMPRESSED &&
 	    !wtap_dump_can_compress(file_type_subtype)) {
 		*err = WTAP_ERR_COMPRESSION_NOT_SUPPORTED;
@@ -2291,10 +2328,20 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 				g_array_append_val(wdh->interface_data, descr);
 			}
 		}
-	} else {
+	} else if (params->encap != WTAP_ENCAP_NONE) {
 		int snaplen;
 
-		// XXX IDBs should be optional.
+		/* Generate a fake IDB if we don't have one, unless the
+		 * file encapsulation is none. (WTAP_ENCAP_NONE either
+		 * means that there are no interfaces, or they will be
+		 * provided later when reading the file in single-pass mode.)
+		 *
+		 * XXX File types should provide their own IDBs (possibly
+		 * fake ones generated by wtap_add_generated_idb()), in
+		 * order to support being used as inputs for mergecap where
+		 * pcapng is the output. This doesn't work for files with
+		 * WTAP_ENCAP_PER_PACKET.
+		 */
 		descr = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = params->encap;

@@ -9,11 +9,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include "config.h"
+#include "eax.h"
 #include <stdlib.h>
 #include <string.h>
 /* Use libgcrypt for cipher libraries. */
-#include <wsutil/wsgcrypt.h>
-#include "eax.h"
+#include <gcrypt.h>
 
 typedef struct {
     guint8 L[EAX_SIZEOF_KEY];

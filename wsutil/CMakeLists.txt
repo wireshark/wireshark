@@ -60,7 +60,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	jsmn.h
 	json_dumper.h
 	mpeg-audio.h
-	netlink.h
 	nstime.h
 	os_version_info.h
 	pint.h
@@ -82,6 +81,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	type_util.h
 	unicode-utils.h
 	utf8_entities.h
+	version_info.h
 	ws_assert.h
 	ws_cpuid.h
 	glib-compat.h
@@ -144,6 +144,7 @@ set(WSUTIL_COMMON_FILES
 	to_str.c
 	type_util.c
 	unicode-utils.c
+	version_info.c
 	ws_getopt.c
 	ws_mempbrk.c
 	ws_pipe.c
@@ -285,6 +286,10 @@ add_library(wsutil
 	${CMAKE_BINARY_DIR}/resources/libwsutil.rc
 )
 
+if(NOT VCSVERSION_OVERRIDE)
+	add_dependencies(wsutil vcs_version)
+endif()
+
 target_compile_definitions(wsutil PRIVATE
 	WS_BUILD_DLL
 	BUILD_WSUTIL
@@ -302,27 +307,28 @@ if(MSVC)
 endif()
 
 target_link_libraries(wsutil
-	# *Lots* of our targets that link with wsutil also link with
-	# GLib and GModule. Mark them PUBLIC so that dependent targets
-	# don't have to link them directly.
 	PUBLIC
 		${GLIB2_LIBRARIES}
-		${GMODULE2_LIBRARIES}
 	PRIVATE
+		${GMODULE2_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${PCRE2_LIBRARIES}
-		${M_LIBRARIES}
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 )
 
-target_include_directories(wsutil
-	SYSTEM PRIVATE
+target_include_directories(wsutil SYSTEM
+	PUBLIC
+		${GLIB2_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
+	PRIVATE
+		${GMODULE2_INCLUDE_DIRS}
+		${ZLIB_INCLUDE_DIRS}
 		${PCRE2_INCLUDE_DIRS}
 )
 

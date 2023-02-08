@@ -183,6 +183,58 @@ variables:
     - cd build
   needs: []
 
+# macOS runners are still beta:
+# https://about.gitlab.com/blog/2021/08/23/build-cloud-for-macos-beta/
+# https://docs.gitlab.com/ee/ci/runners/saas/macos/environment.html#vm-images
+# https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/macstadium/orka/-/blob/main/toolchain/monterey.yml
+.build-macos:
+  stage: build
+  tags: [ shared-macos-amd64 ]
+  image: macos-11-xcode-12 # https://docs.gitlab.com/ee/ci/runners/saas/macos/environment.html
+  retry: 1
+  # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
+  cache:
+    key: ${CI_JOB_NAME}-master
+    paths:
+      - ccache/
+  variables:
+    HOMEBREW_COLOR: "1"
+    HOMEBREW_DISPLAY_INSTALL_TIMES: "1"
+    HOMEBREW_NO_AUTO_UPDATE: "1"
+    HOMEBREW_NO_INSTALL_CLEANUP: "1"
+    HOMEBREW_NO_INSTALL_UPGRADE: "1"
+    HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
+  before_script:
+    # At the time of this writing (January 2023), the macOS SaaS builder has the following PATH:
+    # /Users/gitlab/.asdf/shims:/Users/gitlab/.asdf/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
+    # The suite_clopts.case_tshark_extcap.test_tshark_extcap_interfaces test will fail because
+    # it sets an alternate HOME, which results in asdf returning
+    #   unknown command: python3. Perhaps you have to reshim?
+    # Make sure /usr/local/bin is first in order to work around asdf.
+    - export PATH=/usr/local/bin:$PATH
+    - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
+    - ./tools/macos-setup-brew.sh --install-optional
+    - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
+    - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
+    - mkdir -p ccache
+    - ccache --show-stats
+    - NUM_COMMITS=$(curl $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/commits | jq length)
+    - echo "$NUM_COMMITS commit(s) in this MR"
+    - mkdir build
+    - cd build
+  script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DTEST_EXTRA_ARGS=--disable-capture ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja
+    - ninja test-programs
+    - ctest --parallel 4 --output-on-failure
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( gdu --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+  needs: []
+
 Source Package:
   extends: .build-ubuntu
   stage: .pre
@@ -601,6 +653,11 @@ Windows Qt5 Build:
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=OFF -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount ui\qt\qtui.vcxproj
+
+macOS Build:
+  extends: .build-macos
+  rules: !reference [.if-w-w-only-merge-request]
+  needs: [ 'Commit Check' ]
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481

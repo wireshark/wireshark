@@ -59,6 +59,7 @@ void proto_reg_handoff_rtps(void);
 
 #define MAX_GUID_PREFIX_SIZE    (128)
 #define MAX_GUID_SIZE           (160)
+#define GUID_SIZE               (16)
 #define MAX_VENDOR_ID_SIZE      (128)
 #define MAX_PARAM_SIZE          (256)
 #define MAX_TIMESTAMP_SIZE      (128)
@@ -82,6 +83,15 @@ void proto_reg_handoff_rtps(void);
 #define HASHMAP_DISCRIMINATOR_CONSTANT  (-2)
 #define UUID_SIZE                       (9)
 #define LONG_ADDRESS_SIZE               (16)
+
+#define INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS     7
+#define SEQUENCE_100_IINSTANCE_TRANSITION_DATA_BOUND  100
+#define INSTANCE_TRANSITION_DATA_NUM_ELEMENTS         4
+#define GUID_T_NUM_ELEMENTS                           1
+#define VALUE_NUM_ELEMENTS                            16
+#define KEY_HAS_VALUE_NUM_ELEMENTS                    16
+#define NTPTIME_T_NUM_ELEMENTS                        2
+#define SEQUENCE_NUMBER_T_NUM_ELEMENTS                2
 
 typedef struct _union_member_mapping {
     guint64 union_type_id;
@@ -219,6 +229,7 @@ static const value_string type_object_kind [] = {
 };
 
 static wmem_map_t * dissection_infos = NULL;
+static wmem_map_t * builtin_dissection_infos = NULL;
 static wmem_map_t * union_member_mappings = NULL;
 static wmem_map_t * mutable_member_mappings = NULL;
 
@@ -473,6 +484,7 @@ static dissector_table_t rtps_type_name_table;
 #define RTI_SERVICE_REQUEST_ID_UNKNOWN                          0
 #define RTI_SERVICE_REQUEST_ID_TOPIC_QUERY                      1
 #define RTI_SERVICE_REQUEST_ID_LOCATOR_REACHABILITY             2
+#define RTI_SERVICE_REQUEST_ID_INSTANCE_STATE                   3
 
 /* Predefined EntityId */
 #define ENTITYID_UNKNOWN                        (0x00000000)
@@ -493,6 +505,28 @@ static dissector_table_t rtps_type_name_table;
 #define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER    (0x00010187)
 #define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER (0xff010182)
 #define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER (0xff010187)
+
+
+#define ENTITYID_RESERVED_META_CST_GROUP_WRITER    (0xcb)
+#define ENTITYID_RESERVED_META_GROUP_WRITER        (0xcc)
+#define ENTITYID_RESERVED_META_GROUP_READER        (0xcd)
+#define ENTITYID_RESERVED_META_CST_GROUP_READER    (0xce)
+#define ENTITYID_OBJECT_NORMAL_META_WRITER_GROUP   (0x88)
+#define ENTITYID_OBJECT_NORMAL_META_READER_GROUP   (0x89)
+#define ENTITYID_OBJECT_NORMAL_META_TOPIC          (0x8a)
+#define ENTITYID_NORMAL_META_CST_GROUP_WRITER      (0x8b)
+#define ENTITYID_NORMAL_META_GROUP_WRITER          (0x8c)
+#define ENTITYID_NORMAL_META_GROUP_READER          (0x8d)
+#define ENTITYID_NORMAL_META_CST_GROUP_READER      (0x8e)
+#define ENTITYID_RESERVED_USER_CST_GROUP_WRITER    (0x4b)
+#define ENTITYID_RESERVED_USER_GROUP_WRITER        (0x4c)
+#define ENTITYID_RESERVED_USER_GROUP_READER        (0x4d)
+#define ENTITYID_RESERVED_USER_CST_GROUP_READER    (0x4e)
+#define ENTITYID_NORMAL_USER_CST_GROUP_WRITER      (0x0b)
+#define ENTITYID_NORMAL_USER_GROUP_WRITER          (0x0c)
+#define ENTITYID_NORMAL_USER_GROUP_READER          (0x0d)
+#define ENTITYID_NORMAL_USER_CST_GROUP_READER      (0x0e)
+
 
 /* Secure DDS */
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER          (0x000201c3)
@@ -547,6 +581,7 @@ static dissector_table_t rtps_type_name_table;
 #define ENTITYKIND_RTI_BUILTIN_READER_WITH_KEY      (0x87)
 
 /* Submessage Type */
+#define SUBMESSAGE_HEADER_EXTENSION                (0x0)
 #define SUBMESSAGE_PAD                                  (0x01)
 #define SUBMESSAGE_DATA                                 (0x02)
 #define SUBMESSAGE_NOKEY_DATA                           (0x03)
@@ -799,6 +834,7 @@ static const char *const SM_EXTRA_TMINUS = "(t-)";
 /* Protocol Fields Identifiers */
 static int proto_rtps                           = -1;
 static int hf_rtps_magic                        = -1;
+static int hf_rtps_ping                         = -1;
 static int hf_rtps_protocol_version             = -1;
 static int hf_rtps_protocol_version_major       = -1;
 static int hf_rtps_protocol_version_minor       = -1;
@@ -873,6 +909,7 @@ static int hf_rtps_latency_budget_duration              = -1;
 static int hf_rtps_lifespan_duration                    = -1;
 static int hf_rtps_persistence                          = -1;
 static int hf_rtps_info_ts_timestamp                    = -1;
+static int hf_rtps_timestamp                            = -1;
 static int hf_rtps_locator_kind                         = -1;
 static int hf_rtps_locator_port                         = -1;
 /* static int hf_rtps_logical_port                         = -1; */
@@ -1134,6 +1171,7 @@ static int hf_rtps_flag_alive                                   = -1;
 static int hf_rtps_flag_data_present_v1                         = -1;
 static int hf_rtps_flag_multisubmessage                         = -1;
 static int hf_rtps_flag_endianness                              = -1;
+static int hf_rtps_flag_additional_authenticated_data           = -1;
 static int hf_rtps_flag_status_info                             = -1;
 static int hf_rtps_flag_data_present_v2                         = -1;
 static int hf_rtps_flag_inline_qos_v2                           = -1;
@@ -1275,6 +1313,14 @@ static int hf_rtps_flag_udpv4_wan_locator_r                     = -1;
 static int hf_rtps_flag_udpv4_wan_binding_ping_e                = -1;
 static int hf_rtps_flag_udpv4_wan_binding_ping_l                = -1;
 static int hf_rtps_flag_udpv4_wan_binding_ping_b                = -1;
+static int hf_rtps_header_extension_flags                       = -1;
+static int hf_rtps_flag_header_extension_message_length         = -1;
+static int hf_rtps_flag_header_extension_uextension             = -1;
+static int hf_rtps_flag_header_extension_wextension             = -1;
+static int hf_rtps_flag_header_extension_checksum1              = -1;
+static int hf_rtps_flag_header_extension_checksum2              = -1;
+static int hf_rtps_flag_header_extension_parameters             = -1;
+static int hf_rtps_flag_header_extension_timestamp              = -1;
 
 static int hf_rtps_fragments                                    = -1;
 static int hf_rtps_fragment                                     = -1;
@@ -1288,6 +1334,13 @@ static int hf_rtps_reassembled_in                               = -1;
 static int hf_rtps_reassembled_length                           = -1;
 static int hf_rtps_reassembled_data                             = -1;
 static int hf_rtps_encapsulation_extended_compression_options   = -1;
+static int hf_rtps_message_length                               = -1;
+static int hf_rtps_header_extension_checksum                    = -1;
+static int hf_rtps_uextension                                   = -1;
+static int hf_rtps_wextension                                   = -1;
+static int hf_rtps_writer_group_oid                             = -1;
+static int hf_rtps_reader_group_oid                             = -1;
+static int hf_rtps_writer_session_id                            = -1;
 
 /* Subtree identifiers */
 static gint ett_rtps_dissection_tree = -1;
@@ -1370,6 +1423,7 @@ static gint ett_rtps_decompressed_type_object                   = -1;
 static gint ett_rtps_info_remaining_items                       = -1;
 static gint ett_rtps_data_encapsulation_options                 = -1;
 static gint ett_rtps_decompressed_serialized_data               = -1;
+static gint ett_rtps_instance_transition_data                   = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -1478,6 +1532,26 @@ static const value_string entity_kind_vals [] = {
   { ENTITYKIND_RTI_BUILTIN_WRITER_NO_KEY,       "RTI Built-in writer (no key)" },
   { ENTITYKIND_RTI_BUILTIN_READER_WITH_KEY,     "RTI Built-in reader (with key)" },
   { ENTITYKIND_RTI_BUILTIN_READER_NO_KEY,       "RTI Built-in reader (no key)" },
+  { ENTITYID_OBJECT_NORMAL_META_WRITER_GROUP,   "Object normal meta writer group" },
+  { ENTITYID_OBJECT_NORMAL_META_READER_GROUP,   "Object normal meta reader group" },
+  { ENTITYID_OBJECT_NORMAL_META_TOPIC,          "Object normal meta topic" },
+
+  { ENTITYID_RESERVED_META_CST_GROUP_WRITER,    "Reserved meta CST group writer" },
+  { ENTITYID_RESERVED_META_GROUP_WRITER,        "Reserved meta group writer" },
+  { ENTITYID_RESERVED_META_GROUP_READER,        "Reserved meta group reader" },
+  { ENTITYID_RESERVED_META_CST_GROUP_READER,    "Reserved meta CST group reader" },
+  { ENTITYID_NORMAL_META_CST_GROUP_WRITER,      "Normal meta CST group writer" },
+  { ENTITYID_NORMAL_META_GROUP_WRITER,          "Normal meta group writer" },
+  { ENTITYID_NORMAL_META_GROUP_READER,          "Normal meta group reader" },
+  { ENTITYID_NORMAL_META_CST_GROUP_READER,      "Normal meta CST group reader" },
+  { ENTITYID_RESERVED_USER_CST_GROUP_WRITER,    "Reserved user CST group writer" },
+  { ENTITYID_RESERVED_USER_GROUP_WRITER,        "Reserved user group writer" },
+  { ENTITYID_RESERVED_USER_GROUP_READER,        "Reserved user group reader" },
+  { ENTITYID_RESERVED_USER_CST_GROUP_READER,    "Reserved user CST group reader" },
+  { ENTITYID_NORMAL_USER_CST_GROUP_WRITER,      "Normal user CST group writer" },
+  { ENTITYID_NORMAL_USER_GROUP_WRITER,          "Normal user writer" },
+  { ENTITYID_NORMAL_USER_GROUP_READER,          "Normal user reader" },
+  { ENTITYID_NORMAL_USER_CST_GROUP_READER,      "Normal user CST group reader" },
   { 0, NULL }
 };
 
@@ -1530,6 +1604,7 @@ static const value_string submessage_id_vals[] = {
 };
 
 static const value_string submessage_id_valsv2[] = {
+  { SUBMESSAGE_HEADER_EXTENSION,        "HEADER_EXTENSION" },
   { SUBMESSAGE_PAD,                     "PAD" },
   { SUBMESSAGE_RTPS_DATA,               "DATA" },
   { SUBMESSAGE_RTPS_DATA_FRAG,          "DATA_FRAG" },
@@ -1953,7 +2028,7 @@ static const value_string type_consistency_kind_vals[] = {
 static const value_string service_request_kind[] = {
   { RTI_SERVICE_REQUEST_ID_UNKNOWN,                 "RTI_SERVICE_REQUEST_ID_UNKNOWN" },
   { RTI_SERVICE_REQUEST_ID_TOPIC_QUERY,             "RTI_SERVICE_REQUEST_ID_TOPIC_QUERY" },
-  { RTI_SERVICE_REQUEST_ID_LOCATOR_REACHABILITY,    "RTI_SERVICE_REQUEST_ID_LOCATOR_REACHABILITY" },
+  { RTI_SERVICE_REQUEST_ID_INSTANCE_STATE,          "RTI_SERVICE_REQUEST_ID_INSTANCE_STATE" },
   { 0, NULL }
 };
 /* Vendor specific: RTI */
@@ -2240,7 +2315,7 @@ static int* const RTPS_SAMPLE_INFO_FLAGS16[] = {
   &hf_rtps_flag_data_present16,                 /* Bit 3 */
   &hf_rtps_flag_offsetsn_present,               /* Bit 2 */
   &hf_rtps_flag_inline_qos16_v2,                /* Bit 1 */
-  &hf_rtps_flag_timestamp_present,              /* Bit 0 */
+  &hf_rtps_flag_header_extension_timestamp,     /* Bit 0 */
   NULL
 };
 
@@ -2376,7 +2451,7 @@ static int* const SECURE_PREFIX_FLAGS[] = {
   &hf_rtps_flag_reserved10,                     /* Bit 4 */
   &hf_rtps_flag_reserved08,                     /* Bit 3 */
   &hf_rtps_flag_reserved04,                     /* Bit 2 */
-  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_additional_authenticated_data,   /* Bit 1 */
   &hf_rtps_flag_endianness,                     /* Bit 0 */
   NULL
 };
@@ -2557,6 +2632,17 @@ static int* const SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS[] = {
   NULL
 };
 
+static int* const HEADER_EXTENSION_MASK_FLAGS[] = {
+  &hf_rtps_flag_header_extension_parameters,      /* Bit 7 */
+  &hf_rtps_flag_header_extension_checksum1,       /* Bit 6 */
+  &hf_rtps_flag_header_extension_checksum2,       /* Bit 5 */
+  &hf_rtps_flag_header_extension_wextension,      /* Bit 4 */
+  &hf_rtps_flag_header_extension_uextension,      /* Bit 3 */
+  &hf_rtps_flag_header_extension_timestamp,       /* Bit 2 */
+  &hf_rtps_flag_header_extension_message_length,  /* Bit 1 */
+  &hf_rtps_flag_endianness,                       /* Bit 0 */
+  NULL
+};
 
 /**TCP get DomainId feature constants**/
 #define RTPS_UNKNOWN_DOMAIN_ID_VAL -1
@@ -2623,6 +2709,48 @@ static coherent_set_track coherent_set_tracking;
 static wmem_map_t * registry = NULL;
 static reassembly_table rtps_reassembly_table;
 static wmem_map_t *discovered_participants_domain_ids;
+
+
+typedef struct {
+  type_mapping instance_state_data_response_type_mapping;
+} builtin_types_type_mappings;
+
+typedef struct  {
+  dissection_info instance_state_data_response_dissection_info;
+  dissection_info alive_instances_dissection_info;
+  dissection_info disposed_instances_dissection_info;
+  dissection_info unregistered_instances_dissection_info;
+  dissection_info guid_t_dissection_info;
+  dissection_info value_dissection_info;
+  dissection_info instance_transition_data_dissection_info;
+  dissection_info key_hash_value_dissection_info;
+  dissection_info array_16_byte_dissection_info;
+  dissection_info ntptime_t_dissection_info;
+  dissection_info sequence_number_t_dissection_info;
+  dissection_info serialized_key_dissection_info;
+  dissection_info payload_dissection_info;
+} builtin_types_dissection_infos;
+
+
+/* Dissection info of types that are sent as user data but doesn't pubish discovery data */
+typedef struct {
+  builtin_types_type_mappings type_mappings;
+  builtin_types_dissection_infos dissection_infos;
+} builtin_types_dissection_data_t;
+
+static builtin_types_dissection_data_t builtin_types_dissection_data;
+
+/*
+static type_mapping instance_state_data_response_type_mapping;
+static dissection_info instance_state_data_response_dissection_info;
+static dissection_info alive_instances_dissection_info;
+static dissection_info disposed_instances_dissection_info;
+static dissection_info unregistered_instances_dissection_info;
+static dissection_info writer_guid_dissection_info;
+static dissection_info reader_guid_dissection_info;
+static dissection_info value_dissection_info;
+*/
+
 
 static const fragment_items rtps_frag_items = {
     &ett_rtps_fragment,
@@ -2802,6 +2930,18 @@ static gint get_encapsulation_version(gint encapsulation_id)
     encapsulation_id == ENCAPSULATION_PL_CDR2_LE) ? 2 : 1;
 }
 
+
+dissection_info* lookup_dissection_info_in_custom_and_builtin_types(guint64 type_id) {
+  dissection_info* info = NULL;
+  if (dissection_infos != NULL) {
+    info = (dissection_info*)wmem_map_lookup(dissection_infos, &(type_id));
+    if (info == NULL && builtin_dissection_infos != NULL) {
+      info = (dissection_info*)wmem_map_lookup(builtin_dissection_infos, &(type_id));
+    }
+  }
+  return info;
+}
+
 /* this is a recursive function. _info may or may not be NULL depending on the use iteration */
 static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, guint encoding, guint encoding_version,
         dissection_info * _info, guint64 type_id, gchar * name,
@@ -2817,7 +2957,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         info = _info;
         member_kind = info->member_kind;
     } else {
-        info = (dissection_info *) wmem_map_lookup(dissection_infos, &(type_id));
+        info = lookup_dissection_info_in_custom_and_builtin_types(type_id);
         if (info != NULL) {
             member_kind = info->member_kind;
         } else {
@@ -2992,12 +3132,12 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             gint first_skipped_element_offset = 0;
 
             if (info != NULL) {
-                bound = (guint)info->bound;
-            }
-            /* In case this array is not shown and is a native type. We get the sze length for calculating
-             * the whole array length */
-            array_kind_length = get_native_type_cdr_length(info->base_type_id);
+              bound = (guint)info->bound;
 
+              /* In case this array is not shown and is a native type. We get the sze length for calculating
+               * the whole array length */
+              array_kind_length = get_native_type_cdr_length(info->base_type_id);
+            }
             /* Do not add any information to the tree if it is not shown */
             if (show) {
                 aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
@@ -3104,7 +3244,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                         break;
                     }
                 }
-                if (info->base_type_id > 0)
+                if (info != NULL && info->base_type_id > 0)
                     offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
                          info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show_current_element);
             }
@@ -3195,68 +3335,71 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             guint num_elements = 0;
             gint first_skipped_element_offset = 0;
 
-            if (show) {
+            if (info != NULL) {
+              if (show) {
                 aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
-                    NULL, name);
-            }
-            if (info != NULL && info->extensibility == EXTENSIBILITY_MUTABLE) {
+                  NULL, name);
+              }
+              if (info->extensibility == EXTENSIBILITY_MUTABLE) {
                 gboolean is_end = FALSE;
                 /* Don't know beforehand the number of elements. Need to count them */
                 while (!is_end) {
-                    if (!(show && shown_elements < rtps_max_data_type_elements) && show_current_element) {
-                        show_current_element = FALSE;
-                        /* Updated only once */
-                        first_skipped_element_offset = offset;
-                        }
-                    offset = dissect_mutable_member(aux_tree, tvb, offset, encoding, encoding_version, info, &is_end, show_current_element);
-                    ++num_elements;
-                    if (show_current_element) {
-                        ++shown_elements;
-                    }
+                  if (!(show && shown_elements < rtps_max_data_type_elements) && show_current_element) {
+                    show_current_element = FALSE;
+                    /* Updated only once */
+                    first_skipped_element_offset = offset;
+                  }
+                  offset = dissect_mutable_member(aux_tree, tvb, offset, encoding, encoding_version, info, &is_end, show_current_element);
+                  ++num_elements;
+                  if (show_current_element) {
+                    ++shown_elements;
+                  }
                 }
-            } else {
+              }
+              else {
                 if (info->base_type_id > 0) {
-                    if (show) {
-                      proto_item_append_text(tree, "(BaseId: 0x%016" PRIx64 ")", info->base_type_id);
-                    }
-                    offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
-                            info->base_type_id, info->member_name, EXTENSIBILITY_INVALID,
-                            offset, 0, 0, show);
+                  if (show) {
+                    proto_item_append_text(tree, "(BaseId: 0x%016" PRIx64 ")", info->base_type_id);
+                  }
+                  offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
+                    info->base_type_id, info->member_name, EXTENSIBILITY_INVALID,
+                    offset, 0, 0, show);
                 }
 
                 /* Get the maximun number of elements to be shown depending if enable_max_data_type_elements is enabled */
                 shown_elements = (enable_max_data_type_elements)
-                        ? MIN(info->num_elements, rtps_max_data_type_elements)
-                        : info->num_elements;
+                  ? MIN(info->num_elements, rtps_max_data_type_elements)
+                  : info->num_elements;
                 for (i = 0; i < info->num_elements; i++) {
-                    if (info->elements[i].type_id > 0) {
-                        /* A member is shown if the parent cluster is shown and the position is in the
-                        * range of maximun number of elements shown */
-                        if (!(show && i < shown_elements) && show_current_element) {
-                            show_current_element = FALSE;
-                            /* Updated only once */
-                            first_skipped_element_offset = offset;
-                        }
-                        /* If a member is not shown all it children will inherit the "show_current_element" value */
-                        offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
-                        info->elements[i].type_id, info->elements[i].member_name, info->extensibility,
-                        offset_zero, info->elements[i].flags, info->elements[i].member_id, show_current_element);
+                  if (info->elements[i].type_id > 0) {
+                    /* A member is shown if the parent cluster is shown and the position is in the
+                    * range of maximun number of elements shown */
+                    if (!(show && i < shown_elements) && show_current_element) {
+                      show_current_element = FALSE;
+                      /* Updated only once */
+                      first_skipped_element_offset = offset;
                     }
+                    /* If a member is not shown all it children will inherit the "show_current_element" value */
+                    offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
+                      info->elements[i].type_id, info->elements[i].member_name, info->extensibility,
+                      offset_zero, info->elements[i].flags, info->elements[i].member_id, show_current_element);
+                  }
                 }
                 num_elements = info->num_elements;
-            }
-            /* If reached the limit and there are remaining elements we need to show the message and
-             * assign the length of the ramining elements to this */
-            if (enable_max_array_data_type_elements && show && !show_current_element) {
+              }
+              /* If reached the limit and there are remaining elements we need to show the message and
+               * assign the length of the ramining elements to this */
+              if (enable_max_array_data_type_elements && show && !show_current_element) {
                 proto_tree_add_subtree_format(
-                    aux_tree,
-                    tvb,
-                    first_skipped_element_offset,
-                    offset - first_skipped_element_offset,
-                    ett_rtps_info_remaining_items,
-                    NULL,
-                    DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
-                    num_elements - shown_elements);
+                  aux_tree,
+                  tvb,
+                  first_skipped_element_offset,
+                  offset - first_skipped_element_offset,
+                  ett_rtps_info_remaining_items,
+                  NULL,
+                  DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
+                  num_elements - shown_elements);
+              }
             }
         break;
         }
@@ -5718,7 +5861,7 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
         tvbuff_t * tvb, gint offset, const guint encoding, dissection_info * info) {
   proto_tree * member;
   guint32 member_id = 0, member_length = 0;
-  guint32 long_number, i, max_elements = 0;
+  guint32 long_number, i;
   gint offset_tmp, member_size;
 
   offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
@@ -5735,16 +5878,12 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
 
   offset_tmp += 4;
 
-  max_elements = (enable_max_data_type_elements)
-          ? MIN(long_number, rtps_max_data_type_elements)
-          : long_number;
-
   if (info) {
       info->elements = (dissection_element*)wmem_alloc0(
             wmem_file_scope(),
-            sizeof(dissection_element) * max_elements);
+            sizeof(dissection_element) * long_number);
   }
-  for (i = 0; i < max_elements; i++) {
+  for (i = 0; i < long_number; i++) {
       member_size = offset_tmp;
       member = proto_tree_add_subtree(tree, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "");
@@ -6322,7 +6461,16 @@ static type_mapping * rtps_util_get_topic_info(endpoint_guid * guid) {
   /* At this point, we know the boolean enable_topic_info is true */
   type_mapping * result = NULL;
   if (guid) {
-    if (guid->fields_present == GUID_HAS_ALL)
+    guint entity_id_low = 0xFF & guid->entity_id;
+    /* If the entity guid low is ENTITYID_NORMAL_META_GROUP_READER or ENTITYID_NORMAL_META_GROUP_WRITER then
+     * is a builtin endpoint that uses the type InstaneStateResponseData. The type_mapping for this type is not
+     * available through discovery. It is defined by code in
+     * initialize_instance_state_data_response_dissection_info function.
+     */
+    if (entity_id_low == ENTITYID_NORMAL_META_GROUP_READER || entity_id_low == ENTITYID_NORMAL_META_GROUP_WRITER) {
+      result = &builtin_types_dissection_data.type_mappings.instance_state_data_response_type_mapping;
+    }
+    else if (guid->fields_present == GUID_HAS_ALL)
       result = (type_mapping *)wmem_map_lookup(registry, guid);
   }
   return result;
@@ -6344,18 +6492,26 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
   if (enable_topic_info) {
     proto_tree * topic_info_tree;
     proto_item * ti;
+    gboolean is_builtin_type = FALSE;
     type_mapping * type_mapping_object = rtps_util_get_topic_info(guid);
+    /* If it is a builtin type mapping then the information is not taken from discovery data */
+    is_builtin_type = (type_mapping_object == &builtin_types_dissection_data.type_mappings.instance_state_data_response_type_mapping);
     if (type_mapping_object != NULL) {
+      const gchar* topic_information_text = (!is_builtin_type) ?
+        "[Topic Information (from Discovery)]":
+        "[Topic Information (BuiltIn type)]";
       topic_info_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
-                ett_rtps_topic_info, NULL, "[Topic Information (from Discovery)]");
-      ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
-                type_mapping_object->topic_name);
-      proto_item_set_generated(ti);
+                ett_rtps_topic_info, NULL, topic_information_text);
       ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
                 type_mapping_object->type_name);
       proto_item_set_generated(ti);
-      ti = proto_tree_add_uint(topic_info_tree, hf_rtps_dcps_publication_data_frame_number,
+      if (!is_builtin_type) {
+        ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
+          type_mapping_object->topic_name);
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_uint(topic_info_tree, hf_rtps_dcps_publication_data_frame_number,
           tvb, 0, 0, type_mapping_object->dcps_publication_frame_number);
+      }
       proto_item_set_generated(ti);
     }
   }
@@ -6515,11 +6671,14 @@ static gboolean rtps_util_topic_info_add_column_info(
 static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tree *tree,
         packet_info *pinfo, tvbuff_t *tvb, gint offset, endpoint_guid * guid,
         rtps_dissector_data * data, guint encoding, guint encoding_version, gboolean try_dissection_from_type_object) {
+
+
   if (enable_topic_info) {
     type_mapping * type_mapping_object = rtps_util_get_topic_info(guid);
     if (type_mapping_object != NULL) {
       gchar * dissector_name = NULL;
       tvbuff_t *next_tvb;
+      dissection_info* info = NULL;
 
       rtps_util_topic_info_add_column_info(pinfo, guid, data);
       /* This part shows information available for the sample
@@ -6530,7 +6689,7 @@ static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tre
       */
 
       if (try_dissection_from_type_object && enable_user_data_dissection) {
-        dissection_info * info = (dissection_info *) wmem_map_lookup(dissection_infos, &(type_mapping_object->type_id));
+          info = lookup_dissection_info_in_custom_and_builtin_types(type_mapping_object->type_id);
         if (info != NULL) {
           proto_item_append_text(tree, " (TypeId: 0x%016" PRIx64 ")", info->type_id);
           return dissect_user_defined(tree, tvb, offset, encoding, encoding_version, info,
@@ -6698,6 +6857,36 @@ static gint rtps_util_add_rti_locator_reachability_service_request(proto_tree * 
   return offset;
 }
 
+static gint rtps_util_add_instance_state_request_data(proto_tree* tree, tvbuff_t* tvb,
+        gint offset, const guint encoding) {
+  proto_tree* instance_state_request_tree = NULL;
+  proto_item* ti = NULL;
+  /* The sum of all fields */
+  const guint instance_state_request_data_len = 8 + GUID_SIZE + (4 * 3);
+  instance_state_request_tree = proto_tree_add_subtree(
+      tree,
+      tvb,
+      offset,
+      instance_state_request_data_len,
+      ett_rtps_instance_transition_data,
+      &ti,
+      "Instance State Request Data");
+  rtps_util_add_seq_number(instance_state_request_tree, tvb, offset, encoding, "seqNumber");
+  offset += 8;
+  rtps_util_add_generic_guid_v2(instance_state_request_tree, tvb, offset, hf_rtps_pgm_dst_endpoint_guid,
+    hf_rtps_param_host_id, hf_rtps_param_app_id, hf_rtps_param_instance_id,
+    hf_rtps_param_entity, hf_rtps_param_entity_key, hf_rtps_param_hf_entity_kind,
+    NULL);
+  offset += GUID_SIZE;
+  proto_tree_add_item(instance_state_request_tree, hf_rtps_writer_group_oid, tvb, offset, 4, encoding);
+  offset += 4;
+  proto_tree_add_item(instance_state_request_tree, hf_rtps_reader_group_oid, tvb, offset, 4, encoding);
+  offset += 4;
+  proto_tree_add_item(instance_state_request_tree, hf_rtps_writer_session_id, tvb, offset, 4, encoding);
+  offset += 4;
+  return offset;
+}
+
 static gint rtps_util_add_rti_service_request(proto_tree * tree, packet_info *pinfo, tvbuff_t * tvb,
         gint offset, const guint encoding, guint32 service_id) {
   switch (service_id) {
@@ -6716,6 +6905,12 @@ static gint rtps_util_add_rti_service_request(proto_tree * tree, packet_info *pi
                     tvb, offset + 4, seq_length, ENC_NA);
       offset = check_offset_addition(offset, seq_length, tree, NULL, tvb);
       offset = check_offset_addition(offset, 4, tree, NULL, tvb);
+      break;
+    }
+    case RTI_SERVICE_REQUEST_ID_INSTANCE_STATE: {
+      /* First four after the sequence size are not needed */
+      offset += 8;
+      offset = rtps_util_add_instance_state_request_data(tree, tvb, offset, encoding);
       break;
     }
   }
@@ -10285,6 +10480,106 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   append_status_info(pinfo, wid, status_info);
 }
 
+
+static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, gint offset, guint8 flags,
+  const guint encoding, proto_tree* tree, int octets_to_next_header, guint16 vendor_id) {
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * | DATA_HE       |P|C|C|W|U|T|L|E|      octetsToNextHeader       |
+   * +---------------+---------------+---------------+---------------+
+   * | MessageLength messageLength            (Only if L == 1 )      |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + TimeStamp rtpsSendTimestamp            (Only if T == 1 )      +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * | UExtension4 uExtension                 (Only if U == 1 )      |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + WExtension8 wExtension8                (Only if W == 1 )      +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + Checksum messageChecksum               (Only if CC != 00 )    +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + ParameterList parameters               (Only if P != 0 )      +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * C1,C2 == 01 -> 4 bytes checksum
+   * C1,C2 == 10 -> 8 bytes checksum
+   * C1,C2 == 11 -> 16 bytes checksum
+   */
+#define RTPS_HE_ENDIANESS_FLAG         (0x01)
+#define RTPS_HE_MESSAGE_LENGTH_FLAG    (0x02)
+#define RTPS_HE_TIMESTAMP_FLAG         (0x04)
+#define RTPS_HE_UEXTENSION_FLAG        (0x08)
+#define RTPS_HE_WEXTENSION_FLAG        (0x10)
+#define RTPS_HE_CHECKSUM_2_FLAG        (0x20)
+#define RTPS_HE_CHECKSUM_1_FLAG        (0x40)
+#define RTPS_HE_PARAMETERS_FLAG        (0x80)
+
+  guint8 checksum_type = 0;
+  gint initial_offset = offset;
+
+  ++offset;
+  proto_tree_add_bitmask_value(tree, tvb, offset, hf_rtps_header_extension_flags, ett_rtps_flags, HEADER_EXTENSION_MASK_FLAGS, flags);
+  ++offset;
+  proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset, 2, encoding);
+  offset += 2;
+  if ((flags & RTPS_HE_MESSAGE_LENGTH_FLAG) == RTPS_HE_MESSAGE_LENGTH_FLAG) {
+    proto_tree_add_item(tree, hf_rtps_message_length, tvb, offset, 4, encoding);
+    offset += 4;
+  }
+  if ((flags & RTPS_HE_TIMESTAMP_FLAG) == RTPS_HE_TIMESTAMP_FLAG) {
+    rtps_util_add_timestamp(tree,
+      tvb, offset,
+      encoding,
+      hf_rtps_timestamp);
+    offset += 8;
+  }
+  if ((flags & RTPS_HE_UEXTENSION_FLAG) == RTPS_HE_UEXTENSION_FLAG) {
+    proto_tree_add_item(tree, hf_rtps_uextension, tvb, offset, 4, encoding);
+    offset += 4;
+  }
+  if ((flags & RTPS_HE_WEXTENSION_FLAG) == RTPS_HE_WEXTENSION_FLAG) {
+    proto_tree_add_item(tree, hf_rtps_wextension, tvb, offset, 8, encoding);
+    offset += 8;
+  }
+  checksum_type = (flags & (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG));
+  if (checksum_type != 0) {
+    gint checksum_len = 0;
+    switch (checksum_type) {
+      /* 32-bit checksum */
+      case RTPS_HE_CHECKSUM_2_FLAG:
+        checksum_len = 4;
+        break;
+      /* 64-bit checksum */
+      case RTPS_HE_CHECKSUM_1_FLAG:
+        checksum_len = 8;
+        break;
+      /* 128-bit checksum */
+      case (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG):
+        checksum_len = 16;
+        break;
+    default:
+      break;
+    }
+    proto_tree_add_item(tree, hf_rtps_header_extension_checksum, tvb, offset, checksum_len, encoding);
+    offset += checksum_len;
+  }
+  if ((flags & RTPS_HE_PARAMETERS_FLAG) == RTPS_HE_PARAMETERS_FLAG) {
+    guint parameter_endianess = ((flags & RTPS_HE_ENDIANESS_FLAG) == RTPS_HE_ENDIANESS_FLAG)
+      ? ENC_LITTLE_ENDIAN
+      : ENC_BIG_ENDIAN;
+    dissect_parameter_sequence(tree, pinfo, tvb, offset, parameter_endianess,
+      octets_to_next_header - (offset - initial_offset),
+      "Parameters", 0x0200, NULL, vendor_id, FALSE, NULL);
+  }
+}
+
 static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                 const guint encoding, int octets_to_next_header, proto_tree *tree,
                 guint16 vendor_id, endpoint_guid *guid) {
@@ -10670,6 +10965,9 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   }
 }
 
+static void dissect_PING(tvbuff_t* tvb, gint offset, const guint encoding, int octets_to_next_header, proto_tree* tree) {
+  proto_tree_add_item(tree, hf_rtps_ping,tvb, offset, octets_to_next_header, encoding);
+}
 
 /* *********************************************************************** */
 /* *                            A C K N A C K                            * */
@@ -11408,7 +11706,8 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
    */
   int min_len;
   gint old_offset = offset;
-  guint32 wid;                  /* Writer EntityID */
+  guint32 writer_wid;                  /* Writer EntityID */
+  guint32 reader_wid = 0;
   guint32 status_info = 0xffffffff;
   gboolean from_builtin_writer;
   proto_item *octet_item;
@@ -11445,14 +11744,14 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   /* readerEntityId */
   rtps_util_add_entity_id(tree, tvb, offset, hf_rtps_sm_rdentity_id, hf_rtps_sm_rdentity_id_key,
-                        hf_rtps_sm_rdentity_id_kind, ett_rtps_rdentity, "readerEntityId", NULL);
+                        hf_rtps_sm_rdentity_id_kind, ett_rtps_rdentity, "readerEntityId", &reader_wid);
   offset += 4;
 
   /* writerEntityId */
   rtps_util_add_entity_id(tree, tvb, offset, hf_rtps_sm_wrentity_id, hf_rtps_sm_wrentity_id_key,
-                        hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
+                        hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &writer_wid);
   offset += 4;
-  guid->entity_id = wid;
+  guid->entity_id = writer_wid;
   guid->fields_present |= GUID_HAS_ENTITY_ID;
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
@@ -11480,7 +11779,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   /* SerializedData */
   if (((flags & FLAG_RTPS_DATA_D) != 0) || ((flags & FLAG_RTPS_DATA_K) != 0)) {
-    if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER) {
+    if (writer_wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER) {
       /* Dissect the serialized data as ParticipantMessageData:
        *  struct ParticipantMessageData {
        *    KeyHashPrefix_t participantGuidPrefix;
@@ -11520,7 +11819,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_seq_octets(rtps_pm_tree, pinfo, tvb, offset, encoding,
                                octets_to_next_header - (offset - old_offset) + 4, hf_rtps_data_serialize_data);
 
-    } else if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER || wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER) {
+    } else if (writer_wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER || writer_wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER) {
       /* PGM stands for Participant Generic Message */
       proto_tree * rtps_pgm_tree, * guid_tree, * message_identity_tree;
       proto_item *ti;
@@ -11608,7 +11907,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       rtps_util_add_data_holder_seq(rtps_pgm_tree, tvb, pinfo, offset,
               encoding, alignment_zero);
-    } else if (wid == ENTITYID_RTI_BUILTIN_LOCATOR_PING_WRITER) {
+    } else if (writer_wid == ENTITYID_RTI_BUILTIN_LOCATOR_PING_WRITER) {
       proto_tree * locator_ping_tree, *guid_tree;
       proto_item *ti;
       guint32 encapsulation_id, encapsulation_opt;
@@ -11637,7 +11936,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_locator_t(locator_ping_tree, pinfo, tvb, offset, encoding,
               "Destination Locator");
 
-    } else if (wid == ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER) {
+    } else if (writer_wid == ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER) {
       /*
       struct ServiceRequest {
              long service_id;  //@key
@@ -11688,12 +11987,12 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
         label = "<invalid or unknown data type>";
       }
 
-      from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
-          || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
-          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
-          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
-          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
-          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
+      from_builtin_writer = (((writer_wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+          || ((writer_wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+          || (writer_wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+          || (writer_wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+          || (writer_wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+          || (writer_wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
       /* At the end still dissect the rest of the bytes as raw data */
       dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
@@ -11701,7 +12000,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
     }
   }
   rtps_util_detect_coherent_set_end_empty_data_case(&coherent_set_entity_info_object);
-  append_status_info(pinfo, wid, status_info);
+  append_status_info(pinfo, writer_wid, status_info);
 }
 
 /* *********************************************************************** */
@@ -12935,6 +13234,9 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
 {
   switch (submessageId)
   {
+  case SUBMESSAGE_HEADER_EXTENSION:
+    dissect_HEADER_EXTENSION(tvb, pinfo, offset, flags, encoding, rtps_submessage_tree, octets_to_next_header, vendor_id);
+    break;
     case SUBMESSAGE_DATA_FRAG:
       dissect_DATA_FRAG(tvb, pinfo, offset, flags, encoding,
           octets_to_next_header, rtps_submessage_tree, vendor_id, guid);
@@ -13112,10 +13414,13 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   gchar domain_id_str[RTPS_UNKNOWN_DOMAIN_ID_STR_LEN] = RTPS_UNKNOWN_DOMAIN_ID_STR;
   gboolean is_domain_id_calculated = FALSE;
   const char* not_accuracy_str = "";
+  gint length_remaining = 0;
+
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
    */
-  if (tvb_reported_length_remaining(tvb, offset) < 16)
+  length_remaining = tvb_reported_length_remaining(tvb, offset);
+  if (length_remaining < 16)
     return FALSE;
 
   magic_number = tvb_get_ntohl(tvb, offset);
@@ -13149,7 +13454,9 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   is_ping = rtps_is_ping(tvb, pinfo, offset+8);
 
-  if (!is_ping) {
+  if (is_ping) {
+    dissect_PING(tvb, offset + 8, ENC_BIG_ENDIAN, length_remaining - 8, rtps_tree);
+  } else {
     if (version < 0x0200)
       rtps_util_add_guid_prefix_v1(rtps_tree, tvb, offset+8,
                         hf_rtps_guid_prefix_v1, hf_rtps_host_id, hf_rtps_app_id,
@@ -13423,10 +13730,325 @@ static int dissect_simple_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   return tvb_captured_length(tvb);
 }
 
+/*
+ * Type InstanceStateDataresponse is sent as user user data but there is no discovery data for it.
+ * So it is necessary to add it manually so Wireshark can dissect it
+ */
+static void initialize_instance_state_data_response_dissection_info(builtin_types_dissection_data_t *_builtin_types_dissection_data) {
+  guint32 element = 0;
+  const guint64 InstanceStateDataResponse_type_id = 0x9d6d4c879b0e6aa9;
+  const guint64 sequence_100_InstanceTransitionData_type_id = 0x2dac07d5577caaf6;
+  const guint64 guid_t_type_id = 0x36d940c4ed806097;
+  const guint64 value_type_id = 0x974064b1120169ed;
+  const guint64 instancetransitiondata_type_id = 0xceb6f5e405f4bde7;
+  const guint64 KeyHashValue_type_id = 0x48725f37453310ed;
+  const guint64 SerializedKey_type_id = 0x3fd77a8ff43c7e55;
+  const guint64 payload_type_id = 0x0d0ecc8d34a5c3ab;
+  const guint64 ntptime_t_type_id = 0x842c59af7e962a4c;
+  const guint64 sequencenumber_t_type_id = 0xb933efe30d85453b;
+  /*
+   * @appendable @nested
+   * struct GUID_t {
+   *  octet value[16];
+   * };
+   * @appendable @nested
+   * struct SequenceNumber_t {
+   *   long high;
+   *   unsigned long low;
+   * };
+   *
+   * @final @nested
+   * struct NtpTime_t {
+   *  int32 sec;
+   *  uint32 frac;
+   * };
+   * @final @nested
+   * struct SerializedKey {
+   *   sequence<octet> payload;
+   * };
+   * typedef octet KeyHashValue[16];
+   *
+   * struct InstanceTransitionData {
+   *   @optional KeyHashValue key_hash;
+   *   @optional SerializedKey serialized_key;
+   *   NtpTime_t last_update_timestamp;
+   *   SequenceNumber_t transition_sequence_number;
+   * };
+   */
+
+  /* All dissection_infos are added to the "dissction_infos" map */
+
+  /* value */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.value_dissection_info.member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.num_elements = VALUE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.bound = VALUE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE;
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.base_type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.type_id = value_type_id;
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.bound = VALUE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.value_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, GUID_T_NUM_ELEMENTS);
+  wmem_map_insert(
+      builtin_dissection_infos,
+      &(_builtin_types_dissection_data->dissection_infos.value_dissection_info.type_id),
+      (void*)&(_builtin_types_dissection_data->dissection_infos.value_dissection_info));
+
+  /* GUID_t */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.member_name, "GUID_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.num_elements = GUID_T_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.type_id = guid_t_type_id;
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, GUID_T_NUM_ELEMENTS);
+  /* octet value[16] */
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].member_id = 0;
+  _builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].type_id = value_type_id;
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.elements[0].member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.guid_t_dissection_info));
+
+  /* Payload */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.payload_dissection_info.member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
+    _builtin_types_dissection_data->dissection_infos.payload_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.payload_dissection_info.base_type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.payload_dissection_info.type_id = payload_type_id;
+  _builtin_types_dissection_data->dissection_infos.payload_dissection_info.bound = -1;
+  _builtin_types_dissection_data->dissection_infos.payload_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, GUID_T_NUM_ELEMENTS);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.payload_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.payload_dissection_info));
+
+  /* KeyHashValue */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.member_name, "KeyHashValue", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.num_elements = KEY_HAS_VALUE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.bound = KEY_HAS_VALUE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE;
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.base_type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.type_id = KeyHashValue_type_id;
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.bound = KEY_HAS_VALUE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, GUID_T_NUM_ELEMENTS);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.key_hash_value_dissection_info));
+
+  /* SerializedKey */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_name, "SerializedKey", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.num_elements = GUID_T_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.type_id = SerializedKey_type_id;
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, GUID_T_NUM_ELEMENTS);
+  /* sequence<octet> payload */
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_id = 0;
+  _builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].type_id = payload_type_id;
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.elements[0].member_name, "payload", MAX_TOPIC_AND_TYPE_LENGTH);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.serialized_key_dissection_info));
+
+  /* NtpTime_t */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_name, "NtpTime_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.num_elements = NTPTIME_T_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.type_id = ntptime_t_type_id;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, NTPTIME_T_NUM_ELEMENTS);
+  /* int32 sec */
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_id = 0;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[0].member_name, "sec", MAX_TOPIC_AND_TYPE_LENGTH);
+  /* uint32 frac */
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_id = 1;
+  _builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.elements[1].member_name, "frac", MAX_TOPIC_AND_TYPE_LENGTH);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.ntptime_t_dissection_info));
+
+  /* SequenceNumber_t */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.member_name, "SequenceNumber_t", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.num_elements = SEQUENCE_NUMBER_T_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.type_id = sequencenumber_t_type_id;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, SEQUENCE_NUMBER_T_NUM_ELEMENTS);
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].member_id = 0;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE;
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[0].member_name, "high", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].flags = 0;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].member_id = 1;
+  _builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE;
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.elements[1].member_name, "low", MAX_TOPIC_AND_TYPE_LENGTH);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.sequence_number_t_dissection_info));
+
+  /* Instance transition Data */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_name, "InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.num_elements = INSTANCE_TRANSITION_DATA_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.type_id = instancetransitiondata_type_id;
+  _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, INSTANCE_TRANSITION_DATA_NUM_ELEMENTS);
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info));
+
+  for (element = 0; element < _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.num_elements; ++element) {
+    switch (element) {
+    case 0:
+      /* @optional KeyHashValue key_hash */
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = KeyHashValue_type_id;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "key_hash", MAX_TOPIC_AND_TYPE_LENGTH);
+      break;
+    case 1:
+      /* @optional SerializedKey serialized_key */
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = SerializedKey_type_id;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "serialized_key", MAX_TOPIC_AND_TYPE_LENGTH);
+      break;
+    case 2:
+      /* NtpTime_t last_update_timestamp */
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = 0;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = ntptime_t_type_id;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "last_update_timestamp", MAX_TOPIC_AND_TYPE_LENGTH);
+      break;
+    case 3:
+      /* SequenceNumber_t transition_sequence_number */
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].flags = 0;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_id = element;
+      _builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].type_id = sequencenumber_t_type_id;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_transition_data_dissection_info.elements[element].member_name, "transition_sequence_number", MAX_TOPIC_AND_TYPE_LENGTH);
+      break;
+    }
+  }
+
+  /* InstanceStateDataResponse
+   * struct InstanceStateDataResponse {
+   *   @optional sequence<InstanceTransitionData> alive_instances;
+   *   @optional sequence<InstanceTransitionData> disposed_instances;
+   *   @optional sequence<InstanceTransitionData> unregistered_instances;
+   *   GUID_t writer_guid;
+   *   GUID_t reader_guid;
+   *   uint32 reader_group_oid;
+   *   boolean complete_snapshot;
+   * };
+   */
+
+  /* This type mapping is not available in the "registry" map. It is used in the function
+   * rtps_util_get_topic_info when the endopint GUID determines that the type is InstanceStateDataResponse
+   */
+  _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.type_id = InstanceStateDataResponse_type_id;
+  _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.guid.entity_id = ENTITYID_NORMAL_META_GROUP_READER;
+  _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.guid.fields_present = GUID_HAS_ALL;
+  _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.fields_visited = TOPIC_INFO_ALL_SET;
+  g_strlcpy(_builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.topic_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
+  g_strlcpy(_builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.type_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
+
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.member_name, "InstanceStateDataResponse", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.num_elements = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.bound = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements = wmem_alloc_array(wmem_epan_scope(), dissection_element, INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS);
+  _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.base_type_id = 0;
+  _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.type_id = InstanceStateDataResponse_type_id;
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info));
+
+  /* sequence_100_InstanceTransitionData */
+  g_strlcpy(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_name, "sequence_100_InstanceTransitionData", MAX_TOPIC_AND_TYPE_LENGTH);
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.num_elements = INSTANCE_STATE_DATA_RESPONSE_NUM_ELEMENTS;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.bound = SEQUENCE_100_IINSTANCE_TRANSITION_DATA_BOUND;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.member_kind = RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.base_type_id = instancetransitiondata_type_id;
+  _builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.type_id = sequence_100_InstanceTransitionData_type_id;
+  wmem_map_insert(
+    builtin_dissection_infos,
+    &(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info.type_id),
+    (void*)&(_builtin_types_dissection_data->dissection_infos.alive_instances_dissection_info));
+
+  /* @optional sequence<InstanceTransitionData> alive_instances */
+  for (element = 0; element < _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.num_elements; ++element) {
+    switch (element) {
+    case 0:
+      /* @optional sequence<InstanceTransitionData> alive_instances */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "alive_instances", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    case 1:
+      /* @optional sequence<InstanceTransitionData> disposed_instances */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "disposed_instances", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    case 2:
+      /* @optional sequence<InstanceTransitionData> unregistered_instances */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = MEMBER_OPTIONAL;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "unregistered_instances", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = sequence_100_InstanceTransitionData_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    case 3:
+      /* GUID_t writer_guid */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "writer_gid", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = guid_t_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    case 4:
+      /* GUID_t reader_guid */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_gid", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = guid_t_type_id;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    case 5:
+      /* uint32 reader_group_oid */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "reader_group_oid", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    case 6:
+      /* boolean complete_snapshot */
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].flags = 0;
+      g_strlcpy(_builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_name, "complete_snapshot", MAX_MEMBER_NAME);
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].type_id = RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE;
+      _builtin_types_dissection_data->dissection_infos.instance_state_data_response_dissection_info.elements[element].member_id = element;
+      break;
+    }
+  }
+}
+
 void proto_register_rtps(void) {
 
   static hf_register_info hf[] = {
-
+    { &hf_rtps_ping, {
+        "Ping String",
+        "rtps.ping_str",
+        FT_STRING,
+        BASE_NONE,
+        NULL,
+        0,
+        "RTPS Ping String",
+        HFILL }
+    },
     { &hf_rtps_magic, {
         "Magic",
         "rtps.magic",
@@ -14135,6 +14757,12 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_info_ts_timestamp,
       { "Timestamp", "rtps.info_ts.timestamp",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
+        "Time using the RTPS time_t standard format", HFILL }
+    },
+
+    { &hf_rtps_timestamp,
+      { "Timestamp", "rtps.timestamp",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the RTPS time_t standard format", HFILL }
     },
@@ -15030,6 +15658,10 @@ void proto_register_rtps(void) {
         "CRC", "rtps.sm.rti_crc",
         FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
     },
+    { &hf_rtps_message_length, {
+        "RTPS Message Length", "rtps.message_length",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
 
     /* Flag bits */
     { &hf_rtps_flag_reserved80, {
@@ -15136,6 +15768,10 @@ void proto_register_rtps(void) {
         "Endianness bit", "rtps.flag.endianness",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
     },
+    { &hf_rtps_flag_additional_authenticated_data, {
+        "Additional Authenticated Data bit", "rtps.flag.additional_authenticated_data",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
     { &hf_rtps_flag_inline_qos_v2, {
         "Inline QoS", "rtps.flag.inline_qos",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
@@ -15211,6 +15847,50 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_status_info_flags,
       { "Flags", "rtps.param.status_info",
         FT_UINT32, BASE_HEX, NULL, 0, "bitmask representing the flags in PID_STATUS_INFO", HFILL }
+    },
+    { &hf_rtps_header_extension_flags,
+      { "Flags", "rtps.header_extension_flags",
+        FT_UINT8, BASE_HEX, NULL, 0, "bitmask representing header extension flags", HFILL }
+    },
+    { &hf_rtps_flag_header_extension_parameters, {
+        "Header Extension Parameter List Present", "rtps.flag.header_extension.parameter_list",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_PARAMETERS_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_checksum2, {
+        "Header Extension Message Checksum 2", "rtps.flag.header_extension.message_checksum2",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_CHECKSUM_2_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_checksum1, {
+        "Header Extension Message Checksum 1", "rtps.flag.header_extension.message_checksum1",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_CHECKSUM_1_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_wextension, {
+        "Header Extension W Extension Present", "rtps.flag.header_extension.wextension",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_WEXTENSION_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_uextension, {
+        "Header Extension U Extension Present", "rtps.flag.header_extension.uextension",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_UEXTENSION_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_timestamp, {
+        "Header Extension Timestamp Present", "rtps.flag.header_extension.timestamp",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_TIMESTAMP_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_flag_header_extension_message_length, {
+        "Header Extension Message Length", "rtps.flag.header_extension.message_legth",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_MESSAGE_LENGTH_FLAG, NULL, HFILL }
+    },
+    { &hf_rtps_header_extension_checksum, {
+        "Header Extension Checksum", "rtps.header_extension.checksum",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_uextension, {
+        "Header Extension uExtension", "rtps.uextension",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_wextension, {
+        "Header Extension wExtension", "rtps.wextension",
+        FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_flag_unregistered, {
         "Unregistered", "rtps.flag.unregistered",
@@ -16092,6 +16772,18 @@ void proto_register_rtps(void) {
         "Cloud Discovery Service Announcer", "rtps.flag.cloud_discovery_service_announcer",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }
     },
+    { &hf_rtps_writer_group_oid, {
+        "Writer Group OID", "rtps.writer_group_oid",
+        FT_UINT32, BASE_DEC, NULL, 0, "Decimal representing the writer group OID", HFILL }
+    },
+    { &hf_rtps_reader_group_oid, {
+        "Reader Group OID", "rtps.reader_group_oid",
+        FT_UINT32, BASE_DEC, NULL, 0, "Decimal representing the reader group OID", HFILL }
+    },
+    { &hf_rtps_writer_session_id,{
+       "Writer Session ID", "rtps.writer_session_id",
+       FT_UINT32, BASE_DEC, NULL, 0, "Decimal representing the writer session ID", HFILL }
+    },
     { &hf_rtps_flag_participant_config_writer,{
         "Participant Config Writer", "rtps.flag.participant_config_writer",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_WRITER, NULL, HFILL }
@@ -16222,7 +16914,8 @@ void proto_register_rtps(void) {
     &ett_rtps_dissection_tree,
     &ett_rtps_info_remaining_items,
     &ett_rtps_data_encapsulation_options,
-    &ett_rtps_decompressed_serialized_data
+    &ett_rtps_decompressed_serialized_data,
+    &ett_rtps_instance_transition_data
   };
 
   static ei_register_info ei[] = {
@@ -16313,11 +17006,14 @@ void proto_register_rtps(void) {
   mutable_member_mappings = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
   coherent_set_tracking.entities_using_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
   coherent_set_tracking.coherent_set_registry_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), coherent_set_key_hash_by_key, compare_by_coherent_set_key);
+  builtin_dissection_infos = wmem_map_new_autoreset(wmem_epan_scope(), wmem_epan_scope(), g_int64_hash, g_int64_equal);
 
   coherent_set_tracking.entities_using_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
   discovered_participants_domain_ids = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_participant_guid, compare_by_participant_guid);
   /* In order to get this dissector from other dissectors */
   register_dissector("rtps", dissect_simple_rtps, proto_rtps);
+
+  initialize_instance_state_data_response_dissection_info(&builtin_types_dissection_data);
 
   reassembly_table_register(&rtps_reassembly_table,
       &addresses_reassembly_table_functions);

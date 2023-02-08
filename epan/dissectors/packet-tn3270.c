@@ -5837,7 +5837,7 @@ proto_register_tn3270(void)
          NULL, HFILL }
     },
     { &hf_tn3270_extended_ps_lh,
-      {  "Number of Y-units in character cell (depth ofcharacter matrixes)",
+      {  "Number of Y-units in character cell (depth of character matrixes)",
          "tn3270.extended_ps_lh",
          FT_UINT8, BASE_HEX, NULL, 0x0,
          NULL, HFILL }

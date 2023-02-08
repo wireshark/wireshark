@@ -49,7 +49,7 @@ int
 wtap_plugins_supported(void)
 {
 #ifdef HAVE_PLUGINS
-	return g_module_supported() ? 0 : 1;
+	return plugins_supported() ? 0 : 1;
 #else
 	return -1;
 #endif
@@ -212,7 +212,8 @@ wtap_add_generated_idb(wtap *wth)
 	int snaplen;
 
 	ws_assert(wth->file_encap != WTAP_ENCAP_UNKNOWN &&
-	    wth->file_encap != WTAP_ENCAP_PER_PACKET);
+	    wth->file_encap != WTAP_ENCAP_PER_PACKET &&
+	    wth->file_encap != WTAP_ENCAP_NONE);
 	ws_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
 	    wth->file_tsprec != WTAP_TSPREC_PER_PACKET);
 
@@ -1249,8 +1250,10 @@ wtap_register_encap_type(const char *description, const char *name)
 const char *
 wtap_encap_name(int encap)
 {
-	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
+	if (encap < WTAP_ENCAP_NONE || encap >= WTAP_NUM_ENCAP_TYPES)
 		return "illegal";
+	else if (encap == WTAP_ENCAP_NONE)
+		return "none";
 	else if (encap == WTAP_ENCAP_PER_PACKET)
 		return "per-packet";
 	else
@@ -1261,8 +1264,10 @@ wtap_encap_name(int encap)
 const char *
 wtap_encap_description(int encap)
 {
-	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
+	if (encap < WTAP_ENCAP_NONE || encap >= WTAP_NUM_ENCAP_TYPES)
 		return "Illegal";
+	else if (encap == WTAP_ENCAP_NONE)
+		return "None";
 	else if (encap == WTAP_ENCAP_PER_PACKET)
 		return "Per packet";
 	else
@@ -1665,6 +1670,7 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		 * encapsulation type.
 		 */
 		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_NONE);
 	}
 
 	return TRUE;	/* success */
@@ -1821,6 +1827,7 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 		 * encapsulation type.
 		 */
 		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_NONE);
 	}
 
 	return TRUE;

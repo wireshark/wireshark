@@ -185,6 +185,7 @@ endif()
 target_link_libraries(wiretap
 	PUBLIC
 		wsutil
+		${GLIB2_LIBRARIES}
 	PRIVATE
 		${ZLIB_LIBRARIES}
 		${ZSTD_LIBRARIES}

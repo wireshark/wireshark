@@ -73,9 +73,8 @@
 #include <wsutil/file_util.h>
 #include <cli_main.h>
 #include <ui/cmdarg_err.h>
-#include <ui/exit_codes.h>
 #include <ui/text_import.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 #include <ui/failure_message.h>
 #include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
@@ -86,6 +85,7 @@
 
 #include <glib.h>
 
+#include <ws_exit_codes.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/wslog.h>
@@ -403,7 +403,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (!ws_strtou8(ws_optarg, NULL, &radix)) {
                 cmdarg_err("Bad argument for '-b': %s", ws_optarg);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             switch (radix) {
             case  2: info->regex.encoding = ENCODING_PLAIN_BIN; break;
@@ -413,7 +413,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             default:
                 cmdarg_err("Bad argument for '-b': %s", ws_optarg);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             break;
         }
@@ -422,7 +422,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (ws_optarg[0] != 'h' && ws_optarg[0] != 'o' && ws_optarg[0] != 'd' && ws_optarg[0] != 'n') {
                 cmdarg_err("Bad argument for '-o': %s", ws_optarg);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             switch (ws_optarg[0]) {
             case 'o': info->hexdump.offset_type = OFFSET_OCT; break;
@@ -437,7 +437,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (sscanf(ws_optarg, "%x", &hdr_ethernet_proto) < 1) {
                 cmdarg_err("Bad argument for '-e': %s", ws_optarg);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             break;
 
@@ -446,7 +446,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (wtap_encap_type < 0) {
                 cmdarg_err("\"%s\" isn't a valid encapsulation type", ws_optarg);
                 list_encap_types();
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             break;
 
@@ -455,7 +455,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if  (file_type_subtype < 0) {
                 cmdarg_err("\"%s\" isn't a valid capture file type", ws_optarg);
                 list_capture_types();
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             break;
 
@@ -465,7 +465,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (!ws_strtou8(ws_optarg, NULL, &ip_proto)) {
                 cmdarg_err("Bad argument for '-i': %s", ws_optarg);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             set_hdr_ip_proto(ip_proto);
             break;
@@ -487,13 +487,13 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 cmdarg_err("%s", gerror->message);
                 g_error_free(gerror);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             } else {
                 if (g_regex_get_string_number(regex, "data") == -1) {
                     cmdarg_err("Regex missing capturing group data (use (?<data>(...)) )");
                     g_regex_unref(regex);
                     print_usage(stderr);
-                    return INVALID_OPTION;
+                    return WS_EXIT_INVALID_OPTION;
                 }
             }
             break;
@@ -507,12 +507,12 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             if (*p == '\0') {
                 cmdarg_err("No dest port specified for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
@@ -520,12 +520,12 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad dest port for '-s'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             if (*p == '\0') {
                 cmdarg_err("No tag specified for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
@@ -533,7 +533,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad tag for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
 
             set_hdr_ip_proto(132);
@@ -548,12 +548,12 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             if (*p == '\0') {
                 cmdarg_err("No dest port specified for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
@@ -561,12 +561,12 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad dest port for '-s'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             if (*p == '\0') {
                 cmdarg_err("No ppi specified for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
@@ -574,7 +574,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad ppi for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
 
             set_hdr_ip_proto(132);
@@ -595,12 +595,12 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-u'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             if (*p == '\0') {
                 cmdarg_err("No dest port specified for '-u'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
@@ -608,7 +608,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad dest port for '-u'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             set_hdr_ip_proto(17);
             break;
@@ -622,12 +622,12 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 cmdarg_err("Bad src port for '-T'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             if (*p == '\0') {
                 cmdarg_err("No dest port specified for '-u'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
@@ -635,7 +635,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (p == ws_optarg || *p != '\0') {
                 cmdarg_err("Bad dest port for '-T'");
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
             set_hdr_ip_proto(6);
             break;
@@ -652,7 +652,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (!p) {
                 cmdarg_err("Bad source param addr for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
 
             *p = '\0';
@@ -672,13 +672,13 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 if (!ws_inet_pton6(ws_optarg, &hdr_ipv6_src_addr)) {
                         cmdarg_err("Bad src addr -%c '%s'", c, p);
                         print_usage(stderr);
-                        return INVALID_OPTION;
+                        return WS_EXIT_INVALID_OPTION;
                 }
             } else {
                 if (!ws_inet_pton4(ws_optarg, &hdr_ip_src_addr)) {
                         cmdarg_err("Bad src addr -%c '%s'", c, p);
                         print_usage(stderr);
-                        return INVALID_OPTION;
+                        return WS_EXIT_INVALID_OPTION;
                 }
             }
 
@@ -686,20 +686,20 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (*p == '\0') {
                 cmdarg_err("No dest addr specified for '-%c'", c);
                 print_usage(stderr);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
 
             if (hdr_ipv6 == TRUE) {
                 if (!ws_inet_pton6(p, &hdr_ipv6_dest_addr)) {
                         cmdarg_err("Bad dest addr for -%c '%s'", c, p);
                         print_usage(stderr);
-                        return INVALID_OPTION;
+                        return WS_EXIT_INVALID_OPTION;
                 }
             } else {
                 if (!ws_inet_pton4(p, &hdr_ip_dest_addr)) {
                         cmdarg_err("Bad dest addr for -%c '%s'", c, p);
                         print_usage(stderr);
-                        return INVALID_OPTION;
+                        return WS_EXIT_INVALID_OPTION;
                 }
             }
             break;
@@ -709,31 +709,31 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             switch(ws_optopt) {
             case 'E':
                 list_encap_types();
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
                 break;
             case 'F':
                 list_capture_types();
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
                 break;
             }
             /* FALLTHROUGH */
 
         default:
             print_usage(stderr);
-            return INVALID_OPTION;
+            return WS_EXIT_INVALID_OPTION;
         }
     }
 
     if (ws_optind >= argc || argc-ws_optind < 2) {
         cmdarg_err("Must specify input and output filename");
         print_usage(stderr);
-        return INVALID_OPTION;
+        return WS_EXIT_INVALID_OPTION;
     }
 
     if (max_offset > WTAP_MAX_PACKET_SIZE_STANDARD) {
         cmdarg_err("Maximum packet length cannot be more than %d bytes",
                 WTAP_MAX_PACKET_SIZE_STANDARD);
-        return INVALID_OPTION;
+        return WS_EXIT_INVALID_OPTION;
     }
 
     /* Some validation */
@@ -748,7 +748,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         }
         if (g_regex_get_string_number(regex, "time") > -1 && info->timestamp_format == NULL) {
             cmdarg_err("Regex with <time> capturing group requires time format (-t)");
-            return INVALID_OPTION;
+            return WS_EXIT_INVALID_OPTION;
         }
     }
 
@@ -763,7 +763,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     if (!have_hdr_ip_proto && (hdr_ip || hdr_ipv6)) {
         /* if -4 or -6 option is specified without an IP protocol then fail */
         cmdarg_err("IP protocol requires a next layer protocol number");
-        return INVALID_OPTION;
+        return WS_EXIT_INVALID_OPTION;
     }
 
     if ((hdr_tcp || hdr_udp || hdr_sctp) && !(hdr_ip || hdr_ipv6)) {
@@ -776,7 +776,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
     if (hdr_export_pdu && wtap_encap_type != WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
         cmdarg_err("Export PDU (-P) requires WIRESHARK_UPPER_PDU link type (252)");
-        return INVALID_OPTION;
+        return WS_EXIT_INVALID_OPTION;
     }
 
     /* The other dummy headers require a IPv4 or IPv6 header. Allow
@@ -797,7 +797,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         default:
             cmdarg_err("Dummy IPv4 header not supported with encapsulation %s (%s)", wtap_encap_description(wtap_encap_type), wtap_encap_name(wtap_encap_type));
-            return INVALID_OPTION;
+            return WS_EXIT_INVALID_OPTION;
         }
     } else if (hdr_ipv6) {
         switch (wtap_encap_type) {
@@ -813,7 +813,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         default:
             cmdarg_err("Dummy IPv6 header not supported with encapsulation %s (%s)", wtap_encap_description(wtap_encap_type), wtap_encap_name(wtap_encap_type));
-            return INVALID_OPTION;
+            return WS_EXIT_INVALID_OPTION;
         }
     }
 
@@ -824,13 +824,13 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (gerror) {
                 cmdarg_err("%s", gerror->message);
                 g_error_free(gerror);
-                return OPEN_ERROR;
+                return WS_EXIT_OPEN_ERROR;
             }
         } else {
             input_file = ws_fopen(input_filename, "rb");
             if (!input_file) {
                 open_failure_message(input_filename, errno, FALSE);
-                return OPEN_ERROR;
+                return WS_EXIT_OPEN_ERROR;
             }
         }
     } else {
@@ -846,7 +846,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 cmdarg_err("%s", gerror->message);
                 cmdarg_err("regex import requires memory-mapped I/O and cannot be used with terminals or pipes");
                 g_error_free(gerror);
-                return INVALID_OPTION;
+                return WS_EXIT_INVALID_OPTION;
             }
         }
         input_filename = "Standard input";
@@ -886,7 +886,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                                         file_type_subtype);
         g_free(params->idb_inf);
         wtap_dump_params_cleanup(params);
-        return OPEN_ERROR;
+        return WS_EXIT_OPEN_ERROR;
     }
 
     info->import_text_filename = input_filename;
@@ -1009,7 +1009,7 @@ main(int argc, char *argv[])
     ws_log_init("text2pcap", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 

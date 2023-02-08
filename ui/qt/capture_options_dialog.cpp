@@ -504,7 +504,7 @@ void CaptureOptionsDialog::itemClicked(QTreeWidgetItem *item, int column)
         if (device->if_info.type == IF_EXTCAP) {
             /* this checks if configuration is required and not yet provided or saved via prefs */
             QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), FALSE))
+            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str())))
             {
                 emit showExtcapOptions(device_name, false);
                 return;
@@ -538,7 +538,7 @@ void CaptureOptionsDialog::itemDoubleClicked(QTreeWidgetItem *item, int column)
         if (device->if_info.type == IF_EXTCAP) {
             /* this checks if configuration is required and not yet provided or saved via prefs */
             QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
+            if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
             {
                 emit showExtcapOptions(device_name, true);
                 return;
@@ -619,7 +619,7 @@ void CaptureOptionsDialog::on_buttonBox_accepted()
             if (device && device->if_info.type == IF_EXTCAP) {
                 /* this checks if configuration is required and not yet provided or saved via prefs */
                 QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-                if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
+                if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
                 {
                     emit showExtcapOptions(device_name, true);
                     return;

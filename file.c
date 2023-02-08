@@ -24,7 +24,7 @@
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
-#include <ui/version_info.h>
+#include <wsutil/version_info.h>
 
 #include <wiretap/merge.h>
 
@@ -689,6 +689,11 @@ cf_read(capture_file *cf, gboolean reloading)
     cf->current_frame = frame_data_sequence_find(cf->provider.frames, cf->first_displayed);
 
     packet_list_thaw();
+
+    /* It is safe again to execute redissections or sort. */
+    ws_assert(cf->read_lock);
+    cf->read_lock = FALSE;
+
     if (reloading)
         cf_callback_invoke(cf_cb_file_reload_finished, cf);
     else
@@ -699,10 +704,6 @@ cf_read(capture_file *cf, gboolean reloading)
     if (cf->first_displayed != 0) {
         packet_list_select_row_from_data(NULL);
     }
-
-    /* It is safe again to execute redissections. */
-    ws_assert(cf->read_lock);
-    cf->read_lock = FALSE;
 
     if (is_read_aborted) {
         /*
@@ -1934,6 +1935,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
     packet_list_thaw();
 
+    /* It is safe again to execute redissections or sort. */
+    ws_assert(cf->read_lock);
+    cf->read_lock = FALSE;
+
     cf_callback_invoke(cf_cb_file_rescan_finished, cf);
 
     if (selected_frame_num == -1) {
@@ -1996,10 +2001,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
     /* Cleanup and release all dfilter resources */
     dfilter_free(dfcode);
-
-    /* It is safe again to execute redissections. */
-    ws_assert(cf->read_lock);
-    cf->read_lock = FALSE;
 
     /* If another rescan (due to dfilter change) or redissection (due to profile
      * change) was requested, the rescan above is aborted and restarted here. */
