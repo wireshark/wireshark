@@ -86,10 +86,6 @@ static int hf_woww_action_bars = -1;
 static int hf_woww_action_type = -1;
 static int hf_woww_activate_taxi_reply = -1;
 static int hf_woww_actual_roll = -1;
-static int hf_woww_addon_crc = -1;
-static int hf_woww_addon_extra_crc = -1;
-static int hf_woww_addon_has_signature = -1;
-static int hf_woww_addon_name = -1;
 static int hf_woww_addon_type = -1;
 static int hf_woww_agility = -1;
 static int hf_woww_ai_reaction = -1;
@@ -217,7 +213,6 @@ static int hf_woww_buyout_amount = -1;
 static int hf_woww_cash_on_delivery_amount = -1;
 static int hf_woww_cast_failure_reason = -1;
 static int hf_woww_cast_flags = -1;
-static int hf_woww_cast_item = -1;
 static int hf_woww_caster = -1;
 static int hf_woww_category_cooldown_in_msecs = -1;
 static int hf_woww_channel = -1;
@@ -247,16 +242,13 @@ static int hf_woww_client_seed = -1;
 static int hf_woww_code = -1;
 static int hf_woww_coded = -1;
 static int hf_woww_comment = -1;
-static int hf_woww_compressed_chat_data = -1;
 static int hf_woww_compressed_data = -1;
-static int hf_woww_compressed_move_opcode = -1;
 static int hf_woww_container_slots = -1;
 static int hf_woww_content = -1;
 static int hf_woww_cooldown_count = -1;
 static int hf_woww_cooldown_in_msecs = -1;
 static int hf_woww_cooldown_time_in_msecs = -1;
 static int hf_woww_corpse_query_result = -1;
-static int hf_woww_corpse_target_ally = -1;
 static int hf_woww_cos_angle = -1;
 static int hf_woww_cost_in_copper = -1;
 static int hf_woww_count = -1;
@@ -317,7 +309,6 @@ static int hf_woww_enchantment = -1;
 static int hf_woww_encrypted_data = -1;
 static int hf_woww_end_text = -1;
 static int hf_woww_ended_without_interruption = -1;
-static int hf_woww_enemy = -1;
 static int hf_woww_energize_amount = -1;
 static int hf_woww_energize_power = -1;
 static int hf_woww_energy = -1;
@@ -453,7 +444,6 @@ static int hf_woww_item_stack_size = -1;
 static int hf_woww_item_stat_type = -1;
 static int hf_woww_item_sub_class_mask = -1;
 static int hf_woww_item_suffix_factor = -1;
-static int hf_woww_item_target = -1;
 static int hf_woww_item_template = -1;
 static int hf_woww_item_text_id = -1;
 static int hf_woww_item_to_damage = -1;
@@ -551,7 +541,6 @@ static int hf_woww_notification = -1;
 static int hf_woww_npc = -1;
 static int hf_woww_number_of_battlegrounds = -1;
 static int hf_woww_number_of_choices = -1;
-static int hf_woww_object_target = -1;
 static int hf_woww_object_type = -1;
 static int hf_woww_objective_text = -1;
 static int hf_woww_objective_texts = -1;
@@ -702,7 +691,6 @@ static int hf_woww_show_affiliation = -1;
 static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
 static int hf_woww_sin_angle = -1;
-static int hf_woww_size_struct = -1;
 static int hf_woww_skill = -1;
 static int hf_woww_skin = -1;
 static int hf_woww_skin_color = -1;
@@ -825,7 +813,6 @@ static int hf_woww_tutorial_flag = -1;
 static int hf_woww_type_flags = -1;
 static int hf_woww_unimplemented = -1;
 static int hf_woww_unit_stand_state = -1;
-static int hf_woww_unit_target = -1;
 static int hf_woww_unknown_flags = -1;
 static int hf_woww_unknown_float = -1;
 static int hf_woww_unknown_guid = -1;
@@ -3881,24 +3868,6 @@ static const value_string e_inventory_type_strings[] =  {
     { INVENTORY_TYPE_RANGED_RIGHT, "Ranged Right" },
     { INVENTORY_TYPE_QUIVER, "Quiver" },
     { INVENTORY_TYPE_RELIC, "Relic" },
-    { 0, NULL }
-};
-
-typedef enum {
-    COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE = 0x0DD,
-    COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE_TRANSPORT = 0x2AE,
-    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_SET_RUN_SPEED = 0x2FE,
-    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_UNROOT = 0x304,
-    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_RUN_MODE = 0x30D,
-    COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_WALK_MODE = 0x30E,
-} e_compressed_move_opcode;
-static const value_string e_compressed_move_opcode_strings[] =  {
-    { COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE, "Smsg Monster Move" },
-    { COMPRESSED_MOVE_OPCODE_SMSG_MONSTER_MOVE_TRANSPORT, "Smsg Monster Move Transport" },
-    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_SET_RUN_SPEED, "Smsg Spline Set Run Speed" },
-    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_UNROOT, "Smsg Spline Move Unroot" },
-    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_RUN_MODE, "Smsg Spline Move Set Run Mode" },
-    { COMPRESSED_MOVE_OPCODE_SMSG_SPLINE_MOVE_SET_WALK_MODE, "Smsg Spline Move Set Walk Mode" },
     { 0, NULL }
 };
 
@@ -17015,30 +16984,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_addon_crc,
-            { "Addon Crc", "woww.addon.crc",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_addon_extra_crc,
-            { "Addon Extra Crc", "woww.addon.extra.crc",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_addon_has_signature,
-            { "Addon Has Signature", "woww.addon.has.signature",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_addon_name,
-            { "Addon Name", "woww.addon.name",
-                FT_STRINGZ, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_addon_type,
             { "Addon Type", "woww.addon.type",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_addon_type_strings), 0,
@@ -17801,12 +17746,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_cast_item,
-            { "Cast Item", "woww.cast.item",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_caster,
             { "Caster", "woww.caster",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
@@ -17981,21 +17920,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_compressed_chat_data,
-            { "Compressed Chat Data", "woww.compressed.chat.data",
-                FT_BYTES, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_compressed_data,
             { "Compressed Data", "woww.compressed.data",
                 FT_BYTES, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_compressed_move_opcode,
-            { "Compressed Move Opcode", "woww.compressed.move.opcode",
-                FT_UINT16, BASE_HEX_DEC, VALS(e_compressed_move_opcode_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18032,12 +17959,6 @@ proto_register_woww(void)
         { &hf_woww_corpse_query_result,
             { "Corpse Query Result", "woww.corpse.query.result",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_corpse_query_result_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_corpse_target_ally,
-            { "Corpse Target Ally", "woww.corpse.target.ally",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18398,12 +18319,6 @@ proto_register_woww(void)
         { &hf_woww_ended_without_interruption,
             { "Ended Without Interruption", "woww.ended.without.interruption",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_enemy,
-            { "Enemy", "woww.enemy",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19217,12 +19132,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_target,
-            { "Item Target", "woww.item.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_item_template,
             { "Item Template", "woww.item.template",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -19802,12 +19711,6 @@ proto_register_woww(void)
         { &hf_woww_number_of_choices,
             { "Number Of Choices", "woww.number.of.choices",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_object_target,
-            { "Object Target", "woww.object.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -20711,12 +20614,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_size_struct,
-            { "Size Struct", "woww.size.struct",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_skill,
             { "Skill", "woww.skill",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_skill_strings), 0,
@@ -21446,12 +21343,6 @@ proto_register_woww(void)
         { &hf_woww_unit_stand_state,
             { "Unit Stand State", "woww.unit.stand.state",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_unit_stand_state_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_unit_target,
-            { "Unit Target", "woww.unit.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
