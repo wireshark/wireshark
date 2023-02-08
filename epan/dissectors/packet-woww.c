@@ -18978,7 +18978,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_class_and_sub_class,
             { "Item Class And Sub Class", "woww.item.class.and.sub.class",
-                FT_UINT64, BASE_HEX_DEC, VALS64(e_item_class_and_sub_class_strings), 0,
+                FT_UINT64, BASE_HEX_DEC | BASE_VAL64_STRING, VALS64(e_item_class_and_sub_class_strings), 0,
                 NULL, HFILL
             }
         },
