@@ -142,7 +142,8 @@ static
 void dissect_darwin_process_info_option(proto_tree *option_tree, proto_item *option_item,
                                         packet_info *pinfo, tvbuff_t *tvb, int offset,
                                         int unknown_option_hf,
-                                        guint32 option_code, guint32 option_length)
+                                        guint32 option_code, guint32 option_length,
+                                        guint encoding _U_)
 {
     char         *str;
     e_guid_t      uuid;
@@ -202,17 +203,17 @@ proto_register_pcapng_darwin_process_info(void)
         { &hf_pcapng_darwin_process_id,
             { "Darwin Process ID",                         "pcapng.darwin.process_id",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
-            "Process ID for Darwin Proces Info", HFILL }
+            "Process ID for Darwin Process Info", HFILL }
         },
         { &hf_pcapng_option_darwin_process_name,
             { "Darwin Process Name",                       "pcapng.darwin.process_name",
             FT_STRING, BASE_NONE, NULL, 0x00,
-            "Process name for Darwin Proces Info", HFILL }
+            "Process name for Darwin Process Info", HFILL }
         },
         { &hf_pcapng_option_darwin_process_uuid,
             { "Darwin Process UUID",                       "pcapng.darwin.process_uuid",
             FT_GUID, BASE_NONE, NULL, 0x00,
-            "Process UUID for Darwin Proces Info", HFILL }
+            "Process UUID for Darwin Process Info", HFILL }
         },
     };
 

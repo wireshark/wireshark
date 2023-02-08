@@ -561,6 +561,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
         option_item = proto_tree_add_item(options_tree, hf_pcapng_option, tvb, offset, -1, ENC_NA);
         option_tree = proto_item_add_subtree(option_item, ett_pcapng_option);
 
+        /* TODO: could have done this once outside of loop? */
         switch (block_type) {
         case BLOCK_SECTION_HEADER:
             hfj_pcapng_option_code = hf_pcapng_option_code_section_header;
@@ -1239,7 +1240,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             /* Use local block handling if available */
             if (p_local_block_callback) {
                  p_local_block_callback->option_dissector(option_tree, option_item, pinfo, tvb, offset,
-                                                          hf_pcapng_option_data, option_code, option_length);
+                                                          hf_pcapng_option_data, option_code, option_length, encoding);
             }
             else {
                 proto_tree_add_item(option_tree, hf_pcapng_option_data, tvb, offset, option_length, ENC_NA);
@@ -1247,6 +1248,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
             offset += option_length;
         }
 
+        /* Pad this option out to next 4 bytes */
         if ((option_length % 4) != 0) {
             proto_item_set_len(option_item, option_length + 2 * 2 + (4 - option_length % 4));
             option_length = 4 - option_length % 4;
