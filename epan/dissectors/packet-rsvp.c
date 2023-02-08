@@ -2574,14 +2574,14 @@ summary_session(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
         break;
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
         return wmem_strdup_printf(pool,
-                                  "SESSION: IPv4-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
+                                  "SESSION: IPv4-P2MP LSP TUNNEL, P2MP ID %u, Tunnel ID %d, Ext Tunnel %s. ",
                                   tvb_get_ntohl(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip_to_str(pool, tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
         return wmem_strdup_printf(pool,
-                                  "SESSION: IPv6-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
+                                  "SESSION: IPv6-P2MP LSP TUNNEL, P2MP ID %u, Tunnel ID %d, Ext Tunnel %s. ",
                                   tvb_get_ntohl(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip6_to_str(pool, tvb, offset+12));
