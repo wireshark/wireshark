@@ -6846,7 +6846,7 @@ typedef enum {
     ITEM_CLASS_AND_SUB_CLASS_PERMANENT = 0x000000000E,
     ITEM_CLASS_AND_SUB_CLASS_JUNK = 0x000000000F,
 } e_item_class_and_sub_class;
-static const value_string e_item_class_and_sub_class_strings[] =  {
+static const val64_string e_item_class_and_sub_class_strings[] =  {
     { ITEM_CLASS_AND_SUB_CLASS_CONSUMABLE, "Consumable" },
     { ITEM_CLASS_AND_SUB_CLASS_CHEESE_OR_BREAD_OBSOLETE, "Cheese Or Bread Obsolete" },
     { ITEM_CLASS_AND_SUB_CLASS_LIQUID_OBSOLETE, "Liquid Obsolete" },
@@ -18978,7 +18978,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_class_and_sub_class,
             { "Item Class And Sub Class", "woww.item.class.and.sub.class",
-                FT_UINT64, BASE_HEX_DEC, VALS(e_item_class_and_sub_class_strings), 0,
+                FT_UINT64, BASE_HEX_DEC, VALS64(e_item_class_and_sub_class_strings), 0,
                 NULL, HFILL
             }
         },
