@@ -2025,7 +2025,7 @@ void PacketList::drawNearOverlay()
                 bgcolor = &color_filter->bg_color;
             }
 
-            int next_line = (row - start) * o_height / o_rows;
+            int next_line = (row - start + 1) * o_height / o_rows;
             if (bgcolor) {
                 QColor color(ColorUtils::fromColorT(bgcolor));
                 painter.fillRect(0, cur_line, o_width, next_line - cur_line, color);
