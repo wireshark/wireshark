@@ -50,7 +50,7 @@ dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        proto_item *ti = proto_tree_add_item(tree, proto_cmd, tvb, 0, 6, ENC_NA);
+        proto_item *ti = proto_tree_add_item(tree, proto_cmd, tvb, 0, 8, ENC_NA);
 
         cmd_tree = proto_item_add_subtree(ti, ett_cmd);
         proto_tree_add_item(cmd_tree, hf_cmd_version, tvb, offset, 1, ENC_BIG_ENDIAN);
