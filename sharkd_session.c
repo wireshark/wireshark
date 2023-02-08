@@ -1359,8 +1359,8 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
 
     if (fdata->color_filter)
     {
-        sharkd_json_value_stringf("bg", "%x", color_t_to_rgb(&fdata->color_filter->bg_color));
-        sharkd_json_value_stringf("fg", "%x", color_t_to_rgb(&fdata->color_filter->fg_color));
+        sharkd_json_value_stringf("bg", "%06x", color_t_to_rgb(&fdata->color_filter->bg_color));
+        sharkd_json_value_stringf("fg", "%06x", color_t_to_rgb(&fdata->color_filter->fg_color));
     }
 
     json_dumper_end_object(&dumper);
@@ -3491,8 +3491,8 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
     if (fdata->color_filter)
     {
-        sharkd_json_value_stringf("bg", "%x", color_t_to_rgb(&fdata->color_filter->bg_color));
-        sharkd_json_value_stringf("fg", "%x", color_t_to_rgb(&fdata->color_filter->fg_color));
+        sharkd_json_value_stringf("bg", "%06x", color_t_to_rgb(&fdata->color_filter->bg_color));
+        sharkd_json_value_stringf("fg", "%06x", color_t_to_rgb(&fdata->color_filter->fg_color));
     }
 
     if (data_src)
