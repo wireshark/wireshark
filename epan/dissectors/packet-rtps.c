@@ -511,7 +511,6 @@ static dissector_table_t rtps_type_name_table;
 #define ENTITYID_RESERVED_META_GROUP_WRITER        (0xcc)
 #define ENTITYID_RESERVED_META_GROUP_READER        (0xcd)
 #define ENTITYID_RESERVED_META_CST_GROUP_READER    (0xce)
-#define ENTITYID_OBJECT_NORMAL_META_CST_READER     (0x87)
 #define ENTITYID_OBJECT_NORMAL_META_WRITER_GROUP   (0x88)
 #define ENTITYID_OBJECT_NORMAL_META_READER_GROUP   (0x89)
 #define ENTITYID_OBJECT_NORMAL_META_TOPIC          (0x8a)
@@ -1533,7 +1532,6 @@ static const value_string entity_kind_vals [] = {
   { ENTITYKIND_RTI_BUILTIN_WRITER_NO_KEY,       "RTI Built-in writer (no key)" },
   { ENTITYKIND_RTI_BUILTIN_READER_WITH_KEY,     "RTI Built-in reader (with key)" },
   { ENTITYKIND_RTI_BUILTIN_READER_NO_KEY,       "RTI Built-in reader (no key)" },
-  { ENTITYID_OBJECT_NORMAL_META_CST_READER,     "Object normal meta CST reader" },
   { ENTITYID_OBJECT_NORMAL_META_WRITER_GROUP,   "Object normal meta writer group" },
   { ENTITYID_OBJECT_NORMAL_META_READER_GROUP,   "Object normal meta reader group" },
   { ENTITYID_OBJECT_NORMAL_META_TOPIC,          "Object normal meta topic" },
