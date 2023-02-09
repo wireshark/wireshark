@@ -4205,7 +4205,7 @@ proto_reg_handoff_f5ethtrailer(void)
 static const string_string f5info_platform_strings[] = {
     /* rSeries */
     {"C128", "F5 r10000 Series (r10600, r10800, r10900)"},
-    {"C129", "F5 r5000 Series (r5600, 55800)"},
+    {"C129", "F5 r5000 Series (r5600, r5800, r5900)"},
     {"C130", "F5 r2000 Series (r2600, r2800)"},
     {"C131", "F5 r4000 Series (r4600, r4800)"},
 
