@@ -3246,6 +3246,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	# --preserve-xattr is undocumented but ensures that we install
 	# a signed ChmodBPF script.
+	set (_chmodbpf_version 1.2)
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
 	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
 		COMMAND find
@@ -3259,7 +3260,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-extras.sh"
 		COMMAND pkgbuild
 			--identifier org.wireshark.ChmodBPF.pkg
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--preserve-xattr
 			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-scripts"
@@ -3273,7 +3274,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${install_chmodbpf_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.install.ChmodBPF.product
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${install_chmodbpf_pkg}
@@ -3286,7 +3287,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_chmodbpf_component_pkg}"
 		COMMAND pkgbuild
 			--identifier org.wireshark.uninstall.ChmodBPF.pkg
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--nopayload
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-scripts"
 			${uninstall_chmodbpf_component_pkg}
@@ -3297,7 +3298,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_chmodbpf_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.uninstall.ChmodBPF.product
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${uninstall_chmodbpf_pkg}
@@ -3308,6 +3309,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	add_custom_target(chmodbpf DEPENDS ${install_chmodbpf_pkg} ${uninstall_chmodbpf_pkg})
 
+	set (_path_helper_version 1.1)
 	set (install_path_helper_component_pkg "${CMAKE_BINARY_DIR}/install.path_helper.pkg")
 	add_custom_command(OUTPUT "${install_path_helper_component_pkg}"
 		COMMAND find
@@ -3320,7 +3322,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 			-exec chmod 644 "{}" +
 		COMMAND pkgbuild
 			--identifier org.wireshark.path_helper.pkg
-			--version 1.0
+			--version ${_path_helper_version}
 			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root/etc"
 			--install-location /private/etc
 			${install_path_helper_component_pkg}
@@ -3332,7 +3334,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${install_path_helper_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.install.path_helper.product
-			--version 1.0
+			--version ${_path_helper_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/install-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${install_path_helper_pkg}
@@ -3345,7 +3347,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_path_helper_component_pkg}"
 		COMMAND pkgbuild
 			--identifier org.wireshark.uninstall.path_helper.pkg
-			--version 1.0
+			--version ${_path_helper_version}
 			--nopayload
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-scripts"
 			${uninstall_path_helper_component_pkg}
@@ -3356,7 +3358,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_path_helper_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.uninstall.path_helper.product
-			--version 1.0
+			--version ${_path_helper_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${uninstall_path_helper_pkg}
