@@ -3322,6 +3322,18 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_update_interval);
 
+    prefs_register_uint_preference(gui_module, "debounce.timer",
+                                   "How long to wait before processing computationally intensive user input",
+                                   "How long to wait (in milliseconds) before processing\
+                                   computationally intensive user input.\
+                                   If you type quickly, consider lowering the value for a 'snappier'\
+                                   experience.\
+                                   If you type slowly, consider increasing the value to avoid performance issues.\
+                                   This is currently used to delay searches in View -> Internals -> Supported Protocols\
+                                   and Preferences -> Advanced menu.",
+                                   10,
+                                   &prefs.gui_debounce_timer);
+
     register_string_like_preference(gui_module, "window_title", "Custom window title",
         "Custom window title to be appended to the existing title\n"
         "%F = file path of the capture file\n"
@@ -4180,6 +4192,7 @@ pre_init_prefs(void)
     prefs.gui_update_enabled         = TRUE;
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
+    prefs.gui_debounce_timer         = 400; /* milliseconds */
     g_free(prefs.gui_window_title);
     prefs.gui_window_title           = g_strdup("");
     g_free(prefs.gui_prepend_window_title);

@@ -39,6 +39,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_toolbar_main_style_ = prefFromPrefPtr(&prefs.gui_toolbar_main_style);
     pref_window_title_ = prefFromPrefPtr(&prefs.gui_window_title);
     pref_prepend_window_title_ = prefFromPrefPtr(&prefs.gui_prepend_window_title);
+    pref_debounce_timer_ = prefFromPrefPtr(&prefs.gui_debounce_timer);
 
     QStyleOption style_opt;
     QString indent_ss = QString(
@@ -136,6 +137,7 @@ void MainWindowPreferencesFrame::updateWidgets()
 
     ui->windowTitle->setText(prefs_get_string_value(pref_window_title_, pref_stashed));
     ui->prependWindowTitle->setText(prefs_get_string_value(pref_prepend_window_title_, pref_stashed));
+    ui->debounceTime->setText(QString::number(prefs_get_uint_value_real(pref_debounce_timer_, pref_stashed)));
 }
 
 void MainWindowPreferencesFrame::on_geometryCheckBox_toggled(bool checked)
@@ -218,4 +220,9 @@ void MainWindowPreferencesFrame::on_windowTitle_textEdited(const QString &new_ti
 void MainWindowPreferencesFrame::on_prependWindowTitle_textEdited(const QString &new_prefix)
 {
     prefs_set_string_value(pref_prepend_window_title_, new_prefix.toStdString().c_str(), pref_stashed);
+}
+
+void MainWindowPreferencesFrame::on_debounceTime_textEdited(const QString &new_timer)
+{
+    prefs_set_uint_value(pref_debounce_timer_, new_timer.toUInt(), pref_stashed);
 }

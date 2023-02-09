@@ -11,6 +11,7 @@
 
 #include "supported_protocols_dialog.h"
 #include <ui_supported_protocols_dialog.h>
+#include <epan/prefs.h>
 
 #include <QElapsedTimer>
 
@@ -92,5 +93,6 @@ void SupportedProtocolsDialog::on_searchLineEdit_textChanged(const QString &sear
      * the countdown.
      */
     searchLineEditText = search_re;
-    searchLineEditTimer->start(1000);
+    guint gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
+    searchLineEditTimer->start(gui_debounce_timer);
 }

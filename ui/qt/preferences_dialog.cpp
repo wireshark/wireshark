@@ -12,6 +12,7 @@
 
 #include "module_preferences_scroll_area.h"
 
+#include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/decode_as.h>
 #include <ui/language.h>
@@ -224,7 +225,8 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &text
      * the countdown.
      */
     searchLineEditText = text;
-    searchLineEditTimer->start(200);
+    guint gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
+    searchLineEditTimer->start(gui_debounce_timer);
 }
 
 void PreferencesDialog::on_buttonBox_accepted()

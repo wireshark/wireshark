@@ -208,6 +208,7 @@ typedef struct _e_prefs {
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;
+  gint         gui_debounce_timer;
   gchar       *saved_at_version;
   gboolean     unknown_prefs; /* unknown or obsolete pref(s) */
   gboolean     unknown_colorfilters; /* Warn when saving unknown or obsolete color filters. */
