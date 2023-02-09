@@ -8421,7 +8421,6 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     guint32     groups_length, next_offset;
     proto_tree *groups_tree;
     proto_item *ti;
-    guint32     ja3_value;
     gchar      *ja3_dash = "";
 
     /* NamedGroup named_group_list<2..2^16-1> */
@@ -8447,11 +8446,13 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     }
     /* loop over all groups */
     while (offset + 2 <= offset_end) {
+        guint32     ext_supported_group;
+
         proto_tree_add_item_ret_uint(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2,
-                                     ENC_BIG_ENDIAN, &ja3_value);
+                                     ENC_BIG_ENDIAN, &ext_supported_group);
         offset += 2;
-        if (ja3 && ((ja3_value & 0x0f0f) != 0x0a0a)) {
-            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
+        if (ja3 && ((ext_supported_group & 0x0f0f) != 0x0a0a)) {
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ext_supported_group);
             ja3_dash = "-";
         }
     }
@@ -8469,7 +8470,6 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     guint8      ecpf_length;
     proto_tree *ecpf_tree;
     proto_item *ti;
-    guint32     ja3_value;
 
     ecpf_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf->hf.hs_ext_ec_point_formats_len,
@@ -8492,12 +8492,14 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     /* loop over all point formats */
     while (ecpf_length > 0)
     {
+        guint32     ext_ec_point_format;
+
         proto_tree_add_item_ret_uint(ecpf_tree, hf->hf.hs_ext_ec_point_format, tvb, offset, 1,
-                                     ENC_BIG_ENDIAN, &ja3_value);
+                                     ENC_BIG_ENDIAN, &ext_ec_point_format);
         offset++;
         ecpf_length--;
         if (ja3) {
-            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+            wmem_strbuf_append_printf(ja3, "%i", ext_ec_point_format);
             if (ecpf_length > 0) {
                 wmem_strbuf_append_c(ja3, '-');
             }
@@ -8991,20 +8993,21 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      */
     proto_item *ti;
     proto_tree *cs_tree;
+    guint32     client_version;
     guint32     cipher_suite_length;
     guint32     compression_methods_length;
     guint8      compression_method;
     guint32     next_offset;
-    guint32     ja3_value;
     wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
     gchar      *ja3_hash;
     gchar      *ja3_dash = "";
 
     /* show the client version */
     ti = proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
-                                      offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+                                      offset, 2, ENC_BIG_ENDIAN,
+                                      &client_version);
     offset += 2;
-    wmem_strbuf_append_printf(ja3, "%i,", ja3_value);
+    wmem_strbuf_append_printf(ja3, "%i,", client_version);
 
     /*
      * Is it version 1.3?
@@ -9014,12 +9017,12 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      * Hello".
      */
     if (dtls_hfs != NULL) {
-        if (ja3_value == DTLSV1DOT3_VERSION) {
+        if (client_version  == DTLSV1DOT3_VERSION) {
             /* Don't do that. */
             expert_add_info(pinfo, ti, &hf->ei.client_version_error);
         }
     } else {
-        if (ja3_value == TLSV1DOT3_VERSION) {
+        if (client_version == TLSV1DOT3_VERSION) {
             /* Don't do that. */
             expert_add_info(pinfo, ti, &hf->ei.client_version_error);
         }
@@ -9059,11 +9062,13 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                     plurality(cipher_suite_length/2, "", "s"));
     cs_tree = proto_item_add_subtree(ti, hf->ett.cipher_suites);
     while (offset + 2 <= next_offset) {
+        guint32     cipher_suite;
+
         proto_tree_add_item_ret_uint(cs_tree, hf->hf.hs_cipher_suite, tvb, offset, 2,
-                                     ENC_BIG_ENDIAN, &ja3_value);
+                                     ENC_BIG_ENDIAN, &cipher_suite);
         offset += 2;
-        if ((ja3_value & 0x0f0f) != 0x0a0a) {
-            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
+        if ((cipher_suite & 0x0f0f) != 0x0a0a) {
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, cipher_suite);
             ja3_dash = "-";
         }
     }
@@ -9139,7 +9144,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      */
     guint8  draft_version = session->tls13_draft_version;
     proto_item *ti;
-    guint32     ja3_value;
+    guint32     server_version;
+    guint32     cipher_suite;
     wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
     gchar      *ja3_hash;
 
@@ -9153,9 +9159,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* show the server version */
     proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+                        offset, 2, ENC_BIG_ENDIAN, &server_version);
     offset += 2;
-    wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+    wmem_strbuf_append_printf(ja3, "%i", server_version);
 
     /* dissect fields that are present in both ClientHello and ServerHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE, is_hrr);
@@ -9167,9 +9173,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* now the server-selected cipher suite */
     proto_tree_add_item_ret_uint(tree, hf->hf.hs_cipher_suite,
-                        tvb, offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+                        tvb, offset, 2, ENC_BIG_ENDIAN, &cipher_suite);
     offset += 2;
-    wmem_strbuf_append_printf(ja3, ",%i,", ja3_value);
+    wmem_strbuf_append_printf(ja3, ",%i,", cipher_suite);
 
     /* No compression with TLS 1.3 before draft -22 */
     if (!(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
