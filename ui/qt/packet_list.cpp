@@ -1421,78 +1421,52 @@ QString PacketList::getPacketComment(guint c_number)
 
 void PacketList::addPacketComment(QString new_comment)
 {
-    frame_data *fdata;
-
     if (!cap_file_ || !packet_list_model_) return;
     if (new_comment.isEmpty()) return;
 
     QByteArray ba = new_comment.toUtf8();
 
-    for (int i = 0; i < selectedRows().size(); i++) {
-        int row = selectedRows().at(i);
-
-        fdata = packet_list_model_->getRowFdata(row);
-
-        if (!fdata) continue;
-
-        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-
-        /*
-         * Make sure this would fit in a pcapng option.
-         *
-         * XXX - 65535 is the maximum size for an option in pcapng;
-         * what if another capture file format supports larger
-         * comments?
-         */
-        if (ba.size() > 65535) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That comment is too large to save in a capture file.");
-            return;
-        }
-        wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
-
-        cf_set_modified_block(cap_file_, fdata, pkt_block);
+    /*
+     * Make sure this would fit in a pcapng option.
+     *
+     * XXX - 65535 is the maximum size for an option in pcapng;
+     * what if another capture file format supports larger
+     * comments?
+     */
+    if (ba.size() > 65535) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "That comment is too large to save in a capture file.");
+        return;
     }
 
-    redrawVisiblePackets();
+    if (selectionModel() && selectionModel()->hasSelection()) {
+        packet_list_model_->addFrameComment(selectionModel()->selectedRows(), ba);
+        drawCurrentPacket();
+    }
 }
 
 void PacketList::setPacketComment(guint c_number, QString new_comment)
 {
-    int row = currentIndex().row();
-    frame_data *fdata;
+    QModelIndex curIndex = currentIndex();
 
     if (!cap_file_ || !packet_list_model_) return;
 
-    fdata = packet_list_model_->getRowFdata(row);
-
-    if (!fdata) return;
-
-    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-
-    /* Check if we are clearing the comment */
-    if (new_comment.isEmpty()) {
-        wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, c_number);
-    } else {
-        QByteArray ba = new_comment.toUtf8();
-        /*
-         * Make sure this would fit in a pcapng option.
-         *
-         * XXX - 65535 is the maximum size for an option in pcapng;
-         * what if another capture file format supports larger
-         * comments?
-         */
-        if (ba.size() > 65535) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That comment is too large to save in a capture file.");
-            return;
-        }
-        wtap_block_set_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, ba.data(), ba.size());
+    QByteArray ba = new_comment.toUtf8();
+    /*
+     * Make sure this would fit in a pcapng option.
+     *
+     * XXX - 65535 is the maximum size for an option in pcapng;
+     * what if another capture file format supports larger
+     * comments?
+     */
+    if (ba.size() > 65535) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "That comment is too large to save in a capture file.");
+        return;
     }
 
-    cf_set_modified_block(cap_file_, fdata, pkt_block);
-
-    redrawVisiblePackets();
+    packet_list_model_->setFrameComment(curIndex, ba, c_number);
+    drawCurrentPacket();
 }
 
 QString PacketList::allPacketComments()
@@ -1528,54 +1502,20 @@ QString PacketList::allPacketComments()
 
 void PacketList::deleteCommentsFromPackets()
 {
-    frame_data *fdata;
-
     if (!cap_file_ || !packet_list_model_) return;
 
-    for (int i = 0; i < selectedRows().size(); i++) {
-        int row = selectedRows().at(i);
-
-        fdata = packet_list_model_->getRowFdata(row);
-
-        if (!fdata) continue;
-
-        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-        guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
-
-        for (guint j = 0; j < n_comments; j++) {
-            wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
-        }
-
-        cf_set_modified_block(cap_file_, fdata, pkt_block);
+    if (selectionModel() && selectionModel()->hasSelection()) {
+        packet_list_model_->deleteFrameComments(selectionModel()->selectedRows());
+        drawCurrentPacket();
     }
-
-    redrawVisiblePackets();
 }
 
 void PacketList::deleteAllPacketComments()
 {
-    guint32 framenum;
-    frame_data *fdata;
-    QString buf_str;
-    guint i;
+    if (!cap_file_ || !packet_list_model_) return;
 
-    if (!cap_file_)
-        return;
-
-    for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
-        fdata = frame_data_sequence_find(cap_file_->provider.frames, framenum);
-        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-        guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
-
-        for (i = 0; i < n_comments; i++) {
-            wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
-        }
-        cf_set_modified_block(cap_file_, fdata, pkt_block);
-    }
-
-    cap_file_->packet_comment_count = 0;
-    expert_update_comment_count(cap_file_->packet_comment_count);
-    redrawVisiblePackets();
+    packet_list_model_->deleteAllFrameComments();
+    drawCurrentPacket();
 }
 
 

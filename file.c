@@ -4289,9 +4289,11 @@ cf_set_modified_block(capture_file *cf, frame_data *fd, const wtap_block_t new_b
     if (pkt_block == new_block) {
         /* No need to save anything here, the caller changes went right
          * onto the block.
-         * Unfortunately we don't have a way to know how many comments were in the block
-         * before the caller modified it.
+         * Unfortunately we don't have a way to know how many comments were
+         * in the block before the caller modified it, so tell the caller
+         * it is its responsibility to update the comment count.
          */
+        return FALSE;
     }
     else {
         if (pkt_block)

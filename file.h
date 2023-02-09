@@ -702,6 +702,10 @@ wtap_block_t cf_get_packet_block(capture_file *cf, const frame_data *fd);
  * @param cf the capture file
  * @param fd the frame_data structure for the frame
  * @param new_block the block replacing the old block
+ *
+ * @return TRUE if the block is modified for the first time. FALSE if
+ * the block was already modified before, in which case the caller is
+ * responsible for updating the comment count.
  */
 gboolean cf_set_modified_block(capture_file *cf, frame_data *fd, const wtap_block_t new_block);
 

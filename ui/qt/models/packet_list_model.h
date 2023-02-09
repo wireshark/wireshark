@@ -74,6 +74,10 @@ public:
     void setDisplayedFrameIgnore(gboolean set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();
+    void addFrameComment(const QModelIndexList &indices, const QByteArray &comment);
+    void setFrameComment(const QModelIndex &index, const QByteArray &comment, guint c_number);
+    void deleteFrameComments(const QModelIndexList &indices);
+    void deleteAllFrameComments();
 
     void setMaximumRowHeight(int height);
 

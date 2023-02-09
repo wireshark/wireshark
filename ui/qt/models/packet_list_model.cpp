@@ -18,6 +18,7 @@
 
 #include <wsutil/nstime.h>
 #include <epan/column.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 
 #include "ui/packet_list_utils.h"
@@ -331,6 +332,145 @@ void PacketListModel::unsetAllFrameRefTime()
     cf_reftime_packets(cap_file_);
     PacketListRecord::resetColumns(&cap_file_->cinfo);
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+}
+
+void PacketListModel::addFrameComment(const QModelIndexList &indices, const QByteArray &comment)
+{
+    int sectionMax = columnCount() - 1;
+    frame_data *fdata;
+    if (!cap_file_) return;
+
+    foreach (const auto &index, std::as_const(indices)) {
+        if (!index.isValid()) continue;
+
+        PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+        if (!record) continue;
+
+        fdata = record->frameData();
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+        wtap_block_add_string_option(pkt_block, OPT_COMMENT, comment.data(), comment.size());
+
+        if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
+            cap_file_->packet_comment_count++;
+            expert_update_comment_count(cap_file_->packet_comment_count);
+        }
+
+        // In case there are coloring rules or columns related to comments.
+        // (#12519)
+        //
+        // XXX: "Does any active coloring rule relate to frame data"
+        // could be an optimization. For columns, note that
+        // "col_based_on_frame_data" only applies to built in columns,
+        // not custom columns based on frame data. (Should we prevent
+        // custom columns based on frame data from being created,
+        // substituting them with the other columns?)
+        //
+        // Note that there are not currently any fields that depend on
+        // whether other frames have comments, unlike with time references
+        // and time shifts ("frame.time_relative", "frame.offset_shift", etc.)
+        // If there were, then we'd need to reset data for all frames instead
+        // of just the frames changed.
+        record->invalidateColorized();
+        record->invalidateRecord();
+        emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+                QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
+    }
+}
+
+void PacketListModel::setFrameComment(const QModelIndex &index, const QByteArray &comment, guint c_number)
+{
+    int sectionMax = columnCount() - 1;
+    frame_data *fdata;
+    if (!cap_file_) return;
+
+    if (!index.isValid()) return;
+
+    PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+    if (!record) return;
+
+    fdata = record->frameData();
+
+    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+    if (comment.isEmpty()) {
+        wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, c_number);
+        if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
+            cap_file_->packet_comment_count--;
+            expert_update_comment_count(cap_file_->packet_comment_count);
+        }
+    } else {
+        wtap_block_set_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, comment.data(), comment.size());
+        cf_set_modified_block(cap_file_, fdata, pkt_block);
+    }
+
+    record->invalidateColorized();
+    record->invalidateRecord();
+    emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+            QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
+}
+
+void PacketListModel::deleteFrameComments(const QModelIndexList &indices)
+{
+    int sectionMax = columnCount() - 1;
+    frame_data *fdata;
+    if (!cap_file_) return;
+
+    foreach (const auto &index, std::as_const(indices)) {
+        if (!index.isValid()) continue;
+
+        PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+        if (!record) continue;
+
+        fdata = record->frameData();
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+        guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+
+        if (n_comments) {
+            for (guint i = 0; i < n_comments; i++) {
+                wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
+            }
+            if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
+                cap_file_->packet_comment_count -= n_comments;
+                expert_update_comment_count(cap_file_->packet_comment_count);
+            }
+
+            record->invalidateColorized();
+            record->invalidateRecord();
+            emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+                    QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
+        }
+    }
+}
+
+void PacketListModel::deleteAllFrameComments()
+{
+    int row;
+    int sectionMax = columnCount() - 1;
+    if (!cap_file_) return;
+
+    /* XXX: we might need a progressbar here */
+
+    foreach (PacketListRecord *record, physical_rows_) {
+        frame_data *fdata = record->frameData();
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+        guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+
+        if (n_comments) {
+            for (guint i = 0; i < n_comments; i++) {
+                wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
+            }
+            cf_set_modified_block(cap_file_, fdata, pkt_block);
+
+            record->invalidateColorized();
+            record->invalidateRecord();
+            row = packetNumberToRow(fdata->num);
+            if (row > -1) {
+                emit dataChanged(index(row, 0), index(row, sectionMax),
+                    QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
+            }
+        }
+    }
+    cap_file_->packet_comment_count = 0;
+    expert_update_comment_count(cap_file_->packet_comment_count);
 }
 
 void PacketListModel::setMaximumRowHeight(int height)

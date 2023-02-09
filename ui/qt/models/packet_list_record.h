@@ -44,6 +44,9 @@ public:
     unsigned int conversation() { return conv_index_; }
 
     int columnTextSize(const char *str);
+
+    void invalidateColorized() { colorized_ = false; }
+    void invalidateRecord() { col_text_cache_.remove(fdata_->num); }
     static void invalidateAllRecords() { col_text_cache_.clear(); }
     /* In Qt 6, QCache maxCost is a qsizetype, but the QAbstractItemModel
      * number of rows is still an int, so we're limited to INT_MAX anyway.
