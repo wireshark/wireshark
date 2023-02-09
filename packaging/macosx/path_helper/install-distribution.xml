@@ -20,5 +20,5 @@ https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/I
     <choice id="org.wireshark.path_helper.pkg" visible="false">
         <pkg-ref id="org.wireshark.path_helper.pkg"/>
     </choice>
-    <pkg-ref id="org.wireshark.path_helper.pkg" version="1.0" onConclusion="none">install.path_helper.pkg</pkg-ref>
+    <pkg-ref id="org.wireshark.path_helper.pkg" onConclusion="none">install.path_helper.pkg</pkg-ref>
 </installer-gui-script>
