@@ -258,6 +258,7 @@ typedef struct _StringInfo {
 #define DTLSV1DOT0_VERSION     0xfeff
 #define DTLSV1DOT0_OPENSSL_VERSION 0x100
 #define DTLSV1DOT2_VERSION     0xfefd
+#define DTLSV1DOT3_VERSION     0xfefc
 
 /* Returns the TLS 1.3 draft version or 0 if not applicable. */
 static inline guint8 extract_tls13_draft_version(guint32 version) {
@@ -1099,6 +1100,7 @@ typedef struct ssl_common_dissect {
     } ett;
     struct {
         /* Generic expert info for malformed packets. */
+        expert_field client_version_error;
         expert_field malformed_vector_length;
         expert_field malformed_buffer_too_small;
         expert_field malformed_trailing_data;
@@ -1294,7 +1296,8 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1          \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT   \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
+        EI_INIT                                                         \
     },                                                                  \
 }
 /* }}} */
@@ -2501,6 +2504,10 @@ ssl_common_dissect_t name = {   \
 
 /* {{{ */
 #define SSL_COMMON_EI_LIST(name, prefix)                       \
+    { & name .ei.client_version_error, \
+        { prefix ".handshake.client_version_error", PI_PROTOCOL, PI_WARN, \
+        "Client Hello legacy version field specifies version 1.3, not version 1.2; some servers may not be able to handle that.", EXPFILL } \
+    }, \
     { & name .ei.malformed_vector_length, \
         { prefix ".malformed.vector_length", PI_PROTOCOL, PI_WARN, \
         "Variable vector length is outside the permitted range", EXPFILL } \

@@ -3874,6 +3874,7 @@ ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset)
     case TLSV1_VERSION:
     case TLSV1DOT1_VERSION:
     case TLSV1DOT2_VERSION:
+    case TLSV1DOT3_VERSION:
     case TLCPV1_VERSION:
         return 1;
     }

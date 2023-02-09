@@ -9001,12 +9001,31 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     gchar      *ja3_dash = "";
 
     /* show the client version */
-    proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+    ti = proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
+                                      offset, 2, ENC_BIG_ENDIAN, &ja3_value);
     offset += 2;
     wmem_strbuf_append_printf(ja3, "%i,", ja3_value);
 
-    /* dissect fields that are also present in ClientHello */
+    /*
+     * Is it version 1.3?
+     * If so, that's an error; TLS and DTLS 1.3 Client Hellos claim
+     * to be TLS 1.2, and mention 1.3 in an extension.  See RFC 8446
+     * section 4.1.2 "Client Hello" and RFC 9147 Section 5.3 "Client
+     * Hello".
+     */
+    if (dtls_hfs != NULL) {
+        if (ja3_value == DTLSV1DOT3_VERSION) {
+            /* Don't do that. */
+            expert_add_info(pinfo, ti, &hf->ei.client_version_error);
+        }
+    } else {
+        if (ja3_value == TLSV1DOT3_VERSION) {
+            /* Don't do that. */
+            expert_add_info(pinfo, ti, &hf->ei.client_version_error);
+        }
+    }
+
+    /* dissect fields that are present in both ClientHello and ServerHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, FALSE, FALSE);
 
     /* fields specific for DTLS (cookie_len, cookie) */
@@ -9138,7 +9157,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 2;
     wmem_strbuf_append_printf(ja3, "%i", ja3_value);
 
-    /* dissect fields that are also present in ClientHello */
+    /* dissect fields that are present in both ClientHello and ServerHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE, is_hrr);
 
     if (ssl) {
