@@ -108,6 +108,14 @@ static dissector_handle_t oscore_handle;
 #define DEFAULT_COAP_CTYPE_VALUE				~0U
 #define DEFAULT_COAP_BLOCK_NUMBER				~0U
 
+/* Macros specific to the OCF version options */
+#define COAP_OCF_VERSION_SUB_MASK 				0x3F
+#define COAP_OCF_VERSION_MINOR_MASK 				0x7C0
+#define COAP_OCF_VERSION_MAJOR_MASK 				0xF800
+
+#define COAP_OCF_VERSION_MINOR_OFFSET 				6
+#define COAP_OCF_VERSION_MAJOR_OFFSET 				11
+
 /*
  * Transaction Type
  */
@@ -810,6 +818,22 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 }
 
 static void
+dissect_coap_opt_ocf_version(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hfindex)
+{
+	guint option_value = coap_get_opt_uint(tvb, offset, opt_length);
+
+	guint sub_version = option_value & COAP_OCF_VERSION_SUB_MASK;
+	guint minor_version = (option_value & COAP_OCF_VERSION_MINOR_MASK) >> COAP_OCF_VERSION_MINOR_OFFSET;
+	guint major_version = (option_value & COAP_OCF_VERSION_MAJOR_MASK) >> COAP_OCF_VERSION_MAJOR_OFFSET;
+
+	proto_tree_add_uint(subtree, hfindex, tvb, offset, opt_length, option_value);
+
+	/* add info to the head of the packet detail */
+	proto_item_append_text(head_item, ": %u.%u.%u",
+	    major_version, minor_version, sub_version);
+}
+
+static void
 dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, int hf)
 {
 	guint port = 0;
@@ -1085,13 +1109,12 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
 		    opt_length, dissect_hf->hf.opt_block_size);
 		break;
-	// TODO: Dissection of OCF options could be improved
 	case COAP_OPT_OCF_CONTENT:
-		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		dissect_coap_opt_ocf_version(tvb, item, subtree, offset,
 		    opt_length, dissect_hf->hf.opt_ocf_version);
 		break;
 	case COAP_OPT_OCF_ACCEPT:
-		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		dissect_coap_opt_ocf_version(tvb, item, subtree, offset,
 		    opt_length, dissect_hf->hf.opt_ocf_accept_version);
 		break;
 	default:
