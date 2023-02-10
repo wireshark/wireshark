@@ -1529,25 +1529,33 @@ dissect_rdp_securityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
   return offset;
 }
 
-static rdp_known_channel_t
-find_channel_type(packet_info *pinfo, guint16 channelId) {
+static rdp_channel_def_t* find_channel(packet_info *pinfo, guint16 channelId) {
 	conversation_t *conversation;
 	rdp_conv_info_t *rdp_info;
 	guint8 i;
 
 	conversation = find_or_create_conversation(pinfo);
 	if (!conversation)
-		return RDP_CHANNEL_UNKNOWN;
+		return NULL;
 
 	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
 	if (!rdp_info)
-		return RDP_CHANNEL_UNKNOWN;
+		return NULL;
 
 	for (i = 0; i < rdp_info->maxChannels; i++) {
 		if (rdp_info->staticChannels[i].value == channelId)
-			return rdp_info->staticChannels[i].channelType;
+			return &rdp_info->staticChannels[i];
 	}
-	return RDP_CHANNEL_UNKNOWN;
+	return NULL;
+}
+
+static rdp_known_channel_t
+find_channel_type(packet_info *pinfo, guint16 channelId) {
+	rdp_channel_def_t* channel = find_channel(pinfo, channelId);
+	if (!channel)
+		return RDP_CHANNEL_UNKNOWN;
+
+	return channel->channelType;
 }
 
 
