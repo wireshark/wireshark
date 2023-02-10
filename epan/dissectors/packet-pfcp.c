@@ -472,6 +472,7 @@ static int hf_pfcp_ur_seqn = -1;
 static int hf_pfcp_oci_flags_b0_aoci = -1;
 
 static int hf_pfcp_pfcp_assoc_rel_req_b0_sarr = -1;
+static int hf_pfcp_pfcp_assoc_rel_req_b1_urss = -1;
 
 static int hf_pfcp_upiri_flags_b0_v4 = -1;
 static int hf_pfcp_upiri_flags_b1_v6 = -1;
@@ -5145,11 +5146,12 @@ dissect_pfcp_pfcp_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     int offset = 0;
 
     static int * const pfcp_pfcp_assoc_rel_req_flags[] = {
-        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_pfcp_assoc_rel_req_b1_urss,
         &hf_pfcp_pfcp_assoc_rel_req_b0_sarr,
         NULL
     };
-    /* Octet 5  Spare    SARR */
+    /* Octet 5  Spare  URSS SARR */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_pfcp_assoc_rel_req_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -13214,6 +13216,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_pfcp_assoc_rel_req_b0_sarr,
         { "SARR (PFCP Association Release Request)", "pfcp.assoc_rel_req.sarr",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfcp_assoc_rel_req_b1_urss,
+        { "URSS (non-zero Usage Reports for the affected PFCP Sessions Sent)", "pfcp.assoc_rel_req.urss",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_pfcp_upiri_flg_b6_assosi,
