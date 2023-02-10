@@ -1443,7 +1443,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 		if (rdp_info) {
 			rdp_channel_def_t *channel = &rdp_info->staticChannels[i];
 			channel->value = -1; /* unset */
-			channel->strptr = tvb_get_string_enc(pinfo->pool, tvb,
+			channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb,
 					offset, 8, ENC_ASCII);
 			channel->channelType = find_known_channel_by_name(
 					channel->strptr);
