@@ -22,7 +22,7 @@ header selected, which shows up in the byte view as the selected bytes.
 [#ChWorkSelPack1]
 
 .Wireshark with a TCP packet selected for viewing
-image::wsug_graphics/ws-packet-selected.png[{screenshot-attrs}]
+image::images/ws-packet-selected.png[{screenshot-attrs}]
 
 You can also select and view packets the same way while Wireshark is capturing
 if you selected “Update list of packets in real time” in the “Capture
@@ -37,7 +37,7 @@ easily compare two or more packets, even across multiple files.
 [#ChWorkPacketSepView]
 
 .Viewing a packet in a separate window
-image::wsug_graphics/ws-packet-sep-win.png[{screenshot-attrs}]
+image::images/ws-packet-sep-win.png[{screenshot-attrs}]
 
 Along with double-clicking the packet list and using the main menu there are a
 number of other ways to open a new packet window:
@@ -61,7 +61,7 @@ on the corresponding item.
 
 [#ChWorkColumnHeaderPopUpMenu]
 .Pop-up menu of the “Packet List” column header
-image::wsug_graphics/ws-column-header-popup-menu.png[{screenshot-attrs}]
+image::images/ws-column-header-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available
 in this header, where to find the corresponding function in the main
@@ -109,7 +109,7 @@ Remove this column, similar to deleting it in the “Preferences” dialog.
 [#ChWorkPacketListPanePopUpMenu]
 
 .Pop-up menu of the “Packet List” pane
-image::wsug_graphics/ws-packet-pane-popup-menu.png[{screenshot-attrs}]
+image::images/ws-packet-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available
 in this pane, where to find the corresponding function in the main menu,
@@ -228,7 +228,7 @@ details.
 [#ChWorkPacketDetailsPanePopUpMenu]
 
 .Pop-up menu of the “Packet Details” pane
-image::wsug_graphics/ws-details-pane-popup-menu.png[{screenshot-attrs}]
+image::images/ws-details-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available in this
 pane, where to find the corresponding function in the main menu, and a short
@@ -342,7 +342,7 @@ window. See <<ChWorkPacketSepView>> for details.
 [#ChWorkPacketBytesPanePopUpMenu]
 
 .Pop-up menu of the “Packet Bytes” pane
-image::wsug_graphics/ws-bytes-pane-popup-menu.png[{screenshot-attrs}]
+image::images/ws-bytes-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available
 in this pane along with a short description of each item.
@@ -400,7 +400,7 @@ Use EBCDIC encoding when displaying “hexdump” text.
 [#ChWorkPacketDiagramPanePopUpMenu]
 
 .Pop-up menu of the “Packet Diagram” pane
-image::wsug_graphics/ws-diagram-pane-popup-menu.png[{screenshot-attrs}]
+image::images/ws-diagram-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available
 in this pane along with a short description of each item.
@@ -472,7 +472,7 @@ expression.
 [#ChWorkTCPFilter]
 
 .Filtering on the TCP protocol
-image::wsug_graphics/ws-display-filter-tcp.png[{screenshot-attrs}]
+image::images/ws-display-filter-tcp.png[{screenshot-attrs}]
 
 As you may have noticed, only packets containing the TCP protocol are now displayed,
 so packets 1-10 are hidden and packet number 11
@@ -949,7 +949,7 @@ Wireshark display filter strings.
 [#ChWorkFilterAddExpression1]
 
 .The “Display Filter Expression” dialog box
-image::wsug_graphics/ws-filter-add-expression.png[{screenshot-attrs}]
+image::images/ws-filter-add-expression.png[{screenshot-attrs}]
 // Screenshot from Wireshark 3.1.1
 
 When you first bring up the Display Filter Expression dialog box you are shown a tree
@@ -1005,7 +1005,7 @@ clicking the btn:[Cancel] button.
 
 === Defining And Saving Filters
 
-You create pre-defined filters that appear in the capture and display filter bookmark menus (image:wsug_graphics/toolbar/filter-toolbar-bookmark.png[height=16,width=12]).
+You create pre-defined filters that appear in the capture and display filter bookmark menus (image:images/toolbar/filter-toolbar-bookmark.png[height=16,width=12]).
 This can save time in remembering and retyping some of the more complex filters you use.
 
 To create or edit capture filters, select menu:Manage Capture Filters[] from the capture filter bookmark menu or menu:Capture[Capture Filters...] from the main menu.
@@ -1017,7 +1017,7 @@ Both are described here, and the differences are noted as needed.
 [#FiltersDialog]
 
 .The “Capture Filters” and “Display Filters” dialog boxes
-image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
+image::images/ws-filters.png[{screenshot-attrs}]
 
 btn:[{plus}]::
 Adds a new filter to the list.
@@ -1059,7 +1059,7 @@ To define and save your own filter macros, follow the steps below:
 [#FilterMacrosDialog]
 +
 .Display Filter Macros window
-image::wsug_graphics/ws-filter-macros.png[{screenshot-attrs}]
+image::images/ws-filter-macros.png[{screenshot-attrs}]
 
 . To add a new filter macro, click the btn:[{plus}] button in the bottom-left corner. A new row will appear in the Display Filter Macros table above.
 
@@ -1083,7 +1083,7 @@ main toolbar and the packet list shown in <<ChWorkFindPacketToolbar>>.
 [#ChWorkFindPacketToolbar]
 
 .The “Find Packet” toolbar
-image::wsug_graphics/ws-find-packet.png[{screenshot-attrs}]
+image::images/ws-find-packet.png[{screenshot-attrs}]
 
 You can search using the following criteria:
 
@@ -1139,7 +1139,7 @@ most web browsers.
 [#ChWorkGoToPacketToolbar]
 
 .The “Go To Packet” toolbar
-image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
+image::images/ws-goto-packet.png[{screenshot-attrs}]
 
 This toolbar can be opened by selecting menu:Go[Go to packet...] from
 the main menu. It appears between the main toolbar and the packet list,
@@ -1296,7 +1296,7 @@ the menu:[Edit] menu or from the pop-up menu of the “Packet List” pane. See
 [#ChWorkTimeReference]
 
 .Wireshark showing a time referenced packet
-image::wsug_graphics/ws-time-reference.png[{screenshot-attrs}]
+image::images/ws-time-reference.png[{screenshot-attrs}]
 
 A time referenced packet will be marked with the string $$*REF*$$ in the Time
 column (see packet number 10). All subsequent packets will show the time since

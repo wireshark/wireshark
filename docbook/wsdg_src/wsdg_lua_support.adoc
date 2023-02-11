@@ -1,7 +1,7 @@
 [#wsluarm]
 
 // Attributes
-:build_dir: .
+:build_dir: ..
 
 == Lua Support in Wireshark
 

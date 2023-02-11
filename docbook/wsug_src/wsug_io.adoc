@@ -78,14 +78,14 @@ Wireshark adds the following controls:
 [#ChIOOpenFileDialogWin32]
 
 .“Open” on Microsoft Windows
-image::wsug_graphics/ws-open-win32.png[{medium-screenshot-attrs}]
+image::images/ws-open-win32.png[{medium-screenshot-attrs}]
 
 This is the common Windows file open dialog along with some Wireshark extensions.
 
 [#ChIOOpenFileDialog]
 
 .“Open” - Linux and UNIX
-image::wsug_graphics/ws-open-qt5.png[{medium-screenshot-attrs}]
+image::images/ws-open-qt5.png[{medium-screenshot-attrs}]
 
 This is the common Qt file open dialog along with some Wireshark extensions.
 
@@ -237,14 +237,14 @@ Examples are shown below.
 [#ChIOSaveAsFileWin32]
 
 .“Save” on Microsoft Windows
-image::wsug_graphics/ws-save-as-win32.png[{medium-screenshot-attrs}]
+image::images/ws-save-as-win32.png[{medium-screenshot-attrs}]
 
 This is the common Windows file save dialog with some additional Wireshark extensions.
 
 [#ChIOSaveAsFile2]
 
 .“Save” on Linux and UNIX
-image::wsug_graphics/ws-save-as-qt5.png[{medium-screenshot-attrs}]
+image::images/ws-save-as-qt5.png[{medium-screenshot-attrs}]
 
 This is the common Qt file save dialog with additional Wireshark extensions.
 
@@ -407,14 +407,14 @@ Append the packets from the selected file after the currently loaded packets.
 [#ChIOMergeFileWin32]
 
 .“Merge” on Microsoft Windows
-image::wsug_graphics/ws-merge-win32.png[{medium-screenshot-attrs}]
+image::images/ws-merge-win32.png[{medium-screenshot-attrs}]
 
 This is the common Windows file open dialog with additional Wireshark extensions.
 
 [#ChIOMergeFile2]
 
 .“Merge” on Linux and UNIX
-image::wsug_graphics/ws-merge-qt5.png[{medium-screenshot-attrs}]
+image::images/ws-merge-qt5.png[{medium-screenshot-attrs}]
 
 This is the Qt file open dialog with additional Wireshark extensions.
 
@@ -577,7 +577,7 @@ data, to be imported and set import parameters.
 [#ChIOFileImportDialog]
 
 .The “Import from Hex Dump” dialog in Hex Dump mode
-image::wsug_graphics/ws-file-import.png[{medium-screenshot-attrs}]
+image::images/ws-file-import.png[{medium-screenshot-attrs}]
 
 Specific controls of this import dialog are split in three sections:
 
@@ -616,7 +616,7 @@ _I_ or _i_ for input and _O_ or _o_ for output.
 ===== The Regular Expression tab
 
 .The "Regular Expression" tab inside the "Import from Hex Dump” dialog.
-image::wsug_graphics/ws-file-import-regex.png[{medium-screenshot-attrs}]
+image::images/ws-file-import-regex.png[{medium-screenshot-attrs}]
 
 Packet format regular expression::
 This is the regex used for searching packets and metadata inside the input file.
@@ -735,7 +735,7 @@ with file sets in a convenient way:
 ==== The “List Files” Dialog Box
 
 .The “List Files” dialog box
-image::wsug_graphics/ws-file-set-dialog.png[{medium-screenshot-attrs}]
+image::images/ws-file-set-dialog.png[{medium-screenshot-attrs}]
 
 Each line contains information about a file of the file set:
 
@@ -776,7 +776,7 @@ There are many other ways to export or extract data from capture files, includin
 ==== The “Export Specified Packets” Dialog Box
 
 .The “Export Specified Packets” dialog box
-image::wsug_graphics/ws-export-specified-packets.png[{medium-screenshot-attrs}]
+image::images/ws-export-specified-packets.png[{medium-screenshot-attrs}]
 
 This is similar to the “<<ChIOSaveAs,Save>>” dialog box, but it lets you save specific packets.
 This can be useful for trimming irrelevant or unwanted packets from a capture file.
@@ -789,7 +789,7 @@ See <<ChIOPacketRangeSection,Packet Range>> for details on the range controls.
 This lets you save the packet list, packet details, and packet bytes as plain text, CSV, JSON, and other formats.
 
 .The “Export Packet Dissections” dialog box
-image::wsug_graphics/ws-export-packet-dissections.png[{medium-screenshot-attrs}]
+image::images/ws-export-packet-dissections.png[{medium-screenshot-attrs}]
 
 The format can be selected from the “Export As” drop-down and further customized using the “<<ChIOPacketRangeSection,Packet Range>>” and “<<ChIOPacketRangeSection,Packet Format>>” controls.
 Some controls are unavailable for some formats, notably CSV and JSON.
@@ -978,7 +978,7 @@ If you would like to be able to <<ChIOImportSection,import>> any previously expo
 Export the bytes selected in the “Packet Bytes” pane into a raw binary file.
 
 .The “Export Selected Packet Bytes” dialog box
-image::wsug_graphics/ws-export-selected.png[{medium-screenshot-attrs}]
+image::images/ws-export-selected.png[{medium-screenshot-attrs}]
 
 File name::
 The file name to export the packet data to.
@@ -997,7 +997,7 @@ The “Export PDUs to File...” dialog box allows you to filter the captured Pr
 [#ExportPDUsToFile]
 +
 .Export PDUs to File window
-image::wsug_graphics/ws-export-pdus-to-file.png[{screenshot-attrs}]
+image::images/ws-export-pdus-to-file.png[{screenshot-attrs}]
 
 . To select the data according to your needs, optionally type a filter value into the `Display Filter` field. For more information about filter syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[Wireshark Filters] man page.
 
@@ -1066,7 +1066,7 @@ To export captured TLS session keys, follow the steps below:
 [#TlsSessionKeys]
 +
 .Export TLS Session Keys window
-image::wsug_graphics/ws-tls-session-keys.png[{screenshot-attrs}]
+image::images/ws-tls-session-keys.png[{screenshot-attrs}]
 
 . Type the desired file name in the `Save As` field.
 
@@ -1087,7 +1087,7 @@ updated every few seconds with any new objects seen. The saved objects can then
 be opened or examined independently of Wireshark.
 
 .The “Export Objects” dialog box
-image::wsug_graphics/ws-export-objects.png[{screenshot-attrs}]
+image::images/ws-export-objects.png[{screenshot-attrs}]
 
 Columns:
 
@@ -1147,7 +1147,7 @@ Printed output can contain lots of text, particularly if you print packet detail
 [#ChIOPrintDialogBox]
 
 .The “Print” dialog box
-image::wsug_graphics/ws-print.png[{medium-screenshot-attrs}]
+image::images/ws-print.png[{medium-screenshot-attrs}]
 
 The “Print” dialog box shows a preview area which shows the result of changing the packet format settings.
 You can zoom in and out using the kbd:[{plus}] and kbd:[-] keys and reset the zoom level using the kbd:[0] key.
@@ -1187,7 +1187,7 @@ You can use it to specify which packets will be exported or printed.
 [#ChIOPacketRangeFrame]
 
 .The “Packet Range” frame
-image::wsug_graphics/ws-packet-range.png[{medium-screenshot-attrs}]
+image::images/ws-packet-range.png[{medium-screenshot-attrs}]
 
 By default, the btn:[Displayed] button is set, which only exports or prints the packets that match the current display filter.
 Selecting btn:[Captured] will export or print all packets.
@@ -1222,7 +1222,7 @@ You can use it to specify which parts of dissection are exported or printed.
 [#ChIOPacketFormatFrame]
 
 .The “Packet Format” frame
-image::wsug_graphics/ws-packet-format.png[{small-screenshot-attrs}]
+image::images/ws-packet-format.png[{small-screenshot-attrs}]
 
 Each of the settings below correspond to the packet list, packet detail, and packet bytes in the main window.
 

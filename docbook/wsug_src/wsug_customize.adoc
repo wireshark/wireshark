@@ -471,7 +471,7 @@ will display the “Coloring Rules” dialog box as shown in
 
 [#ChCustColoringRulesDialog]
 .The “Coloring Rules” dialog box
-image::wsug_graphics/ws-coloring-rules-dialog.png[{screenshot-attrs}]
+image::images/ws-coloring-rules-dialog.png[{screenshot-attrs}]
 
 If this is the first time using the Coloring Rules dialog and you’re using the
 default configuration profile you should see the default rules, shown above.
@@ -497,7 +497,7 @@ background colors respectively.
 
 [#ChCustChooseColorDialog]
 .A color chooser
-image::wsug_graphics/ws-choose-color-rule.png[{small-screenshot-attrs}]
+image::images/ws-choose-color-rule.png[{small-screenshot-attrs}]
 
 The color chooser appearance depends on your operating system. The macOS color
 picker is shown. Select the color you desire for the selected packets and click
@@ -509,7 +509,7 @@ was applied, along with the matching filter.
 
 [#ChCustColorFilterMany]
 .Using color filters with Wireshark
-image::wsug_graphics/ws-coloring-fields.png[{screenshot-attrs}]
+image::images/ws-coloring-fields.png[{screenshot-attrs}]
 
 
 [#ChCustProtocolDissectionSection]
@@ -552,7 +552,7 @@ Wireshark will pop up the “Enabled Protocols” dialog box as shown in
 
 [#ChAdvEnabledProtocolsFig]
 .The “Enabled Protocols” dialog box
-image::wsug_graphics/ws-enabled-protocols.png[{screenshot-attrs}]
+image::images/ws-enabled-protocols.png[{screenshot-attrs}]
 
 To disable or enable a protocol, simply click the checkbox using the mouse.
 Note that typing a few letters of the protocol name in the search box will limit
@@ -583,7 +583,7 @@ will pop up the “Decode As” dialog box as shown in <<ChAdvDecodeAsFig>>.
 
 [#ChAdvDecodeAsFig]
 .The “Decode As” dialog box
-image::wsug_graphics/ws-decode-as.png[{screenshot-attrs}]
+image::images/ws-decode-as.png[{screenshot-attrs}]
 
 In this dialog you are able to edit entries by means of the edit buttons on the
 left.
@@ -628,7 +628,7 @@ side is a tree where you can select the page to be shown.
 
 [#ChCustGUIPrefPage]
 .The preferences dialog box
-image::wsug_graphics/ws-gui-preferences.png[{screenshot-attrs}]
+image::images/ws-gui-preferences.png[{screenshot-attrs}]
 
 Wireshark supports quite a few protocols, which is reflected in the long list of entries in the “Protocols” pane.
 You can jump to the preferences for a specific protocol by expanding “Protocols” and quickly typing the first few letters of the protocol name.
@@ -636,7 +636,7 @@ You can jump to the preferences for a specific protocol by expanding “Protocol
 The “Advanced” pane will let you view and edit all of Wireshark’s preferences, similar to link:about:config[] and link:chrome:flags[] in the Firefox and Chrome web browsers.
 
 .Advanced preferences
-image::wsug_graphics/ws-gui-preferences-advanced.png[{screenshot-attrs}]
+image::images/ws-gui-preferences-advanced.png[{screenshot-attrs}]
 
 You can search for a preference by typing text into the “Search” entry.
 You can also pass preference names to Wireshark and TShark on the command line.
@@ -724,7 +724,7 @@ are common to all profiles.
 
 [#ChCustGUIConfigProfilesPage]
 .The configuration profiles dialog box
-image::wsug_graphics/ws-gui-config-profiles.png[{medium-screenshot-attrs}]
+image::images/ws-gui-config-profiles.png[{medium-screenshot-attrs}]
 
 Search for profile ...::
 The list of profiles can be filtered by entering part of the profile's name

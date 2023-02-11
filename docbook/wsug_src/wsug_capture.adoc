@@ -83,16 +83,16 @@ It is possible to select more than one interface and capture from them simultane
 [#ChCapCaptureInterfacesMainWin32]
 
 .Capture interfaces on Microsoft Windows
-image::wsug_graphics/ws-capture-interfaces-main-win32.png[{screenshot-attrs}]
+image::images/ws-capture-interfaces-main-win32.png[{screenshot-attrs}]
 
 [#ChCapCaptureInterfacesMainMacos]
 
 .Capture interfaces on macOS
-image::wsug_graphics/ws-capture-interfaces-main-macos.png[{screenshot-attrs}]
+image::images/ws-capture-interfaces-main-macos.png[{screenshot-attrs}]
 
 Some interfaces allow or require configuration prior to capture.
 This will be indicated by a configuration icon
-(image:wsug_graphics/toolbar/x-capture-options.png[height=16,width=16])
+(image:images/toolbar/x-capture-options.png[height=16,width=16])
 to the left of the interface name.
 Clicking on the icon will show the configuration dialog for that interface.
 
@@ -112,7 +112,7 @@ If you are unsure which options to choose in this dialog box, leaving the defaul
 
 [#ChCapCaptureOptionsDialog]
 .The “Capture Options” input tab
-image::wsug_graphics/ws-capture-options.png[{screenshot-attrs}]
+image::images/ws-capture-options.png[{screenshot-attrs}]
 
 The “Input” tab contains the “Interface” table, which shows the following columns:
 
@@ -121,7 +121,7 @@ The interface name.
 +
 Some interfaces allow or require configuration prior to capture.
 This will be indicated by a configuration icon
-(image:wsug_graphics/toolbar/x-capture-options.png[height=16,width=16])
+(image:images/toolbar/x-capture-options.png[height=16,width=16])
 to the left of the interface name.
 Clicking on the icon will show the configuration dialog for that interface.
 
@@ -181,7 +181,7 @@ link:{sysfs-main-url}[sysfsutils].
 ====
 
 .The “Capture Options” output tab
-image::wsug_graphics/ws-capture-options-output.png[{screenshot-attrs}]
+image::images/ws-capture-options-output.png[{screenshot-attrs}]
 
 The “Output” tab shows the following information:
 
@@ -215,7 +215,7 @@ Form a ring buffer of the capture files with the given number of files.
 More details about capture files can be found in <<ChCapCaptureFiles>>.
 
 .The “Capture Options” options tab
-image::wsug_graphics/ws-capture-options-options.png[{screenshot-attrs}]
+image::images/ws-capture-options-options.png[{screenshot-attrs}]
 
 The “Options” tab shows the following information:
 
@@ -264,7 +264,7 @@ You can double click on an interface row in the “Input“ tab or click btn:[St
 
 [#ChCapManageInterfacesDialog]
 .The “Manage Interfaces” dialog box
-image::wsug_graphics/ws-manage-interfaces.png[{screenshot-attrs}]
+image::images/ws-manage-interfaces.png[{screenshot-attrs}]
 
 The “Manage Interfaces” dialog box initially shows the “Local Interfaces” tab, which lets you manage the following:
 
@@ -283,7 +283,7 @@ Can be used to add a descriptive comment for the interface.
 // [[ChCapManageInterfacesPipesDialog]]
 
 // .The “Pipes” tab
-// image::wsug_graphics/ws-capture-options-manage-interfaces-pipes.png[{screenshot-attrs}]
+// image::images/ws-capture-options-manage-interfaces-pipes.png[{screenshot-attrs}]
 
 The “Pipes” tab lets you capture from a named pipe.
 To successfully add a pipe, its associated named pipe must have already been created.
@@ -300,13 +300,13 @@ To remove a pipe from the list of interfaces, select it and press btn:[-].
 // to add or remove interfaces.
 
 // .The “Add New Interfaces” dialog box
-// image::wsug_graphics/ws-capture-options-manage-interfaces.png[{screenshot-attrs}]
+// image::images/ws-capture-options-manage-interfaces.png[{screenshot-attrs}]
 
 // ==== Add or hide local interfaces
 
 // [[ChCapManageInterfacesLocalDialog]]
 // .The “Add New Interfaces - Local Interfaces” dialog box
-// image::wsug_graphics/ws-capture-options-manage-interfaces-local.png[{screenshot-attrs}]
+// image::images/ws-capture-options-manage-interfaces-local.png[{screenshot-attrs}]
 
 // The tab “Local Interfaces” contains a list of available local interfaces,
 // including the hidden ones, which are not shown in the other lists.
@@ -325,7 +325,7 @@ To remove a pipe from the list of interfaces, select it and press btn:[-].
 
 // [[ChCapManageInterfacesRemoteDialog]]
 // .The “Add New Interfaces - Remote Interfaces” dialog box
-// image::wsug_graphics/ws-capture-options-manage-interfaces-remote.png[{screenshot-attrs}]
+// image::images/ws-capture-options-manage-interfaces-remote.png[{screenshot-attrs}]
 
 On Microsoft Windows, the “Remote Interfaces” tab lets you capture from an interface on a different machine.
 The Remote Packet Capture Protocol service must first be running on the target platform before Wireshark can connect to it.
@@ -366,7 +366,7 @@ To remove a host including all its interfaces from the list, select it and click
 
 // [[ChCapInterfaceRemoteDialog]]
 // .The “Remote Capture Interfaces” dialog box
-// image::wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png[{screenshot-attrs}]
+// image::images/ws-capture-options-manage-interfaces-remote-plus.png[{screenshot-attrs}]
 
 
 // ==== Remote Capture Settings
@@ -378,7 +378,7 @@ To remove a host including all its interfaces from the list, select it and click
 
 // [[ChCapInterfaceRemoteSettingsDialog]]
 // .The “Remote Capture Settings” dialog box
-// image::wsug_graphics/ws-capture-options-remote-settings.png[{screenshot-attrs}]
+// image::images/ws-capture-options-remote-settings.png[{screenshot-attrs}]
 
 // You can set the following parameters in this dialog:
 
@@ -427,7 +427,7 @@ To remove a host including all its interfaces from the list, select it and click
 
 // [[ChCapInterfaceDetailsDialog]]
 // .The “Interface Details” dialog box
-// image::wsug_graphics/ws-capture-interface-details.png[{screenshot-attrs}]
+// image::images/ws-capture-interface-details.png[{screenshot-attrs}]
 
 [#ChCapCompiledFilterOutputSection]
 
@@ -438,7 +438,7 @@ This figure shows the results of compiling the BPF filter for the selected inter
 [#ChCapCompiledFilterOutputDialog]
 
 .The “Compiled Filter Output” dialog box
-image::wsug_graphics/ws-capture-options-compile-selected-bpfs.png[{medium-screenshot-attrs}]
+image::images/ws-capture-options-compile-selected-bpfs.png[{medium-screenshot-attrs}]
 
 In the list on the left the interface names are listed.
 The results of compiling a filter for the selected interface are shown on the right.
@@ -459,7 +459,7 @@ have been captured. These options are controlled in the
 
 [#ChCapCaptureOptionsOutputDialog]
 .Capture output options
-image::wsug_graphics/ws-capture-options-output.png[{screenshot-attrs}]
+image::images/ws-capture-options-output.png[{screenshot-attrs}]
 
 [TIP]
 ====
@@ -689,7 +689,7 @@ You might see the following dialog box while a capture is running:
 
 [#ChCapCaptureInfoDialog]
 .The “Capture Information” dialog box
-image::wsug_graphics/ws-capture-info.png[{small-screenshot-attrs}]
+image::images/ws-capture-info.png[{small-screenshot-attrs}]
 
 This dialog box shows a list of protocols and their activity over time.
 It can be enabled via the “capture.show_info” setting in the “Advanced”

@@ -1,12 +1,12 @@
 :doctype: book
-include::attributes.adoc[]
+include::../attributes.adoc[]
 
 // Electronic book attributes
 :author: Ulf Lamping, Graham Bloice
 :description: Wireshark Developer’s Guide
 :keywords: Wireshark Developer Guide
 ifdef::ebook-format-epub3[]
-:front-cover-image: wsdg_graphics/ws-dev-guide-cover.png
+:front-cover-image: images/ws-dev-guide-cover.png
 :toc:
 endif::[]
 
@@ -19,9 +19,9 @@ endif::[]
 :qt-lts-version: 5.15
 :source-highlighter: coderay
 
-include::wsdg_src/wsdg_preface.adoc[]
+include::wsdg_preface.adoc[]
 
-include::common_src/typographic_conventions.adoc[]
+include::../common_src/typographic_conventions.adoc[]
 
 [#PartEnvironment]
 = Wireshark Build Environment
@@ -33,15 +33,15 @@ The first part describes how to set up the tools, libraries and source needed to
 generate Wireshark and how to do some typical development tasks.
 --
 
-include::wsdg_src/wsdg_env_intro.adoc[]
+include::wsdg_env_intro.adoc[]
 
-include::wsdg_src/wsdg_quick_setup.adoc[]
+include::wsdg_quick_setup.adoc[]
 
-include::wsdg_src/wsdg_sources.adoc[]
+include::wsdg_sources.adoc[]
 
-include::wsdg_src/wsdg_tools.adoc[]
+include::wsdg_tools.adoc[]
 
-include::wsdg_src/wsdg_libraries.adoc[]
+include::wsdg_libraries.adoc[]
 
 [#PartDevelopment]
 = Wireshark Development
@@ -53,20 +53,20 @@ The second part describes how the Wireshark sources are structured and how to
 change the sources such as adding a new dissector.
 --
 
-include::wsdg_src/wsdg_works.adoc[]
+include::wsdg_works.adoc[]
 
-include::wsdg_src/wsdg_build_intro.adoc[]
+include::wsdg_build_intro.adoc[]
 
-include::wsdg_src/wsdg_capture.adoc[]
+include::wsdg_capture.adoc[]
 
-include::wsdg_src/wsdg_dissection.adoc[]
+include::wsdg_dissection.adoc[]
 
-include::wsluarm.adoc[]
+include::wsdg_lua_support.adoc[]
 
-include::wsdg_src/wsdg_userinterface.adoc[]
+include::wsdg_userinterface.adoc[]
 
-include::wsdg_src/wsdg_tests.adoc[]
+include::wsdg_tests.adoc[]
 
-include::wsdg_src/wsdg_asn2wrs.adoc[]
+include::wsdg_asn2wrs.adoc[]
 
-include::common_src/gpl_appendix.adoc[]
+include::../common_src/gpl_appendix.adoc[]
