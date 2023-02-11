@@ -60,7 +60,7 @@ or, at prompt: `path_to/wireshark -o "mate.config: tcp.mate" -r http.cap`.
 
 If anything went well, your packet details might look something like this:
 
-image::wsug_graphics/ws-mate-tcp-output.png[]
+image::images/ws-mate-tcp-output.png[]
 
 [#ChMateManual]
 
@@ -246,7 +246,7 @@ _Start_ criteria given in the Gop declaration.
 Gop with other Gops into a Gog (Group of Groups) using the criteria given by the
 _Member_ criteria of a Gog declaration.
 
-image::wsug_graphics/ws-mate-analysis.png[]
+image::images/ws-mate-analysis.png[]
 
 The extraction and matching logic comes from MATE's configuration; MATE's
 configuration file is declared by the _mate.config_ preference. By default it is
@@ -289,14 +289,14 @@ frame. MATE will fetch from the field's tree those fields that are defined in
 the <<Pdu>> AVPL whose initial offset in the frame is within the boundaries of
 the current Proto and those of the various assigned Transports.
 
-image::wsug_graphics/ws-mate-dns_pane.png[]
+image::images/ws-mate-dns_pane.png[]
 
 Once MATE has found a _Proto_ field for which to create a Pdu from the frame it
 will move backwards in the frame looking for the respective _Transport_ fields.
 After that it will create AVPs named as each of those given in the rest of the
 AVPL for every instance of the fields declared as its values.
 
-image::wsug_graphics/ws-mate-dns_pdu.png[]
+image::images/ws-mate-dns_pdu.png[]
 
 Sometimes we need information from more than one _Transport_ protocol. In that
 case MATE will check the frame looking backwards to look for the various
@@ -316,7 +316,7 @@ Pdu isup_pdu Proto isup Transport mtp3/ip {
 };
 ----
 
-image::wsug_graphics/ws-mate-isup_over_mtp3_over_ip.png[]
+image::images/ws-mate-isup_over_mtp3_over_ip.png[]
 
 This allows to assign the right _Transport_ to the Pdu avoiding duplicate
 transport protocol entries (in case of tunneled ip over ip for example).
@@ -329,7 +329,7 @@ Pdu ftp_pdu Proto ftp Transport tcp/ip {
 };
 ----
 
-image::wsug_graphics/ws-mate-ftp_over_gre.png[]
+image::images/ws-mate-ftp_over_gre.png[]
 
 Other than the mandatory _Transport_ there is also an optional _Payload_
 statement, which works pretty much as _Transport_ but refers to elements after
@@ -355,7 +355,7 @@ Pdu mmse_over_http_pdu Proto http Transport tcp/ip {
 };
 ----
 
-image::wsug_graphics/ws-mate-mmse_over_http.png[]
+image::images/ws-mate-mmse_over_http.png[]
 
 ====== Conditions on which to create PDUs
 
@@ -426,7 +426,7 @@ Once MATE has created the Pdus it passes to the Pdu analysis phase. During the
 PDU analysis phase MATE will try to group Pdus of the same type into 'Groups of
 Pdus' (aka *Gop*s) and copy some AVPs from the Pdu's AVPL to the Gop's AVPL.
 
-image::wsug_graphics/ws-mate-pdu_analysis.png[]
+image::images/ws-mate-pdu_analysis.png[]
 
 ====== What can belong to a Gop
 
@@ -603,7 +603,7 @@ unassigned Gop is checked to verify whether it belongs to an already existing
 Gog or may create a new one. The second phase eventually checks the Gog and
 registers its keys in the Gogs index.
 
-image::wsug_graphics/ws-mate-gop_analysis.png[]
+image::images/ws-mate-gop_analysis.png[]
 
 There are several reasons for the author to believe that this feature needs to
 be reimplemented, so probably there will be deep changes in the way this is done
@@ -786,7 +786,7 @@ respective AVPLs when they are created and every time they change.
 
 ===== Operation
 
-image::wsug_graphics/ws-mate-transform.png[]
+image::images/ws-mate-transform.png[]
 
 * A list of previously declared Transforms may be given to every Item (Pdu, Gop,
 or Gog), using the Transform statement.

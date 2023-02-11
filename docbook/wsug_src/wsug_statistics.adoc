@@ -54,7 +54,7 @@ Some of these statistics are described at
 General information about the current capture file.
 
 .The “Capture File Properties” dialog
-image::wsug_graphics/ws-capture-file-properties.png[{screenshot-attrs}]
+image::images/ws-capture-file-properties.png[{screenshot-attrs}]
 
 This dialog shows the following information:
 
@@ -117,7 +117,7 @@ The `Ports` tab shows the list of service names, ports and types.
 Wireshark reads the entries for port mappings from the `hosts` service configuration files. See <<ChAppFilesConfigurationSection>> section for more information.
 
 .Resolved Addresses window
-image::wsug_graphics/ws-resolved-addr.png[{screenshot-attrs}]
+image::images/ws-resolved-addr.png[{screenshot-attrs}]
 
 [#ChStatHierarchy]
 
@@ -126,7 +126,7 @@ image::wsug_graphics/ws-resolved-addr.png[{screenshot-attrs}]
 The protocol hierarchy of the captured packets.
 
 .The “Protocol Hierarchy” Window
-image::wsug_graphics/ws-stats-hierarchy.png[{screenshot-attrs}]
+image::images/ws-stats-hierarchy.png[{screenshot-attrs}]
 
 This is a tree of all the protocols in the capture. Each row contains the
 statistical values of one protocol. Two of the columns (_Percent Packets_ and
@@ -204,7 +204,7 @@ per second in each direction. A timeline graph is also drawn across the
 “Rel Start” / “Abs Start” and “Duration” columns. Additionally
 
 .The “Conversations” window
-image::wsug_graphics/ws-stats-conversations.png[{screenshot-attrs}]
+image::images/ws-stats-conversations.png[{screenshot-attrs}]
 
 Each row in the list shows the statistical values for exactly one conversation.
 
@@ -313,7 +313,7 @@ will be received by some or all of the listed unicast endpoints.
 This window shows statistics about the endpoints captured.
 
 .The “Endpoints” window
-image::wsug_graphics/ws-stats-endpoints.png[{screenshot-attrs}]
+image::images/ws-stats-endpoints.png[{screenshot-attrs}]
 
 For each supported protocol, a tab is shown in this window. Each tab label shows
 the number of endpoints captured (e.g., the tab label “Ethernet &#183; 4” tells
@@ -362,7 +362,7 @@ it before (or while) you are doing a live capture.
 Shows the distribution of packet lengths and related information.
 
 .The “Packet Lengths” window
-image::wsug_graphics/ws-stats-packet-lengths.png[{medium-screenshot-attrs}]
+image::images/ws-stats-packet-lengths.png[{medium-screenshot-attrs}]
 
 Information is broken down by packet length ranges as shown above.
 
@@ -408,7 +408,7 @@ btn:[Save as...] lets you save the data as text, CSV, YAML, or XML.
 Lets you plot packet and protocol data in a variety of ways.
 
 .The “I/O Graphs” window
-image::wsug_graphics/ws-stats-iographs.png[{screenshot-attrs}]
+image::images/ws-stats-iographs.png[{screenshot-attrs}]
 
 As shown above, this window contains a chart drawing area along with a customizable list of graphs.
 Graphs are saved in your current <<ChCustConfigProfilesSection,profile>>.
@@ -566,7 +566,7 @@ Right-clicking on a row will let you apply or prepare filters for, search for, o
 You can also copy all of the response time information or save it in a variety of formats.
 
 .The “SMB2 Service Response Time Statistics” window
-image::wsug_graphics/ws-stats-srt-smb2.png[{screenshot-attrs}]
+image::images/ws-stats-srt-smb2.png[{screenshot-attrs}]
 
 You can optionally apply a display filter in order to limit the statistics to a specific set of packets.
 
@@ -602,7 +602,7 @@ See link:https://www.uni-due.de/~be0001/netperfmeter/[NetPerfMeter – A TCP/MPT
 link:https://duepublico2.uni-due.de/servlets/MCRFileNodeServlet/duepublico_derivate_00029737/Dre2012_final.pdf[Evaluation and Optimisation of Multi-Path Transport using the Stream Control Transmission Protocol] for more details about NetPerfMeter and the NetPerfMeter Protocol.
 
 .NetPerfMeter Statistics window
-image::wsug_graphics/ws-netperfmeter-statistics.png[{screenshot-attrs}]
+image::images/ws-netperfmeter-statistics.png[{screenshot-attrs}]
 
 [#ChStatONCRPC]
 
@@ -674,7 +674,7 @@ Collectd is a system statistics collection daemon. It collects various statistic
 The Domain Name System (DNS) associates different information, such as IP addresses, with domain names. DNS returns different codes, request-response and counters for various aggregations. The DNS statistics window enlists a total count of DNS messages, which are divided into groups by request types (opcodes), response code (rcode), query type, and others.
 
 .DNS statistics window
-image::wsug_graphics/ws-dns.png[{screenshot-attrs}]
+image::images/ws-dns.png[{screenshot-attrs}]
 
 You might find these statistics useful for quickly examining the health of a DNS service or other investigations. See the few possible scenarios below:
 
@@ -691,7 +691,7 @@ You can filter, copy or save the data into a file.
 The Flow Graph window shows connections between hosts. It displays the packet time, direction, ports and comments for each captured connection. You can filter all connections by ICMP Flows, ICMPv6 Flows, UIM Flows and TCP Flows. Flow Graph window is used for showing multiple different topics. Based on it, it offers different controls.
 
 .Flow Graph window
-image::wsug_graphics/ws-flow-graph.png[{screenshot-attrs}]
+image::images/ws-flow-graph.png[{screenshot-attrs}]
 
 Each vertical line represents the specific host, which you can see in the top of the window.
 
@@ -712,7 +712,7 @@ Available controls:
 * btn:[Export] allows export diagram as image in multiple different formats (PDF, PNG, BMP, JPEG and ASCII (diagram is stored with ASCII characters only)).
 
 .Flow Graph window showing VoIP call sequences
-image::wsug_graphics/ws-tel-seq-dialog.png[{screenshot-attrs}]
+image::images/ws-tel-seq-dialog.png[{screenshot-attrs}]
 
 Additional shortcuts available for VoIP calls:
 
@@ -771,7 +771,7 @@ capture's HTTP requests as a tree. This enables analysts to see how one HTTP
 request leads to the next.
 
 .The “HTTP Request Sequences” window
-image::wsug_graphics/ws-stats-http-requestsequences.png[{screenshot-attrs}]
+image::images/ws-stats-http-requestsequences.png[{screenshot-attrs}]
 
 
 [#ChStatHTTP2]
@@ -824,7 +824,7 @@ With these statistics you can:
 * Detect the packet loss inside the MPEG2 video stream.
 
 .UDP Multicast Streams window
-image::wsug_graphics/ws-udp-multicast-stream.png[{screenshot-attrs}]
+image::images/ws-udp-multicast-stream.png[{screenshot-attrs}]
 
 [#ChStatRSerPool]
 
@@ -854,25 +854,25 @@ With these statistics you can:
 See link:https://www.uni-due.de/~be0001/rserpool/[Thomas Dreibholz's Reliable Server Pooling (RSerPool) Page] and Chapter{nbsp}3 of link:https://duepublico.uni-duisburg-essen.de/servlets/DerivateServlet/Derivate-16326/Dre2006_final.pdf[Reliable Server Pooling – Evaluation, Optimization and Extension of a Novel IETF Architecture] for more details about RSerPool and its protocols.
 
 .ASAP Statistics window
-image::wsug_graphics/ws-asap-statistics.png[{screenshot-attrs}]
+image::images/ws-asap-statistics.png[{screenshot-attrs}]
 
 .ENRP Statistics window
-image::wsug_graphics/ws-enrp-statistics.png[{screenshot-attrs}]
+image::images/ws-enrp-statistics.png[{screenshot-attrs}]
 
 .Component Status Protocol Statistics window
-image::wsug_graphics/ws-csp-statistics.png[{screenshot-attrs}]
+image::images/ws-csp-statistics.png[{screenshot-attrs}]
 
 .CalcApp Protocol Statistics window
-image::wsug_graphics/ws-calcappprotocol-statistics.png[{screenshot-attrs}]
+image::images/ws-calcappprotocol-statistics.png[{screenshot-attrs}]
 
 .Fractal Generator Protocol Statistics window
-image::wsug_graphics/ws-fgp-statistics.png[{screenshot-attrs}]
+image::images/ws-fgp-statistics.png[{screenshot-attrs}]
 
 .Ping Pong Protocol Statistics window
-image::wsug_graphics/ws-pingpongprotocol-statistics.png[{screenshot-attrs}]
+image::images/ws-pingpongprotocol-statistics.png[{screenshot-attrs}]
 
 .Scripting Service Protocol Statistics window
-image::wsug_graphics/ws-ssp-statistics.png[{screenshot-attrs}]
+image::images/ws-ssp-statistics.png[{screenshot-attrs}]
 
 [#ChStatF5]
 

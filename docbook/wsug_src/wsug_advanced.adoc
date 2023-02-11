@@ -40,7 +40,7 @@ the display filter if this behavior is not desired.
 [#ChAdvFollowStream]
 
 .The “Follow TCP Stream” dialog box
-image::wsug_graphics/ws-follow-stream.png[{screenshot-attrs}]
+image::images/ws-follow-stream.png[{screenshot-attrs}]
 
 The stream content is displayed in the same sequence as it appeared on the
 network. Non-printable characters are replaced by dots.
@@ -179,7 +179,7 @@ You can search for text by entering it in the “Find” entry box and
 pressing btn:[Find Next].
 
 .The “Follow HTTP/2 Stream” dialog box
-image::wsug_graphics/ws-follow-http2-stream.png[{screenshot-attrs}]
+image::images/ws-follow-http2-stream.png[{screenshot-attrs}]
 
 The HTTP/2 Stream dialog is similar to the "Follow TCP Stream" dialog, except
 for an additional "Substream" dialog field. HTTP/2 Streams are identified by
@@ -191,7 +191,7 @@ The QUIC protocol is similar, the first number selects the QUIC connection numbe
 while the "Substream" field selects the QUIC Stream ID.
 
 .The “Follow SIP Call” dialog box
-image::wsug_graphics/ws-follow-sip-stream.png[{screenshot-attrs}]
+image::images/ws-follow-sip-stream.png[{screenshot-attrs}]
 
 The SIP call is shown with same dialog, just filter is based on sip.Call-ID
 field. Count of streams is fixed to 0 and the field is disabled.
@@ -402,7 +402,7 @@ You can open the expert info dialog by selecting menu:Analyze[Expert Info] or by
 Right-clicking on an item will allow you to apply or prepare a filter based on the item, copy its summary text, and other tasks.
 
 .The “Expert Information” dialog box
-image::wsug_graphics/ws-expert-information.png[{screenshot-attrs}]
+image::images/ws-expert-information.png[{screenshot-attrs}]
 
 You can choose from the following actions:
 
@@ -454,7 +454,7 @@ Closes the dialog
 ==== “Colorized” Protocol Details Tree
 
 .The “Colorized” protocol details tree
-image::wsug_graphics/ws-expert-colored-tree.png[{screenshot-attrs}]
+image::images/ws-expert-colored-tree.png[{screenshot-attrs}]
 
 The packet detail tree marks fields with expert information based on their severity level color, e.g., “Warning” severities have a yellow background.
 This color is propagated to the top-level protocol item in the tree in order to make it easy to find the field that created the expert information.
@@ -467,7 +467,7 @@ To make it easier find that item in the packet tree, the IP protocol toplevel it
 ==== “Expert” Packet List Column (Optional)
 
 .The “Expert” packet list column
-image::wsug_graphics/ws-expert-column.png[{screenshot-attrs}]
+image::images/ws-expert-column.png[{screenshot-attrs}]
 
 An optional “Expert Info Severity” packet list column is available that
 displays the most significant severity of a packet or stays empty if everything
@@ -489,7 +489,7 @@ For analysis of data or protocols layered on top of TCP (such as HTTP), see
 <<ChAdvReassemblyTcp>>.
 
 .“TCP Analysis” packet detail items
-image::wsug_graphics/ws-tcp-analysis.png[{screenshot-attrs}]
+image::images/ws-tcp-analysis.png[{screenshot-attrs}]
 
 TCP Analysis flags are added to the TCP protocol tree under “SEQ/ACK
 analysis”. Each flag is described below. Terms such as “next expected
@@ -990,7 +990,7 @@ See <<ChUsePacketBytesPaneSection>>).
 [#ChAdvWiresharkBytesPaneTabs]
 
 .The “Packet Bytes” pane with a reassembled tab
-image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
+image::images/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
 Reassembly might take place at several protocol layers, so it’s possible that
 multiple tabs in the “Packet Bytes” pane appear.

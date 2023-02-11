@@ -36,7 +36,7 @@ RTP Player is able to play any codec supported by an installed plugin. The codec
 * In the menu:Filter by type[] menu on the top-right, select codec 
 
 .List of supported codecs
-image::wsug_graphics/ws-about-codecs.png[{screenshot-attrs}]
+image::images/ws-about-codecs.png[{screenshot-attrs}]
 
 ==== Work with RTP streams - Playlist
 
@@ -51,7 +51,7 @@ When RTP Player window is opened, playlist can be modified from other tools (Wir
 * button menu:Play Streams[Remove from playlist] removes streams selected in the tool from playlist, if they are in the playlist.
 
 .btn:[Play Streams] button with opened action menu
-image::wsug_graphics/ws-tel-rtp-player_button.png[]
+image::images/ws-tel-rtp-player_button.png[]
 
 btn:[Play Streams] button can be clicked directly and opens RTP Player window directly with btn:[Set playlist] action. All actions can be selected with the small down arrow next to the button.
 
@@ -68,7 +68,7 @@ Tools below can be used to maintain content of playlist, they contain btn:[Play 
 * Open btn:[Flow Sequence] window in menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show flow sequence of calls. Select any RTP stream and then press btn:[Play Streams]. It will add selected RTP stream to playlist.
 
 .Tools for modifying playlist in RTP Player window
-image::wsug_graphics/ws-tel-playlist.png[]
+image::images/ws-tel-playlist.png[]
 
 [NOTE]
 ====
@@ -159,7 +159,7 @@ See https://gitlab.com/wireshark/wireshark/-/wikis/VOIPProtocolFamily[VOIPProtoc
 VoIP Calls window can be opened as window showing all protocol types (menu:Telephony[VoIP Calls] window) or limited to SIP messages only (menu:Telephony[SIP Flows] window).
 
 .VoIP Calls window
-image::wsug_graphics/ws-tel-voip-calls.png[{screenshot-attrs}]
+image::images/ws-tel-voip-calls.png[{screenshot-attrs}]
 
 User can use shortcuts:
 
@@ -226,7 +226,7 @@ Statistics of the captured LTE MAC traffic. This window will summarize the LTE
 MAC traffic found in the capture.
 
 .The “LTE MAC Traffic Statistics” window
-image::wsug_graphics/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
+image::images/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
 
 The top pane shows statistics for common channels. Each row in the middle pane
 shows statistical highlights for exactly one UE/C-RNTI. In the lower pane, you
@@ -242,7 +242,7 @@ The LTE RLC Graph menu launches a graph which shows LTE Radio Link Control proto
 NOTE: That graph shows data of a single bearer and direction. The user can also launch it from the `RLC Statistics` window.
 
 .The RLC Graph window
-image::wsug_graphics/ws-rlc-graph.png[{screenshot-attrs}]
+image::images/ws-rlc-graph.png[{screenshot-attrs}]
 
 [.small]#_The image of the RLC Graph is borrowed from link:https://gitlab.com/wireshark/wireshark/-/wikis/RLC-LTE[Wireshark wiki]._#
 
@@ -254,7 +254,7 @@ Statistics of the captured LTE RLC traffic. This window will summarize the LTE
 RLC traffic found in the capture.
 
 .The “LTE RLC Traffic Statistics” window
-image::wsug_graphics/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
+image::images/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
 
 At the top, the check-box allows this window to include RLC PDUs found within
 MAC PDUs or not. This will affect both the PDUs counted as well as the display
@@ -291,7 +291,7 @@ OSmux is a multiplex protocol designed to reduce bandwidth usage of satellite-ba
 The RTP streams window shows all RTP streams in capture file. Streams can be selected there and on selected streams other tools can be initiated.
 
 .The “RTP Streams” window
-image::wsug_graphics/ws-tel-rtp-streams.png[{screenshot-attrs}]
+image::images/ws-tel-rtp-streams.png[{screenshot-attrs}]
 
 User can use shortcuts:
 
@@ -334,10 +334,10 @@ Menu menu:Telephony[RTP > RTP Stream Analysis] is enabled only when selected pac
 Every stream is shown on own tab. Tabs are numbered as streams are added and its tooltip shows identification of the stream. When tab is closed, number is not reused. Color of tab matches color of graphs on graph tab.
 
 .The “RTP Stream Analysis” window
-image::wsug_graphics/ws-tel-rtpstream-analysis_1.png[{screenshot-attrs}]
+image::images/ws-tel-rtpstream-analysis_1.png[{screenshot-attrs}]
 
 .Error indicated in “RTP Stream Analysis” window
-image::wsug_graphics/ws-tel-rtpstream-analysis_3.png[{screenshot-attrs}]
+image::images/ws-tel-rtpstream-analysis_3.png[{screenshot-attrs}]
 
 Per packet statistic shows:
 
@@ -382,7 +382,7 @@ Available controls are:
 * btn:[Export] allows export current stream or all streams as CSV or export graph as image in multiple different formats (PDF, PNG, BMP and JPEG).
 
 .Graph in “RTP Stream Analysis” window
-image::wsug_graphics/ws-tel-rtpstream-analysis_2.png[{screenshot-attrs}]
+image::images/ws-tel-rtpstream-analysis_2.png[{screenshot-attrs}]
 
 Graph view shows graph of:
 
@@ -406,7 +406,7 @@ The RTP Player function is tool for playing VoIP calls. It shows RTP streams and
 Menu menu:Telephony[RTP > RTP Player] is enabled only when selected packed is RTP packet. When window is opened, selected RTP stream is added to playlist. If btn:[Ctrl] is pressed during menu opening, reverse RTP stream (if exists) is added to the playlist too.
 
 .RTP Player window
-image::wsug_graphics/ws-tel-rtp-player_1.png[{screenshot-attrs}]
+image::images/ws-tel-rtp-player_1.png[{screenshot-attrs}]
 
 RTP Player Window consists of three parts:
 
@@ -419,7 +419,7 @@ Waveform view shows visual presentation of RTP stream. Color of waveform and pla
 Waveform shows error marks for Out of Sequence, Jitter Drops, Wrong Timestamps and Inserted Silence marks if it happens in a stream.
 
 .Waveform with error marks
-image::wsug_graphics/ws-tel-rtp-player_3.png[{screenshot-attrs}]
+image::images/ws-tel-rtp-player_3.png[{screenshot-attrs}]
 
 Playlist shows information about every stream:
 
@@ -466,7 +466,7 @@ RTP Player detects silence just by missing voice samples (Comfort Noise, interru
 ====
 
 .RTP stream state indication
-image::wsug_graphics/ws-tel-rtp-player_2.png[{screenshot-attrs}]
+image::images/ws-tel-rtp-player_2.png[{screenshot-attrs}]
 
 Waveform view and playlist shows state of a RTP stream:
 
@@ -551,12 +551,12 @@ Stream Control Transmission Protocol (SCTP) is a computer network protocol which
 The SCTP Analyze Association window shows the statistics of the captured packets between two Endpoints. You can check the different chunk types by pressing btn:[Chunk Statistics] button in the `Statistics` tab. In the `Endpoint` tabs you can see various statistics, such as IP addresses, ports and others. You can also check different graphs here.
 
 .SCTP Analyze Association window
-image::wsug_graphics/ws-sctp-1-association.png[{screenshot-attrs}]
+image::images/ws-sctp-1-association.png[{screenshot-attrs}]
 
 The SCTP Associations window shows the table with the data for captured packets, such as port and counter. You can also call for the SCTP Analyze Association window by pressing the btn:[Analyze] button.
 
 .SCTP Associations window
-image::wsug_graphics/ws-sctp.png[{screenshot-attrs}]
+image::images/ws-sctp.png[{screenshot-attrs}]
 
 [#ChTelSMPPOperations]
 

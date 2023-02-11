@@ -363,7 +363,7 @@ This requires you to set up git as described at <<ChSrcGit>>.
 GitLab uses a https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[forking workflow], which looks like this:
 
 .GitLab Workflow
-image::wsdg_graphics/git-triangular-workflow.svg[]
+image::images/git-triangular-workflow.svg[]
 
 In the diagram above, your fork can created by pressing the “Fork” button at {wireshark-gitlab-project-url}.
 Your local repository can be created as described in <<ChSrcGit>>.
