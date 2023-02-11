@@ -22,7 +22,54 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/path_config.h.in ${CMAKE_CURRENT_BINA
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_subdirectory(wmem)
+set(WMEM_PUBLIC_HEADERS
+	wmem/wmem.h
+	wmem/wmem_array.h
+	wmem/wmem_core.h
+	wmem/wmem_list.h
+	wmem/wmem_map.h
+	wmem/wmem_miscutl.h
+	wmem/wmem_multimap.h
+	wmem/wmem_queue.h
+	wmem/wmem_stack.h
+	wmem/wmem_strbuf.h
+	wmem/wmem_strutl.h
+	wmem/wmem_tree.h
+	wmem/wmem_interval_tree.h
+	wmem/wmem_user_cb.h
+)
+
+set(WMEM_HEADER_FILES
+	${WMEM_PUBLIC_HEADERS}
+	wmem/wmem_allocator.h
+	wmem/wmem_allocator_block.h
+	wmem/wmem_allocator_block_fast.h
+	wmem/wmem_allocator_simple.h
+	wmem/wmem_allocator_strict.h
+	wmem/wmem_interval_tree.h
+	wmem/wmem_map_int.h
+	wmem/wmem_tree-int.h
+	wmem/wmem_user_cb_int.h
+)
+
+set(WMEM_FILES
+	wmem/wmem_array.c
+	wmem/wmem_core.c
+	wmem/wmem_allocator_block.c
+	wmem/wmem_allocator_block_fast.c
+	wmem/wmem_allocator_simple.c
+	wmem/wmem_allocator_strict.c
+	wmem/wmem_interval_tree.c
+	wmem/wmem_list.c
+	wmem/wmem_map.c
+	wmem/wmem_miscutl.c
+	wmem/wmem_multimap.c
+	wmem/wmem_stack.c
+	wmem/wmem_strbuf.c
+	wmem/wmem_strutl.c
+	wmem/wmem_tree.c
+	wmem/wmem_user_cb.c
+)
 
 set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
@@ -171,7 +218,11 @@ if(ENABLE_PLUGINS)
 	)
 endif()
 
-set(WSUTIL_FILES ${WSUTIL_COMMON_FILES})
+set(WSUTIL_FILES
+	${WMEM_FILES}
+	${WSUTIL_COMMON_FILES}
+)
+
 if(WIN32)
 	list(APPEND WSUTIL_FILES
 		file_util.c
@@ -287,7 +338,6 @@ endif()
 
 add_library(wsutil
 	${WSUTIL_FILES}
-	$<TARGET_OBJECTS:wmem>
 	${CMAKE_BINARY_DIR}/resources/libwsutil.rc
 )
 
@@ -344,6 +394,29 @@ install(TARGETS wsutil
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+install(FILES ${WMEM_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil/wmem"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
+)
+
+install(FILES ${WSUTIL_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
+)
+
+add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c ${WMEM_FILES})
+
+target_link_libraries(wmem_test wsutil)
+
+set_target_properties(wmem_test PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
 add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
@@ -356,17 +429,12 @@ set_target_properties(test_wsutil PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-install(FILES ${WSUTIL_PUBLIC_HEADERS}
-	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil"
-	COMPONENT "Development"
-	EXCLUDE_FROM_ALL
-)
-
 CHECKAPI(
 	NAME
 	  wsutil
 	SWITCHES
 	SOURCES
+	  ${WMEM_FILES}
 	  ${WSUTIL_COMMON_FILES}
 )
 
