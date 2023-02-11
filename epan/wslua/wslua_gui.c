@@ -219,7 +219,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /*
     Displays a dialog, prompting for input. The dialog includes an btn:[OK] button and btn:[Cancel] button. Requires a GUI.
 
     .An input dialog in action
-    image::wsdg_graphics/wslua-new-dialog.png[{small-screenshot-attrs}]
+    image::images/wslua-new-dialog.png[{small-screenshot-attrs}]
 
     ===== Example
 
@@ -358,7 +358,7 @@ WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg"));
     The main thread checks the status of the btn:[Cancel] button and if it's not set, returns control to the coroutine.
 
     .A progress bar in action
-    image::wsdg_graphics/wslua-progdlg.png[{medium-screenshot-attrs}]
+    image::images/wslua-progdlg.png[{medium-screenshot-attrs}]
 
     The legacy (GTK+) user interface displayed this as a separate dialog, hence the “Dlg” suffix.
     The Qt user interface shows a progress bar inside the main status bar.
@@ -554,7 +554,7 @@ WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow")); /*
     The text can be read-only or editable, and buttons can be added below the text.
 
     .A text window in action
-    image::wsdg_graphics/wslua-textwindow.png[{medium-screenshot-attrs}]
+    image::images/wslua-textwindow.png[{medium-screenshot-attrs}]
 */
 
 /* XXX: button and close callback data is being leaked */
