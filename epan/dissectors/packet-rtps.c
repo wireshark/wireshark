@@ -2933,7 +2933,7 @@ static gint get_encapsulation_version(gint encapsulation_id)
 }
 
 
-dissection_info* lookup_dissection_info_in_custom_and_builtin_types(guint64 type_id) {
+static dissection_info* lookup_dissection_info_in_custom_and_builtin_types(guint64 type_id) {
   dissection_info* info = NULL;
   if (dissection_infos != NULL) {
     info = (dissection_info*)wmem_map_lookup(dissection_infos, &(type_id));
