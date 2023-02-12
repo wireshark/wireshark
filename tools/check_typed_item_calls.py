@@ -392,7 +392,10 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^gryphon.sched.channel'),
         re.compile(r'^pn_io.ioxs'),
         re.compile(r'^pn_dcp.block_qualifier_reset'),
-        re.compile(r'^pn_dcp.suboption_device_instance')
+        re.compile(r'^pn_dcp.suboption_device_instance'),
+        re.compile(r'^nfs.attr'),
+        re.compile(r'^nfs.create_session_flags'),
+        re.compile(r'^rmt-lct.toi64')
     ]
 
     for patt in ignore_patterns:
@@ -560,11 +563,17 @@ class Item:
             elif self.type_modifier == 'SEP_DOT':   # from proto.h
                 return 64
             else:
-                # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
-                return int(self.type_modifier)+3
+                try:
+                    # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
+                    return int((int(self.type_modifier) + 3)/4)*4
+                except:
+                    return None
         else:
-            # Lookup fixed width for this type
-            return field_widths[self.item_type]
+            if self.item_type in field_widths:
+                # Lookup fixed width for this type
+                return field_widths[self.item_type]
+            else:
+                return None
 
     # N.B. Not currently used.
     def check_mask_too_long(self, mask):
@@ -807,7 +816,6 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            #print(hf)
             items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
                              type_modifier=m.group(5),
                              check_mask=check_mask,
@@ -828,6 +836,7 @@ def find_field_arrays(filename, all_fields, all_hf):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
+        # Find definition of hf array
         matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
         for m in matches:
             name = m.group(1)
@@ -837,6 +846,8 @@ def find_field_arrays(filename, all_fields, all_hf):
             all_fields = m.group(2)
             all_fields = all_fields.replace('&', '')
             all_fields = all_fields.replace(',', '')
+
+            # Get list of each hf field in the array
             fields = all_fields.split()
 
             if fields[0].startswith('ett_'):
@@ -862,6 +873,17 @@ def find_field_arrays(filename, all_fields, all_hf):
                         print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
                         warnings_found += 1
                     combined_mask |= new_mask
+
+            # Make sure all entries have the same width
+            set_field_width = None
+            for f in fields[0:-1]:
+                if f in all_hf:
+                    new_field_width = all_hf[f].get_field_width_in_bits()
+                    if set_field_width is not None and new_field_width != set_field_width:
+                        print('Warning:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
+                        warnings_found += 1
+                    set_field_width = new_field_width
+
     return []
 
 def find_item_declarations(filename):

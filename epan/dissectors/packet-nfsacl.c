@@ -507,16 +507,16 @@ proto_register_nfsacl(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_mask_acl_entry, {
 			"ACL entry", "nfsacl.mask.acl_entry", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+            TFS(&tfs_yes_no), 0x00000001, NULL, HFILL }},
 		{ &hf_nfsacl_mask_acl_count, {
 			"ACL count", "nfsacl.mask.acl_count", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x02, NULL, HFILL }},
+            TFS(&tfs_yes_no), 0x00000002, NULL, HFILL }},
 		{ &hf_nfsacl_mask_default_acl_entry, {
 			"Default ACL entry", "nfsacl.mask.default_acl_entry", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x04, NULL, HFILL }},
+            TFS(&tfs_yes_no), 0x00000004, NULL, HFILL }},
 		{ &hf_nfsacl_mask_default_acl_count, {
 			"Default ACL count", "nfsacl.mask.default_acl_count", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), 0x08, NULL, HFILL }},
+            TFS(&tfs_yes_no), 0x00000008, NULL, HFILL }},
 		{ &hf_nfsacl_procedure_v1, {
 			"V1 Procedure", "nfsacl.procedure_v1", FT_UINT32, BASE_DEC,
 			VALS(nfsacl1_proc_vals), 0, NULL, HFILL }},

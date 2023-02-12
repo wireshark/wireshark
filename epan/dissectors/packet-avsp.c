@@ -472,8 +472,8 @@ void proto_register_avsp(void)
         },
         {&hf_avsp_tgen_hdr_ctrl_fcs_inverted,
             {"FCS Inverted", "avsp.tgen.hdr.ctrl.fcs_inverted",
-                FT_BOOLEAN, 8,
-                TFS(&tfs_true_false), 0x01,
+                FT_BOOLEAN, 16,
+                TFS(&tfs_true_false), 0x0001,
                 NULL, HFILL}
         },
         {&hf_avsp_tgen_hdr_ctrl_reserved,
