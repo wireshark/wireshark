@@ -126,6 +126,7 @@ Low Level Signalling (ATSC3 LLS)
 Train Real-Time Data Protocol (TRDP)
 Windows Delivery Optimization (MS-DO)
 FiRa UWB Controller Interface (UCI)
+Matter home automation protocol
 --
 
 === Updated Protocol Support
