@@ -5903,17 +5903,6 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
         offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, NULL, NULL);
       proto_item_set_len(member, offset_tmp - member_size);
   }
-  if (i < long_number) {
-      proto_tree_add_subtree_format(
-          tree,
-          tvb,
-          0,
-          0,
-          ett_rtps_info_remaining_items,
-          NULL,
-          DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
-          long_number - i);
-  }
   if (info)
     info->num_elements = long_number;
 }
