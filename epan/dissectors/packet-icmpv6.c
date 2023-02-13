@@ -483,6 +483,10 @@ static int hf_icmpv6_rpl_opt_transit_flag_e = -1;
 static int hf_icmpv6_rpl_opt_transit_flag_rsv = -1;
 static int hf_icmpv6_rpl_opt_transit_pathseq = -1;
 static int hf_icmpv6_rpl_opt_transit_pathctl = -1;
+static int hf_icmpv6_rpl_opt_transit_pathctl_pc1 = -1;
+static int hf_icmpv6_rpl_opt_transit_pathctl_pc2 = -1;
+static int hf_icmpv6_rpl_opt_transit_pathctl_pc3 = -1;
+static int hf_icmpv6_rpl_opt_transit_pathctl_pc4 = -1;
 static int hf_icmpv6_rpl_opt_transit_pathlifetime = -1;
 static int hf_icmpv6_rpl_opt_transit_parent = -1;
 static int hf_icmpv6_rpl_opt_solicited_instance = -1;
@@ -597,6 +601,7 @@ static gint ett_icmpv6_rpl_flag_solicited = -1;
 static gint ett_icmpv6_rpl_flag_prefix = -1;
 static gint ett_icmpv6_rpl_route_discovery_flag = -1;
 static gint ett_icmpv6_rpl_route_discovery_addr_vec = -1;
+static gint ett_icmpv6_rpl_transit_pathctl = -1;
 static gint ett_icmpv6_rpl_p2p_dro_flag = -1;
 static gint ett_icmpv6_rpl_p2p_droack_flag = -1;
 static gint ett_icmpv6_flag_ni = -1;
@@ -1078,9 +1083,9 @@ static const value_string nd_opt_earo_status_val[] = {
     { 0,  NULL }
 };
 
-#define ND_OPT_EARO_FLAG_I        0x30
-#define ND_OPT_EARO_FLAG_R        0x40
-#define ND_OPT_EARO_FLAG_T        0x80
+#define ND_OPT_EARO_FLAG_I 0x0C
+#define ND_OPT_EARO_FLAG_R 0x02
+#define ND_OPT_EARO_FLAG_T 0x01
 
 static const value_string nd_opt_earo_flag_val[] = {
     { 0, "Default" },
@@ -1200,6 +1205,10 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define RPL_OPT_CONFIG_FLAG_RESERVED    0xF0
 #define RPL_OPT_TRANSIT_FLAG_E          0x80
 #define RPL_OPT_TRANSIT_FLAG_RSV        0x7F
+#define RPL_OPT_TRANSIT_PATHCTL_PC1     0xC0
+#define RPL_OPT_TRANSIT_PATHCTL_PC2     0x30
+#define RPL_OPT_TRANSIT_PATHCTL_PC3     0x0C
+#define RPL_OPT_TRANSIT_PATHCTL_PC4     0x03
 #define RPL_OPT_SOLICITED_FLAG_V        0x80
 #define RPL_OPT_SOLICITED_FLAG_I        0x40
 #define RPL_OPT_SOLICITED_FLAG_D        0x20
@@ -3016,6 +3025,13 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     &hf_icmpv6_rpl_opt_transit_flag_rsv,
                     NULL
                 };
+                static int * const rpl_transit_pathctl[] = {
+                    &hf_icmpv6_rpl_opt_transit_pathctl_pc1,
+                    &hf_icmpv6_rpl_opt_transit_pathctl_pc2,
+                    &hf_icmpv6_rpl_opt_transit_pathctl_pc3,
+                    &hf_icmpv6_rpl_opt_transit_pathctl_pc4,
+                    NULL,
+                };
 
                 /* Flags */
                 proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_transit_flag,
@@ -3023,7 +3039,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset += 1;
 
                 /* Path Control */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathctl, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_transit_pathctl,
+                                    ett_icmpv6_rpl_transit_pathctl, rpl_transit_pathctl, ENC_BIG_ENDIAN);
                 opt_offset += 1;
 
                 /* Path Sequence */
@@ -5946,8 +5963,20 @@ proto_register_icmpv6(void)
            { "Reserved", "icmpv6.rpl.opt.transit.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_TRANSIT_FLAG_RSV,
              "Must be Zero", HFILL }},
         { &hf_icmpv6_rpl_opt_transit_pathctl,
-           { "Path Control", "icmpv6.rpl.opt.transit.pathctl", FT_UINT8, BASE_DEC, NULL, 0x0,
+           { "Path Control", "icmpv6.rpl.opt.transit.pathctl", FT_UINT8, BASE_HEX, NULL, 0x0,
               "Limits the number of DAO-Parents to which a DAO message advertising connectivity", HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathctl_pc1,
+           { "PC1", "icmpv6.rpl.opt.transit.pathctl.pc1", FT_UINT8, BASE_HEX, NULL, RPL_OPT_TRANSIT_PATHCTL_PC1,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathctl_pc2,
+           { "PC2", "icmpv6.rpl.opt.transit.pathctl.pc2", FT_UINT8, BASE_HEX, NULL, RPL_OPT_TRANSIT_PATHCTL_PC2,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathctl_pc3,
+           { "PC3", "icmpv6.rpl.opt.transit.pathctl.pc3", FT_UINT8, BASE_HEX, NULL, RPL_OPT_TRANSIT_PATHCTL_PC3,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathctl_pc4,
+           { "PC4", "icmpv6.rpl.opt.transit.pathctl.pc4", FT_UINT8, BASE_HEX, NULL, RPL_OPT_TRANSIT_PATHCTL_PC4,
+              NULL, HFILL }},
         { &hf_icmpv6_rpl_opt_transit_pathseq,
            { "Path Sequence", "icmpv6.rpl.opt.transit.pathseq", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Increments the Path Sequence each time it issues a RPL Target option with updated information", HFILL }},
@@ -6197,6 +6226,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6_rpl_flag_prefix,
         &ett_icmpv6_rpl_route_discovery_flag,
         &ett_icmpv6_rpl_route_discovery_addr_vec,
+        &ett_icmpv6_rpl_transit_pathctl,
         &ett_icmpv6_rpl_p2p_dro_flag,
         &ett_icmpv6_rpl_p2p_droack_flag,
         &ett_icmpv6_flag_ni,
