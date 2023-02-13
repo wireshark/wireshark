@@ -12088,7 +12088,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_usage_report_trigger_o7_b1_tebur,
-        { "TEMUR (Termination By UP function Report)", "pfcp.usage_report_trigger_flags.tebur",
+        { "TEBUR (Termination By UP function Report)", "pfcp.usage_report_trigger_flags.tebur",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
