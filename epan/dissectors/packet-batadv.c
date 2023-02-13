@@ -2132,7 +2132,7 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void
-dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
+dissect_batadv_icmp_rr(packet_info *pinfo, proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 {
 	proto_tree *field_tree;
 	int ptr, i;
@@ -2149,7 +2149,7 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 	offset++;
 	for (i = 0; i < BAT_RR_LEN; i++) {
 		proto_tree_add_ether_format(field_tree, hf_batadv_icmp_rr_ether, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6),
-				    "%s%s", (i > ptr) ? "-" : tvb_ether_to_str(wmem_packet_scope(), tvb, offset),
+				    "%s%s", (i > ptr) ? "-" : tvb_ether_to_str(pinfo->pool, tvb, offset),
 				    (i == ptr) ? " <- (current)" : "");
 
 		offset += 6;
@@ -2157,7 +2157,7 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 }
 
 static void
-dissect_batadv_icmp_rr_v15(proto_tree *batadv_icmp_tree, tvbuff_t *tvb,
+dissect_batadv_icmp_rr_v15(packet_info *pinfo, proto_tree *batadv_icmp_tree, tvbuff_t *tvb,
 			   int offset, int ptr)
 {
 	proto_tree *field_tree;
@@ -2174,7 +2174,7 @@ dissect_batadv_icmp_rr_v15(proto_tree *batadv_icmp_tree, tvbuff_t *tvb,
 					    tvb, offset, 6,
 					    tvb_get_ptr(tvb, offset, 6),
 					    "%s%s",
-					    (i > ptr) ? "-" : tvb_ether_to_str(wmem_packet_scope(), tvb, offset),
+					    (i > ptr) ? "-" : tvb_ether_to_str(pinfo->pool, tvb, offset),
 					    (i == ptr) ? " <- (current)" : "");
 
 		offset += 6;
@@ -2248,7 +2248,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* rr data available? */
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining >= 1 + BAT_RR_LEN * 6) {
-		dissect_batadv_icmp_rr(batadv_icmp_tree, tvb, offset);
+		dissect_batadv_icmp_rr(pinfo, batadv_icmp_tree, tvb, offset);
 		offset += 1 + BAT_RR_LEN * 6;
 	}
 
@@ -2332,7 +2332,7 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* rr data available? */
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining >= 1 + BAT_RR_LEN * 6) {
-		dissect_batadv_icmp_rr(batadv_icmp_tree, tvb, offset);
+		dissect_batadv_icmp_rr(pinfo, batadv_icmp_tree, tvb, offset);
 		offset += 1 + BAT_RR_LEN * 6;
 	}
 
@@ -2534,7 +2534,7 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 	/* rr data available? */
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining >= BAT_RR_LEN * 6) {
-		dissect_batadv_icmp_rr_v15(batadv_icmp_tree, tvb, offset,
+		dissect_batadv_icmp_rr_v15(pinfo, batadv_icmp_tree, tvb, offset,
 					   icmp_packeth->rr_ptr);
 		offset += BAT_RR_LEN * 6;
 	}

@@ -1051,7 +1051,7 @@ dissect_PNDCP_Suboption_TSN(tvbuff_t* tvb, int offset, packet_info* pinfo,
     case PNDCP_SUBOPTION_TSN_DOMAIN_NAME:
 
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn_domain_uuid, &tsn_domain_uuid);
-        proto_tree_add_item_ret_display_string(tree, hf_pn_dcp_suboption_tsn_domain_name, tvb, offset, (block_length-16), ENC_ASCII | ENC_NA, wmem_packet_scope(), &domain_name);
+        proto_tree_add_item_ret_display_string(tree, hf_pn_dcp_suboption_tsn_domain_name, tvb, offset, (block_length-16), ENC_ASCII | ENC_NA, pinfo->pool, &domain_name);
 
         pn_append_info(pinfo, dcp_item, ", TSN-Domain Name");
         proto_item_append_text(block_item, "TSN/TSN-Domain Name");
@@ -1062,7 +1062,7 @@ dissect_PNDCP_Suboption_TSN(tvbuff_t* tvb, int offset, packet_info* pinfo,
         if (have_block_info)
             proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
 
-        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", DomainName:\"%s\"", domain_name));
+        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(pinfo->pool, ", DomainName:\"%s\"", domain_name));
         proto_item_append_text(block_item, ", \"%s\"", domain_name);
         offset += (block_length-16);
         is_zeros = TRUE;

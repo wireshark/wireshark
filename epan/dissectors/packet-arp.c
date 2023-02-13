@@ -361,20 +361,20 @@ static const value_string atmop_vals[] = {
   (((ar_pro) == ETHERTYPE_IP || (ar_pro) == AX25_P_IP) && (ar_pln) == 4)
 
 const gchar *
-tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+tvb_arphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 {
   if (ad_len == 0)
     return "<No address>";
   if (ARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or IEEE 802.x address, which is the same type of
        address). */
-    return tvb_ether_to_str(wmem_packet_scope(), tvb, offset);
+    return tvb_ether_to_str(scope, tvb, offset);
   }
-  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
+  return tvb_bytes_to_str(scope, tvb, offset, ad_len);
 }
 
 static const gchar *
-arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
+arpproaddr_to_str(wmem_allocator_t *scope, const guint8 *ad, int ad_len, guint16 type)
 {
   address addr;
 
@@ -384,27 +384,28 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
     /* IPv4 address.  */
     set_address(&addr, AT_IPv4, 4, ad);
 
-    return address_to_str(wmem_packet_scope(), &addr);
+    return address_to_str(scope, &addr);
   }
   if (ARP_HW_IS_AX25(type, ad_len)) {
     {
     /* AX.25 address */
     set_address(&addr, AT_AX25, AX25_ADDR_LEN, ad);
 
-    return address_to_str(wmem_packet_scope(), &addr);
+    return address_to_str(scope, &addr);
     }
   }
-  return bytes_to_str(wmem_packet_scope(), ad, ad_len);
+  return bytes_to_str(scope, ad, ad_len);
 }
 
 static const gchar *
-tvb_arpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+tvb_arpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 {
-    return arpproaddr_to_str(tvb_get_ptr(tvb, offset, ad_len), ad_len, type);
+    const guint8 *ad = tvb_memdup(scope, tvb, offset, ad_len);
+    return arpproaddr_to_str(scope, ad, ad_len, type);
 }
 
 static const gchar *
-atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
+atmarpnum_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_tl)
 {
   int    ad_len = ad_tl & ATMARP_LEN_MASK;
 
@@ -415,19 +416,19 @@ atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
     /*
      * I'm assuming this means it's an ASCII (IA5) string.
      */
-    return (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ad_len, ENC_ASCII|ENC_NA);
+    return (gchar *) tvb_get_string_enc(scope, tvb, offset, ad_len, ENC_ASCII|ENC_NA);
   } else {
     /*
      * NSAP.
      *
      * XXX - break down into subcomponents.
      */
-    return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
+    return tvb_bytes_to_str(scope, tvb, offset, ad_len);
   }
 }
 
 static const gchar *
-atmarpsubaddr_to_str(tvbuff_t *tvb, int offset, int ad_tl)
+atmarpsubaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_tl)
 {
   int ad_len = ad_tl & ATMARP_LEN_MASK;
 
@@ -443,7 +444,7 @@ atmarpsubaddr_to_str(tvbuff_t *tvb, int offset, int ad_tl)
    *
    * XXX - break down into subcomponents?
    */
-  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
+  return tvb_bytes_to_str(scope, tvb, offset, ad_len);
 }
 
 const value_string arp_hrd_vals[] = {
@@ -746,9 +747,9 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     /* Create subtree */
     duplicate_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_arp_duplicate_address, &ti,
                                                 "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
-                                                arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
-                                                address_to_str(wmem_packet_scope(), &mac_addr),
-                                                address_to_str(wmem_packet_scope(), &result_mac_addr),
+                                                arpproaddr_to_str(pinfo->pool, (guint8*)&ip, 4, ETHERTYPE_IP),
+                                                address_to_str(pinfo->pool, &mac_addr),
+                                                address_to_str(pinfo->pool, &result_mac_addr),
                                                 result->frame_num);
     proto_item_set_generated(ti);
 
@@ -759,7 +760,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     expert_add_info_format(pinfo, ti,
                            &ei_seq_arp_dup_ip,
                            "Duplicate IP address configured (%s)",
-                           arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
+                           arpproaddr_to_str(pinfo->pool, (guint8*)&ip, 4, ETHERTYPE_IP));
 
     /* Time since that frame was seen */
     ti = proto_tree_add_uint(duplicate_tree,
@@ -897,30 +898,30 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
   /* Extract the addresses.  */
   sha_offset = MIN_ATMARP_HEADER_SIZE;
-  sha_str = atmarpnum_to_str(tvb, sha_offset, ar_shtl);
+  sha_str = atmarpnum_to_str(pinfo->pool, tvb, sha_offset, ar_shtl);
 
   ssa_offset = sha_offset + ar_shl;
   if (ar_ssl != 0) {
-    ssa_str = atmarpsubaddr_to_str(tvb, ssa_offset, ar_sstl);
+    ssa_str = atmarpsubaddr_to_str(pinfo->pool, tvb, ssa_offset, ar_sstl);
   } else {
     ssa_str = NULL;
   }
 
   spa_offset = ssa_offset + ar_ssl;
-  spa_str = tvb_arpproaddr_to_str(tvb, spa_offset, ar_spln, ar_pro);
+  spa_str = tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_spln, ar_pro);
 
   tha_offset = spa_offset + ar_spln;
-  tha_str = atmarpnum_to_str(tvb, tha_offset, ar_thtl);
+  tha_str = atmarpnum_to_str(pinfo->pool, tvb, tha_offset, ar_thtl);
 
   tsa_offset = tha_offset + ar_thl;
   if (ar_tsl != 0) {
-    tsa_str = atmarpsubaddr_to_str(tvb, tsa_offset, ar_tstl);
+    tsa_str = atmarpsubaddr_to_str(pinfo->pool, tvb, tsa_offset, ar_tstl);
   } else {
     tsa_str = NULL;
   }
 
   tpa_offset = tsa_offset + ar_tsl;
-  tpa_str = tvb_arpproaddr_to_str(tvb, tpa_offset, ar_tpln, ar_pro);
+  tpa_str = tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_tpln, ar_pro);
 
   switch (ar_op) {
 
@@ -1278,8 +1279,8 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   /* Target Protocol Address */
   tpa_offset = tha_offset + ar_hln;
 
-  spa_str = tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
-  tpa_str = tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
+  spa_str = tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro);
+  tpa_str = tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro);
 
   /* ARP requests/replies with the same sender and target protocol
      address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
@@ -1306,22 +1307,22 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       else
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
                      spa_str,
-                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+                     tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREQUEST:
     case ARPOP_IREQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s? Tell %s",
-                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, tha_offset, ar_hln, ar_hrd),
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, tha_offset, ar_hln, ar_hrd),
                    tpa_str);
       break;
     case ARPOP_IREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
                    spa_str);
       break;
     default:
@@ -1515,7 +1516,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        multicast address nor an all-zero address and if sender IP address
        isn't all zeroes. */
     ip = tvb_get_ipv4(tvb, spa_offset);
-    mac = (const guint8*)tvb_memdup(wmem_packet_scope(), tvb, sha_offset, 6);
+    mac = (const guint8*)tvb_memdup(pinfo->pool, tvb, sha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
     {
       if (global_arp_register_network_address_binding)
@@ -1539,7 +1540,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 
     ip = tvb_get_ipv4(tvb, tpa_offset);
-    mac = (const guint8*)tvb_memdup(wmem_packet_scope(), tvb, tha_offset, 6);
+    mac = (const guint8*)tvb_memdup(pinfo->pool, tvb, tha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0
         && ar_op != ARPOP_REQUEST)
     {
@@ -1582,42 +1583,42 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       if (is_gratuitous) {
         if (is_announcement) {
           col_add_fstr(pinfo->cinfo, COL_INFO, "ARP Announcement for %s",
-                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro));
         } else {
           col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
-                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro));
         }
       }
       else if (is_probe) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? (ARP Probe)",
-                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro));
       } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s",
-          tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
-          tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+          tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro),
+          tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       }
       break;
     case ARPOP_REPLY:
       if (is_gratuitous)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
-                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       else
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro),
-                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+                     tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro),
+                     tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREQUEST:
     case ARPOP_IREQUEST:
     case ARPOP_DRARPREQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s? Tell %s",
-                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, tha_offset, ar_hln, ar_hrd),
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREPLY:
     case ARPOP_DRARPREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, tha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, tpa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_DRARPERROR:
@@ -1626,8 +1627,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     case ARPOP_IREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ATMARPOP_NAK:
@@ -1636,80 +1637,80 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     case ARPOP_MARS_REQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_MULTI:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS MULTI request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_MSERV:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS MSERV request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_JOIN:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS JOIN request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_LEAVE:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS LEAVE from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_NAK:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS NAK from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_UNSERV:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS UNSERV request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_SJOIN:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS SJOIN request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_SLEAVE:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS SLEAVE from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_GROUPLIST_REQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS grouplist request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_GROUPLIST_REPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS grouplist reply from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_REDIRECT_MAP:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS redirect map from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MAPOS_UNARP:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MAPOS UNARP request from %s at %s",
-                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+                   tvb_arphrdaddr_to_str(pinfo->pool, tvb, sha_offset, ar_hln, ar_hrd),
+                   tvb_arpproaddr_to_str(pinfo->pool, tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_EXP1:
@@ -1800,7 +1801,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   {
     /* Also indicate in info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " (duplicate use of %s detected!)",
-                    arpproaddr_to_str((guint8*)&duplicate_ip, 4, ETHERTYPE_IP));
+                    arpproaddr_to_str(pinfo->pool, (guint8*)&duplicate_ip, 4, ETHERTYPE_IP));
   }
   return tvb_captured_length(tvb);
 }

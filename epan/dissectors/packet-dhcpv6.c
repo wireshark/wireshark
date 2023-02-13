@@ -1894,7 +1894,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             if (optlen > 8) {
                 hwtype = tvb_get_ntohs(tvb, off + 2);
                 proto_tree_add_string(subtree, hf_duidllt_link_layer_addr, tvb, off + 8,
-                                    optlen - 8, tvb_arphrdaddr_to_str(tvb, off+8, optlen-8, hwtype));
+                                    optlen - 8, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off+8, optlen-8, hwtype));
             }
         }
         break;
@@ -1917,7 +1917,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             if (optlen > 4) {
                 hwtype = tvb_get_ntohs(tvb, off + 2);
                 proto_tree_add_string(subtree, hf_duidll_link_layer_addr, tvb, off + 4,
-                                    optlen - 4, tvb_arphrdaddr_to_str(tvb, off+4, optlen-4, hwtype));
+                                    optlen - 4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off+4, optlen-4, hwtype));
             }
             break;
         case DUID_UUID:
@@ -2142,7 +2142,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_string(subtree, hf_iaid, tvb, off,
-                                    4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
+                                    4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
             proto_tree_add_uint_format_value(subtree, hf_iaid_t1, tvb, off+4,
                                     4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
@@ -2175,7 +2175,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_string(subtree, hf_iata, tvb, off,
-                                    4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
+                                    4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
@@ -2343,7 +2343,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 temp_optlen = optlen - namelen;
                 off += namelen;
                 if (temp_optlen >= 6)
-                    proto_tree_add_string(subtree, hf_cablelabs_interface_id_link_address, tvb, off, temp_optlen, tvb_arphrdaddr_to_str(tvb, off, 6, ARPHRD_ETHER));
+                    proto_tree_add_string(subtree, hf_cablelabs_interface_id_link_address, tvb, off, temp_optlen, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off, 6, ARPHRD_ETHER));
             }
         } else {
             proto_tree_add_item(subtree, hf_interface_id, tvb, off, optlen, ENC_NA);

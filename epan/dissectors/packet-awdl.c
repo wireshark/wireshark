@@ -700,7 +700,7 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static int
-awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
+awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item *chanlist_item, *channel_item;
   proto_tree *chanlist_tree, *channel_tree;
   guint channels, chan_number;
@@ -730,7 +730,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   offset += 2;
 
   /* make sufficient space for channel decodings: 5 chars/channel (3-digit number + ', ') */
-  strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), 5 * channels);
+  strbuf = wmem_strbuf_new_sized(pinfo->pool, 5 * channels);
 
   switch (seq_enc) {
   case AWDL_CHANSEQ_ENC_CHANNELNUMBER:
@@ -1133,13 +1133,13 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  */
 static int
 add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
-                  tvbuff_t *tvb, int offset, int len, const gchar **name) {
+                  tvbuff_t *tvb, int offset, int len, wmem_allocator_t *scope, const gchar **name) {
   int start_offset = offset;
   guint8 component_len;
   const guchar *component;
   wmem_strbuf_t *strbuf;
 
-  strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), MAX_DNAME_LEN);
+  strbuf = wmem_strbuf_new_sized(scope, MAX_DNAME_LEN);
 
   while (offset < (len + start_offset)) {
     component_len = tvb_get_guint8(tvb, offset);
@@ -1157,7 +1157,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
     } else {
       /* regular label */
       guint label_len;
-      proto_tree_add_item_ret_string_and_length(tree, hfindex_regular, tvb, offset, 1, ENC_ASCII, wmem_packet_scope(), &component, &label_len);
+      proto_tree_add_item_ret_string_and_length(tree, hfindex_regular, tvb, offset, 1, ENC_ASCII, scope, &component, &label_len);
       offset += label_len;
     }
     if (component) {
@@ -1174,7 +1174,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
 }
 
 static int
-add_awdl_dns_entry(proto_tree *tree, gint ett,
+add_awdl_dns_entry(packet_info *pinfo, proto_tree *tree, gint ett,
                    int hfindex_entry, int hfindex_regular, int hfindex_compressed,
                    tvbuff_t *tvb, int offset, int len, const gchar **name) {
   int start_offset = offset;
@@ -1184,7 +1184,7 @@ add_awdl_dns_entry(proto_tree *tree, gint ett,
 
   entry_item = proto_tree_add_item(tree, hfindex_entry, tvb, offset, 0, ENC_NA);
   entry_tree = proto_item_add_subtree(entry_item, ett);
-  offset += add_awdl_dns_name(entry_tree, hfindex_regular, hfindex_compressed, tvb, offset, len, &n);
+  offset += add_awdl_dns_name(entry_tree, hfindex_regular, hfindex_compressed, tvb, offset, len, pinfo->pool, &n);
   proto_item_set_end(entry_item, tvb, offset);
   proto_item_append_text(entry_item, ": %s", n);
 
@@ -1195,20 +1195,20 @@ add_awdl_dns_entry(proto_tree *tree, gint ett,
 }
 
 static int
-awdl_tag_arpa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
+awdl_tag_arpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   int offset = 0;
   int tag_len = tvb_reported_length(tvb);
 
   proto_tree_add_item(tree, hf_awdl_arpa_flags, tvb, offset, 1, ENC_NA);
   offset += 1;
-  offset += add_awdl_dns_entry(tree, ett_awdl_dns_name, hf_awdl_arpa, hf_awdl_arpa_name,
+  offset += add_awdl_dns_entry(pinfo, tree, ett_awdl_dns_name, hf_awdl_arpa, hf_awdl_arpa_name,
                                hf_awdl_arpa_short, tvb, offset, tag_len - offset, NULL);
 
   return offset;
 }
 
 static int
-awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
+awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item *rr_item;
   proto_tree *rr_tree, *data_len;
   const gchar *name;
@@ -1223,7 +1223,7 @@ awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
   // len field includes the following type value
   len -= 1;
-  offset += add_awdl_dns_entry(rr_tree, ett_awdl_dns_name, hf_awdl_dns_name, hf_awdl_dns_name_label,
+  offset += add_awdl_dns_entry(pinfo, rr_tree, ett_awdl_dns_name, hf_awdl_dns_name, hf_awdl_dns_name_label,
                                hf_awdl_dns_name_short, tvb, offset, len, &name);
 
   proto_tree_add_item_ret_uint(rr_tree, hf_awdl_dns_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &type);
@@ -1243,7 +1243,7 @@ awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
       const guchar *txt;
       gint label_len;
       proto_tree_add_item_ret_string_and_length(rr_tree, hf_awdl_dns_txt, tvb, offset, 1, ENC_ASCII,
-                                                wmem_packet_scope(), &txt, &label_len);
+                                                pinfo->pool, &txt, &label_len);
       offset += label_len;
       proto_item_append_text(rr_item, ", %s", txt);
       if (label_len > (gint) len) {
@@ -1263,12 +1263,12 @@ awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     offset += 2;
     // length field includes above fields
     len -= 6;
-    offset += add_awdl_dns_entry(rr_tree, ett_awdl_dns_name, hf_awdl_dns_target, hf_awdl_dns_target_label,
+    offset += add_awdl_dns_entry(pinfo, rr_tree, ett_awdl_dns_name, hf_awdl_dns_target, hf_awdl_dns_target_label,
                                  hf_awdl_dns_target_short, tvb, offset, len, &name);
     proto_item_append_text(rr_item, ", priority %u, weight %u, port %u, target %s", prio, weight, port, name);
     break;
   case T_PTR:
-    offset += add_awdl_dns_entry(rr_tree, ett_awdl_dns_name, hf_awdl_dns_ptr, hf_awdl_dns_ptr_label,
+    offset += add_awdl_dns_entry(pinfo, rr_tree, ett_awdl_dns_name, hf_awdl_dns_ptr, hf_awdl_dns_ptr_label,
                                  hf_awdl_dns_ptr_short, tvb, offset, len, &name);
     proto_item_append_text(rr_item, ", %s", name);
     break;

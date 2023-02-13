@@ -358,7 +358,7 @@ static void CANopenSdoReqFormatter(PETHERCAT_SDO_HEADER pSdo, char *szText, gint
    }
 }
 
-static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, guint foe_length)
+static void FoeFormatter(tvbuff_t *tvb, wmem_allocator_t *scope, gint offset, char *szText, gint nMax, guint foe_length)
 {
    ETHERCAT_FOE_HEADER foe;
    char *tmp = NULL;
@@ -371,7 +371,7 @@ static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
    case ECAT_FOE_OPMODE_WRQ:
    case ECAT_FOE_OPMODE_ERR:
       if ( foe_length > ETHERCAT_FOE_HEADER_LEN ) {
-         tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+ETHERCAT_FOE_HEADER_LEN, MIN(foe_length-ETHERCAT_FOE_HEADER_LEN, 49), ENC_ASCII);
+         tmp = tvb_get_string_enc(scope, tvb, offset+ETHERCAT_FOE_HEADER_LEN, MIN(foe_length-ETHERCAT_FOE_HEADER_LEN, 49), ENC_ASCII);
       }
       break;
    }
@@ -1098,7 +1098,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
    if( foe_length >= ETHERCAT_FOE_HEADER_LEN )
    {
-      FoeFormatter(tvb, offset, szText, nMax, foe_length);
+      FoeFormatter(tvb, pinfo->pool, offset, szText, nMax, foe_length);
       col_append_str(pinfo->cinfo, COL_INFO, szText);
 
       if( tree )
