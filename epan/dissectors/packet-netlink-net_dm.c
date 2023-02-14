@@ -68,6 +68,7 @@ enum ws_net_dm_attrs {
 	WS_NET_DM_ATTR_SW_DROPS,
 	WS_NET_DM_ATTR_HW_DROPS,
 	WS_NET_DM_ATTR_FLOW_ACTION_COOKIE,
+	WS_NET_DM_ATTR_REASON,
 };
 
 enum ws_net_dm_attrs_port {
@@ -121,6 +122,7 @@ static int hf_net_dm_sw = -1;
 static int hf_net_dm_symbol = -1;
 static int hf_net_dm_timestamp = -1;
 static int hf_net_dm_trunc_len = -1;
+static int hf_net_dm_reason = -1;
 
 static gint ett_net_dm = -1;
 static gint ett_net_dm_attrs = -1;
@@ -170,6 +172,7 @@ static const value_string ws_net_dm_attrs_vals[] = {
 	{ WS_NET_DM_ATTR_SW_DROPS,			"Software drops" },
 	{ WS_NET_DM_ATTR_HW_DROPS,			"Hardware drops" },
 	{ WS_NET_DM_ATTR_FLOW_ACTION_COOKIE,		"Flow action cookie" },
+	{ WS_NET_DM_ATTR_REASON,			"Reason" },
 	{ 0, NULL },
 };
 
@@ -329,6 +332,10 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 	case WS_NET_DM_ATTR_FLOW_ACTION_COOKIE:
 		proto_tree_add_item(tree, hf_net_dm_flow_action_cookie, tvb, offset, len, ENC_NA);
 		return 1;
+	case WS_NET_DM_ATTR_REASON:
+		proto_tree_add_item_ret_string(tree, hf_net_dm_reason, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_item_append_text(tree, ": %s", str);
+		return 1;
 	default:
 		return 0;
 	}
@@ -479,6 +486,11 @@ proto_register_netlink_net_dm(void)
 		{ &hf_net_dm_flow_action_cookie,
 			{ "Flow action cookie", "net_dm.cookie",
 			  FT_BYTES, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_net_dm_reason,
+			{ "Reason", "net_dm.reason",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
 			  NULL, HFILL }
 		},
 	};
