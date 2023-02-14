@@ -161,6 +161,10 @@ static int hf_oran_modcompscaler = -1;
 static int hf_oran_mc_scale_re_mask = -1;
 static int hf_oran_mc_scale_offset = -1;
 
+static int hf_oran_eAxC_mask = -1;
+static int hf_oran_technology = -1;
+static int hf_oran_nullLayerInd = -1;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
@@ -465,6 +469,14 @@ static const value_string beam_group_type_vals[] = {
     {0x3, "reserved"},
     {0, NULL}
 };
+
+/* 7.7.9.2 technology (interface name) */
+static const value_string interface_name_vals[] = {
+    {0x0, "LTE"},
+    {0x1, "NR"},
+    {0, NULL}
+};
+
 
 /*******************************************************/
 /* Overall state of a flow (eAxC)                      */
@@ -1198,6 +1210,23 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 2;
                 break;
 
+            case 7: /* eAxC mask */
+                proto_tree_add_item(extension_tree, hf_oran_eAxC_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+
+            case 8: /* Regularization factor */
+                proto_tree_add_item(extension_tree, hf_oran_regularizationFactor, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+
+            case 9: /* Dynamic Spectrum Sharing parameters */
+                proto_tree_add_item(extension_tree, hf_oran_technology, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, offset*8, 8, ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
+
             case 10: /* Section description for group configuration of multiple ports */
             {
                 /* beamGroupType */
@@ -1436,11 +1465,23 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
 
             case 14:  /* Nulling-layer Info. for ueId-based beamforming */
-                /* TODO */
+                proto_tree_add_item(extension_tree, hf_oran_nullLayerInd, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, offset*8, 8, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
 
             case 15:  /* Mixed-numerology Info. for ueId-based beamforming */
-                /* TODO */
+                /* frameStructure */
+                proto_tree_add_item(extension_tree, hf_oran_frameStructure_fft, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_frameStructure_subcarrier_spacing, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                /* freqOffset */
+                proto_tree_add_item(extension_tree, hf_oran_freqOffset, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+                /* cpLength */
+                proto_tree_add_item(extension_tree, hf_oran_cpLength, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 break;
 
             case 16:  /* Section description for antenna mapping in UE channel information based UL beamforming */
@@ -2959,6 +3000,30 @@ proto_register_oran(void)
             FT_UINT24, BASE_DEC,
             NULL, 0x0,
             "scaling value for modulation compression",
+            HFILL }
+        },
+        /* Exttype 7 (7.7.7.2) */
+        { &hf_oran_eAxC_mask,
+          { "eAxC Mask", "oran_fh_cus.eaxcmask",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Which eAxC_ID values the C-Plane message applies to",
+            HFILL }
+        },
+        /* Exttype 9 7.7.9.2 */
+        { &hf_oran_technology,
+          { "Technology", "oran_fh_cus.technology",
+            FT_UINT8, BASE_DEC,
+            VALS(interface_name_vals), 0x0,
+            "Interface name (that C-PLane section applies to)",
+            HFILL }
+        },
+        /* Exttype 14 (7.7.14.2) */
+        { &hf_oran_nullLayerInd,
+          { "nullLayerInd", "oran_fh_cus.nulllayerind",
+            FT_BOOLEAN, 8,
+            NULL, 0x0,
+            "Whether corresponding layer is nulling-layer or not",
             HFILL }
         },
     };
