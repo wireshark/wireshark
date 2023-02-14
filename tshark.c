@@ -186,8 +186,7 @@ static print_stream_t *print_stream = NULL;
 static char *output_file_name;
 
 static output_fields_t* output_fields  = NULL;
-static gchar **protocolfilter = NULL;
-static pf_flags protocolfilter_flags = PF_NONE;
+static wmem_map_t *protocolfilter = NULL;
 
 static gboolean no_duplicate_keys = FALSE;
 static proto_node_children_grouper_func node_children_grouper = proto_node_group_children_by_unique;
@@ -570,6 +569,32 @@ hexdump_option_help(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "    $ tshark ... --hexdump frames --hexdump delimit ...\n");
     fprintf(output, "\n");
+}
+
+static void
+protocolfilter_add_opt(const char* arg, pf_flags filter_flags)
+{
+    void* value;
+    gchar **newfilter = NULL;
+    for (newfilter = wmem_strsplit(wmem_epan_scope(), arg, " ", -1); *newfilter; newfilter++) {
+        if (strcmp(*newfilter, "") == 0) {
+            /* Don't treat the empty string as an intended field abbreviation
+             * to output, consecutive spaces on the command line probably
+             * aren't intentional.
+             */
+            continue;
+        }
+        if (!protocolfilter) {
+            protocolfilter = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+        }
+        if (wmem_map_lookup_extended(protocolfilter, *newfilter, NULL, &value)) {
+            if (GPOINTER_TO_UINT(value) != (guint)filter_flags) {
+
+                cmdarg_err("%s was already specified with different filter flags. Overwriting previous protocol filter.", *newfilter);
+            }
+        }
+        wmem_map_insert(protocolfilter, *newfilter, GINT_TO_POINTER(filter_flags));
+    }
 }
 
 static void
@@ -1318,17 +1343,10 @@ main(int argc, char *argv[])
                 goto clean_exit;
                 break;
             case 'j':
-                if (protocolfilter) {
-                    cmdarg_err("-j or -J was already specified. Overwriting previous protocol filter.");
-                }
-                protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
+                protocolfilter_add_opt(ws_optarg, PF_NONE);
                 break;
             case 'J':
-                if (protocolfilter) {
-                    cmdarg_err("-j or -J was already specified. Overwriting previous protocol filter.");
-                }
-                protocolfilter_flags = PF_INCLUDE_CHILDREN;
-                protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
+                protocolfilter_add_opt(ws_optarg, PF_INCLUDE_CHILDREN);
                 break;
             case 'W':        /* Select extra information to save in our capture file */
                 /* This is patterned after the -N flag which may not be the best idea. */
@@ -4352,7 +4370,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
                 return !ferror(stdout);
             }
             if (print_details) {
-                write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, &cf->cinfo, stdout, dissect_color);
+                write_pdml_proto_tree(output_fields, protocolfilter, edt, &cf->cinfo, stdout, dissect_color);
                 printf("\n");
                 return !ferror(stdout);
             }
@@ -4375,7 +4393,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
                 ws_assert_not_reached();
             if (print_details) {
                 write_json_proto_tree(output_fields, print_dissections_expanded,
-                        print_hex, protocolfilter, protocolfilter_flags,
+                        print_hex, protocolfilter,
                         edt, &cf->cinfo, node_children_grouper, &jdumper);
                 return !ferror(stdout);
             }
@@ -4385,16 +4403,16 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
             if (print_summary)
                 ws_assert_not_reached();
             if (print_details) {
-                write_json_proto_tree(output_fields, print_dissections_none, TRUE,
-                        protocolfilter, protocolfilter_flags,
+                write_json_proto_tree(output_fields, print_dissections_none,
+                        TRUE, protocolfilter,
                         edt, &cf->cinfo, node_children_grouper, &jdumper);
                 return !ferror(stdout);
             }
             break;
 
         case WRITE_EK:
-            write_ek_proto_tree(output_fields, print_summary, print_hex, protocolfilter,
-                    protocolfilter_flags, edt, &cf->cinfo, stdout);
+            write_ek_proto_tree(output_fields, print_summary, print_hex,
+                    protocolfilter, edt, &cf->cinfo, stdout);
             return !ferror(stdout);
 
         default:

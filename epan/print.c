@@ -52,14 +52,12 @@ typedef struct {
     int             level;
     FILE           *fh;
     GSList         *src_list;
-    gchar         **filter;
-    pf_flags        filter_flags;
+    wmem_map_t     *filter;
 } write_pdml_data;
 
 typedef struct {
     GSList         *src_list;
-    gchar         **filter;
-    pf_flags        filter_flags;
+    wmem_map_t     *filter;
     gboolean        print_hex;
     gboolean        print_text;
     proto_node_children_grouper_func node_children_grouper;
@@ -280,29 +278,41 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
     fprintf(fh, "\">\n");
 }
 
-/* Check if the str match the protocolfilter. json_filter is space
-   delimited string and str need to exact-match to one of the value. */
-static gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
+/* Check if the str matches the protocolfilter.
+ *
+ * @param[in]  protocolfilter a map of field abbreviations that pass the filter
+ * to the flags for that field, or NULL if no filter (so all fields pass)
+ * @param[in]  str the field abbreviation to lookup in the map.
+ * @param[out] flags if not NULL, gets set to the value in the map for
+ * the given key if found (undefined if return is FALSE.)
+ * @return     TRUE if the filter passes the string, FALSE if the filter
+ * filters out the string.
+ */
+static gboolean check_protocolfilter(wmem_map_t *protocolfilter, const char *str, pf_flags *flags)
 {
     gboolean res = FALSE;
-    gchar **ptr;
+    void *value;
 
-    if (str == NULL || protocolfilter == NULL) {
+    if (protocolfilter == NULL) {
+        if (flags) {
+            *flags = PF_NONE;
+        }
+        return TRUE;
+    }
+
+    if (str == NULL) {
         return FALSE;
     }
 
-    for (ptr = protocolfilter; *ptr; ptr++) {
-        if (strcmp(*ptr, str) == 0) {
-            res = TRUE;
-            break;
-        }
+    res = wmem_map_lookup_extended(protocolfilter, str, NULL, &value);
+    if (res && flags) {
+        *flags = GPOINTER_TO_UINT(value);
     }
-
     return res;
 }
 
 void
-write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color)
+write_pdml_proto_tree(output_fields_t* fields, wmem_map_t *protocolfilter, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color)
 {
     write_pdml_data data;
     const color_filter_t *cfp;
@@ -330,7 +340,6 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
-        data.filter_flags   = protocolfilter_flags;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
                                     &data);
@@ -345,8 +354,8 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
 void
 write_ek_proto_tree(output_fields_t* fields,
                     gboolean print_summary, gboolean print_hex,
-                    gchar **protocolfilter,
-                    pf_flags protocolfilter_flags, epan_dissect_t *edt,
+                    wmem_map_t *protocolfilter,
+                    epan_dissect_t *edt,
                     column_info *cinfo,
                     FILE *fh)
 {
@@ -388,7 +397,6 @@ write_ek_proto_tree(output_fields_t* fields,
             /* Write out all fields */
             data.src_list = edt->pi.data_src;
             data.filter = protocolfilter;
-            data.filter_flags = protocolfilter_flags;
             data.print_hex = print_hex;
             proto_tree_write_node_ek(edt->tree, &data);
         } else {
@@ -632,10 +640,11 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 
     /* We print some levels for PDML. Recurse here. */
     if (node->first_child != NULL) {
-        if (pdata->filter == NULL || check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
-            gchar **_filter = NULL;
+        pf_flags filter_flags = PF_NONE;
+        if (pdata->filter == NULL || check_protocolfilter(pdata->filter, fi->hfinfo->abbrev, &filter_flags)) {
+            wmem_map_t *_filter = NULL;
             /* Remove protocol filter for children, if children should be included */
-            if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+            if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                 _filter = pdata->filter;
                 pdata->filter = NULL;
             }
@@ -646,7 +655,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             pdata->level--;
 
             /* Put protocol filter back */
-            if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+            if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                 pdata->filter = _filter;
             }
         } else {
@@ -727,9 +736,8 @@ write_json_index(json_dumper *dumper, epan_dissect_t *edt)
 void
 write_json_proto_tree(output_fields_t* fields,
                       print_dissections_e print_dissections,
-                      gboolean print_hex, gchar **protocolfilter,
-                      pf_flags protocolfilter_flags, epan_dissect_t *edt,
-                      column_info *cinfo,
+                      gboolean print_hex, wmem_map_t *protocolfilter,
+                      epan_dissect_t *edt, column_info *cinfo,
                       proto_node_children_grouper_func node_children_grouper,
                       json_dumper *dumper)
 {
@@ -751,7 +759,6 @@ write_json_proto_tree(output_fields_t* fields,
         /* Write out all fields */
         data.src_list = edt->pi.data_src;
         data.filter = protocolfilter;
-        data.filter_flags = protocolfilter_flags;
         data.print_hex = print_hex;
         data.print_text = TRUE;
         if (print_dissections == print_dissections_none) {
@@ -809,7 +816,8 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
         proto_node *first_value = (proto_node *) node_values_list->data;
         const char *json_key = proto_node_to_json_key(first_value);
         // Check if the current json key is filtered from the output with the "-j" cli option.
-        gboolean is_filtered = pdata->filter != NULL && !check_protocolfilter(pdata->filter, json_key);
+        pf_flags filter_flags = PF_NONE;
+        gboolean is_filtered = pdata->filter != NULL && !check_protocolfilter(pdata->filter, json_key, &filter_flags);
 
         field_info *fi = first_value->finfo;
         char *value_string_repr = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
@@ -846,8 +854,8 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
                 // Remove protocol filter for children, if children should be included. This functionality is enabled
                 // with the "-J" command line option. We save the filter so it can be reenabled when we are done with
                 // the current key:value pair.
-                gchar **_filter = NULL;
-                if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                wmem_map_t *_filter = NULL;
+                if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                     _filter = pdata->filter;
                     pdata->filter = NULL;
                 }
@@ -857,7 +865,7 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
                 write_json_proto_node(node_values_list, suffix, write_json_proto_node_dynamic, pdata);
 
                 // Put protocol filter back
-                if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                     pdata->filter = _filter;
                 }
             }
@@ -1119,8 +1127,12 @@ proto_node_group_children_by_json_key(proto_node *node)
 }
 
 /**
- * Returns the json key of a node. Tries to use the node's abbreviated name. If the abbreviated name is not available
- * the representation is used instead.
+ * Returns the json key of a node. Tries to use the node's abbreviated name.
+ * If the abbreviated name is not available the representation is used instead.
+ *
+ * XXX: The representation can have spaces or differ depending on the content,
+ * which makes it difficult to match text-only fields with a -j/-J filter in tshark.
+ * (Issue #17125).
  */
 static const char *
 proto_node_to_json_key(proto_node *node)
@@ -1139,13 +1151,13 @@ proto_node_to_json_key(proto_node *node)
 }
 
 static gboolean
-ek_check_protocolfilter(gchar **protocolfilter, const char *str)
+ek_check_protocolfilter(wmem_map_t *protocolfilter, const char *str, pf_flags *filter_flags)
 {
     gchar *str_escaped = NULL;
     gboolean check;
     int i;
 
-    if (check_protocolfilter(protocolfilter, str))
+    if (check_protocolfilter(protocolfilter, str, filter_flags))
         return TRUE;
 
     /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
@@ -1161,7 +1173,7 @@ ek_check_protocolfilter(gchar **protocolfilter, const char *str)
         }
     }
 
-    check = check_protocolfilter(protocolfilter, str_escaped);
+    check = check_protocolfilter(protocolfilter, str_escaped, filter_flags);
     g_free(str_escaped);
     return check;
 }
@@ -1204,10 +1216,11 @@ ek_fill_attr(proto_node *node, GHashTable *attr_table, write_json_data *pdata)
         /* Field, recurse through children*/
         if (fi->hfinfo->type != FT_PROTOCOL && current_node->first_child != NULL) {
             if (pdata->filter != NULL) {
-                if (ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
-                    gchar **_filter = NULL;
+                pf_flags filter_flags = PF_NONE;
+                if (ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev, &filter_flags)) {
+                    wmem_map_t *_filter = NULL;
                     /* Remove protocol filter for children, if children should be included */
-                    if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                    if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                         _filter = pdata->filter;
                         pdata->filter = NULL;
                     }
@@ -1215,7 +1228,7 @@ ek_fill_attr(proto_node *node, GHashTable *attr_table, write_json_data *pdata)
                     ek_fill_attr(current_node, attr_table, pdata);
 
                     /* Put protocol filter back */
-                    if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                    if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                         pdata->filter = _filter;
                     }
                 } else {
@@ -1402,9 +1415,10 @@ ek_write_attr_hex(GSList *attr_instances, write_json_data *pdata)
 static void
 ek_write_attr(GSList *attr_instances, write_json_data *pdata)
 {
-    GSList *current_node = attr_instances;
-    proto_node *pnode    = (proto_node *) current_node->data;
-    field_info *fi       = PNODE_FINFO(pnode);
+    GSList *current_node  = attr_instances;
+    proto_node *pnode     = (proto_node *) current_node->data;
+    field_info *fi        = PNODE_FINFO(pnode);
+    pf_flags filter_flags = PF_NONE;
 
     // Hex dump -x
     if (pdata->print_hex && fi && fi->length > 0 && fi->hfinfo->id != hf_text_only) {
@@ -1425,7 +1439,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
         /* Field */
         if (fi->hfinfo->type != FT_PROTOCOL) {
             if (pdata->filter != NULL
-                && !ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
+                && !ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev, &filter_flags)) {
 
                 /* print dummy field */
                 json_dumper_begin_object(pdata->dumper);
@@ -1440,10 +1454,10 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
             json_dumper_begin_object(pdata->dumper);
 
             if (pdata->filter != NULL) {
-                if (ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
-                    gchar **_filter = NULL;
+                if (ek_check_protocolfilter(pdata->filter, fi->hfinfo->abbrev, &filter_flags)) {
+                    wmem_map_t *_filter = NULL;
                     /* Remove protocol filter for children, if children should be included */
-                    if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                    if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                         _filter = pdata->filter;
                         pdata->filter = NULL;
                     }
@@ -1451,7 +1465,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
                     proto_tree_write_node_ek(pnode, pdata);
 
                     /* Put protocol filter back */
-                    if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                    if ((filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
                         pdata->filter = _filter;
                     }
                 } else {
