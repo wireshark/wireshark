@@ -6772,7 +6772,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  * sent with SEQ being equal to the ACK received,
                  * thus breaking our flow monitoring. (issue 17616)
                  */
-                tcpd->fwd->tcp_analyze_seq_info->nextseq = tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked;
+                if(tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info) {
+                    tcpd->fwd->tcp_analyze_seq_info->nextseq = tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked;
+                }
 
                 if(!tcpd->ta)
                     tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
