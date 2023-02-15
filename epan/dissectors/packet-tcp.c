@@ -4154,7 +4154,7 @@ again:
                                  seq - msp->seq, len,
                                  (LT_SEQ (nxtseq,msp->nxtpdu)) );
 
-        if (!PINFO_FD_VISITED(pinfo)
+        if (!PINFO_FD_VISITED(pinfo) && ipfd_head
         && msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
             msp->flags &= (~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
 
