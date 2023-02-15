@@ -257,9 +257,10 @@ static const value_string mysql_clone_response_vals[] = {
 #define MYSQL_COMPRESS_PAYLOAD 3
 
 /* Generic Response Codes */
-#define MYSQL_RESPONSE_OK   0x00
-#define MYSQL_RESPONSE_ERR  0xFF
-#define MYSQL_RESPONSE_EOF  0xFE
+#define MYSQL_RESPONSE_OK     0x00
+#define MYSQL_RESPONSE_ERR    0xFF
+#define MYSQL_RESPONSE_EOF    0xFE
+#define MYSQL_RESPONSE_INFILE 0xFB
 
 /* mariadb extended keys */
 #define MARIADB_EXT_META_TYPE   0
@@ -935,9 +936,10 @@ static const value_string mysql_session_track_type_vals[] = {
 };
 
 static const value_string mysql_response_code_vals[] = {
-    { MYSQL_RESPONSE_OK,    "OK Packet" },
-    { MYSQL_RESPONSE_ERR,   "ERR Packet" },
-    { MYSQL_RESPONSE_EOF,   "EOF Packet" },
+    { MYSQL_RESPONSE_OK,     "OK Packet" },
+    { MYSQL_RESPONSE_ERR,    "ERR Packet" },
+    { MYSQL_RESPONSE_EOF,    "EOF Packet" },
+    { MYSQL_RESPONSE_INFILE, "LOCAL INFILE Packet" },
     { 0, NULL }
 };
 
@@ -1201,6 +1203,9 @@ static int hf_mysql_pubkey = -1;
 static int hf_mysql_compressed_packet_length = -1;
 static int hf_mysql_compressed_packet_length_uncompressed = -1;
 static int hf_mysql_compressed_packet_number = -1;
+static int hf_mysql_loaddata_filename = -1;
+static int hf_mysql_loaddata_payload = -1;
+
 //static int hf_mariadb_fld_charsetnr = -1;
 static int hf_mariadb_server_language = -1;
 static int hf_mariadb_charset = -1;
@@ -1293,7 +1298,9 @@ typedef enum mysql_state {
 	BINLOG_DUMP,
 	CLONE_INIT,
 	CLONE_ACTIVE,
-	CLONE_EXIT
+	CLONE_EXIT,
+	RESPONSE_LOCALINFILE,
+	INFILE_DATA
 } mysql_state_t;
 
 static const value_string state_vals[] = {
@@ -1319,6 +1326,11 @@ static const value_string state_vals[] = {
 	{AUTH_PUBKEY,          "public key request"},
 	{AUTH_SHA2_RESPONSE,   "caching_sha2_password response"},
 	{BINLOG_DUMP,          "binlog event"},
+	{CLONE_INIT,           "cloning initializing"},
+	{CLONE_ACTIVE,         "cloning active"},
+	{CLONE_EXIT,           "cloning shutting down"},
+	{RESPONSE_LOCALINFILE, "local infile"},
+	{INFILE_DATA,          "local infile data"},
 	{0, NULL}
 };
 
@@ -1386,6 +1398,7 @@ static int mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, 
 static int mysql_dissect_eof(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_auth_sha2(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_loaddata(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static void mysql_dissect_exec_string(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
 static void mysql_dissect_exec_datetime(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
 static void mysql_dissect_exec_tiny(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
@@ -2063,11 +2076,19 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 	my_stmt_data_t *stmt_data;
 	int stmt_pos, param_offset;
 
-	if(current_state == AUTH_SWITCH_RESPONSE){
+	/* LOCAL INFILE Request sends an empty packet after sending the file content
+	 * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html */
+	if (tvb_reported_length_remaining(tvb, offset) == 0)
+		return offset;
+
+	switch(current_state) {
+	case AUTH_SWITCH_RESPONSE:
 		return mysql_dissect_auth_switch_response(tvb, pinfo, offset, tree, conn_data);
-	}
-	if(current_state == AUTH_SHA2){
+	case AUTH_SHA2:
 		return mysql_dissect_auth_sha2(tvb, pinfo, offset, tree, conn_data);
+	case INFILE_DATA:
+		return mysql_dissect_loaddata(tvb, pinfo, offset, tree, conn_data);
+	default:;
 	}
 
 	request_item = proto_tree_add_item(tree, hf_mysql_request, tvb, offset, -1, ENC_NA);
@@ -2650,6 +2671,18 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 			offset = mysql_dissect_text_row_packet(tvb, offset, tree);
 		}
+		break;
+
+	case 0xfb:
+		/* https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html */
+		col_append_str(pinfo->cinfo, COL_INFO, " LOCAL INFILE");
+		proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
+		proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_LOCALINFILE, state_vals, "Unknown (%u)"));
+
+		lenstr = tvb_reported_length_remaining(tvb, ++offset);
+		proto_tree_add_item(tree, hf_mysql_loaddata_filename, tvb, offset, lenstr, ENC_ASCII);
+		offset += lenstr;
+		mysql_set_conn_state(pinfo, conn_data, INFILE_DATA);
 		break;
 
 	case 0x00:
@@ -3821,6 +3854,23 @@ mysql_dissect_clone_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	return offset;
 }
 
+/*
+ This is the payload (file content) of the LOAD DATA LOCAL INFILE
+ https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_data.html
+*/
+static int
+mysql_dissect_loaddata(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_)
+{
+	col_append_str(pinfo->cinfo, COL_INFO, " LOCAL INFILE Payload");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+	gint lenstr = tvb_reported_length_remaining(tvb, offset);
+	tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, lenstr);
+	add_new_data_source(pinfo, next_tvb, "local infile");
+	proto_tree_add_item(tree, hf_mysql_loaddata_payload, tvb, offset, lenstr, ENC_NA);
+	offset += lenstr;
+	mysql_set_conn_state(pinfo, conn_data, REQUEST);
+	return offset;
+}
 
 /*
  get length of string in packet buffer
@@ -5283,6 +5333,16 @@ void proto_register_mysql(void)
 		{ &hf_mysql_compressed_packet_length_uncompressed,
 		{ "Uncompressed Packet Length", "mysql.compressed_packet_length_uncompressed",
 		FT_UINT24, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_loaddata_filename,
+		{ "LOCAL INFILE Filename", "mysql.load_data.filename",
+		FT_STRING, BASE_NONE, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_loaddata_payload,
+		{ "LOCAL INFILE Payload", "mysql.load_data.payload",
+		FT_BYTES, BASE_NONE, NULL,  0x0,
 		NULL, HFILL }},
 
 		{ &hf_mariadb_cap_progress,
