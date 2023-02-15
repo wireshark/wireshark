@@ -3322,6 +3322,14 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     }
 
     remaining_length = tvb_reported_length(tvb);
+    /* If we have exactly one non printable byte of payload, this is
+     * probably just a keep alive at the beginning of a capture. Better
+     * to treat it as such than to mark it and everything up to the next
+     * line end as Continuation Data.
+     */
+    if (remaining_length == 1 && !g_ascii_isprint(octet)) {
+        return 0;
+    }
     /* Check if we have enough data or if we need another segment, as a safty measure set a length limit*/
     if (remaining_length < 1500){
         linelen = tvb_find_line_end(tvb, offset, remaining_length, NULL, TRUE);
