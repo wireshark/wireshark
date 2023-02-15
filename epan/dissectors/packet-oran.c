@@ -290,7 +290,8 @@ static const range_string filter_indices[] = {
     {2, 2,  "UL filter for PRACH preamble format 3, min. passband 839 x 5 kHz = 4195 kHz"},
     {3, 3,  "UL filter for PRACH preamble formats A1, A2, A3, B1, B2, B3, B4, C0, C2; min. passband 139 x \u0394fRA"},
     {4, 4,  "UL filter for NPRACH 0, 1; min. passband 48 x 3.75KHz = 180 KHz"},
-    {5, 15, "Reserved"},
+    {5, 5,  "UL filter for PRACH preamble formats"},
+    {6, 15, "Reserved"},
     {0, 0, NULL}
 };
 
@@ -442,15 +443,16 @@ static const value_string bfw_comp_headers_iq_width[] = {
 };
 
 static const value_string bfw_comp_headers_comp_meth[] = {
-    {0,     "no compression"},
-    {1,     "block floating point"},
-    {2,     "block scaling"},
-    {3,     "u-law"},
-    {4,     "beamspace compression"},
+    {COMP_NONE,         "no compression"},
+    {COMP_BLOCK_FP,     "block floating point"},
+    {COMP_BLOCK_SCALE,  "block scaling"},
+    {COMP_U_LAW,        "u-law"},
+    {4,                 "beamspace compression type I"},
+    {5,                 "beamspace compression type II"},
     {0, NULL}
 };
 
-/* 5.4.7.6.1 */
+/* 7.7.6.2 */
 static const value_string rbg_size_vals[] = {
     {0,     "reserved"},
     {1,     "1"},
@@ -463,7 +465,7 @@ static const value_string rbg_size_vals[] = {
     {0, NULL}
 };
 
-/* 5.4.7.6.4 */
+/* 7.7.6.5 */
 static const value_string priority_vals[] = {
     {0,     "0"},
     {1,     "+1"},
@@ -472,7 +474,7 @@ static const value_string priority_vals[] = {
     {0, NULL}
 };
 
-/* 5.4.7.10.1  beamGroupType */
+/* 7.7.10.2  beamGroupType */
 static const value_string beam_group_type_vals[] = {
     {0x0, "common beam"},
     {0x1, "beam matrix indication"},
@@ -505,14 +507,6 @@ typedef struct {
 static wmem_tree_t *flow_states_table = NULL;
 
 
-#if 0
-static const range_string bfw_comp_parms[] = {
-    {0, 0, NULL}
-};
-static const range_string udCompParams[] = {
-    {0, 0, NULL}
-};
-#endif
 
 static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     packet_info *pinfo, const char *format, ...) G_GNUC_PRINTF(4, 5);
@@ -564,7 +558,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
     }
 }
 
-/* 3.1.3.1.6 (real time control data / IQ data transfer message series identifier */
+/* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier */
 static void
 addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, guint16 *eAxC)
 {
@@ -607,7 +601,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, gu
     proto_item_set_generated(pi);
 }
 
-/* 3.1.3.1.6 (message series identfier) */
+/* 5.1.3.2.7 (message series identfier) */
 static void
 addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
 {
@@ -658,7 +652,7 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
     /* Summary */
     proto_item_append_text(bfwcomphdr_ti, " (IqWidth=%u, compMeth=%s)",
                            *iq_width,
-                           val_to_str_const(*comp_meth, bfw_comp_headers_comp_meth, "Unknown"));
+                           val_to_str_const(*comp_meth, bfw_comp_headers_comp_meth, "reserved"));
 
     return offset;
 }
@@ -680,11 +674,11 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     *supported = FALSE;
     switch (bfw_comp_method) {
-        case COMP_NONE:
-            /* In this case, bfwCompParam is absent */
+        case COMP_NONE:         /* no compression */
+            /* In this case, bfwCompParam is absent! */
             *supported = TRUE;
             break;
-        case COMP_BLOCK_FP:
+        case COMP_BLOCK_FP:     /* block floating point */
             /* 4 reserved bits +  exponent */
             proto_tree_add_item_ret_uint(bfwcompparam_tree, hf_oran_exponent,
                                          tvb, offset, 1, ENC_BIG_ENDIAN, exponent);
@@ -692,12 +686,12 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             *supported = TRUE;
             offset++;
             break;
-        case COMP_BLOCK_SCALE:
+        case COMP_BLOCK_SCALE:  /* block scaling */
             proto_tree_add_item(bfwcompparam_tree, hf_oran_blockScaler,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             break;
-        case COMP_U_LAW:
+        case COMP_U_LAW:        /* u-law */
             /* compBitWidth, compShift */
             proto_tree_add_item(bfwcompparam_tree, hf_oran_compBitWidth,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -705,15 +699,21 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             break;
-        case COMP_MODULATION: /* beamspace */
+        case 4:                 /* beamspace I */
             /* TODO: activeBeamspaceCoefficientMask - ceil(K/8) octets */
             /* proto_tree_add_item(extension_tree, hf_oran_blockScaler,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++; */
             break;
+        case 5:                 /* beamspace II */
+            /* TODO: activeBeamspaceCoefficientMask - ceil(K/8) octets */
+            /* reserved (4 bits) + exponent (4 bits)
+            proto_tree_add_item(bfwcompparam_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(bfwcompparam_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, exponent);
+            offset += 1;
+            */
+            break;
 
-        case BFP_AND_SELECTIVE_RE:
-        case MOD_COMPR_AND_SELECTIVE_RE:
         default:
             /* Not handled */
              break;
@@ -2813,18 +2813,6 @@ proto_register_oran(void)
           HFILL}
         },
 
-#if 0
-    /* FIXME  Section 5.4.7.1.2 */
-    { &hf_oran_bfwCompParam.
-     { "beamforming weight compression parameter", "oran_fh_cus.bfwCompParam",
-        various, | BASE_RANGE_STRING,
-        RVALS(bfw_comp_parms), 0x0,
-        "Applies to the compression method specified by the"
-        "associated sectionID's bfwCompMeth value",
-        HFILL }
-    },
-#endif
-
         /* Section 5.4.7.1.2 */
         {&hf_oran_blockScaler,
          {"blockScaler", "oran_fh_cus.blockScaler",
@@ -2918,7 +2906,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 6.3.3.7 */
+        /* symbolId 8.3.3.7 */
         {&hf_oran_symbolId,
          {"Symbol Identifier", "oran_fh_cus.symbolId",
           FT_UINT8, BASE_HEX,
@@ -2927,7 +2915,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 6.3.3.11 */
+        /* startPrbu 8.3.3.11 */
         {&hf_oran_startPrbu,
          {"Starting PRB of User Plane Section", "oran_fh_cus.startPrbu",
           FT_UINT16, BASE_DEC,
@@ -2939,7 +2927,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 6.3.3.12 */
+        /* numPrbu 8.3.3.12 */
         { &hf_oran_numPrbu,
          {"Number of PRBs per User Plane Section", "oran_fh_cus.numPrbu",
           FT_UINT8, BASE_DEC,
@@ -2948,6 +2936,7 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 7.7.1.3 */
         {&hf_oran_bfwCompParam,
          {"bfwCompParam", "oran_fh_cus.bfwCompParam",
           FT_STRING, BASE_NONE,
@@ -2957,8 +2946,7 @@ proto_register_oran(void)
         },
 
 
-
-        /* Section 6.3.3.13 */
+        /* 6.3.3.13 */
         { &hf_oran_udCompHdrMeth,
          {"User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
@@ -2968,7 +2956,7 @@ proto_register_oran(void)
           HFILL}
          },
 
-        /* Section 6.3.3.13 */
+        /* 6.3.3.13 */
         {&hf_oran_udCompHdrIqWidth,
          {"User Data IQ width", "oran_fh_cus.udCompHdrWidth",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
@@ -3123,7 +3111,7 @@ proto_register_oran(void)
             HFILL}
         },
 
-        /* 5.4.7.10.1 */
+        /* 7.7.10.2 */
         { &hf_oran_beamGroupType,
           { "beamGroupType", "oran_fh_cus.beamGroupType",
             FT_UINT8, BASE_DEC,
@@ -3131,7 +3119,7 @@ proto_register_oran(void)
             "The type of beam grouping",
             HFILL }
         },
-        /* 5.4.7.10.2 */
+        /* 7.7.10.3 */
         { &hf_oran_numPortc,
           { "numPortc", "oran_fh_cus.numPortc",
             FT_UINT8, BASE_DEC,
@@ -3140,7 +3128,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* 5.4.7.4.1 (1 bit) */
+        /* 7.7.4.2 (1 bit) */
         { &hf_oran_csf,
           { "csf", "oran_fh_cus.csf",
             FT_BOOLEAN, 1,
@@ -3148,7 +3136,7 @@ proto_register_oran(void)
             "constellation shift flag",
             HFILL }
         },
-        /* 5.4.7.4.2 */
+        /* 7.7.4.3 */
         { &hf_oran_modcompscaler,
           { "modCompScaler", "oran_fh_cus.modcompscaler",
             FT_UINT16, BASE_DEC,
@@ -3157,7 +3145,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* 5.4.7.5.1 (12 bits) */
+        /* mcScaleReMask 7.7.5.2 (12 bits) */
         { &hf_oran_mc_scale_re_mask,
           { "mcScaleReMask", "oran_fh_cus.mcscaleremask",
             FT_UINT16, BASE_DEC,
@@ -3165,7 +3153,7 @@ proto_register_oran(void)
             "modulation compression power scale RE mask",
             HFILL }
         },
-        /* (15 bits) */
+        /* mcScaleOffset 7.7.5.4 (15 bits) */
         { &hf_oran_mc_scale_offset,
           { "mcScaleOffset", "oran_fh_cus.mcscaleoffset",
             FT_UINT24, BASE_DEC,
@@ -3173,7 +3161,7 @@ proto_register_oran(void)
             "scaling value for modulation compression",
             HFILL }
         },
-        /* Exttype 7 (7.7.7.2) */
+        /* eAxCmask (7.7.7.2) */
         { &hf_oran_eAxC_mask,
           { "eAxC Mask", "oran_fh_cus.eaxcmask",
             FT_UINT16, BASE_DEC,
@@ -3181,7 +3169,7 @@ proto_register_oran(void)
             "Which eAxC_ID values the C-Plane message applies to",
             HFILL }
         },
-        /* Exttype 9 7.7.9.2 */
+        /* technology (interface name) 7.7.9.2 */
         { &hf_oran_technology,
           { "Technology", "oran_fh_cus.technology",
             FT_UINT8, BASE_DEC,
@@ -3207,10 +3195,10 @@ proto_register_oran(void)
             HFILL }
         },
         { &hf_oran_portSymbolMask,
-          { "portSymbolMask", "oran_fh_cus.portReMask",
+          { "portSymbolMask", "oran_fh_cus.portSymbolMask",
             FT_BOOLEAN, 16,
             TFS(&tfs_set_notset), 0x3fff,
-            "symbol bitmask port port",
+            "Symbol bitmask port port",
             HFILL }
         },
 
@@ -3291,7 +3279,7 @@ proto_register_oran(void)
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
-        "this field to be present in uplink messages.", &pref_includeUdCompHeaderUplink);
+        "this field to be present in uplink messages", &pref_includeUdCompHeaderUplink);
 
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
         "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
@@ -3300,7 +3288,7 @@ proto_register_oran(void)
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
-        "this field to be present in downlink messages.", &pref_includeUdCompHeaderDownlink);
+        "this field to be present in downlink messages", &pref_includeUdCompHeaderDownlink);
 
     prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
         "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
@@ -3312,7 +3300,7 @@ proto_register_oran(void)
         "Number of BF Antennas (used for C section type 6)", 10, &pref_num_bf_antennas);
 
     prefs_register_bool_preference(oran_module, "oran.show_iq_samples", "Show IQ Sample values",
-        "When enabled, for U-Plane frames show each I and Q value in PRB.", &pref_showIQSampleValues);
+        "When enabled, for U-Plane frames show each I and Q value in PRB", &pref_showIQSampleValues);
 
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 
