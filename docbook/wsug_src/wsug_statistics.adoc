@@ -201,7 +201,7 @@ addresses, packet counters, and byte counters the conversation window adds four
 columns: the start time of the conversation (“Rel Start”) or (“Abs Start”),
 the duration of the conversation in seconds, and the average bits (not bytes)
 per second in each direction. A timeline graph is also drawn across the
-“Rel Start” / “Abs Start” and “Duration” columns. Additionally
+“Rel Start” / “Abs Start” and “Duration” columns.
 
 .The “Conversations” window
 image::images/ws-stats-conversations.png[{screenshot-attrs}]
