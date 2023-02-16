@@ -123,6 +123,7 @@ QTreeView * TrafficTab::createTree(int protoId)
 
     if (_createModel) {
         ATapDataModel * model = _createModel(protoId, "");
+        model->setParent(tree);
         connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
 
         model->enableTap();
@@ -136,7 +137,7 @@ QTreeView * TrafficTab::createTree(int protoId)
             }
         }
 
-        TrafficDataFilterProxy * proxyModel = new TrafficDataFilterProxy();
+        TrafficDataFilterProxy * proxyModel = new TrafficDataFilterProxy(tree);
         proxyModel->setSourceModel(model);
         tree->setModel(proxyModel);
 
