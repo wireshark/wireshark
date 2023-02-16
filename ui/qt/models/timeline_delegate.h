@@ -53,9 +53,6 @@ class TimelineDelegate : public QStyledItemDelegate
 public:
     TimelineDelegate(QWidget *parent = 0);
 
-    // Make sure QStyledItemDelegate::paint doesn't draw any text.
-    virtual QString displayText(const QVariant &, const QLocale &) const { return QString(); }
-
     void setDataRole(int role);
 
 protected:

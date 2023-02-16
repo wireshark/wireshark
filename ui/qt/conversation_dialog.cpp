@@ -50,25 +50,6 @@
 // - The value of 'Rel start' and 'Duration' in "Conversations" no need too precise https://gitlab.com/wireshark/wireshark/-/issues/12803
 
 
-typedef enum {
-    CONV_COLUMN_SRC_ADDR,
-    CONV_COLUMN_SRC_PORT,
-    CONV_COLUMN_DST_ADDR,
-    CONV_COLUMN_DST_PORT,
-    CONV_COLUMN_PACKETS,
-    CONV_COLUMN_BYTES,
-    CONV_COLUMN_PKT_AB,
-    CONV_COLUMN_BYTES_AB,
-    CONV_COLUMN_PKT_BA,
-    CONV_COLUMN_BYTES_BA,
-    CONV_COLUMN_START,
-    CONV_COLUMN_DURATION,
-    CONV_COLUMN_BPS_AB,
-    CONV_COLUMN_BPS_BA,
-    CONV_NUM_COLUMNS,
-    CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
-} conversation_column_type_e;
-
 static const QString table_name_ = QObject::tr("Conversation");
 
 static ATapDataModel * createModel(int protoId, QString filter)
@@ -91,8 +72,8 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
     trafficList()->setProtocolInfo(table_name_, &(recent.conversation_tabs));
 
     trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.conversation_tabs_columns), &createModel);
-    trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
-    trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
+    trafficTab()->setDelegate(&createDelegate);
+    trafficTab()->setDelegate(&createDelegate);
     trafficTab()->setFilter(cf.displayFilter());
 
     connect(trafficTab(), &TrafficTab::filterAction, this, &ConversationDialog::filterAction);
