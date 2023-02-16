@@ -109,7 +109,6 @@ static int hf_oran_reserved_2bits = -1;
 static int hf_oran_reserved_4bits = -1;
 
 static int hf_oran_ext11_reserved = -1;
-static int hf_oran_reserved_bits = -1;
 
 static int hf_oran_bfwCompHdr = -1;
 static int hf_oran_bfwCompHdr_iqWidth = -1;
@@ -175,6 +174,10 @@ static int hf_oran_portSymbolMask = -1;
 
 static int hf_oran_ext19_port = -1;
 
+static int hf_oran_prb_allocation = -1;
+static int hf_oran_nextSymbolId = -1;
+static int hf_oran_nextStartPrbc = -1;
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
 static int hf_oran_refa = -1;
@@ -199,6 +202,7 @@ static gint ett_oran_udcomphdr = -1;
 static gint ett_oran_bfwcomphdr = -1;
 static gint ett_oran_bfwcompparam = -1;
 static gint ett_oran_ext19_port = -1;
+static gint ett_oran_prb_allocation = -1;
 
 
 /* Expert info */
@@ -568,7 +572,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, gu
     guint64 duPortId, bandSectorId, ccId, ruPortId = 0;
     gint id_offset = *offset;
 
-    /* All parts of eAxC should be above 0, and should total 16 bits */
+    /* All parts of eAxC should be above 0, and should total 16 bits (breakdown controlled by preferences) */
     if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) &&
          ((pref_du_port_id_bits + pref_bandsector_id_bits + pref_cc_id_bits + pref_ru_port_id_bits) == 16))) {
         expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
@@ -601,7 +605,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, gu
     proto_item_set_generated(pi);
 }
 
-/* 5.1.3.2.7 (message series identfier) */
+/* 5.1.3.2.8 (message series identifier) */
 static void
 addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
 {
@@ -657,7 +661,8 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
     return offset;
 }
 
-/* Fields present (if any) depend upon passed-in bfwCompMeth */
+/* 7.7.1.3 bfwCompParam (beamforming weight compression parameter).
+ * Depends upon passed-in bfwCompMeth (field may be empty) */
 static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
                                 proto_item *ti, guint32 bfw_comp_method,
                                 guint32 *exponent, gboolean *supported)
@@ -765,6 +770,7 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
 /* Out-of-range value used for special case */
 #define ORPHAN_BUNDLE_NUMBER 999
 
+/* Bundle of PRBs/TRX I/Q samles (ext 11) */
 static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset,
                                   proto_item *comp_meth_ti, guint32 bfwcomphdr_comp_meth,
                                   guint8 iq_width,
@@ -801,7 +807,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* Create Bundle subtree */
     gint bit_offset = offset*8;
-    gint bfw_offset = bit_offset / 8;
+    gint bfw_offset;
     gint prb_offset = offset;
 
     /* beamId */
@@ -845,13 +851,15 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_append_text(bfw_ti, "Q%u=%f)", m, value);
     }
 
+    /* Set extent of bundle */
     proto_item_set_len(bundle_ti, (bit_offset+7)/8 - prb_offset);
 
     return (bit_offset+7)/8;
 }
 
 
-/* N.B. these are the green parts of the tables showing Section Types, differing by section Type */
+/* Section 7.
+ * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                                   guint32 sectionType, proto_item *protocol_item)
 {
@@ -1044,7 +1052,46 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset = (bit_offset/8);
     }
     else if (sectionType == SEC_C_LAA) {   /* Section Type "7" */
-        /* TODO: */
+        /* 7.2.5 Table 6.4-6 */
+
+        /* laaMsgType */
+        guint32 laa_msg_type;
+        proto_tree_add_item_ret_uint(oran_tree, hf_oran_laaMsgType, tvb, offset, 1, ENC_NA, &laa_msg_type);
+        /* laaMsgLen */
+        guint32 laa_msg_len;
+        proto_item *len_ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_laaMsgLen, tvb, offset, 1, ENC_NA, &laa_msg_len);
+        proto_item_append_text(len_ti, " (%u bytes)", 4*(laa_msg_len+1));
+        offset += 1;
+
+        /* payload */
+        switch (laa_msg_type) {
+            case 0:
+                /* TODO: LBT_PDSCH_REQ */
+                break;
+            case 1:
+                /* TODO: LBT_DRS_REQ */
+                break;
+            case 2:
+                /* TODO: LBT_PDSCH_RSP */
+                break;
+            case 3:
+                /* TODO: LBT_DRS_RSP */
+                break;
+            case 4:
+                /* TODO: LBT_Buffer_Error */
+                break;
+            case 5:
+                /* TODO: LBT_CWCONFIG_REQ */
+                break;
+            case 6:
+                /* TODO: LBT_CWCONFIG_RSP */
+                break;
+            default:
+                /* Unhandled! */
+                break;
+        }
+        /* For now just skip indicated length of bytes */
+        offset += 4*(laa_msg_len+1);
     }
 
     /* Section extension commands */
@@ -1107,7 +1154,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     break;
                 }
 
-
                 /* We know:
                    - iq_width (above)
                    - numBfWeights (taken from preference)
@@ -1154,7 +1200,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(bfw_ti, ")");
                     proto_item_set_len(bfw_ti, (bit_offset+7)/8  - bfw_offset);
                 }
-                offset = bit_offset/8;
+                /* Need to round to next byte */
+                offset = (bit_offset+7)/8;
 
                 break;
             }
@@ -1454,10 +1501,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* There are now 'R' pairs of (offStartPrb, numPrb) values.  Not sure where R comes from,
                    but for now assume that entire space in extLen should be filled with pairs.
                    N.B. this suggests that 'R' would always be an even number.. */
-                guint32 extlen_remaining_byte = (extlen*4) - 4;
+                guint32 extlen_remaining_bytes = (extlen*4) - 4;
                 guint8 prb_index;
 
-                for (prb_index = 1; extlen_remaining_byte > 0; prb_index++)
+                for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
                     /* Create a subtree for each pair */
                     proto_item *pair_ti = proto_tree_add_string(extension_tree, hf_oran_off_start_prb_num_prb_pair,
@@ -1478,14 +1525,43 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(pair_ti, "(%u) offStartPrb=%3u, numPrb=%u",
                                            prb_index, off_start_prb, num_prb);
 
-                    extlen_remaining_byte -= 2;
+                    extlen_remaining_bytes -= 2;
                 }
                 break;
             }
 
             case 13:  /* PRB Allocation with Frequency Hopping */
-                /* TODO */
+            {
+                guint32 extlen_remaining_bytes = (extlen*4) - 2;
+                guint8 allocation_index;
+
+                for (allocation_index = 1; extlen_remaining_bytes > 0; allocation_index++)
+                {
+                    /* Subtree for allocation */
+                    proto_item *allocation_ti = proto_tree_add_string(extension_tree, hf_oran_prb_allocation,
+                                                                tvb, offset, 2, "");
+                    proto_tree *allocation_tree = proto_item_add_subtree(allocation_ti, ett_oran_prb_allocation);
+
+                    /* Reserved (2 bits) */
+                    proto_tree_add_item(allocation_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                    /* nextSymbolId (4 bits) */
+                    guint32 next_symbol_id;
+                    proto_tree_add_item_ret_uint(allocation_tree, hf_oran_nextSymbolId, tvb, offset, 1, ENC_BIG_ENDIAN, &next_symbol_id);
+
+                    /* nextStartPrbc (10 bits) */
+                    guint32 next_start_prbc;
+                    proto_tree_add_item_ret_uint(allocation_tree, hf_oran_nextStartPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &next_start_prbc);
+                    offset += 2;
+
+                    /* Add summary to allocation root item */
+                    proto_item_append_text(allocation_ti, "(%u) nextSymbolId=%3u, nextStartPrbc=%u",
+                                           allocation_index, next_symbol_id, next_start_prbc);
+
+                    extlen_remaining_bytes -= 2;
+                }
                 break;
+            }
 
             case 14:  /* Nulling-layer Info. for ueId-based beamforming */
                 proto_tree_add_item(extension_tree, hf_oran_nullLayerInd, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2579,11 +2655,7 @@ proto_register_oran(void)
          {"LAA Message Type", "oran_fh_cus.laaMsgType",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(laaMsgTypes), 0xf0,
-          "Defines number of symbols to which the section "
-          "control is applicable. At minimum, the section control shall be "
-          "applicable to at least one symbol. However, possible optimizations "
-          "could allow for several (up to 14) symbols, if e.g., all 14 "
-          "symbols use the same beam ID",
+          NULL,
           HFILL}
         },
 
@@ -2747,15 +2819,6 @@ proto_register_oran(void)
           FT_UINT8, BASE_HEX,
           NULL, 0xf0,
           NULL,
-          HFILL}
-        },
-
-        {&hf_oran_reserved_bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x7fff,
-          "Reserved for future use. Transmitter shall send "
-          "value \"0\", while receiver shall ignore the value received",
           HFILL}
         },
 
@@ -3209,6 +3272,29 @@ proto_register_oran(void)
             "Entry for a given port in ext19",
             HFILL}
          },
+
+        /* Ext 13 */
+        { &hf_oran_prb_allocation,
+          {"PRB allocation", "oran_fh_cus.prb-allocation",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL,
+            HFILL}
+         },
+        { &hf_oran_nextSymbolId,
+          { "nextSymbolId", "oran_fh_cus.nextSymbolId",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3c,
+            "offset of PRB range start",
+            HFILL }
+        },
+        { &hf_oran_nextStartPrbc,
+          { "nextStartPrbc", "oran_fh_cus.nextStartPrbc",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x03ff,
+            "number of PRBs in PRB range",
+            HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -3231,7 +3317,8 @@ proto_register_oran(void)
         &ett_oran_udcomphdr,
         &ett_oran_bfwcomphdr,
         &ett_oran_bfwcompparam,
-        &ett_oran_ext19_port
+        &ett_oran_ext19_port,
+        &ett_oran_prb_allocation
     };
 
     expert_module_t* expert_oran;
