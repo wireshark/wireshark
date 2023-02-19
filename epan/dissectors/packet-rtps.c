@@ -5897,6 +5897,8 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
   guint32 member_id = 0, member_length = 0;
   guint32 long_number, i;
   gint offset_tmp, member_size;
+  wmem_array_t *elements = NULL;
+  dissection_element zero_element = {0};
 
   offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
 
@@ -5913,22 +5915,24 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
   offset_tmp += 4;
 
   if (info) {
-      info->elements = (dissection_element*)wmem_alloc0(
-            wmem_file_scope(),
-            sizeof(dissection_element) * long_number);
+      elements = wmem_array_sized_new(wmem_file_scope(), sizeof(dissection_element), MIN(long_number, DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE));
   }
   for (i = 0; i < long_number; i++) {
       member_size = offset_tmp;
       member = proto_tree_add_subtree(tree, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "");
-      if (info && info->elements)
-        offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, info, &(info->elements[i]));
-      else
+      if (info && elements) {
+        wmem_array_append_one(elements, zero_element);
+        offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, info, wmem_array_index(elements, i));
+      } else {
         offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, NULL, NULL);
+      }
       proto_item_set_len(member, offset_tmp - member_size);
   }
-  if (info)
-    info->num_elements = long_number;
+  if (info) {
+    info->num_elements = wmem_array_get_count(elements);
+    info->elements = wmem_array_finalize(elements);
+  }
 }
 
 static void rtps_util_add_type_library(proto_tree *tree, packet_info * pinfo,

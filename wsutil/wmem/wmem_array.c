@@ -155,7 +155,24 @@ wmem_array_get_raw(wmem_array_t *array)
 guint
 wmem_array_get_count(wmem_array_t *array)
 {
+    if (array == NULL)
+        return 0;
+
     return array->elem_count;
+}
+
+void *
+wmem_array_finalize(wmem_array_t *array)
+{
+    if (array == NULL)
+        return NULL;
+
+    size_t used_size = array->null_terminated ? (array->elem_count + 1) * array->elem_size : array->elem_count * array->elem_size;
+    void *ret = wmem_realloc(array->allocator, array->buf, used_size);
+
+    wmem_free(array->allocator, array);
+
+    return ret;
 }
 
 void
