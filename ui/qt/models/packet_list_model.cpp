@@ -340,7 +340,8 @@ void PacketListModel::addFrameComment(const QModelIndexList &indices, const QByt
     frame_data *fdata;
     if (!cap_file_) return;
 
-    foreach (const auto &index, std::as_const(indices)) {
+    for (qsizetype i = 0; i < indices.size(); ++i) {
+        const auto &index = indices.at(i);
         if (!index.isValid()) continue;
 
         PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
@@ -414,7 +415,8 @@ void PacketListModel::deleteFrameComments(const QModelIndexList &indices)
     frame_data *fdata;
     if (!cap_file_) return;
 
-    foreach (const auto &index, std::as_const(indices)) {
+    for (qsizetype i = 0; i < indices.size(); ++i) {
+        const auto &index = indices.at(i);
         if (!index.isValid()) continue;
 
         PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
