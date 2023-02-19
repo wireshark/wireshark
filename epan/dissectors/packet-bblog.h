@@ -19,15 +19,15 @@
 static const value_string tcp_state_values[] = {
   {  0, "CLOSED" },
   {  1, "LISTEN" },
-  {  2, "SYN SENT" },
-  {  3, "SYN RECEIVED" },
+  {  2, "SYN-SENT" },
+  {  3, "SYN-RECEIVED" },
   {  4, "ESTABLISHED" },
-  {  5, "CLOSE WAIT" },
-  {  6, "FIN WAIT 1" },
+  {  5, "CLOSE-WAIT" },
+  {  6, "FIN-WAIT-1" },
   {  7, "CLOSING" },
-  {  8, "LAST ACK" },
-  {  9, "FIN WAIT 2" },
-  { 10, "TIME WAIT" },
+  {  8, "LAST-ACK" },
+  {  9, "FIN-WAIT-2" },
+  { 10, "TIME-WAIT" },
   {  0, NULL } };
 
 /*
