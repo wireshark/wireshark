@@ -117,6 +117,25 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree);
 gboolean
 dfilter_has_interesting_fields(const dfilter_t *df);
 
+/* Check if dfilter is interested in a given field
+ *
+ * @param df The dfilter
+ * @param hfid The header field info ID to check
+ * @return TRUE if the field is interesting to the dfilter
+ */
+gboolean
+dfilter_interested_in_field(const dfilter_t *df, int hfid);
+
+/* Check if dfilter is interested in a given protocol
+ *
+ * @param df The dfilter
+ * @param hfid The protocol ID to check
+ * @return TRUE if the dfilter is interested in a field whose
+ * parent is proto_id
+ */
+gboolean
+dfilter_interested_in_proto(const dfilter_t *df, int proto_id);
+
 WS_DLL_PUBLIC
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df);

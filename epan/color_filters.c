@@ -442,6 +442,10 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
         /* Disable the color filter in the list of color filters. */
         colorf->disabled = TRUE;
     }
+
+    /* XXX: What if the color filter tests "frame.coloring_rule.name" or
+     * "frame.coloring_rule.string"?
+     */
 }
 
 /* apply changes from the edit list */
@@ -511,6 +515,52 @@ color_filters_prime_edt(epan_dissect_t *edt)
 {
     if (color_filters_used())
         g_slist_foreach(color_filter_list, prime_edt, edt);
+}
+
+static gint
+find_hfid(gconstpointer data, gconstpointer user_data)
+{
+    color_filter_t *colorf = (color_filter_t *)data;
+    int hfid = GPOINTER_TO_INT(user_data);
+
+    if ((!colorf->disabled) && colorf->c_colorfilter != NULL) {
+        if (dfilter_interested_in_field(colorf->c_colorfilter, hfid)) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+gboolean
+color_filters_use_hfid(int hfid)
+{
+    GSList *item = NULL;
+    if (color_filters_used())
+        item = g_slist_find_custom(color_filter_list, GINT_TO_POINTER(hfid), find_hfid);
+    return (item != NULL);
+}
+
+static gint
+find_proto(gconstpointer data, gconstpointer user_data)
+{
+    color_filter_t *colorf = (color_filter_t *)data;
+    int proto_id = GPOINTER_TO_INT(user_data);
+
+    if ((!colorf->disabled) && colorf->c_colorfilter != NULL) {
+        if (dfilter_interested_in_proto(colorf->c_colorfilter, proto_id)) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+gboolean
+color_filters_use_proto(int proto_id)
+{
+    GSList *item = NULL;
+    if (color_filters_used())
+        item = g_slist_find_custom(color_filter_list, GINT_TO_POINTER(proto_id), find_proto);
+    return (item != NULL);
 }
 
 /* * Return the color_t for later use */

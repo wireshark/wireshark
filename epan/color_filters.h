@@ -102,12 +102,30 @@ color_filters_tmp_color(guint8 filter_num);
 WS_DLL_PUBLIC gboolean
 color_filters_reset_tmp(gchar **err_msg);
 
-/* Prime the epan_dissect_t with all the compiler
+/* Prime the epan_dissect_t with all the compiled
  * color filters of the current filter list.
  *
  * @param the epan dissector details
  */
 WS_DLL_PUBLIC void color_filters_prime_edt(struct epan_dissect *edt);
+
+/** Check if any of the enabled compiled color filters of the current
+ * filter list depend on a given header field.
+ *
+ * @param hfid The header field ID to check
+ * @return TRUE if the color filter contains the header field.
+ */
+WS_DLL_PUBLIC gboolean
+color_filters_use_hfid(int hfid);
+
+/** Check if any of the enabled compiled color filters of the current
+ * filter list depend on any field in a given protocol.
+ *
+ * @param proto_id The protocol ID to check
+ * @return TRUE if the color filter contains a field from the protocol
+ */
+WS_DLL_PUBLIC gboolean
+color_filters_use_proto(int proto_id);
 
 /** Colorize a specific packet.
  *

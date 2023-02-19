@@ -613,6 +613,43 @@ dfilter_has_interesting_fields(const dfilter_t *df)
 	return (df->num_interesting_fields > 0);
 }
 
+gboolean
+dfilter_interested_in_field(const dfilter_t *df, int hfid)
+{
+	int i;
+
+	for (i = 0; i < df->num_interesting_fields; i++) {
+		if (df->interesting_fields[i] == hfid) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+gboolean
+dfilter_interested_in_proto(const dfilter_t *df, int proto_id)
+{
+	int i;
+
+	for (i = 0; i < df->num_interesting_fields; i++) {
+		int df_hfid = df->interesting_fields[i];
+		if (proto_registrar_is_protocol(df_hfid)) {
+			/* XXX: Should we go up to the parent of a pino?
+			 * We can tell if df_hfid is a PINO, but there's
+			 * no function to return the parent proto ID yet.
+			 */
+			if (df_hfid == proto_id) {
+				return TRUE;
+			}
+		} else {
+			if (proto_registrar_get_parent(df_hfid) == proto_id) {
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df) {
 	if (df->deprecated && df->deprecated->len > 0) {
