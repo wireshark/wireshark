@@ -6016,16 +6016,27 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                 } else if (strcmp(pref_name, "name_resolve_suppress_smi_errors") == 0) {
                     pref = prefs_find_preference(nameres_module, "suppress_smi_errors");
                 }
+            } else if (strcmp(module->name, "extcap") == 0) {
+                /* Handle the old "sshdump.remotesudo" preference; map it to the new
+                  "sshdump.remotepriv" preference, and map the boolean values to the
+                  appropriate strings of the new preference. */
+                if (strcmp(dotp, "sshdump.remotesudo") == 0) {
+                    pref = prefs_find_preference(module, "sshdump.remotepriv");
+                    if (g_ascii_strcasecmp(value, "true") == 0)
+                        value = "sudo";
+                    else
+                        value = "none";
+                }
             }
         }
         if (pref == NULL ) {
             if (strcmp(module->name, "extcap") == 0 && g_list_length(module->prefs) <= 1) {
-                /*
-                 * Assume that we've skipped extcap preference registration
-                 * and that only extcap.gui_save_on_start is loaded.
-                 */
-                return PREFS_SET_OK;
-            }
+                    /*
+                    * Assume that we've skipped extcap preference registration
+                    * and that only extcap.gui_save_on_start is loaded.
+                    */
+                    return PREFS_SET_OK;
+                }
             return PREFS_SET_NO_SUCH_PREF;    /* no such preference */
         }
 
