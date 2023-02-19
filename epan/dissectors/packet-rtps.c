@@ -2314,7 +2314,7 @@ static int* const RTPS_SAMPLE_INFO_FLAGS16[] = {
   &hf_rtps_flag_data_present16,                 /* Bit 3 */
   &hf_rtps_flag_offsetsn_present,               /* Bit 2 */
   &hf_rtps_flag_inline_qos16_v2,                /* Bit 1 */
-  &hf_rtps_flag_header_extension_timestamp,     /* Bit 0 */
+  &hf_rtps_flag_timestamp_present,              /* Bit 0 */
   NULL
 };
 
