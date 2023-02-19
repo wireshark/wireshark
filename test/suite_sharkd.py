@@ -74,7 +74,7 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"status"},
         ), (
-            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000}},
+            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000,"columns":["No.","Time","Source","Destination","Protocol","Length","Info"]}},
         ))
 
     def test_sharkd_req_status(self, check_sharkd_session, capture_file):
@@ -86,7 +86,8 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"result":{"frames": 4, "duration": 0.070345000,
-                "filename": "dhcp.pcap", "filesize": 1400}},
+                "filename": "dhcp.pcap", "filesize": 1400,
+                "columns":["No.","Time","Source","Destination","Protocol","Length","Info"]}},
         ))
 
     def test_sharkd_req_analyse(self, check_sharkd_session, capture_file):

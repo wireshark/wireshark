@@ -1100,6 +1100,7 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
  *   (m) duration - time difference between time of first frame, and last loaded frame
  *   (o) filename - capture filename
  *   (o) filesize - capture filesize
+ *   (o) columns  - array of column titles
  */
 static void
 sharkd_session_process_status(void)
@@ -1123,6 +1124,16 @@ sharkd_session_process_status(void)
 
         if (file_size > 0)
             sharkd_json_value_anyf("filesize", "%" PRId64, file_size);
+    }
+
+    if (cfile.cinfo.num_cols > 0)
+    {
+        sharkd_json_array_open("columns");
+        for (int i = 0; i < cfile.cinfo.num_cols; ++i)
+        {
+            sharkd_json_value_string(NULL, get_column_title(i));
+        }
+        sharkd_json_array_close();
     }
 
     sharkd_json_result_epilogue();
