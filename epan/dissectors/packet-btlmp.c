@@ -585,9 +585,9 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x002: // LMP_name_res
-        proto_tree_add_item(btlmp_tree, hf_param_namelength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_nameoffset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        ++offset;
+        proto_tree_add_item(btlmp_tree, hf_param_namelength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         if (tvb_captured_length_remaining(tvb, offset) <= 0)
             break;
