@@ -1914,6 +1914,9 @@ enum hf_rsvp_filter_keys {
     /* EXCLUDE ROUTE object */
     RSVPF_EXCLUDE_ROUTE,
 
+    /* S2L_SUB_LSP object */
+    RSVPF_S2L_SUB_LSP,
+
     /* Vendor Private objects */
     RSVPF_PRIVATE_OBJ,
     RSVPF_ENT_CODE,
@@ -2228,6 +2231,9 @@ rsvp_class_to_filter_num(int classnum)
         return RSVPF_LSP_TUNNEL_IF_ID;
     case RSVP_CLASS_EXCLUDE_ROUTE:
         return RSVPF_EXCLUDE_ROUTE;
+
+    case RSVP_CLASS_S2L_SUB_LSP:
+	return RSVPF_S2L_SUB_LSP;
 
     case RSVP_CLASS_JUNIPER_PROPERTIES :
         return RSVPF_JUNIPER;
@@ -8810,6 +8816,13 @@ proto_register_rsvp(void)
         {&hf_rsvp_callid_srcaddr_bytes,
          { "Source Transport Network Address", "rsvp.callid.srcaddr.bytes",
            FT_ETHER, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+	/* S2L_SUB_LSP object */
+        {&hf_rsvp_filter[RSVPF_S2L_SUB_LSP],
+         { "S2L_SUB_LSP", "rsvp.s2l_sub_lsp",
+           FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }
         },
 
