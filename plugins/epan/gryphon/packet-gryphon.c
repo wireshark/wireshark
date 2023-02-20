@@ -4006,6 +4006,7 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
     /* this is the old original way of displaying */
     proto_tree_add_uint(pt, hf_gryphon_command, tvb, offset, 1, cmd);
     if (pkt_info->ioctl_command != 0) {
+        /* N.B. Shown in one byte, but ioctl_command is a 4-byte value */
         proto_tree_add_uint(pt, hf_gryphon_cmd_ioctl_context, tvb, offset + 1, 1, pkt_info->ioctl_command);
     } else {
         proto_tree_add_item(pt, hf_gryphon_cmd_context, tvb, offset + 1, 1, ENC_NA);
@@ -4378,6 +4379,7 @@ proto_register_gryphon(void)
         { &hf_gryphon_cmd_context,
           { "Context",      "gryphon.cmd.context", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
+        /* N.B. Shown in one byte, but ioctl_command is a 4-byte value */
         { &hf_gryphon_cmd_ioctl_context,
           { "IOCTL Response",  "gryphon.cmd.ioctl_response", FT_UINT8, BASE_DEC, VALS(ioctls), 0x0,
                 NULL, HFILL }},

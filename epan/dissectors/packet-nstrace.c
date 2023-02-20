@@ -980,7 +980,7 @@ proto_register_ns(void)
 
 		{ &hf_ns_dir,
 		  { "Operation", "nstrace.dir",
-		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ns_dir_vals_ext, 0x0,
+		    FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ns_dir_vals_ext, 0x0,
 		    NULL, HFILL }
 		},
 

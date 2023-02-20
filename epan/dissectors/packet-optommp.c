@@ -207,7 +207,7 @@ static const range_string optommp_mm_areas[] = {
             "Public I/O Tag Configuration (Channels 0-31) - Read/Write" },
     {   0xF2290000, 0xF2295FFF,
             "Public Tag Revision Number" },
-    {   0xF2293000, 0xF228FFFF,
+    {   0xF2293000, 0xF229FFFF,
             "Public PID Tag Configuration" },
     {   0xF22A0000, 0xF22AFFFF,
             "Public I/O Tag Configuration (Channels 32-63)  - Read/Write" },
