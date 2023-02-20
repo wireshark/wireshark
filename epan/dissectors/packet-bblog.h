@@ -37,7 +37,8 @@ static const value_string tcp_state_values[] = {
 
 #define BBLOG_TCP_LOG_IN               1
 #define BBLOG_TCP_LOG_OUT              2
-#define BBLOG_TCP_LOG_RTO              3
+/* Use a better name for the event used for various timer events */
+#define BBLOG_TCP_LOG_TIMER            3
 #define BBLOG_TCP_LOG_SB_WAKE          4
 #define BBLOG_TCP_LOG_BAD_RETRAN       5
 #define BBLOG_TCP_LOG_PRR              6
@@ -107,7 +108,7 @@ static const value_string tcp_state_values[] = {
 static const value_string event_identifier_values[] = {
   { BBLOG_TCP_LOG_IN,              "Incoming packet" },
   { BBLOG_TCP_LOG_OUT,             "Transmit (without other event)" },
-  { BBLOG_TCP_LOG_RTO,             "Retransmit timeout" },
+  { BBLOG_TCP_LOG_TIMER,           "Timer" },
   { BBLOG_TCP_LOG_SB_WAKE,         "Awaken socket buffer" },
   { BBLOG_TCP_LOG_BAD_RETRAN,      "Detected bad retransmission" },
   { BBLOG_TCP_LOG_PRR,             "Doing PRR" },

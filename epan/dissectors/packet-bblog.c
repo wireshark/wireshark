@@ -176,6 +176,37 @@ static int * const bblog_t_flags2[] = {
   NULL
 };
 
+#define BBLOG_TCP_TIMER_TYPE_RETRANSMIT 0
+#define BBLOG_TCP_TIMER_TYPE_PERSIST    1
+#define BBLOG_TCP_TIMER_TYPE_KEEPALIVE  2
+#define BBLOG_TCP_TIMER_TYPE_2MSL       3
+#define BBLOG_TCP_TIMER_TYPE_DELACK     4
+
+static const value_string tcp_timer_type_values[] = {
+  { BBLOG_TCP_TIMER_TYPE_RETRANSMIT, "Retransmission" },
+  { BBLOG_TCP_TIMER_TYPE_PERSIST,    "Persist" },
+  { BBLOG_TCP_TIMER_TYPE_KEEPALIVE,  "Keepalive" },
+  { BBLOG_TCP_TIMER_TYPE_2MSL,       "2 MSL" },
+  { BBLOG_TCP_TIMER_TYPE_DELACK,     "Delayed ACK" },
+  { 0, NULL } };
+
+#define BBLOG_TCP_TIMER_EVENT_PROCESSING 0
+#define BBLOG_TCP_TIMER_EVENT_PROCESSED  1
+#define BBLOG_TCP_TIMER_EVENT_STARTING   2
+#define BBLOG_TCP_TIMER_EVENT_STOPPING   3
+
+static const value_string tcp_timer_event_values[] = {
+  { BBLOG_TCP_TIMER_EVENT_PROCESSING, "Processing" },
+  { BBLOG_TCP_TIMER_EVENT_PROCESSED,  "Processed" },
+  { BBLOG_TCP_TIMER_EVENT_STARTING,   "Starting" },
+  { BBLOG_TCP_TIMER_EVENT_STOPPING,   "Stopping" },
+  { 0, NULL } };
+
+#define BBLOG_TCP_TIMER_TYPE_MASK   0x000000ff
+#define BBLOG_TCP_TIMER_TYPE_SHIFT  0
+#define BBLOG_TCP_TIMER_EVENT_MASK  0x0000ff00
+#define BBLOG_TCP_TIMER_EVENT_SHIFT 8
+
 /*
  * The structures used here are defined in
  * https://cgit.freebsd.org/src/tree/sys/netinet/tcp_log_buf.h
@@ -190,12 +221,23 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint32 flex1, flex2;
     guint16 event_flags;
     guint8 event_identifier;
+    guint8 timer_type, timer_event;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
     event_identifier = tvb_get_guint8(tvb, 25);
     flex1 = tvb_get_letohl(tvb, 140);
     flex2 = tvb_get_letohl(tvb, 144);
     switch (event_identifier) {
+    case BBLOG_TCP_LOG_TIMER:
+        timer_type = (flex1 & BBLOG_TCP_TIMER_TYPE_MASK) >> BBLOG_TCP_TIMER_TYPE_SHIFT;
+        timer_event = (flex1 & BBLOG_TCP_TIMER_EVENT_MASK) >> BBLOG_TCP_TIMER_EVENT_SHIFT;
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s timer",
+                        val_to_str_const(timer_event, tcp_timer_event_values, "Unknown operation (%x) for"),
+                        val_to_str_const(timer_type, tcp_timer_type_values, "Unknown (%x)"));
+        if (timer_event == BBLOG_TCP_TIMER_EVENT_STARTING) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": %u ms", flex2);
+        }
+        break;
     default:
         event_name = try_val_to_str(event_identifier, event_identifier_values);
         if (event_name != NULL) {
