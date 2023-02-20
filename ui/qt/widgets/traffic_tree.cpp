@@ -44,6 +44,7 @@
 #include <QWidgetAction>
 #include <QLineEdit>
 #include <QActionGroup>
+#include <QDateTime>
 #include <QTime>
 
 MenuEditAction::MenuEditAction(QString text, QString hintText, QObject * parent) :
@@ -337,20 +338,21 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
              */
             QVariant rhs = QVariant(_filterText);
             if (data.userType() == QMetaType::QDateTime) {
-                /* When we display start time in absolute format, we only
-                 * display the time portion, so users will expect to enter
-                 * time-only filters. Convert to QTime instead of QDateTime.
-                 * (Sorting in the table will use the date as well, but it's
-                 * unreasonable to expect users to type in a date that they
-                 * can't see when filtering.)
+                /* Try to parse with a date included in the filter, and
+                 * fallback to time only if that fails.
                  */
-                QTime filterTime = QTime::fromString(_filterText, Qt::ISODateWithMs);
-                if (filterTime.isValid()) {
-                    rhs.setValue(filterTime);
+                QDateTime filter_dt = QDateTime::fromString(_filterText, Qt::ISODateWithMs);
+                if (filter_dt.isValid()) {
+                    rhs.setValue(filter_dt);
                 } else {
-                    rhs = QVariant();
+                    QTime filterTime = QTime::fromString(_filterText, Qt::ISODateWithMs);
+                    if (filterTime.isValid()) {
+                        rhs.setValue(filterTime);
+                        data.setValue(data.toTime());
+                    } else {
+                        rhs = QVariant();
+                    }
                 }
-                data.setValue(data.toTime());
             }
             QPartialOrdering result = QVariant::compare(data, rhs);
             if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
@@ -390,18 +392,33 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
                         filtered = data.toDouble() == _filterText.toDouble();
                     break;
                 case QMetaType::QDateTime:
-                case QMetaType::QTime:
-                    /* When we display start time in absolute format, we only
-                     * display the time portion, so users will expect to enter
-                     * time-only filters. Convert to QTime instead of QDateTime.
+                {
+                    /* Try to parse with a date included, and fall back to time
+                     * only if that fails.
                      */
+                    QDateTime filter_dt = QDateTime::fromString(_filterText, Qt::ISODateWithMs);
+                    if (filter_dt.isValid()) {
+                        if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                            filtered = data.toDateTime() < filter_dt;
+                        else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                            filtered = data.toDateTime() > filter_dt;
+                        else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                            filtered = data.toDateTime() == filter_dt;
+                        break;
+                    }
+                }
+                /* FALLTHROUGH */
+                case QMetaType::QTime:
+                {
+                    QTime filter_t = QTime::fromString(_filterText, Qt::ISODateWithMs);
                     if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                        filtered = data.toTime() < QTime::fromString(_filterText, Qt::ISODateWithMs);
+                        filtered = data.toTime() < filter_t;
                     else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                        filtered = data.toTime() > QTime::fromString(_filterText, Qt::ISODateWithMs);
+                        filtered = data.toTime() > filter_t;
                     else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                        filtered = data.toTime() == QTime::fromString(_filterText, Qt::ISODateWithMs);
+                        filtered = data.toTime() == filter_t;
                     break;
+                }
                 case QMetaType::QString:
                 default:
                     /* XXX: We don't do UTF-8 aware coallating in Packet List

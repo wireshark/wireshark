@@ -738,12 +738,21 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
 
             if (_absoluteTime) {
                 nstime_t *abs_time = &conv_item->start_abs_time;
-                QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
-                /* XXX: Should the display include the date as well? More
-                 * clutter, but captures can span midnight. It's probably
-                 * fine so long as the capture isn't more than 24 hours.
+                /* XXX: QDateTime only supports millisecond resolution,
+                 * and we have microseconds or nanoseconds.
+                 * Should we use something else, particularly for exporting
+                 * raw data? GDateTime handles microseconds.
                  */
-                return role == Qt::DisplayRole ? abs_dt.time().toString(Qt::ISODateWithMs) : QVariant(abs_dt);
+                QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
+                if (role == Qt::DisplayRole) {
+                    if (_maxRelStopTime >= 24*60*60) {
+                        return abs_dt.toString(Qt::ISODateWithMs);
+                    } else {
+                        return abs_dt.time().toString(Qt::ISODateWithMs);
+                    }
+                } else {
+                    return QVariant(abs_dt);
+                }
             } else {
                 return role == Qt::DisplayRole ?
                     QString::number(nstime_to_sec(&conv_item->start_time), 'f', width) :
