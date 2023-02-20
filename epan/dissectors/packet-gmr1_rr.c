@@ -1621,6 +1621,7 @@ static const value_string gmr1_msg_rr_strings[] = {
 	{ 0x3f, "Immediate Assignment" },
 	{ 0x3a, "Immediate Assignment Reject Type 1" },
 	{ 0x3b, "Immediate Assignment Reject Type 2" },
+	/* N.B. these next 2 entries won't fit into one byte this field seems to occupy... */
 	{ 0x13e, "Extended Immediate Assignment" },	/* Conflict ... add 0x100 */
 	{ 0x13b, "Extended Imm. Assignment Reject" },	/* Conflict ... add 0x100 */
 	{ 0x39, "Position Verification Notify" },

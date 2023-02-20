@@ -2555,7 +2555,7 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_rohc_profile,
             { "ROHC profile",
-              "pdcp-nr.rohc.profile", FT_UINT8, BASE_DEC, VALS(rohc_profile_vals), 0x0,
+              "pdcp-nr.rohc.profile", FT_UINT16, BASE_DEC, VALS(rohc_profile_vals), 0x0,
               "ROHC Mode", HFILL
             }
         },

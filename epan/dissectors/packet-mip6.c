@@ -571,17 +571,17 @@ static const value_string pmip6_ipv4aa_status_values[] = {
 
 /* PMIP6 BRI R. Trigger values */
 static const value_string pmip6_bri_rtrigger[] = {
-    { 0x00,     "Unspecified"},
-    { 0x01,     "Administrative Reason"},
-    { 0x02,     "Inter-MAG Handover - same Access Type"},
-    { 0x03,     "Inter-MAG Handover - different Access Type"},
-    { 0x04,     "Inter-MAG Handover - Unknown"},
-    { 0x05,     "User Initiated Session(s) Termination"},
-    { 0x06,     "Access Network Session(s) Termination"},
-    { 0x07,     "Possible Out-of Sync BCE State"},
+    { 0,     "Unspecified"},
+    { 1,     "Administrative Reason"},
+    { 2,     "Inter-MAG Handover - same Access Type"},
+    { 3,     "Inter-MAG Handover - different Access Type"},
+    { 4,     "Inter-MAG Handover - Unknown"},
+    { 5,     "User Initiated Session(s) Termination"},
+    { 6,     "Access Network Session(s) Termination"},
+    { 7,     "Possible Out-of Sync BCE State"},
     /* 8-127 Unassigned  */
-    { 0x128,    "Per-Peer Policy"},
-    { 0x129,    "Revoking Mobility Node Local Policy"},
+    { 128,   "Per-Peer Policy"},
+    { 129,   "Revoking Mobility Node Local Policy"},
     /* 130-249 Unassigned  */
     /* 250-255 Reserved for Testing Purposes Only */
     { 0,        NULL},
