@@ -137,6 +137,13 @@ typedef struct _dissection_info {
 
 } dissection_info;
 
+
+typedef struct _submessage_col_info {
+  const gchar* status_info;
+  const gchar* topic_name;
+  const gchar* data_session_kind;
+} submessage_col_info;
+
 typedef enum {
     RTI_CDR_TK_NULL = 0,
     RTI_CDR_TK_SHORT,
@@ -251,6 +258,9 @@ static dissector_table_t rtps_type_name_table;
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 #define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
 #define RTPS_SEQUENCENUMBER_UNKNOWN     0xffffffff00000000 /* {-1,0} as uint64 */
+
+#define RTPS_TOPIC_QUERY_SELECTION_KIND_HISTORY_SNAPSHOT  0
+#define RTPS_TOPIC_QUERY_SELECTION_KIND_CONTINUOUS        1
 
 /* Traffic type */
 #define PORT_BASE                       (7400)
@@ -1142,6 +1152,8 @@ static int hf_rtps_param_end_group_coherent_set                 = -1;
 static int hf_rtps_param_mig_end_coherent_set_sample_count      = -1;
 static int hf_rtps_encapsulation_options_compression_plugin_class_id = -1;
 static int hf_rtps_padding_bytes                                = -1;
+static int hf_rtps_topic_query_selection_kind                   = -1;
+static int hf_rtps_data_session_intermediate                            = -1;
 
 /* Flag bits */
 static int hf_rtps_flag_reserved80                              = -1;
@@ -2130,6 +2142,12 @@ static const value_string class_id_enum_names[] = {
   { 0, NULL}
 };
 
+static const value_string topic_query_selection_kind[] = {
+  { RTPS_TOPIC_QUERY_SELECTION_KIND_HISTORY_SNAPSHOT, "HISTORY_SNAPSHOT" },
+  { RTPS_TOPIC_QUERY_SELECTION_KIND_CONTINUOUS,       "CONTINUOUS" },
+  { 0, NULL}
+};
+
 static int* const PAD_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
@@ -2650,8 +2668,10 @@ static int* const HEADER_EXTENSION_MASK_FLAGS[] = {
 #define RTPS_TCPMAP_DOMAIN_ID_KEY_STR "ParticipantGuid"
 #define RTPS_TCPMAP_DOMAIN_ID_PROTODATA_KEY 0
 
-/* Key for mapping the topic name in pinfo */
-#define RTPS_TOPIC_NAME_PROTODATA_KEY       1
+/* Keys for mapping stuff in pinfo */
+#define RTPS_SERVICE_REQUEST_ID_PROTODATA_KEY   1
+#define RTPS_DATA_SESSION_FINAL_PROTODATA_KEY   2
+#define RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY    3
 
 /* End of TCP get DomainId feature constants */
 
@@ -3479,7 +3499,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
 /* *********************************************************************** */
 /* Appends extra formatting for those submessages that have a status info
  */
-static void append_status_info(packet_info *pinfo,
+static void generate_status_info(packet_info *pinfo,
                         guint32 writer_id,
                         guint32 status_info) {
 
@@ -3525,8 +3545,11 @@ static void append_status_info(packet_info *pinfo,
   gchar * writerId = NULL;
   gchar * disposeFlag = NULL;
   gchar * unregisterFlag = NULL;
-  wmem_strbuf_t *buffer = wmem_strbuf_create(wmem_packet_scope());
 
+  wmem_strbuf_t *buffer = wmem_strbuf_create(wmem_packet_scope());
+  submessage_col_info* current_submessage_col_info = NULL;
+
+  current_submessage_col_info = (submessage_col_info*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY);
   switch(writer_id) {
     case ENTITYID_PARTICIPANT:
     case ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_WRITER:
@@ -3574,6 +3597,15 @@ static void append_status_info(packet_info *pinfo,
     case ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER:
       writerId = "sPc";
       break;
+    case ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER:
+    case ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_READER: {
+      /* This is added to proto_rtps in rtps_util_add_rti_service_request* */
+      guint32* service_id = (guint32*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_SERVICE_REQUEST_ID_PROTODATA_KEY);
+      if (service_id != NULL && *service_id == RTI_SERVICE_REQUEST_ID_TOPIC_QUERY) {
+        writerId = "tq";
+      }
+      break;
+    }
     default:
     /* Unknown writer ID, don't format anything */
       break;
@@ -3601,15 +3633,7 @@ static void append_status_info(packet_info *pinfo,
       wmem_strbuf_append(buffer, "]");
     }
     wmem_strbuf_append(buffer, ")");
-    col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(buffer));
-    /* DATA(w|r) have the topic information (PID_TOPIC_NAME) and it has been stored when parsed it */
-    if (enable_topic_info &&
-          (writer_id == ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER || writer_id == ENTITYID_BUILTIN_PUBLICATIONS_WRITER)) {
-      const gchar* topic_name = (const gchar*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_TOPIC_NAME_PROTODATA_KEY);
-      if (topic_name != NULL) {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, " -> ", topic_name);
-      }
-    }
+    current_submessage_col_info->status_info = wmem_strbuf_get_str(buffer);
   }
 }
 
@@ -6486,7 +6510,12 @@ static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
 
 }
 
-static const char* rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
+/* Adds the topic topic information to the tree and the topic name to the info column.
+ * Topic name will be added to the info column only if the topic information is stored
+ * in the "registry map".
+ * This is used when the packet doesn't contain the topic information (PID_TOPIC_INFORMATION)
+ */
+static const char* rtps_util_add_topic_info(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
   gint offset, endpoint_guid * guid) {
   const char* topic_name = NULL;
   if (enable_topic_info) {
@@ -6498,39 +6527,34 @@ static const char* rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb
     is_builtin_type = (type_mapping_object == &builtin_types_dissection_data.type_mappings.instance_state_data_response_type_mapping);
     if (type_mapping_object != NULL) {
       const gchar* topic_information_text = (!is_builtin_type) ?
-        "[Topic Information (from Discovery)]":
+        "[Topic Information (from Discovery)]" :
         "[Topic Information (BuiltIn type)]";
       topic_name = type_mapping_object->topic_name;
-      topic_info_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
-                ett_rtps_topic_info, NULL, topic_information_text);
-      ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
-                type_mapping_object->type_name);
-      proto_item_set_generated(ti);
-      if (!is_builtin_type) {
-        ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
-          topic_name);
+      if (topic_name != NULL) {
+        submessage_col_info* current_submessage_col_info = NULL;
+
+        topic_info_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+          ett_rtps_topic_info, NULL, topic_information_text);
+        ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
+          type_mapping_object->type_name);
         proto_item_set_generated(ti);
-        ti = proto_tree_add_uint(topic_info_tree, hf_rtps_dcps_publication_data_frame_number,
-          tvb, 0, 0, type_mapping_object->dcps_publication_frame_number);
+        if (!is_builtin_type) {
+          ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
+            topic_name);
+          proto_item_set_generated(ti);
+          ti = proto_tree_add_uint(topic_info_tree, hf_rtps_dcps_publication_data_frame_number,
+            tvb, 0, 0, type_mapping_object->dcps_publication_frame_number);
+        }
+        proto_item_set_generated(ti);
+        current_submessage_col_info = (submessage_col_info*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY);
+        if (current_submessage_col_info != NULL && current_submessage_col_info->topic_name == NULL) {
+          current_submessage_col_info->topic_name = wmem_strdup(pinfo->pool, topic_name);
+        }
       }
-      proto_item_set_generated(ti);
     }
   }
   return topic_name;
 }
-
-/* Adds the topic topic information to the tree and the topic name to the info column.
- * Topic name will be added to the info column only if the topic information is stored
- * in the "registry map".
- * This is used when the packet doesn't contain the topic information (PID_TOPIC_INFORMATION)
- */
-static void rtps_util_add_topic_info(proto_tree* tree, packet_info *pinfo,tvbuff_t* tvb, gint offset, endpoint_guid* guid) {
-  const char* topic_name = rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
-  if (enable_topic_info && topic_name != NULL) {
-    col_append_sep_str(pinfo->cinfo, COL_INFO, " -> ", topic_name);
-  }
-}
-
 
 /* Uncompress data and returns it uncompressed on a new tvb.
  *
@@ -6697,7 +6721,7 @@ static gboolean rtps_util_try_dissector(proto_tree *tree,
   return FALSE;
 }
 
-static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
+static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree, packet_info *pinfo,
         tvbuff_t * tvb, gint offset, guint encoding) {
     /*
     struct TopicQuerySelection {
@@ -6721,6 +6745,8 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
   guint32 param_id, param_length, param_length_2, num_filter_params;
   gint alignment_zero, tmp_offset;
   guint32 i;
+  gchar* topic_name = NULL;
+  gint topic_name_len = 0;
   topic_query_tree = proto_tree_add_subtree(tree, tvb, offset,
       0 /* To be defined */, ett_rtps_topic_query_tree, &ti, "Topic Query Data");
 
@@ -6769,6 +6795,7 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
                 tmp_offset + 4, 0 /* To be defined */, ett_rtps_topic_query_filter_params_tree, &ti,
                 "Filter Parameters (size = %u)", num_filter_params);
     tmp_offset += 4;
+
     for (i = 0; i < num_filter_params; ++i) {
       guint32 string_size;
       gchar * retVal;
@@ -6782,6 +6809,10 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
 
       tmp_offset += (4 + string_size);
     }
+    SHORT_ALIGN_ZERO(tmp_offset, alignment_zero);
+    tmp_offset += 4;
+    proto_tree_add_item(topic_query_selection_tree, hf_rtps_topic_query_selection_kind,
+      tvb, tmp_offset, 4, encoding);
   }
   offset = check_offset_addition(offset, param_length, tree, NULL, tvb);
   SHORT_ALIGN_ZERO(offset,alignment_zero);
@@ -6794,8 +6825,18 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &param_id, &param_length);
 
   LONG_ALIGN_ZERO(offset, alignment_zero);
-  rtps_util_add_string(topic_query_tree, tvb, offset,
-            hf_rtps_topic_query_topic_name, encoding);
+  topic_name_len = tvb_get_guint32(tvb, offset, encoding);
+  topic_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, topic_name_len, ENC_ASCII);
+  proto_tree_add_string(topic_query_tree, hf_rtps_topic_query_topic_name, tvb, offset, topic_name_len + 4, topic_name);
+  if (topic_name != NULL) {
+    submessage_col_info* current_submessage_col_info = NULL;
+    current_submessage_col_info = (submessage_col_info*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY);
+    if (current_submessage_col_info != NULL && current_submessage_col_info->topic_name == NULL) {
+      current_submessage_col_info->topic_name = wmem_strdup(pinfo->pool, topic_name);
+    }
+  }
+
+
   offset = check_offset_addition(offset, param_length, tree, NULL, tvb);
 
   SHORT_ALIGN_ZERO(offset,alignment_zero);
@@ -6808,7 +6849,6 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
           NULL);
 
   offset = check_offset_addition(offset, param_length, tree, NULL, tvb);
-
   return offset;
 }
 
@@ -6877,9 +6917,13 @@ static gint rtps_util_add_instance_state_request_data(proto_tree* tree, tvbuff_t
 
 static gint rtps_util_add_rti_service_request(proto_tree * tree, packet_info *pinfo, tvbuff_t * tvb,
         gint offset, const guint encoding, guint32 service_id) {
+  guint32 *service_id_copy = wmem_alloc(pinfo->pool, sizeof(guint32));
+  *service_id_copy = service_id;
+  /* This is used in append_status_info for adding the column info */
+  p_add_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_SERVICE_REQUEST_ID_PROTODATA_KEY, (gpointer)service_id_copy);
   switch (service_id) {
     case RTI_SERVICE_REQUEST_ID_TOPIC_QUERY:
-      offset = rtps_util_add_rti_topic_query_service_request(tree, tvb, offset + 4,
+      offset = rtps_util_add_rti_topic_query_service_request(tree, pinfo, tvb, offset + 4,
                   encoding);
       break;
     case RTI_SERVICE_REQUEST_ID_LOCATOR_REACHABILITY:
@@ -7818,9 +7862,14 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
        * in the infor column. This information is used in append_status_info function.
        */
       if (retVal != NULL && enable_topic_info) {
+        submessage_col_info* current_submessage_col_info = NULL;
+
         rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object, retVal, TOPIC_INFO_ADD_TOPIC_NAME);
         /* retVal has packet scope lifetime, enough for adding to the DATA(r|w) column information */
-        p_add_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_TOPIC_NAME_PROTODATA_KEY, (gpointer)retVal);
+        current_submessage_col_info = (submessage_col_info*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY);
+        if (current_submessage_col_info != NULL && current_submessage_col_info->topic_name == NULL) {
+          current_submessage_col_info->topic_name = retVal;
+        }
       }
       break;
     }
@@ -8732,6 +8781,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      * +---------------+---------------+---------------+---------------+
      */
     case PID_STATUS_INFO: {
+      gboolean* is_data_session_intermediate = NULL;
       ENSURE_LENGTH(4);
       /* PID_STATUS_INFO is always coded in network byte order (big endian) */
       proto_tree_add_bitmask(rtps_parameter_tree, tvb, offset,
@@ -8739,6 +8789,10 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
               STATUS_INFO_FLAGS, ENC_BIG_ENDIAN);
       if (pStatusInfo != NULL) {
         *pStatusInfo = tvb_get_ntohl(tvb, offset);
+      }
+      is_data_session_intermediate = (gboolean*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_DATA_SESSION_FINAL_PROTODATA_KEY);
+      if (is_data_session_intermediate != NULL) {
+        *is_data_session_intermediate = TRUE;
       }
       break;
     }
@@ -10465,7 +10519,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
                         octets_to_next_header - (offset - old_offset) + 4,
                         "serializedData", vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
   }
-  append_status_info(pinfo, wid, status_info);
+  generate_status_info(pinfo, wid, status_info);
 }
 
 
@@ -11709,6 +11763,9 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   min_len = 20;
   if (is_session) {
     min_len += 8;
+    gboolean* is_data_session_final = wmem_alloc(pinfo->pool, sizeof(gboolean));
+    *is_data_session_final = FALSE;
+    p_add_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_DATA_SESSION_FINAL_PROTODATA_KEY, is_data_session_final);
   }
   if ((flags & FLAG_RTPS_DATA_Q) != 0) min_len += 4;
   if ((flags & FLAG_RTPS_DATA_D) != 0) min_len += 4;
@@ -11987,7 +12044,20 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
     }
   }
   rtps_util_detect_coherent_set_end_empty_data_case(&coherent_set_entity_info_object);
-  append_status_info(pinfo, writer_wid, status_info);
+  generate_status_info(pinfo, writer_wid, status_info);
+}
+
+static void dissect_RTPS_DATA_SESSION(tvbuff_t* tvb, packet_info* pinfo, gint offset, guint8 flags,
+  guint encoding, int octets_to_next_header, proto_tree* tree,
+  guint16 vendor_id, endpoint_guid* guid) {
+    gboolean is_data_session_intermediate = FALSE;
+    proto_item* ti = NULL;
+
+    p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_DATA_SESSION_FINAL_PROTODATA_KEY, &is_data_session_intermediate);
+    dissect_RTPS_DATA(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
+      tree, vendor_id, TRUE, guid);
+    ti = proto_tree_add_boolean(tree, hf_rtps_data_session_intermediate, tvb, offset, 0, is_data_session_intermediate);
+    proto_item_set_generated(ti);
 }
 
 /* *********************************************************************** */
@@ -12193,7 +12263,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
             NULL, tree);
 
         if (frag_index_in_submessage == 0) {
-          append_status_info(pinfo, wid, status_info);
+          generate_status_info(pinfo, wid, status_info);
           if (frag_msg) { /* Reassembled */
             col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled]");
           } else { /* Not last packet of reassembled Short Message */
@@ -12224,7 +12294,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
             this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
         frag_index_in_submessage++;
         }
-      append_status_info(pinfo, wid, status_info);
+      generate_status_info(pinfo, wid, status_info);
     }
   }
   rtps_util_detect_coherent_set_end_empty_data_case(&coherent_set_entity_info_object);
@@ -12568,7 +12638,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
           }
       }
   }
-  append_status_info(pinfo, wid, status_info);
+  generate_status_info(pinfo, wid, status_info);
 }
 
 /* *********************************************************************** */
@@ -13263,10 +13333,15 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
           octets_to_next_header, rtps_submessage_tree, vendor_id, guid);
       break;
 
-    case SUBMESSAGE_RTPS_DATA_SESSION:
+    case SUBMESSAGE_RTPS_DATA_SESSION: {
+      dissect_RTPS_DATA_SESSION(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
+        rtps_submessage_tree, vendor_id, guid);
+      break;
+    }
     case SUBMESSAGE_RTPS_DATA:
       dissect_RTPS_DATA(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
-              rtps_submessage_tree, vendor_id, (submessageId == SUBMESSAGE_RTPS_DATA_SESSION), guid);
+              rtps_submessage_tree, vendor_id, FALSE, guid);
+
       break;
 
     case SUBMESSAGE_RTI_DATA_FRAG_SESSION:
@@ -13588,6 +13663,26 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 }  /* dissect_rtps(...) */
 
+void append_submessage_col_info(packet_info* pinfo, submessage_col_info* current_submessage_col_info) {
+  gboolean* is_data_session_intermediate = NULL;
+
+  /* Status info clumn: (r),(p[U])...*/
+  if (current_submessage_col_info->status_info != NULL) {
+    col_append_str(pinfo->cinfo, COL_INFO, current_submessage_col_info->status_info);
+  }
+  /* DATA_SESSION last package */
+  is_data_session_intermediate = (gboolean*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_DATA_SESSION_FINAL_PROTODATA_KEY);
+  if (is_data_session_intermediate != NULL && !*is_data_session_intermediate) {
+    current_submessage_col_info->data_session_kind = "(Last)";
+    col_append_str(pinfo->cinfo, COL_INFO, current_submessage_col_info->data_session_kind);
+  }
+  /* Topic name */
+  if (current_submessage_col_info->topic_name != NULL) {
+    col_append_sep_str(pinfo->cinfo, COL_INFO, " -> ", current_submessage_col_info->topic_name);
+  }
+}
+
+
 void dissect_rtps_submessages(
     tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtps_tree,
     guint16 version, guint16 vendor_id, endpoint_guid *guid)
@@ -13600,6 +13695,7 @@ void dissect_rtps_submessages(
   guint encoding;
   gint next_submsg, octets_to_next_header;
   endpoint_guid dst_guid;
+  submessage_col_info current_submessage_col_info = {NULL, NULL, NULL};
 
   /* No fields have been set in GUID yet. */
   dst_guid.fields_present = 0;
@@ -13657,6 +13753,7 @@ void dissect_rtps_submessages(
      * The offset passed to the dissectors points to the start of the
      * submessage (at the ID byte).
      */
+    p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY, (gpointer*)&current_submessage_col_info);
     if (!dissect_rtps_submessage_v1(tvb, pinfo, offset, flags, encoding,
                                     submessageId, version, vendor_id,
                                     octets_to_next_header, rtps_submessage_tree,
@@ -13672,7 +13769,11 @@ void dissect_rtps_submessages(
                                 tvb, offset + 2, 2, octets_to_next_header);
       }
     }
-
+    append_submessage_col_info(pinfo, &current_submessage_col_info);
+    /* Reset the col info for the next submessage */
+    current_submessage_col_info.data_session_kind = NULL;
+    current_submessage_col_info.status_info = NULL;
+    current_submessage_col_info.topic_name = NULL;
      /* next submessage's offset */
      offset = next_submsg;
   }
@@ -16447,6 +16548,14 @@ void proto_register_rtps(void) {
     { &hf_rtps_topic_query_original_related_reader_guid,
       { "Original Related Reader GUID", "rtps.srm.topic_query.original_related_reader_guid",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_topic_query_selection_kind,
+      { "Topic Query Selection Kind", "rtps.srm.topic_query.kind",
+        FT_UINT32, BASE_DEC, VALS(topic_query_selection_kind), 0, NULL, HFILL }
+    },
+    { &hf_rtps_data_session_intermediate,
+      { "Data Session Intermediate Packet", "rtps.data_session.intermediate",
+        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
     },
     { &hf_rtps_secure_secure_data_length,
       { "Secure Data Length", "rtps.secure.secure_data_length",
