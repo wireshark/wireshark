@@ -186,10 +186,25 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     proto_item *bblog_item;
     proto_tree *bblog_tree;
+    const gchar *event_name;
+    guint32 flex1, flex2;
     guint16 event_flags;
+    guint8 event_identifier;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(tvb_get_guint8(tvb, 25), event_identifier_values, "Unknown"));
+    event_identifier = tvb_get_guint8(tvb, 25);
+    flex1 = tvb_get_letohl(tvb, 140);
+    flex2 = tvb_get_letohl(tvb, 144);
+    switch (event_identifier) {
+    default:
+        event_name = try_val_to_str(event_identifier, event_identifier_values);
+        if (event_name != NULL) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", event_name);
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown (flex1 0x%08x, flex2 0x%08x0)", flex1, flex2);
+        }
+        break;
+    }
 
     bblog_item = proto_tree_add_item(tree, proto_bblog, tvb, 0, -1, ENC_NA);
     bblog_tree = proto_item_add_subtree(bblog_item, ett_bblog);
