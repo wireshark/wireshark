@@ -275,7 +275,7 @@ void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString f
     if (filterOn < 0 || filterOn > TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
         column = -1;
 
-    _filterColumn = column;
+    _filterColumn = mapToSourceColumn(column);
     _filterOn = filterOn;
     _filterText = filterText;
     invalidateFilter();
@@ -284,36 +284,32 @@ void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString f
 int TrafficDataFilterProxy::mapToSourceColumn(int proxyColumn) const
 {
     ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
-    int column = proxyColumn;
-    if (model) {
+    if (!model || proxyColumn == -1) {
+        return proxyColumn;
+    }
 
-        if (qobject_cast<EndpointDataModel *>(model))
-        {
-            if (model->portsAreHidden() && column > EndpointDataModel::ENDP_COLUMN_ADDR)
-                column++;
-            if (! model->showTotalColumn()) {
-                if (column > EndpointDataModel::ENDP_COLUMN_BYTES)
-                    column+=2;
-            }
-        } else if (qobject_cast<ConversationDataModel *>(model)) {
-            if (model->portsAreHidden()) {
-                if (column > ConversationDataModel::CONV_COLUMN_SRC_ADDR)
-                    column++;
-                if (column > ConversationDataModel::CONV_COLUMN_DST_ADDR)
-                    column++;
-            }
-            ConversationDataModel * convModel = qobject_cast<ConversationDataModel *>(model);
-            if (!convModel->showConversationId() && column > ConversationDataModel::CONV_COLUMN_BYTES) {
-                column++;
-            }
-            if (! model->showTotalColumn()) {
-                if (column > ConversationDataModel::CONV_COLUMN_CONV_ID)
-                    column+=2;
+    if (rowCount() > 0) {
+        return mapToSource(index(0, proxyColumn)).column();
+    }
+
+    /* mapToSource() requires a valid QModelIndex, and thus does not work when
+     * all rows are filtered out by the current filter. (E.g., the user has
+     * accidentally entered an incorrect filter or operator and wants to fix
+     * it.) Since our filterAcceptsColumn doesn't depend on the row, we can
+     * determine the mapping between the currently displayed column number and
+     * the column number in the model this way, even if no rows are displayed.
+     * It is linear time in the number of columns, though.
+     */
+    int currentProxyColumn = 0;
+    for (int column=0; column < model->columnCount(); ++column) {
+        if (filterAcceptsColumn(column, QModelIndex())) {
+            if (currentProxyColumn++ == proxyColumn) {
+                return column;
             }
         }
     }
 
-    return column;
+    return -1;
 }
 
 bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -323,9 +319,11 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
         bool isFiltered = dataModel->data(dataModel->index(source_row, 0), ATapDataModel::ROW_IS_FILTERED).toBool();
         if (isFiltered && dataModel->filter().length() > 0)
             return false;
+        /* XXX: What if the filter column is now hidden? Should the filter
+         * still apply or should it be cleared? Right now it is still applied.
+         */
 
-        int sourceColumn = mapToSourceColumn(_filterColumn);
-        QModelIndex srcIdx = dataModel->index(source_row, sourceColumn);
+        QModelIndex srcIdx = dataModel->index(source_row, _filterColumn);
         if (srcIdx.isValid()) {
             QVariant data = srcIdx.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
 
