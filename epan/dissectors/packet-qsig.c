@@ -12621,7 +12621,7 @@ void proto_register_qsig(void) {
                            FT_UINT8, BASE_DEC, VALS(qsig_str_operation), 0x0,
                            NULL, HFILL }},
     { &hf_qsig_service,   { "Service", "qsig.service",
-                           FT_UINT8, BASE_DEC, VALS(qsig_str_service), 0x0,
+                           FT_UINT16, BASE_DEC, VALS(qsig_str_service), 0x0,
                            "Supplementary Service", HFILL }},
     { &hf_qsig_error,     { "Error", "qsig.error",
                            FT_UINT8, BASE_DEC, VALS(qsig_str_error), 0x0,

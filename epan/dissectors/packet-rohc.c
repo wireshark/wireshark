@@ -2130,6 +2130,11 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     if(profile==ROHC_PROFILE_RTP){
         proto_tree_add_item(ir_tree, hf_rohc_d_bit, tvb, x_bit_offset, 1, ENC_BIG_ENDIAN);
     }
+
+    /* Profile.
+     *  In the IR packet, the profile identifier is abbreviated to the 8 least
+     * significant bits.  It selects the highest-number profile in the
+     * channel state parameter PROFILES that matches the 8 LSBs given. */
     proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 

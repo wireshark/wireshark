@@ -2711,7 +2711,7 @@ void proto_register_pdcp_lte(void)
         },
         { &hf_pdcp_lte_rohc_profile,
             { "ROHC profile",
-              "pdcp-lte.rohc.profile", FT_UINT8, BASE_DEC, VALS(rohc_profile_vals), 0x0,
+              "pdcp-lte.rohc.profile", FT_UINT16, BASE_DEC, VALS(rohc_profile_vals), 0x0,
               "ROHC Mode", HFILL
             }
         },

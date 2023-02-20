@@ -7995,7 +7995,7 @@ proto_register_rtcp(void)
             NULL, HFILL }
         },
         { &hf_rtcp_mccp_ipv6,
-            { "IP Address", "rtcp.app_data.mccp.ipv4",
+            { "IP Address", "rtcp.app_data.mccp.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

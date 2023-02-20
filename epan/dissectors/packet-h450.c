@@ -4841,7 +4841,7 @@ void proto_register_h450(void) {
                            FT_UINT8, BASE_DEC, VALS(h450_str_operation), 0x0,
                            NULL, HFILL }},
     { &hf_h450_error,     { "Error", "h450.error",
-                           FT_UINT8, BASE_DEC, VALS(h450_str_error), 0x0,
+                           FT_UINT16, BASE_DEC, VALS(h450_str_error), 0x0,
                            NULL, HFILL }},
 
 /*--- Included file: packet-h450-hfarr.c ---*/

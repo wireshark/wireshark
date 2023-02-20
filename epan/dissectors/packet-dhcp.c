@@ -7518,7 +7518,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_pkt_mta_cap_type,
 		  { "Type", "dhcp.vendor.pktc.mta_cap_type",
-		    FT_UINT8, BASE_DEC, VALS(pkt_mdc_type_vals), 0x0,
+		    FT_UINT16, BASE_DEC, VALS(pkt_mdc_type_vals), 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_dhcp_pkt_mdc_supp_flow_secure,
