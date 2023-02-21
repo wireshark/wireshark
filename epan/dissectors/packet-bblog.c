@@ -176,6 +176,70 @@ static int * const bblog_t_flags2[] = {
   NULL
 };
 
+/*
+ * The PRU constants are taken from
+ * https://cgit.freebsd.org/src/tree/sys/netinet/in_kdrace.h
+ */
+
+#define BBLOG_TCP_PRU_ATTACH      0
+#define BBLOG_TCP_PRU_DETACH      1
+#define BBLOG_TCP_PRU_BIND        2
+#define BBLOG_TCP_PRU_LISTEN      3
+#define BBLOG_TCP_PRU_CONNECT     4
+#define BBLOG_TCP_PRU_ACCEPT      5
+#define BBLOG_TCP_PRU_DISCONNECT  6
+#define BBLOG_TCP_PRU_SHUTDOWN    7
+#define BBLOG_TCP_PRU_RCVD        8
+#define BBLOG_TCP_PRU_SEND        9
+#define BBLOG_TCP_PRU_ABORT      10
+#define BBLOG_TCP_PRU_CONTROL    11
+#define BBLOG_TCP_PRU_SENSE      12
+#define BBLOG_TCP_PRU_RCVOOB     13
+#define BBLOG_TCP_PRU_SENDOOB    14
+#define BBLOG_TCP_PRU_SOCKADDR   15
+#define BBLOG_TCP_PRU_PEERADDR   16
+#define BBLOG_TCP_PRU_CONNECT2   17
+#define BBLOG_TCP_PRU_FASTTIMO   18
+#define BBLOG_TCP_PRU_SLOWTIMO   19
+#define BBLOG_TCP_PRU_PROTORCV   20
+#define BBLOG_TCP_PRU_PROTOSEND  21
+#define BBLOG_TCP_PRU_SEND_EOF   22
+#define BBLOG_TCP_PRU_SOSETLABEL 23
+#define BBLOG_TCP_PRU_CLOSE      24
+#define BBLOG_TCP_PRU_FLUSH      25
+
+static const value_string tcp_pru_values[] = {
+  { BBLOG_TCP_PRU_ATTACH,     "ATTACH" },
+  { BBLOG_TCP_PRU_DETACH,     "DETACH" },
+  { BBLOG_TCP_PRU_BIND,       "BIND" },
+  { BBLOG_TCP_PRU_LISTEN,     "LISTEN" },
+  { BBLOG_TCP_PRU_CONNECT,    "CONNECT" },
+  { BBLOG_TCP_PRU_ACCEPT,     "ACCEPT" },
+  { BBLOG_TCP_PRU_DISCONNECT, "DISCONNECT" },
+  { BBLOG_TCP_PRU_SHUTDOWN,   "SHUTDOWN" },
+  { BBLOG_TCP_PRU_RCVD,       "RCVD" },
+  { BBLOG_TCP_PRU_SEND,       "SEND" },
+  { BBLOG_TCP_PRU_ABORT,      "ABORT" },
+  { BBLOG_TCP_PRU_CONTROL,    "CONTROL" },
+  { BBLOG_TCP_PRU_SENSE,      "SENSE" },
+  { BBLOG_TCP_PRU_RCVOOB,     "RCVOOB" },
+  { BBLOG_TCP_PRU_SENDOOB,    "SENDOOB" },
+  { BBLOG_TCP_PRU_SOCKADDR,   "SOCKADDR" },
+  { BBLOG_TCP_PRU_PEERADDR,   "PEERADDR" },
+  { BBLOG_TCP_PRU_CONNECT2,   "CONNECT2" },
+  { BBLOG_TCP_PRU_FASTTIMO,   "FASTTIMO" },
+  { BBLOG_TCP_PRU_SLOWTIMO,   "SLOWTIMO" },
+  { BBLOG_TCP_PRU_PROTORCV,   "PROTORCV" },
+  { BBLOG_TCP_PRU_PROTOSEND,  "PROTOSEND" },
+  { BBLOG_TCP_PRU_SEND_EOF,   "SEND_EOF" },
+  { BBLOG_TCP_PRU_SOSETLABEL, "SOSETLABEL" },
+  { BBLOG_TCP_PRU_CLOSE,      "CLOSE" },
+  { BBLOG_TCP_PRU_FLUSH,      "FLUSH" },
+  { 0, NULL } };
+
+#define BBLOG_TCP_PRU_MASK   0x000000ff
+#define BBLOG_TCP_PRU_SHIFT  0
+
 #define BBLOG_TCP_TIMER_TYPE_RETRANSMIT 0
 #define BBLOG_TCP_TIMER_TYPE_PERSIST    1
 #define BBLOG_TCP_TIMER_TYPE_KEEPALIVE  2
@@ -221,6 +285,7 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint32 flex1, flex2;
     guint16 event_flags;
     guint8 event_identifier;
+    guint8 pru;
     guint8 timer_type, timer_event;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
@@ -228,12 +293,17 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     flex1 = tvb_get_letohl(tvb, 140);
     flex2 = tvb_get_letohl(tvb, 144);
     switch (event_identifier) {
+    case TCP_LOG_PRU:
+        pru = (flex1 & BBLOG_TCP_PRU_MASK) >> BBLOG_TCP_PRU_SHIFT;
+        col_append_fstr(pinfo->cinfo, COL_INFO, "PRU: %s",
+                        val_to_str(pru, tcp_pru_values, "UNKNOWN (0x%02x)"));
+        break;
     case BBLOG_TCP_LOG_TIMER:
         timer_type = (flex1 & BBLOG_TCP_TIMER_TYPE_MASK) >> BBLOG_TCP_TIMER_TYPE_SHIFT;
         timer_event = (flex1 & BBLOG_TCP_TIMER_EVENT_MASK) >> BBLOG_TCP_TIMER_EVENT_SHIFT;
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s timer",
-                        val_to_str_const(timer_event, tcp_timer_event_values, "Unknown operation (%x) for"),
-                        val_to_str_const(timer_type, tcp_timer_type_values, "Unknown (%x)"));
+                        val_to_str(timer_event, tcp_timer_event_values, "Unknown operation (0x%02x) for"),
+                        val_to_str(timer_type, tcp_timer_type_values, "Unknown (0x%02x)"));
         if (timer_event == BBLOG_TCP_TIMER_EVENT_STARTING) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %u ms", flex2);
         }

@@ -105,7 +105,8 @@ static const value_string tcp_state_values[] = {
 #define BBLOG_TCP_RACK_LOG_COLLAPSE   67
 #define TCP_RACK_TP_TRIGGERED         68
 #define TCP_HYBRID_PACING_LOG         69
-#define BBLOG_TCP_LOG_END             70
+#define TCP_LOG_PRU                   70
+#define BBLOG_TCP_LOG_END             71
 
 static const value_string event_identifier_values[] = {
   { BBLOG_TCP_LOG_IN,              "Incoming packet" },
@@ -177,6 +178,7 @@ static const value_string event_identifier_values[] = {
   { BBLOG_TCP_RACK_LOG_COLLAPSE,   "Window collapse by peer" },
   { TCP_RACK_TP_TRIGGERED,         "A RACK tracepoint is triggered" },
   { TCP_HYBRID_PACING_LOG,         "Hybrid pacing log" },
+  { TCP_LOG_PRU,                   "TCP protocol user request" },
   { 0,                             NULL } };
 
 /*
