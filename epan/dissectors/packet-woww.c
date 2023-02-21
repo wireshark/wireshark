@@ -875,6 +875,8 @@ static int hf_woww_zones = -1;
 // Allocate 8 because tree wants 32 bit aligned data
 #define WOWW_HEADER_ARRAY_ALLOC_SIZE 8
 
+#define WOWW_HEADER_SIZE_FIELD_WIDTH 2
+
 // The session key is the result of two SHA-1 hashes appended, so it is
 // _always_ 40 bytes.
 #define WOWW_SESSION_KEY_LENGTH 40
@@ -17204,9 +17206,8 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                    guint8 headerSize,
                    gint start_offset)
 {
-    const guint16 size_field_width = 2;
     // Size field does not count in the reported size, so we need to add it.
-    const guint16 packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + size_field_width;
+    const guint16 packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
 
     proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, start_offset, packet_size, ENC_NA);
 
@@ -17218,7 +17219,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
 
     // We're indexing into another tvb
     gint offset = 0;
-    gint len = size_field_width;
+    gint len = WOWW_HEADER_SIZE_FIELD_WIDTH;
     proto_tree_add_item(woww_tree, hf_woww_size, next_tvb,
                         offset, len, ENC_BIG_ENDIAN);
     offset += len;
@@ -17311,6 +17312,10 @@ dissect_woww(tvbuff_t *tvb,
         WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize, header_index, pdu_offset);
         if (!decrypted_header) {
             return tvb_captured_length(tvb);
+        }
+        const gint message_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
+        if ((pdu_offset + message_size) > reported_length) {
+            return pdu_offset;
         }
 
         pdu_offset = add_header_to_tree(decrypted_header, woww_tree, tvb, pinfo, headerSize, pdu_offset);
