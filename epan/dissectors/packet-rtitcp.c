@@ -780,7 +780,7 @@ proto_register_rtitcp(void)
 
         { &hf_rtitcp_header_control_byte, {
             "Control Byte", "rtitcp.header.control_byte",
-            FT_UINT8, BASE_HEX, NULL, 0,
+            FT_UINT16, BASE_HEX, NULL, 0,
             0, HFILL }
         },
 

@@ -235,7 +235,7 @@ class ProtoTreeAddItemCheck(APICheck):
                         if not enc.startswith('ENC_'):
                             if not enc in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
                                             'p_mq_parm', 'iEnc', 'strid_enc', 'iCod', 'nl_data', 'argp', 'gquic_info', 'writer_encoding',
-                                            'tds_get_int2_encoding', 'tds_get_int4_encoding',
+                                            'tds_get_int2_encoding', 'tds_get_int4_encoding', 'info',
                                             'DREP_ENC_INTEGER' }:
                                 global warnings_found
 
@@ -288,7 +288,9 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu',
                                 'stun.type.method', # figure 3 in rfc 5389
                                 'tds.done.status', # covers all bits in bitset
-                                'hf_iax2_video_csub'  # RFC 5456, table 8.7
+                                'hf_iax2_video_csub',  # RFC 5456, table 8.7
+                                'iax2.video.subclass',
+                                'dnp3.al.ana.int'
                               }
 ##################################################################################################
 
@@ -395,7 +397,11 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^pn_dcp.suboption_device_instance'),
         re.compile(r'^nfs.attr'),
         re.compile(r'^nfs.create_session_flags'),
-        re.compile(r'^rmt-lct.toi64')
+        re.compile(r'^rmt-lct.toi64'),
+        re.compile(r'^gryphon.data.header_length'),
+        re.compile(r'^quake2.game.client.command.move.movement'),
+        re.compile(r'^isup.parameter_type'),
+        re.compile(r'^cip.port')
     ]
 
     for patt in ignore_patterns:
@@ -503,9 +509,9 @@ class Item:
             return
 
         # Do see non-contiguous bits often for these..
-        if name_has_one_of(self.hf, ['reserved', 'unknown']):
+        if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused']):
             return
-        if name_has_one_of(self.label, ['reserved', 'unknown']):
+        if name_has_one_of(self.label, ['reserved', 'unknown', 'unused']):
             return
 
 

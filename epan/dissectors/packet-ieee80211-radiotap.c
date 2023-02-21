@@ -4298,64 +4298,64 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_xchannel_flags_turbo,
 		 {"Turbo", "radiotap.xchannel.flags.turbo",
-		  FT_BOOLEAN, 24, NULL, 0x0010,
+		  FT_BOOLEAN, 24, NULL, 0x000010,
 		  "Channel Flags Turbo", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_cck,
 		 {"Complementary Code Keying (CCK)", "radiotap.xchannel.flags.cck",
-		  FT_BOOLEAN, 24, NULL, 0x0020,
+		  FT_BOOLEAN, 24, NULL, 0x000020,
 		  "Channel Flags Complementary Code Keying (CCK) Modulation", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ofdm,
 		 {"Orthogonal Frequency-Division Multiplexing (OFDM)", "radiotap.xchannel.flags.ofdm",
-		  FT_BOOLEAN, 24, NULL, 0x0040,
+		  FT_BOOLEAN, 24, NULL, 0x000040,
 		  "Channel Flags Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_2ghz,
 		 {"2 GHz spectrum", "radiotap.xchannel.flags.2ghz",
-		  FT_BOOLEAN, 24, NULL, 0x0080,
+		  FT_BOOLEAN, 24, NULL, 0x000080,
 		  "Channel Flags 2 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_5ghz,
 		 {"5 GHz spectrum", "radiotap.xchannel.flags.5ghz",
-		  FT_BOOLEAN, 24, NULL, 0x0100,
+		  FT_BOOLEAN, 24, NULL, 0x000100,
 		  "Channel Flags 5 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_passive,
 		 {"Passive", "radiotap.channel.xtype.passive",
-		  FT_BOOLEAN, 24, NULL, 0x0200,
+		  FT_BOOLEAN, 24, NULL, 0x000200,
 		  "Channel Flags Passive", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_dynamic,
 		 {"Dynamic CCK-OFDM", "radiotap.xchannel.flags.dynamic",
-		  FT_BOOLEAN, 24, NULL, 0x0400,
+		  FT_BOOLEAN, 24, NULL, 0x000400,
 		  "Channel Flags Dynamic CCK-OFDM Channel", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_gfsk,
 		 {"Gaussian Frequency Shift Keying (GFSK)",
 		  "radiotap.xchannel.flags.gfsk",
-		  FT_BOOLEAN, 24, NULL, 0x0800,
+		  FT_BOOLEAN, 24, NULL, 0x000800,
 		  "Channel Flags Gaussian Frequency Shift Keying (GFSK) Modulation",
 		  HFILL}},
 
 		{&hf_radiotap_xchannel_flags_gsm,
 		 {"GSM (900MHz)", "radiotap.xchannel.flags.gsm",
-		  FT_BOOLEAN, 24, NULL, 0x1000,
+		  FT_BOOLEAN, 24, NULL, 0x001000,
 		  "Channel Flags GSM", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_sturbo,
 		 {"Static Turbo", "radiotap.xchannel.flags.sturbo",
-		  FT_BOOLEAN, 24, NULL, 0x2000,
+		  FT_BOOLEAN, 24, NULL, 0x002000,
 		  "Channel Flags Status Turbo", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_half,
 		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.xchannel.flags.half",
-		  FT_BOOLEAN, 24, NULL, 0x4000,
+		  FT_BOOLEAN, 24, NULL, 0x004000,
 		  "Channel Flags Half Rate", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_quarter,
 		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.xchannel.flags.quarter",
-		  FT_BOOLEAN, 24, NULL, 0x8000,
+		  FT_BOOLEAN, 24, NULL, 0x008000,
 		  "Channel Flags Quarter Rate", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht20,
@@ -4370,7 +4370,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_xchannel_flags_ht40d,
 		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.flags.ht40d",
-		  FT_BOOLEAN, 24, NULL, 0x40000,
+		  FT_BOOLEAN, 24, NULL, 0x040000,
 		  "Channel Flags HT/40-", HFILL}},
 #if 0
 		{&hf_radiotap_xchannel_maxpower,
@@ -4592,7 +4592,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_vht_known,
 		 {"Known VHT information", "radiotap.vht.known",
-		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		  FT_UINT16, BASE_HEX, NULL, 0x0,
 		  "Bit mask indicating what VHT information is present", HFILL}},
 
 		{&hf_radiotap_vht_user,
@@ -5865,6 +5865,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_s1g_ndp_ps_poll_udi_2m,
 		 {"UDI", "radiotap.s1g.ndp.ps_poll.udi",
+		  /* TODO: not sure this mask is correct.. */
 		  FT_UINT40, BASE_HEX, NULL, 0x1FFE00000, NULL, HFILL }},
 
 		{&hf_radiotap_s1g_ndp_ps_poll_ack_1m,

@@ -929,7 +929,7 @@ void proto_register_1722(void)
         },
         { &hf_1722_subtype,
             { "AVTP Subtype", "ieee1722.subtype",
-              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), 0x0, NULL, HFILL }
         },
         { &hf_1722_svfield,
             { "AVTP Stream ID Valid", "ieee1722.svfield",
@@ -1162,7 +1162,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         else
         {
             ti_cip_fdf = proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_fdf_no_syt, tvb, offset, 3, ENC_BIG_ENDIAN);
-            if (((tvb_get_guint8(tvb, offset) & 0x007fffff) != 0))
+            if (((tvb_get_ntoh24(tvb, offset) & 0x7fffff) != 0))
             {
                 expert_add_info(pinfo, ti_cip_fdf, &ei_1722_61883_incorrect_cip_fdf);
             }
@@ -1276,7 +1276,7 @@ void proto_register_1722_61883(void)
             },
         { &hf_1722_61883_seqnum,
             { "Sequence Number", "iec61883.seqnum",
-              FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_tufield,
             { "Timestamp Uncertain", "iec61883.tufield",
@@ -1284,19 +1284,19 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_stream_id,
             { "Stream ID", "iec61883.stream_id",
-              FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_avtp_timestamp,
             { "AVTP Timestamp", "iec61883.avtp_timestamp",
-              FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_gateway_info,
             { "Gateway Info", "iec61883.gateway_info",
-              FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_stream_data_length,
             { "1394 Stream Data Length", "iec61883.stream_data_len",
-              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_tag,
             { "1394 Packet Format Tag", "iec61883.tag",
@@ -1324,7 +1324,7 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_cip_dbs,
             { "CIP Data Block Size", "iec61883.dbs",
-              FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fn,
             { "CIP Fraction Number", "iec61883.fn",
@@ -1340,7 +1340,7 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_cip_dbc,
             { "CIP Data Block Continuity", "iec61883.dbc",
-              FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qi2,
             { "CIP Quadlet Indicator 2", "iec61883.qi2",
@@ -1352,7 +1352,7 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_cip_fdf_no_syt,
             { "CIP Format Dependent Field", "iec61883.fdf_no_syt",
-              FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf_tsf,
             { "Time shift flag", "iec61883.fdf_tsf",
@@ -1364,27 +1364,27 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_cip_syt,
             { "CIP SYT", "iec61883.syt",
-              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(syt_rvals), 0x00, NULL, HFILL }
+              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(syt_rvals), 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_audio_data,
             { "Audio Data", "iec61883.audiodata",
-              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_label,
             { "Label", "iec61883.audiodata.sample.label",
-              FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_sample,
             { "Sample", "iec61883.audiodata.sample.sampledata",
-              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_video_data,
             { "Video Data", "iec61883.videodata",
-              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_source_packet_header_timestamp,
             { "Source Packet Header Timestamp", "iec61883.spht",
-              FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         }
     };
 
@@ -1962,15 +1962,15 @@ void proto_register_1722_crf(void)
         },
         { &hf_1722_crf_seqnum,
             { "Sequence Number", "crf.seqnum",
-              FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_type,
             { "Type", "crf.type",
-              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(crf_type_range_rvals), 0x00, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(crf_type_range_rvals), 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_stream_id,
             { "Stream ID", "crf.stream_id",
-              FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_pull,
             { "Pull", "crf.pull",
@@ -1982,19 +1982,19 @@ void proto_register_1722_crf(void)
         },
         { &hf_1722_crf_data_length,
             { "Data Length", "crf.data_len",
-              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_timestamp_interval,
             { "Timestamp Interval", "crf.timestamp_interval",
-              FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+              FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_timestamp_data,
             { "Timestamp Data", "crf.timestamp_data",
-              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_timestamp,
             { "Data", "crf.timestamp",
-              FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
         }
     };
 
@@ -2116,11 +2116,11 @@ void proto_register_1722_ntscf(void)
         },
         { &hf_1722_ntscf_seqnum,
             { "Sequence Number", "ntscf.seqnum",
-              FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_1722_ntscf_stream_id,
             { "Stream ID", "ntscf.stream_id",
-              FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+              FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
         }
     };
 

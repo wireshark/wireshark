@@ -6019,15 +6019,15 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_mmhdr_mmtype_general,
           { "Type", "homeplug_av.mmhdr.mmtype",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_general_vals_ext, 0x0000, NULL, HFILL }
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_general_vals_ext, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_mmhdr_mmtype_qualcomm,
           { "Type", "homeplug_av.mmhdr.mmtype.qualcomm",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_qualcomm_vals_ext, 0x0000, NULL, HFILL }
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_qualcomm_vals_ext, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_mmhdr_mmtype_st,
           { "Type", "homeplug_av.mmhdr.mmtype.st",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_st_iotecha_vals_ext, 0x0000, NULL, HFILL }
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_st_iotecha_vals_ext, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_mmhdr_mmtype_lsb,
           { "LSB", "homeplug_av.mmhdr.mmtype.lsb",
@@ -7614,11 +7614,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_tone_map_tx_cnf_slot,
           { "Slot", "homeplug_av.tone_map_tx_cnf.slot",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_tone_map_tx_cnf_num_tms,
           { "Number of Tone Maps in use", "homeplug_av.tone_map_tx_cnf.num_tms",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_tone_map_tx_cnf_num_act,
           { "Tone map number of active carriers", "homeplug_av.tone_map_tx_cnf.num_act",

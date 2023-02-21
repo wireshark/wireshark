@@ -1602,12 +1602,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_isl_icp1,
 		  { "ICP1", "gsm_abis_om2000.is_list.icp1",
-		    FT_UINT16, BASE_DEC, NULL, 0x7ff,
+		    FT_UINT16, BASE_DEC, NULL, 0x07ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_isl_icp2,
 		  { "ICP2", "gsm_abis_om2000.is_list.icp2",
-		    FT_UINT16, BASE_DEC, NULL, 0x7ff,
+		    FT_UINT16, BASE_DEC, NULL, 0x07ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_isl_ci,
@@ -1632,7 +1632,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_conl_ccp,
 		  { "CON Connection Point", "gsm_abis_om2000.con_list.cpp",
-		    FT_UINT16, BASE_DEC, NULL, 0x7ff,
+            FT_UINT16, BASE_DEC, NULL, 0x07ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_ci,
