@@ -1767,7 +1767,7 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
     length     = tvb_get_guint32(tvb, offset + 4, info->encoding);
 
     /* Lookup handlers for known local block type */
-    local_block_callback_info_t *p_local_block_callback = NULL;
+    local_block_callback_info_t *volatile p_local_block_callback = NULL;
     if (block_type >= 0x80000000) {
         p_local_block_callback = (local_block_callback_info_t*)g_hash_table_lookup(s_local_block_callback_table, GUINT_TO_POINTER(block_type));
     }
