@@ -267,6 +267,110 @@ As with the Unix-like build described above, you can run Wireshark from the buil
 [#ChSrcDebug]
 === Debug Your Version Of Wireshark
 
+[#ChSrcLogging]
+==== Wireshark Logging
+
+To assist in development and investigation of bugs, Wireshark has been equipped with a configurable logging system.
+Configuration takes into account what, when, where to output log messages.
+
+* The 'what generates log messages' is defined through logging domain(s).
+* The 'when it generates log messages' is defined through the logging level.
+* The 'where it outputs log messages' is defined through the output channel(s).
+
+The details of configuring and use of the logging system are explained in the following sections.
+
+[#ChSrcLoggingDomains]
+===== Logging Domains
+
+Any part of Wireshark can be defined as its own logging domain. This is already done for most of the internals of Wireshark, e.g., "Main", "Capture", "Epan", "GUI", but also dissectors can define their own logging domain. Any string can be used as ID for a logging domain.
+
+[#ChSrcLoggingLevels]
+===== Logging Levels
+
+The following logging levels are defined:
+
+* echo
+* error
+* critical
+* warning
+* message
+* info
+* debug
+* noisy
+
+By default logging output is generated for logging level message and above. If the logging level is lowered or raised all log output generated at or above this level is send to the log output.
+
+Note that release builds do not generate log output for the logging levels debug and noisy.
+
+[#ChSrcLoggingOutput]
+===== Logging Output
+
+By default logging output is send to stderr. Unless a program sets a flag to send log messages at or below logging level info to stdout. Another way a program can divert the output of all log messages is by registering its own log writer. These measures can be takes when the normal streams, i.e. stderr and/or stdout, are already used otherwise.
+
+The more user friendly way to collect log messages is to set a log file. This collects all log output, besides it being sent to the normal output stream.
+
+[#ChSrcConfigureLogging]
+===== Configure Logging
+
+Logging can be configured through either environment variables or command line parameters.
+
+The following environment variables and command line parameters are used by the logging system:
+
+WIRESHARK_LOG_DOMAIN, WIRESHARK_LOG_DOMAINS, or --log-domain, --log-domains::
+These are the domain(s) which are to generate log messages. Multiple domains can be concatenated with commas or semicolons.
+WIRESHARK_LOG_LEVEL, or --log-level::
+This is the level (below critical) for which log messages are to be generated. This is used for all configured domains.
+WIRESHARK_LOG_DEBUG, or --log-debug::
+These domain(s) will generate debug level log messages regardless of the log level and log domains configured. Multiple domains can be concatenated with commas or semicolons.
+WIRESHARK_LOG_NOISY, or --log_noisy::
+These domain(s) will generate noisy level log messages regardless of the log level and log domains configured. Multiple domains can be concatenated with commas or semicolons.
+
+Note that the selected log domain(s) can be inverted by prefixing the (first) domain with an exclamation mark.
+
+[#ChSrcTrapsLogging]
+==== Traps Set By Logging
+
+Sometimes it can be helpful to abort the program right after a log message of a certain level or a certain domain is output.
+
+The following environment variables are used to configure a trap by the logging system:
+
+WIRESHARK_LOG_FATAL, or --log_fatal::
+This is the level for which log messages are fatal. This can either be "critical" or "warning" level.
+
+WIRESHARK_LOG_FATAL_DOMAIN, WIRESHARK_LOG_FATAL_DOMAINS, or --log-fatal-domain, --log-fatal-domains::
+These are the domain(s) where output of a log message is fatal.
+
+[#ChSrcLoggingApi]
+==== Logging APIs
+
+The logging API can be found in `wsutil/wslog.h`.
+
+To use the logging API for your code add the definition of the ID of your logging domain right after including `config.h` and make sure `wslog.h` is included. For example:
+
+[source,c]
+----
+/* My code doing something awesome */
+#include <config.h>
+#define WS_LOG_DOMAIN "MyCode"
+
+...
+#include <wsutil/wslog.h>
+...
+----
+
+Populate your code with the applicable function calls to generate log messages when enabled. The following convenience macros are provided:
+
+* `WS_DEBUG_HERE()`
+* `ws_error()`
+* `ws_critical()`
+* `ws_warning()`
+* `ws_message()`
+* `ws_info()`
+* `ws_debug()`
+* `ws_noisy()`
+
+All these take `printf()` style parameters. While these calls can remain in the code, `WS_DEBUG_HERE` should be used for development purposes only and not appear in final delivery of the code.
+
 [#ChSrcUnixDebug]
 ==== Unix-Like Platforms
 
@@ -274,13 +378,7 @@ You can debug using command-line debuggers such as gdb, dbx, or lldb.
 If you prefer a graphic debugger, you can use an IDE or debugging frontend
 such as Qt Creator, CLion, or Eclipse.
 
-Additional traps can be set on Wireshark by setting the `WIRESHARK_LOG_FATAL`
-environment variable:
-
-[source,sh]
-----
-$ WIRESHARK_LOG_FATAL=critical gdb wireshark
-----
+Additional traps can be set on Wireshark, see <<ChSrcTrapsLogging>>
 
 If you're encountering memory safety bugs, you might want to build with
 https://en.wikipedia.org/wiki/AddressSanitizer[Address Sanitizer] so that
