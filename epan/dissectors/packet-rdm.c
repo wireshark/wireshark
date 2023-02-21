@@ -3055,6 +3055,7 @@ dissect_rdm_pd_endpoint_list(tvbuff_t *tvb, guint offset, proto_tree *tree, guin
   switch(cc) {
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_list_change_number, tvb, &offset, 4);
+    len -= 4;
     while (len >= 3) {
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_list_endpoint_id, tvb, &offset, 2);
       rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_list_endpoint_type, tvb, &offset, 1);
@@ -3290,6 +3291,7 @@ dissect_rdm_pd_endpoint_responders(tvbuff_t *tvb, guint offset, proto_tree *tree
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_responders_endpoint_id, tvb, &offset, 2);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_responders_change_number, tvb, &offset, 4);
+    len -= 6;
     while (len >= 6) {
       rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_endpoint_responders_uid, tvb, &offset, 6);
       len -= 6;
