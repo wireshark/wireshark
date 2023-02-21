@@ -298,14 +298,14 @@ The following logging levels are defined:
 * debug
 * noisy
 
-By default logging output is generated for logging level message and above. If the logging level is lowered or raised all log output generated at or above this level is send to the log output.
+By default logging output is generated for logging level message and above. If the logging level is lowered or raised all log output generated at or above this level is sent to the log output.
 
 Note that release builds do not generate log output for the logging levels debug and noisy.
 
 [#ChSrcLoggingOutput]
 ===== Logging Output
 
-By default logging output is send to stderr. Unless a program sets a flag to send log messages at or below logging level info to stdout. Another way a program can divert the output of all log messages is by registering its own log writer. These measures can be takes when the normal streams, i.e. stderr and/or stdout, are already used otherwise.
+By default logging output is sent to stderr. Unless a program sets a flag to send log messages at or below logging level info to stdout. Another way a program can divert the output of all log messages is by registering its own log writer. These measures can be taken when the normal streams, i.e. stderr and/or stdout, are already used otherwise.
 
 The more user friendly way to collect log messages is to set a log file. This collects all log output, besides it being sent to the normal output stream.
 
