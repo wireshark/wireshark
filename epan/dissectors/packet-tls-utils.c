@@ -53,6 +53,17 @@
 #include <gnutls/abstract.h>
 #endif
 
+/* JA3/JA3S calculations must ignore GREASE values
+ * as described in RFC 8701.
+ */
+#define IS_GREASE_TLS(x) ((((x) & 0x0f0f) == 0x0a0a) && \
+                        (((x) & 0xff) == (((x)>>8) & 0xff)))
+
+/* Section 22.3 of RFC 9000 (QUIC) reserves values of this
+ * form for a similar purpose as GREASE.
+ */
+#define IS_GREASE_QUIC(x) ((((x) - 27) % 31) == 0)
+
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
     { SSLV2_VERSION,        "SSLv2" },
@@ -2273,8 +2284,7 @@ void
 quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id)
 {
     const char *label;
-    /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
-    if (((parameter_id - 27) % 31) == 0) {
+    if (IS_GREASE_QUIC(parameter_id)) {
         label = "GREASE";
     } else if (parameter_id > 0xffffffff) {
         // There are no 64-bit Parameter IDs at the moment.
@@ -7870,8 +7880,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             proto_item_set_len(parameter_tree, 4 + parameter_length);
         }
 
-        /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
-        if (((parameter_type - 27) % 31) == 0) {
+        if (IS_GREASE_QUIC(parameter_type)) {
             proto_item_append_text(parameter_tree, ": GREASE");
         } else if (parameter_type > G_MAXUINT) {
             /* There are currently no known TP larger than 32 bits, therefore
@@ -8451,7 +8460,7 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
         proto_tree_add_item_ret_uint(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2,
                                      ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
-        if (ja3 && ((ja3_value & 0x0f0f) != 0x0a0a)) {
+        if (ja3 && !IS_GREASE_TLS(ja3_value)) {
             wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
             ja3_dash = "-";
         }
@@ -9044,7 +9053,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         proto_tree_add_item_ret_uint(cs_tree, hf->hf.hs_cipher_suite, tvb, offset, 2,
                                      ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
-        if ((ja3_value & 0x0f0f) != 0x0a0a) {
+        if (!IS_GREASE_TLS(ja3_value)) {
             wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
             ja3_dash = "-";
         }
@@ -9844,7 +9853,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);
         offset += 2;
-        if (ja3 && ((ext_type & 0x0f0f) != 0x0a0a)) {
+        if (ja3 && !IS_GREASE_TLS(ext_type)) {
             wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ext_type);
             ja3_dash = "-";
         }
