@@ -12199,8 +12199,16 @@ add_body_fields(guint32 opcode,
         case CMSG_UPDATE_ACCOUNT_DATA:
             ptvcursor_add(ptv, hf_woww_account_data_type, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_compressed_data, len, ENC_NA);
+            compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
+            if (compressed_tvb != NULL) {
+                ptvcursor_t* old_ptv = ptv;
+                ptv = ptvcursor_new(wmem_packet_scope(), tree, compressed_tvb, 0);
+                len = offset_packet_end - ptvcursor_current_offset(ptv);
+                ptvcursor_add(ptv, hf_woww_compressed_data, len, ENC_NA);
+                ptvcursor_free(ptv);
+                ptv = old_ptv;
+                compressed_tvb = NULL;
+            }
             break;
         case CMSG_USE_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
