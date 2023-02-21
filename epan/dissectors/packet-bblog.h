@@ -103,7 +103,9 @@ static const value_string tcp_state_values[] = {
 #define BBLOG_TCP_HYSTART             65
 #define BBLOG_TCP_CHG_QUERY           66
 #define BBLOG_TCP_RACK_LOG_COLLAPSE   67
-#define BBLOG_TCP_LOG_END             68
+#define TCP_RACK_TP_TRIGGERED         68
+#define TCP_HYBRID_PACING_LOG         69
+#define BBLOG_TCP_LOG_END             70
 
 static const value_string event_identifier_values[] = {
   { BBLOG_TCP_LOG_IN,              "Incoming packet" },
@@ -173,7 +175,9 @@ static const value_string event_identifier_values[] = {
   { BBLOG_TCP_HYSTART,             "TCP Hystart logging" },
   { BBLOG_TCP_CHG_QUERY,           "Change query during fnc_init()" },
   { BBLOG_TCP_RACK_LOG_COLLAPSE,   "Window collapse by peer" },
-  { 0,                       NULL } };
+  { TCP_RACK_TP_TRIGGERED,         "A RACK tracepoint is triggered" },
+  { TCP_HYBRID_PACING_LOG,         "Hybrid pacing log" },
+  { 0,                             NULL } };
 
 /*
  * The event flag values used here are defined in
