@@ -81,6 +81,7 @@ static int hf_woww_update_mask_value = -1;
 static int hf_woww_absorb = -1;
 static int hf_woww_absorbed = -1;
 static int hf_woww_absorbed_damage = -1;
+static int hf_woww_account_data_type = -1;
 static int hf_woww_action = -1;
 static int hf_woww_action_bar = -1;
 static int hf_woww_action_bars = -1;
@@ -5526,6 +5527,30 @@ static const value_string e_unit_stand_state_strings[] =  {
     { UNIT_STAND_STATE_DEAD, "Dead" },
     { UNIT_STAND_STATE_KNEEL, "Kneel" },
     { UNIT_STAND_STATE_CUSTOM, "Custom" },
+    { 0, NULL }
+};
+
+typedef enum {
+    ACCOUNT_DATA_TYPE_GLOBAL_CONFIG_CACHE = 0x0,
+    ACCOUNT_DATA_TYPE_PER_CHARACTER_CONFIG_CACHE = 0x1,
+    ACCOUNT_DATA_TYPE_GLOBAL_BINDINGS_CACHE = 0x2,
+    ACCOUNT_DATA_TYPE_PER_CHARACTER_BINDINGS_CACHE = 0x3,
+    ACCOUNT_DATA_TYPE_GLOBAL_MACROS_CACHE = 0x4,
+    ACCOUNT_DATA_TYPE_PER_CHARACTER_MACROS_CACHE = 0x5,
+    ACCOUNT_DATA_TYPE_PER_CHARACTER_LAYOUT_CACHE = 0x6,
+    ACCOUNT_DATA_TYPE_PER_CHARACTER_CHAT_CACHE = 0x7,
+    ACCOUNT_DATA_TYPE_NUM_ACCOUNT_DATA_TYPES = 0x8,
+} e_account_data_type;
+static const value_string e_account_data_type_strings[] =  {
+    { ACCOUNT_DATA_TYPE_GLOBAL_CONFIG_CACHE, "Global Config Cache" },
+    { ACCOUNT_DATA_TYPE_PER_CHARACTER_CONFIG_CACHE, "Per Character Config Cache" },
+    { ACCOUNT_DATA_TYPE_GLOBAL_BINDINGS_CACHE, "Global Bindings Cache" },
+    { ACCOUNT_DATA_TYPE_PER_CHARACTER_BINDINGS_CACHE, "Per Character Bindings Cache" },
+    { ACCOUNT_DATA_TYPE_GLOBAL_MACROS_CACHE, "Global Macros Cache" },
+    { ACCOUNT_DATA_TYPE_PER_CHARACTER_MACROS_CACHE, "Per Character Macros Cache" },
+    { ACCOUNT_DATA_TYPE_PER_CHARACTER_LAYOUT_CACHE, "Per Character Layout Cache" },
+    { ACCOUNT_DATA_TYPE_PER_CHARACTER_CHAT_CACHE, "Per Character Chat Cache" },
+    { ACCOUNT_DATA_TYPE_NUM_ACCOUNT_DATA_TYPES, "Num Account Data Types" },
     { 0, NULL }
 };
 
@@ -12172,7 +12197,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_pet_number, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UPDATE_ACCOUNT_DATA:
-            ptvcursor_add(ptv, hf_woww_data_type, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_account_data_type, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
             len = offset_packet_end - ptvcursor_current_offset(ptv);
             ptvcursor_add(ptv, hf_woww_compressed_data, len, ENC_NA);
@@ -17015,6 +17040,12 @@ proto_register_woww(void)
         { &hf_woww_absorbed_damage,
             { "Absorbed Damage", "woww.absorbed.damage",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_account_data_type,
+            { "Account Data Type", "woww.account.data.type",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_account_data_type_strings), 0,
                 NULL, HFILL
             }
         },
