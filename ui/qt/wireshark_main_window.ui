@@ -2333,7 +2333,7 @@
     <string>Seconds Since First Captured Packet</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the date and time of day.</string>
+    <string>Show packet times as the seconds since the first captured packet.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+4</string>
