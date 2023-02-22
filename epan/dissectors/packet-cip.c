@@ -539,6 +539,7 @@ static int hf_32bitheader_run_idle = -1;
 
 static int hf_cip_connection = -1;
 static int hf_cip_fwd_open_in = -1;
+static int hf_cip_fwd_close_in = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_cip = -1;
@@ -673,6 +674,8 @@ static expert_field ei_mal_opt_attr_list = EI_INIT;
 static expert_field ei_mal_opt_service_list = EI_INIT;
 static expert_field ei_mal_padded_epath_size = EI_INIT;
 static expert_field ei_mal_missing_string_data = EI_INIT;
+
+static expert_field ei_cip_no_fwd_close = EI_INIT;
 
 static dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
@@ -6697,8 +6700,54 @@ static int get_connection_timeout_multiplier(guint32 timeout_value)
    return timeout_multiplier;
 }
 
-static void display_connection_information_fwd_close_req(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, cip_conn_info_t* conn_info)
+static void display_previous_route_connection_path(cip_req_info_t* preq_info, proto_tree* item_tree, tvbuff_t* tvb, packet_info* pinfo, int hf_path, int display_type);
+
+// Display all Connection Information and Analysis.
+static void display_connection_information_fwd_open_req(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
 {
+   cip_conn_info_t* conn_info = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+   if (!conn_info)
+   {
+      return;
+   }
+
+   proto_item* conn_info_item = NULL;
+   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
+   proto_item_set_generated(conn_info_item);
+
+   mark_cip_connection(pinfo, tvb, conn_info_tree);
+
+   proto_item* pi = proto_tree_add_float(conn_info_tree, hf_cip_cm_ot_timeout, tvb, 0, 0, (conn_info->O2T.rpi / 1000.0f) * conn_info->timeout_multiplier);
+   proto_item_set_generated(pi);
+
+   pi = proto_tree_add_float(conn_info_tree, hf_cip_cm_to_timeout, tvb, 0, 0, (conn_info->T2O.rpi / 1000.0f) * conn_info->timeout_multiplier);
+   proto_item_set_generated(pi);
+
+   if (conn_info->close_frame != 0)
+   {
+      pi = proto_tree_add_uint(conn_info_tree, hf_cip_fwd_close_in, tvb, 0, 0, conn_info->close_frame);
+      proto_item_set_generated(pi);
+   }
+   else
+   {
+      expert_add_info(pinfo, conn_info_item, &ei_cip_no_fwd_close);
+   }
+}
+
+static void display_connection_information_fwd_open_rsp(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, cip_req_info_t* preq_info)
+{
+   proto_item* conn_info_item = NULL;
+   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
+   proto_item_set_generated(conn_info_item);
+
+   mark_cip_connection(pinfo, tvb, conn_info_tree);
+
+   display_previous_route_connection_path(preq_info, conn_info_tree, tvb, pinfo, hf_cip_cm_conn_path_size, DISPLAY_CONNECTION_PATH);
+}
+
+static void display_connection_information_fwd_close_req(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
+{
+   cip_conn_info_t* conn_info = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
    if (!conn_info)
    {
       return;
@@ -6730,6 +6779,18 @@ static void display_connection_information_fwd_close_req(packet_info* pinfo, tvb
 
    proto_item* to_timeout_item = proto_tree_add_float(conn_info_tree, hf_cip_cm_to_timeout, tvb, 0, 0, to_timeout_ms);
    proto_item_set_generated(to_timeout_item);
+}
+
+static void display_connection_information_fwd_close_rsp(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
+{
+   proto_item* conn_info_item = NULL;
+   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
+   proto_item_set_generated(conn_info_item);
+
+   mark_cip_connection(pinfo, tvb, conn_info_tree);
+
+   cip_req_info_t* preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+   display_previous_route_connection_path(preq_info, conn_info_tree, tvb, pinfo, hf_cip_cm_conn_path_size, DISPLAY_CONNECTION_PATH);
 }
 
 static void
@@ -6843,7 +6904,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
       }
    }
 
-   mark_cip_connection(pinfo, tvb, cmd_tree);
+   display_connection_information_fwd_open_req(pinfo, tvb, cmd_tree);
 }
 
 static void display_previous_route_connection_path(cip_req_info_t *preq_info, proto_tree *item_tree, tvbuff_t *tvb, packet_info *pinfo, int hf_path, int display_type)
@@ -6965,12 +7026,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
       }
    }
 
-   proto_item* conn_info_item = NULL;
-   proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
-   proto_item_set_generated(conn_info_item);
-
-   mark_cip_connection(pinfo, tvb, conn_info_tree);
-   display_previous_route_connection_path(preq_info, conn_info_tree, tvb, pinfo, hf_cip_cm_conn_path_size, DISPLAY_CONNECTION_PATH);
+   display_connection_information_fwd_open_rsp(pinfo, tvb, tree, preq_info);
 
    /* See if we've captured the ForwardOpen request.  If so some of the conversation data has already been
       populated and we just need to update it. */
@@ -7071,9 +7127,6 @@ static void dissect_cip_cm_fwd_close_req(proto_tree* cmd_data_tree, tvbuff_t* tv
       hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
       &conn_triad);
 
-   if (!pinfo->fd->visited)
-      enip_mark_connection_triad(pinfo, &conn_triad);
-
    /* Add the path size */
    guint16 conn_path_size = tvb_get_guint8(tvb, offset + 10) * 2;
    proto_tree_add_item(cmd_data_tree, hf_cip_cm_conn_path_size, tvb, offset + 10, 1, ENC_LITTLE_ENDIAN);
@@ -7087,9 +7140,8 @@ static void dissect_cip_cm_fwd_close_req(proto_tree* cmd_data_tree, tvbuff_t* tv
    dissect_epath(tvb, pinfo, epath_tree, pi, offset + 12, conn_path_size, FALSE, FALSE, &conn_path, NULL, DISPLAY_CONNECTION_PATH, NULL, FALSE);
    save_route_connection_path(pinfo, tvb, offset + 12, conn_path_size);
 
-
-   cip_conn_info_t* conn_val = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
-   display_connection_information_fwd_close_req(pinfo, tvb, cmd_data_tree, conn_val);
+   enip_close_cip_connection(pinfo, &conn_triad);
+   display_connection_information_fwd_close_req(pinfo, tvb, cmd_data_tree);
 }
 
 static int dissect_cip_cm_fwd_close_rsp_success(proto_tree* cmd_data_tree, tvbuff_t* tvb, int offset, packet_info* pinfo, proto_item* cmd_item)
@@ -7115,16 +7167,10 @@ static int dissect_cip_cm_fwd_close_rsp_success(proto_tree* cmd_data_tree, tvbuf
       proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset + 10, app_rep_size, ENC_NA);
    }
 
-   enip_close_cip_connection(pinfo, &conn_triad);
+   if (!pinfo->fd->visited)
+      enip_mark_connection_triad(pinfo, &conn_triad);
 
-   proto_item* conn_info_item = NULL;
-   proto_tree* conn_info_tree = proto_tree_add_subtree(cmd_data_tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
-   proto_item_set_generated(conn_info_item);
-
-   mark_cip_connection(pinfo, tvb, conn_info_tree);
-
-   cip_req_info_t* preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
-   display_previous_route_connection_path(preq_info, conn_info_tree, tvb, pinfo, hf_cip_cm_conn_path_size, DISPLAY_CONNECTION_PATH);
+   display_connection_information_fwd_close_rsp(pinfo, tvb, cmd_data_tree);
 
    return 10 + app_rep_size;
 }
@@ -8883,6 +8929,7 @@ proto_register_cip(void)
 
       { &hf_cip_connection, { "CIP Connection Index", "cip.connection", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_cip_fwd_open_in, { "Forward Open Request In", "cip.fwd_open_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_fwd_close_in, { "Forward Close Request In", "cip.fwd_close_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
    };
 
    static hf_register_info hf_cm[] = {
@@ -9204,6 +9251,8 @@ proto_register_cip(void)
       { &ei_mal_opt_service_list, { "cip.malformed.opt_service_list", PI_MALFORMED, PI_ERROR, "Optional service list missing data", EXPFILL }},
       { &ei_mal_padded_epath_size, { "cip.malformed.epath.size", PI_MALFORMED, PI_ERROR, "Malformed EPATH vs Size", EXPFILL } },
       { &ei_mal_missing_string_data, { "cip.malformed.missing_str_data", PI_MALFORMED, PI_ERROR, "Missing string data", EXPFILL } },
+
+      { &ei_cip_no_fwd_close, { "cip.analysis.no_fwd_close", PI_PROTOCOL, PI_NOTE, "No Forward Close seen for this CIP Connection", EXPFILL } },
    };
 
    module_t *cip_module;
