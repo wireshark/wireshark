@@ -832,7 +832,7 @@ dissect_wisun_lbsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_id, tvb, offset+3, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lbsie_channel_plan_tag, tvb, offset+5, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_sync_period, tvb, offset+6, 1, ENC_LITTLE_ENDIAN);
-    return 6;
+    return 7;
 }
 
 static int
