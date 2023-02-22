@@ -48,6 +48,8 @@ typedef struct _packet_info {
   guint32 num;                      /**< Frame number */
   nstime_t abs_ts;                  /**< Packet absolute time stamp */
   nstime_t rel_ts;                  /**< Relative timestamp (yes, it can be negative) */
+  nstime_t rel_cap_ts;              /**< Relative timestamp from capture start (might be negative for broken files) */
+  gboolean rel_cap_ts_present;      /**< Relative timestamp from capture start valid */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
   wtap_rec *rec;                    /**< Record metadata */

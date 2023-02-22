@@ -970,6 +970,12 @@ blf_init_rec(blf_params_t *params, guint64 object_timestamp, int pkt_encap, guin
     params->rec->rec_header.packet_header.caplen = caplen;
     params->rec->rec_header.packet_header.len = len;
 
+    nstime_t tmp_ts;
+    tmp_ts.secs = params->blf_data->start_offset_ns / (1000 * 1000 * 1000);
+    tmp_ts.nsecs = params->blf_data->start_offset_ns % (1000 * 1000 * 1000);
+    nstime_delta(&params->rec->ts_rel_cap, &params->rec->ts, &tmp_ts);
+    params->rec->ts_rel_cap_valid = true;
+
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
     params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel, NULL);
 

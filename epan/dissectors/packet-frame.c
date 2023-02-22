@@ -55,6 +55,7 @@ static int hf_frame_arrival_time_epoch = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
+static int hf_frame_time_relative_cap = -1;
 static int hf_frame_time_reference = -1;
 static int hf_frame_number = -1;
 static int hf_frame_len = -1;
@@ -1045,6 +1046,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
 				proto_item_set_generated(ti);
 			}
+
+			if (pinfo->rel_cap_ts_present) {
+				item = proto_tree_add_time(fh_tree, hf_frame_time_relative_cap, tvb,
+							   0, 0, &(pinfo->rel_cap_ts));
+				proto_item_set_generated(item);
+			}
 		}
 
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
@@ -1588,6 +1595,11 @@ proto_register_frame(void)
 		  { "Time since reference or first frame", "frame.time_relative",
 		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "Time relative to time reference or first frame", HFILL }},
+
+		{ &hf_frame_time_relative_cap,
+		  { "Time since start of capturing", "frame.time_relative_capture_start",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "Time relative to the capture start", HFILL }},
 
 		{ &hf_frame_time_reference,
 		  { "This is a Time Reference frame", "frame.ref_time",

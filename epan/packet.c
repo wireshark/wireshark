@@ -608,6 +608,11 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
+	if (rec->ts_rel_cap_valid) {
+		nstime_copy(&edt->pi.rel_cap_ts, &rec->ts_rel_cap);
+		edt->pi.rel_cap_ts_present = true;
+	}
+
 	/*
 	 * If the block has been modified, use the modified block,
 	 * otherwise use the block from the file.
