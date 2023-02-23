@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Sodipodi ("http://www.sodipodi.com/") -->
+
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg548"
    sodipodi:version="0.32"
-   width="210mm"
-   height="297mm"
-   sodipodi:docbase="/home/gerald/devel/wireshark/image"
+   width="415"
+   height="130"
    sodipodi:docname="wslogo.svg"
-   inkscape:version="0.45"
-   inkscape:export-filename="/home/gerald/devel/wsweb/wslogotrans800.png"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   inkscape:export-filename="../../../../../tmp/wireshark-logo-black.svg"
    inkscape:export-xdpi="181.24001"
    inkscape:export-ydpi="181.24001"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:modified="TRUE">
+   sodipodi:modified="TRUE"
+   version="1.1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata1317">
     <rdf:RDF>
@@ -37,54 +38,120 @@
      id="base"
      showgrid="true"
      showguides="true"
-     inkscape:zoom="2.130271"
-     inkscape:cx="431.18454"
-     inkscape:cy="582.92903"
+     inkscape:zoom="1.513253"
+     inkscape:cx="212.78662"
+     inkscape:cy="64.761146"
      inkscape:window-width="1262"
      inkscape:window-height="874"
      inkscape:window-x="405"
-     inkscape:window-y="52"
-     inkscape:current-layer="svg548"
-     inkscape:guide-bbox="true" />
-  <text
-     style="font-size:96.086143px;font-style:normal;font-weight:bold;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Luxi Sans"
-     x="204.84328"
-     y="452.43033"
-     id="text555"
-     transform="scale(0.947903,1.054960)"
-     sodipodi:linespacing="125.00000%"
-     inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
-     inkscape:export-xdpi="90.000000"
-     inkscape:export-ydpi="90.000000">
-    <tspan
-       x="204.84328"
-       y="452.43033"
-       sodipodi:role="line"
-       id="tspan563"
-       style="font-size:64.000008px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00002%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans">WIRE<tspan
-   style="font-size:64.000008px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
-   id="tspan1330">SHARK</tspan>
-<tspan
-   id="tspan1334"
-   style="font-size:40.000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00002%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" />
-</tspan>
-  </text>
-  <path
-     style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.2972369;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-     d="M 195.51343,420.14613 L 352.44720,420.14613 C 352.44720,420.14613 356.51830,372.36090 398.58648,371.69721 C 385.01611,392.93509 397.78858,420.21356 397.78858,420.21356 L 588.47175,420.21356"
-     id="path1328"
-     sodipodi:nodetypes="ccccc"
-     inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
-     inkscape:export-xdpi="90.000000"
-     inkscape:export-ydpi="90.000000" />
-  <text
-     id="text4138"
-     y="413.71448"
-     x="574.64508"
-     style="font-size:13.94218159px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-     xml:space="preserve"><tspan
-       y="413.71448"
-       x="574.64508"
-       id="tspan4140"
-       sodipodi:role="line">®</tspan></text>
+     inkscape:window-y="25"
+     inkscape:current-layer="layer2"
+     inkscape:guide-bbox="true"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:window-maximized="0" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Black logo text path"
+     style="display:none">
+    <g
+       aria-label="WIRESHARK"
+       transform="scale(0.94790314,1.0549601)"
+       id="text555"
+       style="font-weight:bold;font-family:'Luxi Sans';stroke-width:1pt">
+      <path
+         d="m 11.258979,64.956772 h 6.375 l 9.8125,39.437498 9.78125,-39.437498 h 7.09375 l 9.8125,39.437498 9.78125,-39.437498 h 6.40625 l -11.71875,46.656248 h -7.9375 l -9.84375,-40.499998 -9.9375,40.499998 h -7.9375 z"
+         id="path1540" />
+      <path
+         d="m 78.696479,64.956772 h 6.3125 v 46.656248 h -6.3125 z"
+         id="path1542" />
+      <path
+         d="m 119.69648,89.738022 q 2.03125,0.6875 3.9375,2.9375 1.9375,2.25 3.875,6.1875 l 6.40625,12.749998 h -6.78125 l -5.96875,-11.968748 q -2.3125,-4.6875 -4.5,-6.21875 -2.15625,-1.53125 -5.90625,-1.53125 h -6.875 V 111.61302 H 97.571479 V 64.956772 h 14.250001 q 8,0 11.9375,3.34375 3.9375,3.34375 3.9375,10.09375 0,4.40625 -2.0625,7.3125 -2.03125,2.90625 -5.9375,4.03125 z m -15.8125,-19.59375 v 16.5625 h 7.9375 q 4.5625,0 6.875,-2.09375 2.34375,-2.125 2.34375,-6.21875 0,-4.09375 -2.34375,-6.15625 -2.3125,-2.09375 -6.875,-2.09375 z"
+         id="path1544" />
+      <path
+         d="m 142.04023,64.956772 h 29.5 v 5.3125 h -23.1875 v 13.8125 h 22.21875 v 5.3125 h -22.21875 v 16.906248 h 23.75 v 5.3125 h -30.0625 z"
+         id="path1546" />
+      <path
+         d="m 214.54023,66.425522 v 9.875 q -3.84375,-1.71875 -7.5,-2.59375 -3.65625,-0.875 -6.90625,-0.875 -4.3125,0 -6.375,1.1875 -2.0625,1.1875 -2.0625,3.6875 0,1.875 1.375,2.9375 1.40625,1.03125 5.0625,1.78125 l 5.125,1.03125 q 7.78125,1.5625 11.0625,4.75 3.28125,3.1875 3.28125,9.0625 0,7.718748 -4.59375,11.499998 -4.5625,3.75 -13.96875,3.75 -4.4375,0 -8.90625,-0.84375 -4.46875,-0.84375 -8.9375,-2.5 V 99.019272 q 4.46875,2.374998 8.625,3.593748 4.1875,1.1875 8.0625,1.1875 3.9375,0 6.03125,-1.3125 2.09375,-1.3125 2.09375,-3.749998 0,-2.1875 -1.4375,-3.375 -1.40625,-1.1875 -5.65625,-2.125 l -4.65625,-1.03125 q -7,-1.5 -10.25,-4.78125 -3.21875,-3.28125 -3.21875,-8.84375 0,-6.96875 4.5,-10.71875 4.5,-3.75 12.9375,-3.75 3.84375,0 7.90625,0.59375 4.0625,0.5625 8.40625,1.71875 z"
+         id="path1548" />
+      <path
+         d="m 228.16523,64.956772 h 12.03125 v 17.78125 h 17.75 v -17.78125 h 12.03125 V 111.61302 H 257.94648 V 91.831772 h -17.75 v 19.781248 h -12.03125 z"
+         id="path1550" />
+      <path
+         d="m 310.04023,103.11302 h -18.8125 l -2.96875,8.5 h -12.09375 l 17.28125,-46.656248 h 14.34375 l 17.28125,46.656248 h -12.09375 z m -15.8125,-8.656248 h 12.78125 l -6.375,-18.5625 z"
+         id="path1552" />
+      <path
+         d="m 348.35273,85.644272 q 3.78125,0 5.40625,-1.40625 1.65625,-1.40625 1.65625,-4.625 0,-3.1875 -1.65625,-4.5625 -1.625,-1.375 -5.40625,-1.375 h -5.0625 v 11.96875 z m -5.0625,8.3125 V 111.61302 H 331.25898 V 64.956772 h 18.375 q 9.21875,0 13.5,3.09375 4.3125,3.09375 4.3125,9.78125 0,4.625 -2.25,7.59375 -2.21875,2.96875 -6.71875,4.375 2.46875,0.5625 4.40625,2.5625 1.96875,1.96875 3.96875,6 l 6.53125,13.249998 h -12.8125 l -5.6875,-11.59375 q -1.71875,-3.499998 -3.5,-4.781248 -1.75,-1.28125 -4.6875,-1.28125 z"
+         id="path1554" />
+      <path
+         d="m 380.54023,64.956772 h 12.03125 v 17.03125 l 17.34375,-17.03125 h 13.96875 l -22.46875,22.09375 24.78125,24.562498 h -15.0625 l -18.5625,-18.374998 v 18.374998 h -12.03125 z"
+         id="path1556" />
+    </g>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4.29724;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 10,60.597534 h 156.93377 c 0,0 4.0711,-47.78523 46.13928,-48.44892 -13.57037,21.23788 -0.7979,48.51635 -0.7979,48.51635 h 190.68317"
+       id="path1328"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <g
+       aria-label="®"
+       id="text4138"
+       style="font-family:'Bitstream Vera Sans';stroke-width:1px">
+      <path
+         d="m 396.10275,44.75762 q -0.89181,0 -1.66108,0.319963 -0.76927,0.319963 -1.4092,0.959888 -0.63992,0.639925 -0.96669,1.422812 -0.32677,0.77608 -0.32677,1.661083 0,0.878195 0.32677,1.654274 0.32677,0.769272 0.96669,1.409197 0.63993,0.639925 1.4092,0.966696 0.76927,0.319962 1.66108,0.319962 0.89862,0 1.66789,-0.319962 0.77608,-0.326771 1.41601,-0.966696 0.63311,-0.633117 0.94627,-1.402389 0.31996,-0.769272 0.31996,-1.661082 0,-0.905427 -0.31996,-1.674698 -0.31996,-0.77608 -0.94627,-1.409197 -0.63993,-0.639925 -1.41601,-0.959888 -0.76927,-0.319963 -1.66789,-0.319963 z m 0,-0.701194 q 1.03478,0 1.92659,0.374424 0.89861,0.374424 1.64066,1.116465 0.74204,0.742041 1.10965,1.633852 0.36762,0.89181 0.36762,1.940199 0,1.034772 -0.36762,1.926583 -0.36761,0.885003 -1.10965,1.627044 -0.74205,0.74204 -1.64066,1.116465 -0.89181,0.374424 -1.92659,0.374424 -1.03477,0 -1.93339,-0.374424 -0.89181,-0.374425 -1.63385,-1.116465 -0.74204,-0.742041 -1.10966,-1.627044 -0.36761,-0.891811 -0.36761,-1.926583 0,-1.048389 0.36761,-1.940199 0.36762,-0.891811 1.10966,-1.633852 0.74204,-0.742041 1.63385,-1.116465 0.89862,-0.374424 1.93339,-0.374424 z m -0.18381,2.818394 h -0.83734 v 1.878929 h 0.83734 q 0.74885,0 1.04158,-0.211039 0.29954,-0.211039 0.29954,-0.721618 0,-0.517386 -0.29954,-0.728425 -0.29953,-0.217847 -1.04158,-0.217847 z m 0.0477,-0.701195 q 1.19816,0 1.79043,0.408463 0.59227,0.401655 0.59227,1.225389 0,0.585463 -0.36081,0.966695 -0.354,0.381232 -1.00754,0.496963 0.16338,0.05446 0.38804,0.319963 0.23146,0.258693 0.54461,0.755656 l 0.93266,1.518121 h -1.17093 l -0.87819,-1.422813 q -0.40166,-0.65354 -0.65354,-0.823733 -0.24508,-0.177001 -0.6127,-0.177001 h -0.4493 v 2.423547 h -1.0552 v -5.69125 z"
+         id="path1535" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Black logo"
+     style="display:inline">
+    <text
+       style="font-style:normal;font-weight:bold;line-height:0%;font-family:'Luxi Sans';writing-mode:lr-tb;text-anchor:start;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="9.1339788"
+       y="111.61302"
+       id="text1429"
+       transform="scale(0.94790314,1.0549601)"
+       inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
+         x="0"
+         y="0"
+         sodipodi:role="line"
+         id="tspan1427"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:64px;line-height:125%;font-family:'Bitstream Vera Sans';text-align:start;writing-mode:lr-tb;text-anchor:start">WIRE<tspan
+   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:64px;line-height:125%;font-family:'Bitstream Vera Sans';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   id="tspan1423">SHARK</tspan><tspan
+   id="tspan1425"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:'Bitstream Vera Sans';text-align:start;writing-mode:lr-tb;text-anchor:start" /></tspan></text>
+    <path
+       style="display:inline;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4.29724;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 10,60.597534 h 156.93377 c 0,0 4.0711,-47.78523 46.13928,-48.44892 -13.57037,21.23788 -0.7979,48.51635 -0.7979,48.51635 h 190.68317"
+       id="path1431"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <text
+       id="text1435"
+       y="54.165882"
+       x="389.13165"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         y="0"
+         x="0"
+         id="tspan1433"
+         sodipodi:role="line"
+         style="font-size:13.9422px;line-height:1.25">®</tspan></text>
+  </g>
 </svg>
