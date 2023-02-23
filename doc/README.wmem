@@ -321,7 +321,7 @@ pointer is stored internally with the data structure, and subsequent calls
 The primary debugging control for wmem is the WIRESHARK_DEBUG_WMEM_OVERRIDE
 environment variable. If set, this value forces all calls to
 wmem_allocator_new() to return the same type of allocator, regardless of which
-type is requested normally by the code. It currently has three valid values:
+type is requested normally by the code. It currently has four valid values:
 
  - The value "simple" forces the use of WMEM_ALLOCATOR_SIMPLE. The valgrind
    script currently sets this value, since the simple allocator is the only

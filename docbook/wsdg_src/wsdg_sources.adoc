@@ -223,6 +223,49 @@ Follow the build procedure in <<ChSetupWindows>> to build Wireshark.
 After the build process has successfully finished, you should find a
 `Wireshark.exe` and some other files in the `run\RelWithDebInfo` directory.
 
+[#ChSrcBuildType]
+==== Build Type
+
+CMake can compile Wireshark for several different build types:
+
+.Build Types
+|===
+|Type |Compiler Flags |Description
+
+|`RelWithDebInfo`
+|`-O2 -g`
+|Default, mix of optimization and debug capabilities
+
+|`Debug`
+|`-O0 -g`
+|For debugging, no optimization
+
+|`Release`
+|`-O3 -DNDEBUG`
+|Optimized for speed, no debug symbols or debug level logs
+
+|`MinSizeRel`
+|`-Os -DNDEBUG`
+|Optimized for size, no debug symbols or debug level logs
+|===
+
+The default is `RelWithDebInfo`, which provides a good compromise of
+some optimization (`-O2`) along with including debug symbols (`-g`)
+and enabling full <<ChSrcLogging,logging capabilities>>.
+To change the build type, set the CMake variable `CMAKE_BUILD_TYPE`, e.g.:
+
+[source,sh]
+----
+$ cmake .. -DCMAKE_BUILD_TYPE=Debug
+----
+
+or on Windows,
+
+[source,cmd]
+----
+> msbuild /m /p:Configuration=Debug Wireshark.sln
+----
+
 [#ChSrcRunFirstTime]
 === Run Your Version Of Wireshark
 
@@ -267,6 +310,16 @@ As with the Unix-like build described above, you can run Wireshark from the buil
 [#ChSrcDebug]
 === Debug Your Version Of Wireshark
 
+Optimization can make debugging a bit more difficult, e.g. by changing the
+execution order of statements. To disable optimization, set the
+<<ChSrcBuildType,build type>> to `Debug`.
+
+Conversely, the `Release` or `MinSizeRel` build types can be used to optimize
+further for speed or size, but do not include debug symbols for use with
+debuggers, and completely disable <<ChSrcLoggingLevels,lower level logging>>
+and asserts, optimizing away the code path. Ensure that you have not built with
+one of those types before attempting debugging.
+
 [#ChSrcLogging]
 ==== Wireshark Logging
 
@@ -289,7 +342,7 @@ define their own logging domain. Any string can be used as ID for a logging doma
 [#ChSrcLoggingLevels]
 ===== Logging Levels
 
-The following logging levels are defined:
+The following logging levels are defined from highest to lowest:
 
 * error
 * critical
@@ -300,8 +353,12 @@ The following logging levels are defined:
 * noisy
 
 By default logging output is generated for logging level "message" and above. If the logging level is lowered or raised
-all log output generated at or above this level is sent to the log output. Note that release builds by default do not
-generate log output for the logging levels debug and noisy.
+all log output generated at or above this level is sent to the log output.
+Note that if the <<ChSrcBuildType,build type>> is set to `Release` or
+`MinSizeRel`, then by default all log output for the logging levels "debug" and
+"noisy" will be optimized away by the compiler and cannot be sent to the log
+output, regardless of the logging setings. To enable debugging for all build
+types, set the CMake variable `-DENABLE_DEBUG=ON`.
 
 There is also a special "echo" logging level used exclusively for temporary debugging print outs (usually
 via the `WS_DEBUG_HERE` macro).
@@ -385,16 +442,89 @@ such as Qt Creator, CLion, or Eclipse.
 
 Additional traps can be set on Wireshark, see <<ChSrcTrapsLogging>>
 
+[#ChSrcMemorySafety]
+===== Memory Safety and Leaks
+
+Wireshark's wmem memory management framework makes it easy to allocate
+memory in pools with a certain scope that is freed automatically at
+a certain point (such as the end of dissecting a packet or when closing
+a file), even if a dissector raises an exception after allocating the
+memory. Memory in a pool is also freed collectively, which can be
+considerably faster than calling `free()` individually on each individual
+allocation. Proper use of wmem makes a dissector faster and less prone
+to memory leaks with unexpected data, which happens frequently with
+capture files.
+
+However, wmem's block allocation can obscure issues that memory checkers
+might otherwise catch. Fortunately, the `WIRESHARK_DEBUG_WMEM_OVERRIDE`
+environment variable can be set at runtime to instruct wmem to use a specific
+memory allocator for all allocations, some of which are more compatible with
+memory checkers:
+
+* `simple` - Uses `malloc()` only, no block allocation, compatible with Valgrind
+* `strict` - Finds invalid memory via canaries and scrubbing freed memory
+* `block` - Standard block allocator for file and epan scopes
+* `block_fast` - Block allocator for short-lived scope, e.g. packet, (`free()` is a no-op)
+
+The `simple` allocator produces the most accurate results with tools like
+https://valgrind.org[Valgrind] and can be enabled as follows:
+
+[source,sh]
+----
+$ export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
+----
+
+For memory allocated without wmem but with GLib's GSlice memory allocator,
+there is a similar `G_SLICE` environment variable that can be set to
+`always-malloc` (similar to `simple`) or `debug-blocks` (similar to `strict`).
+See https://developer-old.gnome.org/glib/stable/glib-running.html for details.
+
 If you're encountering memory safety bugs, you might want to build with
-https://en.wikipedia.org/wiki/AddressSanitizer[Address Sanitizer] so that
-Wireshark will immediately alert you to any detected issues.
+https://github.com/google/sanitizers/wiki/AddressSanitizer[Address Sanitizer]
+(ASAN) so that Wireshark will immediately alert you to any detected issues.
+It works with GCC or Clang, provided that the appropriate libraries are installed.
 
 [source,sh]
 ----
 $ cmake .. -G Ninja -DENABLE_ASAN=1
 ----
 
-See https://developer-old.gnome.org/glib/stable/glib-running.html
+TIP: ASAN slows things down by a factor of 2 (or more), so having a different
+build directory for an ASAN build can be useful.
+
+ASAN will catch more errors when run with either the `simple` or `strict`
+wmem allocator than with the defaults. (It is more compatible with the
+`strict` allocator and the analogous GSlice `debug-blocks` option than
+Valgrind is.)
+
+For additional instrumentation, ASAN supports a number of
+https://github.com/google/sanitizers/wiki/AddressSanitizerFlags[options].
+
+For further investigating memory leaks, the following can be useful:
+
+[source,sh]
+----
+# This slows things down a lot more but results in more precise backtraces,
+# especially when calling third party libraries (such as the C++ standard
+# library):
+$ export ASAN_OPTIONS=fast_unwind_on_malloc=0
+# This causes LeakSanitizer to print the addresses of leaked objects for
+# inspection in a debugger:
+$ export LSAN_OPTIONS=report_objects=1
+----
+
+LeakSanitizer and AddressSanitizer can detect issues in third-party libraries
+that you cannot do anything about. For example, internal Qt library calls to
+the fontconfig library can produce leaks. To ignore them, create a
+https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#suppressions[suppressions file] with an appropriate entry, e.g. `leak:libfontconfig`.
+
+If you are just interested in memory safety checking, but not memory
+leak debugging, disable the included https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer[LeakSanitizer] with:
+
+[source,sh]
+----
+$ export ASAN_OPTIONS=detect_leaks=0
+----
 
 [#ChSrcWindowsDebug]
 ==== Windows Native
