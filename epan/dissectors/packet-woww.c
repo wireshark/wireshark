@@ -15358,6 +15358,9 @@ add_body_fields(guint32 header_opcode,
             break;
         case SMSG_INVENTORY_CHANGE_FAILURE:
             ptvcursor_add_ret_uint(ptv, hf_woww_inventory_result, 1, ENC_LITTLE_ENDIAN, &result);
+            if (result == INVENTORY_RESULT_CANT_EQUIP_LEVEL_I) {
+                ptvcursor_add(ptv, hf_woww_required_level, 4, ENC_LITTLE_ENDIAN);
+            }
             if (result != INVENTORY_RESULT_OK) {
                 ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
