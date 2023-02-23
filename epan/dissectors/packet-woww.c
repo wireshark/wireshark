@@ -486,6 +486,7 @@ static int hf_woww_logout_speed = -1;
 static int hf_woww_loot = -1;
 static int hf_woww_loot_master = -1;
 static int hf_woww_loot_method = -1;
+static int hf_woww_loot_method_error = -1;
 static int hf_woww_loot_slot = -1;
 static int hf_woww_loot_slot_type = -1;
 static int hf_woww_looted_target = -1;
@@ -7454,6 +7455,7 @@ static const value_string e_experience_award_type_strings[] =  {
 };
 
 typedef enum {
+    LOOT_METHOD_ERROR = 0x00,
     LOOT_METHOD_CORPSE = 0x01,
     LOOT_METHOD_PICKPOCKETING = 0x02,
     LOOT_METHOD_FISHING = 0x03,
@@ -7464,6 +7466,7 @@ typedef enum {
     LOOT_METHOD_INSIGNIA = 0x16,
 } e_loot_method;
 static const value_string e_loot_method_strings[] =  {
+    { LOOT_METHOD_ERROR, "Error" },
     { LOOT_METHOD_CORPSE, "Corpse" },
     { LOOT_METHOD_PICKPOCKETING, "Pickpocketing" },
     { LOOT_METHOD_FISHING, "Fishing" },
@@ -7472,6 +7475,38 @@ static const value_string e_loot_method_strings[] =  {
     { LOOT_METHOD_FISHINGHOLE, "Fishinghole" },
     { LOOT_METHOD_FISHING_FAIL, "Fishing Fail" },
     { LOOT_METHOD_INSIGNIA, "Insignia" },
+    { 0, NULL }
+};
+
+typedef enum {
+    LOOT_METHOD_ERROR_DIDNT_KILL = 0x00,
+    LOOT_METHOD_ERROR_TOO_FAR = 0x04,
+    LOOT_METHOD_ERROR_BAD_FACING = 0x05,
+    LOOT_METHOD_ERROR_LOCKED = 0x06,
+    LOOT_METHOD_ERROR_NOTSTANDING = 0x08,
+    LOOT_METHOD_ERROR_STUNNED = 0x09,
+    LOOT_METHOD_ERROR_PLAYER_NOT_FOUND = 0x0A,
+    LOOT_METHOD_ERROR_PLAY_TIME_EXCEEDED = 0x0B,
+    LOOT_METHOD_ERROR_MASTER_INV_FULL = 0x0C,
+    LOOT_METHOD_ERROR_MASTER_UNIQUE_ITEM = 0x0D,
+    LOOT_METHOD_ERROR_MASTER_OTHER = 0x0E,
+    LOOT_METHOD_ERROR_ALREADY_PICKPOCKETED = 0x0F,
+    LOOT_METHOD_ERROR_NOT_WHILE_SHAPESHIFTED = 0x10,
+} e_loot_method_error;
+static const value_string e_loot_method_error_strings[] =  {
+    { LOOT_METHOD_ERROR_DIDNT_KILL, "Didnt Kill" },
+    { LOOT_METHOD_ERROR_TOO_FAR, "Too Far" },
+    { LOOT_METHOD_ERROR_BAD_FACING, "Bad Facing" },
+    { LOOT_METHOD_ERROR_LOCKED, "Locked" },
+    { LOOT_METHOD_ERROR_NOTSTANDING, "Notstanding" },
+    { LOOT_METHOD_ERROR_STUNNED, "Stunned" },
+    { LOOT_METHOD_ERROR_PLAYER_NOT_FOUND, "Player Not Found" },
+    { LOOT_METHOD_ERROR_PLAY_TIME_EXCEEDED, "Play Time Exceeded" },
+    { LOOT_METHOD_ERROR_MASTER_INV_FULL, "Master Inv Full" },
+    { LOOT_METHOD_ERROR_MASTER_UNIQUE_ITEM, "Master Unique Item" },
+    { LOOT_METHOD_ERROR_MASTER_OTHER, "Master Other" },
+    { LOOT_METHOD_ERROR_ALREADY_PICKPOCKETED, "Already Pickpocketed" },
+    { LOOT_METHOD_ERROR_NOT_WHILE_SHAPESHIFTED, "Not While Shapeshifted" },
     { 0, NULL }
 };
 
@@ -10728,6 +10763,7 @@ add_body_fields(guint32 header_opcode,
     guint32 info_block = 0;
     guint32 key_version = 0;
     guint32 listed_players = 0;
+    guint32 loot_method = 0;
     guint32 map = 0;
     guint32 mask = 0;
     guint32 message_type = 0;
@@ -15568,7 +15604,10 @@ add_body_fields(guint32 header_opcode,
             break;
         case SMSG_LOOT_RESPONSE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_loot_method, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_loot_method, 1, ENC_LITTLE_ENDIAN, &loot_method);
+            if (loot_method == LOOT_METHOD_ERROR) {
+                ptvcursor_add(ptv, hf_woww_loot_method_error, 1, ENC_LITTLE_ENDIAN);
+            }
             ptvcursor_add(ptv, hf_woww_gold, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_items, 1, ENC_LITTLE_ENDIAN, &amount_of_items);
             for (i = 0; i < amount_of_items; ++i) {
@@ -19826,6 +19865,12 @@ proto_register_woww(void)
         { &hf_woww_loot_method,
             { "Loot Method", "woww.loot.method",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_loot_method_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_loot_method_error,
+            { "Loot Method Error", "woww.loot.method.error",
+                FT_UINT8, BASE_HEX_DEC, VALS(e_loot_method_error_strings), 0,
                 NULL, HFILL
             }
         },
