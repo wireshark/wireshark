@@ -1216,7 +1216,7 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_string_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, NULL,
-                                     "%d.%d V", (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
+                                     "%d.%02d V", (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
         offset += 2;
 
         if (tvb_captured_length_remaining(tvb, offset) == 1) {
