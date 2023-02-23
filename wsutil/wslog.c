@@ -634,9 +634,7 @@ static void tokenize_filter_str(log_filter_t **filter_ptr,
                                     const char *str_filter,
                                     enum ws_log_level min_level)
 {
-    char *tok, *str;
     const char *sep = ",;";
-    GPtrArray *ptr;
     bool negated = false;
     log_filter_t *filter;
 
@@ -653,22 +651,8 @@ static void tokenize_filter_str(log_filter_t **filter_ptr,
     if (*str_filter == '\0')
         return;
 
-    ptr = g_ptr_array_new_with_free_func(g_free);
-    str = g_strdup(str_filter);
-
-    for (tok = strtok(str, sep); tok != NULL; tok = strtok(NULL, sep)) {
-        g_ptr_array_add(ptr, g_strdup(tok));
-    }
-
-    g_free(str);
-    if (ptr->len == 0) {
-        g_ptr_array_free(ptr, true);
-        return;
-    }
-    g_ptr_array_add(ptr, NULL);
-
     filter = g_new(log_filter_t, 1);
-    filter->domainv = (void *)g_ptr_array_free(ptr, false);
+    filter->domainv = g_strsplit_set(str_filter, sep, -1);
     filter->positive = !negated;
     filter->min_level = min_level;
     *filter_ptr = filter;
