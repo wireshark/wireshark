@@ -121,8 +121,10 @@ void proto_reg_handoff_uds(void);
 #define UDS_RDTCI_TYPES_BY_SEVERITY_MASK          0x8
 #define UDS_RDTCI_TYPES_SEVERITY_INFO_OF_DTC      0x9
 #define UDS_RDTCI_TYPES_SUPPORTED_DTC             0xA
-#define UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED   0xB
-#define UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC 0xC
+#define UDS_RDTCI_TYPES_FIRST_TEST_FAILED_DTC     0xB
+#define UDS_RDTCI_TYPES_FIRST_CONFIRMED_DTC       0xC
+#define UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED   0xD
+#define UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC 0xE
 #define UDS_RDTCI_TYPES_DTC_FAULT_DETECT_CTR      0x14
 #define UDS_RDTCI_TYPES_DTC_WITH_PERM_STATUS      0x15
 #define UDS_RDTCI_TYPES_DTC_EXT_DATA_REC_BY_NUM   0x16
@@ -426,6 +428,8 @@ static const value_string uds_rdtci_types[] = {
         {UDS_RDTCI_TYPES_BY_SEVERITY_MASK,          "Report DTC by Severity Mask"},
         {UDS_RDTCI_TYPES_SEVERITY_INFO_OF_DTC,      "Report Severity Information of DTC"},
         {UDS_RDTCI_TYPES_SUPPORTED_DTC,             "Report Supported DTC"},
+        {UDS_RDTCI_TYPES_FIRST_TEST_FAILED_DTC,     "Report First Test Failed DTC"},
+        {UDS_RDTCI_TYPES_FIRST_CONFIRMED_DTC,       "Report First Confirmed DTC"},
         {UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED,   "Report Most Recent Test Failed DTC"},
         {UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC, "Report Most Recent Confirmed DTC"},
         {UDS_RDTCI_TYPES_DTC_FAULT_DETECT_CTR,      "Report DTC Fault Detection Counter"},
