@@ -1238,8 +1238,9 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
         offset += 8;
 
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_string_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, NULL,
-                                     "%d.%02d V", (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
+
+        double voltage_value = (double)((tmp & 0x0000ff00) >> 8) + (tmp & 0x000000ff) / 100.0;
+        proto_tree_add_double(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, voltage_value);
         offset += 2;
 
         if (tvb_captured_length_remaining(tvb, offset) == 1) {
@@ -2068,7 +2069,7 @@ proto_register_tecmp_payload(void) {
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_voltage,
             { "Voltage", "tecmp.payload.status_dev.vendor_technica.voltage",
-            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_volt, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature,
             { "Temperature", "tecmp.payload.status_dev.vendor_technica.temperature",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
