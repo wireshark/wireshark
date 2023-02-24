@@ -178,6 +178,15 @@ static int hf_oran_prb_allocation = -1;
 static int hf_oran_nextSymbolId = -1;
 static int hf_oran_nextStartPrbc = -1;
 
+static int hf_oran_puncPattern = -1;
+static int hf_oran_numPuncPatterns = -1;
+static int hf_oran_symbolMask_ext20 = -1;
+static int hf_oran_startPuncPrb = -1;
+static int hf_oran_numPuncPrb = -1;
+static int hf_oran_puncReMask = -1;
+static int hf_oran_RbgIncl = -1;
+
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
 static int hf_oran_refa = -1;
@@ -203,6 +212,7 @@ static gint ett_oran_bfwcomphdr = -1;
 static gint ett_oran_bfwcompparam = -1;
 static gint ett_oran_ext19_port = -1;
 static gint ett_oran_prb_allocation = -1;
+static gint ett_oran_punc_pattern = -1;
 
 
 /* Expert info */
@@ -1116,7 +1126,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_append_text(extension_ti, " (%s)", val_to_str_const(exttype, exttype_vals, "Unknown"));
 
         /* extLen (number of 32-bit words) */
-        guint32 extlen_len = ((exttype==11)||(exttype==19)) ? 2 : 1;  /* Extensions 11/19 are special */
+        guint32 extlen_len = ((exttype==11)||(exttype==19)||(exttype==20)) ? 2 : 1;  /* Extensions 11/19/20 are special */
         guint32 extlen;
         proto_item *extlen_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_extlen, tvb,
                                                              offset, extlen_len, ENC_BIG_ENDIAN, &extlen);
@@ -1723,9 +1733,58 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             case 20:  /* Puncturing extension */
-                /* TODO */
-                break;
+            {
+                /* numPuncPatterns */
+                guint32 numPuncPatterns;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPuncPatterns, tvb, offset, 1, ENC_BIG_ENDIAN, &numPuncPatterns);
+                offset += 1;
 
+                /* Add each puncturing pattern */
+                for (guint32 n=0; n < numPuncPatterns; n++) {
+                    guint pattern_start_offset = offset;
+
+                    /* Subtree for this puncturing pattern */
+                    proto_item *pattern_ti = proto_tree_add_string_format(extension_tree, hf_oran_puncPattern,
+                                                                         tvb, offset, 0,
+                                                                         "", "Puncturing Pattern %u: (", n);
+                    proto_tree *pattern_tree = proto_item_add_subtree(pattern_ti, ett_oran_punc_pattern);
+
+                    /* SymbolMask (14 bits) */
+                    proto_tree_add_item(pattern_tree, hf_oran_symbolMask_ext20, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    /* startPuncPrb (10 bits) */
+                    proto_tree_add_item(pattern_tree, hf_oran_startPuncPrb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    /* numPuncPrb (8 bits) */
+                    proto_tree_add_item(pattern_tree, hf_oran_numPuncPrb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    /* puncReMask (12 bits) */
+                    proto_tree_add_item(pattern_tree, hf_oran_puncReMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    /* rb (1 bit) */
+                    proto_tree_add_item(pattern_tree, hf_oran_rb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* reserved (2 bits? - spec says 1) */
+                    proto_tree_add_bits_item(pattern_tree, hf_oran_reserved, tvb, offset*8, 2, ENC_BIG_ENDIAN);
+                    /* rbgIncl */
+                    gboolean rbgIncl;
+                    proto_tree_add_item_ret_boolean(pattern_tree, hf_oran_RbgIncl, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgIncl);
+                    offset += 1;
+
+                    if (rbgIncl) {
+                        /* reserved (1 bit) */
+                        proto_tree_add_item(pattern_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* rbgSize(3 bits) */
+                        proto_tree_add_item(pattern_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* rbgMask (28 bits) */
+                        proto_tree_add_item(pattern_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                    }
+
+                    proto_item_set_len(pattern_ti, offset-pattern_start_offset);
+                }
+
+                break;
+            }
             case 21:  /* Variable PRB group size for channel information */
                 /* TODO */
                 break;
@@ -3295,6 +3354,64 @@ proto_register_oran(void)
             "number of PRBs in PRB range",
             HFILL }
         },
+
+        /* Puncturing patters as appears in SE 20 */
+        {&hf_oran_puncPattern,
+         {"puncPattern", "oran_fh_cus.puncPattern",
+          FT_STRING, FT_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+
+        /* 7.7.20.2 numPuncPatterns */
+        { &hf_oran_numPuncPatterns,
+          { "numPuncPatterns", "oran_fh_cus.numPuncPatterns",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "number of puncturing patterns",
+            HFILL }
+        },
+        /* 7.7.20.3 symbolMask */
+        {&hf_oran_symbolMask_ext20,
+         {"symbolMask", "oran_fh_cus.symbolMask",
+          FT_UINT16, BASE_HEX,
+          NULL, 0xfffc,
+          "Bitmask where each bit indicates the symbols associated with the puncturing pattern",
+          HFILL}
+        },
+        /* 7.7.20.4 startPuncPrb */
+        {&hf_oran_startPuncPrb,
+         {"numPuncPrb", "oran_fh_cus.startPuncPrb",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x03ff,
+          "starting PRB to which one puncturing pattern applies",
+          HFILL}
+        },
+        /* 7.7.20.5 numPuncPrb */
+        {&hf_oran_numPuncPrb,
+         {"numPuncPrb", "oran_fh_cus.numPuncPrb",
+          FT_UINT24, BASE_DEC,
+          NULL, 0x03ffff,
+          "the number of PRBs of the puncturing pattern",
+          HFILL}
+        },
+        /* 7.7.20.6 puncReMask */
+        {&hf_oran_puncReMask,
+         {"puncReMask", "oran_fh_cus.punkReMask",
+          FT_UINT16, BASE_DEC,
+          NULL, 0xffc0,
+          "puncturing pattern RE mask",
+          HFILL}
+        },
+        /* 7.7.20.4 rbgIncl */
+        {&hf_oran_RbgIncl,
+         {"rbgIncl", "oran_fh_cus.rbgIncl",
+          FT_BOOLEAN, 8,
+          NULL, 0x01,
+          "rbg included flag",
+          HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
@@ -3318,7 +3435,8 @@ proto_register_oran(void)
         &ett_oran_bfwcomphdr,
         &ett_oran_bfwcompparam,
         &ett_oran_ext19_port,
-        &ett_oran_prb_allocation
+        &ett_oran_prb_allocation,
+        &ett_oran_punc_pattern
     };
 
     expert_module_t* expert_oran;
