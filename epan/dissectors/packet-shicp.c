@@ -596,7 +596,7 @@ proto_register_shicp(void)
     /* Setup protocol expert items */
     static ei_register_info ei[] = {
         { &ei_shicp_error,
-          { "shicp.error", PI_RESPONSE_CODE, PI_NOTE,
+          { "shicp.expert.error", PI_RESPONSE_CODE, PI_NOTE,
             "Message contains an error code", EXPFILL }
         },
         { &ei_shicp_malformed,

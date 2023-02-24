@@ -16705,7 +16705,7 @@ void proto_register_rtps(void) {
         VALS(class_id_enum_names), 0x0, NULL, HFILL }
     },
     { &hf_rtps_encapsulation_options_compression_plugin_class_id,
-        { "Compression class Id", "rtps.param.compression_class_id", FT_INT8, BASE_DEC,
+        { "Compression class Id", "rtps.param.plugin.compression_class_id", FT_INT8, BASE_DEC,
         VALS(class_id_enum_names), 0x0, NULL, HFILL }
     },
     { &hf_rtps_padding_bytes,
