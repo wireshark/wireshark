@@ -726,9 +726,9 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return role == Qt::DisplayRole ? QString::number(duration, 'f', width) : (QVariant)duration;
         }
         case CONV_COLUMN_BPS_AB:
-            return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ab) : QVariant((qlonglong)bps_ab)): QVariant();
+            return bpsCalculated ? (role == Qt::DisplayRole ? gchar_free_to_qstring(format_size((int64_t)bps_ab, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI)) : QVariant((qlonglong)bps_ab)): QVariant();
         case CONV_COLUMN_BPS_BA:
-            return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ba) : QVariant((qlonglong)bps_ba)): QVariant();
+            return bpsCalculated ? (role == Qt::DisplayRole ? gchar_free_to_qstring(format_size((int64_t)bps_ba, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI)) : QVariant((qlonglong)bps_ba)): QVariant();
         }
     } else if (role == Qt::ToolTipRole) {
         if (idx.column() == CONV_COLUMN_START || idx.column() == CONV_COLUMN_DURATION)
