@@ -1969,11 +1969,11 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
   if (mapping->tempDirection == DIRECTION_UPLINK) {
     mapping->rlcUlSnLength_present = TRUE;
-    mapping->rlcUlSnLength = (value=0) ? 6 : 12;
+    mapping->rlcUlSnLength = (value==0) ? 6 : 12;
   }
   else {
     mapping->rlcDlSnLength_present = TRUE;
-    mapping->rlcDlSnLength = (value=0) ? 6 : 12;
+    mapping->rlcDlSnLength = (value==0) ? 6 : 12;
   }
 
 #.FN_BODY SN-FieldLengthAM  VAL_PTR=&value
@@ -1982,11 +1982,11 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
   if (mapping->tempDirection == DIRECTION_UPLINK) {
     mapping->rlcUlSnLength_present = TRUE;
-    mapping->rlcUlSnLength = (value=0) ? 12 : 18;
+    mapping->rlcUlSnLength = (value==0) ? 12 : 18;
   }
   else {
     mapping->rlcDlSnLength_present = TRUE;
-    mapping->rlcDlSnLength = (value=0) ? 12 : 18;
+    mapping->rlcDlSnLength = (value==0) ? 12 : 18;
   }
 
 
