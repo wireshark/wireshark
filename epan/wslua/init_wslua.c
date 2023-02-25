@@ -171,23 +171,23 @@ int get_hf_wslua_text(void) {
 
 #if LUA_VERSION_NUM >= 502
 // Attach the lua traceback to the proto_tree
-static int traceback(lua_State *L) {
-    // Entering, stack: [ traceback_function, dissector, errmsg ]
+static int dissector_error_handler(lua_State *LS) {
+    // Entering, stack: [ error_handler, dissector, errmsg ]
 
     proto_item *tb_item;
     proto_tree *tb_tree;
 
     // Add the expert info Lua error message
     proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
-            "Lua Error: %s", lua_tostring(L,-1));
+            "Lua Error: %s", lua_tostring(LS,-1));
 
     // Create a new proto sub_tree for the traceback
     tb_item = proto_tree_add_text_internal(lua_tree->tree, lua_tvb, 0, 0, "Lua Traceback");
     tb_tree = proto_item_add_subtree(tb_item, ett_wslua_traceback);
 
     // Push the traceback onto the stack
-    // After call, stack: [ traceback_function, dissector, errmsg, tb_string ]
-    luaL_traceback(L, L, NULL, 1);
+    // After call, stack: [ error_handler, dissector, errmsg, tb_string ]
+    luaL_traceback(LS, LS, NULL, 1);
 
     // Get the string length of the traceback. Note that the string
     // has a terminating NUL, but string_length doesn't include it.
@@ -195,7 +195,7 @@ static int traceback(lua_State *L) {
     // ignore that because the traceback string shouldn't have them.
     // This function does not own the string; it's still owned by lua.
     size_t string_length;
-    const char *orig_tb_string = lua_tolstring(L, -1, &string_length);
+    const char *orig_tb_string = lua_tolstring(LS, -1, &string_length);
 
     // We make the copy so we can modify the string. Don't forget the
     // extra byte for the terminating NUL!
@@ -255,10 +255,10 @@ static int traceback(lua_State *L) {
 
 #else
 
-static int traceback(lua_State *L) {
-    // Entering, stack: [ traceback_function, dissector, errmsg ]
+static int dissector_error_handler(lua_State *LS) {
+    // Entering, stack: [ error_handler, dissector, errmsg ]
     proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
-            "Lua Error: %s", lua_tostring(L,-1));
+            "Lua Error: %s", lua_tostring(LS,-1));
 
     // Return the same error message
     return -1;
@@ -282,39 +282,39 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     // set the stack top be index 0
     lua_settop(L,0);
 
-    // After call, stack: [ traceback_function ]
-    lua_pushcfunction(L, traceback);
+    // After call, stack: [ error_handler_func ]
+    lua_pushcfunction(L, dissector_error_handler);
 
     // Push the dissectors table onto the the stack
-    // After call, stack: [ traceback_function, dissectors_table ]
+    // After call, stack: [ error_handler_func, dissectors_table ]
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
 
     // Push a copy of the current_proto string onto the stack
-    // After call, stack: [ traceback_function, dissectors_table, current_proto ]
+    // After call, stack: [ error_handler_func, dissectors_table, current_proto ]
     lua_pushstring(L, pinfo->current_proto);
 
     // dissectors_table[current_proto], a dissector, goes into the stack
     // The key (current_proto) is popped off the stack.
-    // After call, stack: [ traceback_function, dissectors_table, dissector ]
+    // After call, stack: [ error_handler_func, dissectors_table, dissector ]
     lua_gettable(L, -2);
 
     // We don't need the dissectors_table in the stack
-    // After call, stack: [ traceback_function, dissector ]
+    // After call, stack: [ error_handler_func, dissector ]
     lua_remove(L,2);
 
     // Is the dissector a function?
     if (lua_isfunction(L,2)) {
 
-        // After call, stack: [ traceback_function, dissector, tvb ]
+        // After call, stack: [ error_handler_func, dissector, tvb ]
         push_Tvb(L,tvb);
-        // After call, stack: [ traceback_function, dissector, tvb, pinfo ]
+        // After call, stack: [ error_handler_func, dissector, tvb, pinfo ]
         push_Pinfo(L,pinfo);
-        // After call, stack: [ traceback_function, dissector, tvb, pinfo, TreeItem ]
+        // After call, stack: [ error_handler_func, dissector, tvb, pinfo, TreeItem ]
         lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
         proto_item_set_hidden(lua_tree->item);
 
-        if  ( lua_pcall(L, /*num_args=*/3, /*num_results=*/1, /*tb_func_stack_position=*/1) ) {
-            // do nothing; the traceback message handler function does everything
+        if  ( lua_pcall(L, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
+            // do nothing; the traceback error message handler function does everything
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
