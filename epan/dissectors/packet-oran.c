@@ -197,6 +197,18 @@ static int hf_oran_transmissionWindowOffset = -1;
 static int hf_oran_transmissionWindowSize = -1;
 static int hf_oran_toT = -1;
 
+static int hf_oran_bfaCompHdr = -1;
+static int hf_oran_bfAzPtWidth = -1;
+static int hf_oran_bfZePtWidth = -1;
+static int hf_oran_bfAz3ddWidth = -1;
+static int hf_oran_bfZe3ddWidth = -1;
+static int hf_oran_bfAzPt = -1;
+static int hf_oran_bfZePt = -1;
+static int hf_oran_bfAz3dd = -1;
+static int hf_oran_bfZe3dd = -1;
+static int hf_oran_bfAzSl = -1;
+static int hf_oran_bfZeSl = -1;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
@@ -224,6 +236,7 @@ static gint ett_oran_bfwcompparam = -1;
 static gint ett_oran_ext19_port = -1;
 static gint ett_oran_prb_allocation = -1;
 static gint ett_oran_punc_pattern = -1;
+static gint ett_oran_bfacomphdr = -1;
 
 
 /* Expert info */
@@ -521,6 +534,33 @@ static const value_string type_of_transmission_vals[] = {
     {0x1, "uniformly distributed over the transmission window"},
     {0, NULL}
 };
+
+/* 7.7.2.2 (width of bfa parameters) */
+static const value_string bfa_bw_vals[] = {
+    {0,   "no bits, the field is not applicable (e.g., O-RU does not support it) or the default value shall be used"},
+    {1,   "2-bit bitwidth"},
+    {2,   "3-bit bitwidth"},
+    {3,   "4-bit bitwidth"},
+    {4,   "5-bit bitwidth"},
+    {5,   "6-bit bitwidth"},
+    {6,   "7-bit bitwidth"},
+    {7,   "8-bit bitwidth"},
+    {0,   NULL}
+};
+
+/* 7.7.2.7 & 7.7.2.8 */
+static const value_string sidelobe_suppression_vals[] = {
+    {0,   "10 dB"},
+    {1,   "15 dB"},
+    {2,   "20 dB"},
+    {3,   "25 dB"},
+    {4,   "30 dB"},
+    {5,   "35 dB"},
+    {6,   "40 dB"},
+    {7,   ">= 45 dB"},
+    {0,   NULL}
+};
+
 
 
 /*******************************************************/
@@ -1231,6 +1271,65 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Need to round to next byte */
                 offset = (bit_offset+7)/8;
 
+                break;
+            }
+
+            case 2: /* Beamforming attributes */
+            {
+                /* bfaCompHdr (get widths of fields to follow) */
+                guint32 bfAzPtWidth, bfZePtWidth, bfAz3ddWidth, bfZe3ddWidth;
+                /* subtree */
+                proto_item *bfa_ti = proto_tree_add_string_format(extension_tree, hf_oran_bfaCompHdr,
+                                                                  tvb, offset, 2, "", "bfaCompHdr");
+                proto_tree *bfa_tree = proto_item_add_subtree(bfa_ti, ett_oran_bfacomphdr);
+
+                /* reserved (2 bits) */
+                proto_tree_add_item(bfa_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* bfAzPtWidth (3 bits) */
+                proto_tree_add_item_ret_uint(bfa_tree, hf_oran_bfAzPtWidth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfAzPtWidth);
+                /* bfZePtWidth (3 bits) */
+                proto_tree_add_item_ret_uint(bfa_tree, hf_oran_bfZePtWidth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfZePtWidth);
+                offset += 1;
+
+                /* reserved (2 bits) */
+                proto_tree_add_item(bfa_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* bfAz3ddWidth (3 bits) */
+                proto_tree_add_item_ret_uint(bfa_tree, hf_oran_bfAz3ddWidth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfAz3ddWidth);
+                /* bfZe3ddWidth (3 bits) */
+                proto_tree_add_item_ret_uint(bfa_tree, hf_oran_bfZe3ddWidth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfZe3ddWidth);
+                offset += 1;
+
+                guint bit_offset = offset*8;
+
+                /* bfAzPt */
+                if (bfAzPtWidth > 0) {
+                    proto_tree_add_bits_item(extension_tree, hf_oran_bfAzPt, tvb, bit_offset, bfAzPtWidth+1, ENC_BIG_ENDIAN);
+                    bit_offset += (bfAzPtWidth+1);
+                }
+                /* bfZePt */
+                if (bfZePtWidth > 0) {
+                    proto_tree_add_bits_item(extension_tree, hf_oran_bfZePt, tvb, bit_offset, bfZePtWidth+1, ENC_BIG_ENDIAN);
+                    bit_offset += (bfZePtWidth+1);
+                }
+                /* bfAz3dd */
+                if (bfAz3ddWidth > 0) {
+                    proto_tree_add_bits_item(extension_tree, hf_oran_bfAz3dd, tvb, bit_offset, bfAz3ddWidth+1, ENC_BIG_ENDIAN);
+                    bit_offset += (bfAz3ddWidth+1);
+                }
+                /* bfZe3dd */
+                if (bfZe3ddWidth > 0) {
+                    proto_tree_add_bits_item(extension_tree, hf_oran_bfZe3dd, tvb, bit_offset, bfZe3ddWidth+1, ENC_BIG_ENDIAN);
+                    bit_offset += (bfZe3ddWidth+1);
+                }
+
+                /* go to next byte (zero-padding.. - a little confusing..) */
+                offset = (bit_offset+7) / 8;
+
+                /* 2 reserved/padding bits */
+                /* bfAzSl (3 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_bfAzSl, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* bfZeSl (3 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_bfZeSl, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             }
 
@@ -3523,6 +3622,97 @@ proto_register_oran(void)
           VALS(type_of_transmission_vals), 0x03,
           "type of transmission",
           HFILL}
+        },
+
+        /* 7.7.2.2 bfaCompHdr */
+        {&hf_oran_bfaCompHdr,
+         {"bfaCompHdr", "oran_fh_cus.bfaCompHdr",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "beamforming attributes compression header",
+          HFILL}
+        },
+        /* 7.7.2.2-2: bfAzPtWidth */
+        {&hf_oran_bfAzPtWidth,
+         {"bfAzPtWidth", "oran_fh_cus.bfAzPtWidth",
+          FT_UINT8, BASE_DEC,
+          VALS(bfa_bw_vals), 0x38,
+          NULL,
+          HFILL}
+        },
+        /* 7.7.2.2-3: bfZePtWidth */
+        {&hf_oran_bfZePtWidth,
+         {"bfZePtWidth", "oran_fh_cus.bfZePtWidth",
+          FT_UINT8, BASE_DEC,
+          VALS(bfa_bw_vals), 0x07,
+          NULL,
+          HFILL}
+        },
+        /* 7.7.2.2-4: bfAz3ddWidth */
+        {&hf_oran_bfAz3ddWidth,
+         {"bfAz3ddWidth", "oran_fh_cus.bfAz3ddWidth",
+          FT_UINT8, BASE_DEC,
+          VALS(bfa_bw_vals), 0x38,
+          NULL,
+          HFILL}
+        },
+        /* 7.7.2.2-5: bfZe3ddWidth */
+        {&hf_oran_bfZe3ddWidth,
+         {"bfZe3ddWidth", "oran_fh_cus.bfZe3ddWidth",
+          FT_UINT8, BASE_DEC,
+          VALS(bfa_bw_vals), 0x07,
+          NULL,
+          HFILL}
+        },
+
+        /* 7.7.2.3 bfAzPt */
+        {&hf_oran_bfAzPt,
+         {"bfAzPt", "oran_fh_cus.bfAzPt",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "beamforming azimuth pointing parameter",
+          HFILL}
+        },
+        /* 7.7.2.4 bfZePt */
+        {&hf_oran_bfZePt,
+         {"bfZePt", "oran_fh_cus.bfZePt",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "beamforming zenith pointing parameter",
+          HFILL}
+        },
+        /* 7.7.2.5 bfAz3dd */
+        {&hf_oran_bfAz3dd,
+         {"bfAz3dd", "oran_fh_cus.bfAz3dd",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "beamforming azimuth beamwidth parameter",
+          HFILL}
+        },
+        /* 7.7.2.6 bfZe3dd */
+        {&hf_oran_bfZe3dd,
+         {"bfZe3dd", "oran_fh_cus.bfZe3dd",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "beamforming zenith beamwidth parameter",
+          HFILL}
+        },
+
+        /* 7.7.2.7 bfAzSl */
+        {&hf_oran_bfAzSl,
+         {"bfAzSl", "oran_fh_cus.bfAzSl",
+          FT_UINT8, BASE_DEC,
+          VALS(sidelobe_suppression_vals), 0x38,
+          "beamforming azimuth sidelobe parameter",
+          HFILL}
+        },
+        /* 7.7.2.8 bfZeSl */
+        {&hf_oran_bfZeSl,
+         {"bfZeSl", "oran_fh_cus.bfZeSl",
+          FT_UINT8, BASE_DEC,
+          VALS(sidelobe_suppression_vals), 0x38,
+          "beamforming zenith sidelobe parameter",
+          HFILL}
         }
     };
 
@@ -3548,7 +3738,8 @@ proto_register_oran(void)
         &ett_oran_bfwcompparam,
         &ett_oran_ext19_port,
         &ett_oran_prb_allocation,
-        &ett_oran_punc_pattern
+        &ett_oran_punc_pattern,
+        &ett_oran_bfacomphdr
     };
 
     expert_module_t* expert_oran;
