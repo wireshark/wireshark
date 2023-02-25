@@ -22,6 +22,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 
@@ -609,8 +610,6 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
     name = (gchar *)g_malloc(name_len + 1);
     filter_exp = (gchar *)g_malloc(filter_exp_len + 1);
 
-    prefs.unknown_colorfilters = FALSE;
-
     while (1) {
 
         if (skip_end_of_line) {
@@ -704,10 +703,8 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
             df_error_t *df_err = NULL;
 
             if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
-                ws_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
-                          name, path, df_err->msg);
+                report_warning("Disabling color filter: Could not compile \"%s\" in colorfilters file \"%s\".\n%s", name, path, df_err->msg);
                 dfilter_error_free(df_err);
-                prefs.unknown_colorfilters = TRUE;
 
                 /* skip_end_of_line = TRUE; */
                 disabled = TRUE;

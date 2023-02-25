@@ -211,7 +211,6 @@ typedef struct _e_prefs {
   gint         gui_debounce_timer;
   gchar       *saved_at_version;
   gboolean     unknown_prefs; /* unknown or obsolete pref(s) */
-  gboolean     unknown_colorfilters; /* Warn when saving unknown or obsolete color filters. */
   gboolean     gui_qt_packet_list_separator;
   gboolean     gui_qt_packet_header_column_definition;
   gboolean     gui_qt_packet_list_hover_style; /* Enable/Disable mouse-over colorization */
