@@ -82,18 +82,18 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     QMenu * importMenu = new QMenu(import_button_);
     QAction * entry = importMenu->addAction(tr("From Zip File..."));
-    connect(entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
+    connect(entry, &QAction::triggered, this, &ProfileDialog::importFromZip, Qt::QueuedConnection);
     entry = importMenu->addAction(tr("From Directory..."));
-    connect(entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
+    connect(entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory, Qt::QueuedConnection);
     import_button_->setMenu(importMenu);
 
     QMenu * exportMenu = new QMenu(export_button_);
     export_selected_entry_ = exportMenu->addAction(tr("%Ln Selected Personal Profile(s)...", "", 0));
     export_selected_entry_->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_SELECTED);
-    connect(export_selected_entry_, &QAction::triggered, this, &ProfileDialog::exportProfiles);
+    connect(export_selected_entry_, &QAction::triggered, this, &ProfileDialog::exportProfiles, Qt::QueuedConnection);
     entry = exportMenu->addAction(tr("All Personal Profiles..."));
     entry->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_ALL);
-    connect(entry, &QAction::triggered, this, &ProfileDialog::exportProfiles);
+    connect(entry, &QAction::triggered, this, &ProfileDialog::exportProfiles, Qt::QueuedConnection);
     export_button_->setMenu(exportMenu);
 #else
     connect(import_button_, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);

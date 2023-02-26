@@ -1828,7 +1828,7 @@ void WiresharkMainWindow::connectFileMenuActions()
         [this]() { exportDissections(export_type_json); });
 
     connect(main_ui_->actionFileExportPacketBytes, &QAction::triggered, this,
-        [this]() { exportPacketBytes(); });
+        [this]() { exportPacketBytes(); }, Qt::QueuedConnection);
 
     connect(main_ui_->actionFileExportPDU, &QAction::triggered, this,
         [this]() { exportPDU(); });
