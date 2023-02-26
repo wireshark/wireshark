@@ -359,7 +359,7 @@ QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
     player_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     player_button->setPopupMode(QToolButton::MenuButtonPopup);
 
-    ca = new QAction(tr("&Play Streams"));
+    ca = new QAction(tr("&Play Streams"), player_button);
     ca->setToolTip(tr("Open RTP player dialog"));
     ca->setIcon(StockIcon("media-playback-start"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));

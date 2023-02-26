@@ -1142,7 +1142,7 @@ QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     analysis_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     analysis_button->setPopupMode(QToolButton::MenuButtonPopup);
 
-    ca = new QAction(tr("&Analyze"));
+    ca = new QAction(tr("&Analyze"), analysis_button);
     ca->setToolTip(tr("Open the analysis window for the selected stream(s)"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisReplace()));
     analysis_button->setDefaultAction(ca);
