@@ -603,19 +603,6 @@ static int hf_uds_cdtcs_type = -1;
  * Trees
  */
 static gint ett_uds = -1;
-static gint ett_uds_dsc = -1;
-static gint ett_uds_er = -1;
-static gint ett_uds_rdtci = -1;
-static gint ett_uds_rdbi = -1;
-static gint ett_uds_sa = -1;
-static gint ett_uds_wdbi = -1;
-static gint ett_uds_iocbi = -1;
-static gint ett_uds_rc = -1;
-static gint ett_uds_rd = -1;
-static gint ett_uds_td = -1;
-static gint ett_uds_tp = -1;
-static gint ett_uds_err = -1;
-static gint ett_uds_cdtcs = -1;
 
 static int proto_uds = -1;
 
@@ -1015,7 +1002,7 @@ call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 source_address, guint32 target_address, guint8 number_of_addresses_valid)
 {
-    proto_tree *uds_tree, *subtree;
+    proto_tree *uds_tree;
     proto_item *ti;
     guint8      sid, service;
     guint32     enum_val;
@@ -1083,14 +1070,13 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     switch (service) {
         case UDS_SERVICES_DSC:
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_dsc, NULL, service_name);
-            proto_tree_add_item_ret_uint(subtree, hf_uds_dsc_type, tvb, UDS_DSC_TYPE_OFFSET, UDS_DSC_TYPE_LEN,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_dsc_type, tvb, UDS_DSC_TYPE_OFFSET, UDS_DSC_TYPE_LEN,
                                 ENC_BIG_ENDIAN, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_dsc_types, "Unknown (0x%02x)"));
 
             if (sid & UDS_REPLY_MASK) {
                 guint32 parameter_record_length = data_length - UDS_DSC_PARAMETER_RECORD_OFFSET;
-                proto_tree_add_item(subtree, hf_uds_dsc_parameter_record, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_dsc_parameter_record, tvb,
                                     UDS_DSC_PARAMETER_RECORD_OFFSET, parameter_record_length, ENC_NA);
                 if (parameter_record_length != 0) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
@@ -1102,18 +1088,16 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
 
         case UDS_SERVICES_ER:
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_er, NULL, service_name);
-            proto_tree_add_item_ret_uint(subtree, hf_uds_er_type, tvb, UDS_ER_TYPE_OFFSET, UDS_ER_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_er_type, tvb, UDS_ER_TYPE_OFFSET, UDS_ER_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_er_types, "Unknown (0x%02x)"));
             break;
 
         case UDS_SERVICES_RDTCI: {
             guint32 record_length = data_length - UDS_RDTCI_RECORD_OFFSET;
 
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_rdtci, NULL, service_name);
-            proto_tree_add_item_ret_uint(subtree, hf_uds_rdtci_type, tvb, UDS_RDTCI_TYPE_OFFSET,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_type, tvb, UDS_RDTCI_TYPE_OFFSET,
                                 UDS_RDTCI_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
-            proto_tree_add_item(subtree, hf_uds_rdtci_record, tvb,
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_record, tvb,
                                 UDS_RDTCI_RECORD_OFFSET, record_length, ENC_NA);
             if (record_length > 0) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s    %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"),
@@ -1122,17 +1106,16 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
         }
         case UDS_SERVICES_RDBI:
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_rdbi, NULL, service_name);
             if (sid & UDS_REPLY_MASK) {
                 /* Can't know the size of the data for each identifier, Decode like if there is only one idenfifier */
                 guint32 record_length = data_length - UDS_RDBI_DATA_RECORD_OFFSET;
                 guint32 data_identifier;
-                ti = proto_tree_add_item_ret_uint(subtree, hf_uds_rdbi_data_identifier, tvb,
+                ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb,
                                                   UDS_RDBI_DATA_IDENTIFIER_OFFSET, UDS_RDBI_DATA_IDENTIFIER_LEN,
                                                   ENC_BIG_ENDIAN, &data_identifier);
                 protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
-                proto_tree_add_item(subtree, hf_uds_rdbi_data_record, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
+                proto_tree_add_item(uds_tree, hf_uds_rdbi_data_record, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
 
                 payload_tvb = tvb_new_subset_length(tvb, UDS_RDBI_DATA_RECORD_OFFSET, record_length);
@@ -1149,7 +1132,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 guint32 offset = UDS_RDBI_DATA_IDENTIFIER_OFFSET;
                 while (identifier_length > 0) {
                     guint32 data_identifier;
-                    ti = proto_tree_add_item_ret_uint(subtree, hf_uds_rdbi_data_identifier, tvb, offset,
+                    ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb, offset,
                                                       UDS_RDBI_DATA_IDENTIFIER_LEN, ENC_BIG_ENDIAN, &data_identifier);
                     protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
@@ -1162,8 +1145,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
 
         case UDS_SERVICES_SA:
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_sa, NULL, service_name);
-            proto_tree_add_item_ret_uint(subtree, hf_uds_sa_type, tvb, UDS_SA_TYPE_OFFSET,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_sa_type, tvb, UDS_SA_TYPE_OFFSET,
                                 UDS_SA_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                             val_to_str(enum_val, uds_sa_types, "Unknown (0x%02x)"));
@@ -1171,7 +1153,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             if (sid & UDS_REPLY_MASK) {
                 guint32 seed_length = data_length - UDS_SA_SEED_OFFSET;
                 if (seed_length > 0) {
-                    proto_tree_add_item(subtree, hf_uds_sa_seed, tvb, UDS_SA_SEED_OFFSET, seed_length, ENC_NA);
+                    proto_tree_add_item(uds_tree, hf_uds_sa_seed, tvb, UDS_SA_SEED_OFFSET, seed_length, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                     tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_SA_SEED_OFFSET, seed_length,
                                                            ' '));
@@ -1179,7 +1161,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             } else {
                 guint32 key_length = data_length - UDS_SA_KEY_OFFSET;
                 if (key_length > 0) {
-                    proto_tree_add_item(subtree, hf_uds_sa_key, tvb, UDS_SA_KEY_OFFSET, key_length, ENC_NA);
+                    proto_tree_add_item(uds_tree, hf_uds_sa_key, tvb, UDS_SA_KEY_OFFSET, key_length, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                     tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_SA_KEY_OFFSET, key_length,
                                                            ' '));
@@ -1188,8 +1170,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
 
         case UDS_SERVICES_WDBI:
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_wdbi, NULL, service_name);
-            ti = proto_tree_add_item_ret_uint(subtree, hf_uds_wdbi_data_identifier, tvb,
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_wdbi_data_identifier, tvb,
                                               UDS_WDBI_DATA_IDENTIFIER_OFFSET, UDS_WDBI_DATA_IDENTIFIER_LEN,
                                               ENC_BIG_ENDIAN, &enum_val);
             protoitem_append_data_name(ti, ecu_address, (guint16)enum_val);
@@ -1198,7 +1179,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 infocol_append_data_name(pinfo, ecu_address, enum_val);
             } else {
                 guint32 record_length = data_length - UDS_WDBI_DATA_RECORD_OFFSET;
-                proto_tree_add_item(subtree, hf_uds_wdbi_data_record, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
+                proto_tree_add_item(uds_tree, hf_uds_wdbi_data_record, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
                 infocol_append_data_name(pinfo, ecu_address, enum_val);
@@ -1219,16 +1200,15 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             guint32 data_identifier;
             guint32 state_length = data_length - UDS_IOCBI_STATE_OFFSET;
 
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_iocbi, NULL, service_name);
-            ti = proto_tree_add_item_ret_uint(subtree, hf_uds_iocbi_data_identifier, tvb,
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_data_identifier, tvb,
                                               UDS_IOCBI_DATA_IDENTIFIER_OFFSET, UDS_IOCBI_DATA_IDENTIFIER_LEN,
                                               ENC_BIG_ENDIAN, &data_identifier);
             protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
-            proto_tree_add_item_ret_uint(subtree, hf_uds_iocbi_parameter, tvb, UDS_IOCBI_PARAMETER_OFFSET,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_parameter, tvb, UDS_IOCBI_PARAMETER_OFFSET,
                                          UDS_IOCBI_PARAMETER_LEN, ENC_BIG_ENDIAN, &enum_val);
 
-            proto_tree_add_item(subtree, hf_uds_iocbi_state, tvb, UDS_IOCBI_STATE_OFFSET,
+            proto_tree_add_item(uds_tree, hf_uds_iocbi_state, tvb, UDS_IOCBI_STATE_OFFSET,
                                 state_length, ENC_NA);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
             infocol_append_data_name(pinfo, ecu_address, data_identifier);
@@ -1241,11 +1221,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         case UDS_SERVICES_RC: {
             guint32 identifier;
 
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_rc, NULL, service_name);
-            proto_tree_add_item_ret_uint(subtree, hf_uds_rc_type, tvb, UDS_RC_TYPE_OFFSET,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_type, tvb, UDS_RC_TYPE_OFFSET,
                                 UDS_RC_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
 
-            ti = proto_tree_add_item_ret_uint(subtree, hf_uds_rc_identifier, tvb, UDS_RC_ROUTINE_OFFSET,
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_identifier, tvb, UDS_RC_ROUTINE_OFFSET,
                                 UDS_RC_ROUTINE_LEN, ENC_BIG_ENDIAN, &identifier);
             protoitem_append_routine_name(ti, ecu_address, identifier);
 
@@ -1256,12 +1235,12 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 guint32 rc_data_len = data_length - UDS_RC_INFO_OFFSET;
                 if (rc_data_len > 0) {
                     guint8 info = tvb_get_guint8(tvb, UDS_RC_INFO_OFFSET);
-                    proto_tree_add_item(subtree, hf_uds_rc_info, tvb,
+                    proto_tree_add_item(uds_tree, hf_uds_rc_info, tvb,
                                         UDS_RC_INFO_OFFSET, UDS_RC_INFO_LEN, ENC_BIG_ENDIAN);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%x", info);
                     if (rc_data_len > 1) {
                         guint32 status_record_len = data_length - UDS_RC_STATUS_RECORD_OFFSET;
-                        proto_tree_add_item(subtree, hf_uds_rc_status_record, tvb,
+                        proto_tree_add_item(uds_tree, hf_uds_rc_status_record, tvb,
                                             UDS_RC_STATUS_RECORD_OFFSET, status_record_len, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                         tvb_bytes_to_str_punct(pinfo->pool, tvb,
@@ -1274,7 +1253,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             } else {
                 guint32 option_record_len = data_length - UDS_RC_OPTION_RECORD_OFFSET;
                 if (option_record_len > 0) {
-                    proto_tree_add_item(subtree, hf_uds_rc_option_record, tvb,
+                    proto_tree_add_item(uds_tree, hf_uds_rc_option_record, tvb,
                                         UDS_RC_OPTION_RECORD_OFFSET, option_record_len, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                     tvb_bytes_to_str_punct(pinfo->pool, tvb,
@@ -1287,7 +1266,6 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
         }
         case UDS_SERVICES_RD:
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_rd, NULL, service_name);
             if (sid & UDS_REPLY_MASK) {
                 guint8 length_format_identifier, max_number_of_block_length_length;
                 guint64 max_number_of_block_length;
@@ -1295,13 +1273,13 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 length_format_identifier = tvb_get_guint8(tvb, UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET);
                 max_number_of_block_length_length = masked_guint8_value(length_format_identifier,
                                                                         UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK);
-                proto_tree_add_item(subtree, hf_uds_rd_max_number_of_block_length_length, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length_length, tvb,
                                     UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET,
                                     UDS_RD_LENGTH_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
 
                 max_number_of_block_length = tvb_get_guintX(tvb, UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET,
                                                             max_number_of_block_length_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_uds_rd_max_number_of_block_length, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length, tvb,
                                     UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET,
                                     max_number_of_block_length_length, ENC_BIG_ENDIAN);
 
@@ -1315,35 +1293,35 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 data_format_identifier = tvb_get_guint8(tvb, UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET);
 
                 compression = masked_guint8_value(data_format_identifier, UDS_RD_COMPRESSION_METHOD_MASK);
-                proto_tree_add_item(subtree, hf_uds_rd_compression_method, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_rd_compression_method, tvb,
                                     UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET,
                                     UDS_RD_DATA_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
 
                 encryting = masked_guint8_value(data_format_identifier, UDS_RD_ENCRYPTING_METHOD_MASK);
-                proto_tree_add_item(subtree, hf_uds_rd_encrypting_method, tvb, UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET,
+                proto_tree_add_item(uds_tree, hf_uds_rd_encrypting_method, tvb, UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET,
                                     UDS_RD_DATA_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
 
                 address_and_length_format_idenfifier = tvb_get_guint8(tvb, UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET);
 
                 memory_size_length = masked_guint8_value(address_and_length_format_idenfifier,
                                                          UDS_RD_COMPRESSION_METHOD_MASK);
-                proto_tree_add_item(subtree, hf_uds_rd_memory_size_length, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size_length, tvb,
                                     UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET,
                                     UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
 
                 memory_address_length = masked_guint8_value(address_and_length_format_idenfifier,
                                                             UDS_RD_ENCRYPTING_METHOD_MASK);
-                proto_tree_add_item(subtree, hf_uds_rd_memory_address_length, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address_length, tvb,
                                     UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET,
                                     UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
 
                 memory_address = tvb_get_guintX(tvb, UDS_RD_MEMORY_ADDRESS_OFFSET, memory_address_length,
                                                 ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_uds_rd_memory_address, tvb, UDS_RD_MEMORY_ADDRESS_OFFSET,
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address, tvb, UDS_RD_MEMORY_ADDRESS_OFFSET,
                                     memory_address_length, ENC_BIG_ENDIAN);
                 memory_size = tvb_get_guintX(tvb, UDS_RD_MEMORY_ADDRESS_OFFSET + memory_address_length,
                                              memory_size_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_uds_rd_memory_size, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size, tvb,
                                     UDS_RD_MEMORY_ADDRESS_OFFSET + memory_address_length,
                                     memory_size_length, ENC_BIG_ENDIAN);
 
@@ -1356,20 +1334,16 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
         case UDS_SERVICES_TD: {
             guint32 sequence_no;
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_td, NULL, service_name);
-
-            proto_tree_add_item_ret_uint(subtree, hf_uds_td_sequence_counter, tvb,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_td_sequence_counter, tvb,
                                      UDS_TD_SEQUENCE_COUNTER_OFFSET, UDS_TD_SEQUENCE_COUNTER_LEN, ENC_NA, &sequence_no);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   Block Sequence Counter %d", sequence_no);
             break;
         }
         case UDS_SERVICES_TP: {
             guint8 sub_function_a, sub_function;
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_tp, NULL, service_name);
-
             sub_function_a = tvb_get_guint8(tvb, UDS_TP_SUB_FUNCTION_OFFSET);
             sub_function = masked_guint8_value(sub_function_a, UDS_TP_SUB_FUNCTION_MASK);
-            proto_tree_add_item(subtree, hf_uds_tp_sub_function, tvb,
+            proto_tree_add_item(uds_tree, hf_uds_tp_sub_function, tvb,
                                 UDS_TP_SUB_FUNCTION_OFFSET, UDS_TP_SUB_FUNCTION_LEN, ENC_BIG_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "   Sub-function %x", sub_function);
@@ -1377,7 +1351,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             if (!(sid & UDS_REPLY_MASK)) {
                 guint8 suppress = masked_guint8_value(sub_function_a, UDS_TP_SUPPRESS_POS_RSP_MSG_INDIFICATION_MASK);
 
-                proto_tree_add_item(subtree, hf_uds_tp_suppress_pos_rsp_msg_indification, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indification, tvb,
                                     UDS_TP_SUB_FUNCTION_OFFSET, UDS_TP_SUB_FUNCTION_LEN, ENC_BIG_ENDIAN);
 
                 if (suppress) {
@@ -1387,18 +1361,15 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
         }
         case UDS_SERVICES_ERR: {
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_err, NULL, service_name);
-
-            proto_tree_add_item_ret_uint(subtree, hf_uds_err_sid, tvb, UDS_ERR_SID_OFFSET, UDS_ERR_SID_LEN, ENC_BIG_ENDIAN, &enum_val);
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_sid, tvb, UDS_ERR_SID_OFFSET, UDS_ERR_SID_LEN, ENC_BIG_ENDIAN, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_services, "Unknown (0x%02x)"));
-            proto_tree_add_item_ret_uint(subtree, hf_uds_err_code, tvb, UDS_ERR_CODE_OFFSET, UDS_ERR_CODE_LEN,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_code, tvb, UDS_ERR_CODE_OFFSET, UDS_ERR_CODE_LEN,
                                 ENC_BIG_ENDIAN, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str(enum_val, uds_response_codes, "Unknown (0x%02x)"));
             break;
         }
         case UDS_SERVICES_CDTCS: {
-            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_cdtcs, NULL, service_name);
-            proto_tree_add_item_ret_uint(subtree, hf_uds_cdtcs_type, tvb,
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_cdtcs_type, tvb,
                                 UDS_CDTCS_TYPE_OFFSET, UDS_CDTCS_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                             val_to_str(enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
@@ -1860,23 +1831,9 @@ proto_register_uds(void)
     uat_t* uds_address_uat;
 
     /* Setup protocol subtree array */
-    static gint *ett[] =
-            {
-                    &ett_uds,
-                    &ett_uds_dsc,
-                    &ett_uds_er,
-                    &ett_uds_rdtci,
-                    &ett_uds_rdbi,
-                    &ett_uds_sa,
-                    &ett_uds_wdbi,
-                    &ett_uds_iocbi,
-                    &ett_uds_rc,
-                    &ett_uds_rd,
-                    &ett_uds_td,
-                    &ett_uds_tp,
-                    &ett_uds_err,
-                    &ett_uds_cdtcs,
-            };
+    static gint *ett[] = {
+            &ett_uds,
+    };
 
     proto_uds = proto_register_protocol (
             "Unified Diagnostic Services", /* name       */
