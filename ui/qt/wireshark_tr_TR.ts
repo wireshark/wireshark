@@ -13653,6 +13653,10 @@ a:üzerine gelin{
         <translation>İlk Yakalanan Paketten Beri Saniye</translation>
     </message>
     <message>
+        <source>Show packet times as the seconds since the first captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>Paket &amp;Şeması</translation>
     </message>

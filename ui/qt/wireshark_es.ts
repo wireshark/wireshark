@@ -13545,6 +13545,10 @@ a:hover {
         <translation>Segundos desde primer paquete capturado</translation>
     </message>
     <message>
+        <source>Show packet times as the seconds since the first captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>&amp;Diagrama de paquete</translation>
     </message>

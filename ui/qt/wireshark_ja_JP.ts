@@ -13656,6 +13656,10 @@ a:hover {
         <translation>最初にキャプチャしたパケットからの経過時間</translation>
     </message>
     <message>
+        <source>Show packet times as the seconds since the first captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>パケット &amp;ダイアグラム</translation>
     </message>
