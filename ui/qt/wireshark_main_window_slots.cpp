@@ -1334,7 +1334,6 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
 
     bool can_match_selected = false;
     bool is_framenum = false;
-    bool have_field_info = false;
     bool have_subtree = false;
     bool can_open_url = false;
     bool have_packet_bytes = false;
@@ -1361,7 +1360,6 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
         header_field_info *hfinfo = fi->hfinfo;
         int linked_frame = -1;
 
-        have_field_info = true;
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
         if (hfinfo && hfinfo->type == FT_FRAMENUM) {
             is_framenum = true;
@@ -1396,8 +1394,6 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     }
 
     // Always enable / disable the following items.
-    main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
-
     main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL && ! packet_list_->multiSelectActive());
     main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
     main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
