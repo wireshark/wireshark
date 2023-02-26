@@ -1037,15 +1037,18 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 guint32 record_length = data_length - UDS_WDBI_DATA_RECORD_OFFSET;
                 proto_tree_add_item(subtree, hf_uds_wdbi_data_record, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
-
-                payload_tvb = tvb_new_subset_length(tvb, UDS_WDBI_DATA_RECORD_OFFSET, record_length);
-                call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, enum_val, ecu_address);
-
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
                 infocol_append_data_name(pinfo, ecu_address, enum_val);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
-                                                       record_length, ' '));
+
+                if (record_length > 0) {
+                    payload_tvb = tvb_new_subset_length(tvb, UDS_WDBI_DATA_RECORD_OFFSET, record_length);
+                    call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, enum_val, ecu_address);
+
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
+                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
+                                                           record_length, ' '));
+                }
+
             }
             break;
 
