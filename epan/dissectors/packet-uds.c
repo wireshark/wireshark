@@ -1115,8 +1115,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                                 UDS_RDTCI_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
             proto_tree_add_item(subtree, hf_uds_rdtci_record, tvb,
                                 UDS_RDTCI_RECORD_OFFSET, record_length, ENC_NA);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s    %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"),
-                            tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDTCI_RECORD_OFFSET, record_length, ' '));
+            if (record_length > 0) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s    %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"),
+                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDTCI_RECORD_OFFSET, record_length, ' '));
+            }
             break;
         }
         case UDS_SERVICES_RDBI:
@@ -1138,9 +1140,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                 infocol_append_data_name(pinfo, ecu_address, data_identifier);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
-                                                       record_length, ' '));
+                if (record_length > 0) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
+                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDBI_DATA_RECORD_OFFSET, record_length, ' '));
+                }
             } else {
                 guint32 identifier_length = data_length - UDS_RDBI_DATA_IDENTIFIER_OFFSET;
                 guint32 offset = UDS_RDBI_DATA_IDENTIFIER_OFFSET;
@@ -1226,10 +1229,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                                 state_length, ENC_NA);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
             infocol_append_data_name(pinfo, ecu_address, data_identifier);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s %s",
-                            val_to_str(enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"),
-                            tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_IOCBI_STATE_OFFSET,
-                                                   state_length, ' '));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str(enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"));
+            if (state_length > 0) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_IOCBI_STATE_OFFSET, state_length, ' '));
+            }
             break;
         }
         case UDS_SERVICES_RC: {
