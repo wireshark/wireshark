@@ -164,11 +164,14 @@ static int hf_woww_area = -1;
 static int hf_woww_argument = -1;
 static int hf_woww_armor = -1;
 static int hf_woww_attacker = -1;
+static int hf_woww_auction_command_action = -1;
+static int hf_woww_auction_command_result = -1;
 static int hf_woww_auction_duration_in_minutes = -1;
 static int hf_woww_auction_house_id = -1;
 static int hf_woww_auction_id = -1;
 static int hf_woww_auction_main_category = -1;
 static int hf_woww_auction_out_bid = -1;
+static int hf_woww_auction_outbid = -1;
 static int hf_woww_auction_slot_id = -1;
 static int hf_woww_auction_sub_category = -1;
 static int hf_woww_auctioneer = -1;
@@ -398,6 +401,7 @@ static int hf_woww_has_transport = -1;
 static int hf_woww_heal_amount = -1;
 static int hf_woww_heal_critical = -1;
 static int hf_woww_health = -1;
+static int hf_woww_higher_bidder = -1;
 static int hf_woww_highest_bid = -1;
 static int hf_woww_highest_bidder = -1;
 static int hf_woww_hit_info = -1;
@@ -539,6 +543,7 @@ static int hf_woww_multiplier = -1;
 static int hf_woww_name = -1;
 static int hf_woww_nature_resistance = -1;
 static int hf_woww_nearest_node = -1;
+static int hf_woww_new_bid = -1;
 static int hf_woww_new_guild_leader_name = -1;
 static int hf_woww_new_item_chat_alert = -1;
 static int hf_woww_new_item_creation_type = -1;
@@ -830,7 +835,6 @@ static int hf_woww_turn_rate = -1;
 static int hf_woww_tutorial_data = -1;
 static int hf_woww_tutorial_flag = -1;
 static int hf_woww_type_flags = -1;
-static int hf_woww_unimplemented = -1;
 static int hf_woww_unit_stand_state = -1;
 static int hf_woww_unit_target = -1;
 static int hf_woww_unknown_flags = -1;
@@ -5756,6 +5760,182 @@ static const value_string e_hit_info_strings[] =  {
 };
 
 typedef enum {
+    AUCTION_COMMAND_ACTION_STARTED = 0x0,
+    AUCTION_COMMAND_ACTION_REMOVED = 0x1,
+    AUCTION_COMMAND_ACTION_BID_PLACED = 0x2,
+} e_auction_command_action;
+static const value_string e_auction_command_action_strings[] =  {
+    { AUCTION_COMMAND_ACTION_STARTED, "Started" },
+    { AUCTION_COMMAND_ACTION_REMOVED, "Removed" },
+    { AUCTION_COMMAND_ACTION_BID_PLACED, "Bid Placed" },
+    { 0, NULL }
+};
+
+typedef enum {
+    AUCTION_COMMAND_RESULT_OK = 0x0,
+    AUCTION_COMMAND_RESULT_ERR_INVENTORY = 0x1,
+    AUCTION_COMMAND_RESULT_ERR_DATABASE = 0x2,
+    AUCTION_COMMAND_RESULT_ERR_NOT_ENOUGH_MONEY = 0x3,
+    AUCTION_COMMAND_RESULT_ERR_ITEM_NOT_FOUND = 0x4,
+    AUCTION_COMMAND_RESULT_ERR_HIGHER_BID = 0x5,
+    AUCTION_COMMAND_RESULT_ERR_BID_INCREMENT = 0x7,
+    AUCTION_COMMAND_RESULT_ERR_BID_OWN = 0xA,
+    AUCTION_COMMAND_RESULT_ERR_RESTRICTED_ACCOUNT = 0xD,
+} e_auction_command_result;
+static const value_string e_auction_command_result_strings[] =  {
+    { AUCTION_COMMAND_RESULT_OK, "Ok" },
+    { AUCTION_COMMAND_RESULT_ERR_INVENTORY, "Err Inventory" },
+    { AUCTION_COMMAND_RESULT_ERR_DATABASE, "Err Database" },
+    { AUCTION_COMMAND_RESULT_ERR_NOT_ENOUGH_MONEY, "Err Not Enough Money" },
+    { AUCTION_COMMAND_RESULT_ERR_ITEM_NOT_FOUND, "Err Item Not Found" },
+    { AUCTION_COMMAND_RESULT_ERR_HIGHER_BID, "Err Higher Bid" },
+    { AUCTION_COMMAND_RESULT_ERR_BID_INCREMENT, "Err Bid Increment" },
+    { AUCTION_COMMAND_RESULT_ERR_BID_OWN, "Err Bid Own" },
+    { AUCTION_COMMAND_RESULT_ERR_RESTRICTED_ACCOUNT, "Err Restricted Account" },
+    { 0, NULL }
+};
+
+typedef enum {
+    INVENTORY_RESULT_OK = 0x00,
+    INVENTORY_RESULT_CANT_EQUIP_LEVEL_I = 0x01,
+    INVENTORY_RESULT_CANT_EQUIP_SKILL = 0x02,
+    INVENTORY_RESULT_ITEM_DOESNT_GO_TO_SLOT = 0x03,
+    INVENTORY_RESULT_BAG_FULL = 0x04,
+    INVENTORY_RESULT_NONEMPTY_BAG_OVER_OTHER_BAG = 0x05,
+    INVENTORY_RESULT_CANT_TRADE_EQUIP_BAGS = 0x06,
+    INVENTORY_RESULT_ONLY_AMMO_CAN_GO_HERE = 0x07,
+    INVENTORY_RESULT_NO_REQUIRED_PROFICIENCY = 0x08,
+    INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE = 0x09,
+    INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM = 0x0A,
+    INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM2 = 0x0B,
+    INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE2 = 0x0C,
+    INVENTORY_RESULT_CANT_EQUIP_WITH_TWOHANDED = 0x0D,
+    INVENTORY_RESULT_CANT_DUAL_WIELD = 0x0E,
+    INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG = 0x0F,
+    INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG2 = 0x10,
+    INVENTORY_RESULT_CANT_CARRY_MORE_OF_THIS = 0x11,
+    INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE3 = 0x12,
+    INVENTORY_RESULT_ITEM_CANT_STACK = 0x13,
+    INVENTORY_RESULT_ITEM_CANT_BE_EQUIPPED = 0x14,
+    INVENTORY_RESULT_ITEMS_CANT_BE_SWAPPED = 0x15,
+    INVENTORY_RESULT_SLOT_IS_EMPTY = 0x16,
+    INVENTORY_RESULT_ITEM_NOT_FOUND = 0x17,
+    INVENTORY_RESULT_CANT_DROP_SOULBOUND = 0x18,
+    INVENTORY_RESULT_OUT_OF_RANGE = 0x19,
+    INVENTORY_RESULT_TRIED_TO_SPLIT_MORE_THAN_COUNT = 0x1A,
+    INVENTORY_RESULT_COULDNT_SPLIT_ITEMS = 0x1B,
+    INVENTORY_RESULT_MISSING_REAGENT = 0x1C,
+    INVENTORY_RESULT_NOT_ENOUGH_MONEY = 0x1D,
+    INVENTORY_RESULT_NOT_A_BAG = 0x1E,
+    INVENTORY_RESULT_CAN_ONLY_DO_WITH_EMPTY_BAGS = 0x1F,
+    INVENTORY_RESULT_DONT_OWN_THAT_ITEM = 0x20,
+    INVENTORY_RESULT_CAN_EQUIP_ONLY1_QUIVER = 0x21,
+    INVENTORY_RESULT_MUST_PURCHASE_THAT_BAG_SLOT = 0x22,
+    INVENTORY_RESULT_TOO_FAR_AWAY_FROM_BANK = 0x23,
+    INVENTORY_RESULT_ITEM_LOCKED = 0x24,
+    INVENTORY_RESULT_YOU_ARE_STUNNED = 0x25,
+    INVENTORY_RESULT_YOU_ARE_DEAD = 0x26,
+    INVENTORY_RESULT_CANT_DO_RIGHT_NOW = 0x27,
+    INVENTORY_RESULT_INT_BAG_ERROR = 0x28,
+    INVENTORY_RESULT_CAN_EQUIP_ONLY1_BOLT = 0x29,
+    INVENTORY_RESULT_CAN_EQUIP_ONLY1_AMMOPOUCH = 0x2A,
+    INVENTORY_RESULT_STACKABLE_CANT_BE_WRAPPED = 0x2B,
+    INVENTORY_RESULT_EQUIPPED_CANT_BE_WRAPPED = 0x2C,
+    INVENTORY_RESULT_WRAPPED_CANT_BE_WRAPPED = 0x2D,
+    INVENTORY_RESULT_BOUND_CANT_BE_WRAPPED = 0x2E,
+    INVENTORY_RESULT_UNIQUE_CANT_BE_WRAPPED = 0x2F,
+    INVENTORY_RESULT_BAGS_CANT_BE_WRAPPED = 0x30,
+    INVENTORY_RESULT_ALREADY_LOOTED = 0x31,
+    INVENTORY_RESULT_INVENTORY_FULL = 0x32,
+    INVENTORY_RESULT_BANK_FULL = 0x33,
+    INVENTORY_RESULT_ITEM_IS_CURRENTLY_SOLD_OUT = 0x34,
+    INVENTORY_RESULT_BAG_FULL3 = 0x35,
+    INVENTORY_RESULT_ITEM_NOT_FOUND2 = 0x36,
+    INVENTORY_RESULT_ITEM_CANT_STACK2 = 0x37,
+    INVENTORY_RESULT_BAG_FULL4 = 0x38,
+    INVENTORY_RESULT_ITEM_SOLD_OUT = 0x39,
+    INVENTORY_RESULT_OBJECT_IS_BUSY = 0x3A,
+    INVENTORY_RESULT_NONE = 0x3B,
+    INVENTORY_RESULT_NOT_IN_COMBAT = 0x3C,
+    INVENTORY_RESULT_NOT_WHILE_DISARMED = 0x3D,
+    INVENTORY_RESULT_BAG_FULL6 = 0x3E,
+    INVENTORY_RESULT_CANT_EQUIP_RANK = 0x3F,
+    INVENTORY_RESULT_CANT_EQUIP_REPUTATION = 0x40,
+    INVENTORY_RESULT_TOO_MANY_SPECIAL_BAGS = 0x41,
+    INVENTORY_RESULT_LOOT_CANT_LOOT_THAT_NOW = 0x42,
+} e_inventory_result;
+static const value_string e_inventory_result_strings[] =  {
+    { INVENTORY_RESULT_OK, "Ok" },
+    { INVENTORY_RESULT_CANT_EQUIP_LEVEL_I, "Cant Equip Level I" },
+    { INVENTORY_RESULT_CANT_EQUIP_SKILL, "Cant Equip Skill" },
+    { INVENTORY_RESULT_ITEM_DOESNT_GO_TO_SLOT, "Item Doesnt Go To Slot" },
+    { INVENTORY_RESULT_BAG_FULL, "Bag Full" },
+    { INVENTORY_RESULT_NONEMPTY_BAG_OVER_OTHER_BAG, "Nonempty Bag Over Other Bag" },
+    { INVENTORY_RESULT_CANT_TRADE_EQUIP_BAGS, "Cant Trade Equip Bags" },
+    { INVENTORY_RESULT_ONLY_AMMO_CAN_GO_HERE, "Only Ammo Can Go Here" },
+    { INVENTORY_RESULT_NO_REQUIRED_PROFICIENCY, "No Required Proficiency" },
+    { INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE, "No Equipment Slot Available" },
+    { INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM, "You Can Never Use That Item" },
+    { INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM2, "You Can Never Use That Item2" },
+    { INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE2, "No Equipment Slot Available2" },
+    { INVENTORY_RESULT_CANT_EQUIP_WITH_TWOHANDED, "Cant Equip With Twohanded" },
+    { INVENTORY_RESULT_CANT_DUAL_WIELD, "Cant Dual Wield" },
+    { INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG, "Item Doesnt Go Into Bag" },
+    { INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG2, "Item Doesnt Go Into Bag2" },
+    { INVENTORY_RESULT_CANT_CARRY_MORE_OF_THIS, "Cant Carry More Of This" },
+    { INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE3, "No Equipment Slot Available3" },
+    { INVENTORY_RESULT_ITEM_CANT_STACK, "Item Cant Stack" },
+    { INVENTORY_RESULT_ITEM_CANT_BE_EQUIPPED, "Item Cant Be Equipped" },
+    { INVENTORY_RESULT_ITEMS_CANT_BE_SWAPPED, "Items Cant Be Swapped" },
+    { INVENTORY_RESULT_SLOT_IS_EMPTY, "Slot Is Empty" },
+    { INVENTORY_RESULT_ITEM_NOT_FOUND, "Item Not Found" },
+    { INVENTORY_RESULT_CANT_DROP_SOULBOUND, "Cant Drop Soulbound" },
+    { INVENTORY_RESULT_OUT_OF_RANGE, "Out Of Range" },
+    { INVENTORY_RESULT_TRIED_TO_SPLIT_MORE_THAN_COUNT, "Tried To Split More Than Count" },
+    { INVENTORY_RESULT_COULDNT_SPLIT_ITEMS, "Couldnt Split Items" },
+    { INVENTORY_RESULT_MISSING_REAGENT, "Missing Reagent" },
+    { INVENTORY_RESULT_NOT_ENOUGH_MONEY, "Not Enough Money" },
+    { INVENTORY_RESULT_NOT_A_BAG, "Not A Bag" },
+    { INVENTORY_RESULT_CAN_ONLY_DO_WITH_EMPTY_BAGS, "Can Only Do With Empty Bags" },
+    { INVENTORY_RESULT_DONT_OWN_THAT_ITEM, "Dont Own That Item" },
+    { INVENTORY_RESULT_CAN_EQUIP_ONLY1_QUIVER, "Can Equip Only1 Quiver" },
+    { INVENTORY_RESULT_MUST_PURCHASE_THAT_BAG_SLOT, "Must Purchase That Bag Slot" },
+    { INVENTORY_RESULT_TOO_FAR_AWAY_FROM_BANK, "Too Far Away From Bank" },
+    { INVENTORY_RESULT_ITEM_LOCKED, "Item Locked" },
+    { INVENTORY_RESULT_YOU_ARE_STUNNED, "You Are Stunned" },
+    { INVENTORY_RESULT_YOU_ARE_DEAD, "You Are Dead" },
+    { INVENTORY_RESULT_CANT_DO_RIGHT_NOW, "Cant Do Right Now" },
+    { INVENTORY_RESULT_INT_BAG_ERROR, "Int Bag Error" },
+    { INVENTORY_RESULT_CAN_EQUIP_ONLY1_BOLT, "Can Equip Only1 Bolt" },
+    { INVENTORY_RESULT_CAN_EQUIP_ONLY1_AMMOPOUCH, "Can Equip Only1 Ammopouch" },
+    { INVENTORY_RESULT_STACKABLE_CANT_BE_WRAPPED, "Stackable Cant Be Wrapped" },
+    { INVENTORY_RESULT_EQUIPPED_CANT_BE_WRAPPED, "Equipped Cant Be Wrapped" },
+    { INVENTORY_RESULT_WRAPPED_CANT_BE_WRAPPED, "Wrapped Cant Be Wrapped" },
+    { INVENTORY_RESULT_BOUND_CANT_BE_WRAPPED, "Bound Cant Be Wrapped" },
+    { INVENTORY_RESULT_UNIQUE_CANT_BE_WRAPPED, "Unique Cant Be Wrapped" },
+    { INVENTORY_RESULT_BAGS_CANT_BE_WRAPPED, "Bags Cant Be Wrapped" },
+    { INVENTORY_RESULT_ALREADY_LOOTED, "Already Looted" },
+    { INVENTORY_RESULT_INVENTORY_FULL, "Inventory Full" },
+    { INVENTORY_RESULT_BANK_FULL, "Bank Full" },
+    { INVENTORY_RESULT_ITEM_IS_CURRENTLY_SOLD_OUT, "Item Is Currently Sold Out" },
+    { INVENTORY_RESULT_BAG_FULL3, "Bag Full3" },
+    { INVENTORY_RESULT_ITEM_NOT_FOUND2, "Item Not Found2" },
+    { INVENTORY_RESULT_ITEM_CANT_STACK2, "Item Cant Stack2" },
+    { INVENTORY_RESULT_BAG_FULL4, "Bag Full4" },
+    { INVENTORY_RESULT_ITEM_SOLD_OUT, "Item Sold Out" },
+    { INVENTORY_RESULT_OBJECT_IS_BUSY, "Object Is Busy" },
+    { INVENTORY_RESULT_NONE, "None" },
+    { INVENTORY_RESULT_NOT_IN_COMBAT, "Not In Combat" },
+    { INVENTORY_RESULT_NOT_WHILE_DISARMED, "Not While Disarmed" },
+    { INVENTORY_RESULT_BAG_FULL6, "Bag Full6" },
+    { INVENTORY_RESULT_CANT_EQUIP_RANK, "Cant Equip Rank" },
+    { INVENTORY_RESULT_CANT_EQUIP_REPUTATION, "Cant Equip Reputation" },
+    { INVENTORY_RESULT_TOO_MANY_SPECIAL_BAGS, "Too Many Special Bags" },
+    { INVENTORY_RESULT_LOOT_CANT_LOOT_THAT_NOW, "Loot Cant Loot That Now" },
+    { 0, NULL }
+};
+
+typedef enum {
     WORLD_RESULT_RESPONSE_SUCCESS = 0x00,
     WORLD_RESULT_RESPONSE_FAILURE = 0x01,
     WORLD_RESULT_RESPONSE_CANCELLED = 0x02,
@@ -6664,146 +6844,6 @@ static const value_string e_instance_reset_failed_reason_strings[] =  {
     { INSTANCE_RESET_FAILED_REASON_OFFLINE, "Offline" },
     { INSTANCE_RESET_FAILED_REASON_ZONING, "Zoning" },
     { INSTANCE_RESET_FAILED_REASON_SILENTLY, "Silently" },
-    { 0, NULL }
-};
-
-typedef enum {
-    INVENTORY_RESULT_OK = 0x00,
-    INVENTORY_RESULT_CANT_EQUIP_LEVEL_I = 0x01,
-    INVENTORY_RESULT_CANT_EQUIP_SKILL = 0x02,
-    INVENTORY_RESULT_ITEM_DOESNT_GO_TO_SLOT = 0x03,
-    INVENTORY_RESULT_BAG_FULL = 0x04,
-    INVENTORY_RESULT_NONEMPTY_BAG_OVER_OTHER_BAG = 0x05,
-    INVENTORY_RESULT_CANT_TRADE_EQUIP_BAGS = 0x06,
-    INVENTORY_RESULT_ONLY_AMMO_CAN_GO_HERE = 0x07,
-    INVENTORY_RESULT_NO_REQUIRED_PROFICIENCY = 0x08,
-    INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE = 0x09,
-    INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM = 0x0A,
-    INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM2 = 0x0B,
-    INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE2 = 0x0C,
-    INVENTORY_RESULT_CANT_EQUIP_WITH_TWOHANDED = 0x0D,
-    INVENTORY_RESULT_CANT_DUAL_WIELD = 0x0E,
-    INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG = 0x0F,
-    INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG2 = 0x10,
-    INVENTORY_RESULT_CANT_CARRY_MORE_OF_THIS = 0x11,
-    INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE3 = 0x12,
-    INVENTORY_RESULT_ITEM_CANT_STACK = 0x13,
-    INVENTORY_RESULT_ITEM_CANT_BE_EQUIPPED = 0x14,
-    INVENTORY_RESULT_ITEMS_CANT_BE_SWAPPED = 0x15,
-    INVENTORY_RESULT_SLOT_IS_EMPTY = 0x16,
-    INVENTORY_RESULT_ITEM_NOT_FOUND = 0x17,
-    INVENTORY_RESULT_CANT_DROP_SOULBOUND = 0x18,
-    INVENTORY_RESULT_OUT_OF_RANGE = 0x19,
-    INVENTORY_RESULT_TRIED_TO_SPLIT_MORE_THAN_COUNT = 0x1A,
-    INVENTORY_RESULT_COULDNT_SPLIT_ITEMS = 0x1B,
-    INVENTORY_RESULT_MISSING_REAGENT = 0x1C,
-    INVENTORY_RESULT_NOT_ENOUGH_MONEY = 0x1D,
-    INVENTORY_RESULT_NOT_A_BAG = 0x1E,
-    INVENTORY_RESULT_CAN_ONLY_DO_WITH_EMPTY_BAGS = 0x1F,
-    INVENTORY_RESULT_DONT_OWN_THAT_ITEM = 0x20,
-    INVENTORY_RESULT_CAN_EQUIP_ONLY1_QUIVER = 0x21,
-    INVENTORY_RESULT_MUST_PURCHASE_THAT_BAG_SLOT = 0x22,
-    INVENTORY_RESULT_TOO_FAR_AWAY_FROM_BANK = 0x23,
-    INVENTORY_RESULT_ITEM_LOCKED = 0x24,
-    INVENTORY_RESULT_YOU_ARE_STUNNED = 0x25,
-    INVENTORY_RESULT_YOU_ARE_DEAD = 0x26,
-    INVENTORY_RESULT_CANT_DO_RIGHT_NOW = 0x27,
-    INVENTORY_RESULT_INT_BAG_ERROR = 0x28,
-    INVENTORY_RESULT_CAN_EQUIP_ONLY1_BOLT = 0x29,
-    INVENTORY_RESULT_CAN_EQUIP_ONLY1_AMMOPOUCH = 0x2A,
-    INVENTORY_RESULT_STACKABLE_CANT_BE_WRAPPED = 0x2B,
-    INVENTORY_RESULT_EQUIPPED_CANT_BE_WRAPPED = 0x2C,
-    INVENTORY_RESULT_WRAPPED_CANT_BE_WRAPPED = 0x2D,
-    INVENTORY_RESULT_BOUND_CANT_BE_WRAPPED = 0x2E,
-    INVENTORY_RESULT_UNIQUE_CANT_BE_WRAPPED = 0x2F,
-    INVENTORY_RESULT_BAGS_CANT_BE_WRAPPED = 0x30,
-    INVENTORY_RESULT_ALREADY_LOOTED = 0x31,
-    INVENTORY_RESULT_INVENTORY_FULL = 0x32,
-    INVENTORY_RESULT_BANK_FULL = 0x33,
-    INVENTORY_RESULT_ITEM_IS_CURRENTLY_SOLD_OUT = 0x34,
-    INVENTORY_RESULT_BAG_FULL3 = 0x35,
-    INVENTORY_RESULT_ITEM_NOT_FOUND2 = 0x36,
-    INVENTORY_RESULT_ITEM_CANT_STACK2 = 0x37,
-    INVENTORY_RESULT_BAG_FULL4 = 0x38,
-    INVENTORY_RESULT_ITEM_SOLD_OUT = 0x39,
-    INVENTORY_RESULT_OBJECT_IS_BUSY = 0x3A,
-    INVENTORY_RESULT_NONE = 0x3B,
-    INVENTORY_RESULT_NOT_IN_COMBAT = 0x3C,
-    INVENTORY_RESULT_NOT_WHILE_DISARMED = 0x3D,
-    INVENTORY_RESULT_BAG_FULL6 = 0x3E,
-    INVENTORY_RESULT_CANT_EQUIP_RANK = 0x3F,
-    INVENTORY_RESULT_CANT_EQUIP_REPUTATION = 0x40,
-    INVENTORY_RESULT_TOO_MANY_SPECIAL_BAGS = 0x41,
-    INVENTORY_RESULT_LOOT_CANT_LOOT_THAT_NOW = 0x42,
-} e_inventory_result;
-static const value_string e_inventory_result_strings[] =  {
-    { INVENTORY_RESULT_OK, "Ok" },
-    { INVENTORY_RESULT_CANT_EQUIP_LEVEL_I, "Cant Equip Level I" },
-    { INVENTORY_RESULT_CANT_EQUIP_SKILL, "Cant Equip Skill" },
-    { INVENTORY_RESULT_ITEM_DOESNT_GO_TO_SLOT, "Item Doesnt Go To Slot" },
-    { INVENTORY_RESULT_BAG_FULL, "Bag Full" },
-    { INVENTORY_RESULT_NONEMPTY_BAG_OVER_OTHER_BAG, "Nonempty Bag Over Other Bag" },
-    { INVENTORY_RESULT_CANT_TRADE_EQUIP_BAGS, "Cant Trade Equip Bags" },
-    { INVENTORY_RESULT_ONLY_AMMO_CAN_GO_HERE, "Only Ammo Can Go Here" },
-    { INVENTORY_RESULT_NO_REQUIRED_PROFICIENCY, "No Required Proficiency" },
-    { INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE, "No Equipment Slot Available" },
-    { INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM, "You Can Never Use That Item" },
-    { INVENTORY_RESULT_YOU_CAN_NEVER_USE_THAT_ITEM2, "You Can Never Use That Item2" },
-    { INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE2, "No Equipment Slot Available2" },
-    { INVENTORY_RESULT_CANT_EQUIP_WITH_TWOHANDED, "Cant Equip With Twohanded" },
-    { INVENTORY_RESULT_CANT_DUAL_WIELD, "Cant Dual Wield" },
-    { INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG, "Item Doesnt Go Into Bag" },
-    { INVENTORY_RESULT_ITEM_DOESNT_GO_INTO_BAG2, "Item Doesnt Go Into Bag2" },
-    { INVENTORY_RESULT_CANT_CARRY_MORE_OF_THIS, "Cant Carry More Of This" },
-    { INVENTORY_RESULT_NO_EQUIPMENT_SLOT_AVAILABLE3, "No Equipment Slot Available3" },
-    { INVENTORY_RESULT_ITEM_CANT_STACK, "Item Cant Stack" },
-    { INVENTORY_RESULT_ITEM_CANT_BE_EQUIPPED, "Item Cant Be Equipped" },
-    { INVENTORY_RESULT_ITEMS_CANT_BE_SWAPPED, "Items Cant Be Swapped" },
-    { INVENTORY_RESULT_SLOT_IS_EMPTY, "Slot Is Empty" },
-    { INVENTORY_RESULT_ITEM_NOT_FOUND, "Item Not Found" },
-    { INVENTORY_RESULT_CANT_DROP_SOULBOUND, "Cant Drop Soulbound" },
-    { INVENTORY_RESULT_OUT_OF_RANGE, "Out Of Range" },
-    { INVENTORY_RESULT_TRIED_TO_SPLIT_MORE_THAN_COUNT, "Tried To Split More Than Count" },
-    { INVENTORY_RESULT_COULDNT_SPLIT_ITEMS, "Couldnt Split Items" },
-    { INVENTORY_RESULT_MISSING_REAGENT, "Missing Reagent" },
-    { INVENTORY_RESULT_NOT_ENOUGH_MONEY, "Not Enough Money" },
-    { INVENTORY_RESULT_NOT_A_BAG, "Not A Bag" },
-    { INVENTORY_RESULT_CAN_ONLY_DO_WITH_EMPTY_BAGS, "Can Only Do With Empty Bags" },
-    { INVENTORY_RESULT_DONT_OWN_THAT_ITEM, "Dont Own That Item" },
-    { INVENTORY_RESULT_CAN_EQUIP_ONLY1_QUIVER, "Can Equip Only1 Quiver" },
-    { INVENTORY_RESULT_MUST_PURCHASE_THAT_BAG_SLOT, "Must Purchase That Bag Slot" },
-    { INVENTORY_RESULT_TOO_FAR_AWAY_FROM_BANK, "Too Far Away From Bank" },
-    { INVENTORY_RESULT_ITEM_LOCKED, "Item Locked" },
-    { INVENTORY_RESULT_YOU_ARE_STUNNED, "You Are Stunned" },
-    { INVENTORY_RESULT_YOU_ARE_DEAD, "You Are Dead" },
-    { INVENTORY_RESULT_CANT_DO_RIGHT_NOW, "Cant Do Right Now" },
-    { INVENTORY_RESULT_INT_BAG_ERROR, "Int Bag Error" },
-    { INVENTORY_RESULT_CAN_EQUIP_ONLY1_BOLT, "Can Equip Only1 Bolt" },
-    { INVENTORY_RESULT_CAN_EQUIP_ONLY1_AMMOPOUCH, "Can Equip Only1 Ammopouch" },
-    { INVENTORY_RESULT_STACKABLE_CANT_BE_WRAPPED, "Stackable Cant Be Wrapped" },
-    { INVENTORY_RESULT_EQUIPPED_CANT_BE_WRAPPED, "Equipped Cant Be Wrapped" },
-    { INVENTORY_RESULT_WRAPPED_CANT_BE_WRAPPED, "Wrapped Cant Be Wrapped" },
-    { INVENTORY_RESULT_BOUND_CANT_BE_WRAPPED, "Bound Cant Be Wrapped" },
-    { INVENTORY_RESULT_UNIQUE_CANT_BE_WRAPPED, "Unique Cant Be Wrapped" },
-    { INVENTORY_RESULT_BAGS_CANT_BE_WRAPPED, "Bags Cant Be Wrapped" },
-    { INVENTORY_RESULT_ALREADY_LOOTED, "Already Looted" },
-    { INVENTORY_RESULT_INVENTORY_FULL, "Inventory Full" },
-    { INVENTORY_RESULT_BANK_FULL, "Bank Full" },
-    { INVENTORY_RESULT_ITEM_IS_CURRENTLY_SOLD_OUT, "Item Is Currently Sold Out" },
-    { INVENTORY_RESULT_BAG_FULL3, "Bag Full3" },
-    { INVENTORY_RESULT_ITEM_NOT_FOUND2, "Item Not Found2" },
-    { INVENTORY_RESULT_ITEM_CANT_STACK2, "Item Cant Stack2" },
-    { INVENTORY_RESULT_BAG_FULL4, "Bag Full4" },
-    { INVENTORY_RESULT_ITEM_SOLD_OUT, "Item Sold Out" },
-    { INVENTORY_RESULT_OBJECT_IS_BUSY, "Object Is Busy" },
-    { INVENTORY_RESULT_NONE, "None" },
-    { INVENTORY_RESULT_NOT_IN_COMBAT, "Not In Combat" },
-    { INVENTORY_RESULT_NOT_WHILE_DISARMED, "Not While Disarmed" },
-    { INVENTORY_RESULT_BAG_FULL6, "Bag Full6" },
-    { INVENTORY_RESULT_CANT_EQUIP_RANK, "Cant Equip Rank" },
-    { INVENTORY_RESULT_CANT_EQUIP_REPUTATION, "Cant Equip Reputation" },
-    { INVENTORY_RESULT_TOO_MANY_SPECIAL_BAGS, "Too Many Special Bags" },
-    { INVENTORY_RESULT_LOOT_CANT_LOOT_THAT_NOW, "Loot Cant Loot That Now" },
     { 0, NULL }
 };
 
@@ -14516,8 +14556,22 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_AUCTION_COMMAND_RESULT:
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_auction_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_auction_command_action, 4, ENC_LITTLE_ENDIAN, &action);
+            ptvcursor_add_ret_uint(ptv, hf_woww_auction_command_result, 4, ENC_LITTLE_ENDIAN, &result);
+            if (result == AUCTION_COMMAND_RESULT_OK) {
+                if (action == AUCTION_COMMAND_ACTION_BID_PLACED) {
+                    ptvcursor_add(ptv, hf_woww_auction_outbid, 4, ENC_LITTLE_ENDIAN);
+                }
+            }
+            else if (result == AUCTION_COMMAND_RESULT_ERR_INVENTORY) {
+                ptvcursor_add(ptv, hf_woww_inventory_result, 1, ENC_LITTLE_ENDIAN);
+            }
+            else if (result == AUCTION_COMMAND_RESULT_ERR_HIGHER_BID) {
+                ptvcursor_add(ptv, hf_woww_higher_bidder, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_new_bid, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_auction_outbid, 4, ENC_LITTLE_ENDIAN);
+            }
             break;
         case SMSG_AUCTION_LIST_RESULT:
             ptvcursor_add_ret_uint(ptv, hf_woww_count, 4, ENC_LITTLE_ENDIAN, &count);
@@ -18000,6 +18054,18 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_auction_command_action,
+            { "Auction Command Action", "woww.auction.command.action",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_auction_command_action_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_auction_command_result,
+            { "Auction Command Result", "woww.auction.command.result",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_auction_command_result_strings), 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_auction_duration_in_minutes,
             { "Auction Duration In Minutes", "woww.auction.duration.in.minutes",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18026,6 +18092,12 @@ proto_register_woww(void)
         },
         { &hf_woww_auction_out_bid,
             { "Auction Out Bid", "woww.auction.out.bid",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_auction_outbid,
+            { "Auction Outbid", "woww.auction.outbid",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19404,6 +19476,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_higher_bidder,
+            { "Higher Bidder", "woww.higher.bidder",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_highest_bid,
             { "Highest Bid", "woww.highest.bid",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -20246,6 +20324,12 @@ proto_register_woww(void)
         },
         { &hf_woww_nearest_node,
             { "Nearest Node", "woww.nearest.node",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_new_bid,
+            { "New Bid", "woww.new.bid",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -21993,12 +22077,6 @@ proto_register_woww(void)
         { &hf_woww_type_flags,
             { "Type Flags", "woww.type.flags",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_unimplemented,
-            { "Unimplemented", "woww.unimplemented",
-                FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
