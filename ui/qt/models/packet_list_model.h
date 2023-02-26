@@ -121,8 +121,6 @@ private:
     QElapsedTimer *idle_dissection_timer_;
     int idle_dissection_row_;
 
-    struct _GStringChunk *string_cache_pool_;
-
     bool isNumericColumn(int column);
 
 private slots:
