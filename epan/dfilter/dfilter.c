@@ -379,8 +379,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	*dfp = NULL;
 
 	if (text == NULL) {
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
-			"%s() called from %s() with null filter",
+		ws_debug("%s() called from %s() with null filter",
 			__func__, caller);
 		/* XXX This BUG happens often. Some callers are ignoring these errors. */
 		dfw_error_set_msg(errpp, "BUG: NULL text pointer passed to dfilter_compile");
@@ -388,13 +387,11 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	}
 	else if (*text == '\0') {
 		/* An empty filter is considered a valid input. */
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
-			"%s() called from %s() with empty filter",
+		ws_debug("%s() called from %s() with empty filter",
 			__func__, caller);
 	}
 	else {
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
-			"%s() called from %s(), compiling filter: %s",
+		ws_debug("%s() called from %s(), compiling filter: %s",
 			__func__, caller, text);
 	}
 
