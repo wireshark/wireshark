@@ -829,6 +829,8 @@ static int hf_woww_trainer_type = -1;
 static int hf_woww_training_failure_reason = -1;
 static int hf_woww_transfer_abort_reason = -1;
 static int hf_woww_transport = -1;
+static int hf_woww_transport_guid = -1;
+static int hf_woww_transport_orientation = -1;
 static int hf_woww_transport_progress_in_ms = -1;
 static int hf_woww_trigger_id = -1;
 static int hf_woww_turn_rate = -1;
@@ -14914,16 +14916,13 @@ add_body_fields(guint32 header_opcode,
                             ptvcursor_pop_subtree(ptv);
                             ptvcursor_add(ptv, hf_woww_living_orientation, 4, ENC_LITTLE_ENDIAN);
                             if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
-                                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
                                 add_packed_guid(ptv, pinfo);
                                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
                                 ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
                                 ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
                                 ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
                                 ptvcursor_pop_subtree(ptv);
-                                ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
-                                ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
-                                ptvcursor_pop_subtree(ptv);
+                                ptvcursor_add(ptv, hf_woww_transport_orientation, 4, ENC_LITTLE_ENDIAN);
                             }
                             if (flags & MOVEMENT_FLAGS_SWIMMING) {
                                 ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
@@ -15015,16 +15014,13 @@ add_body_fields(guint32 header_opcode,
                             ptvcursor_pop_subtree(ptv);
                             ptvcursor_add(ptv, hf_woww_living_orientation, 4, ENC_LITTLE_ENDIAN);
                             if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
-                                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
                                 add_packed_guid(ptv, pinfo);
                                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
                                 ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
                                 ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
                                 ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
                                 ptvcursor_pop_subtree(ptv);
-                                ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
-                                ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
-                                ptvcursor_pop_subtree(ptv);
+                                ptvcursor_add(ptv, hf_woww_transport_orientation, 4, ENC_LITTLE_ENDIAN);
                             }
                             if (flags & MOVEMENT_FLAGS_SWIMMING) {
                                 ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
@@ -17119,16 +17115,13 @@ add_body_fields(guint32 header_opcode,
                         ptvcursor_pop_subtree(ptv);
                         ptvcursor_add(ptv, hf_woww_living_orientation, 4, ENC_LITTLE_ENDIAN);
                         if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
-                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
                             add_packed_guid(ptv, pinfo);
                             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
                             ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
                             ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
                             ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
                             ptvcursor_pop_subtree(ptv);
-                            ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
-                            ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
-                            ptvcursor_pop_subtree(ptv);
+                            ptvcursor_add(ptv, hf_woww_transport_orientation, 4, ENC_LITTLE_ENDIAN);
                         }
                         if (flags & MOVEMENT_FLAGS_SWIMMING) {
                             ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
@@ -17220,16 +17213,13 @@ add_body_fields(guint32 header_opcode,
                         ptvcursor_pop_subtree(ptv);
                         ptvcursor_add(ptv, hf_woww_living_orientation, 4, ENC_LITTLE_ENDIAN);
                         if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
-                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
                             add_packed_guid(ptv, pinfo);
                             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
                             ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
                             ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
                             ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
                             ptvcursor_pop_subtree(ptv);
-                            ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
-                            ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
-                            ptvcursor_pop_subtree(ptv);
+                            ptvcursor_add(ptv, hf_woww_transport_orientation, 4, ENC_LITTLE_ENDIAN);
                         }
                         if (flags & MOVEMENT_FLAGS_SWIMMING) {
                             ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
@@ -22041,6 +22031,18 @@ proto_register_woww(void)
         { &hf_woww_transport,
             { "Transport", "woww.transport",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_transport_guid,
+            { "Transport Guid", "woww.transport.guid",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_transport_orientation,
+            { "Transport Orientation", "woww.transport.orientation",
+                FT_FLOAT, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
