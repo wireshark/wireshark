@@ -120,7 +120,7 @@ static const value_string reply_status_names[] = {
 
 static inline int is_pd(guint16 msgtype)
 {
-        return (msgtype & 0xff00) == 0x5000; // 'P'
+    return (msgtype & 0xff00) == 0x5000; // 'P'
 }
 
 static int dissect_trdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -222,7 +222,7 @@ void proto_register_trdp(void)
           { "Reserved", "trdp.res", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_trdp_reply_comid,
-          { "Reply Communication Identitier", "trdp.reply_comid", FT_UINT32, BASE_DEC, VALS(comid_names), 0, NULL, HFILL }
+          { "Reply Communication Identifier", "trdp.reply_comid", FT_UINT32, BASE_DEC, VALS(comid_names), 0, NULL, HFILL }
         },
         { &hf_trdp_reply_ipaddr,
           { "Reply IP address", "trdp.reply_ipaddr", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
