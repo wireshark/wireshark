@@ -13663,6 +13663,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 }  /* dissect_rtps(...) */
 
+static
 void append_submessage_col_info(packet_info* pinfo, submessage_col_info* current_submessage_col_info) {
   gboolean* is_data_session_intermediate = NULL;
 
