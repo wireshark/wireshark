@@ -70,6 +70,15 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             {"jsonrpc":"2.0","id":1,"error":{"code":-2001,"message":"Unable to open the file"}},
         ))
 
+    def test_sharkd_req_load_truncated_pcap(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('trunc.pcap')}
+            },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"Less data was read than was expected","err":-12}},
+        ))
+
     def test_sharkd_req_status_no_pcap(self, check_sharkd_session):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"status"},

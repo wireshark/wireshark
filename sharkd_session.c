@@ -1087,7 +1087,17 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
     ENDTRY;
 
     if (err == 0)
+    {
         sharkd_json_simple_ok(rpcid);
+    }
+    else
+    {
+        sharkd_json_result_prologue(rpcid);
+        sharkd_json_value_string("status", wtap_strerror(err));
+        sharkd_json_value_anyf("err", "%d", err);
+        sharkd_json_result_epilogue();
+    }
+
 }
 
 /**
