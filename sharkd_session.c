@@ -2032,7 +2032,7 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
 
     sharkd_json_value_string("tap", rtp_req->tap_name);
     sharkd_json_value_string("type", "rtp-analyse");
-    sharkd_json_value_anyf("ssrc", "%u", rtp_req->id.ssrc);
+    sharkd_json_value_stringf("ssrc", "0x%x", rtp_req->id.ssrc);
 
     sharkd_json_value_anyf("max_delta", "%f", statinfo->max_delta);
     sharkd_json_value_anyf("max_delta_nr", "%u", statinfo->max_nr);
@@ -2739,7 +2739,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 
         json_dumper_begin_object(&dumper);
 
-        sharkd_json_value_anyf("ssrc", "%u", calc.ssrc);
+        sharkd_json_value_stringf("ssrc", "0x%x", calc.ssrc);
         sharkd_json_value_string("payload", calc.all_payload_type_names);
 
         sharkd_json_value_string("saddr", calc.src_addr_str);
@@ -4967,6 +4967,13 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
             sharkd_json_result_epilogue();
 
             g_slist_free_full(rtp_req.packets, sharkd_rtp_download_free_items);
+        }
+        else
+        {
+            sharkd_json_error(
+                rpcid, -10003, NULL,
+                "no rtp data available"
+            );
         }
     }
 }
