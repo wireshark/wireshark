@@ -13,6 +13,7 @@
 #include <epan/proto_data.h>
 #include <wsutil/pint.h>
 #include <epan/reassemble.h>
+#include <epan/oids.h>
 
 #include "packet-ieee802154.h"
 
@@ -2524,6 +2525,8 @@ void proto_reg_handoff_wisun(void)
 {
     dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_WISUN, create_dissector_handle(dissect_wisun_hie, proto_wisun));
     dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_WISUN, create_dissector_handle(dissect_wisun_pie, proto_wisun));
+
+    oid_add_from_string("id-kp-wisun-fan-device", "1.3.6.1.4.1.45605.1");
 
     // For EAPOL relay
     dissector_add_uint("udp.port", WISUN_EAPOL_RELAY_UDP_PORT, wisun_eapol_relay_handle);
