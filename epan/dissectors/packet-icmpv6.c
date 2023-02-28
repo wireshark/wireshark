@@ -1802,6 +1802,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     NULL
                 };
 
+                guint32 lifetime;
                 guint8 prefix_len;
                 /* RFC 4861 */
 
@@ -1815,11 +1816,13 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Prefix Valid Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 /* Prefix Preferred Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_preferred_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_prefix_preferred_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
@@ -2170,6 +2173,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     NULL
                 };
 
+                guint32 lifetime;
+
                 /* Dist */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_dist, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
 
@@ -2182,7 +2187,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Valid Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_map_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 /* Global Address */
@@ -2195,6 +2201,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* RFC 4191 */
                 guint8 prefix_len;
                 guint8 route_preference;
+                guint32 lifetime;
                 ws_in6_addr prefix;
                 address prefix_addr;
                 static int * const route_flags[] = {
@@ -2217,7 +2224,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Route Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 /* Prefix */
@@ -2248,12 +2256,15 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
             case ND_OPT_RECURSIVE_DNS_SERVER: /* Recursive DNS Server Option (25) */
             {
+                guint32 lifetime;
+
                 /* Reserved */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 /* RDNSS Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rdnss_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_rdnss_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 while(opt_offset < (offset + opt_len) ) {
@@ -2391,6 +2402,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_DNS_SEARCH_LIST: /* DNS Search List Option (31) */
             {
+                guint32 lifetime;
                 int dnssl_len;
                 const gchar *dnssl_name, *name_out;
 
@@ -2399,7 +2411,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 2;
 
                 /* DNSSL Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnssl_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnssl_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
                 while(opt_offset < (offset + opt_len) ) {
 
@@ -3091,7 +3104,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             }
             case RPL_OPT_PREFIX: {
                 /* Destination prefix option. */
-                guint32              prefix_len;
+                guint32 lifetime;
+                guint32 prefix_len;
                 static int * const rpl_prefix_flags[] = {
                     &hf_icmpv6_rpl_opt_prefix_flag_l,
                     &hf_icmpv6_rpl_opt_prefix_flag_a,
@@ -3109,12 +3123,14 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                                     ett_icmpv6_rpl_flag_prefix, rpl_prefix_flags, ENC_BIG_ENDIAN);
                 opt_offset += 1;
 
-                /* Valid lifetime. */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                /* Valid Lifetime */
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 /* Preferred Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
                 opt_offset += 4;
 
                 /* 4 reserved bytes. */
@@ -3790,6 +3806,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         while ((int)tvb_reported_length(tvb) > rr_offset) {
             /* Use-Prefix Part */
             guint8 uselen, keeplen;
+            guint32 lifetime;
             static int * const mask_flags[] = {
                 &hf_icmpv6_rr_pco_up_flagmask_l,
                 &hf_icmpv6_rr_pco_up_flagmask_a,
@@ -3831,11 +3848,13 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
             rr_offset += 1;
 
             /* Valid Lifetime */
-            proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_validlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item_ret_uint(up_tree, hf_icmpv6_rr_pco_up_validlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+            proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
             rr_offset += 4;
 
             /* Preferred Lifetime */
-            proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_preferredlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item_ret_uint(up_tree, hf_icmpv6_rr_pco_up_preferredlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+            proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
             rr_offset += 4;
 
             /* Flags */
