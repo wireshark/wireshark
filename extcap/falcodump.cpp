@@ -952,7 +952,7 @@ int main(int argc, char **argv)
             goto end;
         }
 
-        sinsp_dumper dumper = (&inspector);
+        sinsp_dumper dumper;
 #ifdef DEBUG_SINSP
         inspector.set_debug_mode(true);
         inspector.set_log_stderr();
@@ -966,7 +966,7 @@ int main(int argc, char **argv)
             }
             inspector.open_plugin(extcap_conf->interface, plugin_source);
             // scap_dump_open handles "-"
-            dumper.open(extcap_conf->fifo, false);
+            dumper.open(&inspector, extcap_conf->fifo, false);
         } catch (sinsp_exception &e) {
             dumper.close();
             ws_warning("%s", e.what());
