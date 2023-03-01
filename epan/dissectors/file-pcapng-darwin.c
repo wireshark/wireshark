@@ -156,7 +156,6 @@ void dissect_darwin_process_info_option(proto_tree *option_tree, proto_item *opt
         case 4: /* Darwin Process UUID */
             proto_tree_add_item(option_tree, hf_pcapng_option_darwin_process_uuid, tvb, offset, option_length, ENC_BIG_ENDIAN);
             tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
-            offset += option_length;
 
             proto_item_append_text(option_item, " = %s",
                 guid_to_str(pinfo->pool, &uuid));
@@ -164,7 +163,6 @@ void dissect_darwin_process_info_option(proto_tree *option_tree, proto_item *opt
             break;
         default:
             proto_tree_add_item(option_tree, unknown_option_hf, tvb, offset, option_length, ENC_NA);
-            offset += option_length;
             break;
     }
 }
