@@ -12254,6 +12254,9 @@ proto_tree_add_bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
+	if (no_of_bits < 0) {
+		THROW(ReportedBoundsError);
+	}
 	octet_length = (no_of_bits + 7) >> 3;
 	octet_offset = bit_offset >> 3;
 	test_length(hfinfo, tvb, octet_offset, octet_length, encoding);
@@ -12302,7 +12305,9 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 				     hf_field->abbrev, hf_field->name);
 	}
 
-	if (no_of_bits == 0) {
+	if (no_of_bits < 0) {
+		THROW(ReportedBoundsError);
+	} else if (no_of_bits == 0) {
 		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of 0",
 				     hf_field->abbrev);
 	}
@@ -12674,7 +12679,9 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 				     hf_field->abbrev, hf_field->name);
 	}
 
-	if (no_of_bits == 0) {
+	if (no_of_bits < 0) {
+		THROW(ReportedBoundsError);
+	} else if (no_of_bits == 0) {
 		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_format_value() has a bit width of 0",
 				     hf_field->abbrev);
 	}
