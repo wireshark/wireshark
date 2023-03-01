@@ -59,6 +59,7 @@ static int hf_drda_param_length = -1;
 static int hf_drda_param_codepoint = -1;
 static int hf_drda_param_data = -1;
 static int hf_drda_param_data_ebcdic = -1;
+static int hf_drda_sqlstatement_length = -1;
 static int hf_drda_sqlstatement = -1;
 static int hf_drda_sqlstatement_ebcdic = -1;
 
@@ -716,7 +717,8 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 tvbuff_t* next_tvb = NULL;
                 next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
                 add_new_data_source(pinfo, next_tvb, "SQL statement");
-                proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, ENC_UTF_8);
+                proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_length, next_tvb, 0, 1, ENC_NA);
+                proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 1, iLengthParam - 6, ENC_UTF_8);
                 proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC);
             }
         }
@@ -846,6 +848,11 @@ proto_register_drda(void)
           { "Data (EBCDIC)", "drda.param.data.ebcdic",
             FT_STRING, BASE_NONE, NULL, 0x0,
             "Param data converted from EBCDIC to ASCII for display", HFILL }},
+
+        { &hf_drda_sqlstatement_length,
+          { "SQL statement Length", "drda.sqlstatement.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_drda_sqlstatement,
           { "SQL statement (ASCII)", "drda.sqlstatement",
