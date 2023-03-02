@@ -55,6 +55,9 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     // yaxis2 (comment): Extra info ("Comment" in GTK+)
 
 //    valueAxis->setAutoTickStep(false);
+
+    /* The comments are not numbers, don't try to pretty print exponentials. */
+    commentAxis->setNumberFormat("f");
     QList<QCPAxis *> axes;
     axes << value_axis_ << key_axis_ << comment_axis_;
     QPen no_pen(Qt::NoPen);
