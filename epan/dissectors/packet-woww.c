@@ -15561,7 +15561,7 @@ add_body_fields(guint32 header_opcode,
                 ptvcursor_add(ptv, hf_woww_required_spell, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_honor_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_city_rank, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_faction, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_faction_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_max_count, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stackable, 4, ENC_LITTLE_ENDIAN);
@@ -19138,7 +19138,7 @@ proto_register_woww(void)
         },
         { &hf_woww_faction,
             { "Faction", "woww.faction",
-                FT_UINT16, BASE_HEX_DEC, VALS(e_faction_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_faction_strings), 0,
                 NULL, HFILL
             }
         },
