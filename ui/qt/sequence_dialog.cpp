@@ -389,8 +389,7 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
                 current_rtp_sai_hovered_ = sai;
             }
             packet_num_ = sai->frame_number;
-            QString raw_comment = html_escape(sai->comment);
-            hint = QString("Packet %1: %2").arg(packet_num_).arg(raw_comment);
+            hint = QString("Packet %1: %2").arg(packet_num_).arg(sai->comment);
         }
     }
 
