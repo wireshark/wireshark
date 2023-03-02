@@ -99,7 +99,7 @@ Clicking on the icon will show the configuration dialog for that interface.
 Hovering over an interface will show any associated IPv4 and IPv6 addresses and its capture filter.
 
 Wireshark isn't limited to just network interfaces -- on most systems you can also capture USB, Bluetooth, and other types of packets.
-Note also that an interface might be hidden if it’s inaccessible to Wireshark or if it has been hidden as described in <<ChManageInterfacesSection>>.
+Note also that an interface might be hidden if it’s inaccessible to Wireshark or if it has been hidden as described in <<ChCapManageInterfacesSection>>.
 
 [#ChCapCaptureOptions]
 
@@ -258,7 +258,7 @@ Capturing can be stopped based on the following conditions:
 
 You can double click on an interface row in the “Input“ tab or click btn:[Start] from any tab to commence the capture. You can click btn:[Cancel] to apply your changes and close the dialog.
 
-[#ChManageInterfacesSection]
+[#ChCapManageInterfacesSection]
 
 === The “Manage Interfaces” Dialog Box
 
