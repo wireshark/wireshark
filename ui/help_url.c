@@ -229,7 +229,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChStatTCPStreamGraphs.html");
         break;
     case(HELP_STATS_WLAN_TRAFFIC_DIALOG):
-        url = user_guide_url("ChStatWLANTraffic.html");
+        url = user_guide_url("ChWirelessWLANTraffic.html");
         break;
     case(HELP_FILESET_DIALOG):
         url = user_guide_url("ChIOFileSetSection.html");
