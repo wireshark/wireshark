@@ -27,20 +27,22 @@ wsbuglink:17779[]
 // The Windows installers now ship with Qt 5.15.2.
 // They previously shipped with Qt 5.12.1.
 
+If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you will likely have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
+wsbuglink:18734[].
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2023-08[]
-ISO 15765 and ISO 10681 dissector crash.
-wsbuglink:18839[].
+// * wssalink:2023-09[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxxx[].
 // cveidlink:2023-xxxx[].
 // Fixed in master: b4c784805c
 // Fixed in release-4.0: 4ec72ec3a1
 // Fixed in release-3.6: 51e23ea7fd
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-120
-// * ISO15765 and ISO10681 dissectors corrupt memory and Wireshark may crash. wsbuglink:18839[].
+// CWE-xxx
 
 The following bugs have been fixed:
 
@@ -48,32 +50,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
-
-* UTF-8 characters end up escaped in PSML output wsbuglink:10445[].
-
-* Export filtered displayed packets won't save IP fragments of SCTP fragments needed to reassemble a displayed frame. wsbuglink:12597[].
-
-* The intelligent scroll bar or minimap is not predictable on locating and scrolling wsbuglink:13989[].
-
-* If you mark (or unmark) the currently-selected frame, the packet details still say it's not marked (or it is marked) wsbuglink:14330[].
-
-* Sorting Packet Loss Column is not sorting correct wsbuglink:16785[].
-
-* SIP TCP decoding regression from Wireshark 1.99.0 to 3.6.8 wsbuglink:18411[].
-
-* ChmodBPF not working on macOS Ventura 13.1 wsbuglink:18734[].
-
-* Symbolic links to packages in macOS dmg can't be double-clicked to install on macOS 13.2 wsbuglink:18830[].
-
-* Potential memory leak in tshark.c wsbuglink:18837[].
-
-* Fuzz job crash output: fuzz-2023-02-05-7303.pcap wsbuglink:18842[].
-
-* f5fileinfo: Hardware platforms missing descriptions wsbuglink:18848[].
-
-* The lines in the intelligent scrollbar are off by one wsbuglink:18850[].
-
-* TECMP dissector shows the wrong Voltage in Vendor Data wsbuglink:18871[].
 
 === New and Updated Features
 
@@ -88,33 +64,9 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.11.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.12.. | ag packet- | sort -u)
 [commaize]
 --
-DHCP
-ERF
-F5 Ethernet trailer
-GMR-1 RR
-GSM SMS
-Gryphon
-H.450
-ISO 10681
-ISO 15765
-NAS-5GS
-NR RRC
-NS Trace
-OptoMMP
-PDCP-LTE
-QSIG
-ROHC
-RSVP
-RTCP
-SCTP
-SIP
-TCP
-TECMP
-TWAMP
-UMTS RLC
 --
 
 === New and Updated Capture File Support
