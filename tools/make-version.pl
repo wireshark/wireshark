@@ -483,8 +483,8 @@ sub update_attributes_asciidoc
 sub update_docinfo_asciidoc
 {
 	my $line;
-	my @paths = ("$src_dir/docbook/developer-guide-docinfo.xml",
-			"$src_dir/docbook/user-guide-docinfo.xml");
+	my @paths = ("$src_dir/docbook/wsdg_src/developer-guide-docinfo.xml",
+			"$src_dir/docbook/wsug_src/user-guide-docinfo.xml");
 
 	foreach my $filepath (@paths) {
 		my $contents = "";
