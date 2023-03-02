@@ -3129,9 +3129,11 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
     //
     if (!fwd_id_used) {
         rtpstream_id_free(fwd_id);
+        g_free(fwd_id);
     }
     if (!rev_id_used) {
         rtpstream_id_free(rev_id);
+        g_free(rev_id);
     }
     return NULL;
 }
