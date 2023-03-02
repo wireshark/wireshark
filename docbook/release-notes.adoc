@@ -31,16 +31,16 @@ wsbuglink:17779[]
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2023-08[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxxx[].
+* wssalink:2023-08[]
+ISO 15765 and ISO 10681 dissector crash.
+wsbuglink:18839[].
 // cveidlink:2023-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-4.0: xxxx
-// Fixed in release-3.6: xxxx
+// Fixed in master: b4c784805c
+// Fixed in release-4.0: 4ec72ec3a1
+// Fixed in release-3.6: 51e23ea7fd
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-???
-* ISO15765 and ISO10681 dissectors corrupt memory and Wireshark may crash wsbuglink:18839[].
+// CWE-120
+// * ISO15765 and ISO10681 dissectors corrupt memory and Wireshark may crash. wsbuglink:18839[].
 
 The following bugs have been fixed:
 
@@ -50,6 +50,8 @@ The following bugs have been fixed:
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
 * UTF-8 characters end up escaped in PSML output wsbuglink:10445[].
+
+* Export filtered displayed packets won't save IP fragments of SCTP fragments needed to reassemble a displayed frame. wsbuglink:12597[].
 
 * The intelligent scroll bar or minimap is not predictable on locating and scrolling wsbuglink:13989[].
 
