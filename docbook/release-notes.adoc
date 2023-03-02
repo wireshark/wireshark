@@ -28,16 +28,15 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2023-08[]
-ISO 15765 and ISO 10681 dissector crash.
-wsbuglink:18839[].
+// * wssalink:2023-09[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxxx[].
 // cveidlink:2023-xxxx[].
 // Fixed in master: b4c784805c
 // Fixed in release-4.0: 4ec72ec3a1
 // Fixed in release-3.6: 51e23ea7fd
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-120
-// * ISO15765 and ISO10681 dissectors corrupt memory and Wireshark may crash. wsbuglink:18839[].
+// CWE-xxx
 
 The following bugs have been fixed:
 
@@ -45,30 +44,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
-
-* UTF-8 characters end up escaped in PSML output. wsbuglink:10445[].
-* Export filtered displayed packets won't save IP fragments of SCTP fragments needed to reassemble a displayed frame. wsbuglink:12597[].
-* DICOM dissection in reassembled PDV goes wrong. wsbuglink:13388[].
-* "Export Objects - IMF" produces incorrect file, TCP reassembly fails with retransmissions that have additional data. wsbuglink:13523[].
-* The intelligent scroll bar or minimap is not predictable on locating and scrolling. wsbuglink:13989[].
-* If you mark (or unmark) the currently-selected frame, the packet details still say it's not marked (or it is marked) wsbuglink:14330[].
-* An out-of-order packet incorrectly detected as retransmission breaks desegmentation of TCP stream. wsbuglink:15993[].
-* Sorting Packet Loss Column is not sorting correct. wsbuglink:16785[].
-* Some HTTPS packets cannot be decrypted. wsbuglink:17406[].
-* SIP TCP decoding regression from Wireshark 1.99.0 to 3.6.8. wsbuglink:18411[].
-* Frame comments not preserved when using filter to write new pcap from tshark. wsbuglink:18693[].
-* ChmodBPF not working on macOS Ventura 13.1. wsbuglink:18734[].
-* Wireshark GUI and window manager stuck after setting display filter. wsbuglink:18809[].
-* Dissector bug, protocol H.261. wsbuglink:18812[].
-* File extension heuristics are case-sensitive. wsbuglink:18821[].
-* Symbolic links to packages in macOS dmg can't be double-clicked to install on macOS 13.2. wsbuglink:18830[].
-* Potential memory leak in tshark.c. wsbuglink:18837[].
-* Fuzz job crash output: fuzz-2023-02-05-7303.pcap. wsbuglink:18842[].
-* f5fileinfo: Hardware platforms missing descriptions. wsbuglink:18848[].
-* The lines in the intelligent scrollbar are off by one. wsbuglink:18850[].
-* Wireshark crashes on invalid UDS packet in Lua context. wsbuglink:18865[].
-* TECMP dissector shows the wrong Voltage in Vendor Data. wsbuglink:18871[].
-* UDS: Names of RDTCI subfunctions 0x0b ... 0x0e are not correct. wsbuglink:18873[].
 
 === New and Updated Features
 
@@ -94,36 +69,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.4.. | ag packet- | sort -u)
 [commaize]
 --
-ASTERIX
-BGP
-DHCP
-ERF
-F5 Ethernet trailer
-GMR-1 RR
-Gryphon
-GSM SMS
-H.261
-H.450
-ISO 10681
-ISO 15765
-MIPv6
-NAS-5gs
-NR RRC
-NS Trace
-OptoMMP
-PDCP-LTE
-PDCP-NR
-QSIG
-ROHC
-RSVP
-RTCP
-SCTP
-SIP
-TCP
-TECMP
-TWAMP
-UDS
-UMTS RLC
 --
 
 === New and Updated Capture File Support
