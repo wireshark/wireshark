@@ -1,0 +1,759 @@
+commit 25ada5495e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 1 11:53:09 2023 -0800
+
+    Prep for 4.0.4
+
+    [skip ci]
+
+commit 324ce9de21
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sun Feb 26 17:08:37 2023 +0100
+
+    UDS: fix WDBI assert
+
+    (cherry picked from commit 6f8eef82b47c7b1bcc0d3a0d9ddc8f82300e9175)
+
+commit 219021d07e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 27 17:40:12 2023 +0000
+
+    [Automatic update for 2023-02-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 6fd27c6df2
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sun Feb 26 01:01:06 2023 +0100
+
+    UDS: Fixing dissector bugs (tvb_bytes_to_str_punct with 0 length)
+
+    This patch fixes 3 bugs where tvb_bytes_to_str_punct length was not
+    checked.
+
+    Fixes: #18865
+
+    (cherry picked from commit 886bc50b99eea540b57a7c38512953742602d8e3)
+
+commit d8fb33ba35
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 19 16:35:10 2023 +0000
+
+    [Automatic update for 2023-02-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9acdad440f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 25 10:39:30 2023 -0500
+
+    NR-RRC: Fix assign instead of comparison
+
+    This is mean to use the value to select the correct field length.
+    Fix Coverity CID 1517107, 1517124, 1517136, 1517164, 1517184, 1517195.
+
+    (cherry picked from commit b1460bff699f56886386388cd559b2526735ed61)
+
+commit 60c692f89a
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Sat Jan 28 13:41:50 2023 +0100
+
+    epan: Use hash table for dependent frames
+
+    Dependent frames list order does not matter and thus significantly
+    faster data structure can be used. Replace the list with hash table to
+    avoid excessive CPU usage when opening files containing reassembled
+    packets consisting of large number of fragments.
+
+    (cherry picked from commit e7d5c49fe1dadfd6393539ba1b4d535087d79abe)
+
+commit 62f9ef9b09
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 19 12:34:01 2023 -0500
+
+    epan: Do not add dependent packets more than once
+
+    Do not add a dependent frame if it's already been added to a
+    frame's list. Do not mark a frame as a dependent of a displayed
+    frame if we've already marked it as such in this pass.
+
+    Clear the list of dependent frames if we reset the frame data,
+    because the list of dependent frames depends on the dissection
+    and may not be valid if redissecting (because, for example,
+    a reassembly preference may have changed.)
+
+    Move the pointer to the list of dependent frames away from the
+    bitfields to a location that minimizes the struct size.
+
+    Fixup f870c6085dc3d34c68eae36b
+    Fix #18809
+
+    (cherry picked from commit b230aa1df03b5465bd0bbfdb3fe15b4fca443a21)
+
+commit 7584986438
+Author: Sake Blok <sake.blok@syn-bit.nl>
+Date:   Sat Feb 25 15:52:59 2023 +0000
+
+    epan: Allow nested dependent packets
+
+commit 93e0f880a5
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Feb 24 15:28:12 2023 +0100
+
+    UDS: Fixing names of RDTCI subfunctions 0x0b-0x0e
+
+    This fixes the dissection of RDTCI subfunction.
+
+    Fixes: #18873
+
+    (cherry picked from commit 7eeb8daa05d5eb409f257065b1809ba2026db0ee)
+
+commit 8c21ac0f5b
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Thu Feb 23 16:43:53 2023 +0100
+
+    TECMP: Fix voltage representation in vendor data
+
+    Fixes: #18871
+
+    (cherry picked from commit b0487565addd3fed207b1c164ae0cdf306433a90)
+
+commit 1b17151922
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Feb 20 23:33:57 2023 -0800
+
+    gmr1_rr: try to explain the 0x100 hack.
+
+    I leave it to those more familiar with the protocol to explain this
+    better or in more detail and, if possible, to come up with a better way
+    of doing this.
+
+    (cherry picked from commit e5884912cd5b0d390a7405b75fa787a848bc5c27)
+
+commit b5972df5b3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Feb 21 00:34:05 2023 -0800
+
+    gryphon: fix handling the ioctl code in a response.
+
+    It's not in the response message, it's taken from the request message,
+    so display it with a zero offset and length, so it doesn't match any
+    bytes in the packet.
+
+    It's a 32-bit field, so make it an FT_UINT32.
+
+    (cherry picked from commit a4b61bc0698874e1f924694a73a3f5b1770c6fef)
+
+commit 20bfcef859
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Mon Feb 20 08:33:34 2023 +0000
+
+    Check that value_string values fit into field width
+
+    (backported from commit f4e9b9d4a83d13027379a1833d766f496dbb06ae)
+
+commit 558b56ca8a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 15 07:09:15 2023 -0500
+
+    TCP: Don't clear REASSEMBLE_ENTIRE_SEGMENT if we didn't complete
+
+    If MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT is set (because the dissector
+    asked for one more segment) but the new segment didn't result in
+    a completed reassembly (because it overlapped and didn't add new
+    data), don't clear the REASSEMBLE_ENTIRE_SEGMENT flag.
+
+    Related to #18411
+
+    (cherry picked from commit bdc8c0c21a4f00391cd2e63c684787e933479c2a)
+
+commit 3530f6a62f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Feb 14 21:50:27 2023 -0500
+
+    SIP: Ignore probable keep alives
+
+    If we have payload on TCP with a single octet that is not printable ASCII,
+    just reject it rather than waiting for the next CRLF line end (and
+    marking it as Continuation Data then). It is more likely to be a TCP Keep
+    Alive at the beginning of a capture file or connection.
+
+    At best, this change means that a correct SIP request or response is
+    interpreted rather than marking as Continuation Data. At worst,
+    Continuation Data has one less non printable octet at the beginning.
+
+    Fix #18411.
+
+    (cherry picked from commit 3ff02fa63890f16e9b67296ca85699a8179c7c3d)
+
+commit 024e739712
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 27 15:12:34 2022 -0400
+
+    tcp: Fix handling of retransmission for reassembly
+
+    When reassemble_ooo is set, we can do a better job determining
+    if a segment is retransmitted or not from the reassembler perspective,
+    which is different than what TCP sequence analysis determines, which
+    is retransmission from the sender's perspective.
+
+    This also allows us to have a good way of dealing with retransmission
+    but with additional data.
+
+    This only works when reassembling out of order is set. Without it,
+    we fall back to the old method of detecting retransmissions, which
+    has a harder time with the edge cases.
+
+    Fix #17406, fix #15993, fix #13388, fix #13523.
+
+    (cherry picked from commit f3df91b90d2cd1f71b266b4be53f754df9828a5c)
+
+commit 61ccff8b84
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Feb 14 19:29:09 2023 -0500
+
+    TCP: Do not adjust tcp seq analyze data if analyze seq is off
+
+    Check if tcp_analyze_seq is enabled before trying to get its
+    members. Prevents a null pointer dereference with the preference off.
+
+    (cherry picked from commit 423b5ba4ce7856ed00ced6503f28dd60f3c98095)
+
+commit 076213931e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 14 09:15:27 2023 -0800
+
+    Resources: Fix some Freedesktop metainfo URLs
+
+    Fix some URLs changed in 53b2994b43.
+    Ping #18801.
+
+    (cherry picked from commit 75651c75eed8beb2f1cd11aabd5bfb1daa536016)
+
+commit 9cbb71fa15
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Feb 10 16:11:20 2023 -0800
+
+    Docbook: Reorganize our guide directories
+
+    Move the top-level user-guide.adoc and developer-guide.adoc to their
+    respective source directores. This is in preparation for a future
+    toolchain revamp.
+
+    Move the wsug_graphics directory to wsug_src/images and wsdg_graphics
+    directory to wsdg_src/images. Copy common_graphics/* to the each images
+    directory and remove common_graphics. We only have five admonition
+    graphics; duplicating them lets us remove some build config overhead.
+
+    Rename wsluarm.adoc to wsdg_src/wsdg_lua_support.adoc.
+
+    Remove a dummy file.
+
+    Tested visually and by enabling `--failure-level=WARN`.
+
+    (cherry picked from commit 53b2994b430c94ae1bc33f0fc0e694cf96c09bfd)
+
+commit 3b3b72276f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 12 16:38:29 2023 +0000
+
+    [Automatic update for 2023-02-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e61b4a1bb9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Feb 9 20:47:44 2023 -0500
+
+    Qt: Fix click to packet on OverlayScrollBar
+
+    Fix the calculation of the ratio for converting a packet number
+    to the scrollbar value by accounting for the length of the slider.
+    maximum() does not correpond to the last packet; it corresponds to
+    the first packet shown when the scrollbar is at maximum. The last
+    packet is maximum() + pageStep().
+    (See https://doc.qt.io/qt-6/qscrollbar.html#details)
+
+    The quarter of a page padding should be subtracted, not added,
+    from the calculated position.
+    (Fix up 422c0f45d497872a963363132ec92d400a79538f)
+
+    This correctly makes clicking on the a line in the minimap scroll
+    the packet list so that the corresponding packet is 25% of the
+    way down the visible window. (Excepting the cases of packets at
+    the very beginning or end of the entire packet list.)
+
+    Fix #13989
+
+    (cherry picked from commit 4221021ab681a981bbd839fd699caff24d3f656b)
+
+commit 16546c746c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 28 15:11:28 2022 -0700
+
+    epan: Add an XML buffer limit.
+
+    Try to fix
+
+    ```
+    *** CID 1515532:  Memory - corruptions  (OVERRUN)
+    /builds/wireshark/wireshark/epan/print.c: 1859 in print_escaped_xml()
+    1853                 } else {
+    1854                     temp_buffer[offset++] = *p;
+    1855                 }
+    1856             }
+    1857             if (offset > ESCAPED_BUFFER_MAX-8) {
+    1858                 /* Getting close to end of buffer so flush to fh */
+    >>>     CID 1515532:  Memory - corruptions  (OVERRUN)
+    >>>     Overrunning array "temp_buffer" of 256 bytes at byte offset 260 using index "offset" (which evaluates to 260).
+    1859                 temp_buffer[offset] = '\0';
+    1860                 fputs(temp_buffer, fh);
+    1861                 offset = 0;
+    1862             }
+    1863         }
+    1864         if (offset) {
+    ```
+
+    (cherry picked from commit 8109332ffad950ba39487ee7426b5c9a2c877b6a)
+
+    Fixes #18842.
+
+commit eb0b689f55
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 8 16:21:56 2023 -0800
+
+    macOS: Update our extra package versions.
+
+    Track our extra package versions using CMake variables and bump each
+    version.
+
+    (cherry picked from commit ecbfda08c42b5d64cbb432846da22f52277ef8d4)
+
+commit d89b3bf1ed
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 8 16:46:48 2023 -0800
+
+    Docs: Add a ChmodBPF item to the release notes
+
+commit c8f3264d3c
+Author: Jason Cohen <kryojenik2@gmail.com>
+Date:   Wed Feb 8 23:20:05 2023 -0600
+
+    f5fileinfo: Typo / omission fix from last merge.
+
+    (cherry picked from commit 843da72f861ed5e82a3e740e98187c3b7a85e98a)
+
+commit 81d71f6bd9
+Author: Jason Cohen <kryojenik2@gmail.com>
+Date:   Tue Feb 7 12:40:10 2023 -0600
+
+    f5fileinfo: Add missing platform identifiers
+
+    Add missing platform identifiers for rSeries plafforms
+
+    https://my.f5.com/manage/s/article/K9476
+    r2800 / r2600 (C130)
+    r4800 / r4600 (C131)
+    r5900 / r5800 / r5600 (C129)
+    r10900 / r10800 / r10600 (C128)
+
+    Fixes: #18848
+
+    (cherry picked from commit e3cb80d8289f69af7c008476dbab19dd17eb6533)
+
+commit 089c751eae
+Author: Martin Stigge <martin@stigge.org>
+Date:   Wed Feb 8 17:32:43 2023 +0000
+
+    Fix RSVP P2MP ID rendering in RSVP session summary
+
+    (cherry picked from commit 136ee860fa6215a9c9db793a219f2ef35c0bed06)
+
+commit 54355ff55b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Feb 7 20:22:41 2023 +0100
+
+    Man: Update extcap argument type documentation
+
+commit 7ac2da57dd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 8 06:11:59 2023 -0500
+
+    Qt: Fencepost error in minimap/intelligent scrollbar
+
+    The location of the next line should be based off one row larger
+    than the current row.
+
+    This fixes an issue where all the lines drawn in the intelligent
+    scrollbar are off by one - the color intended to be drawn for
+    the first packet never appears, the first packet corresponds to
+    the line for the second packet, etc., and there is a line at
+    the bottom that can never be colored in.
+
+    Fix #18850
+
+    (cherry picked from commit 4f14745fce765857741b67ecf35c7fc167920e98)
+
+commit b37b997fd1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 7 11:36:11 2023 -0800
+
+    macOS: Forget our ChmodBPF package when uninstalling
+
+    Add `pkgutil --forget org.wireshark.ChmodBPF.pkg` to the "Uninstall
+    ChmodBPF" postinstall script. The `pkgutil` man page says
+
+        --forget package-id
+            Discard all receipt data about package-id, but do not touch the
+            installed files.  DO NOT use this command from an installer package
+            script to fix broken package design.
+
+    but Homebrew's Wireshark cask does this, and it should help to work
+    around issue #18734.
+
+    Add `pkgutil --forget org.wireshark.path_helper.pkg` to the "Remove
+    Wireshark from the system path" postinstall script.
+
+    (cherry picked from commit 3e07c0dc01949a10f336e993544390981c10292b)
+
+commit 53bb44bc65
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 29 19:18:04 2023 -0800
+
+    macOS: Fixup our signature identifiers
+
+    Pass a prefix to `codesign` so that our signature identifier is
+    "org.wireshark.foo" instead of "foo" for our command line utilities,
+    libraries, and ChmodBPF.
+
+    (cherry picked from commit e1db561aa27a745c7e6223ba38758938d7aa3eb8)
+
+commit 5531064a13
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Feb 6 22:11:21 2023 -0500
+
+    tshark: Preserve options when dissecting packets and writing
+
+    epan_dissect_run_* and epan_dissect_reset unreference the packet
+    block that is part of the record, which frees it if the ref count
+    drops to zero. However, tshark needs the block later to, e.g.,
+    copy the options. process_cap_file_[single|second]_pass still
+    unreference and free the block with wtap_rec_reset() at the end
+    of each packet loop.
+
+    Fix #18693
+
+    (cherry picked from commit 4818778df2ba5d9295cf23fbb797fac2a82abcc4)
+
+commit da4b7b8553
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Sep 21 08:26:35 2022 -0400
+
+    XML: Do escape ASCII control characters
+
+    XML 1.0 allows valid UTF-8 characters, except for the ASCII control
+    characters other than tab, carriage return, and line feed.
+    (It does not allow form feed and vertical tab, so the allowed group is
+    not the same as the standard ctype.h isspace category. It also
+    allows but discourages DEL (\x7F).)
+
+    The characters cannot be included as character references of the
+    form &#xx; either; there is technically no way to include them.
+    Escape them as done prior to 89e96c1e77a39a259cafb488c6057e6c123d692b
+    but continue to leave bytes with the high bit set alone so that
+    UTF-8 printable characters are not escaped.
+
+    Fix #10445
+
+    (cherry picked from commit 73d8bb1bc3d5aa479350a9182e9036b26ce84d58)
+
+commit a8a01eeb3e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 4 22:09:22 2023 -0500
+
+    RTP Stream Dialog: Actually sort on packet loss
+
+    The packet loss column has been sorting on a private variable
+    that is never set(?!) and also is unsigned whereas the actual
+    lost number is signed. Get the calculated packet loss number
+    and sort by that. (Should this be sorting by the total number or
+    the percentage, since the column displays both? Total number is
+    first so let's use that.)
+
+    This should probably be some kind of Model/View instead.
+
+    Fix #16785.
+
+    (cherry picked from commit 4bb43d59869906d8c613e983bc3022d027ed1eb1)
+
+commit deec2b9593
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 5 16:37:01 2023 +0000
+
+    [Automatic update for 2023-02-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 4ec72ec3a1
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Feb 3 19:42:03 2023 +0100
+
+    ISO15765/ISO10681 memory corruption bugfix
+
+    Fixes a situation in which the code wrote behind the frag_id_high array
+    and corrupted memory.
+
+    Closes #18839
+
+commit aff69bf890
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Feb 3 11:36:30 2023 -0800
+
+    tshark: clean up indentation.
+
+    (cherry picked from commit c788b6b0790b29d5fe663df582c9c3e3a06de7f3)
+
+commit 52efb8522a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Feb 3 04:03:15 2023 -0800
+
+    tshark: fix previous fix for memory leak.
+
+    Pass the correct filter variable to warn_about_capture_filter();
+
+    Fixes the fix for #18837.
+
+    (cherry picked from commit 56651c4db184c0c66d9e2cdd6f1da47e1562aa45)
+
+commit 42a2a8c289
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Feb 2 23:56:26 2023 -0800
+
+    tshark: plug a memory leak.
+
+    Put the "attempt to compile a filter string as a capture filter" code
+    into a common routine, and, if the attempt succeeds, free up the
+    generated capture filter code.
+
+    Fixes #18837.
+
+    (cherry picked from commit d69208c5e7b98dfdea3f0e51e5dc5549bfdb8d96)
+
+commit a822508880
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Feb 2 14:20:54 2023 +0100
+
+    gsm_sms: Allow empty src and dst in hashing functions
+
+    Allow empty pinfo.src and pinfo.dst in hashing functions to fix
+    reassembly when delivered in a NAS message.
+
+    Fixup 1d8680d07f92352c4ff95083fe578e8f263bac6d
+
+    (cherry picked from commit e3719872b5940c5f7f95a8a88ea8fa12644177e1)
+
+commit b4aa7e7ec1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 1 21:15:41 2023 -0500
+
+    Qt: Fix order of ShowAs enums
+
+    The ShowAs enum should stay in the same order as the Items
+    are added to the ShowAs combobox, because setCurrentIndex()
+    is used with the enum values, e.g. when setting the value to
+    "Show As Image" when the bytes are an image.
+    Fixup c9e08b7be317e0e7e0cf95baa64f52d33b392964
+
+    (cherry picked from commit 15dfa3aa20623c76c01c4e97dcab5b236c5c7beb)
+
+commit 47ff3f9be8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 30 14:05:00 2023 -0800
+
+    CMake: Lower-case a filename
+
+    GPL_appendix.adoc should be gpl_appendix.adoc as of 171dbd6ea8.
+
+    (cherry picked from commit abb0e7e9e543d8f536ef4860c6cc2a9d0bf03112)
+
+commit 765eb021da
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 29 13:54:05 2023 -0800
+
+    Docs: Rename our guide source files
+
+    Rename the various "WSUG_" and "WSDG_" files to wsug_ and wsdg_
+    respectively. Remove the "chapter" and "app" parts from the filenames as
+    well.
+
+commit 792b9538a9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 29 13:58:49 2023 -0800
+
+    Docs: Prepare to lower-case some file names.
+
+    Prepare to lower-case GPL_appendix.adoc, WSDG_preface.adoc, and
+    WSUG_preface.adoc.
+
+    (cherry picked from commit 27d5925b3957502a1124b4f4fe7b14b508b1cf1a)
+
+commit dba00e2c1a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 29 09:04:17 2023 -0800
+
+    macOS: Copy our top-level .pkgs instead of symlinking them
+
+    Make copies of our top-level packages instead of symlinking them. Blind
+    attempt at fixing #18830.
+
+    Switch to UDZO for our application disk images as recommended in
+    https://developer.apple.com/forums/thread/128166
+
+    [skip ci]
+
+    (cherry picked from commit 75742c81b6042bf2bedb29fd03d9d9d36581da1c)
+
+    Conflicts:
+            packaging/macosx/logray-app.dmgbuild.in
+
+commit 17e1f41139
+Author: Brendan Meath <bmeath@proton.me>
+Date:   Mon Jan 30 18:05:14 2023 +0000
+
+    Fix order of CAG only flag descriptions.
+
+    (cherry picked from commit 4d92967b74393ac9298d00ab306ff1ab857be124)
+
+commit 6521158ddf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 29 16:38:54 2023 +0000
+
+    [Automatic update for 2023-01-29]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 2dae6c9343
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Mon Jan 23 20:16:54 2023 -0600
+
+    twamp: test mbz fields are FT_UINT16
+
+    (cherry picked from commit 06fc6483b38fbbca427fa40c84a393af1b07f731)
+
+commit dfc70a3e2e
+Author: Michael Pergament <mpergament@gmail.com>
+Date:   Wed Aug 17 13:41:52 2022 +0200
+
+    Add support for Addd Path in EVPN NLRI
+
+    (cherry picked from commit bd6c21696aa31c0d8468b251fe591c8040736696)
+
+commit bec5275934
+Author: David Perry <boolean263@protonmail.com>
+Date:   Tue Jan 24 08:06:09 2023 -0500
+
+    wiretap: treat file extensions case-insensitively
+
+    Modify `get_file_extension()` to convert the filename to all lower-case,
+    so the file extension(s) are returned as such. This effectively makes
+    `heuristic_uses_extension()` operate case-insensitively, since it's
+    comparing against the extensions in `open_routines[]` which are also
+    stored in lower-case.
+
+    (cherry picked from commit 15a41e6fa78f5dd09826431899cd1faabd81ffda)
+
+commit de9fedfc4b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 22 16:37:31 2023 +0000
+
+    [Automatic update for 2023-01-22]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 613889eeae
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 28 00:14:35 2022 -0500
+
+    tests: Get tests working with Python 3.11 (except with pytest)
+
+    We use a common idiom ( https://stackoverflow.com/a/39606065
+    https://gist.github.com/hynekcer/1b0a260ef72dae05fe9611904d7b9675 )
+    for getting the results of our unittest.TestCases in the tearDown
+    method. This method accesses a private property, and that private
+    property was removed in Python 3.11
+
+    The StackOverflow answer has been updated with a new approach for
+    Python 3.11, which also uses a private property. This fixes things
+    for CTest (and the test target when building), but it still doesn't
+    work when using pytest's unittest support.
+
+    Ping #18740
+
+    (cherry picked from commit fdc335e68654db8c47f98ab46598d8d4e5a655b9)
+
+commit 4312130d03
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 19 19:41:07 2023 -0500
+
+    Qt: Clear selection, not current, in drawCurrentPacket
+
+    QItemSelectionModel tracks both the selected index and the
+    current index.
+
+    PacketList redraws when the *selected* index changes, not
+    the current index. Clearing the current index, and then marking
+    the same packet as selected and current fires currentChanged but
+    not selectionChanged. So drawCurrentPacket needs to call
+    clearSelection(), not clearCurrentIndex(), in order to trigger
+    a redissection of the currently selected packet and update
+    the packet details.
+
+    For example, if you mark or unmark the currently selected frame,
+    this causes the packet details to update. Cf 52955b9c43a99942b3,
+    which fixed the same issue but for Find Packet.
+
+    Fix #14330.
+
+    (cherry picked from commit 199ecf2983909a322db937016a3cfaa046f48f78)
+
+commit ab48257293
+Author: Sake Blok <sake@euronet.nl>
+Date:   Sun Dec 18 14:17:41 2022 +0100
+
+    TCP: fix tcp stream numbering
+
+    With TCP Sequence Number Analysis disabled, a new TCP conversation
+    with the same 5-tuple (reused ports) was not properly recognized
+    as the base_seq was only set with the preference enabled.
+
+    (cherry picked from commit 16cc10efb689cff854b711dbb94062790887b829)
+
+commit 6de2351976
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Jan 18 20:19:22 2023 +0000
+
+    H261: Fix encoding of H261 vmvd
+
+    Close #18812
+
+    (cherry picked from commit 1844094e07c34447d4ee0c6833a74a38f51bc01a)
+
+commit be29cabbfa
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Thu Jan 19 11:08:22 2023 +0100
+
+    CMake: Update a compiler version check
+
+    (cherry picked from commit c06a38da3158a2ccb375bd516dd5a4922938b235)
+
+commit bb44a97060
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 18 14:05:02 2023 -0800
+
+    Version: 4.0.3 → 4.0.4
+
+    [skip ci]

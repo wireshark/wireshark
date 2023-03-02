@@ -21,21 +21,23 @@ wsbuglink:17779[]
 // * The Windows installers now ship with Qt 5.12.2.
 // They previously shipped with Qt 6.2.3.
 
-If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you will likely have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon. wsbuglink:18734[].
+If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you will likely have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
+wsbuglink:18734[].
 
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2023-08[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxxx[].
+* wssalink:2023-08[]
+ISO 15765 and ISO 10681 dissector crash.
+wsbuglink:18839[].
 // cveidlink:2023-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-4.0: xxxx
-// Fixed in release-3.6: xxxx
+// Fixed in master: b4c784805c
+// Fixed in release-4.0: 4ec72ec3a1
+// Fixed in release-3.6: 51e23ea7fd
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-???
+// CWE-120
+// * ISO15765 and ISO10681 dissectors corrupt memory and Wireshark may crash. wsbuglink:18839[].
 
 The following bugs have been fixed:
 
@@ -44,12 +46,13 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
-* UTF-8 characters end up escaped in psml output. wsbuglink:10445[].
-* DICOM Disscetion in reassembled PDV goes wrong. wsbuglink:13388[].
+* UTF-8 characters end up escaped in PSML output. wsbuglink:10445[].
+* Export filtered displayed packets won't save IP fragments of SCTP fragments needed to reassemble a displayed frame. wsbuglink:12597[].
+* DICOM dissection in reassembled PDV goes wrong. wsbuglink:13388[].
 * "Export Objects - IMF" produces incorrect file, TCP reassembly fails with retransmissions that have additional data. wsbuglink:13523[].
 * The intelligent scroll bar or minimap is not predictable on locating and scrolling. wsbuglink:13989[].
 * If you mark (or unmark) the currently-selected frame, the packet details still say it's not marked (or it is marked) wsbuglink:14330[].
-* An out-of-order packet incorrectly detected as retransmission breaks desegmentation of tcp stream. wsbuglink:15993[].
+* An out-of-order packet incorrectly detected as retransmission breaks desegmentation of TCP stream. wsbuglink:15993[].
 * Sorting Packet Loss Column is not sorting correct. wsbuglink:16785[].
 * Some HTTPS packets cannot be decrypted. wsbuglink:17406[].
 * SIP TCP decoding regression from Wireshark 1.99.0 to 3.6.8. wsbuglink:18411[].
@@ -60,7 +63,6 @@ The following bugs have been fixed:
 * File extension heuristics are case-sensitive. wsbuglink:18821[].
 * Symbolic links to packages in macOS dmg can't be double-clicked to install on macOS 13.2. wsbuglink:18830[].
 * Potential memory leak in tshark.c. wsbuglink:18837[].
-* ISO15765 and ISO10681 dissectors corrupt memory and Wireshark may crash. wsbuglink:18839[].
 * Fuzz job crash output: fuzz-2023-02-05-7303.pcap. wsbuglink:18842[].
 * f5fileinfo: Hardware platforms missing descriptions. wsbuglink:18848[].
 * The lines in the intelligent scrollbar are off by one. wsbuglink:18850[].
@@ -115,11 +117,13 @@ QSIG
 ROHC
 RSVP
 RTCP
+SCTP
 SIP
 TCP
 TECMP
 TWAMP
 UDS
+UMTS RLC
 --
 
 === New and Updated Capture File Support
