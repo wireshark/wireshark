@@ -10589,6 +10589,7 @@ static pfcp_generic_ie_t pfcp_travelping_ies[] = {
     { VENDOR_TRAVELPING, 32775 , "Error Message"                     , dissect_pfcp_enterprise_travelping_error_message      , -1} ,
     { VENDOR_TRAVELPING, 32776 , "File Name"                         , dissect_pfcp_enterprise_travelping_file_name          , -1} ,
     { VENDOR_TRAVELPING, 32777 , "Line Number"                       , dissect_pfcp_enterprise_travelping_line_number        , -1} ,
+    { VENDOR_TRAVELPING, 32778 , "Created NAT Binding"               , dissect_pfcp_grouped_ie_wrapper                       , -1} ,
     { VENDOR_TRAVELPING, 32779 , "IPFIX Policy"                      , dissect_pfcp_enterprise_travelping_ipfix_policy       , -1} ,
     { VENDOR_TRAVELPING, 32780 , "Trace Information"                 , dissect_pfcp_grouped_ie_wrapper                       , -1} ,
     { VENDOR_TRAVELPING, 32781 , "Trace Parent"                      , dissect_pfcp_enterprise_travelping_trace_parent       , -1} ,
