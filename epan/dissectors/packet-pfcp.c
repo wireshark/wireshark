@@ -915,6 +915,9 @@ static int hf_pfcp_qer_indications_flags_b0_iqfis = -1;
 
 /* Enterprise IEs */
 /* BBF */
+static int hf_pfcp_bbf_up_function_features_o7_b7_nat_up = -1;
+static int hf_pfcp_bbf_up_function_features_o7_b6_nat_cp = -1;
+static int hf_pfcp_bbf_up_function_features_o7_b5_iptv = -1;
 static int hf_pfcp_bbf_up_function_features_o7_b4_lcp_keepalive_offload = -1;
 static int hf_pfcp_bbf_up_function_features_o7_b3_lns = -1;
 static int hf_pfcp_bbf_up_function_features_o7_b2_lac = -1;
@@ -958,6 +961,35 @@ static int hf_pfcp_bbf_l2tp_session_id = -1;
 
 static int hf_pfcp_bbf_l2tp_type_flags = -1;
 static int hf_pfcp_bbf_l2tp_type_flags_b0_t = -1;
+
+static int hf_pfcp_bbf_multicast_flags_o7_b1_routeralertoff = -1;
+static int hf_pfcp_bbf_multicast_flags_o7_b0_fastleave = -1;
+
+static int hf_pfcp_bbf_multicast_query_param_robustness = -1;
+static int hf_pfcp_bbf_multicast_query_param_query_interval = -1;
+static int hf_pfcp_bbf_multicast_query_param_query_response_interval = -1;
+static int hf_pfcp_bbf_multicast_query_param_group_query_interval = -1;
+
+static int hf_pfcp_bbf_multicast_group_limit_max_joins = -1;
+
+static int hf_pfcp_bbf_apply_action_flags_b0_nat = -1;
+
+static int hf_pfcp_bbf_nat_external_port_range = -1;
+static int hf_pfcp_bbf_nat_external_port_range_start = -1;
+static int hf_pfcp_bbf_nat_external_port_range_end = -1;
+
+static int hf_pfcp_bbf_nat_port_forward = -1;
+static int hf_pfcp_bbf_nat_port_forward_inside_ip = -1;
+static int hf_pfcp_bbf_nat_port_forward_inside_port = -1;
+static int hf_pfcp_bbf_nat_port_forward_outside_port = -1;
+static int hf_pfcp_bbf_nat_port_forward_protocol = -1;
+
+static int hf_pfcp_bbf_reporting_trigger = -1;
+
+static int hf_pfcp_bbf_dynamic_nat_block_port_range_start_port = -1;
+static int hf_pfcp_bbf_dynamic_nat_block_port_range_end_port = -1;
+
+static int hf_pfcp_bbf_event_time_stamp = -1;
 
 /* Travelping */
 static int hf_pfcp_enterprise_travelping_packet_measurement = -1;
@@ -1121,6 +1153,7 @@ static int ett_pfcp_bbf_l2tp_endp_flags = -1;
 static int ett_pfcp_bbf_l2tp_type_flags = -1;
 static int ett_pfcp_bbf_ppp_lcp_connectivity = -1;
 static int ett_pfcp_bbf_l2tp_tunnel = -1;
+static int ett_pfcp_bbf_nat_port_forward_list = -1;
 
 static int ett_pfcp_nokia_detailed_stats_key = -1;
 static int ett_pfcp_nokia_detailed_stats_bitmap = -1;
@@ -10072,13 +10105,20 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
  * TR-459: Control and User Plane Separation for a disaggregated BNG
  */
 
+/*
+ * TR-459:   6.6.1 BBF UP Function Features
+ * TR-459.2: 6.5.1 BBF UP Function Features
+ * TR-459.3: Table 1: BBF UP Function Features for Multicast
+ */
 static int
 dissect_pfcp_enterprise_bbf_up_function_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
     static int * const pfcp_bbf_up_function_features_o7_flags[] = {
-        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_bbf_up_function_features_o7_b7_nat_up,
+        &hf_pfcp_bbf_up_function_features_o7_b6_nat_cp,
+        &hf_pfcp_bbf_up_function_features_o7_b5_iptv,
         &hf_pfcp_bbf_up_function_features_o7_b4_lcp_keepalive_offload,
         &hf_pfcp_bbf_up_function_features_o7_b3_lns,
         &hf_pfcp_bbf_up_function_features_o7_b2_lac,
@@ -10360,7 +10400,203 @@ dissect_pfcp_enterprise_bbf_l2tp_type(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     return offset;
 }
 
+/*
+ * TR-459.3: Figure 6: BBF Multicast Flags Information Element
+ */
+static int
+dissect_pfcp_enterprise_bbf_multicast_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_bbf_multicast_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_bbf_multicast_flags_o7_b1_routeralertoff,
+        &hf_pfcp_bbf_multicast_flags_o7_b0_fastleave,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_bbf_multicast_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * TR-459.3: Figure 7: BBF Multicast Query Parameters Information Element
+ */
+static int
+dissect_pfcp_enterprise_bbf_multicast_query_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_pfcp_bbf_multicast_query_param_robustness, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_pfcp_bbf_multicast_query_param_query_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_pfcp_bbf_multicast_query_param_query_response_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_pfcp_bbf_multicast_query_param_group_query_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+/*
+ * TR-459.3: Figure 8: BBF Multicast Group Limit Information Element
+ */
+static int
+dissect_pfcp_enterprise_bbf_multicast_group_limit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_multicast_group_limit_max_joins, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
+    offset += 2;
+    proto_item_append_text(proto_tree_get_parent(tree), "%u", value);
+
+    return offset;
+}
+
+/*
+ * TR-459.2: 6.5.5 BBF Apply Action IE
+ */
+static int
+dissect_pfcp_enterprise_bbf_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_bbf_apply_action_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_bbf_apply_action_flags_b0_nat,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_bbf_apply_action_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+/*
+ * TR-459.2: 6.5.6 BBF NAT External Port Range
+ */
+static int
+dissect_pfcp_enterprise_bbf_nat_external_port_range(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int     offset = 0;
+    guint32 start, end;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_nat_external_port_range_start, tvb, offset, 2, ENC_BIG_ENDIAN, &start);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_nat_external_port_range_end, tvb, offset, 2, ENC_BIG_ENDIAN, &end);
+    offset += 2;
+
+    proto_item_append_text(proto_tree_get_parent(tree), ": %u:%u", start, end);
+
+    return offset;
+}
+
+/*
+ * TR-459.2: 6.5.7 BBF NAT port forward
+ */
+static int
+dissect_pfcp_enterprise_bbf_nat_port_forward(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    int     offset = 0;
+    guint   length = tvb_reported_length(tvb);
+
+    while ((guint)offset < length) {
+        guint32 in, out, protocol;
+        proto_item *li;
+        proto_tree *lt;
+
+        li = proto_tree_add_item(tree, hf_pfcp_bbf_nat_port_forward, tvb, offset, 9, ENC_NA);
+        lt = proto_item_add_subtree(li, ett_pfcp_bbf_nat_port_forward_list);
+
+        proto_tree_add_item(lt, hf_pfcp_bbf_nat_port_forward_inside_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item_ret_uint(lt, hf_pfcp_bbf_nat_port_forward_inside_port, tvb, offset, 2, ENC_BIG_ENDIAN, &in);
+        offset += 2;
+
+        proto_tree_add_item_ret_uint(lt, hf_pfcp_bbf_nat_port_forward_outside_port, tvb, offset, 2, ENC_BIG_ENDIAN, &out);
+        offset += 2;
+
+        proto_tree_add_item_ret_uint(lt, hf_pfcp_bbf_nat_port_forward_protocol, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol);
+        offset += 1;
+
+        proto_item_append_text(li, ": proto=%s: %s:%u -> %u", val_to_str_ext_const(protocol, &ipproto_val_ext, "Unknown"),
+                               tvb_ip_to_str(pinfo->pool, tvb, 0), in, out);
+    }
+
+    return offset;
+}
+
+/*
+ * TR 459.2: 6.5.3 BBF Report Trigger
+ */
+static const value_string pfcp_bbf_reporting_trigger_vals[] = {
+
+    { 0, "reserved" },
+    { 1, "DBNG-UP allocated NAT blocks" },
+    { 0, NULL }
+};
+
+static int
+dissect_pfcp_enterprise_bbf_reporting_trigger(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_reporting_trigger, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset += 1;
+    proto_item_append_text(proto_tree_get_parent(tree), "%s", val_to_str_const(value, pfcp_bbf_reporting_trigger_vals, "Unknown"));
+
+    return offset;
+}
+
+/*
+ * TR 459.2: 6.5.8 BBF Dynamic NAT Block Port Range
+ */
+static int
+dissect_pfcp_enterprise_bbf_dynamic_nat_block_port_range(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+    guint32 start, end;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_dynamic_nat_block_port_range_start_port, tvb, offset, 2, ENC_BIG_ENDIAN, &start);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_dynamic_nat_block_port_range_end_port, tvb, offset, 2, ENC_BIG_ENDIAN, &end);
+    offset += 2;
+
+    proto_item_append_text(proto_tree_get_parent(tree), "%u:%u", start, end);
+
+    return offset;
+}
+
+/*
+ * TR 459.2: 6.5.9 BBF Event Time Stamp
+ */
+static int
+dissect_pfcp_enterprise_bbf_event_time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    int offset = 0;
+    char *time_str;
+
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_bbf_event_time_stamp, tvb, 0, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
+    offset += 8;
+    proto_item_append_text(proto_tree_get_parent(tree), "%s", time_str);
+
+    return offset;
+}
+
 static pfcp_generic_ie_t pfcp_bbf_ies[] = {
+    /* TR-459 */
     { VENDOR_BROADBAND_FORUM, 32768 , "UP Function Features"                     , dissect_pfcp_enterprise_bbf_up_function_features  , -1} ,
     { VENDOR_BROADBAND_FORUM, 32769 , "Logical Port"                             , dissect_pfcp_enterprise_bbf_logical_port          , -1} ,
     { VENDOR_BROADBAND_FORUM, 32770 , "Outer Header Creation"                    , dissect_pfcp_enterprise_bbf_outer_header_creation , -1} ,
@@ -10375,6 +10611,18 @@ static pfcp_generic_ie_t pfcp_bbf_ies[] = {
     { VENDOR_BROADBAND_FORUM, 32779 , "L2TP Type"                                , dissect_pfcp_enterprise_bbf_l2tp_type             , -1} ,
     { VENDOR_BROADBAND_FORUM, 32780 , "PPP LCP Connectivity"                     , dissect_pfcp_grouped_ie_wrapper                   , -1} ,
     { VENDOR_BROADBAND_FORUM, 32781 , "L2TP Tunnel"                              , dissect_pfcp_grouped_ie_wrapper                   , -1} ,
+    /* TR-459.3 */
+    { VENDOR_BROADBAND_FORUM, 32782 , "BBF Multicast Flags"                      , dissect_pfcp_enterprise_bbf_multicast_flags            , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32783 , "BBF Multicast Query Parameters"           , dissect_pfcp_enterprise_bbf_multicast_query_parameters , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32784 , "BBF Multicast Group Limit"                , dissect_pfcp_enterprise_bbf_multicast_group_limit      , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32785 , "BBF Multicast Protocol Control"           , dissect_pfcp_grouped_ie_wrapper                        , -1} ,
+    /* TR-459.2 */
+    { VENDOR_BROADBAND_FORUM, 32787 , "BBF Apply Action"                         , dissect_pfcp_enterprise_bbf_apply_action                 , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32788 , "BBF NAT External Port Range"              , dissect_pfcp_enterprise_bbf_nat_external_port_range      , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32789 , "BBF NAT Port Forward"                     , dissect_pfcp_enterprise_bbf_nat_port_forward             , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32790 , "BBF Report Trigger"                       , dissect_pfcp_enterprise_bbf_reporting_trigger            , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32791 , "BBF Dynamic NAT Block Port Range"         , dissect_pfcp_enterprise_bbf_dynamic_nat_block_port_range , -1} ,
+    { VENDOR_BROADBAND_FORUM, 32792 , "BBF Event Time Stamp"                     , dissect_pfcp_enterprise_bbf_event_time_stamp             , -1} ,
 };
 
 /* Enterprise IE decoding Travelping */
@@ -14979,6 +15227,21 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
             "PPP LCP echo supported in DBNG-UP function", HFILL }
         },
+        { &hf_pfcp_bbf_up_function_features_o7_b5_iptv,
+        { "IPTV", "pfcp.bbf.up_function_features.iptv",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            "DBNG-UP support of IP Multicast", HFILL }
+        },
+        { &hf_pfcp_bbf_up_function_features_o7_b6_nat_cp,
+        { "NAT-CP", "pfcp.bbf.up_function_features.nat_cp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "NAT function supported in DBNG-CP function", HFILL }
+        },
+        { &hf_pfcp_bbf_up_function_features_o7_b7_nat_up,
+        { "NAT-UP", "pfcp.bbf.up_function_features.nat_up",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            "NAT function supported in DBNG-UP function", HFILL }
+        },
 
         { &hf_pfcp_bbf_logical_port_id,
         { "Logical Port", "pfcp.bbf.logical_port_id",
@@ -15123,6 +15386,116 @@ proto_register_pfcp(void)
         { &hf_pfcp_bbf_l2tp_type_flags_b0_t,
         { "T (TYPE)", "pfcp.bbf.l2tp_type_flags.t",
             FT_BOOLEAN, 8, TFS(&pfcp_bbf_l2tp_type_b0_t_tfs), 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_multicast_flags_o7_b1_routeralertoff,
+        { "ROUTERALERTOFF", "pfcp.bbf.multicast_flags.routeralertoff",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_multicast_flags_o7_b0_fastleave,
+        { "FASTLEAVE", "pfcp.bbf.multicast_flags.fastleave",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_multicast_query_param_robustness,
+        { "Robustness count", "pfcp.bbf.multicast_query_parameters.robustness_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_multicast_query_param_query_interval,
+        { "Query interval", "pfcp.bbf.multicast_query_parameters.query_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_multicast_query_param_query_response_interval,
+        { "Query response interval", "pfcp.bbf.multicast_query_parameters.query_response_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_multicast_query_param_group_query_interval,
+        { "Group-specific query interval", "pfcp.bbf.multicast_query_parameters.group_specific_query_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_multicast_group_limit_max_joins,
+        { "Maximum number of concurrent (S,G) joins allowed", "pfcp.bbf.multicast_group_limit.max_joins",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_apply_action_flags_b0_nat,
+        { "NAT", "pfcp.bbf.apply_action_flags.nat",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_nat_external_port_range,
+        { "Port Range", "pfcp.bbf.nat_external_port_range",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_nat_external_port_range_start,
+        { "Start", "pfcp.bbf.nat_external_port_range.start",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_nat_external_port_range_end,
+        { "End", "pfcp.bbf.nat_external_port_range.end",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_nat_port_forward,
+        { "NAT Port Forward", "pfcp.bbf.nat_port_forward",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_nat_port_forward_inside_ip,
+        { "Inside Address", "pfcp.bbf.nat_port_forward.inside_address",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_nat_port_forward_inside_port,
+        { "Inside Port", "pfcp.bbf.nat_port_forward.inside_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_nat_port_forward_outside_port,
+        { "Outside Port", "pfcp.bbf.nat_port_forward.outside_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_nat_port_forward_protocol,
+        { "Protocol", "pfcp.bbf.nat_port_forward.protocol",
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            NULL , HFILL
+        }
+        },
+
+        { &hf_pfcp_bbf_reporting_trigger,
+        { "Reporting Trigger", "pfcp.bbf.reporting_trigger",
+            FT_UINT8, BASE_DEC, VALS(pfcp_bbf_reporting_trigger_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_dynamic_nat_block_port_range_start_port,
+        { "Start", "pfcp.dynamic_nat_block_port_range.start",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_dynamic_nat_block_port_range_end_port,
+        { "End", "pfcp.dynamic_nat_block_port_range.end",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_bbf_event_time_stamp,
+          { "Event Time Stamp", "pfcp.bbf.event_time_stamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -15801,7 +16174,8 @@ proto_register_pfcp(void)
         &ett_pfcp_bbf_l2tp_type_flags,
         &ett_pfcp_bbf_ppp_lcp_connectivity,
         &ett_pfcp_bbf_l2tp_tunnel,
-        /* Nokia */
+        &ett_pfcp_bbf_nat_port_forward_list,
+       /* Nokia */
         &ett_pfcp_nokia_detailed_stats_key,
         &ett_pfcp_nokia_detailed_stats_bitmap,
         &ett_pfcp_nokia_measurement_info,
