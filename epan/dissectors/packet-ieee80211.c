@@ -6204,6 +6204,22 @@ static int hf_ieee80211_vs_arista_subtype = -1;
 static int hf_ieee80211_vs_arista_apname = -1;
 static int hf_ieee80211_vs_arista_data = -1;
 
+static int hf_ieee80211_vs_wisun_type = -1;
+static int hf_ieee80211_vs_wisun_ptkid = -1;
+static int hf_ieee80211_vs_wisun_gtkl = -1;
+static int hf_ieee80211_vs_wisun_gtkl_gtk0 = -1;
+static int hf_ieee80211_vs_wisun_gtkl_gtk1 = -1;
+static int hf_ieee80211_vs_wisun_gtkl_gtk2 = -1;
+static int hf_ieee80211_vs_wisun_gtkl_gtk3 = -1;
+static int hf_ieee80211_vs_wisun_nr = -1;
+static int hf_ieee80211_vs_wisun_lgtkl = -1;
+static int hf_ieee80211_vs_wisun_lgtkl_lgtk0 = -1;
+static int hf_ieee80211_vs_wisun_lgtkl_lgtk1 = -1;
+static int hf_ieee80211_vs_wisun_lgtkl_lgtk2 = -1;
+static int hf_ieee80211_vs_wisun_lgtk_key_id = -1;
+static int hf_ieee80211_vs_wisun_lgtk_lgtk = -1;
+static int hf_ieee80211_vs_wisun_data = -1;
+
 static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
 
 static int hf_ieee80211_rsn_ie_gtk_kde_data_type = -1;
@@ -7753,6 +7769,9 @@ static gint ett_nintendo = -1;
 static gint ett_routerboard = -1;
 
 static gint ett_meru = -1;
+
+static gint ett_wisun_gtkl = -1;
+static gint ett_wisun_lgtkl = -1;
 
 static gint ett_qos_map_set_exception = -1;
 static gint ett_qos_map_set_range = -1;
@@ -18751,6 +18770,101 @@ dissect_vendor_ie_arista(proto_item *item, proto_tree *ietree,
   }
 }
 
+#define WISUN_PTKID 1
+#define WISUN_GTKL  2
+#define WISUN_NR    3
+#define WISUN_LGTKL 4
+#define WISUN_LGTK  5
+
+static const value_string ieee80211_vs_wisun_type_vals[] = {
+  { WISUN_PTKID, "PTKID" },
+  { WISUN_GTKL,  "GTKL"  },
+  { WISUN_NR,    "NR"    },
+  { WISUN_LGTKL, "LGTKL" },
+  { WISUN_LGTK,  "LGTK"  },
+  { 0,           NULL    }
+};
+
+#define WISUN_GTKL_GTK0 0x01
+#define WISUN_GTKL_GTK1 0x02
+#define WISUN_GTKL_GTK2 0x04
+#define WISUN_GTKL_GTK3 0x08
+
+#define WISUN_NR_BR     0
+#define WISUN_NR_ROUTER 1
+#define WISUN_NR_LFN    2
+
+static const value_string ieee80211_vs_wisun_nr_vals[] = {
+  { WISUN_NR_BR,     "Border Router" },
+  { WISUN_NR_ROUTER, "Router"        },
+  { WISUN_NR_LFN,    "LFN"           },
+  { 0,               NULL            }
+};
+
+#define WISUN_LGTKL_LGTK0 0x01
+#define WISUN_LGTKL_LGTK1 0x02
+#define WISUN_LGTKL_LGTK2 0x04
+
+static void
+dissect_vendor_ie_wisun(proto_item *item, proto_tree *ietree,
+                        tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  guint32 type;
+
+  proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_wisun_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &type);
+  proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_wisun_type_vals, "Unknown"));
+  offset += 1;
+  tag_len -= 1;
+
+  switch(type) {
+  case WISUN_PTKID:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_wisun_ptkid, tvb, offset, 16, ENC_NA);
+    break;
+  case WISUN_GTKL: {
+    static int * const wisun_gtkl[] = {
+        &hf_ieee80211_vs_wisun_gtkl_gtk0,
+        &hf_ieee80211_vs_wisun_gtkl_gtk1,
+        &hf_ieee80211_vs_wisun_gtkl_gtk2,
+        &hf_ieee80211_vs_wisun_gtkl_gtk3,
+        NULL,
+    };
+
+    proto_tree_add_bitmask(ietree, tvb, offset, hf_ieee80211_vs_wisun_gtkl,
+                           ett_wisun_gtkl, wisun_gtkl, ENC_LITTLE_ENDIAN);
+    break;
+  }
+  case WISUN_NR:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_wisun_nr, tvb,
+                        offset, 1, ENC_LITTLE_ENDIAN);
+    break;
+  case WISUN_LGTKL: {
+    static int * const wisun_lgtkl[] = {
+        &hf_ieee80211_vs_wisun_lgtkl_lgtk0,
+        &hf_ieee80211_vs_wisun_lgtkl_lgtk1,
+        &hf_ieee80211_vs_wisun_lgtkl_lgtk2,
+        NULL,
+    };
+
+    proto_tree_add_bitmask(ietree, tvb, offset, hf_ieee80211_vs_wisun_lgtkl,
+                           ett_wisun_lgtkl, wisun_lgtkl, ENC_LITTLE_ENDIAN);
+    break;
+  }
+  case WISUN_LGTK:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_wisun_lgtk_key_id, tvb,
+                        offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    tag_len -= 2;
+    proto_tree_add_item(ietree, hf_ieee80211_vs_wisun_lgtk_lgtk, tvb,
+                        offset, tag_len, ENC_NA);
+    break;
+  default:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_wisun_data, tvb, offset, tag_len, ENC_NA);
+    if (tag_len > 0)
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+    break;
+  }
+}
+
 /* 802.11-2012 8.4.2.37 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
@@ -28163,7 +28277,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     case OUI_MOJO_ARISTA:
       dissect_vendor_ie_arista(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
-
+    case OUI_WISUN:
+      dissect_vendor_ie_wisun(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
       break;
@@ -48327,6 +48443,55 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    /* Vendor Specific : Wi-SUN */
+    {&hf_ieee80211_vs_wisun_type,
+     {"Data Type", "wlan.vs.wisun.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_wisun_type_vals), 0,
+      NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_ptkid,
+     {"PTK ID", "wlan.vs.wisun.ptkid",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_gtkl,
+     {"GTK Liveness", "wlan.vs.wisun.gtkl",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_gtkl_gtk0,
+     {"GTK[0]", "wlan.vs.wisun.gtkl.gtk0",
+      FT_UINT8, BASE_HEX, NULL, WISUN_GTKL_GTK0, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_gtkl_gtk1,
+     {"GTK[1]", "wlan.vs.wisun.gtkl.gtk1",
+      FT_UINT8, BASE_HEX, NULL, WISUN_GTKL_GTK1, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_gtkl_gtk2,
+     {"GTK[2]", "wlan.vs.wisun.gtkl.gtk2",
+      FT_UINT8, BASE_HEX, NULL, WISUN_GTKL_GTK2, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_gtkl_gtk3,
+     {"GTK[3]", "wlan.vs.wisun.gtkl.gtk3",
+      FT_UINT8, BASE_HEX, NULL, WISUN_GTKL_GTK3, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_nr,
+     {"Node Role", "wlan.vs.wisun.nr",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_wisun_nr_vals), 0,
+      NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_lgtkl,
+     {"LGTK Liveness", "wlan.vs.wisun.lgtkl",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_lgtkl_lgtk0,
+     {"LGTK[0]", "wlan.vs.wisun.lgtkl.lgtk0",
+      FT_UINT8, BASE_HEX, NULL, WISUN_LGTKL_LGTK0, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_lgtkl_lgtk1,
+     {"LGTK[1]", "wlan.vs.wisun.lgtkl.lgtk1",
+      FT_UINT8, BASE_HEX, NULL, WISUN_LGTKL_LGTK1, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_lgtkl_lgtk2,
+     {"LGTK[2]", "wlan.vs.wisun.lgtkl.lgtk2",
+      FT_UINT8, BASE_HEX, NULL, WISUN_LGTKL_LGTK2, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_lgtk_key_id,
+     {"Key ID", "wlan.vs.wisun.lgtk.key_id",
+      FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_lgtk_lgtk,
+     {"LGTK", "wlan.vs.wisun.lgtk.lgtk",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    {&hf_ieee80211_vs_wisun_data,
+     {"Data", "wlan.vs.wisun.data",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan.ts_info",
       FT_UINT24, BASE_HEX, NULL, 0,
@@ -52347,6 +52512,9 @@ proto_register_ieee80211(void)
     &ett_routerboard,
 
     &ett_meru,
+
+    &ett_wisun_gtkl,
+    &ett_wisun_lgtkl,
 
     &ett_qos_map_set_exception,
     &ett_qos_map_set_range,
