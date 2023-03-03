@@ -522,7 +522,9 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         return ipAddress;
     }
 #endif
-    else if (role == ATapDataModel::DATA_ADDRESS_TYPE) {
+    else if (role == ATapDataModel::PROTO_ID) {
+        return protoId();
+    } else if (role == ATapDataModel::DATA_ADDRESS_TYPE) {
         if (idx.column() == EndpointDataModel::ENDP_COLUMN_ADDR)
             return (int)item->myaddress.type;
         return (int) AT_NONE;
@@ -790,6 +792,8 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         }
     } else if (role == ATapDataModel::ENDPOINT_DATATYPE) {
         return (int)(conv_item->ctype);
+    } else if (role == ATapDataModel::PROTO_ID) {
+        return protoId();
     } else if (role == ATapDataModel::CONVERSATION_ID) {
         return (int)(conv_item->conv_id);
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {

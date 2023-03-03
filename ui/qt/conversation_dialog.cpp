@@ -110,19 +110,19 @@ void ConversationDialog::followStream()
     if (file_closed_)
         return;
 
-    int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
-    if (endpointType != CONVERSATION_TCP && endpointType != CONVERSATION_UDP)
+    QVariant protoIdData = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
+    if (protoIdData.isNull())
         return;
 
-    follow_type_t ftype = FOLLOW_TCP;
-    if (endpointType == CONVERSATION_UDP)
-        ftype = FOLLOW_UDP;
+    int protoId = protoIdData.toInt();
+    if (get_follow_by_proto_id(protoId) == nullptr)
+        return;
 
     int convId = trafficTab()->currentItemData(ATapDataModel::CONVERSATION_ID).toInt();
 
-    // Will set the display filter too.
-    // TCP and UDP do not have a "sub-stream", so set a dummy value.
-    emit openFollowStreamDialog(ftype, convId, 0);
+    // ATapDataModel doesn't support a substream ID (XXX: yet), so set it to a
+    // dummy value.
+    emit openFollowStreamDialog(protoId, convId, 0);
 }
 
 void ConversationDialog::graphTcp()
@@ -152,13 +152,14 @@ void ConversationDialog::tabChanged(int)
     bool graph = false;
 
     if (!file_closed_) {
+        QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
+        if (!proto_id.isNull()) {
+            follow = (get_follow_by_proto_id(proto_id.toInt()) != nullptr);
+        }
         int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
         switch(endpointType) {
             case CONVERSATION_TCP:
                 graph = true;
-                // Fall through
-            case CONVERSATION_UDP:
-                follow = true;
                 break;
         }
     }

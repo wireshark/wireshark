@@ -121,6 +121,16 @@ register_follow_t* get_follow_by_name(const char* proto_short_name)
   return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_short_name, 0);
 }
 
+register_follow_t* get_follow_by_proto_id(const int proto_id)
+{
+  protocol_t *protocol = find_protocol_by_id(proto_id);
+  if (protocol == NULL) {
+        return NULL;
+  }
+
+  return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_get_protocol_short_name(protocol), 0);
+}
+
 void follow_iterate_followers(wmem_foreach_func func, gpointer user_data)
 {
     wmem_tree_foreach(registered_followers, func, user_data);

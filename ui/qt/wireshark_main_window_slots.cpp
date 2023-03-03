@@ -116,6 +116,7 @@ DIAG_ON(frame-larger-than=)
 #include "filter_action.h"
 #include "filter_dialog.h"
 #include "firewall_rules_dialog.h"
+#include "follow_stream_action.h"
 #include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
 #include "iax2_analysis_dialog.h"
@@ -1167,8 +1168,8 @@ void WiresharkMainWindow::setEditCommentsMenu()
 
 void WiresharkMainWindow::setMenusForSelectedPacket()
 {
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE, is_websocket = FALSE, is_exported_pdu = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
+             is_quic = FALSE, is_exported_pdu = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1237,19 +1238,25 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
             proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
                                       &is_ip, &is_tcp, &is_udp, &is_sctp,
                                       &is_tls, &is_rtp, &is_lte_rlc);
-            is_dccp = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "dccp");
-            is_http = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http");
-            is_http2 = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http2");
             /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
-            is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
-            is_websocket = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "websocket");
             is_exported_pdu = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "exported_pdu");
             /* For Exported PDU there is a tag inserting IP addresses into the SRC and DST columns */
             if (is_exported_pdu &&
                (capture_file_.capFile()->edt->pi.net_src.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_src.type == AT_IPv6) &&
                (capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv6)) {
                 is_ip = TRUE;
+            }
+            foreach (FollowStreamAction *follow_action, main_ui_->menuFollow->findChildren<FollowStreamAction *>()) {
+                /* QUIC has TLS handshakes; don't enabled Follow TLS Stream if
+                 * there's QUIC.
+                 */
+                gboolean is_frame = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, follow_action->filterName());
+                if (g_strcmp0(follow_action->filterName(), "tls") == 0) {
+                    follow_action->setEnabled(is_frame && !is_quic);
+                } else {
+                    follow_action->setEnabled(is_frame);
+                }
             }
         }
     }
@@ -1290,16 +1297,6 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     main_ui_->actionGoGoToLinkedPacket->setEnabled(false);
     main_ui_->actionGoNextHistoryPacket->setEnabled(next_selection_history);
     main_ui_->actionGoPreviousHistoryPacket->setEnabled(previous_selection_history);
-
-    main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
-    main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
-    main_ui_->actionAnalyzeFollowDCCPStream->setEnabled(is_dccp);
-    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls && !is_quic);
-    main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
-    main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
-    main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
-    main_ui_->actionAnalyzeFollowWebsocketStream->setEnabled(is_websocket);
-    main_ui_->actionAnalyzeFollowSIPCall->setEnabled(is_sip);
 
     foreach(QAction *cc_action, cc_actions) {
         cc_action->setEnabled(frame_selected);
@@ -3162,8 +3159,8 @@ void WiresharkMainWindow::applyExportObject()
     export_dialog->show();
 }
 
-void WiresharkMainWindow::openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index) {
-    FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
+void WiresharkMainWindow::openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num, bool use_stream_index) {
+    FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, proto_id);
     connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     fsd->addCodecs(text_codec_map_);
@@ -3177,8 +3174,8 @@ void WiresharkMainWindow::openFollowStreamDialog(follow_type_t type, guint strea
     }
 }
 
-void WiresharkMainWindow::openFollowStreamDialogForType(follow_type_t type) {
-    openFollowStreamDialog(type, 0, 0, false);
+void WiresharkMainWindow::openFollowStreamDialog(int proto_id) {
+    openFollowStreamDialog(proto_id, 0, 0, false);
 }
 
 void WiresharkMainWindow::openSCTPAllAssocsDialog()
@@ -3459,8 +3456,8 @@ void WiresharkMainWindow::on_actionStatisticsConversations_triggered()
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
     connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
         this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t, guint, guint)),
-        this, SLOT(openFollowStreamDialog(follow_type_t, guint, guint)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
+        this, SLOT(openFollowStreamDialog(int, guint, guint)));
     connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
         this, SLOT(openTcpStreamDialog(int)));
     conv_dialog->show();
@@ -3471,8 +3468,8 @@ void WiresharkMainWindow::on_actionStatisticsEndpoints_triggered()
     EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
     connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
-            this, SLOT(openFollowStreamDialogForType(follow_type_t)));
+    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
+            this, SLOT(openFollowStreamDialog(int)));
     connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
     endp_dialog->show();

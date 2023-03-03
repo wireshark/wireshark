@@ -168,6 +168,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/filter_dialog.h
 	../qt/filter_dialog.h
 	../qt/filter_expression_frame.h
+	../qt/follow_stream_action.h
 	../qt/font_color_preferences_frame.h
 	../qt/funnel_statistics.h
 	../qt/funnel_string_dialog.h
@@ -387,6 +388,7 @@ set(WIRESHARK_QT_SRC
 	../qt/filter_action.cpp
 	../qt/filter_dialog.cpp
 	../qt/filter_expression_frame.cpp
+	../qt/follow_stream_action.cpp
 	../qt/font_color_preferences_frame.cpp
 	../qt/funnel_string_dialog.cpp
 	../qt/funnel_text_dialog.cpp

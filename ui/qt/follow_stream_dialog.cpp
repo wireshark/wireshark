@@ -64,7 +64,7 @@ static QMutex loop_break_mutex;
 // Indicates that a Follow Stream is currently running
 static gboolean isReadRunning;
 
-FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type) :
+FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id) :
     WiresharkDialog(parent, cf),
     ui(new Ui::FollowStreamDialog),
     b_find_(NULL),
@@ -88,36 +88,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     ui->streamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
     ui->subStreamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
 
-    switch(type)
-    {
-    case FOLLOW_TCP:
-        follower_ = get_follow_by_name("TCP");
-        break;
-    case FOLLOW_TLS:
-        follower_ = get_follow_by_name("TLS");
-        break;
-    case FOLLOW_UDP:
-        follower_ = get_follow_by_name("UDP");
-        break;
-    case FOLLOW_DCCP:
-        follower_ = get_follow_by_name("DCCP");
-        break;
-    case FOLLOW_HTTP:
-        follower_ = get_follow_by_name("HTTP");
-        break;
-    case FOLLOW_HTTP2:
-        follower_ = get_follow_by_name("HTTP2");
-        break;
-    case FOLLOW_QUIC:
-        follower_ = get_follow_by_name("QUIC");
-        break;
-    case FOLLOW_SIP:
-        follower_ = get_follow_by_name("SIP");
-        break;
-    case FOLLOW_WEBSOCKET:
-        follower_ = get_follow_by_name("WebSocket");
-        break;
-    default :
+    follower_ = get_follow_by_proto_id(proto_id);
+    if (follower_ == NULL) {
         ws_assert_not_reached();
     }
 

@@ -172,6 +172,7 @@ set(WIRESHARK_QT_HEADERS
 	filter_dialog.h
 	filter_expression_frame.h
 	firewall_rules_dialog.h
+	follow_stream_action.h
 	follow_stream_dialog.h
 	font_color_preferences_frame.h
 	funnel_statistics.h
@@ -418,6 +419,7 @@ set(WIRESHARK_QT_SRC
 	filter_dialog.cpp
 	filter_expression_frame.cpp
 	firewall_rules_dialog.cpp
+	follow_stream_action.cpp
 	follow_stream_dialog.cpp
 	font_color_preferences_frame.cpp
 	funnel_string_dialog.cpp

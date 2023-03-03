@@ -417,15 +417,6 @@
      <property name="title">
       <string>Follow</string>
      </property>
-     <addaction name="actionAnalyzeFollowTCPStream"/>
-     <addaction name="actionAnalyzeFollowUDPStream"/>
-     <addaction name="actionAnalyzeFollowDCCPStream"/>
-     <addaction name="actionAnalyzeFollowTLSStream"/>
-     <addaction name="actionAnalyzeFollowHTTPStream"/>
-     <addaction name="actionAnalyzeFollowHTTP2Stream"/>
-     <addaction name="actionAnalyzeFollowQUICStream"/>
-     <addaction name="actionAnalyzeFollowWebsocketStream"/>
-     <addaction name="actionAnalyzeFollowSIPCall"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -1713,93 +1704,6 @@
    </property>
    <property name="toolTip">
     <string>TCP window scaling</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowTCPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>TCP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+T</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowUDPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>UDP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+U</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowDCCPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>DCCP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+E</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowTLSStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>TLS Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowHTTPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>HTTP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+H</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowHTTP2Stream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>HTTP/2 Stream</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowQUICStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>QUIC Stream</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowWebsocketStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Websocket Stream</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowSIPCall">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>SIP Call</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">
