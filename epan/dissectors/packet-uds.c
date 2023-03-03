@@ -198,7 +198,7 @@ void proto_reg_handoff_uds(void);
 #define UDS_TP_SUB_FUNCTION_OFFSET                    (UDS_DATA_OFFSET + 0)
 #define UDS_TP_SUB_FUNCTION_LEN                       1
 #define UDS_TP_SUB_FUNCTION_MASK                      0x7f
-#define UDS_TP_SUPPRESS_POS_RSP_MSG_INDIFICATION_MASK 0x80
+#define UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK   0x80
 
 #define UDS_ERR_SID_OFFSET   (UDS_DATA_OFFSET + 0)
 #define UDS_ERR_SID_LEN      1
@@ -326,7 +326,7 @@ static const value_string uds_services[]= {
 static const value_string uds_response_codes[]= {
         {UDS_RESPONSE_CODES_GR,      "General reject"},
         {UDS_RESPONSE_CODES_SNS,     "Service not supported"},
-        {UDS_RESPONSE_CODES_SFNS,    "Sub-Function Not Supported"},
+        {UDS_RESPONSE_CODES_SFNS,    "SubFunction Not Supported"},
         {UDS_RESPONSE_CODES_IMLOIF,  "Incorrect Message Length or Invalid Format"},
         {UDS_RESPONSE_CODES_RTL,     "Response too long"},
         {UDS_RESPONSE_CODES_BRR,     "Busy repeat request"},
@@ -362,7 +362,7 @@ static const value_string uds_response_codes[]= {
         {UDS_RESPONSE_CODES_GPF,     "General Programming Failure"},
         {UDS_RESPONSE_CODES_WBSC,    "Wrong Block Sequence Counter"},
         {UDS_RESPONSE_CODES_RCRRP,   "Request correctly received, but response is pending"},
-        {UDS_RESPONSE_CODES_SFNSIAS, "Sub-Function not supported in active session"},
+        {UDS_RESPONSE_CODES_SFNSIAS, "Subfunction not supported in active session"},
         {UDS_RESPONSE_CODES_SNSIAS,  "Service not supported in active session"},
         {UDS_RESPONSE_CODES_RPMTH,   "RPM Too High"},
         {UDS_RESPONSE_CODES_RPMTL,   "RPM Too Low"},
@@ -592,7 +592,7 @@ static int hf_uds_rd_max_number_of_block_length = -1;
 static int hf_uds_td_sequence_counter = -1;
 
 static int hf_uds_tp_sub_function = -1;
-static int hf_uds_tp_suppress_pos_rsp_msg_indification = -1;
+static int hf_uds_tp_suppress_pos_rsp_msg_indication = -1;
 
 static int hf_uds_err_sid = -1;
 static int hf_uds_err_code = -1;
@@ -1346,12 +1346,12 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             proto_tree_add_item(uds_tree, hf_uds_tp_sub_function, tvb,
                                 UDS_TP_SUB_FUNCTION_OFFSET, UDS_TP_SUB_FUNCTION_LEN, ENC_BIG_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   Sub-function %x", sub_function);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction %x", sub_function);
 
             if (!(sid & UDS_REPLY_MASK)) {
-                guint8 suppress = masked_guint8_value(sub_function_a, UDS_TP_SUPPRESS_POS_RSP_MSG_INDIFICATION_MASK);
+                guint8 suppress = masked_guint8_value(sub_function_a, UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK);
 
-                proto_tree_add_item(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indification, tvb,
+                proto_tree_add_item(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indication, tvb,
                                     UDS_TP_SUB_FUNCTION_OFFSET, UDS_TP_SUB_FUNCTION_LEN, ENC_BIG_ENDIAN);
 
                 if (suppress) {
@@ -1780,18 +1780,18 @@ proto_register_uds(void)
             {
                     &hf_uds_tp_sub_function,
                     {
-                            "Suppress reply", "uds.tp.suppress_reply",
+                            "SubFunction", "uds.tp.subfunction",
                             FT_UINT8, BASE_HEX,
                             NULL, UDS_TP_SUB_FUNCTION_MASK,
                             NULL, HFILL
                     }
             },
             {
-                    &hf_uds_tp_suppress_pos_rsp_msg_indification,
+                    &hf_uds_tp_suppress_pos_rsp_msg_indication,
                     {
-                            "Suppress reply", "uds.tp.suppress_reply.indification",
+                            "Suppress reply", "uds.tp.suppress_reply.indication",
                             FT_BOOLEAN, 8,
-                            NULL, UDS_TP_SUPPRESS_POS_RSP_MSG_INDIFICATION_MASK,
+                            NULL, UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK,
                             NULL, HFILL
                     }
             },
