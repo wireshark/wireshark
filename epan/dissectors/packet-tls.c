@@ -2365,6 +2365,9 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, guint32 offset
                                gboolean maybe_encrypted, SslSession *session, gboolean is_from_server)
 {
     guint record_length = offset_end - offset;
+    guint msg_length;
+    guint8 msg_type;
+    guint16 version;
 
     if (record_length < 16) {
         /*
@@ -2390,14 +2393,9 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, guint32 offset
     if (maybe_encrypted) {
         maybe_encrypted = tvb_get_ntoh40(tvb, offset) == 0;
         /*
-         * Everything after the ChangeCipherSpec message is encrypted.
          * TODO handle Finished message after CCS in the same frame and remove the
          * above nonce-based heuristic.
          */
-        if (!maybe_encrypted) {
-            guint32 ccs_frame = is_from_server ? session->server_ccs_frame : session->client_ccs_frame;
-            maybe_encrypted = ccs_frame != 0 && pinfo->num > ccs_frame;
-        }
     }
 
     if (!maybe_encrypted) {
@@ -2409,12 +2407,59 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, guint32 offset
          * - Disallow handshake fragmentation except for some common cases like
          *   Certificate messages (due to large certificates).
          */
-        guint8 msg_type = tvb_get_guint8(tvb, offset);
+        msg_type = tvb_get_guint8(tvb, offset);
         maybe_encrypted = try_val_to_str(msg_type, ssl_31_handshake_type) == NULL;
         if (!maybe_encrypted) {
-            guint msg_length = tvb_get_ntoh24(tvb, offset + 1);
+            msg_length = tvb_get_ntoh24(tvb, offset + 1);
             // Assume handshake messages are below 64K.
             maybe_encrypted = msg_length >= 0x010000;
+        }
+    }
+
+    if (!maybe_encrypted) {
+
+        /*
+         * Everything after the ChangeCipherSpec message should be encrypted.
+         * At least some buggy clients send a new handshake in the clear
+         * when renegotiating, though. (#18867).
+         */
+        guint32 *ccs_frame = is_from_server ? &session->server_ccs_frame : &session->client_ccs_frame;
+        if (*ccs_frame != 0 && pinfo->num > *ccs_frame) {
+            switch (msg_type) {
+
+            case SSL_HND_CLIENT_HELLO:
+            case SSL_HND_SERVER_HELLO:
+                version = tvb_get_ntohs(tvb, offset + 4);
+                maybe_encrypted = !ssl_is_valid_ssl_version(version);
+
+                if (!maybe_encrypted) {
+                    // Assume ClientHello and ServerHello are < 1024.
+                    maybe_encrypted = msg_length >= 0x400;
+                }
+
+                if (!maybe_encrypted) {
+                    /*
+                     * This is after the CCS, but looks like an unencrypted
+                     * ClientHello or ServerHello. This is a new handshake;
+                     * it's a buggy renegotiation or possibly retransmissions.
+                     */
+                    *ccs_frame = 0;
+                    /* XXX: Resetting the CCS frame state will allow us to
+                     * detect the new handshake, but can mean false positives
+                     * on earlier frames on later passes (reporting as
+                     * cleartext handshake messages that were encrypted and
+                     * we failed to decrypt on the first pass.) Maybe we
+                     * should store some additional state, either per packet
+                     * in SslPacketInfo or more complicated information about
+                     * encrypted handshake state changes. (E.g., in a wmem_tree
+                     * store the frames where we get a CCS and the frames
+                     * where this happens.)
+                     */
+                }
+                break;
+            default:
+                maybe_encrypted = TRUE;
+            }
         }
     }
     return maybe_encrypted;
