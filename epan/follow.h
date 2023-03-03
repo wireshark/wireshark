@@ -25,12 +25,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef enum {
-  TCP_STREAM = 0,
-  UDP_STREAM,
-  MAX_STREAM
-} stream_type;
-
-typedef enum {
     FRS_OK,
     FRS_OPEN_ERROR,
     FRS_READ_ERROR,
@@ -77,7 +71,6 @@ typedef union _stream_addr {
 struct _follow_info;
 
 typedef gboolean (*follow_print_line_func)(char *, size_t, gboolean, void *);
-typedef frs_return_t (*follow_read_stream_func)(struct _follow_info *follow_info, follow_print_line_func follow_print, void *arg);
 
 #define SUBSTREAM_UNUSED	G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)
 
