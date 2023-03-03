@@ -443,6 +443,8 @@ typedef struct {
     TlsHsFragment *hs_fragments;    /**< Handshake records that are part of a reassembly. */
     guint32 srcport;        /**< Used for Decode As */
     guint32 destport;
+    gint cipher;            /**< Cipher at time of Key Exchange handshake message.
+                                 Session cipher can change in renegotiation. */
 } SslPacketInfo;
 
 typedef struct _SslSession {
