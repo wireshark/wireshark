@@ -1000,9 +1000,8 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     timestamp.nsecs = (int)(ns % 1000000000);
     ti = proto_tree_add_time(tree, hf_tecmp_payload_timestamp, tvb, offset + 4, 8, &timestamp);
     subtree = proto_item_add_subtree(ti, ett_tecmp_payload_timestamp);
-    proto_tree_add_item_ret_boolean(subtree, hf_tecmp_payload_timestamp_async, tvb, offset + 4, 1,ENC_BIG_ENDIAN,
-                                    &async);
-    proto_tree_add_item(subtree, hf_tecmp_payload_timestamp_res, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_boolean(subtree, hf_tecmp_payload_timestamp_async, tvb, offset + 4, 1, ENC_NA, &async);
+    proto_tree_add_item(subtree, hf_tecmp_payload_timestamp_res, tvb, offset + 4, 1, ENC_NA);
 
     if (async) {
         proto_item_append_text(ti, " (not synchronized)");
