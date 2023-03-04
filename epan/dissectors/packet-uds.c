@@ -85,31 +85,16 @@ void proto_reg_handoff_uds(void);
 #define UDS_RESPONSE_CODES_VTL      0x93
 #define UDS_RESPONSE_CODES_RTNA     0x94
 
-#define UDS_SID_OFFSET  0
-#define UDS_SID_LEN     1
-#define UDS_DATA_OFFSET 1
-
-#define UDS_DSC_TYPE_OFFSET      (UDS_DATA_OFFSET + 0)
-#define UDS_DSC_TYPE_LEN         1
-#define UDS_DSC_PARAMETER_RECORD_OFFSET  (UDS_DSC_TYPE_OFFSET + UDS_DSC_TYPE_LEN)
-
 #define UDS_DSC_TYPES_DEFAULT_SESSION                   1
 #define UDS_DSC_TYPES_PROGRAMMING_SESSION               2
 #define UDS_DSC_TYPES_EXTENDED_DIAGNOSTIC_SESSION       3
 #define UDS_DSC_TYPES_SAFETY_SYSTEM_DIAGNOSTIC_SESSION  4
-
-#define UDS_ER_TYPE_OFFSET   (UDS_DATA_OFFSET + 0)
-#define UDS_ER_TYPE_LEN      1
 
 #define UDS_ER_TYPES_HARD_RESET                   1
 #define UDS_ER_TYPES_KEY_ON_OFF_RESET             2
 #define UDS_ER_TYPES_SOFT_RESET                   3
 #define UDS_ER_TYPES_ENABLE_RAPID_POWER_SHUTDOWN  4
 #define UDS_ER_TYPES_DISABLE_RAPID_POWER_SHUTDOWN 5
-
-#define UDS_RDTCI_TYPE_OFFSET   (UDS_DATA_OFFSET + 0)
-#define UDS_RDTCI_TYPE_LEN      1
-#define UDS_RDTCI_RECORD_OFFSET (UDS_RDTCI_TYPE_OFFSET + UDS_RDTCI_TYPE_LEN)
 
 #define UDS_RDTCI_TYPES_NUMBER_BY_STATUS_MASK     0x1
 #define UDS_RDTCI_TYPES_BY_STATUS_MASK            0x2
@@ -136,77 +121,28 @@ void proto_reg_handoff_uds(void);
 #define UDS_RDTCI_TYPES_WWH_OBD_DTC_PERM_STATUS   0x55
 #define UDS_RDTCI_TYPES_WWH_OBD_BY_GROUP_READY    0x56
 
-#define UDS_RDBI_DATA_IDENTIFIER_OFFSET (UDS_DATA_OFFSET + 0)
-#define UDS_RDBI_DATA_IDENTIFIER_LEN    2
-#define UDS_RDBI_DATA_RECORD_OFFSET     (UDS_RDBI_DATA_IDENTIFIER_OFFSET + UDS_RDBI_DATA_IDENTIFIER_LEN)
-
-#define UDS_SA_TYPE_OFFSET (UDS_DATA_OFFSET + 0)
-#define UDS_SA_TYPE_LEN    1
-#define UDS_SA_KEY_OFFSET  (UDS_SA_TYPE_OFFSET + UDS_SA_TYPE_LEN)
-#define UDS_SA_SEED_OFFSET (UDS_SA_TYPE_OFFSET + UDS_SA_TYPE_LEN)
-
 #define UDS_SA_TYPES_SEED   1
 #define UDS_SA_TYPES_KEY    2
 #define UDS_SA_TYPES_SEED_2 3
 #define UDS_SA_TYPES_KEY_2  4
-
-#define UDS_WDBI_DATA_IDENTIFIER_OFFSET (UDS_DATA_OFFSET + 0)
-#define UDS_WDBI_DATA_IDENTIFIER_LEN    2
-#define UDS_WDBI_DATA_RECORD_OFFSET     (UDS_WDBI_DATA_IDENTIFIER_OFFSET + UDS_WDBI_DATA_IDENTIFIER_LEN)
-
-#define UDS_IOCBI_DATA_IDENTIFIER_OFFSET (UDS_DATA_OFFSET + 0)
-#define UDS_IOCBI_DATA_IDENTIFIER_LEN    2
-#define UDS_IOCBI_PARAMETER_OFFSET       (UDS_IOCBI_DATA_IDENTIFIER_OFFSET + UDS_IOCBI_DATA_IDENTIFIER_LEN)
-#define UDS_IOCBI_PARAMETER_LEN          1
-#define UDS_IOCBI_STATE_OFFSET           (UDS_IOCBI_PARAMETER_OFFSET + UDS_IOCBI_PARAMETER_LEN)
 
 #define UDS_IOCBI_PARAMETERS_RETURN_CONTROL_TO_ECU 0
 #define UDS_IOCBI_PARAMETERS_RESET_TO_DEFAULT      1
 #define UDS_IOCBI_PARAMETERS_FREEZE_CURRENT_STATE  2
 #define UDS_IOCBI_PARAMETERS_SHORT_TERM_ADJUSTMENT 3
 
-#define UDS_RC_TYPE_OFFSET          (UDS_DATA_OFFSET + 0)
-#define UDS_RC_TYPE_LEN             1
-#define UDS_RC_ROUTINE_OFFSET       (UDS_RC_TYPE_OFFSET + UDS_RC_TYPE_LEN)
-#define UDS_RC_ROUTINE_LEN          2
-#define UDS_RC_OPTION_RECORD_OFFSET (UDS_RC_ROUTINE_OFFSET + UDS_RC_ROUTINE_LEN)
-#define UDS_RC_INFO_OFFSET          (UDS_RC_ROUTINE_OFFSET + UDS_RC_ROUTINE_LEN)
-#define UDS_RC_INFO_LEN             1
-#define UDS_RC_STATUS_RECORD_OFFSET (UDS_RC_INFO_OFFSET + UDS_RC_INFO_LEN)
-
 #define UDS_RC_TYPES_START   1
 #define UDS_RC_TYPES_STOP    2
 #define UDS_RC_TYPES_REQUEST 3
 
-#define UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET               (UDS_DATA_OFFSET + 0)
-#define UDS_RD_DATA_FORMAT_IDENTIFIER_LEN                  1
 #define UDS_RD_COMPRESSION_METHOD_MASK                     0xF0
 #define UDS_RD_ENCRYPTING_METHOD_MASK                      0x0F
-#define UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET (UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET + UDS_RD_DATA_FORMAT_IDENTIFIER_LEN)
-#define UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_LEN    1
 #define UDS_RD_MEMORY_SIZE_LENGTH_MASK                     0xF0
 #define UDS_RD_MEMORY_ADDRESS_LENGTH_MASK                  0x0F
-#define UDS_RD_MEMORY_ADDRESS_OFFSET                       (UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET + UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_LEN)
-#define UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET             (UDS_DATA_OFFSET + 0)
-#define UDS_RD_LENGTH_FORMAT_IDENTIFIER_LEN                1
 #define UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK      0xF0
-#define UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET           (UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET + UDS_RD_LENGTH_FORMAT_IDENTIFIER_LEN)
 
-#define UDS_TD_SEQUENCE_COUNTER_OFFSET                (UDS_DATA_OFFSET + 0)
-#define UDS_TD_SEQUENCE_COUNTER_LEN                   1
-
-#define UDS_TP_SUB_FUNCTION_OFFSET                    (UDS_DATA_OFFSET + 0)
-#define UDS_TP_SUB_FUNCTION_LEN                       1
 #define UDS_TP_SUB_FUNCTION_MASK                      0x7f
 #define UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK   0x80
-
-#define UDS_ERR_SID_OFFSET   (UDS_DATA_OFFSET + 0)
-#define UDS_ERR_SID_LEN      1
-#define UDS_ERR_CODE_OFFSET  (UDS_ERR_SID_OFFSET + UDS_ERR_SID_LEN)
-#define UDS_ERR_CODE_LEN     1
-
-#define UDS_CDTCS_TYPE_OFFSET (UDS_DATA_OFFSET + 0)
-#define UDS_CDTCS_TYPE_LEN    1
 
 #define UDS_CDTCS_ACTIONS_ON  1
 #define UDS_CDTCS_ACTIONS_OFF 2
@@ -598,6 +534,8 @@ static int hf_uds_err_sid = -1;
 static int hf_uds_err_code = -1;
 
 static int hf_uds_cdtcs_type = -1;
+
+static int hf_uds_unparsed_bytes = -1;
 
 /*
  * Trees
@@ -1011,21 +949,23 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
     guint32     data_length = tvb_reported_length(tvb);
     tvbuff_t   *payload_tvb;
 
+    guint32     offset = 0;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDS");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    sid = tvb_get_guint8(tvb, UDS_SID_OFFSET);
+    sid = tvb_get_guint8(tvb, offset);
     service = sid & UDS_SID_MASK;
 
     if (service < UDS_SERVICES_MIN && uds_dissect_small_sids_with_obd_ii && (obd_ii_handle != NULL)) {
-        return call_dissector(obd_ii_handle, tvb_new_subset_length_caplen(tvb, UDS_SID_OFFSET, -1, -1), pinfo, tree);
+        return call_dissector(obd_ii_handle, tvb_new_subset_length_caplen(tvb, offset, -1, -1), pinfo, tree);
     }
 
     service_name = val_to_str(service, uds_services, "Unknown (0x%02x)");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-7s   %-36s", (sid & UDS_REPLY_MASK)? "Reply": "Request", service_name);
 
-    ti = proto_tree_add_item(tree, proto_uds, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_uds, tvb, offset, -1, ENC_NA);
     uds_tree = proto_item_add_subtree(ti, ett_uds);
 
     if (sid & UDS_REPLY_MASK) {
@@ -1065,319 +1005,282 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         break;
     }
 
-    proto_tree_add_item(uds_tree, hf_uds_service, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
-    proto_tree_add_item(uds_tree, hf_uds_reply, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(uds_tree, hf_uds_service, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(uds_tree, hf_uds_reply, tvb, offset, 1, ENC_NA);
+    offset += 1;
 
     switch (service) {
         case UDS_SERVICES_DSC:
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_dsc_type, tvb, UDS_DSC_TYPE_OFFSET, UDS_DSC_TYPE_LEN,
-                                ENC_BIG_ENDIAN, &enum_val);
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_dsc_type, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_dsc_types, "Unknown (0x%02x)"));
+            offset += 1;
 
             if (sid & UDS_REPLY_MASK) {
-                guint32 parameter_record_length = data_length - UDS_DSC_PARAMETER_RECORD_OFFSET;
-                proto_tree_add_item(uds_tree, hf_uds_dsc_parameter_record, tvb,
-                                    UDS_DSC_PARAMETER_RECORD_OFFSET, parameter_record_length, ENC_NA);
-                if (parameter_record_length != 0) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_DSC_PARAMETER_RECORD_OFFSET,
-                                                           parameter_record_length, ' '));
+                proto_tree_add_item(uds_tree, hf_uds_dsc_parameter_record, tvb, offset, data_length - offset, ENC_NA);
+
+                if (data_length > offset) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                 }
 
+                offset = data_length;
             }
             break;
 
         case UDS_SERVICES_ER:
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_er_type, tvb, UDS_ER_TYPE_OFFSET, UDS_ER_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_er_type, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_er_types, "Unknown (0x%02x)"));
+            offset += 1;
+
             break;
 
         case UDS_SERVICES_RDTCI: {
-            guint32 record_length = data_length - UDS_RDTCI_RECORD_OFFSET;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_type, tvb, offset, 1, ENC_NA, &enum_val);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"));
+            offset += 1;
 
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_type, tvb, UDS_RDTCI_TYPE_OFFSET,
-                                UDS_RDTCI_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
-            proto_tree_add_item(uds_tree, hf_uds_rdtci_record, tvb,
-                                UDS_RDTCI_RECORD_OFFSET, record_length, ENC_NA);
-            if (record_length > 0) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s    %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"),
-                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDTCI_RECORD_OFFSET, record_length, ' '));
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_record, tvb, offset, data_length - offset, ENC_NA);
+            if (data_length > offset) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "    %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                offset = data_length;
             }
             break;
         }
+
         case UDS_SERVICES_RDBI:
             if (sid & UDS_REPLY_MASK) {
                 /* Can't know the size of the data for each identifier, Decode like if there is only one idenfifier */
-                guint32 record_length = data_length - UDS_RDBI_DATA_RECORD_OFFSET;
                 guint32 data_identifier;
-                ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb,
-                                                  UDS_RDBI_DATA_IDENTIFIER_OFFSET, UDS_RDBI_DATA_IDENTIFIER_LEN,
-                                                  ENC_BIG_ENDIAN, &data_identifier);
+                ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &data_identifier);
                 protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
+                offset += 2;
 
-                proto_tree_add_item(uds_tree, hf_uds_rdbi_data_record, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
-                                    record_length, ENC_NA);
-
-                payload_tvb = tvb_new_subset_length(tvb, UDS_RDBI_DATA_RECORD_OFFSET, record_length);
-                call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, data_identifier, ecu_address);
+                proto_tree_add_item(uds_tree, hf_uds_rdbi_data_record, tvb, offset, data_length - offset, ENC_NA);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                 infocol_append_data_name(pinfo, ecu_address, data_identifier);
-                if (record_length > 0) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDBI_DATA_RECORD_OFFSET, record_length, ' '));
+
+                if (data_length > offset) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+
+                    payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
+                    call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, data_identifier, ecu_address);
+
+                    offset = data_length;
                 }
             } else {
-                guint32 identifier_length = data_length - UDS_RDBI_DATA_IDENTIFIER_OFFSET;
-                guint32 offset = UDS_RDBI_DATA_IDENTIFIER_OFFSET;
-                while (identifier_length > 0) {
+                /* ISO14229: data identifiers are 2 bytes and at least one has to be present. */
+                do {
                     guint32 data_identifier;
-                    ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb, offset,
-                                                      UDS_RDBI_DATA_IDENTIFIER_LEN, ENC_BIG_ENDIAN, &data_identifier);
+                    ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &data_identifier);
                     protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                     infocol_append_data_name(pinfo, ecu_address, data_identifier);
-                    offset += UDS_RDBI_DATA_IDENTIFIER_LEN;
-                    identifier_length -= UDS_RDBI_DATA_IDENTIFIER_LEN;
-                }
+                    offset += 2;
+                } while (data_length >= offset + 2);
             }
             break;
 
         case UDS_SERVICES_SA:
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_sa_type, tvb, UDS_SA_TYPE_OFFSET,
-                                UDS_SA_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                            val_to_str(enum_val, uds_sa_types, "Unknown (0x%02x)"));
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_sa_type, tvb, offset, 1, ENC_NA, &enum_val);
+            offset += 1;
 
-            if (sid & UDS_REPLY_MASK) {
-                guint32 seed_length = data_length - UDS_SA_SEED_OFFSET;
-                if (seed_length > 0) {
-                    proto_tree_add_item(uds_tree, hf_uds_sa_seed, tvb, UDS_SA_SEED_OFFSET, seed_length, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_SA_SEED_OFFSET, seed_length,
-                                                           ' '));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_sa_types, "Unknown (0x%02x)"));
+
+            if (data_length > offset) {
+                if (sid & UDS_REPLY_MASK) {
+                    proto_tree_add_item(uds_tree, hf_uds_sa_seed, tvb, offset, data_length - offset, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                } else {
+                    proto_tree_add_item(uds_tree, hf_uds_sa_key, tvb, offset, data_length - offset, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                 }
-            } else {
-                guint32 key_length = data_length - UDS_SA_KEY_OFFSET;
-                if (key_length > 0) {
-                    proto_tree_add_item(uds_tree, hf_uds_sa_key, tvb, UDS_SA_KEY_OFFSET, key_length, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_SA_KEY_OFFSET, key_length,
-                                                           ' '));
-                }
+                offset = data_length;
             }
             break;
 
         case UDS_SERVICES_WDBI:
-            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_wdbi_data_identifier, tvb,
-                                              UDS_WDBI_DATA_IDENTIFIER_OFFSET, UDS_WDBI_DATA_IDENTIFIER_LEN,
-                                              ENC_BIG_ENDIAN, &enum_val);
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_wdbi_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &enum_val);
             protoitem_append_data_name(ti, ecu_address, (guint16)enum_val);
-            if (sid & UDS_REPLY_MASK) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
-                infocol_append_data_name(pinfo, ecu_address, enum_val);
-            } else {
-                guint32 record_length = data_length - UDS_WDBI_DATA_RECORD_OFFSET;
-                proto_tree_add_item(uds_tree, hf_uds_wdbi_data_record, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
-                                    record_length, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
-                infocol_append_data_name(pinfo, ecu_address, enum_val);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
+            infocol_append_data_name(pinfo, ecu_address, enum_val);
+            offset += 2;
 
-                if (record_length > 0) {
-                    payload_tvb = tvb_new_subset_length(tvb, UDS_WDBI_DATA_RECORD_OFFSET, record_length);
+            if ((sid & UDS_REPLY_MASK) != UDS_REPLY_MASK) {
+                proto_tree_add_item(uds_tree, hf_uds_wdbi_data_record, tvb, offset, data_length - offset, ENC_NA);
+
+                if (data_length > offset) {
+                    payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
                     call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, enum_val, ecu_address);
 
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
-                                                           record_length, ' '));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                 }
 
+                offset = data_length;
             }
             break;
 
         case UDS_SERVICES_IOCBI: {
             guint32 data_identifier;
-            guint32 state_length = data_length - UDS_IOCBI_STATE_OFFSET;
-
-            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_data_identifier, tvb,
-                                              UDS_IOCBI_DATA_IDENTIFIER_OFFSET, UDS_IOCBI_DATA_IDENTIFIER_LEN,
-                                              ENC_BIG_ENDIAN, &data_identifier);
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &data_identifier);
             protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
-
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_parameter, tvb, UDS_IOCBI_PARAMETER_OFFSET,
-                                         UDS_IOCBI_PARAMETER_LEN, ENC_BIG_ENDIAN, &enum_val);
-
-            proto_tree_add_item(uds_tree, hf_uds_iocbi_state, tvb, UDS_IOCBI_STATE_OFFSET,
-                                state_length, ENC_NA);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
             infocol_append_data_name(pinfo, ecu_address, data_identifier);
+            offset += 2;
+
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_parameter, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str(enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"));
-            if (state_length > 0) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_IOCBI_STATE_OFFSET, state_length, ' '));
+            offset += 1;
+
+            /* The exact format depends on vehicle manufacturer and config. Not much we can do here. */
+            if (data_length > offset) {
+                proto_tree_add_item(uds_tree, hf_uds_iocbi_state, tvb, offset, data_length - offset, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
             }
+            offset = data_length;
             break;
         }
+
         case UDS_SERVICES_RC: {
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_type, tvb, offset, 1, ENC_NA, &enum_val);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_rc_types, "Unknown (0x%02x)"));
+            offset += 1;
+
             guint32 identifier;
-
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_type, tvb, UDS_RC_TYPE_OFFSET,
-                                UDS_RC_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
-
-            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_identifier, tvb, UDS_RC_ROUTINE_OFFSET,
-                                UDS_RC_ROUTINE_LEN, ENC_BIG_ENDIAN, &identifier);
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &identifier);
             protoitem_append_routine_name(ti, ecu_address, identifier);
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s 0x%04x",
-                            val_to_str(enum_val, uds_rc_types, "Unknown (0x%02x)"), identifier);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%04x", identifier);
             infocol_append_routine_name(pinfo, ecu_address, identifier);
-            if (sid & UDS_REPLY_MASK) {
-                guint32 rc_data_len = data_length - UDS_RC_INFO_OFFSET;
-                if (rc_data_len > 0) {
-                    guint8 info = tvb_get_guint8(tvb, UDS_RC_INFO_OFFSET);
-                    proto_tree_add_item(uds_tree, hf_uds_rc_info, tvb,
-                                        UDS_RC_INFO_OFFSET, UDS_RC_INFO_LEN, ENC_BIG_ENDIAN);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%x", info);
-                    if (rc_data_len > 1) {
-                        guint32 status_record_len = data_length - UDS_RC_STATUS_RECORD_OFFSET;
-                        proto_tree_add_item(uds_tree, hf_uds_rc_status_record, tvb,
-                                            UDS_RC_STATUS_RECORD_OFFSET, status_record_len, ENC_NA);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                        tvb_bytes_to_str_punct(pinfo->pool, tvb,
-                                                               UDS_RC_STATUS_RECORD_OFFSET, status_record_len, ' '));
+            offset += 2;
 
-                        payload_tvb = tvb_new_subset_length(tvb, UDS_RC_STATUS_RECORD_OFFSET, status_record_len);
+            if (sid & UDS_REPLY_MASK) {
+                if (data_length > offset) {
+                    guint8 info = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item(uds_tree, hf_uds_rc_info, tvb, offset, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%x", info);
+                    offset += 1;
+
+                    if (data_length > offset) {
+                        proto_tree_add_item(uds_tree, hf_uds_rc_status_record, tvb, offset, data_length - offset, ENC_NA);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",  tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+
+                        payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
                         call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, identifier, ecu_address);
+                        offset = data_length;
                     }
                 }
             } else {
-                guint32 option_record_len = data_length - UDS_RC_OPTION_RECORD_OFFSET;
-                if (option_record_len > 0) {
-                    proto_tree_add_item(uds_tree, hf_uds_rc_option_record, tvb,
-                                        UDS_RC_OPTION_RECORD_OFFSET, option_record_len, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(pinfo->pool, tvb,
-                                                           UDS_RC_OPTION_RECORD_OFFSET, option_record_len, ' '));
+                if (data_length > offset) {
+                    proto_tree_add_item(uds_tree, hf_uds_rc_option_record, tvb, offset, data_length - offset, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
 
-                    payload_tvb = tvb_new_subset_length(tvb, UDS_RC_OPTION_RECORD_OFFSET, option_record_len);
+                    payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
                     call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, identifier, ecu_address);
+                    offset = data_length;
                 }
             }
             break;
         }
+
         case UDS_SERVICES_RD:
             if (sid & UDS_REPLY_MASK) {
                 guint8 length_format_identifier, max_number_of_block_length_length;
                 guint64 max_number_of_block_length;
 
-                length_format_identifier = tvb_get_guint8(tvb, UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET);
-                max_number_of_block_length_length = masked_guint8_value(length_format_identifier,
-                                                                        UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length_length, tvb,
-                                    UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET,
-                                    UDS_RD_LENGTH_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
+                length_format_identifier = tvb_get_guint8(tvb, offset);
+                max_number_of_block_length_length = masked_guint8_value(length_format_identifier, UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK);
+                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length_length, tvb, offset, 1, ENC_NA);
+                offset += 1;
 
-                max_number_of_block_length = tvb_get_guintX(tvb, UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET,
-                                                            max_number_of_block_length_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length, tvb,
-                                    UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET,
-                                    max_number_of_block_length_length, ENC_BIG_ENDIAN);
+                max_number_of_block_length = tvb_get_guintX(tvb, offset, max_number_of_block_length_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length, tvb, offset, max_number_of_block_length_length, ENC_BIG_ENDIAN);
+                offset += max_number_of_block_length_length;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   Max Number Of Block Length 0x%" PRIx64,
-                                max_number_of_block_length);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   Max Number Of Block Length 0x%" PRIx64, max_number_of_block_length);
             } else {
-                guint8 data_format_identifier, compression, encryting;
-                guint8 address_and_length_format_idenfifier, memory_size_length, memory_address_length;
-                guint64 memory_size, memory_address;
-
-                data_format_identifier = tvb_get_guint8(tvb, UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET);
-
+                guint8 data_format_identifier, compression, encrypting;
+                data_format_identifier = tvb_get_guint8(tvb, offset);
                 compression = masked_guint8_value(data_format_identifier, UDS_RD_COMPRESSION_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_compression_method, tvb,
-                                    UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET,
-                                    UDS_RD_DATA_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
+                proto_tree_add_item(uds_tree, hf_uds_rd_compression_method, tvb, offset, 1, ENC_NA);
+                encrypting = masked_guint8_value(data_format_identifier, UDS_RD_ENCRYPTING_METHOD_MASK);
+                proto_tree_add_item(uds_tree, hf_uds_rd_encrypting_method, tvb, offset, 1, ENC_NA);
+                offset += 1;
 
-                encryting = masked_guint8_value(data_format_identifier, UDS_RD_ENCRYPTING_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_encrypting_method, tvb, UDS_RD_DATA_FORMAT_IDENTIFIER_OFFSET,
-                                    UDS_RD_DATA_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
+                guint8 address_and_length_format_idenfifier, memory_size_length, memory_address_length;
+                address_and_length_format_idenfifier = tvb_get_guint8(tvb, offset);
+                memory_size_length = masked_guint8_value(address_and_length_format_idenfifier, UDS_RD_COMPRESSION_METHOD_MASK);
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size_length, tvb, offset, 1, ENC_NA);
+                memory_address_length = masked_guint8_value(address_and_length_format_idenfifier, UDS_RD_ENCRYPTING_METHOD_MASK);
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address_length, tvb, offset, 1, ENC_NA);
+                offset += 1;
 
-                address_and_length_format_idenfifier = tvb_get_guint8(tvb, UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET);
+                guint64 memory_size, memory_address;
+                memory_address = tvb_get_guintX(tvb, offset, memory_address_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address, tvb, offset, memory_address_length, ENC_BIG_ENDIAN);
+                offset += memory_address_length;
 
-                memory_size_length = masked_guint8_value(address_and_length_format_idenfifier,
-                                                         UDS_RD_COMPRESSION_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size_length, tvb,
-                                    UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET,
-                                    UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
-
-                memory_address_length = masked_guint8_value(address_and_length_format_idenfifier,
-                                                            UDS_RD_ENCRYPTING_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address_length, tvb,
-                                    UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_OFFSET,
-                                    UDS_RD_ADDRESS_AND_LENGTH_FORMAT_IDENTIFIER_LEN, ENC_BIG_ENDIAN);
-
-                memory_address = tvb_get_guintX(tvb, UDS_RD_MEMORY_ADDRESS_OFFSET, memory_address_length,
-                                                ENC_BIG_ENDIAN);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address, tvb, UDS_RD_MEMORY_ADDRESS_OFFSET,
-                                    memory_address_length, ENC_BIG_ENDIAN);
-                memory_size = tvb_get_guintX(tvb, UDS_RD_MEMORY_ADDRESS_OFFSET + memory_address_length,
-                                             memory_size_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size, tvb,
-                                    UDS_RD_MEMORY_ADDRESS_OFFSET + memory_address_length,
-                                    memory_size_length, ENC_BIG_ENDIAN);
+                memory_size = tvb_get_guintX(tvb, offset, memory_size_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size, tvb, offset, memory_size_length, ENC_BIG_ENDIAN);
+                offset += memory_size_length;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%" PRIx64 " bytes at 0x%" PRIx64, memory_size, memory_address);
-
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   (Compression:0x%x Encrypting:0x%x)", compression,
-                                encryting);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   (Compression:0x%x Encrypting:0x%x)", compression, encrypting);
             }
             break;
 
         case UDS_SERVICES_TD: {
             guint32 sequence_no;
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_td_sequence_counter, tvb,
-                                     UDS_TD_SEQUENCE_COUNTER_OFFSET, UDS_TD_SEQUENCE_COUNTER_LEN, ENC_NA, &sequence_no);
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_td_sequence_counter, tvb, offset, 1, ENC_NA, &sequence_no);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   Block Sequence Counter %d", sequence_no);
+            offset += 1;
             break;
         }
+
         case UDS_SERVICES_TP: {
             guint8 sub_function_a, sub_function;
-            sub_function_a = tvb_get_guint8(tvb, UDS_TP_SUB_FUNCTION_OFFSET);
+            sub_function_a = tvb_get_guint8(tvb, offset);
             sub_function = masked_guint8_value(sub_function_a, UDS_TP_SUB_FUNCTION_MASK);
-            proto_tree_add_item(uds_tree, hf_uds_tp_sub_function, tvb,
-                                UDS_TP_SUB_FUNCTION_OFFSET, UDS_TP_SUB_FUNCTION_LEN, ENC_BIG_ENDIAN);
+            proto_tree_add_item(uds_tree, hf_uds_tp_sub_function, tvb, offset, 1, ENC_NA);
+            /* do not increase offset, since reply uses the same byte with different mask! */
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction %x", sub_function);
 
             if (!(sid & UDS_REPLY_MASK)) {
                 guint8 suppress = masked_guint8_value(sub_function_a, UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK);
-
-                proto_tree_add_item(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indication, tvb,
-                                    UDS_TP_SUB_FUNCTION_OFFSET, UDS_TP_SUB_FUNCTION_LEN, ENC_BIG_ENDIAN);
+                proto_tree_add_item(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indication, tvb, offset, 1, ENC_NA);
 
                 if (suppress) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
                 }
             }
+            offset += 1;
             break;
         }
+
         case UDS_SERVICES_ERR: {
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_sid, tvb, UDS_ERR_SID_OFFSET, UDS_ERR_SID_LEN, ENC_BIG_ENDIAN, &enum_val);
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_sid, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_services, "Unknown (0x%02x)"));
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_code, tvb, UDS_ERR_CODE_OFFSET, UDS_ERR_CODE_LEN,
-                                ENC_BIG_ENDIAN, &enum_val);
+            offset += 1;
+
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_code, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str(enum_val, uds_response_codes, "Unknown (0x%02x)"));
+            offset += 1;
             break;
         }
+
         case UDS_SERVICES_CDTCS: {
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_cdtcs_type, tvb,
-                                UDS_CDTCS_TYPE_OFFSET, UDS_CDTCS_TYPE_LEN, ENC_BIG_ENDIAN, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                            val_to_str(enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_cdtcs_type, tvb, offset, 1, ENC_NA, &enum_val);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
+            offset += 1;
             break;
         }
     }
 
-    return tvb_captured_length(tvb);
+    if (data_length - offset > 0) {
+        proto_tree_add_item(uds_tree, hf_uds_unparsed_bytes, tvb, offset, data_length - offset, ENC_NA);
+    }
+
+    return data_length;
 }
 
 static int
@@ -1821,6 +1724,16 @@ proto_register_uds(void)
                             "Type", "uds.cdtcs.type",
                             FT_UINT8, BASE_HEX,
                             VALS(uds_cdtcs_types), 0x0,
+                            NULL, HFILL
+                    }
+            },
+
+            {
+                    &hf_uds_unparsed_bytes,
+                    {
+                            "Unparsed Bytes", "uds.unparsed_bytes",
+                            FT_BYTES, BASE_NONE,
+                            NULL, 0x0,
                             NULL, HFILL
                     }
             },
