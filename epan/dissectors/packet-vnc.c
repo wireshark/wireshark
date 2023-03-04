@@ -2358,7 +2358,6 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		return(0);
 	}
 
-	*offset += 2;
 	VNC_BYTES_NEEDED(bytes_per_pixel);
 	proto_tree_add_item(tree, hf_vnc_rre_bg_pixel, tvb, *offset,
 			    bytes_per_pixel, ENC_NA);
