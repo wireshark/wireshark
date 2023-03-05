@@ -4092,7 +4092,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
         if (dfilter_compile(tok_filter, &dfp, &df_err))
         {
             if (dfp && dfilter_deprecated_tokens(dfp))
-                sharkd_json_warning(rpcid, df_err->msg);
+                sharkd_json_warning(rpcid, "Filter contains deprecated tokens");
             else
                 sharkd_json_simple_ok(rpcid);
 
