@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06"
    sodipodi:docname="x-filter-dropdown.dark.svg"
-   inkscape:export-filename="/Users/gerald/Development/wireshark/image/x-filter-apply.png"
+   inkscape:export-filename="x-filter-apply.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -101,7 +101,7 @@
        transform="matrix(18.072651,0,0,10.43425,-2089.4275,982.04694)"
        inkscape:transform-center-y="2.5363326"
        inkscape:transform-center-x="0.018274753"
-       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_dropdown.png"
+       inkscape:export-filename="dfilter_dropdown.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
   </g>
