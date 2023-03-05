@@ -12,7 +12,6 @@
 
 #include <epan/packet.h>
 #include <epan/uat.h>
-#include <wsutil/bits_ctz.h>
 #include <epan/dissectors/packet-uds.h>
 #include <epan/dissectors/packet-doip.h>
 #include <epan/dissectors/packet-iso10681.h>
@@ -893,37 +892,6 @@ uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const g
 
 /*** Configuration End ***/
 
-
-static
-guint8 masked_guint8_value(const guint8 value, const guint8 mask)
-{
-    return (value & mask) >> ws_ctz(mask);
-}
-
-static guint64
-tvb_get_guintX(tvbuff_t *tvb, const gint offset, const gint size, const guint encoding) {
-    switch (size) {
-        case 1:
-            return tvb_get_guint8(tvb, offset);
-        case 2:
-            return tvb_get_guint16(tvb, offset, encoding);
-        case 3:
-            return tvb_get_guint24(tvb, offset, encoding);
-        case 4:
-            return tvb_get_guint32(tvb, offset, encoding);
-        case 5:
-            return tvb_get_guint40(tvb, offset, encoding);
-        case 6:
-            return tvb_get_guint48(tvb, offset, encoding);
-        case 7:
-            return tvb_get_guint56(tvb, offset, encoding);
-        case 8:
-            return tvb_get_guint64(tvb, offset, encoding);
-    }
-
-    return 0;
-}
-
 static gboolean
 call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 service, gboolean reply, guint32 id, guint32 uds_address)
 {
@@ -1184,43 +1152,32 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
         case UDS_SERVICES_RD:
             if (sid & UDS_REPLY_MASK) {
-                guint8 length_format_identifier, max_number_of_block_length_length;
-                guint64 max_number_of_block_length;
-
-                length_format_identifier = tvb_get_guint8(tvb, offset);
-                max_number_of_block_length_length = masked_guint8_value(length_format_identifier, UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length_length, tvb, offset, 1, ENC_NA);
+                guint32 max_number_of_block_length_length;
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_max_number_of_block_length_length, tvb, offset, 1, ENC_NA, &max_number_of_block_length_length);
                 offset += 1;
 
-                max_number_of_block_length = tvb_get_guintX(tvb, offset, max_number_of_block_length_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(uds_tree, hf_uds_rd_max_number_of_block_length, tvb, offset, max_number_of_block_length_length, ENC_BIG_ENDIAN);
+                guint64 max_number_of_block_length;
+                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rd_max_number_of_block_length, tvb, offset, max_number_of_block_length_length, ENC_BIG_ENDIAN, &max_number_of_block_length);
                 offset += max_number_of_block_length_length;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   Max Number Of Block Length 0x%" PRIx64, max_number_of_block_length);
             } else {
-                guint8 data_format_identifier, compression, encrypting;
-                data_format_identifier = tvb_get_guint8(tvb, offset);
-                compression = masked_guint8_value(data_format_identifier, UDS_RD_COMPRESSION_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_compression_method, tvb, offset, 1, ENC_NA);
-                encrypting = masked_guint8_value(data_format_identifier, UDS_RD_ENCRYPTING_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_encrypting_method, tvb, offset, 1, ENC_NA);
+                guint32 compression, encrypting;
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_compression_method, tvb, offset, 1, ENC_NA, &compression);
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_encrypting_method, tvb, offset, 1, ENC_NA, &encrypting);
                 offset += 1;
 
-                guint8 address_and_length_format_idenfifier, memory_size_length, memory_address_length;
-                address_and_length_format_idenfifier = tvb_get_guint8(tvb, offset);
-                memory_size_length = masked_guint8_value(address_and_length_format_idenfifier, UDS_RD_COMPRESSION_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size_length, tvb, offset, 1, ENC_NA);
-                memory_address_length = masked_guint8_value(address_and_length_format_idenfifier, UDS_RD_ENCRYPTING_METHOD_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address_length, tvb, offset, 1, ENC_NA);
+                guint32 memory_size_length, memory_address_length;
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_memory_size_length, tvb, offset, 1, ENC_NA, &memory_size_length);
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_memory_address_length, tvb, offset, 1, ENC_NA, &memory_address_length);
                 offset += 1;
 
-                guint64 memory_size, memory_address;
-                memory_address = tvb_get_guintX(tvb, offset, memory_address_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_address, tvb, offset, memory_address_length, ENC_BIG_ENDIAN);
+                guint64 memory_address;
+                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rd_memory_address, tvb, offset, memory_address_length, ENC_BIG_ENDIAN, &memory_address);
                 offset += memory_address_length;
 
-                memory_size = tvb_get_guintX(tvb, offset, memory_size_length, ENC_BIG_ENDIAN);
-                proto_tree_add_item(uds_tree, hf_uds_rd_memory_size, tvb, offset, memory_size_length, ENC_BIG_ENDIAN);
+                guint64 memory_size;
+                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rd_memory_size, tvb, offset, memory_size_length, ENC_BIG_ENDIAN, &memory_size);
                 offset += memory_size_length;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%" PRIx64 " bytes at 0x%" PRIx64, memory_size, memory_address);
@@ -1237,17 +1194,15 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         }
 
         case UDS_SERVICES_TP: {
-            guint8 sub_function_a, sub_function;
-            sub_function_a = tvb_get_guint8(tvb, offset);
-            sub_function = masked_guint8_value(sub_function_a, UDS_TP_SUB_FUNCTION_MASK);
-            proto_tree_add_item(uds_tree, hf_uds_tp_sub_function, tvb, offset, 1, ENC_NA);
+            guint32 sub_function;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_tp_sub_function, tvb, offset, 1, ENC_NA, &sub_function);
             /* do not increase offset, since reply uses the same byte with different mask! */
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction %x", sub_function);
 
             if (!(sid & UDS_REPLY_MASK)) {
-                guint8 suppress = masked_guint8_value(sub_function_a, UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK);
-                proto_tree_add_item(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indication, tvb, offset, 1, ENC_NA);
+                gboolean suppress;
+                proto_tree_add_item_ret_boolean(uds_tree, hf_uds_tp_suppress_pos_rsp_msg_indication, tvb, offset, 1, ENC_NA, &suppress);
 
                 if (suppress) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
