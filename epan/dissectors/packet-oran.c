@@ -564,44 +564,48 @@ static const value_string sidelobe_suppression_vals[] = {
     {0,   NULL}
 };
 
+/* Config (and worked-out allocations) bundles for ext11 (dynamic BFW) */
 typedef struct {
     /* Ext 6 settings */
     gboolean ext6_set;
-    guint8   num_bits_set;
-    guint8   bits_set[28];
-    guint8   rbg_size;
+    guint8   ext6_num_bits_set;
+    guint8   ext6_bits_set[28];
+    guint8   ext6_rbg_size;
 
-    /* TODO: Can also depend upon ext12 or ext13 info */
+    /* Ext 13 settings */
+    gboolean ext13_set;
+    guint    ext13_num_start_prbs;
+#define MAX_BFW_EXT3_ALLOCATIONS 128
+    guint    ext13_start_prbs[MAX_BFW_EXT3_ALLOCATIONS];
+    /* TODO: store nextSymbolId here too? */
+
+    /* TODO: Can also depend upon ext12 */
 
     /* Results (after calling ext11_work_out_bundles()) */
     guint32  num_bundles;
+#define MAX_BFW_BUNDLES 512
     struct {
         guint32  start;      /* first prb of bundle */
         guint32  end;        /* last prb of bundle*/
         gboolean is_orphan;  /* TRUE if not complete (i.e., < numBundPrb) */
-    } bundles[512];
-} ext_11_settings_t;
+    } bundles[MAX_BFW_BUNDLES];
+} ext11_settings_t;
 
-/* Get number of bundles to be shown for ext11.
- * TODO: Can also depend upon ext12 or ext13 info */
+/* Work out bundle allocation for ext 11.  Take into account ext6 or ext13 in this section before ext 11.
+ * TODO: Can also depend upon ext12 info */
 static void ext11_work_out_bundles(guint startPrbc,
                                    guint numPrbc,
                                    guint numBundPrb,             /* number of PRBs pre (full) bundle */
-                                   ext_11_settings_t *settings)
+                                   ext11_settings_t *settings)
 {
-    /* Don't entertain overflowing settings->bundles[] ! */
-    if ((startPrbc + numPrbc) > 500) {
-        return;
-    }
-
     /* Allocation configured by ext 6 */
     if (settings->ext6_set) {
-        guint bundles_per_entry = settings->rbg_size / numBundPrb;
+        guint bundles_per_entry = settings->ext6_rbg_size / numBundPrb;
 
         guint bundles_set = 0;
-        for (guint8 n=0; n < settings->num_bits_set; n++) {
+        for (guint8 n=0; n < settings->ext6_num_bits_set; n++) {
             /* For each bit set in the mask */
-            guint32 prb_start = settings->bits_set[n] * settings->rbg_size;
+            guint32 prb_start = settings->ext6_bits_set[n] * settings->ext6_rbg_size;
 
             /* For each bundle within identified rbgSize block */
             for (guint m=0; m < bundles_per_entry; m++) {
@@ -617,16 +621,46 @@ static void ext11_work_out_bundles(guint startPrbc,
                     settings->bundles[bundles_set].is_orphan = TRUE;
                 }
                 bundles_set++;
+                if (bundles_set == MAX_BFW_BUNDLES) {
+                    return;
+                }
             }
         }
         settings->num_bundles = bundles_set;
     }
+
+    /* Allocation configured by ext 13 */
+    else if (settings->ext13_set) {
+        guint alloc_size = (numPrbc+numBundPrb-1) / numBundPrb;
+        settings->num_bundles = alloc_size * settings->ext13_num_start_prbs;
+
+        /* Don't overflow settings->bundles[] ! */
+        settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
+
+        for (guint alloc=0; alloc < settings->ext13_num_start_prbs; alloc++) {
+            guint alloc_start = alloc * alloc_size;
+            for (guint32 n=0; n < alloc_size; n++) {
+                settings->bundles[alloc_start+n].start = settings->ext13_start_prbs[alloc] + startPrbc + n*numBundPrb;
+                settings->bundles[alloc_start+n].end =   settings->bundles[alloc_start+n].start + numBundPrb-1;
+                if (settings->bundles[alloc_start+n].end > settings->ext13_start_prbs[alloc] + numPrbc) {
+                    settings->bundles[alloc_start+n].end = settings->ext13_start_prbs[alloc] + numPrbc;
+                    settings->bundles[alloc_start+n].is_orphan = TRUE;
+                }
+            }
+        }
+    }
+
+    /* Bundles not controlled by other extensions - just divide up range into bundles we have */
     else {
-        /* Bundles not defined controlled by other extensions */
         settings->num_bundles = (numPrbc+numBundPrb-1) / numBundPrb;
+
+        /* Don't overflow settings->bundles[] ! */
+        settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
+
         for (guint32 n=0; n < settings->num_bundles; n++) {
             settings->bundles[n].start = startPrbc + n*numBundPrb;
-            settings->bundles[n].end = settings->bundles[n].start + numBundPrb-1;
+            settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
+            /* Does it go beyond the end? */
             if (settings->bundles[n].end > startPrbc+numPrbc) {
                 settings->bundles[n].end = numPrbc+numPrbc;
                 settings->bundles[n].is_orphan = TRUE;
@@ -1019,8 +1053,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     guint32 beamId = 0;
 
     /* Config affecting ext11 bundles (initially unset) */
-    ext_11_settings_t ext_11_settings;
-    memset(&ext_11_settings, 0, sizeof(ext_11_settings));
+    ext11_settings_t ext11_settings;
+    memset(&ext11_settings, 0, sizeof(ext11_settings));
 
     gboolean extension_flag = FALSE;
 
@@ -1263,7 +1297,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset++;
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
 
-        proto_item_append_text(extension_ti, " (%s)", val_to_str_const(exttype, exttype_vals, "Unknown"));
+        proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Unknown"));
 
         /* extLen (number of 32-bit words) */
         guint32 extlen_len = ((exttype==11)||(exttype==19)||(exttype==20)) ? 2 : 1;  /* Extensions 11/19/20 are special */
@@ -1499,30 +1533,30 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 2;
 
                 /* Update ext6 recorded info */
-                ext_11_settings.ext6_set = TRUE;
+                ext11_settings.ext6_set = TRUE;
                 switch (rbgSize) {
                     case 0:
                         /* N.B. reserved, but covered above with expert info (would remain 0) */
                         break;
                     case 1:
-                        ext_11_settings.rbg_size = 1; break;
+                        ext11_settings.ext6_rbg_size = 1; break;
                     case 2:
-                        ext_11_settings.rbg_size = 2; break;
+                        ext11_settings.ext6_rbg_size = 2; break;
                     case 3:
-                        ext_11_settings.rbg_size = 3; break;
+                        ext11_settings.ext6_rbg_size = 3; break;
                     case 4:
-                        ext_11_settings.rbg_size = 4; break;
+                        ext11_settings.ext6_rbg_size = 4; break;
                     case 5:
-                        ext_11_settings.rbg_size = 6; break;
+                        ext11_settings.ext6_rbg_size = 6; break;
                     case 6:
-                        ext_11_settings.rbg_size = 8; break;
+                        ext11_settings.ext6_rbg_size = 8; break;
                     case 7:
-                        ext_11_settings.rbg_size = 16; break;
+                        ext11_settings.ext6_rbg_size = 16; break;
                     /* N.B., encoded in 3 bits, so no other values are possible */
                 }
                 for (guint n=0; n < 28; n++) {
                     if ((rbgMask >> n) & 0x01) {
-                        ext_11_settings.bits_set[ext_11_settings.num_bits_set++] = n;
+                        ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
                     }
                 }
                 break;
@@ -1671,8 +1705,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
 
                     /* Work out bundles! */
-                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext_11_settings);
-                    num_bundles = ext_11_settings.num_bundles;
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
+                    num_bundles = ext11_settings.num_bundles;
 
                     /* Add (complete) bundles */
                     for (guint b=0; b < num_bundles; b++) {
@@ -1681,15 +1715,15 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
                                                     iq_width,
                                                     b,                                 /* bundle number */
-                                                    ext_11_settings.bundles[b].start,
-                                                    ext_11_settings.bundles[b].end,
-                                                    ext_11_settings.bundles[b].is_orphan);
+                                                    ext11_settings.bundles[b].start,
+                                                    ext11_settings.bundles[b].end,
+                                                    ext11_settings.bundles[b].is_orphan);
                         if (!offset) {
                             break;
                         }
                     }
                     /* Set flag from last bundle entry */
-                    orphaned_prbs = ext_11_settings.bundles[num_bundles-1].is_orphan;
+                    orphaned_prbs = ext11_settings.bundles[num_bundles-1].is_orphan;
                 }
                 else {
                     /********************************************/
@@ -1702,14 +1736,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                     }
 
-                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext_11_settings);
-                    num_bundles = ext_11_settings.num_bundles;
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
+                    num_bundles = ext11_settings.num_bundles;
 
                     for (guint n=0; n < num_bundles; n++) {
                         /* beamId */
                         proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
-                        if (!ext_11_settings.bundles[n].is_orphan) {
+                        if (!ext11_settings.bundles[n].is_orphan) {
                             proto_item_append_text(ti, " (Bundle %u)", n);
                         }
                         else {
@@ -1777,6 +1811,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 guint32 extlen_remaining_bytes = (extlen*4) - 2;
                 guint8 allocation_index;
 
+                /* Will update settings for ext11 */
+                ext11_settings.ext13_set = TRUE;
+
+                guint prev_next_symbol_id = 0, prev_next_start_prbc = 0;
+
                 for (allocation_index = 1; extlen_remaining_bytes > 0; allocation_index++)
                 {
                     /* Subtree for allocation */
@@ -1799,6 +1838,19 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Add summary to allocation root item */
                     proto_item_append_text(allocation_ti, "(%u) nextSymbolId=%3u, nextStartPrbc=%u",
                                            allocation_index, next_symbol_id, next_start_prbc);
+
+                    /* Checking for duplicates (expected if e.g. had only 2 entries but extlen bytes still to fill */
+                    if ((allocation_index > 1) && (next_symbol_id == prev_next_symbol_id) && (next_start_prbc == prev_next_start_prbc)) {
+                        proto_item_append_text(allocation_ti, " (repeated - to fill up extlen)");
+                    }
+                    else {
+                        /* Add entry for configuring ext11. don't store out of range */
+                        if (ext11_settings.ext13_num_start_prbs < MAX_BFW_EXT3_ALLOCATIONS) {
+                            ext11_settings.ext13_start_prbs[ext11_settings.ext13_num_start_prbs++] = next_start_prbc;
+                        }
+                    }
+                    prev_next_symbol_id = next_symbol_id;
+                    prev_next_start_prbc = next_start_prbc;
 
                     extlen_remaining_bytes -= 2;
                 }
