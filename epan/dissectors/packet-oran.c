@@ -29,9 +29,11 @@
  * - for U-Plane, track back to last C-Plane frame for that eAxC
  *     - use upCompHdr values from C-Plane if not overridden by U-Plane?
  * - Radio transport layer (eCPRI) fragmentation / reassembly
- * - Detect signs of application layer fragmentation?
+ * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
- * - Really long long text in some items will not be displayed.  Try to summarise/truncate.
+ * - Really long long text in some items will not be displayed.  Try to summarise/truncate
+ * - Register for UDP port(s)
+ * - for section extensions, check constraints (section type, which other extension types appear with them)
  */
 
 /* Prototypes */
@@ -246,8 +248,9 @@ static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
 static expert_field ei_oran_invalid_sample_bit_width = EI_INIT;
 static expert_field ei_oran_reserved_numBundPrb = EI_INIT;
 static expert_field ei_oran_extlen_wrong = EI_INIT;
-static expert_field ei_oran_extlen_zero = EI_INIT;
 static expert_field ei_oran_invalid_eaxc_bit_width = EI_INIT;
+static expert_field ei_oran_extlen_zero = EI_INIT;
+static expert_field ei_oran_rbg_size_reserved = EI_INIT;
 
 
 /* These are the message types handled by this dissector */
@@ -561,6 +564,77 @@ static const value_string sidelobe_suppression_vals[] = {
     {0,   NULL}
 };
 
+typedef struct {
+    /* Ext 6 settings */
+    gboolean ext6_set;
+    guint8   num_bits_set;
+    guint8   bits_set[28];
+    guint8   rbg_size;
+
+    /* TODO: Can also depend upon ext12 or ext13 info */
+
+    /* Results (after calling ext11_work_out_bundles()) */
+    guint32  num_bundles;
+    struct {
+        guint32  start;      /* first prb of bundle */
+        guint32  end;        /* last prb of bundle*/
+        gboolean is_orphan;  /* TRUE if not complete (i.e., < numBundPrb) */
+    } bundles[512];
+} ext_11_settings_t;
+
+/* Get number of bundles to be shown for ext11.
+ * TODO: Can also depend upon ext12 or ext13 info */
+static void ext11_work_out_bundles(guint startPrbc,
+                                   guint numPrbc,
+                                   guint numBundPrb,             /* number of PRBs pre (full) bundle */
+                                   ext_11_settings_t *settings)
+{
+    /* Don't entertain overflowing settings->bundles[] ! */
+    if ((startPrbc + numPrbc) > 500) {
+        return;
+    }
+
+    /* Allocation configured by ext 6 */
+    if (settings->ext6_set) {
+        guint bundles_per_entry = settings->rbg_size / numBundPrb;
+
+        guint bundles_set = 0;
+        for (guint8 n=0; n < settings->num_bits_set; n++) {
+            /* For each bit set in the mask */
+            guint32 prb_start = settings->bits_set[n] * settings->rbg_size;
+
+            /* For each bundle within identified rbgSize block */
+            for (guint m=0; m < bundles_per_entry; m++) {
+                settings->bundles[bundles_set].start = prb_start+(m*numBundPrb);
+                /* Start already past end, so doesn't count. */
+                if (settings->bundles[bundles_set].start > (startPrbc+numPrbc)) {
+                    break;
+                }
+                settings->bundles[bundles_set].end = prb_start+((m+1)*numBundPrb)-1;
+                if (settings->bundles[bundles_set].end > numPrbc) {
+                    /* End past end, so counts but is an orphan bundle */
+                    settings->bundles[bundles_set].end = numPrbc;
+                    settings->bundles[bundles_set].is_orphan = TRUE;
+                }
+                bundles_set++;
+            }
+        }
+        settings->num_bundles = bundles_set;
+    }
+    else {
+        /* Bundles not defined controlled by other extensions */
+        settings->num_bundles = (numPrbc+numBundPrb-1) / numBundPrb;
+        for (guint32 n=0; n < settings->num_bundles; n++) {
+            settings->bundles[n].start = startPrbc + n*numBundPrb;
+            settings->bundles[n].end = settings->bundles[n].start + numBundPrb-1;
+            if (settings->bundles[n].end > startPrbc+numPrbc) {
+                settings->bundles[n].end = numPrbc+numPrbc;
+                settings->bundles[n].is_orphan = TRUE;
+            }
+        }
+    }
+}
+
 
 
 /*******************************************************/
@@ -842,15 +916,16 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
 static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset,
                                   proto_item *comp_meth_ti, guint32 bfwcomphdr_comp_meth,
                                   guint8 iq_width,
-                                  guint bundle_number, guint first_prb, guint last_prb)
+                                  guint bundle_number,
+                                  guint first_prb, guint last_prb, gboolean is_orphan)
 {
     /* Set bundle name */
     char bundle_name[32];
-    if (bundle_number != ORPHAN_BUNDLE_NUMBER) {
-        snprintf(bundle_name, 32, "Bundle %u", bundle_number);
+    if (!is_orphan) {
+        snprintf(bundle_name, 32, "Bundle %3u", bundle_number);
     }
     else {
-        g_strlcpy(bundle_name, "Orphaned", 32);
+        g_strlcpy(bundle_name, "Orphaned  ", 32);
     }
 
     /* Create Bundle root */
@@ -943,6 +1018,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     guint32 ueId = 0;
     guint32 beamId = 0;
 
+    /* Config affecting ext11 bundles (initially unset) */
+    ext_11_settings_t ext_11_settings;
+    memset(&ext_11_settings, 0, sizeof(ext_11_settings));
+
     gboolean extension_flag = FALSE;
 
     /* These sections are similar, so handle as common with per-type differences */
@@ -959,7 +1038,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_uint(oran_tree, hf_oran_startPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbc);
         offset += 2;
         /* numPrbc */
-        proto_tree_add_item_ret_uint(oran_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
+        proto_item *numprbc_ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
+        if (numPrbc == 0) {
+            proto_item_append_text(numprbc_ti, " (all PRBs - configured as %u)", pref_data_plane_section_total_rbs);
+        }
         offset += 1;
         /* reMask */
         proto_tree_add_item(oran_tree, hf_oran_reMask, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1397,14 +1479,54 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             case 6: /* Non-contiguous PRB allocation in time and frequency domain */
+            {
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* rbgSize */
+                guint32 rbgSize;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
+                if (rbgSize == 0) {
+                    expert_add_info_format(pinfo, extlen_ti, &ei_oran_rbg_size_reserved,
+                                           "rbgSize value of 0 is reserved");
+                }
+                /* rbgMask */
+                guint32 rbgMask;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN, &rbgMask);
                 offset += 4;
+                /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* symbolMask */
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
+
+                /* Update ext6 recorded info */
+                ext_11_settings.ext6_set = TRUE;
+                switch (rbgSize) {
+                    case 0:
+                        /* N.B. reserved, but covered above with expert info (would remain 0) */
+                        break;
+                    case 1:
+                        ext_11_settings.rbg_size = 1; break;
+                    case 2:
+                        ext_11_settings.rbg_size = 2; break;
+                    case 3:
+                        ext_11_settings.rbg_size = 3; break;
+                    case 4:
+                        ext_11_settings.rbg_size = 4; break;
+                    case 5:
+                        ext_11_settings.rbg_size = 6; break;
+                    case 6:
+                        ext_11_settings.rbg_size = 8; break;
+                    case 7:
+                        ext_11_settings.rbg_size = 16; break;
+                    /* N.B., encoded in 3 bits, so no other values are possible */
+                }
+                for (guint n=0; n < 28; n++) {
+                    if ((rbgMask >> n) & 0x01) {
+                        ext_11_settings.bits_set[ext_11_settings.num_bits_set++] = n;
+                    }
+                }
                 break;
+            }
 
             case 7: /* eAxC mask */
                 proto_tree_add_item(extension_tree, hf_oran_eAxC_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1514,18 +1636,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                     offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
-                /* numBundPrb */
+                /* numBundPrb (number of prbs in each bundle) */
                 proto_item *num_bund_prb_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_bund_prbs,
                                                                            tvb, offset, 1, ENC_BIG_ENDIAN, &numBundPrb);
                 offset++;
                 /* value zero is reserved.. */
                 if (numBundPrb == 0) {
                     expert_add_info_format(pinfo, num_bund_prb_ti, &ei_oran_reserved_numBundPrb,
-                                           "Reserved value of numBundPrb seen - not valid for use");
+                                           "Reserved value 0 for numBundPrb seen - not valid");
                 }
 
                 guint32 num_bundles;
-                guint32 orphaned_prbs;
+                gboolean orphaned_prbs = FALSE;
 
                 if (!disableBFWs) {
                     /********************************************/
@@ -1547,7 +1669,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     if (numBundPrb == 0) {
                         break;
                     }
-                    num_bundles = numPrbc / numBundPrb;
+
+                    /* Work out bundles! */
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext_11_settings);
+                    num_bundles = ext_11_settings.num_bundles;
 
                     /* Add (complete) bundles */
                     for (guint b=0; b < num_bundles; b++) {
@@ -1555,24 +1680,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
                                                     iq_width,
-                                                    b,
-                                                    startPrbc + b*numBundPrb,
-                                                    startPrbc + (b+1)*numBundPrb - 1);
+                                                    b,                                 /* bundle number */
+                                                    ext_11_settings.bundles[b].start,
+                                                    ext_11_settings.bundles[b].end,
+                                                    ext_11_settings.bundles[b].is_orphan);
                         if (!offset) {
                             break;
                         }
                     }
-
-
-                    /* Any remaining BFWs will be added into an 'orphan bundle'. */
-                    orphaned_prbs = numPrbc % numBundPrb;
-                    if (orphaned_prbs) {
-                        offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
-                                                    comp_meth_ti, bfwcomphdr_comp_meth,
-                                                    iq_width, ORPHAN_BUNDLE_NUMBER,
-                                                    startPrbc + num_bundles*numBundPrb,
-                                                    startPrbc + num_bundles*numBundPrb + orphaned_prbs-1);
-                    }
+                    /* Set flag from last bundle entry */
+                    orphaned_prbs = ext_11_settings.bundles[num_bundles-1].is_orphan;
                 }
                 else {
                     /********************************************/
@@ -1584,25 +1701,23 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     if (numBundPrb == 0) {
                         break;
                     }
-                    num_bundles = numPrbc / numBundPrb;
+
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext_11_settings);
+                    num_bundles = ext_11_settings.num_bundles;
 
                     for (guint n=0; n < num_bundles; n++) {
                         /* beamId */
                         proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti, " (Bundle %u)", n);
+                        if (!ext_11_settings.bundles[n].is_orphan) {
+                            proto_item_append_text(ti, " (Bundle %u)", n);
+                        }
+                        else {
+                            orphaned_prbs = TRUE;
+                            proto_item_append_text(ti, " (Orphaned PRBs)");
+                        }
                         offset += 2;
                     }
-
-                    /* Any remaining BFWs would be added into an 'orphan bundle', so beamId would be here. */
-                    orphaned_prbs = numPrbc % numBundPrb;
-                    if (orphaned_prbs) {
-                        proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
-                                                             tvb, offset, 2, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti, " (Orphaned PRBs)");
-                        offset += 2;
-                    }
-
                 }
 
                 /* Add summary to extension root */
@@ -3752,7 +3867,8 @@ proto_register_oran(void)
         { &ei_oran_reserved_numBundPrb, { "oran_fh_cus.reserved_numBundPrb", PI_MALFORMED, PI_ERROR, "Reserved value of numBundPrb", EXPFILL }},
         { &ei_oran_extlen_wrong, { "oran_fh_cus.extlen_wrong", PI_MALFORMED, PI_ERROR, "extlen doesn't match number of dissected bytes", EXPFILL }},
         { &ei_oran_invalid_eaxc_bit_width, { "oran_fh_cus.invalid_exac_bit_width", PI_UNDECODED, PI_ERROR, "Inconsistent eAxC bit width", EXPFILL }},
-        { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen - zero is reserved value", EXPFILL }}
+        { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen - zero is reserved value", EXPFILL }},
+        { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize - zero is reserved value", EXPFILL }}
     };
 
     /* Register the protocol name and description */
