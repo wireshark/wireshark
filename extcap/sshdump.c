@@ -645,6 +645,16 @@ int main(int argc, char *argv[])
 			privilege = g_strdup("");
 		}
 
+		// This may result in the use of a different port number than was given in
+		// the default filter string, as presented in the config dialog. The default
+		// given is always using the default SSH port since there's no remote SSH port
+		// given on the command line to get the extcap arguments.
+		// However the remote SSH port used here is the one given on the command line
+		// when the capture us started, which is the indended one.
+		// And this is only happening when no remote filter is specified on the command
+		// line to start the capture.
+		if (remote_filter == NULL)
+			remote_filter = local_interfaces_to_filter(ssh_params->port);
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ssh_params->debug = extcap_conf->debug;
 		ret = ssh_open_remote_connection(ssh_params, remote_interface,
