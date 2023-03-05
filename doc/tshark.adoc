@@ -963,9 +963,11 @@ whether the *-V* option was specified.  This is the default.
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behaviour is to use your system's
-temporary directory (typically __/tmp__ on UNIX-compatible systems, such
-as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
+files) are to be written.  The default behavior on UNIX-compatible sytems,
+such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
+variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
+is not.  On Windows, the __%TEMP%__ environment variable is used, which
+typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 -u <seconds type>::

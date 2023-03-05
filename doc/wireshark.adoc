@@ -664,9 +664,11 @@ The default format is relative.
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behaviour is to use your system's
-temporary directory (typically __/tmp__ on UNIX-compatible systems, such
-as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
+files) are to be written.  The default behavior on UNIX-compatible sytems,
+such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
+variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
+is not.  On Windows, the __%TEMP%__ environment variable is used, which
+typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 --time-stamp-type <type>::
@@ -1415,10 +1417,11 @@ menu:Capture[Options]::
 --
 Initiate a live packet capture (see /"Capture Options Dialog"
 below).  If no filename is specified, a temporary file will be created
-to hold the capture.  The location of the file can be chosen by setting your
-TMPDIR environment variable before starting *Wireshark*.  Otherwise, the
-default TMPDIR location is system-dependent, but is likely either __/var/tmp__
-or __/tmp__.
+to hold the capture.  Temporary files are written in the directory listed
+in menu:Help[About Wireshark > Folders]. This location can be chosen with the
+command line option *--temp-dir*, or by setting the environment variable
+TMPDIR (on UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris,
+and AIX) or TEMP (on Windows) before starting **Wireshark**.
 --
 
 menu:Capture[Start]::
