@@ -1,4 +1,4 @@
- Wireshark 3.6.12 Release Notes
+ Wireshark 3.6.13 Release Notes
 
  What is Wireshark?
 
@@ -11,49 +11,16 @@
   Updates will no longer be available after May 22, 2024 for that
   platform. Issue 17779[1]
 
+  If you’re running Wireshark on macOS and upgraded to macOS 13 from an
+  earlier version, you will likely have to open and run the “Uninstall
+  ChmodBPF” package, then open and run “Install ChmodBPF” in order to
+  reset the ChmodBPF Launch Daemon. Issue 18734[2].
+
   Bug Fixes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2023-08[2] ISO 15765 and ISO 10681 dissector crash.
-       Issue 18839[3].
-
    The following bugs have been fixed:
-
-     • UTF-8 characters end up escaped in PSML output Issue 10445[4].
-
-     • Export filtered displayed packets won’t save IP fragments of SCTP
-       fragments needed to reassemble a displayed frame. Issue 12597[5].
-
-     • The intelligent scroll bar or minimap is not predictable on
-       locating and scrolling Issue 13989[6].
-
-     • If you mark (or unmark) the currently-selected frame, the packet
-       details still say it’s not marked (or it is marked) Issue
-       14330[7].
-
-     • Sorting Packet Loss Column is not sorting correct Issue 16785[8].
-
-     • SIP TCP decoding regression from Wireshark 1.99.0 to 3.6.8 Issue
-       18411[9].
-
-     • ChmodBPF not working on macOS Ventura 13.1 Issue 18734[10].
-
-     • Symbolic links to packages in macOS dmg can’t be double-clicked
-       to install on macOS 13.2 Issue 18830[11].
-
-     • Potential memory leak in tshark.c Issue 18837[12].
-
-     • Fuzz job crash output: fuzz-2023-02-05-7303.pcap Issue 18842[13].
-
-     • f5fileinfo: Hardware platforms missing descriptions Issue
-       18848[14].
-
-     • The lines in the intelligent scrollbar are off by one Issue
-       18850[15].
-
-     • TECMP dissector shows the wrong Voltage in Vendor Data Issue
-       18871[16].
 
   New and Updated Features
 
@@ -62,10 +29,6 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   DHCP, ERF, F5 Ethernet trailer, GMR-1 RR, Gryphon, GSM SMS, H.450,
-   ISO 10681, ISO 15765, NAS-5GS, NR RRC, NS Trace, OptoMMP, PDCP-LTE,
-   QSIG, ROHC, RSVP, RTCP, SCTP, SIP, TCP, TECMP, TWAMP, and UMTS RLC
 
   New and Updated Capture File Support
 
@@ -85,7 +48,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[17] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -100,43 +63,29 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[18] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[19].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[20].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[21].
+  at wiresharkfoundation.org[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[22].
+  A complete FAQ is available on the Wireshark web site[8].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/security/wnpa-sec-2023-08
-   3. https://gitlab.com/wireshark/wireshark/-/issues/18839
-   4. https://gitlab.com/wireshark/wireshark/-/issues/10445
-   5. https://gitlab.com/wireshark/wireshark/-/issues/12597
-   6. https://gitlab.com/wireshark/wireshark/-/issues/13989
-   7. https://gitlab.com/wireshark/wireshark/-/issues/14330
-   8. https://gitlab.com/wireshark/wireshark/-/issues/16785
-   9. https://gitlab.com/wireshark/wireshark/-/issues/18411
-  10. https://gitlab.com/wireshark/wireshark/-/issues/18734
-  11. https://gitlab.com/wireshark/wireshark/-/issues/18830
-  12. https://gitlab.com/wireshark/wireshark/-/issues/18837
-  13. https://gitlab.com/wireshark/wireshark/-/issues/18842
-  14. https://gitlab.com/wireshark/wireshark/-/issues/18848
-  15. https://gitlab.com/wireshark/wireshark/-/issues/18850
-  16. https://gitlab.com/wireshark/wireshark/-/issues/18871
-  17. https://www.wireshark.org/download.html
-  18. https://ask.wireshark.org/
-  19. https://www.wireshark.org/lists/
-  20. https://gitlab.com/wireshark/wireshark/-/issues
-  21. https://wiresharkfoundation.org
-  22. https://www.wireshark.org/faq.html
+   2. https://gitlab.com/wireshark/wireshark/-/issues/18734
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://wiresharkfoundation.org
+   8. https://www.wireshark.org/faq.html
