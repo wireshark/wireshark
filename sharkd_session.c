@@ -133,7 +133,8 @@ sharkd_json_value_string(const char *key, const char *str)
 static void
 sharkd_json_value_base64(const char *key, const guint8 *data, size_t len)
 {
-    json_dumper_set_member_name(&dumper, key);
+    if (key)
+        json_dumper_set_member_name(&dumper, key);
     json_print_base64(data, len);
 }
 
@@ -168,7 +169,8 @@ sharkd_json_array_close(void)
 static void
 sharkd_json_object_open(const char *key)
 {
-    json_dumper_set_member_name(&dumper, key);
+    if (key)
+        json_dumper_set_member_name(&dumper, key);
     json_dumper_begin_object(&dumper);
 }
 
