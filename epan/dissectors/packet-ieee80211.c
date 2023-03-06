@@ -36168,6 +36168,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                                     ENC_BIG_ENDIAN, BMT_NO_APPEND);
   offset += 2;
 
+  guint16 key_len = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_key_len, tvb, offset,
                       2, ENC_BIG_ENDIAN);
   save_proto_data_value(pinfo, tvb_get_ntohs(tvb, offset), KEY_LEN_KEY);
@@ -36206,10 +36207,16 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
     ti = proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data,
                              tvb, offset, eapol_data_len, ENC_NA);
     if ((keyinfo & KEY_INFO_ENCRYPTED_KEY_DATA_MASK) ||
-        !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
+        (!(keyinfo & KEY_INFO_KEY_TYPE_MASK) && key_len)) {
       /* RSN: EAPOL-Key Key Data is encrypted.
        * WPA: Group Keys use encrypted Key Data.
        * IEEE 802.11i-2004 8.5.2.
+       * Having an encrypted data field without the Encrypted Key Data set
+       * is not standard, but there are WPA implementation which assume
+       * encryption when Key Type = 0. In Wi-SUN, the EAPOL-Key frame has
+       * Key Type = 0 and Encrypted Key Data = 0, but the Key Data is not
+       * encrypted. To differentiate this case from non standard WPA, we
+       * check the Key Length, which is 0 for Wi-SUN.
        * Let decryption engine try to decrypt this and if successful it's
        * stored in EAPOL_KEY proto data.
        */
