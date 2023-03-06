@@ -16390,6 +16390,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         {
           proto_tree_add_item(wpa_sub_akms_tree, hf_ieee80211_wfa_ie_wpa_akms_wfa_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
           proto_item_append_text(wpa_akms_item, " %s", wpa_akms_return(tvb_get_ntohl(tvb, offset)));
+          save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), AKM_KEY);
         } else {
           proto_tree_add_item(wpa_sub_akms_tree, hf_ieee80211_wfa_ie_wpa_akms_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
         }
