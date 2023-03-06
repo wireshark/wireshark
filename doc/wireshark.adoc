@@ -2586,7 +2586,7 @@ menu:About[Folders]::
 +
 --
 The __Folders__ page lets you view the directory names where Wireshark is
-searching it's various configuration and other files.
+searching its various configuration and other files.
 --
 
 menu:About[Plugins]::

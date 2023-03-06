@@ -3459,7 +3459,7 @@ The arguments to udp_dissect_pdus are:
 
 2.9 PINOs (Protocols in name only)
 
-For the typical dissector there is a 1-1 relationship between it and it's
+For the typical dissector there is a 1-1 relationship between it and its
 protocol. However, there are times when a protocol needs multiple "names"
 because it has multiple dissection functions going into the same dissector
 table. The multiple names removes confusion when picking dissection through
