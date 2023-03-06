@@ -119,6 +119,7 @@ QAction * CopyFromProfileButton::systemDefault(QString filename)
         QFont font = data->font();
         font.setItalic(true);
         data->setFont(font);
+        data->setProperty("profile_filename", path);
     }
 
     return data;
