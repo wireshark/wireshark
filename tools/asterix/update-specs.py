@@ -683,6 +683,36 @@ class Output(object):
         else:
             self.f.write(line+'\n')
 
+def is_valid(spec):
+    """Check spec"""
+    def check_item(item):
+        if item['spare']:
+            return True
+        return check_variation(item['variation'])
+    def check_variation(variation):
+        t = variation['type']
+        if t == 'Element':
+            return True
+        elif t == 'Group':
+            return all([check_item(i) for i in variation['items']])
+        elif t == 'Extended':
+            n1 = variation['first']
+            n2 = variation['extents']
+            fx = variation['fx']
+            if fx != 'regular':
+                return False    # 'iregular extended item'
+            return all([check_item(i) for i in variation['items']])
+        elif t == 'Repetitive':
+            return check_variation(variation['variation'])
+        elif t == 'Explicit':
+            return True
+        elif t == 'Compound':
+            items = [i for i in variation['items'] if i is not None]
+            return all([check_item(i) for i in items])
+        else:
+            raise Exception('unexpected variation type {}'.format(t))
+    return all([check_item(i) for i in spec['catalogue']])
+
 def main():
     parser = argparse.ArgumentParser(description='Process asterix specs files.')
     parser.add_argument('paths', metavar='PATH', nargs='*',
@@ -703,6 +733,7 @@ def main():
     jsons = [json.loads(i) for i in jsons]
     jsons = sorted(jsons, key = lambda x: (x['number'], x['edition']['major'], x['edition']['minor']))
     jsons = [spec for spec in jsons if spec['type'] == 'Basic']
+    jsons = [spec for spec in jsons if is_valid(spec)]
 
     cats = list(set([x['number'] for x in jsons]))
     latest_editions = {cat: sorted(
