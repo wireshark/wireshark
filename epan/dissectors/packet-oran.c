@@ -566,20 +566,27 @@ static const value_string sidelobe_suppression_vals[] = {
 
 /* Config (and worked-out allocations) bundles for ext11 (dynamic BFW) */
 typedef struct {
-    /* Ext 6 settings */
+    /* Ext 6 config */
     gboolean ext6_set;
     guint8   ext6_num_bits_set;
     guint8   ext6_bits_set[28];
     guint8   ext6_rbg_size;
 
-    /* Ext 13 settings */
+    /* Ext 12 config */
+    gboolean ext12_set;
+    guint    ext12_num_pairs;
+#define MAX_BFW_EXT12_PAIRS 128
+    struct {
+        guint8 off_start_prb;
+        guint8 num_prb;
+    } ext12_pairs[MAX_BFW_EXT12_PAIRS];
+
+    /* Ext 13 config */
     gboolean ext13_set;
     guint    ext13_num_start_prbs;
-#define MAX_BFW_EXT3_ALLOCATIONS 128
-    guint    ext13_start_prbs[MAX_BFW_EXT3_ALLOCATIONS];
+#define MAX_BFW_EXT13_ALLOCATIONS 128
+    guint    ext13_start_prbs[MAX_BFW_EXT13_ALLOCATIONS];
     /* TODO: store nextSymbolId here too? */
-
-    /* TODO: Can also depend upon ext12 */
 
     /* Results (after calling ext11_work_out_bundles()) */
     guint32  num_bundles;
@@ -591,8 +598,8 @@ typedef struct {
     } bundles[MAX_BFW_BUNDLES];
 } ext11_settings_t;
 
-/* Work out bundle allocation for ext 11.  Take into account ext6 or ext13 in this section before ext 11.
- * TODO: Can also depend upon ext12 info */
+
+/* Work out bundle allocation for ext 11.  Take into account ext6, ext12 or ext13 in this section before ext 11. */
 static void ext11_work_out_bundles(guint startPrbc,
                                    guint numPrbc,
                                    guint numBundPrb,             /* number of PRBs pre (full) bundle */
@@ -610,13 +617,13 @@ static void ext11_work_out_bundles(guint startPrbc,
             /* For each bundle within identified rbgSize block */
             for (guint m=0; m < bundles_per_entry; m++) {
                 settings->bundles[bundles_set].start = prb_start+(m*numBundPrb);
-                /* Start already past end, so doesn't count. */
+                /* Start already beyond end, so doesn't count. */
                 if (settings->bundles[bundles_set].start > (startPrbc+numPrbc)) {
                     break;
                 }
                 settings->bundles[bundles_set].end = prb_start+((m+1)*numBundPrb)-1;
                 if (settings->bundles[bundles_set].end > numPrbc) {
-                    /* End past end, so counts but is an orphan bundle */
+                    /* Extends beyond end, so counts but is an orphan bundle */
                     settings->bundles[bundles_set].end = numPrbc;
                     settings->bundles[bundles_set].is_orphan = TRUE;
                 }
@@ -627,6 +634,55 @@ static void ext11_work_out_bundles(guint startPrbc,
             }
         }
         settings->num_bundles = bundles_set;
+    }
+
+    /* Allocation configured by ext 6 */
+    else if (settings->ext12_set) {
+        /* First, allocate normally from startPrbc, numPrbc */
+        settings->num_bundles = (numPrbc+numBundPrb-1) / numBundPrb;
+
+        /* Don't overflow settings->bundles[] ! */
+        settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
+
+        for (guint32 n=0; n < settings->num_bundles; n++) {
+            settings->bundles[n].start = startPrbc + n*numBundPrb;
+            settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
+            /* Does it go beyond the end? */
+            if (settings->bundles[n].end > startPrbc+numPrbc) {
+                settings->bundles[n].end = numPrbc+numPrbc;
+                settings->bundles[n].is_orphan = TRUE;
+            }
+        }
+        if (settings->num_bundles == MAX_BFW_BUNDLES) {
+            return;
+        }
+
+        guint prb_offset = startPrbc + numPrbc;
+
+        /* Loop over pairs, adding bundles for each */
+        for (guint p=0; p < settings->ext12_num_pairs; p++) {
+            prb_offset += settings->ext12_pairs[p].off_start_prb;
+            guint pair_bundles = (settings->ext12_pairs[p].num_prb+numBundPrb-1) / numBundPrb;
+
+            for (guint32 n=0; n < pair_bundles; n++) {
+                guint idx = settings->num_bundles;
+
+                settings->bundles[idx].start = prb_offset + n*numBundPrb;
+                settings->bundles[idx].end =   settings->bundles[idx].start + numBundPrb-1;
+                /* Does it go beyond the end? */
+                if (settings->bundles[idx].end > prb_offset + settings->ext12_pairs[p].num_prb) {
+                    settings->bundles[idx].end = prb_offset + settings->ext12_pairs[p].num_prb;
+                    settings->bundles[idx].is_orphan = TRUE;
+                }
+                /* Range check / return */
+                settings->num_bundles++;
+                if (settings->num_bundles == MAX_BFW_BUNDLES) {
+                    return;
+                }
+            }
+
+            prb_offset += settings->ext12_pairs[p].num_prb;
+        }
     }
 
     /* Allocation configured by ext 13 */
@@ -1774,12 +1830,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                /* There are now 'R' pairs of (offStartPrb, numPrb) values.  Not sure where R comes from,
-                   but for now assume that entire space in extLen should be filled with pairs.
-                   N.B. this suggests that 'R' would always be an even number.. */
+                /* There are now 'R' pairs of (offStartPrb, numPrb) values. Fill extlen bytes with values.  If last one is not set,
+                   should be populated with 0s. */
                 guint32 extlen_remaining_bytes = (extlen*4) - 4;
                 guint8 prb_index;
 
+                ext11_settings.ext12_set = TRUE;
                 for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
                     /* Create a subtree for each pair */
@@ -1797,11 +1853,21 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_item_ret_uint(pair_tree, hf_oran_num_prb, tvb, offset, 1, ENC_BIG_ENDIAN, &num_prb);
                     offset++;
 
-                    /* Add summary to pair root item */
-                    proto_item_append_text(pair_ti, "(%u) offStartPrb=%3u, numPrb=%u",
-                                           prb_index, off_start_prb, num_prb);
-
                     extlen_remaining_bytes -= 2;
+
+                    /* Last pair may be 0,0 if not used. Check for this */
+                    if ((extlen_remaining_bytes == 0) && (off_start_prb == 0) && (num_prb == 0)) {
+                        proto_item_append_text(pair_ti, " (not used)");
+                    }
+                    /* Add summary to pair root item, and configure details in ext11_settings */
+                    else {
+                        proto_item_append_text(pair_ti, "(%u) offStartPrb=%3u, numPrb=%u",
+                                              prb_index, off_start_prb, num_prb);
+                        if (ext11_settings.ext12_num_pairs < MAX_BFW_EXT12_PAIRS) {
+                            ext11_settings.ext12_pairs[ext11_settings.ext12_num_pairs].off_start_prb = off_start_prb;
+                            ext11_settings.ext12_pairs[ext11_settings.ext12_num_pairs++].num_prb = num_prb;
+                        }
+                    }
                 }
                 break;
             }
@@ -1845,7 +1911,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
                     else {
                         /* Add entry for configuring ext11. don't store out of range */
-                        if (ext11_settings.ext13_num_start_prbs < MAX_BFW_EXT3_ALLOCATIONS) {
+                        if (ext11_settings.ext13_num_start_prbs < MAX_BFW_EXT13_ALLOCATIONS) {
                             ext11_settings.ext13_start_prbs[ext11_settings.ext13_num_start_prbs++] = next_start_prbc;
                         }
                     }
@@ -2370,24 +2436,32 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *timingHeader;
     proto_tree *timing_header_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 4, ett_oran_u_timing, &timingHeader, "Timing header");
 
+    /* dataDirection */
     guint32 direction;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
+    /* payloadVersion */
     proto_tree_add_item(timing_header_tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA);
+    /* filterIndex */
     proto_tree_add_item(timing_header_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     gint ref_a_offset = offset;
+
+    /* frameId */
     guint32 frameId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, &frameId);
     offset += 1;
 
+    /* subframeId */
     guint32 subframeId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, &subframeId);
+    /* slotId */
     guint32 slotId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
-    guint32 startSymbolId = 0;
     offset++;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
+    /* symbolId */
+    guint32 symbolId = 0;
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA, &symbolId);
     offset++;
 
     char id[16];
@@ -2395,8 +2469,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
-    proto_item_append_text(timingHeader, " %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
-        val_to_str(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, startSymbolId);
+    proto_item_append_text(timingHeader, " %s, Frame: %d, Subframe: %d, Slot: %d, Symbol: %d",
+        val_to_str(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
 
     guint sample_bit_width;
     gint compression;
@@ -2988,7 +3062,7 @@ proto_register_oran(void)
          HFILL}
         },
 
-        /* Section 5.4.5.10 */
+        /* Section 7.5.3.10 */
         {&hf_oran_ueId,
          {"UE ID", "oran_fh_cus.ueId",
           FT_UINT16, BASE_HEX_DEC,
@@ -3001,7 +3075,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.11 */
+        /* Section 7.5.3.11 */
         {&hf_oran_freqOffset,
          {"Frequency Offset", "oran_fh_cus.freqOffset",
           FT_UINT24, BASE_DEC,
@@ -3017,7 +3091,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.12 */
+        /* Section 7.5.3.12 */
         {&hf_oran_regularizationFactor,
          {"Regularization Factor", "oran_fh_cus.regularizationFactor",
           FT_INT16, BASE_DEC,
@@ -3028,7 +3102,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.14 */
+        /* Section 7.5.3.14 */
         {&hf_oran_laaMsgType,
          {"LAA Message Type", "oran_fh_cus.laaMsgType",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
@@ -3037,7 +3111,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.15 */
+        /* Section 7.5.3.15 */
         {&hf_oran_laaMsgLen,
          {"LAA Message Length", "oran_fh_cus.laaMsgLen",
           FT_UINT8, BASE_DEC,
@@ -3048,7 +3122,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.16 */
+        /* Section 7.5.3.16 */
         {&hf_oran_lbtHandle,
          {"LBT Handle", "oran_fh_cus.lbtHandle",
           FT_UINT16, BASE_HEX,
@@ -3060,7 +3134,7 @@ proto_register_oran(void)
           HFILL}
          },
 
-        /* Section 5.4.5.17 */
+        /* Section 7.5.3.17 */
         {&hf_oran_lbtDeferFactor,
          {"Defer Factor", "oran_fh_cus.lbtDeferFactor",
           FT_UINT8, BASE_DEC,
@@ -3072,7 +3146,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.18 */
+        /* Section 7.5.3.18 */
         {&hf_oran_lbtBackoffCounter,
          {"Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
           FT_UINT16, BASE_DEC,
@@ -3085,7 +3159,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.19 */
+        /* Section 7.5.3.19 */
         {&hf_oran_lbtOffset,
          {"LBT Offset", "oran_fh_cus.lbtOffset",
           FT_UINT16, BASE_DEC,
@@ -3095,7 +3169,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.20 */
+        /* Section 7.5.3.20 */
         {&hf_oran_MCOT,
          {"Maximum Channel Occupancy Time", "oran_fh_cus.MCOT",
           FT_UINT8, BASE_DEC,
