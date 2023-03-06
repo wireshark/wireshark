@@ -2229,15 +2229,14 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
             usbll_transfer_info_t *transfer;
             guint32                last_offset;
             gboolean               from_host;
-            gboolean               reassembled;
 
             from_host = usbll_is_stalled_data_from_host(data->transaction_state);
             ep_info = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, from_host);
 
             last_offset = ep_info->transfer_offset - ep_info->last_data_len;
-            reassembled = packet_ends_transfer(ep_info, last_offset, ep_info->last_data_len);
 
-            if (ep_info->active_transfer_key && !reassembled)
+            if (ep_info->active_transfer_key &&
+                !packet_ends_transfer(ep_info, last_offset, ep_info->last_data_len))
             {
                 /* STALL terminates ongoing transfer. While the STALL packet is
                  * always sent by device, the transfer can be either IN or OUT.
