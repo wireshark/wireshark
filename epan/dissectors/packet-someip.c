@@ -232,8 +232,6 @@ static const fragment_items someip_tp_frag_items = {
     "SOME/IP-TP Segments"
 };
 
-static reassembly_table someip_tp_reassembly_table;
-
 static gboolean someip_tp_reassemble = TRUE;
 static gboolean someip_deserializer_activated = TRUE;
 static gboolean someip_deserializer_wtlv_default = FALSE;
@@ -613,6 +611,124 @@ static void update_dynamic_hf_entries_someip_parameter_list(void);
 static void update_dynamic_hf_entries_someip_parameter_arrays(void);
 static void update_dynamic_hf_entries_someip_parameter_structs(void);
 static void update_dynamic_hf_entries_someip_parameter_unions(void);
+
+/* Segmentation support
+ * https://gitlab.com/wireshark/wireshark/-/issues/18880
+ */
+typedef struct _someip_segment_key {
+    address src_addr;
+    address dst_addr;
+    guint32 src_port;
+    guint32 dst_port;
+    someip_info_t info;
+} someip_segment_key;
+
+static guint
+someip_segment_hash(gconstpointer k)
+{
+    const someip_segment_key *key = (const someip_segment_key *)k;
+    guint hash_val;
+
+    hash_val = (key->info.service_id << 16 | key->info.method_id) ^
+        (key->info.client_id << 16 | key->info.session_id);
+
+    return hash_val;
+}
+
+static gint
+someip_segment_equal(gconstpointer k1, gconstpointer k2)
+{
+    const someip_segment_key *key1 = (someip_segment_key *)k1;
+    const someip_segment_key *key2 = (someip_segment_key *)k2;
+
+    return (key1->info.session_id == key2->info.session_id) &&
+        (key1->info.service_id == key2->info.service_id) &&
+        (key1->info.client_id == key2->info.client_id) &&
+        (key1->info.method_id == key2->info.method_id) &&
+        (key1->info.message_type == key2->info.message_type) &&
+        (key1->info.major_version == key2->info.major_version) &&
+        (addresses_equal(&key1->src_addr, &key2->src_addr)) &&
+        (addresses_equal(&key1->dst_addr, &key2->dst_addr)) &&
+        (key1->src_port == key2->src_port) &&
+        (key1->dst_port == key2->dst_port);
+}
+
+/*
+ * Create a fragment key for temporary use; it can point to non-
+ * persistent data, and so must only be used to look up and
+ * delete entries, not to add them.
+ */
+static gpointer
+someip_segment_temporary_key(const packet_info *pinfo, const guint32 id _U_,
+                          const void *data)
+{
+    const someip_info_t *info = (const someip_info_t *)data;
+    someip_segment_key *key = g_slice_new(someip_segment_key);
+
+    /* Do a shallow copy of the addresses. */
+    copy_address_shallow(&key->src_addr, &pinfo->src);
+    copy_address_shallow(&key->dst_addr, &pinfo->dst);
+    key->src_port = pinfo->srcport;
+    key->dst_port = pinfo->destport;
+    memcpy(&key->info, info, sizeof(someip_info_t));
+
+    return (gpointer)key;
+}
+
+/*
+ * Create a fragment key for permanent use; it must point to persistent
+ * data, so that it can be used to add entries.
+ */
+static gpointer
+someip_segment_persistent_key(const packet_info *pinfo,
+                              const guint32 id _U_, const void *data)
+{
+    const someip_info_t *info = (const someip_info_t *)data;
+    someip_segment_key *key = g_slice_new(someip_segment_key);
+
+    /* Do a deep copy of the addresses. */
+    copy_address(&key->src_addr, &pinfo->src);
+    copy_address(&key->dst_addr, &pinfo->dst);
+    key->src_port = pinfo->srcport;
+    key->dst_port = pinfo->destport;
+    memcpy(&key->info, info, sizeof(someip_info_t));
+
+    return (gpointer)key;
+}
+
+static void
+someip_segment_free_temporary_key(gpointer ptr)
+{
+    someip_segment_key *key = (someip_segment_key *)ptr;
+    if (key) {
+        g_slice_free(someip_segment_key, key);
+    }
+}
+static void
+someip_segment_free_persistent_key(gpointer ptr)
+{
+    someip_segment_key *key = (someip_segment_key *)ptr;
+    if (key) {
+        /* Free up the copies of the addresses from the old key. */
+        free_address(&key->src_addr);
+        free_address(&key->dst_addr);
+
+        g_slice_free(someip_segment_key, key);
+    }
+}
+
+const reassembly_table_functions
+someip_reassembly_table_functions = {
+    someip_segment_hash,
+    someip_segment_equal,
+    someip_segment_temporary_key,
+    someip_segment_persistent_key,
+    someip_segment_free_temporary_key,
+    someip_segment_free_persistent_key
+};
+
+static reassembly_table someip_tp_reassembly_table;
+
 
 /* register a UDP SOME/IP port */
 void
@@ -3441,6 +3557,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     const gchar    *service_description = NULL;
     const gchar    *method_description = NULL;
     const gchar    *client_description = NULL;
+    someip_info_t   someip_data = SOMEIP_INFO_T_INIT;
 
     guint32         someip_payload_length = 0;
     tvbuff_t       *subtvb = NULL;
@@ -3483,6 +3600,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Service ID */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_serviceid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_serviceid);
+    someip_data.service_id = someip_serviceid;
     service_description = someip_lookup_service_name(someip_serviceid);
     if (service_description != NULL) {
         proto_item_append_text(ti, " (%s)", service_description);
@@ -3494,6 +3612,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Method ID */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_methodid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_methodid);
+    someip_data.method_id = someip_methodid;
     method_description = someip_lookup_method_name(someip_serviceid, someip_methodid);
     if (method_description != NULL) {
         proto_item_append_text(ti, " (%s)", method_description);
@@ -3534,6 +3653,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Client ID */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_clientid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_clientid);
+    someip_data.client_id = someip_clientid;
     client_description = someip_lookup_client_name(someip_serviceid, someip_clientid);
     if (client_description != NULL) {
         proto_item_append_text(ti, " (%s)", client_description);
@@ -3545,6 +3665,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Session ID */
     proto_tree_add_item_ret_uint(someip_tree, hf_someip_sessionid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_sessionid);
+    someip_data.session_id = someip_sessionid;
     offset += 2;
 
     /* Protocol Version*/
@@ -3556,10 +3677,12 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Major Version of Service Interface */
     proto_tree_add_item_ret_uint(someip_tree, hf_someip_interface_ver, tvb, offset, 1, ENC_BIG_ENDIAN, &version);
+    someip_data.major_version = version;
     offset += 1;
 
     /* Message Type */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_messagetype, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype);
+    someip_data.message_type = msgtype;
     msgtype_tree = proto_item_add_subtree(ti, ett_someip_msgtype);
     proto_tree_add_item_ret_boolean(msgtype_tree, hf_someip_messagetype_ack_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype_ack);
     proto_tree_add_item_ret_boolean(msgtype_tree, hf_someip_messagetype_tp_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype_tp);
@@ -3588,7 +3711,6 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         guint32         tp_offset = 0;
         gboolean        tp_more_segments = FALSE;
         gboolean        update_col_info = TRUE;
-        guint32         segment_key;
         fragment_head  *someip_tp_head = NULL;
         proto_tree     *tp_tree = NULL;
 
@@ -3605,9 +3727,8 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_tree_add_item(tp_tree, hf_someip_payload, tvb, offset, someip_payload_length - SOMEIP_TP_HDR_LEN, ENC_NA);
 
         if (someip_tp_reassemble && tvb_bytes_exist(tvb, offset, someip_payload_length - SOMEIP_TP_HDR_LEN)) {
-            segment_key = someip_messageid ^ (version << 24) ^ (msgtype << 16) ^ someip_sessionid;
-            someip_tp_head = fragment_add_check(&someip_tp_reassembly_table, tvb, offset, pinfo, segment_key,
-                                                NULL, tp_offset, someip_payload_length - SOMEIP_TP_HDR_LEN, tp_more_segments);
+            someip_tp_head = fragment_add_check(&someip_tp_reassembly_table, tvb, offset, pinfo, 0,
+                                                &someip_data, tp_offset, someip_payload_length - SOMEIP_TP_HDR_LEN, tp_more_segments);
             subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SOME/IP-TP Segment",
                      someip_tp_head, &someip_tp_frag_items, &update_col_info, someip_tree);
         }
@@ -3617,12 +3738,6 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     if (subtvb!=NULL) {
         tvb_length = tvb_captured_length_remaining(subtvb, 0);
-        someip_info_t someip_data;
-        someip_data.service_id = (guint16)someip_serviceid;
-        someip_data.method_id = (guint16)someip_methodid;
-        someip_data.message_type = (guint8)msgtype;
-        someip_data.major_version = (guint8)version;
-
         if (tvb_length > 0) {
             tmp = dissector_try_uint_new(someip_dissector_table, someip_messageid, subtvb, pinfo, tree, FALSE, &someip_data);
 
@@ -4062,7 +4177,7 @@ proto_register_someip(void) {
     tap_someip_messages = register_tap("someip_messages");
 
     /* init for SOME/IP-TP */
-    reassembly_table_init(&someip_tp_reassembly_table, &addresses_ports_reassembly_table_functions);
+    reassembly_table_init(&someip_tp_reassembly_table, &someip_reassembly_table_functions);
 
     /* Register preferences */
     someip_module = prefs_register_protocol(proto_someip, &proto_reg_handoff_someip);
