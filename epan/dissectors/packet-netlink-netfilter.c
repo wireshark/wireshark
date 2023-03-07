@@ -41,7 +41,8 @@ enum {
 	WS_NFNL_SUBSYS_CTHELPER          =  9,
 	WS_NFNL_SUBSYS_NFTABLES          = 10,
 	WS_NFNL_SUBSYS_NFT_COMPAT        = 11,
-	WS_NFNL_SUBSYS_COUNT             = 12,
+	WS_NFNL_SUBSYS_HOOK              = 12,
+	WS_NFNL_SUBSYS_COUNT             = 13,
 };
 
 /* nfnetlink ULOG subsystem types from <include/uapi/linux/netfilter/nfnetlink_log.h> */
@@ -66,6 +67,7 @@ enum ws_nf_inet_hooks {
 	WS_NF_INET_FORWARD      = 2,
 	WS_NF_INET_LOCAL_OUT    = 3,
 	WS_NF_INET_POST_ROUTING = 4,
+	WS_NF_INET_NUMHOOKS     = 5,
 };
 
 /* from <include/uapi/linux/netfilter/nf_conntrack_common.h> */
@@ -154,6 +156,7 @@ enum ws_nfqnl_attr_type {
 	WS_NFQA_SECCTX              = 18,
 	WS_NFQA_VLAN                = 19,
 	WS_NFQA_L2HDR               = 20,
+	WS_NFQA_PRIORITY            = 21,
 };
 
 enum ws_nfqnl_msg_config_cmds {
@@ -262,6 +265,8 @@ enum ws_ctattr_type {
 	WS_CTA_LABELS               = 22,
 	WS_CTA_LABELS_MASK          = 23,
 	WS_CTA_SYNPROXY             = 24,
+	WS_CTA_FILTER               = 25,
+	WS_CTA_STATUS_MASK          = 26,
 };
 
 enum ws_ctattr_help {
@@ -325,13 +330,14 @@ enum ws_ipset_cadt_attr {
 	WS_IPSET_ATTR_CADT_LINENO       = 9,
 	WS_IPSET_ATTR_MARK              = 10,
 	WS_IPSET_ATTR_MARKMASK          = 11,
+	WS_IPSET_ATTR_BITMASK           = 12,
 	/* (reserved up to 16) */
 #define WS_IPSET_ATTR_CADT_MAX            16
-	WS_IPSET_ATTR_GC                = 17,
+	WS_IPSET_ATTR_INITVAL           = 17,
 	WS_IPSET_ATTR_HASHSIZE          = 18,
 	WS_IPSET_ATTR_MAXELEM           = 19,
 	WS_IPSET_ATTR_NETMASK           = 20,
-	WS_IPSET_ATTR_PROBES            = 21,
+	WS_IPSET_ATTR_BUCKETSIZE        = 21,
 	WS_IPSET_ATTR_RESIZE            = 22,
 	WS_IPSET_ATTR_SIZE              = 23,
 	WS_IPSET_ATTR_ELEMENTS          = 24,
@@ -622,6 +628,8 @@ static const value_string nfct_attr_vals[] = {
 	{ WS_CTA_LABELS,                "LABELS" },
 	{ WS_CTA_LABELS_MASK,           "LABELS_MASK" },
 	{ WS_CTA_SYNPROXY,              "SYNPROXY" },
+	{ WS_CTA_FILTER,                "FILTER" },
+	{ WS_CTA_STATUS_MASK,           "STATUS_MASK" },
 	{ 0, NULL }
 };
 
@@ -1002,6 +1010,7 @@ static const value_string nfq_attr_vals[] = {
 	{ WS_NFQA_SECCTX,               "Security context string" },
 	{ WS_NFQA_VLAN,                 "Packet VLAN info" },
 	{ WS_NFQA_L2HDR,                "Full L2 header" },
+	{ WS_NFQA_PRIORITY,             "Priority" },
 	{ 0, NULL }
 };
 
@@ -1021,6 +1030,7 @@ const value_string netfilter_hooks_vals[] = {
 	{ WS_NF_INET_FORWARD,       "Forward" },
 	{ WS_NF_INET_LOCAL_OUT,     "Local out" },
 	{ WS_NF_INET_POST_ROUTING,  "Post-routing" },
+	{ WS_NF_INET_NUMHOOKS,      "Number of hooks" },
 	{ 0, NULL }
 };
 
@@ -1191,6 +1201,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 		case WS_NFQA_SECCTX:
 		case WS_NFQA_VLAN:
 		case WS_NFQA_L2HDR:
+		case WS_NFQA_PRIORITY:
 			/* TODO */
 			break;
 	}
@@ -1301,12 +1312,13 @@ static const value_string ipset_cadt_attr_vals[] = {
 	{ WS_IPSET_ATTR_CADT_LINENO,    "CADT_LINENO" },
 	{ WS_IPSET_ATTR_MARK,           "MARK" },
 	{ WS_IPSET_ATTR_MARKMASK,       "MARKMASK" },
+	{ WS_IPSET_ATTR_BITMASK,        "BITMASK" },
 	/* up to 16 is reserved. */
-	{ WS_IPSET_ATTR_GC,             "GC" },
+	{ WS_IPSET_ATTR_INITVAL,        "INITVAL" },
 	{ WS_IPSET_ATTR_HASHSIZE,       "HASHSIZE" },
 	{ WS_IPSET_ATTR_MAXELEM,        "MAXELEM" },
 	{ WS_IPSET_ATTR_NETMASK,        "NETMASK" },
-	{ WS_IPSET_ATTR_PROBES,         "PROBES" },
+	{ WS_IPSET_ATTR_BUCKETSIZE,     "BUCKETSIZE" },
 	{ WS_IPSET_ATTR_RESIZE,         "RESIZE" },
 	{ WS_IPSET_ATTR_SIZE,           "SIZE" },
 	{ WS_IPSET_ATTR_ELEMENTS,       "ELEMENTS" },
@@ -1417,11 +1429,12 @@ dissect_ipset_cadt_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *
 		case WS_IPSET_ATTR_CADT_LINENO:
 		case WS_IPSET_ATTR_MARK:
 		case WS_IPSET_ATTR_MARKMASK:
-		case WS_IPSET_ATTR_GC:
+		case WS_IPSET_ATTR_BITMASK:
+		case WS_IPSET_ATTR_INITVAL:
 		case WS_IPSET_ATTR_HASHSIZE:
 		case WS_IPSET_ATTR_MAXELEM:
 		case WS_IPSET_ATTR_NETMASK:
-		case WS_IPSET_ATTR_PROBES:
+		case WS_IPSET_ATTR_BUCKETSIZE:
 		case WS_IPSET_ATTR_RESIZE:
 		case WS_IPSET_ATTR_SIZE:
 		case WS_IPSET_ATTR_ELEMENTS:
@@ -1550,6 +1563,7 @@ static const value_string netlink_netfilter_subsystem_vals[] = {
 	{ WS_NFNL_SUBSYS_CTHELPER,          "Connection Tracking Helpers" },
 	{ WS_NFNL_SUBSYS_NFTABLES,          "Netfilter tables" },
 	{ WS_NFNL_SUBSYS_NFT_COMPAT,        "x_tables compatibility layer for nf_tables" },
+	{ WS_NFNL_SUBSYS_HOOK,              "Hook" },
 	{ WS_NFNL_SUBSYS_COUNT,             "Count" },
 	{ 0, NULL }
 };
