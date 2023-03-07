@@ -47,7 +47,9 @@ enum {
 	WS_CTRL_CMD_NEWMCAST_GRP,
 	WS_CTRL_CMD_DELMCAST_GRP,
 	WS_CTRL_CMD_GETMCAST_GRP,
+	WS_CTRL_CMD_GETPOLICY,
 };
+
 enum ws_genl_ctrl_attr {
 	WS_CTRL_ATTR_UNSPEC,
 	WS_CTRL_ATTR_FAMILY_ID,
@@ -57,6 +59,9 @@ enum ws_genl_ctrl_attr {
 	WS_CTRL_ATTR_MAXATTR,
 	WS_CTRL_ATTR_OPS,
 	WS_CTRL_ATTR_MCAST_GROUPS,
+	WS_CTRL_ATTR_POLICY,
+	WS_CTRL_ATTR_OP_POLICY,
+	WS_CTRL_ATTR_OP,
 };
 
 enum ws_genl_ctrl_op_attr {
@@ -85,6 +90,7 @@ static const value_string genl_ctrl_cmds[] = {
 	{ WS_CTRL_CMD_NEWMCAST_GRP,     "CTRL_CMD_NEWMCAST_GRP" },
 	{ WS_CTRL_CMD_DELMCAST_GRP,     "CTRL_CMD_DELMCAST_GRP" },
 	{ WS_CTRL_CMD_GETMCAST_GRP,     "CTRL_CMD_GETMCAST_GRP" },
+	{ WS_CTRL_CMD_GETPOLICY,        "CTRL_CMD_GETPOLICY" },
 	{ 0, NULL }
 };
 
@@ -97,6 +103,9 @@ static const value_string genl_ctrl_attr_vals[] = {
 	{ WS_CTRL_ATTR_MAXATTR,         "CTRL_ATTR_MAXATTR" },
 	{ WS_CTRL_ATTR_OPS,             "CTRL_ATTR_OPS" },
 	{ WS_CTRL_ATTR_MCAST_GROUPS,    "CTRL_ATTR_MCAST_GROUPS" },
+	{ WS_CTRL_ATTR_POLICY,          "CTRL_ATTR_POLICY" },
+	{ WS_CTRL_ATTR_OP_POLICY,       "CTRL_ATTR_OP_POLICY" },
+	{ WS_CTRL_ATTR_OP,              "CTRL_ATTR_OP" },
 	{ 0, NULL }
 };
 
@@ -279,6 +288,10 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 		break;
 	case WS_CTRL_ATTR_MCAST_GROUPS:
 		offset = dissect_netlink_attributes_array(tvb, hf_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
+		break;
+	case WS_CTRL_ATTR_POLICY:
+	case WS_CTRL_ATTR_OP_POLICY:
+	case WS_CTRL_ATTR_OP:
 		break;
 	}
 
