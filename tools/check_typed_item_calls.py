@@ -352,6 +352,7 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^ocfs2.dlm.lvb'),
         re.compile(r'^oran_fh_cus.reserved'),
         re.compile(r'^qnet6.kif.msgsend.msg.read.xtypes0-7'),
+        re.compile(r'^qnet6.kif.msgsend.msg.write.xtypes0-7'),
         re.compile(r'^mih.sig_strength'),
         re.compile(r'^couchbase.flex_frame.frame.len'),
         re.compile(r'^nvme-rdma.read_to_host_req'),
@@ -401,7 +402,13 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^gryphon.data.header_length'),
         re.compile(r'^quake2.game.client.command.move.movement'),
         re.compile(r'^isup.parameter_type'),
-        re.compile(r'^cip.port')
+        re.compile(r'^cip.port'),
+        re.compile(r'^adwin.fifo_no'),
+        re.compile(r'^bthci_evt.hci_vers_nr'),
+        re.compile(r'^gryphon.usdt.stmin_active'),
+        re.compile(r'^dnp3.al.anaout.int'),
+        re.compile(r'^dnp3.al.ana.int'),
+        re.compile(r'^dnp3.al.cnt')
     ]
 
     for patt in ignore_patterns:

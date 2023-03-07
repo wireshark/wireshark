@@ -1357,7 +1357,7 @@ proto_register_ctdb(void)
 	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_process_exists, {
 	  "Process Exists", "ctdb.process_exists", FT_BOOLEAN, 32,
-	  TFS(&process_exists_tfs), 0x01, NULL, HFILL }},
+	  TFS(&process_exists_tfs), 0x00000001, NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */

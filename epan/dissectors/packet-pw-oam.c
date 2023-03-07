@@ -169,7 +169,7 @@ proto_register_pw_oam(void)
     },
 
     {&hf_pw_oam_code,
-      {"Status code", "pw_oam.code", FT_UINT16,
+      {"Status code", "pw_oam.code", FT_UINT32,
         BASE_HEX, VALS(pw_oam_code), 0x0, "PW Status Code", HFILL }
     },
 

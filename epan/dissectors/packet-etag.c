@@ -183,7 +183,7 @@ proto_register_etag(void)
             { "GRP", "etag.group", FT_UINT16, BASE_DEC, VALS(grp_vals), 0x3000, NULL, HFILL }
         },
         { &hf_etag_ecid_base,
-            { "E-CID_base", "etag.ecid_base", FT_UINT16, BASE_HEX, NULL, 0xFFF, NULL, HFILL }
+            { "E-CID_base", "etag.ecid_base", FT_UINT16, BASE_HEX, NULL, 0x0FFF, NULL, HFILL }
         },
         { &hf_etag_iecid_ext,
             { "Ingress_E-CID_ext", "etag.iecid_ext", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
