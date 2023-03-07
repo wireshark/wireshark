@@ -2503,7 +2503,7 @@ void WiresharkMainWindow::showHideMainWidgets(QAction *action)
             if (widget == toolbar) {
                 GList *entry = g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc)strcmp);
                 if (show && !entry) {
-                    recent.interface_toolbars = g_list_append(recent.interface_toolbars, g_strdup(action->text().toUtf8()));
+                    recent.interface_toolbars = g_list_append(recent.interface_toolbars, g_strdup(action->text().toUtf8().constData()));
                 } else if (!show && entry) {
                     recent.interface_toolbars = g_list_remove(recent.interface_toolbars, entry->data);
                 }
