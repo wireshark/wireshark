@@ -76,6 +76,7 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_PIE_SUBID_LCP      0x04
 #define WISUN_PIE_SUBID_LFNVER   0x40
 #define WISUN_PIE_SUBID_LGTKHASH 0x41
+#define WISUN_PIE_SUBID_LBATS    0x09
 
 #define WISUN_LGTKHASH_LGTK0_INCLUDED_MASK   0x01
 #define WISUN_LGTKHASH_LGTK1_INCLUDED_MASK   0x02
@@ -244,6 +245,9 @@ static int hf_wisun_lgtkhashie_flag_active_lgtk_index = -1;
 static int hf_wisun_lgtkhashie_gtk0 = -1;
 static int hf_wisun_lgtkhashie_gtk1 = -1;
 static int hf_wisun_lgtkhashie_gtk2 = -1;
+static int hf_wisun_lbatsie = -1;
+static int hf_wisun_lbatsie_additional_tx = -1;
+static int hf_wisun_lbatsie_next_tx_delay = -1;
 
 static int proto_wisun_sec = -1;
 static int hf_wisun_sec_function = -1;
@@ -319,6 +323,7 @@ static gint ett_wisun_pomie_phy_mode_id = -1;
 static gint ett_wisun_lfnverie = -1;
 static gint ett_wisun_lgtkhashie = -1;
 static gint ett_wisun_lgtkhashie_flags = -1;
+static gint ett_wisun_lbatsie = -1;
 static gint ett_wisun_sec = -1;
 static gint ett_wisun_eapol_relay = -1;
 // Netricity
@@ -402,6 +407,7 @@ static const value_string wisun_wsie_names_short[] = {
     { WISUN_PIE_SUBID_POM,       "PHY Operating Modes IE" },
     { WISUN_PIE_SUBID_LFNVER,    "LFN Version IE" },
     { WISUN_PIE_SUBID_LGTKHASH,  "LFN GTK Hash IE" },
+    { WISUN_PIE_SUBID_LBATS,     "LFN Broadcast Additional Transmit Schedule IE" },
     { 0, NULL }
 };
 
@@ -1411,6 +1417,25 @@ dissect_wisun_lgtkhashie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static int
+dissect_wisun_lbatsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint8 offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+    item = proto_tree_add_item(tree, hf_wisun_lbatsie, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+    subtree = proto_item_add_subtree(item, ett_wisun_lbatsie);
+
+    proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie_short, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(subtree, hf_wisun_lbatsie_additional_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(subtree, hf_wisun_lbatsie_next_tx_delay, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    return offset;
+}
+
+static int
 dissect_wisun_pie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void *data)
 {
     proto_tree *tree = ieee802154_create_pie_tree(tvb, ies_tree, hf_wisun_pie, ett_wisun_pie);
@@ -1472,6 +1497,9 @@ dissect_wisun_pie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void 
                     break;
                 case WISUN_PIE_SUBID_LGTKHASH:
                     dissect_wisun_lgtkhashie(wsie_tvb, pinfo, tree, data);
+                    break;
+                case WISUN_PIE_SUBID_LBATS:
+                    dissect_wisun_lbatsie(wsie_tvb, pinfo, tree, data);
                     break;
                 default:{
                     proto_item *item = proto_tree_add_item(tree, hf_wisun_unknown_ie, wsie_tvb, 0, tvb_reported_length(wsie_tvb), ENC_NA);
@@ -2297,6 +2325,21 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
 
+        { &hf_wisun_lbatsie,
+          { "LBATS-IE", "wisun.lbatsie", FT_NONE, BASE_NONE, NULL, 0x0,
+            "LFN Broadcast Additional Transmit Schedule IE", HFILL }
+        },
+
+        { &hf_wisun_lbatsie_additional_tx,
+          { "Additional Transmissions", "wisun.lbatsie.additional_tx", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_lbatsie_next_tx_delay,
+          { "Next Transmit Delay", "wisun.lbatsie.next_tx_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            NULL, HFILL }
+        },
+
         /* Wi-SUN FAN Security Extension */
         { &hf_wisun_sec_function,
           { "Function Code", "wisun.sec.function", FT_UINT8, BASE_HEX, VALS(wisun_sec_functions), 0x0,
@@ -2451,6 +2494,7 @@ void proto_register_wisun(void)
         &ett_wisun_lfnverie,
         &ett_wisun_lgtkhashie,
         &ett_wisun_lgtkhashie_flags,
+        &ett_wisun_lbatsie,
         &ett_wisun_sec,
         &ett_wisun_eapol_relay,
         &ett_wisun_netricity_nftie,
