@@ -140,7 +140,6 @@ static int hf_wisun_lbtie_slot = -1;
 static int hf_wisun_lbtie_bio = -1;
 static int hf_wisun_nrie = -1;
 static int hf_wisun_nrie_nr_id = -1;
-static int hf_wisun_nrie_listening_type = -1;
 static int hf_wisun_nrie_timing_accuracy = -1;
 static int hf_wisun_nrie_listening_interval_min = -1;
 static int hf_wisun_nrie_listening_interval_max = -1;
@@ -583,11 +582,6 @@ static const range_string wisun_phy_mode_ofdm_vals[] = {
     { 0,  0, NULL }
 };
 
-static const true_false_string wisun_wsie_listening_type_tfs = {
-    "Semi-synchronized Listening Type",
-    "Coordinated Sample Listening"
-};
-
 static const true_false_string wisun_netricity_sc_contention_control_tfs = {
     "Contention-free access",
     "Contention allowed in next contention state"
@@ -777,10 +771,6 @@ dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
     guint8 node_role = tvb_get_guint8(tvb, offset) & WISUN_WSIE_NODE_ROLE_MASK;
 
     proto_tree_add_item(tree, hf_wisun_nrie_nr_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-    if (node_role == WISUN_WSIE_NODE_ROLE_ID_LFN) {
-        proto_tree_add_item(tree, hf_wisun_nrie_listening_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    }
     offset++;
 
     proto_tree_add_item(tree, hf_wisun_usie_clock_drift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1790,10 +1780,6 @@ void proto_register_wisun(void)
           { "Node Role ID", "wisun.nrie.nr_id", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(wisun_wsie_node_role_vals), 0x0,
             NULL, HFILL }
         },
-
-        { &hf_wisun_nrie_listening_type,
-          { "Listening Type", "wisun.nrie.listening_type", FT_BOOLEAN, BASE_NONE, TFS(&wisun_wsie_listening_type_tfs), 1>>7,
-          NULL, HFILL }},
 
         { &hf_wisun_nrie_timing_accuracy,
           { "Timing Accuracy", "wisun.nrie.timing_accuracy", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
