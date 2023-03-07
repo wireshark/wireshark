@@ -3616,6 +3616,7 @@ static int hf_ieee80211_fc_frame_extension = -1;
 static int hf_ieee80211_fc_frame_type_subtype = -1;
 
 static int hf_ieee80211_fc_flags = -1;
+static int hf_ieee80211_fc_flags_str = -1;
 static int hf_ieee80211_fc_to_ds = -1;
 static int hf_ieee80211_fc_from_ds = -1;
 static int hf_ieee80211_fc_data_ds = -1;
@@ -33622,6 +33623,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean         more_frags;
   proto_item      *ti          = NULL;
   proto_item      *cw_item     = NULL;
+  proto_tree      *flags_item;
   proto_item      *hidden_item;
   proto_tree      *cw_tree     = NULL;
   guint16          hdr_len, ohdr_len;
@@ -34655,6 +34657,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item_append_text(ti, ", Flags: %s", flag_str);
   col_append_fstr(pinfo->cinfo, COL_INFO, ", Flags=%s", flag_str);
 
+  flags_item = proto_tree_add_string(hdr_tree, hf_ieee80211_fc_flags_str, tvb, 0, 0, flag_str);
+  proto_item_set_generated(flags_item);
 
   /*
    * Only management and data frames have a body, so we don't have
@@ -36720,6 +36724,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_fc_flags,
      {"Flags", "wlan.flags",
       FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fc_flags_str,
+     {"WLAN Flags", "wlan.flags.str",
+      FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_fc_data_ds,
