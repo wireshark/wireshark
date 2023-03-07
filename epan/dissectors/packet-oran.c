@@ -33,7 +33,8 @@
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  * - Really long long text in some items will not be displayed.  Try to summarise/truncate
  * - Register for UDP port(s)
- * - for section extensions, check constraints (section type, which other extension types appear with them)
+ * - for section extensions, check constraints (section type, which other extension types appear with them, order)
+ * - when section extensions are present, some section header fields are effectively ignored
  */
 
 /* Prototypes */
@@ -1002,7 +1003,7 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
 /* Out-of-range value used for special case */
 #define ORPHAN_BUNDLE_NUMBER 999
 
-/* Bundle of PRBs/TRX I/Q samles (ext 11) */
+/* Bundle of PRBs/TRX I/Q samples (ext 11) */
 static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset,
                                   proto_item *comp_meth_ti, guint32 bfwcomphdr_comp_meth,
                                   guint8 iq_width,
@@ -1107,6 +1108,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     guint32 numPrbc;
     guint32 ueId = 0;
     guint32 beamId = 0;
+    proto_item *beamId_ti = NULL;
+    gboolean beamId_ignored = FALSE;
 
     /* Config affecting ext11 bundles (initially unset) */
     ext11_settings_t ext11_settings;
@@ -1171,7 +1174,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case SEC_C_NORMAL:       /* Section Type "1" - Table 5.5 */
                 /* beamId */
-                proto_tree_add_item_ret_uint(oran_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                beamId_ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
                 offset += 2;
 
                 proto_item_append_text(sectionHeading, ", BeamId: %d", beamId);
@@ -1180,7 +1183,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case SEC_C_PRACH:       /* Section Type "3" - Table 5.6 */
             {
                 /* beamId */
-                proto_tree_add_item_ret_uint(oran_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                beamId_ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
                 offset += 2;
 
                 /* freqOffset */
@@ -1570,6 +1573,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 6: /* Non-contiguous PRB allocation in time and frequency domain */
             {
+                /* TODO: Field startSymbolId in the message header and the fields rb, symInc, and numSymbol in the section
+                   description shall not be used for identification of symbols and PRBs referred by the section description */
+
+                /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
                 /* rbgSize */
                 guint32 rbgSize;
@@ -1987,6 +1994,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 19:  /* Compact beamforming information for multiple port */
             {
+                /* beamId in section header should be ignored */
+                if (beamId_ti && !beamId_ignored) {
+                    proto_item_append_text(beamId_ti, " (ignored)");
+                    beamId_ignored = TRUE;
+                }
+
                 /* disableBFWs */
                 gboolean disableBFWs;
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_disable_bfws,
@@ -2841,7 +2854,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.13 */
+        /* Section 7.5.2.13 */
         { &hf_oran_frameStructure_fft,
           { "FFT Size", "oran_fh_cus.frameStructure.fft",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
@@ -2851,7 +2864,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* Section 5.4.4.13 */
+        /* Section 7.5.2.13 */
         { &hf_oran_frameStructure_subcarrier_spacing,
           { "Subcarrier Spacing", "oran_fh_cus.frameStructure.spacing",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
@@ -2864,20 +2877,16 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* Section 5.4.4.14 */
+        /* Section 7.5.2.14 */
         {&hf_oran_cpLength,
-         {"CP Length", "oran_fh_cus.cpLength",
+         {"cpLength", "oran_fh_cus.cpLength",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          "The length CP_length of the Cyclic Prefix "
-          "(CP) as follows, based on Ts (=1/30.72MHz as specified in 3GPP "
-          "TS38.211 section 4.1) and \u03bc as defined inTable 16. (\"NA\" for \u03bc "
-          "shall be replaced by \"0\" in the following:) CP_length = cpLength "
-          "* Ts  * 2-\u03bc",
+          "cyclic prefix length",
           HFILL}
         },
 
-        /* Section 5.4.5.1 */
+        /* Section 7.5.3.1 */
         {&hf_oran_section_id,
          {"Section ID", "oran_fh_cus.sectionId",
           FT_UINT16, BASE_DEC,
@@ -2897,7 +2906,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.2 */
+        /* Section 7.5.3.2 */
         {&hf_oran_rb,
          {"RB Indicator", "oran_fh_cus.rb",
           FT_UINT8, BASE_DEC,
@@ -2909,37 +2918,25 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.3 */
+        /* Section 7.5.5.3 */
         {&hf_oran_symInc,
-         {"Symbol Number Increment Command", "oran_fh_cus.symInc",
+         {"symInc", "oran_fh_cus.symInc",
           FT_UINT8, BASE_DEC,
           VALS(sym_inc_vals), 0x04,
-          "Indicate which symbol number is relevant "
-          "to the given sectionId.  It is expected that for each C-Plane "
-          "message a symbol number is maintained and starts with the value "
-          "of startSymbolid.  The same value is used for each section in "
-          "the message as long as symInc is zero.  When symInc is one, the "
-          "maintained symbol number should be incremented by one, and that "
-          "new symbol number should be used for that section and each subsequent "
-          "section until the symInc bit is again detected to be one. "
-          "In this manner, multiple symbols may be handled by a single C-Plane "
-          "message",
+          "Symbol Number Increment Command",
           HFILL}
         },
 
-        /* Section 5.4.5.4 */
+        /* Section 7.5.3.4 */
         {&hf_oran_startPrbc,
-         {"Starting PRB of Control Plane Section", "oran_fh_cus.startPrbc",
+         {"startPrbc", "oran_fh_cus.startPrbc",
           FT_UINT16, BASE_DEC,
           NULL, 0x03ff,
-          "The starting PRB of a control section. For one "
-          "C-Plane message, there may be multiple U-Plane messages associated "
-          "with it and requiring defining from which PRB the control "
-          "commands are applicable",
+          "Starting PRB of Control Plane Section",
           HFILL}
         },
 
-        /* Section 5.4.5.5 */
+        /* Section 7.5.3.5 */
         {&hf_oran_reMask,
          {"RE Mask", "oran_fh_cus.reMask",
           FT_UINT16, BASE_HEX,
@@ -2951,16 +2948,16 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.6 */
+        /* Section 7.5.3.6 */
         {&hf_oran_numPrbc,
-         {"Number of Contiguous PRBs per Control Section", "oran_fh_cus.numPrbc",
+         {"numPrbc", "oran_fh_cus.numPrbc",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
-          "The PRBs where the control section is valid",
+          "Number of contiguous PRBs per data section description",
           HFILL}
         },
 
-        /* Section 5.4.5.7 */
+        /* Section 7.5.3.7 */
         {&hf_oran_numSymbol,
          {"Number of Symbols", "oran_fh_cus.numSymbol",
           FT_UINT8, BASE_DEC,
@@ -2973,7 +2970,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.8 */
+        /* Section 7.5.3.8 */
         {&hf_oran_ef,
          {"Extension Flag", "oran_fh_cus.ef",
           FT_BOOLEAN, 8,
@@ -2984,7 +2981,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.5.9 */
+        /* Section 7.5.3.9 */
         {&hf_oran_beamId,
          {"Beam ID", "oran_fh_cus.beamId",
           FT_UINT16, BASE_DEC,
