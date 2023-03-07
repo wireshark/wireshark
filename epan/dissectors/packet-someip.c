@@ -1,7 +1,7 @@
 /* packet-someip.c
  * SOME/IP dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2022 Dr. Lars Voelker
+ * Copyright 2012-2023 Dr. Lars Voelker
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
   *
@@ -3661,8 +3661,7 @@ dissect_someip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 static gboolean
-test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
-{
+test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_) {
     if (tvb_captured_length(tvb) < SOMEIP_HDR_LEN) {
         return FALSE;
     }
@@ -3683,8 +3682,7 @@ test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U
 }
 
 static gboolean
-dissect_some_ip_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
+dissect_some_ip_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     if (test_someip(pinfo, tvb, 0, data)) {
         tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SOMEIP_HDR_PART1_LEN, get_someip_message_len, dissect_someip_message, data);
         return TRUE;
@@ -3693,10 +3691,8 @@ dissect_some_ip_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 }
 
 static gboolean
-dissect_some_ip_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    udp_dissect_pdus(tvb, pinfo, tree, SOMEIP_HDR_PART1_LEN, test_someip, get_someip_message_len, dissect_someip_message, data);
-    return TRUE;
+dissect_some_ip_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    return (udp_dissect_pdus(tvb, pinfo, tree, SOMEIP_HDR_PART1_LEN, test_someip, get_someip_message_len, dissect_someip_message, data) != 0);
 }
 
 void
