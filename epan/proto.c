@@ -9564,6 +9564,20 @@ hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo)
 }
 
 static const char *
+hf_try_double_val_to_str(gdouble value, const header_field_info *hfinfo)
+{
+	if (hfinfo->display & BASE_UNIT_STRING)
+		return unit_name_string_get_double(value, (const struct unit_name_string*)hfinfo->strings);
+
+	REPORT_DISSECTOR_BUG("field %s (FT_DOUBLE) has no base_unit_string", hfinfo->abbrev);
+
+	/* This is necessary to squelch MSVC errors; is there
+	   any way to tell it that DISSECTOR_ASSERT_NOT_REACHED()
+	   never returns? */
+	return NULL;
+}
+
+static const char *
 hf_try_val_to_str_const(guint32 value, const header_field_info *hfinfo, const char *unknown_str)
 {
 	const char *str = hf_try_val_to_str(value, hfinfo);
@@ -9978,6 +9992,11 @@ fill_display_label_float(field_info *fi, gchar *label_str)
 	}
 	if (n < 0) {
 		return 0; /* error */
+	}
+	if ((fi->hfinfo->strings) && (fi->hfinfo->display & BASE_UNIT_STRING)) {
+		const char *hf_str_val;
+		hf_str_val = hf_try_double_val_to_str(value, fi->hfinfo);
+		n += protoo_strlcpy(label_str + n, hf_str_val, ITEM_LABEL_LENGTH - n);
 	}
 	if (n > ITEM_LABEL_LENGTH) {
 		ws_warning("label length too small");
