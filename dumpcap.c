@@ -93,8 +93,13 @@
 #include "wiretap/pcapng_module.h"
 #include "wiretap/pcapng.h"
 
-/**#define DEBUG_DUMPCAP**/
-/**#define DEBUG_CHILD_DUMPCAP**/
+/*
+ * Define these for extra logging messages at INFO and below. Note
+ * that when dumpcap is spawned as a child process, logs are sent
+ * to the parent via the sync pipe.
+ */
+/**#define DEBUG_DUMPCAP**/       /* Logs INFO and below messages normally */
+/**#define DEBUG_CHILD_DUMPCAP**/ /* Writes INFO and below logs to file */
 
 #ifdef _WIN32
 #include "wsutil/win32-utils.h"
@@ -107,6 +112,9 @@
 FILE *debug_log;   /* for logging debug messages to  */
                    /*  a file if DEBUG_CHILD_DUMPCAP */
                    /*  is defined                    */
+#ifdef DEBUG_DUMPCAP
+#include <stdarg.h> /* va_copy */
+#endif
 #endif
 
 static GAsyncQueue *pcap_queue;
@@ -4910,6 +4918,23 @@ main(int argc, char *argv[])
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+    /* sync_pipe_start does not pass along log level information from
+     * the parent (XXX: it probably should.) Assume that if we're
+     * specially compiled with dumpcap debugging then we want it on.
+     */
+    if (capture_child) {
+        ws_log_set_level(LOG_LEVEL_DEBUG);
+    }
+#endif
+
+#ifdef DEBUG_CHILD_DUMPCAP
+    if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
+        fprintf (stderr, "Unable to open debug log file .\n");
+        exit (1);
+    }
+#endif
+
     ws_noisy("Finished log init and parsing command line log arguments");
 
 #ifdef _WIN32
@@ -4944,13 +4969,6 @@ main(int argc, char *argv[])
 #endif
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
-
-#ifdef DEBUG_CHILD_DUMPCAP
-    if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
-        fprintf (stderr, "Unable to open debug log file .\n");
-        exit (1);
-    }
-#endif
 
 #if defined(__APPLE__) && defined(__LP64__)
     /*
@@ -5597,21 +5615,27 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
                                    const char *user_format, va_list user_ap,
                                    void *user_data _U_)
 {
-    /* ignore log message, if log_level isn't interesting */
-    if (level <= LOG_LEVEL_INFO) {
-#if !defined(DEBUG_DUMPCAP) && !defined(DEBUG_CHILD_DUMPCAP)
-        return;
-#endif
-    }
-
     /* DEBUG & INFO msgs (if we're debugging today)                 */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
     if (level <= LOG_LEVEL_INFO && ws_log_msg_is_active(domain, level)) {
 #ifdef DEBUG_DUMPCAP
-        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
-#endif
 #ifdef DEBUG_CHILD_DUMPCAP
-        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+        va_list user_ap_copy;
+        va_copy(user_ap_copy, user_ap);
+#endif
+        if (capture_child) {
+            gchar *msg = ws_strdup_vprintf(user_format, user_ap);
+            sync_pipe_errmsg_to_parent(2, msg, "");
+            g_free(msg);
+        } else {
+            ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+        }
+#ifdef DEBUG_CHILD_DUMPCAP
+        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap_copy);
+        va_end(user_ap_copy);
+#endif
+#elif DEBUG_CHILD_DUMPCAP
+        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap);
 #endif
         return;
     }
