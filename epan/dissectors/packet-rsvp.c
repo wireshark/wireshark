@@ -7147,6 +7147,7 @@ dissect_rsvp_s2l_sub_lsp(proto_tree *ti, packet_info* pinfo _U_, proto_tree *rsv
         offset += 4;
 
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_s2l_sub_lsp_destination_ipv4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         break;
 
     case 2: /* IPv6 */
@@ -7154,6 +7155,7 @@ dissect_rsvp_s2l_sub_lsp(proto_tree *ti, packet_info* pinfo _U_, proto_tree *rsv
         offset += 4;
 
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_s2l_sub_lsp_destination_ipv6_address, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(ti, "IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         break;
 
     default:
