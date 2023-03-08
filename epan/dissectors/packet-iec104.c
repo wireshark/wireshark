@@ -741,6 +741,7 @@ static int hf_qcc = -1;
 static int hf_qcc_rqt = -1;
 static int hf_qcc_frz = -1;
 static int hf_qrp  = -1;
+static int hf_bcr = -1;
 static int hf_bcr_count = -1;
 static int hf_bcr_sq = -1;
 static int hf_bcr_cy = -1;
@@ -1455,14 +1456,20 @@ static void get_BSIspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
    ==================================================================== */
 static void get_BCR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-	proto_tree_add_item(iec104_header_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-	*offset += 4;
+	proto_item* ti;
+	proto_tree* bcr_tree;
 
-	proto_tree_add_item(iec104_header_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec104_header_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec104_header_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec104_header_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	*offset += 1;
+	ti = proto_tree_add_item(iec104_header_tree, hf_bcr, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	bcr_tree = proto_item_add_subtree(ti, ett_vti);
+
+	proto_tree_add_item(bcr_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	(*offset) += 4;
+
+	proto_tree_add_item(bcr_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bcr_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bcr_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bcr_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
 }
 
 /* ====================================================================
@@ -2575,11 +2582,11 @@ proto_register_iec60870_asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_coi_r,
-		  { "R", "iec60870_asdu.coi_r", FT_UINT8, BASE_DEC, VALS(coi_r_types), 0x7F,
+		  { "R", "iec60870_asdu.coi.r", FT_UINT8, BASE_DEC, VALS(coi_r_types), 0x7F,
 		    "COI R", HFILL }},
 
 		{ &hf_coi_i,
-		  { "I", "iec60870_asdu.coi_i", FT_BOOLEAN, 8, TFS(&tfs_coi_i), 0x80,
+		  { "I", "iec60870_asdu.coi.i", FT_BOOLEAN, 8, TFS(&tfs_coi_i), 0x80,
 		    "COI I", HFILL }},
 
 		{ &hf_qoi,
@@ -2591,19 +2598,23 @@ proto_register_iec60870_asdu(void)
 		    NULL, HFILL } },
 
 		{ &hf_qcc_rqt,
-		  { "RQT", "iec60870_asdu.rqt", FT_UINT8, BASE_DEC, VALS(rqt_r_types), 0x3F,
+		  { "RQT", "iec60870_asdu.qcc.rqt", FT_UINT8, BASE_DEC, VALS(rqt_r_types), 0x3F,
 		    NULL, HFILL } },
 
 		{ &hf_qcc_frz,
-		  { "FRZ", "iec60870_asdu.frz", FT_UINT8, BASE_DEC, VALS(frz_r_types), 0xC0,
+		  { "FRZ", "iec60870_asdu.qcc.frz", FT_UINT8, BASE_DEC, VALS(frz_r_types), 0xC0,
 		    NULL, HFILL } },
 
 		{ &hf_qrp,
 		  { "QRP", "iec60870_asdu.qrp", FT_UINT8, BASE_DEC, VALS(qrp_r_types), 0,
 		    NULL, HFILL }},
 
+		{ &hf_bcr,
+		  { "BCR", "iec60870_asdu.bcr", FT_INT32, BASE_DEC, NULL, 0x0,
+		    "Binary Counter", HFILL }},
+
 		{ &hf_bcr_count,
-		  { "Binary Counter", "iec60870_asdu.bcr.count", FT_INT32, BASE_DEC, NULL, 0x0,
+		  { "Value", "iec60870_asdu.bcr.count", FT_INT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_bcr_sq,
