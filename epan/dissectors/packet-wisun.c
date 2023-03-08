@@ -14,6 +14,7 @@
 #include <wsutil/pint.h>
 #include <epan/reassemble.h>
 #include <epan/oids.h>
+#include <epan/oui.h>
 
 #include "packet-ieee802154.h"
 
@@ -115,6 +116,8 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_PIE_JM_ID_PLF      1
 #define WISUN_PIE_JM_ID_MASK  0xfc
 #define WISUN_PIE_JM_LEN_MASK 0x03
+
+#define WISUN_CMD_MDR 0x03
 
 static int proto_wisun = -1;
 static int hf_wisun_subid = -1;
@@ -273,6 +276,9 @@ static int proto_wisun_eapol_relay = -1;
 static int hf_wisun_eapol_relay_sup = -1;
 static int hf_wisun_eapol_relay_kmp_id = -1;
 static int hf_wisun_eapol_relay_direction = -1;
+
+static int hf_wisun_cmd_subid = -1;
+static int hf_wisun_cmd_mdr_phy_mode_id = -1;
 
 // Netricity
 static int proto_wisun_netricity_sc;
@@ -617,6 +623,11 @@ static const range_string wisun_phy_mode_ofdm_vals[] = {
     { 6,  6, "MCS6"         },
     { 7, 15, "Reserved"     },
     { 0,  0, NULL }
+};
+
+static const value_string wisun_cmd_vals[] = {
+    { 3, "MDR Command" },
+    { 0, NULL }
 };
 
 static const true_false_string wisun_netricity_sc_contention_control_tfs = {
@@ -1600,6 +1611,29 @@ dissect_wisun_pie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void 
     return offset;
 }
 
+
+static int
+dissect_wisun_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint8 offset = 0;
+    guint8 cmd_subid;
+
+    cmd_subid = tvb_get_guint8(tvb, offset);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN");
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_subid, wisun_cmd_vals, "Unknown Wi-SUN MAC Command"));
+    proto_tree_add_item(tree, hf_wisun_cmd_subid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    switch (cmd_subid) {
+    case WISUN_CMD_MDR:
+        proto_tree_add_item(tree, hf_wisun_cmd_mdr_phy_mode_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
+    default:
+        call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+        break;
+    }
+    return offset;
+}
+
 /*-----------------------------------------------
  * Wi-SUN FAN Security Extensions Dissection
  *---------------------------------------------*/
@@ -2493,6 +2527,14 @@ void proto_register_wisun(void)
           { "Direction", "wisun.eapol_relay.direction", FT_BOOLEAN, BASE_NONE, TFS(&tfs_up_down), 0x0,
           NULL, HFILL }},
 
+        { &hf_wisun_cmd_subid,
+          { "Command Sub-ID", "wisun.cmd", FT_UINT8, BASE_DEC, VALS(wisun_cmd_vals), 0x0,
+            "Wi-SUN MAC Command Sub-ID", HFILL }},
+
+        { &hf_wisun_cmd_mdr_phy_mode_id,
+          { "PHY Mode ID", "wisun.cmd.mdr.phy_mode_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         /* Wi-SUN Netricity */
         { &hf_wisun_netricity_nftie,
           { "Netricity Frame Type IE", "wisun.netricity.nftie", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2685,6 +2727,7 @@ void proto_reg_handoff_wisun(void)
 {
     dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_WISUN, create_dissector_handle(dissect_wisun_hie, proto_wisun));
     dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_WISUN, create_dissector_handle(dissect_wisun_pie, proto_wisun));
+    dissector_add_uint(IEEE802154_CMD_VENDOR_DTABLE, OUI_WISUN, create_dissector_handle(dissect_wisun_cmd, proto_wisun));
 
     oid_add_from_string("id-kp-wisun-fan-device", "1.3.6.1.4.1.45605.1");
 
