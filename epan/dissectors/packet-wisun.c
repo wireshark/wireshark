@@ -279,6 +279,9 @@ static int hf_wisun_eapol_relay_direction = -1;
 
 static int hf_wisun_cmd_subid = -1;
 static int hf_wisun_cmd_mdr_phy_mode_id = -1;
+static int hf_wisun_cmd_mdr_phy_type = -1;
+static int hf_wisun_cmd_mdr_phy_mode_fsk = -1;
+static int hf_wisun_cmd_mdr_phy_mode_ofdm = -1;
 
 // Netricity
 static int proto_wisun_netricity_sc;
@@ -306,6 +309,7 @@ static int hf_wisun_netricity_scr_segment_count = -1;
 static int hf_wisun_netricity_scr_reassembled_in = -1;
 static int hf_wisun_netricity_scr_reassembled_length = -1;
 
+static gint ett_wisun_phy_mode_id = -1;
 static gint ett_wisun_unknown_ie = -1;
 static gint ett_wisun_uttie = -1;
 static gint ett_wisun_btie = -1;
@@ -338,7 +342,6 @@ static gint ett_wisun_panverie = -1;
 static gint ett_wisun_gtkhashie = -1;
 static gint ett_wisun_pomie = -1;
 static gint ett_wisun_pomie_hdr = -1;
-static gint ett_wisun_pomie_phy_mode_id = -1;
 static gint ett_wisun_lfnverie = -1;
 static gint ett_wisun_lgtkhashie = -1;
 static gint ett_wisun_lgtkhashie_flags = -1;
@@ -669,6 +672,33 @@ wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, guint offset)
     proto_tree_add_uint(tree, hf, tvb, offset, len, val);
     return len;
 }
+
+static void
+wisun_add_phy_mode_id(tvbuff_t *tvb, proto_tree *tree,
+                      const guint offset, const int hf, int *const hf_type,
+                      int *const hf_fsk, int *const hf_ofdm)
+{
+    guint8 phy_type = (tvb_get_guint8(tvb, offset) & WISUN_PIE_PHY_TYPE) >> 4;
+    int *const wisun_phy_mode_fsk_fields[] = {
+        hf_type,
+        hf_fsk,
+        NULL
+    };
+    int *const wisun_phy_mode_ofdm_fields[] = {
+        hf_type,
+        hf_ofdm,
+        NULL
+    };
+
+    if (phy_type < 2) {
+        // 0 and 1 are FSK modes
+        proto_tree_add_bitmask(tree, tvb, offset, hf, ett_wisun_phy_mode_id, wisun_phy_mode_fsk_fields, ENC_NA);
+    } else {
+        // The rest are OFDM modes
+        proto_tree_add_bitmask(tree, tvb, offset, hf, ett_wisun_phy_mode_id, wisun_phy_mode_ofdm_fields, ENC_NA);
+    }
+}
+
 
 /*-----------------------------------------------
  * Wi-SUN Header IE Dissection
@@ -1359,18 +1389,6 @@ dissect_wisun_pomie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
         NULL
     };
 
-    static int* const wisun_pomie_phy_mode_fsk_fields[] = {
-        &hf_wisun_pomie_phy_type,
-        &hf_wisun_pomie_phy_mode_fsk,
-        NULL
-    };
-
-    static int* const wisun_pomie_phy_mode_ofdm_fields[] = {
-        &hf_wisun_pomie_phy_type,
-        &hf_wisun_pomie_phy_mode_ofdm,
-        NULL
-    };
-
     item = proto_tree_add_item(tree, hf_wisun_pomie, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     subtree = proto_item_add_subtree(item, ett_wisun_pomie);
 
@@ -1382,15 +1400,8 @@ dissect_wisun_pomie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 
     offset++;
     for (guint8 i = 0; i < number_operating_modes; i++) {
-        guint8 phy_type = (tvb_get_guint8(tvb, offset) & WISUN_PIE_PHY_TYPE) >> 4;
-
-        if (phy_type < 2) {
-            // 0 and 1 are FSK modes
-            proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_pomie_phy_mode_id, ett_wisun_pomie_phy_mode_id, wisun_pomie_phy_mode_fsk_fields, ENC_NA);
-        } else {
-            // The rest are OFDM modes
-            proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_pomie_phy_mode_id, ett_wisun_pomie_phy_mode_id, wisun_pomie_phy_mode_ofdm_fields, ENC_NA);
-        }
+        wisun_add_phy_mode_id(tvb, tree, offset, hf_wisun_pomie_phy_mode_id, &hf_wisun_pomie_phy_type,
+                              &hf_wisun_pomie_phy_mode_fsk, &hf_wisun_pomie_phy_mode_ofdm);
         offset++;
     }
 
@@ -1625,7 +1636,8 @@ dissect_wisun_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset += 1;
     switch (cmd_subid) {
     case WISUN_CMD_MDR:
-        proto_tree_add_item(tree, hf_wisun_cmd_mdr_phy_mode_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        wisun_add_phy_mode_id(tvb, tree, offset, hf_wisun_cmd_mdr_phy_mode_id, &hf_wisun_cmd_mdr_phy_type,
+                              &hf_wisun_cmd_mdr_phy_mode_fsk, &hf_wisun_cmd_mdr_phy_mode_ofdm);
         break;
     default:
         call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
@@ -2535,6 +2547,21 @@ void proto_register_wisun(void)
           { "PHY Mode ID", "wisun.cmd.mdr.phy_mode_id", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_wisun_cmd_mdr_phy_type,
+          { "PHY Type", "wisun.cmd.mdr.phy_type", FT_UINT8, BASE_HEX, VALS(wisun_phy_type_vals), WISUN_PIE_PHY_TYPE,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_cmd_mdr_phy_mode_fsk,
+          { "PHY Mode FSK", "wisun.cmd.mdr.phy_mode_fsk", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(wisun_phy_mode_fsk_vals), WISUN_PIE_PHY_OPERATING_MODES_MASK,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_cmd_mdr_phy_mode_ofdm,
+          { "PHY Mode OFDM", "wisun.cmd.mdr.phy_mode_ofdm", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(wisun_phy_mode_ofdm_vals), WISUN_PIE_PHY_OPERATING_MODES_MASK,
+            NULL, HFILL }
+        },
+
         /* Wi-SUN Netricity */
         { &hf_wisun_netricity_nftie,
           { "Netricity Frame Type IE", "wisun.netricity.nftie", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2636,6 +2663,7 @@ void proto_register_wisun(void)
 
     /* Subtrees */
     static gint *ett[] = {
+        &ett_wisun_phy_mode_id,
         &ett_wisun_unknown_ie,
         &ett_wisun_uttie,
         &ett_wisun_btie,
@@ -2655,7 +2683,6 @@ void proto_register_wisun(void)
         &ett_wisun_panverie,
         &ett_wisun_pomie,
         &ett_wisun_pomie_hdr,
-        &ett_wisun_pomie_phy_mode_id,
         &ett_wisun_gtkhashie,
         &ett_wisun_lfnverie,
         &ett_wisun_lgtkhashie,
