@@ -1617,7 +1617,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         ext11_settings.ext6_rbg_size = 16; break;
                     /* N.B., encoded in 3 bits, so no other values are possible */
                 }
-                for (guint n=0; n < 28; n++) {
+                for (guint n=0; n < 28 && ext11_settings.ext6_num_bits_set < 28; n++) {
                     if ((rbgMask >> n) & 0x01) {
                         ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
                     }
