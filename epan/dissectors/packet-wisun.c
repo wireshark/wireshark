@@ -3,6 +3,7 @@
  * Wi-SUN IE Dissectors for Wireshark
  * By Owen Kirby <osk@exegin.com>
  * Copyright 2007 Exegin Technologies Limited
+ * Copyright 2022-2023 Silicon Laboratories Inc.
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *------------------------------------------------------------
