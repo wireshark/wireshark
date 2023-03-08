@@ -1239,12 +1239,12 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 
         double voltage_value = (double)((tmp & 0x0000ff00) >> 8) + (tmp & 0x000000ff) / 100.0;
-        proto_tree_add_double(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, voltage_value);
+        /* we are adding the base unit manually since currently proto.c does not do this for doubles */
+        proto_tree_add_double_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, voltage_value, "%g %s", voltage_value, unit_name_string_get_double(voltage_value, &units_volt));
         offset += 2;
 
         if (tvb_captured_length_remaining(tvb, offset) == 1) {
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature, tvb, offset, 1, ENC_NA);
-            proto_item_append_text(ti, "%s", UTF8_DEGREE_SIGN "C");
+            proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature, tvb, offset, 1, ENC_NA);
         } else if (tvb_captured_length_remaining(tvb, offset) > 1) {
             /* TECMP 1.5 and later */
             temperature = tvb_get_gint8(tvb, offset);
@@ -1252,7 +1252,6 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis, tvb, offset, 1, temperature, "%s", "Not Available");
             } else {
                 ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA);
-                proto_item_append_text(ti, "%s", UTF8_DEGREE_SIGN "C");
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
                 }
@@ -1264,7 +1263,6 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon, tvb, offset, 1, temperature, "%s", "Not Available");
             } else {
                 ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA);
-                proto_item_append_text(ti, "%s", UTF8_DEGREE_SIGN "C");
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
                 }
@@ -2068,16 +2066,16 @@ proto_register_tecmp_payload(void) {
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_voltage,
             { "Voltage", "tecmp.payload.status_dev.vendor_technica.voltage",
-            FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_volt, 0x0, NULL, HFILL } },
+            FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature,
             { "Temperature", "tecmp.payload.status_dev.vendor_technica.temperature",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis,
             { "Temperature Chassis", "tecmp.payload.status_dev.vendor_technica.temperature_chassis",
-            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon,
             { "Temperature Silicon", "tecmp.payload.status_dev.vendor_technica.temperature_silicon",
-            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL }},
 
         /* Status Bus Vendor Data */
         { &hf_tecmp_payload_status_bus_vendor_technica_link_status,
