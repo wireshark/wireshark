@@ -1260,6 +1260,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_NEWLINK:
 		case WS_RTM_DELLINK:
 		case WS_RTM_GETLINK:
+		case WS_RTM_SETLINK:
 			/*
 			 * Backward compatibility with legacy tools; 16 is
 			 * sizeof(struct ifinfomsg).
