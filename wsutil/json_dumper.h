@@ -58,7 +58,7 @@ typedef struct json_dumper {
 #define JSON_DUMPER_FLAGS_NO_DEBUG      (1 << 17)   /* Disable fatal ws_error messsges on error(intended for speeding up fuzzing). */
     int     flags;
     /* for internal use, initialize with zeroes. */
-    int     current_depth;
+    guint   current_depth;
     gint    base64_state;
     gint    base64_save;
     guint8  state[JSON_DUMPER_MAX_DEPTH];
