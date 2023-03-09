@@ -133,6 +133,8 @@ private:
     // Context menu actions
     QAction *action_allow_hover_selection_;
     QAction *action_bytes_hex_;
+    QAction *action_bytes_dec_;
+    QAction *action_bytes_oct_;
     QAction *action_bytes_bits_;
     QAction *action_bytes_enc_from_packet_;
     QAction *action_bytes_enc_ascii_;
