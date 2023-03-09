@@ -252,6 +252,7 @@ static expert_field ei_oran_extlen_wrong = EI_INIT;
 static expert_field ei_oran_invalid_eaxc_bit_width = EI_INIT;
 static expert_field ei_oran_extlen_zero = EI_INIT;
 static expert_field ei_oran_rbg_size_reserved = EI_INIT;
+static expert_field ei_oran_frame_length = EI_INIT;
 
 
 /* These are the message types handled by this dissector */
@@ -2412,6 +2413,13 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item);
     }
 
+    /* Expert error if we are short of tvb by > 3 bytes */
+    if (tvb_reported_length_remaining(tvb, offset) > 3) {
+        expert_add_info_format(pinfo, protocol_item, &ei_oran_frame_length,
+                               "%u bytes remain at end of frame - should be 0-3",
+                               tvb_reported_length_remaining(tvb, offset));
+    }
+
     return tvb_captured_length(tvb);
 }
 
@@ -2616,6 +2624,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* Show number of sections found */
     proto_item *ti = proto_tree_add_uint(oran_tree, hf_oran_numberOfSections, tvb, 0, 0, number_of_sections);
     proto_item_set_generated(ti);
+
+    /* Expert error if we are short of tvb by > 3 bytes */
+    if (tvb_reported_length_remaining(tvb, offset) > 3) {
+        expert_add_info_format(pinfo, protocol_item, &ei_oran_frame_length,
+                               "%u bytes remain at end of frame - should be 0-3",
+                               tvb_reported_length_remaining(tvb, offset));
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -3991,7 +4006,8 @@ proto_register_oran(void)
         { &ei_oran_extlen_wrong, { "oran_fh_cus.extlen_wrong", PI_MALFORMED, PI_ERROR, "extlen doesn't match number of dissected bytes", EXPFILL }},
         { &ei_oran_invalid_eaxc_bit_width, { "oran_fh_cus.invalid_exac_bit_width", PI_UNDECODED, PI_ERROR, "Inconsistent eAxC bit width", EXPFILL }},
         { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen - zero is reserved value", EXPFILL }},
-        { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize - zero is reserved value", EXPFILL }}
+        { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize - zero is reserved value", EXPFILL }},
+        { &ei_oran_frame_length, { "oran_fh_cus.frame_length", PI_MALFORMED, PI_ERROR, "there should be 0-3 bytes remaining after PDU in frame", EXPFILL }},
     };
 
     /* Register the protocol name and description */
