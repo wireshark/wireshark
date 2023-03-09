@@ -272,8 +272,6 @@ static gint hf_srvsvc_srvsvc_NetDiskEnum_maxlen = -1;
 static gint hf_srvsvc_srvsvc_NetDiskEnum_resume_handle = -1;
 static gint hf_srvsvc_srvsvc_NetDiskEnum_server_unc = -1;
 static gint hf_srvsvc_srvsvc_NetDiskEnum_totalentries = -1;
-static gint hf_srvsvc_srvsvc_NetDiskInfo0___disk_length = -1;
-static gint hf_srvsvc_srvsvc_NetDiskInfo0___disk_offset = -1;
 static gint hf_srvsvc_srvsvc_NetDiskInfo0_disk = -1;
 static gint hf_srvsvc_srvsvc_NetDiskInfo_count = -1;
 static gint hf_srvsvc_srvsvc_NetDiskInfo_disks = -1;
@@ -1708,8 +1706,6 @@ static int srvsvc_dissect_element_NetSrvInfo_info1555(tvbuff_t *tvb _U_, int off
 static int srvsvc_dissect_element_NetSrvInfo_info1555_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetSrvInfo_info1556(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetSrvInfo_info1556_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int srvsvc_dissect_element_NetDiskInfo0___disk_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int srvsvc_dissect_element_NetDiskInfo0___disk_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetDiskInfo0_disk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetDiskInfo_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetDiskInfo_disks(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -2072,6 +2068,7 @@ static int srvsvc_dissect_element_NetShareEnum_resume_handle_(tvbuff_t *tvb _U_,
 static int srvsvc_dissect_element_NetShareDelStart_server_unc(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareDelStart_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareDelStart_share(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int srvsvc_dissect_element_NetShareDelStart_share_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareDelStart_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareDelStart_hnd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareDelStart_hnd_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -2117,9 +2114,9 @@ srvsvc_dissect_element_NetShareInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, pa
 	return offset;
 }
 static int
-srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index);
 static int
-srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_)
 {
 	guint32 len;
 	if(di->conformant_run){
@@ -2136,27 +2133,27 @@ srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 srvsvc_dissect_element_NetShareInfo_info1501_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
+	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetShareInfo_info1501);
 }
 static int
 srvsvc_dissect_element_NetGetFileSecurity_sd_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
+	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetGetFileSecurity_sd_buf);
 }
 static int
 srvsvc_dissect_element_NetSetFileSecurity_sd_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
+	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetSetFileSecurity_sd_buf);
 }
 static int
 srvsvc_dissect_element_NetShareCtr1501_array__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
+	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetShareCtr1501_array);
 }
 static int
 srvsvc_dissect_element_NetShareInfo502_sd_buf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	return  srvsvc_dissect_sec_desc_buf(tvb,offset,pinfo,tree,di,drep);
+	return  srvsvc_dissect_sec_desc_buf(tvb,offset,pinfo,tree,di,drep, hf_srvsvc_srvsvc_NetShareInfo502_sd_buf);
 }
 static int
 srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
@@ -2165,8 +2162,7 @@ srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
-	offset=dissect_smb_server_type_flags(tvb, offset, pinfo, tree, 
-		drep, 0);
+	offset=dissect_smb_server_type_flags(tvb, offset, pinfo, tree, drep, 0);
 	return offset;
 }
 static int
@@ -2180,7 +2176,7 @@ srvsvc_dissect_element_NetSrvInfo102_server_type(tvbuff_t *tvb, int offset, pack
 	return srvsvc_dissect_ServerType(tvb, offset, pinfo, tree, di, drep);
 }
 static int
-srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_)
+srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_, int hf_index _U_)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -2192,12 +2188,12 @@ srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 static int
 srvsvc_dissect_element_NetGetFileSecurity_securityinformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	 return srvsvc_dissect_secinfo(tvb, offset, pinfo, tree, di, drep);
+	 return srvsvc_dissect_secinfo(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetGetFileSecurity_securityinformation);
 }
 static int
 srvsvc_dissect_element_NetSetFileSecurity_securityinformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	 return srvsvc_dissect_secinfo(tvb, offset, pinfo, tree, di, drep);
+	 return srvsvc_dissect_secinfo(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetSetFileSecurity_securityinformation);
 }
 
 
@@ -13362,30 +13358,16 @@ srvsvc_dissect_NetSrvInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 }
 
 /* IDL: struct { */
-/* IDL: 	[value(0)] uint32 __disk_offset; */
-/* IDL: 	[value(strlen(disk)+1)] uint32 __disk_length; */
-/* IDL: 	[charset(UTF16)] uint16 disk[__disk_length]; */
+/* IDL: 	[charset(UTF16)] uint16 disk[3]; */
 /* IDL: } */
-
-static int
-srvsvc_dissect_element_NetDiskInfo0___disk_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetDiskInfo0___disk_offset, 0);
-
-	return offset;
-}
-
-static int
-srvsvc_dissect_element_NetDiskInfo0___disk_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetDiskInfo0___disk_length, 0);
-
-	return offset;
-}
 
 static int
 srvsvc_dissect_element_NetDiskInfo0_disk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
+	char *data;
+
+	offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetDiskInfo0_disk, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -13397,7 +13379,7 @@ srvsvc_dissect_struct_NetDiskInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_2_BYTES;
 
 	old_offset = offset;
 
@@ -13406,10 +13388,6 @@ srvsvc_dissect_struct_NetDiskInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetDiskInfo0);
 	}
 
-	offset = srvsvc_dissect_element_NetDiskInfo0___disk_offset(tvb, offset, pinfo, tree, di, drep);
-
-	offset = srvsvc_dissect_element_NetDiskInfo0___disk_length(tvb, offset, pinfo, tree, di, drep);
-
 	offset = srvsvc_dissect_element_NetDiskInfo0_disk(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -13417,7 +13395,7 @@ srvsvc_dissect_struct_NetDiskInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
+		ALIGN_TO_2_BYTES;
 	}
 
 	return offset;
@@ -18657,6 +18635,14 @@ srvsvc_dissect_element_NetShareDelStart_server_unc_(tvbuff_t *tvb _U_, int offse
 static int
 srvsvc_dissect_element_NetShareDelStart_share(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, srvsvc_dissect_element_NetShareDelStart_share_, NDR_POINTER_UNIQUE, "Pointer to Share (uint16)",hf_srvsvc_srvsvc_NetShareDelStart_share);
+
+	return offset;
+}
+
+static int
+srvsvc_dissect_element_NetShareDelStart_share_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
 	char *data;
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetShareDelStart_share, FALSE, &data);
@@ -18691,7 +18677,7 @@ srvsvc_dissect_element_NetShareDelStart_hnd_(tvbuff_t *tvb _U_, int offset _U_, 
 
 /* IDL: WERROR srvsvc_NetShareDelStart( */
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *server_unc, */
-/* IDL: [charset(UTF16)] [in] uint16 share[*], */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *share, */
 /* IDL: [in] uint32 reserved, */
 /* IDL: [out] [unique(1)] policy_handle *hnd */
 /* IDL: ); */
@@ -19753,10 +19739,6 @@ void proto_register_dcerpc_srvsvc(void)
 	  { "Server Unc", "srvsvc.srvsvc_NetDiskEnum.server_unc", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_srvsvc_srvsvc_NetDiskEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetDiskEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskInfo0___disk_length,
-	  { "Disk Length", "srvsvc.srvsvc_NetDiskInfo0.__disk_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskInfo0___disk_offset,
-	  { "Disk Offset", "srvsvc.srvsvc_NetDiskInfo0.__disk_offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_srvsvc_srvsvc_NetDiskInfo0_disk,
 	  { "Disk", "srvsvc.srvsvc_NetDiskInfo0.disk", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_srvsvc_srvsvc_NetDiskInfo_count,

@@ -1174,16 +1174,7 @@
 /* srvsvc_NetDisk         */
 /**************************/
 	typedef struct {
-		/*
-		 * In theory this should be:
-		 *      [charset(UTF16),string] uint16 annotation[3]
-		 * But midl treats this as:
-		 *      [charset(UTF16),string] uint16 annotation[]
-		 * and pidl doesn't support this yet
-		 */
-		[value(0)] uint32 __disk_offset;
-		[value(strlen(disk)+1)] uint32 __disk_length;
-		[charset(UTF16)] uint16 disk[__disk_length];
+		[charset(UTF16),string] uint16 disk[3];
 	} srvsvc_NetDiskInfo0;
 
 	typedef struct {
@@ -1421,7 +1412,7 @@
 
 	/******************/
 	/* Function: 0x22 */
-	[todo] WERROR srvsvc_NETRPRNAMECANONICALIZE(
+	WERROR srvsvc_NETRPRNAMECANONICALIZE(
 		);
 
 	/******************/
@@ -1453,7 +1444,7 @@
 	/* Function: 0x25 */
 	WERROR srvsvc_NetShareDelStart(
 		[in,unique]       [string,charset(UTF16)] uint16 *server_unc,
-		[in]       [string,charset(UTF16)] uint16 share[],
+		[in,unique]       [string,charset(UTF16)] uint16 *share,
 		[in]       uint32 reserved,
 		[out,unique] policy_handle *hnd
 		);
@@ -1514,56 +1505,56 @@
 
 	/******************/
 	/* Function: 0x2b */
-	[todo] WERROR srvsvc_NETRDFSGETVERSION(
+	WERROR srvsvc_NETRDFSGETVERSION(
 		);
 
 	/******************/
 	/* Function: 0x2c */
-	[todo] WERROR srvsvc_NETRDFSCREATELOCALPARTITION(
+	WERROR srvsvc_NETRDFSCREATELOCALPARTITION(
 		);
 
 	/******************/
 	/* Function: 0x2d */
-	[todo] WERROR srvsvc_NETRDFSDELETELOCALPARTITION(
+	WERROR srvsvc_NETRDFSDELETELOCALPARTITION(
 		);
 
 	/******************/
 	/* Function: 0x2e */
-	[todo] WERROR srvsvc_NETRDFSSETLOCALVOLUMESTATE(
+	WERROR srvsvc_NETRDFSSETLOCALVOLUMESTATE(
 		);
 
 	/******************/
 	/* Function: 0x2f */
-	[todo] WERROR srvsvc_NETRDFSSETSERVERINFO(
+	WERROR srvsvc_NETRDFSSETSERVERINFO(
 		);
 
 	/******************/
 	/* Function: 0x30 */
-	[todo] WERROR srvsvc_NETRDFSCREATEEXITPOINT(
+	WERROR srvsvc_NETRDFSCREATEEXITPOINT(
 		);
 
 	/******************/
 	/* Function: 0x31 */
-	[todo] WERROR srvsvc_NETRDFSDELETEEXITPOINT(
+	WERROR srvsvc_NETRDFSDELETEEXITPOINT(
 		);
 
 	/******************/
 	/* Function: 0x32 */
-	[todo] WERROR srvsvc_NETRDFSMODIFYPREFIX(
+	WERROR srvsvc_NETRDFSMODIFYPREFIX(
 		);
 
 	/******************/
 	/* Function: 0x33 */
-	[todo] WERROR srvsvc_NETRDFSFIXLOCALVOLUME(
+	WERROR srvsvc_NETRDFSFIXLOCALVOLUME(
 		);
 
 	/******************/
 	/* Function: 0x34 */
-	[todo] WERROR srvsvc_NETRDFSMANAGERREPORTSITEINFO(
+	WERROR srvsvc_NETRDFSMANAGERREPORTSITEINFO(
 		);
 
 	/******************/
 	/* Function: 0x35 */
-	[todo] WERROR srvsvc_NETRSERVERTRANSPORTDELEX(
+	WERROR srvsvc_NETRSERVERTRANSPORTDELEX(
 		);
 }
