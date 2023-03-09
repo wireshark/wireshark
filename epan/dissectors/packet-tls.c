@@ -1166,7 +1166,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
     gboolean    success;
     gint        direction;
     StringInfo *data_for_iv;
-    gint        data_for_iv_len;
+    gint        data_for_iv_len, data_for_iv_offset;
     SslDecoder *decoder;
 
     /* if we can decrypt and decryption was a success
@@ -1188,7 +1188,12 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
     /* save data to update IV if decoder is available or updated later */
     data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
     data_for_iv_len = (record_length < 24) ? record_length : 24;
-    ssl_data_set(data_for_iv, (const guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
+    data_for_iv_offset = offset + record_length - data_for_iv_len;
+    if (!tvb_bytes_exist(tvb, data_for_iv_offset, data_for_iv_len)) {
+        ssl_debug_printf("decrypt_ssl3_record: record truncated\n");
+        return FALSE;
+    }
+    ssl_data_set(data_for_iv, (const guchar*)tvb_get_ptr(tvb, data_for_iv_offset, data_for_iv_len), data_for_iv_len);
 
     if (!decoder) {
         ssl_debug_printf("decrypt_ssl3_record: no decoder available\n");
