@@ -83,9 +83,6 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
     fprintf(output, "  -p, --no-promiscuous-mode\n");
     fprintf(output, "                           don't capture in promiscuous mode\n");
-    fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
-    fprintf(output, "  -S                       update packet display when new packets are captured\n");
-    fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #ifdef HAVE_PCAP_CREATE
     fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
 #endif
@@ -101,6 +98,11 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
     fprintf(output, "\n");
+    fprintf(output, "Capture display:\n");
+    fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
+    fprintf(output, "  -S                       update packet display when new packets are captured\n");
+    fprintf(output, "  --update-interval        interval between updates with new packets (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
+    fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
     fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
@@ -438,6 +440,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'i':        /* Use interface x */
             case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
             case LONGOPT_CAPTURE_TMPDIR: /* capture temp directory */
+            case LONGOPT_UPDATE_INTERVAL: /* sync pipe update interval */
 #ifdef HAVE_PCAP_CREATE
             case 'I':        /* Capture in monitor mode, if available */
 #endif

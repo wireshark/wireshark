@@ -75,6 +75,9 @@ The following features are new (or have been significantly updated) since versio
 
 * ciscodump support Cisco IOS XE 17.x
 
+* The default interval between GUI updates when capturing has been decreased
+from 500ms to 100ms, and is now configurable.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

@@ -412,6 +412,13 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         argv = sync_pipe_add_arg(argv, &argc, "-g");
     }
 
+    if (capture_opts->update_interval != DEFAULT_UPDATE_INTERVAL) {
+        char scount[ARGV_NUMBER_LEN];
+        argv = sync_pipe_add_arg(argv, &argc, "--update-interval");
+        snprintf(scount, ARGV_NUMBER_LEN, "%d", capture_opts->update_interval);
+        argv = sync_pipe_add_arg(argv, &argc, scount);
+    }
+
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, j);
 

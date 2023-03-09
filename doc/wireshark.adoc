@@ -683,6 +683,14 @@ Change the interface's timestamp method. See --list-time-stamp-types.
 Output format of seconds (def: s: seconds)
 --
 
+--update-interval  <interval>::
++
+--
+Set the length of time in milliseconds between new packet reports during
+a capture. Also sets the granularity of file duration conditions.
+The default value is 100ms.
+--
+
 -v|--version::
 +
 --

@@ -193,6 +193,7 @@ typedef struct _e_prefs {
   gboolean     capture_prom_mode;
   gboolean     capture_pcap_ng;
   gboolean     capture_real_time;
+  guint        capture_update_interval;
   gboolean     capture_auto_scroll; /* XXX - Move to recent */
   gboolean     capture_no_interface_load;
   gboolean     capture_no_extcap;

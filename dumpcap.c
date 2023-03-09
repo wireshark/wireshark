@@ -401,6 +401,7 @@ print_usage(FILE *output)
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
+    fprintf(output, "  --update-interval        interval between updates with new packets (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
     fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
     fprintf(output, "                           set channel on wifi interface\n");
@@ -4099,19 +4100,19 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
         } /* inpkts */
 
-        /* Only update once every 500ms so as not to overload slow displays.
+        /* Only update after an interval so as not to overload slow displays.
          * This also prevents too much context-switching between the dumpcap
          * and wireshark processes.
+         * XXX: Should we send updates sooner if there have been lots of
+         * packets we haven't notified the parent about, such as on fast links?
          */
-#define DUMPCAP_UPD_TIME 500
-
 #ifdef _WIN32
         cur_time = GetTickCount();  /* Note: wraps to 0 if sys runs for 49.7 days */
-        if ((cur_time - upd_time) > DUMPCAP_UPD_TIME) /* wrap just causes an extra update */
+        if ((cur_time - upd_time) > capture_opts->update_interval) /* wrap just causes an extra update */
 #else
         gettimeofday(&cur_time, NULL);
         if (((guint64)cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
-            ((guint64)upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000))
+            ((guint64)upd_time.tv_sec * 1000000 + upd_time.tv_usec + capture_opts->update_interval*1000))
 #endif
         {
 
@@ -5186,6 +5187,7 @@ main(int argc, char *argv[])
 #endif
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
         case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
+        case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
             status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
             if (status != 0) {
                 exit_main(status);

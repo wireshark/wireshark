@@ -48,6 +48,7 @@ extern "C" {
 #define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+2
 #define LONGOPT_COMPRESS_TYPE     LONGOPT_BASE_CAPTURE+3
 #define LONGOPT_CAPTURE_TMPDIR    LONGOPT_BASE_CAPTURE+4
+#define LONGOPT_UPDATE_INTERVAL   LONGOPT_BASE_CAPTURE+5
 
 /*
  * Options for capturing common to all capturing programs.
@@ -89,7 +90,8 @@ extern "C" {
     {"list-time-stamp-types", ws_no_argument,       NULL, LONGOPT_LIST_TSTAMP_TYPES}, \
     {"time-stamp-type",       ws_required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE}, \
     {"compress-type",         ws_required_argument, NULL, LONGOPT_COMPRESS_TYPE}, \
-    {"temp-dir",              ws_required_argument, NULL, LONGOPT_CAPTURE_TMPDIR},
+    {"temp-dir",              ws_required_argument, NULL, LONGOPT_CAPTURE_TMPDIR},\
+    {"update-interval",       ws_required_argument, NULL, LONGOPT_UPDATE_INTERVAL},
 
 
 #define OPTSTRING_CAPTURE_COMMON \
@@ -280,6 +282,7 @@ typedef struct capture_options_tag {
     gchar             *save_file;             /**< the capture file name */
     gboolean           group_read_access;     /**< TRUE is group read permission needs to be set */
     gboolean           use_pcapng;            /**< TRUE if file format is pcapng */
+    guint              update_interval;       /**< Time in milliseconds. How often to notify parent of new packet counts, check file duration, etc. */
 
     /* GUI related */
     gboolean           real_time_mode;        /**< Update list of packets in real time */
@@ -389,6 +392,9 @@ capture_opts_free_interface_t(interface_t *device);
 
 /* Default capture buffer size in Mbytes. */
 #define DEFAULT_CAPTURE_BUFFER_SIZE 2
+
+/* Default update interval in milliseconds */
+#define DEFAULT_UPDATE_INTERVAL 100
 
 #ifdef __cplusplus
 }

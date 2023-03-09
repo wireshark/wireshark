@@ -2531,6 +2531,14 @@ set, no time stamp types are listed.
 Change the interface's timestamp method.
 --
 
+--update-interval  <interval>::
++
+--
+Set the length of time in milliseconds between new packet reports during
+a capture. Also sets the granularity of file duration conditions.
+The default value is 100ms.
+--
+
 --color::
 +
 --
