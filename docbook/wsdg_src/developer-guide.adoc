@@ -53,9 +53,9 @@ The second part describes how the Wireshark sources are structured and how to
 change the sources such as adding a new dissector.
 --
 
-include::wsdg_works.adoc[]
-
 include::wsdg_build_intro.adoc[]
+
+include::wsdg_works.adoc[]
 
 include::wsdg_capture.adoc[]
 
