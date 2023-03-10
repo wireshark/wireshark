@@ -40,6 +40,9 @@ static int ett_gsmrlp_xid = -1;
 
 static expert_field ei_gsmrlp_fcs_bad = EI_INIT;
 
+static dissector_handle_t l2rcop_handle;
+static gboolean decode_as_l2rcop = true;
+
 /* 3GPP TS 24.002 Section 5.2.1 */
 enum rlp_ftype {
 	RLP_FT_U,
@@ -247,7 +250,10 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		/* dispatch user data */
 		data_len = reported_len - 2 /* header */ - 3 /* FCS */;
 		next_tvb = tvb_new_subset_length(tvb, 2, data_len);
-		call_data_dissector(next_tvb, pinfo, rlp_tree);
+		if (decode_as_l2rcop && l2rcop_handle)
+			call_dissector(l2rcop_handle, next_tvb, pinfo, rlp_tree);
+		else
+			call_data_dissector(next_tvb, pinfo, rlp_tree);
 	}
 
 	/* FCS is always the last 3 bytes of the message */
@@ -317,6 +323,15 @@ proto_register_gsmrlp(void)
 	expert_register_field_array(expert_gsmrlp, ei, array_length(ei));
 
 	register_dissector("gsm_rlp", dissect_gsmrlp, proto_gsmrlp);
+
+	rlp_module = prefs_register_protocol(proto_gsmrlp, NULL);
+	prefs_register_bool_preference(rlp_module, "decode_as_l2rcop", "Decode payload as L2RCOP",
+				       NULL, &decode_as_l2rcop);
+}
+void
+proto_reg_handoff_gsmrlp(void)
+{
+	l2rcop_handle = find_dissector_add_dependency("gsm_l2rcop", proto_gsmrlp);
 }
 
 /*
