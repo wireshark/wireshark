@@ -139,14 +139,14 @@ void proto_reg_handoff_uds(void);
 #define UDS_RC_TYPES_STOP    2
 #define UDS_RC_TYPES_REQUEST 3
 
-#define UDS_RD_COMPRESSION_METHOD_MASK                     0xF0
-#define UDS_RD_ENCRYPTING_METHOD_MASK                      0x0F
-#define UDS_RD_MEMORY_SIZE_LENGTH_MASK                     0xF0
-#define UDS_RD_MEMORY_ADDRESS_LENGTH_MASK                  0x0F
-#define UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK      0xF0
+#define UDS_RD_COMPRESSION_METHOD_MASK          0xF0
+#define UDS_RD_ENCRYPTING_METHOD_MASK           0x0F
+#define UDS_RD_MEMORY_SIZE_LENGTH_MASK          0xF0
+#define UDS_RD_MEMORY_ADDRESS_LENGTH_MASK       0x0F
+#define UDS_RD_MAX_BLOCK_LEN_LEN_MASK           0xF0
 
-#define UDS_TP_SUBFUNCTION_MASK                       0x7f
-#define UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK   0x80
+#define UDS_TP_SUBFUNCTION_MASK                 0x7f
+#define UDS_TP_SUPPRESS_POS_RSP_MSG_IND_MASK    0x80
 
 #define UDS_CDTCS_ACTIONS_ON  1
 #define UDS_CDTCS_ACTIONS_OFF 2
@@ -1417,486 +1417,124 @@ proto_register_uds(void)
 {
     module_t* uds_module;
     static hf_register_info hf[] = {
-            {
-                    &hf_uds_diag_addr,
-                    {
-                            "Diagnostic Address", "uds.diag_addr",
-                            FT_UINT16,  BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_diag_addr_name,
-                    {
-                            "Diagnostic Address Name", "uds.diag_addr_name",
-                            FT_STRING,  BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_diag_source_addr,
-                    {
-                            "Diagnostic Source Address", "uds.diag_addr_source",
-                            FT_UINT16,  BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_diag_source_addr_name,
-                    {
-                            "Diagnostic Source Address Name", "uds.diag_addr_source_name",
-                            FT_STRING,  BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_diag_target_addr,
-                    {
-                            "Diagnostic Target Address", "uds.diag_addr_target",
-                            FT_UINT16,  BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_diag_target_addr_name,
-                    {
-                            "Diagnostic Target Address Name", "uds.diag_addr_target_name",
-                            FT_STRING,  BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_service,
-                    {
-                            "Service Identifier",    "uds.sid",
-                            FT_UINT8,  BASE_HEX,
-                            VALS(uds_services), UDS_SID_MASK,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_reply,
-                    {
-                            "Reply Flag", "uds.reply",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_REPLY_MASK,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_diag_addr, {
+            "Diagnostic Address", "uds.diag_addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_diag_addr_name, {
+            "Diagnostic Address Name", "uds.diag_addr_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_diag_source_addr, {
+            "Diagnostic Source Address", "uds.diag_addr_source", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_diag_source_addr_name, {
+            "Diagnostic Source Address Name", "uds.diag_addr_source_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_diag_target_addr, {
+            "Diagnostic Target Address", "uds.diag_addr_target", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_diag_target_addr_name, {
+            "Diagnostic Target Address Name", "uds.diag_addr_target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_service, {
+            "Service Identifier", "uds.sid", FT_UINT8,  BASE_HEX, VALS(uds_services), UDS_SID_MASK, NULL, HFILL } },
+        { &hf_uds_reply, {
+            "Reply Flag", "uds.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
 
+        { &hf_uds_dsc_subfunction, {
+            "SubFunction", "uds.dsc.subfunction", FT_UINT8, BASE_HEX, VALS(uds_dsc_types), 0x0, NULL, HFILL } },
+        { &hf_uds_dsc_parameter_record, {
+            "Parameter Record", "uds.dsc.parameter_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_dsc_default_p2_server_timer, {
+            "Default P2 Server Timer", "uds.dsc.p2_server_time_default", FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL } },
+        /* Header field is actually only 16bit but has to be scaled up by 10x. */
+        { &hf_uds_dsc_enhanced_p2_server_timer, {
+            "Enhanced P2 Server Timer", "uds.dsc.p2_server_time_enhanced", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_dsc_subfunction,
-                    {
-                            "SubFunction", "uds.dsc.subfunction",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_dsc_types), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_dsc_parameter_record,
-                    {
-                            "Parameter Record", "uds.dsc.parameter_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_dsc_default_p2_server_timer,
-                    {
-                            "Default P2 Server Timer", "uds.dsc.p2_server_time_default",
-                            FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
-                            &units_milliseconds, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            /* Header field is actually only 16bit but has to be scaled up by 10x. */
-            {
-                    &hf_uds_dsc_enhanced_p2_server_timer,
-                    {
-                            "Enhanced P2 Server Timer", "uds.dsc.p2_server_time_enhanced",
-                            FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-                            &units_milliseconds, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_er_subfunction, {
+            "SubFunction", "uds.er.subfunction", FT_UINT8, BASE_HEX, VALS(uds_er_types), 0x0, NULL, HFILL } },
+        { &hf_uds_er_power_down_time, {
+            "Power Down Time", "uds.er.power_down_time", FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_er_subfunction,
-                    {
-                            "SubFunction", "uds.er.subfunction",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_er_types), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_er_power_down_time,
-                    {
-                            "Power Down Time", "uds.er.power_down_time",
-                            FT_UINT8, BASE_DEC | BASE_UNIT_STRING,
-                            &units_seconds, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_rdtci_subfunction, {
+            "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX, VALS(uds_rdtci_types), 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_record, {
+            "Record", "uds.rdtci.record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_rdtci_subfunction,
-                    {
-                            "SubFunction", "uds.rdtci.subfunction",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_rdtci_types), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rdtci_record,
-                    {
-                            "Record", "uds.rdtci.record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_rdbi_data_identifier, {
+            "Data Identifier", "uds.rdbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdbi_data_record, {
+            "Data Record", "uds.rdbi.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_uds_sa_subfunction, {
+            "SubFunction", "uds.sa.subfunction", FT_UINT8, BASE_CUSTOM, CF_FUNC(uds_sa_subfunction_format), 0x0, NULL, HFILL } },
+        { &hf_uds_sa_key, {
+            "Key", "uds.sa.key", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sa_data_record, {
+            "Data Record", "uds.sa.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sa_seed, {
+            "Seed", "uds.sa.seed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_rdbi_data_identifier,
-                    {
-                            "Data Identifier", "uds.rdbi.data_identifier",
-                            FT_UINT16, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rdbi_data_record,
-                    {
-                            "Data Record", "uds.rdbi.data_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_wdbi_data_identifier, {
+            "Data Identifier", "uds.wdbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_wdbi_data_record, {
+            "Data Record", "uds.wdbi.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_uds_iocbi_data_identifier, {
+            "Data Identifier", "uds.iocbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_iocbi_parameter, {
+            "Parameter", "uds.iocbi.parameter", FT_UINT8, BASE_HEX, VALS(uds_iocbi_parameters), 0x0, NULL, HFILL } },
+        { &hf_uds_iocbi_state, {
+            "State", "uds.iocbi.state", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_sa_subfunction,
-                    {
-                            "SubFunction", "uds.sa.subfunction",
-                            FT_UINT8, BASE_CUSTOM,
-                            CF_FUNC(uds_sa_subfunction_format), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_sa_key,
-                    {
-                            "Key", "uds.sa.key",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_sa_data_record,
-                    {
-                            "Data Record", "uds.sa.data_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_sa_seed,
-                    {
-                            "Seed", "uds.sa.seed",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_rc_subfunction, {
+            "SubFunction", "uds.rc.subfunction", FT_UINT8, BASE_HEX, VALS(uds_rc_types), 0x0, NULL, HFILL } },
+        { &hf_uds_rc_identifier, {
+            "Identifier", "uds.rc.identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rc_option_record, {
+            "Option record", "uds.rc.option_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rc_info, {
+            "Info", "uds.rc.info", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rc_status_record, {
+            "Status Record", "uds.rc.status_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_uds_rd_compression_method, {
+            "Compression Method", "uds.rd.compression_method", FT_UINT8, BASE_HEX, NULL, UDS_RD_COMPRESSION_METHOD_MASK, NULL, HFILL } },
+        { &hf_uds_rd_encrypting_method, {
+            "Encrypting Method", "uds.rd.encrypting_method", FT_UINT8, BASE_HEX, NULL, UDS_RD_ENCRYPTING_METHOD_MASK, NULL, HFILL } },
+        { &hf_uds_rd_memory_size_length, {
+            "Memory size length", "uds.rd.memory_size_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MEMORY_SIZE_LENGTH_MASK, NULL, HFILL } },
+        { &hf_uds_rd_memory_address_length, {
+            "Memory address length", "uds.rd.memory_address_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MEMORY_ADDRESS_LENGTH_MASK, NULL, HFILL } },
+        { &hf_uds_rd_memory_address, {
+            "Memory Address", "uds.rd.memory_address", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rd_memory_size, {
+            "Memory Size", "uds.rd.memory_size", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rd_max_block_len_len, {
+            "Length of Max Block Length", "uds.rd.max_block_length_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MAX_BLOCK_LEN_LEN_MASK, NULL, HFILL } },
+        { &hf_uds_rd_max_block_len, {
+            "Max Block Length", "uds.rd.max_block_length", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_wdbi_data_identifier,
-                    {
-                            "Data Identifier", "uds.wdbi.data_identifier",
-                            FT_UINT8, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_wdbi_data_record,
-                    {
-                            "Data Record", "uds.wdbi.data_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_td_sequence_counter, {
+            "Block Sequence Counter", "uds.td.block_sequence_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_td_record_data, {
+            "Parameter Record", "uds.td.parameter_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_iocbi_data_identifier,
-                    {
-                            "Data Identifier", "uds.iocbi.data_identifier",
-                            FT_UINT8, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_iocbi_parameter,
-                    {
-                            "Parameter", "uds.iocbi.parameter",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_iocbi_parameters), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_iocbi_state,
-                    {
-                            "State", "uds.iocbi.state",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_tp_subfunction, {
+            "SubFunction", "uds.tp.subfunction", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_tp_subfunction_no_suppress, {
+            "SubFunction (without Suppress)", "uds.tp.subfunction_without_suppress", FT_UINT8, BASE_HEX, NULL, UDS_TP_SUBFUNCTION_MASK, NULL, HFILL } },
 
-            {
-                    &hf_uds_rc_subfunction,
-                    {
-                            "SubFunction", "uds.rc.subfunction",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_rc_types), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rc_identifier,
-                    {
-                            "Identifier", "uds.rc.identifier",
-                            FT_UINT16, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rc_option_record,
-                    {
-                            "Option record", "uds.rc.option_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rc_info,
-                    {
-                            "Info", "uds.rc.info",
-                            FT_UINT8, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rc_status_record,
-                    {
-                            "Status Record", "uds.rc.status_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_tp_suppress_pos_rsp_msg_ind, {
+            "Suppress reply", "uds.tp.suppress_reply.indication", FT_BOOLEAN, 8, NULL, UDS_TP_SUPPRESS_POS_RSP_MSG_IND_MASK, NULL, HFILL } },
 
-            {
-                    &hf_uds_rd_compression_method,
-                    {
-                            "Compression Method", "uds.rd.compression_method",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_RD_COMPRESSION_METHOD_MASK,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_encrypting_method,
-                    {
-                            "Encrypting Method", "uds.rd.encrypting_method",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_RD_ENCRYPTING_METHOD_MASK,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_memory_size_length,
-                    {
-                            "Memory size length", "uds.rd.memory_size_length",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_RD_MEMORY_SIZE_LENGTH_MASK,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_memory_address_length,
-                    {
-                            "Memory address length", "uds.rd.memory_address_length",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_RD_MEMORY_ADDRESS_LENGTH_MASK,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_memory_address,
-                    {
-                            "Memory Address", "uds.rd.memory_address",
-                            FT_UINT64, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_memory_size,
-                    {
-                            "Memory Size", "uds.rd.memory_size",
-                            FT_UINT64, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_max_block_len_len,
-                    {
-                            "Length of Max Block Length", "uds.rd.max_block_length_length",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_rd_max_block_len,
-                    {
-                            "Max Block Length", "uds.rd.max_block_length",
-                            FT_UINT64, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_err_sid,  {
+            "Service Identifier", "uds.err.sid", FT_UINT8, BASE_HEX, VALS(uds_services), 0x0, NULL, HFILL } },
+        { &hf_uds_err_code, {
+            "Code", "uds.err.code",  FT_UINT8, BASE_HEX, VALS(uds_response_codes), 0x0, NULL, HFILL }  },
 
+        { &hf_uds_cdtcs_subfunction, {
+            "SubFunction", "uds.cdtcs.subfunction", FT_UINT8, BASE_HEX, VALS(uds_cdtcs_types), 0x0, NULL, HFILL } },
+        { &hf_uds_cdtcs_option_record, {
+            "Option Record", "uds.cdtcs.option_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_cdtcs_type, {
+            "DTC Setting Type", "uds.cdtcs.dtc_setting_type", FT_UINT8, BASE_HEX, VALS(uds_cdtcs_types), 0x0, NULL, HFILL } },
 
-            {
-                    &hf_uds_td_sequence_counter,
-                    {
-                            "Block Sequence Counter", "uds.td.block_sequence_counter",
-                            FT_UINT8, BASE_DEC,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_td_record_data,
-                    {
-                            "Parameter Record", "uds.td.parameter_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-
-            {
-                    &hf_uds_tp_subfunction,
-                    {
-                            "SubFunction", "uds.tp.subfunction",
-                            FT_UINT8, BASE_HEX,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_tp_subfunction_no_suppress,
-                    {
-                            "SubFunction (without Suppress)", "uds.tp.subfunction_without_suppress",
-                            FT_UINT8, BASE_HEX,
-                            NULL, UDS_TP_SUBFUNCTION_MASK,
-                            NULL, HFILL
-                    }
-            },
-
-            {
-                    &hf_uds_tp_suppress_pos_rsp_msg_ind,
-                    {
-                            "Suppress reply", "uds.tp.suppress_reply.indication",
-                            FT_BOOLEAN, 8,
-                            NULL, UDS_TP_SUPPRESS_POS_RSP_MSG_INDICATION_MASK,
-                            NULL, HFILL
-                    }
-            },
-
-            {
-                    &hf_uds_err_sid,
-                    {
-                            "Service Identifier", "uds.err.sid",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_services), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_err_code,
-                    {
-                            "Code", "uds.err.code",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_response_codes), 0x0,
-                            NULL, HFILL
-                    }
-            },
-
-            {
-                    &hf_uds_cdtcs_subfunction,
-                    {
-                            "SubFunction", "uds.cdtcs.subfunction",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_cdtcs_types), 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_cdtcs_option_record,
-                    {
-                            "Option Record", "uds.cdtcs.option_record",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
-            {
-                    &hf_uds_cdtcs_type,
-                    {
-                            "DTC Setting Type", "uds.cdtcs.dtc_setting_type",
-                            FT_UINT8, BASE_HEX,
-                            VALS(uds_cdtcs_types), 0x0,
-                            NULL, HFILL
-                    }
-            },
-
-            {
-                    &hf_uds_unparsed_bytes,
-                    {
-                            "Unparsed Bytes", "uds.unparsed_bytes",
-                            FT_BYTES, BASE_NONE,
-                            NULL, 0x0,
-                            NULL, HFILL
-                    }
-            },
+        { &hf_uds_unparsed_bytes, {
+            "Unparsed Bytes", "uds.unparsed_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
     uat_t* uds_routine_ids_uat;
@@ -1905,15 +1543,15 @@ proto_register_uds(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-            &ett_uds,
-            &ett_uds_subfunction,
-            &ett_uds_dsc_parameter_record,
+        &ett_uds,
+        &ett_uds_subfunction,
+        &ett_uds_dsc_parameter_record,
     };
 
     proto_uds = proto_register_protocol (
-            "Unified Diagnostic Services", /* name       */
-            "UDS",          /* short name */
-            "uds"           /* abbrev     */
+        "Unified Diagnostic Services", /* name       */
+        "UDS",          /* short name */
+        "uds"           /* abbrev     */
     );
 
     proto_register_field_array(proto_uds, hf, array_length(hf));
