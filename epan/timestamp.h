@@ -46,7 +46,9 @@ typedef enum {
 	TS_PREC_FIXED_CSEC,
 	TS_PREC_FIXED_MSEC,
 	TS_PREC_FIXED_USEC,
-	TS_PREC_FIXED_NSEC
+	TS_PREC_FIXED_NSEC,
+	/* Special value akin to TS_NOT_SET */
+	TS_PREC_NOT_SET
 } ts_precision;
 
 typedef enum {

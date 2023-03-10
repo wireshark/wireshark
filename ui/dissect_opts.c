@@ -43,6 +43,7 @@ void
 dissect_opts_init(void)
 {
     global_dissect_options.time_format = TS_NOT_SET;
+    global_dissect_options.time_precision = TS_PREC_NOT_SET;
     global_dissect_options.disable_protocol_slist = NULL;
     global_dissect_options.enable_protocol_slist = NULL;
     global_dissect_options.enable_heur_slist = NULL;
@@ -53,6 +54,8 @@ gboolean
 dissect_opts_handle_opt(int opt, char *optarg_str_p)
 {
     char badopt;
+    char *p, *dotp;
+    ts_precision tsp;
 
     switch(opt) {
     case 'd':        /* Decode as rule */
@@ -86,6 +89,48 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
         }
         break;
     case 't':        /* Time stamp type */
+        tsp = TS_PREC_NOT_SET;
+        dotp = strchr(optarg_str_p, '.');
+        if (dotp != NULL) {
+            /* Set dotp to NULL on errors. */
+            p = dotp;
+            switch(*++p) {
+                case '\0':
+                    tsp = TS_PREC_AUTO;
+                    break;
+                case '0':
+                    tsp = TS_PREC_FIXED_SEC;
+                    break;
+                case '1':
+                    tsp = TS_PREC_FIXED_DSEC;
+                    break;
+                case '2':
+                    tsp = TS_PREC_FIXED_CSEC;
+                    break;
+                case '3':
+                    tsp = TS_PREC_FIXED_MSEC;
+                    break;
+                case '6':
+                    tsp = TS_PREC_FIXED_USEC;
+                    break;
+                case '9':
+                    tsp = TS_PREC_FIXED_NSEC;
+                    break;
+                default:
+                    dotp = NULL;
+                    break;
+            }
+            /* If we saw a '.', reject if do not have only '.' or a single digit '.N'. */
+            if (dotp && *p != '\0' && *++p != '\0')
+                dotp = NULL;
+            if (dotp) {
+                /* Mask the '.' while checking format. */
+                *dotp = '\0';
+            } else {
+                cmdarg_err("Invalid .N time stamp precision \"%s\"; N must be 0, 1, 2, 3, 6, 9 or absent", optarg_str_p);
+                return FALSE;
+            }
+        }
         if (strcmp(optarg_str_p, "r") == 0)
             global_dissect_options.time_format = TS_RELATIVE;
         else if (strcmp(optarg_str_p, "a") == 0)
@@ -106,7 +151,10 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
             global_dissect_options.time_format = TS_UTC_WITH_YMD;
         else if (strcmp(optarg_str_p, "udoy") == 0)
             global_dissect_options.time_format = TS_UTC_WITH_YDOY;
-        else {
+        else if (optarg_str_p != dotp) {
+            /* If (optarg_str_p == dotp), user only set precision. */
+            if (dotp)
+                *dotp = '.';
             cmdarg_err("Invalid time stamp type \"%s\"; it must be one of:", optarg_str_p);
             cmdarg_err_cont("\t\"a\"    for absolute\n"
                             "\t\"ad\"   for absolute with YYYY-MM-DD date\n"
@@ -119,6 +167,10 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
                             "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
                             "\t\"udoy\" for absolute UTC with YYYY/DOY date");
             return FALSE;
+        }
+        if (dotp) {
+            *dotp = '.';
+            global_dissect_options.time_precision = tsp;
         }
         break;
     case 'u':        /* Seconds type */

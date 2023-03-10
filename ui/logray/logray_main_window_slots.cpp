@@ -1367,6 +1367,16 @@ void LograyMainWindow::applyGlobalCommandLineOptions()
             }
         }
     }
+    if (global_dissect_options.time_precision != TS_PREC_NOT_SET) {
+        foreach(QAction* tpa, tp_actions.keys()) {
+            if (global_dissect_options.time_precision == tp_actions[tpa]) {
+                tpa->setChecked(true);
+                recent.gui_time_precision = global_dissect_options.time_precision;
+                timestamp_set_precision(global_dissect_options.time_precision);
+                break;
+            }
+        }
+    }
     if (global_commandline_info.full_screen) {
         this->showFullScreen();
     }
