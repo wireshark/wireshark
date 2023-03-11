@@ -79,6 +79,12 @@ mibenum_charset_to_encoding (guint charset)
         case 112:
             return ENC_NA|ENC_ISO_8859_16;
 
+        case 113: /*GBK*/
+        case 114: /*GB18030*/
+        case 2025: /*GB2312*/
+            /* GB18030 is compatible with GBK and GB2312 */
+            return ENC_NA|ENC_GB18030;
+
         case 1000:
             /*
              * The IANA page says:
