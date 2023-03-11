@@ -12,6 +12,8 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-ieee80211.h>
 
+#include <wsutil/str_util.h>
+
 void proto_reg_handoff_nan(void);
 void proto_register_nan(void);
 
@@ -1525,7 +1527,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
         guint64 avail_entry;
         const gchar* entry_type_msg = val_to_str(entry_type, availability_entry_type,
             "Unknown type (%u)");
-        gchar* info_msg = g_strconcat("Availability Type : ", entry_type_msg, NULL);
+        gchar* info_msg = wmem_strconcat(pinfo->pool, "Availability Type : ", entry_type_msg, NULL);
         proto_tree* entry_tree = proto_tree_add_subtree(attr_tree, tvb, offset, entry_len + 2,
             ett_availability_entry, NULL, info_msg);
         proto_tree_add_item(entry_tree, hf_nan_attr_availability_entry_len, tvb,
