@@ -1825,6 +1825,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
     guint16      len;
     proto_item  *tir, *ti_header, *ti_flags, *ti;
     proto_tree  *lcaf_tree, *lcaf_header_tree, *flags_tree;
+    tvbuff_t    *payload_tvb;
 
     len = tvb_get_ntohs(tvb, offset + 4);
 
@@ -1869,46 +1870,47 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
     proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    payload_tvb = tvb_new_subset_length(tvb, 0, offset + len);
     ti = (tip) ? tip : tir;
 
     switch (lcaf_type) {
         case LCAF_NULL:
             break;
         case LCAF_AFI_LIST:
-            offset = dissect_lcaf_afi_list(tvb, pinfo, lcaf_tree, offset, len);
+            offset = dissect_lcaf_afi_list(payload_tvb, pinfo, lcaf_tree, offset, len);
             break;
         case LCAF_IID:
-            offset = dissect_lcaf_iid(tvb, pinfo, lcaf_tree, offset, ti);
+            offset = dissect_lcaf_iid(payload_tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_ASN:
-            offset = dissect_lcaf_asn(tvb, pinfo, lcaf_tree, offset, ti);
+            offset = dissect_lcaf_asn(payload_tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_GEO:
-            offset = dissect_lcaf_geo(tvb, pinfo, lcaf_tree, offset, ti);
+            offset = dissect_lcaf_geo(payload_tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_NATT:
-            offset = dissect_lcaf_natt(tvb, pinfo, lcaf_tree, offset, len);
+            offset = dissect_lcaf_natt(payload_tvb, pinfo, lcaf_tree, offset, len);
             break;
         case LCAF_NONCE_LOC:
-            offset = dissect_lcaf_nonce_loc(tvb, pinfo, lcaf_tree, offset, ti);
+            offset = dissect_lcaf_nonce_loc(payload_tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_MCAST_INFO:
-            offset = dissect_lcaf_mcast_info(tvb, pinfo, lcaf_tree, offset, ti);
+            offset = dissect_lcaf_mcast_info(payload_tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_ELP:
-            offset = dissect_lcaf_elp(tvb, pinfo, lcaf_tree, offset, len, ti);
+            offset = dissect_lcaf_elp(payload_tvb, pinfo, lcaf_tree, offset, len, ti);
             break;
         case LCAF_SRC_DST_KEY:
-            offset = dissect_lcaf_src_dst_key(tvb, pinfo, lcaf_tree, offset, ti);
+            offset = dissect_lcaf_src_dst_key(payload_tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_RLE:
-            offset = dissect_lcaf_rle(tvb, pinfo, lcaf_tree, offset, len, ti);
+            offset = dissect_lcaf_rle(payload_tvb, pinfo, lcaf_tree, offset, len, ti);
             break;
         case LCAF_KV_ADDR_PAIR:
-            offset = dissect_lcaf_kv_addr_pair(tvb, pinfo, lcaf_tree, offset);
+            offset = dissect_lcaf_kv_addr_pair(payload_tvb, pinfo, lcaf_tree, offset);
             break;
         case LCAF_VENDOR:
-            offset = dissect_lcaf_vendor(tvb, pinfo, lcaf_tree, offset, len);
+            offset = dissect_lcaf_vendor(payload_tvb, pinfo, lcaf_tree, offset, len);
             break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_lisp_undecoded, tvb, offset, len);
