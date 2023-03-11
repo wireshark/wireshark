@@ -126,6 +126,10 @@ Windows Delivery Optimization (MS-DO)
 * The IPv6 dissector has a new preference to show some semantic details
   about addresses (default off).
 
+* The XML dissector now supports display character according to the "encoding"
+  attribute of the XML declaration, and has a new preference to set default
+  character encoding for some XML document without "encoding" attribute.
+
 Too many other protocols have been updated to list them all here.
 
 === New and Updated Capture File Support

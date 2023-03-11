@@ -25,6 +25,7 @@
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/iana_charsets.h>
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
 
@@ -70,6 +71,7 @@ static xml_ns_t unknown_ns = {"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
 
 static gboolean pref_heuristic_unicode    = FALSE;
+static gint pref_default_encoding = IANA_CS_UTF_8;
 
 
 #define XML_CDATA       -1000
@@ -78,6 +80,7 @@ static gboolean pref_heuristic_unicode    = FALSE;
 
 static wmem_array_t *hf_arr;
 static GArray *ett_arr;
+static GRegex* encoding_pattern;
 
 static const gchar *default_media_types[] = {
     "text/xml",
@@ -250,6 +253,47 @@ static void insert_xml_frame(xml_frame_t *parent, xml_frame_t *new_child)
     parent->last_child = new_child;
 }
 
+/* Try to get the 'encoding' attribute from XML declaration, and convert it to
+ * Wireshark character encoding.
+ */
+static guint
+get_char_encoding(tvbuff_t* tvb, packet_info* pinfo, gchar** ret_encoding_name) {
+    guint32 iana_charset_id;
+    guint ws_encoding_id;
+    gchar* encoding_str;
+    GMatchInfo* match_info;
+    const gchar* xmldecl = (gchar*)tvb_get_string_enc(pinfo->pool, tvb, 0,
+        MIN(100, tvb_captured_length(tvb)), ENC_UTF_8);
+
+    g_regex_match(encoding_pattern, xmldecl, 0, &match_info);
+    if (g_match_info_matches(match_info)) {
+        gchar* match_ret = g_match_info_fetch(match_info, 1);
+        encoding_str = ascii_strup_inplace(wmem_strdup(pinfo->pool, match_ret));
+        g_free(match_ret);
+        /* Get the iana charset enum number by the name of the charset. */
+        iana_charset_id = str_to_val(encoding_str,
+            VALUE_STRING_EXT_VS_P(&mibenum_vals_character_sets_ext), IANA_CS_US_ASCII);
+    } else {
+        /* Use default encoding preference if this xml does not contains 'encoding' attribute. */
+        iana_charset_id = pref_default_encoding;
+        encoding_str = val_to_str_ext_wmem(pinfo->pool, iana_charset_id,
+            &mibenum_vals_character_sets_ext, "UNKNOWN");
+    }
+    g_match_info_free(match_info);
+
+    ws_encoding_id = mibenum_charset_to_encoding((guint)iana_charset_id);
+
+    /* UTF-8 compatible with ASCII */
+    if (ws_encoding_id == (ENC_NA | ENC_ASCII)) {
+        ws_encoding_id = ENC_UTF_8;
+        *ret_encoding_name = wmem_strdup(pinfo->pool, "UTF-8");
+    } else {
+        *ret_encoding_name = encoding_str;
+    }
+
+    return ws_encoding_id;
+}
+
 static int
 dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -291,11 +335,15 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
     /* Could also test if try_bom is 0xnn00 or 0x00nn to guess endianness if we wanted */
     else {
-        /* Assume it's UTF-8, either with or without BOM */
-        const guint8 *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_8);
+        /* Get character encoding according to XML declaration or preference. */
+        gchar* encoding_name;
+        guint encoding = get_char_encoding(tvb, pinfo, &encoding_name);
+
+        /* Encoding string with encoding, either with or without BOM */
+        const guint8 *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), encoding);
         size_t l = strlen(data_str);
         decoded = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
-        add_new_data_source(pinfo, decoded, "Decoded UTF-8 text");
+        add_new_data_source(pinfo, decoded, wmem_strdup_printf(pinfo->pool, "Decoded %s text", encoding_name));
     }
 
     tt = tvbparse_init(pinfo->pool, decoded, 0, -1, stack, want_ignore);
@@ -1461,6 +1509,17 @@ static void init_xml_names(void)
     wmem_free(wmem_epan_scope(), dummy);
 }
 
+static void
+xml_init_protocol(void)
+{
+    encoding_pattern = g_regex_new("^<[?]xml\\s+version\\s*=\\s*[\"']\\s*.+\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*(.+)\\s*[\"']", G_REGEX_CASELESS, 0, 0);
+}
+
+static void
+xml_cleanup_protocol(void) {
+    g_regex_unref(encoding_pattern);
+}
+
 void
 proto_register_xml(void)
 {
@@ -1552,7 +1611,15 @@ proto_register_xml(void)
                                    "Try to recognize XML encoded in Unicode (UCS-2BE)",
                                    &pref_heuristic_unicode);
 
+    prefs_register_enum_preference(xml_module, "default_encoding", "Default character encoding",
+                                   "Use this charset if the 'encoding' attribute of XML declaration is missing."
+                                   "Unsupported encoding will be replaced by the default UTF-8.",
+                                   &pref_default_encoding, mibenum_vals_character_sets_ev_array, FALSE);
+
     g_array_free(ett_arr, TRUE);
+
+    register_init_routine(&xml_init_protocol);
+    register_cleanup_routine(&xml_cleanup_protocol);
 
     xml_handle = register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
