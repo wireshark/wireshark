@@ -678,7 +678,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  fetch_tapped_data@Base 1.9.1
  filter_expression_iterate_expressions@Base 2.5.0
  filter_expression_new@Base 1.9.1
- find_and_mark_frame_depended_upon@Base 4.1.0
+ find_and_mark_frame_depended_upon@Base 1.12.0~rc1
  find_capture_dissector@Base 2.3.0
  find_conversation@Base 1.9.1
  find_conversation_by_id@Base 2.5.0
