@@ -1691,11 +1691,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>Файл правил выделения цветом содержит неизвестные правила</translation>
+        <translation type="vanished">Файл правил выделения цветом содержит неизвестные правила</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark не распознал одно или более правил выделения цветом. Эти правила были отключены.</translation>
+        <translation type="vanished">Wireshark не распознал одно или более правил выделения цветом. Эти правила были отключены.</translation>
     </message>
 </context>
 <context>
@@ -3301,6 +3301,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>Размещаемые файлы</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13368,15 +13375,15 @@ a:hover {
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>Поток DCCP</translation>
+        <translation type="vanished">Поток DCCP</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>Поток TLS</translation>
+        <translation type="vanished">Поток TLS</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>Поток HTTP</translation>
+        <translation type="vanished">Поток HTTP</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13384,11 +13391,11 @@ a:hover {
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>Поток QUIC</translation>
+        <translation type="vanished">Поток QUIC</translation>
     </message>
     <message>
         <source>Websocket Stream</source>
-        <translation>Поток Websocket</translation>
+        <translation type="vanished">Поток Websocket</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13932,11 +13939,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>Поток TCP</translation>
+        <translation type="vanished">Поток TCP</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>Поток UDP</translation>
+        <translation type="vanished">Поток UDP</translation>
     </message>
     <message>
         <source>Request Sequences</source>

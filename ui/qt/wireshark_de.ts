@@ -1684,11 +1684,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>Die Einfärbungsregelndatei enthält unbekannte Regeln</translation>
+        <translation type="vanished">Die Einfärbungsregelndatei enthält unbekannte Regeln</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Diese wurden deaktiviert.</translation>
+        <translation type="vanished">Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Diese wurden deaktiviert.</translation>
     </message>
 </context>
 <context>
@@ -3293,6 +3293,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Typical Files</source>
         <translation>Typische Dateien</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13295,15 +13302,15 @@ a:hover {
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>DCCP Stream</translation>
+        <translation type="vanished">DCCP Stream</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>TLS Stream</translation>
+        <translation type="vanished">TLS Stream</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTP Stream</translation>
+        <translation type="vanished">HTTP Stream</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13311,11 +13318,7 @@ a:hover {
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>QUIC Stream</translation>
-    </message>
-    <message>
-        <source>Websocket Stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">QUIC Stream</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13859,11 +13862,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP Stream</translation>
+        <translation type="vanished">TCP Stream</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP Stream</translation>
+        <translation type="vanished">UDP Stream</translation>
     </message>
     <message>
         <source>Request Sequences</source>

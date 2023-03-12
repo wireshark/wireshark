@@ -1677,11 +1677,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>Boyama kuralları dosyanız bilinmeyen kurallar içeriyor</translation>
+        <translation type="vanished">Boyama kuralları dosyanız bilinmeyen kurallar içeriyor</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark, renklendirme kurallarınızdan birini veya daha fazlasını tanımıyor. Devre dışı bırakıldılar.</translation>
+        <translation type="vanished">Wireshark, renklendirme kurallarınızdan birini veya daha fazlasını tanımıyor. Devre dışı bırakıldılar.</translation>
     </message>
 </context>
 <context>
@@ -3285,6 +3285,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>Tipik Dosyalar</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13306,15 +13313,15 @@ a:üzerine gelin{
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>DCCP Akışı</translation>
+        <translation type="vanished">DCCP Akışı</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>TLS Akışı</translation>
+        <translation type="vanished">TLS Akışı</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTP Akışı</translation>
+        <translation type="vanished">HTTP Akışı</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13322,11 +13329,11 @@ a:üzerine gelin{
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>QUIC Akışı</translation>
+        <translation type="vanished">QUIC Akışı</translation>
     </message>
     <message>
         <source>Websocket Stream</source>
-        <translation>Websocket Akışı</translation>
+        <translation type="vanished">Websocket Akışı</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13870,11 +13877,11 @@ a:üzerine gelin{
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP Akışı</translation>
+        <translation type="vanished">TCP Akışı</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP Akışı</translation>
+        <translation type="vanished">UDP Akışı</translation>
     </message>
     <message>
         <source>Request Sequences</source>

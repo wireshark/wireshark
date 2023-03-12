@@ -79,8 +79,9 @@ Wireshark 4.1.0 Release Notes
    Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS), SAP
    Network Interface (SAPNI), SAP Router (SAPROUTER), SAP Secure Network
    Connection (SNC), Support for almost all WoW 1.12 messages has been
-   added., and World of Warcraft World (WOWW) display filters have been
-   changed to be more internally consistent.
+   added., Train Real-Time Data Protocol (TRDP), and World of Warcraft
+   World (WOWW) display filters have been changed to be more internally
+   consistent.
 
   Updated Protocol Support
 

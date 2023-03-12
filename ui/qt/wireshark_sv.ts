@@ -1684,11 +1684,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>Din fil med färgläggningsregler innehåller okända regler</translation>
+        <translation type="vanished">Din fil med färgläggningsregler innehåller okända regler</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark känner inte igen en eller flera av dina färgläggningsregler.  De har avaktiverats.</translation>
+        <translation type="vanished">Wireshark känner inte igen en eller flera av dina färgläggningsregler.  De har avaktiverats.</translation>
     </message>
 </context>
 <context>
@@ -3293,6 +3293,13 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Typical Files</source>
         <translation>Typiska filer</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13295,15 +13302,15 @@ a:hover {
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>DCCP-ström</translation>
+        <translation type="vanished">DCCP-ström</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>TLS-ström</translation>
+        <translation type="vanished">TLS-ström</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTP-ström</translation>
+        <translation type="vanished">HTTP-ström</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13311,11 +13318,7 @@ a:hover {
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>QUIC-ström</translation>
-    </message>
-    <message>
-        <source>Websocket Stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">QUIC-ström</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13859,11 +13862,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP-ström</translation>
+        <translation type="vanished">TCP-ström</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP-ström</translation>
+        <translation type="vanished">UDP-ström</translation>
     </message>
     <message>
         <source>Request Sequences</source>

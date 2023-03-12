@@ -1676,11 +1676,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
+        <translation type="vanished">あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
+        <translation type="vanished">Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
     </message>
 </context>
 <context>
@@ -3284,6 +3284,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>典型的なファイル</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13309,15 +13316,15 @@ a:hover {
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>DCCPストリーム</translation>
+        <translation type="vanished">DCCPストリーム</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>TLS ストリーム</translation>
+        <translation type="vanished">TLS ストリーム</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTPストリーム</translation>
+        <translation type="vanished">HTTPストリーム</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13325,11 +13332,11 @@ a:hover {
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>QUIC ストリーム</translation>
+        <translation type="vanished">QUIC ストリーム</translation>
     </message>
     <message>
         <source>Websocket Stream</source>
-        <translation>Webソケットストリーム</translation>
+        <translation type="vanished">Webソケットストリーム</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13873,11 +13880,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCPストリーム</translation>
+        <translation type="vanished">TCPストリーム</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDPストリーム</translation>
+        <translation type="vanished">UDPストリーム</translation>
     </message>
     <message>
         <source>Request Sequences</source>

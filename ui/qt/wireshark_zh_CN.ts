@@ -1675,11 +1675,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>您的着色规则文件包含未知规则</translation>
+        <translation type="vanished">您的着色规则文件包含未知规则</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark 无法识别您的一个或多个着色规则。它们已被禁用。</translation>
+        <translation type="vanished">Wireshark 无法识别您的一个或多个着色规则。它们已被禁用。</translation>
     </message>
 </context>
 <context>
@@ -3281,6 +3281,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>典型文件</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13242,27 +13249,15 @@ a:hover {
         <translation>TCP 窗口尺寸</translation>
     </message>
     <message>
-        <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>TLS Stream</source>
-        <translation>TLS 流</translation>
+        <translation type="vanished">TLS 流</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTP 流</translation>
+        <translation type="vanished">HTTP 流</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Websocket Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13807,11 +13802,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP 流</translation>
+        <translation type="vanished">TCP 流</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP 流</translation>
+        <translation type="vanished">UDP 流</translation>
     </message>
     <message>
         <source>Request Sequences</source>

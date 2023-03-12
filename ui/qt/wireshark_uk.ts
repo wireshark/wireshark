@@ -1664,11 +1664,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>Ваш файл з правилами розфарбовування містить невідомі правила</translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ваш файл з правилами розфарбовування містить невідомі правила</translation>
     </message>
 </context>
 <context>
@@ -3271,6 +3267,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Typical Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13156,27 +13159,7 @@ a:hover {
         <translation>Масштабування TCP-вікна</translation>
     </message>
     <message>
-        <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Websocket Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13721,11 +13704,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP-потік</translation>
+        <translation type="vanished">TCP-потік</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP-потік</translation>
+        <translation type="vanished">UDP-потік</translation>
     </message>
     <message>
         <source>Request Sequences</source>
