@@ -3121,7 +3121,7 @@ match_subtree_text(proto_node *node, gpointer data)
     gchar         label_str[ITEM_LABEL_LENGTH];
     gchar        *label_ptr;
     size_t        label_len;
-    guint32       i;
+    guint32       i, i_restart;
     guint8        c_char;
     size_t        c_match    = 0;
 
@@ -3152,13 +3152,18 @@ match_subtree_text(proto_node *node, gpointer data)
             mdata->finfo = fi;
             return;
         }
-    } else {
-        /* Does that label match? */
+    } else if (cf->case_type) {
+        /* Case insensitive match */
         label_len = strlen(label_ptr);
+        i_restart = 0;
         for (i = 0; i < label_len; i++) {
+            if (i_restart == 0 && c_match == 0 && (label_len - i < string_len))
+                break;
             c_char = label_ptr[i];
-            if (cf->case_type)
-                c_char = g_ascii_toupper(c_char);
+            c_char = g_ascii_toupper(c_char);
+            /* If c_match is non-zero, save candidate for retrying full match. */
+            if (c_match > 0 && i_restart == 0 && c_char == string[0])
+                i_restart = i;
             if (c_char == string[c_match]) {
                 c_match++;
                 if (c_match == string_len) {
@@ -3167,9 +3172,18 @@ match_subtree_text(proto_node *node, gpointer data)
                     mdata->finfo = fi;
                     return;
                 }
+            } else if (i_restart) {
+                i = i_restart;
+                c_match = 1;
+                i_restart = 0;
             } else
                 c_match = 0;
         }
+    } else if (strstr(label_ptr, string) != NULL) {
+        /* Case sensitive match */
+        mdata->frame_matched = TRUE;
+        mdata->finfo = fi;
+        return;
     }
 
     /* Recurse into the subtree, if it exists */
@@ -3200,7 +3214,7 @@ match_summary_line(capture_file *cf, frame_data *fdata,
     size_t          info_column_len;
     match_result    result     = MR_NOTMATCHED;
     gint            colx;
-    guint32         i;
+    guint32         i, i_restart;
     guint8          c_char;
     size_t          c_match    = 0;
 
@@ -3228,20 +3242,33 @@ match_summary_line(capture_file *cf, frame_data *fdata,
                     result = MR_MATCHED;
                     break;
                 }
-            } else {
+            } else if (cf->case_type) {
+                /* Case insensitive match */
+                i_restart = 0;
                 for (i = 0; i < info_column_len; i++) {
+                    if (i_restart == 0 && c_match == 0 && (info_column_len - i < string_len))
+                        break;
                     c_char = info_column[i];
-                    if (cf->case_type)
-                        c_char = g_ascii_toupper(c_char);
+                    c_char = g_ascii_toupper(c_char);
+                    /* If c_match is non-zero, save candidate for retrying full match. */
+                    if (c_match > 0 && i_restart == 0 && c_char == string[0])
+                        i_restart = i;
                     if (c_char == string[c_match]) {
                         c_match++;
                         if (c_match == string_len) {
                             result = MR_MATCHED;
                             break;
                         }
+                    } else if (i_restart) {
+                        i = i_restart;
+                        c_match = 1;
+                        i_restart = 0;
                     } else
                         c_match = 0;
                 }
+            } else if (strstr(info_column, string) != NULL) {
+                /* Case sensitive match */
+                result = MR_MATCHED;
             }
             break;
         }
