@@ -139,6 +139,9 @@ FiRa UWB Controller Interface (UCI)
   attribute of the XML declaration, and has a new preference to set default
   character encoding for some XML document without "encoding" attribute.
 
+* The SIP dissector now has a new preference to set default charset for
+  displaying the body of SIP messages in raw text view.
+
 Too many other protocols have been updated to list them all here.
 
 === New and Updated Capture File Support

@@ -39,6 +39,7 @@
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
+#include <epan/iana_charsets.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
@@ -971,6 +972,8 @@ static gboolean global_sip_raw_text = FALSE;
 /* global_sip_raw_text_without_crlf determines whether we are going to display  */
 /* the raw text of the SIP message with or without the '\r\n'.          */
 static gboolean global_sip_raw_text_without_crlf = FALSE;
+/* global_sip_raw_text_body_default_encoding determines what charset we are going to display the body */
+static gint global_sip_raw_text_body_default_encoding = IANA_CS_UTF_8;
 /* strict_sip_version determines whether the SIP dissector enforces
  * the SIP version to be "SIP/2.0". */
 static gboolean strict_sip_version = TRUE;
@@ -1212,7 +1215,7 @@ static gint sip_is_known_sip_header(gchar *header_name, guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset);
-static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_info* pinfo, proto_tree *tree);
 static guint sip_is_packet_resend(packet_info *pinfo,
                 const char *cseq_method,
                 gchar* call_id,
@@ -3414,7 +3417,7 @@ static int
 dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo, proto_tree *tree,
     gboolean dissect_other_as_continuation, gboolean use_reassembly)
 {
-    int orig_offset;
+    int orig_offset, body_offset;
     gint next_offset, linelen;
     int content_length, datalen, reported_datalen;
     line_type_t line_type;
@@ -4666,6 +4669,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         if (reported_datalen > content_length)
             reported_datalen = content_length;
     }
+    body_offset = offset;
 
     if (!call_id) {
         call_id = wmem_strdup(pinfo->pool, "");
@@ -4950,7 +4954,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         proto_item_set_len(ts, offset - orig_offset);
 
     if (global_sip_raw_text)
-        tvb_raw_text_add(tvb, orig_offset, offset - orig_offset, tree);
+        tvb_raw_text_add(tvb, orig_offset, offset - orig_offset, body_offset, pinfo, tree);
 
     /* Append a brief summary to the SIP root item */
     if (stat_info->request_method) {
@@ -5218,19 +5222,42 @@ static gint sip_is_known_sip_header(gchar *header_name, guint header_len)
  * Display the entire message as raw text.
  */
 static void
-tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, int body_offset, packet_info* pinfo, proto_tree *tree)
 {
     proto_tree *raw_tree;
     proto_item *ti;
     int next_offset, linelen, end_offset;
     char *str;
+    tvbuff_t* body_tvb = NULL;
 
     ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, ENC_NA);
     raw_tree = proto_item_add_subtree(ti, ett_raw_text);
 
     end_offset = offset + length;
 
-    while (offset < end_offset) {
+    if (body_offset < end_offset
+        && global_sip_raw_text_body_default_encoding != IANA_CS_UTF_8
+        /* UTF-8 compatible with ASCII */
+        && global_sip_raw_text_body_default_encoding != IANA_CS_US_ASCII)
+    {
+        /* Create body tvb with new character encoding */
+        guint32 iana_charset_id = global_sip_raw_text_body_default_encoding;
+        guint ws_encoding_id = mibenum_charset_to_encoding((guint)iana_charset_id);
+
+        if (ws_encoding_id != (ENC_NA | ENC_ASCII) && ws_encoding_id != (ENC_NA | ENC_UTF_8)) {
+            /* Encoding body with the new encoding */
+            gchar* encoding_name = val_to_str_ext_wmem(pinfo->pool, iana_charset_id,
+                &mibenum_vals_character_sets_ext, "UNKNOWN");
+            const guint8* data_str = tvb_get_string_enc(wmem_packet_scope(), tvb, body_offset,
+                                                        end_offset - body_offset, ws_encoding_id);
+            size_t l = strlen(data_str);
+            body_tvb = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
+            add_new_data_source(pinfo, body_tvb, wmem_strdup_printf(pinfo->pool, "Decoded %s text", encoding_name));
+        }
+    }
+
+    /* Display the headers of SIP message as raw text */
+    while (offset < body_offset) {
         tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         linelen = next_offset - offset;
         if (raw_tree) {
@@ -5244,6 +5271,33 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
                              str);
         }
         offset = next_offset;
+    }
+
+    DISSECTOR_ASSERT_HINT(offset == body_offset, "The offset must be equal to body_offset before dissect body as raw text.");
+
+    if (body_offset < end_offset) {
+        /* Dissect the body of SIP message as raw text */
+        if (body_tvb) {
+            offset = 0;
+            end_offset = tvb_captured_length_remaining(body_tvb, 0);
+        } else {
+            body_tvb = tvb; /* reuse old offset and end_offset */
+        }
+
+        while (offset < end_offset) {
+            tvb_find_line_end(body_tvb, offset, -1, &next_offset, FALSE);
+            linelen = next_offset - offset;
+            if (raw_tree) {
+                if (global_sip_raw_text_without_crlf)
+                    str = tvb_format_text_wsp(wmem_packet_scope(), body_tvb, offset, linelen);
+                else
+                    str = tvb_format_text(wmem_packet_scope(), body_tvb, offset, linelen);
+
+                proto_tree_add_string_format(raw_tree, hf_sip_raw_line, body_tvb, offset,
+                    linelen, str, "%s", str);
+            }
+            offset = next_offset;
+        }
     }
 }
 
@@ -7651,6 +7705,12 @@ void proto_register_sip(void)
         "is displayed, the trailing carriage "
         "return and line feed are not shown",
         &global_sip_raw_text_without_crlf);
+
+    prefs_register_enum_preference(sip_module, "raw_text_body_default_encoding",
+        "Default charset of raw SIP messages",
+        "Display sip body of raw text by using this charset. The default is UTF-8.",
+        &global_sip_raw_text_body_default_encoding,
+        ws_supported_mibenum_vals_character_sets_ev_array, FALSE);
 
     prefs_register_bool_preference(sip_module, "strict_sip_version",
         "Enforce strict SIP version check (" SIP2_HDR ")",
