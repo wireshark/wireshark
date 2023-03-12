@@ -1971,6 +1971,7 @@ vrtp		2255/tcp/udp	# VRTP - ViRtue Transfer Protocol
 pcc-mfp		2256/tcp/udp	# PCC MFP
 simple-tx-rx	2257/tcp/udp	# simple text/file transfer
 rcts		2258/tcp/udp	# Rotorcraft Communications Test System
+bid-serv	2259/tcp/udp	# BIF identifiers resolution service
 apc-2260	2260/tcp/udp	# APC 2260
 comotionmaster	2261/tcp/udp	# CoMotion Master Server
 comotionback	2262/tcp/udp	# CoMotion Backup Server
