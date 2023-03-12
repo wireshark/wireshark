@@ -2868,7 +2868,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_ISID_Qualifier,
           { "ISID_Qualifier", "iscsi.isid.qualifier",
-            FT_UINT8, BASE_HEX, NULL, 0,
+            FT_UINT16, BASE_HEX, NULL, 0,
             "Initiator part of session identifier - qualifier", HFILL }
         },
 /* #else */

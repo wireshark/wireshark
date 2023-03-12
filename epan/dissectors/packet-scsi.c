@@ -6940,7 +6940,7 @@ proto_register_scsi(void)
           {"PC Flags", "scsi.log.pc.flags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
         { &hf_scsi_log_parameter_ptr,
-          {"Parameter Pointer", "scsi.log.param_ptr", FT_UINT8, BASE_HEX, NULL,
+          {"Parameter Pointer", "scsi.log.param_ptr", FT_UINT16, BASE_HEX, NULL,
            0, NULL, HFILL}},
         { &hf_scsi_log_page_length,
           {"Page Length", "scsi.log.page_length", FT_UINT16, BASE_DEC, NULL, 0,

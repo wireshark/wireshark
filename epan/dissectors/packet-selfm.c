@@ -2776,7 +2776,7 @@ proto_register_selfm(void)
         { &hf_selfm_fmconfig_ai_sf_type,
         { "Analog Channel Scale Factor Type", "selfm.fmconfig.ai_sf_type", FT_UINT8, BASE_DEC, VALS(selfm_fmconfig_ai_sftype_vals), 0x0, NULL, HFILL }},
         { &hf_selfm_fmconfig_ai_sf_ofs,
-        { "Analog Channel Scale Factor Offset", "selfm.fmconfig.ai_sf_ofs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { "Analog Channel Scale Factor Offset", "selfm.fmconfig.ai_sf_ofs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fmconfig_cblk_rot,
         { "Rotation", "selfm.fmconfig.cblk_rot", FT_UINT8, BASE_HEX, VALS(selfm_fmconfig_cblk_rot_vals), 0x01, NULL, HFILL }},
         { &hf_selfm_fmconfig_cblk_vconn,

@@ -5030,7 +5030,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_changelineattributes_lineart,
           { "Line Art", "isobus.vt.change_line_attributes.line_art",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_changelineattributes_errorcodes,

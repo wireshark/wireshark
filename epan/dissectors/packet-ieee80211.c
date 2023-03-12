@@ -48157,7 +48157,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_qbss_adc,
      {"Available Admission Capacity", "wlan.qbss.adc",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_qbss2_cu,

@@ -3943,7 +3943,7 @@ proto_register_omron_fins(void)
         { &hf_omron_block_record_no_of_total_words,
         { "No. of total words", "omron.block_record.no_of_total_words", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_status_flags,
-        { "Status flags", "omron.status_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { "Status flags", "omron.status_flags", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_status_flags_slave_master,
         { "Status Type", "omron.status_flags.slave_master", FT_BOOLEAN, 8, TFS(&boolean_status_flags_slave_master), 0x80, NULL, HFILL }},
         { &hf_omron_status_flags_data_link,

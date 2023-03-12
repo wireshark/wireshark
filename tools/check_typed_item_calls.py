@@ -172,20 +172,20 @@ class APICheck:
 class ProtoTreeAddItemCheck(APICheck):
     def __init__(self, ptv=None):
 
-        # RE will capture whole call.  N.B. only looking at calls with literal numerical length field.
+        # RE will capture whole call.
 
         if not ptv:
             # proto_item *
             # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
             #                     const gint start, gint length, const guint encoding)
             self.fun_name = 'proto_tree_add_item'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\(\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\(\s*[a-zA-Z0-9_]+?,\s*([a-zA-Z0-9_]+?),\s*[a-zA-Z0-9_\+\s]+?,\s*[^,.]+?,\s*(.+),\s*([^,.]+?)\);')
         else:
             # proto_item *
             # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
             #               const guint encoding)
             self.fun_name = 'ptvcursor_add'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([a-zA-Z_0-9]+),\s*([a-zA-Z0-9_\-\>]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
 
         self.lengths = {}
@@ -221,22 +221,43 @@ class ProtoTreeAddItemCheck(APICheck):
                 # Want to check this, and next few lines
                 to_check = lines[line_number-1] + '\n'
                 # Nothing to check if function name isn't in it
-                if to_check.find(self.fun_name) != -1:
+                fun_idx = to_check.find(self.fun_name)
+                if fun_idx != -1:
                     # Ok, add the next file lines before trying RE
                     for i in range(1, 5):
                         if to_check.find(';') != -1:
                             break
                         elif line_number+i < total_lines:
                             to_check += (lines[line_number-1+i] + '\n')
+                    # Lose anything before function call itself.
+                    to_check = to_check[fun_idx:]
                     m = self.p.search(to_check)
                     if m:
+                        # Throw out if parens not matched
+                        if m.group(0).count('(') != m.group(0).count(')'):
+                            continue
+
                         enc = m.group(3)
                         hf_name = m.group(1)
                         if not enc.startswith('ENC_'):
                             if not enc in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
-                                            'p_mq_parm', 'iEnc', 'strid_enc', 'iCod', 'nl_data', 'argp', 'gquic_info', 'writer_encoding',
-                                            'tds_get_int2_encoding', 'tds_get_int4_encoding', 'info',
-                                            'DREP_ENC_INTEGER' }:
+                                            'p_mq_parm->mq_str_enc', 'p_mq_parm->mq_int_enc',
+                                            'iEnc', 'strid_enc', 'iCod', 'nl_data->encoding',
+                                            'argp->info->encoding', 'gquic_info->encoding', 'writer_encoding',
+                                            'tds_get_int2_encoding(tds_info)',
+                                            'tds_get_int4_encoding(tds_info)',
+                                            'tds_get_char_encoding(tds_info)',
+                                            'info->encoding',
+                                            'item->encoding',
+                                            'DREP_ENC_INTEGER(drep)', 'string_encoding', 'item',
+                                            'dvb_enc_to_item_enc(encoding)',
+                                            'packet->enc',
+                                            'IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII',
+                                            'DREP_ENC_INTEGER(hdr->drep)',
+                                            'dhcp_uuid_endian',
+                                            'payload_le',
+                                            'local_encoding',
+                                            'big_endian'  }:
                                 global warnings_found
 
                                 print('Warning:', self.file + ':' + str(line_number),
@@ -290,7 +311,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'tds.done.status', # covers all bits in bitset
                                 'hf_iax2_video_csub',  # RFC 5456, table 8.7
                                 'iax2.video.subclass',
-                                'dnp3.al.ana.int'
+                                'dnp3.al.ana.int',
+                                'pwcesopsn.cw.lm'
                               }
 ##################################################################################################
 
@@ -408,7 +430,8 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^gryphon.usdt.stmin_active'),
         re.compile(r'^dnp3.al.anaout.int'),
         re.compile(r'^dnp3.al.ana.int'),
-        re.compile(r'^dnp3.al.cnt')
+        re.compile(r'^dnp3.al.cnt'),
+        re.compile(r'^bthfp.chld.mode')
     ]
 
     for patt in ignore_patterns:
@@ -516,9 +539,9 @@ class Item:
             return
 
         # Do see non-contiguous bits often for these..
-        if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused']):
+        if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused', 'spare']):
             return
-        if name_has_one_of(self.label, ['reserved', 'unknown', 'unused']):
+        if name_has_one_of(self.label, ['reserved', 'unknown', 'unused', 'spare']):
             return
 
 
@@ -573,7 +596,7 @@ class Item:
                 return 8  # i.e. 1 byte
             elif self.type_modifier == 'BASE_NONE':
                 return 8
-            elif self.type_modifier == 'SEP_DOT':   # from proto.h
+            elif self.type_modifier == 'SEP_DOT':   # from proto.h, only meant for FT_BYTES
                 return 64
             else:
                 try:
@@ -1008,10 +1031,18 @@ parser.add_argument('--missing-items', action='store_true',
                     help='when set, look for used items that were never registered')
 parser.add_argument('--check-bitmask-fields', action='store_true',
                     help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
-
+parser.add_argument('--all-checks', action='store_true',
+                    help='when set, apply all checks to selected files')
 
 
 args = parser.parse_args()
+
+# Turn all checks on.
+if args.all_checks:
+    args.mask = True
+    args.mask_exact_width = True
+    args.consecutive = True
+    args.check_bitmask_fields = True
 
 
 # Get files from wherever command-line args indicate.

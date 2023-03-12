@@ -7531,7 +7531,7 @@ proto_register_tn3270(void)
     { &hf_tn3270_resbytes,
       {  "Flags (Reserved)",
          "tn3270.resbytes",
-         FT_UINT8, BASE_HEX, NULL, 0x0,
+         FT_UINT16, BASE_HEX, NULL, 0x0,
          NULL, HFILL }
     },
     { &hf_tn3270_res_twobytes,

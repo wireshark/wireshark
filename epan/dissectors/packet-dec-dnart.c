@@ -1258,7 +1258,7 @@ proto_register_dec_rt(void)
             NULL, HFILL }},
         { &hf_dec_rt_segnum,
           { "Message number",        "dec_dna.nsp.segnum",
-            FT_UINT16,    BASE_DEC,    NULL,   0xfff,
+            FT_UINT16,    BASE_DEC,    NULL,   0x0fff,
             "Segment number", HFILL }},
         { &hf_dec_rt_delay,
           { "Delayed ACK allowed",  "dec_dna.nsp.delay",

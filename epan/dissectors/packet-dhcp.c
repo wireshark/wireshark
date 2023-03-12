@@ -9591,7 +9591,7 @@ proto_register_dhcp(void)
 		    "Option 123: Altitude type", HFILL }},
 
 		{ &hf_dhcp_option_rfc3825_map_datum,
-		  { "Map Datum", "dhcp.option.cl_dss_id.option",
+		  { "Map Datum", "dhcp.option.rfc3825.map_datum",
 		    FT_UINT8, BASE_DEC, VALS(map_datum_type_values), 0x0,
 		    "Option 123: Map Datum", HFILL }},
 

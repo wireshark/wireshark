@@ -557,7 +557,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Create root (protocol) tree. */
-    ti = proto_tree_add_item(tree, proto_log3gpp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_log3gpp, tvb, offset, -1, ENC_NA);
     prot3gpp_tree = proto_item_add_subtree(ti, ett_log3gpp);
 
     /*********************************************************************/

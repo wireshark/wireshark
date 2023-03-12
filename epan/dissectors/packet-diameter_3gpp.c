@@ -4169,7 +4169,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_qos_signalling_ind,
             { "Signalling indication", "diameter.3gpp.qos.signalling_ind",
-            FT_BOOLEAN, SEP_DOT, TFS(&diameter_3gpp_qos_signalling_ind_value), 0x10,
+            FT_BOOLEAN, 8, TFS(&diameter_3gpp_qos_signalling_ind_value), 0x10,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_qos_max_bitrate_downl_ext,
@@ -4194,7 +4194,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_qos_pre_emption_vulnerability,
             { "Pre-emption vulnerability", "diameter.3gpp.qos.pre_emption_vulnerability",
-            FT_BOOLEAN, SEP_DOT, TFS(&tfs_set_notset), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_qos_priority_level,
@@ -4204,7 +4204,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_qos_pre_emption_capability,
             { "Pre-emption capability", "diameter.3gpp.qos.pre_emption_capability",
-            FT_BOOLEAN, SEP_DOT, TFS(&tfs_set_notset), 0x40,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_ulr_flags,

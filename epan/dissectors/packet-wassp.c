@@ -5929,7 +5929,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	save_fragmented = pinfo->fragmented;
 
-	ti = proto_tree_add_item(tree, proto_wassp, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_wassp, tvb, offset, -1, ENC_NA);
 	wassp_tree = proto_item_add_subtree(ti, ett_wassp);
 
 	if (ru_msg_type == WASSP_RU_Discov)  /* UDP port = 13907, ap discover tlv, decode AP discover header */

@@ -1078,7 +1078,7 @@ proto_register_cp2179(void)
         { &hf_cp2179_rtu_address,
             { "RTU Address", "cp2179.RTUAddress",
             FT_UINT16, BASE_DEC,
-            NULL, 0x7FF,
+            NULL, 0x07FF,
             NULL, HFILL }
         },
 

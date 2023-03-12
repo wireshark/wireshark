@@ -4351,25 +4351,25 @@ dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, guint32 start_offset, g
 
   cr_tree = proto_tree_add_subtree(tree, tvb, start_offset, -1, ett_r3cpuregisters, NULL, "CPU Registers");
 
-  tmp_tree [ 0] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon,  tvb,  0, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 1] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon2, tvb,  1, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 2] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon3, tvb,  2, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 3] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir1,    tvb,  3, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 4] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir2,    tvb,  4, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 5] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir3,    tvb,  5, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 6] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie1,    tvb,  6, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 7] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie2,    tvb,  7, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 8] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie3,    tvb,  8, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [ 9] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr1,    tvb,  9, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [10] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr2,    tvb, 10, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [11] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr3,    tvb, 11, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [12] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcon,    tvb, 12, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [13] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_osccon,  tvb, 13, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [14] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcsta,   tvb, 14, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [15] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_txsta,   tvb, 15, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [16] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcsta2,  tvb, 16, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [17] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_txsta2,  tvb, 17, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
-  tmp_tree [18] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_wdtcon,  tvb, 18, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 0] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_intcon,  tvb,  0, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 1] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_intcon2, tvb,  1, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 2] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_intcon3, tvb,  2, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 3] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_pir1,    tvb,  3, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 4] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_pir2,    tvb,  4, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 5] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_pir3,    tvb,  5, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 6] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_pie1,    tvb,  6, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 7] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_pie2,    tvb,  7, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 8] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_pie3,    tvb,  8, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 9] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_ipr1,    tvb,  9, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [10] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_ipr2,    tvb, 10, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [11] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_ipr3,    tvb, 11, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [12] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_rcon,    tvb, 12, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [13] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_osccon,  tvb, 13, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [14] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_rcsta,   tvb, 14, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [15] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_txsta,   tvb, 15, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [16] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_rcsta2,  tvb, 16, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [17] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_txsta2,  tvb, 17, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [18] = proto_item_add_subtree (proto_tree_add_item(cr_tree, hf_r3_cpuregisters_wdtcon,  tvb, 18, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
 
   proto_tree_add_item (tmp_tree [ 0], hf_r3_cpuregisters_intcon_rbif,     tvb,  0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tmp_tree [ 0], hf_r3_cpuregisters_intcon_int0if,   tvb,  0, 1, ENC_LITTLE_ENDIAN);
