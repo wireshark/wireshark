@@ -1265,7 +1265,7 @@ proto_register_dec_rt(void)
             FT_BOOLEAN,    16,        TFS(&tfs_yes_no),    0x1000,
             "Delayed ACK allowed?", HFILL }},
         { &hf_dec_rt_visited_nodes,
-          { "Nodes visited ty this package", "dec_dna.vst_node",
+          { "Nodes visited by this package", "dec_dna.vst_node",
             FT_UINT8,    BASE_DEC,    NULL,   0x0,
             "Nodes visited", HFILL }},
         /* Control message items */
