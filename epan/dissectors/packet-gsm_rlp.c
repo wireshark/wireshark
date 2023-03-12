@@ -257,6 +257,7 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	}
 
 	/* FCS is always the last 3 bytes of the message */
+	tvb_ensure_bytes_exist(tvb, 0, reported_len - 3);
 	guint32 fcs_computed = rlp_fcs_compute(tvb_get_ptr(tvb, 0, reported_len - 3), reported_len - 3);
 	proto_tree_add_checksum(rlp_tree, tvb, reported_len - 3, hf_gsmrlp_fcs, hf_gsmrlp_fcs_status,
 				&ei_gsmrlp_fcs_bad, pinfo, fcs_computed, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
