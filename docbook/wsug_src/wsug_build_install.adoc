@@ -55,7 +55,7 @@ Windows packages automatically update.
 See <<ChBuildInstallUpdatingWireshark>> for details.
 
 Simply download the Wireshark installer from {wireshark-download-url} and execute it.
-Official packages are signed by *Sysdig, Inc.*.
+Official packages are signed by *Wireshark Foundation*.
 You can choose to install several optional components and select the location of the installed package.
 The default settings are recommended for most users.
 
