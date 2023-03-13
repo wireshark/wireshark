@@ -34,6 +34,9 @@
 /* Link Wireshark libraries statically */
 #cmakedefine ENABLE_STATIC 1
 
+/* Enable AddressSanitizer (and LeakSanitizer on clang/gcc) */
+#cmakedefine ENABLE_ASAN 1
+
 /* Enable AirPcap */
 #cmakedefine HAVE_AIRPCAP 1
 

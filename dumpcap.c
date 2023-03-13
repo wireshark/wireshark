@@ -131,6 +131,82 @@ static HANDLE sig_pipe_handle = NULL;
 static gboolean signal_pipe_check_running(void);
 #endif
 
+#ifdef ENABLE_ASAN
+/* This has public visibility so that if compiled with shared libasan (the
+ * gcc default) function interposition occurs.
+ */
+WS_DLL_PUBLIC int
+__lsan_is_turned_off(void)
+{
+    /* If we're in capture child mode, don't run a LSan report and
+     * send it to stderr, because it isn't properly formatted for
+     * the sync pipe.
+     * We could, if debugging variables are set, send the reports
+     * elsewhere instead, by calling __sanitizer_set_report_path()
+     * or __sanitizer_set_report_fd()
+     */
+    if (capture_child) {
+        return 1;
+    }
+#ifdef HAVE_LIBCAP
+    /* LSan dies with a fatal error without explanation if it can't ptrace.
+     * Normally, the "dumpable" attribute (which also controls ptracing)
+     * is set to 1 (SUID_DUMP_USER, process is dumpable.) However, it is
+     * reset to the current value in /proc/sys/fs/suid_dumpable in the
+     * following circumstances: euid/egid changes, fsuid/fsgid changes,
+     * execve of a setuid or setgid program that changes the euid or egid,
+     * execve of a program with capabilities exceeding those already
+     * permitted for the process.
+     *
+     * Unless we're running as root, one of those applies to dumpcap.
+     *
+     * The default value of /proc/sys/fs/suid_dumpable is 0, SUID_DUMP_DISABLE.
+     * In such a case, LeakSanitizer temporarily sets the value to 1 to
+     * allow ptracing, and then sets it back to 0.
+     *
+     * Another possible value, used by Ubuntu, Fedora, etc., is 2,
+     * which creates dumps readable by root only. For security reasons,
+     * unprivileged programs are not allowed to change the value to 2.
+     * (See https://nvd.nist.gov/vuln/detail/CVE-2006-2451 )
+     *
+     * LSan does not check for the value 2 and change dumpable to 1 in that
+     * case, possibly because if it did it could not change it back to 2
+     * and would have to either leave the process dumpable or change it to 0.
+     *
+     * The usual way to control the family of sanitizers is through environment
+     * variables. However, complicating things, changing the dumpable attribute
+     * to 0 or 2 changes the ownership of files in /proc/[pid] (including
+     * /proc/self ) to root:root, in particular /proc/[pid]/environ, and so
+     * ASAN_OPTIONS=detect_leaks=0 has no effect. (Unless the process has
+     * CAP_SYS_PTRACE, which allows tracing of any process, but that's also
+     * a security risk and we'll have dropped that with other privileges.)
+     *
+     * So if prctl(PR_GET_DUMPABLE) returns 2, we know that the process will
+     * die with a fatal error if it attempts to run LSan, so don't.
+     *
+     * See proc(5), prctl(2), ptrace(2), and
+     * https://github.com/google/sanitizers/issues/1306
+     * https://github.com/llvm/llvm-project/issues/55944
+     */
+    if (prctl(PR_GET_DUMPABLE) == 2) {
+        ws_debug("Not running LeakSanitizer because /proc/sys/fs/suid_dumpable is 2");
+        return 1;
+    }
+#endif
+    return 0;
+}
+
+WS_DLL_PUBLIC const char*
+__asan_default_options(void)
+{
+    /* By default don't override our exit code if there's a leak or error.
+     * We particularly don't want to do this if running as a capture child,
+     * because capture/capture_sync doesn't expect the ASan exit codes.
+     */
+    return "exitcode=0";
+}
+#endif
+
 #ifdef SIGINFO
 static gboolean infodelay;      /* if TRUE, don't print capture info in SIGINFO handler */
 static gboolean infoprint;      /* if TRUE, print capture info after clearing infodelay */
