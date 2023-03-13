@@ -901,17 +901,33 @@ endif()
 include(CMakePushCheckState)
 
 if(ENABLE_ASAN)
+	# Available since MSVC 2019 version 16.9
 	cmake_push_check_state()
-	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
-	check_c_compiler_flag(-fsanitize=address C__fsanitize_address_VALID)
-	check_cxx_compiler_flag(-fsanitize=address CXX__fsanitize_address_VALID)
+	set(ASAN_FLAG "-fsanitize=address")
+	set(CMAKE_REQUIRED_FLAGS ${ASAN_FLAG})
+	check_c_compiler_flag(${ASAN_FLAG} C__fsanitize_address_VALID)
+	check_cxx_compiler_flag(${ASAN_FLAG} CXX__fsanitize_address_VALID)
 	cmake_pop_check_state()
 	if(NOT C__fsanitize_address_VALID OR NOT CXX__fsanitize_address_VALID)
 		message(FATAL_ERROR "ENABLE_ASAN was requested, but not supported!")
 	endif()
-	set(CMAKE_C_FLAGS "-fsanitize=address ${CMAKE_C_FLAGS}")
-	set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
+	add_compile_options(${ASAN_FLAG})
+	if (MSVC)
+		# Using ASAN makes some of our code require object files with
+		# a 32-bit index to the section table instead of 16-bit.
+		# This makes the .obj files slightly larger (~2%) and makes
+		# it so that Microsoft linkers prior to MSVC 2005 can't read
+		# the files, but those are too old anyway.
+		add_compile_options(/bigobj)
+		# The Microsoft LINK linker doesn't recognize or need the
+		# ASAN flag, and will give a LNK4044 warning.
+	else()
+		# Clang/gcc need the flag added to the linker
+		# add_link_options since CMake 3.13 (our minimum)
+		add_link_options(${ASAN_FLAG})
+	endif()
 	# Disable ASAN for build-time tools, e.g. lemon
+	# (MSVC doesn't support this flag)
 	check_c_compiler_flag(-fno-sanitize=all C__fno_sanitize_all_VALID)
 	if(C__fno_sanitize_all_VALID)
 		set(NO_SANITIZE_CFLAGS "-fno-sanitize=all")
