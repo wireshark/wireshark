@@ -28,6 +28,7 @@
  * - tap stats by flow?
  * - for U-Plane, track back to last C-Plane frame for that eAxC
  *     - use upCompHdr values from C-Plane if not overridden by U-Plane?
+ *     N.B. this matching is tricky see 7.8.1 Coupling of C-Plane and U-Plane
  * - Radio transport layer (eCPRI) fragmentation / reassembly
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
@@ -396,7 +397,7 @@ static const range_string ud_comp_header_meth[] = {
 };
 
 static const range_string frame_structure_fft[] = {
-    {0,  0,  "Reserved(no FFT / iFFT processing)"},
+    {0,  0,  "Reserved (no FFT / iFFT processing)"},
     {1,  6,  "Reserved"},
     {7,  7,  "FFT size 128"},
     {8,  8,  "FFT size 256"},
@@ -1121,7 +1122,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* These sections are similar, so handle as common with per-type differences */
     if (sectionType <= SEC_C_UE_SCHED) {
         /* sectionID */
-        proto_tree_add_item_ret_uint(oran_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+        proto_item *ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+        if (sectionId == 4095) {
+            proto_item_append_text(ti, " (not default coupling C/U planes using sectionId)");
+        }
         offset++;
 
         /* rb */
@@ -2524,11 +2528,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_item *sectionHeading;
         proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 2, ett_oran_u_section, &sectionHeading, "Section");
 
-        /* Section Header fields */
+        /* Section Header fields (darker green part) */
 
         /* sectionId */
         guint32 sectionId = 0;
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+        proto_item *ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+        if (sectionId == 4095) {
+            proto_item_append_text(ti, " (not default coupling C/U planes using sectionId)");
+        }
         offset++;
         /* rb */
         proto_tree_add_item(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA);
@@ -2572,8 +2579,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         for (guint i = 0; i < numPrbu; ++i) {
-            proto_item *prbHeading;
-            proto_tree *rb_tree = proto_tree_add_subtree(section_tree, tvb, offset, nBytesPerPrb, ett_oran_u_prb, &prbHeading, "PRB");
+            /* Create subtree */
+            proto_item *prbHeading = proto_tree_add_string_format(section_tree, hf_oran_samples_prb,
+                                                                  tvb, offset, nBytesPerPrb,
+                                                                  "", "PRB");
+            proto_tree *rb_tree = proto_item_add_subtree(prbHeading, ett_oran_u_prb);
             guint32 exponent = 0;
             if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
                 proto_tree_add_item(rb_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
@@ -2903,33 +2913,19 @@ proto_register_oran(void)
 
         /* Section 7.5.3.1 */
         {&hf_oran_section_id,
-         {"Section ID", "oran_fh_cus.sectionId",
+         {"sectionId", "oran_fh_cus.sectionId",
           FT_UINT16, BASE_DEC,
           NULL, 0xfff0,
-          "Identifies individual sections within the C-Plane "
-          "message. The purpose of section ID is mapping of U-Plane messages "
-          "to the corresponding C-Plane message (and Section Type) associated "
-          "with the data.  Two C-Plane sections with same Section ID "
-          "may be combined and mapped to a common section in a corresponding "
-          "U-Plane message containing a combined payload for both sections "
-          "(e.g., for supporting mixed CSI RS and PDSCH). This case is "
-          "applicable when usage of reMask is complimentary (or orthogonal) "
-          "and different beam directions (i.e. beamIds) are given the resource "
-          "elements.  NOTE: In case of two sections with same Section ID "
-          "are combined, both sections shall have same rb, startPrbc, numPrbc "
-          "and numSymbol IE fields' content",
+          "section identifier of data",
           HFILL}
         },
 
         /* Section 7.5.3.2 */
         {&hf_oran_rb,
-         {"RB Indicator", "oran_fh_cus.rb",
+         {"rb", "oran_fh_cus.rb",
           FT_UINT8, BASE_DEC,
           VALS(rb_vals), 0x08,
-          "Indicate if every RB is used or every "
-          "other RB is used. The starting RB is defined by startPrbc and "
-          "total number of used RBs is defined by numPrbc.  Example: RB=1, "
-          "startPrb=1, numPrb=3, then the PRBs used are 1, 3, and 5",
+          "resource block indicator",
           HFILL}
         },
 
@@ -3451,22 +3447,19 @@ proto_register_oran(void)
 
         /* startPrbu 8.3.3.11 */
         {&hf_oran_startPrbu,
-         {"Starting PRB of User Plane Section", "oran_fh_cus.startPrbu",
+         {"startPrbu", "oran_fh_cus.startPrbu",
           FT_UINT16, BASE_DEC,
           NULL, 0x03ff,
-          "The starting PRB of a user plane section. For "
-          "one C-Plane message, there may be multiple U-Plane messages "
-          "associated with it and requiring defining from which PRB the contained "
-          "IQ data are applicable",
+          "starting PRB of user plane section",
           HFILL}
         },
 
         /* numPrbu 8.3.3.12 */
         { &hf_oran_numPrbu,
-         {"Number of PRBs per User Plane Section", "oran_fh_cus.numPrbu",
+         {"numPrbu", "oran_fh_cus.numPrbu",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
-          "Defines the PRBs where the user plane section is valid",
+          "number of PRBs per user plane section",
           HFILL}
         },
 
@@ -3619,7 +3612,7 @@ proto_register_oran(void)
           {"PRB", "oran_fh_cus.prb",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "Grouping of samples for a particular PRB",
+            "Grouping of samples for a particular Physical Resource Block",
             HFILL}
          },
 
