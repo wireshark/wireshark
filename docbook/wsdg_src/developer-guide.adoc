@@ -29,7 +29,7 @@ include::../common_src/typographic_conventions.adoc[]
 [partintro]
 .Wireshark Build Environment
 --
-The first part describes how to set up the tools, libraries and source needed to
+The first part describes how to set up the tools, libraries and sources needed to
 generate Wireshark and how to do some typical development tasks.
 --
 
