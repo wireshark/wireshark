@@ -541,10 +541,7 @@ handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	lapdm_data_t ld;
 
-	ld.hdr_type = LAPDM_HDR_FMT_B;
-	/* only downlink SACCH frames use B4 header format */
-	if (sub_type & GSMTAP_CHANNEL_ACCH && pinfo->p2p_dir == P2P_DIR_RECV)
-		ld.hdr_type = LAPDM_HDR_FMT_B4;
+	ld.is_acch = (sub_type & GSMTAP_CHANNEL_ACCH) != 0;
 	call_dissector_with_data(sub_handles[GSMTAP_SUB_UM_LAPDM], tvb, pinfo, tree, &ld);
 }
 

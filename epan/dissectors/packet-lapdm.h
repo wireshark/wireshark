@@ -10,6 +10,8 @@
 #ifndef __PACKET_LAPDM_H__
 #define __PACKET_LAPDM_H__
 
+#include <glib.h>
+
 /* See GSM TS 04.06 */
 enum lapdm_hdr_type {
     LAPDM_HDR_FMT_A,
@@ -20,7 +22,7 @@ enum lapdm_hdr_type {
 };
 
 typedef struct _lapdm_data_t {
-    enum lapdm_hdr_type hdr_type;
+    gboolean is_acch;
 } lapdm_data_t;
 
 #endif
