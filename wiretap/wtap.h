@@ -2222,7 +2222,7 @@ gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment
  * @param data_len      length of data
  */
 WS_DLL_PUBLIC
-void wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, guint8 *data, guint16 data_len);
+void wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, const guint8 *data, guint16 data_len);
 
 /**
  * Generates packet data for an unsigned integer in "exported PDU" format.

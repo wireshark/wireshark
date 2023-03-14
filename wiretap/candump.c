@@ -37,13 +37,19 @@ void register_candump(void);
 static void
 candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
 {
-    static const char *can_proto_name    = "can-hostendian";
-    static const char *canfd_proto_name  = "canfd";
-    const char        *proto_name        = msg->is_fd ? canfd_proto_name : can_proto_name;
+    static const char can_proto_name[]   = "can-hostendian";
+    static const char canfd_proto_name[] = "canfd";
 
     /* Generate Exported PDU tags for the packet info */
     ws_buffer_clean(buf);
-    wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (guint8 *)proto_name, strlen(proto_name));
+    if (msg->is_fd)
+    {
+        wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (const guint8 *)canfd_proto_name, sizeof canfd_proto_name - 1);
+    }
+    else
+    {
+        wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (const guint8 *)can_proto_name, sizeof can_proto_name - 1);
+    }
     wtap_buffer_append_epdu_end(buf);
 
     if (msg->is_fd)

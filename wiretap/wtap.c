@@ -1934,7 +1934,7 @@ wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 }
 
 void
-wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, guint8 *data, guint16 data_len)
+wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, const guint8 *data, guint16 data_len)
 {
 	guint8 pad_len = 0;
 	guint space_needed = 4; /* 2 for tag field, 2 for length field */
