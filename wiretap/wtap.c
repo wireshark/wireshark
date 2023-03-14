@@ -21,6 +21,7 @@
 #include <wsutil/buffer.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
+#include <wsutil/exported_pdu_tlvs.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
@@ -28,6 +29,8 @@
 #ifdef HAVE_PLUGINS
 static plugins_t *libwiretap_plugins = NULL;
 #endif
+
+#define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
 
 static GSList *wtap_plugins = NULL;
 
@@ -1634,6 +1637,7 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 	 * Initialize the record to default values.
 	 */
 	wtap_init_rec(wth, rec);
+	ws_buffer_clean(buf);
 
 	*err = 0;
 	*err_info = NULL;
@@ -1750,9 +1754,14 @@ gboolean
 wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info)
 {
+	gboolean rv;
 	ws_buffer_assure_space(buf, length);
-	return wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
+	rv = wtap_read_bytes(fh, ws_buffer_end_ptr(buf), length, err,
 	    err_info);
+	if (rv) {
+		ws_buffer_increase_length(buf, length);
+	}
+	return rv;
 }
 
 /*
@@ -1802,6 +1811,7 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 	 * Initialize the record to default values.
 	 */
 	wtap_init_rec(wth, rec);
+	ws_buffer_clean(buf);
 
 	*err = 0;
 	*err_info = NULL;
@@ -1921,6 +1931,67 @@ wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 		return FALSE;
 
 	return wtap_full_file_read_file(wth, wth->random_fh, rec, buf, err, err_info);
+}
+
+void
+wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, guint8 *data, guint16 data_len)
+{
+	guint8 pad_len = 0;
+	guint space_needed = 4; /* 2 for tag field, 2 for length field */
+	guint8 *buf_data;
+
+	if (epdu_tag != 0 && data != NULL && data_len != 0) {
+		pad_len += PADDING4(data_len);
+		space_needed += data_len + pad_len;
+	}
+	else {
+		data_len = 0;
+	}
+
+	ws_buffer_assure_space(buf, space_needed);
+	buf_data = ws_buffer_end_ptr(buf);
+	memset(buf_data, 0, space_needed);
+	phton16(buf_data + 0, epdu_tag);
+	/* It seems as though the convention for exported_pdu is to specify
+	 * the fully-padded length of the tag value, not just its useful length.
+	 * e.g. the string value 'a' would be given a length of 4.
+	 */
+	phton16(buf_data + 2, data_len + pad_len);
+	if (data_len > 0) {
+		/* Still only copy as many bytes as we actually have */
+		memcpy(buf_data + 4, data, data_len);
+	}
+	ws_buffer_increase_length(buf, space_needed);
+}
+
+void
+wtap_buffer_append_epdu_uint(Buffer *buf, guint16 epdu_tag, guint32 val)
+{
+	const guint space_needed = 8; /* 2 for tag field, 2 for length field, 4 for value */
+	guint8 *buf_data;
+
+	ws_assert(epdu_tag != 0);
+	ws_buffer_assure_space(buf, space_needed);
+	buf_data = ws_buffer_end_ptr(buf);
+	memset(buf_data, 0, space_needed);
+	phton16(buf_data + 0, epdu_tag);
+	phton16(buf_data + 2, 4);
+	phton32(buf_data + 4, val);
+	ws_buffer_increase_length(buf, space_needed);
+}
+
+gint
+wtap_buffer_append_epdu_end(Buffer *buf)
+{
+	const guint space_needed = 4; /* 2 for tag (=0000), 2 for length field (=0) */
+	guint8 *buf_data;
+
+	ws_buffer_assure_space(buf, space_needed);
+	buf_data = ws_buffer_end_ptr(buf);
+	memset(buf_data, 0, space_needed);
+	ws_buffer_increase_length(buf, space_needed);
+
+	return (gint)ws_buffer_length(buf);
 }
 
 /*
