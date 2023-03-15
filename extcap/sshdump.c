@@ -138,7 +138,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 	char** ifaces_array = NULL;
 	int ifaces_array_num = 0;
 	GString *ifaces_string;
-	gchar *ifaces;
+	gchar *ifaces = NULL;
 	char* quoted_iface = NULL;
 	char* quoted_filter = NULL;
 	char* count_str = NULL;
@@ -182,15 +182,17 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 			count_str ? count_str : "",
 			quoted_filter);
 	} else if (!g_strcmp0(capture_command_select, "dumpcap")) {
-		ifaces_array = g_strsplit(iface, " ", -1);
-		ifaces_string = g_string_new(NULL);
-		while (ifaces_array[ifaces_array_num])
-		{
-			quoted_iface = g_shell_quote(ifaces_array[ifaces_array_num]);
-			g_string_append_printf(ifaces_string, "-i %s ", quoted_iface);
-			ifaces_array_num++;
+		if (iface) {
+			ifaces_array = g_strsplit(iface, " ", -1);
+			ifaces_string = g_string_new(NULL);
+			while (ifaces_array[ifaces_array_num])
+			{
+				quoted_iface = g_shell_quote(ifaces_array[ifaces_array_num]);
+				g_string_append_printf(ifaces_string, "-i %s ", quoted_iface);
+				ifaces_array_num++;
+			}
+			ifaces = g_string_free(ifaces_string, FALSE);
 		}
-		ifaces = g_string_free(ifaces_string, FALSE);
 		quoted_filter = g_shell_quote(cfilter ? cfilter : "");
 		if (count > 0)
 			count_str = ws_strdup_printf("-c %u", count);
@@ -198,7 +200,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		cmdline = ws_strdup_printf("%s dumpcap %s %s -w - %s -f %s",
 			use_sudo ? "sudo" : "",
 			noprom ? "-p" : "",
-			*ifaces ? ifaces : "",
+			ifaces ? ifaces : "",
 			count_str ? count_str : "",
 			quoted_filter);
 
