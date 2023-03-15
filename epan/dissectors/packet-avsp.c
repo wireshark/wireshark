@@ -148,7 +148,7 @@ static expert_field ei_avsp_tgen_unknown_version = EI_INIT;
 static int
 dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-    guint8 offset = 0;
+    volatile guint8 offset = 0;
     guint32 version, subtype, tgen_payload_len = 0;
     guint64 tgen_ctrl;
     guint32 tgen_seq_num;
