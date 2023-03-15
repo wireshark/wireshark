@@ -27,7 +27,6 @@ wtap_open_return_val blf_open(wtap *wth, int *err, gchar **err_info);
 #define BLF_HEADER_TYPE_2                         2
 #define BLF_HEADER_TYPE_3                         3
 
-
 #define BLF_COMPRESSION_NONE                      0
 #define BLF_COMPRESSION_ZLIB                      2
 
