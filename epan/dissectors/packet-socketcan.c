@@ -885,7 +885,7 @@ proto_register_socketcan(void)
 			{
 				"Single bit error", "can.err.prot.type.bit",
 				FT_BOOLEAN, 8,
-				NULL, 0x01,
+				NULL, CAN_ERR_PROT_BIT,
 				NULL, HFILL
 			}
 		},
@@ -894,7 +894,7 @@ proto_register_socketcan(void)
 			{
 				"Frame format error", "can.err.prot.type.form",
 				FT_BOOLEAN, 8,
-				NULL, 0x02,
+				NULL, CAN_ERR_PROT_FORM,
 				NULL, HFILL
 			}
 		},
@@ -903,7 +903,7 @@ proto_register_socketcan(void)
 			{
 				"Bit stuffing error", "can.err.prot.type.stuff",
 				FT_BOOLEAN, 8,
-				NULL, 0x04,
+				NULL, CAN_ERR_PROT_STUFF,
 				NULL, HFILL
 			}
 		},
@@ -912,7 +912,7 @@ proto_register_socketcan(void)
 			{
 				"Unable to send dominant bit", "can.err.prot.type.bit0",
 				FT_BOOLEAN, 8,
-				NULL, 0x08,
+				NULL, CAN_ERR_PROT_BIT0,
 				NULL, HFILL
 			}
 		},
@@ -921,7 +921,7 @@ proto_register_socketcan(void)
 			{
 				"Unable to send recessive bit", "can.err.prot.type.bit1",
 				FT_BOOLEAN, 8,
-				NULL, 0x10,
+				NULL, CAN_ERR_PROT_BIT1,
 				NULL, HFILL
 			}
 		},
@@ -930,7 +930,7 @@ proto_register_socketcan(void)
 			{
 				"Bus overload", "can.err.prot.type.overload",
 				FT_BOOLEAN, 8,
-				NULL, 0x20,
+				NULL, CAN_ERR_PROT_OVERLOAD,
 				NULL, HFILL
 			}
 		},
@@ -939,7 +939,7 @@ proto_register_socketcan(void)
 			{
 				"Active error announcement", "can.err.prot.type.active",
 				FT_BOOLEAN, 8,
-				NULL, 0x40,
+				NULL, CAN_ERR_PROT_ACTIVE,
 				NULL, HFILL
 			}
 		},
@@ -948,7 +948,7 @@ proto_register_socketcan(void)
 			{
 				"Error occurred on transmission", "can.err.prot.type.tx",
 				FT_BOOLEAN, 8,
-				NULL, 0x80,
+				NULL, CAN_ERR_PROT_TX,
 				NULL, HFILL
 			}
 		},
