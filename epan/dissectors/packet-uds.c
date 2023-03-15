@@ -1152,12 +1152,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     case UDS_SA_TYPES_REQUEST_SEED_ISO26021:
                         proto_tree_add_item(uds_tree, hf_uds_sa_seed, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
-                        offset = data_length;
                         break;
                     default:
                         proto_tree_add_item(uds_tree, hf_uds_sa_data_record, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
-                        offset = data_length;
                     }
                 } else {
                     switch (uds_sa_subfunction_to_type(enum_val)) {
@@ -1165,14 +1163,12 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     case UDS_SA_TYPES_SEND_KEY_ISO26021:
                         proto_tree_add_item(uds_tree, hf_uds_sa_key, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
-                        offset = data_length;
                         break;
                     case UDS_SA_TYPES_REQUEST_SEED: /* fall through */
                     case UDS_SA_TYPES_REQUEST_SEED_ISO26021:
                     default:
                         proto_tree_add_item(uds_tree, hf_uds_sa_data_record, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
-                        offset = data_length;
                     }
                 }
                 offset = data_length;
@@ -1318,7 +1314,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             /* do not increase offset, since reply uses the same byte with different mask! */
 
             proto_tree *subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
-            ti = proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_tp_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &subfunction);
+            proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_tp_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &subfunction);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction %x", subfunction);
 
