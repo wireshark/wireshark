@@ -263,6 +263,7 @@ static int hf_woww_cooldown_in_msecs = -1;
 static int hf_woww_cooldown_time_in_msecs = -1;
 static int hf_woww_corpse_query_result = -1;
 static int hf_woww_corpse_target_ally = -1;
+static int hf_woww_corpse_target_enemy = -1;
 static int hf_woww_cos_angle = -1;
 static int hf_woww_cost_in_copper = -1;
 static int hf_woww_count = -1;
@@ -324,6 +325,7 @@ static int hf_woww_encrypted_data = -1;
 static int hf_woww_end_text = -1;
 static int hf_woww_ended_without_interruption = -1;
 static int hf_woww_enemy = -1;
+static int hf_woww_enemy_target = -1;
 static int hf_woww_energize_amount = -1;
 static int hf_woww_energize_power = -1;
 static int hf_woww_energy = -1;
@@ -485,6 +487,7 @@ static int hf_woww_listed_players = -1;
 static int hf_woww_living_orientation = -1;
 static int hf_woww_location_name = -1;
 static int hf_woww_lock_id = -1;
+static int hf_woww_locked_target = -1;
 static int hf_woww_log_format = -1;
 static int hf_woww_logout_result = -1;
 static int hf_woww_logout_speed = -1;
@@ -820,6 +823,7 @@ static int hf_woww_total_cost = -1;
 static int hf_woww_total_damage = -1;
 static int hf_woww_total_exp = -1;
 static int hf_woww_total_played_time = -1;
+static int hf_woww_trade_item = -1;
 static int hf_woww_trade_slot = -1;
 static int hf_woww_trade_slot_count = -1;
 static int hf_woww_trade_slot_number = -1;
@@ -11076,7 +11080,16 @@ add_body_fields(guint32 header_opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
@@ -11100,6 +11113,9 @@ add_body_fields(guint32 header_opcode,
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -12113,7 +12129,16 @@ add_body_fields(guint32 header_opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
@@ -12137,6 +12162,9 @@ add_body_fields(guint32 header_opcode,
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -12398,7 +12426,16 @@ add_body_fields(guint32 header_opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
@@ -12422,6 +12459,9 @@ add_body_fields(guint32 header_opcode,
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -16805,7 +16845,16 @@ add_body_fields(guint32 header_opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
@@ -16829,6 +16878,9 @@ add_body_fields(guint32 header_opcode,
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -16848,7 +16900,16 @@ add_body_fields(guint32 header_opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
@@ -16872,6 +16933,9 @@ add_body_fields(guint32 header_opcode,
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            else if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -18638,6 +18702,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_corpse_target_enemy,
+            { "Corpse Target Enemy", "woww.corpse.target.enemy",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_cos_angle,
             { "Cos Angle", "woww.cos.angle",
                 FT_FLOAT, BASE_NONE, NULL, 0,
@@ -19000,6 +19070,12 @@ proto_register_woww(void)
         },
         { &hf_woww_enemy,
             { "Enemy", "woww.enemy",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_enemy_target,
+            { "Enemy Target", "woww.enemy.target",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19967,6 +20043,12 @@ proto_register_woww(void)
         { &hf_woww_lock_id,
             { "Lock Id", "woww.lock.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_locked_target,
+            { "Locked Target", "woww.locked.target",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -21977,6 +22059,12 @@ proto_register_woww(void)
         { &hf_woww_total_played_time,
             { "Total Played Time", "woww.total.played.time",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_trade_item,
+            { "Trade Item", "woww.trade.item",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
