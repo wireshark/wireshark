@@ -370,7 +370,7 @@ socketcan_call_subdissectors(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
  *    3) we don't know whether the given SocketCAN frame is a
  *       classic CAN packet or a CAN FD packet, and will have
  *       to check the CANFD_FDF bit in the "FD flags" field of
- *       the SocketCAN headder to determine that.
+ *       the SocketCAN header to determine that.
  */
 typedef enum {
 	PACKET_TYPE_CAN,
