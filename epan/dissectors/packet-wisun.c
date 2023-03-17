@@ -1401,7 +1401,7 @@ dissect_wisun_pomie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 
     offset++;
     for (guint8 i = 0; i < number_operating_modes; i++) {
-        wisun_add_phy_mode_id(tvb, tree, offset, hf_wisun_pomie_phy_mode_id, &hf_wisun_pomie_phy_type,
+        wisun_add_phy_mode_id(tvb, subtree, offset, hf_wisun_pomie_phy_mode_id, &hf_wisun_pomie_phy_type,
                               &hf_wisun_pomie_phy_mode_fsk, &hf_wisun_pomie_phy_mode_ofdm);
         offset++;
     }
