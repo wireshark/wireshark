@@ -113,6 +113,11 @@ enum drbd_packet {
     P_OV_DAGTAG_REQ       = 0x4f,
     P_OV_DAGTAG_REPLY     = 0x50,
 
+    P_WRITE_ACK_IN_SYNC   = 0x51,
+    P_RS_NEG_ACK          = 0x52,
+    P_OV_RESULT_ID        = 0x53,
+    P_RS_DEALLOCATED_ID   = 0x54,
+
     P_INITIAL_META        = 0xfff1,
     P_INITIAL_DATA        = 0xfff2,
 
@@ -239,6 +244,11 @@ static const value_string packet_names[] = {
     { P_RS_THIN_DAGTAG_REQ, "P_RS_THIN_DAGTAG_REQ" },
     { P_OV_DAGTAG_REQ, "P_OV_DAGTAG_REQ" },
     { P_OV_DAGTAG_REPLY, "P_OV_DAGTAG_REPLY" },
+
+    { P_WRITE_ACK_IN_SYNC, "P_WRITE_ACK_IN_SYNC" },
+    { P_RS_NEG_ACK, "P_RS_NEG_ACK" },
+    { P_OV_RESULT_ID, "P_OV_RESULT_ID" },
+    { P_RS_DEALLOCATED_ID, "P_RS_DEALLOCATED_ID" },
 
     { P_INITIAL_META, "P_INITIAL_META" },
     { P_INITIAL_DATA, "P_INITIAL_DATA" },
@@ -387,6 +397,17 @@ static const value_string disk_state_names[] = {
 #define DP_WSAME            512
 #define DP_ZEROES          1024
 
+#define OV_RESULT_SKIP         4710
+#define OV_RESULT_IN_SYNC      4711
+#define OV_RESULT_OUT_OF_SYNC  4712
+
+static const val64_string ov_result_codes[] = {
+    { OV_RESULT_SKIP, "SKIP" },
+    { OV_RESULT_IN_SYNC, "IN_SYNC" },
+    { OV_RESULT_OUT_OF_SYNC, "OUT_OF_SYNC" },
+    { 0, NULL }
+};
+
 #define DRBD_STREAM_DATA 0
 #define DRBD_STREAM_CONTROL 1
 
@@ -429,6 +450,7 @@ static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree, drbd_conv
 static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
 
 static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_ov_result(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
 static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
 static void decode_payload_confirm_stable(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
 static void decode_payload_rq_s_reply(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
@@ -476,6 +498,7 @@ static const value_payload_decoder payload_decoders[] = {
     { P_TRIM, NULL, decode_payload_data_size },
     { P_ZEROES, NULL, decode_payload_data_size },
     { P_RS_DEALLOCATED, NULL, decode_payload_rs_deallocated },
+    { P_RS_DEALLOCATED_ID, NULL, decode_payload_block_ack },
     { P_WSAME, NULL, decode_payload_data_wsame },
     { P_DISCONNECT, NULL, NULL },
     { P_RS_DAGTAG_REQ, NULL, decode_payload_dagtag_data_request },
@@ -488,12 +511,15 @@ static const value_payload_decoder payload_decoders[] = {
     { P_PING_ACK, NULL, NULL },
     { P_RECV_ACK, NULL, decode_payload_block_ack },
     { P_WRITE_ACK, NULL, decode_payload_block_ack },
-    { P_RS_WRITE_ACK, NULL, decode_payload_block_ack },
+    { P_WRITE_ACK_IN_SYNC, NULL, decode_payload_block_ack },
     { P_SUPERSEDED, NULL, decode_payload_block_ack },
     { P_NEG_ACK, NULL, decode_payload_block_ack },
     { P_NEG_DREPLY, NULL, decode_payload_block_ack },
     { P_NEG_RS_DREPLY, NULL, decode_payload_block_ack },
+    { P_RS_WRITE_ACK, NULL, decode_payload_block_ack },
+    { P_RS_NEG_ACK, NULL, decode_payload_block_ack },
     { P_OV_RESULT, NULL, decode_payload_block_ack },
+    { P_OV_RESULT_ID, NULL, decode_payload_ov_result },
     { P_BARRIER_ACK, NULL, decode_payload_barrier_ack },
     { P_CONFIRM_STABLE, NULL, decode_payload_confirm_stable },
     { P_STATE_CHG_REPLY, NULL, decode_payload_rq_s_reply },
@@ -526,6 +552,7 @@ static int hf_drbd_auth_response_hash;
 static int hf_drbd_sector;
 static int hf_drbd_block_id;
 static int hf_drbd_seq_num;
+static int hf_drbd_ov_result;
 static int hf_drbd_dp_flags;
 static int hf_drbd_data;
 static int hf_drbd_size;
@@ -1396,6 +1423,15 @@ static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv 
     proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 20, 4, ENC_BIG_ENDIAN);
 }
 
+static void decode_payload_ov_result(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
+{
+    proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_size, tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 20, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_ov_result, tvb, 24, 8, ENC_BIG_ENDIAN);
+}
+
 static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_LITTLE_ENDIAN);
@@ -1510,6 +1546,7 @@ void proto_register_drbd(void)
         { &hf_drbd_sector, { "Sector", "drbd.sector", FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_block_id, { "Block ID", "drbd.block_id", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_seq_num, { "Sequence number", "drbd.seq_num", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_ov_result, { "Online verify result", "drbd.ov_result", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(ov_result_codes), 0x0, NULL, HFILL }},
         { &hf_drbd_dp_flags, { "Data flags", "drbd.dp_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_data, { "Data", "drbd.data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_size, { "Size", "drbd.size", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
