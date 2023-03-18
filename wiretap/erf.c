@@ -12,13 +12,20 @@
 /*
  * erf - Endace ERF (Extensible Record Format)
  *
- * See
- *
- *      https://www.endace.com/erf-extensible-record-format-types.pdf
- *
+ *  Rev A:
+ *      http://web.archive.org/web/20050829051042/http://www.endace.com/support/EndaceRecordFormat.pdf
+ *  Version 1:
+ *      http://web.archive.org/web/20061111014023/http://www.endace.com/support/EndaceRecordFormat.pdf
  *  Version 8:
  *      https://gitlab.com/wireshark/wireshark/uploads/f694bfee494784425b6545892180a8b2/Endace_ERF_Types.pdf
  *        (bug #4484)
+ *  Current version (version 21, as of 2023-03-28):
+ *      https://www.endace.com/erf-extensible-record-format-types.pdf
+ *
+ * Note that version 17 drops descriptions of records for no-longer-supported
+ * DAG cards.  Version 16 is probably the best version to use for those
+ * older record types, but it's not in any obvious location in the Wayback
+ * Machine.
  */
 
 #include "config.h"
