@@ -47477,7 +47477,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vs_sgdsn_heading,
-     {"Altitude", "wlan.vs.sgdsn.tag.heading",
+     {"Heading", "wlan.vs.sgdsn.tag.heading",
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
