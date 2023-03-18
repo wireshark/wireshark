@@ -1789,7 +1789,6 @@ static gboolean erf_dump(
 {
   const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
   union wtap_pseudo_header other_phdr;
-  int      encap;
   int      erf_type;
   gint64   alignbytes   = 0;
   guint    padbytes   = 0;
@@ -1807,22 +1806,30 @@ static gboolean erf_dump(
     return FALSE;
   }
 
-  if(wdh->encap == WTAP_ENCAP_PER_PACKET){
-    encap = rec->rec_header.packet_header.pkt_encap;
-  }else{
-    encap = wdh->encap;
-  }
-
   if(!dump_priv->gen_time) {
     erf_dump_priv_init_gen_time(dump_priv);
     dump_priv->first_frame_time_sec = rec->ts.secs;
   }
 
-  if (encap != WTAP_ENCAP_ERF) {
+  /*
+   * ERF doesn't have a per-file encapsulation type, and it
+   * doesn't have a pcapng-style notion of interfaces that
+   * support a per-interface encapsulation type.  Therefore,
+   * we can just use this particular packet's encapsulation
+   * without checking whether it's the encapsulation for the
+   * dump file (as there isn't an encapsulation for an ERF
+   * file, unless you count WTAP_ENCAP_ERF as the encapsulation
+   * for all files, but we add ERF metadata if a packet is
+   * written with an encapsulation other than WTAP_ENCAP_ERF).
+   *
+   * We will check whether the encapsulation is something we
+   * support later.
+   */
+  if (rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ERF) {
     unsigned int total_rlen;;
     unsigned int total_wlen;
 
-    /*Non-ERF*/
+    /* Non-ERF encapsulation; generate ERF metadata */
 
     total_rlen = rec->rec_header.packet_header.caplen+16;
     total_wlen = rec->rec_header.packet_header.len;
@@ -1833,7 +1840,8 @@ static gboolean erf_dump(
       return FALSE;
     }
 
-    if ((erf_type = wtap_wtap_encap_to_erf_encap(encap)) == -1) {
+    erf_type = wtap_wtap_encap_to_erf_encap(rec->rec_header.packet_header.pkt_encap);
+    if (erf_type == -1) {
       *err = WTAP_ERR_UNWRITABLE_ENCAP;
       return FALSE;
     }
@@ -1992,7 +2000,7 @@ static gboolean erf_dump(
    * and insert a metadata record before that frame */
   /*XXX: The user may have changed the comment to cleared! */
   if(rec->block_was_modified) {
-    if (encap == WTAP_ENCAP_ERF) {
+    if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ERF) {
       /* XXX: What about ERF-in-pcapng with existing comment (that wasn't
        * modified)? */
       if(rec->block_was_modified) {
