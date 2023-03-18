@@ -305,6 +305,7 @@ static int hf_rsvp_ctype_policy = -1;
 static int hf_rsvp_ctype_error = -1;
 static int hf_rsvp_ctype_attribute = -1;
 static int hf_rsvp_ctype_explicit_route = -1;
+static int hf_rsvp_ctype_secondary_explicit_route = -1;
 static int hf_rsvp_ctype_flowspec = -1;
 static int hf_rsvp_ctype_hop = -1;
 static int hf_rsvp_ctype_confirm = -1;
@@ -543,6 +544,7 @@ static int hf_rsvp_flowspec_number_of_multiplexed_components = -1;
 static int hf_rsvp_label_request_switching_type = -1;
 static int hf_rsvp_ero_rro_subobjects_prefix_length = -1;
 static int hf_rsvp_explicit_route_data = -1;
+static int hf_rsvp_secondary_explicit_route_data = -1;
 static int hf_rsvp_association_source_ipv4 = -1;
 static int hf_rsvp_call_id_local_identifier = -1;
 static int hf_rsvp_flowspec_message_format_version = -1;
@@ -993,6 +995,7 @@ enum rsvp_classes {
     RSVP_CLASS_LSP_ATTRIBUTES,
     RSVP_CLASS_ALARM_SPEC,
     RSVP_CLASS_ASSOCIATION,
+    RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE,
     RSVP_CLASS_CALL_ATTRIBUTES   = 202,
 
     /* 203-204  Unassigned */
@@ -1125,6 +1128,8 @@ static const value_string rsvp_class_vals[] = {
     RSVP_CLASS_ALARM_SPEC,
 */
     { RSVP_CLASS_ASSOCIATION,           "ASSOCIATION object"},
+
+    { RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE, "SECONDARY EXPLICIT ROUTE object"},
 
     { RSVP_CLASS_CALL_ATTRIBUTES,       "CALL ATTRIBUTES object"},
 
@@ -1921,6 +1926,8 @@ enum hf_rsvp_filter_keys {
     RSVPF_PRIVATE_OBJ,
     RSVPF_ENT_CODE,
 
+    RSVPF_SECONDARY_EXPLICIT_ROUTE,
+
     RSVPF_JUNIPER,
 
     /* Sentinel */
@@ -2234,6 +2241,9 @@ rsvp_class_to_filter_num(int classnum)
 
     case RSVP_CLASS_S2L_SUB_LSP:
 	return RSVPF_S2L_SUB_LSP;
+
+    case RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE:
+        return RSVPF_SECONDARY_EXPLICIT_ROUTE;
 
     case RSVP_CLASS_JUNIPER_PROPERTIES :
         return RSVPF_JUNIPER;
@@ -4963,6 +4973,7 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
 
     switch(rsvp_class) {
     case RSVP_CLASS_EXPLICIT_ROUTE:
+    case RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE:
         tree_type = TREE(TT_EXPLICIT_ROUTE_SUBOBJ);
         break;
     case RSVP_CLASS_RECORD_ROUTE:
@@ -4984,7 +4995,8 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
     for (i=1, l = 0; l < obj_length - 4; i++) {
         type = tvb_get_guint8(tvb, offset + l);
         if ((rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE) ||
-            (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE))
+            (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE) ||
+            (rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE))
             type &= 0x7f;
         lbit = tvb_get_guint8(tvb, offset + l) & 0x80;
         dbit = tvb_get_guint8(tvb, offset + l + 2) & 0x80;
@@ -4994,17 +5006,19 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
                                       offset+l, 8,
                                       tree_type, &ti2, "IPv4 Subobject - %s%s",
                                       tvb_ip_to_str(pinfo->pool, tvb, offset+l+2),
-                                      rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
+                                      (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ||
+                                       rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE) ?
                                       (lbit ? ", Loose" : ", Strict") : "");
 
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
             if (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE){
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_lbit, tvb, offset+l, 1, ENC_BIG_ENDIAN);
             }
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1, type, "1 (IPv4)");
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
-            if(rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_RECORD_ROUTE){
+            if(rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_RECORD_ROUTE ||
+               rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE){
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_ipv4_hop, tvb, offset+l+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_prefix_length, tvb, offset+l+6, 1, ENC_BIG_ENDIAN);
             }
@@ -5049,7 +5063,7 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
             rsvp_ro_subtree = proto_tree_add_subtree(rsvp_object_tree, tvb,
                                       offset+l, 20, tree_type, &ti2,
                                       "IPv6 Subobject");
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE){
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE){
                     proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
                 }
 
@@ -5104,9 +5118,10 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
                                       offset+l, 8,
                                       tree_type, &ti2, "Label Subobject - %d, %s",
                                       tvb_get_ntohl(tvb, offset+l+4),
-                                      rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
+                                      (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ||
+                                       rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE) ?
                                       (lbit ? "Loose" : "Strict") : "");
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
 
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
@@ -5137,9 +5152,10 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
                                       "Unnumbered Interface-ID - %s, %d, %s",
                                       tvb_ip_to_str(pinfo->pool, tvb, offset+l+4),
                                       tvb_get_ntohl(tvb, offset+l+8),
-                                      rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
+                                      (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ||
+                                       rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE) ?
                                       (lbit ? "Loose" : "Strict") : "");
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
 
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
@@ -5188,7 +5204,7 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
 
 
         case 34: /* SRLG subobject RFC 4874 */
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE) goto defaultsub;
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE) goto defaultsub;
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE){
                 rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                               offset + l, 8, tree_type, NULL,
@@ -7349,6 +7365,35 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
                         obj_length - 8, ENC_NA);
 }
 
+/*------------------------------------------------------------------------------
+ * SECONDARY EXPLICIT ROUTE OBJECT
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_secondary_explicit_route(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
+                                      tvbuff_t *tvb,
+                                      int offset, int obj_length,
+                                      int rsvp_class, int type)
+{
+    proto_item *hidden_item;
+
+    hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(hidden_item);
+
+    proto_item_set_text(ti, "SECONDARY EXPLICIT ROUTE: ");
+    switch(type) {
+    case 2: // P2MP
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_secondary_explicit_route, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+
+        dissect_rsvp_ro_subobjects(ti, pinfo, rsvp_object_tree, tvb, offset + 4, obj_length, rsvp_class);
+        break;
+
+    default:
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_secondary_explicit_route, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_secondary_explicit_route_data, tvb, offset+4, obj_length - 4, ENC_NA);
+        break;
+    }
+}
+
 /*----------------------------------------------------------------------------
  * CALL ATTRIBUTES
  *---------------------------------------------------------------------------*/
@@ -7800,6 +7845,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case RSVP_CLASS_VENDOR_PRIVATE_11:
         case RSVP_CLASS_VENDOR_PRIVATE_12:
             dissect_rsvp_vendor_private_use(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
+        case RSVP_CLASS_SECONDARY_EXPLICIT_ROUTE:
+            dissect_rsvp_secondary_explicit_route(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_CALL_ATTRIBUTES:
@@ -8596,6 +8645,12 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_filter[RSVPF_ASSOCIATION],
          { "ASSOCIATION", "rsvp.association",
+           FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_filter[RSVPF_SECONDARY_EXPLICIT_ROUTE],
+         { "SECONDARY EXPLICIT ROUTE", "rsvp.secondary_explicit_route",
            FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }
         },
@@ -10052,6 +10107,8 @@ proto_register_rsvp(void)
       { &hf_rsvp_record_route_data, { "Data", "rsvp.record_route.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ctype_exclude_route, { "C-Type", "rsvp.ctype.exclude_route", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_exclude_route_data, { "Data", "rsvp.exclude_route.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_secondary_explicit_route, { "C-Type", "rsvp.ctype.secondary_explicit_route", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_secondary_explicit_route_data, { "Data", "rsvp.secondary_explicit_route.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ctype_message_id, { "C-Type", "rsvp.ctype.message_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_message_id_flags, { "Flags", "rsvp.message_id.flags", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_message_id_epoch, { "Epoch", "rsvp.message_id.epoch", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
