@@ -4808,7 +4808,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         wtap_dump_params_init(&params, cf->provider.wth);
 
         /* Determine what file encapsulation type we should use. */
-        encap = wtap_dump_file_encap_type(cf->linktypes);
+        encap = wtap_dump_required_file_encap_type(cf->linktypes);
         params.encap = encap;
 
         /* Use the snaplen from cf (XXX - does wtap_dump_params_init handle that?) */
@@ -5064,7 +5064,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     wtap_dump_params_init(&params, cf->provider.wth);
 
     /* Determine what file encapsulation type we should use. */
-    encap = wtap_dump_file_encap_type(cf->linktypes);
+    encap = wtap_dump_required_file_encap_type(cf->linktypes);
     params.encap = encap;
 
     /* Use the snaplen from cf (XXX - does wtap_dump_params_init handle that?) */

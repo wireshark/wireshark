@@ -1469,7 +1469,7 @@ wtap_deregister_file_type_subtype(const int subtype)
  * WTAP_ENCAP_PER_PACKET.
  */
 int
-wtap_dump_file_encap_type(const GArray *file_encaps)
+wtap_dump_required_file_encap_type(const GArray *file_encaps)
 {
 	int encap;
 
@@ -1559,7 +1559,7 @@ wtap_dump_can_write_format(int ft, const GArray *file_encaps,
 	 * Yes.  Is the required per-file encapsulation type supported?
 	 * This might be WTAP_ENCAP_PER_PACKET.
 	 */
-	if (!wtap_dump_can_write_encap(ft, wtap_dump_file_encap_type(file_encaps))) {
+	if (!wtap_dump_can_write_encap(ft, wtap_dump_required_file_encap_type(file_encaps))) {
 		/* No. */
 		return FALSE;
 	}

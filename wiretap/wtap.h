@@ -2002,7 +2002,7 @@ gboolean wtap_dump_can_open(int filetype);
  * type that would be needed to write out a file with those types.
  */
 WS_DLL_PUBLIC
-int wtap_dump_file_encap_type(const GArray *file_encaps);
+int wtap_dump_required_file_encap_type(const GArray *file_encaps);
 
 /**
  * Return TRUE if we can write this encapsulation type in this
