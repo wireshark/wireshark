@@ -387,6 +387,8 @@ typedef enum {
 #define QOS_ACK_POLICY(x)     (((x) & 0x0060) >> 5)
 #define QOS_AMSDU_PRESENT(x)  (((x) & 0x0080) >> 6)
 #define QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
+#define QOS_SCALING_FACTOR(x)  (((x) & 0xD0) >> 6)
+#define QOS_UNSCALED_VALUE(x)  ((x) & 0x3F)
 #define QOS_MESH_CONTROL_PRESENT(x) (((x) & 0x0100) >> 8)
 
 #define QOS_FLAG_EOSP    0x0010
@@ -8332,7 +8334,7 @@ he_ru_allocation_base_custom(gchar *result, guint32 ru_allocation)
   case 2:
     /* fall-through */
   case 3:
-    if (ru_allocation <= 16) {
+    if (ru_allocation <= 36) {
       tones = 26;
       break;
     }
@@ -34770,6 +34772,9 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            * Only QoS Data, Qos CF-ACK and NULL frames To-DS have a Queue Size
            * field.
            */
+          guint16 scaling_factor = QOS_SCALING_FACTOR(qos_field_content);
+          guint16 unscaled_value = QOS_UNSCALED_VALUE(qos_field_content);
+
           if ((DATA_FRAME_IS_NULL(frame_type_subtype) ||
                (frame_type_subtype & 0x7) == 0 ||
                DATA_FRAME_IS_CF_ACK(frame_type_subtype))) {
@@ -34781,16 +34786,37 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_append_text(qos_ti, " (no buffered traffic in the queue)");
                 break;
 
-              default:
-                proto_item_append_text(qos_ti, " (%u bytes)", qos_field_content*256);
-                break;
-
               case 254:
                 proto_item_append_text(qos_ti, " (more than 64768 octets)");
                 break;
 
               case 255:
                 proto_item_append_text(qos_ti, " (unspecified or unknown)");
+                break;
+
+              default:
+                switch (scaling_factor) {
+                case 0:
+                  proto_item_append_text(qos_ti, " (%u bytes)", 16 * unscaled_value);
+                  break;
+                case 1:
+                  proto_item_append_text(qos_ti, " (%u bytes)", (1024 + (256 * unscaled_value)));
+                  break;
+                case 2:
+                  proto_item_append_text(qos_ti, " (%u bytes)", (17408 + (2048 * unscaled_value)));
+                  break;
+                case 3:
+                  if (unscaled_value < 62)
+                    proto_item_append_text(qos_ti, " (%u bytes)", (148480 + (32768 * unscaled_value)));
+                  else if (unscaled_value == 62)
+                    proto_item_append_text(qos_ti, " (> 2147328)");
+                  else if (unscaled_value == 63)
+                    proto_item_append_text(qos_ti, " (unspecified or unknown)");
+                  break;
+                default:
+                  proto_item_append_text(qos_ti, " (unspecified or unknown)");
+                  break;
+                }
                 break;
               }
             } else {
