@@ -812,6 +812,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bfcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bfd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bgp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bhttp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bicc_mst.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bier.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bitcoin.c

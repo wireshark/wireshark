@@ -222,6 +222,7 @@ Network Time Security Key Establishment Protocol (NTS-KE)
 Private Line Emulation (PLE)
 Roughtime (Roughtime)
 SBAS L5 messages
+Binary HTTP
 Universal Measurement and Calibration Protocol (XCP)
 vSomeIP Internal Protocol (vSomeIP)
 VLP-16 Data and Position messaging
