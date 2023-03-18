@@ -602,6 +602,16 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
         return FALSE;
     }
 
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file (which should always
+     * be WTAP_ENCAP_CATAPULT_DCT2000).
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+        return FALSE;
+    }
+
     dct2000 = (dct2000_dump_t *)wdh->priv;
     if (dct2000 == NULL) {
 
