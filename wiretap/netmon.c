@@ -1641,12 +1641,12 @@ static gboolean netmon_dump_open(wtap_dumper *wdh, gboolean is_v2,
 
 static gboolean netmon_dump_open_1_x(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
-	return netmon_dump_open(wdh, 1, err, err_info);
+	return netmon_dump_open(wdh, FALSE, err, err_info);
 }
 
 static gboolean netmon_dump_open_2_x(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
-	return netmon_dump_open(wdh, 2, err, err_info);
+	return netmon_dump_open(wdh, TRUE, err, err_info);
 }
 
 /* Write a record for a packet to a dump file.
