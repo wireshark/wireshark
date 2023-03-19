@@ -426,11 +426,9 @@ wcp_window_t *get_wcp_window_ptr(packet_info *pinfo) {
 
 	wcp_circuit_data = (wcp_circuit_data_t *)conversation_get_proto_data(conv, proto_wcp);
 	if (!wcp_circuit_data) {
-		wcp_circuit_data = wmem_new(wmem_file_scope(), wcp_circuit_data_t);
+		wcp_circuit_data = wmem_new0(wmem_file_scope(), wcp_circuit_data_t);
 		wcp_circuit_data->recv.buf_cur = wcp_circuit_data->recv.buffer;
-		wcp_circuit_data->recv.initialized = 0;
 		wcp_circuit_data->send.buf_cur = wcp_circuit_data->send.buffer;
-		wcp_circuit_data->send.initialized = 0;
 		conversation_add_proto_data(conv, proto_wcp, wcp_circuit_data);
 	}
 	if (pinfo->pseudo_header->dte_dce.flags & FROM_DCE)
@@ -638,7 +636,7 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, int offset, packet_info *pinf
 		}
 
 		/* save the new data as per packet data */
-		pdata_ptr = wmem_new(wmem_file_scope(), wcp_pdata_t);
+		pdata_ptr = wmem_new0(wmem_file_scope(), wcp_pdata_t);
 		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur, len);
 		pdata_ptr->len = len;
 
