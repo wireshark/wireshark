@@ -10772,13 +10772,22 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guin
     if (ssl_session && ssl_session->session.version != TLSV1DOT3_VERSION && !(ssl_session->state & SSL_MASTER_SECRET)) {
         guint32 old_length = ssl_session->handshake_data.data_len;
         ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
-        ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
-        if (tvb && tvb_bytes_exist(tvb, offset, length)) {
-            tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
+        if (tvb) {
+            if (tvb_bytes_exist(tvb, offset, length)) {
+                ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
+                tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
+                ssl_session->handshake_data.data_len += length;
+            }
         } else {
+            /* DTLS calculates the hash as if each handshake message had been
+             * sent as a single fragment (RFC 6347, section 4.2.6) and passes
+             * in a null tvbuff to add 3 bytes for a zero fragment offset.
+             */
+            DISSECTOR_ASSERT_CMPINT(length, <, 4);
+            ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
             memset(ssl_session->handshake_data.data + old_length, 0, length);
+            ssl_session->handshake_data.data_len += length;
         }
-        ssl_session->handshake_data.data_len += length;
     }
 }
 
