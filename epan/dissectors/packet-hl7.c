@@ -865,7 +865,7 @@ dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
     guint eob_offset = offset + len - 2;
     proto_tree *hl7_tree = NULL;
     proto_item *ti = NULL;
-    struct msh msh;
+    struct msh msh = {0};
     int ret = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HL7");
