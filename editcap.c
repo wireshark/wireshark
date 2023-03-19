@@ -1834,6 +1834,13 @@ main(int argc, char *argv[])
                                         read_count,
                                         out_file_type_subtype);
             ret = DUMP_ERROR;
+
+            /*
+             * Close the dump file, but don't report an error
+             * or set the exit code, as we've already reported
+             * an error.
+             */
+            wtap_dump_close(pdh, &write_err, &write_err_info);
             goto clean_exit;
         }
 
@@ -2279,6 +2286,13 @@ main(int argc, char *argv[])
                                             read_count,
                                             out_file_type_subtype);
                 ret = DUMP_ERROR;
+
+                /*
+                 * Close the dump file, but don't report an error
+                 * or set the exit code, as we've already reported
+                 * an error.
+                 */
+                wtap_dump_close(pdh, &write_err, &write_err_info);
                 goto clean_exit;
             }
             written_count++;
@@ -2299,7 +2313,7 @@ main(int argc, char *argv[])
     }
 
     if (!pdh) {
-        /* No valid packages found, open the outfile so we can write an
+        /* No valid packets found, open the outfile so we can write an
          * empty header */
         g_free (filename);
         filename = g_strdup(argv[ws_optind+1]);
@@ -2320,11 +2334,6 @@ main(int argc, char *argv[])
         ret = WRITE_ERROR;
         goto clean_exit;
     }
-    g_free(filename);
-
-    if (frames_user_comments) {
-        g_tree_destroy(frames_user_comments);
-    }
 
     if (dup_detect) {
         fprintf(stderr, "%u packet%s seen, %u packet%s skipped with duplicate window of %i packets.\n",
@@ -2339,6 +2348,12 @@ main(int argc, char *argv[])
     }
 
 clean_exit:
+    if (filename) {
+        g_free(filename);
+    }
+    if (frames_user_comments) {
+        g_tree_destroy(frames_user_comments);
+    }
     if (dsb_filenames) {
         g_array_free(dsb_types, TRUE);
         g_ptr_array_free(dsb_filenames, TRUE);
