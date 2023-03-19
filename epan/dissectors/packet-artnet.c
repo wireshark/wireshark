@@ -4365,6 +4365,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
   guint16 universe,uni_port;
   guint8 bind_index;
   guint32 bind_ip_address;
+  GRegex *regex = NULL;
   GMatchInfo *match_info = NULL;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_ip_address, tvb,
@@ -4419,8 +4420,10 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
                       tvb, offset, 64, ENC_ASCII);
 
   /* Try to extract node report regex data as generated fields */
+  regex = g_regex_new(artnet_poll_reply_node_report_regex, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
+  DISSECTOR_ASSERT(regex != NULL);
   g_regex_match(
-    g_regex_new(artnet_poll_reply_node_report_regex, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL),
+    regex,
     (const gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 64, ENC_ASCII),
     (GRegexMatchFlags) 0,
     &match_info);
@@ -4445,6 +4448,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
   } else {
     expert_add_info(pinfo, tree, &ei_artnet_poll_reply_node_report_invalid_format);
   }
+  g_regex_unref(regex);
   g_match_info_free(match_info);
   offset += 64;
 
