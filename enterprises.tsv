@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2023-03-07)
+# (last updated 2023-03-16)
 
 0	Reserved
 1	NxNetworks
@@ -30106,7 +30106,7 @@
 30137	SHANDONG TRANSPARENT COMMUNICATIONS CO,LTD
 30138	Sparkassen Informatik GmbH & Co. KG
 30139	AMS Engineering Sticht Gmbh
-30140	Advantech B+B SmartWorx s.r.o.	# formerly 'Conel s.r.o.'
+30140	Advantech Czech s.r.o.
 30141	Landesbetrieb Daten und Information Rheinland-Pfalz
 30142	National Magazine Company
 30143	DecisionSoft LTD
@@ -45126,7 +45126,7 @@
 45177	Sapientier Development
 45178	Direktion der Justiz und des Innern des Kantons Zuerich
 45179	Jablotron Alarms a.s.
-45180	Kongsberg Maritime
+45180	Kongsberg Maritime AS
 45181	AVSystem
 45182	bkaiser GmbH
 45183	Access Control Services Ltd
@@ -59968,7 +59968,7 @@
 60046	Anger Clan
 60047	GENERAL BROADCAST
 60048	NSLComm
-60049	European Union Agency for the Space Programme, Rodrigo Da Costa
+60049	European Union Agency for the Space Programme
 60050	WyreStorm Technologies Corp.
 60051	Cirrus Link Solutions
 60052	Matt Melling
@@ -60079,3 +60079,61 @@
 60157	G2 Ops Inc
 60158	GiffTech Inc.
 60159	Dimitris Maroulidis
+60160	深圳市菲菱科思通信技术股份有限公司 （Shenzhen Phoenix Telecom technology Co.,Ltd)
+60161	Guangzhou Sanjing Electric Co., Ltd.
+60162	Mantis Software Company
+60163	Beijing Aodun Software Co., Ltd.
+60164	RBS LLC
+60165	Shenzhen Hi-Net technology Company Limited
+60166	GBITIS Limited
+60167	Bona Electronic Solutions
+60168	RRX Industries, Inc.
+60169	Curvalux Ltd.
+60170	Tritech Group limited
+60171	Medx Connect Pty Ltd
+60172	John M. Barnwell, M.D., PLLC
+60173	POLYWELL COMPUTERS INC.
+60174	Insight Operations
+60175	Shenzhen Growatt New Energy Co., Ltd.
+60176	Technological Ray GmbH
+60177	Stanisław Skowron
+60178	Vade
+60179	EIZO Rugged Solutions Inc.
+60180	Owen Sound Medical Imaging
+60181	cloudtech GmbH
+60182	THEMIS
+60183	Michael Hill International Limited
+60184	PACIFIC PEERING
+60185	Staffwerke GmbH
+60186	lugges
+60187	Guangzhou Yuhong Technology Co.,Ltd.
+60188	Foqus Technologies
+60189	Kreisverwaltung Recklinghausen
+60190	SER Interact Digital AG
+60191	Shanghai BICFANTAS Technology  Co., Ltd.
+60192	William Bissett
+60193	wuthost
+60194	Education and Research Library of Pilsen Region
+60195	Bischof + Klein SE & Co KG
+60196	TimeTell B.V.
+60197	ECAN
+60198	redhax
+60199	Winckworth Sherwood LLP
+60200	A.R.T.I.S.
+60201	vexo d.o.o.
+60202	Global Infrastructure
+60203	FLEXO
+60204	ekotip ID s.r.o
+60205	Spenego Software, LLC
+60206	PortByte Technologies
+60207	FirstFire Productions
+60208	IP Techniek B.V.
+60209	Ucampus
+60210	Expeto Wireless
+60211	Codify Pty Ltd
+60212	SOUTHWEST WYOMING WIRELESS CONNECT LLC
+60213	MsgQ Technologies Services Private Limited
+60214	QuiltMC
+60215	ML Network DV-Systeme, Netzwerk & Kommunikation GmbH
+60216	Joe's
+60217	Cytracom, LLC

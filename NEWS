@@ -67,6 +67,9 @@ Wireshark 4.1.0 Release Notes
 
      • ciscodump support Cisco IOS XE 17.x
 
+     • The default interval between GUI updates when capturing has been
+       decreased from 500ms to 100ms, and is now configurable.
+
   New Protocol Support
 
    DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer

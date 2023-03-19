@@ -1,4 +1,4 @@
-Wireshark 4.1.0 (v4.1.0rc0-428-g517d2be1494f)
+Wireshark 4.1.0 (v4.1.0rc0-1991-g04aed725ef4c)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -12,9 +12,6 @@ Capture interface:
                            packet snapshot length (def: appropriate maximum)
   -p, --no-promiscuous-mode
                            don't capture in promiscuous mode
-  -k                       start capturing immediately (def: do nothing)
-  -S                       update packet display when new packets are captured
-  -l                       turn on automatic scrolling while -S is in use
   -I, --monitor-mode       capture in monitor mode, if available
   -B <buffer size>, --buffer-size <buffer size>
                            size of kernel buffer (def: 2MB)
@@ -26,6 +23,11 @@ Capture interface:
                            print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
 
+Capture display:
+  -k                       start capturing immediately (def: do nothing)
+  -S                       update packet display when new packets are captured
+  --update-interval        interval between updates with new packets (def: 100ms)
+  -l                       turn on automatic scrolling while -S is in use
 Capture stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
   -a <autostop cond.> ..., --autostop <autostop cond.> ...
