@@ -10684,6 +10684,7 @@ static const value_string usb_products_vals[] = {
     { 0x054c0d0f, "Sony Alpha-A6600" },
     { 0x054c0d10, "Sony Alpha-A6600" },
     { 0x054c0d18, "Sony DSC-A7S III" },
+    { 0x054c0d1c, "Sony ILCE-1" },
     { 0x054c0d2b, "Sony ILCE-7C" },
     { 0x054c0d58, "WH-1000XM4 [Wireless Noise-Canceling Headphones]" },
     { 0x054c0d97, "Sony ZV-E10" },
