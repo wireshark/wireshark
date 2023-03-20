@@ -1790,8 +1790,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             break;
                         }
                     }
-                    /* Set flag from last bundle entry */
-                    orphaned_prbs = ext11_settings.bundles[num_bundles-1].is_orphan;
+                    if (num_bundles > 0) {
+                        /* Set flag from last bundle entry */
+                        orphaned_prbs = ext11_settings.bundles[num_bundles-1].is_orphan;
+                    }
                 }
                 else {
                     /********************************************/
