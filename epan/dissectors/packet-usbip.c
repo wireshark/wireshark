@@ -773,16 +773,24 @@ get_usbip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
 
         case OP_CMD_SUBMIT: {
             int expected_size = USBIP_HEADER_LEN;
+            int actual_length = tvb_get_ntohl(tvb, offset + 0x18);
+            int dir = tvb_get_ntohl(tvb, offset + 0xc);
+            int n_iso = tvb_get_ntohl(tvb, offset + 0x20);
 
-            if (tvb_get_ntohl(tvb, offset + 0xc) == USBIP_DIR_OUT)
-                expected_size += tvb_get_ntohl(tvb, offset + 0x18);
+            if (dir == USBIP_DIR_OUT)
+                expected_size += actual_length;
 
-            expected_size += tvb_get_ntohl(tvb, offset + 0x20) * 4 * 4;
+            if (n_iso > 0)
+                expected_size += n_iso * 4 * 4;
+
             return expected_size;
         }
 
         case OP_RET_SUBMIT: {
             int expected_size = USBIP_HEADER_LEN;
+            int actual_length = tvb_get_ntohl(tvb, offset + 0x18);
+            int n_iso = tvb_get_ntohl(tvb, offset + 0x20);
+
             usbip_transaction_t *usbip_trans = NULL;
             usbip_conv_info_t *usbip_info = usbip_get_usbip_conv(pinfo);
             guint32 status = tvb_get_ntohl(tvb, offset + 0x14);
@@ -792,11 +800,13 @@ get_usbip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                     usbip_info->pdus, tvb_get_ntohl(tvb, offset + 4));
 
                 if (usbip_trans && usbip_trans->dir == USBIP_DIR_IN && status == 0)
-                    expected_size += tvb_get_ntohl(tvb, offset + 0x18);
+                    expected_size += actual_length;
             }
 
-            if (status == 0)
-                expected_size += tvb_get_ntohl(tvb, offset + 0x20) * 4 * 4;
+            if (status == 0) {
+                if (n_iso >= 0)
+                    expected_size += n_iso * 4 * 4;
+            }
             else
                 expected_size = tvb_captured_length(tvb);
 
