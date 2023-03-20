@@ -1648,6 +1648,13 @@ static const value_string wnm_notification_types[] = {
 static value_string_ext wnm_notification_types_ext =
   VALUE_STRING_EXT_INIT(wnm_notification_types);
 
+static const value_string wnm_notification_response_status[] = {
+  { 0, "Notification Acknowledged" },
+  { 0, NULL }
+};
+static value_string_ext wnm_notification_response_status_ext =
+  VALUE_STRING_EXT_INIT(wnm_notification_response_status);
+
 /*** End: Action Fixed Parameter ***/
 
 static const value_string ieee80211_tag_measure_request_type_flags[] = {
@@ -4086,6 +4093,7 @@ static int hf_ieee80211_ff_unprotected_wnm_action_code = -1;
 static int hf_ieee80211_ff_key_data_length = -1;
 static int hf_ieee80211_ff_key_data = -1;
 static int hf_ieee80211_ff_wnm_notification_type = -1;
+static int hf_ieee80211_ff_wnm_notification_response_status = -1;
 static int hf_ieee80211_ff_rm_action_code = -1;
 static int hf_ieee80211_ff_rm_dialog_token = -1;
 static int hf_ieee80211_ff_rm_repetitions = -1;
@@ -13481,6 +13489,19 @@ wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 }
 
 static guint
+wnm_notification_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+  proto_tree_add_item(tree, hf_ieee80211_ff_wnm_notification_response_status,
+                      tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  return offset - start;
+}
+
+static guint
 add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 code;
@@ -13513,6 +13534,9 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
   case WNM_NOTIFICATION_REQ:
     offset += wnm_notification_req(tree, tvb, pinfo, offset);
+    break;
+  case WNM_NOTIFICATION_RESP:
+    offset += wnm_notification_resp(tree, tvb, pinfo, offset);
     break;
   }
 
@@ -37632,6 +37656,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_wnm_notification_type,
      {"WNM-Notification type", "wlan.fixed.wnm_notification_type",
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wnm_notification_types_ext, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_wnm_notification_response_status,
+     {"Response status", "wlan.fixed.wnm_notification_response_status",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wnm_notification_response_status_ext, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_rm_action_code,
