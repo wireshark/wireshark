@@ -1155,7 +1155,6 @@ static const value_string rsl_ra_if_data_rte_vals[] = {
     { 0,            NULL }
 };
 
-#if 0
 static const value_string rsl_data_rte_vals[] = {
     {  0x38,    "32 kbit/s" },
     {  0x22,    "39 kbit/s" },
@@ -1168,7 +1167,6 @@ static const value_string rsl_data_rte_vals[] = {
     {  0x15,    "1 200/75 bit/s (1 200 network-to-MS, 75 MS-to-network)" },
     { 0,            NULL }
 };
-#endif
 
 static int
 dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
@@ -5005,7 +5003,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_data_rte,
           { "Data rate",           "gsm_abis_rsl.data_rte",
-            FT_UINT8, BASE_DEC, VALS(rsl_ra_if_data_rte_vals), 0x3f,
+            FT_UINT8, BASE_DEC, VALS(rsl_data_rte_vals), 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_alg_id,
