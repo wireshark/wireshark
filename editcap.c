@@ -1829,6 +1829,12 @@ main(int argc, char *argv[])
         if (add_selection(argv[i], &max_packet_number) == FALSE)
             break;
 
+    if (keep_em && max_selected == 0) {
+        fprintf(stderr, "editcap: must specify packets to keep when using -r\n");
+        ret = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
+
     if (!keep_em)
         max_packet_number = G_MAXUINT;
 
