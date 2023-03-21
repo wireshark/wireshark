@@ -60,6 +60,7 @@ static GRWLock mmdbr_pipe_mtx;
 
 // Hashes of mmdb_lookup_t
 typedef struct _mmdbr_response_t {
+    gboolean fatal_err;
     gboolean is_ipv4;
     ws_in4_addr ipv4_addr;
     ws_in6_addr ipv6_addr;
@@ -184,6 +185,9 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
             ws_debug("write error %s. exiting thread.", err->message);
             g_clear_error(&err);
             g_free(request);
+            mmdb_response_t *response = g_new0(mmdb_response_t, 1);
+            response->fatal_err = TRUE;
+            g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
             return NULL;
         }
         g_clear_error(&err);
@@ -238,6 +242,9 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                     bytes_in_buffer += bytes_read;
                 } else {
                     ws_debug("no pipe data. exiting thread.");
+                    response->fatal_err = TRUE;
+                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
+                    response = NULL;
                     break;
                 }
             } else {
@@ -326,13 +333,13 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                     response->mmdb_val.as_org = g_strdup(as_org->str);
                 }
                 ws_debug("queued %p %s %s: city %s country %s", response, response->is_ipv4 ? "v4" : "v6", cur_addr, response->mmdb_val.city, response->mmdb_val.country);
-                g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
+                g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
                 response = g_new0(mmdb_response_t, 1);
             } else if (strcmp(cur_addr, "init") != 0) {
                 if (resolve_synchronously) {
                     // Synchronous lookups expect a 1-in 1-out resolution.
                     ws_debug("Pushing not-found result due to bad address");
-                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
+                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
                     response = g_new0(mmdb_response_t, 1);
                 }
                 else {
@@ -602,33 +609,39 @@ void maxmind_db_pref_cleanup(void)
 
 static void maxmind_db_pop_response(mmdb_response_t *response)
 {
-    mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &response->mmdb_val, sizeof(mmdb_lookup_t));
-    if (response->mmdb_val.country_iso) {
-        char *country_iso = (char *) response->mmdb_val.country_iso;
-        mmdb_val->country_iso = chunkify_string(country_iso);
-        g_free(country_iso);
-    }
-    if (response->mmdb_val.country) {
-        char *country = (char *) response->mmdb_val.country;
-        mmdb_val->country = chunkify_string(country);
-        g_free(country);
-    }
-    if (response->mmdb_val.city) {
-        char *city = (char *) response->mmdb_val.city;
-        mmdb_val->city = chunkify_string(city);
-        g_free(city);
-    }
-    if (response->mmdb_val.as_org) {
-        char *as_org = (char *) response->mmdb_val.as_org;
-        mmdb_val->as_org = chunkify_string(as_org);
-        g_free(as_org);
-    }
-    ws_debug("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
-
-    if (response->is_ipv4) {
-        wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
+    /* This is only called in the main thread */
+    if (response->fatal_err == TRUE) {
+        mmdb_resolve_stop();
+        /* XXX: We could call mmdb_resolve_start() instead */
     } else {
-        wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&response->ipv6_addr), mmdb_val);
+        mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &response->mmdb_val, sizeof(mmdb_lookup_t));
+        if (response->mmdb_val.country_iso) {
+            char *country_iso = (char *) response->mmdb_val.country_iso;
+            mmdb_val->country_iso = chunkify_string(country_iso);
+            g_free(country_iso);
+        }
+        if (response->mmdb_val.country) {
+            char *country = (char *) response->mmdb_val.country;
+            mmdb_val->country = chunkify_string(country);
+            g_free(country);
+        }
+        if (response->mmdb_val.city) {
+            char *city = (char *) response->mmdb_val.city;
+            mmdb_val->city = chunkify_string(city);
+            g_free(city);
+        }
+        if (response->mmdb_val.as_org) {
+            char *as_org = (char *) response->mmdb_val.as_org;
+            mmdb_val->as_org = chunkify_string(as_org);
+            g_free(as_org);
+        }
+        ws_debug("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
+
+        if (response->is_ipv4) {
+            wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
+        } else {
+            wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&response->ipv6_addr), mmdb_val);
+        }
     }
     g_free(response);
 }
