@@ -16579,7 +16579,7 @@ add_body_fields(guint32 header_opcode,
             break;
         case SMSG_ENVIRONMENTAL_DAMAGE_LOG:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_environmental_damage_type, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_environmental_damage_type, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_absorb, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_resist, 4, ENC_LITTLE_ENDIAN);
@@ -20462,7 +20462,7 @@ proto_register_woww(void)
         },
         { &hf_woww_environmental_damage_type,
             { "Environmental Damage Type", "woww.environmental.damage.type",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_environmental_damage_type_strings), 0,
+                FT_UINT8, BASE_HEX_DEC, VALS(e_environmental_damage_type_strings), 0,
                 NULL, HFILL
             }
         },
