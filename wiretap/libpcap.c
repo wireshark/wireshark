@@ -1111,7 +1111,6 @@ static gboolean libpcap_dump_write_file_header(wtap_dumper *wdh, guint32 magic,
 
 	if (!wtap_dump_file_write(wdh, &magic, sizeof magic, err))
 		return FALSE;
-	wdh->bytes_dumped += sizeof magic;
 
 	/* current "libpcap" format is 2.4 */
 	file_hdr.version_major = 2;
@@ -1135,7 +1134,6 @@ static gboolean libpcap_dump_write_file_header(wtap_dumper *wdh, guint32 magic,
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->file_encap);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
-	wdh->bytes_dumped += sizeof file_hdr;
 
 	return TRUE;
 }
@@ -1277,14 +1275,12 @@ libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
 
 	if (!wtap_dump_file_write(wdh, hdr, hdr_size, err))
 		return FALSE;
-	wdh->bytes_dumped += hdr_size;
 
 	if (!pcap_write_phdr(wdh, wdh->file_encap, pseudo_header, err))
 		return FALSE;
 
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
-	wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 	return TRUE;
 }
 

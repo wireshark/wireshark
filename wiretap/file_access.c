@@ -2823,7 +2823,7 @@ wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 }
 #endif
 
-/* internally writing raw bytes (compressed or not) */
+/* internally writing raw bytes (compressed or not). Updates wdh->bytes_dumped on success */
 gboolean
 wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err)
 {
@@ -2856,6 +2856,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 			return FALSE;
 		}
 	}
+	wdh->bytes_dumped += bufsize;
 	return TRUE;
 }
 

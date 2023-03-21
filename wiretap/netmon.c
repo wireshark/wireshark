@@ -1623,6 +1623,7 @@ static gboolean netmon_dump_open(wtap_dumper *wdh, gboolean is_v2,
 	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
 		return FALSE;
 
+	wdh->bytes_dumped = CAPTUREFILE_HEADER_SIZE;
 	wdh->subtype_write = netmon_dump;
 	wdh->subtype_finish = netmon_dump_finish;
 
@@ -1894,6 +1895,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	const char *magicp;
 	size_t magic_size;
 	struct tm *tm;
+	gint64 saved_bytes_dumped;
 
 	/* Write out the frame table.  "netmon->frame_table_index" is
 	   the number of entries we've put into it. */
@@ -1904,6 +1906,10 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	/* Now go fix up the file header. */
 	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
 		return FALSE;
+	/* Save bytes_dumped since following calls to wtap_dump_file_write()
+	 * will still (mistakenly) increase it.
+	 */
+	saved_bytes_dumped = wdh->bytes_dumped;
 	memset(&file_hdr, '\0', sizeof file_hdr);
 	if (netmon->is_v2) {
 		magicp = netmon_2_x_magic;
@@ -1971,6 +1977,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
 
+	wdh->bytes_dumped = saved_bytes_dumped;
 	return TRUE;
 }
 

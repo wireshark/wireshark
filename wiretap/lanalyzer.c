@@ -763,8 +763,6 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
             return FALSE;
 
-      wdh->bytes_dumped += thisSize;
-
       return TRUE;
 }
 
@@ -960,7 +958,13 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
         gchar **err_info _U_)
 {
+      /* bytes_dumped already accounts for the size of the header,
+       * but lanalyzer_dump_header() (via wtap_dump_file_write())
+       * will keep incrementing it.
+       */
+      gint64 saved_bytes_dumped = wdh->bytes_dumped;
       lanalyzer_dump_header(wdh,err);
+      wdh->bytes_dumped = saved_bytes_dumped;
       return *err ? FALSE : TRUE;
 }
 

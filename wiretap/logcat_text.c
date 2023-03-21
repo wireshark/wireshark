@@ -562,8 +562,6 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
                 g_free(log);
                 return FALSE;
             }
-
-            wdh->bytes_dumped += length;
         } while (log_next != NULL );
 
         g_free(log);

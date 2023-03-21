@@ -666,7 +666,6 @@ static gboolean nettl_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_
     file_hdr.unknown=g_htons(0x406);
     if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof(file_hdr);
 
     return TRUE;
 }
@@ -774,7 +773,6 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 
     if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof(rec_hdr), err))
         return FALSE;
-    wdh->bytes_dumped += sizeof(rec_hdr);
 
     /* Write out 4 extra bytes of unknown stuff for HP-UX11
      * header format.
@@ -782,20 +780,17 @@ static gboolean nettl_dump(wtap_dumper *wdh,
     memset(dummyc, 0, sizeof dummyc);
     if (!wtap_dump_file_write(wdh, dummyc, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if ((rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) ||
         (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_NETTL_FDDI)) {
         /* add those weird 3 bytes of padding */
         if (!wtap_dump_file_write(wdh, dummyc, 3, err))
             return FALSE;
-        wdh->bytes_dumped += 3;
     }
 /*
   } else if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_NETTL_X25) {
   if (!wtap_dump_file_write(wdh, dummyc, 24, err))
   return FALSE;
-  wdh->bytes_dumped += 24;
   }
 */
 
@@ -803,7 +798,6 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
     return TRUE;
 }

@@ -4215,7 +4215,6 @@ static gboolean pcapng_write_option_eofopt(wtap_dumper *wdh, int *err)
     option_hdr.value_length = 0;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
     return TRUE;
 }
 
@@ -4228,15 +4227,12 @@ static gboolean pcapng_write_uint8_option(wtap_dumper *wdh, guint option_id, wta
     option_hdr.value_length = (guint16)1;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, &optval->uint8val, 1, err))
         return FALSE;
-    wdh->bytes_dumped += 1;
 
     if (!wtap_dump_file_write(wdh, &zero_pad, 3, err))
         return FALSE;
-    wdh->bytes_dumped += 3;
 
     return TRUE;
 }
@@ -4249,11 +4245,9 @@ static gboolean pcapng_write_uint32_option(wtap_dumper *wdh, guint option_id, wt
     option_hdr.value_length = (guint16)4;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, &optval->uint32val, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     return TRUE;
 }
@@ -4266,11 +4260,9 @@ static gboolean pcapng_write_uint64_option(wtap_dumper *wdh, guint option_id, wt
     option_hdr.value_length = (guint16)8;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, &optval->uint64val, 8, err))
         return FALSE;
-    wdh->bytes_dumped += 8;
 
     return TRUE;
 }
@@ -4284,16 +4276,13 @@ static gboolean pcapng_write_timestamp_option(wtap_dumper *wdh, guint option_id,
     option_hdr.value_length = (guint16)8;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     high = (guint32)(optval->uint64val >> 32);
     low = (guint32)(optval->uint64val >> 0);
     if (!wtap_dump_file_write(wdh, &high, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
     if (!wtap_dump_file_write(wdh, &low, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     return TRUE;
 }
@@ -4322,11 +4311,9 @@ static gboolean pcapng_write_string_option(wtap_dumper *wdh, guint option_id, wt
     option_hdr.value_length = (guint16)size;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, optval->stringval, size, err))
         return FALSE;
-    wdh->bytes_dumped += size;
 
     if ((size % 4)) {
         pad = 4 - (size % 4);
@@ -4338,8 +4325,6 @@ static gboolean pcapng_write_string_option(wtap_dumper *wdh, guint option_id, wt
     if (pad != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
             return FALSE;
-
-        wdh->bytes_dumped += pad;
     }
 
     return TRUE;
@@ -4370,11 +4355,9 @@ static gboolean pcapng_write_bytes_option(wtap_dumper *wdh, guint option_id, wta
     option_hdr.value_length = (guint16)size;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, optval->stringval, size, err))
         return FALSE;
-    wdh->bytes_dumped += size;
 
     if ((size % 4)) {
         pad = 4 - (size % 4);
@@ -4386,8 +4369,6 @@ static gboolean pcapng_write_bytes_option(wtap_dumper *wdh, guint option_id, wta
     if (pad != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
             return FALSE;
-
-        wdh->bytes_dumped += pad;
     }
 
     return TRUE;
@@ -4401,11 +4382,9 @@ static gboolean pcapng_write_ipv4_option(wtap_dumper *wdh, guint option_id, wtap
     option_hdr.value_length = (guint16)4;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, &optval->ipv4val, 1, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     return TRUE;
 }
@@ -4418,11 +4397,9 @@ static gboolean pcapng_write_ipv6_option(wtap_dumper *wdh, guint option_id, wtap
     option_hdr.value_length = (guint16)IPv6_ADDR_SIZE;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     if (!wtap_dump_file_write(wdh, &optval->ipv6val.bytes, IPv6_ADDR_SIZE, err))
         return FALSE;
-    wdh->bytes_dumped += IPv6_ADDR_SIZE;
 
     return TRUE;
 }
@@ -4483,12 +4460,10 @@ static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id,
     option_hdr.value_length = size;
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return FALSE;
-    wdh->bytes_dumped += 4;
 
     /* Write the filter type */
     if (!wtap_dump_file_write(wdh, &filter_type, 1, err))
         return FALSE;
-    wdh->bytes_dumped += 1;
 
     switch (filter->type) {
 
@@ -4496,13 +4471,11 @@ static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id,
         /* Write the filter string */
         if (!wtap_dump_file_write(wdh, filter->data.filter_str, filter_data_len, err))
             return FALSE;
-        wdh->bytes_dumped += filter_data_len;
         break;
 
     case if_filter_bpf:
         if (!wtap_dump_file_write(wdh, filter->data.bpf_prog.bpf_prog, filter_data_len, err))
             return FALSE;
-        wdh->bytes_dumped += filter_data_len;
         break;
 
     default:
@@ -4514,7 +4487,6 @@ static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id,
     if (pad != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
             return FALSE;
-        wdh->bytes_dumped += pad;
     }
     return TRUE;
 }
@@ -4562,7 +4534,6 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
     }
     if (!wtap_dump_file_write(wdh, &option_hdr, sizeof(struct pcapng_option_header), err))
         return FALSE;
-    wdh->bytes_dumped += sizeof(struct pcapng_option_header);
 
     /* write PEN */
     pen = optval->custom_opt.pen;
@@ -4571,7 +4542,6 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
     }
     if (!wtap_dump_file_write(wdh, &pen, sizeof(guint32), err))
         return FALSE;
-    wdh->bytes_dumped += sizeof(guint32);
 
     switch (optval->custom_opt.pen) {
     case PEN_NFLX:
@@ -4580,19 +4550,16 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
         ws_debug("type=%d", type);
         if (!wtap_dump_file_write(wdh, &type, sizeof(guint32), err))
             return FALSE;
-        wdh->bytes_dumped += sizeof(guint32);
         /* write custom data */
         if (!wtap_dump_file_write(wdh, optval->custom_opt.data.nflx_data.custom_data, optval->custom_opt.data.nflx_data.custom_data_len, err)) {
             return FALSE;
         }
-        wdh->bytes_dumped += optval->custom_opt.data.nflx_data.custom_data_len;
         break;
     default:
         /* write custom data */
         if (!wtap_dump_file_write(wdh, optval->custom_opt.data.generic_data.custom_data, optval->custom_opt.data.generic_data.custom_data_len, err)) {
             return FALSE;
         }
-        wdh->bytes_dumped += optval->custom_opt.data.generic_data.custom_data_len;
         break;
     }
 
@@ -4606,7 +4573,6 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
         if (!wtap_dump_file_write(wdh, &zero_pad, pad, err)) {
             return FALSE;
         }
-        wdh->bytes_dumped += pad;
     }
     ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
 
@@ -4639,17 +4605,14 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
         option_hdr.value_length = (guint16)size;
         if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
             return FALSE;
-        wdh->bytes_dumped += 4;
 
         type = packet_verdict_hardware;
         if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
             return FALSE;
-        wdh->bytes_dumped += 1;
 
         if (!wtap_dump_file_write(wdh, verdict->data.verdict_bytes->data, size,
                                   err))
             return FALSE;
-        wdh->bytes_dumped += size;
         break;
 
     case packet_verdict_linux_ebpf_tc:
@@ -4658,17 +4621,14 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
         option_hdr.value_length = (guint16)size;
         if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
             return FALSE;
-        wdh->bytes_dumped += 4;
 
         type = packet_verdict_linux_ebpf_tc;
         if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
             return FALSE;
-        wdh->bytes_dumped += 1;
 
         if (!wtap_dump_file_write(wdh, &verdict->data.verdict_linux_ebpf_tc,
                                   sizeof(guint64), err))
             return FALSE;
-        wdh->bytes_dumped += 8;
         break;
 
     case packet_verdict_linux_ebpf_xdp:
@@ -4677,17 +4637,14 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
         option_hdr.value_length = (guint16)size;
         if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
             return FALSE;
-        wdh->bytes_dumped += 4;
 
         type = packet_verdict_linux_ebpf_xdp;
         if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
             return FALSE;
-        wdh->bytes_dumped += 1;
 
         if (!wtap_dump_file_write(wdh, &verdict->data.verdict_linux_ebpf_xdp,
                                   sizeof(guint64), err))
             return FALSE;
-        wdh->bytes_dumped += 8;
         break;
 
     default:
@@ -4700,8 +4657,6 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
         pad = 4 - (size % 4);
         if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
             return FALSE;
-
-        wdh->bytes_dumped += pad;
     }
     return TRUE;
 }
@@ -4811,7 +4766,6 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* write block fixed content */
     shb.magic = 0x1A2B3C4D;
@@ -4826,7 +4780,6 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 
     if (!wtap_dump_file_write(wdh, &shb, sizeof shb, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof shb;
 
     if (wdh_shb) {
         /* Write options, if we have any */
@@ -4840,7 +4793,6 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
                               sizeof bh.block_total_length, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -4998,7 +4950,6 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* write block fixed content */
     if (rec->presence_flags & WTAP_HAS_INTERFACE_ID)
@@ -5047,24 +4998,20 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     if (!wtap_dump_file_write(wdh, &epb, sizeof epb, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof epb;
 
     /* write pseudo header */
     if (!pcap_write_phdr(wdh, rec->rec_header.packet_header.pkt_encap, pseudo_header, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += phdr_len;
 
     /* write packet data */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
     /* write padding (if any) */
     if (pad_len != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
             return FALSE;
-        wdh->bytes_dumped += pad_len;
     }
 
     /* Write options, if we have any */
@@ -5077,7 +5024,6 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
                               sizeof bh.block_total_length, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -5138,7 +5084,6 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* Sysdig is always LE? */
     cpu_id = GUINT16_TO_LE(rec->rec_header.syscall_header.cpu_id);
@@ -5150,34 +5095,27 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     if (!wtap_dump_file_write(wdh, &cpu_id, sizeof cpu_id, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof cpu_id;
 
     if (!wtap_dump_file_write(wdh, &ts, sizeof ts, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof ts;
 
     if (!wtap_dump_file_write(wdh, &thread_id, sizeof thread_id, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof thread_id;
 
     if (!wtap_dump_file_write(wdh, &event_len, sizeof event_len, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof event_len;
 
     if (!wtap_dump_file_write(wdh, &event_type, sizeof event_type, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof event_type;
 
     /* write event data */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.syscall_header.event_filelen, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.syscall_header.event_filelen;
 
     /* write padding (if any) */
     if (pad_len != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
             return FALSE;
-        wdh->bytes_dumped += pad_len;
     }
 
     /* XXX Write comment? */
@@ -5221,18 +5159,15 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* write entry data */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.systemd_journal_export_header.record_len, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.systemd_journal_export_header.record_len;
 
     /* write padding (if any) */
     if (pad_len != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
             return FALSE;
-        wdh->bytes_dumped += pad_len;
     }
 
     /* write block footer */
@@ -5279,28 +5214,24 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof bh;
 
     /* write custom block header */
     cb.pen = rec->rec_header.custom_block_header.pen;
     if (!wtap_dump_file_write(wdh, &cb, sizeof cb, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof cb;
     ws_debug("wrote PEN = %u", cb.pen);
 
     /* write custom data */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.custom_block_header.length, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += rec->rec_header.custom_block_header.length;
 
     /* write padding (if any) */
     if (pad_len > 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err)) {
             return FALSE;
         }
-        wdh->bytes_dumped += pad_len;
     }
 
     /* write block footer */
@@ -5308,7 +5239,6 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
                               sizeof bh.block_total_length, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -5335,14 +5265,12 @@ pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
     if (!wtap_dump_file_write(wdh, &bh, sizeof(bh), err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof bh;
 
     /* write PEN */
     pen = PEN_NFLX;
     if (!wtap_dump_file_write(wdh, &pen, sizeof(guint32), err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof(guint32);
     ws_debug("wrote PEN = %u", pen);
 
     /* write type */
@@ -5350,7 +5278,6 @@ pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
     if (!wtap_dump_file_write(wdh, &type, sizeof(guint32), err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof(guint32);
     ws_debug("wrote type = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
 
     if (rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type == BBLOG_TYPE_SKIPPED_BLOCK) {
@@ -5358,7 +5285,6 @@ pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
         if (!wtap_dump_file_write(wdh, &skipped, sizeof(guint32), err)) {
             return FALSE;
         }
-        wdh->bytes_dumped += sizeof(guint32);
         ws_debug("wrote skipped = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
     }
 
@@ -5377,7 +5303,6 @@ pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
                               sizeof bh.block_total_length, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -5397,30 +5322,25 @@ pcapng_write_decryption_secrets_block(wtap_dumper *wdh, wtap_block_t sdata, int 
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* write block fixed content */
     dsb.secrets_type = mand_data->secrets_type;
     dsb.secrets_len = mand_data->secrets_len;
     if (!wtap_dump_file_write(wdh, &dsb, sizeof dsb, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof dsb;
 
     if (!wtap_dump_file_write(wdh, mand_data->secrets_data, mand_data->secrets_len, err))
         return FALSE;
-    wdh->bytes_dumped += mand_data->secrets_len;
     if (pad_len) {
         const guint32 zero_pad = 0;
         if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
             return FALSE;
-        wdh->bytes_dumped += pad_len;
     }
 
     /* write block footer */
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
                               sizeof bh.block_total_length, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -5689,7 +5609,6 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
                     g_free(block_data);
                     return FALSE;
                 }
-                wdh->bytes_dumped += bh.block_total_length;
 
                 /*Start a new NRB */
                 block_off = 8; /* block type + block total length */
@@ -5766,7 +5685,6 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
                     g_free(block_data);
                     return FALSE;
                 }
-                wdh->bytes_dumped += bh.block_total_length;
 
                 /*Start a new NRB */
                 block_off = 8; /* block type + block total length */
@@ -5815,7 +5733,6 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
         g_free(block_data);
         return FALSE;
     }
-    wdh->bytes_dumped += bh.block_total_length;
 
     g_free(block_data);
 
@@ -5891,7 +5808,6 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* write block fixed content */
     isb.interface_id                = mand_data->interface_id;
@@ -5900,7 +5816,6 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
 
     if (!wtap_dump_file_write(wdh, &isb, sizeof isb, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof isb;
 
     /* Write options */
     if (options_size != 0) {
@@ -5912,7 +5827,6 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
                               sizeof bh.block_total_length, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
     return TRUE;
 }
 
@@ -6014,7 +5928,6 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof bh;
 
     /* write block fixed content */
     idb.linktype    = link_type;
@@ -6023,7 +5936,6 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
 
     if (!wtap_dump_file_write(wdh, &idb, sizeof idb, err))
         return FALSE;
-    wdh->bytes_dumped += sizeof idb;
 
     if (options_size != 0) {
         /* Write options */
@@ -6036,7 +5948,6 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
                               sizeof bh.block_total_length, err))
         return FALSE;
 
-    wdh->bytes_dumped += sizeof bh.block_total_length;
     return TRUE;
 }
 

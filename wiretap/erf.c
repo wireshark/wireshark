@@ -970,7 +970,6 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
   }
   if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
     return FALSE;
-  wdh->bytes_dumped += size;
 
   /*write out up to MAX_ERF_EHDR extension headers*/
   has_more = pseudo_header->erf.phdr.type & 0x80;
@@ -983,12 +982,10 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
     }while(has_more && i < MAX_ERF_EHDR);
     if (!wtap_dump_file_write(wdh, ehdr, 8*i, err))
       return FALSE;
-    wdh->bytes_dumped += 8*i;
   }
 
   if(!wtap_dump_file_write(wdh, erf_subhdr, subhdr_size, err))
     return FALSE;
-  wdh->bytes_dumped += subhdr_size;
 
   return TRUE;
 }
@@ -1235,14 +1232,11 @@ static gboolean erf_meta_write_tag(wtap_dumper *wdh, struct erf_meta_tag *tag_pt
   data[1] = g_htons(tag_ptr->length);
 
   if(!wtap_dump_file_write(wdh, data, sizeof(data), err)) return FALSE;
-  wdh->bytes_dumped += sizeof(data);
 
   if(!wtap_dump_file_write(wdh, tag_ptr->value, tag_ptr->length, err)) return FALSE;
-  wdh->bytes_dumped += tag_ptr->length;
 
   if(pad) {
     if(!wtap_dump_file_write(wdh, &padbuf, pad, err)) return FALSE;
-    wdh->bytes_dumped += pad;
   }
 
   return TRUE;
@@ -1261,7 +1255,6 @@ static gboolean erf_meta_write_section(wtap_dumper *wdh, struct erf_meta_section
   data[3] = g_htons(section_ptr->section_length);
 
   if(!wtap_dump_file_write(wdh, data, sizeof(data), err)) return FALSE;
-  wdh->bytes_dumped += sizeof(data);
 
   for(i = 0; i < section_ptr->tags->len; i++) {
     tag_ptr = (struct erf_meta_tag*)g_ptr_array_index(section_ptr->tags, i);
@@ -1749,7 +1742,6 @@ static gboolean erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, g
 
   while(wdh->bytes_dumped < alignbytes){
     if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
-    wdh->bytes_dumped++;
   }
 
   /* We wrote new packets, reloading is required */
@@ -2020,12 +2012,10 @@ static gboolean erf_dump(
   if(!erf_write_phdr(wdh, WTAP_ENCAP_ERF, pseudo_header, err)) return FALSE;
 
   if(!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen - round_down, err)) return FALSE;
-  wdh->bytes_dumped += rec->rec_header.packet_header.caplen - round_down;
 
   /*add the 4 byte CRC if necessary*/
   if(must_add_crc){
     if(!wtap_dump_file_write(wdh, &crc32, 4, err)) return FALSE;
-    wdh->bytes_dumped += 4;
   }
 
   /*XXX: In the case of ENCAP_ERF, this pads the record to its original length, which is fine in most
@@ -2036,7 +2026,6 @@ static gboolean erf_dump(
   /*records should be 8byte aligned, so we add padding to our calculated rlen */
   while(wdh->bytes_dumped < alignbytes){
     if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
-    wdh->bytes_dumped++;
   }
 
   dump_priv->prev_erf_type = pseudo_header->erf.phdr.type & 0x7FU;

@@ -351,8 +351,6 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     if (!wtap_dump_file_write(wdh, pd, caplen, err))
         return FALSE;
 
-    wdh->bytes_dumped += caplen;
-
     return TRUE;
 }
 

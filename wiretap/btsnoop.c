@@ -364,14 +364,8 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
 
     if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
-
-    wdh->bytes_dumped += sizeof rec_hdr;
-
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
         return FALSE;
-
-    wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
-
     return TRUE;
 }
 
@@ -412,8 +406,6 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
     if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 
-    wdh->bytes_dumped += sizeof btsnoop_magic;
-
     /* current "btsnoop" format is 1 */
     file_hdr.version  = GUINT32_TO_BE(1);
     /* HCI type encoded in first byte */
@@ -421,8 +413,6 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
 
     if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
-
-    wdh->bytes_dumped += sizeof file_hdr;
 
     return TRUE;
 }

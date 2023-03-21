@@ -1832,12 +1832,10 @@ netxray_dump_1_1(wtap_dumper *wdh,
 
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof(rec_hdr), err))
 		return FALSE;
-	wdh->bytes_dumped += sizeof(rec_hdr);
 
 	/* write the packet data */
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
-	wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
 	netxray->nframes++;
 
@@ -1882,6 +1880,8 @@ netxray_dump_finish_1_1(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	if (!wtap_dump_file_write(wdh, hdr_buf, sizeof hdr_buf, err))
 		return FALSE;
 
+	/* Don't double-count the size of the file header */
+	wdh->bytes_dumped = filelen;
 	return TRUE;
 }
 
@@ -1944,7 +1944,6 @@ netxray_dump_open_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	   skip over the header for now. */
 	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
 		return FALSE;
-
 	wdh->bytes_dumped += CAPTUREFILE_HEADER_SIZE;
 
 	netxray = g_new(netxray_dump_t, 1);
@@ -2062,12 +2061,10 @@ netxray_dump_2_0(wtap_dumper *wdh,
 
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof(rec_hdr), err))
 		return FALSE;
-	wdh->bytes_dumped += sizeof(rec_hdr);
 
 	/* write the packet data */
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
-	wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
 	netxray->nframes++;
 
@@ -2135,6 +2132,8 @@ netxray_dump_finish_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	if (!wtap_dump_file_write(wdh, hdr_buf, sizeof hdr_buf, err))
 		return FALSE;
 
+	/* Don't double-count the size of the file header */
+	wdh->bytes_dumped = filelen;
 	return TRUE;
 }
 
