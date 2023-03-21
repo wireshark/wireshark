@@ -1304,6 +1304,8 @@ ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
+ws_find_package(AMRNB ENABLE_AMRNB HAVE_AMRNB)
+
 ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
@@ -1644,6 +1646,11 @@ if(ENABLE_PLUGINS)
 			plugins/codecs/G729
 		)
 	endif()
+	if(AMRNB_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/amrnb
+		)
+	endif()
 	if(ILBC_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
 			plugins/codecs/iLBC
@@ -1782,6 +1789,11 @@ set_package_properties(BCG729 PROPERTIES
 	DESCRIPTION "G.729 decoder"
 	URL "https://www.linphone.org/technical-corner/bcg729"
 	PURPOSE "Support for G.729 codec in RTP player"
+)
+set_package_properties(AMRNB PROPERTIES
+	DESCRIPTION "AMRNB decoder"
+	URL "https://sourceforge.net/p/opencore-amr"
+	PURPOSE "Support for AMRNB codec in RTP player"
 )
 set_package_properties(ILBC PROPERTIES
 	DESCRIPTION "iLBC decoder"
@@ -2104,6 +2116,9 @@ if(USE_REPOSITORY)
 	if (BCG729_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${BCG729_DLL_DIR}/${BCG729_DLL}")
 	endif(BCG729_FOUND)
+	if (AMRNB_FOUND)
+		list (APPEND OPTIONAL_DLLS "${AMRNB_DLL_DIR}/${AMRNB_DLL}")
+	endif(AMRNB_FOUND)
 	if (ILBC_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${ILBC_DLL_DIR}/${ILBC_DLL}")
 	endif(ILBC_FOUND)
@@ -3638,6 +3653,9 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if (BCG729_FOUND)
 		list(APPEND _rpmbuild_with_args --with bcg729)
+	endif()
+	if (AMRNB_FOUND)
+		list(APPEND _rpmbuild_with_args --with amrnb)
 	endif()
 	if (ILBC_FOUND)
 		list(APPEND _rpmbuild_with_args --with ilbc)
