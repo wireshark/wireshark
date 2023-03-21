@@ -1128,7 +1128,7 @@ void proto_register_its(void)
 #define ITS_IVIM_PROT_VER 2
 #define ITS_SREM_PROT_VER 2
 #define ITS_SSEM_PROT_VER 2
-#define ITS_RTCMEM_PROT_VER 2
+#define ITS_RTCMEM_PROT_VER 1
 #define ITS_TIS_TPG_PROT_VER 1
 #define ITS_CPM_PROT_VER 1
 
