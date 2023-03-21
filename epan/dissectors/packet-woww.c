@@ -457,6 +457,7 @@ static int hf_woww_item_random_suffix = -1;
 static int hf_woww_item_random_suffix_id = -1;
 static int hf_woww_item_set = -1;
 static int hf_woww_item_slot = -1;
+static int hf_woww_item_slot_int = -1;
 static int hf_woww_item_spell_charges = -1;
 static int hf_woww_item_stack_count = -1;
 static int hf_woww_item_stack_size = -1;
@@ -6444,6 +6445,88 @@ static const value_string e_unit_stand_state_strings[] =  {
 };
 
 typedef enum {
+    ITEM_SLOT_HEAD = 0x00,
+    ITEM_SLOT_NECK = 0x01,
+    ITEM_SLOT_SHOULDERS = 0x02,
+    ITEM_SLOT_CHEST = 0x04,
+    ITEM_SLOT_WAIST = 0x05,
+    ITEM_SLOT_LEGS = 0x06,
+    ITEM_SLOT_BOOTS = 0x07,
+    ITEM_SLOT_WRIST = 0x08,
+    ITEM_SLOT_HANDS = 0x09,
+    ITEM_SLOT_RING1 = 0x0A,
+    ITEM_SLOT_RING2 = 0x0B,
+    ITEM_SLOT_TRINKET1 = 0x0C,
+    ITEM_SLOT_TRINKET2 = 0x0D,
+    ITEM_SLOT_BACK = 0x0E,
+    ITEM_SLOT_MAIN_HAND = 0x0F,
+    ITEM_SLOT_OFF_HAND = 0x10,
+    ITEM_SLOT_RANGED_OR_RELIC = 0x11,
+    ITEM_SLOT_TABARD = 0x12,
+    ITEM_SLOT_BAG1 = 0x13,
+    ITEM_SLOT_BAG2 = 0x14,
+    ITEM_SLOT_BAG3 = 0x15,
+    ITEM_SLOT_BAG4 = 0x16,
+    ITEM_SLOT_INVENTORY_0 = 0x17,
+    ITEM_SLOT_INVENTORY_1 = 0x18,
+    ITEM_SLOT_INVENTORY_2 = 0x19,
+    ITEM_SLOT_INVENTORY_3 = 0x1A,
+    ITEM_SLOT_INVENTORY_4 = 0x1B,
+    ITEM_SLOT_INVENTORY_5 = 0x1C,
+    ITEM_SLOT_INVENTORY_6 = 0x1D,
+    ITEM_SLOT_INVENTORY_7 = 0x1E,
+    ITEM_SLOT_INVENTORY_8 = 0x1F,
+    ITEM_SLOT_INVENTORY_9 = 0x20,
+    ITEM_SLOT_INVENTORY_10 = 0x21,
+    ITEM_SLOT_INVENTORY_11 = 0x22,
+    ITEM_SLOT_INVENTORY_12 = 0x23,
+    ITEM_SLOT_INVENTORY_13 = 0x24,
+    ITEM_SLOT_INVENTORY_14 = 0x25,
+    ITEM_SLOT_INVENTORY_15 = 0x26,
+} e_item_slot;
+static const value_string e_item_slot_strings[] =  {
+    { ITEM_SLOT_HEAD, "Head" },
+    { ITEM_SLOT_NECK, "Neck" },
+    { ITEM_SLOT_SHOULDERS, "Shoulders" },
+    { ITEM_SLOT_CHEST, "Chest" },
+    { ITEM_SLOT_WAIST, "Waist" },
+    { ITEM_SLOT_LEGS, "Legs" },
+    { ITEM_SLOT_BOOTS, "Boots" },
+    { ITEM_SLOT_WRIST, "Wrist" },
+    { ITEM_SLOT_HANDS, "Hands" },
+    { ITEM_SLOT_RING1, "Ring1" },
+    { ITEM_SLOT_RING2, "Ring2" },
+    { ITEM_SLOT_TRINKET1, "Trinket1" },
+    { ITEM_SLOT_TRINKET2, "Trinket2" },
+    { ITEM_SLOT_BACK, "Back" },
+    { ITEM_SLOT_MAIN_HAND, "Main Hand" },
+    { ITEM_SLOT_OFF_HAND, "Off Hand" },
+    { ITEM_SLOT_RANGED_OR_RELIC, "Ranged Or Relic" },
+    { ITEM_SLOT_TABARD, "Tabard" },
+    { ITEM_SLOT_BAG1, "Bag1" },
+    { ITEM_SLOT_BAG2, "Bag2" },
+    { ITEM_SLOT_BAG3, "Bag3" },
+    { ITEM_SLOT_BAG4, "Bag4" },
+    { ITEM_SLOT_INVENTORY_0, "Inventory 0" },
+    { ITEM_SLOT_INVENTORY_1, "Inventory 1" },
+    { ITEM_SLOT_INVENTORY_2, "Inventory 2" },
+    { ITEM_SLOT_INVENTORY_3, "Inventory 3" },
+    { ITEM_SLOT_INVENTORY_4, "Inventory 4" },
+    { ITEM_SLOT_INVENTORY_5, "Inventory 5" },
+    { ITEM_SLOT_INVENTORY_6, "Inventory 6" },
+    { ITEM_SLOT_INVENTORY_7, "Inventory 7" },
+    { ITEM_SLOT_INVENTORY_8, "Inventory 8" },
+    { ITEM_SLOT_INVENTORY_9, "Inventory 9" },
+    { ITEM_SLOT_INVENTORY_10, "Inventory 10" },
+    { ITEM_SLOT_INVENTORY_11, "Inventory 11" },
+    { ITEM_SLOT_INVENTORY_12, "Inventory 12" },
+    { ITEM_SLOT_INVENTORY_13, "Inventory 13" },
+    { ITEM_SLOT_INVENTORY_14, "Inventory 14" },
+    { ITEM_SLOT_INVENTORY_15, "Inventory 15" },
+    { 0, NULL }
+};
+
+typedef enum {
     TEXT_EMOTE_AGREE = 0x001,
     TEXT_EMOTE_AMAZE = 0x002,
     TEXT_EMOTE_ANGRY = 0x003,
@@ -12280,7 +12363,7 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_slot_index, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUTOSTORE_LOOT_ITEM:
-            ptvcursor_add(ptv, hf_woww_item_slot, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item_slot_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BANKER_ACTIVATE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -12998,7 +13081,7 @@ add_body_fields(guint32 header_opcode,
             break;
         case CMSG_LOOT_ROLL:
             ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_slot, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item_slot_int, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_CREATE_TEXT_ITEM:
@@ -13619,8 +13702,8 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_summoner, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SWAP_INV_ITEM:
-            ptvcursor_add(ptv, hf_woww_source_slot, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_destination_slot, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item_slot, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item_slot, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SWAP_ITEM:
             ptvcursor_add(ptv, hf_woww_destination_bag, 1, ENC_LITTLE_ENDIAN);
@@ -13765,7 +13848,7 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_gift_bag_index, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_gift_slot, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_bag_index, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_slot, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item_slot_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_ZONEUPDATE:
             ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
@@ -16844,7 +16927,7 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_new_item_creation_type, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_new_item_chat_alert, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_slot, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_slot, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item_slot_int, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
@@ -21135,6 +21218,12 @@ proto_register_woww(void)
         },
         { &hf_woww_item_slot,
             { "Item Slot", "woww.item.slot",
+                FT_UINT8, BASE_HEX_DEC, VALS(e_item_slot_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_item_slot_int,
+            { "Item Slot Int", "woww.item.slot.int",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
