@@ -1155,7 +1155,7 @@ static const value_string rsl_ra_if_data_rte_vals[] = {
 #if 0
 static const value_string rsl_data_rte_vals[] = {
     {  0x38,    "32 kbit/s" },
-    {  0x22,    "39 kbit/s" },
+    {  0x22,    "29 kbit/s" },
     {  0x18,    "14.4 kbit/s" },
     {  0x10,    "9.6 kbit/s" },
     {  0x11,    "4.8 kbit/s" },
