@@ -3070,16 +3070,18 @@ cf_find_packet_protocol_tree(capture_file *cf, const char *string,
     return find_packet(cf, match_protocol_tree, &mdata, dir);
 }
 
-gboolean
-cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *mdata)
+field_info*
+cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree)
 {
-    mdata->frame_matched = FALSE;
-    mdata->string = convert_string_case(cf->sfilter, cf->case_type);
-    mdata->string_len = strlen(mdata->string);
-    mdata->cf = cf;
+    match_data mdata;
+    mdata.frame_matched = FALSE;
+    mdata.string = convert_string_case(cf->sfilter, cf->case_type);
+    mdata.string_len = strlen(mdata.string);
+    mdata.cf = cf;
     /* Iterate through all the nodes looking for matching text */
-    proto_tree_children_foreach(tree, match_subtree_text, mdata);
-    return mdata->frame_matched ? MR_MATCHED : MR_NOTMATCHED;
+    proto_tree_children_foreach(tree, match_subtree_text, &mdata);
+    g_free((char *)mdata.string);
+    return mdata.frame_matched ? mdata.finfo : NULL;
 }
 
 static match_result

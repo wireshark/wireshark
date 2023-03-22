@@ -518,15 +518,14 @@ gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string,
                                       search_direction dir);
 
 /**
- * Find field with a label that contains text string cfile->sfilter.
+ * Find field with a label that contains the text string cfile->sfilter in
+ * a protocol tree.
  *
  * @param cf the capture file
  * @param tree the protocol tree
- * @param mdata the first field (mdata->finfo) that matched the string
- * @return TRUE if a packet was found, FALSE otherwise
+ * @return The first field in the tree that matched the string if found, NULL otherwise
  */
-extern gboolean cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,
-                                             match_data *mdata);
+extern field_info* cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree);
 
 /**
  * Find packet whose summary line contains a specified text string.

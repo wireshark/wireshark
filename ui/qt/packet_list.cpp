@@ -554,15 +554,12 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     }
 
     if (cap_file_->search_in_progress) {
-        match_data  mdata;
         field_info *fi = NULL;
 
         if (cap_file_->string && cap_file_->decode_data) {
             // The tree where the target string matched one of the labels was discarded in
             // match_protocol_tree() so we have to search again in the latest tree.
-            if (cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree, &mdata)) {
-                fi = mdata.finfo;
-            }
+            fi = cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree);
         } else if (cap_file_->search_pos != 0) {
             // Find the finfo that corresponds to our byte.
             fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos,
