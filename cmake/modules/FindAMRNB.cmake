@@ -31,7 +31,7 @@ find_library( AMRNB_LIBRARY
 )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( amrnb DEFAULT_MSG AMRNB_INCLUDE_DIR AMRNB_LIBRARY )
+find_package_handle_standard_args( AMRNB DEFAULT_MSG AMRNB_INCLUDE_DIR AMRNB_LIBRARY )
 
 if( AMRNB_FOUND )
   set( AMRNB_INCLUDE_DIRS ${AMRNB_INCLUDE_DIR} )
