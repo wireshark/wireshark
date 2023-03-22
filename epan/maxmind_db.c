@@ -401,8 +401,8 @@ static void mmdb_resolve_stop(void) {
         g_free((char *) response->mmdb_val.country);
         g_free((char *) response->mmdb_val.city);
         g_free((char *) response->mmdb_val.as_org);
-        g_free(response);
         ws_debug("cleaned response %p", response);
+        g_free(response);
     }
 }
 
