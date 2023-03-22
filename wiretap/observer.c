@@ -712,7 +712,7 @@ static gboolean observer_dump_open(wtap_dumper *wdh, int *err,
     /* initialize the private state */
     private_state = g_new(observer_dump_private_state, 1);
     private_state->packet_count = 0;
-    private_state->network_type = wtap_to_observer_encap(wdh->encap);
+    private_state->network_type = wtap_to_observer_encap(wdh->file_encap);
     private_state->time_format = TIME_INFO_GMT;
 
     /* populate the fields of wdh */
@@ -824,7 +824,7 @@ static gboolean observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
      * Make sure this packet doesn't have a link-layer type that
      * differs from the one for the file.
      */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }

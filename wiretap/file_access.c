@@ -2301,7 +2301,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 
 	wdh->file_type_subtype = file_type_subtype;
 	wdh->snaplen = params->snaplen;
-	wdh->encap = params->encap;
+	wdh->file_encap = params->encap;
 	wdh->compression_type = compression_type;
 	wdh->wslua_data = NULL;
 	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));

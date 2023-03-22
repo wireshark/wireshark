@@ -847,7 +847,7 @@ static gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_
 
 	/* current "snoop" format is 2 */
 	file_hdr.version = g_htonl(2);
-	file_hdr.network = g_htonl(wtap_encap[wdh->encap]);
+	file_hdr.network = g_htonl(wtap_encap[wdh->file_encap]);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
 
@@ -878,12 +878,12 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	 * Make sure this packet doesn't have a link-layer type that
 	 * differs from the one for the file.
 	 */
-	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 		return FALSE;
 	}
 
-	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
+	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct snoop_atm_hdr);
 	else
 		atm_hdrsize = 0;
@@ -911,7 +911,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 		return FALSE;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
+	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
 		 * Write the ATM header.
 		 */

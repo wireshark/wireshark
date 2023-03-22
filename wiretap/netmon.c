@@ -1684,7 +1684,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		 * Make sure this packet doesn't have a link-layer type that
 		 * differs from the one for the file.
 		 */
-		if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+		if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 			*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 			return FALSE;
 		}
@@ -1699,7 +1699,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		}
 	}
 
-	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+	if (wdh->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
 		 * Is this network type supported?
 		 */
@@ -1748,7 +1748,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		netmon->got_first_record_time = TRUE;
 	}
 
-	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
+	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct netmon_atm_hdr);
 	else
 		atm_hdrsize = 0;
@@ -1803,7 +1803,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return FALSE;
 	rec_size += hdr_size;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
+	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
 		 * Write the ATM header.
 		 * We supply all-zero destination and source addresses.
@@ -1821,7 +1821,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return FALSE;
 	rec_size += rec->rec_header.packet_header.caplen;
 
-	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+	if (wdh->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
 		 * Write out the trailer.
 		 */
@@ -1926,7 +1926,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 		 */
 		file_hdr.ver_major = 2;
 		file_hdr.ver_minor =
-		    (wdh->encap == WTAP_ENCAP_PER_PACKET) ? 1 : 0;
+		    (wdh->file_encap == WTAP_ENCAP_PER_PACKET) ? 1 : 0;
 	} else {
 		magicp = netmon_1_x_magic;
 		magic_size = sizeof netmon_1_x_magic;
@@ -1937,7 +1937,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
 		return FALSE;
 
-	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+	if (wdh->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
 		 * We're writing NetMon 2.1 format, so the media
 		 * type in the file header is irrelevant.  Set it
@@ -1945,7 +1945,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 		 */
 		file_hdr.network = GUINT16_TO_LE(1);
 	} else
-		file_hdr.network = GUINT16_TO_LE(wtap_encap[wdh->encap]);
+		file_hdr.network = GUINT16_TO_LE(wtap_encap[wdh->file_encap]);
 	tm = localtime(&netmon->first_record_time.secs);
 	if (tm != NULL) {
 		file_hdr.ts_year  = GUINT16_TO_LE(1900 + tm->tm_year);

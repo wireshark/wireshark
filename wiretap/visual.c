@@ -656,7 +656,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
      * Make sure this packet doesn't have a link-layer type that
      * differs from the one for the file.
      */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
@@ -706,7 +706,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
     vpkt_hdr.incl_len = GUINT16_TO_LE(rec->rec_header.packet_header.caplen);
 
     /* Fill in the encapsulation hint for the file's media type. */
-    switch (wdh->encap)
+    switch (wdh->file_encap)
     {
     case WTAP_ENCAP_ETHERNET:   /* Ethernet */
         vpkt_hdr.encap_hint = 2;
@@ -735,7 +735,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
        X.25 pseudo header.  It would probably be better to move this up
        into the phdr. */
     packet_status = 0;
-    switch (wdh->encap)
+    switch (wdh->file_encap)
     {
     case WTAP_ENCAP_CHDLC_WITH_PHDR:
         packet_status |= (pseudo_header->p2p.sent ? PS_SENT : 0x00);
@@ -822,7 +822,7 @@ static gboolean visual_dump_finish(wtap_dumper *wdh, int *err,
     (void) g_strlcpy(vfile_hdr.description, "Wireshark file", 64);
 
     /* Translate the encapsulation type */
-    switch (wdh->encap)
+    switch (wdh->file_encap)
     {
     case WTAP_ENCAP_ETHERNET:
         vfile_hdr.media_type = GUINT16_TO_LE(6);

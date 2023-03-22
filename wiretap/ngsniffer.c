@@ -2122,7 +2122,7 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	 * Make sure this packet doesn't have a link-layer type that
 	 * differs from the one for the file.
 	 */
-	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 		return FALSE;
 	}
@@ -2160,7 +2160,7 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		version.time_dos = 0;
 		version.date = GUINT16_TO_LE(start_date);
 		version.type = 4;
-		version.network = wtap_encap[wdh->encap];
+		version.network = wtap_encap[wdh->file_encap];
 		version.format = 1;
 		version.timeunit = 1; /* 0.838096 */
 		version.cmprs_vers = 0;
@@ -2196,7 +2196,7 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	rec_hdr.time_med = GUINT16_TO_LE(t_med);
 	rec_hdr.time_high = t_high;
 	rec_hdr.size = GUINT16_TO_LE(rec->rec_header.packet_header.caplen);
-	switch (wdh->encap) {
+	switch (wdh->file_encap) {
 
 	case WTAP_ENCAP_LAPB:
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:

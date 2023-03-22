@@ -4975,7 +4975,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     wtapng_if_descr_mandatory_t *int_data_mand;
 
     /* Don't write anything we're not willing to read. */
-    if (rec->rec_header.packet_header.caplen > wtap_max_snaplen_for_encap(wdh->encap)) {
+    if (rec->rec_header.packet_header.caplen > wtap_max_snaplen_for_encap(wdh->file_encap)) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }

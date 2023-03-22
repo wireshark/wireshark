@@ -280,7 +280,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
      * Make sure this packet doesn't have a link-layer type that
      * differs from the one for the file.
      */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
@@ -294,7 +294,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
     rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen);
     rec_hdr.orig_len = GUINT32_TO_BE(rec->rec_header.packet_header.len);
 
-    switch (wdh->encap) {
+    switch (wdh->file_encap) {
 
     case WTAP_ENCAP_BLUETOOTH_HCI:
         switch (pseudo_header->bthci.channel) {
@@ -351,7 +351,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
            called for the types above. */
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("btsnoop: invalid encapsulation %u",
-                                    wdh->encap);
+                                    wdh->file_encap);
         return FALSE;
     }
     rec_hdr.flags = GUINT32_TO_BE(flags);
@@ -385,7 +385,7 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
     /* This is a btsnoop file */
     wdh->subtype_write = btsnoop_dump;
 
-    switch (wdh->encap) {
+    switch (wdh->file_encap) {
 
     case WTAP_ENCAP_BLUETOOTH_HCI:
         datalink = KHciLoggerDatalinkTypeH1;
@@ -404,7 +404,7 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
            called for the types above. */
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("btsnoop: invalid encapsulation %u",
-                                    wdh->encap);
+                                    wdh->file_encap);
         return FALSE;
     }
 

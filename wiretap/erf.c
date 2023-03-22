@@ -2076,7 +2076,7 @@ static int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
   dump_priv->user_comment_ptr = g_strdup(first_shb_comment);
   /* XXX: If we have a capture comment or a non-ERF file assume we need to
    * write metadata unless we see existing metadata in the first second. */
-  if (dump_priv->user_comment_ptr || wdh->encap != WTAP_ENCAP_ERF)
+  if (dump_priv->user_comment_ptr || wdh->file_encap != WTAP_ENCAP_ERF)
     dump_priv->write_next_extra_meta = TRUE;
 
   /* Read Host ID from environment variable */

@@ -365,7 +365,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	 * Make sure this packet doesn't have a link-layer type that
 	 * differs from the one for the file.
 	 */
-	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 		return FALSE;
 	}
@@ -431,7 +431,7 @@ static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info
 					+ sizeof(t_5VW_Attributes_Header)
 					+ sizeof(guint32));
 					/* Total size of data included in the Info Record (except the header size) */
-	file_hdr.Info_Header.FileType = GUINT32_TO_LE(wtap_encap[wdh->encap]);	/* Type of the file */
+	file_hdr.Info_Header.FileType = GUINT32_TO_LE(wtap_encap[wdh->file_encap]);	/* Type of the file */
 	file_hdr.Info_Header.Reserved[0] = 0;	/* Reserved for future use */
 	file_hdr.Info_Header.Reserved[1] = 0;	/* Reserved for future use */
 	file_hdr.Info_Header.Reserved[2] = 0;	/* Reserved for future use */

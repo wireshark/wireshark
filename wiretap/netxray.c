@@ -1779,7 +1779,7 @@ netxray_dump_1_1(wtap_dumper *wdh,
 	 * Make sure this packet doesn't have a link-layer type that
 	 * differs from the one for the file.
 	 */
-	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 		return FALSE;
 	}
@@ -1873,7 +1873,7 @@ netxray_dump_finish_1_1(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	file_hdr.start_offset = GUINT32_TO_LE(CAPTUREFILE_HEADER_SIZE);
 	/* XXX - large files? */
 	file_hdr.end_offset = GUINT32_TO_LE((guint32)filelen);
-	file_hdr.network = wtap_encap_to_netxray_1_1_encap(wdh->encap);
+	file_hdr.network = wtap_encap_to_netxray_1_1_encap(wdh->file_encap);
 	file_hdr.timelo = GUINT32_TO_LE(0);
 	file_hdr.timehi = GUINT32_TO_LE(0);
 
@@ -1979,7 +1979,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 	 * Make sure this packet doesn't have a link-layer type that
 	 * differs from the one for the file.
 	 */
-	if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 		return FALSE;
 	}
@@ -2103,10 +2103,10 @@ netxray_dump_finish_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	file_hdr.start_offset = GUINT32_TO_LE(CAPTUREFILE_HEADER_SIZE);
 	/* XXX - large files? */
 	file_hdr.end_offset = GUINT32_TO_LE((guint32)filelen);
-	file_hdr.network = wtap_encap_to_netxray_2_0_encap(wdh->encap);
+	file_hdr.network = wtap_encap_to_netxray_2_0_encap(wdh->file_encap);
 	file_hdr.timelo = GUINT32_TO_LE(0);
 	file_hdr.timehi = GUINT32_TO_LE(0);
-	switch (wdh->encap) {
+	switch (wdh->file_encap) {
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		file_hdr.captype = WAN_CAPTYPE_PPP;
