@@ -40,7 +40,7 @@
 #include <epan/wmem_scopes.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
-#include <wiretap/wtap-int.h>
+#include <wiretap/wtap.h>
 
 #include "packet-snort-config.h"
 
@@ -1191,9 +1191,6 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
             rec.rec_header.packet_header.caplen = tvb_captured_length(tvb);
             rec.rec_header.packet_header.len = tvb_reported_length(tvb);
-            if (current_session.pdh->encap != rec.rec_header.packet_header.pkt_encap) {
-                /* XXX, warning! convert? */
-            }
 
             /* Dump frame into snort's stdin */
             if (!wtap_dump(current_session.pdh, &rec, tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), &write_err, &err_info)) {
