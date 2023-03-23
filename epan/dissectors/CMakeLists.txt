@@ -1513,6 +1513,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-mmrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-msrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-mvrp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ms-do.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ms-mms.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ms-nns.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-msdp.c

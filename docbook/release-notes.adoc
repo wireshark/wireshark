@@ -113,6 +113,7 @@ DECT DLC protocol layer (DECT-DLC)
 DECT NWK protocol layer (DECT-NWK)
 Low Level Signalling (ATSC3 LLS)
 Train Real-Time Data Protocol (TRDP)
+Windows Delivery Optimization (MS-DO)
 --
 
 === Updated Protocol Support
