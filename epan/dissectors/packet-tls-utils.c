@@ -9410,10 +9410,10 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
     asn1_ctx_t  asn1_ctx;
 #if defined(HAVE_LIBGNUTLS)
     gnutls_datum_t subjectPublicKeyInfo = { NULL, 0 };
+    guint       certificate_index = 0;
 #endif
     guint32     next_offset, certificate_list_length, cert_length;
     proto_tree *subtree = tree;
-    guint       certificate_index = 0;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -9515,7 +9515,9 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                                                session, ssl, is_dtls, NULL);
         }
 
+#if defined(HAVE_LIBGNUTLS)
         certificate_index++;
+#endif
     }
 }
 
