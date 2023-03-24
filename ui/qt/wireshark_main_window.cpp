@@ -2397,6 +2397,8 @@ bool WiresharkMainWindow::addFollowStreamMenuItem(const void *key, void *value, 
         follow_action->setText(tr("HTTP/2 Stream"));
     } else if (g_strcmp0(short_name, "SIP") == 0) {
         follow_action->setText(tr("SIP Call"));
+    } else if (g_strcmp0(short_name, "USBCOM") == 0) {
+        follow_action->setText(tr("USB CDC Data"));
     }
 
     connect(follow_action, &QAction::triggered, window,

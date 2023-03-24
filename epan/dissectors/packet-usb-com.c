@@ -13,7 +13,11 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/follow.h>
 #include "packet-usb.h"
+
+static int cdc_data_follow_tap = -1;
+static int proto_usb = -1;
 
 /* protocols and header fields */
 static int proto_usb_com = -1;
@@ -113,6 +117,9 @@ static int hf_usb_com_interrupt_length = -1;
 static int hf_usb_com_interrupt_dl_bitrate = -1;
 static int hf_usb_com_interrupt_ul_bitrate = -1;
 static int hf_usb_com_interrupt_payload = -1;
+static int hf_usb_com_data_stream = -1;
+static int hf_usb_com_data_in_payload = -1;
+static int hf_usb_com_data_out_payload = -1;
 
 static gint ett_usb_com = -1;
 static gint ett_usb_com_capabilities = -1;
@@ -139,6 +146,12 @@ typedef struct _controlling_iface {
     guint16 interfaceSubclass;
     guint16 interfaceProtocol;
 } controlling_iface_t;
+
+static guint32 cdc_data_stream_count;
+
+typedef struct _cdc_data_conv {
+    guint32 stream;
+} cdc_data_conv_t;
 
 #define CS_INTERFACE 0x24
 #define CS_ENDPOINT  0x25
@@ -730,6 +743,7 @@ static int
 dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    cdc_data_conv_t *cdc_data_info;
     guint32 k_bus_id;
     guint32 k_device_address;
     guint32 k_subordinate_id;
@@ -741,6 +755,8 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     };
     wmem_tree_t *wmem_tree;
     controlling_iface_t *master_iface = NULL;
+    proto_tree *subtree;
+    proto_item *item;
 
     if (!usb_conv_info) {
         return 0;
@@ -751,6 +767,38 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
          * If it is not, then we are either dealing with malformed descriptor or a new CDC Revision.
          */
         return 0;
+    }
+
+    /* Generic handling to allow follow stream functionality regardless if data
+     * is passed to higher layer dissector or not.
+     */
+    cdc_data_info = (cdc_data_conv_t *)usb_conv_info->class_data;
+    if (!cdc_data_info) {
+        cdc_data_info = wmem_new(wmem_file_scope(), cdc_data_conv_t);
+        cdc_data_info->stream = cdc_data_stream_count++;
+        usb_conv_info->class_data = cdc_data_info;
+        usb_conv_info->class_data_type = USB_CONV_CDC_DATA;
+    } else if (usb_conv_info->class_data_type != USB_CONV_CDC_DATA) {
+        /* Don't dissect if another USB type is in the conversation */
+        return 0;
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCOM");
+
+    item = proto_tree_add_item(tree, proto_usb_com, tvb, 0, -1, ENC_NA);
+    subtree = proto_item_add_subtree(item, ett_usb_com);
+
+    item = proto_tree_add_uint(subtree, hf_usb_com_data_stream, tvb, 0, 0, cdc_data_info->stream);
+    proto_item_set_generated(item);
+
+    if (pinfo->p2p_dir == P2P_DIR_RECV) {
+        proto_tree_add_item(subtree, hf_usb_com_data_in_payload, tvb, 0, -1, ENC_NA);
+    } else {
+        proto_tree_add_item(subtree, hf_usb_com_data_out_payload, tvb, 0, -1, ENC_NA);
+    }
+
+    if (have_tap_listener(cdc_data_follow_tap)) {
+        tap_queue_packet(cdc_data_follow_tap, pinfo, tvb);
     }
 
     k_bus_id = usb_conv_info->bus_id;
@@ -782,8 +830,8 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             break;
     }
 
-    /* Unknown (class, subclass, protocol) tuple. Do not attempt dissection. */
-    return 0;
+    /* Unknown (class, subclass, protocol) tuple. No further dissection. */
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -841,6 +889,115 @@ dissect_usb_com_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(subtree, hf_usb_com_interrupt_payload, tvb, offset, -1, ENC_NA);
     }
     return tvb_captured_length(tvb);
+}
+
+static cdc_data_conv_t *get_cdc_data_conv(packet_info *pinfo)
+{
+    conversation_t *conversation;
+    usb_conv_info_t *usb_conv_info;
+
+    if (pinfo->ptype != PT_USB) {
+        return NULL;
+    }
+
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_USB,
+                                     pinfo->srcport, pinfo->destport, 0);
+    if (!conversation) {
+        return NULL;
+    }
+
+    usb_conv_info = (usb_conv_info_t *)conversation_get_proto_data(conversation, proto_usb);
+    if (!usb_conv_info || (usb_conv_info->class_data_type != USB_CONV_CDC_DATA)) {
+        return NULL;
+    }
+
+    return (cdc_data_conv_t *)usb_conv_info->class_data;
+}
+
+gchar *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+{
+    cdc_data_conv_t *cdc_data_info;
+
+    cdc_data_info = get_cdc_data_conv(pinfo);
+    if (cdc_data_info) {
+        *stream = cdc_data_info->stream;
+        return ws_strdup_printf("usbcom.data.stream eq %u", cdc_data_info->stream);
+    }
+
+    return NULL;
+}
+
+gchar *cdc_data_follow_index_filter(guint stream, guint sub_stream _U_)
+{
+    return ws_strdup_printf("usbcom.data.stream eq %u", stream);
+}
+
+gchar *cdc_data_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+{
+    /* We always just filter stream based on an arbitrarily generated index. */
+    return NULL;
+}
+
+gchar *cdc_data_port_to_display(wmem_allocator_t *allocator, guint port)
+{
+    return wmem_strdup(allocator, port == NO_ENDPOINT ? "host" : "device");
+}
+
+static tap_packet_status
+follow_cdc_data_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+                             const void *data, tap_flags_t flags _U_)
+{
+    follow_record_t *follow_record;
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    tvbuff_t *tvb = (tvbuff_t *)data;
+    guint32 data_length = tvb_captured_length(tvb);
+    gboolean is_server;
+
+    if (follow_info->client_port == 0) {
+        /* XXX: Client/Server does not quite match how USB works. Simply assume
+         * that host is "server" but it is important to note that client port
+         * will be set to either IN or OUT endpoint (whichever transmits data
+         * first). Client "receive" is OUT endpoint while client "transmit" is
+         * IN endpoint. The "other end" is always host.
+         */
+        if (pinfo->srcport == NO_ENDPOINT) {
+            follow_info->client_port = pinfo->destport;
+            copy_address(&follow_info->client_ip, &pinfo->dst);
+            follow_info->server_port = pinfo->srcport;
+            copy_address(&follow_info->server_ip, &pinfo->src);
+        } else {
+            follow_info->client_port = pinfo->srcport;
+            copy_address(&follow_info->client_ip, &pinfo->src);
+            follow_info->server_port = pinfo->destport;
+            copy_address(&follow_info->server_ip, &pinfo->dst);
+        }
+    }
+
+    is_server = pinfo->srcport == NO_ENDPOINT;
+
+    follow_record = g_new0(follow_record_t, 1);
+    follow_record->is_server = is_server;
+    follow_record->packet_num = pinfo->fd->num;
+    follow_record->abs_ts = pinfo->fd->abs_ts;
+    follow_record->data = g_byte_array_append(g_byte_array_new(),
+                                              tvb_get_ptr(tvb, 0, data_length),
+                                              data_length);
+
+    follow_info->bytes_written[is_server] += follow_record->data->len;
+    follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
+
+    return TAP_PACKET_DONT_REDRAW;
+}
+
+static guint32 get_cdc_data_stream_count(void)
+{
+    return cdc_data_stream_count;
+}
+
+static void
+usb_com_cleanup_data(void)
+{
+    cdc_data_stream_count = 0;
 }
 
 void
@@ -1134,7 +1291,16 @@ proto_register_usb_com(void)
               &units_bit_sec, 0, NULL, HFILL }},
         { &hf_usb_com_interrupt_payload,
             { "Payload", "usbcom.interrupt.payload", FT_BYTES, BASE_NONE,
-              NULL, 0, NULL, HFILL }}
+              NULL, 0, NULL, HFILL }},
+        { &hf_usb_com_data_stream,
+            { "Stream index", "usbcom.data.stream", FT_UINT32, BASE_DEC,
+              NULL, 0, NULL, HFILL }},
+        { &hf_usb_com_data_in_payload,
+            { "IN payload", "usbcom.data.in_payload", FT_BYTES, BASE_NONE,
+              NULL, 0, NULL, HFILL }},
+        { &hf_usb_com_data_out_payload,
+            { "OUT payload", "usbcom.data.out_payload", FT_BYTES, BASE_NONE,
+              NULL, 0, NULL, HFILL }},
     };
 
     static gint *usb_com_subtrees[] = {
@@ -1164,6 +1330,13 @@ proto_register_usb_com(void)
 
     expert_usb_com = expert_register_protocol(proto_usb_com);
     expert_register_field_array(expert_usb_com, ei, array_length(ei));
+
+    register_cleanup_routine(usb_com_cleanup_data);
+
+    cdc_data_follow_tap = register_tap("cdc_data_follow");
+    register_follow_stream(proto_usb_com, "cdc_data_follow", cdc_data_follow_conv_filter, cdc_data_follow_index_filter,
+                           cdc_data_follow_address_filter, cdc_data_port_to_display, follow_cdc_data_tap_listener,
+                           get_cdc_data_stream_count, NULL);
 }
 
 void
@@ -1177,6 +1350,8 @@ proto_reg_handoff_usb_com(void)
     mbim_descriptor_handle = find_dissector_add_dependency("mbim.descriptor", proto_usb_com);
     mbim_bulk_handle = find_dissector_add_dependency("mbim.bulk", proto_usb_com);
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_usb_com);
+
+    proto_usb = proto_get_id_by_filter_name("usb");
 }
 
 /*

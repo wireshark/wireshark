@@ -106,6 +106,7 @@ enum usb_conv_class_data_type {
     USB_CONV_VIDEO,
     USB_CONV_MASS_STORAGE_BOT,
     USB_CONV_MASS_STORAGE_UASP,
+    USB_CONV_CDC_DATA,
 };
 
 /* Conversation Structure
