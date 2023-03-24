@@ -1453,6 +1453,11 @@ ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
     int name_length, value_length;
     int overflow = 0;
 
+    /* Should be larger to be meaningful, but at least prevent illegal
+     * memory accesses.
+     */
+    DISSECTOR_ASSERT_CMPINT(bufsize, >=, 2);
+
     *bufptr++ = '{';
     buffer ++;
 
@@ -1508,6 +1513,10 @@ ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
       *bufptr++ = '}';
 
     *bufptr = '\0';
+    if (bufptr == bufend) {
+        /* buffer was already advanced past the initial '{' */
+        ws_utf8_truncate(buffer, bufsize - 2);
+    }
 
     return (valoffset);
 }
