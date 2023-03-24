@@ -41,7 +41,13 @@ if(KERBEROS_FOUND)
   # paths for libraries, by searching for the libraries in
   # directories including KERBEROS_LIBRARY_DIRS.
   #
-  set(_kerberos_libraries "${KERBEROS_LIBRARIES}")
+  if(UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a")
+    # Include transitive dependencies for static linking
+    set(_fail_reason " (static library is not available)")
+    set(_kerberos_libraries "${KERBEROS_STATIC_LIBRARIES}")
+  else()
+    set(_kerberos_libraries "${KERBEROS_LIBRARIES}")
+  endif()
   set(KERBEROS_LIBRARIES "")
   foreach(_library ${_kerberos_libraries})
     #
@@ -50,6 +56,19 @@ if(KERBEROS_FOUND)
     #
     find_library(_abspath_${_library} NAMES ${_library}
                  HINTS ${KERBEROS_LIBDIR} ${KERBEROS_LIBRARY_DIRS})
+    if(${_abspath_${_library}} STREQUAL "_abspath_${_library}-NOTFOUND")
+      # We didn't find the library, despite the pkg-config .pc file.
+      # This is probably because we're trying to build statically, and
+      # MIT krb5 doesn't allow building both the static and shared library
+      # at the same time, so most distributions don't have it because it's
+      # more of a pain to package.
+      message(STATUS "Could NOT find ${_library}${_fail_reason}")
+      set(KERBEROS_FOUND "")
+      set(KERBEROS_LIBRARIES "")
+      set(KERBEROS_INCLUDE_DIRS "")
+      set(KERBEROS_DEFINITIONS "")
+      break()
+    endif()
     list(APPEND KERBEROS_LIBRARIES ${_abspath_${_library}})
   endforeach()
 else()
