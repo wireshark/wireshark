@@ -1176,9 +1176,6 @@ packets to be printed (which packets are printed), and the output format of
 each packet (how each packet is printed).  The output format will be similar
 to the displayed values, so a summary line, the packet details view, and/or
 the hex dump of the packet can be printed.
-
-Printing options can be set with the __Edit:Preferences__ menu item, or in the
-dialog box popped up by this menu item.
 --
 
 menu:File[Quit]::
@@ -1280,7 +1277,7 @@ menu:Edit[Configuration Profiles]::
 Manage configuration profiles to be able to use more than one set of preferences and configurations.
 
 menu:Edit[Preferences]::
-Set the GUI, capture, printing and protocol options (see /Preferences dialog below).
+Set the GUI, capture, and protocol options (see /Preferences dialog below).
 
 menu:View[Main Toolbar]::
 
@@ -2262,20 +2259,6 @@ The __Automatic scrolling in live capture__ check box lets you specify
 whether, in an "Update list of packets in real time" capture, the packet
 list pane should automatically scroll to show the most recently captured
 packets.
---
-
-Printing Preferences::
-+
---
-The radio buttons at the top of the __Printing__ page allow you choose
-between printing packets with the __File:Print Packet__ menu item as
-text or PostScript, and sending the output directly to a command or
-saving it to a file.  The __Command:__ text entry box, on
-UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
-is the command to send files to (usually *lpr*), and the __File:__ entry
-box lets you enter the name of the file you wish to save to. 
-Additionally, you can select the __File:__ button to browse the file
-system for a particular save file.
 --
 
 Name Resolution Preferences::
