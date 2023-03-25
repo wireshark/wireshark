@@ -1,5 +1,6 @@
 == DISSECTION OPTIONS
 
+// tag::decode_as[]
 [#decode_as]
 -d  <layer type>==<selector>,<decode-as protocol>::
 +
@@ -41,6 +42,7 @@ that can be selected with an ethertype.
 See the xref:tshark.html#decode_as[tshark](1) manual page for more examples.
 // end::not_tshark[]
 --
+// end::decode_as[]
 
 --disable-protocol <proto_name>::
 +
