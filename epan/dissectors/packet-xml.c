@@ -1614,7 +1614,7 @@ proto_register_xml(void)
     prefs_register_enum_preference(xml_module, "default_encoding", "Default character encoding",
                                    "Use this charset if the 'encoding' attribute of XML declaration is missing."
                                    "Unsupported encoding will be replaced by the default UTF-8.",
-                                   &pref_default_encoding, mibenum_vals_character_sets_ev_array, FALSE);
+                                   &pref_default_encoding, ws_supported_mibenum_vals_character_sets_ev_array, FALSE);
 
     g_array_free(ett_arr, TRUE);
 
