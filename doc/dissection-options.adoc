@@ -1,0 +1,171 @@
+== DISSECTION OPTIONS
+
+[#decode_as]
+-d  <layer type>==<selector>,<decode-as protocol>::
++
+--
+Like Wireshark's *Decode As...* feature, this lets you specify how a
+layer type should be dissected.  If the layer type in question (for example,
+*tcp.port* or *udp.port* for a TCP or UDP port number) has the specified
+selector value, packets should be dissected as the specified protocol.
+
+.Decode As Port
+[example]
+*-d tcp.port==8888,http* will decode any traffic running over
+TCP port 8888 as HTTP.
+
+// tag::tshark[]
+.Decode As Port Range
+[example]
+*-d tcp.port==8888-8890,http* will decode any traffic running
+over TCP ports 8888, 8889 or 8890 as HTTP.
+
+.Decode As Port Range via Length
+[example]
+*-d tcp.port==8888:3,http* will decode any traffic running over
+the three TCP ports 8888, 8889 or 8890 as HTTP.
+
+Using an invalid selector or protocol will print out a list of valid selectors
+and protocol names, respectively.
+
+.Decode As List of Selectors
+[example]
+*-d .* is a quick way to get a list of valid selectors.
+
+.Decode As List of Values for a Selector
+[example]
+*-d ethertype==0x0800,.* is a quick way to get a list of protocols
+that can be selected with an ethertype.
+// end::tshark[]
+// tag::not_tshark[]
+See the xref:tshark.html#decode_as[tshark](1) manual page for more examples.
+// end::not_tshark[]
+--
+
+--disable-protocol <proto_name>::
++
+--
+Disable dissection of proto_name.
+--
+
+--disable-heuristic <short_name>::
++
+--
+Disable dissection of heuristic protocol.
+--
+
+--enable-protocol <proto_name>::
++
+--
+Enable dissection of proto_name.
+--
+
+--enable-heuristic <short_name>::
++
+--
+Enable dissection of heuristic protocol.
+--
+
+-K  <keytab>::
++
+--
+Load kerberos crypto keys from the specified keytab file.
+This option can be used multiple times to load keys from several files.
+
+Example: *-K krb5.keytab*
+--
+
+-n::
++
+--
+Disable network object name resolution (such as hostname, TCP and UDP port
+names); the *-N* option might override this one.
+--
+
+-N  <name resolving flags>::
++
+--
+Turn on name resolving only for particular types of addresses and port
+numbers, with name resolving for other types of addresses and port
+numbers turned off.  This option (along with *-n*) can be specified
+multiple times; the last value given overrides earlier ones. This option
+and *-n* override the options from the preferences, including preferences
+set via the *-o* option. If both *-N* and *-n* options are not present,
+the values from the preferences are used, which default to *-N dmN*.
+
+The argument is a string that may contain the letters:
+
+*d* to enable resolution from captured DNS packets
+
+*m* to enable MAC address resolution
+
+*n* to enable network address resolution
+
+*N* to enable using external resolvers (e.g., DNS) for network address
+resolution; no effect without *n* also enabled.
+// tag::tshark[]
+[CAUTION]
+In tshark single-pass mode, external resolution is performed synchronously.
+For live captures, which are always in single-pass mode, this makes it
+more difficult for dissection to keep up with a busy network, possibly
+leading to dropped packets.
+// end::tshark[]
+
+*t* to enable transport-layer port number resolution
+
+*v* to enable VLAN IDs to names resolution
+--
+
+-t  a|ad|adoy|d|dd|e|r|u|ud|udoy::
++
+--
+Set the format of the packet timestamp displayed in the default time
+column.  The format can be one of:
+
+*a* absolute: The absolute time, as local time in your time zone,
+is the actual time the packet was captured, with no date displayed
+
+*ad* absolute with date: The absolute date, displayed as YYYY-MM-DD,
+and time, as local time in your time zone, is the actual time and date
+the packet was captured
+
+*adoy* absolute with date using day of year: The absolute date,
+displayed as YYYY/DOY, and time, as local time in your time zone,
+is the actual time and date the packet was captured
+
+*d* delta: The delta time is the time since the previous packet was
+captured
+
+*dd* delta_displayed: The delta_displayed time is the time since the
+previous displayed packet was captured
+
+*e* epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+*r* relative: The relative time is the time elapsed between the first packet
+and the current packet
+
+*u* UTC: The absolute time, as UTC, is the actual time the packet was
+captured, with no date displayed
+
+*ud* UTC with date: The absolute date, displayed as YYYY-MM-DD,
+and time, as UTC, is the actual time and date the packet was captured
+
+*udoy* UTC with date using day of year: The absolute date, displayed
+as YYYY/DOY, and time, as UTC, is the actual time and date the packet
+was captured
+
+The default format is relative.
+--
+
+-u <s|hms>::
++
+--
+Specifies how packet timestamp formats in *-t* which are relative times
+(i.e.  relative, delta, and delta_displayed) are displayed.  Valid choices are:
+
+*s* for seconds
+
+*hms* for hours, minutes, and seconds
+
+The default format is seconds.
+--

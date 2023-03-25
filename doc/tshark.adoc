@@ -294,32 +294,6 @@ may differ from *-a packets:*<capture packet count>.
 Run with the given configuration profile.
 --
 
--d  <layer type>==<selector>,<decode-as protocol>::
-+
---
-Like Wireshark's *Decode As...* feature, this lets you specify how a
-layer type should be dissected.  If the layer type in question (for example,
-*tcp.port* or *udp.port* for a TCP or UDP port number) has the specified
-selector value, packets should be dissected as the specified protocol.
-
-Example: *tshark -d tcp.port==8888,http* will decode any traffic running over
-TCP port 8888 as HTTP.
-
-Example: *tshark -d tcp.port==8888:3,http* will decode any traffic running over
-TCP ports 8888, 8889 or 8890 as HTTP.
-
-Example: *tshark -d tcp.port==8888-8890,http* will decode any traffic running
-over TCP ports 8888, 8889 or 8890 as HTTP.
-
-Using an invalid selector or protocol will print out a list of valid selectors
-and protocol names, respectively.
-
-Example: *tshark -d .* is a quick way to get a list of valid selectors.
-
-Example: *tshark -d ethertype==0x0800.* is a quick way to get a list of
-protocols that can be selected with an ethertype.
---
-
 -D|--list-interfaces::
 +
 --
@@ -645,15 +619,6 @@ Lower-level protocols must be explicitly specified in the filter.
 Example: *tshark -J "tcp http"*
 --
 
--K  <keytab>::
-+
---
-Load kerberos crypto keys from the specified keytab file.
-This option can be used multiple times to load keys from several files.
-
-Example: *tshark -K krb5.keytab*
---
-
 -l::
 +
 --
@@ -679,41 +644,6 @@ standard output buffer containing that data fills up.
 --
 List the data link types supported by the interface and exit.  The reported
 link types can be used for the *-y* option.
---
-
--n::
-+
---
-Disable network object name resolution (such as hostname, TCP and UDP port
-names); the *-N* option might override this one.
---
-
--N  <name resolving flags>::
-+
---
-Turn on name resolving only for particular types of addresses and port
-numbers, with name resolving for other types of addresses and port
-numbers turned off.  This option overrides *-n* if both *-N* and *-n*
-are present.  This option and *-n* override the options from the preferences,
-including preferences set via the *-o* option.  If both *-N* and *-n* options
-are not present, the values from the preferences are used, which default to
-*d*, *m*, and *N* turned on and the other options turned off. (NB, *N* does
-not actually do anything without *n* enabled as well.)
-
-The argument is a string that may contain the letters:
-
-*d* to enable resolution from captured DNS packets
-
-*m* to enable MAC address resolution
-
-*n* to enable network address resolution
-
-*N* to enable using external resolvers (e.g., DNS) for network address
-resolution; no effect without *n* also enabled
-
-*t* to enable transport-layer port number resolution
-
-*v* to enable VLAN IDs to names resolution
 --
 
 -o  <preference>:<value>::
@@ -845,47 +775,6 @@ the default snapshot length is used if provided.
 Set the line separator to be printed between packets.
 --
 
--t  a|ad|adoy|d|dd|e|r|u|ud|udoy::
-+
---
-Set the format of the packet timestamp printed in summary lines.
-The format can be one of:
-
-*a* absolute: The absolute time, as local time in your time zone,
-is the actual time the packet was captured, with no date displayed
-
-*ad* absolute with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as local time in your time zone, is the actual time and date
-the packet was captured
-
-*adoy* absolute with date using day of year: The absolute date,
-displayed as YYYY/DOY, and time, as local time in your time zone,
-is the actual time and date the packet was captured
-
-*d* delta: The delta time is the time since the previous packet was
-captured
-
-*dd* delta_displayed: The delta_displayed time is the time since the
-previous displayed packet was captured
-
-*e* epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
-
-*r* relative: The relative time is the time elapsed between the first packet
-and the current packet
-
-*u* UTC: The absolute time, as UTC, is the actual time the packet was
-captured, with no date displayed
-
-*ud* UTC with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as UTC, is the actual time and date the packet was captured
-
-*udoy* UTC with date using day of year: The absolute date, displayed
-as YYYY/DOY, and time, as UTC, is the actual time and date the packet
-was captured
-
-The default format is relative.
---
-
 -T  ek|fields|json|jsonraw|pdml|ps|psml|tabs|text::
 +
 --
@@ -968,16 +857,6 @@ such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
 variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
 is not.  On Windows, the __%TEMP%__ environment variable is used, which
 typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
---
-
--u <seconds type>::
-+
---
-Specifies the seconds type.  Valid choices are:
-
-*s* for seconds
-
-*hms* for hours, minutes and seconds
 --
 
 -U <tap name>::
@@ -2582,29 +2461,7 @@ before the file extension.
 This interface is subject to change, adding the possibility to filter on files.
 --
 
---enable-protocol <proto_name>::
-+
---
-Enable dissection of proto_name.
---
-
---disable-protocol <proto_name>::
-+
---
-Disable dissection of proto_name.
---
-
---enable-heuristic <short_name>::
-+
---
-Enable dissection of heuristic protocol.
---
-
---disable-heuristic <short_name>::
-+
---
-Disable dissection of heuristic protocol.
---
+include::dissection-options.adoc[tag=!not_tshark]
 
 include::diagnostic-options.adoc[]
 
