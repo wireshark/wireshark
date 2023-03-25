@@ -1294,7 +1294,7 @@ proto_register_mux27010 (void)
 
         { &hf_mux27010_controlchanneldetailedvaluepnframesize,
           { "Max. Frame Size", "mux27010.controlchannel.value.detailedvaluepnframesize",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_mux27010_controlchanneldetailedvaluepnna,
           { "Max. Number of Retransmissions", "mux27010.controlchannel.value.detailedvaluepnna",

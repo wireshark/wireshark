@@ -6547,7 +6547,7 @@ static void mbim_dissect_base_station_cdma_mrl_info(tvbuff_t* tvb, proto_tree* t
     *offset += 4;
     proto_tree_add_item(tree, hf_mbim_base_station_base_latitude, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
-    proto_tree_add_item(tree, hf_mbim_base_station_base_longitude, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_mbim_base_station_base_longitude, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
     proto_tree_add_item(tree, hf_mbim_base_station_ref_pn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -9967,7 +9967,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_ursp_tc_port,
             { "Port", "mbim.control.ursp.tc_port",
-               FT_UINT8, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_ursp_tc_port_range_low,

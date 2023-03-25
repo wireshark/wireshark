@@ -2738,7 +2738,7 @@ void proto_register_sml (void) {
 		{ &hf_sml_esc,
 			{ "Escape", "sml.esc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_version_1,
-			{ "Version 1", "sml.version_1", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+			{ "Version 1", "sml.version_1", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_smlVersion,
 			{ "SML Version", "sml.version", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_crc16,

@@ -2828,7 +2828,7 @@ static void dissect_nvme_get_logpage_telemetry_resp(proto_item *ti, tvbuff_t *cm
     if (off <= 10 && (12 - off) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da2lb, cmd_tvb, 10-off, 2, ENC_LITTLE_ENDIAN);
     if (off <= 12 && (14 - off) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da3lb, cmd_tvb, 12-off, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da3lb, cmd_tvb, 12-off, 2, ENC_LITTLE_ENDIAN);
     if (off <= 14 && (372 - off) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_rsvd1, cmd_tvb, 14-off, 368, ENC_NA);
     if (off <= 382 && (383 - off) <= len)
@@ -2948,7 +2948,7 @@ static void dissect_nvme_get_logpage_pred_lat_resp(proto_item *ti, tvbuff_t *cmd
     if (off <= 136 && (144 - off) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_we,  cmd_tvb, 136-off, 8, ENC_LITTLE_ENDIAN);
     if (off <= 144 && (152 - off) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_te,  cmd_tvb, 144-off, 152, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_te,  cmd_tvb, 144-off, 8, ENC_LITTLE_ENDIAN);
     poff = (off <= 152) ? (152 - off) : 0;
     if (poff > len)
         return;
@@ -7164,7 +7164,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_errinf_ns,
             { "Namespace ID", "nvme.cmd.get_logpage.errinf.nsid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_errinf_vsi,
             { "Namespace ID", "nvme.cmd.get_logpage.errinf.vsi",
@@ -7598,7 +7598,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_telemetry_rsvd0,
             { "Reserved", "nvme.cmd.get_logpage.telemetry.rsvd0",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_telemetry_ieee,
             { "IEEE OUI Identifier (IEEE)", "nvme.cmd.get_logpage.telemetry.ieee",

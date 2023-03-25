@@ -2719,12 +2719,12 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_atrac_maximum_sul,
             { "Maximum SUL",                    "btavdtp.codec.atrac.maximum_sul",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "Sound Unit Length (SUL) is one of the parameters that determine bit rate of the audio stream.", HFILL }
         },
         { &hf_btavdtp_atrac_rfa3,
             { "RFA",                            "btavdtp.codec.atrac.rfa3",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btavdtp_h263_level_10,
@@ -2779,17 +2779,17 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_vendor_specific_codec_id,
             { "Codec",                          "btavdtp.codec.vendor.codec_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btavdtp_vendor_specific_value,
             { "Value",                          "btavdtp.codec.vendor.value",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btavdtp_vendor_specific_apt_codec_id,
             { "Codec",                          "btavdtp.codec.vendor.codec_id",
-            FT_UINT16, BASE_HEX, VALS(vendor_apt_codec_vals), 0x00,
+            FT_UINT16, BASE_HEX, VALS(vendor_apt_codec_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000,

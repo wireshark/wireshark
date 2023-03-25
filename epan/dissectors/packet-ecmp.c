@@ -3210,7 +3210,7 @@ void proto_register_ecmp (void)
 	{ "Drive Derivative", "ecmp.drive_derivative", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ecmp_drive_factory_fit_category_id,
-	{ "Factory Fitted Option ID", "ecmp.drive_factory_fit_category_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ "Factory Fitted Option ID", "ecmp.drive_factory_fit_category_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ecmp_category_id,
 	{ "Option ID", "ecmp.category_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

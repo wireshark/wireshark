@@ -10755,11 +10755,11 @@ example 2
         proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_flag, tvb, p, 1, ENC_BIG_ENDIAN);
         p += 1;
 
-        ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_type, tvb, p , 1, ENC_BIG_ENDIAN);
+        ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_type, tvb, p, 1, ENC_BIG_ENDIAN);
         orftype = tvb_get_guint8(tvb, p);
         p += 1;
 
-        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_length, tvb, p , 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_length, tvb, p, 2, ENC_BIG_ENDIAN);
         orflen = tvb_get_ntohs(tvb, p);
         proto_item_set_len(ti, orflen + 4);
         p += 2;
@@ -11136,7 +11136,7 @@ proto_register_bgp(void)
         { "ORF type", "bgp.route_refresh.orf.type", FT_UINT8, BASE_DEC,
           VALS(orf_type_vals), 0x0, NULL, HFILL }},
       { &hf_bgp_route_refresh_orf_length,
-        { "ORF length", "bgp.route_refresh.orf.length", FT_UINT8, BASE_DEC,
+        { "ORF length", "bgp.route_refresh.orf.length", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_route_refresh_orf_entry_prefixlist,
         { "ORFEntry PrefixList", "bgp.route_refresh.orf.entry", FT_NONE, BASE_NONE,

@@ -404,7 +404,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             else if (current_msp &&last_chunk && strncmp(last_chunk, CHUNKED_END, CHUNK_LENGTH_MIN) == 0) {
                 /* This is the last segment of the chunked transfer and reassembled packet */
 
-                proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, 0);
+                proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
 
                 fragment_head *head = fragment_get_reassembled_id(&ippusb_reassembly_table, pinfo, current_msp->first_frame);
 

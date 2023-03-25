@@ -820,7 +820,7 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dib_residualcnt,
           { "Residual Count", "fcsb3.residualcnt",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_iupacing,

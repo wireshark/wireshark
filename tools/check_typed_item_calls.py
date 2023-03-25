@@ -257,7 +257,10 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'dhcp_uuid_endian',
                                             'payload_le',
                                             'local_encoding',
-                                            'big_endian'  }:
+                                            'big_endian',
+                                            'hf_data_encoding',
+                                            'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
+                                            'big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN'  }:
                                 global warnings_found
 
                                 print('Warning:', self.file + ':' + str(line_number),
@@ -431,7 +434,9 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^dnp3.al.anaout.int'),
         re.compile(r'^dnp3.al.ana.int'),
         re.compile(r'^dnp3.al.cnt'),
-        re.compile(r'^bthfp.chld.mode')
+        re.compile(r'^bthfp.chld.mode'),
+        re.compile(r'^nat-pmp.pml'),
+        re.compile(r'^systemactivator.actproperties.ts.hdr')
     ]
 
     for patt in ignore_patterns:
