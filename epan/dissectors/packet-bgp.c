@@ -1166,6 +1166,7 @@ static const value_string bgpnotify_minor_state_machine[] = {
 #define BGP_CEASE_MINOR_CONN_COLLISION    7
 #define BGP_CEASE_MINOR_OUT_RESOURCES     8
 #define BGP_CEASE_MINOR_HARD_RESET        9
+#define BGP_CEASE_MINOR_BFD_DOWN          10
 
 /* RFC4486 Subcodes for BGP Cease Notification Message */
 static const value_string bgpnotify_minor_cease[] = {
@@ -1178,6 +1179,7 @@ static const value_string bgpnotify_minor_cease[] = {
     { BGP_CEASE_MINOR_CONN_COLLISION,    "Connection Collision Resolution"},
     { BGP_CEASE_MINOR_OUT_RESOURCES,     "Out of Resources"},
     { BGP_CEASE_MINOR_HARD_RESET,        "Hard Reset"},
+    { BGP_CEASE_MINOR_BFD_DOWN,          "BFD Down"},
     { 0,                                 NULL }
 };
 
