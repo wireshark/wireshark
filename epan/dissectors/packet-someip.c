@@ -717,7 +717,7 @@ someip_segment_free_persistent_key(gpointer ptr)
     }
 }
 
-const reassembly_table_functions
+static const reassembly_table_functions
 someip_reassembly_table_functions = {
     someip_segment_hash,
     someip_segment_equal,
