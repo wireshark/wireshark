@@ -82,9 +82,9 @@ Wireshark 4.1.0 Release Notes
    Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS), SAP
    Network Interface (SAPNI), SAP Router (SAPROUTER), SAP Secure Network
    Connection (SNC), Support for almost all WoW 1.12 messages has been
-   added., Train Real-Time Data Protocol (TRDP), and World of Warcraft
-   World (WOWW) display filters have been changed to be more internally
-   consistent.
+   added., Train Real-Time Data Protocol (TRDP), Windows Delivery
+   Optimization (MS-DO), and World of Warcraft World (WOWW) display
+   filters have been changed to be more internally consistent.
 
   Updated Protocol Support
 
@@ -96,6 +96,11 @@ Wireshark 4.1.0 Release Notes
 
      • The IPv6 dissector has a new preference to show some semantic
        details about addresses (default off).
+
+     • The XML dissector now supports display character according to the
+       "encoding" attribute of the XML declaration, and has a new
+       preference to set default character encoding for some XML
+       document without "encoding" attribute.
 
    Too many other protocols have been updated to list them all here.
 
