@@ -99,23 +99,27 @@ The argument is a string that may contain the letters:
 
 *d* to enable resolution from captured DNS packets
 
+*g* to enable IP address geolocation information lookup from configured
+MaxMind databases
+
 *m* to enable MAC address resolution
 
 *n* to enable network address resolution
 
 *N* to enable using external resolvers (e.g., DNS) for network address
 resolution; no effect without *n* also enabled.
-// tag::tshark[]
-[CAUTION]
-In tshark single-pass mode, external resolution is performed synchronously.
-For live captures, which are always in single-pass mode, this makes it
-more difficult for dissection to keep up with a busy network, possibly
-leading to dropped packets.
-// end::tshark[]
 
 *t* to enable transport-layer port number resolution
 
 *v* to enable VLAN IDs to names resolution
+
+// tag::tshark[]
+[CAUTION]
+In tshark single-pass mode, external resolution and geolocation lookup is
+performed synchronously. For live captures, which are always in single-pass
+mode, this makes it more difficult for dissection to keep up with a busy
+network, possibly leading to dropped packets.
+// end::tshark[]
 --
 
 -t  (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]::

@@ -595,7 +595,9 @@ static void maxmind_db_post_update_cb(void) {
         }
     }
 
-    mmdb_resolve_start();
+    if (gbl_resolv_flags.maxmind_geoip) {
+        mmdb_resolve_start();
+    }
 }
 
 /**
@@ -604,6 +606,12 @@ static void maxmind_db_post_update_cb(void) {
 void
 maxmind_db_pref_init(module_t *nameres)
 {
+    prefs_register_bool_preference(nameres,
+            "maxmind_geoip",
+            "Enable IP geolocation",
+            "Lookup geolocation information for IPv4 and IPv6 addresses with configured MaxMind databases",
+            &gbl_resolv_flags.maxmind_geoip);
+
     static uat_field_t maxmind_db_paths_fields[] = {
         UAT_FLD_DIRECTORYNAME(maxmind_mod, path, "MaxMind Database Directory", "The MaxMind database directory path"),
         UAT_END_FIELDS
@@ -636,6 +644,19 @@ maxmind_db_pref_init(module_t *nameres)
 void maxmind_db_pref_cleanup(void)
 {
     mmdb_resolve_stop();
+}
+
+void maxmind_db_pref_apply(void)
+{
+    if (gbl_resolv_flags.maxmind_geoip) {
+        if (!mmdbr_pipe_valid()) {
+            mmdb_resolve_start();
+        }
+    } else {
+        if (mmdbr_pipe_valid()) {
+            mmdb_resolve_stop();
+        }
+    }
 }
 
 static void maxmind_db_pop_response(mmdb_response_t *response)
@@ -708,6 +729,10 @@ gboolean maxmind_db_lookup_process(void)
 
 const mmdb_lookup_t *
 maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
+    if (!gbl_resolv_flags.maxmind_geoip) {
+        return &mmdb_not_found;
+    }
+
     mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(*addr));
 
     if (!result) {
@@ -731,6 +756,10 @@ maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
 
 const mmdb_lookup_t *
 maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
+    if (!gbl_resolv_flags.maxmind_geoip) {
+        return &mmdb_not_found;
+    }
+
     mmdb_lookup_t * result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
 
     if (!result) {

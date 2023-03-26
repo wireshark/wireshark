@@ -54,6 +54,7 @@ typedef struct _e_addr_resolve {
   gboolean load_hosts_file_from_profile_only; /**< Whether to only load the hosts in the current profile, not hosts files */
   gboolean vlan_name;                         /**< Whether to resolve VLAN IDs to names */
   gboolean ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */
+  gboolean maxmind_geoip;                     /**< Whether to lookup geolocation information with mmdbresolve */
 } e_addr_resolve;
 
 #define ADDR_RESOLV_MACADDR(at) \

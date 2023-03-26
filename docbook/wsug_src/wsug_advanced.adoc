@@ -1085,9 +1085,9 @@ displays segments in the expected order.
 Name resolution tries to convert some of the numerical address values into a
 human readable format. There are two possible ways to do these conversions,
 depending on the resolution to be done: calling system/network services (like
-the gethostname() function) and/or resolve from Wireshark specific configuration
-files. For details about the configuration files Wireshark uses for name
-resolution and alike, see <<AppFiles>>.
+the gethostname() function) and/or resolving from Wireshark specific
+configuration files. For details about the configuration files Wireshark uses
+for name resolution and alike, see <<AppFiles>>.
 
 The name resolution feature can be enabled individually for the protocol layers
 listed in the following sections.

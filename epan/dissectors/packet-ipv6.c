@@ -788,9 +788,6 @@ static gboolean ipv6_summary_in_tree = TRUE;
 /* Show expanded information about IPv6 address */
 static gboolean ipv6_address_detail = FALSE;
 
-/* Look up addresses via mmdbresolve */
-static gboolean ipv6_use_geoip = TRUE;
-
 /* Perform strict RFC adherence checking */
 static gboolean g_ipv6_rpl_srh_strict_rfc_checking = FALSE;
 
@@ -3652,7 +3649,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         add_ipv6_address_embed_ipv4(pinfo, ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src_embed_ipv4);
         add_ipv6_address_embed_ipv4(pinfo, ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst_embed_ipv4);
 
-        if (ipv6_use_geoip) {
+        if (gbl_resolv_flags.maxmind_geoip) {
             add_geoip_info(ipv6_tree, pinfo, tvb, offset, ip6_src, ip6_dst);
         }
     }
@@ -5342,10 +5339,8 @@ proto_register_ipv6(void)
                                    "Show details about IPv6 addresses",
                                    "Whether to show extended information about IPv6 addresses",
                                    &ipv6_address_detail);
-    prefs_register_bool_preference(ipv6_module, "use_geoip" ,
-                                   "Enable IPv6 geolocation",
-                                   "Whether to look up IPv6 addresses in each MaxMind database we have loaded",
-                                   &ipv6_use_geoip);
+
+    prefs_register_obsolete_preference(ipv6_module, "use_geoip");
 
     /* RPL Strict Header Checking */
     prefs_register_bool_preference(ipv6_module, "perform_strict_rpl_srh_rfc_checking",
@@ -5372,6 +5367,10 @@ proto_register_ipv6(void)
                                     "Support packet-capture from IPv6 TSO-enabled hardware",
                                     "Whether to correct for TSO-enabled (TCP segmentation offload) hardware "
                                     "captures, such as spoofing the IPv6 packet length", &ipv6_tso_supported);
+
+    prefs_register_static_text_preference(ipv6_module, "text_use_geoip" ,
+                                   "IP geolocation settings can be changed in the Name Resolution preferences",
+                                   "IP geolocation settings can be changed in the Name Resolution preferences");
 
     static uat_field_t nat64_uats_flds[] = {
         UAT_FLD_CSTRING_OTHER(nat64_prefix_uats, ipaddr, "NAT64 Prefix", nat64_prefix_uat_fld_ip_chk_cb, "IPv6 prefix address"),

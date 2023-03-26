@@ -78,6 +78,11 @@ The following features are new (or have been significantly updated) since versio
 * The default interval between GUI updates when capturing has been decreased
 from 500ms to 100ms, and is now configurable.
 
+* The *-n* option also now disables IP address geolocation information lookup
+in configured MaxMind databases (and geolocation lookup can be enabled with
+*-Ng*.) This is most relevant for tshark, where geolocation lookups are
+synchronous.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

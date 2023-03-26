@@ -79,6 +79,7 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
             cmdarg_err("-N specifies unknown resolving option '%c'; valid options are:",
                        badopt);
             cmdarg_err_cont("\t'd' to enable address resolution from captured DNS packets\n"
+                            "\t'g' to enable address geolocation information from MaxMind databases\n"
                             "\t'm' to enable MAC address resolution\n"
                             "\t'n' to enable network address resolution\n"
                             "\t'N' to enable using external resolvers (e.g., DNS)\n"

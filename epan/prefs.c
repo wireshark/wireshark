@@ -5116,6 +5116,9 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
     memset(name_resolve, 0, sizeof(e_addr_resolve));
     while ((c = *string++) != '\0') {
         switch (c) {
+        case 'g':
+            name_resolve->maxmind_geoip = TRUE;
+            break;
         case 'm':
             name_resolve->mac_name = TRUE;
             break;
