@@ -595,8 +595,7 @@ gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, guint len, const void
 gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
     if (len) {
         char* name = g_strndup(strptr,len);
-        ascii_strdown_inplace(name);
-        g_strchug(name);
+        g_strstrip(name);
 
         if (find_dissector(name)) {
             *err = NULL;

@@ -23,6 +23,7 @@
 #include <QColorDialog>
 
 #include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/dissector_syntax_line_edit.h>
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/editor_file_dialog.h>
 #include <ui/qt/widgets/path_selection_edit.h>
@@ -80,18 +81,7 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
 
     case PT_TXTMOD_DISSECTOR:
     {
-        QComboBox *cb_editor = new QComboBox(parent);
-        GList* dissector_names = get_dissector_names();
-        for (GList* l = dissector_names; l != NULL; l = l->next) {
-            const char *name = (const char *) l->data;
-            cb_editor->addItem(name, QVariant(name));
-        }
-        cb_editor->model()->sort(0);
-        g_list_free(dissector_names);
-        cb_editor->setInsertPolicy(QComboBox::NoInsert);
-        cb_editor->setEditable(true);
-        editor = cb_editor;
-        cb_editor->setMinimumWidth(cb_editor->minimumSizeHint().width());
+        editor = new DissectorSyntaxLineEdit(parent);
         break;
     }
 
@@ -153,7 +143,6 @@ void UatDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
             qobject_cast<PathSelectionEdit *>(editor)->setPath(index.model()->data(index, Qt::EditRole).toString());
         break;
     case PT_TXTMOD_ENUM:
-    case PT_TXTMOD_DISSECTOR:
     {
         QComboBox *combobox = static_cast<QComboBox *>(editor);
         const QString &data = index.model()->data(index, Qt::EditRole).toString();
@@ -188,7 +177,6 @@ void UatDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
             const_cast<QAbstractItemModel *>(index.model())->setData(index, qobject_cast<PathSelectionEdit *>(editor)->path(), Qt::EditRole);
         break;
     case PT_TXTMOD_ENUM:
-    case PT_TXTMOD_DISSECTOR:
     {
         QComboBox *combobox = static_cast<QComboBox *>(editor);
         const QString &data = combobox->currentText();

@@ -26,6 +26,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/detachable_tabwidget.h
 	../qt/widgets/display_filter_combo.h
 	../qt/widgets/display_filter_edit.h
+	../qt/widgets/dissector_syntax_line_edit.h
 	../qt/widgets/dissector_tables_view.h
 	../qt/widgets/drag_drop_toolbar.h
 	../qt/widgets/drag_label.h
@@ -254,6 +255,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/detachable_tabwidget.cpp
 	../qt/widgets/display_filter_combo.cpp
 	../qt/widgets/display_filter_edit.cpp
+	../qt/widgets/dissector_syntax_line_edit.cpp
 	../qt/widgets/dissector_tables_view.cpp
 	../qt/widgets/drag_drop_toolbar.cpp
 	../qt/widgets/drag_label.cpp
