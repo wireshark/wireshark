@@ -5703,7 +5703,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_association_id_extended_color,
           { "Color", "pcep.tlv.extended_association_id.color",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_association_id_extended_ipv4_endpoint,

@@ -3503,17 +3503,17 @@ proto_register_h264(void)
         },
         { &hf_h264_sei_ms_layer_desc_coded_height,
             { "Coded Height", "h264.sei.ms.layout.desc.coded_height",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_layer_desc_display_width,
             { "Display Width", "h264.sei.ms.layout.desc.display_width",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_layer_desc_display_height,
             { "Display Height", "h264.sei.ms.layout.desc.display_height",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_layer_desc_bitrate,

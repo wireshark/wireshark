@@ -5564,7 +5564,7 @@ static gint parse_QuarantinedNodeRecord(proto_tree *parentTree, tvbuff_t *tvb, g
 
     proto_tree_add_item(QuarantinedNodeRecord_header_tree, hf_opa_QuarantinedNodeRecord_QuarantineReasons, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    proto_tree_add_item(QuarantinedNodeRecord_header_tree, hf_opa_QuarantinedNodeRecord_ExpectedNodeDesc, tvb, local_offset, 64, ENC_BIG_ENDIAN);
+    proto_tree_add_item(QuarantinedNodeRecord_header_tree, hf_opa_QuarantinedNodeRecord_ExpectedNodeDesc, tvb, local_offset, 64, ENC_NA);
     local_offset += 64;
     proto_tree_add_item(QuarantinedNodeRecord_header_tree, hf_opa_QuarantinedNodeRecord_ExpectedNodeGUID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
@@ -13451,7 +13451,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_QuarantinedNodeRecord_ExpectedNodeDesc, {
                 "Expected Node Desc", "opa.quarantinednoderecord.expectednodedesc",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_QuarantinedNodeRecord_ExpectedNodeGUID, {
                 "Expected Node GUID", "opa.quarantinednoderecord.expectednodeguid",

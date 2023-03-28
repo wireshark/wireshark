@@ -4437,7 +4437,7 @@ proto_register_ospf(void)
 
         /* LS Types */
         {&hf_ospf_ls_type,
-         { "LS Type", "ospf.lsa", FT_UINT8, BASE_DEC,
+         { "LS Type", "ospf.lsa", FT_UINT32, BASE_DEC,
            VALS(ls_type_vals), 0x0, NULL, HFILL }},
         {&hf_ospf_ls_age,
          {"LS Age (seconds)", "ospf.lsa.age", FT_UINT16,
