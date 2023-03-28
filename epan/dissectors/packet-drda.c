@@ -22,15 +22,31 @@
 *   of the DDM commands and reply messages are in EBCDIC.
 *
 *   Documentation:
-*   DRDA Version 3 Vol. 3: Distributed Relational Database Architecture,
-*   Open Group.
-*   Version 3 is no longer available; for the latest version, see
 *
-*       http://www.opengroup.org/dbiop/
+*   DRDA Version 2, Volume 3: Distributed Data Management (DDM)
+*     Architecture, Open Group.
+*
+*       https://pubs.opengroup.org/onlinepubs/009608699/toc.pdf
+*
+*   DRDA Version 3, Volume 3: Distributed Data Management (DDM)
+*     Architecture Open Group.
+*   Version 3 is no longer available.
+*
+*   DRDA Version 4, Volume 3: Distributed Data Management (DDM)
+*     Architecture, Open Group.
+*
+*       https://pubs.opengroup.org/onlinepubs/9699939199/toc.pdf
+*
+*   DRDA Version 5, Volume 3: Distributed Data Management (DDM)
+*     Architecture, Open Group.
+*
+*       https://publications.opengroup.org/c114
 *
 *   Reference for Remote DRDA Requesters and Servers, IBM.
 *
 *       https://www-304.ibm.com/support/docview.wss?uid=pub1sc18985301
+*         (now dead)
+*       https://publibfp.boulder.ibm.com/epubs/pdf/dsnudh10.pdf
 */
 
 #include "config.h"
