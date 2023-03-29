@@ -5,7 +5,7 @@
  * Copyright 2017-2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Updates and corrections:
- * Copyright 2017-2022, Joakim Karlsson <oakimk@gmail.com>
+ * Copyright 2017-2023, Joakim Karlsson <oakimk@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.0.0 (2022-12-15)
+ * Ref 3GPP TS 29.244 V18.1.0 (2023-03-28)
  */
 #include "config.h"
 
@@ -271,6 +271,9 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 static int hf_pfcp_offending_ie = -1;
 static int hf_pfcp_offending_ie_value = -1;
 
+static int hf_pfcp_up_function_features_o12_b0_redsm = -1;
+static int hf_pfcp_up_function_features_o11_b7_mpquic = -1;
+static int hf_pfcp_up_function_features_o11_b6_afsfc = -1;
 static int hf_pfcp_up_function_features_o11_b5_upidp = -1;
 static int hf_pfcp_up_function_features_o11_b4_ratp = -1;
 static int hf_pfcp_up_function_features_o11_b3_eppi = -1;
@@ -912,6 +915,10 @@ static int hf_pfcp_pfcpsdrsp_flags_b0_puru = -1;
 
 static int hf_pfcp_qer_indications_flags_b0_iqfis = -1;
 
+static int hf_pfcp_configured_time_domain_flags_b0_ctdi = -1;
+
+static int hf_pfcp_metadata = -1;
+static int hf_pfcp_metadata_binary_metadata = -1;
 
 /* Enterprise IEs */
 /* BBF */
@@ -1715,7 +1722,9 @@ static const value_string pfcp_ie_type[] = {
     { 318, "PFCPSDRsp-Flags"},                                      /* Extendable / Clause 8.2.215 */
     { 319, "QER Indications"},                                      /* Extendable / Clause 8.2.216 */
     { 320, "Vendor-Specific Node Report Type"},                     /* Extendable / Clause 8.2.217 */
-    //321 to 32767 Spare. For future use.
+    { 321, "Configured Time Domain"},                               /* Extendable / Clause 8.2.218 */
+    { 322, "Metadata"},                                             /* Variable Length / Clause 8.2.219 */
+    //323 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -3094,7 +3103,8 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o11_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_up_function_features_o11_b7_mpquic,
+        &hf_pfcp_up_function_features_o11_b6_afsfc,
         &hf_pfcp_up_function_features_o11_b5_upidp,
         &hf_pfcp_up_function_features_o11_b4_ratp,
         &hf_pfcp_up_function_features_o11_b3_eppi,
@@ -3103,8 +3113,21 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o11_b0_drqos,
         NULL
     };
-    /* Octet 11  Spare  UPIDP    RATP   EPPI    PSUPRM    MBSN4   DRQOS */
+    /* Octet 11  MPQUIC   AFSFC  UPIDP    RATP   EPPI    PSUPRM    MBSN4   DRQOS */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o11_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset == length) {
+        return;
+    }
+
+    static int * const pfcp_up_function_features_o12_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_up_function_features_o12_b0_redsm,
+        NULL
+    };
+    /* Octet 12  Spare   REDSM  */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o12_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (offset == length) {
@@ -6630,6 +6653,7 @@ static const value_string pfcp_steering_mode_vals[] = {
     { 1, "Smallest Delay" },
     { 2, "Load Balancing" },
     { 3, "Priority-based" },
+    { 4, "Redundant" },
     { 0, NULL }
 };
 
@@ -6674,6 +6698,8 @@ static const value_string pfcp_priority_vals[] = {
     { 2, "No Standby" },
     { 3, "High" },
     { 4, "Low" },
+    { 5, "Primary" },
+    { 6, "Secondary" },
     { 0, NULL }
 };
 
@@ -8166,6 +8192,7 @@ static const value_string pfcp_rattype_vals[] = {
     { 8, "EUTRAN-NB-IoT" },
     { 9, "LTE-M" },
     { 10, "NR" },
+    { 11, "NR-REDCAP" },
     { 0, NULL }
 };
 
@@ -8971,6 +8998,47 @@ dissect_pfcp_vendor_specific_node_report_type(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+/*
+ * 8.2.218   Configured Time Domain
+ */
+static void
+dissect_pfcp_configured_time_domain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_configured_time_domain_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_configured_time_domain_flags_b0_ctdi,
+        NULL
+    };
+    /* Octet 5  Spare   CTDI */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_configured_time_domain_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.219    Metadata
+ */
+static void
+dissect_pfcp_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    /* Octet 5 to (n+4) Metadata
+    * The Metadata field shall contain an octet string set to base64-encoded characters as specified in clause 5.5.2 of 3GPP TS 29.571
+    */
+    proto_tree_add_item(tree, hf_pfcp_metadata, tvb, offset, length, ENC_NA);
+
+    tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, length);
+    int bin_tvb_length = tvb_reported_length(bin_tvb);
+    add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
+    proto_tree_add_item(tree, hf_pfcp_metadata_binary_metadata, bin_tvb, 0, bin_tvb_length, ENC_NA);
+}
+
 static pfcp_msg_hash_t *
 pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, pfcp_conv_info_t *pfcp_info, guint8 last_cause)
 {
@@ -9681,7 +9749,9 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    318 */    { dissect_pfcp_pfcpsdrsp_flags },                               /* PFCPSDRsp-Flags                                 Extendable / Clause 8.2.215 */
 /*    319 */    { dissect_pfcp_qer_indications },                               /* QER Indications                                 Extendable / Clause 8.2.216 */
 /*    320 */    { dissect_pfcp_vendor_specific_node_report_type },              /* Vendor-Specific Node Report Type                Extendable / Clause 8.2.217 */
-//321 to 32767 Spare. For future use.
+/*    321 */    { dissect_pfcp_configured_time_domain },                        /* Configured Time Domain                          Extendable / Clause 8.2.218 */
+/*    322 */    { dissect_pfcp_metadata },                                      /* Metadata                                        Variable Length / Clause 8.2.219 */
+//323 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -12923,6 +12993,21 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             "UP function supports User Plane Inactivity Detection and reporting per PDR", HFILL }
         },
+        { &hf_pfcp_up_function_features_o11_b6_afsfc,
+        { "AFSFC", "pfcp.up_function_features.afsfc",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "UP function supports inserting metadata when Application Function influence on Service Function Chaining", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o11_b7_mpquic,
+        { "MPQUIC", "pfcp.up_function_features.mpquic",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            "UPF support of MPQUIC Proxy functionality", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o12_b0_redsm,
+        { "REDSM", "pfcp.up_function_features.redsm",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            "UP function supports the Redundant Steering Mode", HFILL }
+        },
 
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
@@ -14559,7 +14644,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_reporting_frequency_flags_b2_sesrl,
-        { "SESRL (Session Released QoS monitoring reporting)", "pfcp.reporting_frequency.flags.sesrl",
+        { "SESRL (Session Released QoS monitoring reporting) (Deprecated in R18.1)", "pfcp.reporting_frequency.flags.sesrl",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
@@ -15199,6 +15284,22 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
+        { &hf_pfcp_configured_time_domain_flags_b0_ctdi,
+        { "CTDI (Configured Time Domain Indicator)", "pfcp.qer_indications_flags.ctdi",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_metadata,
+        { "Metadata", "pfcp.metadata.metadata",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_metadata_binary_metadata,
+        { "Metadata - Binary data", "pfcp.metadata.binary_metadata",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
         /* Enterprise IEs */
         /* BBF */
