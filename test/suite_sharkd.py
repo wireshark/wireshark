@@ -570,6 +570,23 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             {"jsonrpc":"2.0","id":3,"error":{"code":-10003,"message":"no rtp data available"}},
         ))
 
+    def test_sharkd_req_download_bad_tokens(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('tls12-dsb.pcapng')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"download",
+            "params":{"token": "BOGUSTOKEN"}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"download",
+            "params":{}
+            },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-10004,"message":"unrecognized token"}},
+            {"jsonrpc":"2.0","id":3,"error":{"code":-10005,"message":"missing token"}},
+        ))
+
     def test_sharkd_req_bye(self, check_sharkd_session):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"bye"},

@@ -4861,7 +4861,13 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
     const char *tok_token      = json_find_attr(buf, tokens, count, "token");
 
     if (!tok_token)
+    {
+        sharkd_json_error(
+            rpcid, -10005, NULL,
+            "missing token"
+        );
         return;
+    }
 
     if (!strncmp(tok_token, "eo:", 3))
     {
@@ -4973,6 +4979,13 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
                 "no rtp data available"
             );
         }
+    }
+    else
+    {
+        sharkd_json_error(
+            rpcid, -10004, NULL,
+            "unrecognized token"
+        );
     }
 }
 
