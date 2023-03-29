@@ -25,6 +25,10 @@ static mmdb_lookup_t mmdb_not_found;
 #include <stdio.h>
 #include <errno.h>
 
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+
 #include <epan/wmem_scopes.h>
 
 #include <epan/addr_resolv.h>
@@ -392,6 +396,33 @@ static void mmdb_resolve_stop(void) {
 
     ws_debug("closing pid %d", mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
+#ifndef _WIN32
+    /* Reap mmdbresolve, especially as we may not be shutting down.
+     * (E.g. when the configuration changed or it terminated unexpectedly,
+     * leading to this getting called when the worker threads exited.)
+     */
+    for (int retry_waitpid = 0; retry_waitpid <= 3; ++retry_waitpid) {
+        if (waitpid(mmdbr_pipe.pid, NULL, 0) != -1) {
+            /* waitpid() succeeded. We don't care about the exit status
+             * (we could log it in case it's unexpected)
+             */
+        } else {
+            /* waitpid() failed */
+            if (errno == EINTR) {
+                /* signal interrupted. Just try again */
+                continue;
+            } else if (errno == ECHILD) {
+                /* PID doesn't exist any more or isn't our child.
+                 * possibly already reaped?
+                 */
+            } else {
+                /* Unexpected error. */
+                ws_warning("Error from waitpid(): %s", g_strerror(errno));
+            }
+        }
+        break;
+    }
+#endif
     mmdbr_pipe.pid = WS_INVALID_PID;
 
     // child process notices broken stdin pipe and exits (breaks stdout pipe)
