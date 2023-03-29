@@ -87,7 +87,7 @@ proto_register_cert(void)
         proto_register_field_array(proto_cert, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
-        register_dissector("application/pkix-cert", dissect_cert, proto_cert);
+        register_dissector("pkix-cert", dissect_cert, proto_cert);
 }
 
 

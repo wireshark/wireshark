@@ -1357,6 +1357,10 @@ proto_register_socks( void){
 
     proto_register_field_array(proto_socks, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    socks_udp_handle = register_dissector_with_description("socks_udp", "SOCKS over UDP", socks_udp_dissector, proto_socks);
+    socks_handle = register_dissector_with_description("socks_tcp", "SOCKS over TCP", dissect_socks, proto_socks);
+    socks_handle_tls = register_dissector_with_description("socks_tls", "SOCKS over TLS", dissect_socks_tls, proto_socks);
 }
 
 
@@ -1364,9 +1368,6 @@ void
 proto_reg_handoff_socks(void) {
 
     /* dissector install routine */
-    socks_udp_handle = create_dissector_handle(socks_udp_dissector, proto_socks);
-    socks_handle = create_dissector_handle(dissect_socks, proto_socks);
-    socks_handle_tls = register_dissector("SOCKS over TLS", dissect_socks_tls, proto_socks);
 
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_SOCKS, socks_handle);
 

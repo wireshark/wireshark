@@ -3309,9 +3309,23 @@ destroy_dissector_handle(dissector_handle_t handle)
 	wmem_free(wmem_epan_scope(), handle);
 }
 
+static void
+check_valid_dissector_name_or_fail(const char *name)
+{
+	if (proto_check_field_name(name)) {
+		ws_error("Dissector name \"%s\" has one or more invalid characters."
+			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
+			" This might be caused by an inappropriate plugin or a development error.", name);
+	}
+}
+
 static dissector_handle_t
 register_dissector_handle(const char *name, dissector_handle_t handle)
 {
+	/* Make sure name is "parsing friendly" - descriptions should be
+         * used for complicated phrases. */
+	check_valid_dissector_name_or_fail(name);
+
 	/* Make sure the registration is unique */
 	ws_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
 
