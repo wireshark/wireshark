@@ -363,12 +363,10 @@ void UatFrame::on_clearToolButton_clicked()
 
 void UatFrame::resizeColumns()
 {
-    ui->uatTreeView->setVisible(false);
     for (int i = 0; i < uat_model_->columnCount(); i++) {
         ui->uatTreeView->resizeColumnToContents(i);
         if (i == 0) {
             ui->uatTreeView->setColumnWidth(i, ui->uatTreeView->columnWidth(i)+ui->uatTreeView->indentation());
         }
     }
-    ui->uatTreeView->setVisible(true);
 }
