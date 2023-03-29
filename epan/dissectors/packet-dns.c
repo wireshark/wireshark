@@ -1328,7 +1328,12 @@ static const range_string dns_ext_err_info_code[] = {
   {    22,    22, "No Reachable Authority"       },
   {    23,    23, "Network Error"                },
   {    24,    24, "Invalid Data"                 },
-  {    25, 49151, "Unassigned"                   },
+  {    25,    25, "Signature Expired before Valid" },
+  {    26,    26, "Too Early"                    },
+  {    27,    27, "Unsupported NSEC3 Iterations Value" },
+  {    28,    28, "Unable to conform to policy"  },
+  {    29,    29, "Synthesized"                  },
+  {    30, 49151, "Unassigned"                   },
   { 49152, 65535, "Reserved for Private Use"     },
   {     0,     0, NULL                           } };
 
