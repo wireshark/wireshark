@@ -603,6 +603,7 @@ typedef struct {
 
 
 /* Work out bundle allocation for ext 11.  Take into account ext6, ext12 or ext13 in this section before ext 11. */
+/* Won't be called with numBundPrb=0 */
 static void ext11_work_out_bundles(guint startPrbc,
                                    guint numPrbc,
                                    guint numBundPrb,             /* number of PRBs pre (full) bundle */
@@ -639,7 +640,7 @@ static void ext11_work_out_bundles(guint startPrbc,
         settings->num_bundles = bundles_set;
     }
 
-    /* Allocation configured by ext 6 */
+    /* Allocation configured by ext 12 */
     else if (settings->ext12_set) {
         /* First, allocate normally from startPrbc, numPrbc */
         settings->num_bundles = (numPrbc+numBundPrb-1) / numBundPrb;
@@ -699,6 +700,10 @@ static void ext11_work_out_bundles(guint startPrbc,
         for (guint alloc=0; alloc < settings->ext13_num_start_prbs; alloc++) {
             guint alloc_start = alloc * alloc_size;
             for (guint32 n=0; n < alloc_size; n++) {
+                if ((alloc_start+n) >= MAX_BFW_BUNDLES) {
+                    /* ERROR */
+                    return;
+                }
                 settings->bundles[alloc_start+n].start = settings->ext13_start_prbs[alloc] + startPrbc + n*numBundPrb;
                 settings->bundles[alloc_start+n].end =   settings->bundles[alloc_start+n].start + numBundPrb-1;
                 if (settings->bundles[alloc_start+n].end > settings->ext13_start_prbs[alloc] + numPrbc) {
