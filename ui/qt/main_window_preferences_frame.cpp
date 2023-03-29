@@ -209,7 +209,7 @@ void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int ind
 {
     g_free(language);
 
-    language = g_strdup(ui->languageComboBox->itemData(index).toString().toStdString().c_str());
+    language = qstring_strdup(ui->languageComboBox->itemData(index).toString());
 }
 
 void MainWindowPreferencesFrame::on_windowTitle_textEdited(const QString &new_title)
