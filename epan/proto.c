@@ -3057,6 +3057,19 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	switch (new_fi->hfinfo->type) {
 
 	case FT_STRING:
+		/* XXX: trailing stray character detection should be done
+	         * _before_ conversion to UTF-8, because conversion can change
+	         * the length, or else get_string_length should return a value
+	         * for the "length in bytes of the string after conversion
+	         * including internal nulls." (Noting that we do, for other
+	         * reasons, still need the "length in bytes in the field",
+	         * especially for FT_STRINGZ.)
+	         *
+	         * This is true even for ASCII and UTF-8, because
+	         * substituting REPLACEMENT CHARACTERS for illegal characters
+	         * can also do so (and for UTF-8 possibly even make the
+	         * string _shorter_).
+	         */
 		detect_trailing_stray_characters(encoding, stringval, length, pi);
 		break;
 
