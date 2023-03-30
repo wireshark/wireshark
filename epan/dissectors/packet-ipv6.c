@@ -70,13 +70,14 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_PDM                      0x0F    /* 00 0 01111 =  15 */
 #define IP6OPT_APN6                     0x13    /* 00 0 10003 =  19 */
 #define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
+#define IP6OPT_RPL                      0x23    /* 00 1 00011 =  35 */
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
 #define IP6OPT_PMTU                     0x30    /* 00 1 10000 =  48 */
 #define IP6OPT_IOAM                     0x31    /* 00 1 10001 =  49 */
 #define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 =  62 */
 #define IP6OPT_TPF                      0x41    /* 01 0 00001 =  65 */
 #define IP6OPT_EXP_5E                   0x5E    /* 01 0 11110 =  94 */
-#define IP6OPT_RPL                      0x63    /* 01 1 00011 =  99 */
+#define IP6OPT_RPL_OLD                  0x63    /* 01 1 00011 =  99 */ /* DEPRECATED */
 #define IP6OPT_MPL                      0x6D    /* 01 1 01101 = 109 */
 #define IP6OPT_EXP_7E                   0x7E    /* 01 1 11110 = 126 */
 #define IP6OPT_ENDI                     0x8A    /* 10 0 01010 = 138 */ /* DEPRECATED */
@@ -821,13 +822,14 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_PDM,           "Performance and Diagnostic Metrics" },
     { IP6OPT_APN6,          "Application-Aware IPv6 Networking (APN6)" },
     { IP6OPT_EXP_1E,        "Experimental (0x1E)"           },
+    { IP6OPT_RPL,           "RPL Option"                    },
     { IP6OPT_QUICKSTART,    "Quick-Start"                   },
     { IP6OPT_PMTU,          "Path MTU Option"               },
     { IP6OPT_IOAM,          "IOAM Option"                   },
     { IP6OPT_EXP_3E,        "Experimental (0x3E)"           },
     { IP6OPT_TPF,           "Tunnel Payload Forwarding (TPF) Information" },
     { IP6OPT_EXP_5E,        "Experimental (0x5E)"           },
-    { IP6OPT_RPL,           "RPL Option"                    },
+    { IP6OPT_RPL_OLD,       "RPL Option (deprecated)"       },
     { IP6OPT_MPL,           "MPL Option"                    },
     { IP6OPT_EXP_7E,        "Experimental (0x7E)"           },
     { IP6OPT_ENDI,          "Endpoint Identification"       },
@@ -895,10 +897,11 @@ static const gint _ipv6_opt_type_hdr[][2] = {
     { IP6OPT_CALIPSO,       IPv6_OPT_HDR_HBH },
     { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
     { IP6OPT_PDM,           IPv6_OPT_HDR_DST },
+    { IP6OPT_RPL,           IPv6_OPT_HDR_HBH },
     { IP6OPT_QUICKSTART,    IPv6_OPT_HDR_HBH },
     { IP6OPT_IOAM,          IPv6_OPT_HDR_HBH },
     { IP6OPT_TPF,           IPv6_OPT_HDR_DST },
-    { IP6OPT_RPL,           IPv6_OPT_HDR_HBH },
+    { IP6OPT_RPL_OLD,       IPv6_OPT_HDR_HBH },
     { IP6OPT_MPL,           IPv6_OPT_HDR_HBH },
     { IP6OPT_ILNP_NONCE,    IPv6_OPT_HDR_DST },
     { IP6OPT_LIO,           IPv6_OPT_HDR_DST },
@@ -2849,6 +2852,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             offset = dissect_opt_jumbo(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_RPL:
+        case IP6OPT_RPL_OLD:
             offset = dissect_opt_rpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_TEL:
