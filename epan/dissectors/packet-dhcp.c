@@ -64,6 +64,7 @@
  * RFC 7839: Access-Network-Identifier Option in DHCP
  * RFC 8357: Generalized UDP Source Port for DHCP Relay
  * RFC 8910: Captive-Portal Identification in DHCP and Router Advertisements (RAs)
+ * RFC 8925: IPv6-Only Preferred Option for DHCPv4
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: https://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -1488,7 +1489,7 @@ static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 105 */ { "Removed/unassigned",			opaque, NULL },
 /* 106 */ { "Removed/unassigned",			opaque, NULL },
 /* 107 */ { "Removed/unassigned",			opaque, NULL },
-/* 108 */ { "Removed/Unassigned",			opaque, NULL },
+/* 108 */ { "IPv6-Only Preferred",			opaque, NULL },
 /* 109 */ { "Unassigned",				opaque, NULL },
 /* 110 */ { "Removed/Unassigned",			opaque, NULL },
 /* 111 */ { "Unassigned",				opaque, NULL },
