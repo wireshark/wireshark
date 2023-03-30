@@ -42151,7 +42151,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tim_aid,
      {"Association ID", "wlan.tim.aid",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
+      FT_UINT16, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ibss_atim_window,
