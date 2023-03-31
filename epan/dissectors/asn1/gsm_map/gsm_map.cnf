@@ -51,7 +51,6 @@ NumberPorted/_untag
 Code
 Priority
 CommonComponentId
-SubscriberId
 GuidanceInfo
 SS-InfoList
 # Omitting SubscriberData makes CONTENT OF fail and InsertSubscriberDataArg will not get all its tags
