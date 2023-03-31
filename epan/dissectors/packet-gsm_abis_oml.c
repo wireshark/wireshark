@@ -1849,11 +1849,11 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_NS_LINK_CFG:
-			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_sport,
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_dport,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_daddr,
 					   tvb, offset+2, 4, ENC_NA);
-			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_dport,
+			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_sport,
 					    tvb, offset+6, 2, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_NS_CFG:
