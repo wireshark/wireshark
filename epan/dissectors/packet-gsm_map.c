@@ -129,7 +129,6 @@ static int hf_gsm_map_cbs_coding_grp4_7_char_set = -1;
 static int hf_gsm_map_cbs_coding_grp4_7_class = -1;
 static int hf_gsm_map_cbs_coding_grp15_mess_code = -1;
 static int hf_gsm_map_cbs_coding_grp15_class = -1;
-static int hf_gsm_map_tmsi = -1;
 static int hf_gsm_map_ie_tag = -1;
 static int hf_gsm_map_len = -1;
 static int hf_gsm_map_disc_par = -1;
@@ -183,6 +182,7 @@ static int hf_gsm_map_signalInfo_01 = -1;         /* LongSignalInfo */
 static int hf_gsm_map_imsi = -1;                  /* IMSI */
 static int hf_gsm_map_imsi_WithLMSI = -1;         /* IMSI_WithLMSI */
 static int hf_gsm_map_lmsi = -1;                  /* LMSI */
+static int hf_gsm_map_tmsi = -1;                  /* TMSI */
 static int hf_gsm_map_HLR_List_item = -1;         /* HLR_Id */
 static int hf_gsm_map_naea_PreferredCIC = -1;     /* NAEA_CIC */
 static int hf_gsm_map_msisdn = -1;                /* ISDN_AddressString */
@@ -1781,7 +1781,7 @@ static int hf_gsm_old_locationInfo = -1;          /* LocationInfo */
 static int hf_gsm_old_lmsi_01 = -1;               /* LMSI */
 static int hf_gsm_old_roamingNumber = -1;         /* ISDN_AddressString */
 static int hf_gsm_old_msc_Number = -1;            /* ISDN_AddressString */
-static int hf_gsm_old_subscriberId = -1;          /* SubscriberIdentity */
+static int hf_gsm_old_subscriberId = -1;          /* SubscriberId */
 static int hf_gsm_old_requestParameterList = -1;  /* RequestParameterList */
 static int hf_gsm_old_RequestParameterList_item = -1;  /* RequestParameter */
 static int hf_gsm_old_authenticationSet = -1;     /* AuthenticationSetListOld */
@@ -2102,6 +2102,7 @@ static gint ett_gsm_map_Ext_ExternalSignalInfo = -1;
 static gint ett_gsm_map_AccessNetworkSignalInfo = -1;
 static gint ett_gsm_map_Identity = -1;
 static gint ett_gsm_map_IMSI_WithLMSI = -1;
+static gint ett_gsm_map_SubscriberId = -1;
 static gint ett_gsm_map_HLR_List = -1;
 static gint ett_gsm_map_NAEA_PreferredCI = -1;
 static gint ett_gsm_map_SubscriberIdentity = -1;
@@ -4346,6 +4347,28 @@ static int
 dissect_gsm_map_TMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+static const value_string gsm_map_SubscriberId_vals[] = {
+  {   0, "imsi" },
+  {   1, "tmsi" },
+  { 0, NULL }
+};
+
+static const ber_choice_t gsm_map_SubscriberId_choice[] = {
+  {   0, &hf_gsm_map_imsi        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  {   1, &hf_gsm_map_tmsi        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_TMSI },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_SubscriberId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 gsm_map_SubscriberId_choice, hf_index, ett_gsm_map_SubscriberId,
+                                 NULL);
 
   return offset;
 }
@@ -19110,7 +19133,7 @@ dissect_gsm_old_RequestParameterList(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t gsm_old_SendParametersArg_sequence[] = {
-  { &hf_gsm_old_subscriberId, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_gsm_map_SubscriberIdentity },
+  { &hf_gsm_old_subscriberId, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_gsm_map_SubscriberId },
   { &hf_gsm_old_requestParameterList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_old_RequestParameterList },
   { NULL, 0, 0, 0, NULL }
 };
@@ -24609,11 +24632,6 @@ void proto_register_gsm_map(void) {
           FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,
           NULL, HFILL }
       },
-      { &hf_gsm_map_tmsi,
-        { "tmsi", "gsm_map.tmsi",
-          FT_BYTES, BASE_NONE, NULL, 0,
-          "gsm_map.TMSI", HFILL }},
-
       { &hf_gsm_map_ie_tag,
         { "Tag", "gsm_map.ie_tag",
           FT_UINT8, BASE_DEC, VALS(gsm_map_tag_vals), 0,
@@ -24802,6 +24820,10 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
     { &hf_gsm_map_lmsi,
       { "lmsi", "gsm_map.lmsi",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_tmsi,
+      { "tmsi", "gsm_map.tmsi",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_map_HLR_List_item,
@@ -31084,8 +31106,8 @@ void proto_register_gsm_map(void) {
         "ISDN_AddressString", HFILL }},
     { &hf_gsm_old_subscriberId,
       { "subscriberId", "gsm_old.subscriberId",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_SubscriberIdentity_vals), 0,
-        "SubscriberIdentity", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(gsm_map_SubscriberId_vals), 0,
+        NULL, HFILL }},
     { &hf_gsm_old_requestParameterList,
       { "requestParameterList", "gsm_old.requestParameterList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -32156,6 +32178,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_AccessNetworkSignalInfo,
     &ett_gsm_map_Identity,
     &ett_gsm_map_IMSI_WithLMSI,
+    &ett_gsm_map_SubscriberId,
     &ett_gsm_map_HLR_List,
     &ett_gsm_map_NAEA_PreferredCI,
     &ett_gsm_map_SubscriberIdentity,
