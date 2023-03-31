@@ -255,7 +255,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x20000089, "Apple Inc." },                                      /* From Ref. 1 */
 	{  0x20005890, "AOMedia (Alliance for Open Media)" },               /* From Ref. 1 */
 	/* Finland */
-	{  0x3c000000, "Nokia" },											/* From captures */
+	{  0x3c000000, "Nokia" },                                           /* From captures */
 	/* France */
 	{  0x3d000310, "Swissvoice" },
 	{  0x3d000311, "Swissvoice" },
@@ -320,7 +320,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb4004200, "Motion Media Technology" },                         /* From Ref. 2 */
 	{  0xb4004400, "Data Connection" },                                 /* From Ref. 2 */
 	{  0xb4004500, "Westbay Engineers" },                               /* From Ref. 2 */
-	{  0xb4004600, "FarSite Communications" },                               /* From Ref. 2 */
+	{  0xb4004600, "FarSite Communications" },                          /* From Ref. 2 */
 	{  0xb4004900, "ImageCom" },                                        /* From Ref. 2 */
 	{  0xb4004d00, "Madge Networks" },                                  /* From Ref. 2 */
 	{  0xb4005200, "Ridgeway Systems and Software" },                   /* From Ref. 2 */
