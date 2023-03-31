@@ -47,6 +47,10 @@
 *       https://www-304.ibm.com/support/docview.wss?uid=pub1sc18985301
 *         (now dead)
 *       https://publibfp.boulder.ibm.com/epubs/pdf/dsnudh10.pdf
+*
+*   Microsoft has some references that can be useful as well:
+*
+*       https://learn.microsoft.com/en-us/dotnet/api/microsoft.hostintegration.drda.common?view=his-dotnet
 */
 
 #include "config.h"
@@ -83,6 +87,8 @@ static int hf_drda_svrcod = -1;
 static int hf_drda_secchkcd = -1;
 static int hf_drda_ccsid = -1;
 static int hf_drda_mgrlvln = -1;
+static int hf_drda_respktsz = -1;
+static int hf_drda_pktobj = -1;
 
 static gint ett_drda = -1;
 static gint ett_drda_ddm = -1;
@@ -167,10 +173,13 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_SYNCPTMGR     0x14C0
 #define DRDA_CP_RSYNCMGR      0x14C1
 #define DRDA_CP_CCSIDMGR      0x14CC
+#define DRDA_CP_SNDPKT        0x1805
 #define DRDA_CP_MONITOR       0x1900
+#define DRDA_CP_RESPKTSZ      0x1908
 #define DRDA_CP_CCSIDXML      0x1913
 #define DRDA_CP_MONITORRD     0x1C00
 #define DRDA_CP_XAMGR         0x1C01
+#define DRDA_CP_PKTOBJ        0x1C04
 #define DRDA_CP_UNICODEMGR    0x1C08
 #define DRDA_CP_ACCRDB        0x2001
 #define DRDA_CP_BGNBND        0x2002
@@ -366,10 +375,13 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_SYNCPTMGR,    "Sync Point Manager" },
     { DRDA_CP_RSYNCMGR,     "ResynchronizationManager" },
     { DRDA_CP_CCSIDMGR,     "CCSID Manager" },
+    { DRDA_CP_SNDPKT,       "Send Packet" },
     { DRDA_CP_MONITOR,      "Monitor Events" },
+    { DRDA_CP_RESPKTSZ,     "Response Packet Size" },
     { DRDA_CP_CCSIDXML,     "CCSID for External Encoded XML Strings" },
     { DRDA_CP_MONITORRD,    "Monitor Reply Data" },
     { DRDA_CP_XAMGR,        "XAManager" },
+    { DRDA_CP_PKTOBJ,       "Packet Object" },
     { DRDA_CP_UNICODEMGR,   "Unicode Manager" },
     { DRDA_CP_ACCRDB,       "Access RDB" },
     { DRDA_CP_BGNBND,       "Begin Binding a Package to an RDB" },
@@ -552,10 +564,13 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_SYNCPTMGR,    "SYNCPTMGR" },
     { DRDA_CP_RSYNCMGR,     "RSYNCMGR" },
     { DRDA_CP_CCSIDMGR,     "CCSIDMGR" },
+    { DRDA_CP_SNDPKT,       "SNDPKT" },
     { DRDA_CP_MONITOR,      "MONITOR" },
+    { DRDA_CP_RESPKTSZ,     "RESPKTSZ" },
     { DRDA_CP_CCSIDXML,     "CCSIDXML" },
     { DRDA_CP_MONITORRD,    "MONITORRD" },
     { DRDA_CP_XAMGR,        "XAMGR" },
+    { DRDA_CP_PKTOBJ,       "PKTOBJ" },
     { DRDA_CP_UNICODEMGR,   "UNICODEMGR" },
     { DRDA_CP_ACCRDB,       "ACCRDB" },
     { DRDA_CP_BGNBND,       "BGNBND" },
@@ -775,6 +790,20 @@ dissect_drda_ccsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 }
 
 static int
+dissect_drda_respktsz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_respktsz, tvb, 0, 4, ENC_BIG_ENDIAN);
+    return 4;
+}
+
+static int
+dissect_drda_pktobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_pktobj, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+    return tvb_reported_length(tvb);
+}
+
+static int
 dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree *drda_tree_sub;
@@ -889,37 +918,40 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    /* The number of attributes is variable */
-    offset = 10;
-    while (tvb_reported_length_remaining(tvb, offset) >= 2)
-    {
-        iLengthParam = tvb_get_ntohs(tvb, offset + 0);
-        if (iLengthParam == 0 || iLengthParam == 1)
-            iLengthParam = iLength - 10;
-        if (tvb_reported_length_remaining(tvb, offset) >= iLengthParam)
+    /* There are a few command objects treated differently, like SNDPKT */
+    if (!dissector_try_uint(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree)) {
+        /* The number of attributes is variable */
+        offset = 10;
+        while (tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            iParameterCP = tvb_get_ntohs(tvb, offset + 2);
-            drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, iLengthParam,
-                            ett_drda_param, &ti, DRDA_TEXT_PARAM);
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
-            proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if (!dissector_try_uint(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub)) {
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
-                if (iCommand == DRDA_CP_SQLSTT)
-                {
-                    /* Extract SQL statement from packet */
-                    tvbuff_t* next_tvb = NULL;
-                    next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
-                    add_new_data_source(pinfo, next_tvb, "SQL statement");
-                    proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_length, next_tvb, 0, 1, ENC_NA);
-                    proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 1, iLengthParam - 6, ENC_UTF_8);
-                    proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC);
+            iLengthParam = tvb_get_ntohs(tvb, offset + 0);
+            if (iLengthParam == 0 || iLengthParam == 1)
+                iLengthParam = iLength - 10;
+            if (tvb_reported_length_remaining(tvb, offset) >= iLengthParam)
+            {
+                iParameterCP = tvb_get_ntohs(tvb, offset + 2);
+                drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, iLengthParam,
+                                ett_drda_param, &ti, DRDA_TEXT_PARAM);
+                proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
+                proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                if (!dissector_try_uint(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub)) {
+                    proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
+                    proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
+                    if (iCommand == DRDA_CP_SQLSTT)
+                    {
+                        /* Extract SQL statement from packet */
+                        tvbuff_t* next_tvb = NULL;
+                        next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
+                        add_new_data_source(pinfo, next_tvb, "SQL statement");
+                        proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_length, next_tvb, 0, 1, ENC_NA);
+                        proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 1, iLengthParam - 6, ENC_UTF_8);
+                        proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC);
+                    }
                 }
             }
+            offset += iLengthParam;
         }
-        offset += iLengthParam;
     }
 
     return tvb_captured_length(tvb);
@@ -1085,6 +1117,16 @@ proto_register_drda(void)
           { "Manager-level Number", "drda.mgrlvln", FT_UINT16, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_drda_respktsz,
+          { "Response Packet Size", "drda.respktsz", FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_pktobj,
+          { "Packet Object", "drda.pktobj", FT_BYTES, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -1143,6 +1185,8 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_CCSIDMBC, ccsid_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_CCSIDXML, ccsid_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_RDBACCCL, codpntdr_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_RESPKTSZ, create_dissector_handle(dissect_drda_respktsz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_PKTOBJ, create_dissector_handle(dissect_drda_pktobj, proto_drda));
 }
 
 /*
