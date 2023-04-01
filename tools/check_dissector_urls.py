@@ -200,7 +200,7 @@ elif args.commits:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Fetch links from files (dissectors files only)
-    files = list(filter(lambda f: is_dissector_file(f), files))
+    files = list(filter(is_dissector_file, files))
     for f in files:
         find_links_in_file(f)
 elif args.open:
@@ -208,12 +208,12 @@ elif args.open:
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
-    files = list(filter(lambda f: is_dissector_file(f), files))
+    files = list(filter(is_dissector_file, files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
-    files_staged = list(filter(lambda f: is_dissector_file(f), files_staged))
+    files_staged = list(filter(is_dissector_file, files_staged))
     for f in files:
         find_links_in_file(f)
     for f in files_staged:
