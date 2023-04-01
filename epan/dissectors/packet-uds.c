@@ -22,6 +22,7 @@ void proto_reg_handoff_uds(void);
 
 #define DATAFILE_UDS_ROUTINE_IDS "UDS_routine_identifiers"
 #define DATAFILE_UDS_DATA_IDS    "UDS_data_identifiers"
+#define DATAFILE_UDS_DTC_IDS     "UDS_dtc_identifiers"
 #define DATAFILE_UDS_ADDRESSES   "UDS_diagnostic_addresses"
 
 #define UDS_RESPONSE_CODES_GR       0x10
@@ -111,6 +112,11 @@ void proto_reg_handoff_uds(void);
 #define UDS_RDTCI_TYPES_FIRST_CONFIRMED_DTC       0xC
 #define UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED   0xD
 #define UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC 0xE
+#define UDS_RDTCI_TYPES_OUTDATED_RMMDTCBSM        0xF
+#define UDS_RDTCI_TYPES_OUTDATED_RMMDEDRBDN       0x10
+#define UDS_RDTCI_TYPES_OUTDATED_RNOMMDTCBSM      0x11
+#define UDS_RDTCI_TYPES_OUTDATED_RNOOEOBDDTCBSM   0x12
+#define UDS_RDTCI_TYPES_OUTDATED_ROBDDTCBSM       0x13
 #define UDS_RDTCI_TYPES_DTC_FAULT_DETECT_CTR      0x14
 #define UDS_RDTCI_TYPES_DTC_WITH_PERM_STATUS      0x15
 #define UDS_RDTCI_TYPES_DTC_EXT_DATA_REC_BY_NUM   0x16
@@ -121,6 +127,15 @@ void proto_reg_handoff_uds(void);
 #define UDS_RDTCI_TYPES_WWH_OBD_DTC_BY_MASK_REC   0x42
 #define UDS_RDTCI_TYPES_WWH_OBD_DTC_PERM_STATUS   0x55
 #define UDS_RDTCI_TYPES_WWH_OBD_BY_GROUP_READY    0x56
+
+#define UDS_RDTCI_DTC_STATUS_TEST_FAILED                      0x01
+#define UDS_RDTCI_DTC_STATUS_TEST_FAILED_THIS_OPER_CYCLE      0x02
+#define UDS_RDTCI_DTC_STATUS_PENDING_DTC                      0x04
+#define UDS_RDTCI_DTC_STATUS_CONFIRMED_DTC                    0x08
+#define UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_SINCE_LAST_CLEAR  0x10
+#define UDS_RDTCI_DTC_STATUS_TEST_FAILED_SINCE_LAST_CLEAR     0x20
+#define UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_THIS_OPER_CYCLE   0x40
+#define UDS_RDTCI_DTC_STATUS_WARNING_INDICATOR_REQUESTED      0x80
 
 #define UDS_SA_TYPES_RESERVED                     0x00
 #define UDS_SA_TYPES_REQUEST_SEED                 0x01
@@ -363,6 +378,11 @@ static const value_string uds_rdtci_types[] = {
         {UDS_RDTCI_TYPES_FIRST_CONFIRMED_DTC,       "Report First Confirmed DTC"},
         {UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED,   "Report Most Recent Test Failed DTC"},
         {UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC, "Report Most Recent Confirmed DTC"},
+        {UDS_RDTCI_TYPES_OUTDATED_RMMDTCBSM,        "Report Mirror Memory DTC By Status Mask (outdated 2013 revision)"},
+        {UDS_RDTCI_TYPES_OUTDATED_RMMDEDRBDN,       "Report Mirror Memory DTC Ext Data Record by DTC Number (outdated 2013 revision)"},
+        {UDS_RDTCI_TYPES_OUTDATED_RNOMMDTCBSM,      "Report Number of Mirror Memory DTC by Status Mask (outdated 2013 revision)"},
+        {UDS_RDTCI_TYPES_OUTDATED_RNOOEOBDDTCBSM,   "Report Number of Emissions OBD DTC by Status Mask (outdated 2013 revision)"},
+        {UDS_RDTCI_TYPES_OUTDATED_ROBDDTCBSM,       "Report Emissions OBD DTC By Status Mask (outdated 2013 revision)"},
         {UDS_RDTCI_TYPES_DTC_FAULT_DETECT_CTR,      "Report DTC Fault Detection Counter"},
         {UDS_RDTCI_TYPES_DTC_WITH_PERM_STATUS,      "Report DTC with Permanent Status"},
         {UDS_RDTCI_TYPES_DTC_EXT_DATA_REC_BY_NUM,   "Report DTC Extended Data Record by Record Number"},
@@ -374,6 +394,15 @@ static const value_string uds_rdtci_types[] = {
         {UDS_RDTCI_TYPES_WWH_OBD_DTC_PERM_STATUS,   "Report WWH-OBD DTC With Permanent Status"},
         {UDS_RDTCI_TYPES_WWH_OBD_BY_GROUP_READY,    "Report WWH-OBD DTC By Readiness Group Identifier"},
         {0, NULL}
+};
+
+static const value_string uds_rdtci_format_id_types[] = {
+    {0x00, "SAE J2012-DA DTC Format 00"},
+    {0x01, "ISO 14229-1 DTC Format"},
+    {0x02, "SAE J1939-73 DTC Format"},
+    {0x03, "ISO 11992-4 DTC Format"},
+    {0x04, "SAE J2012-DA DTC Format 04"},
+    {0, NULL}
 };
 
 /* IOCBI */
@@ -469,6 +498,14 @@ static const value_string uds_standard_rid_types[] = {
         {UDS_RID_FF02,          "eraseMirrorMemoryDTCs (deprecated)"},
         {0, NULL}
 };
+
+/* DTCS */
+static const value_string uds_standard_dtc_types[] = {
+    /* TODO: Add DTCs! */
+    {0, NULL}
+};
+
+
 /*
  * Fields
  */
@@ -492,7 +529,53 @@ static int hf_uds_er_subfunction = -1;
 static int hf_uds_er_power_down_time = -1;
 
 static int hf_uds_rdtci_subfunction = -1;
+static int hf_uds_rdtci_dtc_status_mask = -1;
+static int hf_uds_rdtci_dtc_status_mask_tf = -1;
+static int hf_uds_rdtci_dtc_status_mask_tftoc = -1;
+static int hf_uds_rdtci_dtc_status_mask_pdtc = -1;
+static int hf_uds_rdtci_dtc_status_mask_cdtc = -1;
+static int hf_uds_rdtci_dtc_status_mask_tncslc = -1;
+static int hf_uds_rdtci_dtc_status_mask_tfslc = -1;
+static int hf_uds_rdtci_dtc_status_mask_tnctoc = -1;
+static int hf_uds_rdtci_dtc_status_mask_wir = -1;
+static int hf_uds_rdtci_dtc_mask_record = -1;
+static int hf_uds_rdtci_dtc_snapshot_rec_no = -1;
+static int hf_uds_rdtci_dtc_stored_data_rec_no = -1;
+static int hf_uds_rdtci_dtc_ext_data_rec_no = -1;
+static int hf_uds_rdtci_memory_selection = -1;
+static int hf_uds_rdtci_user_def_dtc_snapshot_rec_no = -1;
+static int hf_uds_rdtci_dtc_severity_mask = -1;
+static int hf_uds_rdtci_functional_group_id = -1;
+static int hf_uds_rdtci_dtc_readiness_group_id = -1;
+static int hf_uds_rdtci_dtc_status_avail = -1;
+static int hf_uds_rdtci_dtc_status_avail_tf = -1;
+static int hf_uds_rdtci_dtc_status_avail_tftoc = -1;
+static int hf_uds_rdtci_dtc_status_avail_pdtc = -1;
+static int hf_uds_rdtci_dtc_status_avail_cdtc = -1;
+static int hf_uds_rdtci_dtc_status_avail_tncslc = -1;
+static int hf_uds_rdtci_dtc_status_avail_tfslc = -1;
+static int hf_uds_rdtci_dtc_status_avail_tnctoc = -1;
+static int hf_uds_rdtci_dtc_status_avail_wir = -1;
+static int hf_uds_rdtci_dtc_id = -1;
+static int hf_uds_rdtci_dtc_status = -1;
+static int hf_uds_rdtci_dtc_status_tf = -1;
+static int hf_uds_rdtci_dtc_status_tftoc = -1;
+static int hf_uds_rdtci_dtc_status_pdtc = -1;
+static int hf_uds_rdtci_dtc_status_cdtc = -1;
+static int hf_uds_rdtci_dtc_status_tncslc = -1;
+static int hf_uds_rdtci_dtc_status_tfslc = -1;
+static int hf_uds_rdtci_dtc_status_tnctoc = -1;
+static int hf_uds_rdtci_dtc_status_wir = -1;
+static int hf_uds_rdtci_dtc_format_id = -1;
+static int hf_uds_rdtci_dtc_count = -1;
+static int hf_uds_rdtci_dtc_snapshot_record_number_of_ids = -1;
+static int hf_uds_rdtci_dtc_stored_data_record_number_of_ids = -1;
+static int hf_uds_rdtci_dtc_severity = -1;
+static int hf_uds_rdtci_dtc_functional_unit = -1;
+static int hf_uds_rdtci_dtc_fault_detect_counter = -1;
+static int hf_uds_rdtci_dtc_severity_avail = -1;
 static int hf_uds_rdtci_record = -1;
+static int hf_uds_rdtci_record_unparsed = -1;
 
 static int hf_uds_rdbi_data_identifier = -1;
 static int hf_uds_rdbi_data_record = -1;
@@ -546,6 +629,10 @@ static int hf_uds_unparsed_bytes = -1;
 static gint ett_uds = -1;
 static gint ett_uds_subfunction = -1;
 static gint ett_uds_dsc_parameter_record = -1;
+static gint ett_uds_dtc_status_entry = -1;
+static gint ett_uds_dtc_status_bits = -1;
+static gint ett_uds_dtc_snapshot_entry = -1;
+static gint ett_uds_dtc_counter_entry = -1;
 
 static int proto_uds = -1;
 
@@ -618,7 +705,7 @@ post_update_address_string_cb(address_string_t *data, guint data_num, GHashTable
 
 typedef struct _generic_addr_id_string {
     guint32  address;
-    guint    id;
+    guint32  id;
     gchar   *name;
 } generic_addr_id_string_t;
 
@@ -634,11 +721,11 @@ copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
 }
 
 static gboolean
-update_generic_addr_id_16bit(void *r, char **err) {
+update_generic_addr_16bit_id_var(void *r, char **err, guint32 limit) {
     generic_addr_id_string_t *rec = (generic_addr_id_string_t *)r;
 
-    if (rec->id > 0xffff) {
-        *err = ws_strdup_printf("We currently only support 16 bit identifiers (Addr: %x ID: %i  Name: %s)", rec->address, rec->id, rec->name);
+    if (rec->id > limit) {
+        *err = ws_strdup_printf("We currently only support identifiers <= %x (Addr: %x ID: %i  Name: %s)", limit, rec->address, rec->id, rec->name);
         return FALSE;
     }
 
@@ -656,6 +743,16 @@ update_generic_addr_id_16bit(void *r, char **err) {
     return TRUE;
 }
 
+static gboolean
+update_generic_addr_16bit_id_16bit(void *r, char **err) {
+    return update_generic_addr_16bit_id_var(r, err, 0xffff);
+}
+
+static gboolean
+update_generic_addr_16bit_id_24bit(void *r, char **err) {
+    return update_generic_addr_16bit_id_var(r, err, 0xffffff);
+}
+
 static void
 free_generic_one_id_string_cb(void *r) {
     generic_addr_id_string_t *rec = (generic_addr_id_string_t *)r;
@@ -666,7 +763,7 @@ free_generic_one_id_string_cb(void *r) {
 }
 
 static gint64
-calc_key(guint32 addr, guint16 id) {
+calc_key(guint32 addr, guint32 id) {
     return ((gint64)id << 32) | (gint64)addr;
 }
 
@@ -684,13 +781,8 @@ post_update_one_id_string_template_cb(generic_addr_id_string_t *data, guint data
 }
 
 static char *
-generic_lookup_addr_id(guint32 addr, guint16 id, GHashTable *ht) {
+generic_lookup_addr_id(guint32 addr, guint32 id, GHashTable *ht) {
     char *ret = NULL;
-
-    /* we only currently allow 16bit + MAXUINT32 as any */
-    if (addr > G_MAXUINT16 && addr != G_MAXUINT32) {
-        addr = G_MAXUINT32;
-    }
 
     guint64 tmp = calc_key(addr, id);
 
@@ -813,6 +905,47 @@ infocol_append_data_name(packet_info *pinfo, guint32 addr, guint16 data_identifi
     const gchar *data_name = uds_lookup_data_name(addr, data_identifier);
     if (data_name != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", data_name);
+    }
+}
+
+
+/* DTC IDs */
+static generic_addr_id_string_t *uds_uat_dtc_ids = NULL;
+static guint uds_uat_dtc_id_num = 0;
+static GHashTable *uds_ht_dtc_ids = NULL;
+
+UAT_HEX_CB_DEF(uds_uat_dtc_ids, address, generic_addr_id_string_t)
+UAT_HEX_CB_DEF(uds_uat_dtc_ids, id, generic_addr_id_string_t)
+UAT_CSTRING_CB_DEF(uds_uat_dtc_ids, name, generic_addr_id_string_t)
+
+static void
+post_update_uds_dtc_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (uds_ht_dtc_ids) {
+        g_hash_table_destroy(uds_ht_dtc_ids);
+    }
+
+    /* create new hash table */
+    uds_ht_dtc_ids = g_hash_table_new_full(g_int64_hash, g_int64_equal, &simple_free_key, &simple_free);
+    post_update_one_id_string_template_cb(uds_uat_dtc_ids, uds_uat_dtc_id_num, uds_ht_dtc_ids);
+}
+
+static const char *
+uds_lookup_dtc_name(guint32 addr, guint32 id) {
+    const char *tmp = generic_lookup_addr_id(addr, id, uds_ht_dtc_ids);
+
+    if (tmp == NULL) {
+        tmp = try_val_to_str(id, uds_standard_dtc_types);
+    }
+
+    return tmp;
+}
+
+static void
+protoitem_append_dtc_name(proto_item *ti, guint32 addr, guint32 dtc_id) {
+    const gchar *dtc_name = uds_lookup_dtc_name(addr, dtc_id);
+    if (dtc_name != NULL) {
+        proto_item_append_text(ti, " (%s)", dtc_name);
     }
 }
 
@@ -979,6 +1112,537 @@ uds_sa_subfunction_format(gchar *ret, guint32 value) {
 }
 
 static int
+dissect_uds_dtc_and_status_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint32 offset, guint32 ecu_address, gboolean severity_present, gboolean func_unit_present) {
+    static int * const dtc_status_flags[] = {
+     &hf_uds_rdtci_dtc_status_wir,
+     &hf_uds_rdtci_dtc_status_tnctoc,
+     &hf_uds_rdtci_dtc_status_tfslc,
+     &hf_uds_rdtci_dtc_status_tncslc,
+     &hf_uds_rdtci_dtc_status_cdtc,
+     &hf_uds_rdtci_dtc_status_pdtc,
+     &hf_uds_rdtci_dtc_status_tftoc,
+     &hf_uds_rdtci_dtc_status_tf,
+     NULL
+    };
+
+    proto_item *ti_status_record, *ti;
+    proto_tree *entry_tree;
+
+    if (severity_present) {
+        entry_tree = proto_tree_add_subtree(uds_tree, tvb, offset, 4, ett_uds_dtc_status_entry, &ti_status_record, "DTC and Severity Record");
+
+        guint severity;
+        proto_tree_add_item_ret_uint(entry_tree, hf_uds_rdtci_dtc_severity, tvb, offset, 1, ENC_NA, &severity);
+        offset += 1;
+
+        if (func_unit_present) {
+            guint functional_unit;
+            proto_tree_add_item_ret_uint(entry_tree, hf_uds_rdtci_dtc_functional_unit, tvb, offset, 1, ENC_NA, &functional_unit);
+            offset += 1;
+
+            proto_item_append_text(ti_status_record, ", Severity:0x%02x, Functional Unit:0x%02x", severity, functional_unit);
+        } else {
+            proto_item_append_text(ti_status_record, ", Severity:0x%02x", severity);
+        }
+    } else {
+        entry_tree = proto_tree_add_subtree(uds_tree, tvb, offset, 4, ett_uds_dtc_status_entry, &ti_status_record, "DTC and Status Record");
+    }
+
+    guint dtc_id;
+    ti = proto_tree_add_item_ret_uint(entry_tree, hf_uds_rdtci_dtc_id, tvb, offset, 3, ENC_BIG_ENDIAN, &dtc_id);
+    protoitem_append_dtc_name(ti, ecu_address, dtc_id);
+    offset += 3;
+
+    guint64 dtc_status;
+    proto_tree_add_bitmask_with_flags_ret_uint64(entry_tree, tvb, offset, hf_uds_rdtci_dtc_status, ett_uds_dtc_status_bits, dtc_status_flags, ENC_NA, BMT_NO_APPEND, &dtc_status);
+    offset += 1;
+
+    const char *dtc_name = uds_lookup_dtc_name(ecu_address, dtc_id);
+    if (dtc_name == NULL) {
+        proto_item_append_text(ti_status_record, ", DTC:0x%06x, Status:0x%02x", dtc_id, (guint32)dtc_status);
+    } else {
+        proto_item_append_text(ti_status_record, ", DTC:0x%06x (%s), Status:0x%02x", dtc_id, dtc_name, (guint32)dtc_status);
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%06x:0x%02x", dtc_id, (guint32)dtc_status);
+
+    return offset;
+}
+
+static int
+dissect_uds_dtc_and_fault_detection_counter_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint32 offset, guint32 ecu_address) {
+    proto_item *ti_status_record, *ti;
+    proto_tree *entry_tree;
+
+    entry_tree = proto_tree_add_subtree(uds_tree, tvb, offset, 4, ett_uds_dtc_counter_entry, &ti_status_record, "DTC and Fault Detection Counter Record");
+
+    guint dtc_id;
+    ti = proto_tree_add_item_ret_uint(entry_tree, hf_uds_rdtci_dtc_id, tvb, offset, 3, ENC_BIG_ENDIAN, &dtc_id);
+    protoitem_append_dtc_name(ti, ecu_address, dtc_id);
+    offset += 3;
+
+    guint counter;
+    proto_tree_add_item_ret_uint(entry_tree, hf_uds_rdtci_dtc_fault_detect_counter, tvb, offset, 1, ENC_NA, &counter);
+    offset += 1;
+
+    const char *dtc_name = uds_lookup_dtc_name(ecu_address, dtc_id);
+    if (dtc_name == NULL) {
+        proto_item_append_text(ti_status_record, ", DTC:0x%06x, Counter:%04d", dtc_id, counter);
+    } else {
+        proto_item_append_text(ti_status_record, ", DTC:0x%06x (%s), Counter:%04d", dtc_id, dtc_name, counter);
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%06x:%04d", dtc_id, counter);
+
+    return offset;
+}
+
+static int
+dissect_uds_rdtci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint32 ecu_address, guint8 sid, guint32 offset, guint32 data_length) {
+    guint32     enum_val;
+
+    proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"));
+    offset += 1;
+
+    if (sid & UDS_REPLY_MASK) {
+        static int * const dtc_status_avail_mask_flags[] = {
+             &hf_uds_rdtci_dtc_status_avail_wir,
+             &hf_uds_rdtci_dtc_status_avail_tnctoc,
+             &hf_uds_rdtci_dtc_status_avail_tfslc,
+             &hf_uds_rdtci_dtc_status_avail_tncslc,
+             &hf_uds_rdtci_dtc_status_avail_cdtc,
+             &hf_uds_rdtci_dtc_status_avail_pdtc,
+             &hf_uds_rdtci_dtc_status_avail_tftoc,
+             &hf_uds_rdtci_dtc_status_avail_tf,
+             NULL
+        };
+
+        switch (enum_val) {
+        case UDS_RDTCI_TYPES_NUMBER_BY_STATUS_MASK:
+        case UDS_RDTCI_TYPES_NUM_DTC_BY_SEVERITY_MASK:
+        case UDS_RDTCI_TYPES_OUTDATED_RNOMMDTCBSM:
+        case UDS_RDTCI_TYPES_OUTDATED_RNOOEOBDDTCBSM: {
+            guint64 dtc_status_avail_mask;
+            proto_tree_add_bitmask_with_flags_ret_uint64(uds_tree, tvb, offset, hf_uds_rdtci_dtc_status_avail, ett_uds_dtc_status_bits, dtc_status_avail_mask_flags, ENC_NA, BMT_NO_APPEND, &dtc_status_avail_mask);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "    0x%02x", (guint32)dtc_status_avail_mask);
+            offset += 1;
+
+            guint32 dtc_format;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_format_id, tvb, offset, 1, ENC_NA, &dtc_format);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str(dtc_format, uds_rdtci_format_id_types, "Unknown Format (0x%02x)"));
+            offset += 1;
+
+            guint32 dtc_count;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_count, tvb, offset, 2, ENC_BIG_ENDIAN, &dtc_count);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  %d DTCs", dtc_count);
+            offset += 2;
+            break;
+        }
+
+        case UDS_RDTCI_TYPES_BY_STATUS_MASK:
+        case UDS_RDTCI_TYPES_SUPPORTED_DTC:
+        case UDS_RDTCI_TYPES_FIRST_TEST_FAILED_DTC:
+        case UDS_RDTCI_TYPES_FIRST_CONFIRMED_DTC:
+        case UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED:
+        case UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC:
+        case UDS_RDTCI_TYPES_OUTDATED_RMMDTCBSM:
+        case UDS_RDTCI_TYPES_OUTDATED_ROBDDTCBSM:
+        case UDS_RDTCI_TYPES_DTC_WITH_PERM_STATUS: {
+            guint64 dtc_status_avail_mask;
+            proto_tree_add_bitmask_with_flags_ret_uint64(uds_tree, tvb, offset, hf_uds_rdtci_dtc_status_avail, ett_uds_dtc_status_bits, dtc_status_avail_mask_flags, ENC_NA, BMT_NO_APPEND, &dtc_status_avail_mask);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "    0x%02x", (guint32)dtc_status_avail_mask);
+            offset += 1;
+
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+            }
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_SNAPSHOT_IDENTIFICATION:
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_SNAPSHOT_RECORD_BY_DTC: {
+            /* this cannot fully be parsed without configuration data (length of DID data) */
+
+            offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_snapshot_rec_no, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_snapshot_record_number_of_ids, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record_unparsed, tvb, offset, data_length - offset, ENC_NA);
+                offset = data_length;
+            }
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_SNAPSHOT_RECORD_BY_RECORD: {
+            /* this cannot fully be parsed without configuration data (length of DID data) */
+
+            guint32 count;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_stored_data_rec_no, tvb, offset, 1, ENC_NA, &count);
+            offset += 1;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  %d Stored Data Records:  ", count);
+
+            if (count > 0) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_stored_data_record_number_of_ids, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (offset < data_length) {
+                    proto_tree_add_item(uds_tree, hf_uds_rdtci_record_unparsed, tvb, offset, data_length - offset, ENC_NA);
+                    offset = data_length;
+                }
+            }
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_EXTENDED_RECORD_BY_DTC:
+            /* this cannot fully be parsed without configuration data (length of DID data) */
+
+            offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record_unparsed, tvb, offset, data_length - offset, ENC_NA);
+                offset = data_length;
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_BY_SEVERITY_MASK:
+            offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, true, true);
+            break;
+
+        case UDS_RDTCI_TYPES_SEVERITY_INFO_OF_DTC:
+            offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, true, true);
+
+            while (offset + 6 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, true, true);
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_DTC_FAULT_DETECT_CTR:
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_fault_detection_counter_record(tvb, pinfo, uds_tree, offset, ecu_address);
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_DTC_EXT_DATA_REC_BY_NUM:
+            /* this cannot fully be parsed without configuration data (length of data records) */
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record_unparsed, tvb, offset, data_length - offset, ENC_NA);
+                offset = data_length;
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_USER_MEM_DTC_BY_STATUS_M:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_memory_selection, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_status_avail, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_USER_MEM_DTC_REC_BY_DTC_N:
+            /* this cannot fully be parsed without configuration data (length of DID data) */
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_memory_selection, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record_unparsed, tvb, offset, data_length - offset, ENC_NA);
+                offset = data_length;
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_USER_MEM_DTC_EXT_REC_BY_N:
+            /* this cannot fully be parsed without configuration data (length of extended data) */
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_memory_selection, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record_unparsed, tvb, offset, data_length - offset, ENC_NA);
+                offset = data_length;
+            }
+            break;
+
+        case UDS_RDTCI_TYPES_SUP_DTC_EXT_RECORD: {
+            guint status;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_status_avail, tvb, offset, 1, ENC_NA, &status);
+            offset += 1;
+
+            guint rec_no;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA, &rec_no);
+            offset += 1;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x 0x%02x", status, rec_no);
+
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+            }
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_WWH_OBD_DTC_BY_MASK_REC: {
+            guint func_group;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_functional_group_id, tvb, offset, 1, ENC_NA, &func_group);
+            offset += 1;
+
+            guint status;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_status_avail, tvb, offset, 1, ENC_NA, &status);
+            offset += 1;
+
+            guint severity;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_severity_avail, tvb, offset, 1, ENC_NA, &severity);
+            offset += 1;
+
+            guint format;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_format_id, tvb, offset, 1, ENC_NA, &format);
+            offset += 1;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x 0x%02x 0x%02x 0x%02x", func_group, status, severity, format);
+
+            while (offset + 5 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, true, false);
+            }
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_WWH_OBD_DTC_PERM_STATUS: {
+            guint func_group;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_functional_group_id, tvb, offset, 1, ENC_NA, &func_group);
+            offset += 1;
+
+            guint status;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_status_avail, tvb, offset, 1, ENC_NA, &status);
+            offset += 1;
+
+            guint format;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_format_id, tvb, offset, 1, ENC_NA, &format);
+            offset += 1;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x 0x%02x 0x%02x", func_group, status, format);
+
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+            }
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_WWH_OBD_BY_GROUP_READY: {
+            guint func_group;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_functional_group_id, tvb, offset, 1, ENC_NA, &func_group);
+            offset += 1;
+
+            guint status;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_status_avail, tvb, offset, 1, ENC_NA, &status);
+            offset += 1;
+
+            guint format;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_format_id, tvb, offset, 1, ENC_NA, &format);
+            offset += 1;
+
+            guint readiness;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_readiness_group_id, tvb, offset, 1, ENC_NA, &readiness);
+            offset += 1;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x 0x%02x 0x%02x 0x%02x", func_group, status, format, readiness);
+
+            while (offset + 4 <= data_length) {
+                offset = dissect_uds_dtc_and_status_record(tvb, pinfo, uds_tree, offset, ecu_address, false, false);
+            }
+        }
+            break;
+
+        default:
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record, tvb, offset, data_length - offset, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "    %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                offset = data_length;
+            }
+        }
+    } else {
+        static int * const dtc_status_mask_flags[] = {
+            &hf_uds_rdtci_dtc_status_mask_wir,
+            &hf_uds_rdtci_dtc_status_mask_tnctoc,
+            &hf_uds_rdtci_dtc_status_mask_tfslc,
+            &hf_uds_rdtci_dtc_status_mask_tncslc,
+            &hf_uds_rdtci_dtc_status_mask_cdtc,
+            &hf_uds_rdtci_dtc_status_mask_pdtc,
+            &hf_uds_rdtci_dtc_status_mask_tftoc,
+            &hf_uds_rdtci_dtc_status_mask_tf,
+            NULL
+        };
+
+        switch (enum_val) {
+        case UDS_RDTCI_TYPES_NUMBER_BY_STATUS_MASK:
+        case UDS_RDTCI_TYPES_BY_STATUS_MASK:
+        case UDS_RDTCI_TYPES_OUTDATED_RMMDTCBSM:
+        case UDS_RDTCI_TYPES_OUTDATED_RNOMMDTCBSM:
+        case UDS_RDTCI_TYPES_OUTDATED_RNOOEOBDDTCBSM:
+        case UDS_RDTCI_TYPES_OUTDATED_ROBDDTCBSM: {
+            guint64 status_mask;
+            proto_tree_add_bitmask_with_flags_ret_uint64(uds_tree, tvb, offset, hf_uds_rdtci_dtc_status_mask, ett_uds_dtc_status_bits, dtc_status_mask_flags, ENC_NA, BMT_NO_APPEND, &status_mask);
+            offset += 1;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "    0x%02x", (guint32)status_mask);
+        }
+            break;
+
+        case UDS_RDTCI_TYPES_SNAPSHOT_IDENTIFICATION:
+            /* no additional params */
+            break;
+
+        case UDS_RDTCI_TYPES_SNAPSHOT_RECORD_BY_DTC:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_mask_record, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_snapshot_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_SNAPSHOT_RECORD_BY_RECORD:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_stored_data_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_EXTENDED_RECORD_BY_DTC:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_mask_record, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_NUM_DTC_BY_SEVERITY_MASK:
+        case UDS_RDTCI_TYPES_BY_SEVERITY_MASK:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_severity_mask, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_bitmask(uds_tree, tvb, offset, hf_uds_rdtci_dtc_status_mask, ett_uds_dtc_status_bits, dtc_status_mask_flags, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_SEVERITY_INFO_OF_DTC:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_mask_record, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+            break;
+
+        case UDS_RDTCI_TYPES_SUPPORTED_DTC:
+        case UDS_RDTCI_TYPES_FIRST_TEST_FAILED_DTC:
+        case UDS_RDTCI_TYPES_FIRST_CONFIRMED_DTC:
+        case UDS_RDTCI_TYPES_MOST_RECENT_TEST_FAILED:
+        case UDS_RDTCI_TYPES_MOST_RECENT_CONFIRMED_DTC:
+        case UDS_RDTCI_TYPES_DTC_FAULT_DETECT_CTR:
+        case UDS_RDTCI_TYPES_DTC_WITH_PERM_STATUS:
+            /* no additional params */
+            break;
+
+        case UDS_RDTCI_TYPES_DTC_EXT_DATA_REC_BY_NUM:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_USER_MEM_DTC_BY_STATUS_M:
+            proto_tree_add_bitmask(uds_tree, tvb, offset, hf_uds_rdtci_dtc_status_mask, ett_uds_dtc_status_bits, dtc_status_mask_flags, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_memory_selection, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_USER_MEM_DTC_REC_BY_DTC_N:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_mask_record, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_user_def_dtc_snapshot_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_memory_selection, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_USER_MEM_DTC_EXT_REC_BY_N:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_mask_record, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_memory_selection, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_SUP_DTC_EXT_RECORD:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_ext_data_rec_no, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_WWH_OBD_DTC_BY_MASK_REC:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_functional_group_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_bitmask(uds_tree, tvb, offset, hf_uds_rdtci_dtc_status_mask, ett_uds_dtc_status_bits, dtc_status_mask_flags, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_severity_mask, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_WWH_OBD_DTC_PERM_STATUS:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_functional_group_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        case UDS_RDTCI_TYPES_WWH_OBD_BY_GROUP_READY:
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_functional_group_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(uds_tree, hf_uds_rdtci_dtc_readiness_group_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+
+        default:
+            if (offset < data_length) {
+                proto_tree_add_item(uds_tree, hf_uds_rdtci_record, tvb, offset, data_length - offset, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "    %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                offset = data_length;
+            }
+        }
+    }
+
+    return offset;
+}
+
+static int
 dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 source_address, guint32 target_address, guint8 number_of_addresses_valid)
 {
     proto_tree *uds_tree;
@@ -1087,18 +1751,9 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             }
             break;
 
-        case UDS_SERVICES_RDTCI: {
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"));
-            offset += 1;
-
-            proto_tree_add_item(uds_tree, hf_uds_rdtci_record, tvb, offset, data_length - offset, ENC_NA);
-            if (data_length > offset) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "    %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
-                offset = data_length;
-            }
+        case UDS_SERVICES_RDTCI:
+            offset = dissect_uds_rdtci(tvb, pinfo, uds_tree, ecu_address, sid, offset, data_length);
             break;
-        }
 
         case UDS_SERVICES_RDBI:
             if (sid & UDS_REPLY_MASK) {
@@ -1447,8 +2102,100 @@ proto_register_uds(void)
 
         { &hf_uds_rdtci_subfunction, {
             "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX, VALS(uds_rdtci_types), 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask, {
+            "DTC Status Mask", "uds.rdtci.dtc_status_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_tf, {
+            "(Last) Test Failed", "uds.rdtci.dtc_status_mask.tf", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_tftoc, {
+            "Test Failed This Operation Cycle", "uds.rdtci.dtc_status_mask.tftoc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED_THIS_OPER_CYCLE, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_pdtc, {
+            "Pending DTC", "uds.rdtci.dtc_status_mask.pdtc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_PENDING_DTC, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_cdtc, {
+            "Confirmed DTC", "uds.rdtci.dtc_status_mask.ctdc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_CONFIRMED_DTC, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_tncslc, {
+            "Test Not Completed Since Last Clear", "uds.rdtci.dtc_status_mask.tncslc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_SINCE_LAST_CLEAR, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_tfslc, {
+            "Test Failed Since Last Clear", "uds.rdtci.dtc_status_mask.tfslc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED_SINCE_LAST_CLEAR, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_tnctoc, {
+            "Test Not Completed This Operation Cycle", "uds.rdtci.dtc_status_mask.tnctoc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_THIS_OPER_CYCLE, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_mask_wir, {
+            "Warning Indicator Requested", "uds.rdtci.dtc_status_mask.wir", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_WARNING_INDICATOR_REQUESTED, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_mask_record, {
+            "DTC Mask Record", "uds.rdtci.dtc_mask_record", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_snapshot_rec_no, {
+            "DTC Snapshot Record Number", "uds.rdtci.dtc_snapshot_record_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_stored_data_rec_no, {
+            "DTC Stored Data Record Number", "uds.rdtci.dtc_stored_data_record_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_ext_data_rec_no, {
+            "DTC Extended Data Record Number", "uds.rdtci.dtc_extended_data_record_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_severity_mask, {
+            "DTC Severity Mask", "uds.rdtci.dtc_severity_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_memory_selection, {
+            "Memory Selection", "uds.rdtci.memory_selection", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_user_def_dtc_snapshot_rec_no, {
+            "User Defined DTC Snapshot Record Number", "uds.rdtci.user_def_dtc_snapshot_record_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_functional_group_id, {
+            "Functional Group Identifier", "uds.rdtci.functional_group_id", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_readiness_group_id, {
+            "DTC Readiness Group Identifier", "uds.rdtci.dtc_readiness_group_id", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail, {
+            "DTC Status Availability Mask", "uds.rdtci.dtc_status_availability_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_tf, {
+            "Test Failed", "uds.rdtci.dtc_status_avail_mask.tf", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_tftoc, {
+            "Test Failed This Operation Cycle", "uds.rdtci.dtc_status_avail_mask.tftoc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED_THIS_OPER_CYCLE, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_pdtc, {
+            "Pending DTC", "uds.rdtci.dtc_status_avail_mask.pdtc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_PENDING_DTC, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_cdtc, {
+            "Confirmed DTC", "uds.rdtci.dtc_status_avail_mask.ctdc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_CONFIRMED_DTC, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_tncslc,{
+            "Test Not Completed Since Last Clear", "uds.rdtci.dtc_status_avail_mask.tncslc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_SINCE_LAST_CLEAR, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_tfslc, {
+            "Test Failed Since Last Clear", "uds.rdtci.dtc_status_avail_mask.tfslc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED_SINCE_LAST_CLEAR, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_tnctoc, {
+            "Test Not Completed This Operation Cycle", "uds.rdtci.dtc_status_avail_mask.tnctoc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_THIS_OPER_CYCLE, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_avail_wir, {
+            "Warning Indicator Requested", "uds.rdtci.dtc_status_avail_mask.wir", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_WARNING_INDICATOR_REQUESTED, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_id, {
+            "DTC Identifier", "uds.rdtci.dtc_id", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status, {
+            "DTC Status", "uds.rdtci.dtc_status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_tf, {
+            "Test Failed", "uds.rdtci.dtc_status.tf", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_tftoc, {
+            "Test Failed This Operation Cycle", "uds.rdtci.dtc_status.tftoc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED_THIS_OPER_CYCLE, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_pdtc, {
+            "Pending DTC", "uds.rdtci.dtc_status.pdtc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_PENDING_DTC, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_cdtc, {
+            "Confirmed DTC", "uds.rdtci.dtc_status.ctdc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_CONFIRMED_DTC, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_tncslc, {
+            "Test Not Completed Since Last Clear", "uds.rdtci.dtc_status.tncslc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_SINCE_LAST_CLEAR, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_tfslc, {
+            "Test Failed Since Last Clear", "uds.rdtci.dtc_status.tfslc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_FAILED_SINCE_LAST_CLEAR, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_tnctoc, {
+            "Test Not Completed This Operation Cycle", "uds.rdtci.dtc_status.tnctoc", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_THIS_OPER_CYCLE, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_status_wir, {
+            "Warning Indicator Requested", "uds.rdtci.dtc_status.wir", FT_BOOLEAN, 8, NULL, UDS_RDTCI_DTC_STATUS_WARNING_INDICATOR_REQUESTED, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_format_id, {
+            "DTC Format Identifier", "uds.rdtci.dtc_format_id", FT_UINT8, BASE_HEX_DEC, VALS(uds_rdtci_format_id_types), 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_count, {
+            "DTC Count", "uds.rdtci.dtc_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_snapshot_record_number_of_ids, {
+            "DTC Snapshot Record Number of IDs", "uds.rdtci.dtc_snapshot_record_number_of_ids", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_stored_data_record_number_of_ids, {
+            "DTC Stored Data Record Number of IDs", "uds.rdtci.dtc_stored_data_record_number_of_ids", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_severity, {
+            "DTC Severity", "uds.rdtci.dtc_severity", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_functional_unit, {
+            "DTC Functional Unit", "uds.rdtci.dtc_functional_unit", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_fault_detect_counter, {
+            "DTC Fault Detection Counter", "uds.rdtci.dtc_fault_detection_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_dtc_severity_avail, {
+            "DTC Severity Availability Mask", "uds.rdtci.dtc_severity_availability_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_rdtci_record, {
             "Record", "uds.rdtci.record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rdtci_record_unparsed, {
+            "Unparsed Record", "uds.rdtci.record_unparsed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_rdbi_data_identifier, {
             "Data Identifier", "uds.rdbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -1535,6 +2282,7 @@ proto_register_uds(void)
 
     uat_t* uds_routine_ids_uat;
     uat_t* uds_data_ids_uat;
+    uat_t* uds_dtc_ids_uat;
     uat_t* uds_address_uat;
 
     /* Setup protocol subtree array */
@@ -1542,6 +2290,10 @@ proto_register_uds(void)
         &ett_uds,
         &ett_uds_subfunction,
         &ett_uds_dsc_parameter_record,
+        &ett_uds_dtc_status_entry,
+        &ett_uds_dtc_status_bits,
+        &ett_uds_dtc_snapshot_entry,
+        &ett_uds_dtc_counter_entry,
     };
 
     proto_uds = proto_register_protocol (
@@ -1579,7 +2331,7 @@ proto_register_uds(void)
         UAT_AFFECTS_DISSECTION,                     /* but not fields        */
         NULL,                                       /* help                  */
         copy_generic_one_id_string_cb,              /* copy callback         */
-        update_generic_addr_id_16bit,               /* update callback       */
+        update_generic_addr_16bit_id_16bit,         /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_routine_cb,                 /* post update callback  */
         NULL,                                       /* reset callback        */
@@ -1588,6 +2340,7 @@ proto_register_uds(void)
 
     prefs_register_uat_preference(uds_module, "_uds_routine_id_list", "UDS Routine Identifier List",
         "A table to define names of UDS Routines", uds_routine_ids_uat);
+
 
     static uat_field_t uds_data_id_uat_fields[] = {
         UAT_FLD_HEX(uds_uat_data_ids, address, "Address", "Address (16bit hex without leading 0x, 0xffffffff for 'any')"),
@@ -1605,7 +2358,7 @@ proto_register_uds(void)
         UAT_AFFECTS_DISSECTION,                     /* but not fields        */
         NULL,                                       /* help                  */
         copy_generic_one_id_string_cb,              /* copy callback         */
-        update_generic_addr_id_16bit,               /* update callback       */
+        update_generic_addr_16bit_id_16bit,         /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_data_cb,                    /* post update callback  */
         NULL,                                       /* reset callback        */
@@ -1614,6 +2367,34 @@ proto_register_uds(void)
 
     prefs_register_uat_preference(uds_module, "_uds_data_id_list", "UDS Data Identifier List",
         "A table to define names of UDS Data Identifier", uds_data_ids_uat);
+
+
+    static uat_field_t uds_dtc_id_uat_fields[] = {
+        UAT_FLD_HEX(uds_uat_dtc_ids, address, "Address", "Address (16bit hex without leading 0x, 0xffffffff for 'any')"),
+        UAT_FLD_HEX(uds_uat_dtc_ids, id, "DTC ID", "Data Identifier (24bit hex without leading 0x)"),
+        UAT_FLD_CSTRING(uds_uat_dtc_ids, name, "DTC Name", "Name of the Data ID (string)"),
+        UAT_END_FIELDS
+    };
+
+    uds_dtc_ids_uat = uat_new("UDS DTC Identifier List",
+        sizeof(generic_addr_id_string_t),           /* record size           */
+        DATAFILE_UDS_DTC_IDS,                       /* filename              */
+        TRUE,                                       /* from profile          */
+        (void**)&uds_uat_dtc_ids,                   /* data_ptr              */
+        &uds_uat_dtc_id_num,                        /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                     /* but not fields        */
+        NULL,                                       /* help                  */
+        copy_generic_one_id_string_cb,              /* copy callback         */
+        update_generic_addr_16bit_id_24bit,         /* update callback       */
+        free_generic_one_id_string_cb,              /* free callback         */
+        post_update_uds_dtc_cb,                     /* post update callback  */
+        NULL,                                       /* reset callback        */
+        uds_dtc_id_uat_fields                       /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(uds_module, "_uds_dtc_id_list", "UDS DTC Identifier List",
+        "A table to define names of UDS DTC Identifier", uds_dtc_ids_uat);
+
 
     static uat_field_t uds_address_name_uat_fields[] = {
         UAT_FLD_HEX(uds_uat_addresses, address, "Address", "Address (32bit hex without leading 0x)"),
