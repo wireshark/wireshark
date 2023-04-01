@@ -15,9 +15,15 @@ set_module_info(pluginifdemo 0 0 2 0)
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_AUTOUIC ON)
 
-find_package(Qt6Core)
-find_package(Qt6PrintSupport)
-find_package(Qt6Widgets)
+if(USE_qt6)
+	set(qtver "6")
+else()
+	set(qtver "5")
+endif()
+
+find_package(Qt${qtver}Core)
+find_package(Qt${qtver}PrintSupport)
+find_package(Qt${qtver}Widgets)
 
 set(DISSECTOR_SRC
 	pluginifdemo.c
@@ -52,7 +58,7 @@ register_plugin_files(plugin.c
 
 add_wireshark_plugin_library(pluginifdemo epan)
 
-target_link_libraries(pluginifdemo epan Qt6::Core Qt6::Widgets Qt6::PrintSupport)
+target_link_libraries(pluginifdemo epan Qt${qtver}::Core Qt${qtver}::Widgets Qt${qtver}::PrintSupport)
 
 install_plugin(pluginifdemo epan)
 
