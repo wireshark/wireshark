@@ -83,17 +83,37 @@ static int hf_drda_sqlstatement_length = -1;
 static int hf_drda_sqlstatement = -1;
 static int hf_drda_sqlstatement_ebcdic = -1;
 static int hf_drda_secmec = -1;
+static int hf_drda_sectkn = -1;
 static int hf_drda_svrcod = -1;
 static int hf_drda_secchkcd = -1;
 static int hf_drda_ccsid = -1;
 static int hf_drda_mgrlvln = -1;
+static int hf_drda_monitor = -1;
+static int hf_drda_monitor_etime = -1;
+static int hf_drda_monitor_reserved = -1;
+static int hf_drda_etime = -1;
 static int hf_drda_respktsz = -1;
+static int hf_drda_rdbinttkn = -1;
+static int hf_drda_qryblksz = -1;
+static int hf_drda_uowdsp = -1;
+static int hf_drda_sqlcsrhld = -1;
+static int hf_drda_qryextdtasz = -1;
+static int hf_drda_smldtasz = -1;
+static int hf_drda_meddtasz = -1;
+static int hf_drda_trgdftrt = -1;
+static int hf_drda_rtnsqlda = -1;
+static int hf_drda_qryattupd = -1;
+static int hf_drda_qryinsid = -1;
+static int hf_drda_qryblkfct = -1;
+static int hf_drda_typsqlda = -1;
+static int hf_drda_dyndtafmt = -1;
 static int hf_drda_pktobj = -1;
 
 static gint ett_drda = -1;
 static gint ett_drda_ddm = -1;
 static gint ett_drda_ddm_format = -1;
 static gint ett_drda_param = -1;
+static gint ett_drda_monitor = -1;
 
 static expert_field ei_drda_opcode_invalid_length = EI_INIT;
 
@@ -175,6 +195,7 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_CCSIDMGR      0x14CC
 #define DRDA_CP_SNDPKT        0x1805
 #define DRDA_CP_MONITOR       0x1900
+#define DRDA_CP_ETIME         0x1901
 #define DRDA_CP_RESPKTSZ      0x1908
 #define DRDA_CP_CCSIDXML      0x1913
 #define DRDA_CP_MONITORRD     0x1C00
@@ -221,7 +242,10 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_STTDECDEL     0x2121
 #define DRDA_CP_PKGDFTCST     0x2125
 #define DRDA_CP_QRYBLKCTL     0x2132
+#define DRDA_CP_QRYEXTDTASZ   0x2134
 #define DRDA_CP_CRRTKN        0x2135
+#define DRDA_CP_SMLDTASZ      0x2136
+#define DRDA_CP_MEDDTASZ      0x2137
 #define DRDA_CP_PRCNAM        0x2138
 #define DRDA_CP_PKGSNLST      0x2139
 #define DRDA_CP_NBRROW        0x213A
@@ -236,6 +260,7 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_OUTOVROPT     0x2147
 #define DRDA_CP_RTNEXTDTA     0x2148
 #define DRDA_CP_QRYATTSCR     0x2149
+#define DRDA_CP_DYNDTAFMT     0x214B
 #define DRDA_CP_QRYATTUPD     0x2150
 #define DRDA_CP_QRYSCRORN     0x2152
 #define DRDA_CP_QRYROWSNS     0x2153
@@ -246,7 +271,7 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_QRYINSID      0x215B
 #define DRDA_CP_QRYCLSIMP     0x215D
 #define DRDA_CP_QRYCLSRLS     0x215E
-#define DRDA_CP_QRYOPTVAL     0x215F
+#define DRDA_CP_QRYBLKFCT     0x215F
 #define DRDA_CP_DIAGLVL       0x2160
 #define DRDA_CP_ACCRDBRM      0x2201
 #define DRDA_CP_QRYNOPRM      0x2202
@@ -287,7 +312,15 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_SQLSTTVRB     0x2419
 #define DRDA_CP_QRYDSC        0x241A
 #define DRDA_CP_QRYDTA        0x241B
+#define DRDA_CP_CSTSYSDFT     0x2432
+#define DRDA_CP_CSTBITS       0x2433
+#define DRDA_CP_CSTSBCS       0x2434
 #define DRDA_CP_CSTMBCS       0x2435
+#define DRDA_CP_ISOLVLCHG     0x2441
+#define DRDA_CP_ISOLVLCS      0x2442
+#define DRDA_CP_ISOLVLALL     0x2443
+#define DRDA_CP_ISOLVLRR      0x2444
+#define DRDA_CP_ISOLVLNC      0x2445
 #define DRDA_CP_SRVLST        0x244E
 #define DRDA_CP_SQLATTR       0x2450
 
@@ -377,6 +410,7 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_CCSIDMGR,     "CCSID Manager" },
     { DRDA_CP_SNDPKT,       "Send Packet" },
     { DRDA_CP_MONITOR,      "Monitor Events" },
+    { DRDA_CP_ETIME,        "Elapsed Time" },
     { DRDA_CP_RESPKTSZ,     "Response Packet Size" },
     { DRDA_CP_CCSIDXML,     "CCSID for External Encoded XML Strings" },
     { DRDA_CP_MONITORRD,    "Monitor Reply Data" },
@@ -424,7 +458,10 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_STTDECDEL,    "Statement Decimal Delimiter" },
     { DRDA_CP_PKGDFTCST,    "Package Default Character Subtype" },
     { DRDA_CP_QRYBLKCTL,    "Query Block Protocol Control" },
+    { DRDA_CP_QRYEXTDTASZ,  "Query Externalized Data Size" },
     { DRDA_CP_CRRTKN,       "Correlation Token" },
+    { DRDA_CP_SMLDTASZ,     "Maximum Size of Small Data" },
+    { DRDA_CP_MEDDTASZ,     "Maximum Size of Medium Data" },
     { DRDA_CP_PRCNAM,       "Procedure Name" },
     { DRDA_CP_PKGSNLST,     "RDB Result Set Reply Message" },
     { DRDA_CP_NBRROW,       "Number of Fetch or Insert Rows" },
@@ -439,6 +476,7 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_OUTOVROPT,    "Output Override Option" },
     { DRDA_CP_RTNEXTDTA,    "Return of EXTDTA Option" },
     { DRDA_CP_QRYATTSCR,    "Query Attribute for Scrollability" },
+    { DRDA_CP_DYNDTAFMT,    "Dynamic Data Format" },
     { DRDA_CP_QRYATTUPD,    "Query Attribute for Updatability" },
     { DRDA_CP_QRYSCRORN,    "Query Scroll Orientation" },
     { DRDA_CP_QRYROWSNS,    "Query Row Sensitivity" },
@@ -449,7 +487,7 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_QRYINSID,     "Query Instance Identifier" },
     { DRDA_CP_QRYCLSIMP,    "Query Close Implicit" },
     { DRDA_CP_QRYCLSRLS,    "Query Close Lock Release" },
-    { DRDA_CP_QRYOPTVAL,    "QRYOPTVAL" },
+    { DRDA_CP_QRYBLKFCT,    "Query Blocking Factor" },
     { DRDA_CP_DIAGLVL,      "SQL Error Diagnostic Level" },
     { DRDA_CP_ACCRDBRM,     "Access to RDB Completed" },
     { DRDA_CP_QRYNOPRM,     "Query Not Open" },
@@ -490,6 +528,16 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_SQLSTTVRB,    "SQL Statement Variable Descriptions" },
     { DRDA_CP_QRYDSC,       "Query Answer Set Description" },
     { DRDA_CP_QRYDTA,       "Query Answer Set Data" },
+    { DRDA_CP_CSTSYSDFT,    "Character Subtype System Default" },
+    { DRDA_CP_CSTBITS,      "Character Subtype Bits" },
+    { DRDA_CP_CSTSBCS,      "Character Subtype SBCS" },
+    { DRDA_CP_CSTMBCS,      "Character Subtype MBCS" },
+    { DRDA_CP_ISOLVLCHG,    "Isolation Level Change" },
+    { DRDA_CP_ISOLVLCS,     "Isolation Level Cursor Stability" },
+    { DRDA_CP_ISOLVLALL,    "Isolation Level All" },
+    { DRDA_CP_ISOLVLRR,     "Isolation Level Repeatable Read" },
+    { DRDA_CP_ISOLVLNC,     "Isolation Level No Commit" },
+    { DRDA_CP_SRVLST,       "Server List" },
     { DRDA_CP_SQLATTR,      "SQL Statement Attributes" },
     { 0,          NULL }
 };
@@ -566,6 +614,7 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_CCSIDMGR,     "CCSIDMGR" },
     { DRDA_CP_SNDPKT,       "SNDPKT" },
     { DRDA_CP_MONITOR,      "MONITOR" },
+    { DRDA_CP_ETIME,        "ETIME" },
     { DRDA_CP_RESPKTSZ,     "RESPKTSZ" },
     { DRDA_CP_CCSIDXML,     "CCSIDXML" },
     { DRDA_CP_MONITORRD,    "MONITORRD" },
@@ -612,7 +661,10 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_STTDECDEL,    "STTDECDEL" },
     { DRDA_CP_PKGDFTCST,    "PKGDFTCST" },
     { DRDA_CP_QRYBLKCTL,    "QRYBLKCTL" },
+    { DRDA_CP_QRYEXTDTASZ,  "QRYEXTDTASZ" },
     { DRDA_CP_CRRTKN,       "CRRTKN" },
+    { DRDA_CP_SMLDTASZ,     "SMLDTASZ" },
+    { DRDA_CP_MEDDTASZ,     "MEDDTASZ" },
     { DRDA_CP_PRCNAM,       "PRCNAM" },
     { DRDA_CP_PKGSNLST,     "PKGSNLST" },
     { DRDA_CP_NBRROW,       "NBRROW" },
@@ -627,6 +679,7 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_OUTOVROPT,    "OUTOVROPT" },
     { DRDA_CP_RTNEXTDTA,    "RTNEXTDTA" },
     { DRDA_CP_QRYATTSCR,    "QRYATTSCR" },
+    { DRDA_CP_DYNDTAFMT,    "DYNDTAFMT" },
     { DRDA_CP_QRYATTUPD,    "QRYATTUPD" },
     { DRDA_CP_QRYSCRORN,    "QRYSCRORN" },
     { DRDA_CP_QRYROWSNS,    "QRYROWSNS" },
@@ -637,7 +690,7 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_QRYINSID,     "QRYINSID" },
     { DRDA_CP_QRYCLSIMP,    "QRYCLSIMP" },
     { DRDA_CP_QRYCLSRLS,    "QRYCLSRLS" },
-    { DRDA_CP_QRYOPTVAL,    "QRYOPTVAL" },
+    { DRDA_CP_QRYBLKFCT,    "QRYBLKFCT" },
     { DRDA_CP_DIAGLVL,      "DIAGLVL" },
     { DRDA_CP_ACCRDBRM,     "ACCRDBRM" },
     { DRDA_CP_QRYNOPRM,     "QRYNOPRM" },
@@ -678,6 +731,16 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_SQLSTTVRB,    "SQLSTTVRB" },
     { DRDA_CP_QRYDSC,       "QRYDSC" },
     { DRDA_CP_QRYDTA,       "QRYDTA" },
+    { DRDA_CP_CSTSYSDFT,    "CSTSYSDFT" },
+    { DRDA_CP_CSTBITS,      "CSTBITS" },
+    { DRDA_CP_CSTSBCS,      "CSTSBCS" },
+    { DRDA_CP_CSTMBCS,      "CSTMBCS" },
+    { DRDA_CP_ISOLVLCHG,    "ISOLVLCHG" },
+    { DRDA_CP_ISOLVLCS,     "ISOLVLCS" },
+    { DRDA_CP_ISOLVLALL,    "ISOLVLALL" },
+    { DRDA_CP_ISOLVLRR,     "ISOLVLRR" },
+    { DRDA_CP_ISOLVLNC,     "ISOLVLNC" },
+    { DRDA_CP_SRVLST,       "SRVLST" },
     { DRDA_CP_SQLATTR,      "SQLATTR" },
     { 0,          NULL }
 };
@@ -690,6 +753,12 @@ static const value_string drda_dsstyp_abbr[] = {
     { DRDA_DSSFMT_CMNDSS,     "CMNDSS" },
     { DRDA_DSSFMT_NORPYDSS,   "NORPYDSS" },
     { 0,          NULL }
+};
+
+static const value_string drda_boolean_vals[] = {
+    { 0xF0, "FALSE" }, /* \xf0 - EBCDIC '0' */
+    { 0xF1, "TRUE" },  /* \xf1 - EBCDIC '1' */
+    { 0, NULL }
 };
 
 static const value_string drda_secmec_vals[] = {
@@ -714,8 +783,13 @@ static const value_string drda_secmec_vals[] = {
 static int
 dissect_drda_secmec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_drda_secmec, tvb, 0, 2, ENC_BIG_ENDIAN);
-    return 2;
+    /* REPEATABLE */
+    int offset = 0;
+    while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+        proto_tree_add_item(tree, hf_drda_secmec, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    return offset;
 }
 
 static const value_string drda_svrcod_vals[] = {
@@ -728,6 +802,13 @@ static const value_string drda_svrcod_vals[] = {
     {128, "SESDMG - Session Damage" },
     { 0, NULL }
 };
+
+static int
+dissect_drda_sectkn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_sectkn, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+    return tvb_reported_length(tvb);
+}
 
 static int
 dissect_drda_svrcod(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -790,10 +871,167 @@ dissect_drda_ccsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 }
 
 static int
+dissect_drda_monitor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const monitor_fields[] = {
+        &hf_drda_monitor_etime,
+        &hf_drda_monitor_reserved,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, 0, hf_drda_monitor, ett_drda_monitor,
+        monitor_fields, ENC_BIG_ENDIAN);
+    return 4;
+}
+
+static int
+dissect_drda_etime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_etime, tvb, 0, 8, ENC_TIME_USECS);
+    return 8;
+}
+
+static int
 dissect_drda_respktsz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree_add_item(tree, hf_drda_respktsz, tvb, 0, 4, ENC_BIG_ENDIAN);
     return 4;
+}
+
+static int
+dissect_drda_rdbinttkn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    /* The contents of the token are unarchitected and can differe for each
+     * target SQLAM.
+     */
+    proto_tree_add_item(tree, hf_drda_rdbinttkn, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+    return tvb_reported_length(tvb);
+}
+
+static int
+dissect_drda_qryblksz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_qryblksz, tvb, 0, 4, ENC_BIG_ENDIAN);
+    return 4;
+}
+
+static const value_string drda_uowdsp_vals[] =
+{
+    { 1, "Committed"},
+    { 2, "Rolled back"},
+    { 0, NULL }
+};
+
+static int
+dissect_drda_uowdsp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_uowdsp, tvb, 0, 1, ENC_NA);
+    return 1;
+}
+
+static int
+dissect_drda_sqlcsrhld(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_sqlcsrhld, tvb, 0, 1, ENC_NA);
+    return 1;
+}
+
+static const val64_string drda_qryextdtasz_vals[] =
+{
+    { -1, "Not limited by this parameter"},
+    {  0, NULL }
+};
+
+static int
+dissect_drda_qryextdtasz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_qryextdtasz, tvb, 0, 8, ENC_BIG_ENDIAN);
+    return 8;
+}
+
+static int
+dissect_drda_smldtasz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_smldtasz, tvb, 0, 8, ENC_BIG_ENDIAN);
+    return 8;
+}
+
+static int
+dissect_drda_meddtasz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_meddtasz, tvb, 0, 8, ENC_BIG_ENDIAN);
+    return 8;
+}
+
+static int
+dissect_drda_trgdftrt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_trgdftrt, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
+}
+
+static int
+dissect_drda_rtnsqlda(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_rtnsqlda, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
+}
+
+static const value_string drda_qryattupd_vals[] = {
+    { 0, "QRYUNK - Unknown or undefined for this cursor" },
+    { 1, "QRYRDO - The cursor is read-only" },
+    { 2, "QRYDEL - The cursor allows read and delete" },
+    { 4, "QRYUPD - The cursor allows read, delete, and update" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_qryattupd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_qryattupd, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
+}
+
+static int
+dissect_drda_qryinsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    /* Query Instance Identifier (QRYINSID) uniquely identifies the instance of
+     * a query. Its contents are implementation-specific and are unarchitected
+     * by DDM.
+     */
+    proto_tree_add_item(tree, hf_drda_qryinsid, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+    return tvb_reported_length(tvb);
+}
+
+static int
+dissect_drda_qryblkfct(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_qryblkfct, tvb, 0, 4, ENC_BIG_ENDIAN);
+    return 4;
+}
+
+static const value_string drda_typsqlda_vals[] = {
+    { 0, "Standard output SQLDA" },
+    { 1, "Standard input SQLDA" },
+    { 2, "Light output SQLDA" },
+    { 3, "Light input SQLDA" },
+    { 4, "Extended output SQLDA" },
+    { 5, "Extended input SQLDA" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_typsqlda(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_typsqlda, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
+}
+
+static int
+dissect_drda_dyndtafmt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_dyndtafmt, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
 }
 
 static int
@@ -868,7 +1106,11 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 dissect_drda_codpntdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_drda_param_codepoint, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_item *ti;
+    guint32 codpnt;
+
+    ti = proto_tree_add_item_ret_uint(tree, hf_drda_param_codepoint, tvb, 0, 2, ENC_BIG_ENDIAN, &codpnt);
+    proto_item_append_text(ti, " - %s", val_to_str_ext(codpnt, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
     return 2;
 }
 
@@ -1098,6 +1340,11 @@ proto_register_drda(void)
             VALS(drda_secmec_vals), 0x0,
             NULL, HFILL }},
 
+        { &hf_drda_sectkn,
+          { "Security Token", "drda.sectkn", FT_BYTES, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_drda_svrcod,
           { "Severity Code", "drda.svrcod", FT_UINT16, BASE_DEC,
             VALS(drda_svrcod_vals), 0x0,
@@ -1118,9 +1365,100 @@ proto_register_drda(void)
             NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_drda_monitor,
+          { "Monitor", "drda.monitor", FT_UINT32, BASE_HEX,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_monitor_etime,
+          { "Elapsed Time", "drda.monitor.etime", FT_BOOLEAN, 32,
+            NULL, 0x80000000,
+            NULL, HFILL }},
+
+        { &hf_drda_monitor_reserved,
+          { "Reserved", "drda.monitor.reserved", FT_UINT32, BASE_HEX,
+            NULL, 0x7FFFFFFF,
+            NULL, HFILL }},
+
+        { &hf_drda_etime,
+          { "Elapsed Time", "drda.etime", FT_RELATIVE_TIME, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_drda_respktsz,
           { "Response Packet Size", "drda.respktsz", FT_UINT32, BASE_DEC,
             NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rdbinttkn,
+          { "RDB Interrupt Token", "drda.rdbinttkn", FT_BYTES, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_qryblksz,
+          { "Query Block Size", "drda.qryblksz", FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_uowdsp,
+          { "Unit of Work Disposition", "drda.uowdsp", FT_UINT8, BASE_HEX,
+            VALS(drda_uowdsp_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlcsrhld,
+          { "Hold Cursor Position", "drda.sqlcsrhld", FT_UINT8, BASE_HEX,
+            VALS(drda_boolean_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_qryextdtasz,
+          { "Query Externalized Data Size", "drda.qryextdtasz", FT_INT64,
+            BASE_DEC|BASE_VAL64_STRING|BASE_SPECIAL_VALS,
+            VALS64(drda_qryextdtasz_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_smldtasz,
+          { "Maximum Size of Small Data", "drda.smldtasz", FT_INT64, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_meddtasz,
+          { "Maximum Size of Medium Data", "drda.meddtasz", FT_INT64, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_trgdftrt,
+          { "Target Default Value Return", "drda.trgdftrt", FT_UINT8, BASE_HEX,
+            VALS(drda_boolean_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rtnsqlda,
+          { "Return the SQLDA", "drda.rtnsqlda", FT_UINT8, BASE_HEX,
+            VALS(drda_boolean_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_qryattupd,
+          { "Query Attribute for Updatability", "drda.qryattupd", FT_INT8,
+            BASE_DEC, VALS(drda_qryattupd_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_qryinsid,
+          { "Query Instance Identifier", "drda.qryinsid", FT_BYTES, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_qryblkfct,
+          { "Query Blocking Factor", "drda.qryblkfct", FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_typsqlda,
+          { "Type of SQL Descriptor Area", "drda.typsqlda", FT_INT8, BASE_DEC,
+            VALS(drda_typsqlda_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_dyndtafmt,
+          { "Dynamic Data Format", "drda.dyndtafmt", FT_UINT8, BASE_HEX,
+            VALS(drda_boolean_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_drda_pktobj,
@@ -1133,7 +1471,8 @@ proto_register_drda(void)
         &ett_drda,
         &ett_drda_ddm,
         &ett_drda_ddm_format,
-        &ett_drda_param
+        &ett_drda_param,
+        &ett_drda_monitor,
     };
 
     static ei_register_info ei[] = {
@@ -1178,14 +1517,36 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_MGRLVLLS, create_dissector_handle(dissect_drda_mgrlvlls, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFOVR, create_dissector_handle(dissect_drda_collection, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SECMEC, create_dissector_handle(dissect_drda_secmec, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_SECTKN, create_dissector_handle(dissect_drda_sectkn, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SVRCOD, create_dissector_handle(dissect_drda_svrcod, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SECCHKCD, create_dissector_handle(dissect_drda_secchkcd, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_CCSIDSBC, ccsid_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_CCSIDDBC, ccsid_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_CCSIDMBC, ccsid_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_CCSIDXML, ccsid_handle);
+
     dissector_add_uint("drda.opcode", DRDA_CP_RDBACCCL, codpntdr_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYPRCTYP, codpntdr_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_PKGDFTCST, codpntdr_handle);
+    dissector_add_uint("drda.opcode", 0x2460, codpntdr_handle); /* Not in DRDA, Version 5 */
+
+    dissector_add_uint("drda.opcode", DRDA_CP_MONITOR, create_dissector_handle(dissect_drda_monitor, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_ETIME, create_dissector_handle(dissect_drda_etime, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_RESPKTSZ, create_dissector_handle(dissect_drda_respktsz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RDBINTTKN, create_dissector_handle(dissect_drda_rdbinttkn, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYBLKSZ, create_dissector_handle(dissect_drda_qryblksz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_UOWDSP, create_dissector_handle(dissect_drda_uowdsp, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_SQLCSRHLD, create_dissector_handle(dissect_drda_sqlcsrhld, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYEXTDTASZ, create_dissector_handle(dissect_drda_qryextdtasz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_SMLDTASZ, create_dissector_handle(dissect_drda_smldtasz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_MEDDTASZ, create_dissector_handle(dissect_drda_meddtasz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_TRGDFTRT, create_dissector_handle(dissect_drda_trgdftrt, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RTNSQLDA, create_dissector_handle(dissect_drda_rtnsqlda, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYATTUPD, create_dissector_handle(dissect_drda_qryattupd, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYINSID, create_dissector_handle(dissect_drda_qryinsid, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYBLKFCT, create_dissector_handle(dissect_drda_qryblkfct, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_TYPSQLDA, create_dissector_handle(dissect_drda_typsqlda, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_DYNDTAFMT, create_dissector_handle(dissect_drda_dyndtafmt, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_PKTOBJ, create_dissector_handle(dissect_drda_pktobj, proto_drda));
 }
 
