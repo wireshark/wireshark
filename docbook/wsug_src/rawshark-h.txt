@@ -1,4 +1,4 @@
-Rawshark (Wireshark) 4.1.0 (v4.1.0rc0-428-g517d2be1494f)
+Rawshark (Wireshark) 4.1.0 (v4.1.0rc0-2069-g25ff48a96ac0)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -12,18 +12,29 @@ Processing:
                            packet encapsulation or protocol
   -F <field>               field to display
   -m                       virtual memory limit, in bytes
-  -n                       disable all name resolution (def: all enabled)
+  -n                       disable all name resolutions (def: "mNd" enabled, or
+                           as set in preferences)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -p                       use the system's packet header format
                            (which may have 64-bit timestamps)
   -R <read filter>         packet filter in Wireshark display filter syntax
   -s                       skip PCAP header on input
+  --enable-protocol <proto_name>
+                           enable dissection of proto_name
+  --disable-protocol <proto_name>
+                           disable dissection of proto_name
+  --enable-heuristic <short_name>
+                           enable dissection of heuristic protocol
+  --disable-heuristic <short_name>
+                           disable dissection of heuristic protocol
 
 Output:
   -l                       flush output after each packet
   -S                       format string for fields
                            (%D - name, %S - stringval, %N numval)
-  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+  -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]
+                           output format of time stamps (def: r: rel. to first)
+  -u s|hms                 output format of seconds (def: s: seconds)
 
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)
@@ -37,6 +48,7 @@ Diagnostic output:
 
 
 Miscellaneous:
-  -h                       display this help and exit
+  -h, --help               display this help and exit
+  -v, --version            display version info and exit
   -o <name>:<value> ...    override preference setting
-  -v                       display version info and exit
+  -K <keytab>              keytab file to use for kerberos decryption
