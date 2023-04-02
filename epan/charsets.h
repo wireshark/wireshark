@@ -63,6 +63,7 @@ extern const gunichar2 charset_table_iso_646_basic[0x80];
 /* Tables for EBCDIC code pages */
 extern const gunichar2 charset_table_ebcdic[256];
 extern const gunichar2 charset_table_ebcdic_cp037[256];
+extern const gunichar2 charset_table_ebcdic_cp500[256];
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes

@@ -1717,6 +1717,7 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    case ENC_ASCII_7BITS:
 	    case ENC_EBCDIC:
 	    case ENC_EBCDIC_CP037:
+	    case ENC_EBCDIC_CP500:
 	    case ENC_BCD_DIGITS_0_9:
 	    case ENC_KEYPAD_ABC_TBCD:
 	    case ENC_KEYPAD_BC_TBCD:
@@ -3278,6 +3279,13 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strptr = tvb_get_nonascii_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic_cp037);
 		break;
 
+	case ENC_EBCDIC_CP500:
+		/*
+		 * EBCDIC code page 500.
+		 */
+		strptr = tvb_get_nonascii_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic_cp500);
+		break;
+
 	case ENC_T61:
 		strptr = tvb_get_t61_string(scope, tvb, offset, length);
 		break;
@@ -3759,6 +3767,13 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		 * EBCDIC code page 037.
 		 */
 		strptr = tvb_get_nonascii_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic_cp037);
+		break;
+
+	case ENC_EBCDIC_CP500:
+		/*
+		 * EBCDIC code page 500.
+		 */
+		strptr = tvb_get_nonascii_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic_cp500);
 		break;
 
 	case ENC_T61:

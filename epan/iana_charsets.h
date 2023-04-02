@@ -237,7 +237,7 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(0, YYY(XXX, IANA_CS_IBM420,                    2041, "IBM420",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM423,                    2042, "IBM423",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM424,                    2043, "IBM424",              ENC_NA|_DEFAULT_WS_ENC)) \
-    ZZZ(0, YYY(XXX, IANA_CS_IBM500,                    2044, "IBM500",              ENC_NA|_DEFAULT_WS_ENC)) \
+    ZZZ(1, YYY(XXX, IANA_CS_IBM500,                    2044, "IBM500",              ENC_NA|ENC_EBCDIC_CP500)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM851,                    2045, "IBM851",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(1, YYY(XXX, IANA_CS_IBM855,                    2046, "IBM855",              ENC_NA|ENC_CP855)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM857,                    2047, "IBM857",              ENC_NA|_DEFAULT_WS_ENC)) \

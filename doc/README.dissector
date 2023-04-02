@@ -1543,6 +1543,7 @@ currently supported are:
         in ETSI TS 102 221 Annex A
     ENC_EBCDIC - EBCDIC
     ENC_EBCDIC_CP037 - EBCDIC code page 037
+    ENC_EBCDIC_CP500 - EBCDIC code page 500
     ENC_MAC_ROMAN - MAC ROMAN
     ENC_CP437 - DOS code page 437
     ENC_CP855 - DOS code page 855

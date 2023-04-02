@@ -1116,7 +1116,7 @@ dissect_drda_typdefnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             break;
         }
     }
-    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_EBCDIC, pinfo->pool, &typdefnam);
+    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_EBCDIC_CP500, pinfo->pool, &typdefnam);
     for (int i = 0; typdefnam_vals[i].name != NULL; i++) {
         if (strcmp(typdefnam_vals[i].name, typdefnam) == 0) {
             pdu_info->typdefnam = typdefnam_vals[i].value;
@@ -1448,7 +1448,7 @@ ccsid_to_encoding(guint32 ccsid)
     case 0:
     case 500:
     case 65535:
-        return ENC_EBCDIC; /* XXX: CP 500 not yet supported */
+        return ENC_EBCDIC_CP500;
     case 37:
         return ENC_EBCDIC_CP037;
     case 367:
@@ -1555,13 +1555,13 @@ dissect_drda_pkgnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     if (tvb_reported_length(tvb) == 54) {
         /* 58 - 4 bytes for the code point and length already removed. */
         proto_tree_add_item(tree, hf_drda_rdbnam, tvb, offset, 18, ENC_UTF_8);
-        proto_tree_add_item(tree, hf_drda_rdbnam_ebcdic, tvb, offset, 18, ENC_EBCDIC);
+        proto_tree_add_item(tree, hf_drda_rdbnam_ebcdic, tvb, offset, 18, ENC_EBCDIC_CP500);
         offset += 18;
         proto_tree_add_item(tree, hf_drda_rdbcolid, tvb, offset, 18, ENC_UTF_8);
-        proto_tree_add_item(tree, hf_drda_rdbcolid_ebcdic, tvb, offset, 18, ENC_EBCDIC);
+        proto_tree_add_item(tree, hf_drda_rdbcolid_ebcdic, tvb, offset, 18, ENC_EBCDIC_CP500);
         offset += 18;
         proto_tree_add_item(tree, hf_drda_pkgid, tvb, offset, 18, ENC_UTF_8);
-        proto_tree_add_item(tree, hf_drda_pkgid_ebcdic, tvb, offset, 18, ENC_EBCDIC);
+        proto_tree_add_item(tree, hf_drda_pkgid_ebcdic, tvb, offset, 18, ENC_EBCDIC_CP500);
         offset += 18;
     } else if (tvb_reported_length(tvb) > 64) {
         ti_length = proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
@@ -1570,7 +1570,7 @@ dissect_drda_pkgnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
         offset += 2;
         proto_tree_add_item(tree, hf_drda_rdbnam, tvb, offset, length, ENC_UTF_8);
-        proto_tree_add_item(tree, hf_drda_rdbnam_ebcdic, tvb, offset, length, ENC_EBCDIC);
+        proto_tree_add_item(tree, hf_drda_rdbnam_ebcdic, tvb, offset, length, ENC_EBCDIC_CP500);
         offset += length;
         ti_length = proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
         if (length < 18 || length > 255) {
@@ -1578,7 +1578,7 @@ dissect_drda_pkgnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
         offset += 2;
         proto_tree_add_item(tree, hf_drda_rdbcolid, tvb, offset, length, ENC_UTF_8);
-        proto_tree_add_item(tree, hf_drda_rdbcolid_ebcdic, tvb, offset, length, ENC_EBCDIC);
+        proto_tree_add_item(tree, hf_drda_rdbcolid_ebcdic, tvb, offset, length, ENC_EBCDIC_CP500);
         offset += length;
         ti_length = proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
         if (length < 18 || length > 255) {
@@ -1586,7 +1586,7 @@ dissect_drda_pkgnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
         offset += 2;
         proto_tree_add_item(tree, hf_drda_pkgid, tvb, offset, length, ENC_UTF_8);
-        proto_tree_add_item(tree, hf_drda_pkgid_ebcdic, tvb, offset, length, ENC_EBCDIC);
+        proto_tree_add_item(tree, hf_drda_pkgid_ebcdic, tvb, offset, length, ENC_EBCDIC_CP500);
         offset += length;
     } else {
         proto_tree_add_expert_format(tree, pinfo, &ei_drda_opcode_invalid_length, tvb, 0, tvb_reported_length(tvb), "Invalid length; RDBNAM, RDBCOLID, and PKGID should all be length 18 or larger.");
@@ -1939,7 +1939,7 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, data)) {
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
-                proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
+                proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
             }
         }
         offset += iLengthParam;
@@ -2035,7 +2035,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                 if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, pdu_info)) {
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
-                    proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
+                    proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
                 }
             }
             offset += iLengthParam;
