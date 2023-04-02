@@ -114,7 +114,6 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 
 ../packet-dcerpc-mapi.c \
 ../packet-dcerpc-mapi.h: mapi/mapi.idl mapi/mapi.cnf \
-				mapi/request.cnf.c mapi/response.cnf.c \
 				idl_types.h mapicodes_enum.h mapitags_enum.h
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 

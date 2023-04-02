@@ -1,1647 +1,3652 @@
-/*
-   OpenChange MAPI implementation.
-
-   Copyright (C) Julien Kerihuel 2007.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
-   
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "idl_types.h"
 
-[
-  uuid("a4f1db00-ca47-1067-b31f-00dd010662da"),
-  pointer_default(unique),
-  endpoint("ncacn_np:[\\pipe\\lsass]","ncacn_np:[\\pipe\\protected_storage]","ncacn_ip_tcp:"),
+import "nspi.idl";
+
+/*
+  emsmdb interface definitions
+*/
+[ uuid("a4f1db00-ca47-1067-b31f-00dd010662da"),
   version(0.82),
-  helpstring("Exchange 5.5 EMSMDB")
+  endpoint("ncacn_np:[\\pipe\\lsass]","ncacn_np:[\\pipe\\protected_storage]","ncacn_ip_tcp:"),
+  pointer_default(unique),
+  helpstring("MAPI")
 ] interface mapi
 {
-
-#include "mapitags_enum.h"
 #include "mapicodes_enum.h"
-
-	/*****************/
-	/* Function 0x00 */
-
-	typedef struct datablob {
-		uint8 *data;
-		uint8 length;
-	} DATA_BLOB;
-
-	typedef struct {
-		uint32 language;
-		uint32 method;
-	} input_locale;
-
-
-	MAPISTATUS EcDoConnect(
- 		[out]		    policy_handle	*handle,
-                [in,string]	    uint8		name[],
-		[in]		    uint32		unknown1[3],
-                [in]		    uint32		code_page,
-		[in]		    input_locale	input_locale,
-                [in]		    uint32		unknown2,
-                [in]		    uint16		unknown3,
-		[out]		    uint32		unknown4[3],
-                [out]		    uint16		*session_nb,
-                [out,unique,string] uint8		*org_group,
-                [out,unique,string] uint8		*user,
-                [out]		    uint16		store_version[3],
-		[in,out]       	    uint16		emsmdb_client_version[3],
-                [in,out]	    uint32		*alloc_space
-		);
-
-	/*****************/
-	/* Function 0x01 */
-	MAPISTATUS EcDoDisconnect(
-		[in,out]   policy_handle   *handle
-		);
-
-	/*****************/
-	/* Function 0x02 */
-
-	/*
-	  EcDoRpc opnums
-	*/
-
-	typedef [public, enum8bit, flag(NDR_PAHEX)] enum 
-		{
-			MAPI_STORE	= 0x1,
-			MAPI_ADDRBOOK	= 0x2,
-			MAPI_FOLDER	= 0x3,
-			MAPI_ABCONT	= 0x4,
-			MAPI_MESSAGE	= 0x5,
-			MAPI_MAILUSER	= 0x6, /* Individual Recipient */
-			MAPI_ATTACH	= 0x7,
-			MAPI_DISTLIST	= 0x8,
-			MAPI_PROFSECT	= 0x9,
-			MAPI_STATUS	= 0xA,
-			MAPI_SESSION	= 0xB,
-			MAPI_FORMINFO	= 0xC
-		} MAPI_OBJTYPE;
-
-	typedef [public, v1_enum, flag(NDR_PAHEX)] enum 
-		{
-			RightsNone		= 0x00000000,
-			RightsReadItems		= 0x00000001,
-			RightsCreateItems	= 0x00000002,
-			RightsEditOwn		= 0x00000008,
-			RightsDeleteOwn		= 0x00000010,
-			RightsEditAll		= 0x00000020,
-			RightsDeleteAll		= 0x00000040,
-			RightsCreateSubfolders	= 0x00000080,
-			RightsFolderOwner	= 0x00000100,
-			RightsFolderContact	= 0x00000200,
-			RoleNone		= 0x00000400,
-			RoleReviewer		= 0x00000401,
-			RoleContributor		= 0x00000402,
-			RoleNoneditingAuthor	= 0x00000413,
-			RoleAuthor		= 0x0000041B,
-			RoleEditor		= 0x0000047B,
-			RolePublishAuthor	= 0x0000049B,
-			RolePublishEditor	= 0x000004FB,
-			RightsAll		= 0x000005FB,
-			RoleOwner		= 0x000007FB
-	       	} ACLRIGHTS;
-
-	typedef [public, enum8bit, flag(NDR_PAHEX)] enum
-		{
-			op_MAPI_Release			= 0x1,
-			op_MAPI_OpenFolder		= 0x2,
-			op_MAPI_OpenMessage		= 0x3,
-			op_MAPI_GetHierarchyTable	= 0x4,
-			op_MAPI_GetContentsTable	= 0x5,
-			op_MAPI_CreateMessage		= 0x6,
-			op_MAPI_GetProps		= 0x7,
-			op_MAPI_GetPropsAll		= 0x8,
-			op_MAPI_GetPropList		= 0x9,
-			op_MAPI_SetProps		= 0xa,
-			op_MAPI_DeleteProps		= 0xb,
-			op_MAPI_SaveChangesMessage	= 0xc,
-			op_MAPI_ModifyRecipients	= 0xe,
-			op_MAPI_SetReadFlags		= 0x11,
-			op_MAPI_SetColumns		= 0x12,
-			op_MAPI_SortTable		= 0x13,
-			op_MAPI_Restrict		= 0x14,
-			op_MAPI_QueryRows		= 0x15,
-			op_MAPI_GetRowCount		= 0x17,
-			op_MAPI_SeekRow			= 0x18,
-			op_MAPI_SeekRowBookmark		= 0x19,
-			op_MAPI_SeekRowApprox		= 0x1a,
-			op_MAPI_CreateBookmark		= 0x1b,
-			op_MAPI_CreateFolder		= 0x1c,
-			op_MAPI_DeleteFolder		= 0x1d,
-			op_MAPI_DeleteMessages		= 0x1e,
-			op_MAPI_GetMessageStatus	= 0x1f,
-			op_MAPI_SetMessageStatus	= 0x20,
-			op_MAPI_GetAttachmentTable     	= 0x21,
-			op_MAPI_OpenAttach		= 0x22,
-			op_MAPI_CreateAttach		= 0x23,
-			op_MAPI_DeleteAttach		= 0x24,
-			op_MAPI_SaveChanges		= 0x25,
-			op_MAPI_SetReceiveFolder	= 0x26,
-			op_MAPI_GetReceiveFolder	= 0x27,
-			op_MAPI_Advise			= 0x29,
-			op_MAPI_Notify			= 0x2a,
-			op_MAPI_OpenStream		= 0x2b,
-			op_MAPI_ReadStream		= 0x2c,
-			op_MAPI_WriteStream		= 0x2d,
-			op_MAPI_SetSearchCriteria	= 0x30,
-			op_MAPI_GetSearchCriteria      	= 0x31,
-			op_MAPI_SubmitMessage		= 0x32,
-			op_MAPI_CopyMessages		= 0x33,
-			op_MAPI_QueryColumns		= 0x37,
-			op_MAPI_GetTable		= 0x3e,
-			op_MAPI_ModifyTable		= 0x40,
-			op_MAPI_FindRow			= 0x4f,
-			op_MAPI_AddressTypes		= 0x49,
-			op_MAPI_GetNamesFromIDs		= 0x55,
-			op_MAPI_GetIDsFromNames		= 0x56,
-			op_MAPI_EmptyFolder		= 0x58,
-			op_MAPI_QueryNamesFromIDs	= 0x5f,
-			op_MAPI_GetReceiveFolderTable	= 0x68,
-			op_MAPI_OpenMsgStore		= 0xfe
-		} MAPI_OPNUM;
-
-
-	typedef struct {
-		uint32 dwLowDateTime;
-		uint32 dwHighDateTime;
-	} FILETIME;
-
-// 	typedef [noprint,flag(NDR_NOALIGN)] struct {
-// 		uint16				cb;
-// 		[flag(NDR_BUFFERS)]uint8	lpb[cb];
-// 	} SBinary_short;
-
-	typedef struct {
-		uint32 cValues;
-		uint32 lpl[cValues]; 
-	} MV_LONG_STRUCT;
-
-	typedef struct {
-		astring lppszA;
-	} LPSTR;
-
-	typedef struct {
-		uint32 cValues;
-		LPSTR strings[cValues]; 
-	} SLPSTRArray;
-	
-// 	typedef struct {
-// 		uint32		cValues;
-// 		SBinary_short	bin[cValues];
-// 	} SBinaryArray;
-
-	typedef struct {
-		uint32		cValues;
-		GUID		lpguid[cValues];
-	} SGuidArray;
-
-	typedef [v1_enum] enum {
-		PT_UNSPECIFIED	= 0x0000,
-		PT_NULL		= 0x0001,
-		PT_I2		= 0x0002,
-		PT_LONG		= 0x0003,
-		PT_R4		= 0x0004,
-		PT_DOUBLE	= 0x0005,
-		PT_CURRENCY	= 0x0006,
-		PT_APPTIME	= 0x0007,
-		PT_ERROR	= 0x000a,	/* means the given attr contains no value */
-		PT_BOOLEAN	= 0x000b,
-		PT_OBJECT	= 0x000d,
-		PT_I8		= 0x0014,
-		PT_STRING8	= 0x001e,
-		PT_UNICODE	= 0x001f,
-		PT_SYSTIME	= 0x0040,
-		PT_CLSID	= 0x0048,
-		PT_BINARY	= 0x0102,
-
-		/* Multi-valued properties */
-
-		PT_MV_I2	= 0x1002,
-		PT_MV_LONG	= 0x1003,
-		PT_MV_R4	= 0x1004,
-		PT_MV_DOUBLE	= 0x1005,
-		PT_MV_CURRENCY	= 0x1006,
-		PT_MV_APPTIME	= 0x1007,
-		PT_MV_I8	= 0x1014,
-		PT_MV_STRING8	= 0x101e,
-//		PT_MV_TSTRING	= 0x101e,
-		PT_MV_UNICODE	= 0x101f,
-		PT_MV_SYSTIME	= 0x1040,
-		PT_MV_CLSID	= 0x1048,
-		PT_MV_BINARY	= 0x1102
-	} property_types;
-
-	typedef [switch_type(property_types),flag(NDR_NOALIGN)] union {
-		[case(PT_I2)]		uint16			i;
-		[case(PT_LONG)]     	uint32			l;
-		[case(PT_DOUBLE)]	dlong			dbl;
-		[case(PT_ERROR)]       	uint32			err;
-		[case(PT_BOOLEAN)]	uint8			b;
-		[case(PT_I8)]		dlong			d;
-		[case(PT_STRING8)]	astring			lpszA;
-		[case(PT_UNICODE)]	nstring			lpszW;
-		[case(PT_SYSTIME)]	FILETIME		ft;
-		[case(PT_CLSID)]	GUID			lpguid;
-//   		[case(PT_BINARY)]	SBinary_short		bin;
-// 		[case(0xFB)]		SBinary_short		bin;
-// 		[case(PT_MV_LONG)]	MV_LONG_STRUCT	MVl;	
-// 		[case(PT_MV_STRING8)]	SLPSTRArray	MVszA;
-// 		[case(PT_MV_CLSID)]	SGuidArray		MVguid;
-// 		[case(PT_MV_BINARY)]	SBinaryArray      	MVbin;
-	} SPropValue_CTR;
-
-	typedef [public,flag(NDR_NOALIGN)] struct {
-		MAPITAGS ulPropTag;
-		[switch_is(ulPropTag & 0xFFFF)] SPropValue_CTR value; 
-	} SPropValue;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint16					cValues;
-		[flag(NDR_REMAINING)]SPropValue	lpProps[cValues];
-	} SPropValue_array;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint16					cValues;
-		MAPITAGS				aulPropTag[cValues];
-	} SPropTagArray;
-
-	typedef [enum8bit, flag(NDR_PAHEX)] enum {
-		ROW_ADD		=	0x1,
-		ROW_MODIFY	=	0x2,
-		ROW_REMOVE	=	0x4
-	} ulRowFlags;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		ulRowFlags				ulRowFlags;
-// 		SPropValue_array			lpProps;
-	} SRow;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint8					padding;
-		uint16					cEntries;
-		SRow				aEntries[cEntries];
-	} SRowList;
-
-	/**************************/
-	/* EcDoRpc Function 0x1   */
-	typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
-	} Release_req;
-
-	typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
-	} Release_repl;
-
-	/**************************/
-	/* EcDoRpc Function 0x2   */
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint8		handle_idx;
-		hyper		folder_id;
- 		uint8		unknown;
-	} OpenFolder_req;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint16		unknown;
-	} OpenFolder_repl;
-	
-	/**************************/
-	/* EcDoRpc Function 0x3   */
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint8		folder_handle_idx;
-		uint16		max_data;
-		hyper		folder_id;
-		uint8		message_permissions;
-		hyper		message_id;
-	} OpenMessage_req;
-
-	typedef [v1_enum, flag(NDR_PAHEX)] enum {
-		CP_USASCII	= 0x04E4,
-		CP_UNICODE	= 0x04B0,
-		CP_JAUTODETECT	= 0xC6F4,
-		CP_KAUTODETECT	= 0xC705,
-		CP_ISO2022JPESC = 0xC42D,
-		CP_ISO2022JPSIO	= 0xC42E
-	} CODEPAGEID;
-
-	typedef [enum8bit, flag(NDR_PAHEX)] enum {
-		MAPI_ORIG		= 0x0,
-		MAPI_TO			= 0x1,
-		MAPI_CC			= 0x2,
-		MAPI_BCC		= 0x3
-	} ulRecipClass;
-
-	/**************** EXPERIMENTAL ******************/
-
-	typedef [enum8bit, flag(NDR_PAHEX)] enum {
-		SINGLE_RECIPIENT	= 0x0,
-		DISTRIBUTION_LIST	= 0x1
-	} addr_type;
-
-	typedef  [flag(NDR_NOALIGN)]struct {
-		uint8		organization_length;
-		addr_type	addr_type;
-	} RecipExchange;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-	} RecipSMTP;
-
-	typedef [enum16bit] enum {
-		EXCHANGE = 0x0,
-		SMTP = 0x1
-	} OM_recipient_type;
-
-	typedef [switch_type(OM_recipient_type),flag(NDR_NOALIGN)] union {
-		[case(0x0)] RecipExchange	EXCHANGE;
-		[case(0xA)] RecipSMTP		SMTP;
-		[default];
-	} recipient_type;
-
-	typedef [enum16bit] enum {
-		DISPLAYNAME = 0x400
-	} OM_recipient_displayname_7bit;
-
-	/* Bit 5: always UTF8 encoded */
-	typedef [switch_type(OM_recipient_displayname_7bit),flag(NDR_NOALIGN)] union {
-		[case(0x400)] astring		lpszA;
-		[default];
-	} recipient_displayname_7bit;
-
-// 	/* Bit 10 */
-// 	typedef [switch_type(recipient_email),flag(NDR_NOALIGN)] union {
-// 		[case(0x20)] astring   	lpszA;
-// 		[case(0x220)] nstring	lpszW;
-// 		[default];
-// 	} recipient_email;
-
-	/* Bit 11 */
-	/* First Name = PR_GIVEN_NAME */
-// 	typedef [switch_type(recipient_firstname),flag(NDR_NOALIGN)] union {
-// 		[case(0x10)] astring   	lpszA;
-// 		[case(0x210)] nstring	lpszW;
-// 		[default];
-// 	} recipient_firstname;
-
-// 	/* Bit 15 */
-// 	typedef [switch_type(recipient_displayname),flag(NDR_NOALIGN)] union {
-// 		[case(0x1)] astring    	lpszA;
-// 		[case(0x201)] nstring	lpszW;
-// 		[default];
-// 	} recipient_displayname;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint16							bitmask;
- 		[switch_is(bitmask & 0xA)]   recipient_type		type;
-		[switch_is(bitmask & 0x400)] recipient_displayname_7bit	username;
-// 		[switch_is(bitmask & 0x210)] recipient_firstname       	firstname;
-// 		[switch_is(bitmask & 0x201)] recipient_displayname	displayname;
-// 		[switch_is(bitmask & 0x220)] recipient_email   		email_address;
-		uint16							prop_count;
-		uint8							layout;
-		[flag(NDR_REMAINING)] DATA_BLOB				prop_values;
-	} recipients_headers;
-	
-	/**************** EXPERIMENTAL *****************/
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		ulRecipClass	RecipClass;
-		CODEPAGEID	codepage;
-		[subcontext(2)] recipients_headers recipients_headers;
-	} OpenMessage_recipients;
-
-// 	typedef [public, nodiscriminant]union {
-// 		[case(0x0)];
-// 		[case(0x1)];
-// 		[case(0x3)] astring subject;
-// 	} OpenMessage_repl_UNION;
-
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint8		unknown;
-		uint8		type_prefix;
-// 		[switch_is(type_prefix)] OpenMessage_repl_UNION prefix;
-// 		uint8		type_subject;
-// 		[switch_is(type_subject)] OpenMessage_repl_UNION subject;
-		uint16			recipient_count;
-		SPropTagArray	SPropTagArray;
-// 		uint8			recipient_count_again;
-// 		OpenMessage_recipients	recipients[recipient_count];
-	} OpenMessage_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x4   */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint8		unknown;
-// 	} GetHierarchyTable_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		cn_rows;
-// 		uint16		unknown;
-// 	} GetHierarchyTable_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x5   */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint8		unknown;
-// 	} GetContentsTable_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16          cn_rows;
-// 		uint16          unknown;
-// 	} GetContentsTable_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x6   */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint16		max_data;
-// 		hyper		folder_id;
-// 		uint8		padding;
-// 	} CreateMessage_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		padding;
-// 	} CreateMessage_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x7  */
- 	typedef [flag(NDR_NOALIGN)] struct {
- 		uint32		unknown;
- 		uint16		prop_count;
- 		MAPITAGS	properties[prop_count];
- 	} GetProps_req;
-
- 	typedef [flag(NDR_NOALIGN)] struct {
- 		uint8		layout;
- 		[flag(NDR_REMAINING)] DATA_BLOB prop_data;
- 	} GetProps_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x8  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16			dwAlignPad;
-// 		uint16			unknown;
-// 	} GetPropsAll_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		SPropValue_array	properties;
-// 	} GetPropsAll_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x9  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} GetPropList_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		count;
-// 		MAPITAGS	tags[count];
-// 	} GetPropList_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0xa  */
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-//  		[subcontext(2)] SPropValue_array values;
-// 	} SetProps_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		unknown;
-// 	} SetProps_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0xb  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		count;
-// 		MAPITAGS	tags[count];
-// 	} DeleteProps_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		unknown;
-// 	} DeleteProps_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0xc  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint8		prop_nb;
-// 	} SaveChangesMessage_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 		hyper		message_id;
-// 	} SaveChangesMessage_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0xe  */
-
-// 	/* 
-// 	 * MODRECIP_NULL and INVALID are not part of the msdn flags
-// 	 * but are added for printing support 
-// 	 */
-// 	typedef [enum8bit,flag(NDR_PAHEX)] enum {
-// 		MODRECIP_NULL		= 0x0,
-// 		MODRECIP_INVALID	= 0x1,
-// 		MODRECIP_ADD		= 0x2,
-// 		MODRECIP_MODIFY		= 0x4,
-// 		MODRECIP_REMOVE		= 0x8
-// 	} modrecip;
-
-// 	typedef [flag(NDR_NOALIGN)]struct {
-// 		uint32		idx;
-// 		ulRecipClass	RecipClass;		
-// 		[subcontext(2),flag(NDR_REMAINING)] recipients_headers headers;
-// 	} recipients;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-//  		uint16				prop_count;
-//  		MAPITAGS			properties[prop_count];
-// 		uint16				cValues;
-// 		recipients			recipient[cValues];
-// 	} ModifyRecipients_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-
-// 	} ModifyRecipients_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x11 */
-
-// 	typedef [bitmap8bit] bitmap {
-// 		SUPPRESS_RECEIPT	= 0x01,
-// 		CLEAR_READ_FLAG		= 0x04,
-// 		MAPI_DEFERRED_ERRORS	= 0x08,
-// 		GENERATE_RECEIPT_ONLY	= 0x10,
-// 		CLEAR_RN_PENDING	= 0x20,
-// 	       	CLEAR_NRN_PENDING	= 0x40
-// 	} MSGFLAG_READ;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		MSGFLAG_READ	flags;
-// 	} SetReadFlags_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} SetReadFlags_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x12 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 		uint16		prop_count;
-// 		MAPITAGS	properties[prop_count];
-// 	} SetColumns_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} SetColumns_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x13  */
-//         typedef [enum8bit, flag(NDR_PAHEX)] enum {
-//                 TBL_ASYNC = 0x1,
-//                 TBL_BATCH = 0x2
-//         } TBL_FLAGS;
-	
-//         typedef [enum8bit, flag(NDR_PAHEX)] enum {
-//                 TABLE_SORT_ASCEND = 0x0,
-//                 TABLE_SORT_COMBINE = 0x1,
-//                 TABLE_SORT_DESCEND = 0x2
-//         } TABLE_SORT;
-
-//         typedef [public, flag(NDR_NOALIGN)] struct _SSortOrder{
-//                 MAPITAGS ulPropTag;
-//                 TABLE_SORT ulOrder;
-//         } SSortOrder;
-
-// 	typedef [public, flag(NDR_NOALIGN)] struct _SSortOrderSet {
-//  		uint16		cSorts;
-//  		uint16		cCategories;
-//  		uint16		cExpanded;
-// 		SSortOrder	aSort[cSorts];
-// 	} SSortOrderSet;
-
-//         typedef [flag(NDR_NOALIGN)]struct {
-// 		uint8		unknown;
-// 		SSortOrderSet	lpSortCriteria;
-//         } SortTable_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} SortTable_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x14  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16			cRes;
-//    		SRestriction_and	res[cRes];
-// 	} SAndRestriction;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16	cRes;
-//     		SRestriction_or	res[cRes];
-// 	} SOrRestriction;
-
-// 	typedef [nopull,nopush,noprint,flag(NDR_NOALIGN)] struct {
-// 		SRestriction_not	*res;
-// 	} SNotRestriction;
-
-//  	typedef [noprint, bitmap32bit] bitmap {
-// 		FL_FULLSTRING		= 0x00000,
-// 	       	FL_SUBSTRING		= 0x00001,
-// 		FL_PREFIX		= 0x00002,
-// 		FL_IGNORECASE		= 0x10000,
-// 		FL_IGNORENONSPACE	= 0x20000,
-// 		FL_LOOSE		= 0x40000
-// 	} fuzzyLevel;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		fuzzyLevel	fuzzy;
-// 		MAPITAGS	ulPropTag;
-// 		SPropValue	lpProp;
-// 	} SContentRestriction;
-
-// 	typedef [enum8bit, flag(NDR_PAHEX)] enum {
-// 		BMR_EQZ = 0x0,
-// 		BMR_NEZ = 0x1
-// 	} relMBR;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		relMBR		relMBR;
-// 		MAPITAGS	ulPropTag;
-// 		uint32		ulMask;
-// 	} SBitmaskRestriction;
-
-// 	typedef [enum8bit, flag(NDR_PAHEX)] enum {
-// 		RELOP_LT = 0x0,		/* <  */
-// 		RELOP_LE = 0x1,		/* <= */
-// 		RELOP_GT = 0x2,		/* >  */
-// 		RELOP_GE = 0x3,		/* >= */
-// 		RELOP_EQ = 0x4,		/* == */
-// 		RELOP_NE = 0x5,		/* != */
-// 		RELOP_RE = 0x6		/* LIKE (Regular expression) */
-// 	} CompareRelop;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		CompareRelop	relop;
-// 		MAPITAGS	ulPropTag;
-// 		uint32		size;
-// 	} SSizeRestriction;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		relop;
-// 		MAPITAGS	ulPropTag;
-// 		SPropValue	lpProp;
-// 	} SPropertyRestriction;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		CompareRelop   	relop;
-// 		MAPITAGS	ulPropTag1;
-// 		MAPITAGS	ulPropTag2;
-// 	} SCompareProps;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		MAPITAGS	ulPropTag;
-// 	} SExistRestriction;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-//  		MAPITAGS	       	ulSubObject;
-//   		SRestriction_sub  	res[ulSubObject - ulSubObject + 1]; /* nasty hack - generates fake pointer */
-// 	} SSubRestriction;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8				cValues;
-// 		uint16				cRes;
-// 		uint16				unknown;
-// 		SRestriction_comment	res[cRes];
-// 		SPropValue			lpProp[cValues];
-// 	} SCommentRestriction;
-
-// 	typedef [nodiscriminant] union {
-// 		[case(RES_AND)]			SAndRestriction		resAnd;
-// 		[case(RES_OR)]			SOrRestriction		resOr;
-//  		[case(RES_NOT)]			SNotRestriction		resNot;
-// 		[case(RES_CONTENT)]		SContentRestriction	resContent;
-// 		[case(RES_PROPERTY)]		SPropertyRestriction	resProperty;
-// 		[case(RES_COMPAREPROPS)]	SCompareProps		resCompareProps;
-// 		[case(RES_BITMASK)]		SBitmaskRestriction	resBitmask;
-// 		[case(RES_SIZE)]		SSizeRestriction		resSize;
-// 		[case(RES_EXIST)]		SExistRestriction		resExist;
-// 		[case(RES_SUBRESTRICTION)]	SSubRestriction		resSub;
-// 		[case(RES_COMMENT)]		SCommentRestriction	resComment;
-// 	} SRestriction_CTR;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8 rt;
-// 		[switch_is(rt)] SRestriction_CTR res;
-// 	} SRestriction;
-
-// 	typedef [public,flag(NDR_NOALIGN)] struct _SRestriction {
-// 		uint8 rt;
-// 		[switch_is(rt)] SRestriction_CTR res;
-// 	} SRestriction_and;
-
-// 	typedef [public,flag(NDR_NOALIGN)] struct _SRestriction {
-// 		uint8 rt;
-// 		[switch_is(rt)] SRestriction_CTR res;
-// 	} SRestriction_or;
-
-// 	typedef [public,flag(NDR_NOALIGN)] struct _SRestriction {
-// 		uint8 rt;
-// 		[switch_is(rt)] SRestriction_CTR res;
-// 	} SRestriction_not;
-
-// 	typedef [public,flag(NDR_NOALIGN)] struct _SRestriction {
-// 		uint8 rt;
-// 		[switch_is(rt)] SRestriction_CTR res;
-// 	} SRestriction_sub;
-
-// 	typedef [public,flag(NDR_NOALIGN)] struct _SRestriction {
-// 		uint8 rt;
-// 		[switch_is(rt)] SRestriction_CTR res;
-// 	} SRestriction_comment;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8 handle_idx;
-// 		[subcontext(2)] SRestriction  restrictions;
-// 	} Restrict_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} Restrict_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x15  */
-
-// 	typedef [enum8bit] enum {
-// 		TBL_ADVANCE		= 0x0,
-// 		TBL_NOADVANCE		= 0x1
-// 	} tbl_advance;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		tbl_advance	flag_advance;
-// 		uint8		layout;
-// 		uint16		row_count;
-// 	} QueryRows_req;
-
-// 	typedef [nopull,flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 		uint16		results_count;
-//  		uint8		layout;
-// 		[flag(NDR_REMAINING)]DATA_BLOB	rows;
-// 	} QueryRows_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x17  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} GetRowCount_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32	unknown;
-// 		uint32	count;
-// 	} GetRowCount_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x18  */
-// 	typedef [enum8bit] enum {
-// 		BOOKMARK_BEGINNING	= 0x0,
-// 		BOOKMARK_CURRENT	= 0x1,
-// 		BOOKMARK_END		= 0x2,
-// 		BOOKMARK_USER		= 0x3
-// 	} BOOKMARK;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		BOOKMARK	origin;
-// 		int32		offset;
-// 		uint8		unknown_1;
-// 	} SeekRow_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32		row;
-// 		uint8		unknown;
-// 	} SeekRow_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x19  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		SBinary_short	bookmark;
-// 		uint32		offset;
-// 		uint8		unknown;
-// 	} SeekRowBookmark_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		unknown;
-// 		uint32		row;
-// 	} SeekRowBookmark_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x1a  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32		ulNumerator;
-// 		uint32		ulDenominator;
-// 	} SeekRowApprox_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} SeekRowApprox_repl;
-	
-// 	/**************************/
-// 	/* EcDoRpc Function 0x1b  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} CreateBookmark_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		SBinary_short	bookmark;
-// 	} CreateBookmark_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x1c  */
-// 	typedef [enum8bit] enum {
-// 		FOLDER_GENERIC	= 0x1,
-// 		FOLDER_SEARCH	= 0x2
-// 	} FOLDER_TYPE;
-
-// 	typedef [enum8bit] enum {
-// 		MAPI_FOLDER_ANSI       	= 0x0,
-// 		MAPI_FOLDER_UNICODE    	= 0x1
-// 	} FOLDER_STRING;
-
-// 	typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
-// 		[case(MAPI_FOLDER_ANSI)] astring       	lpszA;
-// 		[case(MAPI_FOLDER_UNICODE)] nstring	lpszW;
-// 	} LPTSTR;
-
-// 	typedef [enum16bit] enum {
-// 		NONE		= 0x0000,
-// 		OPEN_IF_EXISTS	= 0x0001
-// 	} FOLDER_FLAGS;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8				handle_idx;
-// 		FOLDER_TYPE			ulFolderType;
-// 		FOLDER_STRING			ulType;
-// 		FOLDER_FLAGS	       		ulFlags;
-// 		[switch_is(ulType)] LPTSTR	FolderName;
-// 		[switch_is(ulType)] LPTSTR	FolderComment;
-// 	} CreateFolder_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper		folder_id;
-// 		uint8		unknown;
-// 	} CreateFolder_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x1d  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		flags;
-// 		hyper		folder_id;
-// 	} DeleteFolder_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} DeleteFolder_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x1e  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		flags;
-// 		uint16		cn_ids;
-// 		hyper		message_ids[cn_ids];
-// 	} DeleteMessages_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		align_pad;
-// 	} DeleteMessages_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x1f  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper		msgid;
-// 	} GetMessageStatus_req;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x20  */
-// 	typedef [bitmap32bit] bitmap {
-// 		MSGSTATUS_HIGHLIGHTED		= 0x1,
-// 		MSGSTATUS_TAGGED		= 0x2,
-// 		MSGSTATUS_HIDDEN		= 0x4,
-// 	        MSGSTATUS_DELMARKED		= 0x8,
-// 		MSGSTATUS_REMOTE_DOWNLOAD	= 0x1000,
-// 		MSGSTATUS_REMOTE_DELETE		= 0x2000
-// 	} ulMessageStatus;
-
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper		msgid;
-// 		uint32		ulNewStatus;
-// 		ulMessageStatus	ulNewStatusMask;
-// 	} SetMessageStatus_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		ulMessageStatus	ulOldStatus;
-// 	} SetMessageStatus_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x21  */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint8		unknown;
-// 	} GetAttachmentTable_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {		
-// 	} GetAttachmentTable_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x22 */
-//   	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint8		unknown;
-// 		uint32		num_attach;
-// 	} OpenAttach_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} OpenAttach_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x23 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8	handle_idx;
-// 	} CreateAttach_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32	unknown;
-// 	} CreateAttach_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x24 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32		num_attach;
-// 	} DeleteAttach_req;
-
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} DeleteAttach_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x25 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8 handle_idx;
-// 		uint8 ulFlags;
-// 	} SaveChanges_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} SaveChanges_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x26 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper		fid;
-// 		astring		lpszMessageClass;
-// 	} SetReceiveFolder_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} SetReceiveFolder_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x27 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} GetReceiveFolder_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper		folder_id;
-// 	} GetReceiveFolder_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x29 */
-	typedef [bitmap16bit] bitmap {
-		fnevCriticalError	= 0x00000001,
-	        fnevNewMail		= 0x00000002,
-	        fnevObjectCreated       = 0x00000004,
-		fnevObjectDeleted       = 0x00000008,
-		fnevObjectModified      = 0x00000010,
-		fnevObjectMoved         = 0x00000020,
-		fnevObjectCopied        = 0x00000040,
-		fnevSearchComplete      = 0x00000080,
-		fnevTableModified       = 0x00000100,
-		fnevStatusObjectModified= 0x00000200,
-		fnevReservedForMapi     = 0x40000000,
-		fnevExtended            = 0x80000000
-	} ulEventType;
-
-// 	typedef struct {
-// 		hyper	entryid[2];
-// 	} notif_entryid;
-
-// 	typedef [nodiscriminant] union {
-// 		[case (0x0)] notif_entryid entryids;
-// 		[case (0x1)];
-// 	} notification_data;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		ulEventType    	notification_type;
-// 		uint8		layout;
-// 		[switch_is(layout)] notification_data	u;
-// 	} Advise_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} Advise_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x2a */
-
-// 	/******************** EXPERIMENTAL *********************/
-
-// 	typedef [bitmap32bit] bitmap {
-// 		MSGFLAG_READ		= 0x1,
-// 		MSGFLAG_UNMODIFIED	= 0x2,
-// 		MSGFLAG_SUBMIT		= 0x4,
-// 		MSGFLAG_UNSENT		= 0x8,
-// 		MSGFLAG_HASATTACH	= 0x10,
-// 		MSGFLAG_FROMME		= 0x20,
-// 		MSGFLAG_ASSOCIATED	= 0x40,
-// 		MSGFLAG_RESEND		= 0x80,
-// 		MSGFLAG_RN_PENDING	= 0x100,
-// 	        MSGFLAG_NRN_PENDING	= 0x200
-// 	} MsgFlags;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8	       	type;
-// 		hyper		lpParentID;
-// 		hyper		lpEntryID;
-// 		MsgFlags	MsgFlags;
-// 		uint8		unknown;
-// 		astring		lpszMessageClass;
-// 		uint8		unknown2[3];
-// 	} NEWMAIL_NOTIFICATION;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		SPropTagArray	lpPropTagArray;
-// 		uint32			msg_count;//fixme
-// 		uint8			unknown[3];
-// 	} obj_change;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		SPropValue_array	properties;
-// 		uint8			unknown[3];
-// 	} obj_update;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		SPropTagArray	lpPropTagArray;
-// 		uint32			row_idx;
-// 		uint32			unread_count;
-// 	} obj_received;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper			lpEntryID;
-// 		SPropTagArray	lpPropTagArray;
-// 	} obj_created;
-
-// 	typedef [flag(NDR_NOALIGN),nodiscriminant] union {
-// 		[case(0x0)] obj_change			change;
-// 		[case(0x10)] obj_change			change;
-// 		[case(0x20)] obj_update			update;
-// 		[case(0x30)] obj_received		received;
-// 		[case(0x80)] obj_created		created;
-// 		[default] [flag(NDR_REMAINING)]DATA_BLOB blob;
-// 	} OBJECT_TYPE;
-	
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8				type;
-// 		hyper				lpParentID;
-//  		[switch_is(type)]OBJECT_TYPE   	object_type;
-// 	} OBJECT_NOTIFICATION;
-
-
-// 	typedef [nodiscriminant] union {
-// 		[case(fnevNewMail)] NEWMAIL_NOTIFICATION	newmail;
-// 		[case(fnevObjectCreated)] OBJECT_NOTIFICATION	obj;
-// 		[default][flag(NDR_REMAINING)] DATA_BLOB data;
-// 	} NOTIFICATION;
-
-// 	/******************** EXPERIMENTAL *********************/
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown[5];
-// 		uint8		ulEventType;
-//  		[switch_is(ulEventType)]NOTIFICATION	info;
-// 	} Notify_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x2b */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		stream_handle_idx;
-// 		MAPITAGS	prop;
-// 		uint8		access_flags;
-// 	} OpenStream_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32		length;
-// 	} OpenStream_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x2c */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		size;
-// 	} ReadStream_req;
-
-// 	typedef [flag(NDR_ALIGN2)] struct {
-// 		[subcontext(2), flag(NDR_REMAINING)] DATA_BLOB data;
-// 	} ReadStream_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x2d */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		[subcontext(2), flag(NDR_REMAINING)] DATA_BLOB	data;
-// 	} WriteStream_req;
-
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		size;
-// 	} WriteStream_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x30 */
-// 	typedef [bitmap32bit, flag(NDR_PAHEX)] bitmap {
-// 		STOP_SEARCH		= 0x1,
-// 		RESTART_SEARCH		= 0x2,
-// 		RECURSIVE_SEARCH	= 0x4,
-// 		SHALLOW_SEARCH		= 0x8,
-// 		FOREGROUND_SEARCH	= 0x10,
-// 		BACKGROUND_SEARCH	= 0x20
-// 	} ulSearchFlags;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		[subcontext(2)] SRestriction res;
-// 		uint16		count;
-// 		hyper		lpContainerList[count];
-// 		ulSearchFlags	ulSearchFlags;
-// 	} SetSearchCriteria_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} SetSearchCriteria_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x31 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown[3];
-// 	} GetSearchCriteria_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		[subcontext(2)] SRestriction	res;
-// 		uint8		unknown;
-// 		uint16		count;
-// 		hyper		lpContainerList[count];
-// 		ulSearchFlags	ulSearchFlags;
-// 	} GetSearchCriteria_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x32 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} SubmitMessage_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// //		uint8		unknown[3];
-// 	} SubmitMessage_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x33 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-//  		uint8		handle_idx;
-//  		uint16		count;
-//  		hyper		message_id[count];
-//  		uint16		row_nb;
-// 	} CopyMessages_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} CopyMessages_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x37 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} QueryColumns_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		count;
-// 		MAPITAGS	tags[count];
-// 	} QueryColumns_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x3e */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		handle_idx;
-// 		uint8		padding;
-// 	} GetTable_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} GetTable_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x40 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-//  		SRowList		rowList;
-// 	} ModifyTable_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		[flag(NDR_REMAINING)] DATA_BLOB remaining;
-// 	} ModifyTable_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x49 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} AddressTypes_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16 		cValues;
-// 		uint16 		size;
-// 		LPSTR	transport[cValues];
-// 	} AddressTypes_repl;
-
-// 	/**************************/
-// 	/* EcDoRpc Function 0x4f  */
-// 	typedef [enum8bit] enum {
-// 		DIR_FORWARD  = 0x0,
-// 		DIR_BACKWARD = 0x1
-// 	} FindRow_ulFlags;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		FindRow_ulFlags	ulFlags;
-//   		[subcontext(2)] SRestriction res;
-// 		BOOKMARK	origin;
-// 		SBinary_short	bookmark;
-// 	} FindRow_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		unknown;
-// 		uint8		layout;
-// 		[flag(NDR_NOALIGN)] DATA_BLOB row;
-// 	} FindRow_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x55 */
-
-// 	typedef [enum8bit] enum {
-// 		MNID_ID = 0,
-// 		MNID_STRING = 1
-// 	} ulKind;
-
-// 	typedef struct {
-// 		uint8  	length;
-// 		nstring	lpwstrName;
-// 	} LPWSTR;
-
-// 	typedef [nodiscriminant] union {
-// 		[case(MNID_ID)] uint32		lid;
-// 		[case(MNID_STRING)] LPWSTR	lpwstr;
-// 	} Kind;
-	
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		ulKind				ulKind;
-// 		GUID				lpguid;
-// 		[switch_is(ulKind)] Kind	kind;
-// 	} MAPINAMEID;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		MAPITAGS	ulPropTag;
-// 	} GetNamesFromIDs_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		count;
-// 		MAPINAMEID	nameid[count];
-// 	} GetNamesFromIDs_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x56 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		ulFlags;
-// 		uint16		count;
-// 		MAPINAMEID	nameid[count];
-// 	} GetIDsFromNames_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		count;
-// 		uint16		propID[count];
-// 	} GetIDsFromNames_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x58 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		unknown;
-// 	} EmptyFolder_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 	} EmptyFolder_repl;
-
-// 	/*************************/
-// 	/* EcDoRpc Function 0x5f */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		propID;
-// 	} QueryNamesFromIDs_req;
-
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint16		count;
-// 		uint16		propID[count];
-// 		MAPINAMEID	nameid[count];
-// 	} QueryNamesFromIDs_repl;
+#include "mapitags_enum.h"
+
+/* Property types */
+#define  PT_UNSPECIFIED    0x0
+#define  PT_NULL     0x1
+#define  PT_I2     0x2
+#define  PT_SHORT    0x2
+#define  PT_LONG     0x3
+#define  PT_FLOAT    0x4
+#define  PT_DOUBLE   0x5
+#define  PT_CURRENCY   0x6
+#define  PT_APPTIME    0x7
+#define  PT_ERROR    0xa
+#define  PT_BOOLEAN    0xb
+#define  PT_OBJECT   0xd
+#define  PT_I8     0x14
+#define  PT_STRING8    0x1e
+#define  PT_UNICODE    0x1f
+#define  PT_SYSTIME    0x40
+#define  PT_CLSID    0x48
+#define  PT_SVREID   0xFB
+#define  PT_SRESTRICT    0xFD
+#define  PT_ACTIONS    0xFE
+#define  PT_BINARY   0x102
+
+  typedef struct datablob {
+    uint8 *data;
+    uint8 length;
+  } DATA_BLOB;
+
+  /******************/
+  /* Function: 0x00 */
+  WERROR mapi_EcDoConnect(
+    [out]       policy_handle *hBinding,
+    [in,string,charset(DOS)] uint8   szUserDN[],
+    [in]        uint32    ulFlags,
+    [in]        uint32    ulConMod,
+    [in]        uint32    cbLimit,
+    [in]        uint32    ulCpid,
+    [in]        uint32    ulLcidString,
+    [in]        uint32    ulLcidSort,
+    [in]        uint32    ulIcxrLink,
+    [in]        uint16    usFCanConvertCodePages,
+    [out]       uint32    *pcmsPollsMax,
+    [out]       uint32    *pcRetry,
+    [out]       uint32    *pcmsRetryDelay,
+    [out]       uint32    *picxr,
+    [out,unique,ref,string,charset(DOS)] uint8 **szDNPrefix,
+    [out,unique,ref,string,charset(DOS)] uint8 **szDisplayName,
+    [in]        uint16    rgwClientVersion[3],
+    [out]       uint16    rgwServerVersion[3],
+    [out]       uint16    rgwBestVersion[3],
+    [in,out]    uint32    *pullTimeStamp
+    );
+
+  /******************/
+  /* Function: 0x01 */
+  WERROR mapi_EcDoDisconnect(
+    [in, out, ref] policy_handle *pcxh
+    );
+
+  /******************/
+  /* Function: 0x02 */
+  typedef [public, enum8bit, flag(NDR_PAHEX)] enum
+    {
+      MAPI_STORE  = 0x1,
+      MAPI_ADDRBOOK = 0x2,
+      MAPI_FOLDER = 0x3,
+      MAPI_ABCONT = 0x4,
+      MAPI_MESSAGE  = 0x5,
+      MAPI_MAILUSER = 0x6, /* Individual Recipient */
+      MAPI_ATTACH = 0x7,
+      MAPI_DISTLIST = 0x8,
+      MAPI_PROFSECT = 0x9,
+      MAPI_STATUS = 0xA,
+      MAPI_SESSION  = 0xB,
+      MAPI_FORMINFO = 0xC
+    } MAPI_OBJTYPE;
+
+  typedef [public, v1_enum, flag(NDR_PAHEX)] enum
+    {
+      RightsNone    = 0x00000000,
+      RightsReadItems   = 0x00000001,
+      RightsCreateItems = 0x00000002,
+      RightsEditOwn   = 0x00000008,
+      RightsDeleteOwn   = 0x00000010,
+      RightsEditAll   = 0x00000020,
+      RightsDeleteAll   = 0x00000040,
+      RightsCreateSubfolders  = 0x00000080,
+      RightsFolderOwner = 0x00000100,
+      RightsFolderContact = 0x00000200,
+      RoleNone    = 0x00000400,
+      RoleReviewer    = 0x00000401,
+      RoleContributor   = 0x00000402,
+      RoleNoneditingAuthor  = 0x00000413,
+      RoleAuthor    = 0x0000041B,
+      RoleEditor    = 0x0000047B,
+      RolePublishAuthor = 0x0000049B,
+      RolePublishEditor = 0x000004FB,
+      RightsAll   = 0x000005FB,
+      RoleOwner   = 0x000007FB
+    } ACLRIGHTS;
+
+  /*
+    EcDoRpc opnums
+  */
+  typedef [public, enum8bit, flag(NDR_PAHEX)] enum
+    {
+      op_MAPI_Release       = 0x1,
+      op_MAPI_OpenFolder      = 0x2,
+      op_MAPI_OpenMessage     = 0x3,
+      op_MAPI_GetHierarchyTable   = 0x4,
+      op_MAPI_GetContentsTable    = 0x5,
+      op_MAPI_CreateMessage     = 0x6,
+      op_MAPI_GetProps      = 0x7,
+      op_MAPI_GetPropsAll     = 0x8,
+      op_MAPI_GetPropList     = 0x9,
+      op_MAPI_SetProps      = 0xa,
+      op_MAPI_DeleteProps     = 0xb,
+      op_MAPI_SaveChangesMessage    = 0xc,
+      op_MAPI_RemoveAllRecipients   = 0xd,
+      op_MAPI_ModifyRecipients    = 0xe,
+      op_MAPI_ReadRecipients      = 0xf,
+      op_MAPI_ReloadCachedInformation   = 0x10,
+      op_MAPI_SetMessageReadFlag    = 0x11,
+      op_MAPI_SetColumns      = 0x12,
+      op_MAPI_SortTable     = 0x13,
+      op_MAPI_Restrict      = 0x14,
+      op_MAPI_QueryRows     = 0x15,
+      op_MAPI_GetStatus     = 0x16,
+      op_MAPI_QueryPosition     = 0x17,
+      op_MAPI_SeekRow       = 0x18,
+      op_MAPI_SeekRowBookmark     = 0x19,
+      op_MAPI_SeekRowApprox     = 0x1a,
+      op_MAPI_CreateBookmark      = 0x1b,
+      op_MAPI_CreateFolder      = 0x1c,
+      op_MAPI_DeleteFolder      = 0x1d,
+      op_MAPI_DeleteMessages      = 0x1e,
+      op_MAPI_GetMessageStatus    = 0x1f,
+      op_MAPI_SetMessageStatus    = 0x20,
+      op_MAPI_GetAttachmentTable    = 0x21,
+      op_MAPI_OpenAttach      = 0x22,
+      op_MAPI_CreateAttach      = 0x23,
+      op_MAPI_DeleteAttach      = 0x24,
+      op_MAPI_SaveChangesAttachment     = 0x25,
+      op_MAPI_SetReceiveFolder    = 0x26,
+      op_MAPI_GetReceiveFolder    = 0x27,
+      op_MAPI_Advise      = 0x29,
+      op_MAPI_Notify        = 0x2a,
+      op_MAPI_OpenStream      = 0x2b,
+      op_MAPI_ReadStream      = 0x2c,
+      op_MAPI_WriteStream     = 0x2d,
+      op_MAPI_SeekStream      = 0x2e,
+      op_MAPI_SetStreamSize     = 0x2f,
+      op_MAPI_SetSearchCriteria   = 0x30,
+      op_MAPI_GetSearchCriteria   = 0x31,
+      op_MAPI_SubmitMessage     = 0x32,
+      op_MAPI_MoveCopyMessages    = 0x33,
+      op_MAPI_AbortSubmit     = 0x34,
+      op_MAPI_MoveFolder      = 0x35,
+      op_MAPI_CopyFolder      = 0x36,
+      op_MAPI_QueryColumnsAll     = 0x37,
+      op_MAPI_Abort       = 0x38,
+      op_MAPI_CopyTo        = 0x39,
+      op_MAPI_CopyToStream      = 0x3a,
+      op_MAPI_CloneStream     = 0x3b,
+      op_MAPI_GetPermissionsTable   = 0x3e,
+      op_MAPI_GetRulesTable     = 0x3f,
+      op_MAPI_ModifyPermissions   = 0x40,
+      op_MAPI_ModifyRules     = 0x41,
+      op_MAPI_GetOwningServers    = 0x42,
+      op_MAPI_LongTermIdFromId    = 0x43,
+      op_MAPI_IdFromLongTermId    = 0x44,
+      op_MAPI_PublicFolderIsGhosted   = 0x45,
+      op_MAPI_OpenEmbeddedMessage   = 0x46,
+      op_MAPI_SetSpooler      = 0x47,
+      op_MAPI_SpoolerLockMessage    = 0x48,
+      op_MAPI_AddressTypes      = 0x49,
+      op_MAPI_TransportSend     = 0x4a,
+      op_MAPI_FastTransferSourceGetBuffer = 0x4e,
+      op_MAPI_FindRow       = 0x4f,
+      op_MAPI_Progress      = 0x50,
+      op_MAPI_TransportNewMail    = 0x51,
+      op_MAPI_GetValidAttachments   = 0x52,
+      op_MAPI_GetNamesFromIDs     = 0x55,
+      op_MAPI_GetIDsFromNames     = 0x56,
+      op_MAPI_UpdateDeferredActionMessages  = 0x57,
+      op_MAPI_EmptyFolder     = 0x58,
+      op_MAPI_ExpandRow     = 0x59,
+      op_MAPI_CollapseRow     = 0x5a,
+      op_MAPI_LockRegionStream    = 0x5b,
+      op_MAPI_UnlockRegionStream    = 0x5c,
+      op_MAPI_CommitStream      = 0x5d,
+      op_MAPI_GetStreamSize     = 0x5e,
+      op_MAPI_QueryNamedProperties    = 0x5f,
+      op_MAPI_GetPerUserLongTermIds   = 0x60,
+      op_MAPI_GetPerUserGuid      = 0x61,
+      op_MAPI_ReadPerUserInformation    = 0x63,
+      op_MAPI_SetReadFlags      = 0x66,
+      op_MAPI_CopyProperties      = 0x67,
+      op_MAPI_GetReceiveFolderTable   = 0x68,
+      op_MAPI_GetCollapseState    = 0x6b,
+      op_MAPI_SetCollapseState    = 0x6c,
+      op_MAPI_GetTransportFolder    = 0x6d,
+      op_MAPI_Pending       = 0x6e,
+      op_MAPI_OptionsData     = 0x6f,
+      op_MAPI_SyncConfigure     = 0x70,
+      op_MAPI_SyncImportMessageChange   = 0x72,
+      op_MAPI_SyncImportHierarchyChange = 0x73,
+      op_MAPI_SyncImportDeletes   = 0x74,
+      op_MAPI_SyncUploadStateStreamBegin  = 0x75,
+      op_MAPI_SyncUploadStateStreamContinue = 0x76,
+      op_MAPI_SyncUploadStateStreamEnd  = 0x77,
+      op_MAPI_SyncImportMessageMove   = 0x78,
+      op_MAPI_SetPropertiesNoReplicate  = 0x79,
+      op_MAPI_DeletePropertiesNoReplicate = 0x7a,
+      op_MAPI_GetStoreState     = 0x7b,
+      op_MAPI_SyncOpenCollector   = 0x7e,
+      op_MAPI_GetLocalReplicaIds    = 0x7f,
+      op_MAPI_SyncImportReadStateChanges  = 0x80,
+      op_MAPI_ResetTable      = 0x81,
+      op_MAPI_SyncGetTransferState    = 0x82,
+      op_MAPI_OpenPublicFolderByName    = 0x87,
+      op_MAPI_SetSyncNotificationGuid   = 0x88,
+      op_MAPI_FreeBookmark      = 0x89,
+      op_MAPI_WriteAndCommitStream    = 0x90,
+      op_MAPI_HardDeleteMessages    = 0x91,
+      op_MAPI_HardDeleteMessagesAndSubfolders = 0x92,
+      op_MAPI_OpenMsgStore       = 0xfe,
+      /****** custom MAPI opnum for mapiproxy ******/
+      op_MAPI_proxypack     = 0xa5
+    } MAPI_OPNUM;
+
+  typedef [public,noprint,flag(NDR_NOALIGN)] struct {
+    uint16        cb;
+    [flag(NDR_BUFFERS), size_is(cb)] uint8  lpb[];
+  } SBinary_short;
+
+  typedef [public] struct {
+    uint32 cValues;
+    [size_is(cValues)] uint32 lpl[];
+  } mapi_MV_LONG_STRUCT;
+
+  typedef [public] struct {
+    astring lppszA;
+  } mapi_LPSTR;
+
+  typedef [public] struct {
+    uint32 cValues;
+    [size_is(cValues)] mapi_LPSTR strings[];
+  } mapi_SLPSTRArray;
+
+  typedef struct {
+    [flag(STR_NULLTERM)] string lppszW;
+  } mapi_LPWSTR;
+
+  typedef struct {
+    uint32 cValues;
+    [size_is(cValues)] mapi_LPWSTR strings[];
+  } mapi_SPLSTRArrayW;
+
+  typedef [public] struct {
+    uint32    cValues;
+    [size_is(cValues)] SBinary_short bin[];
+  } mapi_SBinaryArray;
+
+  typedef struct {
+    uint32    cValues;
+    [size_is(cValues)] GUID    lpguid[];
+  } mapi_SGuidArray;
+
+  /******* part of the no-pointer deep recursion hack *******/
+  typedef [nopull,nopush,noprint,flag(NDR_NOALIGN)] struct {
+    uint8 wrap[0x8000];
+  } mapi_SRestriction_wrap;
+
+  typedef [nopush,nopull,noprint,flag(NDR_NOALIGN)] struct {
+    uint8 wrap[0x8000];
+  } mapi_SPropValue_wrap;
+
+  typedef [nopush,nopull,noprint,flag(NDR_NOALIGN)] struct {
+    uint8 wrap[0x8000];
+  } mapi_SPropValue_array_wrap;
+  /**********************************************************/
+
+  typedef [enum8bit] enum {
+    ActionType_OP_MOVE    = 0x1,
+    ActionType_OP_COPY    = 0x2,
+    ActionType_OP_REPLY   = 0x3,
+    ActionType_OP_OOF_REPLY   = 0x4,
+    ActionType_OP_DEFER_ACTION  = 0x5,
+    ActionType_OP_BOUNCE    = 0x6,
+    ActionType_OP_FORWARD   = 0x7,
+    ActionType_OP_DELEGATE    = 0x8,
+    ActionType_OP_TAG   = 0x9,
+    ActionType_OP_DELETE    = 0xA,
+    ActionType_OP_MARK_AS_READ  = 0xB
+  } ActionType;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8    FolderInThisStore;
+    SBinary_short   StoreEID;
+    SBinary_short   FolderEID;
+  } MoveCopy_Action;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     ReplyTemplateFID;
+    hyper     ReplyTemplateMID;
+    GUID      ReplyTemplateGUID;
+  } ReplyOOF_Action;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       Reserved;
+    mapi_SPropValue_array_wrap  PropertyValue;
+  } RecipientBlock;
+
+  typedef [flag(NDR_NOALIGN)] enum {
+    BOUNCE_MESSAGE_TOO_LARGE  = 0x0000000d,
+    BOUNCE_MESSAGE_NOT_DISPLAYED  = 0x0000001f,
+    BOUNCE_MESSAGE_DENIED   = 0x00000026
+  } BounceCode;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16      RecipientCount;
+    [size_is(RecipientCount)] RecipientBlock    RecipientBlock[];
+  } ForwardDelegate_Action;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(ActionType_OP_MOVE)]    MoveCopy_Action     MoveAction;
+    [case(ActionType_OP_COPY)]    MoveCopy_Action     CopyAction;
+    [case(ActionType_OP_REPLY)]   ReplyOOF_Action     ReplyAction;
+    [case(ActionType_OP_OOF_REPLY)]   ReplyOOF_Action     ReplyOOFAction;
+    [case(ActionType_OP_DEFER_ACTION)][flag(NDR_REMAINING)] DATA_BLOB DeferAction;
+    [case(ActionType_OP_BOUNCE)]    BounceCode      BounceCode;
+    [case(ActionType_OP_TAG)]   mapi_SPropValue_wrap          PropValue;
+    [case(ActionType_OP_FORWARD)]   ForwardDelegate_Action    ForwardAction;
+    [case(ActionType_OP_DELEGATE)]    ForwardDelegate_Action    DelegateAction;
+    [case(ActionType_OP_DELETE)];
+    [case(ActionType_OP_MARK_AS_READ)];
+  } ActionData;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ActionType      ActionType;
+    uint32          ActionFlavor;
+    uint32          ActionFlags;
+    [switch_is(ActionType)] ActionData  ActionDataBuffer;
+  } ActionBlockData;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    [flag(NDR_REMAINING)] [represent_as(uint16)] ActionBlockData ActionBlockData;
+  } ActionBlock;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    count;
+    [size_is(count)] ActionBlock ActionBlock[];
+  } RuleAction;
+
+   typedef struct {
+     [range(0,100000)] uint32  cValues;
+     [size_is(cValues)] uint16 *lpi;
+   } ShortArray_r;
   
-// 	/*************************/
-// 	/* EcDoRpc Function 0x68 */
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint8		unknown;
-// 		hyper		fid;
-// 		astring		lpszMessageClass;
-// 		FILETIME	modiftime;
-// 	} ReceiveFolder;
+   typedef struct {
+     [range(0,100000)] uint32  cValues;
+     [size_is(cValues)] uint32 *lpl;
+   } LongArray_r;
+  
+   typedef struct {
+     [range(0,100000)] uint32  cValues;
+     [size_is(cValues)] Binary_r *lpbin;
+   } BinaryArray_r;
+  
+   typedef struct {
+     [range(0,100000)] uint32  cValues;
+     [size_is(cValues)] FILETIME *lpft;
+   } DateTimeArray_r;
+  
+  typedef [public] struct {
+   [range(0,2097152)] uint32       cb;
+   [size_is(cb)] uint8   *lpb;
+  } Binary_r;
 
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 	} GetReceiveFolderTable_req;
+  typedef [switch_type(uint32)] union {
+    [case(PT_I2)]     uint16      i;
+    [case(PT_LONG)]     uint32      l;
+    [case(PT_DOUBLE)]   dlong     dbl;
+    [case(PT_BOOLEAN)]    uint8     b;
+    [case(PT_I8)]     dlong     d;
+    [case(PT_STRING8)][unique][string,charset(DOS)] uint8 *lpszA;
+    [case(PT_BINARY)]   Binary_r          bin;
+    [case(PT_SVREID)]       SBinary_short   svreid;
+    [case(PT_UNICODE)][string,charset(UTF16)] uint16  *lpszW;
+    [case(PT_CLSID)]    GUID         *lpguid;
+    [case(PT_SRESTRICT)]  mapi_SRestriction_wrap  Restrictions;
+    [case(PT_ACTIONS)]  RuleAction    RuleAction;
+    [case(PT_SYSTIME)]    FILETIME    ft;
+    [case(PT_ERROR)]    MAPISTATUS    err;
+    [case(PT_MV_I2)]    ShortArray_r    MVi;
+    [case(PT_MV_LONG)]    LongArray_r   MVl;
+    [case(PT_MV_STRING8)]   mapi_SLPSTRArray   MVszA;
+    [case(PT_MV_BINARY)]    mapi_SBinaryArray   MVbin;
+    [case(PT_MV_CLSID)]   mapi_SGuidArray    MVguid;
+    [case(PT_MV_UNICODE)]   mapi_SPLSTRArrayW    MVszW;
+    [case(PT_MV_SYSTIME)]   DateTimeArray_r   MVft;
+    [case(PT_NULL)]     uint32      null;
+    [case(PT_OBJECT)]   uint32      object;
+  } mapi_SPropValue_CTR;
 
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		uint32		cValues;
-// 		ReceiveFolder	entries[cValues];
-// 	} GetReceiveFolderTable_repl;
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    MAPITAGS ulPropTag;
+    [switch_is(ulPropTag & 0xFFFF)] mapi_SPropValue_CTR value;
+  } mapi_SPropValue;
 
-	/*************************/
-	/* EcDoRpc Function 0xFE */
-	typedef [flag(NDR_NOALIGN)] struct {
-		uint32	codepage;
-		uint32	padding;
-		uint8	row;
-		uint16	mailbox_str_size;
-		[string,charset(DOS)] uint8	*mailbox;
-	} OpenMsgStore_req;
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    uint16          cValues;
+    [flag(NDR_REMAINING), size_is(cValues)]mapi_SPropValue  lpProps[];
+  } mapi_SPropValue_array;
 
-	/*
-	** MAPIUID explanation:
-	** http://msdn.microsoft.com/library/default.asp?url=/library/en-us/mapi/html/c42065c2-b1f5-4930-84a6-6ef90c6162d0.asp
-	*/
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16          cValues;
+    [size_is(cValues)] MAPITAGS        aulPropTag[];
+  } mapi_SPropTagArray;
 
-// 	typedef struct _MAPIUID{
-// 		uint8 ab[16];
-// 	} MAPIUID;
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    ROW_ADD   = 0x1,
+    ROW_MODIFY  = 0x2,
+    ROW_REMOVE  = 0x4
+  } ulRowFlags;
 
-//  	typedef [flag(NDR_NOALIGN)] struct {
-// 		hyper		folder_id[13];
-// 		uint16		unknown;
-// 		MAPIUID		entryid;
-// 		MAPIUID		msgstore;
-// 	} store_pf;
+  /**************************/
+  /* EcDoRpc Function 0x1   */
+  typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
+  } Release_req;
 
-// 	typedef [flag(NDR_NOALIGN)] struct {
-//  		hyper		folder_id[13];
-// 		uint8		unknown3;
-// 		MAPIUID		entryid;
-// 		uint16		default_store;
-// 		MAPIUID		msgstore;
-// 		FILETIME	ts_access;
-// 		astring		creation_date;
-// 		uint8		terminator;
-// 		uint16		unknown4;
-// 	} store_mailbox;
+  typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
+  } Release_repl;
 
-// 	typedef [switch_type(uint8)] union {
-// 		[case(0x0)] store_pf store_pf;
-// 		[case(0x1)] store_mailbox store_mailbox;
-// 	} store_type;
+  /**************************/
+  /* EcDoRpc Function 0x2   */
+  typedef [enum8bit] enum {
+    OpenModeFlags_Folder    = 0x0,
+    OpenModeFlags_SoftDeleted = 0x4
+  } OpenFolder_OpenModeFlags;
 
-// 	typedef [enum8bit,flag(NDR_NOALIGN)] enum {
-// 		PROVIDER_TYPE_PF = 0x0,
-// 		PROVIDER_TYPE_MAILBOX = 0x1
-// 	} PROVIDER_TYPE;
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       handle_idx;
+    hyper       folder_id;
+    OpenFolder_OpenModeFlags  OpenModeFlags;
+  } OpenFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ServerCount;
+    uint16    CheapServerCount;
+    [size_is(ServerCount)]  astring   Servers[];
+  } OpenFolder_Replicas;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x1)] OpenFolder_Replicas Replicas;
+  } IsGhosted;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8                    HasRules;
+    boolean8              IsGhosted;
+    [switch_is(IsGhosted)] IsGhosted  Ghost;
+  } OpenFolder_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x3   */
+  typedef [enum8bit] enum {
+    StringType_NONE     = 0x0,
+    StringType_EMPTY    = 0x1,
+    StringType_STRING8    = 0x2,
+    StringType_UNICODE_REDUCED  = 0x3,
+    StringType_UNICODE    = 0x4
+  } StringType;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x1)];
+    [case(0x2)] astring     lpszA;
+    [case(0x3)] astring     lpszW_reduced;
+    [case(0x4)] [flag(STR_NULLTERM)] string lpszW;
+  } String;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    StringType      StringType;
+    [switch_is(StringType)] String  String;
+  } TypedString;
+
+  typedef [enum8bit] enum {
+    ReadOnly  = 0x0,
+    ReadWrite = 0x1,
+    Create    = 0x3,
+    OpenSoftDelete  = 0x4
+  } OpenMessage_OpenModeFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       handle_idx;
+    uint16        CodePageId;
+    hyper       FolderId;
+    OpenMessage_OpenModeFlags OpenModeFlags;
+    hyper       MessageId;
+  } OpenMessage_req;
+
+  typedef [enum16bit, flag(NDR_PAHEX)] enum {
+    CP_USASCII  = 0x04E4,
+    CP_UNICODE  = 0x04B0,
+    CP_JAUTODETECT  = 0xC6F4,
+    CP_KAUTODETECT  = 0xC705,
+    CP_ISO2022JPESC = 0xC42D,
+    CP_ISO2022JPSIO = 0xC42E
+  } CODEPAGEID;
+
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    MAPI_ORIG   = 0x0,
+    MAPI_TO     = 0x1,
+    MAPI_CC     = 0x2,
+    MAPI_BCC    = 0x3
+  } ulRecipClass;
+
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    SINGLE_RECIPIENT  = 0x0,
+    DISTRIBUTION_LIST = 0x1
+  } addr_type;
+
+  typedef  [flag(NDR_NOALIGN)]struct {
+    uint8   organization_length;
+    addr_type addr_type;
+    astring   username;
+  } RecipExchange;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } RecipSMTP;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x1)] RecipExchange EXCHANGE;
+    [case(0x3)] RecipSMTP   SMTP;
+    [default];
+  } recipient_type;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x400)] astring       lpszA;
+    [case(0x600)][flag(STR_NULLTERM)] string  lpszW;
+    [default];
+  } recipient_SimpleDisplayName;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x60)];
+    [case(0x260)];
+    [case(0x20)] astring        lpszA;
+    [case(0x220)][flag(STR_NULLTERM)] string  lpszW;
+    [default];
+  } recipient_TransmittableDisplayName;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x10)] astring        lpszA;
+    [case(0x210)][flag(STR_NULLTERM)] string  lpszW;
+    [default];
+  } recipient_DisplayName;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x8)] astring       lpszA;
+    [case(0x208)][flag(STR_NULLTERM)] string  lpszW;
+    [default];
+  } recipient_EmailAddress;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16                  RecipientFlags;
+    [switch_is(RecipientFlags & 0x7)]   recipient_type      type;
+    [switch_is(RecipientFlags & 0x208)] recipient_EmailAddress          EmailAddress;
+    [switch_is(RecipientFlags & 0x210)] recipient_DisplayName   DisplayName;
+    [switch_is(RecipientFlags & 0x600)] recipient_SimpleDisplayName     SimpleDisplayName;
+    [switch_is(RecipientFlags & 0x260)] recipient_TransmittableDisplayName  TransmittableDisplayName;
+    uint16                  prop_count;
+    uint8                 layout;
+    [flag(NDR_REMAINING)] DATA_BLOB           prop_values;
+  } RecipientRow;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ulRecipClass  RecipClass;
+    CODEPAGEID  codepage;
+    uint16    Reserved;
+    [represent_as(uint16)] RecipientRow  RecipientRow;
+  } OpenMessage_recipients;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8    HasNamedProperties;
+    TypedString   SubjectPrefix;
+    TypedString   NormalizedSubject;
+    uint16      RecipientCount;
+    mapi_SPropTagArray  RecipientColumns;
+    uint8     RowCount;
+    [size_is(RowCount)] OpenMessage_recipients  recipients[];
+  } OpenMessage_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x4   */
+  typedef [bitmap8bit] bitmap {
+    TableFlags_Depth      = 0x4,
+    TableFlags_DeferredErrors   = 0x8,
+    TableFlags_NoNotifications    = 0x10,
+    TableFlags_SoftDeletes      = 0x20,
+    TableFlags_UseUnicode     = 0x40,
+    TableFlags_SuppressNotifications  = 0x80
+  } TableFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    TableFlags  TableFlags;
+  } GetHierarchyTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    RowCount;
+  } GetHierarchyTable_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x5   */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    TableFlags  TableFlags;
+  } GetContentsTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    RowCount;
+  } GetContentsTable_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x6   */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    uint16    CodePageId;
+    hyper   FolderId;
+    boolean8  AssociatedFlag;
+  } CreateMessage_req;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x1)] hyper MessageId;
+  } CreateMessage_MessageId;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8            HasMessageId;
+    [switch_is(HasMessageId)] CreateMessage_MessageId MessageId;
+  } CreateMessage_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x7  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertySizeLimit;
+    uint16    WantUnicode;
+    uint16    prop_count;
+    [size_is(prop_count)] MAPITAGS  properties[];
+  } GetProps_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   layout;
+    [flag(NDR_REMAINING)] DATA_BLOB prop_data;
+  } GetProps_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x8  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertySizeLimit;
+    uint16    WantUnicode;
+  } GetPropsAll_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    mapi_SPropValue_array properties;
+  } GetPropsAll_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x9  */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetPropList_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    count;
+    [size_is(count)] MAPITAGS  tags[];
+  } GetPropList_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xa  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    index;    /* index into array of property tags */
+    MAPITAGS  property_tag; /* property for which there was an error */
+    MAPISTATUS  error_code;   /* the error that occurred for this property */
+  } PropertyProblem;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    [represent_as(uint16)] mapi_SPropValue_array values;
+  } SetProps_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyProblemCount;
+    [size_is(PropertyProblemCount)] PropertyProblem PropertyProblem[];
+  } SetProps_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xb  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    count;
+    [size_is(count)] MAPITAGS  tags[];
+  } DeleteProps_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyProblemCount;
+    [size_is(PropertyProblemCount)] PropertyProblem PropertyProblem[];
+  } DeleteProps_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xc  */
+  typedef [enum8bit] enum {
+    KeepOpenReadOnly  = 0x9,
+    KeepOpenReadWrite = 0xA,
+    ForceSave   = 0xC
+  } SaveFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    uint8   SaveFlags;
+  } SaveChangesMessage_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    hyper   MessageId;
+  } SaveChangesMessage_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xd  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    ulReserved;
+  } RemoveAllRecipients_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+
+  } RemoveAllRecipients_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xe  */
+
+  /*
+   * MODRECIP_NULL and INVALID are not part of the msdn flags
+   * but are added for printing support
+   */
+  typedef [enum8bit,flag(NDR_PAHEX)] enum {
+    MODRECIP_NULL   = 0x0,
+    MODRECIP_INVALID  = 0x1,
+    MODRECIP_ADD    = 0x2,
+    MODRECIP_MODIFY   = 0x4,
+    MODRECIP_REMOVE   = 0x8
+  } modrecip;
+
+  typedef [flag(NDR_NOALIGN)]struct {
+    uint32    idx;
+    ulRecipClass  RecipClass;
+    [represent_as(uint16),flag(NDR_REMAINING)] RecipientRow RecipientRow;
+  } ModifyRecipientRow;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16        prop_count;
+    [size_is(prop_count)] MAPITAGS      properties[];
+    uint16        cValues;
+    [size_is(cValues)] ModifyRecipientRow        RecipientRow[];
+  } ModifyRecipients_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+
+  } ModifyRecipients_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xf  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    RowId;
+    uint16    ulReserved;
+  } ReadRecipients_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32        RowId;
+    ulRecipClass      RecipientType;
+    uint16        CodePageId;
+    uint16        ulReserved;
+    [represent_as(uint16)] RecipientRow  RecipientRow;
+  } ReadRecipientRow;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     RowCount;
+    [size_is(RowCount)] ReadRecipientRow  RecipientRows[];
+  } ReadRecipients_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x10 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    ulRecipClass    RecipientType;
+    uint16      CodePageId;
+    uint16      Reserved;
+    [represent_as(uint16),flag(NDR_REMAINING)]RecipientRow       RecipientRow;
+  } OpenRecipientRow;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    Reserved;
+  } ReloadCachedInformation_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8    HasNamedProperties;
+    TypedString   SubjectPrefix;
+    TypedString   NormalizedSubject;
+    uint16      RecipientCount;
+    mapi_SPropTagArray  RecipientColumns;
+    uint8     RowCount;
+    [size_is(RowCount)] OpenRecipientRow  RecipientRows[];
+  } ReloadCachedInformation_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x11 */
+
+  typedef [bitmap8bit] bitmap {
+    SUPPRESS_RECEIPT  = 0x01,
+    CLEAR_READ_FLAG   = 0x04,
+    MAPI_DEFERRED_ERRORS  = 0x08,
+    GENERATE_RECEIPT_ONLY = 0x10,
+    CLEAR_RN_PENDING  = 0x20,
+    CLEAR_NRN_PENDING = 0x40
+  } MSGFLAG_READ;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       handle_idx;
+    MSGFLAG_READ      flags;
+    [flag(NDR_REMAINING)] DATA_BLOB clientdata;
+  } SetMessageReadFlag_req;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x1)] uint8 LogonId;
+  } SetMessageReadFlag_LogonId;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x1)] uint8 ClientData[24];
+  } SetMessageReadFlag_ClientData;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8              ReadStatusChanged;
+    [switch_is(ReadStatusChanged)] SetMessageReadFlag_LogonId LogonId;
+    [switch_is(ReadStatusChanged)] SetMessageReadFlag_ClientData  ClientData;
+  } SetMessageReadFlag_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x12 */
+  typedef [enum8bit] enum {
+    SetColumns_TBL_SYNC = 0x0,
+    SetColumns_TBL_ASYNC  = 0x1
+  } SetColumnsFlags;
+
+  typedef [enum8bit] enum {
+    TBLSTAT_COMPLETE  = 0x0,
+    TBLSTAT_SORTING   = 0x9,
+    TBLSTAT_SORT_ERROR  = 0xA,
+    TBLSTAT_SETTING_COLS  = 0xB,
+    TBLSTAT_SETCOL_ERROR  = 0xD,
+    TBLSTAT_RESTRICTING = 0xE,
+    TBLSTAT_RESTRICT_ERROR  = 0xF
+  } TableStatus;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    SetColumnsFlags SetColumnsFlags;
+    uint16    prop_count;
+    [size_is(prop_count)] MAPITAGS  properties[];
+  } SetColumns_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    TableStatus TableStatus;
+  } SetColumns_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x13  */
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    TBL_ASYNC = 0x1,
+    TBL_BATCH = 0x2
+  } TBL_FLAGS;
+
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    TABLE_SORT_ASCEND = 0x0,
+    TABLE_SORT_COMBINE = 0x1,
+    TABLE_SORT_DESCEND = 0x2
+  } TABLE_SORT;
+
+  typedef [public, flag(NDR_NOALIGN)] struct _SSortOrder{
+    MAPITAGS ulPropTag;
+    TABLE_SORT ulOrder;
+  } SSortOrder;
+
+  typedef [public, flag(NDR_NOALIGN)] struct _SSortOrderSet {
+    uint16    cSorts;
+    uint16    cCategories;
+    uint16    cExpanded;
+    [size_is(cSorts)] SSortOrder  aSort[];
+  } SSortOrderSet;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   SortTableFlags;
+    SSortOrderSet lpSortCriteria;
+  } SortTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    TableStatus TableStatus;
+  } SortTable_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x14  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16      cRes;
+    [size_is(cRes)] SRestriction_and res[];
+  } mapi_SAndRestriction;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16  cRes;
+    [size_is(cRes)] SRestriction_or  res[];
+  } mapi_SOrRestriction;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    mapi_SRestriction_wrap  res;
+  } mapi_SNotRestriction;
+
+  typedef [noprint, bitmap32bit] bitmap {
+    FL_FULLSTRING   = 0x00000,
+    FL_SUBSTRING    = 0x00001,
+    FL_PREFIX   = 0x00002,
+    FL_IGNORECASE   = 0x10000,
+    FL_IGNORENONSPACE = 0x20000,
+    FL_LOOSE    = 0x40000
+  } fuzzyLevel;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    fuzzyLevel  fuzzy;
+    MAPITAGS  ulPropTag;
+    mapi_SPropValue lpProp;
+  } mapi_SContentRestriction;
+
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    BMR_EQZ = 0x0,
+    BMR_NEZ = 0x1
+  } relMBR;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    relMBR    relMBR;
+    MAPITAGS  ulPropTag;
+    uint32    ulMask;
+  } mapi_SBitmaskRestriction;
+
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    RELOP_LT = 0x0,   /* <  */
+    RELOP_LE = 0x1,   /* <= */
+    RELOP_GT = 0x2,   /* >  */
+    RELOP_GE = 0x3,   /* >= */
+    RELOP_EQ = 0x4,   /* == */
+    RELOP_NE = 0x5,   /* != */
+    RELOP_RE = 0x6    /* LIKE (Regular expression) */
+  } CompareRelop;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    CompareRelop  relop;
+    MAPITAGS  ulPropTag;
+    uint32    size;
+  } mapi_SSizeRestriction;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   relop;
+    MAPITAGS  ulPropTag;
+    mapi_SPropValue lpProp;
+  } mapi_SPropertyRestriction;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    CompareRelop    relop;
+    MAPITAGS  ulPropTag1;
+    MAPITAGS  ulPropTag2;
+  } mapi_SCompareProps;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    MAPITAGS  ulPropTag;
+  } mapi_SExistRestriction;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    MAPITAGS          ulSubObject;
+    [size_is(ulSubObject - ulSubObject + 1)]  SRestriction_sub res[]; /* nasty hack - generates fake pointer */
+  } mapi_SSubRestriction;
+
+  typedef [nopush,nopull,noprint,nodiscriminant] union {
+    [case(0x0)];
+    [case(0x1)] SRestriction_comment *res;
+  } RestrictionVariable;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       TaggedValuesCount;
+    [size_is(TaggedValuesCount)] mapi_SPropValue     TaggedValues[];
+    boolean8      RestrictionPresent;
+    [switch_is(RestrictionPresent)] RestrictionVariable Restriction;
+  } mapi_SCommentRestriction;
+
+  typedef [public,nodiscriminant] union {
+    [case(RES_AND)]     mapi_SAndRestriction    resAnd;
+    [case(RES_OR)]      mapi_SOrRestriction   resOr;
+    [case(RES_NOT)]     mapi_SNotRestriction    resNot;
+    [case(RES_CONTENT)]   mapi_SContentRestriction  resContent;
+    [case(RES_PROPERTY)]    mapi_SPropertyRestriction resProperty;
+    [case(RES_COMPAREPROPS)]  mapi_SCompareProps    resCompareProps;
+    [case(RES_BITMASK)]   mapi_SBitmaskRestriction  resBitmask;
+    [case(RES_SIZE)]    mapi_SSizeRestriction   resSize;
+    [case(RES_EXIST)]   mapi_SExistRestriction    resExist;
+    [case(RES_SUBRESTRICTION)]  mapi_SSubRestriction    resSub;
+    [case(RES_COMMENT)]   mapi_SCommentRestriction  resComment;
+    [default];
+  } mapi_SRestriction_CTR;
+
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    uint8 rt;
+    [switch_is(rt)] mapi_SRestriction_CTR res;
+  } mapi_SRestriction;
+
+  typedef [public,flag(NDR_NOALIGN)] struct _mapi_SRestriction_and {
+    uint8 rt;
+    [switch_is(rt)] mapi_SRestriction_CTR res;
+  } SRestriction_and;
+
+  typedef [public,flag(NDR_NOALIGN)] struct _mapi_SRestriction_or {
+    uint8 rt;
+    [switch_is(rt)] mapi_SRestriction_CTR res;
+  } SRestriction_or;
+
+  typedef [public,flag(NDR_NOALIGN)] struct _mapi_SRestriction_sub {
+    uint8 rt;
+    [switch_is(rt)] mapi_SRestriction_CTR res;
+  } SRestriction_sub;
+
+  typedef [public,flag(NDR_NOALIGN)] struct _mapi_SRestriction_comment {
+    uint8 rt;
+    [switch_is(rt)] mapi_SRestriction_CTR res;
+  } SRestriction_comment;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8 handle_idx;
+    [represent_as(uint16)] mapi_SRestriction  restrictions;
+  } Restrict_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    TableStatus TableStatus;
+  } Restrict_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x15  */
+  typedef [enum8bit] enum {
+    TBL_ADVANCE   = 0x0,
+    TBL_NOADVANCE   = 0x1,
+    TBL_ENABLEPACKEDBUFFERS = 0x2
+  } QueryRowsFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    QueryRowsFlags  QueryRowsFlags;
+    uint8   ForwardRead;
+    uint16    RowCount;
+  } QueryRows_req;
+
+  typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
+    uint8   Origin;
+    uint16    RowCount;
+    [flag(NDR_REMAINING)]DATA_BLOB  RowData;
+  } QueryRows_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x16  */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetStatus_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    TableStatus TableStatus;
+  } GetStatus_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x17  */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } QueryPosition_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32  Numerator;
+    uint32  Denominator;
+  } QueryPosition_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x18  */
+  typedef [enum8bit] enum {
+    BOOKMARK_BEGINNING  = 0x0,
+    BOOKMARK_CURRENT  = 0x1,
+    BOOKMARK_END    = 0x2,
+    BOOKMARK_USER   = 0x3
+  } BOOKMARK;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    BOOKMARK  origin;
+    int32   offset;
+    boolean8  WantRowMovedCount;
+  } SeekRow_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  HasSoughtLess;
+    uint32    RowsSought;
+  } SeekRow_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x19  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short Bookmark;
+    uint32    RowCount;
+    boolean8  WantRowMovedCount;
+  } SeekRowBookmark_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  RowNoLongerVisible;
+    boolean8  HasSoughtLess;
+    uint32    RowsSought;
+  } SeekRowBookmark_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x1a  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    ulNumerator;
+    uint32    ulDenominator;
+  } SeekRowApprox_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SeekRowApprox_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x1b  */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } CreateBookmark_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short bookmark;
+  } CreateBookmark_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x1c  */
+  typedef [enum8bit] enum {
+    FOLDER_GENERIC  = 0x1,
+    FOLDER_SEARCH = 0x2
+  } FOLDER_TYPE;
+
+  typedef [enum8bit] enum {
+    MAPI_FOLDER_ANSI        = 0x0,
+    MAPI_FOLDER_UNICODE     = 0x1
+  } FOLDER_STRING;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(MAPI_FOLDER_ANSI)] astring      lpszA;
+    [case(MAPI_FOLDER_UNICODE)][flag(STR_NULLTERM)] string  lpszW;
+  } LPTSTR;
+
+  typedef [enum16bit] enum {
+    NONE    = 0x0000,
+    OPEN_IF_EXISTS  = 0x0001
+  } FOLDER_FLAGS;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       handle_idx;
+    FOLDER_TYPE     ulFolderType;
+    FOLDER_STRING     ulType;
+    FOLDER_FLAGS            ulFlags;
+    [switch_is(ulType)] LPTSTR  FolderName;
+    [switch_is(ulType)] LPTSTR  FolderComment;
+  } CreateFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8        HasRules;
+    boolean8        IsGhosted;
+    [switch_is(IsGhosted)] IsGhosted  Ghost;
+  } CreateFolder_GhostInfo;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [case(0x1)] CreateFolder_GhostInfo  GhostInfo;
+  } CreateFolder_GhostUnion;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper             folder_id;
+    boolean8            IsExistingFolder;
+    [switch_is(IsExistingFolder)] CreateFolder_GhostUnion GhostUnion;
+  } CreateFolder_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x1d  */
+  typedef [bitmap8bit] bitmap {
+    DEL_MESSAGES    = 0x1,
+    DEL_FOLDERS   = 0x4,
+    DELETE_HARD_DELETE  = 0x10
+  } DeleteFolderFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    DeleteFolderFlags       DeleteFolderFlags;
+    hyper     FolderId;
+  } DeleteFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8    PartialCompletion;
+  } DeleteFolder_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x1e  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  WantAsynchronous;
+    boolean8  NotifyNonRead;
+    uint16    cn_ids;
+    [size_is(cn_ids)] hyper   message_ids[];
+  } DeleteMessages_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  PartialCompletion;
+  } DeleteMessages_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x1f  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   msgid;
+  } GetMessageStatus_req;
+
+  /**************************/
+  /* EcDoRpc Function 0x20  */
+  typedef [bitmap32bit] bitmap {
+    MSGSTATUS_HIGHLIGHTED   = 0x1,
+    MSGSTATUS_TAGGED    = 0x2,
+    MSGSTATUS_HIDDEN    = 0x4,
+    MSGSTATUS_DELMARKED   = 0x8,
+    MSGSTATUS_REMOTE_DOWNLOAD = 0x1000,
+    MSGSTATUS_REMOTE_DELETE   = 0x2000
+  } ulMessageStatus;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   msgid;
+    uint32    ulNewStatus;
+    ulMessageStatus ulNewStatusMask;
+  } SetMessageStatus_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ulMessageStatus ulOldStatus;
+  } SetMessageStatus_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x21  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    TableFlags  TableFlags;
+  } GetAttachmentTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetAttachmentTable_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x22 */
+  typedef [enum8bit] enum {
+    OpenAttachmentFlags_ReadOnly  = 0x0,
+    OpenAttachmentFlags_ReadWrite = 0x1,
+    OpenAttachmentFlags_BestAccess  = 0x3
+  } OpenAttachmentFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     handle_idx;
+    OpenAttachmentFlags OpenAttachmentFlags;
+    uint32      AttachmentID;
+  } OpenAttach_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } OpenAttach_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x23 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8 handle_idx;
+  } CreateAttach_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32  AttachmentID;
+  } CreateAttach_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x24 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    AttachmentID;
+  } DeleteAttach_req;
 
 
+  typedef [flag(NDR_NOALIGN)] struct {
+  } DeleteAttach_repl;
 
-// 	typedef [flag(NDR_NOALIGN)] struct {
-// 		PROVIDER_TYPE	PR_OBJECT_TYPE;
-// 		[switch_is(PR_OBJECT_TYPE)] store_type type;
-// 	} OpenMsgStore_repl;
+  /*************************/
+  /* EcDoRpc Function 0x25 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    SaveFlags SaveFlags;
+  } SaveChangesAttachment_req;
 
- 	typedef [switch_type(MAPI_OPNUM)] union {
-		[case(op_MAPI_Release)] Release_req mapi_Release;
- 		[case(op_MAPI_OpenFolder)] OpenFolder_req mapi_OpenFolder;
-// 		[case(op_MAPI_OpenMessage)] OpenMessage_req mapi_OpenMessage;
-// 		[case(op_MAPI_GetHierarchyTable)] GetHierarchyTable_req mapi_GetHierarchyTable;
-// 		[case(op_MAPI_GetContentsTable)] GetContentsTable_req mapi_GetContentsTable;
-// 		[case(op_MAPI_CreateMessage)] CreateMessage_req mapi_CreateMessage;
- 		[case(op_MAPI_GetProps)] GetProps_req mapi_GetProps;
-// 		[case(op_MAPI_GetPropsAll)] GetPropsAll_req mapi_GetPropsAll;
-// 		[case(op_MAPI_GetPropList)] GetPropList_req mapi_GetPropList;
-// 		[case(op_MAPI_SetProps)] SetProps_req mapi_SetProps;
-// 		[case(op_MAPI_DeleteProps)] DeleteProps_req mapi_DeleteProps;
-// 		[case(op_MAPI_SaveChangesMessage)] SaveChangesMessage_req mapi_SaveChangesMessage;
-// 		[case(op_MAPI_SetReadFlags)] SetReadFlags_req mapi_SetReadFlags;
-// 		[case(op_MAPI_SetColumns)] SetColumns_req mapi_SetColumns;
-// 		[case(op_MAPI_SortTable)] SortTable_req mapi_SortTable;
-// 		[case(op_MAPI_Restrict)] Restrict_req mapi_Restrict;
-// 		[case(op_MAPI_ModifyRecipients)] ModifyRecipients_req mapi_ModifyRecipients;
-// 		[case(op_MAPI_QueryRows)] QueryRows_req mapi_QueryRows;
-// 		[case(op_MAPI_GetRowCount)] GetRowCount_req mapi_GetRowCount;
-// 		[case(op_MAPI_SeekRow)] SeekRow_req mapi_SeekRow;
-// 		[case(op_MAPI_SeekRowBookmark)] SeekRowBookmark_req mapi_SeekRowBookmark;
-// 		[case(op_MAPI_SeekRowApprox)] SeekRowApprox_req mapi_SeekRowApprox;
-// 		[case(op_MAPI_CreateBookmark)] CreateBookmark_req mapi_CreateBookmark;
-// 		[case(op_MAPI_CreateFolder)] CreateFolder_req mapi_CreateFolder;
-// 		[case(op_MAPI_DeleteFolder)] DeleteFolder_req mapi_DeleteFolder;
-// 		[case(op_MAPI_DeleteMessages)] DeleteMessages_req mapi_DeleteMessages;
-// 		[case(op_MAPI_GetMessageStatus)] GetMessageStatus_req mapi_GetMessageStatus;
-// 		[case(op_MAPI_SetMessageStatus)] SetMessageStatus_req mapi_SetMessageStatus;
-// 		[case(op_MAPI_GetAttachmentTable)] GetAttachmentTable_req mapi_GetAttachmentTable;
-// 		[case(op_MAPI_OpenAttach)] OpenAttach_req mapi_OpenAttach;
-// 		[case(op_MAPI_CreateAttach)] CreateAttach_req mapi_CreateAttach;
-// 		[case(op_MAPI_DeleteAttach)] DeleteAttach_req mapi_DeleteAttach;
-// 		[case(op_MAPI_SaveChanges)] SaveChanges_req mapi_SaveChanges;
-// 		[case(op_MAPI_SetReceiveFolder)] SetReceiveFolder_req mapi_SetReceiveFolder;
-// 		[case(op_MAPI_GetReceiveFolder)] GetReceiveFolder_req mapi_GetReceiveFolder;
-// 		[case(op_MAPI_Advise)] Advise_req mapi_Advise;
-// 		[case(op_MAPI_OpenStream)] OpenStream_req mapi_OpenStream;
-// 		[case(op_MAPI_ReadStream)] ReadStream_req mapi_ReadStream;
-// 		[case(op_MAPI_WriteStream)] WriteStream_req mapi_WriteStream;
-// 		[case(op_MAPI_SetSearchCriteria)] SetSearchCriteria_req mapi_SetSearchCriteria;
-// 		[case(op_MAPI_GetSearchCriteria)] GetSearchCriteria_req mapi_GetSearchCriteria;
-// 		[case(op_MAPI_SubmitMessage)] SubmitMessage_req mapi_SubmitMessage;
-// 		[case(op_MAPI_CopyMessages)] CopyMessages_req mapi_CopyMessages;
-// 		[case(op_MAPI_QueryColumns)] QueryColumns_req mapi_QueryColumns;
-// 		[case(op_MAPI_GetTable)] GetTable_req mapi_GetTable;
-// 		[case(op_MAPI_ModifyTable)] ModifyTable_req mapi_ModifyTable;
-// 		[case(op_MAPI_AddressTypes)] AddressTypes_req mapi_AddressTypes;
-// 		[case(op_MAPI_FindRow)] FindRow_req mapi_FindRow;
-// 		[case(op_MAPI_GetNamesFromIDs)] GetNamesFromIDs_req mapi_GetNamesFromIDs;
-// 		[case(op_MAPI_GetIDsFromNames)] GetIDsFromNames_req mapi_GetIDsFromNames;
-// 		[case(op_MAPI_EmptyFolder)] EmptyFolder_req mapi_EmptyFolder;
-// 		[case(op_MAPI_QueryNamesFromIDs)] QueryNamesFromIDs_req mapi_QueryNamesFromIDs;
-// 		[case(op_MAPI_GetReceiveFolderTable)] GetReceiveFolderTable_req mapi_GetReceiveFolderTable;
- 		[case(op_MAPI_OpenMsgStore)] OpenMsgStore_req mapi_OpenMsgStore;
-	} EcDoRpc_MAPI_REQ_UNION;
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SaveChangesAttachment_repl;
 
-	typedef [public, switch_type(MAPI_OPNUM)] union {
- 		[case(op_MAPI_Release)] Release_repl mapi_Release;
- 		[case(op_MAPI_OpenFolder)] OpenFolder_repl mapi_OpenFolder;
-// 		[case(op_MAPI_OpenMessage)] OpenMessage_repl mapi_OpenMessage;
-// 		[case(op_MAPI_GetHierarchyTable)] GetHierarchyTable_repl mapi_GetHierarchyTable;
-// 		[case(op_MAPI_GetContentsTable)] GetContentsTable_repl mapi_GetContentsTable;
-// 		[case(op_MAPI_CreateMessage)] CreateMessage_repl mapi_CreateMessage;
- 		[case(op_MAPI_GetProps)] GetProps_repl mapi_GetProps;
-// 		[case(op_MAPI_GetPropsAll)] GetPropsAll_repl mapi_GetPropsAll;
-// 		[case(op_MAPI_GetPropList)] GetPropList_repl mapi_GetPropList;
-// 		[case(op_MAPI_SetProps)] SetProps_repl mapi_SetProps;
-// 		[case(op_MAPI_DeleteProps)] DeleteProps_repl mapi_DeleteProps;
-// 		[case(op_MAPI_SaveChangesMessage)] SaveChangesMessage_repl mapi_SaveChangesMessage;		
-// 		[case(op_MAPI_ModifyRecipients)] ModifyRecipients_repl mapi_ModifyRecipients;
-// 		[case(op_MAPI_SetReadFlags)] SetReadFlags_repl mapi_SetReadFlags;
-// 		[case(op_MAPI_SetColumns)] SetColumns_repl mapi_SetColumns;
-// 		[case(op_MAPI_SortTable)] SortTable_repl mapi_SortTable;
-// 		[case(op_MAPI_Restrict)] Restrict_repl mapi_Restrict;
-// 		[case(op_MAPI_QueryRows)] QueryRows_repl mapi_QueryRows;
-// 		[case(op_MAPI_GetRowCount)] GetRowCount_repl mapi_GetRowCount;
-// 		[case(op_MAPI_SeekRow)] SeekRow_repl mapi_SeekRow;
-// 		[case(op_MAPI_SeekRowBookmark)] SeekRowBookmark_repl mapi_SeekRowBookmark;
-// 		[case(op_MAPI_SeekRowApprox)] SeekRowApprox_repl mapi_SeekRowApprox;
-// 		[case(op_MAPI_CreateBookmark)] CreateBookmark_repl mapi_CreateBookmark;
-// 		[case(op_MAPI_CreateFolder)] CreateFolder_repl mapi_CreateFolder;
-// 		[case(op_MAPI_DeleteFolder)] DeleteFolder_repl mapi_DeleteFolder;
-// 		[case(op_MAPI_DeleteMessages)] DeleteMessages_repl mapi_DeleteMessages;
-// 		[case(op_MAPI_SetMessageStatus)] SetMessageStatus_repl mapi_SetMessageStatus;
-// 		[case(op_MAPI_GetAttachmentTable)] GetAttachmentTable_repl mapi_GetAttachmentTable;
-// 		[case(op_MAPI_OpenAttach)] OpenAttach_repl mapi_OpenAttach;
-// 		[case(op_MAPI_CreateAttach)] CreateAttach_repl mapi_CreateAttach;
-// 		[case(op_MAPI_DeleteAttach)] DeleteAttach_repl mapi_DeleteAttach;
-// 		[case(op_MAPI_SaveChanges)] SaveChanges_repl mapi_SaveChanges;
-// 		[case(op_MAPI_SetReceiveFolder)] SetReceiveFolder_repl mapi_SetReceiveFolder;
-// 		[case(op_MAPI_GetReceiveFolder)] GetReceiveFolder_repl mapi_GetReceiveFolder;
-// 		[case(op_MAPI_Advise)] Advise_repl mapi_Advise;
-// 		[case(op_MAPI_Notify)] Notify_repl mapi_Notify;
-// 		[case(op_MAPI_OpenStream)] OpenStream_repl mapi_OpenStream;
-// 		[case(op_MAPI_ReadStream)] ReadStream_repl mapi_ReadStream;
-// 		[case(op_MAPI_WriteStream)] WriteStream_repl mapi_WriteStream;
-// 		[case(op_MAPI_SetSearchCriteria)] SetSearchCriteria_repl mapi_SetSearchCriteria;
-// 		[case(op_MAPI_GetSearchCriteria)] GetSearchCriteria_repl mapi_GetSearchCriteria;
-// 		[case(op_MAPI_SubmitMessage)] SubmitMessage_repl mapi_SubmitMessage;
-// 		[case(op_MAPI_CopyMessages)] CopyMessages_repl mapi_CopyMessages;
-// 		[case(op_MAPI_QueryColumns)] QueryColumns_repl mapi_QueryColumns;
-// 		[case(op_MAPI_GetTable)] GetTable_repl mapi_GetTable;
-// 		[case(op_MAPI_ModifyTable)] ModifyTable_repl mapi_ModifyTable;
-// 		[case(op_MAPI_AddressTypes)] AddressTypes_repl mapi_AddressTypes;
-// 		[case(op_MAPI_FindRow)] FindRow_repl mapi_FindRow;
-// 		[case(op_MAPI_GetNamesFromIDs)] GetNamesFromIDs_repl mapi_GetNamesFromIDs;
-// 		[case(op_MAPI_GetIDsFromNames)] GetIDsFromNames_repl mapi_GetIDsFromNames;
-// 		[case(op_MAPI_EmptyFolder)] EmptyFolder_repl mapi_EmptyFolder;
-// 		[case(op_MAPI_QueryNamesFromIDs)] QueryNamesFromIDs_repl mapi_QueryNamesFromIDs;
-// 		[case(op_MAPI_GetReceiveFolderTable)] GetReceiveFolderTable_repl mapi_GetReceiveFolderTable;
-// 		[case(op_MAPI_OpenMsgStore)] OpenMsgStore_repl mapi_OpenMsgStore;
-	} EcDoRpc_MAPI_REPL_UNION;
+  /*************************/
+  /* EcDoRpc Function 0x26 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   fid;
+    astring   lpszMessageClass;
+  } SetReceiveFolder_req;
 
-	typedef [public,flag(NDR_NOALIGN)] struct {
-		uint8		opnum;
-		uint8		mapi_flags;
-		uint8		handle_idx;
-		[switch_is(opnum)] EcDoRpc_MAPI_REQ_UNION u;
-	} EcDoRpc_MAPI_REQ;
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SetReceiveFolder_repl;
 
-	typedef [public,nopull,noprint,flag(NDR_NOALIGN)] struct {
-		uint8     	opnum;
-		uint8		handle_idx;
-		MAPISTATUS	error_code;
-		[switch_is(opnum)] EcDoRpc_MAPI_REPL_UNION u;
-	} EcDoRpc_MAPI_REPL;
+  /*************************/
+  /* EcDoRpc Function 0x27 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    astring   MessageClass;
+  } GetReceiveFolder_req;
 
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   folder_id;
+    astring   MessageClass;
+  } GetReceiveFolder_repl;
 
- 	/*
- 	  Abstract way to represent MAPI content
- 	*/
+  /*************************/
+  /* EcDoRpc Function 0x29 */
+  typedef [enum16bit] enum {
+    fnevCriticalError   = 0x0001,
+    fnevNewMail     = 0x0002,
+    fnevObjectCreated   = 0x0004,
+    fnevObjectDeleted   = 0x0008,
+    fnevObjectModified    = 0x0010,
+    fnevObjectMoved     = 0x0020,
+    fnevObjectCopied    = 0x0040,
+    fnevSearchComplete    = 0x0080,
+    fnevTableModified   = 0x0100,
+    fnevStatusObjectModified  = 0x0200,
+    fnevReserved      = 0x0400,
+    fnevTbit            = 0x1000,
+    fnevUbit      = 0x2000,
+    fnevSbit      = 0x4000,
+    fnevMbit      = 0x8000
+  } NotificationFlags;
 
-  	typedef [public,nopull,nopush,noprint] struct {
-		uint32			mapi_len;	/* whole mapi_data length */
-		uint16			length;		/* content length */
- 		EcDoRpc_MAPI_REQ	*mapi_req;
- 		uint32			*handles;	/* handles id array */
-	} mapi_request;
+  typedef [nodiscriminant,flag(NDR_NOALIGN)] union {
+    [case(0x0)] hyper ID;
+    [case(0x1)];
+  } hyperbool;
 
-	typedef [public,nopull,nopush,noprint] struct {
-		uint32			mapi_len;
-		uint16			length;
-		EcDoRpc_MAPI_REPL	*mapi_repl;
-		uint32			*handles;
-	} mapi_response;
-	
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8         handle_idx;
+    NotificationFlags     notificationFlags;
+    uint8   layout;
+    [switch_is(layout)] hyperbool u;
+  } Advise_req;
 
-	[public] MAPISTATUS  EcDoRpc(
-		[in,out]	policy_handle	*handle,
-		[in,out]	uint32 size,
-		[in,out]	uint32 offset,
- 	  	[in][subcontext(4),flag(NDR_REMAINING|NDR_NOALIGN)] mapi_request  *mapi_request,
- 		[out][subcontext(4),flag(NDR_REMAINING|NDR_NOALIGN)] mapi_response *mapi_response,
-		[in,out]	uint16		*length,
-		[in]		uint16		max_data
-		);
+  typedef [flag(NDR_NOALIGN)] struct {
+  } Advise_repl;
 
-// 	/*****************/
-// 	/* Function 0x03 */
- 	void EcGetMoreRpc();
+  /*************************/
+  /* EcDoRpc Function 0x2a */
+  typedef [bitmap32bit] bitmap {
+    MSGFLAG_READ    = 0x1,
+    MSGFLAG_UNMODIFIED  = 0x2,
+    MSGFLAG_SUBMIT    = 0x4,
+    MSGFLAG_UNSENT    = 0x8,
+    MSGFLAG_HASATTACH = 0x10,
+    MSGFLAG_FROMME    = 0x20,
+    MSGFLAG_ASSOCIATED  = 0x40,
+    MSGFLAG_RESEND    = 0x80,
+    MSGFLAG_RN_PENDING  = 0x100,
+    MSGFLAG_NRN_PENDING = 0x200
+  } MsgFlags;
 
-	/*****************/
-	/* Function 0x04 */
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] astring     lpszA;
+    [case(0x1)][flag(STR_NULLTERM)] string  lpszW;
+  } MessageClass;
 
-	/*
-	  we could directly use a NOTIFKEY structure rather than
-	  a uint8 array, but this makes the IDL more robust
-	
-	  sockaddr array is made of: 
-	   - family (unsigned short in) sa_family_t
-	   - address data sa_data[14];
-	 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    GUID    DatabaseGUID;
+    uint8   GlobalCounter[6];
+  } GID;
 
-	typedef struct {
-		uint16		cb;
-		uint8		ab[cb];
-	} NOTIFKEY;
+  typedef [enum16bit] enum {
+    TABLE_CHANGED   = 0x1,
+    TABLE_ROW_ADDED   = 0x3,
+    TABLE_ROW_DELETED = 0x4,
+    TABLE_ROW_MODIFIED  = 0x5,
+    TABLE_RESTRICT_DONE = 0x7
+  } RichTableNotificationType;
 
-	MAPISTATUS EcRRegisterPushNotification(
-               [in,out] policy_handle	*handle,
-               [in] ulEventType ulEventMask,
-	       [in, size_is(notif_len)] uint8 notifkey[*],
-               [in] uint16 notif_len,
-	       [in] uint32 unknown2,
-	       [in, size_is(sockaddr_len)] uint8 sockaddr[*],
-	       [in] uint16 sockaddr_len,
-	       [out,ref] uint32	*retval
-		);
+  /* NewMailNotification: case 0x2 and 0x8002 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+    MsgFlags        MessageFlags;
+    boolean8        UnicodeFlag;
+    [switch_is(UnicodeFlag)] MessageClass MessageClass;
+  } NewMailNotification;
 
-	/*****************/
-	/* Function 0x05 */
-	MAPISTATUS EcRUnregisterPushNotification(
-		[in,out]	policy_handle		*handle,
-		[in]		uint32			unknown[2]
-		);
+  /* FolderCreatedNotification: case 0x4 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         ParentFID;
+    uint16          TagCount;
+    [size_is(TagCount)] MAPITAGS        Tags[];
+  } FolderCreatedNotification;
 
-	/*****************/
-	/* Function 0x06 */
-	void EcDummyRpc();
+  /* FolderDeletedNotification: case 0x8 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         ParentFID;
+  } FolderDeletedNotification;
 
-	/*****************/
-	/* Function 0x07 */
-	void EcRGetDCName();
+  /* FolderModifiedNotification: case 0x10 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+    uint16      TagCount;
+    [size_is(TagCount)] MAPITAGS    Tags[];
+  } FolderModifiedNotification_10;
 
-	/*****************/
-	/* Function 0x08 */
-	void EcRNetGetDCName();
+  /* FolderMoveCopyNotification: case 0x20 and 0x40 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+    hyper     ParentFID;
+    hyper     OldFID;
+    hyper     OldParentFID;
+  } FolderMoveCopyNotification;
 
-	/*****************/
-	/* Function 0x09 */
-	void EcDoRpcExt();
+  /* SearchCompleteNotification: case 0x80 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+  } SearchCompleteNotification;
+
+  /* HierarchyTable: case 0x100 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper       FID;
+    hyper       InsertAfterFID;
+    [represent_as(uint16)] DATA_BLOB Columns;
+  } HierarchyRowAddedNotification;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper       FID;
+  } HierarchyRowDeletedNotification;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper       FID;
+    hyper       InsertAfterFID;
+    [represent_as(uint16)] DATA_BLOB Columns;
+  } HierarchyRowModifiedNotification;
+
+  typedef [nodiscriminant] union {
+    [case(TABLE_ROW_ADDED)] HierarchyRowAddedNotification   HierarchyRowAddedNotification;
+    [case(TABLE_ROW_DELETED)] HierarchyRowDeletedNotification HierarchyRowDeletedNotification;
+    [case(TABLE_ROW_MODIFIED)] HierarchyRowModifiedNotification HierarchyRowModifiedNotification;
+    [default];
+  } HierarchyTableChangeUnion;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    RichTableNotificationType       TableEvent;
+    [switch_is(TableEvent)] HierarchyTableChangeUnion HierarchyTableChangeUnion;
+  } HierarchyTableChange;
+
+  /* IcsNotification: case 0x200 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8          HierChanged;
+    uint32      GIDCount;
+    [size_is(GIDCount)] GID     GID[];
+  } IcsNotification;
+
+  /* FolderModifiedNotification: case 0x1010 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+    uint16      TagCount;
+    [size_is(TagCount)] MAPITAGS    Tags[];
+    uint32      TotalMessageCount;
+  } FolderModifiedNotification_1010;
+
+  /* FolderModifiedNotification: case 0x2010 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+    uint16      TagCount;
+    [size_is(TagCount)] MAPITAGS    Tags[];
+    uint32      UnreadMessageCount;
+  } FolderModifiedNotification_2010;
+
+  /* FolderModifiedNotification: case 0x3010 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+    uint16      TagCount;
+    [size_is(TagCount)] MAPITAGS    Tags[];
+    uint32      TotalMessageCount;
+    uint32      UnreadMessageCount;
+  } FolderModifiedNotification_3010;
+
+  /* MessageCreatedNotification: case 0x8004 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+    uint16          TagCount;
+    [size_is(TagCount)] MAPITAGS        Tags[];
+  } MessageCreatedNotification;
+
+  /* MessageDeletedNotification: case 0x8008 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+  } MessageDeletedNotification;
+
+  /* MessageModifiedNotification: case 0x8010 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+    uint16          TagCount;
+    [size_is(TagCount)] MAPITAGS        Tags[];
+  } MessageModifiedNotification;
+
+  /* MessageMoveCopyNotification: case 0x8020 and 0x8040 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FID;
+    hyper     MID;
+    hyper     OldFID;
+    hyper     OldMID;
+  } MessageMoveCopyNotification;
+
+  /* ContentsTableChange: case 0x8100 and 0xc100 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper       FID;
+    hyper       MID;
+    uint32        Instance;
+    hyper       InsertAfterFID;
+    hyper       InsertAfterMID;
+    uint32        InsertAfterInstance;
+    [represent_as(uint16)] DATA_BLOB Columns;
+  } ContentsRowAddedNotification;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper       FID;
+    hyper       MID;
+    uint32        Instance;
+  } ContentsRowDeletedNotification;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper       FID;
+    hyper       MID;
+    uint32        Instance;
+    hyper       InsertAfterFID;
+    hyper       InsertAfterMID;
+    uint32        InsertAfterInstance;
+    [represent_as(uint16)] DATA_BLOB Columns;
+  } ContentsRowModifiedNotification;
+
+  typedef [nodiscriminant] union {
+    [case(TABLE_ROW_ADDED)] ContentsRowAddedNotification    ContentsRowAddedNotification;
+    [case(TABLE_ROW_DELETED)] ContentsRowDeletedNotification  ContentsRowDeletedNotification;
+    [case(TABLE_ROW_MODIFIED)] ContentsRowModifiedNotification  ContentsRowModifiedNotification;
+    [default];
+  } ContentsTableChangeUnion;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    RichTableNotificationType       TableEvent;
+    [switch_is(TableEvent)] ContentsTableChangeUnion  ContentsTableChangeUnion;
+  } ContentsTableChange;
+
+  /* SearchMessageCreatedNotification: case 0xc004 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+    hyper         SearchFID;
+    uint16          TagCount;
+    [size_is(TagCount)] MAPITAGS        Tags[];
+  } SearchMessageCreatedNotification;
+
+  /* SearchMessageRemovedNotification: case 0xc008 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+    hyper         SearchFID;
+  } SearchMessageRemovedNotification;
+
+  /* SearchMessageModifiedNotification: 0xc010 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper         FID;
+    hyper         MID;
+    uint16          TagCount;
+    [size_is(TagCount)] MAPITAGS        Tags[];
+  } SearchMessageModifiedNotification;
+
+  typedef [nodiscriminant] union {
+    [case(0x0002)] NewMailNotification      NewMailNotification;
+    [case(0x0004)] FolderCreatedNotification    FolderCreatedNotification;
+    [case(0x0008)] FolderDeletedNotification    FolderDeletedNotification;
+    [case(0x0010)] FolderModifiedNotification_10    FolderModifiedNotification_10;
+    [case(0x0020)] FolderMoveCopyNotification   FolderMoveNotification;
+    [case(0x0040)] FolderMoveCopyNotification   FolderCopyNotification;
+    [case(0x0080)] SearchCompleteNotification   SearchCompleteNotification;
+    [case(0x0100)] HierarchyTableChange     HierarchyTableChange;
+    [case(0x0200)] IcsNotification        IcsNotification;
+    [case(0x1010)] FolderModifiedNotification_1010    FolderModifiedNotification_1010;
+    [case(0x2010)] FolderModifiedNotification_2010    FolderModifiedNotification_2010;
+    [case(0x3010)] FolderModifiedNotification_3010    FolderModifiedNotification_3010;
+    [case(0x8002)] NewMailNotification      NewMessageNotification;
+    [case(0x8004)] MessageCreatedNotification   MessageCreatedNotification;
+    [case(0x8008)] MessageDeletedNotification   MessageDeletedNotification;
+    [case(0x8010)] MessageModifiedNotification    MessageModifiedNotification;
+    [case(0x8020)] MessageMoveCopyNotification    MessageMoveNotification;
+    [case(0x8040)] MessageMoveCopyNotification    MessageCopyNotification;
+    [case(0x8100)] ContentsTableChange      ContentsTableChange;
+    [case(0xc004)] SearchMessageCreatedNotification   SearchMessageCreatedNotification;
+    [case(0xc008)] SearchMessageRemovedNotification   SearchMessageRemovedNotification;
+    [case(0xc010)] SearchMessageModifiedNotification  SearchMessageModifiedNotification;
+    [case(0xc100)] ContentsTableChange      SearchTableChange;
+  } NotificationData;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32            NotificationHandle;
+    uint8           LogonId;
+    NotificationFlags       NotificationType;
+    [switch_is(NotificationType)] NotificationData  NotificationData;
+  } Notify_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x2b */
+  typedef [enum8bit] enum {
+    OpenStream_ReadOnly = 0x0,
+    OpenStream_ReadWrite  = 0x1,
+    OpenStream_Create = 0x2,
+    OpenStream_BestAccess = 0x3
+  } OpenStream_OpenModeFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       handle_idx;
+    MAPITAGS      PropertyTag;
+    OpenStream_OpenModeFlags        OpenModeFlags;
+  } OpenStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    StreamSize;
+  } OpenStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x2c */
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0xBABE)] uint32 value;
+    [default];
+  } MaximumByteCount;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16            ByteCount;
+    [switch_is(ByteCount)]  MaximumByteCount  MaximumByteCount;
+  } ReadStream_req;
+
+  typedef [flag(NDR_ALIGN2)] struct {
+    [represent_as(uint16), flag(NDR_REMAINING)] DATA_BLOB data;
+  } ReadStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x2d */
+  typedef [flag(NDR_NOALIGN)] struct {
+    [represent_as(uint16), flag(NDR_REMAINING)] DATA_BLOB  data;
+  } WriteStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    WrittenSize;
+  } WriteStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x2e */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   Origin;
+    hyper   Offset;
+  } SeekStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   NewPosition;
+  } SeekStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x2f */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   SizeStream;
+  } SetStreamSize_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SetStreamSize_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x30 */
+  typedef [bitmap32bit, flag(NDR_PAHEX)] bitmap {
+    STOP_SEARCH     = 0x00000001,
+    RESTART_SEARCH      = 0x00000002,
+    RECURSIVE_SEARCH    = 0x00000004,
+    SHALLOW_SEARCH      = 0x00000008,
+    FOREGROUND_SEARCH   = 0x00000010,
+    BACKGROUND_SEARCH   = 0x00000020,
+    CONTENT_INDEXED_SEARCH    = 0x00010000,
+    NON_CONTENT_INDEXED_SEARCH  = 0x00020000,
+    STATIC_SEARCH     = 0x00040000
+  } SearchFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    [represent_as(uint16)] mapi_SRestriction res;
+    uint16          FolderIdCount;
+    [size_is(FolderIdCount)] hyper         FolderIds[];
+    SearchFlags       SearchFlags;
+  } SetSearchCriteria_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SetSearchCriteria_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x31 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  UseUnicode;
+    boolean8  IncludeRestriction;
+    boolean8  IncludeFolders;
+  } GetSearchCriteria_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    [represent_as(uint16)] mapi_SRestriction res;
+    uint8         unknown;
+    uint16          FolderIdCount;
+    [size_is(FolderIdCount)] hyper         FolderIds[];
+    SearchFlags       SearchFlags;
+  } GetSearchCriteria_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x32 */
+  typedef [enum8bit] enum {
+    None    = 0x0,  /* None */
+    PreProcess  = 0x1,  /* Needs to be preprocessed by the server */
+    NeedsSpooler  = 0x2 /* Is to be processed by a client spooler */
+  } SubmitFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    SubmitFlags     SubmitFlags;
+  } SubmitMessage_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SubmitMessage_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x33 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    uint16    count;
+    [size_is(count)] hyper   message_id[];
+    boolean8  WantAsynchronous;
+    boolean8  WantCopy;
+  } MoveCopyMessages_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8        PartialCompletion;
+  } MoveCopyMessages_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x34 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   FolderId;
+    hyper   MessageId;
+  } AbortSubmit_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } AbortSubmit_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x35 */
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] astring     lpszA;
+    [case(0x1)][flag(STR_NULLTERM)] string  lpszW;
+  } Folder_name;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8         handle_idx;
+    boolean8        WantAsynchronous;
+    boolean8        UseUnicode;
+    hyper         FolderId;
+    [switch_is(UseUnicode)] Folder_name NewFolderName;
+  } MoveFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8        PartialCompletion;
+  } MoveFolder_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x36 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8         handle_idx;
+    boolean8        WantAsynchronous;
+    boolean8        WantRecursive;
+    boolean8        UseUnicode;
+    hyper         FolderId;
+    [switch_is(UseUnicode)] Folder_name NewFolderName;
+  } CopyFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8        PartialCompletion;
+  } CopyFolder_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x37 */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } QueryColumnsAll_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyTagCount;
+    [size_is(PropertyTagCount)] MAPITAGS  PropertyTags[];
+  } QueryColumnsAll_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x38 */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } Abort_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    TableStatus TableStatus;
+  } Abort_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x39 */
+  typedef [bitmap8bit] bitmap {
+    CopyFlagsMove   = 0x1,  /* Move properties */
+    CopyFlagsNoOverwrite  = 0x2 /* Do not overwrite existing properties */
+  } CopyFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     handle_idx;
+    boolean8    WantAsynchronous;
+    boolean8    WantSubObjects;
+    CopyFlags   CopyFlags;
+    mapi_SPropTagArray  ExcludedTags;
+  } CopyTo_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyProblemCount;
+    [size_is(PropertyProblemCount)] PropertyProblem PropertyProblem[];
+  } CopyTo_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x3a */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    hyper   ByteCount;
+  } CopyToStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   ReadByteCount;
+    hyper   WrittenByteCount;
+  } CopyToStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x3b */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+  } CloneStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } CloneStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x3e */
+  typedef [bitmap8bit] bitmap {
+    IncludeFreeBusy = 0x02
+  } PermissionsTableFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     handle_idx;
+    PermissionsTableFlags TableFlags;
+  } GetPermissionsTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetPermissionsTable_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x3f */
+  typedef [bitmap8bit] bitmap {
+    RulesTableFlags_Unicode = 0x40
+  } RulesTableFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    RulesTableFlags TableFlags;
+  } GetRulesTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetRulesTable_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x40 */
+  typedef [bitmap8bit] bitmap {
+    ModifyPerms_IncludeFreeBusy     = 0x02,
+    ModifyPerms_ReplaceRows         = 0x01
+  } ModifyPermissionsFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ulRowFlags              PermissionDataFlags;
+    mapi_SPropValue_array   lpProps;
+  } PermissionData;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ModifyPermissionsFlags  ModifyFlags;
+    uint16                  ModifyCount;
+    [size_is(ModifyCount)] PermissionData PermissionsData[];
+  } mapi_PermissionsData;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    mapi_PermissionsData    rowList;
+  } ModifyPermissions_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } ModifyPermissions_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x41 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    ulRowFlags        RuleDataFlags;
+    mapi_SPropValue_array PropertyValues;
+  } RuleData;
+
+  typedef [bitmap8bit] bitmap {
+    ModifyRulesFlag_Replace = 0x01
+  } ModifyRulesFlag;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ModifyRulesFlag ModifyRulesFlags;
+    uint16    RulesCount;
+    [size_is(RulesCount)] RuleData  RulesData[];
+  } ModifyRules_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } ModifyRules_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x42 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   FolderId;
+  } GetOwningServers_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    OwningServersCount;
+    uint16    CheapServersCount;
+    [size_is(OwningServersCount)] astring OwningServers[];
+  } GetOwningServers_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x43 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper Id;
+  } LongTermIdFromId_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    GUID  DatabaseGuid;
+    uint8 GlobalCounter[6];
+    uint16  padding;
+  } LongTermId;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    LongTermId  LongTermId;
+  } LongTermIdFromId_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x44 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    LongTermId  LongTermId;
+  } IdFromLongTermId_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   Id;
+  } IdFromLongTermId_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x45 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   FolderId;
+  } PublicFolderIsGhosted_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8        IsGhosted;
+    [switch_is(IsGhosted)] IsGhosted  Ghost;
+  } PublicFolderIsGhosted_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x46 */
+  typedef [enum8bit, flag(NDR_PAHEX)] enum {
+    MAPI_READONLY   = 0x0,
+    MAPI_READWRITE  = 0x1,
+    MAPI_CREATE = 0x2
+  } OpenEmbeddedMessage_OpenModeFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8         handle_idx;
+    uint16          CodePageId;
+    OpenEmbeddedMessage_OpenModeFlags OpenModeFlags;
+  } OpenEmbeddedMessage_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8           Reserved;
+    hyper           MessageId;
+    boolean8          HasNamedProperties;
+    TypedString         SubjectPrefix;
+    TypedString         NormalizedSubject;
+    uint16            RecipientCount;
+    uint16            ColumnCount;
+    [size_is(ColumnCount)] MAPITAGS RecipientColumns[];
+    uint8           RowCount;
+    [size_is(RowCount)] OpenRecipientRow RecipientRows[];
+  } OpenEmbeddedMessage_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x47 */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SetSpooler_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SetSpooler_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x48 */
+  typedef [enum8bit] enum {
+    LockState_1stLock       = 0x0,
+    LockState_1stUnlock = 0x1,
+    LockState_1stFinished = 0x2
+  } LockState;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   MessageId;
+    LockState LockState;
+  } SpoolerLockMessage_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SpoolerLockMessage_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x49 */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } AddressTypes_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    cValues;
+    uint16    size;
+    [size_is(cValues)] mapi_LPSTR  transport[];
+  } AddressTypes_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x4a  */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } TransportSend_req;
+
+  typedef [nodiscriminant] union {
+    [case(0x0)] mapi_SPropValue_array lpProps;
+    [case(0x1)];
+  } TransportSend_lpProps;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8            NoPropertiesReturned;
+    [switch_is(NoPropertiesReturned)] TransportSend_lpProps properties;
+  } TransportSend_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x4e  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    BufferSize;
+  } FastTransferSourceGetBuffer_req;
+
+  typedef [enum16bit] enum {
+    TransferStatus_Error  = 0x0,
+    TransferStatus_Partial  = 0x1,
+    TransferStatus_NoRoom = 0x2,
+    TransferStatus_Done = 0x3
+  } TransferStatus;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    TransferStatus  TransferStatus;
+    uint16    InProgressCount;
+    uint16    TotalStepCount;
+    uint8   Reserved;
+    [flag(NDR_REMAINING)] [represent_as(uint16)] DATA_BLOB TransferBuffer;
+    /*uint16    TransferBufferSize;
+    [subcontext(0),subcontext_size(TransferBufferSize),flag(NDR_REMAINING)] DATA_BLOB TransferBuffer;*/
+  } FastTransferSourceGetBuffer_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x4f  */
+  typedef [enum8bit] enum {
+    DIR_FORWARD  = 0x0,
+    DIR_BACKWARD = 0x1
+  } FindRow_ulFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    FindRow_ulFlags ulFlags;
+      [represent_as(uint16)] mapi_SRestriction res;
+    BOOKMARK  origin;
+    SBinary_short bookmark;
+  } FindRow_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   RowNoLongerVisible;
+      uint8   HasRowData;
+    [flag(NDR_NOALIGN)] DATA_BLOB row;
+  } FindRow_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x50  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  WantCancel;
+  } Progress_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    CompletedTaskCount;
+    uint32    TotalTaskCount;
+  } Progress_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x51  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   MessageId;
+    hyper   FolderId;
+    astring   MessageClass;
+    uint32    MessageFlags;
+  } TransportNewMail_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } TransportNewMail_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x52  */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetValidAttachments_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    AttachmentIdCount;
+    [size_is(AttachmentIdCount)] uint32 AttachmentIdArray[];
+  } GetValidAttachments_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x55 */
+  typedef [enum8bit] enum {
+    MNID_ID = 0,
+    MNID_STRING = 1
+  } ulKind;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8       NameSize;
+    [flag(STR_NULLTERM)] string Name;
+  } mapi_name;
+
+  typedef [nodiscriminant] union {
+    [case(MNID_ID)] uint32    lid;
+    [case(MNID_STRING)] mapi_name lpwstr;
+  } Kind;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    ulKind        ulKind;
+    GUID        lpguid;
+    [switch_is(ulKind)] Kind  kind;
+  } MAPINAMEID;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyIdCount;
+    [size_is(PropertyIdCount)] uint16 PropertyIds[];
+  } GetNamesFromIDs_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    count;
+    [size_is(count)] MAPINAMEID  nameid[];
+  } GetNamesFromIDs_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x56 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   ulFlags;
+    uint16    count;
+    [size_is(count)] MAPINAMEID  nameid[];
+  } GetIDsFromNames_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    count;
+    [size_is(count)] uint16    propID[];
+  } GetIDsFromNames_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x57 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short ServerEntryId;
+    SBinary_short ClientEntryId;
+  } UpdateDeferredActionMessages_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } UpdateDeferredActionMessages_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x58 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  WantAsynchronous;
+    boolean8  WantDeleteAssociated;
+  } EmptyFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  PartialCompletion;
+  } EmptyFolder_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x59 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    MaxRowCount;
+    hyper   CategoryId;
+  } ExpandRow_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    ExpandedRowCount;
+    uint16    RowCount;
+    [flag(NDR_REMAINING)]DATA_BLOB  RowData;
+  } ExpandRow_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x5a */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   CategoryId;
+  } CollapseRow_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    CollapsedRowCount;
+  } CollapseRow_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x5b */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   RegionOffset;
+    hyper   RegionSize;
+    uint32    LockFlags;
+  } LockRegionStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } LockRegionStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x5c */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   RegionOffset;
+    hyper   RegionSize;
+    uint32    LockFlags;
+  } UnlockRegionStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } UnlockRegionStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x5d */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } CommitStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } CommitStream_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x5e */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetStreamSize_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    StreamSize;
+  } GetStreamSize_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x5f */
+  typedef [bitmap8bit] bitmap {
+    NoStrings = 0x01,
+    NoIds         = 0x02
+  } QueryFlags;
+
+  typedef [nodiscriminant] union {
+    [case(0x0)];
+      [case(0x1)] GUID guid;
+  } QueryNamedProperties_guid;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    QueryFlags    QueryFlags;
+    boolean8    HasGuid;
+    [switch_is(HasGuid)]  QueryNamedProperties_guid PropertyGuid;
+  } QueryNamedProperties_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    IdCount;
+    [size_is(IdCount)] uint16    PropertyIds[];
+    [size_is(IdCount)] MAPINAMEID  PropertyNames[];
+  } QueryNamedProperties_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x60 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    GUID  DatabaseGuid;
+  } GetPerUserLongTermIds_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    LongTermIdCount;
+    [size_is(LongTermIdCount)] LongTermId  LongTermIds[];
+  } GetPerUserLongTermIds_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x61 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    LongTermId  LongTermId;
+  } GetPerUserGuid_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    GUID    DatabaseGuid;
+  } GetPerUserGuid_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x63 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   FolderId[24];
+    boolean8  WhatIfChanged;
+    uint32    DataOffset;
+    uint16    MaxDataSize;
+  } ReadPerUserInformation_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  HasFinished;
+    [flag(NDR_REMAINING)] [represent_as(uint16)] DATA_BLOB Data;
+    /*uint16    DataSize;
+    [subcontext(0), subcontext_size(DataSize), flag(NDR_REMAINING)] DATA_BLOB Data;*/
+  } ReadPerUserInformation_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x66 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  WantAsynchronous;
+    MSGFLAG_READ  ReadFlags;
+    uint16    MessageIdCount;
+    [size_is(MessageIdCount)] hyper MessageIds[];
+  } SetReadFlags_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  PartialCompletion;
+  } SetReadFlags_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x67 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     handle_idx;
+    boolean8    WantAsynchronous;
+    CopyFlags   CopyFlags;
+    mapi_SPropTagArray  PropertyTags;
+  } CopyProperties_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyProblemCount;
+    [size_is(PropertyProblemCount)] PropertyProblem PropertyProblem[];
+  } CopyProperties_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x68 */
+  typedef struct {
+    uint32 dwLowDateTime;
+    uint32 dwHighDateTime;
+  } FILETIME;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   unknown;
+    hyper   fid;
+    astring   lpszMessageClass;
+    FILETIME  modiftime;
+  } ReceiveFolder;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetReceiveFolderTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    cValues;
+    [size_is(cValues)] ReceiveFolder entries[];
+  } GetReceiveFolderTable_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x6b */
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   RowId;
+      uint32    RowInstanceNumber;
+  } GetCollapseState_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short CollapseState;
+  } GetCollapseState_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x6c */
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short CollapseState;
+  } SetCollapseState_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short bookmark;
+  } SetCollapseState_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x6d */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetTransportFolder_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   FolderId;
+  } GetTransportFolder_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x6e */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16  SessionIndex;
+  } Pending_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x6f */
+  typedef [flag(NDR_NOALIGN)] struct {
+    astring   AddressType;
+    boolean8  WantWin32;
+  } OptionsData_req;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)];
+    [default]  astring  HelpFileName;
+  } OptionsData_HelpFileName;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8             Reserved;
+    SBinary_short           OptionsInfo;
+    uint16              HelpFileSize;
+    [size_is(HelpFileSize)] uint8 HelpFile[];
+    [switch_is(HelpFileSize)] OptionsData_HelpFileName  HelpFileName;
+  } OptionsData_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x70 */
+  typedef [enum8bit] enum {
+    Contents  = 0x1,
+    Hierarchy = 0x2
+  } SynchronizationType;
+
+  typedef [bitmap8bit] bitmap {
+    SendOptions_Unicode   = 0x1,
+    SendOptions_ForUpload   = 0x3,
+    SendOptions_RecoverMode   = 0x4,
+    SendOptions_ForceUnicode  = 0x8,
+    SendOptions_Partial   = 0x10
+  } SendOptions;
+
+  typedef [bitmap16bit] bitmap {
+    SynchronizationFlag_Unicode     = 0x1,
+    SynchronizationFlag_NoDeletions     = 0x2,
+    SynchronizationFlag_NoSoftDeletions   = 0x4,
+    SynchronizationFlag_ReadState     = 0x8,
+    SynchronizationFlag_FAI       = 0x10,
+    SynchronizationFlag_Normal      = 0x20,
+    SynchronizationFlag_OnlySpecifiedProperties = 0x80,
+    SynchronizationFlag_NoForeignIdentifiers  = 0x100,
+    SynchronizationFlag_Reserved      = 0x1000,
+    SynchronizationFlag_BestBody      = 0x2000,
+    SynchronizationFlag_IgnoreSpecifiedOnFAI  = 0x4000,
+    SynchronizationFlag_Progress      = 0x8000
+  } SynchronizationFlag;
+
+  typedef [bitmap32bit] bitmap {
+    Eid     = 0x00000001,
+    MessageSize   = 0x00000002,
+    Cn      = 0x00000004,
+    OrderByDeliveryTime = 0x00000008
+  } SynchronizationExtraFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8         handle_idx;
+    SynchronizationType     SynchronizationType;
+    SendOptions       SendOptions;
+    SynchronizationFlag     SynchronizationFlag;
+    [flag(NDR_REMAINING)] [represent_as(uint16)] DATA_BLOB  RestrictionData;
+    SynchronizationExtraFlags   SynchronizationExtraFlags;
+    mapi_SPropTagArray      PropertyTags;
+  } SyncConfigure_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncConfigure_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x72 */
+  typedef [bitmap8bit] bitmap {
+    ImportFlag_Associated   = 0x10,
+    ImportFlag_FailOnConflict = 0x40
+  } ImportFlag;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     handle_idx;
+    ImportFlag    ImportFlag;
+    mapi_SPropValue_array PropertyValues;
+  } SyncImportMessageChange_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   MessageId;
+  } SyncImportMessageChange_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x73 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    mapi_SPropValue_array HierarchyValues;
+    mapi_SPropValue_array PropertyValues;
+  } SyncImportHierarchyChange_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FolderId;
+  } SyncImportHierarchyChange_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x74 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8    IsHierarchy;
+    mapi_SPropValue_array PropertyValues;
+  } SyncImportDeletes_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncImportDeletes_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x75 */
+  typedef [v1_enum,flag(NDR_PAHEX)] enum {
+    PidTagIdsetGiven  = 0x40170003,
+    PidTagCnsetSeen   = 0x67960102,
+    PidTagCnsetSeenFAI  = 0x67da0102,
+    PidTagCnsetRead   = 0x67d20102
+  } StateProperty;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    StateProperty   StateProperty;
+    uint32      TransferBufferSize;
+  } SyncUploadStateStreamBegin_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncUploadStateStreamBegin_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x76 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32      StreamDataSize;
+    [size_is(StreamDataSize)] uint8     StreamData[];
+  } SyncUploadStateStreamContinue_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncUploadStateStreamContinue_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x77 */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncUploadStateStreamEnd_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncUploadStateStreamEnd_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x78 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    SourceFolderIdSize;
+    [size_is(SourceFolderIdSize)] uint8   SourceFolderId[];
+    uint32    SourceMessageIdSize;
+    [size_is(SourceMessageIdSize)] uint8   SourceMessageId[];
+    uint32    PredecessorChangeListSize;
+    [size_is(PredecessorChangeListSize)] uint8   PredecessorChangeList[];
+    uint32    DestinationMessageIdSize;
+    [size_is(DestinationMessageIdSize)] uint8   DestinationMessageId[];
+    uint32    ChangeNumberSize;
+    [size_is(ChangeNumberSize)] uint8 ChangeNumber[];
+  } SyncImportMessageMove_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   MessageId;
+  } SyncImportMessageMove_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x79 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    [represent_as(uint16)] mapi_SPropValue_array values;
+  } SetPropertiesNoReplicate_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyProblemCount;
+    [size_is(PropertyProblemCount)] PropertyProblem PropertyProblem[];
+  } SetPropertiesNoReplicate_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x7a */
+  typedef [flag(NDR_NOALIGN)] struct {
+    mapi_SPropTagArray  PropertyTags;
+  } DeletePropertiesNoReplicate_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    PropertyProblemCount;
+    [size_is(PropertyProblemCount)] PropertyProblem PropertyProblem[];
+  } DeletePropertiesNoReplicate_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x7b */
+  typedef [public,bitmap32bit] bitmap {
+    STORE_HAS_SEARCHES    = 0x010000000
+  } StoreState;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } GetStoreState_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    StoreState  StoreState;
+  } GetStoreState_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x7e */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    boolean8  IsContentsCollector;
+  } SyncOpenCollector_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncOpenCollector_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x7f */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    IdCount;
+  } GetLocalReplicaIds_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    GUID    ReplGuid;
+    uint8   GlobalCount[6];
+  } GetLocalReplicaIds_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x80 */
+  #if 0
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    MessageSize;
+    uint8   MessageId[MessageSize];
+    boolean8  MarkAsRead;
+  } MessageReadStates;
+  #endif
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    [flag(NDR_REMAINING)] [represent_as(uint16)] DATA_BLOB MessageStates;
+  } SyncImportReadStateChanges_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncImportReadStateChanges_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x81 */
+  typedef [flag(NDR_NOALIGN)] struct {
+  } ResetTable_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } ResetTable_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x82 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+  } SyncGetTransferState_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SyncGetTransferState_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x87 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   handle_idx;
+    asclstr   name;
+  } OpenPublicFolderByName_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8        HasRules;
+    boolean8        IsGhosted;
+    [switch_is(IsGhosted)] IsGhosted  Ghost;
+  } OpenPublicFolderByName_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x88 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    GUID  NotificationGuid;
+  } SetSyncNotificationGuid_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } SetSyncNotificationGuid_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x89 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short bookmark;
+  } FreeBookmark_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+  } FreeBookmark_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x90 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    [represent_as(uint16), flag(NDR_REMAINING)] DATA_BLOB  data;
+  } WriteAndCommitStream_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    WrittenSize;
+  } WriteAndCommitStream_repl;
+
+  /**************************/
+  /* EcDoRpc Function 0x91  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  WantAsynchronous;
+    boolean8  NotifyNonRead;
+    uint16    MessageIdCount;
+    [size_is(MessageIdCount)] hyper MessageIds[];
+  } HardDeleteMessages_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  PartialCompletion;
+  } HardDeleteMessages_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0x92 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  WantAsynchronous;
+    boolean8  WantDeleteAssociated;
+  } HardDeleteMessagesAndSubfolders_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    boolean8  PartialCompletion;
+  } HardDeleteMessagesAndSubfolders_repl;
+
+  /*************************/
+  /* EcDoRpc Function 0xFE */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32  codepage;
+    uint32  padding;
+    uint8 row;
+    uint16  mailbox_str_size;
+    astring mailbox;
+  } OpenMsgStore_req;
+
+  typedef [public,enum8bit] enum {
+    LogonPrivate  = 0x1,
+    UnderCover  = 0x2,
+    Ghosted   = 0x4,
+    SpIProcess  = 0x8
+  } LogonFlags;
+
+  typedef [public,bitmap32bit] bitmap {
+    PUBLIC        = 0x2,
+    HOME_LOGON      = 0x4,
+    TAKE_OWNERSHIP      = 0x8,
+    ALTERNATE_SERVER    = 0x100,
+    IGNORE_HOME_MDB     = 0x200,
+    NO_MAIL       = 0x400,
+    USE_PER_MDB_REPLID_MAPPING  = 0x010000000
+  } OpenFlags;
+
+  typedef [enum8bit] enum {
+    DayOfWeek_Sunday  = 0x0,
+    DayOfWeek_Monday  = 0x1,
+    DayOfWeek_Tuesday = 0x2,
+    DayOfWeek_Wednesday = 0x3,
+    DayOfWeek_Thursday  = 0x4,
+    DayOfWeek_Friday  = 0x5,
+    DayOfWeek_Saturday  = 0x6
+  } DayOfWeek;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   Seconds;
+    uint8   Minutes;
+    uint8   Hour;
+    DayOfWeek DayOfWeek;
+    uint8   Day;
+    uint8   Month;
+    uint16    Year;
+  } LogonTime;
+
+  typedef [bitmap8bit] bitmap {
+    ResponseFlags_Reserved    = 0x1,
+    ResponseFlags_OwnerRight  = 0x2,
+    ResponseFlags_SendAsRight = 0x4,
+    ResponseFlags_OOF   = 0x10
+  } ResponseFlags;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper     FolderIds[13];
+    uint16      ReplId;
+    GUID      Guid;
+    GUID      PerUserGuid;
+  } store_pf;
+
+  typedef [nopush,flag(NDR_NOALIGN)] struct {
+    LogonFlags  LogonFlags;
+    OpenFlags OpenFlags;
+    StoreState  StoreState;
+    /* TODO: ascstr3   EssDN; */ 
+  } Logon_req;
+
+  /* Logon redirect response buffer (error_code == ecWrongServer) */
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    LogonFlags  LogonFlags;
+    uint8   ServerNameSize;
+    astring   ServerName;
+  } Logon_redirect;
+
+  /*************************/
+  /* EcDoRpc Function 0xA5 */
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short bin;
+  } proxypack_req;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    SBinary_short bin;
+  } proxypack_repl;
+
+  typedef [public, nodiscriminant] union {
+    [case(op_MAPI_Release)] Release_req mapi_Release;
+    [case(op_MAPI_OpenFolder)] OpenFolder_req mapi_OpenFolder;
+    [case(op_MAPI_OpenMessage)] OpenMessage_req mapi_OpenMessage;
+    [case(op_MAPI_GetHierarchyTable)] GetHierarchyTable_req mapi_GetHierarchyTable;
+    [case(op_MAPI_GetContentsTable)] GetContentsTable_req mapi_GetContentsTable;
+    [case(op_MAPI_CreateMessage)] CreateMessage_req mapi_CreateMessage;
+    [case(op_MAPI_GetProps)] GetProps_req mapi_GetProps;
+    [case(op_MAPI_GetPropsAll)] GetPropsAll_req mapi_GetPropsAll;
+    [case(op_MAPI_GetPropList)] GetPropList_req mapi_GetPropList;
+    [case(op_MAPI_SetProps)] SetProps_req mapi_SetProps;
+    [case(op_MAPI_DeleteProps)] DeleteProps_req mapi_DeleteProps;
+    [case(op_MAPI_SaveChangesMessage)] SaveChangesMessage_req mapi_SaveChangesMessage;
+    [case(op_MAPI_SetMessageReadFlag)] SetMessageReadFlag_req mapi_SetMessageReadFlag;
+    [case(op_MAPI_ReloadCachedInformation)] ReloadCachedInformation_req mapi_ReloadCachedInformation;
+    [case(op_MAPI_SetColumns)] SetColumns_req mapi_SetColumns;
+    [case(op_MAPI_SortTable)] SortTable_req mapi_SortTable;
+    [case(op_MAPI_Restrict)] Restrict_req mapi_Restrict;
+    [case(op_MAPI_RemoveAllRecipients)] RemoveAllRecipients_req mapi_RemoveAllRecipients;
+    [case(op_MAPI_ModifyRecipients)] ModifyRecipients_req mapi_ModifyRecipients;
+    [case(op_MAPI_ReadRecipients)] ReadRecipients_req mapi_ReadRecipients;
+    [case(op_MAPI_QueryRows)] QueryRows_req mapi_QueryRows;
+    [case(op_MAPI_GetStatus)] GetStatus_req mapi_GetStatus;
+    [case(op_MAPI_QueryPosition)] QueryPosition_req mapi_QueryPosition;
+    [case(op_MAPI_SeekRow)] SeekRow_req mapi_SeekRow;
+    [case(op_MAPI_SeekRowBookmark)] SeekRowBookmark_req mapi_SeekRowBookmark;
+    [case(op_MAPI_SeekRowApprox)] SeekRowApprox_req mapi_SeekRowApprox;
+    [case(op_MAPI_CreateBookmark)] CreateBookmark_req mapi_CreateBookmark;
+    [case(op_MAPI_CreateFolder)] CreateFolder_req mapi_CreateFolder;
+    [case(op_MAPI_DeleteFolder)] DeleteFolder_req mapi_DeleteFolder;
+    [case(op_MAPI_DeleteMessages)] DeleteMessages_req mapi_DeleteMessages;
+    [case(op_MAPI_GetMessageStatus)] GetMessageStatus_req mapi_GetMessageStatus;
+    [case(op_MAPI_SetMessageStatus)] SetMessageStatus_req mapi_SetMessageStatus;
+    [case(op_MAPI_GetAttachmentTable)] GetAttachmentTable_req mapi_GetAttachmentTable;
+    [case(op_MAPI_OpenAttach)] OpenAttach_req mapi_OpenAttach;
+    [case(op_MAPI_CreateAttach)] CreateAttach_req mapi_CreateAttach;
+    [case(op_MAPI_DeleteAttach)] DeleteAttach_req mapi_DeleteAttach;
+    [case(op_MAPI_SaveChangesAttachment)] SaveChangesAttachment_req mapi_SaveChangesAttachment;
+    [case(op_MAPI_SetReceiveFolder)] SetReceiveFolder_req mapi_SetReceiveFolder;
+    [case(op_MAPI_GetReceiveFolder)] GetReceiveFolder_req mapi_GetReceiveFolder;
+    [case(op_MAPI_Advise)] Advise_req mapi_Advise;
+    [case(op_MAPI_OpenStream)] OpenStream_req mapi_OpenStream;
+    [case(op_MAPI_ReadStream)] ReadStream_req mapi_ReadStream;
+    [case(op_MAPI_WriteStream)] WriteStream_req mapi_WriteStream;
+    [case(op_MAPI_SeekStream)] SeekStream_req mapi_SeekStream;
+    [case(op_MAPI_SetStreamSize)] SetStreamSize_req mapi_SetStreamSize;
+    [case(op_MAPI_SetSearchCriteria)] SetSearchCriteria_req mapi_SetSearchCriteria;
+    [case(op_MAPI_GetSearchCriteria)] GetSearchCriteria_req mapi_GetSearchCriteria;
+    [case(op_MAPI_SubmitMessage)] SubmitMessage_req mapi_SubmitMessage;
+    [case(op_MAPI_MoveCopyMessages)] MoveCopyMessages_req mapi_MoveCopyMessages;
+    [case(op_MAPI_AbortSubmit)] AbortSubmit_req mapi_AbortSubmit;
+    [case(op_MAPI_MoveFolder)] MoveFolder_req mapi_MoveFolder;
+    [case(op_MAPI_CopyFolder)] CopyFolder_req mapi_CopyFolder;
+    [case(op_MAPI_QueryColumnsAll)] QueryColumnsAll_req mapi_QueryColumnsAll;
+    [case(op_MAPI_Abort)] Abort_req mapi_Abort;
+    [case(op_MAPI_CopyTo)] CopyTo_req mapi_CopyTo;
+    [case(op_MAPI_CopyToStream)] CopyToStream_req mapi_CopyToStream;
+    [case(op_MAPI_CloneStream)] CloneStream_req mapi_CloneStream;
+    [case(op_MAPI_GetPermissionsTable)] GetPermissionsTable_req mapi_GetPermissionsTable;
+    [case(op_MAPI_GetRulesTable)] GetRulesTable_req mapi_GetRulesTable;
+    [case(op_MAPI_ModifyPermissions)] ModifyPermissions_req mapi_ModifyPermissions;
+    [case(op_MAPI_ModifyRules)] ModifyRules_req mapi_ModifyRules;
+    [case(op_MAPI_GetOwningServers)] GetOwningServers_req mapi_GetOwningServers;
+    [case(op_MAPI_LongTermIdFromId)] LongTermIdFromId_req mapi_LongTermIdFromId;
+    [case(op_MAPI_IdFromLongTermId)] IdFromLongTermId_req mapi_IdFromLongTermId;
+    [case(op_MAPI_PublicFolderIsGhosted)] PublicFolderIsGhosted_req mapi_PublicFolderIsGhosted;
+    [case(op_MAPI_OpenEmbeddedMessage)] OpenEmbeddedMessage_req mapi_OpenEmbeddedMessage;
+    [case(op_MAPI_SetSpooler)] SetSpooler_req mapi_SetSpooler;
+    [case(op_MAPI_SpoolerLockMessage)] SpoolerLockMessage_req mapi_SpoolerLockMessage;
+    [case(op_MAPI_AddressTypes)] AddressTypes_req mapi_AddressTypes;
+    [case(op_MAPI_TransportSend)] TransportSend_req mapi_TransportSend;
+    [case(op_MAPI_FastTransferSourceGetBuffer)] FastTransferSourceGetBuffer_req mapi_FastTransferSourceGetBuffer;
+    [case(op_MAPI_FindRow)] FindRow_req mapi_FindRow;
+    [case(op_MAPI_Progress)] Progress_req mapi_Progress;
+    [case(op_MAPI_TransportNewMail)] TransportNewMail_req mapi_TransportNewMail;
+    [case(op_MAPI_GetValidAttachments)] GetValidAttachments_req mapi_GetValidAttachments;
+    [case(op_MAPI_GetNamesFromIDs)] GetNamesFromIDs_req mapi_GetNamesFromIDs;
+    [case(op_MAPI_GetIDsFromNames)] GetIDsFromNames_req mapi_GetIDsFromNames;
+    [case(op_MAPI_UpdateDeferredActionMessages)] UpdateDeferredActionMessages_req mapi_UpdateDeferredActionMessages;
+    [case(op_MAPI_EmptyFolder)] EmptyFolder_req mapi_EmptyFolder;
+    [case(op_MAPI_ExpandRow)] ExpandRow_req mapi_ExpandRow;
+    [case(op_MAPI_CollapseRow)] CollapseRow_req mapi_CollapseRow;
+    [case(op_MAPI_LockRegionStream)] LockRegionStream_req mapi_LockRegionStream;
+    [case(op_MAPI_UnlockRegionStream)] UnlockRegionStream_req mapi_UnlockRegionStream;
+    [case(op_MAPI_CommitStream)] CommitStream_req mapi_CommitStream;
+    [case(op_MAPI_GetStreamSize)] GetStreamSize_req mapi_GetStreamSize;
+    [case(op_MAPI_QueryNamedProperties)] QueryNamedProperties_req mapi_QueryNamedProperties;
+    [case(op_MAPI_GetPerUserLongTermIds)] GetPerUserLongTermIds_req mapi_GetPerUserLongTermIds;
+    [case(op_MAPI_GetPerUserGuid)] GetPerUserGuid_req mapi_GetPerUserGuid;
+    [case(op_MAPI_ReadPerUserInformation)] ReadPerUserInformation_req mapi_ReadPerUserInformation;
+    [case(op_MAPI_SetReadFlags)] SetReadFlags_req mapi_SetReadFlags;
+    [case(op_MAPI_CopyProperties)] CopyProperties_req mapi_CopyProperties;
+    [case(op_MAPI_GetReceiveFolderTable)] GetReceiveFolderTable_req mapi_GetReceiveFolderTable;
+    [case(op_MAPI_GetCollapseState)] GetCollapseState_req mapi_GetCollapseState;
+    [case(op_MAPI_SetCollapseState)] SetCollapseState_req mapi_SetCollapseState;
+    [case(op_MAPI_GetTransportFolder)] GetTransportFolder_req mapi_GetTransportFolder;
+    [case(op_MAPI_OptionsData)] OptionsData_req mapi_OptionsData;
+    [case(op_MAPI_SyncConfigure)] SyncConfigure_req mapi_SyncConfigure;
+    [case(op_MAPI_SyncImportMessageChange)] SyncImportMessageChange_req mapi_SyncImportMessageChange;
+    [case(op_MAPI_SyncImportHierarchyChange)] SyncImportHierarchyChange_req mapi_SyncImportHierarchyChange;
+    [case(op_MAPI_SyncImportDeletes)] SyncImportDeletes_req mapi_SyncImportDeletes;
+    [case(op_MAPI_SyncUploadStateStreamBegin)] SyncUploadStateStreamBegin_req mapi_SyncUploadStateStreamBegin;
+    [case(op_MAPI_SyncUploadStateStreamContinue)] SyncUploadStateStreamContinue_req mapi_SyncUploadStateStreamContinue;
+    [case(op_MAPI_SyncUploadStateStreamEnd)] SyncUploadStateStreamEnd_req mapi_SyncUploadStateStreamEnd;
+    [case(op_MAPI_SyncImportMessageMove)] SyncImportMessageMove_req mapi_SyncImportMessageMove;
+    [case(op_MAPI_SetPropertiesNoReplicate)] SetPropertiesNoReplicate_req mapi_SetPropertiesNoReplicate;
+    [case(op_MAPI_DeletePropertiesNoReplicate)] DeletePropertiesNoReplicate_req mapi_DeletePropertiesNoReplicate;
+    [case(op_MAPI_GetStoreState)] GetStoreState_req mapi_GetStoreState;
+    [case(op_MAPI_SyncOpenCollector)] SyncOpenCollector_req mapi_SyncOpenCollector;
+    [case(op_MAPI_GetLocalReplicaIds)] GetLocalReplicaIds_req mapi_GetLocalReplicaIds;
+    [case(op_MAPI_SyncImportReadStateChanges)] SyncImportReadStateChanges_req mapi_SyncImportReadStateChanges;
+    [case(op_MAPI_ResetTable)] ResetTable_req mapi_ResetTable;
+    [case(op_MAPI_SyncGetTransferState)] SyncGetTransferState_req mapi_SyncGetTransferState;
+    [case(op_MAPI_OpenPublicFolderByName)] OpenPublicFolderByName_req mapi_OpenPublicFolderByName;
+    [case(op_MAPI_SetSyncNotificationGuid)] SetSyncNotificationGuid_req mapi_SetSyncNotificationGuid;
+    [case(op_MAPI_FreeBookmark)] FreeBookmark_req mapi_FreeBookmark;
+    [case(op_MAPI_WriteAndCommitStream)] WriteAndCommitStream_req mapi_WriteAndCommitStream;
+    [case(op_MAPI_HardDeleteMessages)] HardDeleteMessages_req mapi_HardDeleteMessages;
+    [case(op_MAPI_HardDeleteMessagesAndSubfolders)] HardDeleteMessagesAndSubfolders_req mapi_HardDeleteMessagesAndSubfolders;
+    [case(op_MAPI_OpenMsgStore)] OpenMsgStore_req mapi_OpenMsgStore;
+    [case(op_MAPI_proxypack)] proxypack_req mapi_proxypack;
+  } EcDoRpcMapiRequestOperation;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    hyper   folder_id[13];
+    uint8   unknown3;
+    GUID   entryid;
+    uint16    default_store;
+    GUID   msgstore;
+    FILETIME  ts_access;
+    astring   creation_date;
+    uint8   terminator;
+    uint16    unknown4;
+  } store_mailbox;
+
+  typedef [switch_type(uint8)] union {
+    [case(0x0)] store_pf store_pf;
+    [case(0x1)] store_mailbox store_mailbox;
+  } store_type;
+
+  typedef [enum8bit,flag(NDR_NOALIGN)] enum {
+   PROVIDER_TYPE_PF = 0x0,
+   PROVIDER_TYPE_MAILBOX = 0x1
+  } PROVIDER_TYPE;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    PROVIDER_TYPE pr_object_type;
+    [switch_is(pr_object_type)] store_type type;
+  } OpenMsgStore_repl;
+
+  typedef [public, nodiscriminant] union {
+    [case(op_MAPI_Release)] Release_repl mapi_Release;
+    [case(op_MAPI_OpenFolder)] OpenFolder_repl mapi_OpenFolder;
+    [case(op_MAPI_OpenMessage)] OpenMessage_repl mapi_OpenMessage;
+    [case(op_MAPI_GetHierarchyTable)] GetHierarchyTable_repl mapi_GetHierarchyTable;
+    [case(op_MAPI_GetContentsTable)] GetContentsTable_repl mapi_GetContentsTable;
+    [case(op_MAPI_CreateMessage)] CreateMessage_repl mapi_CreateMessage;
+    [case(op_MAPI_GetProps)] GetProps_repl mapi_GetProps;
+    [case(op_MAPI_GetPropsAll)] GetPropsAll_repl mapi_GetPropsAll;
+    [case(op_MAPI_GetPropList)] GetPropList_repl mapi_GetPropList;
+    [case(op_MAPI_SetProps)] SetProps_repl mapi_SetProps;
+    [case(op_MAPI_DeleteProps)] DeleteProps_repl mapi_DeleteProps;
+    [case(op_MAPI_SaveChangesMessage)] SaveChangesMessage_repl mapi_SaveChangesMessage;
+    [case(op_MAPI_RemoveAllRecipients)] RemoveAllRecipients_repl mapi_RemoveAllRecipients;
+    [case(op_MAPI_ModifyRecipients)] ModifyRecipients_repl mapi_ModifyRecipients;
+    [case(op_MAPI_ReadRecipients)] ReadRecipients_repl mapi_ReadRecipients;
+    [case(op_MAPI_SetMessageReadFlag)] SetMessageReadFlag_repl mapi_SetMessageReadFlag;
+    [case(op_MAPI_ReloadCachedInformation)] ReloadCachedInformation_repl mapi_ReloadCachedInformation;
+    [case(op_MAPI_SetColumns)] SetColumns_repl mapi_SetColumns;
+    [case(op_MAPI_SortTable)] SortTable_repl mapi_SortTable;
+    [case(op_MAPI_Restrict)] Restrict_repl mapi_Restrict;
+    [case(op_MAPI_QueryRows)] QueryRows_repl mapi_QueryRows;
+    [case(op_MAPI_GetStatus)] GetStatus_repl mapi_GetStatus;
+    [case(op_MAPI_QueryPosition)] QueryPosition_repl mapi_QueryPosition;
+    [case(op_MAPI_SeekRow)] SeekRow_repl mapi_SeekRow;
+    [case(op_MAPI_SeekRowBookmark)] SeekRowBookmark_repl mapi_SeekRowBookmark;
+    [case(op_MAPI_SeekRowApprox)] SeekRowApprox_repl mapi_SeekRowApprox;
+    [case(op_MAPI_CreateBookmark)] CreateBookmark_repl mapi_CreateBookmark;
+    [case(op_MAPI_CreateFolder)] CreateFolder_repl mapi_CreateFolder;
+    [case(op_MAPI_DeleteFolder)] DeleteFolder_repl mapi_DeleteFolder;
+    [case(op_MAPI_DeleteMessages)] DeleteMessages_repl mapi_DeleteMessages;
+    [case(op_MAPI_SetMessageStatus)] SetMessageStatus_repl mapi_SetMessageStatus;
+    [case(op_MAPI_GetAttachmentTable)] GetAttachmentTable_repl mapi_GetAttachmentTable;
+    [case(op_MAPI_OpenAttach)] OpenAttach_repl mapi_OpenAttach;
+    [case(op_MAPI_CreateAttach)] CreateAttach_repl mapi_CreateAttach;
+    [case(op_MAPI_DeleteAttach)] DeleteAttach_repl mapi_DeleteAttach;
+    [case(op_MAPI_SaveChangesAttachment)] SaveChangesAttachment_repl mapi_SaveChangesAttachment;
+    [case(op_MAPI_SetReceiveFolder)] SetReceiveFolder_repl mapi_SetReceiveFolder;
+    [case(op_MAPI_GetReceiveFolder)] GetReceiveFolder_repl mapi_GetReceiveFolder;
+    [case(op_MAPI_Advise)] Advise_repl mapi_Advise;
+    [case(op_MAPI_Notify)] Notify_repl mapi_Notify;
+    [case(op_MAPI_OpenStream)] OpenStream_repl mapi_OpenStream;
+    [case(op_MAPI_ReadStream)] ReadStream_repl mapi_ReadStream;
+    [case(op_MAPI_WriteStream)] WriteStream_repl mapi_WriteStream;
+    [case(op_MAPI_SeekStream)] SeekStream_repl mapi_SeekStream;
+    [case(op_MAPI_SetStreamSize)] SetStreamSize_repl mapi_SetStreamSize;
+    [case(op_MAPI_SetSearchCriteria)] SetSearchCriteria_repl mapi_SetSearchCriteria;
+    [case(op_MAPI_GetSearchCriteria)] GetSearchCriteria_repl mapi_GetSearchCriteria;
+    [case(op_MAPI_SubmitMessage)] SubmitMessage_repl mapi_SubmitMessage;
+    [case(op_MAPI_MoveCopyMessages)] MoveCopyMessages_repl mapi_MoveCopyMessages;
+    [case(op_MAPI_AbortSubmit)] AbortSubmit_repl mapi_AbortSubmit;
+    [case(op_MAPI_MoveFolder)] MoveFolder_repl mapi_MoveFolder;
+    [case(op_MAPI_CopyFolder)] CopyFolder_repl mapi_CopyFolder;
+    [case(op_MAPI_QueryColumnsAll)] QueryColumnsAll_repl mapi_QueryColumnsAll;
+    [case(op_MAPI_Abort)] Abort_repl mapi_Abort;
+    [case(op_MAPI_CopyTo)] CopyTo_repl mapi_CopyTo;
+    [case(op_MAPI_CopyToStream)] CopyToStream_repl mapi_CopyToStream;
+    [case(op_MAPI_CloneStream)] CloneStream_repl mapi_CloneStream;
+    [case(op_MAPI_GetPermissionsTable)] GetPermissionsTable_repl mapi_GetPermissionsTable;
+    [case(op_MAPI_GetRulesTable)] GetRulesTable_repl mapi_GetRulesTable;
+    [case(op_MAPI_ModifyPermissions)] ModifyPermissions_repl mapi_ModifyPermissions;
+    [case(op_MAPI_ModifyRules)] ModifyRules_repl mapi_ModifyRules;
+    [case(op_MAPI_GetOwningServers)] GetOwningServers_repl mapi_GetOwningServers;
+    [case(op_MAPI_LongTermIdFromId)] LongTermIdFromId_repl mapi_LongTermIdFromId;
+    [case(op_MAPI_IdFromLongTermId)] IdFromLongTermId_repl mapi_IdFromLongTermId;
+    [case(op_MAPI_PublicFolderIsGhosted)] PublicFolderIsGhosted_repl mapi_PublicFolderIsGhosted;
+    [case(op_MAPI_OpenEmbeddedMessage)] OpenEmbeddedMessage_repl mapi_OpenEmbeddedMessage;
+    [case(op_MAPI_SetSpooler)] SetSpooler_repl mapi_SetSpooler;
+    [case(op_MAPI_SpoolerLockMessage)] SpoolerLockMessage_repl mapi_SpoolerLockMessage;
+    [case(op_MAPI_AddressTypes)] AddressTypes_repl mapi_AddressTypes;
+    [case(op_MAPI_TransportSend)] TransportSend_repl mapi_TransportSend;
+    [case(op_MAPI_FastTransferSourceGetBuffer)] FastTransferSourceGetBuffer_repl mapi_FastTransferSourceGetBuffer;
+    [case(op_MAPI_FindRow)] FindRow_repl mapi_FindRow;
+    [case(op_MAPI_Progress)] Progress_repl mapi_Progress;
+    [case(op_MAPI_TransportNewMail)] TransportNewMail_repl mapi_TransportNewMail;
+    [case(op_MAPI_GetValidAttachments)] GetValidAttachments_repl mapi_GetValidAttachments;
+    [case(op_MAPI_GetNamesFromIDs)] GetNamesFromIDs_repl mapi_GetNamesFromIDs;
+    [case(op_MAPI_GetIDsFromNames)] GetIDsFromNames_repl mapi_GetIDsFromNames;
+    [case(op_MAPI_UpdateDeferredActionMessages)] UpdateDeferredActionMessages_repl mapi_UpdateDeferredActionMessages;
+    [case(op_MAPI_EmptyFolder)] EmptyFolder_repl mapi_EmptyFolder;
+    [case(op_MAPI_ExpandRow)] ExpandRow_repl mapi_ExpandRow;
+    [case(op_MAPI_CollapseRow)] CollapseRow_repl mapi_CollapseRow;
+    [case(op_MAPI_LockRegionStream)] LockRegionStream_repl mapi_LockRegionStream;
+    [case(op_MAPI_UnlockRegionStream)] UnlockRegionStream_repl mapi_UnlockRegionStream;
+    [case(op_MAPI_CommitStream)] CommitStream_repl mapi_CommitStream;
+    [case(op_MAPI_GetStreamSize)] GetStreamSize_repl mapi_GetStreamSize;
+    [case(op_MAPI_QueryNamedProperties)] QueryNamedProperties_repl mapi_QueryNamedProperties;
+    [case(op_MAPI_GetPerUserLongTermIds)] GetPerUserLongTermIds_repl mapi_GetPerUserLongTermIds;
+    [case(op_MAPI_GetPerUserGuid)] GetPerUserGuid_repl mapi_GetPerUserGuid;
+    [case(op_MAPI_ReadPerUserInformation)] ReadPerUserInformation_repl mapi_ReadPerUserInformation;
+    [case(op_MAPI_SetReadFlags)] SetReadFlags_repl mapi_SetReadFlags;
+    [case(op_MAPI_CopyProperties)] CopyProperties_repl mapi_CopyProperties;
+    [case(op_MAPI_GetReceiveFolderTable)] GetReceiveFolderTable_repl mapi_GetReceiveFolderTable;
+    [case(op_MAPI_Pending)] Pending_repl mapi_Pending;
+    [case(op_MAPI_GetCollapseState)] GetCollapseState_repl mapi_GetCollapseState;
+    [case(op_MAPI_SetCollapseState)] SetCollapseState_repl mapi_SetCollapseState;
+    [case(op_MAPI_GetTransportFolder)] GetTransportFolder_repl mapi_GetTransportFolder;
+    [case(op_MAPI_OptionsData)] OptionsData_repl mapi_OptionsData;
+    [case(op_MAPI_SyncConfigure)] SyncConfigure_repl mapi_SyncConfigure;
+    [case(op_MAPI_SyncImportMessageChange)] SyncImportMessageChange_repl mapi_SyncImportMessageChange;
+    [case(op_MAPI_SyncImportHierarchyChange)] SyncImportHierarchyChange_repl mapi_SyncImportHierarchyChange;
+    [case(op_MAPI_SyncImportDeletes)] SyncImportDeletes_repl mapi_SyncImportDeletes;
+    [case(op_MAPI_SyncUploadStateStreamBegin)] SyncUploadStateStreamBegin_repl mapi_SyncUploadStateStreamBegin;
+    [case(op_MAPI_SyncUploadStateStreamContinue)] SyncUploadStateStreamContinue_repl mapi_SyncUploadStateStreamContinue;
+    [case(op_MAPI_SyncUploadStateStreamEnd)] SyncUploadStateStreamEnd_repl mapi_SyncUploadStateStreamEnd;
+    [case(op_MAPI_SyncImportMessageMove)] SyncImportMessageMove_repl mapi_SyncImportMessageMove;
+    [case(op_MAPI_SetPropertiesNoReplicate)] SetPropertiesNoReplicate_repl mapi_SetPropertiesNoReplicate;
+    [case(op_MAPI_DeletePropertiesNoReplicate)] DeletePropertiesNoReplicate_repl mapi_DeletePropertiesNoReplicate;
+    [case(op_MAPI_GetStoreState)] GetStoreState_repl mapi_GetStoreState;
+    [case(op_MAPI_SyncOpenCollector)] SyncOpenCollector_repl mapi_SyncOpenCollector;
+    [case(op_MAPI_GetLocalReplicaIds)] GetLocalReplicaIds_repl mapi_GetLocalReplicaIds;
+    [case(op_MAPI_SyncImportReadStateChanges)] SyncImportReadStateChanges_repl mapi_SyncImportReadStateChanges;
+    [case(op_MAPI_ResetTable)] ResetTable_repl mapi_ResetTable;
+    [case(op_MAPI_SyncGetTransferState)] SyncGetTransferState_repl mapi_SyncGetTransferState;
+    [case(op_MAPI_OpenPublicFolderByName)] OpenPublicFolderByName_repl mapi_OpenPublicFolderByName;
+    [case(op_MAPI_SetSyncNotificationGuid)] SetSyncNotificationGuid_repl mapi_SetSyncNotificationGuid;
+    [case(op_MAPI_FreeBookmark)] FreeBookmark_repl mapi_FreeBookmark;
+    [case(op_MAPI_WriteAndCommitStream)] WriteAndCommitStream_repl mapi_WriteAndCommitStream;
+    [case(op_MAPI_HardDeleteMessages)] HardDeleteMessages_repl mapi_HardDeleteMessages;
+    [case(op_MAPI_HardDeleteMessagesAndSubfolders)] HardDeleteMessagesAndSubfolders_repl mapi_HardDeleteMessagesAndSubfolders;
+    [case(op_MAPI_OpenMsgStore)] OpenMsgStore_repl mapi_OpenMsgStore;
+    [case(op_MAPI_proxypack)] proxypack_repl mapi_proxypack;
+  } EcDoRpcMapiResponseOperation;
+
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    uint8   opnum;
+    uint8   logon_id;
+    uint8   handle_idx;
+    [switch_is(opnum)] EcDoRpcMapiRequestOperation u;
+  } EcDoRpcMapiRequest;
+
+  typedef [public,nopush,nopull,noprint,flag(NDR_NOALIGN)] struct {
+    uint8       opnum;
+    uint8       handle_idx;
+    MAPISTATUS  error_code;
+    [switch_is(opnum)] EcDoRpcMapiResponseOperation u;
+  } EcDoRpcMapiResponse;
+
+  typedef [public,nopull,nopush,noprint] struct {
+    uint32      mapi_len; /* whole mapi_data length */
+    uint16      length;   /* content length */
+    EcDoRpcMapiRequest  mapi_req;
+    uint32      *handles; /* handles id array */
+  } mapi_request;
+
+  typedef [public,nopull,nopush,noprint] struct {
+    uint32      mapi_len;
+    uint16      length;
+    EcDoRpcMapiResponse mapi_repl;
+    uint32      *handles;
+  } mapi_response;
+
+  WERROR mapi_EcDoRpc(
+    [in,out]            policy_handle *handle,
+    [in,out]            uint32    *size,
+    [in,out]            uint32    *offset,
+    [in]  [flag(NDR_REMAINING|NDR_NOALIGN)]  mapi_request  *mapi_request,
+    [out] [flag(NDR_REMAINING|NDR_NOALIGN)]  mapi_response *mapi_response,
+    [in,out]            uint16    *length,
+    [in]                uint16    max_data
+    );
+
+  /******************/
+  /* Function: 0x03 */
+  WERROR mapi_EcGetMoreRpc(
+    [in, out, ref] policy_handle * pcxh,
+    [in][out] [size_is(usSize), length_is(*pusLength)] uint8 *rgb,
+    [in][out] uint16 *pusLength, 
+    [in] uint16 usSize
+    );
+
+  /******************/
+  /* Function: 0x04 */
+  WERROR mapi_EcRRegisterPushNotification(
+    [in, out, ref] policy_handle * handle,
+    [in] uint32 iRpc,
+    [in] [size_is(cbContext)] uint8 *rgbContext,
+    [in] uint16 cbContext,
+    [in] uint32 grbitMapiAdviseBits,
+    [in, size_is(cbCallbackAddress)] uint8 *rgbCallbackAddress,
+    [in] uint16 cbCallbackAddress,
+    [out] uint32 *hNotification
+    );
+
+  /******************/
+  /* Function: 0x05 */
+  WERROR mapi_EcRUnregisterPushNotification(
+   [in,out]  policy_handle   *handle,
+   [in]    uint32      iRpc,
+   [in]    uint32      hNotification
+   );
+
+  /******************/
+  /* Function: 0x06 */
+  WERROR mapi_EcDummyRpc(
+    );
+
+  /******************/
+  /* Function: 0x07 */
+  WERROR mapi_EcRGetDCName(
+    [in,out]  policy_handle   *handle,
+    [in][string] uint8* szDomainName,
+    [out] uint8 rgchDomainController[16]
+    );
+
+  /******************/
+  /* Function: 0x08 */
+  WERROR mapi_EcRNetGetDCName(
+    [in][string] uint8* szDomainName,
+    [out] uint8 rgchDomainController[16]
+    );
+
+  /******************/
+  /* Function: 0x09 */
+  WERROR mapi_EcDoRpcExt(
+    [in, out, ref]      policy_handle * pcxh,
+    [in, out]           RpcExt2Flags *pulFlags,
+    [in, size_is(cbIn)] uint8 *rgbIn,
+    [in]                uint32 cbIn,
+    [out, length_is(*pcbOut), size_is(*pcbOut)] uint8 *rgbOut,
+    [in, out] [range(0x0, 0x40000)] uint32 *pcbOut,
+    [in,represent_as(4),flag(NDR_NOALIGN|NDR_REMAINING)] AuxInfo  *rgbAuxIn,
+    [in] uint32 cbAuxIn,
+    [out] uint32 *pulTransTime
+    );
+
+  /******************/
+  /* Function: 0x0a */
+  typedef [enum8bit,flag(NDR_PAHEX)] enum {
+    AUX_TYPE_PERF_REQUESTID   = 0x01,
+    AUX_TYPE_PERF_CLIENTINFO = 0x02,
+    AUX_TYPE_PERF_SERVERINFO  = 0x03,
+    AUX_TYPE_PERF_SESSIONINFO = 0x04,
+    AUX_TYPE_PERF_DEFMDB_SUCCESS  = 0x05,
+    AUX_TYPE_PERF_DEFGC_SUCCESS = 0x06,
+    AUX_TYPE_PERF_MDB_SUCCESS = 0x07,
+    AUX_TYPE_PERF_GC_SUCCESS  = 0x08,
+    AUX_TYPE_PERF_FAILURE   = 0x09,
+    AUX_TYPE_CLIENT_CONTROL   = 0x0A,
+    AUX_TYPE_PERF_PROCESSINFO = 0x0B,
+    AUX_TYPE_PERF_BG_DEFMDB_SUCCESS = 0x0C,
+    AUX_TYPE_PERF_BG_DEFGC_SUCCESS  = 0x0D,
+    AUX_TYPE_PERF_BG_MDB_SUCCESS  = 0x0E,
+    AUX_TYPE_PERF_BG_GC_SUCCESS = 0x0F,
+    AUX_TYPE_PERF_BG_FAILURE  = 0x10,
+    AUX_TYPE_PERF_FG_DEFMDB_SUCCESS = 0x11,
+    AUX_TYPE_PERF_FG_DEFGC_SUCCESS  = 0x12,
+    AUX_TYPE_PERF_FG_MDB_SUCCESS  = 0x13,
+    AUX_TYPE_PERF_FG_GC_SUCCESS = 0x14,
+    AUX_TYPE_PERF_FG_FAILURE  = 0x15,
+    AUX_TYPE_OSVERSIONINFO    = 0x16,
+    AUX_TYPE_EXORGINFO    = 0x17,
+    AUX_TYPE_PERF_ACCOUNTINFO = 0x18,
+    AUX_TYPE_SERVER_CAPABILITIES = 0x46,
+    AUX_TYPE_ENDPOINT_CAPABILITIES = 0x48,
+    AUX_CLIENT_CONNECTION_INFO = 0x4A,
+    AUX_SERVER_SESSION_INFO = 0x4B,
+    AUX_PROTOCOL_DEVICE_IDENTIFICATION = 0x4E
+  } AUX_HEADER_TYPE_1;
+ 
+  typedef [enum8bit,flag(NDR_PAHEX)] enum {
+    AUX_TYPE_PERF_SESSIONINFO_2     = 0x04,
+    AUX_TYPE_PERF_MDB_SUCCESS_2     = 0x07,
+    AUX_TYPE_PERF_GC_SUCCESS_2      = 0x08,
+    AUX_TYPE_PERF_FAILURE_2         = 0x09,
+    AUX_TYPE_PERF_PROCESSINFO_2     = 0x0B,
+    AUX_TYPE_PERF_BG_MDB_SUCCESS_2  = 0x0E,
+    AUX_TYPE_PERF_BG_GC_SUCCESS_2   = 0x0F,
+    AUX_TYPE_PERF_BG_FAILURE_2      = 0x10,
+    AUX_TYPE_PERF_FG_MDB_SUCCESS_2  = 0x13,
+    AUX_TYPE_PERF_FG_GC_SUCCESS_2   = 0x14,
+    AUX_TYPE_PERF_FG_FAILURE_2      = 0x15
+  } AUX_HEADER_TYPE_2;
+
+  typedef [public,enum8bit,flag(NDR_PAHEX)] enum {
+    AUX_VERSION_1 = 0x1,
+    AUX_VERSION_2 = 0x2
+  } AUX_VERSION;
+ 
+  typedef [switch_type(uint8)] union {
+    [case(AUX_VERSION_1)] AUX_HEADER_TYPE_1 Type;
+    [case(AUX_VERSION_2)] AUX_HEADER_TYPE_2 Type_2;
+    [default];
+  } AUX_HEADER_TYPE_ENUM;
+ 
+  /*************************/
+  /* AUX_HEADER case (0x1) */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    SessionID;
+    uint16    RequestID;
+  } AUX_PERF_REQUESTID;
+ 
+  /*************************/
+  /* AUX_HEADER case (0x2) */
+  typedef [public,enum16bit, flag(NDR_PAHEX)] enum {
+    CLIENTMODE_UNKNOWN  = 0x0,
+    CLIENTMODE_CLASSIC  = 0x1,
+    CLIENTMODE_CACHED = 0x2
+  } ClientMode;
+ 
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    uint32    AdapterSpeed;
+    uint16    ClientID;
+    uint16    MachineNameOffset;
+    uint16    UserNameOffset;
+    uint16    ClientIPSize;
+    uint16    ClientIPOffset;
+    uint16    ClientIPMaskSize;
+    uint16    ClientIPMaskOffset;
+    uint16    AdapterNameOffset;
+    uint16    MacAddressSize;
+    uint16    MacAddressOffset;
+    ClientMode  ClientMode;
+    uint16    Reserved;
+    nstring   MachineName;
+    nstring   UserName;
+    uint8   ClientIP[0];
+    uint8   ClientIPMask[0];
+    nstring   AdapterName;
+    uint8   MacAddress[0];
+  } AUX_PERF_CLIENTINFO;
+ 
+  /*************************/
+  /* AUX_HEADER case (0x3) */
+  typedef [enum16bit,flag(NDR_PAHEX)] enum {
+    SERVERTYPE_UNKNOWN    = 0x0,
+    SERVERTYPE_PRIVATE    = 0x1,
+    SERVERTYPE_PUBLIC   = 0x2,
+    SERVERTYPE_DIRECTORY    = 0x3,
+    SERVERTYPE_REFERRAL   = 0x4
+  } SERVERINFO_ServerType;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16      ServerID;
+    SERVERINFO_ServerType ServerType;
+    uint16      ServerDNOffset;
+    uint16      ServerNameOffset;
+    nstring     ServerDN;
+    nstring     ServerName;
+  } AUX_PERF_SERVERINFO;
+ 
+  /*************************/
+  /* AUX_HEADER case (0x4) */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    SessionID;
+    uint16    Reserved;
+    GUID    SessionGuid;
+  } AUX_PERF_SESSIONINFO;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    SessionID;
+    uint16    Reserved;
+    GUID    SessionGuid;
+    uint32    ConnectionID;
+  } AUX_PERF_SESSIONINFO_V2;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x5)  */
+  /* AUX_HEADER case (0xC)  */
+  /* AUX_HEADER case (0x11) */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    TimeSinceRequest;
+    uint32    TimeToCompleteRequest;
+    uint16    RequestID;
+    uint16    Reserved;
+  } AUX_PERF_DEFMDB_SUCCESS;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x6)  */
+  /* AUX_HEADER case (0xD)  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ServerID;
+    uint16    SessionID;
+    uint32    TimeSinceRequest;
+    uint32    TimeToCompleteRequest;
+    uint8   RequestOperation;
+    uint8   Reserved[3];
+  } AUX_PERF_DEFGC_SUCCESS;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x7)  */
+  /* AUX_HEADER case (0xE)  */
+
+  /* AUX_HEADER case (0x13) */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ClientID;
+    uint16    ServerID;
+    uint16    SessionID;
+    uint16    RequestID;
+    uint32    TimeSinceRequest;
+    uint32    TimeToCompleteRequest;
+  } AUX_PERF_MDB_SUCCESS;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ProcessID;
+    uint16    ClientID;
+    uint16    ServerID;
+    uint16    SessionID;
+    uint16    RequestID;
+    uint16    Reserved;
+    uint32    TimeSinceRequest;
+    uint32    TimeToCompleteRequest;
+  } AUX_PERF_MDB_SUCCESS_V2;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x8)  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ClientID;
+    uint16    ServerID;
+    uint16    SessionID;
+    uint16    Reserved_1;
+    uint32    TimeSinceRequest;
+    uint32    TimeToCompleteRequest;
+    uint8   RequestOperation;
+    uint8   Reserved_2[3];
+  } AUX_PERF_GC_SUCCESS;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ProcessID;
+    uint16    ClientID;
+    uint16    ServerID;
+    uint16    SessionID;
+    uint32    TimeSinceRequest;
+    uint32    TimeToCompleteRequest;
+    uint8   RequestOperation;
+    uint8   Reserved[3];
+  } AUX_PERF_GC_SUCCESS_V2;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x9)  */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ClientID;
+    uint16    ServerID;
+    uint16    SessionID;
+    uint16    RequestID;
+    uint32    TimeSinceRequest;
+    uint32    TimeToFailRequest;
+    MAPISTATUS  ResultCode;
+    uint8   RequestOperation;
+    uint8   Reserved[3];
+  } AUX_PERF_FAILURE;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ProcessID;
+    uint16    ClientID;
+    uint16    ServerID;
+    uint16    SessionID;
+    uint16    RequestID;
+    uint16    Reserved_1;
+    uint32    TimeSinceRequest;
+    uint32    TimeToFailRequest;
+    MAPISTATUS  ResultCode;
+    uint8   RequestOperation;
+    uint8   Reserved_2[3];
+  } AUX_PERF_FAILURE_V2;
+ 
+  /**************************/
+  /* AUX_HEADER case (0xA)  */
+  typedef [bitmap32bit] bitmap {
+    ENABLE_PERF_SENDTOSERVER  = 0x00000001,
+    ENABLE_PERF_SENDTOMAILBOX = 0x00000002,
+    ENABLE_COMPRESSION    = 0x00000004,
+    ENABLE_HTTP_TUNNELING   = 0x00000008,
+    ENABLE_PERF_SENDGCDATA    = 0x00000010
+  } CLIENT_CONTROL_EnableFlags;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    CLIENT_CONTROL_EnableFlags  EnableFlags;
+    uint32        ExpiryTime;
+  } AUX_CLIENT_CONTROL;
+ 
+  /*************************/
+  /* AUX_HEADER case (0xB) */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint16    ProcessID;
+    uint16    Reserved1;
+    GUID    ProcessGuid;
+    uint16    ProcessNameOffset;
+    uint16    Reserved2;
+    nstring   ProcessName;
+  } AUX_PERF_PROCESSINFO;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x16) */
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint32    OSVersionInfoSize;
+    uint32    MajorVersion;
+    uint32    MinorVersion;
+    uint32    BuildNumber;
+    [flag(NDR_NOALIGN|NDR_REMAINING)] DATA_BLOB Reserved_1;
+    uint16    ServicePackMajor;
+    uint16    ServicePackMinor;
+    uint32    Reserved_2;
+  } AUX_OSVERSIONINFO;
+ 
+  /**************************/
+  /* AUX_HEADER case (0x17) */
+  typedef [bitmap32bit] bitmap {
+    PUBLIC_FOLDERS_ENABLED  = 0x00000001
+  } EXORGINFO_OrgFlags;
+ 
+  typedef [flag(NDR_NOALIGN)] struct {
+    EXORGINFO_OrgFlags  OrgFlags;
+  } AUX_EXORGINFO;
+
+  typedef [public,nodiscriminant,flag(NDR_NOALIGN)] union {
+    [case(AUX_TYPE_PERF_REQUESTID)]   AUX_PERF_REQUESTID    AuxiliaryPerfRequestId;
+    [case(AUX_TYPE_PERF_CLIENTINFO)] AUX_PERF_CLIENTINFO   AuxiliaryPerfClientInfo;
+    [case(AUX_TYPE_PERF_SERVERINFO)]  AUX_PERF_SERVERINFO   AuxiliaryPerfServerInfo;
+    [case(AUX_TYPE_PERF_SESSIONINFO)] AUX_PERF_SESSIONINFO    AuxiliaryPerfSessionInfo;
+    [case(AUX_TYPE_PERF_DEFMDB_SUCCESS)]  AUX_PERF_DEFMDB_SUCCESS   AuxiliaryPerfDefmdbSuccess;
+    [case(AUX_TYPE_PERF_DEFGC_SUCCESS)] AUX_PERF_DEFGC_SUCCESS    AuxiliaryPerfDefgcSuccess;
+    [case(AUX_TYPE_PERF_MDB_SUCCESS)] AUX_PERF_MDB_SUCCESS    AuxiliaryPerfMdbSuccess;
+    [case(AUX_TYPE_PERF_GC_SUCCESS)]  AUX_PERF_GC_SUCCESS   AuxiliaryPerfGcSuccess;
+    [case(AUX_TYPE_PERF_FAILURE)]   AUX_PERF_FAILURE    AuxiliaryPerfFailure;
+    [case(AUX_TYPE_CLIENT_CONTROL)]   AUX_CLIENT_CONTROL    AuxiliaryClientControl;
+    [case(AUX_TYPE_PERF_PROCESSINFO)] AUX_PERF_PROCESSINFO    AuxiliaryPerfProcessInfo;
+    [case(AUX_TYPE_PERF_BG_DEFMDB_SUCCESS)] AUX_PERF_DEFMDB_SUCCESS   AuxiliaryPerfBgDefmdbSuccess;
+    [case(AUX_TYPE_PERF_BG_DEFGC_SUCCESS)]  AUX_PERF_DEFGC_SUCCESS    AuxiliaryPerfBgDefgcSuccess;
+    [case(AUX_TYPE_PERF_BG_MDB_SUCCESS)]  AUX_PERF_MDB_SUCCESS    AuxiliaryPerfBgMdbSuccess;
+    [case(AUX_TYPE_PERF_BG_GC_SUCCESS)] AUX_PERF_GC_SUCCESS   AuxiliaryPerfBgGcSuccess;
+    [case(AUX_TYPE_PERF_BG_FAILURE)]  AUX_PERF_FAILURE    AuxiliaryPerfBgFailure;
+    [case(AUX_TYPE_PERF_FG_DEFMDB_SUCCESS)] AUX_PERF_DEFMDB_SUCCESS   AuxiliaryPerfFgDefmdbSuccess;
+    [case(AUX_TYPE_PERF_FG_DEFGC_SUCCESS)]  AUX_PERF_DEFGC_SUCCESS    AuxiliaryPerfFgDefgcSuccess;
+    [case(AUX_TYPE_PERF_FG_MDB_SUCCESS)]  AUX_PERF_MDB_SUCCESS    AuxiliaryPerfFgMdbSuccess;
+    [case(AUX_TYPE_PERF_FG_GC_SUCCESS)] AUX_PERF_GC_SUCCESS   AuxiliaryPerFGGCSuccess;
+    [case(AUX_TYPE_PERF_FG_FAILURE)]  AUX_PERF_FAILURE    AuxiliaryPerfFgFailure;
+    [case(AUX_TYPE_OSVERSIONINFO)]    AUX_OSVERSIONINFO   AuxiliaryOSVersionInfo;
+    [case(AUX_TYPE_EXORGINFO)]    AUX_EXORGINFO     AuxiliaryEXOrgInfo;
+    [default][flag(NDR_REMAINING|NDR_NOALIGN)] DATA_BLOB  Payload;
+  } AuxDataVersion1;
+
+  typedef [public,nodiscriminant,flag(NDR_NOALIGN)] union {
+    [case(AUX_TYPE_PERF_REQUESTID)]   AUX_PERF_REQUESTID    AuxiliaryPerfRequestId;
+    [case(AUX_TYPE_PERF_CLIENTINFO)] AUX_PERF_CLIENTINFO   AuxiliaryPerfClientInfo;
+    [case(AUX_TYPE_PERF_SERVERINFO)]  AUX_PERF_SERVERINFO   AuxiliaryPerfServerInfo;
+    [case(AUX_TYPE_PERF_SESSIONINFO_2)] AUX_PERF_SESSIONINFO_V2   AuxiliaryPerfSessioninfo;  /* V2 specific */
+    [case(AUX_TYPE_PERF_DEFMDB_SUCCESS)]  AUX_PERF_DEFMDB_SUCCESS   AuxiliaryPerfDefmdbSuccess;
+    [case(AUX_TYPE_PERF_DEFGC_SUCCESS)] AUX_PERF_DEFGC_SUCCESS    AuxiliaryPerfDefgcSuccess;
+    [case(AUX_TYPE_PERF_MDB_SUCCESS_2)] AUX_PERF_MDB_SUCCESS_V2   AuxiliaryPerfMdbSuccess;  /* V2 specific */
+    [case(AUX_TYPE_PERF_GC_SUCCESS_2)]  AUX_PERF_GC_SUCCESS_V2    AuxiliaryPerfGcSuccess;   /* V2 specific */
+    [case(AUX_TYPE_PERF_FAILURE_2)]   AUX_PERF_FAILURE_V2   AuxiliaryPerfFailure;    /* V2 specific*/
+    [case(AUX_TYPE_CLIENT_CONTROL)]   AUX_CLIENT_CONTROL    AuxiliaryPerf;
+    [case(AUX_TYPE_PERF_PROCESSINFO_2)] AUX_PERF_PROCESSINFO    AuxiliaryPerfProcessInfo;
+    [case(AUX_TYPE_PERF_BG_DEFMDB_SUCCESS)] AUX_PERF_DEFMDB_SUCCESS   AuxiliaryPerfBgDefmdbSuccess;
+    [case(AUX_TYPE_PERF_BG_DEFGC_SUCCESS)]  AUX_PERF_DEFGC_SUCCESS    AuxiliaryPerfBgDefgcSuccess;
+    [case(AUX_TYPE_PERF_BG_MDB_SUCCESS_2)]  AUX_PERF_MDB_SUCCESS_V2    AuxiliaryPerfBgMdbSuccess;
+    [case(AUX_TYPE_PERF_BG_GC_SUCCESS_2)] AUX_PERF_GC_SUCCESS   AuxiliaryPerfBgGcSuccess;
+    [case(AUX_TYPE_PERF_BG_FAILURE_2)]  AUX_PERF_FAILURE    AuxiliaryPerfBgFailure;
+    [case(AUX_TYPE_PERF_FG_DEFMDB_SUCCESS)] AUX_PERF_DEFMDB_SUCCESS   AuxiliaryPerfFgDefmdbSuccess;
+    [case(AUX_TYPE_PERF_FG_DEFGC_SUCCESS)]  AUX_PERF_DEFGC_SUCCESS    AuxiliaryPerfFgDefgcSuccess;
+    [case(AUX_TYPE_PERF_FG_MDB_SUCCESS_2)]  AUX_PERF_MDB_SUCCESS    AuxiliaryPerfFgMdbSuccess;
+    [case(AUX_TYPE_PERF_FG_GC_SUCCESS_2)] AUX_PERF_GC_SUCCESS   AuxiliaryPerFGGCSuccess;
+    [case(AUX_TYPE_PERF_FG_FAILURE_2)]  AUX_PERF_FAILURE    AuxiliaryPerfFgFailure;
+    [case(AUX_TYPE_OSVERSIONINFO)]    AUX_OSVERSIONINFO   AuxiliaryOSVersionInfo;
+    [case(AUX_TYPE_EXORGINFO)]    AUX_EXORGINFO     AuxiliaryEXOrgInfo;
+    [default][flag(NDR_REMAINING|NDR_NOALIGN)] DATA_BLOB  Payload;
+  } AuxDataVersion2;
+
+  typedef [public,switch_type(uint8)] union {
+    [case(AUX_VERSION_1)] AuxDataVersion1 Version1;
+    [case(AUX_VERSION_2)] AuxDataVersion2 Version2;
+    [default];
+  } AUX_DATA;
+
+  typedef [public,nopull,noprint,flag(NDR_NOALIGN)] struct {
+    uint16                Size;
+    AUX_VERSION           Version;
+    
+    /* Switch based on the version. Not really a union in NDR */
+    [switch_is(Version)]  AUX_HEADER_TYPE_ENUM  hdrType;
+
+    /* Switch based on the version and header type */
+    AUX_DATA  AuxData ;
+  } AUX_HEADER;
+
+  typedef [public,bitmap16bit] bitmap {
+    RHEF_Compressed = 0x0001,
+    RHEF_XorMagic   = 0x0002,
+    RHEF_Last       = 0x0004
+  } RPC_HEADER_EXT_Flags;
+ 
+  typedef [public] struct {
+    uint16      Version;
+    RPC_HEADER_EXT_Flags  Flags;
+    uint16      Size;
+    uint16      SizeActual;
+  } RPC_HEADER_EXT;
+
+  typedef [public,nopull,noprint] struct {
+    uint32 auxInSize;
+    RPC_HEADER_EXT RPC_HEADER_EXT;
+    AUX_HEADER  auxHeader[0]; /* Plain LZ77 Compressed */
+  } AuxInfo;
+
+  typedef [public,nopull,noprint] struct {
+    RPC_HEADER_EXT RPC_HEADER_EXT;
+    AUX_HEADER  auxHeader[0]; /* Plain LZ77 Compressed */
+  } AuxInfoOut;
+
+  WERROR mapi_EcDoConnectEx(
+    [out]                       policy_handle *handle,
+    [in,string,charset(DOS)]    uint8         szUserDN[],
+    [in]        uint32          ulFlags,
+    [in]        uint32          ulConMod,
+    [in]        uint32          cbLimit,
+    [in]        uint32          ulCpid,
+    [in]        uint32          ulLcidString,
+    [in]        uint32          ulLcidSort,
+    [in]        uint32          ulIcxrLink,
+    [in]        uint16          usFCanConvertCodePages,
+    [out]       uint32          *pcmsPollsMax,
+    [out]       uint32          *pcRetry,
+    [out]       uint32          *pcmsRetryDelay,
+    [out]       uint32          *picxr,
+    [out,unique,ref,string,charset(DOS)]uint8         **szDNPrefix,
+    [out,unique,ref,string,charset(DOS)]uint8         **szDisplayName,
+    [in]        uint16          rgwClientVersion[3],
+    [out]       uint16          rgwServerVersion[3],
+    [out]       uint16          rgwBestVersion[3],
+    [in,out]      uint32          *pulTimeStamp,
+    [in,represent_as(4),flag(NDR_NOALIGN|NDR_REMAINING)] AuxInfo  *rgbAuxIn,
+    [in]        uint32          cbAuxIn,
+    [out,size_is(*pcbAuxOut),length_is(0)] AuxInfoOut *rgbAuxOut,
+    [in,out][range(0,0x1008)] uint32       *pcbAuxOut
+    );
+
+  /******************/
+  /* Function: 0x0b */
+
+  typedef [noprint, bitmap32bit] bitmap {
+    NoCompression = 0x00000001,
+    NoXorMagic    = 0x00000002,
+    Chain         = 0x00000004
+  } RpcExt2Flags;
+
+  WERROR mapi_EcDoRpcExt2(
+    [in, out, ref]      policy_handle * pcxh,
+    [in, out]           RpcExt2Flags *pulFlags,
+    [in, size_is(cbIn)] uint8 *rgbIn,
+    [in]                uint32 cbIn,
+    [out, length_is(*pcbOut), size_is(*pcbOut)] uint8 *rgbOut,
+    [in, out] [range(0x0, 0x40000)] uint32 *pcbOut,
+    [in,represent_as(4),flag(NDR_NOALIGN|NDR_REMAINING)] AuxInfo  *rgbAuxIn,
+    [in] uint32 cbAuxIn,
+    [out,size_is(*pcbAuxOut),length_is(0)] AuxInfoOut *rgbAuxOut,
+    [in, out] [range(0x0, 0x1008)] uint32 *pcbAuxOut,
+    [out] uint32 *pulTransTime
+    );
+
+  /******************/
+  /* Function: 0x0c */
+  WERROR mapi_EcDoAsyncConnect(
+    [in] policy_handle *cxh,
+    [out, ref] policy_handle * pacxh
+    );
+
+  /******************/
+  /* Function: 0x0d */
+  WERROR mapi_EcDoAsyncWait(
+    [in] policy_handle *cxh,
+    [in] long ulFlagsIn, 
+    [out] long *pulFlagsOut
+    );
+
+  /******************/
+  /* Function: 0x0e */
+  WERROR mapi_EcDoAsyncConnectEx(
+    [in] policy_handle *cxh,
+    [out, ref] policy_handle * pacxh
+    );
 }
-

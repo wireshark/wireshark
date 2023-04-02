@@ -126,15 +126,6 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'epan/dissectors/pidl/idl_types.h': [
         'UNKNOWN',
     ],
-    # Written by Ronnie Sahlberg and correctly licensed, but cannot include
-    # a license header despite the file extension as they need to be
-    # parsed by the pidl tool
-    'epan/dissectors/pidl/mapi/request.cnf.c': [
-        'UNKNOWN',
-    ],
-    'epan/dissectors/pidl/mapi/response.cnf.c': [
-        'UNKNOWN',
-    ],
     # The following tools are under incompatible licenses (mostly GPLv3 or
     # GPLv3+), but this is OK since they are not actually linked into Wireshark
     'tools/pidl': [
