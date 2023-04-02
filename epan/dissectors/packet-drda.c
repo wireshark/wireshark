@@ -94,8 +94,20 @@ static int hf_drda_monitor_reserved = -1;
 static int hf_drda_etime = -1;
 static int hf_drda_respktsz = -1;
 static int hf_drda_rdbinttkn = -1;
+static int hf_drda_rdbcmtok = -1;
+static int hf_drda_rdbcolid = -1;
+static int hf_drda_rdbcolid_ebcdic = -1;
+static int hf_drda_pkgid = -1;
+static int hf_drda_pkgid_ebcdic = -1;
+static int hf_drda_pkgsn = -1;
+static int hf_drda_pkgcnstkn = -1;
+static int hf_drda_rtnsetstt = -1;
+static int hf_drda_rdbnam = -1;
+static int hf_drda_rdbnam_ebcdic = -1;
+static int hf_drda_outexp = -1;
 static int hf_drda_qryblksz = -1;
 static int hf_drda_uowdsp = -1;
+static int hf_drda_rdbalwupd = -1;
 static int hf_drda_sqlcsrhld = -1;
 static int hf_drda_qryextdtasz = -1;
 static int hf_drda_smldtasz = -1;
@@ -103,9 +115,19 @@ static int hf_drda_meddtasz = -1;
 static int hf_drda_trgdftrt = -1;
 static int hf_drda_rtnsqlda = -1;
 static int hf_drda_qryattupd = -1;
+static int hf_drda_qryrowset = -1;
 static int hf_drda_qryinsid = -1;
+static int hf_drda_qryclsimp = -1;
 static int hf_drda_qryblkfct = -1;
+static int hf_drda_maxrslcnt = -1;
+static int hf_drda_maxblkext = -1;
+static int hf_drda_rslsetflg = -1;
+static int hf_drda_rslsetflg_unused = -1;
+static int hf_drda_rslsetflg_dsconly = -1;
+static int hf_drda_rslsetflg_extended = -1;
+static int hf_drda_rslsetflg_reserved = -1;
 static int hf_drda_typsqlda = -1;
+static int hf_drda_outovropt = -1;
 static int hf_drda_dyndtafmt = -1;
 static int hf_drda_pktobj = -1;
 
@@ -114,6 +136,7 @@ static gint ett_drda_ddm = -1;
 static gint ett_drda_ddm_format = -1;
 static gint ett_drda_param = -1;
 static gint ett_drda_monitor = -1;
+static gint ett_drda_rslsetflg = -1;
 
 static expert_field ei_drda_opcode_invalid_length = EI_INIT;
 
@@ -226,6 +249,8 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_RDBCMTOK      0x2105
 #define DRDA_CP_RDBCOLID      0x2108
 #define DRDA_CP_PKGID         0x2109
+#define DRDA_CP_PKGNAM        0x210A
+#define DRDA_CP_PKGSN         0x210C
 #define DRDA_CP_PKGCNSTKN     0x210D
 #define DRDA_CP_RTNSETSTT     0x210E
 #define DRDA_CP_RDBACCCL      0x210F
@@ -441,6 +466,8 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_RDBCMTOK,     "RDB Commit Allowed" },
     { DRDA_CP_RDBCOLID,     "RDB Collection Identifier" },
     { DRDA_CP_PKGID,        "RDB Package Identifier" },
+    { DRDA_CP_PKGNAM,       "RDB Package Name" },
+    { DRDA_CP_PKGSN,        "RDB Package Section Number" },
     { DRDA_CP_PKGCNSTKN,    "RDB Package Consistency Token" },
     { DRDA_CP_RTNSETSTT,    "Return SET Statement" },
     { DRDA_CP_RDBACCCL,     "RDB Access Manager Class" },
@@ -645,6 +672,8 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_RDBCMTOK,     "RDBCMTOK" },
     { DRDA_CP_RDBCOLID,     "RDBCOLID" },
     { DRDA_CP_PKGID,        "PKGID" },
+    { DRDA_CP_PKGNAM,       "PKGNAM" },
+    { DRDA_CP_PKGSN,        "PKGSN" },
     { DRDA_CP_PKGCNSTKN,    "PKGCNSTKN" },
     { DRDA_CP_RTNSETSTT,    "RTNSETSTT" },
     { DRDA_CP_RDBACCCL,     "RDBACCCL" },
@@ -761,6 +790,12 @@ static const value_string drda_boolean_vals[] = {
     { 0, NULL }
 };
 
+static const value_string drda_max_vals[] =
+{
+    { -1, "Unlimited"},
+    {  0, NULL }
+};
+
 static const value_string drda_secmec_vals[] = {
     { 1, "DCESEC - Distributed Computing Environment" },
     { 3, "USRIDPWD - User ID and Password" },
@@ -856,10 +891,15 @@ dissect_drda_secchkcd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
  * https://web.archive.org/web/20160304082631/http://www-01.ibm.com/software/globalization/g11n-res.html
  */
 static const value_string drda_ccsid_vals[] = {
-    {   37, "IBM037" },
+    {    0, "Unsupported; use CCSID 500" },
+    {   37, "IBM037" }, /* EBCDIC US */
     {  367, "US-ASCII" },
+    {  500, "IBM500" }, /* EBCDIC Latin-1 */
+    {  819, "ISO-8859-1" },
+    {  850, "IBM850" }, /* DOS Latin-1 */
     { 1200, "UTF-16" },
     { 1208, "UTF-8" },
+    { 65535, "Requested CCSID unsupported" },
     { 0, NULL }
 };
 
@@ -909,6 +949,115 @@ dissect_drda_rdbinttkn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 
 static int
+dissect_drda_rdbcmtok(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_rdbcmtok, tvb, 0, 1, ENC_NA);
+    return 1;
+}
+
+static int
+dissect_drda_pkgnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item *ti_length;
+    int offset = 0;
+    guint32 length;
+
+    /* The PKGNAMCSN can have one of the following two formats depending on the
+     * length of the RDBNAM, RDBCOLID, and PKGID contained therein:
+     * * RDBNAM, RDBCOLID, and PKGID all have a length of 18.
+     *   [Possibly right padded with blank spaces.]
+     *   This format of the PKGNAMCSN is identical to the sole format used prior
+     *   to DDM Level 7 where the length is fixed at 58. The use of the SCLDTALEN
+     *   is disallowed with this format.
+     * * At least one of RDBNAM, RDBCOLID, and PKGID has a length > 18.
+     *   This format of the PKGNAMCSN mandates the SCLDTALEN to precede each of
+     *   the RDBNAM, RDBCOLID, and PKGID. With this format, the PKGNAMCSN has a
+     *   minimum length of 65 and a maximum length of 775.
+     */
+    if (tvb_reported_length(tvb) == 54) {
+        /* 58 - 4 bytes for the code point and length already removed. */
+        proto_tree_add_item(tree, hf_drda_rdbnam, tvb, offset, 18, ENC_UTF_8);
+        proto_tree_add_item(tree, hf_drda_rdbnam_ebcdic, tvb, offset, 18, ENC_EBCDIC);
+        offset += 18;
+        proto_tree_add_item(tree, hf_drda_rdbcolid, tvb, offset, 18, ENC_UTF_8);
+        proto_tree_add_item(tree, hf_drda_rdbcolid_ebcdic, tvb, offset, 18, ENC_EBCDIC);
+        offset += 18;
+        proto_tree_add_item(tree, hf_drda_pkgid, tvb, offset, 18, ENC_UTF_8);
+        proto_tree_add_item(tree, hf_drda_pkgid_ebcdic, tvb, offset, 18, ENC_EBCDIC);
+        offset += 18;
+    } else if (tvb_reported_length(tvb) > 64) {
+        ti_length = proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+        if (length < 18 || length > 255) {
+            expert_add_info_format(pinfo, ti_length, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be 18-255 bytes long", length);
+        }
+        offset += 2;
+        proto_tree_add_item(tree, hf_drda_rdbnam, tvb, offset, length, ENC_UTF_8);
+        proto_tree_add_item(tree, hf_drda_rdbnam_ebcdic, tvb, offset, length, ENC_EBCDIC);
+        offset += length;
+        ti_length = proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+        if (length < 18 || length > 255) {
+            expert_add_info_format(pinfo, ti_length, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be 18-255 bytes long", length);
+        }
+        offset += 2;
+        proto_tree_add_item(tree, hf_drda_rdbcolid, tvb, offset, length, ENC_UTF_8);
+        proto_tree_add_item(tree, hf_drda_rdbcolid_ebcdic, tvb, offset, length, ENC_EBCDIC);
+        offset += length;
+        ti_length = proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+        if (length < 18 || length > 255) {
+            expert_add_info_format(pinfo, ti_length, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be 18-255 bytes long", length);
+        }
+        offset += 2;
+        proto_tree_add_item(tree, hf_drda_pkgid, tvb, offset, length, ENC_UTF_8);
+        proto_tree_add_item(tree, hf_drda_pkgid_ebcdic, tvb, offset, length, ENC_EBCDIC);
+        offset += length;
+    } else {
+        proto_tree_add_expert_format(tree, pinfo, &ei_drda_opcode_invalid_length, tvb, 0, tvb_reported_length(tvb), "Invalid length; RDBNAM, RDBCOLID, and PKGID should all be length 18 or larger.");
+    }
+
+    return offset;
+}
+
+static int
+dissect_drda_rtnsetstt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_rtnsetstt, tvb, 0, 1, ENC_NA);
+    return 1;
+}
+
+static int
+dissect_drda_outexp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_outexp, tvb, 0, 1, ENC_NA);
+    return 1;
+}
+
+static int
+dissect_drda_pkgnamct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int offset;
+
+    offset = dissect_drda_pkgnam(tvb_new_subset_length(tvb, 0, tvb_reported_length_remaining(tvb, 8)), pinfo, tree, data);
+
+    proto_tree_add_item(tree, hf_drda_pkgcnstkn, tvb, offset, 8, ENC_UTF_8);
+    offset += 8;
+
+    return offset;
+}
+
+static int
+dissect_drda_pkgnamcsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int offset;
+
+    offset = dissect_drda_pkgnamct(tvb_new_subset_length(tvb, 0, tvb_reported_length_remaining(tvb, 2)), pinfo, tree, data);
+
+    proto_tree_add_item(tree, hf_drda_pkgsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int
 dissect_drda_qryblksz(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree_add_item(tree, hf_drda_qryblksz, tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -926,6 +1075,13 @@ static int
 dissect_drda_uowdsp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree_add_item(tree, hf_drda_uowdsp, tvb, 0, 1, ENC_NA);
+    return 1;
+}
+
+static int
+dissect_drda_rdbalwupd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_rdbalwupd, tvb, 0, 1, ENC_NA);
     return 1;
 }
 
@@ -993,6 +1149,13 @@ dissect_drda_qryattupd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 
 static int
+dissect_drda_qryrowset(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_qryrowset, tvb, 0, 4, ENC_BIG_ENDIAN);
+    return 4;
+}
+
+static int
 dissect_drda_qryinsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     /* Query Instance Identifier (QRYINSID) uniquely identifies the instance of
@@ -1003,10 +1166,62 @@ dissect_drda_qryinsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     return tvb_reported_length(tvb);
 }
 
+static const value_string drda_qryclsimp_vals[] = {
+    { 0, "Target server determines whether to implicitly close the cursor or not upon SQLSTATE 02000 based on the cursor type" },
+    { 1, "Target server must implicitly close the cursor upon SQLSTATE 02000" },
+    { 2, "Target server must not implicitly close the cursor upon SQLSTATE 02000" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_qryclsimp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_qryclsimp, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
+}
+
 static int
 dissect_drda_qryblkfct(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree_add_item(tree, hf_drda_qryblkfct, tvb, 0, 4, ENC_BIG_ENDIAN);
+    return 4;
+}
+
+static int
+dissect_drda_maxrslcnt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_maxrslcnt, tvb, 0, 2, ENC_BIG_ENDIAN);
+    return 2;
+}
+
+static int
+dissect_drda_maxblkext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_maxblkext, tvb, 0, 2, ENC_BIG_ENDIAN);
+    return 2;
+}
+
+static const value_string drda_rslsetflg_extended_vals[] =
+{
+    { 0, "Standard SQLDA" },
+    { 1, "Extended SQLDA" },
+    { 2, "Light SQLDA" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_rslsetflg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const rslsetflg_fields[] = {
+        &hf_drda_rslsetflg_unused,
+        &hf_drda_rslsetflg_dsconly,
+        &hf_drda_rslsetflg_extended,
+        &hf_drda_rslsetflg_reserved,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, 0, hf_drda_rslsetflg, ett_drda_rslsetflg,
+        rslsetflg_fields, ENC_BIG_ENDIAN);
     return 4;
 }
 
@@ -1024,6 +1239,20 @@ static int
 dissect_drda_typsqlda(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree_add_item(tree, hf_drda_typsqlda, tvb, 0, 1, ENC_BIG_ENDIAN);
+    return 1;
+}
+
+static const value_string drda_outovropt_vals[] = {
+    { 1, "OUTOVRFRS - Output Override Allowed on First CNTQRY" },
+    { 2, "OUTOVRANY - Output Override Allowed on Any CNTQRY" },
+    { 3, "OUTOVRNON - Output Override Not Allowed, and MINLVL is 8" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_outovropt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_outovropt, tvb, 0, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
@@ -1058,7 +1287,44 @@ dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
                         ett_drda_param, &ti, DRDA_TEXT_PARAM);
         proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
         proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(drda_tree_sub, hf_drda_mgrlvln, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        switch (iParameterCP) {
+
+        case DRDA_CP_CCSIDMGR:
+        case DRDA_CP_UNICODEMGR:
+            /* The default CCSID for DRDA is 500 (EBCDIC Latin-1).
+             * These two code points are used to propose (in an EXCSAT
+             * command's MGRLVLLS parameter) and accept (in an EXCSATRD
+             * command's MGRLVLLS parameter) a CSSID to be used for all
+             * character data for DDM parameters. (*Not*, note, for the
+             * FD:OCA (SQL statements and the like), which are governed
+             * by TYPDEFNAM and TYPDEFOVR as contained in ACCRDB and ACCRDBRM
+             * - note that they can be different in the two directions.)
+             *
+             * A 0 reply in an EXCSATRD means rejection of the request, and
+             * EBCDIC code page 500 (Latin-1) must be used. A 0xFFFF reply
+             * in an EXCSATRD means "I do support CCSIDMGR, but not the code
+             * page you requested, try again."
+             *
+             * UNICODEMGR and CCSIDMGR are mutually exclusive.
+             * UNICODEMGR should only use 1208 (UTF-8) or 0. CCSIDMGR must
+             * support 500 (EBCDIC Latin-1), 819 (ISO 8859-1), and 850
+             * (IBM PC-DOS ASCII Latin-1), and can support others.
+             * If the server replies with a 0 to UNICODEMGR, the client can
+             * try again with a CCSIDMGR.
+             *
+             * We could perhaps eventually use this in conversation data to
+             * determine which encoding to use for character data (now we
+             * show both UTF-8 and our implentation of the invariant subset
+             * of EBCDIC, as we don't have CCSID 500 support, but it's not
+             * that different from 037), and also separately use TYPDEFNAM
+             * and TYPDEFOVR for FD:OCA.
+             */
+            proto_tree_add_item(drda_tree_sub, hf_drda_ccsid, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            break;
+
+        default:
+            proto_tree_add_item(drda_tree_sub, hf_drda_mgrlvln, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        }
         offset += iLengthParam;
     }
 
@@ -1395,6 +1661,62 @@ proto_register_drda(void)
             NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_drda_rdbcmtok,
+          { "RDB Commit Allowed", "drda.rdbcmtok", FT_UINT8, BASE_NONE,
+            VALS(drda_boolean_vals), 0x0,
+            NULL, HFILL }},
+
+        /* This one is a 0x00 0x01 boolean, not a EBCDIC 0xf0 0xf1 boolean */
+        { &hf_drda_rtnsetstt,
+          { "Return SET Statement", "drda.rdbinttkn", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_outexp,
+          { "Output Expected", "drda.rdbcmtok", FT_UINT8, BASE_NONE,
+            VALS(drda_boolean_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rdbnam,
+          { "Relational Database Name (ASCII)", "drda.rdbnam", FT_STRING,
+            BASE_NONE, NULL, 0x0,
+            "RDBNAM assuming ASCII/UTF-8", HFILL }},
+
+        { &hf_drda_rdbnam_ebcdic,
+          { "Relational Database Name (EBCDIC)", "drda.rdbnam.ebcdic", FT_STRING,
+            BASE_NONE, NULL, 0x0,
+            "RBDNAM assuming EBCDIC", HFILL }},
+
+        { &hf_drda_rdbcolid,
+          { "RDB Collection Identifier (ASCII)", "drda.rdbcoldid", FT_STRING,
+            BASE_NONE, NULL, 0x0,
+            "RDBCOLID assuming ASCII/UTF-8", HFILL }},
+
+        { &hf_drda_rdbcolid_ebcdic,
+          { "RDB Collection Identifier (EBCDIC)", "drda.rdbcolid.ebcdic",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "RBDCOLID assuming EBCDIC", HFILL }},
+
+        { &hf_drda_pkgid,
+          { "RDB Package Identifier (ASCII)", "drda.pkgid", FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "PKGID assuming ASCII/UTF-8", HFILL }},
+
+        { &hf_drda_pkgid_ebcdic,
+          { "RDB Package Identifier (EBCDIC)", "drda.pkgid.ebcdic", FT_STRING,
+            BASE_NONE, NULL, 0x0,
+            "PKGID assuming EBCDIC", HFILL }},
+
+        { &hf_drda_pkgsn,
+          { "RDB Package Section Number", "drda.pkgsn", FT_INT16,
+            BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_pkgcnstkn,
+          { "RDB Package Consistency Token", "drda.pkgcnstkn", FT_BYTES,
+            BASE_NONE|BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_drda_qryblksz,
           { "Query Block Size", "drda.qryblksz", FT_UINT32, BASE_DEC,
             NULL, 0x0,
@@ -1403,6 +1725,11 @@ proto_register_drda(void)
         { &hf_drda_uowdsp,
           { "Unit of Work Disposition", "drda.uowdsp", FT_UINT8, BASE_HEX,
             VALS(drda_uowdsp_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rdbalwupd,
+          { "RDB Allow Updates", "drda.rdbalwupd", FT_UINT8, BASE_HEX,
+            VALS(drda_boolean_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_drda_sqlcsrhld,
@@ -1441,9 +1768,19 @@ proto_register_drda(void)
             BASE_DEC, VALS(drda_qryattupd_vals), 0x0,
             NULL, HFILL }},
 
+        { &hf_drda_qryrowset,
+          { "Query Rowset Size", "drda.qryrowset", FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_drda_qryinsid,
           { "Query Instance Identifier", "drda.qryinsid", FT_BYTES, BASE_NONE,
             NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_qryclsimp,
+          { "Query Close Implicit", "drda.qryclsimp", FT_INT8, BASE_DEC,
+            VALS(drda_qryclsimp_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_drda_qryblkfct,
@@ -1451,9 +1788,49 @@ proto_register_drda(void)
             NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_drda_maxrslcnt,
+          { "Maximum Result Set Count", "drda.maxrslcnt", FT_INT32,
+            BASE_DEC|BASE_SPECIAL_VALS, VALS(drda_max_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_maxblkext,
+          { "Maximum Number of Extra Blocks", "drda.maxblkext", FT_INT32,
+            BASE_DEC|BASE_SPECIAL_VALS, VALS(drda_max_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rslsetflg,
+          { "Result Set Flags", "drda.rslsetflg", FT_UINT8, BASE_HEX,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rslsetflg_unused,
+          { "Unused", "drda.rslsetflg.unused", FT_UINT8, BASE_HEX,
+            NULL, 0xE0,
+            "Flags are no longer used and value should be zero", HFILL }},
+
+        { &hf_drda_rslsetflg_dsconly,
+          { "Description Only", "drda.rslsetflg.dsconly", FT_BOOLEAN, 8,
+            NULL, 0x10,
+            "Requires the target SQLAM to return an FD:OCA description but not any answer set data", HFILL }},
+
+        { &hf_drda_rslsetflg_extended,
+          { "Extended", "drda.rslsetflg.extended", FT_UINT8, BASE_HEX,
+            VALS(drda_rslsetflg_extended_vals), 0x0C,
+            "Identifies the type of FD:OCA SQLDA descriptor returned", HFILL }},
+
+        { &hf_drda_rslsetflg_reserved,
+          { "Reserved", "drda.rslsetflg.reserved", FT_UINT8, BASE_HEX,
+            NULL, 0x03,
+            NULL, HFILL }},
+
         { &hf_drda_typsqlda,
           { "Type of SQL Descriptor Area", "drda.typsqlda", FT_INT8, BASE_DEC,
             VALS(drda_typsqlda_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_outovropt,
+          { "Output Override Option", "drda.outovropt", FT_INT8, BASE_DEC,
+            VALS(drda_outovropt_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_drda_dyndtafmt,
@@ -1473,6 +1850,7 @@ proto_register_drda(void)
         &ett_drda_ddm_format,
         &ett_drda_param,
         &ett_drda_monitor,
+        &ett_drda_rslsetflg,
     };
 
     static ei_register_info ei[] = {
@@ -1510,12 +1888,15 @@ proto_reg_handoff_drda(void)
 
     dissector_handle_t ccsid_handle;
     dissector_handle_t codpntdr_handle;
+    dissector_handle_t collection_handle;
 
     ccsid_handle = create_dissector_handle(dissect_drda_ccsid, proto_drda);
     codpntdr_handle = create_dissector_handle(dissect_drda_codpntdr, proto_drda);
+    collection_handle = create_dissector_handle(dissect_drda_collection, proto_drda);
 
     dissector_add_uint("drda.opcode", DRDA_CP_MGRLVLLS, create_dissector_handle(dissect_drda_mgrlvlls, proto_drda));
-    dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFOVR, create_dissector_handle(dissect_drda_collection, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFOVR, collection_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_PKGSNLST, collection_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_SECMEC, create_dissector_handle(dissect_drda_secmec, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SECTKN, create_dissector_handle(dissect_drda_sectkn, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SVRCOD, create_dissector_handle(dissect_drda_svrcod, proto_drda));
@@ -1534,18 +1915,31 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_ETIME, create_dissector_handle(dissect_drda_etime, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_RESPKTSZ, create_dissector_handle(dissect_drda_respktsz, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_RDBINTTKN, create_dissector_handle(dissect_drda_rdbinttkn, proto_drda));
-    dissector_add_uint("drda.opcode", DRDA_CP_QRYBLKSZ, create_dissector_handle(dissect_drda_qryblksz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RDBCMTOK, create_dissector_handle(dissect_drda_rdbcmtok, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RTNSETSTT, create_dissector_handle(dissect_drda_rtnsetstt, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_OUTEXP, create_dissector_handle(dissect_drda_outexp, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_PKGNAM, create_dissector_handle(dissect_drda_pkgnam, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_PKGNAMCT, create_dissector_handle(dissect_drda_pkgnamct, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_PKGNAMCSN, create_dissector_handle(dissect_drda_pkgnamcsn, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_UOWDSP, create_dissector_handle(dissect_drda_uowdsp, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RDBALWUPD, create_dissector_handle(dissect_drda_rdbalwupd, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYBLKSZ, create_dissector_handle(dissect_drda_qryblksz, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RTNSQLDA, create_dissector_handle(dissect_drda_rtnsqlda, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SQLCSRHLD, create_dissector_handle(dissect_drda_sqlcsrhld, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_QRYEXTDTASZ, create_dissector_handle(dissect_drda_qryextdtasz, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SMLDTASZ, create_dissector_handle(dissect_drda_smldtasz, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_MEDDTASZ, create_dissector_handle(dissect_drda_meddtasz, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_TRGDFTRT, create_dissector_handle(dissect_drda_trgdftrt, proto_drda));
-    dissector_add_uint("drda.opcode", DRDA_CP_RTNSQLDA, create_dissector_handle(dissect_drda_rtnsqlda, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_QRYATTUPD, create_dissector_handle(dissect_drda_qryattupd, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYROWSET, create_dissector_handle(dissect_drda_qryrowset, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_QRYINSID, create_dissector_handle(dissect_drda_qryinsid, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYCLSIMP, create_dissector_handle(dissect_drda_qryclsimp, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_QRYBLKFCT, create_dissector_handle(dissect_drda_qryblkfct, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_MAXRSLCNT, create_dissector_handle(dissect_drda_maxrslcnt, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_MAXBLKEXT, create_dissector_handle(dissect_drda_maxblkext, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_RSLSETFLG, create_dissector_handle(dissect_drda_rslsetflg, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_TYPSQLDA, create_dissector_handle(dissect_drda_typsqlda, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_OUTOVROPT, create_dissector_handle(dissect_drda_outovropt, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_DYNDTAFMT, create_dissector_handle(dissect_drda_dyndtafmt, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_PKTOBJ, create_dissector_handle(dissect_drda_pktobj, proto_drda));
 }
