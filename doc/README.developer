@@ -6,8 +6,8 @@ To learn how to write a dissector, read this first, then read the file
 README.dissector.
 
 This file is compiled to give in depth information on Wireshark.
-It is by no means all inclusive and complete. Please feel free to send
-remarks and patches to the developer mailing list.
+It is by no means all inclusive and complete. Please feel free to discuss on
+the developer mailing list or upload merge requests to gitlab.
 
 0. Prerequisites.
 
@@ -24,29 +24,31 @@ README.md files of the sources root dir.
 
 You'll find additional information in the following README files:
 
-- README.capture        - the capture engine internals
-- README.design         - Wireshark software design - incomplete
-- README.developer      - this file
-- README.dissector      - How to dissect a packet
-- README.display_filter - Display Filter Engine
-- README.idl2wrs        - CORBA IDL converter
-- README.packaging      - how to distribute a software package containing WS
-- README.regression     - regression testing of WS and TS
-- README.stats_tree     - a tree statistics counting specific packets
-- README.tapping        - "tap" a dissector to get protocol specific events
-- README.xml-output     - how to work with the PDML exported output
-- wiretap/README.developer - how to add additional capture file types to
-  Wiretap
+- doc/README.capture        - the capture engine internals
+- doc/README.design         - Wireshark software design - incomplete
+- doc/README.developer      - this file
+- doc/README.dissector      - How to dissect a packet
+- doc/README.display_filter - Display Filter Engine
+- doc/README.idl2wrs        - CORBA IDL converter
+- doc/README.regression     - regression testing of WS and TS
+- doc/README.stats_tree     - a tree statistics counting specific packets
+- doc/README.tapping        - "tap" a dissector to get protocol specific events
+- doc/README.vagrant        - how to create a development VM using vagrant
+- doc/README.wslua          - working with LUA
+- doc/README.xml-output     - how to work with the PDML exported output
+- wiretap/README.developer  - how to add additional capture file types to
+                              Wiretap
 
 0.2. Dissector related README files.
 
 You'll find additional dissector related information in the file
 README.dissector as well as the following README files:
 
-- README.heuristic      - what are heuristic dissectors and how to write them
-- README.plugins        - how to "pluginize" a dissector
-- README.request_response_tracking - how to track req./resp. times and such
-- README.wmem           - how to obtain "memory leak free" memory
+- doc/README.heuristic      - what are heuristic dissectors and how to write
+                              them
+- doc/README.plugins        - how to "pluginize" a dissector
+- doc/README.request_response_tracking - how to track req./resp. times and such
+- doc/README.wmem           - how to obtain "memory leak free" memory
 
 0.3 Contributors
 
@@ -66,7 +68,7 @@ different compilers; here are some rules for writing code that will work
 on multiple platforms.
 
 Building Wireshark requires a compiler that supports C11. This includes
-reasonably recent version of GCC and clang. Microsoft Visual Studio supports
+reasonably recent versions of GCC and clang. Microsoft Visual Studio supports
 C11 from Visual Studio 2019 version 16.8 and later. Support requires an updated
 Universal C Runtime (UCRT) and Windows SDK version to work properly with the
 conforming preprocessor. The minimum SDK version is 10.0.20348.0 (version 2104).
@@ -115,8 +117,14 @@ instead.
 
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", "u_long" or "boolean"; they aren't defined on all platforms.
-Use the fixed width integers provided in C since C99. These are defined
-in <stdint.h>.
+
+glib typedefs are used extensively throughout the codebase (gchar, guint8,
+gint16, etc).  We would like to move instead towards the fixed width integers
+provided in C since C99. These are defined in <stdint.h>. However, lots of our
+internal APIs are defined using these glib types, and it seems that even the
+glib project is finding it difficult to move away from them.  So when you
+have a choice, choose stdint types, but realise that until we can change
+our APIs, in many situations the glib types still make sense.
 
 If you want an 8-bit unsigned quantity, use "uint8_t"; if you want an
 8-bit character value with the 8th bit not interpreted as a sign bit,
@@ -429,7 +437,7 @@ own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
 Wireshark requires minimum versions of each of the libraries it uses, in
-particular GLib 2.50.0 and Qt 5.12.0 or newer. If you require a mechanism
+particular GLib 2.54.0 and Qt 5.12.0 or newer. If you require a mechanism
 that is available only in a newer version of a library then use its
 version detection macros, e.g. "#if GLIB_CHECK_VERSION(...)" and "#if
 QT_VERSION_CHECK(...)" to conditionally compile code using that
@@ -739,7 +747,7 @@ Testing using editcap can be done using preexisting capture files and the
     editcap -E 0.03 infile.pcap outfile.pcap
     tshark -nVr outfile.pcap
 
-The script fuzz-test.sh is available to help automate these tests.
+tools/fuzz-test.sh is available to help automate these tests.
 
 4. Name convention.
 
