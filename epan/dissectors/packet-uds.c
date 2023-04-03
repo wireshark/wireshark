@@ -16,6 +16,8 @@
 #include <epan/dissectors/packet-doip.h>
 #include <epan/dissectors/packet-iso10681.h>
 #include <epan/dissectors/packet-iso15765.h>
+#include <epan/dissectors/packet-ber.h>
+#include <wsutil/utf8_entities.h>
 
 void proto_register_uds(void);
 void proto_reg_handoff_uds(void);
@@ -85,6 +87,9 @@ void proto_reg_handoff_uds(void);
 #define UDS_RESPONSE_CODES_VTL      0x93
 #define UDS_RESPONSE_CODES_RTNA     0x94
 
+#define UDS_SUBFUNCTION_MASK                    0x7f
+#define UDS_SUPPRESS_POS_RSP_MSG_IND_MASK       0x80
+
 #define UDS_DSC_TYPES_DEFAULT_SESSION                   1
 #define UDS_DSC_TYPES_PROGRAMMING_SESSION               2
 #define UDS_DSC_TYPES_EXTENDED_DIAGNOSTIC_SESSION       3
@@ -137,6 +142,19 @@ void proto_reg_handoff_uds(void);
 #define UDS_RDTCI_DTC_STATUS_TEST_NOT_COMPL_THIS_OPER_CYCLE   0x40
 #define UDS_RDTCI_DTC_STATUS_WARNING_INDICATOR_REQUESTED      0x80
 
+#define UDS_RSDBI_DATA_TYPE_UNSIGNED_NUM                    0x00
+#define UDS_RSDBI_DATA_TYPE_SIGNED_NUM                      0x01
+#define UDS_RSDBI_DATA_TYPE_BITMAPPED_REPORTED_WO_MAP       0x02
+#define UDS_RSDBI_DATA_TYPE_BITMAPPED_REPORTED_WITH_MAP     0x03
+#define UDS_RSDBI_DATA_TYPE_BINARY_CODED_DECIMAL            0x04
+#define UDS_RSDBI_DATA_TYPE_STATE_ENCODED_VARIABLE          0x05
+#define UDS_RSDBI_DATA_TYPE_ASCII                           0x06
+#define UDS_RSDBI_DATA_TYPE_SIGNED_FLOAT                    0x07
+#define UDS_RSDBI_DATA_TYPE_PACKET                          0x08
+#define UDS_RSDBI_DATA_TYPE_FORMULA                         0x09
+#define UDS_RSDBI_DATA_TYPE_UNIT_FORMAT                     0x0a
+#define UDS_RSDBI_DATA_TYPE_STATE_AND_CONNECTION_TYPE       0x0b
+
 #define UDS_SA_TYPES_RESERVED                     0x00
 #define UDS_SA_TYPES_REQUEST_SEED                 0x01
 #define UDS_SA_TYPES_SEND_KEY                     0x02
@@ -145,10 +163,44 @@ void proto_reg_handoff_uds(void);
 #define UDS_SA_TYPES_SUPPLIER                     0xFE
 #define UDS_SA_TYPES_UNCLEAR                      0xFF
 
-#define UDS_IOCBI_PARAMETERS_RETURN_CONTROL_TO_ECU 0
-#define UDS_IOCBI_PARAMETERS_RESET_TO_DEFAULT      1
-#define UDS_IOCBI_PARAMETERS_FREEZE_CURRENT_STATE  2
-#define UDS_IOCBI_PARAMETERS_SHORT_TERM_ADJUSTMENT 3
+#define UDS_CC_TYPES_ENABLE_RX_AND_TX                            0
+#define UDS_CC_TYPES_ENABLE_RX_AND_DISABLE_TX                    1
+#define UDS_CC_TYPES_DISABLE_RX_AND_ENABLE_TX                    2
+#define UDS_CC_TYPES_DISABLE_RX_AND_TX                           3
+#define UDS_CC_TYPES_ENABLE_RX_AND_DISABLE_TX_WITH_ENH_ADDR_INFO 4
+#define UDS_CC_TYPES_ENABLE_RX_AND_TX_WITH_ENH_ADDR_INFO         5
+
+#define UDS_CC_COMM_TYPE_COMM_TYPE_MASK             0x03
+#define UDS_CC_COMM_TYPE_SUBNET_NUMBER_MASK         0xF0
+
+#define UDS_ARS_TYPES_DEAUTHENTICATE                0x00
+#define UDS_ARS_TYPES_VERIFY_CERT_UNIDIRECTIONAL    0x01
+#define UDS_ARS_TYPES_VERIFY_CERT_BIDIRECTIONAL     0x02
+#define UDS_ARS_TYPES_PROOF_OF_OWNERSHIP            0x03
+#define UDS_ARS_TYPES_TRANSMIT_CERTIFICATE          0x04
+#define UDS_ARS_TYPES_REQUEST_CHALLENGE_FOR_AUTH    0x05
+#define UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_UNIDIR    0x06
+#define UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR     0x07
+#define UDS_ARS_TYPES_AUTH_CONFIGURATION            0x08
+
+#define UDS_ARS_AUTH_RET_REQUEST_ACCEPTED           0x00
+#define UDS_ARS_AUTH_RET_GENERAL_REJECT             0x01
+#define UDS_ARS_AUTH_RET_AUTH_CONFIG_APCE           0x02
+#define UDS_ARS_AUTH_RET_AUTH_CONFIG_ACR_SYM        0x03
+#define UDS_ARS_AUTH_RET_AUTH_CONFIG_ACR_ASYM       0x04
+#define UDS_ARS_AUTH_RET_DEAUTH_SUCCESS             0x10
+#define UDS_ARS_AUTH_RET_CERT_VER_OWN_VER_NEC       0x11
+#define UDS_ARS_AUTH_RET_OWN_VER_AUTH_COMPL         0x12
+#define UDS_ARS_AUTH_RET_CERT_VERIFIED              0x13
+
+#define UDS_DDDI_TYPES_DEFINE_BY_IDENTIFIER         0x01
+#define UDS_DDDI_TYPES_DEFINE_BY_MEM_ADDRESS        0x02
+#define UDS_DDDI_TYPES_CLEAR_DYN_DEF_DATA_ID        0x03
+
+#define UDS_IOCBI_PARAMETERS_RETURN_CONTROL_TO_ECU  0
+#define UDS_IOCBI_PARAMETERS_RESET_TO_DEFAULT       1
+#define UDS_IOCBI_PARAMETERS_FREEZE_CURRENT_STATE   2
+#define UDS_IOCBI_PARAMETERS_SHORT_TERM_ADJUSTMENT  3
 
 #define UDS_RC_TYPES_START   1
 #define UDS_RC_TYPES_STOP    2
@@ -160,11 +212,25 @@ void proto_reg_handoff_uds(void);
 #define UDS_RD_MEMORY_ADDRESS_LENGTH_MASK       0x0F
 #define UDS_RD_MAX_BLOCK_LEN_LEN_MASK           0xF0
 
-#define UDS_TP_SUBFUNCTION_MASK                 0x7f
-#define UDS_TP_SUPPRESS_POS_RSP_MSG_IND_MASK    0x80
+#define UDS_RFT_MODE_ADD_FILE                   0x01
+#define UDS_RFT_MODE_DELETE_FILE                0x02
+#define UDS_RFT_MODE_REPLACE_FILE               0x03
+#define UDS_RFT_MODE_READ_FILE                  0x04
+#define UDS_RFT_MODE_READ_DIR                   0x05
+#define UDS_RFT_MODE_RESUME_FILE                0x06
+
+#define UDS_SDT_ADMIN_PARAM_REQ                 0x01
+#define UDS_SDT_ADMIN_PARAM_PRE_ESTABL_KEY      0x08
+#define UDS_SDT_ADMIN_PARAM_ENCRYPTED           0x10
+#define UDS_SDT_ADMIN_PARAM_SIGNED              0x20
+#define UDS_SDT_ADMIN_PARAM_SIGN_ON_RESP_REQ    0x40
 
 #define UDS_CDTCS_ACTIONS_ON  1
 #define UDS_CDTCS_ACTIONS_OFF 2
+
+#define UDS_LC_TYPES_VMTWFP 1
+#define UDS_LC_TYPES_VMTWSP 2
+#define UDS_LC_TYPES_TM     3
 
 #define UDS_DID_BSIDID          0xF180
 #define UDS_DID_ASIDID          0xF181
@@ -362,6 +428,14 @@ static const value_string uds_er_types[] = {
     {0, NULL}
 };
 
+/* CDTCI */
+static const value_string uds_cdtci_group_of_dtc[] = {
+        {0xffff33, "Emissions-system group"},
+        {0xffffd0, "Safety-system group"},
+        {0xfffffe, "VOBD system"},
+        {0, NULL}
+};
+
 /* RDTCI */
 static const value_string uds_rdtci_types[] = {
     {UDS_RDTCI_TYPES_NUMBER_BY_STATUS_MASK,     "Report Number of DTC by Status Mask"},
@@ -405,6 +479,207 @@ static const value_string uds_rdtci_format_id_types[] = {
     {0, NULL}
 };
 
+/* RSDBI */
+static const value_string uds_rsdbi_data_types[] = {
+    {UDS_RSDBI_DATA_TYPE_UNSIGNED_NUM,                  "Unsigned Numeric"},
+    {UDS_RSDBI_DATA_TYPE_SIGNED_NUM,                    "Signed Numeric"},
+    {UDS_RSDBI_DATA_TYPE_BITMAPPED_REPORTED_WO_MAP,     "Bit Mapped Reported Without Mask"},
+    {UDS_RSDBI_DATA_TYPE_BITMAPPED_REPORTED_WITH_MAP,   "Bit Mapped Reported With Mask"},
+    {UDS_RSDBI_DATA_TYPE_BINARY_CODED_DECIMAL,          "Binary Coded Decimal"},
+    {UDS_RSDBI_DATA_TYPE_STATE_ENCODED_VARIABLE,        "State Encoded Variable"},
+    {UDS_RSDBI_DATA_TYPE_ASCII,                         "ASCII"},
+    {UDS_RSDBI_DATA_TYPE_SIGNED_FLOAT,                  "Signed Floating Point"},
+    {UDS_RSDBI_DATA_TYPE_PACKET,                        "Packet"},
+    {UDS_RSDBI_DATA_TYPE_FORMULA,                       "Formula"},
+    {UDS_RSDBI_DATA_TYPE_UNIT_FORMAT,                   "Unit/Format"},
+    {UDS_RSDBI_DATA_TYPE_STATE_AND_CONNECTION_TYPE,     "State And Connection Type"},
+    {0, NULL}
+};
+
+static const value_string uds_rsdbi_formulas[] = {
+    {0, "y = C0 * x + C1"},
+    {1, "y = C0 * (x + C1)"},
+    {2, "y = C0 / (x + C1) + C2"},
+    {3, "y = x / C0 + C1"},
+    {4, "y = (x + C0) / C1"},
+    {5, "y = (x + C0) / C1 + C2"},
+    {6, "y = C0 * x"},
+    {7, "y = x / C0"},
+    {8, "y = x + C0"},
+    {9, "y = x * C0 / C1"},
+    {0, NULL}
+};
+
+static const value_string uds_rsdbi_units[] = {
+    {0x00, "No unit, no prefix"},
+    {0x01, "Metre [m]"},
+    {0x02, "Foot [ft]"},
+    {0x03, "Inch [in]"},
+    {0x04, "Yard [yd]"},
+    {0x05, "Mile (English) [mi]"},
+    {0x06, "Gram [g]"},
+    {0x07, "Ton (metric) [t]"},
+    {0x08, "Second [s]"},
+    {0x09, "Minute [m]"},
+    {0x0a, "Hour [h]"},
+    {0x0b, "Day [d]"},
+    {0x0c, "Year [y]"},
+    {0x0d, "Ampere [A]"},
+    {0x0e, "Volt [V]"},
+    {0x0f, "Coulomb [C]"},
+
+    {0x10, "Ohm [W]"}, /* sic! */
+    {0x11, "Farad [F]"},
+    {0x12, "Henry [H]"},
+    {0x13, "Siemens [S]"},
+    {0x14, "Weber [Wb]"},
+    {0x15, "Telsa [T]"},
+    {0x16, "Kelvin [K]"},
+    {0x17, "Celsius [" UTF8_DEGREE_SIGN "C]"},
+    {0x18, "Fahrenheit [" UTF8_DEGREE_SIGN "F]"},
+    {0x19, "Candela [cd]"},
+    {0x1a, "Radian [rad]"},
+    {0x1b, "Degree [" UTF8_DEGREE_SIGN "]"},
+    {0x1c, "Hertz [Hz]"},
+    {0x1d, "Joule [J]"},
+    {0x1e, "Newton [N]"},
+    {0x1f, "Kilopond [kp]"},
+
+    {0x20, "Pound force [lbf]"},
+    {0x21, "Watt [W]"},
+    {0x22, "Horse power (metric) [hk]"},
+    {0x23, "Horse power (UK and US) [hp]"},
+    {0x24, "Pascal [Pa]"},
+    {0x25, "Bar [bar]"},
+    {0x26, "Atmosphere [atm]"},
+    {0x27, "Pound force per square inch [psi]"},
+    {0x28, "Becqerel [Bq]"},
+    {0x29, "Lumen [lm]"},
+    {0x2a, "Lux [lx]"},
+    {0x2b, "Litre [l]"},
+    {0x2c, "Gallon (British)"},
+    {0x2d, "Gallon (US liq)"},
+    {0x2e, "Cubic inch [cu in]"},
+    {0x2f, "Meter per second [m/s]"},
+
+    {0x30, "Kilometer per hour [km/h]"},
+    {0x31, "Mile per hour [mph]"},
+    {0x32, "Revolutions per second [rps]"},
+    {0x33, "Revolutions per minute [rpm]"},
+    {0x34, "Counts"},
+    {0x35, "Percent"},
+    {0x36, "Milligram per stroke [mg/stroke]"},
+    {0x37, "Meter per square second [m/s" UTF8_SUPERSCRIPT_TWO "]"},
+    {0x38, "Newton meter [Nm]"},
+    {0x39, "Litre per minute [l/min]"},
+    {0x3a, "Watt per square meter [w/m" UTF8_SUPERSCRIPT_TWO "]"},
+    {0x3b, "Bar per second [bar/s]"},
+    {0x3c, "Radians per second [rad/s]"},
+    {0x3d, "Radians per square second [rad/s" UTF8_SUPERSCRIPT_TWO "]"},
+    {0x3e, "Kilogram per square meter [kg/m" UTF8_SUPERSCRIPT_TWO "]"},
+    {0x3f, "*reserved*"},
+
+    {0x40, "Exa (prefix) [E]"},
+    {0x41, "Peta (prefix) [P]"},
+    {0x42, "Tera (prefix) [T]"},
+    {0x43, "Giga (prefix) [G]"},
+    {0x44, "Mega (prefix) [M]"},
+    {0x45, "Kilo (prefix) [k]"},
+    {0x46, "Hecto (prefix) [h]"},
+    {0x47, "Deca (prefix) [da]"},
+    {0x48, "Deci (prefix)  [d]"},
+    {0x49, "Centi (prefix) [c]"},
+    {0x4a, "Milli (prefix) [m]"},
+    {0x4b, "Micro (prefix) [m]"}, /* SIC! */
+    {0x4c, "Nano (prefix) [n]"},
+    {0x4d, "Pico (prefix) [p]"},
+    {0x4e, "Femto (prefix) [f]"},
+    {0x4f, "Atto (prefix) [a]"},
+
+    {0x50, "Date1 (Year-Month-Day)"},
+    {0x51, "Date2 (Day/Month/Year)"},
+    {0x52, "Date3 (Month/Day/Year)"},
+    {0x53, "Week (calender week)"},
+    {0x54, "Time1 (UTC Hour/Minute/Second)"},
+    {0x55, "Time2 (Hour/Minute/Second)"},
+    {0x56, "DateAndTime1 (Second/Minute/Hour/Day/Month/Year)"},
+    {0x57, "DateAndTime2 (Second/Minute/Hour/Day/Month/Year/Local minute offset/Local hour offset)"},
+    {0x58, "DateAndTime3 (Second/Minute/Hour/Month/Day/Year)"},
+    {0x59, "DateAndTime4 (Second/Minute/Hour/Month/Day/Year/Local minute offset/Local hour offset)"},
+    {0, NULL}
+};
+
+/* CC */
+static const value_string uds_cc_types[] = {
+    {UDS_CC_TYPES_ENABLE_RX_AND_TX,                             "Enable RX and TX"},
+    {UDS_CC_TYPES_ENABLE_RX_AND_DISABLE_TX,                     "Enable RX and Disable TX"},
+    {UDS_CC_TYPES_DISABLE_RX_AND_ENABLE_TX,                     "Disable RX and Enable TX"},
+    {UDS_CC_TYPES_DISABLE_RX_AND_TX,                            "Disable RX and TX"},
+    {UDS_CC_TYPES_ENABLE_RX_AND_DISABLE_TX_WITH_ENH_ADDR_INFO,  "Enable RX and Disable TX with Enhanced Address Information"},
+    {UDS_CC_TYPES_ENABLE_RX_AND_TX_WITH_ENH_ADDR_INFO,          "Enable RX and TX with Enhanced Address Information"},
+    {0, NULL}
+};
+
+static const value_string uds_cc_comm_types[] = {
+    {0, "Reserved"},
+    {1, "Normal Communication Messages"},
+    {2, "Network Management Communication Messages"},
+    {3, "Network Management and Normal Communication Messages"},
+    {0, NULL}
+};
+
+static const value_string uds_cc_subnet_number_types[] = {
+    {0x0, "Disable/Enable specified Communication Type "},
+    /* 0x1 .. 0xe specific subnets numbers */
+    {0xf, "Disable/Enable network which request is received on"},
+    {0, NULL}
+};
+
+/* ARS */
+static const value_string uds_ars_types[] = {
+    {UDS_ARS_TYPES_DEAUTHENTICATE,              "DeAuthenticate"},
+    {UDS_ARS_TYPES_VERIFY_CERT_UNIDIRECTIONAL,  "Verify Certificate Unidirectional"},
+    {UDS_ARS_TYPES_VERIFY_CERT_BIDIRECTIONAL,   "Verify Certificate Bidirectional"},
+    {UDS_ARS_TYPES_PROOF_OF_OWNERSHIP,          "Proof of Ownership"},
+    {UDS_ARS_TYPES_TRANSMIT_CERTIFICATE,        "Transmit Certificate"},
+    {UDS_ARS_TYPES_REQUEST_CHALLENGE_FOR_AUTH,  "Request Challenge for Authentication"},
+    {UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_UNIDIR,  "Verify Proof of Ownership Unidirectional"},
+    {UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR,   "Verify Proof of Ownership Bidirectional"},
+    {UDS_ARS_TYPES_AUTH_CONFIGURATION,          "Authentication Configuration"},
+    {0, NULL}
+};
+
+static const value_string uds_ars_auth_ret_types[] = {
+    {UDS_ARS_AUTH_RET_REQUEST_ACCEPTED,         "Request Accepted"},
+    {UDS_ARS_AUTH_RET_GENERAL_REJECT,           "General Reject"},
+    {UDS_ARS_AUTH_RET_AUTH_CONFIG_APCE,         "Authentication Configuration APCE"},
+    {UDS_ARS_AUTH_RET_AUTH_CONFIG_ACR_SYM,      "Authentication Configuration ACR with asymmetric cryptography"},
+    {UDS_ARS_AUTH_RET_AUTH_CONFIG_ACR_ASYM,     "Authentication Configuration ACR with symmetric cryptography"},
+    {UDS_ARS_AUTH_RET_DEAUTH_SUCCESS,           "DeAuthentication successful "},
+    {UDS_ARS_AUTH_RET_CERT_VER_OWN_VER_NEC,     "Certificate Verified, Ownership Verification Necessary"},
+    {UDS_ARS_AUTH_RET_OWN_VER_AUTH_COMPL,       "Ownership Verified, Authentication Complete "},
+    {UDS_ARS_AUTH_RET_CERT_VERIFIED,            "Certificate Verified"},
+    {0, NULL}
+};
+
+/* RDBPI */
+static const value_string uds_rdbpi_transmission_mode[] = {
+    {0, "Reserved"},
+    {1, "Send at Slow Rate"},
+    {2, "Send at Medium Rate"},
+    {3, "Send at Fast Rate"},
+    {4, "Stop Sending"},
+    {0, NULL}
+};
+
+/* DDDI */
+static const value_string uds_dddi_types[] = {
+    {UDS_DDDI_TYPES_DEFINE_BY_IDENTIFIER,   "Define by Identifier"},
+    {UDS_DDDI_TYPES_DEFINE_BY_MEM_ADDRESS,  "Define by Memory Address"},
+    {UDS_DDDI_TYPES_CLEAR_DYN_DEF_DATA_ID,  "Clear Dynamically Defined Data Identifier"},
+    {0, NULL}
+};
+
 /* IOCBI */
 static const value_string uds_iocbi_parameters[] = {
     {UDS_IOCBI_PARAMETERS_RETURN_CONTROL_TO_ECU, "Return Control To ECU"},
@@ -423,11 +698,47 @@ static const value_string uds_rc_types[] = {
     {0, NULL}
 };
 
+/* RFT */
+static const value_string uds_rft_mode_types[] = {
+    {0,                             "Reserved"},
+    {UDS_RFT_MODE_ADD_FILE,         "Add File"},
+    {UDS_RFT_MODE_DELETE_FILE,      "Delete File"},
+    {UDS_RFT_MODE_REPLACE_FILE,     "Replace File"},
+    {UDS_RFT_MODE_READ_FILE,        "Read File"},
+    {UDS_RFT_MODE_READ_DIR,         "Read Dir"},
+    {UDS_RFT_MODE_RESUME_FILE,      "Resume File"},
+    {0, NULL}
+};
+
 /* CDTCS */
 static const value_string uds_cdtcs_types[] = {
     {0,                     "Reserved"},
     {UDS_CDTCS_ACTIONS_ON,  "On"},
     {UDS_CDTCS_ACTIONS_OFF, "Off"},
+    {0, NULL}
+};
+
+/* LC */
+static const value_string uds_lc_types[] = {
+    {0x00,                  "Reserved"},
+    {UDS_LC_TYPES_VMTWFP,   "Verify Mode Transition with fixed Parameter"},
+    {UDS_LC_TYPES_VMTWSP,   "Verify Mode Transition with specific Parameter"},
+    {UDS_LC_TYPES_TM,       "Transition Mode"},
+    {0, NULL}
+};
+
+static const value_string uds_lc_lcmi_types[] = {
+    {0x00,  "Reserved"},
+    {0x01,  "PC9600Baud"},
+    {0x02,  "PC19200Baud"},
+    {0x03,  "PC38400Baud"},
+    {0x04,  "PC57600Baud"},
+    {0x05,  "PC115200Baud"},
+    {0x10,  "CAN125000Baud"},
+    {0x11,  "CAN250000Baud"},
+    {0x12,  "CAN500000Baud"},
+    {0x13,  "CAN1000000Baud"},
+    {0x20,  "ProgrammingSetup"},
     {0, NULL}
 };
 
@@ -520,6 +831,19 @@ static int hf_uds_diag_target_addr_name = -1;
 static int hf_uds_service = -1;
 static int hf_uds_reply = -1;
 
+static int hf_uds_subfunction = -1;
+static int hf_uds_suppress_pos_rsp_msg_ind = -1;
+static int hf_uds_data_record = -1;
+
+static int hf_uds_compression_method = -1;
+static int hf_uds_encrypting_method = -1;
+static int hf_uds_memory_size_length = -1;
+static int hf_uds_memory_address_length = -1;
+static int hf_uds_memory_address = -1;
+static int hf_uds_memory_size = -1;
+static int hf_uds_max_block_len_len = -1;
+static int hf_uds_max_block_len = -1;
+
 static int hf_uds_dsc_subfunction = -1;
 static int hf_uds_dsc_parameter_record = -1;
 static int hf_uds_dsc_default_p2_server_timer = -1;
@@ -527,6 +851,9 @@ static int hf_uds_dsc_enhanced_p2_server_timer = -1;
 
 static int hf_uds_er_subfunction = -1;
 static int hf_uds_er_power_down_time = -1;
+
+static int hf_uds_cdtci_group_of_dtc = -1;
+static int hf_uds_cdtci_memory_selection = -1;
 
 static int hf_uds_rdtci_subfunction = -1;
 static int hf_uds_rdtci_dtc_status_mask = -1;
@@ -578,15 +905,68 @@ static int hf_uds_rdtci_record = -1;
 static int hf_uds_rdtci_record_unparsed = -1;
 
 static int hf_uds_rdbi_data_identifier = -1;
-static int hf_uds_rdbi_data_record = -1;
+
+static int hf_uds_rsdbi_data_identifier = -1;
+static int hf_uds_rsdbi_scaling_byte = -1;
+static int hf_uds_rsdbi_scaling_byte_data_type = -1;
+static int hf_uds_rsdbi_scaling_byte_num_of_bytes = -1;
+static int hf_uds_rsdbi_validity_mask = -1;
+static int hf_uds_rsdbi_formula_identifier = -1;
+static int hf_uds_rsdbi_formula_constant = -1;
+static int hf_uds_rsdbi_formula_constant_exp = -1;
+static int hf_uds_rsdbi_formula_constant_mantissa = -1;
+static int hf_uds_rsdbi_unit = -1;
 
 static int hf_uds_sa_subfunction = -1;
 static int hf_uds_sa_key = -1;
-static int hf_uds_sa_data_record = -1;
 static int hf_uds_sa_seed = -1;
 
+static int hf_uds_cc_subfunction_no_suppress = -1;
+static int hf_uds_cc_comm_type_and_subnet_number = -1;
+static int hf_uds_cc_communication_type = -1;
+static int hf_uds_cc_subnet_number = -1;
+static int hf_uds_cc_node_identifier_number = -1;
+
+static int hf_uds_ars_subfunction_no_suppress = -1;
+static int hf_uds_ars_comm_config = -1;
+static int hf_uds_ars_length_of_cert_client = -1;
+static int hf_uds_ars_cert_client = -1;
+static int hf_uds_ars_length_of_cert_server = -1;
+static int hf_uds_ars_cert_server = -1;
+static int hf_uds_ars_length_of_challenge_client = -1;
+static int hf_uds_ars_challenge_client = -1;
+static int hf_uds_ars_length_of_challenge_server = -1;
+static int hf_uds_ars_challenge_server = -1;
+static int hf_uds_ars_length_of_proof_of_ownership_client = -1;
+static int hf_uds_ars_proof_of_ownership_client = -1;
+static int hf_uds_ars_length_of_proof_of_ownership_server = -1;
+static int hf_uds_ars_proof_of_ownership_server = -1;
+static int hf_uds_ars_length_of_ephemeral_public_key_client = -1;
+static int hf_uds_ars_ephemeral_public_key_client = -1;
+static int hf_uds_ars_length_of_ephemeral_public_key_server = -1;
+static int hf_uds_ars_ephemeral_public_key_server = -1;
+static int hf_uds_ars_cert_eval_id = -1;
+static int hf_uds_ars_length_of_cert_data = -1;
+static int hf_uds_ars_cert_data = -1;
+static int hf_uds_ars_algo_indicator = -1;
+static int hf_uds_ars_length_of_additional_parameter = -1;
+static int hf_uds_ars_additional_parameter = -1;
+static int hf_uds_ars_length_of_needed_additional_parameter = -1;
+static int hf_uds_ars_needed_additional_parameter = -1;
+static int hf_uds_ars_auth_ret_param = -1;
+static int hf_uds_ars_length_of_session_key_info = -1;
+static int hf_uds_ars_session_key_info = -1;
+
+static int hf_uds_rdbpi_transmission_mode = -1;
+static int hf_uds_rdbpi_periodic_data_identifier = -1;
+
+static int hf_uds_dddi_subfunction_no_suppress = -1;
+static int hf_uds_dddi_dyn_defined_data_identifier = -1;
+static int hf_uds_dddi_source_data_identifier = -1;
+static int hf_uds_dddi_position_in_source_data_record = -1;
+static int hf_uds_dddi_memory_size = -1;
+
 static int hf_uds_wdbi_data_identifier = -1;
-static int hf_uds_wdbi_data_record = -1;
 
 static int hf_uds_iocbi_data_identifier = -1;
 static int hf_uds_iocbi_parameter = -1;
@@ -598,28 +978,51 @@ static int hf_uds_rc_option_record = -1;
 static int hf_uds_rc_info = -1;
 static int hf_uds_rc_status_record = -1;
 
-static int hf_uds_rd_compression_method = -1;
-static int hf_uds_rd_encrypting_method = -1;
-static int hf_uds_rd_memory_size_length = -1;
-static int hf_uds_rd_memory_address_length = -1;
-static int hf_uds_rd_memory_address = -1;
-static int hf_uds_rd_memory_size = -1;
-static int hf_uds_rd_max_block_len_len = -1;
-static int hf_uds_rd_max_block_len = -1;
-
 static int hf_uds_td_sequence_counter = -1;
 static int hf_uds_td_record_data = -1;
 
-static int hf_uds_tp_subfunction = -1;
+static int hf_uds_rte_record_data = -1;
+
+static int hf_uds_rft_mode_of_operation = -1;
+static int hf_uds_rft_length_of_file_path_and_name = -1;
+static int hf_uds_rft_file_path_and_name = -1;
+static int hf_uds_rft_file_size_param_length = -1;
+static int hf_uds_rft_file_size_uncompressed = -1;
+static int hf_uds_rft_file_size_compressed = -1;
+static int hf_uds_rft_length_format_identifier = -1;
+static int hf_uds_rft_max_num_of_block_length = -1;
+static int hf_uds_rft_file_size_or_dir_info_param_length = -1;
+static int hf_uds_rft_file_size_uncompressed_or_dir_info_length = -1;
+static int hf_uds_rft_file_position = -1;
+
 static int hf_uds_tp_subfunction_no_suppress = -1;
-static int hf_uds_tp_suppress_pos_rsp_msg_ind = -1;
 
 static int hf_uds_err_sid = -1;
 static int hf_uds_err_code = -1;
 
+static int hf_uds_sdt_administrative_param = -1;
+static int hf_uds_sdt_administrative_param_req = -1;
+static int hf_uds_sdt_administrative_param_pre_estab_key = -1;
+static int hf_uds_sdt_administrative_param_encrypted = -1;
+static int hf_uds_sdt_administrative_param_signed = -1;
+static int hf_uds_sdt_administrative_param_resp_sign_req = -1;
+static int hf_uds_sdt_signature_encryption_calculation = -1;
+static int hf_uds_sdt_signature_length = -1;
+static int hf_uds_sdt_anti_replay_counter = -1;
+static int hf_uds_sdt_encapsulated_message = -1;
+static int hf_uds_sdt_encapsulated_message_sid = -1;
+static int hf_uds_sdt_encapsulated_message_sid_reply = -1;
+static int hf_uds_sdt_signature_mac = -1;
+
 static int hf_uds_cdtcs_subfunction = -1;
 static int hf_uds_cdtcs_option_record = -1;
 static int hf_uds_cdtcs_type = -1;
+
+static int hf_uds_lc_subfunction = -1;
+static int hf_uds_lc_subfunction_no_suppress = -1;
+static int hf_uds_lc_subfunction_pos_rsp_msg_ind = -1;
+static int hf_uds_lc_control_mode_id = -1;
+static int hf_uds_lc_link_record = -1;
 
 static int hf_uds_unparsed_bytes = -1;
 
@@ -628,11 +1031,18 @@ static int hf_uds_unparsed_bytes = -1;
  */
 static gint ett_uds = -1;
 static gint ett_uds_subfunction = -1;
-static gint ett_uds_dsc_parameter_record = -1;
 static gint ett_uds_dtc_status_entry = -1;
 static gint ett_uds_dtc_status_bits = -1;
 static gint ett_uds_dtc_snapshot_entry = -1;
 static gint ett_uds_dtc_counter_entry = -1;
+static gint ett_uds_dsc_parameter_record = -1;
+static gint ett_uds_rsdbi_scaling_byte = -1;
+static gint ett_uds_rsdbi_formula_constant = -1;
+static gint ett_uds_cc_communication_type = -1;
+static gint ett_uds_ars_algo_indicator = -1;
+static gint ett_uds_dddi_entry = -1;
+static gint ett_uds_sdt_admin_param = -1;
+static gint ett_uds_sdt_encap_message = -1;
 
 static int proto_uds = -1;
 
@@ -1197,6 +1607,33 @@ dissect_uds_dtc_and_fault_detection_counter_record(tvbuff_t *tvb, packet_info *p
     return offset;
 }
 
+static guint32
+dissect_uds_subfunction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint32 offset, guint32 *subfunc_value, int hf, const value_string *vs, gboolean suppress_bit) {
+    proto_item *ti = proto_tree_add_item(uds_tree, hf_uds_subfunction, tvb, offset, 1, ENC_NA);
+    proto_tree *subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
+    proto_tree_add_item_ret_uint(subfunction_tree, hf, tvb, offset, 1, ENC_NA, subfunc_value);
+
+    if (vs != NULL) {
+        proto_item_append_text(ti, " (%s)", val_to_str(*subfunc_value, vs, "Unknown (0x%02x)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction: %s", val_to_str(*subfunc_value, vs, "Unknown (0x%02x)"));
+    } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction: 0x%02x", *subfunc_value);
+    }
+
+    if (suppress_bit) {
+        gboolean suppress;
+
+        proto_tree_add_item_ret_boolean(subfunction_tree, hf_uds_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
+
+        if (suppress) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
+        }
+    }
+    offset += 1;
+
+    return offset;
+}
+
 static int
 dissect_uds_rdtci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint32 ecu_address, guint8 sid, guint32 offset, guint32 data_length) {
     guint32     enum_val;
@@ -1643,9 +2080,42 @@ dissect_uds_rdtci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint
 }
 
 static int
+dissect_uds_memory_addr_size(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, guint32 offset, gboolean withDataFormatIdentifier) {
+    guint32 compression, encrypting;
+
+    if (withDataFormatIdentifier) {
+        proto_tree_add_item_ret_uint(uds_tree, hf_uds_compression_method, tvb, offset, 1, ENC_NA, &compression);
+        proto_tree_add_item_ret_uint(uds_tree, hf_uds_encrypting_method, tvb, offset, 1, ENC_NA, &encrypting);
+        offset += 1;
+    }
+
+    guint32 memory_size_length, memory_address_length;
+    proto_tree_add_item_ret_uint(uds_tree, hf_uds_memory_size_length, tvb, offset, 1, ENC_NA, &memory_size_length);
+    proto_tree_add_item_ret_uint(uds_tree, hf_uds_memory_address_length, tvb, offset, 1, ENC_NA, &memory_address_length);
+    offset += 1;
+
+    guint64 memory_address;
+    proto_tree_add_item_ret_uint64(uds_tree, hf_uds_memory_address, tvb, offset, memory_address_length, ENC_BIG_ENDIAN, &memory_address);
+    offset += memory_address_length;
+
+    guint64 memory_size;
+    proto_tree_add_item_ret_uint64(uds_tree, hf_uds_memory_size, tvb, offset, memory_size_length, ENC_BIG_ENDIAN, &memory_size);
+    offset += memory_size_length;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%" PRIx64 " bytes at 0x%" PRIx64, memory_size, memory_address);
+
+    if (withDataFormatIdentifier) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   (Compression:0x%x Encrypting:0x%x)", compression, encrypting);
+    }
+
+    return offset;
+}
+
+static int
 dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 source_address, guint32 target_address, guint8 number_of_addresses_valid)
 {
     proto_tree *uds_tree;
+    proto_tree *subfunction_tree;
     proto_item *ti;
     guint8      sid, service;
     guint32     enum_val;
@@ -1751,6 +2221,19 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             }
             break;
 
+        case UDS_SERVICES_CDTCI:
+            if (sid & UDS_REPLY_MASK) {
+                /* do nothing */
+            } else {
+                proto_tree_add_item(uds_tree, hf_uds_cdtci_group_of_dtc, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+
+                if (offset + 1 <= data_length) {
+                    proto_tree_add_item(uds_tree, hf_uds_cdtci_memory_selection, tvb, offset, 1, ENC_NA);
+                }
+            }
+            break;
+
         case UDS_SERVICES_RDTCI:
             offset = dissect_uds_rdtci(tvb, pinfo, uds_tree, ecu_address, sid, offset, data_length);
             break;
@@ -1764,7 +2247,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 offset += 2;
 
                 /* ISO14229: at least one byte for data record. Just make sure, we show an error, if less than 1 byte left! */
-                proto_tree_add_item(uds_tree, hf_uds_rdbi_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
+                proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                 infocol_append_data_name(pinfo, ecu_address, data_identifier);
@@ -1791,8 +2274,64 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             }
             break;
 
+        case UDS_SERVICES_RMBA:
+            if (sid & UDS_REPLY_MASK) {
+                if (offset < data_length) {
+                    proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, data_length - offset, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                    offset = data_length;
+                }
+            } else {
+                offset = dissect_uds_memory_addr_size(tvb, pinfo, uds_tree, offset, false);
+            }
+            break;
+
+        case UDS_SERVICES_RSDBI:
+            proto_tree_add_item(uds_tree, hf_uds_rsdbi_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            if (sid & UDS_REPLY_MASK) {
+                do {
+                    proto_tree *tmp_tree;
+                    ti = proto_tree_add_item(uds_tree, hf_uds_rsdbi_scaling_byte, tvb, offset, 1, ENC_NA);
+                    tmp_tree = proto_item_add_subtree(ti, ett_uds_rsdbi_scaling_byte);
+                    guint data_type, num_of_bytes;
+                    proto_tree_add_item_ret_uint(tmp_tree, hf_uds_rsdbi_scaling_byte_data_type, tvb, offset, 1, ENC_NA, &data_type);
+                    proto_tree_add_item_ret_uint(tmp_tree, hf_uds_rsdbi_scaling_byte_num_of_bytes, tvb, offset, 1, ENC_NA, &num_of_bytes);
+                    proto_item_append_text(ti, ", %s, %d", val_to_str(data_type, uds_rsdbi_data_types, "Unknown (0x%x)"), num_of_bytes);
+                    offset += 1;
+
+                    /* lets parse the extension, if needed... */
+                    guint next_pos;
+                    switch (data_type) {
+                    case UDS_RSDBI_DATA_TYPE_BITMAPPED_REPORTED_WO_MAP:
+                        proto_tree_add_item(uds_tree, hf_uds_rsdbi_validity_mask, tvb, offset, num_of_bytes, ENC_NA);
+                        offset += num_of_bytes;
+                        break;
+                    case UDS_RSDBI_DATA_TYPE_FORMULA:
+                        proto_tree_add_item(uds_tree, hf_uds_rsdbi_formula_identifier, tvb, offset, 1, ENC_NA);
+                        next_pos = offset + num_of_bytes;
+                        while (offset + 2 <= next_pos) {
+                            ti = proto_tree_add_item(uds_tree, hf_uds_rsdbi_formula_constant, tvb, offset, 2, ENC_NA);
+                            proto_tree *const_tree = proto_item_add_subtree(ti, ett_uds_rsdbi_formula_constant);
+                            proto_tree_add_item(const_tree, hf_uds_rsdbi_formula_constant_exp, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(const_tree, hf_uds_rsdbi_formula_constant_mantissa, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset += 2;
+                        }
+                        break;
+                    case  UDS_RSDBI_DATA_TYPE_UNIT_FORMAT:
+                        proto_tree_add_item(uds_tree, hf_uds_rsdbi_unit, tvb, offset, 1, ENC_NA);
+                        offset += num_of_bytes;
+                        break;
+                    }
+                } while (offset < data_length);
+
+            }
+            break;
+
         case UDS_SERVICES_SA:
-            proto_tree_add_item_ret_uint(uds_tree, hf_uds_sa_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
+            ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_sa_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
+            proto_item_append_text(ti, " (%s)", uds_sa_subfunction_to_string(enum_val));
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s (0x%02x)", uds_sa_subfunction_to_string(enum_val), enum_val);
             offset += 1;
 
@@ -1809,7 +2348,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                         break;
                     default:
-                        proto_tree_add_item(uds_tree, hf_uds_sa_data_record, tvb, offset, data_length - offset, ENC_NA);
+                        proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                     }
                 } else {
@@ -1822,11 +2361,382 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     case UDS_SA_TYPES_REQUEST_SEED: /* fall through */
                     case UDS_SA_TYPES_REQUEST_SEED_ISO26021:
                     default:
-                        proto_tree_add_item(uds_tree, hf_uds_sa_data_record, tvb, offset, data_length - offset, ENC_NA);
+                        proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                     }
                 }
                 offset = data_length;
+            }
+            break;
+
+        case UDS_SERVICES_CC:
+            if (sid & UDS_REPLY_MASK) {
+                offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_cc_subfunction_no_suppress, uds_cc_types, false);
+            } else {
+                offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_cc_subfunction_no_suppress, uds_cc_types, true);
+
+                proto_tree *comm_type_tree;
+                ti = proto_tree_add_item(uds_tree, hf_uds_cc_comm_type_and_subnet_number, tvb, offset, 1, ENC_NA);
+                comm_type_tree = proto_item_add_subtree(ti, ett_uds_cc_communication_type);
+                proto_tree_add_item(comm_type_tree, hf_uds_cc_communication_type, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(comm_type_tree, hf_uds_cc_subnet_number, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (enum_val == UDS_CC_TYPES_ENABLE_RX_AND_DISABLE_TX_WITH_ENH_ADDR_INFO || enum_val == UDS_CC_TYPES_ENABLE_RX_AND_TX_WITH_ENH_ADDR_INFO) {
+                    proto_tree_add_item(uds_tree, hf_uds_cc_node_identifier_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                }
+            }
+            break;
+
+        case UDS_SERVICES_ARS:
+            if (sid & UDS_REPLY_MASK) {
+                guint length_field;
+                proto_tree *algo_tree;
+
+                offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_ars_subfunction_no_suppress, uds_ars_types, false);
+
+                switch (enum_val) {
+                case UDS_ARS_TYPES_DEAUTHENTICATE: /* fall through */
+                case UDS_ARS_TYPES_TRANSMIT_CERTIFICATE: /* fall through */
+                case UDS_ARS_TYPES_AUTH_CONFIGURATION:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                    break;
+
+                case UDS_ARS_TYPES_VERIFY_CERT_UNIDIRECTIONAL:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_challenge_server, tvb, offset, length_field, ENC_NA);
+                    offset += length_field;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    if (length_field > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_ephemeral_public_key_server, tvb, offset, length_field, ENC_NA);
+                        offset += length_field;
+                    }
+                    break;
+
+                case UDS_ARS_TYPES_VERIFY_CERT_BIDIRECTIONAL:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_challenge_server, tvb, offset, length_field, ENC_NA);
+                    offset += length_field;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_cert_server, tvb, offset, length_field, ENC_NA);
+                    offset += length_field;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_server, tvb, offset, length_field, ENC_NA);
+                    offset += length_field;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    if (length_field > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_ephemeral_public_key_server, tvb, offset, length_field, ENC_NA);
+                        offset += length_field;
+                    }
+                    break;
+
+                case UDS_ARS_TYPES_PROOF_OF_OWNERSHIP:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    if (length_field > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_session_key_info, tvb, offset, length_field, ENC_NA);
+                        offset += length_field;
+                    }
+                    break;
+
+                case UDS_ARS_TYPES_REQUEST_CHALLENGE_FOR_AUTH:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
+                    algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
+                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    offset += 16;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_challenge_server, tvb, offset, length_field, ENC_NA);
+                    offset += length_field;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_needed_additional_parameter, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    if (length_field > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_needed_additional_parameter, tvb, offset, length_field, ENC_NA);
+                        offset += length_field;
+                    }
+                    break;
+
+                case UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_UNIDIR:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
+                    algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
+                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    offset += 16;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    if (length_field > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_session_key_info, tvb, offset, length_field, ENC_NA);
+                        offset += length_field;
+                    }
+                    break;
+
+                case UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR:
+                    proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
+                    algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
+                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    offset += 16;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_server, tvb, offset, length_field, ENC_NA);
+                    offset += length_field;
+
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_NA, &length_field);
+                    offset += 2;
+
+                    if (length_field > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_session_key_info, tvb, offset, length_field, ENC_NA);
+                        offset += length_field;
+                    }
+
+                    break;
+                }
+            } else {
+                proto_tree *algo_tree;
+                offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_ars_subfunction_no_suppress, uds_ars_types, true);
+
+                switch (enum_val) {
+                case UDS_ARS_TYPES_DEAUTHENTICATE: /* fall through */
+                case UDS_ARS_TYPES_AUTH_CONFIGURATION:
+                    /* do nothing */
+                    break;
+
+                case UDS_ARS_TYPES_VERIFY_CERT_UNIDIRECTIONAL: /* fall through */
+                case UDS_ARS_TYPES_VERIFY_CERT_BIDIRECTIONAL: {
+                    proto_tree_add_item(uds_tree, hf_uds_ars_comm_config, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    guint length_cert_client;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_client, tvb, offset, 2, ENC_NA, &length_cert_client);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_cert_client, tvb, offset, length_cert_client, ENC_NA);
+                    offset += length_cert_client;
+
+                    guint length_challenge_client;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_client, tvb, offset, 2, ENC_NA, &length_challenge_client);
+                    offset += 2;
+
+                    if (length_challenge_client > 0 || enum_val == UDS_ARS_TYPES_VERIFY_CERT_BIDIRECTIONAL) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_challenge_client, tvb, offset, length_challenge_client, ENC_NA);
+                        offset += length_challenge_client;
+                    }
+                }
+                    break;
+
+                case UDS_ARS_TYPES_PROOF_OF_OWNERSHIP: {
+                    guint length_proof_of_ownership_client;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_client, tvb, offset, 2, ENC_NA, &length_proof_of_ownership_client);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_client, tvb, offset, length_proof_of_ownership_client, ENC_NA);
+                    offset += length_proof_of_ownership_client;
+
+                    guint length_ephemeral_public_key_client;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_client, tvb, offset, 2, ENC_NA, &length_ephemeral_public_key_client);
+                    offset += 2;
+
+                    if (length_ephemeral_public_key_client > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_ephemeral_public_key_client, tvb, offset, length_ephemeral_public_key_client, ENC_NA);
+                        offset += length_ephemeral_public_key_client;
+                    }
+                }
+                    break;
+
+
+                case UDS_ARS_TYPES_TRANSMIT_CERTIFICATE: {
+                    proto_tree_add_item(uds_tree, hf_uds_ars_cert_eval_id, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+
+                    guint length_cert_data;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_data, tvb, offset, 2, ENC_NA, &length_cert_data);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_cert_data, tvb, offset, length_cert_data, ENC_NA);
+                    offset += length_cert_data;
+                }
+                    break;
+
+                case UDS_ARS_TYPES_REQUEST_CHALLENGE_FOR_AUTH: {
+                    proto_tree_add_item(uds_tree, hf_uds_ars_comm_config, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
+                    algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
+                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    offset += 16;
+                }
+                    break;
+
+                case UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_UNIDIR: /* fall through */
+                case UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR: {
+                    ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
+                    algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
+                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    offset += 16;
+
+                    guint length_proof_of_ownership_client;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_client, tvb, offset, 2, ENC_NA, &length_proof_of_ownership_client);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_client, tvb, offset, length_proof_of_ownership_client, ENC_NA);
+                    offset += length_proof_of_ownership_client;
+
+                    guint length_challenge_client;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_client, tvb, offset, 2, ENC_NA, &length_challenge_client);
+                    offset += 2;
+
+                    if (length_challenge_client > 0 || enum_val == UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_challenge_client, tvb, offset, length_challenge_client, ENC_NA);
+                        offset += length_challenge_client;
+                    }
+
+                    guint length_additional_parameter;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_additional_parameter, tvb, offset, 2, ENC_NA, &length_additional_parameter);
+                    offset += 2;
+
+                    if (length_additional_parameter > 0) {
+                        proto_tree_add_item(uds_tree, hf_uds_ars_additional_parameter, tvb, offset, length_additional_parameter, ENC_NA);
+                        offset += length_additional_parameter;
+                    }
+                }
+                    break;
+                }
+            }
+            break;
+
+        case UDS_SERVICES_RDBPI:
+            if (sid & UDS_REPLY_MASK) {
+                proto_tree_add_item(uds_tree, hf_uds_rdbpi_periodic_data_identifier, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, data_length - offset, ENC_NA);
+                offset = data_length;
+            } else {
+                guint transmission_mode;
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbpi_transmission_mode, tvb, offset, 1, ENC_NA, &transmission_mode);
+                offset += 1;
+
+                /* For transmission mode 1 (send at slow rate), mode 2 (medium rate), and mode 3 (fast rate), require at least 1 pdid! */
+                if (1 <= transmission_mode && transmission_mode <= 3) {
+                    proto_tree_add_item(uds_tree, hf_uds_rdbpi_periodic_data_identifier, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                while (offset < data_length) {
+                    proto_tree_add_item(uds_tree, hf_uds_rdbpi_periodic_data_identifier, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+            }
+            break;
+
+        case UDS_SERVICES_DDDI:
+            if (sid & UDS_REPLY_MASK) {
+                offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_dddi_subfunction_no_suppress, uds_dddi_types, false);
+
+                if (offset + 2 <= data_length) {
+                    proto_tree_add_item(uds_tree, hf_uds_dddi_dyn_defined_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                }
+            } else {
+                offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_dddi_subfunction_no_suppress, uds_dddi_types, true);
+
+                switch (enum_val) {
+                case UDS_DDDI_TYPES_DEFINE_BY_IDENTIFIER:
+                    proto_tree_add_item(uds_tree, hf_uds_dddi_dyn_defined_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    do {
+                        proto_tree *tmp_tree;
+                        tmp_tree = proto_tree_add_subtree(uds_tree, tvb, offset, 4, ett_uds_dddi_entry, &ti, "Element");
+
+                        guint source_data_id;
+                        proto_tree_add_item_ret_uint(tmp_tree, hf_uds_dddi_source_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &source_data_id);
+                        offset += 2;
+
+                        guint position;
+                        proto_tree_add_item_ret_uint(tmp_tree, hf_uds_dddi_position_in_source_data_record, tvb, offset, 1, ENC_NA, &position);
+                        offset += 1;
+
+                        guint mem_size;
+                        proto_tree_add_item_ret_uint(tmp_tree, hf_uds_dddi_memory_size, tvb, offset, 1, ENC_NA, &mem_size);
+                        offset += 1;
+
+                        proto_item_append_text(ti, " %d with Source ID 0x%04x and %d byte(s)", position, source_data_id, mem_size);
+                    } while (offset + 4 <= data_length);
+
+                    break;
+
+                case UDS_DDDI_TYPES_DEFINE_BY_MEM_ADDRESS:
+                    proto_tree_add_item(uds_tree, hf_uds_dddi_dyn_defined_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    guint32 memory_size_length, memory_address_length;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_memory_size_length, tvb, offset, 1, ENC_NA, &memory_size_length);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_memory_address_length, tvb, offset, 1, ENC_NA, &memory_address_length);
+                    offset += 1;
+
+                    do {
+                        guint64 memory_address;
+                        proto_tree_add_item_ret_uint64(uds_tree, hf_uds_memory_address, tvb, offset, memory_address_length, ENC_BIG_ENDIAN, &memory_address);
+                        offset += memory_address_length;
+
+                        guint64 memory_size;
+                        proto_tree_add_item_ret_uint64(uds_tree, hf_uds_memory_size, tvb, offset, memory_size_length, ENC_BIG_ENDIAN, &memory_size);
+                        offset += memory_size_length;
+                    } while (offset + memory_address_length + memory_size_length <= data_length);
+                    break;
+
+                case UDS_DDDI_TYPES_CLEAR_DYN_DEF_DATA_ID:
+                    if (offset + 2 <= data_length) {
+                        proto_tree_add_item(uds_tree, hf_uds_dddi_dyn_defined_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                    }
+                    break;
+                }
             }
             break;
 
@@ -1839,7 +2749,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
             if (!(sid & UDS_REPLY_MASK)) {
                 /* This needs to be at least one byte says the standard */
-                proto_tree_add_item(uds_tree, hf_uds_wdbi_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
+                proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
 
                 if (data_length > offset) {
                     payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
@@ -1914,38 +2824,20 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
         }
 
-        case UDS_SERVICES_RD:
+        case UDS_SERVICES_RD: /* fall through */
+        case UDS_SERVICES_RU:
             if (sid & UDS_REPLY_MASK) {
                 guint32 max_block_length_length;
-                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_max_block_len_len, tvb, offset, 1, ENC_NA, &max_block_length_length);
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_max_block_len_len, tvb, offset, 1, ENC_NA, &max_block_length_length);
                 offset += 1;
 
                 guint64 max_block_length;
-                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rd_max_block_len, tvb, offset, max_block_length_length, ENC_BIG_ENDIAN, &max_block_length);
+                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_max_block_len, tvb, offset, max_block_length_length, ENC_BIG_ENDIAN, &max_block_length);
                 offset += max_block_length_length;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   Max Block Length 0x%" PRIx64, max_block_length);
             } else {
-                guint32 compression, encrypting;
-                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_compression_method, tvb, offset, 1, ENC_NA, &compression);
-                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_encrypting_method, tvb, offset, 1, ENC_NA, &encrypting);
-                offset += 1;
-
-                guint32 memory_size_length, memory_address_length;
-                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_memory_size_length, tvb, offset, 1, ENC_NA, &memory_size_length);
-                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rd_memory_address_length, tvb, offset, 1, ENC_NA, &memory_address_length);
-                offset += 1;
-
-                guint64 memory_address;
-                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rd_memory_address, tvb, offset, memory_address_length, ENC_BIG_ENDIAN, &memory_address);
-                offset += memory_address_length;
-
-                guint64 memory_size;
-                proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rd_memory_size, tvb, offset, memory_size_length, ENC_BIG_ENDIAN, &memory_size);
-                offset += memory_size_length;
-
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%" PRIx64 " bytes at 0x%" PRIx64, memory_size, memory_address);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   (Compression:0x%x Encrypting:0x%x)", compression, encrypting);
+                offset = dissect_uds_memory_addr_size(tvb, pinfo, uds_tree, offset, true);
             }
             break;
 
@@ -1963,27 +2855,102 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             break;
         }
 
-        case UDS_SERVICES_TP: {
-            guint32 subfunction;
-            ti = proto_tree_add_item(uds_tree, hf_uds_tp_subfunction, tvb, offset, 1, ENC_NA);
-            /* do not increase offset, since reply uses the same byte with different mask! */
+        case UDS_SERVICES_RTE:
+            if (data_length > offset) {
+                proto_tree_add_item(uds_tree, hf_uds_rte_record_data, tvb, offset, data_length - offset, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                offset = data_length;
+            }
+            break;
 
-            proto_tree *subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
-            proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_tp_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &subfunction);
+        case UDS_SERVICES_RFT: {
+            guint mode_of_op;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_rft_mode_of_operation, tvb, offset, 1, ENC_NA, &mode_of_op);
+            offset += 1;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction %x", subfunction);
+            if (sid & UDS_REPLY_MASK) {
+                if (mode_of_op != UDS_RFT_MODE_DELETE_FILE) {
+                    guint32 length_max_num_block_len;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_rft_length_format_identifier, tvb, offset, 1, ENC_NA, &length_max_num_block_len);
+                    offset += 1;
 
-            if (!(sid & UDS_REPLY_MASK)) {
-                gboolean suppress;
-                proto_tree_add_item_ret_boolean(subfunction_tree, hf_uds_tp_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
+                    proto_tree_add_item(uds_tree, hf_uds_rft_max_num_of_block_length, tvb, offset, length_max_num_block_len, ENC_BIG_ENDIAN);
+                    offset += length_max_num_block_len;
+                }
 
-                if (suppress) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
+                if (mode_of_op != UDS_RFT_MODE_DELETE_FILE) {
+                    proto_tree_add_item(uds_tree, hf_uds_compression_method, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(uds_tree, hf_uds_encrypting_method, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                if (mode_of_op != UDS_RFT_MODE_ADD_FILE && mode_of_op != UDS_RFT_MODE_DELETE_FILE && mode_of_op != UDS_RFT_MODE_REPLACE_FILE && mode_of_op != UDS_RFT_MODE_RESUME_FILE) {
+                    guint length_field;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_rft_file_size_or_dir_info_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
+                    offset += 2;
+
+                    proto_tree_add_item(uds_tree, hf_uds_rft_file_size_uncompressed_or_dir_info_length, tvb, offset, length_field, ENC_BIG_ENDIAN);
+                    offset += length_field;
+
+                    if (mode_of_op != UDS_RFT_MODE_READ_DIR) {
+                        proto_tree_add_item(uds_tree, hf_uds_rft_file_size_compressed, tvb, offset, length_field, ENC_BIG_ENDIAN);
+                        offset += length_field;
+                    }
+                }
+
+                if (mode_of_op != UDS_RFT_MODE_ADD_FILE && mode_of_op != UDS_RFT_MODE_DELETE_FILE && mode_of_op != UDS_RFT_MODE_REPLACE_FILE && mode_of_op != UDS_RFT_MODE_READ_FILE
+                    && mode_of_op != UDS_RFT_MODE_READ_DIR) {
+                    proto_tree_add_item(uds_tree, hf_uds_rft_file_position, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    offset += 8;
+                }
+            } else {
+                guint length_field;
+                proto_tree_add_item_ret_uint(uds_tree, hf_uds_rft_length_of_file_path_and_name, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
+                offset += 2;
+
+                proto_tree_add_item(uds_tree, hf_uds_rft_file_path_and_name, tvb, offset, length_field, ENC_ASCII);
+                offset += length_field;
+
+                if (mode_of_op != UDS_RFT_MODE_DELETE_FILE && mode_of_op != UDS_RFT_MODE_READ_DIR) {
+                    proto_tree_add_item(uds_tree, hf_uds_compression_method, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(uds_tree, hf_uds_encrypting_method, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                if (mode_of_op != UDS_RFT_MODE_DELETE_FILE && mode_of_op != UDS_RFT_MODE_READ_FILE && mode_of_op != UDS_RFT_MODE_READ_DIR) {
+                    guint32 fileSizeParameterLength;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_rft_file_size_param_length, tvb, offset, 1, ENC_NA, &fileSizeParameterLength);
+                    offset += 1;
+
+                    guint64 filesize_uncompressed, filesize_compressed;
+                    proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rft_file_size_uncompressed, tvb, offset, fileSizeParameterLength, ENC_BIG_ENDIAN, &filesize_uncompressed);
+                    offset += fileSizeParameterLength;
+
+                    proto_tree_add_item_ret_uint64(uds_tree, hf_uds_rft_file_size_compressed, tvb, offset, fileSizeParameterLength, ENC_BIG_ENDIAN, &filesize_compressed);
+                    offset += fileSizeParameterLength;
+                }
+
+            }
+        }
+            break;
+
+        case UDS_SERVICES_WMBA:
+            offset = dissect_uds_memory_addr_size(tvb, pinfo, uds_tree, offset, false);
+
+            if (sid & UDS_REPLY_MASK) {
+                /* do nothing */
+            } else {
+                if (offset < data_length) {
+                    proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, data_length - offset, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+                    offset = data_length;
                 }
             }
-            offset += 1;
             break;
-        }
+
+        case UDS_SERVICES_TP:
+            offset = dissect_uds_subfunction(tvb, pinfo, uds_tree, offset, &enum_val, hf_uds_tp_subfunction_no_suppress, NULL, !(sid & UDS_REPLY_MASK));
+            break;
 
         case UDS_SERVICES_ERR:
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_sid, tvb, offset, 1, ENC_NA, &enum_val);
@@ -1993,6 +2960,48 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_code, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str(enum_val, uds_response_codes, "Unknown (0x%02x)"));
             offset += 1;
+            break;
+
+        case UDS_SERVICES_SDT: {
+            static int * const admin_param_flags[] = {
+                &hf_uds_sdt_administrative_param_resp_sign_req,
+                &hf_uds_sdt_administrative_param_signed,
+                &hf_uds_sdt_administrative_param_encrypted,
+                &hf_uds_sdt_administrative_param_pre_estab_key,
+                &hf_uds_sdt_administrative_param_req,
+                NULL
+            };
+
+            guint64 addmin_param;
+            proto_tree_add_bitmask_with_flags_ret_uint64(uds_tree, tvb, offset, hf_uds_sdt_administrative_param, ett_uds_sdt_admin_param, admin_param_flags, ENC_NA, BMT_NO_APPEND, &addmin_param);
+            offset += 2;
+
+            proto_tree_add_item(uds_tree, hf_uds_sdt_signature_encryption_calculation, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            guint32 sig_length;
+            proto_tree_add_item_ret_uint(uds_tree, hf_uds_sdt_signature_length, tvb, offset, 2, ENC_BIG_ENDIAN, &sig_length);
+            offset += 2;
+
+            proto_tree_add_item(uds_tree, hf_uds_sdt_anti_replay_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            if (offset + sig_length < data_length) {
+                guint32 encap_length = data_length - offset - sig_length;
+                ti = proto_tree_add_item(uds_tree, hf_uds_sdt_encapsulated_message, tvb, offset, encap_length, ENC_NA);
+
+                if ((addmin_param & UDS_SDT_ADMIN_PARAM_ENCRYPTED) == 0) {
+                    proto_tree *encap_tree = proto_item_add_subtree(ti, ett_uds_sdt_encap_message);
+                    proto_tree_add_item(encap_tree, hf_uds_sdt_encapsulated_message_sid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(encap_tree, hf_uds_sdt_encapsulated_message_sid_reply, tvb, offset, 1, ENC_NA);
+                }
+                offset += encap_length;
+            }
+
+            proto_tree_add_item(uds_tree, hf_uds_sdt_signature_mac, tvb, offset, sig_length, ENC_NA);
+            offset += sig_length;
+
+        }
             break;
 
         case UDS_SERVICES_CDTCS:
@@ -2009,6 +3018,46 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     proto_tree_add_item(uds_tree, hf_uds_cdtcs_option_record, tvb, offset, data_length - offset, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
                     offset = data_length;
+                }
+            }
+            break;
+
+        case UDS_SERVICES_ROE:
+            /* TODO UDS_SERVICES_ROE 0x86*/
+            break;
+
+        case UDS_SERVICES_LC:
+            ti = proto_tree_add_item(uds_tree, hf_uds_lc_subfunction, tvb, offset, 1, ENC_NA);
+            /* do not increase offset, since reply uses the same byte with different mask! */
+
+            subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
+            proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_lc_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &enum_val);
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_lc_types, "Unknown (0x%02x)"));
+
+            if (sid & UDS_REPLY_MASK) {
+                offset += 1;
+            } else {
+                proto_tree_add_item(subfunction_tree, hf_uds_lc_subfunction_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                switch (enum_val) {
+                case UDS_LC_TYPES_VMTWFP: {
+                    guint control_mode_id;
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_lc_control_mode_id, tvb, offset, 1, ENC_NA, &control_mode_id);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(control_mode_id, uds_lc_lcmi_types, "Unknown (0x%02x)"));
+                    offset += 1;
+                }
+                    break;
+
+                case UDS_LC_TYPES_VMTWSP:
+                    proto_tree_add_item(uds_tree, hf_uds_lc_link_record, tvb, offset, 3, ENC_BIG_ENDIAN);
+                    offset += 3;
+                    break;
+
+                case UDS_LC_TYPES_TM:
+                    /* do nothing */
+                    break;
                 }
             }
             break;
@@ -2061,11 +3110,16 @@ pref_update_uds(void) {
         g_hash_table_destroy(uds_ht_data_ids);
         uds_ht_data_ids = NULL;
     }
+
+    if (uds_ht_dtc_ids && uds_uat_dtc_id_num == 0) {
+        g_hash_table_destroy(uds_ht_dtc_ids);
+        uds_ht_dtc_ids = NULL;
+    }
+
 }
 
 void
-proto_register_uds(void)
-{
+proto_register_uds(void) {
     module_t* uds_module;
     static hf_register_info hf[] = {
         { &hf_uds_diag_addr, {
@@ -2085,6 +3139,30 @@ proto_register_uds(void)
         { &hf_uds_reply, {
             "Reply Flag", "uds.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
 
+        { &hf_uds_subfunction, {
+            "SubFunction", "uds.subfunction", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_suppress_pos_rsp_msg_ind, {
+            "Suppress reply", "uds.suppress_reply.indication", FT_BOOLEAN, 8, NULL, UDS_SUPPRESS_POS_RSP_MSG_IND_MASK, NULL, HFILL } },
+        { &hf_uds_data_record, {
+            "Data Record", "uds.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_compression_method, {
+            "Compression Method", "uds.compression_method", FT_UINT8, BASE_HEX, NULL, UDS_RD_COMPRESSION_METHOD_MASK, NULL, HFILL } },
+        { &hf_uds_encrypting_method, {
+            "Encrypting Method", "uds.encrypting_method", FT_UINT8, BASE_HEX, NULL, UDS_RD_ENCRYPTING_METHOD_MASK, NULL, HFILL } },
+        { &hf_uds_memory_size_length, {
+            "Memory size length", "uds.memory_size_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MEMORY_SIZE_LENGTH_MASK, NULL, HFILL } },
+        { &hf_uds_memory_address_length, {
+            "Memory address length", "uds.memory_address_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MEMORY_ADDRESS_LENGTH_MASK, NULL, HFILL } },
+        { &hf_uds_memory_address, {
+            "Memory Address", "uds.memory_address", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_memory_size, {
+            "Memory Size", "uds.memory_size", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_max_block_len_len, {
+            "Length of Max Block Length", "uds.max_block_length_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MAX_BLOCK_LEN_LEN_MASK, NULL, HFILL } },
+        { &hf_uds_max_block_len, {
+            "Max Block Length", "uds.max_block_length", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_uds_dsc_subfunction, {
             "SubFunction", "uds.dsc.subfunction", FT_UINT8, BASE_HEX, VALS(uds_dsc_types), 0x0, NULL, HFILL } },
         { &hf_uds_dsc_parameter_record, {
@@ -2099,6 +3177,11 @@ proto_register_uds(void)
             "SubFunction", "uds.er.subfunction", FT_UINT8, BASE_HEX, VALS(uds_er_types), 0x0, NULL, HFILL } },
         { &hf_uds_er_power_down_time, {
             "Power Down Time", "uds.er.power_down_time", FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL } },
+
+        { &hf_uds_cdtci_group_of_dtc, {
+            "Group of DTC", "uds.cdtci.group_of_dtc", FT_UINT24, BASE_HEX, VALS(uds_cdtci_group_of_dtc), 0x0, NULL, HFILL } },
+        { &hf_uds_cdtci_memory_selection, {
+            "Memory Selection", "uds.cdtci.memory_selection", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_rdtci_subfunction, {
             "SubFunction", "uds.rdtci.subfunction", FT_UINT8, BASE_HEX, VALS(uds_rdtci_types), 0x0, NULL, HFILL } },
@@ -2199,22 +3282,123 @@ proto_register_uds(void)
 
         { &hf_uds_rdbi_data_identifier, {
             "Data Identifier", "uds.rdbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_uds_rdbi_data_record, {
-            "Data Record", "uds.rdbi.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_rsdbi_data_identifier, {
+            "Data Identifier", "uds.rsdbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rsdbi_scaling_byte, {
+            "Scaling Byte", "uds.rsdbi.scaling_byte", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rsdbi_scaling_byte_data_type, {
+            "Data Type", "uds.rsdbi.scaling_byte.data_type", FT_UINT8, BASE_HEX, VALS(uds_rsdbi_data_types), 0xF0, NULL, HFILL } },
+        { &hf_uds_rsdbi_scaling_byte_num_of_bytes, {
+            "Number of Bytes", "uds.rsdbi.scaling_byte.number_of_Bytes", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
+        { &hf_uds_rsdbi_validity_mask, {
+            "Validity Mask", "uds.rsdbi.scaling_byte_ext.validity_mask", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rsdbi_formula_identifier, {
+            "Formula Identifier", "uds.rsdbi.scaling_byte_ext.formula_identifier", FT_UINT8, BASE_HEX, VALS(uds_rsdbi_formulas), 0x0, NULL, HFILL } },
+        { &hf_uds_rsdbi_formula_constant, {
+            "Constant", "uds.rsdbi.scaling_byte_ext.formula_constant", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rsdbi_formula_constant_exp, {
+            "Exponent", "uds.rsdbi.scaling_byte_ext.formulat_constant_exp", FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL } },
+        { &hf_uds_rsdbi_formula_constant_mantissa, {
+            "Constant", "uds.rsdbi.scaling_byte_ext.formulat_constant", FT_UINT16, BASE_HEX, NULL, 0x0FFF, NULL, HFILL } },
+        { &hf_uds_rsdbi_unit, {
+            "Unit Identifier", "uds.rsdbi.scaling_byte_ext.unit", FT_UINT8, BASE_HEX, VALS(uds_rsdbi_units), 0x0, NULL, HFILL } },
 
         { &hf_uds_sa_subfunction, {
             "SubFunction", "uds.sa.subfunction", FT_UINT8, BASE_CUSTOM, CF_FUNC(uds_sa_subfunction_format), 0x0, NULL, HFILL } },
         { &hf_uds_sa_key, {
             "Key", "uds.sa.key", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_uds_sa_data_record, {
-            "Data Record", "uds.sa.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_sa_seed, {
             "Seed", "uds.sa.seed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_uds_cc_subfunction_no_suppress, {
+            "SubFunction (without Suppress)", "uds.cc.subfunction_without_suppress", FT_UINT8, BASE_HEX, VALS(uds_cc_types), UDS_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_cc_comm_type_and_subnet_number, {
+            "Communication Type/Subnet Number", "uds.cc.comm_type_and_subnet_number", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_cc_communication_type, {
+            "Communication Type", "uds.cc.communication_type", FT_UINT8, BASE_HEX, VALS(uds_cc_comm_types), UDS_CC_COMM_TYPE_COMM_TYPE_MASK, NULL, HFILL } },
+        { &hf_uds_cc_subnet_number, {
+            "Subnet Number", "uds.cc.subnet_number", FT_UINT8, BASE_HEX, VALS(uds_cc_subnet_number_types), UDS_CC_COMM_TYPE_SUBNET_NUMBER_MASK, NULL, HFILL } },
+        { &hf_uds_cc_node_identifier_number, {
+            "Node Identifier Number", "uds.cc.node_identifier_number", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_ars_subfunction_no_suppress, {
+            "SubFunction (without Suppress)", "uds.ars.subfunction_without_suppress", FT_UINT8, BASE_HEX, VALS(uds_ars_types), UDS_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_ars_comm_config, {
+            "Communication Configuration", "uds.ars.communication_configuration", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_cert_client, {
+            "Length of Certificate Client", "uds.ars.length_of_certificate_client", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_cert_client, {
+            "Certificate Client", "uds.ars.certificate_client", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_cert_server, {
+            "Length of Certificate Server", "uds.ars.length_of_certificate_server", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_cert_server, {
+            "Certificate Server", "uds.ars.certificate_server", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_challenge_client, {
+            "Length of Challenge Client", "uds.ars.length_of_challenge_client", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_challenge_client, {
+            "Certificate Client", "uds.ars.challenge_client", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_challenge_server, {
+            "Length of Challenge Server", "uds.ars.length_of_challenge_server", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_challenge_server, {
+            "Certificate Server", "uds.ars.challenge_server", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_proof_of_ownership_client, {
+            "Length of Proof of Ownership Client", "uds.ars.length_of_proof_of_ownership_client", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_proof_of_ownership_client, {
+            "Proof of Ownership Client", "uds.ars.proof_of_ownership_client", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_proof_of_ownership_server, {
+            "Length of Proof of Ownership Server", "uds.ars.length_of_proof_of_ownership_server", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_proof_of_ownership_server, {
+            "Proof of Ownership Server", "uds.ars.proof_of_ownership_server", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_ephemeral_public_key_client, {
+            "Length of Ephemeral Public Key Client", "uds.ars.length_of_ephemeral_public_key_client", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_ephemeral_public_key_client, {
+            "Ephemeral Public Key Client", "uds.ars.ephemeral_public_key_client", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_ephemeral_public_key_server, {
+            "Length of Ephemeral Public Key Server", "uds.ars.length_of_ephemeral_public_key_server", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_ephemeral_public_key_server, {
+            "Ephemeral Public Key Server", "uds.ars.ephemeral_public_key_server", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_cert_eval_id, {
+            "Certificate Evaluation ID", "uds.ars.certificate_evaluation_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_cert_data, {
+            "Length of Certificate Data", "uds.ars.length_of_certificate_data", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_cert_data, {
+            "Certificate Data", "uds.ars.certificate_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_algo_indicator, {
+            "Algorithm Indicator", "uds.ars.algorithm_indicator", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_additional_parameter, {
+            "Length of Additional Parameter", "uds.ars.length_of_additional_parameter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_additional_parameter, {
+            "Additional Parameter", "uds.ars.additional_parameter", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_needed_additional_parameter, {
+            "Length of Needed Additional Parameter", "uds.ars.length_of_needed_additional_parameter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_needed_additional_parameter, {
+            "Needed Additional Parameter", "uds.ars.needed_additional_parameter", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_auth_ret_param, {
+            "Authentication Return Parameter", "uds.ars.authentication_return_parameter", FT_UINT8, BASE_HEX, VALS(uds_ars_auth_ret_types), 0x0, NULL, HFILL } },
+        { &hf_uds_ars_length_of_session_key_info, {
+            "Length of Session Key Info", "uds.ars.length_of_session_key_info", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_ars_session_key_info, {
+            "Session Key Info", "uds.ars.session_key_info", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_rdbpi_transmission_mode, {
+            "Transmission Mode", "uds.rdbpi.transmission_mode", FT_UINT8, BASE_HEX, VALS(uds_rdbpi_transmission_mode), 0x0, NULL, HFILL } },
+        { &hf_uds_rdbpi_periodic_data_identifier, {
+            "Periodic Data Identifier", "uds.rdbpi.periodic_data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_dddi_subfunction_no_suppress, {
+            "SubFunction (without Suppress)", "uds.dddi.subfunction_without_suppress", FT_UINT8, BASE_HEX, VALS(uds_dddi_types), UDS_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_dddi_dyn_defined_data_identifier, {
+            "Dynamically Defined Data Identifier", "uds.dddi.dynamically_defined_data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_dddi_source_data_identifier, {
+            "Source Data Identifier", "uds.dddi.source_data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_dddi_position_in_source_data_record, {
+            "Position in Source Data Record", "uds.dddi.position_in_source_data_record", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_dddi_memory_size, {
+            "Memory Size", "uds.dddi.memory_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
         { &hf_uds_wdbi_data_identifier, {
             "Data Identifier", "uds.wdbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_uds_wdbi_data_record, {
-            "Data Record", "uds.wdbi.data_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_iocbi_data_identifier, {
             "Data Identifier", "uds.iocbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -2234,40 +3418,71 @@ proto_register_uds(void)
         { &hf_uds_rc_status_record, {
             "Status Record", "uds.rc.status_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-        { &hf_uds_rd_compression_method, {
-            "Compression Method", "uds.rd.compression_method", FT_UINT8, BASE_HEX, NULL, UDS_RD_COMPRESSION_METHOD_MASK, NULL, HFILL } },
-        { &hf_uds_rd_encrypting_method, {
-            "Encrypting Method", "uds.rd.encrypting_method", FT_UINT8, BASE_HEX, NULL, UDS_RD_ENCRYPTING_METHOD_MASK, NULL, HFILL } },
-        { &hf_uds_rd_memory_size_length, {
-            "Memory size length", "uds.rd.memory_size_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MEMORY_SIZE_LENGTH_MASK, NULL, HFILL } },
-        { &hf_uds_rd_memory_address_length, {
-            "Memory address length", "uds.rd.memory_address_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MEMORY_ADDRESS_LENGTH_MASK, NULL, HFILL } },
-        { &hf_uds_rd_memory_address, {
-            "Memory Address", "uds.rd.memory_address", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_uds_rd_memory_size, {
-            "Memory Size", "uds.rd.memory_size", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_uds_rd_max_block_len_len, {
-            "Length of Max Block Length", "uds.rd.max_block_length_length", FT_UINT8, BASE_HEX, NULL, UDS_RD_MAX_BLOCK_LEN_LEN_MASK, NULL, HFILL } },
-        { &hf_uds_rd_max_block_len, {
-            "Max Block Length", "uds.rd.max_block_length", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
         { &hf_uds_td_sequence_counter, {
             "Block Sequence Counter", "uds.td.block_sequence_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_td_record_data, {
             "Parameter Record", "uds.td.parameter_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-        { &hf_uds_tp_subfunction, {
-            "SubFunction", "uds.tp.subfunction", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_uds_tp_subfunction_no_suppress, {
-            "SubFunction (without Suppress)", "uds.tp.subfunction_without_suppress", FT_UINT8, BASE_HEX, NULL, UDS_TP_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_rte_record_data, {
+            "Parameter Record", "uds.rte.parameter_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-        { &hf_uds_tp_suppress_pos_rsp_msg_ind, {
-            "Suppress reply", "uds.tp.suppress_reply.indication", FT_BOOLEAN, 8, NULL, UDS_TP_SUPPRESS_POS_RSP_MSG_IND_MASK, NULL, HFILL } },
+        { &hf_uds_rft_mode_of_operation, {
+            "Mode of Operation", "uds.rft.mode_of_operation", FT_UINT8, BASE_HEX, VALS(uds_rft_mode_types), 0x0, NULL, HFILL } },
+        { &hf_uds_rft_length_of_file_path_and_name, {
+            "Length of File Path and Name", "uds.rft.length_of_file_path_and_name", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_path_and_name, {
+            "File Path and Name", "uds.rft.file_path_and_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_size_param_length, {
+            "File Size Parameter Length", "uds.rft.file_size_parameter_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_size_uncompressed, {
+            "File Size Uncompressed", "uds.rft.file_size_uncompressed", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_size_compressed, {
+            "File Size Compressed", "uds.rft.file_size_compressed", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_length_format_identifier, {
+            "Length Format Identifier", "uds.rft.length_format_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_max_num_of_block_length, {
+            "Max Number of Block Length", "uds.rft.max_number_of_block_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_size_or_dir_info_param_length, {
+            "File Size or Dir Info Parameter Length", "uds.rft.file_size_or_dir_info_parameter_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_size_uncompressed_or_dir_info_length, {
+            "File Size Uncompressed or Dir Info Length", "uds.rft.file_size_uncompressed_or_dir_info_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_rft_file_position, {
+            "File Position", "uds.rft.file_position", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_tp_subfunction_no_suppress, {
+            "SubFunction (without Suppress)", "uds.tp.subfunction_without_suppress", FT_UINT8, BASE_HEX, NULL, UDS_SUBFUNCTION_MASK, NULL, HFILL } },
 
         { &hf_uds_err_sid,  {
             "Service Identifier", "uds.err.sid", FT_UINT8, BASE_HEX, VALS(uds_services), 0x0, NULL, HFILL } },
         { &hf_uds_err_code, {
             "Code", "uds.err.code",  FT_UINT8, BASE_HEX, VALS(uds_response_codes), 0x0, NULL, HFILL }  },
+
+        { &hf_uds_sdt_administrative_param, {
+            "Administrative Parameter", "uds.sdt.admin_param",  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sdt_administrative_param_req, {
+            "Request message", "uds.sdt.admin_param.request", FT_BOOLEAN, 16, NULL, UDS_SDT_ADMIN_PARAM_REQ, NULL, HFILL } },
+        { &hf_uds_sdt_administrative_param_pre_estab_key, {
+            "Pre-established key is used", "uds.sdt.admin_param.pre_estab_key", FT_BOOLEAN, 16, NULL, UDS_SDT_ADMIN_PARAM_PRE_ESTABL_KEY, NULL, HFILL } },
+        { &hf_uds_sdt_administrative_param_encrypted, {
+            "Message is encrypted", "uds.sdt.admin_param.encrypted", FT_BOOLEAN, 16, NULL, UDS_SDT_ADMIN_PARAM_ENCRYPTED, NULL, HFILL } },
+        { &hf_uds_sdt_administrative_param_signed, {
+            "Message is signed", "uds.sdt.admin_param.signed", FT_BOOLEAN, 16, NULL, UDS_SDT_ADMIN_PARAM_SIGNED, NULL, HFILL } },
+        { &hf_uds_sdt_administrative_param_resp_sign_req, {
+            "Signature on the response is requested", "uds.sdt.admin_param.resp_sign_req", FT_BOOLEAN, 16, NULL, UDS_SDT_ADMIN_PARAM_SIGN_ON_RESP_REQ, NULL, HFILL } },
+        { &hf_uds_sdt_signature_encryption_calculation, {
+            "Signature/Encryption Calculation", "uds.sdt.signature_encryption_calculation",  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sdt_signature_length, {
+            "Signature/MAC Length", "uds.sdt.signature_length",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sdt_anti_replay_counter, {
+            "Anti-replay Counter", "uds.sdt.anti_replay_counter",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sdt_encapsulated_message, {
+            "Encapsulated Message", "uds.sdt.encapsulated_message",  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_sdt_encapsulated_message_sid, {
+            "Service Identifier", "uds.sdt.encapsulated_message.sid",  FT_UINT8, BASE_HEX, VALS(uds_services), UDS_SID_MASK, NULL, HFILL } },
+        { &hf_uds_sdt_encapsulated_message_sid_reply, {
+            "Reply Flag", "uds.sdt.encapsulated_message.reply", FT_UINT8, BASE_HEX, NULL, UDS_REPLY_MASK, NULL, HFILL } },
+        { &hf_uds_sdt_signature_mac, {
+            "Signature/MAC", "uds.sdt.signature_mac",  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_cdtcs_subfunction, {
             "SubFunction", "uds.cdtcs.subfunction", FT_UINT8, BASE_HEX, VALS(uds_cdtcs_types), 0x0, NULL, HFILL } },
@@ -2275,6 +3490,17 @@ proto_register_uds(void)
             "Option Record", "uds.cdtcs.option_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_cdtcs_type, {
             "DTC Setting Type", "uds.cdtcs.dtc_setting_type", FT_UINT8, BASE_HEX, VALS(uds_cdtcs_types), 0x0, NULL, HFILL } },
+
+        { &hf_uds_lc_subfunction, {
+            "SubFunction", "uds.lc.subfunction", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_lc_subfunction_no_suppress, {
+            "SubFunction (without Suppress)", "uds.lc.subfunction_without_suppress", FT_UINT8, BASE_HEX, VALS(uds_lc_types), UDS_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_lc_subfunction_pos_rsp_msg_ind, {
+            "Suppress reply", "uds.lc.suppress_reply", FT_BOOLEAN, 8, NULL, UDS_SUPPRESS_POS_RSP_MSG_IND_MASK, NULL, HFILL } },
+        { &hf_uds_lc_control_mode_id, {
+            "Link Control Mode Identifier", "uds.lc.link_control_mode_identifier", FT_UINT8, BASE_HEX, VALS(uds_lc_lcmi_types), 0x0, NULL, HFILL } },
+        { &hf_uds_lc_link_record, {
+            "Link Record", "uds.lc.link_record", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_unparsed_bytes, {
             "Unparsed Bytes", "uds.unparsed_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -2289,17 +3515,24 @@ proto_register_uds(void)
     static gint *ett[] = {
         &ett_uds,
         &ett_uds_subfunction,
-        &ett_uds_dsc_parameter_record,
         &ett_uds_dtc_status_entry,
         &ett_uds_dtc_status_bits,
         &ett_uds_dtc_snapshot_entry,
         &ett_uds_dtc_counter_entry,
+        &ett_uds_dsc_parameter_record,
+        &ett_uds_rsdbi_scaling_byte,
+        &ett_uds_rsdbi_formula_constant,
+        &ett_uds_cc_communication_type,
+        &ett_uds_ars_algo_indicator,
+        &ett_uds_dddi_entry,
+        &ett_uds_sdt_admin_param,
+        &ett_uds_sdt_encap_message,
     };
 
     proto_uds = proto_register_protocol (
-        "Unified Diagnostic Services", /* name       */
-        "UDS",          /* short name */
-        "uds"           /* abbrev     */
+        "Unified Diagnostic Services",  /* name       */
+        "UDS",                          /* short name */
+        "uds"                           /* abbrev     */
     );
 
     proto_register_field_array(proto_uds, hf, array_length(hf));
@@ -2321,7 +3554,6 @@ proto_register_uds(void)
         UAT_END_FIELDS
     };
 
-    /* UATs */
     uds_routine_ids_uat = uat_new("UDS Routine Identifier List",
         sizeof(generic_addr_id_string_t),           /* record size           */
         DATAFILE_UDS_ROUTINE_IDS,                   /* filename              */
