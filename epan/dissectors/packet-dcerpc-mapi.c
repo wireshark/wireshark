@@ -7731,7 +7731,6 @@ mapi_deobfuscate(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 size)
 	if ((guint32) reported_len > size) {
 		reported_len = size;
 	}
-	
 	if (size > (guint32) reported_len) {
 		size = reported_len;
 	}
@@ -8029,7 +8028,7 @@ mapi_dissect_AUX_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 			return mapi_dissect_AuxDataVersion2(tvb, offset, pinfo, parent_tree, di, drep, hf_mapi_AUX_DATA_Version2, hdrType);
 		default:
 			return offset;
-	}	
+	}
 }
 int
 mapi_dissect_AUX_HEADER_TYPE_ENUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint8 Version, int hf_index _U_, guint8 *hdrType)
@@ -8081,7 +8080,6 @@ mapi_dissect_struct_EcDoRpcMapiRequest(tvbuff_t *tvb _U_, int offset _U_, packet
 	}
 	offset = PIDL_dissect_uint8_val(tvb, offset, pinfo, tree, di, drep, hf_mapi_EcDoRpcMapiRequest_opnum, param, &opnum);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation"));
-	
 	offset = mapi_dissect_element_EcDoRpcMapiRequest_logon_id(tvb, offset, pinfo, tree, di, drep);
 	offset = mapi_dissect_element_EcDoRpcMapiRequest_handle_idx(tvb, offset, pinfo, tree, di, drep);
 	offset = mapi_dissect_element_EcDoRpcMapiRequest_u(tvb, offset, pinfo, tree, di, drep, &opnum);
@@ -8120,7 +8118,7 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 		mapi_dissect_element_handles_cnf(decrypted_tvb, pdu_len, pinfo, tr, di, hf_mapi_mapi_request_handles, drep);
 		offset += size;
 	}
-	proto_item_set_len(item, offset - start_offset); 
+	proto_item_set_len(item, offset - start_offset);
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
 		ALIGN_TO_5_BYTES;
 	}
