@@ -1,7 +1,7 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V17.3.0 Release 17) packet dissection
+ * (3GPP TS 38.331 V17.4.0 Release 17) packet dissection
  * Copyright 2018-2023, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
