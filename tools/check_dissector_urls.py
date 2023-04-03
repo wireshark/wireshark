@@ -246,13 +246,13 @@ session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) Apple
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'})
 
 # Try out the links.
-for checks, link in enumerate(links):
+for l in links:
     if should_exit:
         # i.e. if Ctrl-C has been pressed.
         exit(0)
-    link.validate(session)
-    if args.verbose or not link.success:
-        print(link)
+    l.validate(session)
+    if args.verbose or not l.success:
+        print(l)
 
 
 # Write failures to a file.  Back up any previous first though.
