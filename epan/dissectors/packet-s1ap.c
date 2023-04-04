@@ -15,7 +15,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V17.3.0 (2022-12)
+ * References: 3GPP TS 36.413 V17.4.0 (2023-03)
  */
 
 #include "config.h"
@@ -7998,14 +7998,14 @@ dissect_s1ap_ListeningSubframePattern(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const value_string s1ap_LoggingInterval_vals[] = {
-  {   0, "ms128" },
-  {   1, "ms256" },
-  {   2, "ms512" },
-  {   3, "ms1024" },
-  {   4, "ms2048" },
-  {   5, "ms3072" },
-  {   6, "ms4096" },
-  {   7, "ms6144" },
+  {   0, "ms1280" },
+  {   1, "ms2560" },
+  {   2, "ms5120" },
+  {   3, "ms10240" },
+  {   4, "ms20480" },
+  {   5, "ms30720" },
+  {   6, "ms40960" },
+  {   7, "ms61440" },
   { 0, NULL }
 };
 

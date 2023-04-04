@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.3.0 (2022-12)
+-- 3GPP TS 36.413 V17.4.0 (2023-03)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -474,7 +474,6 @@ CellIdentifierAndCELevelForCECapableUEs-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
--- Coverage Enhancement level encoded according to TS 36.331 [16] --
 CELevel ::= OCTET STRING
 
 CE-mode-B-SupportIndicator ::= ENUMERATED {
@@ -1642,7 +1641,7 @@ LoggedMDT-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
 ...
 }
 
-LoggingInterval ::= ENUMERATED {ms128, ms256, ms512, ms1024, ms2048, ms3072, ms4096, ms6144}
+LoggingInterval ::= ENUMERATED {ms1280, ms2560, ms5120, ms10240, ms20480, ms30720, ms40960, ms61440}
 
 LoggingDuration ::= ENUMERATED {m10, m20, m40, m60, m90, m120}
 
@@ -3122,7 +3121,6 @@ UEIdentityIndexValue	::=	BIT STRING (SIZE (10))
 UE-HistoryInformation ::= SEQUENCE (SIZE(1..maxnoofCellsinUEHistoryInfo)) OF LastVisitedCell-Item
 
 UE-HistoryInformationFromTheUE ::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the VisitedCellInfoList field contained in the UEInformationResponse message as defined in TS 36.331 [16]
 
 UEPagingID ::= CHOICE {
 	s-TMSI		S-TMSI,
@@ -3137,10 +3135,8 @@ UERadioCapabilityForPaging ::= OCTET STRING
 UERadioCapabilityID ::= OCTET STRING
 
 UE-RLF-Report-Container ::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the rlf-Report-r9 field contained in the UEInformationResponse message as defined in TS 36.331 [16]
 
 UE-RLF-Report-Container-for-extended-bands ::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the rlf-Report-v9e0 contained in the UEInformationResponse message as defined in TS 36.331 [16]
 
 UESecurityCapabilities ::= SEQUENCE {
 	encryptionAlgorithms			EncryptionAlgorithms,
