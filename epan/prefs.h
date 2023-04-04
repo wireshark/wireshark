@@ -180,6 +180,7 @@ typedef struct _e_prefs {
   gboolean     gui_interfaces_show_hidden;
   gboolean     gui_interfaces_remote_display;
   gboolean     gui_io_graph_automatic_update;
+  gboolean     gui_io_graph_enable_legend;
   gboolean     gui_packet_details_show_byteview;
   gchar       *capture_device;
   gchar       *capture_devices_linktypes;

@@ -3534,6 +3534,11 @@ prefs_register_modules(void)
         "Enables automatic updates for IO Graph",
         &prefs.gui_io_graph_automatic_update);
 
+    prefs_register_bool_preference(gui_module, "io_graph_enable_legend",
+        "Enables the legend of IO Graph",
+        "Enables the legend of IO Graph",
+        &prefs.gui_io_graph_enable_legend);
+
     prefs_register_bool_preference(gui_module, "show_byteview_in_dialog",
         "Show the byte view in the packet details dialog",
         "Show the byte view in the packet details dialog",
@@ -4282,6 +4287,7 @@ pre_init_prefs(void)
 
     /* set the default values for the io graph dialog */
     prefs.gui_io_graph_automatic_update = TRUE;
+    prefs.gui_io_graph_enable_legend = TRUE;
 
     /* set the default values for the packet dialog */
     prefs.gui_packet_details_show_byteview = TRUE;
