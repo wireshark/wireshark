@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V17.3.0 (2022-12)
+ * 3GPP TS 38.423 V17.4.0 (2023-03)
  */
 
 #include "config.h"
@@ -133,6 +133,7 @@ static gint ett_xnap_ReportConfigContainer = -1;
 static gint ett_xnap_RLC_Bearer_Configuration = -1;
 static gint ett_xnap_SuccessfulHOReportContainer = -1;
 static gint ett_xnap_UERLFReportContainerLTEExtendBand = -1;
+static gint ett_xnap_MDTMode_EUTRA = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -534,6 +535,7 @@ void proto_register_xnap(void) {
     &ett_xnap_RLC_Bearer_Configuration,
     &ett_xnap_SuccessfulHOReportContainer,
     &ett_xnap_UERLFReportContainerLTEExtendBand,
+    &ett_xnap_MDTMode_EUTRA,
 #include "packet-xnap-ettarr.c"
   };
 

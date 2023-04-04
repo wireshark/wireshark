@@ -709,7 +709,6 @@ static int hf_s1ap_HandoverFlag_PDU = -1;         /* HandoverFlag */
 static int hf_s1ap_s1ap_HandoverRestrictionList_PDU = -1;  /* HandoverRestrictionList */
 static int hf_s1ap_HandoverType_PDU = -1;         /* HandoverType */
 static int hf_s1ap_Masked_IMEISV_PDU = -1;        /* Masked_IMEISV */
-static int hf_s1ap_s1ap_ImmediateMDT_PDU = -1;    /* ImmediateMDT */
 static int hf_s1ap_InformationOnRecommendedCellsAndENBsForPaging_PDU = -1;  /* InformationOnRecommendedCellsAndENBsForPaging */
 static int hf_s1ap_IntersystemMeasurementConfiguration_PDU = -1;  /* IntersystemMeasurementConfiguration */
 static int hf_s1ap_s1ap_IntersystemSONConfigurationTransfer_PDU = -1;  /* IntersystemSONConfigurationTransfer */
@@ -15684,14 +15683,6 @@ static int dissect_Masked_IMEISV_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
-int dissect_s1ap_ImmediateMDT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_s1ap_ImmediateMDT(tvb, offset, &asn1_ctx, tree, hf_s1ap_s1ap_ImmediateMDT_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_InformationOnRecommendedCellsAndENBsForPaging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -19208,10 +19199,6 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_Masked_IMEISV_PDU,
       { "Masked-IMEISV", "s1ap.Masked_IMEISV",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_s1ap_s1ap_ImmediateMDT_PDU,
-      { "ImmediateMDT", "s1ap.ImmediateMDT_element",
-        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_InformationOnRecommendedCellsAndENBsForPaging_PDU,
       { "InformationOnRecommendedCellsAndENBsForPaging", "s1ap.InformationOnRecommendedCellsAndENBsForPaging_element",
