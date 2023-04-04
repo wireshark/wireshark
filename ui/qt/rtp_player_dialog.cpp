@@ -1533,7 +1533,7 @@ void RtpPlayerDialog::outputNotify()
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     // First notify can show end of buffer, not play point so we have
     // remember the shift
-    if ( -1 == notify_timer_start_diff_) {
+    if ( -1 == notify_timer_start_diff_ || 0 == notify_timer_start_diff_) {
       notify_timer_start_diff_ = usecs;
     }
     usecs -= notify_timer_start_diff_;
