@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.3.0 (2022-12)
+-- 3GPP TS 38.413 V17.4.0 (2023-03)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -582,6 +582,9 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-ManagementBasedMDTPLMNModificationList				ProtocolIE-ID ::= 359
 	id-EarlyMeasurement										ProtocolIE-ID ::= 360
 	id-BeamMeasurementsReportConfiguration					ProtocolIE-ID ::= 361
+	id-HFCNode-ID-new										ProtocolIE-ID ::= 362
+	id-GlobalCable-ID-new									ProtocolIE-ID ::= 363
+	id-TargetHomeENB-ID										ProtocolIE-ID ::= 364
 
 
 END

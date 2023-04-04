@@ -1677,6 +1677,10 @@ id-MBSSessionReleaseResponseTransfer               ProtocolIE-ID
 id-ManagementBasedMDTPLMNModificationList          ProtocolIE-ID
 id-EarlyMeasurement                                ProtocolIE-ID
 id-BeamMeasurementsReportConfiguration             ProtocolIE-ID
+id-HFCNode-ID-new                                  ProtocolIE-ID
+id-GlobalCable-ID-new                              ProtocolIE-ID
+id-TargetHomeENB-ID                                ProtocolIE-ID
+
 #.END
 
 
@@ -1950,6 +1954,9 @@ MBS-SessionTNLInfo5GC                                    N ngap.ies id-MBS-Sessi
 MBS-SessionFSAIDList                                     N ngap.ies id-MBS-SessionFSAIDList
 MBSSessionReleaseResponseTransfer-OCTET-STRING           N ngap.ies id-MBSSessionReleaseResponseTransfer
 MDTPLMNModificationList                                  N ngap.ies id-ManagementBasedMDTPLMNModificationList
+HFCNode-ID-new                                           N ngap.ies id-HFCNode-ID-new
+GlobalCable-ID-new                                       N ngap.ies id-GlobalCable-ID-new
+TargetHomeENB-ID                                         N ngap.ies id-TargetHomeENB-ID
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -2049,6 +2056,8 @@ NGAPIESupportInformationRequestList                    N ngap.extension id-NGAPI
 NGAPIESupportInformationResponseList                   N ngap.extension id-NGAPIESupportInformationResponseList
 EarlyMeasurement                                       N ngap.extension id-EarlyMeasurement
 BeamMeasurementsReportConfiguration                    N ngap.extension id-BeamMeasurementsReportConfiguration
+TAI                                                    N ngap.extension id-TAI
+NR-CGI                                                 N ngap.extension id-NR-CGI
 
 #NGAP-ELEMENTARY-PROCEDURE
 
