@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.3.0 (2022-12)
+-- 3GPP TS 38.473 V17.4.0 (2023-03)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -255,6 +255,8 @@ maxnoofMBSSessionsofUE					INTEGER ::= 256
 maxnoofSLdestinations					INTEGER ::= 32
 maxnoofNSAGs							INTEGER ::= 256
 maxnoofSDTBearers						INTEGER ::= 72
+maxnoofServingCellMOs					INTEGER ::= 16
+maxNrofBWPs								INTEGER ::= 8
 maxnoofPosSITypes						INTEGER ::= 32
 
 
@@ -966,5 +968,13 @@ id-UE-MulticastMRBs-ToBeSetup-atModify-Item			ProtocolIE-ID ::= 686
 id-MC-PagingCell-List								ProtocolIE-ID ::= 687
 id-MC-PagingCell-Item								ProtocolIE-ID ::= 688
 id-SRSPosRRCInactiveQueryIndication					ProtocolIE-ID ::= 689
+id-UlTxDirectCurrentMoreCarrierInformation	        ProtocolIE-ID ::= 690
+id-CPACMCGInformation								ProtocolIE-ID ::= 691
+id-TwoPHRModeMCG									ProtocolIE-ID ::= 692
+id-TwoPHRModeSCG									ProtocolIE-ID ::= 693
+id-ExtendedUEIdentityIndexValue						ProtocolIE-ID ::= 694
+id-ServingCellMO-List								ProtocolIE-ID ::= 695
+id-ServingCellMO-List-Item							ProtocolIE-ID ::= 696
+id-ServingCellMO-encoded-in-CGC-List				ProtocolIE-ID ::= 697
 
 END
