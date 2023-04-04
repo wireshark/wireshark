@@ -2086,6 +2086,27 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         rtp_info->info_media_types = p_conv_data->media_types;
         rtp_info->info_extended_seq_num = p_conv_data->extended_seqno;
         rtp_info->info_extended_timestamp = p_conv_data->extended_timestamp;
+    } else {
+      /* Create a conversation in case none exists (decode as is used for marking the packet as RTP) */
+        conversation_t *p_conv;
+        p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src, conversation_pt_to_conversation_type(pinfo->ptype),
+                                  pinfo->destport, pinfo->srcport, NO_ADDR2);
+        p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+        if (! p_conv_data) {
+            /* Create conversation data */
+            p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
+            p_conv_data->extended_seqno = 0x10000;
+            p_conv_data->extended_timestamp = 0x100000000;
+            p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
+            p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+            conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
+        }
+        (void) g_strlcpy(p_conv_data->method, "DECODE AS", MAX_RTP_SETUP_METHOD_SIZE+1);
+        p_conv_data->frame_number = pinfo->num;
+        p_conv_data->media_types = 0;
+        p_conv_data->srtp_info = NULL;
+        p_conv_data->bta2dp_info = NULL;
+        p_conv_data->btvdp_info = NULL;
     }
 
     if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
