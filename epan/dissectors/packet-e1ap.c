@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 37.483 V17.3.0 (2022-12)
+ * References: 3GPP TS 37.483 V17.4.0 (2023-03)
  */
 
 #include "config.h"
@@ -871,11 +871,11 @@ static int hf_e1ap_mcMRBModifyConfirmList = -1;   /* MCMRBModifyConfirmList */
 static int hf_e1ap_MCMRBModifyConfirmList_item = -1;  /* MCMRBModifyConfirmList_Item */
 static int hf_e1ap_mcForwardingResourceID = -1;   /* MCForwardingResourceID */
 static int hf_e1ap_mrbForwardingResourceRequestList = -1;  /* MRBForwardingResourceRequestList */
-static int hf_e1ap_mbsSessionAssociatedInformation = -1;  /* MBSSessionAssociatedInformation */
 static int hf_e1ap_MRBForwardingResourceRequestList_item = -1;  /* MRBForwardingResourceRequest_Item */
 static int hf_e1ap_mrbProgressRequestType = -1;   /* MRB_ProgressInformationType */
 static int hf_e1ap_mrbForwardingAddressRequest = -1;  /* T_mrbForwardingAddressRequest */
 static int hf_e1ap_mrbForwardingResourceIndicationList = -1;  /* MRBForwardingResourceIndicationList */
+static int hf_e1ap_mbsSessionAssociatedInformation = -1;  /* MBSSessionAssociatedInformation */
 static int hf_e1ap_MRBForwardingResourceIndicationList_item = -1;  /* MRBForwardingResourceIndication_Item */
 static int hf_e1ap_mrb_ProgressInformation = -1;  /* MRB_ProgressInformation */
 static int hf_e1ap_mrbForwardingAddress = -1;     /* UP_TNL_Information */
@@ -7092,7 +7092,7 @@ dissect_e1ap_INTEGER_0_100_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static const per_sequence_t HW_CapacityIndicator_sequence[] = {
   { &hf_e1ap_offeredThroughput, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_1_16777216_ },
   { &hf_e1ap_availableThroughput, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_0_100_ },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolExtensionContainer },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -8095,7 +8095,6 @@ static const per_sequence_t MCForwardingResourceRequest_sequence[] = {
   { &hf_e1ap_mcForwardingResourceID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MCForwardingResourceID },
   { &hf_e1ap_mbsAreaSession_ID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBSAreaSessionID },
   { &hf_e1ap_mrbForwardingResourceRequestList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MRBForwardingResourceRequestList },
-  { &hf_e1ap_mbsSessionAssociatedInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBSSessionAssociatedInformation },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -8203,6 +8202,7 @@ dissect_e1ap_MRBForwardingResourceIndicationList(tvbuff_t *tvb _U_, int offset _
 static const per_sequence_t MCForwardingResourceIndication_sequence[] = {
   { &hf_e1ap_mcForwardingResourceID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MCForwardingResourceID },
   { &hf_e1ap_mrbForwardingResourceIndicationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MRBForwardingResourceIndicationList },
+  { &hf_e1ap_mbsSessionAssociatedInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_MBSSessionAssociatedInformation },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -9742,7 +9742,7 @@ static const per_sequence_t TNL_AvailableCapacityIndicator_sequence[] = {
   { &hf_e1ap_dL_TNL_AvailableCapacity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_0_100_ },
   { &hf_e1ap_uL_TNL_OfferedCapacity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_0_16777216_ },
   { &hf_e1ap_uL_TNL_AvailableCapacity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_0_100_ },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolExtensionContainer },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -15967,10 +15967,6 @@ void proto_register_e1ap(void) {
       { "mrbForwardingResourceRequestList", "e1ap.mrbForwardingResourceRequestList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_mbsSessionAssociatedInformation,
-      { "mbsSessionAssociatedInformation", "e1ap.mbsSessionAssociatedInformation_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_e1ap_MRBForwardingResourceRequestList_item,
       { "MRBForwardingResourceRequest-Item", "e1ap.MRBForwardingResourceRequest_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -15986,6 +15982,10 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_mrbForwardingResourceIndicationList,
       { "mrbForwardingResourceIndicationList", "e1ap.mrbForwardingResourceIndicationList",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_mbsSessionAssociatedInformation,
+      { "mbsSessionAssociatedInformation", "e1ap.mbsSessionAssociatedInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_MRBForwardingResourceIndicationList_item,
       { "MRBForwardingResourceIndication-Item", "e1ap.MRBForwardingResourceIndication_Item_element",
