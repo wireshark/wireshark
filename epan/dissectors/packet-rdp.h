@@ -26,6 +26,7 @@ typedef enum {
 	RDP_CHANNEL_CLIPBOARD,
 	RDP_CHANNEL_SOUND,
 	RDP_CHANNEL_DISK,
+	RDP_CHANNEL_RAIL,
 } rdp_known_channel_t;
 
 typedef struct _rdp_channel_def {

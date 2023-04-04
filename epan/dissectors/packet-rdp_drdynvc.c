@@ -58,6 +58,7 @@ static int ett_rdp_drdynvc_softsync_channel = -1;
 static int ett_rdp_drdynvc_softsync_dvc = -1;
 
 dissector_handle_t egfx_handle;
+dissector_handle_t rail_handle;
 
 #define PNAME  "RDP Dynamic Channel Protocol"
 #define PSNAME "DRDYNVC"
@@ -87,7 +88,9 @@ typedef enum {
 	DRDYNVC_CHANNEL_DISPLAY, /* MS-RDPEDISP */
 	DRDYNVC_CHANNEL_GEOMETRY,/* MS-RDPEGT */
 	DRDYNVC_CHANNEL_MULTITOUCH, /* MS-RDPEI */
-	DRDYNVC_CHANNEL_AUTH_REDIR /* MS-RDPEAR */
+	DRDYNVC_CHANNEL_AUTH_REDIR, /* MS-RDPEAR */
+
+	DRDYNVC_CHANNEL_RAIL, /* MS-RDPERP */
 } drdynvc_known_channel_t;
 
 enum {
@@ -152,7 +155,10 @@ static drdynvc_know_channel_def knownChannels[] = {
 	{"Microsoft::Windows::RDS::Graphics", "egfx", DRDYNVC_CHANNEL_EGFX},
 	{"Microsoft::Windows::RDS::DisplayControl", "display", DRDYNVC_CHANNEL_DISPLAY},
 	{"Microsoft::Windows::RDS::Geometry::v08.01", "geometry", DRDYNVC_CHANNEL_GEOMETRY},
-	{"Microsoft::Windows::RDS::Input", "input",	DRDYNVC_CHANNEL_MULTITOUCH}
+	{"Microsoft::Windows::RDS::Input", "input",	DRDYNVC_CHANNEL_MULTITOUCH},
+
+	/* static channels that can be reopened on the dynamic channel */
+	{"rail", "rail", DRDYNVC_CHANNEL_RAIL},
 };
 
 static drdynvc_known_channel_t
@@ -425,6 +431,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					case DRDYNVC_CHANNEL_EGFX:
 						call_dissector(egfx_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 						break;
+					case DRDYNVC_CHANNEL_RAIL:
+						call_dissector(rail_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+						break;
 					default:
 						proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
 						break;
@@ -513,6 +522,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					switch (channel->type) {
 					case DRDYNVC_CHANNEL_EGFX:
 						call_dissector(egfx_handle, targetTvb, pinfo, tree);
+						break;
+					case DRDYNVC_CHANNEL_RAIL:
+						call_dissector(rail_handle, targetTvb, pinfo, tree);
 						break;
 					default:
 						proto_tree_add_item(tree, hf_rdp_drdynvc_data, targetTvb, offset, -1, ENC_NA);
@@ -793,6 +805,7 @@ void proto_register_rdp_drdynvc(void) {
 
 void proto_reg_handoff_drdynvc(void) {
 	egfx_handle = find_dissector("rdp_egfx");
+	rail_handle = find_dissector("rdp_rail");
 }
 
 /*

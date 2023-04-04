@@ -37,6 +37,7 @@ static heur_dissector_list_t rdp_heur_subdissector_list;
 int proto_rdp = -1;
 
 static dissector_handle_t drdynvc_handle;
+static dissector_handle_t rail_handle;
 
 static int ett_rdp = -1;
 
@@ -1386,6 +1387,8 @@ find_known_channel_by_name(const char *name) {
 		return RDP_CHANNEL_SOUND;
 	if (g_ascii_strcasecmp(name, "cliprdr") == 0)
 		return RDP_CHANNEL_CLIPBOARD;
+	if (g_ascii_strcasecmp(name, "rail") == 0)
+		return RDP_CHANNEL_RAIL;
 	return RDP_CHANNEL_UNKNOWN;
 }
 
@@ -1445,8 +1448,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 			channel->value = -1; /* unset */
 			channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb,
 					offset, 8, ENC_ASCII);
-			channel->channelType = find_known_channel_by_name(
-					channel->strptr);
+			channel->channelType = find_known_channel_by_name(channel->strptr);
 		}
 		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree,
 				def_fields, 0);
@@ -1595,6 +1597,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   channelType = find_channel_type(pinfo, t124_get_last_channelId());
   switch (channelType) {
   case RDP_CHANNEL_DRDYNVC:
+  case RDP_CHANNEL_RAIL:
 	  channelPDU_fields[1].pfield = NULL;
 	  break;
   default:
@@ -1613,6 +1616,10 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   case RDP_CHANNEL_DRDYNVC:
 	  subtvb = tvb_new_subset_length(tvb, offset, length);
 	  offset += call_dissector(drdynvc_handle, subtvb, pinfo, tree);
+	  break;
+  case RDP_CHANNEL_RAIL:
+	  subtvb = tvb_new_subset_length(tvb, offset, length);
+	  offset += call_dissector(rail_handle, subtvb, pinfo, tree);
 	  break;
   default:
 	  break;
@@ -4687,6 +4694,7 @@ void
 proto_reg_handoff_rdp(void)
 {
   drdynvc_handle = find_dissector("rdp_drdynvc");
+  rail_handle = find_dissector("rdp_rail");
 
   heur_dissector_add("cotp_cr", dissect_rdp_cr, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
   heur_dissector_add("cotp_cc", dissect_rdp_cc, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
