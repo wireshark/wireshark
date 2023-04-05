@@ -410,6 +410,11 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
             &related_packet_delegate_, SLOT(addRelatedFrame(int,ft_framenum_type_t)));
 }
 
+bool PacketList::uniqueSelectActive()
+{
+    return selectionModel()->selectedRows(0).count() == 1 ? true : false;
+}
+
 bool PacketList::multiSelectActive()
 {
     return selectionModel()->selectedRows(0).count() > 1 ? true : false;

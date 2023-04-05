@@ -43,6 +43,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     bool hasSelection();
+    bool hasUniqueSelection();
     QList<int> selectedRows(bool useFrameNum = false);
     void insertColumn(QString name, QString abbrev, gint pos = -1);
     void gotoFrame(int packet_num);

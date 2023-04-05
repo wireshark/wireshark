@@ -87,6 +87,7 @@ public:
 
     frame_data * getFDataForRow(int row) const;
 
+    bool uniqueSelectActive();
     bool multiSelectActive();
     QList<int> selectedRows(bool useFrameNum = false);
 
