@@ -62,9 +62,9 @@ import "nspi.idl";
     [out]       uint32    *picxr,
     [out,unique,ref,string,charset(DOS)] uint8 **szDNPrefix,
     [out,unique,ref,string,charset(DOS)] uint8 **szDisplayName,
-    [in]        uint16    rgwClientVersion[3],
-    [out]       uint16    rgwServerVersion[3],
-    [out]       uint16    rgwBestVersion[3],
+    [in,string]  uint8    rgwClientVersion[6],
+    [out,string] uint8    rgwServerVersion[6],
+    [out,string] uint8    rgwBestVersion[6],
     [in,out]    uint32    *pullTimeStamp
     );
 
@@ -3595,9 +3595,9 @@ import "nspi.idl";
     [out]       uint32          *picxr,
     [out,unique,ref,string,charset(DOS)]uint8         **szDNPrefix,
     [out,unique,ref,string,charset(DOS)]uint8         **szDisplayName,
-    [in]        uint16          rgwClientVersion[3],
-    [out]       uint16          rgwServerVersion[3],
-    [out]       uint16          rgwBestVersion[3],
+    [in,string]  uint8    rgwClientVersion[6],
+    [out,string] uint8    rgwServerVersion[6],
+    [out,string] uint8    rgwBestVersion[6],
     [in,out]      uint32          *pulTimeStamp,
     [in,represent_as(4),flag(NDR_NOALIGN|NDR_REMAINING)] AuxInfo  *rgbAuxIn,
     [in]        uint32          cbAuxIn,

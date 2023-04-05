@@ -21,6 +21,12 @@ MANUAL mapi_dissect_element_EcDoConnectEx_szUserDN
 MANUAL mapi_dissect_element_EcDoConnectEx_rgbAuxOut_
 MANUAL mapi_dissect_struct_AuxInfoOut
 MANUAL mapi_dissect_element_EcDoRpcExt2_rgbAuxOut_
+MANUAL mapi_dissect_element_EcDoConnect_rgwClientVersion
+MANUAL mapi_dissect_element_EcDoConnect_rgwServerVersion
+MANUAL mapi_dissect_element_EcDoConnect_rgwBestVersion
+MANUAL mapi_dissect_element_EcDoConnectEx_rgwClientVersion
+MANUAL mapi_dissect_element_EcDoConnectEx_rgwServerVersion
+MANUAL mapi_dissect_element_EcDoConnectEx_rgwBestVersion
 
 NOEMIT mapi_dissect_element_EcDoRpc_request
 NOEMIT mapi_dissect_element_request_len
@@ -64,6 +70,7 @@ NOEMIT mapi_dissect_element_AuxInfoOut_auxHeader
 NOEMIT mapi_dissect_element_EcDoConnectEx_rgbAuxOut__
 NOEMIT mapi_dissect_element_EcDoRpcExt2_rgbAuxOut__
 NOEMIT mapi_dissect_element_AuxInfo_auxHeader_
+NOEMIT mapi_dissect_element_EcDoConnect_rgwClientVersion_
 
 CODE START
 
@@ -96,6 +103,83 @@ mapi_deobfuscate(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 size)
 
 	return deob_tvb;
 }
+
+/* [MS-OXCRPC] 3.1.4.1.3.1 Version Number Comparison
+*/
+static int
+normalize_version(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, int hf_index, const gchar * str)
+{
+	guint16 version_0, build_major, product_major, product_minor;
+	gchar *value;
+
+	version_0= tvb_get_letohs(tvb, offset);
+	build_major= tvb_get_letohs(tvb, offset + 2);
+
+	if(build_major & 0x8000){
+		product_major = (version_0 & 0xFF00) >> 8;
+		product_minor = (version_0 & 0xFF);
+		build_major = (build_major & 0x7FFF);
+	} else {
+		product_major = version_0;
+		product_minor = 0;
+	}
+
+	value = wmem_strdup_printf( pinfo->pool
+		                     , "%d.%d.%d.%d"
+		                     , product_major
+		                     , product_minor
+		                     , build_major
+		                     , tvb_get_letohs(tvb, offset + 4));
+
+	proto_tree_add_string_format( tree
+			                    , hf_index
+			                    , tvb
+			                    , offset
+			                    , 6
+			                    , value
+			                    , "%s: %s"
+			                    , str
+			                    , value
+			                    );
+	return offset + 6;
+}
+
+static int
+mapi_dissect_element_EcDoConnect_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnect_rgwClientVersion, "rgwClientVersion");
+}
+
+static int
+mapi_dissect_element_EcDoConnect_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnect_rgwServerVersion, "rgwServerVersion");
+}
+
+static int
+mapi_dissect_element_EcDoConnect_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnect_rgwBestVersion, "rgwBestVersion");
+}
+
+static int
+mapi_dissect_element_EcDoConnectEx_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnectEx_rgwClientVersion, "rgwClientVersion");
+}
+
+static int
+mapi_dissect_element_EcDoConnectEx_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnectEx_rgwServerVersion, "rgwServerVersion");
+}
+
+static int
+mapi_dissect_element_EcDoConnectEx_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnectEx_rgwBestVersion, "rgwBestVersion");
+}
+
 
 static int
 mapi_dissect_element_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)

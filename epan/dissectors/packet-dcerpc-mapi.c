@@ -7572,11 +7572,8 @@ static int mapi_dissect_element_EcDoConnect_szDisplayName(tvbuff_t *tvb _U_, int
 static int mapi_dissect_element_EcDoConnect_szDisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnect_szDisplayName__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnect_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mapi_dissect_element_EcDoConnect_rgwClientVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnect_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mapi_dissect_element_EcDoConnect_rgwServerVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnect_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mapi_dissect_element_EcDoConnect_rgwBestVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnect_pullTimeStamp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnect_pullTimeStamp_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoDisconnect_pcxh(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -7671,11 +7668,8 @@ static int mapi_dissect_element_EcDoConnectEx_szDisplayName(tvbuff_t *tvb _U_, i
 static int mapi_dissect_element_EcDoConnectEx_szDisplayName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_szDisplayName__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mapi_dissect_element_EcDoConnectEx_rgwClientVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mapi_dissect_element_EcDoConnectEx_rgwServerVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mapi_dissect_element_EcDoConnectEx_rgwBestVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_pulTimeStamp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_pulTimeStamp_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mapi_dissect_element_EcDoConnectEx_rgbAuxIn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -7741,6 +7735,71 @@ mapi_deobfuscate(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 size)
 	}
 	deob_tvb = tvb_new_child_real_data(tvb, decrypted_data, size, reported_len);
 	return deob_tvb;
+}
+/* [MS-OXCRPC] 3.1.4.1.3.1 Version Number Comparison
+*/
+static int
+normalize_version(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, int hf_index, const gchar * str)
+{
+	guint16 version_0, build_major, product_major, product_minor;
+	gchar *value;
+	version_0= tvb_get_letohs(tvb, offset);
+	build_major= tvb_get_letohs(tvb, offset + 2);
+	if(build_major & 0x8000){
+		product_major = (version_0 & 0xFF00) >> 8;
+		product_minor = (version_0 & 0xFF);
+		build_major = (build_major & 0x7FFF);
+	} else {
+		product_major = version_0;
+		product_minor = 0;
+	}
+	value = wmem_strdup_printf( pinfo->pool
+		                     , "%d.%d.%d.%d"
+		                     , product_major
+		                     , product_minor
+		                     , build_major
+		                     , tvb_get_letohs(tvb, offset + 4));
+	proto_tree_add_string_format( tree
+			                    , hf_index
+			                    , tvb
+			                    , offset
+			                    , 6
+			                    , value
+			                    , "%s: %s"
+			                    , str
+			                    , value
+			                    );
+	return offset + 6;
+}
+static int
+mapi_dissect_element_EcDoConnect_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnect_rgwClientVersion, "rgwClientVersion");
+}
+static int
+mapi_dissect_element_EcDoConnect_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnect_rgwServerVersion, "rgwServerVersion");
+}
+static int
+mapi_dissect_element_EcDoConnect_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnect_rgwBestVersion, "rgwBestVersion");
+}
+static int
+mapi_dissect_element_EcDoConnectEx_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnectEx_rgwClientVersion, "rgwClientVersion");
+}
+static int
+mapi_dissect_element_EcDoConnectEx_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnectEx_rgwServerVersion, "rgwServerVersion");
+}
+static int
+mapi_dissect_element_EcDoConnectEx_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return normalize_version(tvb, pinfo, offset, tree, hf_mapi_mapi_EcDoConnectEx_rgwBestVersion, "rgwBestVersion");
 }
 static int
 mapi_dissect_element_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
@@ -40140,60 +40199,6 @@ mapi_dissect_element_EcDoConnect_szDisplayName__(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-mapi_dissect_element_EcDoConnect_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 3; i++)
-		offset = mapi_dissect_element_EcDoConnect_rgwClientVersion_(tvb, offset, pinfo, tree, di, drep);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnect_rgwClientVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoConnect_rgwClientVersion, 0);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnect_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 3; i++)
-		offset = mapi_dissect_element_EcDoConnect_rgwServerVersion_(tvb, offset, pinfo, tree, di, drep);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnect_rgwServerVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoConnect_rgwServerVersion, 0);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnect_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 3; i++)
-		offset = mapi_dissect_element_EcDoConnect_rgwBestVersion_(tvb, offset, pinfo, tree, di, drep);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnect_rgwBestVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoConnect_rgwBestVersion, 0);
-
-	return offset;
-}
-
-static int
 mapi_dissect_element_EcDoConnect_pullTimeStamp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mapi_dissect_element_EcDoConnect_pullTimeStamp_, NDR_POINTER_REF, "Pointer to PullTimeStamp (uint32)",hf_mapi_mapi_EcDoConnect_pullTimeStamp);
@@ -40226,9 +40231,9 @@ mapi_dissect_element_EcDoConnect_pullTimeStamp_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: [out] [ref] uint32 *picxr, */
 /* IDL: [charset(DOS)] [out] [ref] [unique(1)] uint8 **szDNPrefix, */
 /* IDL: [charset(DOS)] [out] [ref] [unique(1)] uint8 **szDisplayName, */
-/* IDL: [in] uint16 rgwClientVersion[3], */
-/* IDL: [out] uint16 rgwServerVersion[3], */
-/* IDL: [out] uint16 rgwBestVersion[3], */
+/* IDL: [in] uint8 rgwClientVersion[6], */
+/* IDL: [out] uint8 rgwServerVersion[6], */
+/* IDL: [out] uint8 rgwBestVersion[6], */
 /* IDL: [in] [out] [ref] uint32 *pullTimeStamp */
 /* IDL: ); */
 
@@ -41410,60 +41415,6 @@ mapi_dissect_element_EcDoConnectEx_szDisplayName__(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-mapi_dissect_element_EcDoConnectEx_rgwClientVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 3; i++)
-		offset = mapi_dissect_element_EcDoConnectEx_rgwClientVersion_(tvb, offset, pinfo, tree, di, drep);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnectEx_rgwClientVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoConnectEx_rgwClientVersion, 0);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnectEx_rgwServerVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 3; i++)
-		offset = mapi_dissect_element_EcDoConnectEx_rgwServerVersion_(tvb, offset, pinfo, tree, di, drep);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnectEx_rgwServerVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoConnectEx_rgwServerVersion, 0);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnectEx_rgwBestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 3; i++)
-		offset = mapi_dissect_element_EcDoConnectEx_rgwBestVersion_(tvb, offset, pinfo, tree, di, drep);
-
-	return offset;
-}
-
-static int
-mapi_dissect_element_EcDoConnectEx_rgwBestVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoConnectEx_rgwBestVersion, 0);
-
-	return offset;
-}
-
-static int
 mapi_dissect_element_EcDoConnectEx_pulTimeStamp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mapi_dissect_element_EcDoConnectEx_pulTimeStamp_, NDR_POINTER_REF, "Pointer to PulTimeStamp (uint32)",hf_mapi_mapi_EcDoConnectEx_pulTimeStamp);
@@ -41544,9 +41495,9 @@ mapi_dissect_element_EcDoConnectEx_pcbAuxOut_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: [out] [ref] uint32 *picxr, */
 /* IDL: [charset(DOS)] [out] [ref] [unique(1)] uint8 **szDNPrefix, */
 /* IDL: [charset(DOS)] [out] [ref] [unique(1)] uint8 **szDisplayName, */
-/* IDL: [in] uint16 rgwClientVersion[3], */
-/* IDL: [out] uint16 rgwServerVersion[3], */
-/* IDL: [out] uint16 rgwBestVersion[3], */
+/* IDL: [in] uint8 rgwClientVersion[6], */
+/* IDL: [out] uint8 rgwServerVersion[6], */
+/* IDL: [out] uint8 rgwBestVersion[6], */
 /* IDL: [in] [out] [ref] uint32 *pulTimeStamp, */
 /* IDL: [flag(LIBNDR_FLAG_NOALIGN|LIBNDR_FLAG_REMAINING)] [in] [ref] [represent_as(4)] AuxInfo *rgbAuxIn, */
 /* IDL: [in] uint32 cbAuxIn, */
@@ -44558,11 +44509,11 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_mapi_EcDoConnectEx_rgbAuxOut,
 	  { "RgbAuxOut", "mapi.mapi_EcDoConnectEx.rgbAuxOut", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnectEx_rgwBestVersion,
-	  { "RgwBestVersion", "mapi.mapi_EcDoConnectEx.rgwBestVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "RgwBestVersion", "mapi.mapi_EcDoConnectEx.rgwBestVersion", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnectEx_rgwClientVersion,
-	  { "RgwClientVersion", "mapi.mapi_EcDoConnectEx.rgwClientVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "RgwClientVersion", "mapi.mapi_EcDoConnectEx.rgwClientVersion", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnectEx_rgwServerVersion,
-	  { "RgwServerVersion", "mapi.mapi_EcDoConnectEx.rgwServerVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "RgwServerVersion", "mapi.mapi_EcDoConnectEx.rgwServerVersion", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnectEx_szDNPrefix,
 	  { "SzDNPrefix", "mapi.mapi_EcDoConnectEx.szDNPrefix", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnectEx_szDisplayName,
@@ -44598,11 +44549,11 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_mapi_EcDoConnect_pullTimeStamp,
 	  { "PullTimeStamp", "mapi.mapi_EcDoConnect.pullTimeStamp", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnect_rgwBestVersion,
-	  { "RgwBestVersion", "mapi.mapi_EcDoConnect.rgwBestVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "RgwBestVersion", "mapi.mapi_EcDoConnect.rgwBestVersion", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnect_rgwClientVersion,
-	  { "RgwClientVersion", "mapi.mapi_EcDoConnect.rgwClientVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "RgwClientVersion", "mapi.mapi_EcDoConnect.rgwClientVersion", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnect_rgwServerVersion,
-	  { "RgwServerVersion", "mapi.mapi_EcDoConnect.rgwServerVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "RgwServerVersion", "mapi.mapi_EcDoConnect.rgwServerVersion", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnect_szDNPrefix,
 	  { "SzDNPrefix", "mapi.mapi_EcDoConnect.szDNPrefix", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoConnect_szDisplayName,
