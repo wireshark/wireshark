@@ -1465,10 +1465,10 @@ static const value_string names_pad_len[] = {
 
 static const value_string names_proto[] = {
     { 0x00, "Unused"},
-    { PROTOCOL_FDA, "FDA Session Management" },
-    { PROTOCOL_SM, "SM" },
-    { PROTOCOL_FMS, "FMS" },
-    { PROTOCOL_LAN, "LAN Redundancy" },
+    { 0x01, "FDA Session Management" },
+    { 0x02, "SM" },
+    { 0x03, "FMS" },
+    { 0x04, "LAN Redundancy" },
     { 0, NULL }
 };
 
@@ -1505,8 +1505,9 @@ static const value_string names_query_type[] = {
 
 
 static const value_string names_smk_state[] = {
-    { 0x02, "NO_TAG" },         /* 0000 0010 */
-    { 0x04, "OPERATIONAL" }, /* 0000 0100 */
+    /* Bits 2-8 */
+    { 0x01, "NO_TAG" },         /* 0000 0010 */
+    { 0x02, "OPERATIONAL" },    /* 0000 0100 */
     { 0, NULL }
 };
 
@@ -1527,15 +1528,17 @@ static const value_string names_dev_type[] = {
 
 
 static const value_string names_dev_redundancy_role[] = {
-    { 0x04, "Primary" }, /* 0000 0100 */
-    { 0x08, "Secondary" }, /* 0000 1000 */
+    /* Bits 3 & 4*/
+    { 0x00, "Non-redundant" },  /* 0000 0000 */
+    { 0x01, "Primary" },        /* 0000 0100 */
+    { 0x02, "Secondary" },      /* 0000 1000 */
     { 0, NULL }
 };
 
 
 
 static const value_string names_assigned_redundant_dev_type[] = {
-    { 0x00, "Type D-1 Device" }, /* 0000 0000 */
+    { 0x00, "Non-redundant" }, /* 0000 0000 */
     { 0x01, "Type D-2 Device" }, /* 0000 0001 */
     { 0x02, "Type D-3 Device" }, /* 0000 0010 */
     { 0, NULL }
@@ -1544,9 +1547,10 @@ static const value_string names_assigned_redundant_dev_type[] = {
 
 
 static const value_string names_type_d2_dev_redundancy_role[] = {
-    { 0x00, "Not used" },               /* 0000 0000 */
-    { 0x04, "Type D-2 Device Primary" }, /* 0000 0100 */
-    { 0x08, "Type D-2 Device Secondary" }, /* 0000 1000 */
+    /* Bits 3 & 4*/
+    { 0x00, "Non-redundant" },              /* 0000 0000 */
+    { 0x01, "Type D-2 Device Primary" },    /* 0000 0100 */
+    { 0x02, "Type D-2 Device Secondary" },  /* 0000 1000 */
     { 0, NULL }
 };
 
