@@ -20,12 +20,15 @@ import requests
 # - URLs that couldn't be loaded are written to failures.txt
 # - working URLs are written to successes.txt
 # - any previous failures.txt is also copied to failures_last_run.txt
+#
+# N.B. preferred form of RFC link is e.g., https://tools.ietf.org/html/rfc4349
 
 
 # TODO:
 # - option to write back to dissector file when there is a failure?
 # - make requests in parallel (run takes around 35 minutes)?
-# - optionally parse previous successes.txt and avoid fetching them again?
+# - try a library other than requests for getching links?
+# - optionally parse previous/recent successes.txt and avoid fetching them again?
 # - make sure URLs are really within comments in code?
 # - use urllib.parse or similar to better check URLs?
 # - improve regex to allow '+' in URL (like confluence uses)
@@ -194,6 +197,7 @@ if args.file:
             exit(1)
         else:
             files.append(f)
+            find_links_in_file(f)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
@@ -249,7 +253,7 @@ session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) Apple
 for l in links:
     if should_exit:
         # i.e. if Ctrl-C has been pressed.
-        exit(0)
+        exit(1)
     l.validate(session)
     if args.verbose or not l.success:
         print(l)

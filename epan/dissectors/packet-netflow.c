@@ -113,7 +113,7 @@
  *
  * December 2015: uhei:  Add Barracuda NGFirewall extensions
  * used documentation found at:
- * https://techlib.barracuda.com/NG61/ConfigAuditReportingIPFIX
+ * https://campus.barracuda.com/download/pdf/article/41116166
  *
  * December 2017: uhei
  * Updated IEs from https://www.iana.org/assignments/ipfix/ipfix.xhtml

@@ -21,7 +21,7 @@
 /*
  * See
  *	http://www.dmtf.org/standards/standard_alert.php
- *	http://www.dmtf.org/standards/documents/ASF/DSP0136.pdf
+ *	https://www.dmtf.org/sites/default/files/standards/documents/DSP0136.pdf
  */
 
 void proto_register_asf(void);
