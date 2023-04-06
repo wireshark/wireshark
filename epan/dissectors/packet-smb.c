@@ -16371,7 +16371,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree           *tree   = NULL;
 	smb_transact2_info_t *t2i;
 	int                   count;
-	gboolean              trunc;
+	gboolean              trunc = FALSE;
 	int                   offset = 0;
 	guint16               dc;
 
