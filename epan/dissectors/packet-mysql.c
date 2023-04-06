@@ -1392,7 +1392,7 @@ static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int of
 static int mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi, int offset, proto_tree *tree, packet_info *pinfo, mysql_conn_data_t *conn_data, mysql_state_t current_state);
 static int mysql_dissect_text_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
 static int mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
-static int mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
+static int mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, proto_item *pi);
 static int mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_eof(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
@@ -2699,7 +2699,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 		case BINLOG_DUMP:
 			proto_item_append_text(pi, " - %s", val_to_str(BINLOG_DUMP, state_vals, "Unknown (%u)"));
-			offset = mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree);
+			offset = mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree, pi);
 			break;
 		default:
 			proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_OK, state_vals, "Unknown (%u)"));
@@ -3612,12 +3612,13 @@ mysql_dissect_binlog_event_heartbeat_v2(tvbuff_t *tvb, packet_info *pinfo, int o
 }
 
 static int
-mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree)
+mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree, proto_item *pi)
 {
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_item_append_text(pi, ": %s", val_to_str(tvb_get_guint8(tvb, offset), mysql_binlog_event_type_vals, "%s"));
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3636,7 +3637,7 @@ mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
+mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, proto_item *pi)
 {
 	guint8 event_type;
 	int fle;
@@ -3645,7 +3646,8 @@ mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	event_type = tvb_get_guint8(tvb, offset + 4);
-	offset = mysql_dissect_binlog_event_header(tvb, offset, tree);
+	offset = mysql_dissect_binlog_event_header(tvb, offset, tree, pi);
+
 	switch (event_type) {
 		case HEARTBEAT_LOG_EVENT_V2:
 			offset = mysql_dissect_binlog_event_heartbeat_v2(tvb, pinfo, offset, tree);
