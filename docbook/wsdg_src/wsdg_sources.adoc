@@ -295,8 +295,8 @@ Running Wireshark this way can be helpful since debugging output will be display
 You can also change Wireshark’s behavior by setting various environment variables.
 See the {wireshark-man-page-url}wireshark.html#ENVIRONMENT-VARIABLES[ENVIRONMENT VARIABLES] section of the Wireshark man page for more details.
 
-On macOS, Wireshark is built as an application bundle (_run/Wireshark.app_) by default, and _run/wireshark_ will be a symbolic link to the Wireshark executable.
-Along with running `run/wireshark` as shown above you can run `open run/Wireshark.app`.
+On macOS, Wireshark is built as an application bundle (_run/Wireshark.app_) by default, and _run/wireshark_ will be a wrapper script that runs _Wireshark.app/Contents/MacOS/Wireshark_.
+Along with running `./run/wireshark` as shown above you can also run it on the command line with `open run/Wireshark.app`.
 
 [#ChSrcRunFirstTimeWindows]
 ==== Windows Native
