@@ -2454,13 +2454,13 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		proto_tree_add_item(req_tree, hf_mysql_binlog_file_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(req_tree, hf_mysql_binlog_position8, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		offset += 8;
-
 		if (tree && lenstr > 0) {
 			proto_tree_add_item(req_tree, hf_mysql_binlog_file_name, tvb, offset, lenstr, ENC_ASCII);
 		}
 		offset += lenstr;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_position8, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		lenstr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(req_tree, hf_mysql_binlog_gtid_data_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
