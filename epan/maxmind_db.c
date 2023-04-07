@@ -818,6 +818,8 @@ maxmind_db_pref_init(module_t *nameres _U_) {}
 void
 maxmind_db_pref_cleanup(void) {}
 
+void
+maxmind_db_pref_apply(void) {}
 
 gboolean
 maxmind_db_lookup_process(void)
