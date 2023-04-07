@@ -623,7 +623,7 @@ typedef enum
     DIS_TDL_TYPE_TCDL                         = 64,
     DIS_TDL_TYPE_LLAPI                        = 65,
     DIS_TDL_TYPE_WEAPONS_DL                   = 66,
-    DIS_TDL_TYPE_AIS                          = 67, 
+    DIS_TDL_TYPE_AIS                          = 67,
     DIS_TDL_TYPE_GC3                          = 99,
     DIS_TDL_TYPE_LINK16_STD                   = 100,
     DIS_TDL_TYPE_LINK16_EDR                   = 101,
@@ -6967,7 +6967,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     }
 
     if (altitude || (parameter_5 & 0x2000)) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=FL%d", altitude);
-   
+
     if (parameter_6)
     {
         if (tcas_acas_indicator == 0)
@@ -6981,7 +6981,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 col_append_str(pinfo->cinfo, COL_INFO, ", TCAS II");
             }
         }
-        else 
+        else
         {
             if (tcas_acas_type == 1)
             {
@@ -7270,7 +7270,7 @@ static int dissect_DIS_PARSER_RECEIVER_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
     col_append_fstr( pinfo->cinfo, COL_INFO, ", RadioID=%u", radioID);
     offset += 2;
 
-    disRadioReceiveState = tvb_get_guint8(tvb, offset);
+    disRadioReceiveState = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_dis_radio_receive_state, tvb, offset, 2, ENC_BIG_ENDIAN);
     col_append_fstr( pinfo->cinfo, COL_INFO, ", Receive State=%s", val_to_str_const(disRadioReceiveState, DIS_PDU_RadioReceiveState_Strings, "Unknown Receive State"));
     offset += 2;
@@ -8475,8 +8475,8 @@ static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
         return dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvb, pinfo, tree, offset);
     case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
         return dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvb, pinfo, tree, offset);
-    
-    /* IFF PDU needs the header information to be parsed, so it is handled separately. 
+
+    /* IFF PDU needs the header information to be parsed, so it is handled separately.
      *    case DIS_PDUTYPE_IFF:
      */
 
@@ -8605,7 +8605,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * or default to "Unknown".
       */
     pduString = val_to_str_ext_const(header.pduType, &DIS_PDU_Type_Strings_Ext, "Unknown");
-    
+
     /* set the basic info column (pdu type) */
     col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t ", header.pduType);
 
