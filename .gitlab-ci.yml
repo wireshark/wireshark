@@ -885,6 +885,8 @@ Code Lines:
 ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-asan
+  variables:
+    WIRESHARK_LOG_FATAL: "critical"
   script:
     - MAX_SECONDS=$(( 6 * 60 * 60 ))
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
@@ -900,6 +902,8 @@ ASan Menagerie Fuzz:
 ASan randpkt Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-randpkt
+  variables:
+    WIRESHARK_LOG_FATAL: "critical"
   script:
     # XXX Reuse fuzz-asan?
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
@@ -920,6 +924,7 @@ Valgrind Menagerie Fuzz:
     # https://gitlab.com/wireshark/wireshark/-/issues/18191
     # https://www.mail-archive.com/valgrind-users@lists.sourceforge.net/msg07239.html
     CFLAGS: "-gdwarf-4"
+    WIRESHARK_LOG_FATAL: "critical"
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
