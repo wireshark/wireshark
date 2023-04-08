@@ -9,15 +9,15 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "opencore-amrnb-.*" "AMRNB_HINTS" )
 
-if (NOT WIN32)
+if (NOT USE_REPOSITORY)
   find_package(PkgConfig)
-  pkg_search_module(AMRNB opencore-amrnb)
+  pkg_search_module(PC_AMRNB opencore-amrnb)
 endif()
 
 find_path( AMRNB_INCLUDE_DIR
   NAMES opencore-amrnb/interf_dec.h
   HINTS
-    "${AMRNB_INCLUDE_DIR}"
+    "${PC_AMRNB_INCLUDE_DIRS}"
     "${AMRNB_HINTS}/include"
   PATHS /usr/local/include /usr/include
 )
@@ -25,13 +25,13 @@ find_path( AMRNB_INCLUDE_DIR
 find_library( AMRNB_LIBRARY
   NAMES opencore-amrnb
   HINTS
-    "${AMRNB_LIBDIR}"
+    "${PC_AMRNB_LIBDIRS}"
     "${AMRNB_HINTS}/lib"
   PATHS /usr/local/lib /usr/lib
 )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( AMRNB DEFAULT_MSG AMRNB_INCLUDE_DIR AMRNB_LIBRARY )
+find_package_handle_standard_args( AMRNB DEFAULT_MSG AMRNB_LIBRARY AMRNB_INCLUDE_DIR)
 
 if( AMRNB_FOUND )
   set( AMRNB_INCLUDE_DIRS ${AMRNB_INCLUDE_DIR} )
