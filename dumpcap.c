@@ -404,7 +404,7 @@ static gboolean need_timeout_workaround;
 
 static void
 dumpcap_log_writer(const char *domain, enum ws_log_level level,
-                                   struct timespec timestamp,
+                                   const char *fatal_msg, struct timespec timestamp,
                                    const char *file, long line, const char *func,
                                    const char *user_format, va_list user_ap,
                                    void *user_data);
@@ -5688,10 +5688,11 @@ main(int argc, char *argv[])
 
 static void
 dumpcap_log_writer(const char *domain, enum ws_log_level level,
-                                   struct timespec timestamp,
-                                   const char *file, long line, const char *func,
-                                   const char *user_format, va_list user_ap,
-                                   void *user_data _U_)
+                                    const char *fatal_msg _U_,
+                                    struct timespec timestamp,
+                                    const char *file, long line, const char *func,
+                                    const char *user_format, va_list user_ap,
+                                    void *user_data _U_)
 {
     /* DEBUG & INFO msgs (if we're debugging today)                 */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
@@ -5726,7 +5727,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else if(ws_log_msg_is_active(domain, level)) {
-        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+        ws_log_console_writer(domain, level, timestamp, getpid(), file, line, func, user_format, user_ap);
     }
 }
 
