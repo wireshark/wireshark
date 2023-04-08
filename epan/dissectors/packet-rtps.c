@@ -4737,10 +4737,10 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
   if (vendor_id == RTPS_VENDOR_RTI_DDS) {
     if (major < 5 && revision == 0) {
       subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
-              "Product version: %d.%d%c", major, minor, release);
+              "Product version: %d.%d%s", major, minor, format_char(wmem_packet_scope(), release));
     } else if (major < 5 && revision > 0) {
           subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
-              "Product version: %d.%d%c rev%d", major, minor, release, revision);
+              "Product version: %d.%d%s rev%d", major, minor, format_char(wmem_packet_scope(), release), revision);
     } else {
           subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
               "Product version: %d.%d.%d.%d", major, minor, release, revision);
