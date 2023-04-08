@@ -1202,9 +1202,13 @@ static const value_string tlsa_matching_type_vals[] = {
 };
 
 /* IPSECKEY RFC4025 */
+/* IPSECKEY RFC8005 */
+/* IPSECKEY RFC9373 */
 static const value_string gw_algo_vals[] = {
   { 1,     "DSA" },
   { 2,     "RSA" },
+  { 3,     "ECDSA" },
+  { 4,     "EdDSA" },
   { 0,      NULL }
 };
 
