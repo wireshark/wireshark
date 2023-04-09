@@ -20360,31 +20360,31 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 101 */
         {&hf_pie_niagara_networks_sslserverversion,
          {"SslServerVersion", "cflow.pie.niagaranetworks.sslserverversion",
-          FT_UINT16, BASE_HEX, NULL, 0X0,
+          FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 102 */
         {&hf_pie_niagara_networks_sslserverversiontext,
          {"SslServerVersionText", "cflow.pie.niagaranetworks.sslserverversiontext",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 103 */
         {&hf_pie_niagara_networks_sslservercipher,
          {"SslServerCipher", "cflow.pie.niagaranetworks.sslservercipher",
-          FT_UINT16, BASE_HEX, NULL, 0X0,
+          FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 104 */
         {&hf_pie_niagara_networks_sslserverciphertext,
          {"SslServerCipherText", "cflow.pie.niagaranetworks.sslserverciphertext",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 105 */
         {&hf_pie_niagara_networks_sslconnectionencryptiontype,
          {"SslConnectionEncryptionType", "cflow.pie.niagaranetworks.sslconnectionencryptiontype",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 106 */
@@ -20396,31 +20396,31 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 107 */
         {&hf_pie_niagara_networks_sslserversessionid,
          {"SslServerSessionId", "cflow.pie.niagaranetworks.sslserversessionid",
-          FT_BYTES, BASE_NONE, NULL, 0X0,
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 108 */
         {&hf_pie_niagara_networks_sslcertificateissuer,
          {"SslCertificateIssuer", "cflow.pie.niagaranetworks.sslcertificateissuer",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 109 */
         {&hf_pie_niagara_networks_sslcertificateissuername,
          {"SslCertificateIssuerName", "cflow.pie.niagaranetworks.sslcertificateissuername",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 110 */
         {&hf_pie_niagara_networks_sslcertificatesubject,
          {"SslCertificateSubject", "cflow.pie.niagaranetworks.sslcertificatesubject",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 111 */
         {&hf_pie_niagara_networks_sslcertificatesubjectname,
          {"SslCertificateSubjectName", "cflow.pie.niagaranetworks.sslcertificatesubjectname",
-          FT_STRING, BASE_NONE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 112 */
@@ -21130,7 +21130,7 @@ proto_register_netflow(void)
        /* Juniper Networks, 2636 / 137 */
         {&hf_pie_juniper_cpdesc_16bit,
          {"Juniper CPID Value", "cflow.pie.juniper.resiliency.cpdesc",
-          FT_UINT16, BASE_DEC, NULL, 0X03FF,
+          FT_UINT16, BASE_DEC, NULL, 0x03FF,
           NULL, HFILL}
         },
        /* Juniper Networks, 2636 / 137 */
@@ -21142,7 +21142,7 @@ proto_register_netflow(void)
        /* Juniper Networks, 2636 / 137 */
         {&hf_pie_juniper_cpdesc_32bit,
          {"Juniper CPID Value", "cflow.pie.juniper.resiliency.cpdesc",
-          FT_UINT32, BASE_DEC, NULL, 0X03FFFFFF,
+          FT_UINT32, BASE_DEC, NULL, 0x03FFFFFF,
           NULL, HFILL}
         },
 

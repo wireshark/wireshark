@@ -2747,13 +2747,13 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_indicator,
             { "Indicator", "zbee_zcl.attr.ind", FT_UINT8, BASE_DEC, NULL,
-                0X0, NULL, HFILL}},
+                0x0, NULL, HFILL}},
 
         { &hf_zbee_zcl_index,
-            { "Indicator", "zbee_zcl.attr.index", FT_UINT16, BASE_DEC, NULL, 0X0, NULL, HFILL}},
+            { "Indicator", "zbee_zcl.attr.index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         { &hf_zbee_zcl_attr_access_ctrl,
-            { "Attribute Access Control", "zbee_zcl.attr.access.ctrl", FT_UINT8, BASE_HEX, NULL, 0X0, NULL, HFILL}},
+            { "Attribute Access Control", "zbee_zcl.attr.access.ctrl", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         { &hf_zbee_zcl_attr_dis,
             { "Discovery", "zbee_zcl.attr.dis", FT_UINT8, BASE_HEX, VALS(zbee_zcl_dis_names),
@@ -2761,10 +2761,10 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_cmd_start,
             {"Start Command", "zbee_zcl.cmd.start", FT_UINT8, BASE_HEX, NULL,
-                0X0, NULL, HFILL}},
+                0x0, NULL, HFILL}},
 
         { &hf_zbee_zcl_cmd_maxnum,
-            {"Maximum Number", "zbee_zcl.cmd.maxnum", FT_UINT8, BASE_HEX, NULL, 0X0, NULL, HFILL}},
+            {"Maximum Number", "zbee_zcl.cmd.maxnum", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         { &hf_zbee_zcl_attr_cid,
             { "Cluster", "zbee_zcl.attr.cid", FT_UINT16, BASE_HEX, NULL, 0x0,

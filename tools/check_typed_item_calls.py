@@ -44,7 +44,7 @@ def name_has_one_of(name, substring_list):
 # A call is an individual call to an API we are interested in.
 # Internal to APICheck below.
 class Call:
-    def __init__(self, hf_name, line_number=None, length=None, fields=None):
+    def __init__(self, hf_name, macros, line_number=None, length=None, fields=None):
         self.hf_name = hf_name
         self.line_number = line_number
         self.fields = fields
@@ -53,6 +53,12 @@ class Call:
             try:
                 self.length = int(length)
             except:
+                if length.isupper():
+                    if length in macros:
+                        try:
+                            self.length = int(macros[length])
+                        except:
+                            pass
                 pass
 
 
@@ -91,7 +97,7 @@ class APICheck:
             self.mask_allowed = False
 
 
-    def find_calls(self, file):
+    def find_calls(self, file, macros):
         self.file = file
         self.calls = []
 
@@ -124,6 +130,7 @@ class APICheck:
                         # Add call. We have length if re had 3 groups.
                         num_groups = self.p.groups
                         self.calls.append(Call(m.group(2),
+                                               macros,
                                                line_number=line_number,
                                                length=length,
                                                fields=fields))
@@ -209,7 +216,7 @@ class ProtoTreeAddItemCheck(APICheck):
         self.lengths['FT_ETHER']  = 6
         # TODO: other types...
 
-    def find_calls(self, file):
+    def find_calls(self, file, macros):
         self.file = file
         self.calls = []
         with open(file, 'r') as f:
@@ -267,7 +274,7 @@ class ProtoTreeAddItemCheck(APICheck):
                                 print('Warning:', self.file + ':' + str(line_number),
                                       self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
                                 warnings_found += 1
-                        self.calls.append(Call(hf_name, line_number=line_number, length=m.group(2)))
+                        self.calls.append(Call(hf_name, macros, line_number=line_number, length=m.group(2)))
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -845,6 +852,21 @@ def isGeneratedFile(filename):
     f_read.close()
     return False
 
+
+def find_macros(filename):
+    macros = {}
+    with open(filename, 'r') as f:
+        contents = f.read()
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        matches = re.finditer( r'#define\s*([A-Z0-9_]*)\s*([0-9xa-fA-F]*)\n', contents)
+        for m in matches:
+            # Store this mapping.
+            macros[m.group(1)] = m.group(2)
+    return macros
+
+
 # Look for hf items (i.e. full item to be registered) in a dissector file.
 def find_items(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
@@ -986,6 +1008,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         print(filename, 'does not exist!')
         return
 
+    # Find simple macros so can subtitute into items and calls.
+    macros = find_macros(filename)
+
     # Find important parts of items.
     items_defined = find_items(filename, check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
@@ -999,7 +1024,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     # Check each API
     for c in apiChecks:
-        c.find_calls(filename)
+        c.find_calls(filename, macros)
         for call in c.calls:
             if call.fields:
                 fields.add(call.fields)
