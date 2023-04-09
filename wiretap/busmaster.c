@@ -62,32 +62,8 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
         || (msg->type == MSG_TYPE_EXT_RTR);
     gboolean is_err = (msg->type == MSG_TYPE_ERR);
 
-    static const char *const can_proto_name   = "can-hostendian";
-    static const char *const canfd_proto_name = "canfd";
-
-    const char        *proto_name  = is_fd ? canfd_proto_name : can_proto_name;
-    guint              proto_name_length = (guint)strlen(proto_name) + 1;
-    guint              header_length;
-    guint              packet_length;
-    guint              frame_length;
-    guint8            *buf_data;
-
-    /* Adjust proto name length to be aligned on 4 byte boundary */
-    proto_name_length += (proto_name_length % 4) ? (4 - (proto_name_length % 4)) : 0;
-
-    header_length = 4 + proto_name_length + 4;
-    frame_length  = is_fd ? sizeof(canfd_frame_t) : sizeof(can_frame_t);
-    packet_length = header_length + frame_length;
-
-    ws_buffer_clean(buf);
-    ws_buffer_assure_space(buf, packet_length);
-    buf_data = ws_buffer_start_ptr(buf);
-
-    memset(buf_data, 0, packet_length);
-
-    phton16(buf_data + 0, EXP_PDU_TAG_DISSECTOR_NAME);
-    phton16(buf_data + 2, proto_name_length);
-    memcpy(buf_data + 4, proto_name, strlen(proto_name));
+    static const char can_proto_name[]   = "can-hostendian";
+    static const char canfd_proto_name[] = "canfd";
 
     if (!priv_entry)
     {
@@ -95,6 +71,18 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
         *err_info = g_strdup("Header is missing");
         return FALSE;
     }
+
+    /* Generate Exported PDU tags for the packet info */
+    ws_buffer_clean(buf);
+    if (is_fd)
+    {
+        wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (const guint8 *)canfd_proto_name, sizeof canfd_proto_name - 1);
+    }
+    else
+    {
+        wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, (const guint8 *)can_proto_name, sizeof can_proto_name - 1);
+    }
+    wtap_buffer_append_epdu_end(buf);
 
     if (is_fd)
     {
@@ -110,7 +98,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
                msg->data.data,
                MIN(msg->data.length, sizeof(canfd_frame.data)));
 
-        memcpy(buf_data + header_length,
+        ws_buffer_append(buf,
                (guint8 *)&canfd_frame,
                sizeof(canfd_frame));
     }
@@ -128,7 +116,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
                msg->data.data,
                MIN(msg->data.length, sizeof(can_frame.data)));
 
-        memcpy(buf_data + header_length,
+        ws_buffer_append(buf,
                (guint8 *)&can_frame,
                sizeof(can_frame));
     }
@@ -185,8 +173,8 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     rec->ts.secs        = secs;
     rec->ts.nsecs       = nsecs;
 
-    rec->rec_header.packet_header.caplen = packet_length;
-    rec->rec_header.packet_header.len    = packet_length;
+    rec->rec_header.packet_header.caplen = (guint32)ws_buffer_length(buf);
+    rec->rec_header.packet_header.len    = (guint32)ws_buffer_length(buf);
 
     return TRUE;
 }

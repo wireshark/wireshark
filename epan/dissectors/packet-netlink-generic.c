@@ -47,7 +47,9 @@ enum {
 	WS_CTRL_CMD_NEWMCAST_GRP,
 	WS_CTRL_CMD_DELMCAST_GRP,
 	WS_CTRL_CMD_GETMCAST_GRP,
+	WS_CTRL_CMD_GETPOLICY,
 };
+
 enum ws_genl_ctrl_attr {
 	WS_CTRL_ATTR_UNSPEC,
 	WS_CTRL_ATTR_FAMILY_ID,
@@ -57,6 +59,9 @@ enum ws_genl_ctrl_attr {
 	WS_CTRL_ATTR_MAXATTR,
 	WS_CTRL_ATTR_OPS,
 	WS_CTRL_ATTR_MCAST_GROUPS,
+	WS_CTRL_ATTR_POLICY,
+	WS_CTRL_ATTR_OP_POLICY,
+	WS_CTRL_ATTR_OP,
 };
 
 enum ws_genl_ctrl_op_attr {
@@ -85,6 +90,7 @@ static const value_string genl_ctrl_cmds[] = {
 	{ WS_CTRL_CMD_NEWMCAST_GRP,     "CTRL_CMD_NEWMCAST_GRP" },
 	{ WS_CTRL_CMD_DELMCAST_GRP,     "CTRL_CMD_DELMCAST_GRP" },
 	{ WS_CTRL_CMD_GETMCAST_GRP,     "CTRL_CMD_GETMCAST_GRP" },
+	{ WS_CTRL_CMD_GETPOLICY,        "CTRL_CMD_GETPOLICY" },
 	{ 0, NULL }
 };
 
@@ -97,6 +103,9 @@ static const value_string genl_ctrl_attr_vals[] = {
 	{ WS_CTRL_ATTR_MAXATTR,         "CTRL_ATTR_MAXATTR" },
 	{ WS_CTRL_ATTR_OPS,             "CTRL_ATTR_OPS" },
 	{ WS_CTRL_ATTR_MCAST_GROUPS,    "CTRL_ATTR_MCAST_GROUPS" },
+	{ WS_CTRL_ATTR_POLICY,          "CTRL_ATTR_POLICY" },
+	{ WS_CTRL_ATTR_OP_POLICY,       "CTRL_ATTR_OP_POLICY" },
+	{ WS_CTRL_ATTR_OP,              "CTRL_ATTR_OP" },
 	{ 0, NULL }
 };
 
@@ -280,6 +289,10 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 	case WS_CTRL_ATTR_MCAST_GROUPS:
 		offset = dissect_netlink_attributes_array(tvb, hf_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
 		break;
+	case WS_CTRL_ATTR_POLICY:
+	case WS_CTRL_ATTR_OP_POLICY:
+	case WS_CTRL_ATTR_OP:
+		break;
 	}
 
 	return offset;
@@ -409,62 +422,62 @@ proto_register_netlink_generic(void)
 		},
 		{ &hf_genl_ctrl_op_flags_admin_perm,
 			{ "GENL_ADMIN_PERM", "genl.ctrl.op_flags.admin_perm",
-			  FT_BOOLEAN, 32, NULL, 0x01,
+			  FT_BOOLEAN, 32, NULL, 0x00000001,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_op_flags_cmd_cap_do,
 			{ "GENL_CMD_CAP_DO", "genl.ctrl.op_flags.cmd_cap_do",
-			  FT_BOOLEAN, 32, NULL, 0x02,
+			  FT_BOOLEAN, 32, NULL, 0x00000002,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_op_flags_cmd_cap_dump,
 			{ "GENL_CMD_CAP_DUMP", "genl.ctrl.op_flags.cmd_cap_dump",
-			  FT_BOOLEAN, 32, NULL, 0x04,
+			  FT_BOOLEAN, 32, NULL, 0x00000004,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_op_flags_cmd_cap_haspol,
 			{ "GENL_CMD_CAP_HASPOL", "genl.ctrl.op_flags.cmd_cap_haspol",
-			  FT_BOOLEAN, 32, NULL, 0x08,
+			  FT_BOOLEAN, 32, NULL, 0x00000008,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_op_flags_uns_admin_perm,
 			{ "GENL_UNS_ADMIN_PERM", "genl.ctrl.op_flags.uns_admin_perm",
-			  FT_BOOLEAN, 32, NULL, 0x10,
+			  FT_BOOLEAN, 32, NULL, 0x00000010,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_group_name,
 			{ "Group Name", "genl.ctrl.group_name",
-			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  FT_STRINGZ, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_group_id,
 			{ "Group ID", "genl.ctrl.group_id",
-			  FT_UINT32, BASE_HEX, NULL, 0x00,
+			  FT_UINT32, BASE_HEX, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_family_id,
 			{ "Family ID", "genl.ctrl.family_id",
-			  FT_UINT16, BASE_HEX, NULL, 0x00,
+			  FT_UINT16, BASE_HEX, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_family_name,
 			{ "Family Name", "genl.ctrl.family_name",
-			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  FT_STRINGZ, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_genl_ctrl_version,
 			{ "Version", "genl.ctrl.version",
-			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  "Family-specific version number", HFILL }
 		},
 		{ &hf_genl_ctrl_hdrsize,
 			{ "Header Size", "genl.ctrl.hdrsize",
-			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  "Size of family-specific header", HFILL }
 		},
 		{ &hf_genl_ctrl_maxattr,
 			{ "Maximum Attributes", "genl.ctrl.maxattr",
-			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  "Maximum number of attributes", HFILL }
 		},
 		{ &hf_genl_ctrl_ops_attr,
@@ -479,7 +492,7 @@ proto_register_netlink_generic(void)
 		},
 		{ &hf_genl_ctrl_cmd,
 			{ "Command", "genl.ctrl.cmd",
-			  FT_UINT8, BASE_DEC, VALS(genl_ctrl_cmds), 0x00,
+			  FT_UINT8, BASE_DEC, VALS(genl_ctrl_cmds), 0x0,
 			  "Generic Netlink command", HFILL }
 		},
 		{ &hf_genl_ctrl_attr,

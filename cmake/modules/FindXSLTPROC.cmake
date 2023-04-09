@@ -105,27 +105,21 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
         set(_gfx_deps ${CMAKE_CURRENT_SOURCE_DIR}/${_tmpgfx})
     ENDFOREACH()
 
-    SET(_gfx_dir ${_dir_pfx}_graphics)
+    SET(_gfx_src_dir ${_dir_pfx}_src/images)
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output}
         COMMAND ${CMAKE_COMMAND}
             -E make_directory ${_out_dir}
         COMMAND ${CMAKE_COMMAND}
-           -E make_directory ${_out_dir}/${_gfx_dir}/toolbar
-        COMMAND ${CMAKE_COMMAND}
-           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_dir} ${_out_dir}/${_gfx_dir}
-        COMMAND ${CMAKE_COMMAND}
-           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_out_dir}/${_gfx_dir}
-        COMMAND ${CMAKE_COMMAND}
-           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_dir}/toolbar ${_out_dir}/${_gfx_dir}/toolbar
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_src_dir} ${_out_dir}/images
         COMMAND ${CMAKE_COMMAND}
             -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_out_dir}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
             ${_common_xsltproc_args}
-            --stringparam admon.graphics.path ${_gfx_dir}/
+            --stringparam admon.graphics.path images/
             ${_modeparams}
             --noout ${_stylesheet}
             ${_dbk_source}
@@ -135,6 +129,17 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
             ${_gfx_deps}
             custom_layer_single_html.xsl
     )
+    if(${_dir_pfx} STREQUAL wsug)
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+            ${_output}
+        COMMAND ${CMAKE_COMMAND}
+            -E make_directory ${_out_dir}/images/toolbar
+        COMMAND ${CMAKE_COMMAND}
+            -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfx_src_dir}/toolbar ${_out_dir}/images/toolbar
+        APPEND
+    )
+    endif()
     IF(NOT WIN32)
         ADD_CUSTOM_COMMAND(
             OUTPUT

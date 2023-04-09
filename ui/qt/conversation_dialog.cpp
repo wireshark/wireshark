@@ -50,25 +50,6 @@
 // - The value of 'Rel start' and 'Duration' in "Conversations" no need too precise https://gitlab.com/wireshark/wireshark/-/issues/12803
 
 
-typedef enum {
-    CONV_COLUMN_SRC_ADDR,
-    CONV_COLUMN_SRC_PORT,
-    CONV_COLUMN_DST_ADDR,
-    CONV_COLUMN_DST_PORT,
-    CONV_COLUMN_PACKETS,
-    CONV_COLUMN_BYTES,
-    CONV_COLUMN_PKT_AB,
-    CONV_COLUMN_BYTES_AB,
-    CONV_COLUMN_PKT_BA,
-    CONV_COLUMN_BYTES_BA,
-    CONV_COLUMN_START,
-    CONV_COLUMN_DURATION,
-    CONV_COLUMN_BPS_AB,
-    CONV_COLUMN_BPS_BA,
-    CONV_NUM_COLUMNS,
-    CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
-} conversation_column_type_e;
-
 static const QString table_name_ = QObject::tr("Conversation");
 
 static ATapDataModel * createModel(int protoId, QString filter)
@@ -91,8 +72,8 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
     trafficList()->setProtocolInfo(table_name_, &(recent.conversation_tabs));
 
     trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.conversation_tabs_columns), &createModel);
-    trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
-    trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
+    trafficTab()->setDelegate(&createDelegate);
+    trafficTab()->setDelegate(&createDelegate);
     trafficTab()->setFilter(cf.displayFilter());
 
     connect(trafficTab(), &TrafficTab::filterAction, this, &ConversationDialog::filterAction);
@@ -129,19 +110,19 @@ void ConversationDialog::followStream()
     if (file_closed_)
         return;
 
-    int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
-    if (endpointType != CONVERSATION_TCP && endpointType != CONVERSATION_UDP)
+    QVariant protoIdData = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
+    if (protoIdData.isNull())
         return;
 
-    follow_type_t ftype = FOLLOW_TCP;
-    if (endpointType == CONVERSATION_UDP)
-        ftype = FOLLOW_UDP;
+    int protoId = protoIdData.toInt();
+    if (get_follow_by_proto_id(protoId) == nullptr)
+        return;
 
     int convId = trafficTab()->currentItemData(ATapDataModel::CONVERSATION_ID).toInt();
 
-    // Will set the display filter too.
-    // TCP and UDP do not have a "sub-stream", so set a dummy value.
-    emit openFollowStreamDialog(ftype, convId, 0);
+    // ATapDataModel doesn't support a substream ID (XXX: yet), so set it to a
+    // dummy value.
+    emit openFollowStreamDialog(protoId, convId, 0);
 }
 
 void ConversationDialog::graphTcp()
@@ -171,13 +152,14 @@ void ConversationDialog::tabChanged(int)
     bool graph = false;
 
     if (!file_closed_) {
+        QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
+        if (!proto_id.isNull()) {
+            follow = (get_follow_by_proto_id(proto_id.toInt()) != nullptr);
+        }
         int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
         switch(endpointType) {
             case CONVERSATION_TCP:
                 graph = true;
-                // Fall through
-            case CONVERSATION_UDP:
-                follow = true;
                 break;
         }
     }

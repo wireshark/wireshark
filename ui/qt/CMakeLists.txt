@@ -26,6 +26,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/detachable_tabwidget.h
 	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
+	widgets/dissector_syntax_line_edit.h
 	widgets/dissector_tables_view.h
 	widgets/drag_drop_toolbar.h
 	widgets/drag_label.h
@@ -172,6 +173,7 @@ set(WIRESHARK_QT_HEADERS
 	filter_dialog.h
 	filter_expression_frame.h
 	firewall_rules_dialog.h
+	follow_stream_action.h
 	follow_stream_dialog.h
 	font_color_preferences_frame.h
 	funnel_statistics.h
@@ -280,6 +282,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/detachable_tabwidget.cpp
 	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
+	widgets/dissector_syntax_line_edit.cpp
 	widgets/dissector_tables_view.cpp
 	widgets/drag_drop_toolbar.cpp
 	widgets/drag_label.cpp
@@ -418,6 +421,7 @@ set(WIRESHARK_QT_SRC
 	filter_dialog.cpp
 	filter_expression_frame.cpp
 	firewall_rules_dialog.cpp
+	follow_stream_action.cpp
 	follow_stream_dialog.cpp
 	font_color_preferences_frame.cpp
 	funnel_string_dialog.cpp

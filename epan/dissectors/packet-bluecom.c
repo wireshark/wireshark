@@ -159,7 +159,7 @@ static const value_string bcp_cmds[] = {
  * return: nothing
  */
 static void
-dissect_bcp_connect_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
+dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
 {
     proto_tree *bcp_subtree = NULL;
     guint offset = 0;
@@ -170,8 +170,8 @@ dissect_bcp_connect_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
     {
         bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                                     "BCP Connect Request: Name=%s IpAddr=%s",
-                                                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
-                                                    tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 12));
+                                                    tvb_get_string_enc(pinfo->pool, tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
+                                                    tvb_ip_to_str(pinfo->pool, tvb, offset + 12));
 
         proto_tree_add_item(bcp_subtree, hf_bcp_connectreq_lenin, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -215,7 +215,7 @@ dissect_bcp_connect_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
  * return: nothing
  */
 static void
-dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
+dissect_bcp_search_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
 {
     proto_tree *bcp_subtree = NULL;
     guint type = 0;
@@ -231,15 +231,15 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
             case BCP_SEARCH_IPADDR:
                 bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                   "BCP Search Request: IpAddrFirst=%s, IpAddrLast=%s",
-                                  tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 8),
-                                  tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 12)
+                                  tvb_ip_to_str(pinfo->pool, tvb, offset + 8),
+                                  tvb_ip_to_str(pinfo->pool, tvb, offset + 12)
                                   );
                 break;
 
             case BCP_SEARCH_NAME:
                 bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                   "BCP Search Request: Name=%s",
-                                  tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 8, BCP_NAME_LEN, ENC_ASCII)
+                                  tvb_get_string_enc(pinfo->pool, tvb, offset + 8, BCP_NAME_LEN, ENC_ASCII)
                                   );
                 break;
 
@@ -277,8 +277,8 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
     {
         bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                           "BCP Search Response: Name=%s, IpAddr=%s Error=%d",
-                          tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
-                          tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 12),
+                          tvb_get_string_enc(pinfo->pool, tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
+                          tvb_ip_to_str(pinfo->pool, tvb, offset + 12),
                           tvb_get_letohl(tvb, offset)
                           );
 
@@ -310,7 +310,7 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
  * return: nothing
  */
 static void
-dissect_bcp_identify_data(proto_tree *bcp_tree, tvbuff_t *tvb)
+dissect_bcp_identify_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb)
 {
     proto_tree *bcp_subtree = NULL;
     guint offset = 0;
@@ -319,8 +319,8 @@ dissect_bcp_identify_data(proto_tree *bcp_tree, tvbuff_t *tvb)
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                     "BCP Identify Request: Name=%s, IpAddr=%s",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, BCP_NAME_LEN, ENC_ASCII),
-                    tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 8)
+                    tvb_get_string_enc(pinfo->pool, tvb, offset + 12, BCP_NAME_LEN, ENC_ASCII),
+                    tvb_ip_to_str(pinfo->pool, tvb, offset + 8)
                     );
 
     proto_tree_add_item(bcp_subtree, hf_bcp_identify_error, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -536,17 +536,17 @@ static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 break;
 
             case BCP_BLK_CMD_IDENTIFY:
-                dissect_bcp_identify_data(bcp_tree, block_tvb);
+                dissect_bcp_identify_data(pinfo, bcp_tree, block_tvb);
                 break;
 
             case BCP_BLK_CMD_SEARCH:
                 col_append_str(pinfo->cinfo, COL_INFO, REQRSP(flags));
-                dissect_bcp_search_data(bcp_tree, block_tvb, flags);
+                dissect_bcp_search_data(pinfo, bcp_tree, block_tvb, flags);
                 break;
 
             case BCP_BLK_CMD_CONNECT:
                 col_append_str(pinfo->cinfo, COL_INFO, REQRSP(flags));
-                dissect_bcp_connect_data(bcp_tree, block_tvb, flags);
+                dissect_bcp_connect_data(pinfo, bcp_tree, block_tvb, flags);
                 break;
 
             case BCP_BLK_CMD_DATA:

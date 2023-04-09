@@ -18,8 +18,9 @@
 #include "epan/dissectors/dissectors.h"
 
 static const char *cur_cb_name = NULL;
-// We could use g_atomic_pointer_set/get instead of a mutex, but that's
-// currently (early 2018) invisible to TSAN.
+// We could use g_atomic_pointer_set/get instead of a mutex, but that causes
+// a false positive with Clang and TSAN for GLib < 2.64.0 (Issue #17753):
+// https://gitlab.gnome.org/GNOME/glib/-/issues/1843
 static GMutex cur_cb_name_mtx;
 static GAsyncQueue *register_cb_done_q;
 

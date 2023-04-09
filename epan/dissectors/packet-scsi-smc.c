@@ -242,23 +242,17 @@ static const value_string action_code_vals[] = {
 #define SVALID 0x80
 
 static void
-dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree, guint offset, int hf_vol_id, int hf_vol_seq_num)
 {
-    char volid[32+1];
-    char *p;
-
-    tvb_memcpy (tvb, (guint8 *)volid, offset, 32);
-    p = &volid[32];
-    for (;;) {
-        *p = '\0';
-        if (p == volid)
+    guint8 *volid;
+    int length;
+    for (length = 32; length > 0; length--) {
+        if (tvb_get_guint8(tvb, offset + length - 1) != ' ')
             break;
-        if (*(p - 1) != ' ')
-            break;
-        p--;
     }
 
+    volid = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
     proto_tree_add_string(tree, hf_vol_id, tvb, offset, 32, volid);
     proto_tree_add_item(tree, hf_vol_seq_num, tvb, offset+34, 2, ENC_BIG_ENDIAN);
 }

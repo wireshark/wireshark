@@ -38,7 +38,7 @@
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
-#include "ui/cmdarg_err.h"
+#include "wsutil/cmdarg_err.h"
 #include "ui/failure_message.h"
 #include "wsutil/version_info.h"
 

@@ -166,7 +166,7 @@ static vint_t read_vint(tvbuff_t *tvb, int offset){
     return vint;
 }
 
-static vstring_t read_vstring(tvbuff_t *tvb, int offset) {
+static vstring_t read_vstring(wmem_allocator_t *scope, tvbuff_t *tvb, int offset) {
     vstring_t vstring;
     int string_starting_offset;
     int string_length;
@@ -175,7 +175,7 @@ static vstring_t read_vstring(tvbuff_t *tvb, int offset) {
     string_starting_offset = offset + vstring.vint_length.length;
     string_length = vstring.vint_length.value;
 
-    vstring.value = tvb_get_string_enc(wmem_packet_scope(), tvb, string_starting_offset, string_length, ENC_UTF_8);
+    vstring.value = tvb_get_string_enc(scope, tvb, string_starting_offset, string_length, ENC_UTF_8);
     vstring.length = string_length + vstring.vint_length.length;
 
     return vstring;
@@ -230,7 +230,7 @@ static int elasticsearch_partial_dissect_address(tvbuff_t *tvb, packet_info *pin
             break;
 
         case ADDRESS_FORMAT_STRING:
-            address_name = read_vstring(tvb, offset);
+            address_name = read_vstring(pinfo->pool, tvb, offset);
             proto_tree_add_string(address_tree, hf_elasticsearch_address_name, tvb, offset, address_name.length, address_name.value);
             offset += address_name.length;
             break;
@@ -303,7 +303,7 @@ static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, pro
     offset += 4;
 
     /* Cluster name */
-    cluster_name = read_vstring(tvb, offset);
+    cluster_name = read_vstring(pinfo->pool, tvb, offset);
     proto_tree_add_string(elasticsearch_tree, hf_elasticsearch_cluster_name, tvb, offset, cluster_name.length, cluster_name.value);
     col_append_fstr(pinfo->cinfo, COL_INFO, "cluster=%s", cluster_name.value);
     offset += cluster_name.length;
@@ -313,7 +313,7 @@ static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, pro
     discovery_node_tree = proto_tree_add_subtree(elasticsearch_tree, tvb, offset, -1, ett_elasticsearch_discovery_node, &discovery_node_item, "Node" );
 
     /* Node name */
-    node_name = read_vstring(tvb, offset);
+    node_name = read_vstring(pinfo->pool, tvb, offset);
     proto_tree_add_string(discovery_node_tree, hf_elasticsearch_node_name, tvb, offset, node_name.length, node_name.value);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", name=%s", node_name.value);
     offset += node_name.length;
@@ -322,17 +322,17 @@ static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, pro
 
 
     /* Node ID */
-    node_id = read_vstring(tvb, offset);
+    node_id = read_vstring(pinfo->pool, tvb, offset);
     proto_tree_add_string(discovery_node_tree, hf_elasticsearch_node_id, tvb, offset, node_id.length, node_id.value);
     offset += node_id.length;
 
     /* Hostname */
-    host_name = read_vstring(tvb, offset);
+    host_name = read_vstring(pinfo->pool, tvb, offset);
     proto_tree_add_string(discovery_node_tree, hf_elasticsearch_host_name, tvb, offset, host_name.length, host_name.value);
     offset += host_name.length;
 
     /* Host address */
-    host_address = read_vstring(tvb, offset);
+    host_address = read_vstring(pinfo->pool, tvb, offset);
     proto_tree_add_string(discovery_node_tree, hf_elasticsearch_host_address, tvb, offset, host_address.length, host_address.value);
     offset += host_address.length;
 
@@ -386,13 +386,13 @@ static void elasticsearch_decode_binary_request(tvbuff_t *tvb, packet_info *pinf
             features = read_vint(tvb, offset);
             offset += features.length;
             for (i = 0; i < features.value; i++) {
-                feature = read_vstring(tvb, offset);
+                feature = read_vstring(pinfo->pool, tvb, offset);
                 proto_tree_add_string(tree, hf_elasticsearch_feature, tvb, offset, feature.length, feature.value);
                 offset += feature.length;
             }
         }
 
-        action = read_vstring(tvb, offset);
+        action = read_vstring(pinfo->pool, tvb, offset);
         proto_tree_add_string(tree, hf_elasticsearch_action, tvb, offset, action.length, action.value);
         col_append_fstr(pinfo->cinfo, COL_INFO, "action=%s, ", action.value);
         offset += action.length;
@@ -485,8 +485,8 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
         request_headers = read_vint(tvb, offset);
         offset += request_headers.length;
         for (i = 0; i < request_headers.value; i++) {
-            header_key = read_vstring(tvb, offset);
-            header_value = read_vstring(tvb, offset + header_key.length);
+            header_key = read_vstring(pinfo->pool, tvb, offset);
+            header_value = read_vstring(pinfo->pool, tvb, offset + header_key.length);
 
             header_item = proto_tree_add_item(tree, hf_elasticsearch_header_request, tvb, offset, header_key.length + header_value.length, ENC_NA);
             header_tree = proto_item_add_subtree(header_item, ett_elasticsearch_header);
@@ -507,7 +507,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
             header_item = proto_tree_add_item(tree, hf_elasticsearch_header_response, tvb, offset, 0, ENC_NA);
             header_tree = proto_item_add_subtree(header_item, ett_elasticsearch_header);
 
-            header_key = read_vstring(tvb, offset);
+            header_key = read_vstring(pinfo->pool, tvb, offset);
             proto_tree_add_string(header_tree, hf_elasticsearch_header_key, tvb, offset, header_key.length, header_key.value);
             proto_item_append_text(header_item, ": %s", header_key.value);
             offset += header_key.length;
@@ -516,7 +516,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
             offset += header_values.length;
 
             for (j = 0; j < header_values.value; j++) {
-                header_value = read_vstring(tvb, offset);
+                header_value = read_vstring(pinfo->pool, tvb, offset);
                 proto_tree_add_string(header_tree, hf_elasticsearch_header_value, tvb, offset, header_value.length, header_value.value);
                 proto_item_append_text(header_item, j > 0 ? ", %s" : "%s", header_value.value);
                 offset += header_value.length;

@@ -95,7 +95,12 @@ struct wtap_dumper {
     WFILE_T                 fh;
     int                     file_type_subtype;
     int                     snaplen;
-    int                     encap;
+    int                     file_encap;      /* per-file, for those
+                                              * file formats that have
+                                              * per-file encapsulation
+                                              * types rather than per-packet
+                                              * encapsulation types
+                                              */
     wtap_compression_type   compression_type;
     gboolean                needs_reload;    /* TRUE if the file requires re-loading after saving with wtap */
     gint64                  bytes_dumped;

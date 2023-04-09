@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.3.0 (2022-12)
+-- 3GPP TS 38.455 V17.4.0 (2023-03)
 --9.3.4	PDU Definitions
 --
 -- **************************************************************
@@ -78,7 +78,8 @@ IMPORTS
 	PreconfigurationResult,
 	RequestType,
 	UE-TEG-ReportingPeriodicity,
-	MeasurementPeriodicityNR-AoA
+	MeasurementPeriodicityNR-AoA,
+	SRSTransmissionStatus
 
 
 FROM NRPPA-IEs
@@ -156,7 +157,8 @@ FROM NRPPA-Containers
 	id-PreconfigurationResult,
 	id-RequestType,
 	id-UE-TEG-ReportingPeriodicity,
-	id-MeasurementPeriodicityNR-AoA
+	id-MeasurementPeriodicityNR-AoA,
+	id-SRSTransmissionStatus
 
 
 
@@ -493,7 +495,8 @@ PositioningInformationUpdate ::= SEQUENCE {
 PositioningInformationUpdate-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
 	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE RelativeTime1900			PRESENCE optional}|
-	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional},
+	{ ID id-UETxTEGAssociationList		CRITICALITY ignore	TYPE UETxTEGAssociationList		PRESENCE optional}|
+	{ ID id-SRSTransmissionStatus		CRITICALITY ignore	TYPE SRSTransmissionStatus	PRESENCE optional},
 	...
 }
 

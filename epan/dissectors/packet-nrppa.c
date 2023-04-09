@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 38.455 V17.3.0 (2022-12)
+ * Ref 3GPP TS 38.455 V17.4.0 (2023-03)
  * http://www.3gpp.org
  */
 
@@ -96,6 +96,7 @@ static int hf_nrppa_SRSConfiguration_PDU = -1;    /* SRSConfiguration */
 static int hf_nrppa_SrsFrequency_PDU = -1;        /* SrsFrequency */
 static int hf_nrppa_SRSPortIndex_PDU = -1;        /* SRSPortIndex */
 static int hf_nrppa_SRSResourcetype_PDU = -1;     /* SRSResourcetype */
+static int hf_nrppa_SRSTransmissionStatus_PDU = -1;  /* SRSTransmissionStatus */
 static int hf_nrppa_SystemFrameNumber_PDU = -1;   /* SystemFrameNumber */
 static int hf_nrppa_TDD_Config_EUTRA_Item_PDU = -1;  /* TDD_Config_EUTRA_Item */
 static int hf_nrppa_TRPTEGInformation_PDU = -1;   /* TRPTEGInformation */
@@ -1297,7 +1298,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_procedure_code_102_not_to_be_used = 102,
   id_procedure_code_103_not_to_be_used = 103,
   id_UETxTimingErrorMargin = 104,
-  id_MeasurementPeriodicityNR_AoA = 105
+  id_MeasurementPeriodicityNR_AoA = 105,
+  id_SRSTransmissionStatus = 106
 } ProtocolIE_ID_enum;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -1519,6 +1521,7 @@ static const value_string nrppa_ProtocolIE_ID_vals[] = {
   { id_procedure_code_103_not_to_be_used, "id-procedure-code-103-not-to-be-used" },
   { id_UETxTimingErrorMargin, "id-UETxTimingErrorMargin" },
   { id_MeasurementPeriodicityNR_AoA, "id-MeasurementPeriodicityNR-AoA" },
+  { id_SRSTransmissionStatus, "id-SRSTransmissionStatus" },
   { 0, NULL }
 };
 
@@ -8826,6 +8829,21 @@ dissect_nrppa_SRSResourcetype(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
+static const value_string nrppa_SRSTransmissionStatus_vals[] = {
+  {   0, "stopped" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nrppa_SRSTransmissionStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_nrppa_SSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -11206,6 +11224,14 @@ static int dissect_SRSResourcetype_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SRSTransmissionStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nrppa_SRSTransmissionStatus(tvb, offset, &asn1_ctx, tree, hf_nrppa_SRSTransmissionStatus_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SystemFrameNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -12034,6 +12060,10 @@ void proto_register_nrppa(void) {
     { &hf_nrppa_SRSResourcetype_PDU,
       { "SRSResourcetype", "nrppa.SRSResourcetype_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nrppa_SRSTransmissionStatus_PDU,
+      { "SRSTransmissionStatus", "nrppa.SRSTransmissionStatus",
+        FT_UINT32, BASE_DEC, VALS(nrppa_SRSTransmissionStatus_vals), 0,
         NULL, HFILL }},
     { &hf_nrppa_SystemFrameNumber_PDU,
       { "SystemFrameNumber", "nrppa.SystemFrameNumber",
@@ -15146,6 +15176,7 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_RequestType, create_dissector_handle(dissect_RequestType_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_UE_TEG_ReportingPeriodicity, create_dissector_handle(dissect_UE_TEG_ReportingPeriodicity_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_MeasurementPeriodicityNR_AoA, create_dissector_handle(dissect_MeasurementPeriodicityNR_AoA_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.ies", id_SRSTransmissionStatus, create_dissector_handle(dissect_SRSTransmissionStatus_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_GeographicalCoordinates, create_dissector_handle(dissect_GeographicalCoordinates_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_SRSSpatialRelation, create_dissector_handle(dissect_SpatialRelationInfo_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_SRSSpatialRelationPerSRSResource, create_dissector_handle(dissect_SpatialRelationPerSRSResource_PDU, proto_nrppa));

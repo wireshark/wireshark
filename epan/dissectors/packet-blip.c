@@ -476,12 +476,11 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 		if(!tvb_to_use) {
 			return tvb_reported_length(tvb);
 		}
+		offset = 0;
 #else /* ! HAVE_ZLIB */
 		proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<decompression support is not available>");
 		return tvb_reported_length(tvb);
 #endif /* ! HAVE_ZLIB */
-
-		offset = 0;
 	}
 
 	// Is this the first frame in a message?

@@ -159,12 +159,13 @@ static gboolean preload_protos = FALSE;
 static gboolean display_json_mapping = FALSE;
 static gboolean use_utc_fmt = FALSE;
 
-enum add_default_value_policy_t {
-    ADD_DEFAULT_VALUE_NONE,
-    ADD_DEFAULT_VALUE_DECLARED,
-    ADD_DEFAULT_VALUE_ENUM_BOOL,
-    ADD_DEFAULT_VALUE_ALL,
-};
+#define add_default_value_policy_vals_ENUM_VAL_T_LIST(XXX) \
+    XXX(ADD_DEFAULT_VALUE_NONE,      0, "none", "None") \
+    XXX(ADD_DEFAULT_VALUE_DECLARED,  1, "decl", "Only Explicitly-Declared (proto2)") \
+    XXX(ADD_DEFAULT_VALUE_ENUM_BOOL, 2, "enbl", "Explicitly-Declared, ENUM and BOOL") \
+    XXX(ADD_DEFAULT_VALUE_ALL,       3, "all",  "All")
+
+typedef ENUM_VAL_T_ENUM(add_default_value_policy_vals) add_default_value_policy_t;
 
 static gint add_default_value = (gint) ADD_DEFAULT_VALUE_NONE;
 
@@ -760,10 +761,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
                 proto_item_append_text(ti_field, "= %s", buf);
             }
         } else if (hf_id_ptr) {
-            ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
-            subtree = proto_item_add_subtree(ti, ett_protobuf_message);
+            proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
         } else {
-            /* we don't continue with unknown mssage type */
+            /* we don't continue with unknown message type */
         }
         break;
 
@@ -2170,13 +2170,7 @@ proto_register_protobuf(void)
         },
     };
 
-    static const enum_val_t add_default_value_policy_vals[] = {
-        {"none", "None", ADD_DEFAULT_VALUE_NONE},
-        {"decl", "Only Explicitly-Declared (proto2)", ADD_DEFAULT_VALUE_DECLARED},
-        {"enbl", "Explicitly-Declared, ENUM and BOOL", ADD_DEFAULT_VALUE_ENUM_BOOL},
-        {"all",  "All", ADD_DEFAULT_VALUE_ALL},
-        {NULL, NULL, -1}
-    };
+    ENUM_VAL_T_ARRAY_STATIC(add_default_value_policy_vals);
 
     module_t *protobuf_module;
     expert_module_t *expert_protobuf;

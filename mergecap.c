@@ -25,8 +25,8 @@
 
 #include <wiretap/wtap.h>
 
-#include <ui/clopts_common.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>

@@ -4714,7 +4714,7 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
         if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
             args->last_teid = teid_data; /* We save it to track the error indication */
             if (!teid_exists(teid_data, args->teid_list)) {
-                teid = wmem_new(wmem_packet_scope(), guint32);
+                teid = wmem_new(pinfo->pool, guint32);
                 *teid = teid_data;
                 wmem_list_prepend(args->teid_list, teid);
             }
@@ -4749,7 +4749,7 @@ decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
         /* We save the teid_cp so that we could assignate its corresponding session ID later */
         if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
             if (!teid_exists(teid_cp, args->teid_list)) {
-                teid = wmem_new(wmem_packet_scope(), guint32);
+                teid = wmem_new(pinfo->pool, guint32);
                 *teid = teid_cp;
                 wmem_list_prepend(args->teid_list, teid);
             }
@@ -5990,11 +5990,11 @@ static const gchar *
 dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo)
 {
     decode_qos_umts(tvb, 0, pinfo, tree, "UMTS GTP QoS Profile", 3);
-    return tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
+    return tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
 }
 
 static void
-decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_item *item)
+decode_apn(packet_info *pinfo, tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_item *item)
 {
     const guint8 *apn = NULL;
 
@@ -6007,7 +6007,7 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
      */
 
     /* Highlight bytes including the first length byte */
-    proto_tree_add_item_ret_string(tree, hf_gtp_apn, tvb, offset, length, ENC_APN_STR, wmem_packet_scope(), &apn);
+    proto_tree_add_item_ret_string(tree, hf_gtp_apn, tvb, offset, length, ENC_APN_STR, pinfo->pool, &apn);
     if(item){
         proto_item_append_text(item, ": %s", apn);
     }
@@ -6045,7 +6045,7 @@ decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, sessi
  * TODO:        unify addr functions
  */
 static int
-decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8             ggsn_addr_len, apn_len, trans_id, ea;
@@ -6163,7 +6163,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     apn_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(ext_tree_pdp, hf_gtp_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    decode_apn(tvb, offset + 1, apn_len, ext_tree_pdp, NULL);
+    decode_apn(pinfo, tvb, offset + 1, apn_len, ext_tree_pdp, NULL);
 
     offset = offset + 1 + apn_len;
     /*
@@ -6206,7 +6206,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060, v4.0, chapter 7.7.30
  */
 static int
-decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6219,7 +6219,7 @@ decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
                                 val_to_str_ext_const(GTP_EXT_APN, &gtp_val_ext, "Unknown field"));
 
     proto_tree_add_item(ext_tree_apn, hf_gtp_apn_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
-    decode_apn(tvb, offset + 3, length, ext_tree_apn, te);
+    decode_apn(pinfo, tvb, offset + 3, length, ext_tree_apn, te);
 
     return 3 + length;
 }
@@ -6261,7 +6261,7 @@ decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tre
  * UMTS:        29.060 v4.0, chapter 7.7.32
  */
 static int
-decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args, const char * tree_name, int hf_ipv4, int hf_ipv6)
+decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args, const char * tree_name, int hf_ipv4, int hf_ipv6)
 {
 
     guint8             addr_type, addr_len;
@@ -6273,7 +6273,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     length = tvb_get_ntohs(tvb, offset + 1);
 
     ext_tree_gsn_addr = proto_tree_add_subtree_format(tree, tvb, offset, 3 + length, ett_gtp_gsn_addr, &te, "%s : ", tree_name);
-    gsn_address = wmem_new0(wmem_packet_scope(), address);
+    gsn_address = wmem_new0(pinfo->pool, address);
     switch (length) {
     case 4:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -6322,7 +6322,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 
     if (g_gtp_session && gtp_version == 1 && !PINFO_FD_VISITED(pinfo)) {
         if (!ip_exists(*gsn_address, args->ip_list)) {
-            copy_address_wmem(wmem_packet_scope(), &args->last_ip, gsn_address);
+            copy_address_wmem(pinfo->pool, &args->last_ip, gsn_address);
             wmem_list_prepend(args->ip_list, gsn_address);
         }
     }
@@ -7090,7 +7090,7 @@ decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
  * Type = 154 (Decimal)
  */
 static int
-decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -7114,7 +7114,7 @@ decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
      * set to '1111'. Both IMEI and IMEISV are BCD encoded.
      */
     next_tvb = tvb_new_subset_length(tvb, offset, length);
-    proto_tree_add_item_ret_display_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
+    proto_tree_add_item_ret_display_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
     proto_item_append_text(te, ": %s", digit_str);
 
     return 3 + length;
@@ -7213,7 +7213,7 @@ decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 
     proto_tree_add_item_ret_uint(ext_tree, hf_gtp_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN, &apn_len);
     offset++;
-    decode_apn(tvb, offset, apn_len, ext_tree, NULL);
+    decode_apn(pinfo, tvb, offset, apn_len, ext_tree, NULL);
     offset += apn_len;
     /*
      * The Transaction Identifier is the 4 or 12 bit Transaction Identifier used in the 3GPP TS 24.008 [5] Session Management
@@ -9347,7 +9347,7 @@ decode_gtp_ciot_opt_sup_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  * 7.7.121 SCEF PDN Connection
  */
 static int
-decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -9363,7 +9363,7 @@ decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
     offset += 2;
 
     proto_tree_add_item_ret_uint(ext_tree, hf_gtp_apn_length, tvb, offset, 1, ENC_NA, &apn_length);
-    decode_apn(tvb, offset + 1, (guint16)apn_length, ext_tree, NULL);
+    decode_apn(pinfo, tvb, offset + 1, (guint16)apn_length, ext_tree, NULL);
 
     offset += 1 + apn_length;
 
@@ -10225,7 +10225,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /* Setting everything to 0, so that the TEID is 0 for GTP version 0
      * The magic number should perhaps be replaced.
      */
-    gtp_hdr = wmem_new0(wmem_packet_scope(), gtp_hdr_t);
+    gtp_hdr = wmem_new0(pinfo->pool, gtp_hdr_t);
 
     /* Setting the TEID to -1 to say that the TEID is not valid for this packet */
     gtp_hdr->teid = -1;
@@ -10234,11 +10234,11 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (g_gtp_session) {
-        args = wmem_new0(wmem_packet_scope(), session_args_t);
+        args = wmem_new0(pinfo->pool, session_args_t);
         args->last_cause = 128;                                         /* It stores the last cause decoded. Cause accepted by default */
         /* We create the auxiliary lists */
-        args->teid_list = wmem_list_new(wmem_packet_scope());
-        args->ip_list = wmem_list_new(wmem_packet_scope());
+        args->teid_list = wmem_list_new(pinfo->pool);
+        args->ip_list = wmem_list_new(pinfo->pool);
     }
 
     /*

@@ -706,6 +706,8 @@ kink		910/tcp/udp	# Kerberized Internet Negotiation of Keys (KINK)
 xact-backup	911/tcp/udp
 apex-mesh	912/tcp/udp	# APEX relay-relay service
 apex-edge	913/tcp/udp	# APEX endpoint-relay service
+rift-lies	914/udp		# Routing in Fat Trees Link Information Elements (TEMPORARY - registered 2023-02-17, expires 2024-02-17)
+rift-ties	915/udp		# Routing in Fat Trees Topology Information Elements (TEMPORARY - registered 2023-02-17, expires 2024-02-17)
 rndc		953/tcp		# BIND9 remote name daemon controller
 ftps-data	989/tcp/udp	# ftp protocol, data, over TLS/SSL
 ftps		990/tcp/udp	# ftp protocol, control, over TLS/SSL
@@ -1969,6 +1971,7 @@ vrtp		2255/tcp/udp	# VRTP - ViRtue Transfer Protocol
 pcc-mfp		2256/tcp/udp	# PCC MFP
 simple-tx-rx	2257/tcp/udp	# simple text/file transfer
 rcts		2258/tcp/udp	# Rotorcraft Communications Test System
+bid-serv	2259/tcp/udp	# BIF identifiers resolution service
 apc-2260	2260/tcp/udp	# APC 2260
 comotionmaster	2261/tcp/udp	# CoMotion Master Server
 comotionback	2262/tcp/udp	# CoMotion Backup Server

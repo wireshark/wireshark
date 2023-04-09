@@ -1561,6 +1561,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>実時間でパケット一覧を更新</translation>
     </message>
     <message>
+        <source>Interval between updates (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にパケット一覧を一番下にスクロールし続けます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1676,11 +1688,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
+        <translation type="vanished">あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
+        <translation type="vanished">Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
     </message>
 </context>
 <context>
@@ -2300,6 +2312,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click OK to insert this filter</source>
         <translation>OKをクリックしてこのフィルタを挿入</translation>
+    </message>
+</context>
+<context>
+    <name>DissectorSyntaxLineEdit</name>
+    <message>
+        <source>Dissector entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a dissector %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3284,6 +3307,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>典型的なファイル</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6558,6 +6588,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>システム設定を利用</translation>
     </message>
     <message>
+        <source>Debounce Timer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How long to wait (in milliseconds) before processing user input&lt;br/&gt;If you type quickly, consider lowering the value for a &apos;snappier&apos; experience.&lt;br/&gt; If you type slowly, consider increasing the value to avoid performance issues.&lt;br/&gt;This is currently used to delay searches in View -&gt; Internals -&gt; Supported Protocols and Preferences -&gt; Advanced menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open Files In</source>
         <translation>ファイルを開く</translation>
     </message>
@@ -7095,6 +7133,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Sorting &quot;%1&quot;…</source>
         <translation>&quot;%1&quot; ソート中…</translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13297,15 +13339,15 @@ a:hover {
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>DCCPストリーム</translation>
+        <translation type="vanished">DCCPストリーム</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>TLS ストリーム</translation>
+        <translation type="vanished">TLS ストリーム</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTPストリーム</translation>
+        <translation type="vanished">HTTPストリーム</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13313,11 +13355,11 @@ a:hover {
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>QUIC ストリーム</translation>
+        <translation type="vanished">QUIC ストリーム</translation>
     </message>
     <message>
         <source>Websocket Stream</source>
-        <translation>Webソケットストリーム</translation>
+        <translation type="vanished">Webソケットストリーム</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13644,6 +13686,10 @@ a:hover {
         <translation>最初にキャプチャしたパケットからの経過時間</translation>
     </message>
     <message>
+        <source>Show packet times as the seconds since the first captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>パケット &amp;ダイアグラム</translation>
     </message>
@@ -13857,11 +13903,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCPストリーム</translation>
+        <translation type="vanished">TCPストリーム</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDPストリーム</translation>
+        <translation type="vanished">UDPストリーム</translation>
     </message>
     <message>
         <source>Request Sequences</source>

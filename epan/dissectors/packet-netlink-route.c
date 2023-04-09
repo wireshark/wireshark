@@ -128,6 +128,18 @@ enum {
 	WS_RTM_NEWNEXTHOP   = 104,
 	WS_RTM_DELNEXTHOP   = 105,
 	WS_RTM_GETNEXTHOP   = 106,
+	WS_RTM_NEWLINKPROP  = 108,
+	WS_RTM_DELLINKPROP  = 109,
+	WS_RTM_GETLINKPROP  = 110,
+	WS_RTM_NEWVLAN      = 112,
+	WS_RTM_DELVLAN      = 113,
+	WS_RTM_GETVLAN      = 114,
+	WS_RTM_NEWNEXTHOPBUCKET = 116,
+	WS_RTM_DELNEXTHOPBUCKET = 117,
+	WS_RTM_GETNEXTHOPBUCKET = 118,
+	WS_RTM_NEWTUNNEL    = 120,
+	WS_RTM_DELTUNNEL    = 121,
+	WS_RTM_GETTUNNEL    = 122,
 };
 
 /* values for rta_type (network interface) from </include/uapi/linux/if_link.h> */
@@ -184,6 +196,16 @@ enum ws_ifla_attr_type {
 	WS_IFLA_NEW_IFINDEX     = 49,
 	WS_IFLA_MIN_MTU         = 50,
 	WS_IFLA_MAX_MTU         = 51,
+	WS_IFLA_PROP_LIST       = 52,
+	WS_IFLA_ALT_IFNAME      = 53,
+	WS_IFLA_PERM_ADDRESS    = 54,
+	WS_IFLA_PROTO_DOWN_REASON = 55,
+	WS_IFLA_PARENT_DEV_NAME = 56,
+	WS_IFLA_PARENT_DEV_BUS_NAME = 57,
+	WS_IFLA_GRO_MAX_SIZE    = 58,
+	WS_IFLA_TSO_MAX_SIZE    = 59,
+	WS_IFLA_TSO_MAX_SEGS    = 60,
+	WS_IFLA_ALLMULTI        = 61,
 };
 
 /* values for rta_type (ip address) from <include/uapi/linux/if_addr.h> */
@@ -199,6 +221,7 @@ enum ws_ifa_attr_type {
 	WS_IFA_FLAGS       = 8,
 	WS_IFA_RT_PRIORITY = 9,
 	WS_IFA_TARGET_NETNSID = 10,
+	WS_IFA_PROTO       = 11,
 };
 
 /* values for rta_type (route) from <include/uapi/linux/rtnetlink.h> */
@@ -620,6 +643,16 @@ static const value_string netlink_route_ifla_attr_vals[] = {
 	{ WS_IFLA_NEW_IFINDEX,    "IFLA_NEW_IFINDEX" },
 	{ WS_IFLA_MIN_MTU,        "Minimum MTU" },
 	{ WS_IFLA_MAX_MTU,        "Maximum MTU" },
+	{ WS_IFLA_PROP_LIST,      "Property list" },
+	{ WS_IFLA_ALT_IFNAME,     "Alternative ifname" },
+	{ WS_IFLA_PERM_ADDRESS,   "Permanent address" },
+	{ WS_IFLA_PROTO_DOWN_REASON, "Protocol down reason" },
+	{ WS_IFLA_PARENT_DEV_NAME, "Parent device name" },
+	{ WS_IFLA_PARENT_DEV_BUS_NAME, "Parent device bus name" },
+	{ WS_IFLA_GRO_MAX_SIZE,   "GRO maximum size" },
+	{ WS_IFLA_TSO_MAX_SIZE,   "TSO maximum size" },
+	{ WS_IFLA_TSO_MAX_SEGS,   "TSO maximum number of segments" },
+	{ WS_IFLA_ALLMULTI,       "Allmulti count" },
 	{ 0, NULL }
 };
 
@@ -873,6 +906,7 @@ static const value_string netlink_route_ifa_attr_vals[] = {
 	{ WS_IFA_FLAGS,     "Address flags" },
 	{ WS_IFA_RT_PRIORITY, "IFA_RT_PRIORITY" },
 	{ WS_IFA_TARGET_NETNSID, "IFA_TARGET_NETNSID" },
+	{ WS_IFA_PROTO,     "IFA_PROTO" },
 	{ 0, NULL }
 };
 
@@ -1184,6 +1218,18 @@ static const value_string netlink_route_type_vals[] = {
 	{ WS_RTM_NEWNEXTHOP,    "New next hop" },
 	{ WS_RTM_DELNEXTHOP,    "Delete next hop" },
 	{ WS_RTM_GETNEXTHOP,    "Get next hop" },
+	{ WS_RTM_NEWLINKPROP,   "New link property" },
+	{ WS_RTM_DELLINKPROP,   "Delete link property" },
+	{ WS_RTM_GETLINKPROP,   "Get link property" },
+	{ WS_RTM_NEWVLAN,       "New VLAN" },
+	{ WS_RTM_DELVLAN,       "Delete VLAN" },
+	{ WS_RTM_GETVLAN,       "Get VLAN" },
+	{ WS_RTM_NEWNEXTHOPBUCKET, "New next hop bucket" },
+	{ WS_RTM_DELNEXTHOPBUCKET, "Delete next hop bucket" },
+	{ WS_RTM_GETNEXTHOPBUCKET, "Get next hop bucket" },
+	{ WS_RTM_NEWTUNNEL,     "New tunnel" },
+	{ WS_RTM_DELTUNNEL,     "Delete tunnel" },
+	{ WS_RTM_GETTUNNEL,     "Get tunnel" },
 	{ 0, NULL }
 };
 static value_string_ext netlink_route_type_vals_ext = VALUE_STRING_EXT_INIT(netlink_route_type_vals);
@@ -1214,6 +1260,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_NEWLINK:
 		case WS_RTM_DELLINK:
 		case WS_RTM_GETLINK:
+		case WS_RTM_SETLINK:
 			/*
 			 * Backward compatibility with legacy tools; 16 is
 			 * sizeof(struct ifinfomsg).
@@ -1396,7 +1443,7 @@ proto_register_netlink_route(void)
 		},
 		{ &hf_netlink_route_ifla_carrier,
 			{ "Carrier", "netlink-route.ifla_carrier",
-			  FT_BOOLEAN, 32, TFS(&tfs_restricted_not_restricted), 0x01,
+			  FT_BOOLEAN, 32, TFS(&tfs_restricted_not_restricted), 0x00000001,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_route_ifla_qdisc,

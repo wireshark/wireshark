@@ -75,6 +75,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-lz4 \
 	${PACKAGE_PREFIX}-minizip \
 	${PACKAGE_PREFIX}-ninja \
+	${PACKAGE_PREFIX}-opencore-amr \
 	${PACKAGE_PREFIX}-opus \
 	${PACKAGE_PREFIX}-pcre2 \
 	${PACKAGE_PREFIX}-python \

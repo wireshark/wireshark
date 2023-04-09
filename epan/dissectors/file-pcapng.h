@@ -11,6 +11,46 @@
 #ifndef __FILE_PCAPNG_H__
 #define __FILE_PCAPNG_H__
 
+/*
+ * Structure to pass to block data dissectors.
+ */
+typedef struct {
+    proto_item *block_item;
+    proto_tree *block_tree;
+    struct info *info;
+} block_data_arg;
+
+
+/* Callback for local block data dissection */
+typedef void (local_block_dissect_t)(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, block_data_arg *argp);
+
+/* Callback for local block option dissection function */
+typedef void (local_block_option_dissect_t)(proto_tree *option_tree, proto_item *option_item,
+                                            packet_info *pinfo, tvbuff_t *tvb, int offset,
+                                            int unknown_option_hf,
+                                            guint32 option_code, guint32 option_length,
+                                            guint encoding);
+
+typedef struct {
+    const char* name;
+    local_block_dissect_t *dissector;
+    int option_root_hf;
+    const value_string *option_vals;
+    local_block_option_dissect_t *option_dissector;
+} local_block_callback_info_t;
+
+/* Routine for a local block dissector to register with main pcapng dissector.
+ * For an in-tree example, please see file-pcapng-darwin.c */
+void register_pcapng_local_block_dissector(guint32 block_number, local_block_callback_info_t *info);
+
+
+/* Can be called by local block type dissectors block dissector callback */
+gint dissect_options(proto_tree *tree, packet_info *pinfo,
+        guint32 block_type, tvbuff_t *tvb, int offset, guint encoding,
+        void *user_data);
+
+
+
 /* Used by custom dissector */
 
 /* File info */

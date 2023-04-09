@@ -34,6 +34,9 @@
 /* Link Wireshark libraries statically */
 #cmakedefine ENABLE_STATIC 1
 
+/* Enable AddressSanitizer (and LeakSanitizer on clang/gcc) */
+#cmakedefine ENABLE_ASAN 1
+
 /* Enable AirPcap */
 #cmakedefine HAVE_AIRPCAP 1
 
@@ -231,6 +234,9 @@
 
 /* Define to 1 if you have the bcg729 library. */
 #cmakedefine HAVE_BCG729 1
+
+/* Define to 1 if you have the opencore-amrnb library. */
+#cmakedefine HAVE_AMRNB 1
 
 /* Define to 1 if you have the ilbc library. */
 #cmakedefine HAVE_ILBC 1

@@ -222,7 +222,9 @@ const value_string T35Extension_vals[] = {
 };
 
 const value_string H221ManufacturerCode_vals[] = {
-	{  0x000b2d00, "Sony"}					,                           /* From captures */
+	/* Japan */
+	{  0x000b2d00, "Sony"},                                             /* From captures */
+	/* Germany */
 	{  0x04000042, "Deutsche Telekom AG" },                             /* From Ref. 3 */
 	{  0x04000043, "Deutsche Telekom AG" },                             /* From Ref. 3 */
 	{  0x04000082, "Siemens AG" },                                      /* From Ref. 3 */
@@ -236,8 +238,25 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x0400008e, "Digitronic computersysteme GmbH" },                 /* From Ref. 3 */
 	{  0x0400008f, "DeTeWe - Deutsche Telephonwerke AG &Co" },          /* From Ref. 3 */
 	{  0x0900003D, "Equivalence (OpenH323)" },                          /* From captures */
-	{  0x20000081, "Mediatrix Telecom" },                               /* From Ref. 1 */
-	{  0x3c000000, "Nokia" },											/* From captures */
+	/* Canada */
+	{  0x20000080, "Cifra Medical inc." },                              /* From Ref. 1 */
+	{  0x20000081, "MediaTriX Telecom, Inc." },                         /* From Ref. 1 */
+	{  0x20000082, "Memotec, Inc." },                                   /* From Ref. 1 */
+	{  0x20000083, "Broadcom Corporation" },                            /* From Ref. 1 */
+	{  0x20000084, "Motivity Telecom Inc." },                           /* From Ref. 1 */
+	{  0x20000085, "PentaGRF Inc." },                                   /* From Ref. 1 */
+	{  0x20000086, "Hexatek Inc." },                                    /* From Ref. 1 */
+	{  0x20000087, "Librestream Technologies" },                        /* From Ref. 1 */
+	{  0x20000640, "Flashline Inc." },                                  /* From Ref. 1 */
+	{  0x20005653, "Vienna Systems" },                                  /* From Ref. 1 */
+	{  0x20005878, "MediaDigm Technology Inc." },                       /* From Ref. 1 */
+	{  0x20005843, "Xperi Corporation" },                               /* From Ref. 1 */
+	{  0x20008100, "Media Coding Industry Forum" },                     /* From Ref. 1 */
+	{  0x20000089, "Apple Inc." },                                      /* From Ref. 1 */
+	{  0x20005890, "AOMedia (Alliance for Open Media)" },               /* From Ref. 1 */
+	/* Finland */
+	{  0x3c000000, "Nokia" },                                           /* From captures */
+	/* France */
 	{  0x3d000310, "Swissvoice" },
 	{  0x3d000311, "Swissvoice" },
 	{  0x3d000312, "Swissvoice" },
@@ -254,9 +273,13 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x3d00031d, "Swissvoice" },
 	{  0x3d00031e, "Swissvoice" },
 	{  0x3d00031f, "Swissvoice" },
+	/* Norway */
 	{  0x82000002, "Ericsson" },                                        /* From captures */
-	{  0x8a000003, "Teldat H. Kruszynski, M. Cichocki Sp. J." } ,		/* By email		 */
+	/* Poland */
+	{  0x8a000003, "TELDAT" },                                          /* By email */
+	/* Sweden */
 	{  0xa5000001, "Ericsson" },                                        /* From captures */
+	/* United Kingdom */
 	{  0xb4000000, "British Telecommunications" },                      /* From Ref. 2 */
 	{  0xb4000100, "British Telecommunications" },                      /* From Ref. 2 */
 	{  0xb4000200, "British Telecommunications" },                      /* From Ref. 2 */
@@ -297,7 +320,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb4004200, "Motion Media Technology" },                         /* From Ref. 2 */
 	{  0xb4004400, "Data Connection" },                                 /* From Ref. 2 */
 	{  0xb4004500, "Westbay Engineers" },                               /* From Ref. 2 */
-	{  0xb4004600, "FarSite Communications" },                               /* From Ref. 2 */
+	{  0xb4004600, "FarSite Communications" },                          /* From Ref. 2 */
 	{  0xb4004900, "ImageCom" },                                        /* From Ref. 2 */
 	{  0xb4004d00, "Madge Networks" },                                  /* From Ref. 2 */
 	{  0xb4005200, "Ridgeway Systems and Software" },                   /* From Ref. 2 */
@@ -307,9 +330,9 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb4006600, "Westell" },                                         /* From Ref. 2 */
 	{  0xb4006900, "ISDN Communications" },                             /* From Ref. 2 */
 	{  0xb400c000, "Codian" },                                          /* From Ref. 2 */
-
+	/* United States */
 	{  0xb5000000, "Compression Labs" },                                /* From Ref. 1 */
-	{  0xb5000001, "PictureTel" },                                      /* From Ref. 1 */
+	{  0xb5000001, "PictureTel (Polycom)" },                            /* From Ref. 1 */
 	{  0xb5000002, "Compression Labs" },                                /* From Ref. 1 */
 	{  0xb5000003, "VTEL" },                                            /* From Ref. 1 */
 	{  0xb5000005, "ERIS" },                                            /* From Ref. 1 */
@@ -322,7 +345,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb500000f, "Science Dynamics Corporation" },                    /* From Ref. 1 */
 	{  0xb5000010, "AT&T Starpoint" },                                  /* From Ref. 1 */
 	{  0xb5000011, "Netscape Conference" },                             /* From Ref. 1 */
-	{  0xb5000012, "Cisco" },                                           /* From Ref. 1 */
+	{  0xb5000012, "Cisco Systems" },                                   /* From Ref. 1 */
 	{  0xb5000013, "Cirilium, Inc." },                                  /* From Ref. 1 */
 	{  0xb5000014, "Ascend Communications, Inc." },                     /* From Ref. 1 */
 	{  0xb5000015, "RADVision, Inc." },                                 /* From Ref. 1 */
@@ -330,7 +353,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb5000017, "VocalTec Communications, Inc." },                   /* From Ref. 1 */
 	{  0xb5000018, "Serome Technology, Inc." },                         /* From Ref. 1 */
 	{  0xb5000019, "Aspect Communications" },                           /* From Ref. 1 */
-	{  0xb500001a, "Cintech Tele-Management" },                         /* From Ref. 1 */
+	{  0xb500001a, "Cintech Tele-Management Systems, Inc." },           /* From Ref. 1 */
 	{  0xb500001b, "Philips Video Conferencing Systems" },              /* From Ref. 1 */
 	{  0xb500001c, "Vertical Networks, Inc." },                         /* From Ref. 1 */
 	{  0xb500001d, "Syndeo Corp." },                                    /* From Ref. 1 */
@@ -341,46 +364,124 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb5000022, "Vanguard Managed Solutions" },                      /* From Ref. 1 */
 	{  0xb5000023, "TeleStream Technologies, Inc." },                   /* From Ref. 1 */
 	{  0xb5000024, "Spirent Communications" },                          /* From Ref. 1 */
-	{  0xb5000025, "CrystalVoice Communications" },                     /* From Ref. 1 */
+	{  0xb5000025, "CrystalVoice Communications, Inc." },               /* From Ref. 1 */
 	{  0xb5000026, "Xiph.org" },                                        /* From Ref. 1 */
 	{  0xb5000027, "NACT Telecommunications" },                         /* From Ref. 1 */
 	{  0xb5000028, "AudioCodes, Inc." },                                /* From Ref. 1 */
+	{  0xb5000029, "Net2phone Inc" },                                   /* From Ref. 1 */
+	{  0xb500002a, "Centrality Communications, Inc." },                 /* From Ref. 1 */
+	{  0xb500002b, "Harmonic Inc." },                                   /* From Ref. 1 */
+	{  0xb500002c, "Epygi Technologies Ltd." },                         /* From Ref. 1 */
+	{  0xb500002d, "Scientific Atlanta, Inc." },                        /* From Ref. 1 */
+	{  0xb500002e, "Qualcomm Inc." },                                   /* From Ref. 1 */
+	{  0xb500002f, "DIRECTV" },                                         /* From Ref. 1 */
+	{  0xb5000030, "Dialogic Corporation" },                            /* From Ref. 1 */
+	{  0xb5000031, "Advanced Television Systems Committee" },           /* From Ref. 1 */
+	{  0xb5000032, "Viable Communications, Inc." },                     /* From Ref. 1 */
+	{  0xb5000033, "Adtran Inc." },                                     /* From Ref. 1 */
+	{  0xb5000034, "NetKit Solutions, LLC" },                           /* From Ref. 1 */
+	{  0xb5000035, "Hughes Network Systems" },                          /* From Ref. 1 */
+	{  0xb5000036, "Objective Systems, Inc." },                         /* From Ref. 1 */
+	{  0xb5000037, "AVerMedia Information Inc" },                       /* From Ref. 1 */
+	{  0xb5000038, "Vidtel, Inc." },                                    /* From Ref. 1 */
+	{  0xb5000039, "Edifire" },                                         /* From Ref. 1 */
+	{  0xb500003a, "Technicolor" },                                     /* From Ref. 1 */
+	{  0xb500003b, "Dolby Laboratories, Inc." },                        /* From Ref. 1 */
+	{  0xb500003c, "Samsung Electronics America" },                     /* From Ref. 1 */
+	{  0xb500003d, "UHDA" },                                            /* From Ref. 1 */
 	{  0xb5000120, "AT&T - GBCS" },                                     /* From Ref. 1 */
 	{  0xb5000168, "Leadtek Research Inc." },                           /* From Ref. 1 */
 	{  0xb5000247, "Lucent Technologies" },                             /* From Ref. 1 */
 	{  0xb500029a, "Symbol Technologies Inc." },                        /* From Ref. 1 */
+	{  0xb5000369, "Dilithium Networks Inc" },                          /* From Ref. 1 */
 	{  0xb5000378, "StarVox, Inc." },                                   /* From Ref. 1 */
 	{  0xb50003f7, "Inari Inc." },                                      /* From Ref. 1 */
+	{  0xb5000711, "Acterna" },                                         /* From Ref. 1 */
 	{  0xb5000727, "Quintum Technologies, Inc." },                      /* From Ref. 1 */
+	{  0xb5000808, "AsiaInfo Holdings, Inc." },                         /* From Ref. 1 */
 	{  0xb5000918, "Netrix Corporation" },                              /* From Ref. 1 */
-	{  0xb500101e, "SysMaster Corporation" },                           /* From Ref. 1 */
+	{  0xb5000926, "Veraz Networks Inc" },                              /* From Ref. 1 */
+	{  0xb50010e1, "SysMaster Corporation" },                           /* From Ref. 1 */
 	{  0xb5001a1a, "Alpha Telecom, Inc. U.S.A." },                      /* From Ref. 1 */
-	{  0xb5002331, "ViaVideo" },                                        /* From Ref. 1 */
-	{  0xb500301c, "Congruency, Inc." },                                /* From Ref. 1 */
+	{  0xb5001b39, "The Illustrious Industries, Ltd." },                /* From Ref. 1 */
+	{  0xb5001438, "Vimmerse, Inc." },                                  /* From Ref. 1 */
+	{  0xb5002331, "ViaVideo (Polycom)" },                              /* From Ref. 1 */
+	{  0xb500300c, "Congruency, Inc." },                                /* From Ref. 1 */
 	{  0xb5003039, "MiBridge Inc." },                                   /* From Ref. 1 */
 	{  0xb5003838, "8x8 Inc." },                                        /* From Ref. 1 */
+	{  0xb50039a1, "Seiko EPSON Corporation" },                         /* From Ref. 1 */
 	{  0xb5004147, "Agere Systems" },                                   /* From Ref. 1 */
+	{  0xb5004150, "Acme Packet" },                                     /* From Ref. 1 */
 	{  0xb5004153, "Artisoft Inc." },                                   /* From Ref. 1 */
 	{  0xb5004156, "Avaya" },                                           /* From Ref. 1 */
-	{  0xb5004242, "IBM." },                                            /* From Ref. 1 */
+	{  0xb5004242, "IBM" },                                             /* From Ref. 1 */
 	{  0xb5004257, "StreamComm" },                                      /* From Ref. 1 */
-
+	{  0xb5004342, "IPClearingboard Inc" },                             /* From Ref. 1 */
+	{  0xb5004347, "CyberGuard Corporation" },                          /* From Ref. 1 */
+	{  0xb5004358, "Compunetix, Inc." },                                /* From Ref. 1 */
+	{  0xb5004369, "Cidco Communications" },                            /* From Ref. 1 */
+	{  0xb5004442, "DataBeam (IBM, Lotus)" },                           /* From Ref. 1 */
+	{  0xb5004444, "Tekelec, Inc." },                                   /* From Ref. 1 */
+	{  0xb5004554, "E-Tel Corporation" },                               /* From Ref. 1 */
+	{  0xb5004605, "CallComm Technologies Inc." },                      /* From Ref. 1 */
+	{  0xb5004656, "First Virtual" },                                   /* From Ref. 1 */
+	{  0xb5004747, "Telogy Networks, Inc." },                           /* From Ref. 1 */
+	{  0xb5004810, "VQEG (Video Quality Experts Group)" },              /* From Ref. 1 */
+	{  0xb5004978, "Ixia" },                                            /* From Ref. 1 */
+	{  0xb50049fa, "Rubix Information Technologies, Inc." },            /* From Ref. 1 */
 	{  0xb5004c54, "Lucent Technologies" },                             /* From Ref. 1 */
+	{  0xb5004d32, "Mondu Media, LLC" },                                /* From Ref. 1 */
 	{  0xb5004d47, "MediaGate" },                                       /* From Ref. 1 */
+	{  0xb5004d4d, "MediaMelon, Inc." },                                /* From Ref. 1 */
 	{  0xb5004e54, "Nortel Networks" },                                 /* From Ref. 1 */
-
-	{  0xb5005243, "Siemens Business Communication Systems" },          /* From Ref. 1 */
+	{  0xb5004e58, "NexTone Communications" },                          /* From Ref. 1 */
+	{  0xb5004f4e, "Opuswave Networks, Inc." },                         /* From Ref. 1 */
+	{  0xb5005044, "Paradyne" },                                        /* From Ref. 1 */
+	{  0xb5005050, "Polycom, Inc." },                                   /* From Ref. 1 */
+	{  0xb5005242, "Rauland Borg Corp." },                              /* From Ref. 1 */
+	{  0xb5005243, "Siemens Business Communication Systems, Inc." },    /* From Ref. 1 */
 	{  0xb500534c, "Microsoft" },                                       /* From Ref. 1 */
-
+	{  0xb500534e, "Sonus Networks" },                                  /* From Ref. 1 */
+	{  0xb5005354, "(NOT CURRENTLY USED)" },                            /* From Ref. 1 */
+	{  0xb5005356, "Sorenson Communications" },                         /* From Ref. 1 */
+	{  0xb5005443, "Tundo Corporation" },                               /* From Ref. 1 */
+	{  0xb5005543, "UCIF" },                                            /* From Ref. 1 */
+	{  0xb5005555, "NetSpeak Corporation" },                            /* From Ref. 1 */
+	{  0xb500577f, "Vovida Networks, Inc." },                           /* From Ref. 1 */
+	{  0xb500584c, "Cantata Technology Inc." },                         /* From Ref. 1 */
+	{  0xb5005a79, "Zydacron, Inc." },                                  /* From Ref. 1 */
 	{  0xb500600d, "Lucent Technologies" },                             /* From Ref. 1 */
-
+	{  0xb5006267, "The Bristol Group, Ltd." },                         /* From Ref. 1 */
+	{  0xb5007674, "SmithMicro Software" },                             /* From Ref. 1 */
 	{  0xb5008080, "Intel" },                                           /* From Ref. 1 */
-	{  0xa5000001, "Ericsson" },                                        /* From captures */
+	{  0xb5008888, "Sony Electronics Inc." },                           /* From Ref. 1 */
+	{  0xb5008899, "Sansay Inc." },                                     /* From Ref. 1 */
+	{  0xb500907a, "SpectraLink, Corp." },                              /* From Ref. 1 */
+	{  0xb500a11a, "LifeSize Communications" },                         /* From Ref. 1 */
+	{  0xb500aaaa, "Winbond Electronic Corporation, America" },         /* From Ref. 1 */
+	{  0xb500abcd, "Agora Laboratories, Inc." },                        /* From Ref. 1 */
+	{  0xb500acac, "Actelis Networks, Inc." },                          /* From Ref. 1 */
+	{  0xb500acdc, "Edgewater Networks, Inc." },                        /* From Ref. 1 */
+	{  0xb500bcbc, "Twisted Pair Solutions, LLC" },                     /* From Ref. 1 */
+	{  0xb500beef, "Broadband Networks, Inc" },                         /* From Ref. 1 */
+	{  0xb500cafe, "Starbak Communications, Inc." },                    /* From Ref. 1 */
+	{  0xb500fac5, "Vocal Technologies, Ltd." },                        /* From Ref. 1 */
 	{  0, NULL }
 };
-/* Ref 1 http://www.delta-info.com/Protocol_Test/Manufacturer_codes.html 	*/
-/* Ref 2 http://www.cix.co.uk/~bpechey/H221/h221code.htm			*/
-/* Ref 3 http://www.regtp.de/reg_tele/start/in_05-06-03-11-00_m/index.html 	*/
+/* Ref 1 https://www.delta-info.com/Protocol_Test/Manufacturer_codes.html 	*/
+/* Ref 2 https://www.cix.co.uk/~bpechey/H221/h221code.htm			*/
+/* Ref 3 http://www.regtp.de/reg_tele/start/in_05-06-03-11-00_m/index.html	*/
+
+/*
+ * XXX The Ref 3 link no longer works, but a copy can be found at the Internet Archive:
+ *
+ *     https://web.archive.org/web/20041211164709/http://www.regtp.de:80/reg_tele/start/in_05-06-03-11-00_m/index.html
+ *
+ * The codes for Germany appear to have come from this archived link (Note: the values are
+ * specified in decimal instead of hex):
+ *
+ *    https://web.archive.org/web/20041211122005/http://www.regtp.de/reg_tele/01661/00/index.html
+ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

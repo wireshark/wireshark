@@ -44,6 +44,8 @@ WS_DLL_LOCAL void maxmind_db_pref_init(module_t *nameres);
  */
 WS_DLL_LOCAL void maxmind_db_pref_cleanup(void);
 
+WS_DLL_LOCAL void maxmind_db_pref_apply(void);
+
 /**
  * Look up an IPv4 address in a database
  *

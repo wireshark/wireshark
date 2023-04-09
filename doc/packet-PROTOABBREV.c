@@ -14,7 +14,12 @@
  *  detailed documentation, etc.)
  */
 
-#include <config.h>
+#include "config.h"
+/* Define the name for the logging domain (try to avoid collisions with existing domains) */
+#define WS_LOG_DOMAIN "PROTOABBREV"
+
+/* Global header providing a minimum base set of required macros and APIs */
+#include <wireshark.h>
 
 #if 0
 /* "System" includes used only as needed */
@@ -24,7 +29,7 @@
 ...
 #endif
 
-#include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
+#include <epan/packet.h>   /* Required dissection API header */
 #include <epan/expert.h>   /* Include only as needed */
 #include <epan/prefs.h>    /* Include only as needed */
 

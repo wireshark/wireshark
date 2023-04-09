@@ -1365,29 +1365,29 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_UseEventFeed,
 		  { "Use Event Feed", "ged125.use_event_feed",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Indicates if the VRU supports the Event Data Feed", HFILL }},
 
 		/* only valid for ICM version 4 or lower*/
 		{ &hf_ged125_UsePolledFeed,
 		  { "Use Polled Feed", "ged125.use_polled_feed",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Indicates if the VRU supports the Polled Data Feed.", HFILL }},
 
 		{ &hf_ged125_UseCallRouting,
 		  { "Use Call Routing", "ged125.use_call_routing",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Indicates if the VRU supports the Call Routing Interface", HFILL }},
 
 		{ &hf_ged125_UseTimeSynch,
 		  { "Use Time Synch", "ged125.use_time_synch",
-		  FT_BOOLEAN, 32, NULL, 0x01,
+		  FT_BOOLEAN, 32, NULL, 0x00000001,
 		  "Indicates if the VRU supports the Time Synchronization Interface", HFILL }},
 
 		/*Requires Protocol Version 2 or later*/
 		{ &hf_ged125_UseServiceControl,
 		  { "Use Service Control", "ged125.use_service_control",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Indicates if the VRU supports the Service Control Interface", HFILL }},
 
 		{ &hf_ged125_TrunkGroupID,
@@ -1449,7 +1449,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_AvailableNow,
 		  { "Available Now", "ged125.available_now",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Current availability of the service", HFILL }},
 
 		{ &hf_ged125_CallsInNow,
@@ -1518,7 +1518,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_floating_payload_bool,
 		  { "Floating Payload", "ged125.floating_payload.bool",
-			FT_BOOLEAN, 32, NULL, 0x01, NULL, HFILL }},
+			FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
 
 		{ &hf_ged125_floating_payload_ECC_tag,
 		  { "ECC VAR Tag", "ged125.ecc_var_tag",
@@ -1526,7 +1526,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_ResultCode,
 		  { "Errors running script", "ged125.result_code",
-			FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x01, NULL, HFILL }},
+			FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001, NULL, HFILL }},
 
 		{ &hf_ged125_LabelType,
 		  { "Label Type", "ged125.label_type",
@@ -1550,13 +1550,13 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_InService,
 		  { "In Service", "ged125.in_service",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"A flag indicating that the affected trunks have been placed into "
 			"service (True) or removed from service (False)", HFILL }},
 
 		{ &hf_ged125_ServiceAvailable,
 		  { "Service Available", "ged125.service_available",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			NULL, HFILL }},
 
 		{ &hf_ged125_RequestID,
@@ -1566,12 +1566,12 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_ToBeContinued,
 		  { "To Be Continued", "ged125.to_be_continued",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"A flag which indicates whether additional MICROAPP_PLAY_CONTINUE messages will follow",  HFILL }},
 
 		{ &hf_ged125_Barge_In_Allowed,
 		  { "Barge In Allowed", "ged125.barge_in_allowed",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Indicates whether caller is allowed to interrupt playing", HFILL }},
 
 		{ &hf_ged125_floating_cause_code,/* table 34*/
@@ -1620,7 +1620,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_ASR_Allowed,
 		  { "ASR Allowed", "ged125.asr_allowed",
-			FT_BOOLEAN, 32, NULL, 0x01,
+			FT_BOOLEAN, 32, NULL, 0x00000001,
 			"Indicates whether Automatic Speech Recognition should be enabled for this request", HFILL }},
 
 		{ &hf_ged125_DTMF_Menu_Keys,

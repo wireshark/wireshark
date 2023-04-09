@@ -30,7 +30,8 @@ IMPORTS
 	ProtocolId,
 	SignalInfo,
 	TeleserviceCode,
-    SubscriberIdentity
+        SubscriberIdentity,
+        SubscriberId
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -712,7 +713,7 @@ LocationInfo ::= CHOICE {
 Ki ::= OCTET STRING (SIZE (16))
 
 SendParametersArg	::= SEQUENCE {
-	subscriberId SubscriberIdentity,
+	subscriberId SubscriberId,
 	requestParameterList RequestParameterList}
 
 RequestParameter	::= ENUMERATED {

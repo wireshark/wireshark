@@ -512,7 +512,7 @@ dissect_ncsi_aen(tvbuff_t *tvb, proto_tree *tree)
 #define HEXSTR(x) (((x) < 10)? '0' + (x): 'A' + ((x) - 10))
 
 static const gchar *
-ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
+ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
 {
     guint8  octet;
     int     i;
@@ -549,13 +549,13 @@ ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
     }
 
     digit_str[str_offset] = '\0';
-    return get_utf_8_string(wmem_packet_scope(), digit_str, (int)strlen(digit_str));
+    return get_utf_8_string(scope, digit_str, (int)strlen(digit_str));
 
 }
 
 
 static const gchar *
-ncsi_fw_version(tvbuff_t *tvb, const gint offset)
+ncsi_fw_version(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
 {
     int     length = 16; /* hh.hh.hh.hh */
     guint8  octet;
@@ -564,7 +564,7 @@ ncsi_fw_version(tvbuff_t *tvb, const gint offset)
     int     str_offset = 0;
 
 
-    ver_str = (char *)wmem_alloc(wmem_packet_scope(), length);
+    ver_str = (char *)wmem_alloc(scope, length);
 
     for (i = 0 ; i < 4; i++) {
         octet = tvb_get_guint8(tvb, offset + i);
@@ -909,12 +909,12 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             ncsi_ver_tree = proto_tree_add_subtree(ncsi_payload_tree, tvb, 20,
                             plen - 4, ett_ncsi_payload, NULL, "Version ID");
-            ver_str = ncsi_bcd_dig_to_str(tvb, 20);
+            ver_str = ncsi_bcd_dig_to_str(pinfo->pool, tvb, 20);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_ver, tvb, 20, 8, ver_str);
 
             fw_name = tvb_get_string_enc(pinfo->pool, tvb, 28, 12, ENC_ASCII);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_name, tvb, 28, 12, fw_name);
-            proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_ver, tvb, 40, 4, ncsi_fw_version(tvb, 40));
+            proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_ver, tvb, 40, 4, ncsi_fw_version(pinfo->pool, tvb, 40));
 
             vid = tvb_get_guint16(tvb, 46, ENC_BIG_ENDIAN);
             did = tvb_get_guint16(tvb, 44, ENC_BIG_ENDIAN);

@@ -38,8 +38,8 @@
 #include <epan/epan.h>
 
 #include <ws_exit_codes.h>
-#include <ui/clopts_common.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -74,7 +74,7 @@
 #include "ui/util.h"
 #include "ui/ws_ui_util.h"
 #include "ui/decode_as_utils.h"
-#include "ui/filter_files.h"
+#include "wsutil/filter_files.h"
 #include "ui/cli/tshark-tap.h"
 #include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
@@ -186,8 +186,7 @@ static print_stream_t *print_stream = NULL;
 static char *output_file_name;
 
 static output_fields_t* output_fields  = NULL;
-static gchar **protocolfilter = NULL;
-static pf_flags protocolfilter_flags = PF_NONE;
+static wmem_map_t *protocolfilter = NULL;
 
 static gboolean no_duplicate_keys = FALSE;
 static proto_node_children_grouper_func node_children_grouper = proto_node_group_children_by_unique;
@@ -370,6 +369,7 @@ print_usage(FILE *output)
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
+    fprintf(output, "  --update-interval        interval between updates with new packets (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "\n");
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
@@ -464,7 +464,7 @@ print_usage(FILE *output)
     fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
     fprintf(output, "                           aggregator\n");
     fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
-    fprintf(output, "  -t a|ad|adoy|d|dd|e|r|u|ud|udoy\n");
+    fprintf(output, "  -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]\n");
     fprintf(output, "                           output format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "  -l                       flush standard output after each packet\n");
@@ -570,6 +570,32 @@ hexdump_option_help(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "    $ tshark ... --hexdump frames --hexdump delimit ...\n");
     fprintf(output, "\n");
+}
+
+static void
+protocolfilter_add_opt(const char* arg, pf_flags filter_flags)
+{
+    void* value;
+    gchar **newfilter = NULL;
+    for (newfilter = wmem_strsplit(wmem_epan_scope(), arg, " ", -1); *newfilter; newfilter++) {
+        if (strcmp(*newfilter, "") == 0) {
+            /* Don't treat the empty string as an intended field abbreviation
+             * to output, consecutive spaces on the command line probably
+             * aren't intentional.
+             */
+            continue;
+        }
+        if (!protocolfilter) {
+            protocolfilter = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+        }
+        if (wmem_map_lookup_extended(protocolfilter, *newfilter, NULL, &value)) {
+            if (GPOINTER_TO_UINT(value) != (guint)filter_flags) {
+
+                cmdarg_err("%s was already specified with different filter flags. Overwriting previous protocol filter.", *newfilter);
+            }
+        }
+        wmem_map_insert(protocolfilter, *newfilter, GINT_TO_POINTER(filter_flags));
+    }
 }
 
 static void
@@ -1235,6 +1261,7 @@ main(int argc, char *argv[])
 #endif
             case LONGOPT_COMPRESS_TYPE:        /* compress type */
             case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
+            case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
                 /* These are options only for packet capture. */
 #ifdef HAVE_LIBPCAP
                 exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
@@ -1318,17 +1345,10 @@ main(int argc, char *argv[])
                 goto clean_exit;
                 break;
             case 'j':
-                if (protocolfilter) {
-                    cmdarg_err("-j or -J was already specified. Overwriting previous protocol filter.");
-                }
-                protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
+                protocolfilter_add_opt(ws_optarg, PF_NONE);
                 break;
             case 'J':
-                if (protocolfilter) {
-                    cmdarg_err("-j or -J was already specified. Overwriting previous protocol filter.");
-                }
-                protocolfilter_flags = PF_INCLUDE_CHILDREN;
-                protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
+                protocolfilter_add_opt(ws_optarg, PF_INCLUDE_CHILDREN);
                 break;
             case 'W':        /* Select extra information to save in our capture file */
                 /* This is patterned after the -N flag which may not be the best idea. */
@@ -2094,6 +2114,7 @@ main(int argc, char *argv[])
     }
 
     timestamp_set_type(global_dissect_options.time_format);
+    timestamp_set_precision(global_dissect_options.time_precision);
 
     /*
      * Enabled and disabled protocols and heuristic dissectors as per
@@ -4352,7 +4373,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
                 return !ferror(stdout);
             }
             if (print_details) {
-                write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, &cf->cinfo, stdout, dissect_color);
+                write_pdml_proto_tree(output_fields, protocolfilter, edt, &cf->cinfo, stdout, dissect_color);
                 printf("\n");
                 return !ferror(stdout);
             }
@@ -4375,7 +4396,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
                 ws_assert_not_reached();
             if (print_details) {
                 write_json_proto_tree(output_fields, print_dissections_expanded,
-                        print_hex, protocolfilter, protocolfilter_flags,
+                        print_hex, protocolfilter,
                         edt, &cf->cinfo, node_children_grouper, &jdumper);
                 return !ferror(stdout);
             }
@@ -4385,16 +4406,16 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
             if (print_summary)
                 ws_assert_not_reached();
             if (print_details) {
-                write_json_proto_tree(output_fields, print_dissections_none, TRUE,
-                        protocolfilter, protocolfilter_flags,
+                write_json_proto_tree(output_fields, print_dissections_none,
+                        TRUE, protocolfilter,
                         edt, &cf->cinfo, node_children_grouper, &jdumper);
                 return !ferror(stdout);
             }
             break;
 
         case WRITE_EK:
-            write_ek_proto_tree(output_fields, print_summary, print_hex, protocolfilter,
-                    protocolfilter_flags, edt, &cf->cinfo, stdout);
+            write_ek_proto_tree(output_fields, print_summary, print_hex,
+                    protocolfilter, edt, &cf->cinfo, stdout);
             return !ferror(stdout);
 
         default:

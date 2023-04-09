@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2022 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2023 Pascal Quantin
 
 #.OPT
 PER
@@ -778,7 +778,6 @@ BCCH-DL-SCH-Message-MBMS     @bcch.dl.sch.mbms
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
 CE-PUCCH-TxDurationConfig-r17
-NPUSCH-ConfigDedicated-NB-v1700
 RSRP-RangeSL3-r12
 
 #.NO_EMIT ONLY_VALS

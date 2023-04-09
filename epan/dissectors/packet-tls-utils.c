@@ -53,6 +53,17 @@
 #include <gnutls/abstract.h>
 #endif
 
+/* JA3/JA3S calculations must ignore GREASE values
+ * as described in RFC 8701.
+ */
+#define IS_GREASE_TLS(x) ((((x) & 0x0f0f) == 0x0a0a) && \
+                        (((x) & 0xff) == (((x)>>8) & 0xff)))
+
+/* Section 22.3 of RFC 9000 (QUIC) reserves values of this
+ * form for a similar purpose as GREASE.
+ */
+#define IS_GREASE_QUIC(x) ((((x) - 27) % 31) == 0)
+
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
     { SSLV2_VERSION,        "SSLv2" },
@@ -2273,8 +2284,7 @@ void
 quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id)
 {
     const char *label;
-    /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
-    if (((parameter_id - 27) % 31) == 0) {
+    if (IS_GREASE_QUIC(parameter_id)) {
         label = "GREASE";
     } else if (parameter_id > 0xffffffff) {
         // There are no 64-bit Parameter IDs at the moment.
@@ -7869,8 +7879,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             proto_item_set_len(parameter_tree, 4 + parameter_length);
         }
 
-        /* GREASE? https://tools.ietf.org/html/draft-ietf-quic-transport-27#section-18.1 */
-        if (((parameter_type - 27) % 31) == 0) {
+        if (IS_GREASE_QUIC(parameter_type)) {
             proto_item_append_text(parameter_tree, ": GREASE");
         } else if (parameter_type > G_MAXUINT) {
             /* There are currently no known TP larger than 32 bits, therefore
@@ -8421,7 +8430,6 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     guint32     groups_length, next_offset;
     proto_tree *groups_tree;
     proto_item *ti;
-    guint32     ja3_value;
     gchar      *ja3_dash = "";
 
     /* NamedGroup named_group_list<2..2^16-1> */
@@ -8447,11 +8455,13 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     }
     /* loop over all groups */
     while (offset + 2 <= offset_end) {
+        guint32     ext_supported_group;
+
         proto_tree_add_item_ret_uint(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2,
-                                     ENC_BIG_ENDIAN, &ja3_value);
+                                     ENC_BIG_ENDIAN, &ext_supported_group);
         offset += 2;
-        if (ja3 && ((ja3_value & 0x0f0f) != 0x0a0a)) {
-            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
+        if (ja3 && !IS_GREASE_TLS(ext_supported_group)) {
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ext_supported_group);
             ja3_dash = "-";
         }
     }
@@ -8469,7 +8479,6 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     guint8      ecpf_length;
     proto_tree *ecpf_tree;
     proto_item *ti;
-    guint32     ja3_value;
 
     ecpf_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf->hf.hs_ext_ec_point_formats_len,
@@ -8492,12 +8501,14 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     /* loop over all point formats */
     while (ecpf_length > 0)
     {
+        guint32     ext_ec_point_format;
+
         proto_tree_add_item_ret_uint(ecpf_tree, hf->hf.hs_ext_ec_point_format, tvb, offset, 1,
-                                     ENC_BIG_ENDIAN, &ja3_value);
+                                     ENC_BIG_ENDIAN, &ext_ec_point_format);
         offset++;
         ecpf_length--;
         if (ja3) {
-            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+            wmem_strbuf_append_printf(ja3, "%i", ext_ec_point_format);
             if (ecpf_length > 0) {
                 wmem_strbuf_append_c(ja3, '-');
             }
@@ -8991,22 +9002,42 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      */
     proto_item *ti;
     proto_tree *cs_tree;
+    guint32     client_version;
     guint32     cipher_suite_length;
     guint32     compression_methods_length;
     guint8      compression_method;
     guint32     next_offset;
-    guint32     ja3_value;
     wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
     gchar      *ja3_hash;
     gchar      *ja3_dash = "";
 
     /* show the client version */
-    proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+    ti = proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
+                                      offset, 2, ENC_BIG_ENDIAN,
+                                      &client_version);
     offset += 2;
-    wmem_strbuf_append_printf(ja3, "%i,", ja3_value);
+    wmem_strbuf_append_printf(ja3, "%i,", client_version);
 
-    /* dissect fields that are also present in ClientHello */
+    /*
+     * Is it version 1.3?
+     * If so, that's an error; TLS and DTLS 1.3 Client Hellos claim
+     * to be TLS 1.2, and mention 1.3 in an extension.  See RFC 8446
+     * section 4.1.2 "Client Hello" and RFC 9147 Section 5.3 "Client
+     * Hello".
+     */
+    if (dtls_hfs != NULL) {
+        if (client_version  == DTLSV1DOT3_VERSION) {
+            /* Don't do that. */
+            expert_add_info(pinfo, ti, &hf->ei.client_version_error);
+        }
+    } else {
+        if (client_version == TLSV1DOT3_VERSION) {
+            /* Don't do that. */
+            expert_add_info(pinfo, ti, &hf->ei.client_version_error);
+        }
+    }
+
+    /* dissect fields that are present in both ClientHello and ServerHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, FALSE, FALSE);
 
     /* fields specific for DTLS (cookie_len, cookie) */
@@ -9040,11 +9071,13 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                     plurality(cipher_suite_length/2, "", "s"));
     cs_tree = proto_item_add_subtree(ti, hf->ett.cipher_suites);
     while (offset + 2 <= next_offset) {
+        guint32     cipher_suite;
+
         proto_tree_add_item_ret_uint(cs_tree, hf->hf.hs_cipher_suite, tvb, offset, 2,
-                                     ENC_BIG_ENDIAN, &ja3_value);
+                                     ENC_BIG_ENDIAN, &cipher_suite);
         offset += 2;
-        if ((ja3_value & 0x0f0f) != 0x0a0a) {
-            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
+        if (!IS_GREASE_TLS(cipher_suite)) {
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, cipher_suite);
             ja3_dash = "-";
         }
     }
@@ -9120,7 +9153,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      */
     guint8  draft_version = session->tls13_draft_version;
     proto_item *ti;
-    guint32     ja3_value;
+    guint32     server_version;
+    guint32     cipher_suite;
     wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
     gchar      *ja3_hash;
 
@@ -9134,11 +9168,11 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* show the server version */
     proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+                        offset, 2, ENC_BIG_ENDIAN, &server_version);
     offset += 2;
-    wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+    wmem_strbuf_append_printf(ja3, "%i", server_version);
 
-    /* dissect fields that are also present in ClientHello */
+    /* dissect fields that are present in both ClientHello and ServerHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE, is_hrr);
 
     if (ssl) {
@@ -9148,9 +9182,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* now the server-selected cipher suite */
     proto_tree_add_item_ret_uint(tree, hf->hf.hs_cipher_suite,
-                        tvb, offset, 2, ENC_BIG_ENDIAN, &ja3_value);
+                        tvb, offset, 2, ENC_BIG_ENDIAN, &cipher_suite);
     offset += 2;
-    wmem_strbuf_append_printf(ja3, ",%i,", ja3_value);
+    wmem_strbuf_append_printf(ja3, ",%i,", cipher_suite);
 
     /* No compression with TLS 1.3 before draft -22 */
     if (!(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
@@ -9376,10 +9410,10 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
     asn1_ctx_t  asn1_ctx;
 #if defined(HAVE_LIBGNUTLS)
     gnutls_datum_t subjectPublicKeyInfo = { NULL, 0 };
+    guint       certificate_index = 0;
 #endif
     guint32     next_offset, certificate_list_length, cert_length;
     proto_tree *subtree = tree;
-    guint       certificate_index = 0;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -9481,7 +9515,9 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                                                session, ssl, is_dtls, NULL);
         }
 
+#if defined(HAVE_LIBGNUTLS)
         certificate_index++;
+#endif
     }
 }
 
@@ -9843,7 +9879,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);
         offset += 2;
-        if (ja3 && ((ext_type & 0x0f0f) != 0x0a0a)) {
+        if (ja3 && !IS_GREASE_TLS(ext_type)) {
             wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ext_type);
             ja3_dash = "-";
         }
@@ -10738,13 +10774,22 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guin
     if (ssl_session && ssl_session->session.version != TLSV1DOT3_VERSION && !(ssl_session->state & SSL_MASTER_SECRET)) {
         guint32 old_length = ssl_session->handshake_data.data_len;
         ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
-        ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
         if (tvb) {
-            tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
+            if (tvb_bytes_exist(tvb, offset, length)) {
+                ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
+                tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
+                ssl_session->handshake_data.data_len += length;
+            }
         } else {
+            /* DTLS calculates the hash as if each handshake message had been
+             * sent as a single fragment (RFC 6347, section 4.2.6) and passes
+             * in a null tvbuff to add 3 bytes for a zero fragment offset.
+             */
+            DISSECTOR_ASSERT_CMPINT(length, <, 4);
+            ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
             memset(ssl_session->handshake_data.data + old_length, 0, length);
+            ssl_session->handshake_data.data_len += length;
         }
-        ssl_session->handshake_data.data_len += length;
     }
 }
 

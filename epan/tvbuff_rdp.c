@@ -90,6 +90,7 @@ bitstream_copyraw_advance(bitstream_t *b, guint8 *dest, guint nbytes)
 		return FALSE;
 
 	b->offset += nbytes;
+	b->remainingBits -= (nbytes * 8);
 	return TRUE;
 }
 
@@ -255,6 +256,8 @@ zgfx_write_raw(zgfx_context_t *zgfx, bitstream_t *b, guint32 count)
 
 	if (!bitstream_copyraw(b, &(zgfx->outputSegment[zgfx->outputCount]), count))
 		return FALSE;
+
+	zgfx->outputCount += count;
 
 	/* then update the history buffer */
 	rest = (zgfx->historyBufferSize - zgfx->historyIndex);

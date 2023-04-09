@@ -14,7 +14,7 @@
 #include <errno.h>
 
 #include <wsutil/strtoi.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 #include "clopts_common.h"
 

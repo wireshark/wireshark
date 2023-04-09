@@ -68,6 +68,7 @@ enum ws_net_dm_attrs {
 	WS_NET_DM_ATTR_SW_DROPS,
 	WS_NET_DM_ATTR_HW_DROPS,
 	WS_NET_DM_ATTR_FLOW_ACTION_COOKIE,
+	WS_NET_DM_ATTR_REASON,
 };
 
 enum ws_net_dm_attrs_port {
@@ -96,6 +97,7 @@ struct netlink_net_dm_info {
 
 static dissector_handle_t netlink_net_dm_handle;
 static dissector_table_t sll_ltype_table;
+static dissector_table_t ethertype_table;
 
 static int proto_netlink_net_dm = -1;
 
@@ -121,6 +123,7 @@ static int hf_net_dm_sw = -1;
 static int hf_net_dm_symbol = -1;
 static int hf_net_dm_timestamp = -1;
 static int hf_net_dm_trunc_len = -1;
+static int hf_net_dm_reason = -1;
 
 static gint ett_net_dm = -1;
 static gint ett_net_dm_attrs = -1;
@@ -170,6 +173,7 @@ static const value_string ws_net_dm_attrs_vals[] = {
 	{ WS_NET_DM_ATTR_SW_DROPS,			"Software drops" },
 	{ WS_NET_DM_ATTR_HW_DROPS,			"Hardware drops" },
 	{ WS_NET_DM_ATTR_FLOW_ACTION_COOKIE,		"Flow action cookie" },
+	{ WS_NET_DM_ATTR_REASON,			"Reason" },
 	{ 0, NULL },
 };
 
@@ -241,6 +245,8 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 	guint64 pc, timestamp;
 	nstime_t ts_nstime;
 	guint32 value;
+	guint16 protocol;
+	static dissector_table_t dissector_table;
 	tvbuff_t *next_tvb;
 	const guint8 *str;
 
@@ -268,17 +274,37 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return 1;
 	case WS_NET_DM_ATTR_PROTO:
 		info->protocol = tvb_get_guint16(tvb, offset, nl_data->encoding);
+
+		proto_tree_add_item(tree, hf_net_dm_proto, tvb, offset, len, nl_data->encoding);
+		return 1;
+	case WS_NET_DM_ATTR_PAYLOAD:
+		/* This whole payload protocol thing is messed up:
+		* We can't know from the kernel netlink message what we get exacly
+		*/
+		protocol = info->protocol;
+		dissector_table = sll_ltype_table;
 		/* This attribute encodes 'skb->protocol' and if it is greater
 		 * than or equal to 1536 (0x0600), then it is an Ethertype and
 		 * we need to treat the packet as Ethernet.
 		 */
-		if (info->protocol >= 1536 || info->protocol == LINUX_SLL_P_802_2)
-			info->protocol = LINUX_SLL_P_ETHERNET;
-		proto_tree_add_item(tree, hf_net_dm_proto, tvb, offset, len, nl_data->encoding);
-		return 1;
-	case WS_NET_DM_ATTR_PAYLOAD:
+		if (info->protocol >= 1536 || info->protocol == LINUX_SLL_P_802_2) {
+			/* It might be ethernet, but we're not really sure what the packet actually is.
+			* We try a guess: if two bytes 12-14 match the Ethertype, then it's ethernet,
+			* otherwise we just assume that we have is a payload of the Ethertype itself.
+			* (this is not a perfect match, but in practice gives good enough results)
+			*
+			* If it's too short to be Ethernet, then for sure we don't have an Ethernet payload.
+			*/
+			if (len >= 14 && tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN) == info->protocol) {
+				protocol = LINUX_SLL_P_ETHERNET;
+			} else {
+				dissector_table = ethertype_table;
+			}
+		}
+
+
 		next_tvb = tvb_new_subset_length(tvb, offset, len);
-		if (!dissector_try_uint(sll_ltype_table, info->protocol, next_tvb, info->pinfo, tree))
+		if (!dissector_try_uint(dissector_table, protocol, next_tvb, info->pinfo, tree))
 			call_data_dissector(next_tvb, info->pinfo, tree);
 		return 1;
 	case WS_NET_DM_ATTR_TRUNC_LEN:
@@ -328,6 +354,10 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return 1;
 	case WS_NET_DM_ATTR_FLOW_ACTION_COOKIE:
 		proto_tree_add_item(tree, hf_net_dm_flow_action_cookie, tvb, offset, len, ENC_NA);
+		return 1;
+	case WS_NET_DM_ATTR_REASON:
+		proto_tree_add_item_ret_string(tree, hf_net_dm_reason, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	default:
 		return 0;
@@ -481,6 +511,11 @@ proto_register_netlink_net_dm(void)
 			  FT_BYTES, BASE_NONE, NULL, 0x00,
 			  NULL, HFILL }
 		},
+		{ &hf_net_dm_reason,
+			{ "Reason", "net_dm.reason",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
@@ -505,6 +540,7 @@ proto_reg_handoff_netlink_net_dm(void)
 {
 	dissector_add_string("genl.family", "NET_DM", netlink_net_dm_handle);
 	sll_ltype_table = find_dissector_table("sll.ltype");
+	ethertype_table = find_dissector_table("ethertype");
 }
 
 /*

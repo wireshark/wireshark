@@ -20,12 +20,15 @@ import requests
 # - URLs that couldn't be loaded are written to failures.txt
 # - working URLs are written to successes.txt
 # - any previous failures.txt is also copied to failures_last_run.txt
+#
+# N.B. preferred form of RFC link is e.g., https://tools.ietf.org/html/rfc4349
 
 
 # TODO:
 # - option to write back to dissector file when there is a failure?
 # - make requests in parallel (run takes around 35 minutes)?
-# - optionally parse previous successes.txt and avoid fetching them again?
+# - try a library other than requests for getching links?
+# - optionally parse previous/recent successes.txt and avoid fetching them again?
 # - make sure URLs are really within comments in code?
 # - use urllib.parse or similar to better check URLs?
 # - improve regex to allow '+' in URL (like confluence uses)
@@ -194,13 +197,14 @@ if args.file:
             exit(1)
         else:
             files.append(f)
+            find_links_in_file(f)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Fetch links from files (dissectors files only)
-    files = list(filter(lambda f: is_dissector_file(f), files))
+    files = list(filter(is_dissector_file, files))
     for f in files:
         find_links_in_file(f)
 elif args.open:
@@ -208,12 +212,12 @@ elif args.open:
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
-    files = list(filter(lambda f: is_dissector_file(f), files))
+    files = list(filter(is_dissector_file, files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
-    files_staged = list(filter(lambda f: is_dissector_file(f), files_staged))
+    files_staged = list(filter(is_dissector_file, files_staged))
     for f in files:
         find_links_in_file(f)
     for f in files_staged:
@@ -246,13 +250,13 @@ session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) Apple
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'})
 
 # Try out the links.
-for checks, link in enumerate(links):
+for l in links:
     if should_exit:
         # i.e. if Ctrl-C has been pressed.
-        exit(0)
-    link.validate(session)
-    if args.verbose or not link.success:
-        print(link)
+        exit(1)
+    l.validate(session)
+    if args.verbose or not l.success:
+        print(l)
 
 
 # Write failures to a file.  Back up any previous first though.

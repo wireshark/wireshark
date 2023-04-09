@@ -140,22 +140,22 @@ proto_register_dpauxmon(void)
         },
         { &hf_hpd,
           { "Hotplug Detect", "dpauxmon.hpd",
-            FT_BOOLEAN, 4, NULL, 0x01,
+            FT_BOOLEAN, 4, NULL, 0x1,
             NULL, HFILL }
         },
         { &hf_in0,
           { "IN0", "dpauxmon.in0",
-            FT_BOOLEAN, 4, NULL, 0x02,
+            FT_BOOLEAN, 4, NULL, 0x2,
             NULL, HFILL }
         },
         { &hf_in1,
           { "IN1", "dpauxmon.in1",
-            FT_BOOLEAN, 4, NULL, 0x04,
+            FT_BOOLEAN, 4, NULL, 0x4,
             NULL, HFILL }
         },
         { &hf_in2,
           { "IN2", "dpauxmon.in2",
-            FT_BOOLEAN, 4, NULL, 0x08,
+            FT_BOOLEAN, 4, NULL, 0x8,
             NULL, HFILL }
         },
     };

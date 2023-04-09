@@ -1621,8 +1621,69 @@ static const value_string gmr1_msg_rr_strings[] = {
 	{ 0x3f, "Immediate Assignment" },
 	{ 0x3a, "Immediate Assignment Reject Type 1" },
 	{ 0x3b, "Immediate Assignment Reject Type 2" },
-	{ 0x13e, "Extended Immediate Assignment" },	/* Conflict ... add 0x100 */
-	{ 0x13b, "Extended Imm. Assignment Reject" },	/* Conflict ... add 0x100 */
+	/*
+	 * XXX - [3] 11.4.1 - Table 11.1 ([3] is ETSI TS 101 376-4-8
+	 * V3.1.1, which is GMR-1 3G 44.008) has 0x3e meaning both
+	 * "Extended Immediate Assignment" and "Immediate Assignment Type 2"
+	 * and has 0x3b meaning both "Immediate Asignment Reject Type 2"
+	 * and "Extended Imm. Assignment Reject".
+	 *
+	 * [3] makes some references to [1] ([1] is ETSI TS 101 376-4-8
+	 * V1.3.1, which is GMR-1 04.008, not to be confused with GMR-1
+	 * 3G 44.008), saying some messages are the same as in GMR-1
+	 * 04.008.  [1]:
+	 *
+	 *    says, in 10.1.18.2, that "Extended immediate assignment"
+	 *    "is sent on the main signalling link by the network to
+	 *    the MES in response to an EXTENDED CHANNEL REQUEST message
+	 *    by the MES";
+	 *
+	 *    says, in 10.1.20.2, that "Immediate assignment reject type 2"
+	 *    "may be sent to the MES by the network on the CCCH to indicate
+	 *    that no channel is available for assignment or that the MES
+	 *    cannot be allowed access";
+	 *
+	 *    says, in 10.1.20.3, that "Extended immediate assignment
+	 *    reject" "message is sent by the network on the DCCH to
+	 *    indicate that no channel is available for assignment or
+	 *    that the MES cannot be allowed access";
+	 *
+	 *    does not mention "Immediate assignment type 2" anywhere
+	 *    that I can see.
+	 *
+	 * [3]:
+	 *
+	 *    says, in 10.1.18.2, that "Extended immediate assignment
+	 *    (A/Gb mode only)" is "Same as clause 10.1.18.2 of
+	 *    GMR-1 04.008";
+	 *
+	 *    says, in 10.1.18.3, that "Intermediate assignment Type
+	 *    2 (A/Gb mode only)" "is sent on the CCCH by the network
+	 *    to the MES to change the channel configuration to a
+	 *    dedicated configuration while staying in the same cell";
+	 *
+	 *    says, in 10.1.20.2, that "Immediate assignment reject
+	 *    type 2" is "Same as clause 10.1.20.2 of GMR-1 04.008";
+	 *
+	 *    says, in 10.1.20.3, that "Extended immediate assignment
+	 *    reject" is "Same as clause 10.1.20.3 of GMR-1 04.008".
+	 *
+	 * This is currently handled by ORing 0x100 into the values
+	 * for the DCCH, and, in gmr1_get_msg_rr_params(), if the dcch
+	 * parameter is set (which it is if called from gmr1_get_msg_params()
+	 * in packet-gmr1_common.c), 0x100 is ORed into the value
+	 * passed to try_val_to_str_idx().  If that returns NULL, or
+	 * isn't called in the first placee, it calls try_val_to_str_idx()
+	 * without ORing in 0x100.
+	 *
+	 * So that's why a 1-byte field has, in a value_string used with
+	 * it, two values that don't fit into 1 byte.
+	 *
+	 * It Would Be Nice if this could be done in a somewhat less
+	 * hackish and opaque fashion.
+	 */
+	{ 0x13e, "Extended Immediate Assignment" },
+	{ 0x13b, "Extended Imm. Assignment Reject" },
 	{ 0x39, "Position Verification Notify" },
 	{ 0x3c, "Immediate Assignment Reject Type 3" },
 	{ 0x3e, "Immediate Assignment Type 2" },
@@ -1752,6 +1813,10 @@ gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
 	const gchar *m = NULL;
 	gint idx;
 
+	/*
+	 * See the large comment in gmr1_msg_rr_strings[] for an
+	 * explanation of why we're doing this.
+	 */
 	if (dcch)
 		m = try_val_to_str_idx((guint32)oct | 0x100, gmr1_msg_rr_strings, &idx);
 

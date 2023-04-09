@@ -2205,7 +2205,7 @@ proto_register_tibia(void)
         },
         { &hf_tibia_client_vram,
             { "Video RAM", "tibia.client.vram",
-                FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
                 &mb_unit, 0x0,
                 NULL, HFILL }
         },
@@ -2420,7 +2420,7 @@ proto_register_tibia(void)
         },
         { &hf_tibia_container_icon,
             { "Container icon", "tibia.container.icon",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },
@@ -2432,7 +2432,7 @@ proto_register_tibia(void)
         },
         { &hf_tibia_container_slots,
             { "Container slots", "tibia.container.slots",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },

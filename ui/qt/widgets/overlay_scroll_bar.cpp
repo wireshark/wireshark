@@ -241,9 +241,14 @@ void OverlayScrollBar::mouseReleaseEvent(QMouseEvent *event)
     if (pm_r.contains(event->pos()) && geometry().height() > 0 && packet_count_ > 0 && pageStep() > 0) {
         double map_ratio = double(end_pos_ - start_pos_) / geometry().height();
         int clicked_packet = (event->pos().y() * map_ratio) + start_pos_;
-        double packet_to_sb_value = double(maximum() - minimum()) / packet_count_;
+        /* The first packet is at minimum(). The last packet is at
+         * maximum() + pageStep(). (maximum() corresponds to the first
+         * packet shown when the scrollbar at at the maximum position.)
+         * https://doc.qt.io/qt-6/qscrollbar.html#details
+         */
+        double packet_to_sb_value = double(maximum() + pageStep() - minimum()) / packet_count_;
         int top_pad = pageStep() / 4; // Land near, but not at, the top.
 
-        setValue((clicked_packet * packet_to_sb_value) + top_pad);
+        setValue((clicked_packet * packet_to_sb_value) - top_pad);
     }
 }

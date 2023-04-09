@@ -757,7 +757,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 }
 
 static gboolean
-dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
+dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
                  const char* label, proto_item** ret_item, int hf_ip4, int hf_ip6, int *advance) {
     guint8 af, et, flags, mask_len, ja_af;
     ws_in6_addr ipv6;
@@ -803,7 +803,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv4_format(tree, hf_ip4, tvb, offset, 2 + len,
-                                ipv4, "%s: %s", label, tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 2));
+                                ipv4, "%s: %s", label, tvb_ip_to_str(pinfo->pool, tvb, offset + 2));
             }
             else
             {
@@ -817,7 +817,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 2 + len,
-                        &ipv6, "%s: %s", label, tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 2));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(pinfo->pool, tvb, offset + 2));
             }
             else
             {
@@ -858,14 +858,14 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
-                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
+                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
                                 break;
                             case AFNUM_INET6:
                                 rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
-                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
+                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
@@ -893,7 +893,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv4_format(tree, hf_ip4, tvb, offset, 4 + len,
-                                ipv4, "%s: %s", label, tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 4));
+                                ipv4, "%s: %s", label, tvb_ip_to_str(pinfo->pool, tvb, offset + 4));
             }
             else
             {
@@ -909,7 +909,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 4 + len,
-                        &ipv6, "%s: %s", label, tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 4));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(pinfo->pool, tvb, offset + 4));
             }
             else
             {
@@ -945,12 +945,12 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv4_format(tree, hf_ip4, tvb, offset, 4 + len,
-                                ipv4, "%s: %s", label, tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 4));
+                                ipv4, "%s: %s", label, tvb_ip_to_str(pinfo->pool, tvb, offset + 4));
             }
             else
             {
                 ti = proto_tree_add_ipv4_format_value(tree, hf_ip4, tvb, offset, 4 + len, ipv4,
-                                                      "%s", tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 4));
+                                                      "%s", tvb_ip_to_str(pinfo->pool, tvb, offset + 4));
             }
             proto_item_append_text(ti, "/%u", mask_len);
             break;
@@ -961,12 +961,12 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 4 + len,
-                        &ipv6, "%s: %s", label, tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 4));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(pinfo->pool, tvb, offset + 4));
             }
             else
             {
                 ti = proto_tree_add_ipv6_format_value(tree, hf_ip6, tvb, offset, 4 + len, &ipv6,
-                                                      "%s", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 4));
+                                                      "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 4));
             }
             proto_item_append_text(ti, "/%u", mask_len);
             break;
@@ -1009,7 +1009,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                     case PIM_JOIN_ATTRIBUTE_TYPE_RPF:
                         if ((ja_length == 6) || (ja_length == 18)) {
                             int advance_attr;
-                            if (!dissect_pim_addr(ja_tree, tvb, ja_offset, pimv2_unicast, NULL, NULL,
+                            if (!dissect_pim_addr(pinfo, ja_tree, tvb, ja_offset, pimv2_unicast, NULL, NULL,
                                     hf_pim_unicast_addr_ipv4, hf_pim_unicast_addr_ipv6, &advance_attr))
                                 break;
                         } else {
@@ -1021,14 +1021,14 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
-                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
+                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
                                 break;
                             case AFNUM_INET6:
                                 rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
-                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
+                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
@@ -1262,7 +1262,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                                       hello_opt);
                 for (i = offset + 4; i < offset + 4 + opt_len; ) {
                     int advance;
-                    if (!dissect_pim_addr(sub_tree, tvb, i, pimv2_unicast, NULL, NULL,
+                    if (!dissect_pim_addr(pinfo, sub_tree, tvb, i, pimv2_unicast, NULL, NULL,
                                                hf_pim_address_list_ip4, hf_pim_address_list_ip6, &advance))
                         break;
                     i += advance;
@@ -1347,11 +1347,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     {
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, NULL, NULL,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_group, NULL, NULL,
                                     hf_pim_group_ip4, hf_pim_group_ip6, &advance))
             break;
         offset += advance;
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
                                     hf_pim_source_ip4, hf_pim_source_ip6, &advance))
             break;
         break;
@@ -1369,7 +1369,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree *subtree = NULL;
         proto_item *tisub;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
                                    hf_pim_upstream_neighbor_ip4, hf_pim_upstream_neighbor_ip6, &advance))
             break;
 
@@ -1389,7 +1389,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         for (i = 0; i < ngroup; i++) {
             tigroup=proto_tree_add_string_format(pimopt_tree, hf_pim_group, tvb, offset, -1, "", "Group %d", i);
             grouptree = proto_item_add_subtree(tigroup, ett_pim);
-            if (!dissect_pim_addr(grouptree, tvb, offset, pimv2_group,
+            if (!dissect_pim_addr(pinfo, grouptree, tvb, offset, pimv2_group,
                                    wmem_strdup_printf(pinfo->pool, "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak3;
@@ -1403,7 +1403,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             subtree = proto_item_add_subtree(tisub, ett_pim);
             off = offset + 4;
             for (j = 0; j < njoin; j++) {
-                if (!dissect_pim_addr(subtree, tvb, off, pimv2_source, NULL, NULL,
+                if (!dissect_pim_addr(pinfo, subtree, tvb, off, pimv2_source, NULL, NULL,
                                            hf_pim_join_ip4, hf_pim_join_ip6, &advance))
                     goto breakbreak3;
 
@@ -1414,7 +1414,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                         offset + 2, 2, ENC_BIG_ENDIAN);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
-                if (!dissect_pim_addr(subtree, tvb, off, pimv2_source, NULL, NULL,
+                if (!dissect_pim_addr(pinfo, subtree, tvb, off, pimv2_source, NULL, NULL,
                                            hf_pim_prune_ip4, hf_pim_prune_ip6, &advance))
                     goto breakbreak3;
 
@@ -1443,13 +1443,13 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(pimopt_tree, hf_pim_bsr_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
                                     hf_pim_bsr_ip4, hf_pim_bsr_ip6, &advance))
             break;
         offset += advance;
 
         for (i = 0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
-            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
+            if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_group,
                                    wmem_strdup_printf(pinfo->pool, "Group %d", i), &tigroup,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak4;
@@ -1464,7 +1464,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             offset += 3;
 
             for (j = 0; j < frpcnt; j++) {
-                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+                if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                        wmem_strdup_printf(pinfo->pool, "RP %d", j), NULL,
                                        hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
 
@@ -1490,13 +1490,13 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     {
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_group,
                                 NULL, NULL,
                                 hf_pim_group_ip4, hf_pim_group_ip6, &advance))
             break;
         offset += advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_source_ip4, hf_pim_source_ip6, &advance))
             break;
@@ -1527,14 +1527,14 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
             break;
         offset += advance;
 
         for (i = 0; i < pfxcnt; i++) {
-            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
+            if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_group,
                                    wmem_strdup_printf(pinfo->pool, "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak8;
@@ -1548,19 +1548,19 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     {
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_group,
                                 NULL, NULL,
                                 hf_pim_group_ip4, hf_pim_group_ip6, &advance))
             break;
         offset += advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_source_ip4, hf_pim_source_ip6, &advance))
             break;
         offset += advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_originator_ip4, hf_pim_originator_ip6, &advance))
             break;
@@ -1595,7 +1595,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     {
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
             break;
@@ -1608,7 +1608,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         switch(PIM_BIDIR_SUBTYPE(pim_bidir_subtype)) {
             case PIM_BDIR_DF_BACKOFF :
-                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+                if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                     NULL, NULL,
                                     hf_pim_bd_bo_offer_ip4, hf_pim_bd_bo_offer_ip6, &advance))
                     break;
@@ -1620,7 +1620,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(pimopt_tree, hf_pim_bd_offer_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
                 break;
             case PIM_BDIR_DF_PASS:
-                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+                if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast,
                                     NULL, NULL,
                                     hf_pim_bd_pass_ip4, hf_pim_bd_pass_ip6, &advance))
                     break;
@@ -1638,7 +1638,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         int opt_count = 0;
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
                                     hf_pim_originator_ip4, hf_pim_originator_ip6, &advance))
             break;
         offset += advance;
@@ -1661,7 +1661,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             switch(pfm_opt){
                 case PIM_PFM_GROUP_SOURCE:
                 {
-                    if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, NULL, NULL,
+                    if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_group, NULL, NULL,
                                             hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                         break;
                     offset += advance;
@@ -1672,7 +1672,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     proto_tree_add_item(pimopt_tree, hf_pim_srcholdt, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     while(src_count>0){
-                        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+                        if (!dissect_pim_addr(pinfo, pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
                                             hf_pim_source_ip4, hf_pim_source_ip6, &advance))
                             goto breakbreak12;
                         offset+=advance;

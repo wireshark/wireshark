@@ -22,6 +22,7 @@
 #include <QTreeView>
 #include <QMenu>
 #include <QHeaderView>
+#include <QSortFilterProxyModel>
 
 #include <QWidgetAction>
 #include <QLineEdit>

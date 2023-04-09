@@ -2694,7 +2694,7 @@ write_pdml_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
             fdata, NULL);
 
     /* Write out the information in that tree. */
-    write_pdml_proto_tree(NULL, NULL, PF_NONE, &args->edt, &cf->cinfo, args->fh, FALSE);
+    write_pdml_proto_tree(NULL, NULL, &args->edt, &cf->cinfo, args->fh, FALSE);
 
     epan_dissect_reset(&args->edt);
 
@@ -2993,7 +2993,7 @@ write_json_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
 
     /* Write out the information in that tree. */
     write_json_proto_tree(NULL, args->print_args->print_dissections,
-            args->print_args->print_hex, NULL, PF_NONE,
+            args->print_args->print_hex, NULL,
             &args->edt, &cf->cinfo, proto_node_group_children_by_unique,
             &args->jdumper);
 
@@ -3070,16 +3070,18 @@ cf_find_packet_protocol_tree(capture_file *cf, const char *string,
     return find_packet(cf, match_protocol_tree, &mdata, dir);
 }
 
-gboolean
-cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *mdata)
+field_info*
+cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree)
 {
-    mdata->frame_matched = FALSE;
-    mdata->string = convert_string_case(cf->sfilter, cf->case_type);
-    mdata->string_len = strlen(mdata->string);
-    mdata->cf = cf;
+    match_data mdata;
+    mdata.frame_matched = FALSE;
+    mdata.string = convert_string_case(cf->sfilter, cf->case_type);
+    mdata.string_len = strlen(mdata.string);
+    mdata.cf = cf;
     /* Iterate through all the nodes looking for matching text */
-    proto_tree_children_foreach(tree, match_subtree_text, mdata);
-    return mdata->frame_matched ? MR_MATCHED : MR_NOTMATCHED;
+    proto_tree_children_foreach(tree, match_subtree_text, &mdata);
+    g_free((char *)mdata.string);
+    return mdata.frame_matched ? mdata.finfo : NULL;
 }
 
 static match_result
@@ -3121,7 +3123,7 @@ match_subtree_text(proto_node *node, gpointer data)
     gchar         label_str[ITEM_LABEL_LENGTH];
     gchar        *label_ptr;
     size_t        label_len;
-    guint32       i;
+    guint32       i, i_restart;
     guint8        c_char;
     size_t        c_match    = 0;
 
@@ -3152,13 +3154,18 @@ match_subtree_text(proto_node *node, gpointer data)
             mdata->finfo = fi;
             return;
         }
-    } else {
-        /* Does that label match? */
+    } else if (cf->case_type) {
+        /* Case insensitive match */
         label_len = strlen(label_ptr);
+        i_restart = 0;
         for (i = 0; i < label_len; i++) {
+            if (i_restart == 0 && c_match == 0 && (label_len - i < string_len))
+                break;
             c_char = label_ptr[i];
-            if (cf->case_type)
-                c_char = g_ascii_toupper(c_char);
+            c_char = g_ascii_toupper(c_char);
+            /* If c_match is non-zero, save candidate for retrying full match. */
+            if (c_match > 0 && i_restart == 0 && c_char == string[0])
+                i_restart = i;
             if (c_char == string[c_match]) {
                 c_match++;
                 if (c_match == string_len) {
@@ -3167,9 +3174,18 @@ match_subtree_text(proto_node *node, gpointer data)
                     mdata->finfo = fi;
                     return;
                 }
+            } else if (i_restart) {
+                i = i_restart;
+                c_match = 1;
+                i_restart = 0;
             } else
                 c_match = 0;
         }
+    } else if (strstr(label_ptr, string) != NULL) {
+        /* Case sensitive match */
+        mdata->frame_matched = TRUE;
+        mdata->finfo = fi;
+        return;
     }
 
     /* Recurse into the subtree, if it exists */
@@ -3200,7 +3216,7 @@ match_summary_line(capture_file *cf, frame_data *fdata,
     size_t          info_column_len;
     match_result    result     = MR_NOTMATCHED;
     gint            colx;
-    guint32         i;
+    guint32         i, i_restart;
     guint8          c_char;
     size_t          c_match    = 0;
 
@@ -3228,20 +3244,33 @@ match_summary_line(capture_file *cf, frame_data *fdata,
                     result = MR_MATCHED;
                     break;
                 }
-            } else {
+            } else if (cf->case_type) {
+                /* Case insensitive match */
+                i_restart = 0;
                 for (i = 0; i < info_column_len; i++) {
+                    if (i_restart == 0 && c_match == 0 && (info_column_len - i < string_len))
+                        break;
                     c_char = info_column[i];
-                    if (cf->case_type)
-                        c_char = g_ascii_toupper(c_char);
+                    c_char = g_ascii_toupper(c_char);
+                    /* If c_match is non-zero, save candidate for retrying full match. */
+                    if (c_match > 0 && i_restart == 0 && c_char == string[0])
+                        i_restart = i;
                     if (c_char == string[c_match]) {
                         c_match++;
                         if (c_match == string_len) {
                             result = MR_MATCHED;
                             break;
                         }
+                    } else if (i_restart) {
+                        i = i_restart;
+                        c_match = 1;
+                        i_restart = 0;
                     } else
                         c_match = 0;
                 }
+            } else if (strstr(info_column, string) != NULL) {
+                /* Case sensitive match */
+                result = MR_MATCHED;
             }
             break;
         }
@@ -4289,9 +4318,11 @@ cf_set_modified_block(capture_file *cf, frame_data *fd, const wtap_block_t new_b
     if (pkt_block == new_block) {
         /* No need to save anything here, the caller changes went right
          * onto the block.
-         * Unfortunately we don't have a way to know how many comments were in the block
-         * before the caller modified it.
+         * Unfortunately we don't have a way to know how many comments were
+         * in the block before the caller modified it, so tell the caller
+         * it is its responsibility to update the comment count.
          */
+        return FALSE;
     }
     else {
         if (pkt_block)
@@ -4806,7 +4837,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         wtap_dump_params_init(&params, cf->provider.wth);
 
         /* Determine what file encapsulation type we should use. */
-        encap = wtap_dump_file_encap_type(cf->linktypes);
+        encap = wtap_dump_required_file_encap_type(cf->linktypes);
         params.encap = encap;
 
         /* Use the snaplen from cf (XXX - does wtap_dump_params_init handle that?) */
@@ -5062,7 +5093,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     wtap_dump_params_init(&params, cf->provider.wth);
 
     /* Determine what file encapsulation type we should use. */
-    encap = wtap_dump_file_encap_type(cf->linktypes);
+    encap = wtap_dump_required_file_encap_type(cf->linktypes);
     params.encap = encap;
 
     /* Use the snaplen from cf (XXX - does wtap_dump_params_init handle that?) */

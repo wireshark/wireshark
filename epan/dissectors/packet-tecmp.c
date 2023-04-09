@@ -88,6 +88,13 @@ static int hf_tecmp_payload_data_flags_checksum = -1;
 static int hf_tecmp_payload_data_flags_tx = -1;
 static int hf_tecmp_payload_data_flags_overflow = -1;
 
+/* ILaS*/
+static int hf_tecmp_payload_data_flags_crc_enabled = -1;
+static int hf_tecmp_payload_data_flags_direction = -1;
+
+/* Ethernet 10BASE-T1S */
+static int hf_tecmp_payload_data_flags_phy_event_error = -1;
+
 /* LIN */
 static int hf_tecmp_payload_data_flags_coll = -1;
 static int hf_tecmp_payload_data_flags_parity = -1;
@@ -148,7 +155,12 @@ static const unit_name_string tecmp_units_amp_hour = { "Ah", NULL };
 #define TECMP_DATAFLAGS_UNIT_MASK           0x001c
 #define TECMP_DATAFLAGS_UNIT_SHIFT          2
 
-/* TECMP Payload Fields*/
+/* TECMP Payload Fields */
+/* Ethernet 10BASE-T1S */
+static int hf_tecmp_payload_data_beacon_timestamp = -1;
+static int hf_tecmp_payload_data_beacon_timestamp_ns = -1;
+static int hf_tecmp_payload_data_beacon_to_timestamp_ns = -1;
+
 /* LIN */
 static int hf_tecmp_payload_data_id_field_8bit = -1;
 static int hf_tecmp_payload_data_id_field_6bit = -1;
@@ -219,6 +231,20 @@ static int hf_tecmp_payload_status_bus_vendor_technica_link_status = -1;
 static int hf_tecmp_payload_status_bus_vendor_technica_link_quality = -1;
 static int hf_tecmp_payload_status_bus_vendor_technica_linkup_time = -1;
 
+static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags_beacons_received = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags_plca_enabled = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_res0 = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_beacon_counter = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_res1 = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_res2 = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt = -1;
+
+
 /* Status Configuration Data Technica Engineering */
 static int hf_tecmp_payload_status_cfg_vendor_technica_version = -1;
 static int hf_tecmp_payload_status_cfg_vendor_technica_reserved = -1;
@@ -233,6 +259,23 @@ static int hf_tecmp_payload_status_cfg_vendor_technica_segment_data = -1;
 static int hf_tecmp_payload_ctrl_msg_device_id = -1;
 static int hf_tecmp_payload_ctrl_msg_id = -1;
 static int hf_tecmp_payload_ctrl_msg_unparsed_bytes = -1;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_fill_level = -1;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_buffer_overflow = -1;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_size = -1;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_length = -1;
+static int hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id = -1;
+static int hf_tecmp_payload_ctrl_msg_flexray_poc_state = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_interface_id = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_beacons_received = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_plca_enabled = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_reserved = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_5b_decode_error = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_eos_delim_error = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_detected = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_missing = -1;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_empty_cycle = -1;
 
 /* Counter Event */
 static int hf_tecmp_payload_counter_event_device_id = -1;
@@ -257,17 +300,21 @@ static gint ett_tecmp_payload_interface_id = -1;
 static gint ett_tecmp_payload_data = -1;
 static gint ett_tecmp_payload_timestamp = -1;
 static gint ett_tecmp_payload_dataflags = -1;
+static gint ett_tecmp_payload_instruction_address = -1;
 static gint ett_tecmp_payload_data_id = -1;
 static gint ett_tecmp_payload_lin_id = -1;
 static gint ett_tecmp_status_bus_data = -1;
 static gint ett_tecmp_status_bus_data_entry = -1;
 static gint ett_tecmp_status_dev_vendor_data = -1;
 static gint ett_tecmp_status_bus_vendor_data = -1;
+static gint ett_tecmp_status_bus_vendor_data_flags = -1;
+static gint ett_tecmp_ctrl_message_10baset1s_flags = -1;
+static gint ett_tecmp_ctrl_message_10baset1s_events_errors = -1;
 
 
 /*** expert info items ***/
 static expert_field ef_tecmp_payload_length_mismatch = EI_INIT;
-static expert_field ef_tecmp_header_crc_overflow = EI_INIT;
+static expert_field ef_tecmp_payload_header_crc_overflow = EI_INIT;
 
 /* TECMP Type Names */
 
@@ -305,12 +352,14 @@ static const value_string msg_type_names[] = {
 #define TECMP_DATA_TYPE_FR_RAW             0x0007
 #define TECMP_DATA_TYPE_FR_DATA            0x0008
 #define TECMP_DATA_TYPE_GPIO               0x000A
+#define TECMP_DATA_TYPE_ILAS               0x000E
 #define TECMP_DATA_TYPE_RS232_ASCII        0x0010
 #define TECMP_DATA_TYPE_RS232_RAW          0x0011
 #define TECMP_DATA_TYPE_RS232_SLA          0x0012
 #define TECMP_DATA_TYPE_ANALOG             0x0020
 #define TECMP_DATA_TYPE_ANALOG_SLA         0x0021
 #define TECMP_DATA_TYPE_ETH                0x0080
+#define TECMP_DATA_TYPE_ETH_10BASE_T1S     0x0082
 #define TECMP_DATA_TYPE_XCP_DATA           0x00A0
 #define TECMP_DATA_TYPE_MIPI_CSI2_V        0x0101
 #define TECMP_DATA_TYPE_MIPI_CSI2_L        0x0102
@@ -332,12 +381,14 @@ static const value_string tecmp_msgtype_names[] = {
     {TECMP_DATA_TYPE_FR_RAW,               "Flexray Raw"},
     {TECMP_DATA_TYPE_FR_DATA,              "Flexray Data"},
     {TECMP_DATA_TYPE_GPIO,                 "GPIO"},
+    {TECMP_DATA_TYPE_ILAS,                 "ILaS"},
     {TECMP_DATA_TYPE_RS232_ASCII,          "UART/RS232_ASCII"},
     {TECMP_DATA_TYPE_RS232_RAW,            "UART/RS232_RAW"},
     {TECMP_DATA_TYPE_RS232_SLA,            "UART/RS232_SLA"},
     {TECMP_DATA_TYPE_ANALOG,               "Analog"},
     {TECMP_DATA_TYPE_ANALOG_SLA,           "Analog_SLA"},
     {TECMP_DATA_TYPE_ETH,                  "Ethernet II"},
+    {TECMP_DATA_TYPE_ETH_10BASE_T1S,       "Ethernet 10BASE-T1S"},
     {TECMP_DATA_TYPE_XCP_DATA,             "XCP-Data"},
     {TECMP_DATA_TYPE_MIPI_CSI2_V,          "MIPI-CSI2 V"},
     {TECMP_DATA_TYPE_MIPI_CSI2_L,          "MIPI-CSI2 L"},
@@ -366,10 +417,29 @@ static const value_string tecmp_device_id_prefixes[] = {
     {0x0030, "CM LIN Combo"},
     {0x0040, "CM CAN Combo"},
     {0x0060, "CM 100 High"},
+    {0x0070, "CM 10BASE-T1S 0"},
+    {0x0071, "CM 10BASE-T1S 1"},
+    {0x0072, "CM 10BASE-T1S 2"},
+    {0x0073, "CM 10BASE-T1S 3"},
+    {0x0074, "CM 10BASE-T1S 4"},
+    {0x0075, "CM 10BASE-T1S 5"},
+    {0x0076, "CM 10BASE-T1S 6"},
+    {0x0077, "CM 10BASE-T1S 7"},
+    {0x0078, "CM 10BASE-T1S 8"},
+    {0x0079, "CM 10BASE-T1S 9"},
+    {0x007a, "CM ILaS Combo 0"},
+    {0x007b, "CM ILaS Combo 1"},
+    {0x007c, "CM ILaS Combo 2"},
+    {0x007d, "CM ILaS Combo 3"},
+    {0x007e, "CM ILaS Combo 4"},
+    {0x007f, "CM ILaS Combo 5"},
     {0x0080, "CM Eth Combo"},
     {0x0090, "CM 1000 High"},
     {0, NULL}
 };
+
+#define TECMP_DEVICE_TYPE_CM_10BASE_T1S 0x0c
+#define TECMP_DEVICE_TYPE_CM_ILAS_COMBO 0x0e
 
 /* Device Types */
 /* Updated by ID Registry */
@@ -379,6 +449,8 @@ static const value_string tecmp_device_types[] = {
     {0x06, "CM 100 High"},
     {0x08, "CM Eth Combo"},
     {0x0a, "CM 1000 High"},
+    {TECMP_DEVICE_TYPE_CM_10BASE_T1S, "CM 10BASE-T1S"},
+    {TECMP_DEVICE_TYPE_CM_ILAS_COMBO, "CM ILaS Combo"},
     {0x10, "Sensor specific"},
     {0x20, "Logger"},
     {0, NULL}
@@ -386,8 +458,28 @@ static const value_string tecmp_device_types[] = {
 
 /* Control Message IDs */
 /* Updated by ID Registry */
+#define TECMP_CTRL_MSG_LOGGER_READY        0x0002
+#define TECMP_CTRL_MSG_CAN_REPLAY_FILL_LVL 0x00E0
+#define TECMP_CTRL_MSG_FR_POC_STATE        0x00E1
+#define TECMP_CTRL_MSG_10BASE_T1S          0x00E2
+
 static const value_string tecmp_ctrl_msg_ids_types[] = {
-    {0x0002, "Logger Ready"},
+    {TECMP_CTRL_MSG_LOGGER_READY,          "Logger Ready"},
+    {TECMP_CTRL_MSG_CAN_REPLAY_FILL_LVL,   "CAN Replay Fill Level"},
+    {TECMP_CTRL_MSG_FR_POC_STATE,          "FlexRay POC State"},
+    {TECMP_CTRL_MSG_10BASE_T1S,            "10BASE-T1S"},
+    {0, NULL}
+};
+
+static const value_string tecmp_ctrl_msg_fr_poc_state[] = {
+    {0, "Config"},
+    {1, "Default Config"},
+    {2, "Halt"},
+    {3, "Normal Active"},
+    {4, "Normal Passive"},
+    {5, "Ready"},
+    {6, "Startup"},
+    {7, "Wakeup"},
     {0, NULL}
 };
 
@@ -399,6 +491,16 @@ static const true_false_string tfs_tecmp_payload_timestamp_async_type = {
 static const true_false_string tfs_tecmp_technica_bufferoverflow = {
     "Buffer Overflow occurred",
     "No Buffer Overflow occurred"
+};
+
+static const true_false_string tfs_tecmp_payload_data_crc_received = {
+    "CRC present in received message",
+    "CRC not present in received message"
+};
+
+static const true_false_string tfs_tecmp_payload_data_direction = {
+    "Upstream (response)",
+    "Downstream (command)"
 };
 
 static const true_false_string tfs_tecmp_payload_data_id_type = {
@@ -736,6 +838,9 @@ add_device_id_text(proto_item *ti, guint16 device_id) {
 
     if (descr != NULL) {
         proto_item_append_text(ti, " (%s)", descr);
+    } else if (device_id >= 0x0070 && device_id <= 0x007f) {
+        descr = val_to_str((device_id), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
+        proto_item_append_text(ti, " (%s)", descr);
     } else {
         /* try to pick a default */
         descr = val_to_str((device_id & 0xfff0), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
@@ -860,6 +965,14 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         NULL
     };
 
+    static int * const dataflags_ethernet_10base_t1s[] = {
+        &hf_tecmp_payload_data_flags_overflow,
+        &hf_tecmp_payload_data_flags_tx,
+        &hf_tecmp_payload_data_flags_crc,
+        &hf_tecmp_payload_data_flags_phy_event_error,
+        NULL
+    };
+
     static int * const dataflags_lin[] = {
         &hf_tecmp_payload_data_flags_overflow,
         &hf_tecmp_payload_data_flags_tx,
@@ -959,6 +1072,14 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         NULL
     };
 
+    static int * const dataflags_ilas[] = {
+        &hf_tecmp_payload_data_flags_crc,
+
+        &hf_tecmp_payload_data_flags_direction,
+        &hf_tecmp_payload_data_flags_crc_enabled,
+        NULL
+    };
+
     static int * const dataflags_rs232_uart_ascii[] = {
         &hf_tecmp_payload_data_flags_tx,
 
@@ -1000,9 +1121,8 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     timestamp.nsecs = (int)(ns % 1000000000);
     ti = proto_tree_add_time(tree, hf_tecmp_payload_timestamp, tvb, offset + 4, 8, &timestamp);
     subtree = proto_item_add_subtree(ti, ett_tecmp_payload_timestamp);
-    proto_tree_add_item_ret_boolean(subtree, hf_tecmp_payload_timestamp_async, tvb, offset + 4, 1,ENC_BIG_ENDIAN,
-                                    &async);
-    proto_tree_add_item(subtree, hf_tecmp_payload_timestamp_res, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_boolean(subtree, hf_tecmp_payload_timestamp_async, tvb, offset + 4, 1, ENC_NA, &async);
+    proto_tree_add_item(subtree, hf_tecmp_payload_timestamp_res, tvb, offset + 4, 1, ENC_NA);
 
     if (async) {
         proto_item_append_text(ti, " (not synchronized)");
@@ -1038,12 +1158,20 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_flexray_data, ENC_BIG_ENDIAN);
             break;
 
+        case TECMP_DATA_TYPE_ILAS:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_ilas, ENC_BIG_ENDIAN);
+            break;
+
         case TECMP_DATA_TYPE_RS232_ASCII:
             proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_rs232_uart_ascii, ENC_BIG_ENDIAN);
             break;
 
         case TECMP_DATA_TYPE_ANALOG:
             proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_analog, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_ETH_10BASE_T1S:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_ethernet_10base_t1s, ENC_BIG_ENDIAN);
             break;
 
         case TECMP_DATA_TYPE_ETH:
@@ -1101,7 +1229,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static void
-dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root,
+dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, guint8 device_type _U_,
                                         guint8 vendor_id) {
     proto_tree *tree = NULL;
     gint offset = 0;
@@ -1139,7 +1267,7 @@ dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 static void
 dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root,
-                                     guint8 vendor_id) {
+                                     guint8 entry_number, guint8 device_type, guint8 vendor_id) {
     proto_tree *tree = NULL;
     proto_item *ti = NULL;
     gint offset = 0;
@@ -1153,22 +1281,64 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     case TECMP_VENDOR_ID_TECHNICA:
         bytes_remaining = tvb_captured_length_remaining(tvb, offset);
 
-        if (bytes_remaining >= 1) {
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_status, tvb, offset, 1, ENC_NA);
+        if (device_type == TECMP_DEVICE_TYPE_CM_ILAS_COMBO && entry_number < 5) {
+            /* Currently no parameters for this format but might be specified in a later specification. */
+        } else if ((device_type == TECMP_DEVICE_TYPE_CM_ILAS_COMBO && entry_number == 5) || device_type == TECMP_DEVICE_TYPE_CM_10BASE_T1S) {
+            static int * const vendor_data_flags_10BASE_T1S[] = {
+                &hf_tecmp_payload_status_bus_vendor_technica_10m_flags_plca_enabled,
+                &hf_tecmp_payload_status_bus_vendor_technica_10m_flags_beacons_received,
+                NULL
+            };
+
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_bus_vendor_technica_10m_flags, ett_tecmp_status_bus_vendor_data_flags, vendor_data_flags_10BASE_T1S, ENC_BIG_ENDIAN);
             offset += 1;
-        }
-        if (bytes_remaining >= 2) {
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1,
-                                ENC_NA);
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res0, tvb, offset, 1, ENC_NA);
             offset += 1;
-        }
-        if (bytes_remaining >= 4) {
-            ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_bus_vendor_technica_linkup_time, tvb,
-                                              offset, 2, ENC_NA, &tmp);
-            if (tmp==0) {
-                proto_item_append_text(ti, " %s", "(no linkup detected yet)");
-            } else if (tmp == 0xffff) {
-                proto_item_append_text(ti, " %s", "(no linkup detected and timeout occurred)");
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_beacon_counter, tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res2, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt, tvb, offset, 2, ENC_NA);
+        } else {
+            if (bytes_remaining >= 1) {
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_status, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+            if (bytes_remaining >= 2) {
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1,
+                    ENC_NA);
+                offset += 1;
+            }
+            if (bytes_remaining >= 4) {
+                ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_bus_vendor_technica_linkup_time, tvb,
+                    offset, 2, ENC_NA, &tmp);
+                if (tmp == 0) {
+                    proto_item_append_text(ti, " %s", "(no linkup detected yet)");
+                } else if (tmp == 0xffff) {
+                    proto_item_append_text(ti, " %s", "(no linkup detected and timeout occurred)");
+                }
             }
         }
         break;
@@ -1176,7 +1346,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 static void
-dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, guint8 vendor_id, guint64 timestamp_ns) {
+dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, guint8 device_type _U_, guint8 vendor_id, guint64 timestamp_ns) {
     proto_tree *tree = NULL;
     proto_item *ti = NULL;
     gint offset = 0;
@@ -1238,13 +1408,14 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
         offset += 8;
 
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_string_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, NULL,
-                                     "%d.%d V", (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
+
+        double voltage_value = (double)((tmp & 0x0000ff00) >> 8) + (tmp & 0x000000ff) / 100.0;
+        /* we are adding the base unit manually since currently proto.c does not do this for doubles */
+        proto_tree_add_double_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_voltage, tvb, offset, 2, voltage_value, "%g %s", voltage_value, unit_name_string_get_double(voltage_value, &units_volt));
         offset += 2;
 
         if (tvb_captured_length_remaining(tvb, offset) == 1) {
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature, tvb, offset, 1, ENC_NA);
-            proto_item_append_text(ti, "%s", UTF8_DEGREE_SIGN "C");
+            proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature, tvb, offset, 1, ENC_NA);
         } else if (tvb_captured_length_remaining(tvb, offset) > 1) {
             /* TECMP 1.5 and later */
             temperature = tvb_get_gint8(tvb, offset);
@@ -1252,7 +1423,6 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis, tvb, offset, 1, temperature, "%s", "Not Available");
             } else {
                 ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA);
-                proto_item_append_text(ti, "%s", UTF8_DEGREE_SIGN "C");
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
                 }
@@ -1264,7 +1434,6 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon, tvb, offset, 1, temperature, "%s", "Not Available");
             } else {
                 ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA);
-                proto_item_append_text(ti, "%s", UTF8_DEGREE_SIGN "C");
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
                 }
@@ -1276,36 +1445,106 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 static int
-dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 msg_type,
-                          guint tecmp_msg_type) {
+dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 msg_type, guint tecmp_msg_type) {
+    proto_item *root_ti = NULL;
     proto_item *ti = NULL;
     proto_tree *tecmp_tree = NULL;
     guint16 length = 0;
     guint offset = offset_orig;
     guint device_id = 0;
+    guint interface_id = 0;
     guint ctrl_msg_id = 0;
 
     if (tvb_captured_length_remaining(tvb, offset) >= (16 + 4)) {
         length = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
-        ti = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
-        proto_item_append_text(ti, " Control Message");
-        tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
+        root_ti = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
+        proto_item_append_text(root_ti, " Control Message");
+        tecmp_tree = proto_item_add_subtree(root_ti, ett_tecmp_payload);
 
         offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, TRUE, NULL, NULL, NULL);
 
         col_set_str(pinfo->cinfo, COL_INFO, "TECMP Control Message");
 
-        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_ctrl_msg_device_id, tvb, offset, 2, ENC_BIG_ENDIAN,
-                                          &device_id);
+        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_ctrl_msg_device_id, tvb, offset, 2, ENC_BIG_ENDIAN, &device_id);
         add_device_id_text(ti, (guint16)device_id);
         ctrl_msg_id = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
         proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_id, tvb, offset + 2, 2, ctrl_msg_id, "Type: %s", resolve_control_message_id(ctrl_msg_id));
         offset += 4;
 
+        proto_item_append_text(root_ti, ", %s", resolve_control_message_id(ctrl_msg_id));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", resolve_control_message_id(ctrl_msg_id));
+
         /* offset includes 16 byte header, while length is only for payload */
         gint bytes_left = length + (guint)16 - (offset - offset_orig);
         if (bytes_left > 0) {
-            proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_unparsed_bytes, tvb, offset, bytes_left, ENC_NA);
+            gint i;
+
+            switch (ctrl_msg_id) {
+            case TECMP_CTRL_MSG_CAN_REPLAY_FILL_LVL:
+                ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_can_replay_fill_level_fill_level, tvb, offset, 1, ENC_NA);
+                proto_item_append_text(ti, "%%");
+                offset += 1;
+
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_can_replay_fill_level_buffer_overflow, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_size, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                for (i = 0; i < bytes_left - 3; i++) {
+                    guint8 queue_level = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_length, tvb, offset, 1, queue_level, "Queue %d Fill Level: %d", i, queue_level);
+                    offset += 1;
+                }
+                offset += 1;
+
+                break;
+
+            case TECMP_CTRL_MSG_FR_POC_STATE:
+                ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                add_interface_id_text_and_name(ti, interface_id, tvb, offset);
+                offset += 4;
+
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_flexray_poc_state, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                break;
+
+            case TECMP_CTRL_MSG_10BASE_T1S:
+                ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_10baset1s_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                add_interface_id_text_and_name(ti, interface_id, tvb, offset);
+                offset += 4;
+
+                static int * const data_flags_10BASE_T1S[] = {
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_plca_enabled,
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_beacons_received,
+                    NULL
+                };
+
+                proto_tree_add_bitmask(tecmp_tree, tvb, offset, hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags, ett_tecmp_ctrl_message_10baset1s_flags, data_flags_10BASE_T1S, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_10baset1s_10m_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                static int * const events_10BASE_T1S[] = {
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_empty_cycle,
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_missing,
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_detected,
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_eos_delim_error,
+                    &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_5b_decode_error,
+                    NULL
+                };
+
+                proto_tree_add_bitmask(tecmp_tree, tvb, offset, hf_tecmp_payload_ctrl_msg_10baset1s_10m_events, ett_tecmp_ctrl_message_10baset1s_events_errors, events_10BASE_T1S, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                break;
+            }
+
+            if (length + (guint)16 - (offset - offset_orig) > 0) {
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_unparsed_bytes, tvb, offset, length + (guint)16 - (offset - offset_orig), ENC_NA);
+            }
         }
     }
 
@@ -1313,8 +1552,7 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 static int
-dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 msg_type,
-                        guint tecmp_msg_type) {
+dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 msg_type, guint tecmp_msg_type) {
     proto_item *ti = NULL;
     proto_item *ti_tecmp_payload = NULL;
     proto_item *ti_tecmp_vendor_data = NULL;
@@ -1325,6 +1563,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16 length = 0;
     guint16 vendor_data_len = 0;
     guint vendor_id = 0;
+    guint device_type = 0;
     guint offset = offset_orig;
     guint i = 0;
     guint tmp = 0;
@@ -1338,18 +1577,15 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, TRUE, NULL, NULL, &timestamp_ns);
 
-        proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_vendor_id, tvb, offset, 1, ENC_NA,
-                                     &vendor_id);
+        proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_vendor_id, tvb, offset, 1, ENC_NA, &vendor_id);
         proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_dev_version, tvb, offset + 1, 1, ENC_NA);
-        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_dev_type, tvb, offset + 2, 1, ENC_NA);
+        proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_dev_type, tvb, offset + 2, 1, ENC_NA, &device_type);
         proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_res, tvb, offset + 3, 1, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_length_vendor_data, tvb, offset, 2,
-                                     ENC_BIG_ENDIAN, &tmp);
+        proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_length_vendor_data, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
         vendor_data_len = (guint16)tmp;
-        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_device_id, tvb, offset + 2, 2, ENC_BIG_ENDIAN,
-                                          &tmp);
+        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_device_id, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &tmp);
         add_device_id_text(ti, (guint16)tmp);
         offset += 4;
 
@@ -1363,10 +1599,9 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (vendor_data_len > 0) {
                 sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)vendor_data_len, (gint)vendor_data_len);
-                ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_vendor_data, tvb,
-                                                           offset, (gint)vendor_data_len, ENC_NA);
+                ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_vendor_data, tvb, offset, (gint)vendor_data_len, ENC_NA);
 
-                dissect_tecmp_status_device_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)vendor_id, timestamp_ns);
+                dissect_tecmp_status_device_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)device_type, (guint8)vendor_id, timestamp_ns);
                 offset += vendor_data_len;
             }
             break;
@@ -1378,18 +1613,15 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* bytes left - entry header (16 bytes) */
             length = length - (guint16)(offset - offset_orig - 16);
 
-            ti_tecmp_bus = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_bus_data, tvb, offset, length,
-                                               ENC_NA);
+            ti_tecmp_bus = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_bus_data, tvb, offset, length, ENC_NA);
             tecmp_tree = proto_item_add_subtree(ti_tecmp_bus, ett_tecmp_status_bus_data);
             i = 1; /* we start the numbering of the entries with 1. */
             while (length >= (12 + vendor_data_len)) {
-                ti_tecmp_bus = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_bus_data_entry, tvb, offset,
-                                                   12 + vendor_data_len, ENC_NA);
+                ti_tecmp_bus = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_bus_data_entry, tvb, offset, 12 + vendor_data_len, ENC_NA);
                 proto_item_append_text(ti_tecmp_bus, " %d", i);
                 tecmp_tree_bus = proto_item_add_subtree(ti_tecmp_bus, ett_tecmp_status_bus_data_entry);
 
-                ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_interface_id, tvb, offset, 4,
-                                                  ENC_NA, &tmp);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_interface_id, tvb, offset, 4, ENC_NA, &tmp);
                 descr = ht_interface_config_to_string(tmp);
                 if (descr != NULL) {
                     proto_item_append_text(ti, " (%s)", descr);
@@ -1407,7 +1639,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_vendor_data,
                                                                tvb, offset, (gint)vendor_data_len, ENC_NA);
 
-                    dissect_tecmp_status_bus_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)vendor_id);
+                    dissect_tecmp_status_bus_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, i, (guint8)device_type, (guint8)vendor_id);
                     offset += vendor_data_len;
                 }
 
@@ -1425,7 +1657,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti_tecmp_vendor_data = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_status_vendor_data, tvb,
                                                            offset, (gint)vendor_data_len, ENC_NA);
 
-                dissect_tecmp_status_config_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)vendor_id);
+                dissect_tecmp_status_config_vendor_data(sub_tvb, pinfo, ti_tecmp_vendor_data, (guint8)device_type, (guint8)vendor_id);
                 offset += vendor_data_len;
             }
             break;
@@ -1483,6 +1715,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     tvbuff_t *payload_tvb;
     gboolean first = TRUE;
     guint32 interface_id = 0;
+    guint64 timestamp_ns = 0;
 
     gdouble analog_value_scale_factor;
 
@@ -1522,7 +1755,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item_append_text(ti_tecmp, " (%s)", val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id, &timestamp_ns);
 
         first = FALSE;
 
@@ -1650,11 +1883,16 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     guint32 header_crc = 0;
                     ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_header_crc, sub_tvb, offset2, 2, ENC_BIG_ENDIAN, &header_crc);
                     if (header_crc > DATA_FR_HEADER_CRC_MAX) {
-                        expert_add_info(pinfo, ti, &ef_tecmp_header_crc_overflow);
+                        expert_add_info(pinfo, ti, &ef_tecmp_payload_header_crc_overflow);
                     }
                     offset2 += 2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_frame_crc, sub_tvb, offset2, 3, ENC_BIG_ENDIAN);
                 }
+                break;
+
+            case TECMP_DATA_TYPE_ILAS:
+                /* No parameters for this format yet. */
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data, sub_tvb, 0, length, ENC_NA);
                 break;
 
             case TECMP_DATA_TYPE_RS232_ASCII:
@@ -1705,18 +1943,41 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
                 break;
 
+            case TECMP_DATA_TYPE_ETH_10BASE_T1S:
             case TECMP_DATA_TYPE_ETH:
             {
+                length2 = length;
+
+                if (data_type == TECMP_DATA_TYPE_ETH_10BASE_T1S) {
+                    guint64 ns = tvb_get_guint64(sub_tvb, offset2, ENC_BIG_ENDIAN);
+
+                    nstime_t timestamp;
+                    timestamp.secs = (time_t)(ns / 1000000000);
+                    timestamp.nsecs = (int)(ns % 1000000000);
+                    ti = proto_tree_add_time(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp, sub_tvb, offset2, 8, &timestamp);
+                    ti = proto_tree_add_uint64(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp_ns, sub_tvb, offset2, 8, ns);
+                    proto_item_set_hidden(ti);
+
+                    ti = proto_tree_add_int64(tecmp_tree, hf_tecmp_payload_data_beacon_to_timestamp_ns, sub_tvb, offset2, 8, (gint64)timestamp_ns - (gint64)ns);
+                    proto_item_set_generated(ti);
+                    proto_item_set_hidden(ti);
+
+                    offset2 += 8;
+                    length2 -= 8;
+                }
+
+                payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
+
                 /* resetting VLAN count since this is another embedded Ethernet packet. */
                 p_set_proto_depth(pinfo, proto_vlan, 0);
 
                 gint len_saved = pinfo->fd->pkt_len;
-                pinfo->fd->pkt_len = length;
+                pinfo->fd->pkt_len = length2;
 
                 if (show_ethernet_in_tecmp_tree) {
-                    call_dissector(eth_handle, sub_tvb, pinfo, tecmp_tree);
+                    call_dissector(eth_handle, payload_tvb, pinfo, tecmp_tree);
                 } else {
-                    call_dissector(eth_handle, sub_tvb, pinfo, tree);
+                    call_dissector(eth_handle, payload_tvb, pinfo, tree);
                 }
 
                 pinfo->fd->pkt_len = len_saved;
@@ -1921,6 +2182,15 @@ proto_register_tecmp_payload(void) {
             { "Data", "tecmp.payload.data",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_tecmp_payload_data_beacon_timestamp,
+            { "Beacon Timestamp", "tecmp.payload.beacon_timestamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_data_beacon_timestamp_ns,
+            { "Beacon Timestamp ns", "tecmp.payload.beacon_timestamp_ns",
+            FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_data_beacon_to_timestamp_ns,
+            { "Beacon to Timestamp ns", "tecmp.payload.beacon_to_timestamp_ns",
+            FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_data_id_field_8bit,
             { "ID", "tecmp.payload.data.lin_id_with_parity",
             FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2000,6 +2270,63 @@ proto_register_tecmp_payload(void) {
             { "Unparsed Bytes", "tecmp.payload.ctrl_msg.unparsed",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        /* Control Message: CAN Replay Fill Level */
+        { &hf_tecmp_payload_ctrl_msg_can_replay_fill_level_fill_level,
+            { "Fill Level RAM", "tecmp.payload.ctrl_msg.can_replay_fill_level.fill_level_ram",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_can_replay_fill_level_buffer_overflow,
+            { "Buffer Overflow RAM", "tecmp.payload.ctrl_msg.can_replay_fill_level.buffer_overflow_ram",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_size,
+            { "Queue Size", "tecmp.payload.ctrl_msg.can_replay_fill_level.queue_size",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_length,
+            { "Queue Fill Level", "tecmp.payload.ctrl_msg.can_replay_fill_level.queue_fill_level",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        /* Control Message: FlexRay POC State */
+        { &hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id,
+            { "Interface ID", "tecmp.payload.ctrl_msg.flexray_poc.interface_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_flexray_poc_state,
+            { "Protocol Operation Control State", "tecmp.payload.ctrl_msg.flexray_poc.state",
+            FT_UINT8, BASE_DEC, VALS(tecmp_ctrl_msg_fr_poc_state), 0x0, NULL, HFILL } },
+
+        /* Control Message: 10BASE-T1S */
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_interface_id,
+            { "Interface ID", "tecmp.payload.ctrl_msg.10baset1s.interface_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags,
+            { "Flags", "tecmp.payload.ctrl_msg.10baset1s.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_beacons_received,
+            { "Beacons Received", "tecmp.payload.ctrl_msg.10baset1s.flags.beacons_received",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_plca_enabled,
+            { "PLCA Enabled", "tecmp.payload.ctrl_msg.10baset1s.flags.plca_enabled",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_reserved,
+            { "Reserved", "tecmp.payload.ctrl_msg.10baset1s.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events,
+            { "Events/Errors", "tecmp.payload.ctrl_msg.10baset1s.events",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_5b_decode_error,
+            { "5B Decode Error", "tecmp.payload.ctrl_msg.10baset1s.events.5b_decode_error",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0001, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_eos_delim_error,
+            { "End of Stream Delimiter Error", "tecmp.payload.ctrl_msg.10baset1s.events.end_of_stream_delimiter_error",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_detected,
+            { "PLCA Symbols Detected", "tecmp.payload.ctrl_msg.10baset1s.events.plca_symbols_detected",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0004, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_missing,
+            { "PLCA Symbols Missing", "tecmp.payload.ctrl_msg.10baset1s.events.plca_symbols_missing",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0008, NULL, HFILL } },
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_empty_cycle,
+            { "PLCA Empty Cycle", "tecmp.payload.ctrl_msg.10baset1s.events.plca_empty_cycle",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0010, NULL, HFILL } },
+
         /* Status Device / Status Bus / Status Configuration */
         { &hf_tecmp_payload_status_vendor_id,
             { "Vendor ID", "tecmp.payload.status.vendor_id",
@@ -2068,16 +2395,16 @@ proto_register_tecmp_payload(void) {
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_voltage,
             { "Voltage", "tecmp.payload.status_dev.vendor_technica.voltage",
-            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature,
             { "Temperature", "tecmp.payload.status_dev.vendor_technica.temperature",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis,
             { "Temperature Chassis", "tecmp.payload.status_dev.vendor_technica.temperature_chassis",
-            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon,
             { "Temperature Silicon", "tecmp.payload.status_dev.vendor_technica.temperature_silicon",
-            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL }},
 
         /* Status Bus Vendor Data */
         { &hf_tecmp_payload_status_bus_vendor_technica_link_status,
@@ -2090,7 +2417,44 @@ proto_register_tecmp_payload(void) {
             { "Linkup Time", "tecmp.payload.status.bus.vendor_technica.linkup_time",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-        /* Status Bus Vendor Data */
+        { &hf_tecmp_payload_status_bus_vendor_technica_10m_flags,
+            { "Flags", "tecmp.payload.status.bus.vendor_technica.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_10m_flags_beacons_received,
+            { "Beacons Received", "tecmp.payload.status.bus.vendor_technica.flags.beacons_received",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_10m_flags_plca_enabled,
+            { "PLCA Enabled", "tecmp.payload.status.bus.vendor_technica.flags.plca_enabled",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_res0,
+            { "Reserved", "tecmp.payload.status.bus.vendor_technica.reserved_0",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_beacon_counter,
+            { "Beacon Counter", "tecmp.payload.status.bus.vendor_technica.beacon_counter",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_res1,
+            { "Reserved", "tecmp.payload.status.bus.vendor_technica.reserved_1",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_res2,
+            { "Reserved", "tecmp.payload.status.bus.vendor_technica.reserved_2",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt,
+            { "5B Decode Error Count", "tecmp.payload.status.bus.vendor_technica.5b_decode_err_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt,
+            { "End of Stream Delimiter Error Count", "tecmp.payload.status.bus.vendor_technica.eos_delim_err_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt,
+            { "PLCA Symbols Detected Count", "tecmp.payload.status.bus.vendor_technica.plca_symbols_detected_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt,
+            { "PLCA Symbols Missing Count", "tecmp.payload.status.bus.vendor_technica.plca_symbols_missing_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt,
+            { "PLCA Empty Cycle Count", "tecmp.payload.status.bus.vendor_technica.plca_empty_cycle_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        /* Status Config Vendor Data */
         { &hf_tecmp_payload_status_cfg_vendor_technica_version,
             { "Version", "tecmp.payload.status.config.vendor_technica.version",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2115,6 +2479,19 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_status_cfg_vendor_technica_segment_data,
             { "Segment Data", "tecmp.payload.status.config.vendor_technica.segment_data",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        /* ILaS */
+        { &hf_tecmp_payload_data_flags_crc_enabled,
+            { "CRC Received", "tecmp.payload.data_flags.crc_received",
+            FT_BOOLEAN, 16, TFS(&tfs_tecmp_payload_data_crc_received), 0x0001, NULL, HFILL } },
+        { &hf_tecmp_payload_data_flags_direction,
+            { "Direction", "tecmp.payload.data_flags.direction",
+            FT_BOOLEAN, 16, TFS(&tfs_tecmp_payload_data_direction), 0x0002, NULL, HFILL } },
+
+        /* Ethernet 10BASE-T1S */
+        { &hf_tecmp_payload_data_flags_phy_event_error,
+            { "PHY Event/Error", "tecmp.payload.data_flags.phy_event_error",
+            FT_BOOLEAN, 16, NULL, 0x1000, NULL, HFILL } },
 
         /* LIN */
         { &hf_tecmp_payload_data_flags_coll,
@@ -2308,18 +2685,22 @@ proto_register_tecmp_payload(void) {
         &ett_tecmp_payload_data,
         &ett_tecmp_payload_timestamp,
         &ett_tecmp_payload_dataflags,
+        &ett_tecmp_payload_instruction_address,
         &ett_tecmp_payload_data_id,
         &ett_tecmp_payload_lin_id,
         &ett_tecmp_status_dev_vendor_data,
         &ett_tecmp_status_bus_data,
         &ett_tecmp_status_bus_data_entry,
         &ett_tecmp_status_bus_vendor_data,
+        &ett_tecmp_status_bus_vendor_data_flags,
+        &ett_tecmp_ctrl_message_10baset1s_flags,
+        &ett_tecmp_ctrl_message_10baset1s_events_errors,
     };
 
     static ei_register_info ei[] = {
          { &ef_tecmp_payload_length_mismatch, { "tecmp.payload.payload_length_mismatch",
            PI_PROTOCOL, PI_WARN, "Payload Length and the length of Payload present in packet do not match!", EXPFILL }},
-         { &ef_tecmp_header_crc_overflow, { "tecmp.payload.header_crc_overflow",
+         { &ef_tecmp_payload_header_crc_overflow, { "tecmp.payload.header_crc_overflow",
            PI_PROTOCOL, PI_WARN, "Header CRC may only be up to 0x07ff!", EXPFILL }},
     };
 

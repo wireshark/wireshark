@@ -30,6 +30,9 @@ Wireshark 4.1.0 Release Notes
   default. That must be done explicitly using `cmake --install
   <builddir> --component Development`.
 
+  The Wireshark installation is relocatable on Linux (and other ELF
+  platforms with support for relative RPATHs).
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -64,20 +67,34 @@ Wireshark 4.1.0 Release Notes
 
      • ciscodump support Cisco IOS XE 17.x
 
+     • The default interval between GUI updates when capturing has been
+       decreased from 500ms to 100ms, and is now configurable.
+
+     • The -n option also now disables IP address geolocation
+       information lookup in configured MaxMind databases (and
+       geolocation lookup can be enabled with -Ng.) This is most
+       relevant for tshark, where geolocation lookups are synchronous.
+
+     • Implement built-in dissector for FiRa UWB Controller Interface
+       (UCI) protocol. Recognizes PCAP traces with the link type
+       LINKTYPE_FIRA_UCI=299.
+
   New Protocol Support
 
    DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer
    (DECT-NWK), DECT proprietary Mitel OMM/RFP Protocol (also named
-   AaMiDe), Low Level Signalling (ATSC3 LLS), Management Component
-   Transport Protocol (MCTP), Management Component Transport Protocol -
-   Control Protocol (MCTP CP), Non-volatile Memory Express - Management
-   Interface (NVMe-MI) over MCTP, SAP Enqueue Server (SAPEnqueue), SAP
-   GUI (SAPDiag), SAP HANA SQL Command Network Protocol (SAPHDB), SAP
-   Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS), SAP
-   Network Interface (SAPNI), SAP Router (SAPROUTER), SAP Secure Network
-   Connection (SNC), Support for almost all WoW 1.12 messages has been
-   added., and World of Warcraft World (WOWW) display filters have been
-   changed to be more internally consistent.
+   AaMiDe), FiRa UWB Controller Interface (UCI), Low Level Signalling
+   (ATSC3 LLS), Management Component Transport Protocol (MCTP),
+   Management Component Transport Protocol - Control Protocol (MCTP CP),
+   Non-volatile Memory Express - Management Interface (NVMe-MI) over
+   MCTP, SAP Enqueue Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA
+   SQL Command Network Protocol (SAPHDB), SAP Internet Graphic Server
+   (SAP IGS), SAP Message Server (SAPMS), SAP Network Interface (SAPNI),
+   SAP Router (SAPROUTER), SAP Secure Network Connection (SNC), Support
+   for almost all WoW 1.12 messages has been added., Train Real-Time
+   Data Protocol (TRDP), Windows Delivery Optimization (MS-DO), and
+   World of Warcraft World (WOWW) display filters have been changed to
+   be more internally consistent.
 
   Updated Protocol Support
 
@@ -89,6 +106,11 @@ Wireshark 4.1.0 Release Notes
 
      • The IPv6 dissector has a new preference to show some semantic
        details about addresses (default off).
+
+     • The XML dissector now supports display character according to the
+       "encoding" attribute of the XML declaration, and has a new
+       preference to set default character encoding for some XML
+       document without "encoding" attribute.
 
    Too many other protocols have been updated to list them all here.
 

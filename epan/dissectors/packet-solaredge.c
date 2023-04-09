@@ -1277,7 +1277,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 
 	switch (header.command_type) {
 		case SOLAREDGE_COMMAND_MISC_ENCRYPTED:
-			proto_tree_add_item(solaredge_header_tree, hf_solaredge_payload_type, tvb, current_offset, header.length, BASE_NONE);
+			proto_tree_add_item(solaredge_header_tree, hf_solaredge_payload_type, tvb, current_offset, header.length, ENC_NA);
 			conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
 			if ((conv_data != NULL) && (conv_data->session_key_found == TRUE)) {
 				guint8 *decrypted_buffer = (guint8*)wmem_alloc(pinfo->pool, header.length);
@@ -1296,7 +1296,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 			dissect_solaredge_devicedata(tvb, pinfo, solaredge_payload_tree, current_offset, header.length);
 		break;
 		case SOLAREDGE_COMMAND_SERVER_SET_KEY:
-			proto_tree_add_item(solaredge_header_tree, hf_solaredge_session_key_type, tvb, current_offset, header.length, BASE_NONE);
+			proto_tree_add_item(solaredge_header_tree, hf_solaredge_session_key_type, tvb, current_offset, header.length, ENC_NA);
 			if (!gcry_cipher_open(&cipher_hd_system, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
 				/* Load the system key to generate session key */
 				system_key = g_byte_array_new();

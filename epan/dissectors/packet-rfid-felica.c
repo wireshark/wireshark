@@ -497,7 +497,7 @@ proto_register_felica(void)
     /* Block ID */
     {&hf_felica_block_nbr,
      { "Block Number", "felica.block.nbr",
-       FT_UINT8, BASE_DEC, NULL, 0x0,
+       FT_UINT16, BASE_DEC, NULL, 0x0,
        NULL, HFILL }
     },
 

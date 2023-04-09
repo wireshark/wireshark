@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.3.0 (2022-12)
+-- 3GPP TS 36.423 V17.4.0 (2023-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2916,7 +2916,7 @@ SCGActivationRequest ::= ENUMERATED {activate-scg, deactivate-scg, ...}
 
 SCGChangeIndication ::= ENUMERATED {pDCPCountWrapAround, pSCellChange, other, ...}
 
-SCGreconfigNotification ::= ENUMERATED {executed, ...}
+SCGreconfigNotification ::= ENUMERATED {executed, ..., executed-deleted, deleted }
 
 
 SCG-UE-HistoryInformation ::= SEQUENCE (SIZE(1.. maxnoofPSCellsPerSN)) OF LastVisitedPSCell-Item

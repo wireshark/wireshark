@@ -24,6 +24,8 @@
 #include <epan/to_str.h>
 #include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
@@ -97,10 +99,14 @@ static gint ett_enrp_flags = -1;
 static guint64 enrp_total_msgs = 0;
 static guint64 enrp_total_bytes = 0;
 
+static expert_field ei_enrp_max_recursion_depth_reached = EI_INIT;
+
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *);
 static void
 dissect_parameter(tvbuff_t *, packet_info *, proto_tree *);
+static void
+dissect_enrp_main(tvbuff_t *, packet_info *, proto_tree *);
 static int
 dissect_enrp(tvbuff_t *, packet_info *, proto_tree *, void*);
 
@@ -153,7 +159,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *paramet
     break;
   case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
     message_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_enrp(message_tvb, NULL, cause_tree, NULL);
+    dissect_enrp_main(message_tvb, pinfo, cause_tree);
     break;
   case INVALID_VALUES:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
@@ -722,8 +728,7 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  /* pinfo is NULL only if dissect_enrp_message is called via dissect_error_cause */
-  if (pinfo) {
+  if (p_get_proto_depth(pinfo, proto_enrp) == 1) {
     tap_rec = wmem_new0(pinfo->pool, enrp_tap_rec_t);
     tap_rec->type        = type;
     tap_rec->size        = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
@@ -776,15 +781,21 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   }
 }
 
-static int
-dissect_enrp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+#define ENRP_MAX_RECURSION_DEPTH 10
+
+static void
+dissect_enrp_main(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *enrp_item;
   proto_tree *enrp_tree;
+  unsigned recursion_depth = p_get_proto_depth(pinfo, proto_enrp);
 
-  /* pinfo is NULL only if dissect_enrp is called from dissect_error_cause */
-  if (pinfo)
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENRP");
+  if (++recursion_depth >= ENRP_MAX_RECURSION_DEPTH) {
+    proto_tree_add_expert(tree, pinfo, &ei_enrp_max_recursion_depth_reached,
+                          message_tvb, 0, 0);
+    return;
+  }
+  p_set_proto_depth(pinfo, proto_enrp, recursion_depth);
 
   /* create the enrp protocol tree */
   enrp_item = proto_tree_add_item(tree, proto_enrp, message_tvb, 0, -1, ENC_NA);
@@ -792,6 +803,14 @@ dissect_enrp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   /* dissect the message */
   dissect_enrp_message(message_tvb, pinfo, enrp_tree);
+}
+
+static int
+dissect_enrp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENRP");
+
+  dissect_enrp_main(message_tvb, pinfo, tree);
   return tvb_captured_length(message_tvb);
 }
 
@@ -1086,6 +1105,13 @@ proto_register_enrp(void)
     &ett_enrp_flags,
   };
 
+  expert_module_t *expert_enrp;
+
+  static ei_register_info ei[] = {
+    { &ei_enrp_max_recursion_depth_reached, { "enrp.max_recursion_depth_reached",
+      PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached - stop decoding", EXPFILL }}
+  };
+
   static tap_param enrp_stat_params[] = {
     { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
   };
@@ -1108,6 +1134,9 @@ proto_register_enrp(void)
 
   /* Register the protocol name and description */
   proto_enrp = proto_register_protocol("Endpoint Handlespace Redundancy Protocol", "ENRP",  "enrp");
+
+  expert_enrp = expert_register_protocol(proto_enrp);
+  expert_register_field_array(expert_enrp, ei, array_length(ei));
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_enrp, hf, array_length(hf));

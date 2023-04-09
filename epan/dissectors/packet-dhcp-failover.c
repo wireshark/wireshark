@@ -512,7 +512,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				break;
 			}
 			htype = tvb_get_guint8(tvb, offset);
-			htype_str = tvb_arphrdaddr_to_str(tvb, offset+1, option_length-1,
+			htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1, option_length-1,
 			    htype);
 
 			proto_item_append_text(oi, ", %s, %s", htype_str,

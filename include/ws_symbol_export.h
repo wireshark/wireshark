@@ -91,22 +91,21 @@
      * be necessary, e.g. if what's declared is an array whose size is
      * not given in the declaration.
      */
-    #ifdef __GNUC__
+    #ifdef ENABLE_STATIC
+      /*
+       * We're building all-static, so we're not building any DLLs.
+       */
+      #define WS_DLL_PUBLIC_DEF
+    #elif defined(__GNUC__)
       /* GCC */
       #define WS_DLL_PUBLIC_DEF __attribute__ ((dllimport))
-    #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
+    #else /* ! ENABLE_STATIC && ! __GNUC__ */
       /*
        * Presumably MSVC, and we're not building all-static.
        * Note: actually gcc seems to also support this syntax.
        */
       #define WS_DLL_PUBLIC_DEF __declspec(dllimport)
-    #else /* ! __GNUC__  && ENABLE_STATIC */
-      /*
-       * Presumably MSVC, and we're building all-static, so we're
-       * not building any DLLs.
-       */
-      #define WS_DLL_PUBLIC_DEF
-    #endif /* __GNUC__ */
+    #endif
   #endif /* WS_BUILD_DLL */
 
   /*

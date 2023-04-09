@@ -291,7 +291,7 @@ void proto_register_j1939(void)
         },
         { &hf_j1939_pgn,
             {"PGN", "j1939.pgn",
-            FT_UINT32, BASE_DEC, NULL, 0x3FFFFFF, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x03FFFFFF, NULL, HFILL }
         },
         { &hf_j1939_extended_data_page,
             {"Extended Data Page", "j1939.ex_data_page",

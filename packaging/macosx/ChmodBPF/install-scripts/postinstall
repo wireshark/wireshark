@@ -29,6 +29,7 @@ dseditgroup -q -o edit -a "$USER" -t user "$BPF_GROUP"
 chmod u=rw,g=r,o=r "$CHMOD_BPF_PLIST"
 chown root:wheel "$CHMOD_BPF_PLIST"
 
+# Clean up our legacy startup item if it's still around.
 rm -rf /Library/StartupItems/ChmodBPF
 
-launchctl load "$CHMOD_BPF_PLIST"
+launchctl bootstrap system "$CHMOD_BPF_PLIST"

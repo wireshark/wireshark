@@ -1569,6 +1569,18 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Mettre la liste de paquet à jour en temps réel</translation>
     </message>
     <message>
+        <source>Interval between updates (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gardez la liste des paquets défilés vers le bas tout en capturant.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1684,11 +1696,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>Votre fichier de règles de coloriage contient des règles inconnues.</translation>
+        <translation type="vanished">Votre fichier de règles de coloriage contient des règles inconnues.</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloration. Elles ont été désactivées.</translation>
+        <translation type="vanished">Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloration. Elles ont été désactivées.</translation>
     </message>
 </context>
 <context>
@@ -2306,6 +2318,17 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Click OK to insert this filter</source>
         <translation>Cliquer OK pour insérer ce filtre</translation>
+    </message>
+</context>
+<context>
+    <name>DissectorSyntaxLineEdit</name>
+    <message>
+        <source>Dissector entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a dissector %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3291,6 +3314,13 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Typical Files</source>
         <translation>Fichiers typiques</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6573,6 +6603,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Utiliser les paramètres système</translation>
     </message>
     <message>
+        <source>Debounce Timer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How long to wait (in milliseconds) before processing user input&lt;br/&gt;If you type quickly, consider lowering the value for a &apos;snappier&apos; experience.&lt;br/&gt; If you type slowly, consider increasing the value to avoid performance issues.&lt;br/&gt;This is currently used to delay searches in View -&gt; Internals -&gt; Supported Protocols and Preferences -&gt; Advanced menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open Files In</source>
         <translation>Ouvrir les fichiers dans</translation>
     </message>
@@ -7110,6 +7148,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Sorting &quot;%1&quot;…</source>
         <translation>Tri de &quot;%1&quot;…</translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13281,15 +13323,15 @@ a:hover {
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>Flux DCCP</translation>
+        <translation type="vanished">Flux DCCP</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>Flux TLS</translation>
+        <translation type="vanished">Flux TLS</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>Flux HTTP</translation>
+        <translation type="vanished">Flux HTTP</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
@@ -13297,11 +13339,7 @@ a:hover {
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>Flux RAPIDE</translation>
-    </message>
-    <message>
-        <source>Websocket Stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Flux RAPIDE</translation>
     </message>
     <message>
         <source>SIP Call</source>
@@ -13628,6 +13666,10 @@ a:hover {
         <translation>Secondes depuis le premier paquet capturé</translation>
     </message>
     <message>
+        <source>Show packet times as the seconds since the first captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>Paquet du &amp;diagramme</translation>
     </message>
@@ -13841,11 +13883,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>Flux TCP</translation>
+        <translation type="vanished">Flux TCP</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>Flux UDP</translation>
+        <translation type="vanished">Flux UDP</translation>
     </message>
     <message>
         <source>Request Sequences</source>

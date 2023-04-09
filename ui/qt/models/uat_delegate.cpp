@@ -11,6 +11,7 @@
  */
 
 #include <ui/qt/models/uat_delegate.h>
+#include <epan/packet.h> // for get_dissector_names()
 #include "epan/value_string.h"
 #include <wsutil/ws_assert.h>
 #include <QRegularExpression>
@@ -22,6 +23,7 @@
 #include <QColorDialog>
 
 #include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/dissector_syntax_line_edit.h>
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/editor_file_dialog.h>
 #include <ui/qt/widgets/path_selection_edit.h>
@@ -74,6 +76,12 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
         }
         editor = cb_editor;
         cb_editor->setMinimumWidth(cb_editor->minimumSizeHint().width());
+        break;
+    }
+
+    case PT_TXTMOD_DISSECTOR:
+    {
+        editor = new DissectorSyntaxLineEdit(parent);
         break;
     }
 

@@ -867,9 +867,6 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	int          len;
 	guint        saved_layers_len = 0;
 	guint        saved_tree_count = tree ? tree->tree_data->count : 0;
-	gboolean     saved_use_conv_addr_port_endpoints;
-	struct conversation_addr_port_endpoints *saved_conv_addr_port_endpoints;
-	struct conversation_element *saved_conv_elements;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -883,10 +880,6 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	saved_can_desegment = pinfo->can_desegment;
 	saved_layers_len = wmem_list_count(pinfo->layers);
 	DISSECTOR_ASSERT(saved_layers_len < PINFO_LAYER_MAX_RECURSION_DEPTH);
-
-	saved_use_conv_addr_port_endpoints = pinfo->use_conv_addr_port_endpoints;
-	saved_conv_addr_port_endpoints = pinfo->conv_addr_port_endpoints;
-	saved_conv_elements = pinfo->conv_elements;
 
 	/*
 	 * can_desegment is set to 2 by anyone which offers the
@@ -944,9 +937,6 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment = saved_can_desegment;
-	pinfo->use_conv_addr_port_endpoints = saved_use_conv_addr_port_endpoints;
-	pinfo->conv_addr_port_endpoints = saved_conv_addr_port_endpoints;
-	pinfo->conv_elements = saved_conv_elements;
 	return len;
 }
 
@@ -3319,9 +3309,23 @@ destroy_dissector_handle(dissector_handle_t handle)
 	wmem_free(wmem_epan_scope(), handle);
 }
 
+static void
+check_valid_dissector_name_or_fail(const char *name)
+{
+	if (proto_check_field_name(name)) {
+		ws_error("Dissector name \"%s\" has one or more invalid characters."
+			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
+			" This might be caused by an inappropriate plugin or a development error.", name);
+	}
+}
+
 static dissector_handle_t
 register_dissector_handle(const char *name, dissector_handle_t handle)
 {
+	/* Make sure name is "parsing friendly" - descriptions should be
+         * used for complicated phrases. */
+	check_valid_dissector_name_or_fail(name);
+
 	/* Make sure the registration is unique */
 	ws_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
 

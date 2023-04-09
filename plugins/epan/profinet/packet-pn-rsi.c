@@ -1070,7 +1070,7 @@ init_pn_rsi(int proto)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pn_rsi_error, { "pn_rsi.ack_seq_num", PI_UNDECODED, PI_NOTE, "Block version not implemented yet!", EXPFILL } }
+        { &ei_pn_rsi_error, { "pn_rsi.error", PI_UNDECODED, PI_NOTE, "Block version not implemented yet!", EXPFILL } }
 
     };
 

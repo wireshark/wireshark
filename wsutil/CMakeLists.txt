@@ -22,7 +22,54 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/path_config.h.in ${CMAKE_CURRENT_BINA
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_subdirectory(wmem)
+set(WMEM_PUBLIC_HEADERS
+	wmem/wmem.h
+	wmem/wmem_array.h
+	wmem/wmem_core.h
+	wmem/wmem_list.h
+	wmem/wmem_map.h
+	wmem/wmem_miscutl.h
+	wmem/wmem_multimap.h
+	wmem/wmem_queue.h
+	wmem/wmem_stack.h
+	wmem/wmem_strbuf.h
+	wmem/wmem_strutl.h
+	wmem/wmem_tree.h
+	wmem/wmem_interval_tree.h
+	wmem/wmem_user_cb.h
+)
+
+set(WMEM_HEADER_FILES
+	${WMEM_PUBLIC_HEADERS}
+	wmem/wmem_allocator.h
+	wmem/wmem_allocator_block.h
+	wmem/wmem_allocator_block_fast.h
+	wmem/wmem_allocator_simple.h
+	wmem/wmem_allocator_strict.h
+	wmem/wmem_interval_tree.h
+	wmem/wmem_map_int.h
+	wmem/wmem_tree-int.h
+	wmem/wmem_user_cb_int.h
+)
+
+set(WMEM_FILES
+	wmem/wmem_array.c
+	wmem/wmem_core.c
+	wmem/wmem_allocator_block.c
+	wmem/wmem_allocator_block_fast.c
+	wmem/wmem_allocator_simple.c
+	wmem/wmem_allocator_strict.c
+	wmem/wmem_interval_tree.c
+	wmem/wmem_list.c
+	wmem/wmem_map.c
+	wmem/wmem_miscutl.c
+	wmem/wmem_multimap.c
+	wmem/wmem_stack.c
+	wmem/wmem_strbuf.c
+	wmem/wmem_strutl.c
+	wmem/wmem_tree.c
+	wmem/wmem_user_cb.c
+)
 
 set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
@@ -32,6 +79,8 @@ set(WSUTIL_PUBLIC_HEADERS
 	bits_ctz.h
 	bitswap.h
 	buffer.h
+	clopts_common.h
+	cmdarg_err.h
 	codecs.h
 	color.h
 	cpu_info.h
@@ -103,6 +152,8 @@ set(WSUTIL_COMMON_FILES
 	base32.c
 	bitswap.c
 	buffer.c
+	clopts_common.c
+	cmdarg_err.c
 	codecs.c
 	crash_info.c
 	crc10.c
@@ -119,6 +170,7 @@ set(WSUTIL_COMMON_FILES
 	eax.c
 	feature_list.c
 	filesystem.c
+	filter_files.c
 	g711.c
 	inet_addr.c
 	interface.c
@@ -166,7 +218,11 @@ if(ENABLE_PLUGINS)
 	)
 endif()
 
-set(WSUTIL_FILES ${WSUTIL_COMMON_FILES})
+set(WSUTIL_FILES
+	${WMEM_FILES}
+	${WSUTIL_COMMON_FILES}
+)
+
 if(WIN32)
 	list(APPEND WSUTIL_FILES
 		file_util.c
@@ -191,7 +247,7 @@ endif()
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(COMPILER_CAN_HANDLE_SSE4_2 TRUE)
 	set(SSE4_2_FLAG "")
-else()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "i686|x86|x86_64|AMD64")
 	check_c_compiler_flag(-msse4.2 COMPILER_CAN_HANDLE_SSE4_2)
 	if(COMPILER_CAN_HANDLE_SSE4_2)
 		set(SSE4_2_FLAG "-msse4.2")
@@ -201,11 +257,15 @@ else()
 			set(SSE4_2_FLAG "-xarch=sse4_2")
 		endif()
 	endif()
-	if(SSE4_2_FLAG)
-		message(STATUS "SSE4.2 compiler flag: ${SSE4_2_FLAG}")
-	else()
-		message(STATUS "No SSE4.2 compiler flag enabled")
-	endif()
+else()
+	set(COMPILE_CAN_HANDLE_SSE4_2 FALSE)
+	set(SSE4_2_FLAG "")
+endif()
+
+if(SSE4_2_FLAG)
+	message(STATUS "SSE4.2 compiler flag: ${SSE4_2_FLAG}")
+else()
+	message(STATUS "No SSE4.2 compiler flag enabled")
 endif()
 if(COMPILER_CAN_HANDLE_SSE4_2)
 	#
@@ -282,7 +342,6 @@ endif()
 
 add_library(wsutil
 	${WSUTIL_FILES}
-	$<TARGET_OBJECTS:wmem>
 	${CMAKE_BINARY_DIR}/resources/libwsutil.rc
 )
 
@@ -339,6 +398,68 @@ install(TARGETS wsutil
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+install(FILES ${WMEM_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil/wmem"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
+)
+
+install(FILES ${WSUTIL_PUBLIC_HEADERS}
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil"
+	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
+)
+
+add_library(wsutil_static STATIC
+	${WSUTIL_FILES}
+)
+
+target_compile_definitions(wsutil_static PRIVATE
+	ENABLE_STATIC
+	BUILD_WSUTIL
+)
+
+target_link_libraries(wsutil_static
+	PUBLIC
+		${GLIB2_LIBRARIES}
+	PRIVATE
+		${GMODULE2_LIBRARIES}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${CMAKE_DL_LIBS}
+		${GCRYPT_LIBRARIES}
+		${GNUTLS_LIBRARIES}
+		${ZLIB_LIBRARIES}
+		${PCRE2_LIBRARIES}
+		${WIN_IPHLPAPI_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
+)
+
+target_include_directories(wsutil_static SYSTEM
+	PUBLIC
+		${GLIB2_INCLUDE_DIRS}
+		${GCRYPT_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+	PRIVATE
+		${GMODULE2_INCLUDE_DIRS}
+		${ZLIB_INCLUDE_DIRS}
+		${PCRE2_INCLUDE_DIRS}
+)
+
+if(NOT VCSVERSION_OVERRIDE)
+	add_dependencies(wsutil_static vcs_version)
+endif()
+
+add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c ${WMEM_FILES})
+
+target_link_libraries(wmem_test wsutil)
+
+set_target_properties(wmem_test PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
 add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
@@ -351,17 +472,12 @@ set_target_properties(test_wsutil PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-install(FILES ${WSUTIL_PUBLIC_HEADERS}
-	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil"
-	COMPONENT "Development"
-	EXCLUDE_FROM_ALL
-)
-
 CHECKAPI(
 	NAME
 	  wsutil
 	SWITCHES
 	SOURCES
+	  ${WMEM_FILES}
 	  ${WSUTIL_COMMON_FILES}
 )
 

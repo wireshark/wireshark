@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V17.3.0 (2022-12)
+-- 3GPP TS 37.355 V17.4.0 (2023-03)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -1392,6 +1392,10 @@ PRS-ProcessingCapabilityPerBand-r16 ::= SEQUENCE {
 	]],
 	[[
 	supportedDL-PRS-ProcessingSamples-RRC-Inactive-r17	ENUMERATED { supported }		OPTIONAL
+	]],
+	[[
+	prs-MeasurementWithoutMG-r17				ENUMERATED {cp, symbolDot25, symbolDot5,
+															slotDot5}					OPTIONAL
 	]]
 }
 
@@ -6300,6 +6304,9 @@ NR-DL-TDOA-ProvideCapabilities-r16 ::= SEQUENCE {
 							}															OPTIONAL,
 	multiMeasInSameMeasReport-r17			ENUMERATED { supported }					OPTIONAL,
 	mg-ActivationRequest-r17				ENUMERATED { supported }					OPTIONAL
+	]],
+	[[
+	posMeasGapSupport-r17					ENUMERATED { supported }					OPTIONAL
 	]]
 }
 
@@ -6562,6 +6569,9 @@ NR-DL-AoD-ProvideCapabilities-r16 ::= SEQUENCE {
 							}															OPTIONAL,
 	multiMeasInSameMeasReport-r17			ENUMERATED { supported }					OPTIONAL,
 	mg-ActivationRequest-r17				ENUMERATED { supported }					OPTIONAL
+	]],
+	[[
+	posMeasGapSupport-r17					ENUMERATED { supported }					OPTIONAL
 	]]
 }
 
@@ -6856,6 +6866,9 @@ NR-Multi-RTT-ProvideCapabilities-r16 ::= SEQUENCE {
 							}															OPTIONAL,
 	multiMeasInSameMeasReport-r17			ENUMERATED { supported }					OPTIONAL,
 	mg-ActivationRequest-r17				ENUMERATED { supported }					OPTIONAL
+	]],
+	[[
+	posMeasGapSupport-r17					ENUMERATED { supported }					OPTIONAL
 	]]
 }
 

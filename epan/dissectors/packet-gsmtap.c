@@ -111,6 +111,7 @@ enum {
 	GSMTAP_SUB_LAPD,
 	GSMTAP_SUB_FR,
 	GSMTAP_SUB_V5EF,
+	GSMTAP_SUB_GSM_RLP,
 
 	GSMTAP_SUB_MAX
 };
@@ -440,6 +441,7 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_QC_DIAG,		"Qualcomm DIAG" },
 	{ GSMTAP_TYPE_LTE_NAS,		"LTE NAS" },
 	{ GSMTAP_TYPE_E1T1,		"E1/T1" },
+	{ GSMTAP_TYPE_GSM_RLP,		"GSM RLP" },
 	{ 0,			NULL },
 };
 
@@ -539,10 +541,7 @@ handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	lapdm_data_t ld;
 
-	ld.hdr_type = LAPDM_HDR_FMT_B;
-	/* only downlink SACCH frames use B4 header format */
-	if (sub_type & GSMTAP_CHANNEL_ACCH && pinfo->p2p_dir == P2P_DIR_RECV)
-		ld.hdr_type = LAPDM_HDR_FMT_B4;
+	ld.is_acch = (sub_type & GSMTAP_CHANNEL_ACCH) != 0;
 	call_dissector_with_data(sub_handles[GSMTAP_SUB_UM_LAPDM], tvb, pinfo, tree, &ld);
 }
 
@@ -1109,6 +1108,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			break;
 		}
 		break;
+	case GSMTAP_TYPE_GSM_RLP:
+		sub_handle = GSMTAP_SUB_GSM_RLP;
+		break;
 	case GSMTAP_TYPE_UM_BURST:
 	default:
 		sub_handle = GSMTAP_SUB_DATA;
@@ -1244,6 +1246,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_LAPD] = find_dissector_add_dependency("lapd-phdr", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_FR] = find_dissector_add_dependency("fr", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_V5EF] = find_dissector_add_dependency("v5ef", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_GSM_RLP] = find_dissector_add_dependency("gsm_rlp", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("rrc.ul.dcch", proto_gsmtap);

@@ -3057,6 +3057,19 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	switch (new_fi->hfinfo->type) {
 
 	case FT_STRING:
+		/* XXX: trailing stray character detection should be done
+	         * _before_ conversion to UTF-8, because conversion can change
+	         * the length, or else get_string_length should return a value
+	         * for the "length in bytes of the string after conversion
+	         * including internal nulls." (Noting that we do, for other
+	         * reasons, still need the "length in bytes in the field",
+	         * especially for FT_STRINGZ.)
+	         *
+	         * This is true even for ASCII and UTF-8, because
+	         * substituting REPLACEMENT CHARACTERS for illegal characters
+	         * can also do so (and for UTF-8 possibly even make the
+	         * string _shorter_).
+	         */
 		detect_trailing_stray_characters(encoding, stringval, length, pi);
 		break;
 
@@ -12254,6 +12267,9 @@ proto_tree_add_bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
+	if (no_of_bits < 0) {
+		THROW(ReportedBoundsError);
+	}
 	octet_length = (no_of_bits + 7) >> 3;
 	octet_offset = bit_offset >> 3;
 	test_length(hfinfo, tvb, octet_offset, octet_length, encoding);
@@ -12302,7 +12318,9 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 				     hf_field->abbrev, hf_field->name);
 	}
 
-	if (no_of_bits == 0) {
+	if (no_of_bits < 0) {
+		THROW(ReportedBoundsError);
+	} else if (no_of_bits == 0) {
 		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of 0",
 				     hf_field->abbrev);
 	}
@@ -12674,7 +12692,9 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 				     hf_field->abbrev, hf_field->name);
 	}
 
-	if (no_of_bits == 0) {
+	if (no_of_bits < 0) {
+		THROW(ReportedBoundsError);
+	} else if (no_of_bits == 0) {
 		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_format_value() has a bit width of 0",
 				     hf_field->abbrev);
 	}

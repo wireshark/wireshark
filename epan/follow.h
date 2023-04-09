@@ -25,30 +25,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef enum {
-  TCP_STREAM = 0,
-  UDP_STREAM,
-  MAX_STREAM
-} stream_type;
-
-typedef enum {
     FRS_OK,
     FRS_OPEN_ERROR,
     FRS_READ_ERROR,
     FRS_PRINT_ERROR
 } frs_return_t;
-
-/* Type of follow we are doing */
-typedef enum {
-    FOLLOW_TCP,
-    FOLLOW_TLS,
-    FOLLOW_UDP,
-    FOLLOW_DCCP,
-    FOLLOW_HTTP,
-    FOLLOW_HTTP2,
-    FOLLOW_QUIC,
-    FOLLOW_SIP,
-    FOLLOW_WEBSOCKET,
-} follow_type_t;
 
 /* Show Type */
 typedef enum {
@@ -77,7 +58,6 @@ typedef union _stream_addr {
 struct _follow_info;
 
 typedef gboolean (*follow_print_line_func)(char *, size_t, gboolean, void *);
-typedef frs_return_t (*follow_read_stream_func)(struct _follow_info *follow_info, follow_print_line_func follow_print, void *arg);
 
 #define SUBSTREAM_UNUSED	G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)
 
@@ -140,6 +120,13 @@ WS_DLL_PUBLIC const char* get_follow_tap_string(register_follow_t* follower);
  * @return tap registered follower if match, otherwise NULL
  */
 WS_DLL_PUBLIC register_follow_t* get_follow_by_name(const char* proto_short_name);
+
+/** Get a registered follower by protocol id
+ *
+ * @param proto_id Protocol Id
+ * @return tap registered follower if match, otherwise NULL
+ */
+WS_DLL_PUBLIC register_follow_t* get_follow_by_proto_id(const int proto_id);
 
 /** Provide function that builds a follow filter based on the current packet's conversation.
  *

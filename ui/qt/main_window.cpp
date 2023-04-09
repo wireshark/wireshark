@@ -49,6 +49,18 @@ bool MainWindow::hasSelection()
     return false;
 }
 
+/*
+ * As hasSelection() is not looking for one single packet
+ * selection, but at least 2, this method returns TRUE in
+ * this specific case.
+ */
+bool MainWindow::hasUniqueSelection()
+{
+    if (packet_list_)
+        return packet_list_->uniqueSelectActive();
+    return false;
+}
+
 QList<int> MainWindow::selectedRows(bool useFrameNum)
 {
     if (packet_list_)

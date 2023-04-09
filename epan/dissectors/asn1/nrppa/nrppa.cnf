@@ -212,6 +212,7 @@ id-procedure-code-102-not-to-be-used          ProtocolIE-ID
 id-procedure-code-103-not-to-be-used          ProtocolIE-ID
 id-UETxTimingErrorMargin                      ProtocolIE-ID
 id-MeasurementPeriodicityNR-AoA               ProtocolIE-ID
+id-SRSTransmissionStatus                      ProtocolIE-ID
 
 #.REGISTER
 #NRPPA-PROTOCOL-IES
@@ -295,6 +296,7 @@ PreconfigurationResult                     N nrppa.ies id-PreconfigurationResult
 RequestType                                N nrppa.ies id-RequestType
 UE-TEG-ReportingPeriodicity                N nrppa.ies id-UE-TEG-ReportingPeriodicity
 MeasurementPeriodicityNR-AoA               N nrppa.ies id-MeasurementPeriodicityNR-AoA
+SRSTransmissionStatus                      N nrppa.ies id-SRSTransmissionStatus
 
 
 #NRPPA-PROTOCOL-EXTENSION

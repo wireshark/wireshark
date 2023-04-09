@@ -7217,7 +7217,7 @@ proto_register_s7comm (void)
         { "Address", "s7comm.param.item.address", FT_UINT24, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_item_address_byte,
-        { "Byte Address", "s7comm.param.item.address.byte", FT_UINT24, BASE_DEC, NULL, 0x7fff8,
+        { "Byte Address", "s7comm.param.item.address.byte", FT_UINT24, BASE_DEC, NULL, 0x07fff8,
           NULL, HFILL }},
         { &hf_s7comm_item_address_bit,
         { "Bit Address", "s7comm.param.item.address.bit", FT_UINT24, BASE_DEC, NULL, 0x000007,

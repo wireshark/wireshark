@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.3.0 (2022-12)
+-- 3GPP TS 38.455 V17.4.0 (2023-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2343,6 +2343,8 @@ SRSInfo ::= SEQUENCE {
 	sRSResource			SRSResourceID,
 	...
 }
+
+SRSTransmissionStatus ::= ENUMERATED {stopped, ...}
 
 PosSRSInfo ::= SEQUENCE {
 	posSRSResourceID		SRSPosResourceID,

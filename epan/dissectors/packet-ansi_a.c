@@ -11363,7 +11363,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_mid_broadcast_message_id,
             { "Message ID", "ansi_a_bsmap.mid.broadcast.message_id",
-            FT_UINT8, BASE_DEC, NULL, 0x2f,
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
         { &hf_ansi_a_mid_broadcast_zone_id,
@@ -11558,7 +11558,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_is2000_chan_id_chan_walsh_code_chan_idx,
             { "Walsh Code Channel Index", "ansi_a_bsmap.is2000_chan_id.chan.walsh_code_chan_idx",
-            FT_UINT16, BASE_DEC, NULL, 0x7ff,
+            FT_UINT16, BASE_DEC, NULL, 0x07ff,
             NULL, HFILL }
         },
         { &hf_ansi_a_is2000_chan_id_chan_pilot_pn_code,

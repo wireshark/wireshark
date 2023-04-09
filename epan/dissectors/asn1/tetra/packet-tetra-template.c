@@ -589,7 +589,7 @@ void proto_register_tetra (void)
 		{ "Channel 3", "tetra.rxchannel3", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
 		"Logical channels type", HFILL }},
 		{ &hf_tetra_timer,
-		{ "Timer", "tetra.timer", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Timer", "tetra.timer", FT_UINT32, BASE_HEX, NULL, 0x0,
 		 "Timer Register", HFILL }},
 		{ &hf_tetra_crc,
 		{ "CRC", "tetra.crc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,

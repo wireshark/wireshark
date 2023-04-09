@@ -332,7 +332,7 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
      * Make sure this packet doesn't have a link-layer type that
      * differs from the one for the file.
      */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
@@ -340,7 +340,7 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     caplen = rec->rec_header.packet_header.caplen;
 
     /* Skip EXPORTED_PDU*/
-    if (wdh->encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
+    if (wdh->file_encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
         gint skipped_length;
 
         skipped_length = logcat_exported_pdu_length(pd);
@@ -350,8 +350,6 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
 
     if (!wtap_dump_file_write(wdh, pd, caplen, err))
         return FALSE;
-
-    wdh->bytes_dumped += caplen;
 
     return TRUE;
 }

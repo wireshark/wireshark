@@ -175,6 +175,11 @@ static int hf_control_feature_set_le_periodic_adv_adi_support = -1;
 static int hf_control_feature_set_connection_subrating = -1;
 static int hf_control_feature_set_connection_subrating_host_support = -1;
 static int hf_control_feature_set_channel_classification = -1;
+static int hf_control_feature_set_adv_coding_selection = -1;
+static int hf_control_feature_set_adv_coding_selection_host_support = -1;
+static int hf_control_feature_set_periodic_adv_with_responses_advertiser = -1;
+static int hf_control_feature_set_periodic_adv_with_responses_scanner = -1;
+static int hf_control_feature_set_reserved_bits = -1;
 static int hf_control_feature_set_reserved = -1;
 static int hf_control_window_size = -1;
 static int hf_control_window_offset = -1;
@@ -299,6 +304,11 @@ static int hf_control_channel_reporting_enable = -1;
 static int hf_control_channel_reporting_min_spacing = -1;
 static int hf_control_channel_reporting_max_delay = -1;
 static int hf_control_channel_classification = -1;
+static int hf_control_sync_info_rsp_access_address = -1;
+static int hf_control_sync_info_num_subevents = -1;
+static int hf_control_sync_info_subevent_interval = -1;
+static int hf_control_sync_info_response_slot_delay = -1;
+static int hf_control_sync_info_response_slot_spacing = -1;
 static int hf_big_control_opcode = -1;
 static int hf_isochronous_data = -1;
 static int hf_btle_l2cap_msg_fragments = -1;
@@ -422,6 +432,15 @@ static int * const hfx_control_feature_set_5[] = {
     &hf_control_feature_set_connection_subrating,
     &hf_control_feature_set_connection_subrating_host_support,
     &hf_control_feature_set_channel_classification,
+    NULL
+};
+
+static int *const hfx_control_feature_set_6[] = {
+    &hf_control_feature_set_adv_coding_selection,
+    &hf_control_feature_set_adv_coding_selection_host_support,
+    &hf_control_feature_set_periodic_adv_with_responses_advertiser,
+    &hf_control_feature_set_periodic_adv_with_responses_scanner,
+    &hf_control_feature_set_reserved_bits,
     NULL
 };
 
@@ -783,6 +802,7 @@ typedef enum
     LL_CTRL_OPCODE_SUBRATE_IND = 0x27,
     LL_CTRL_OPCODE_CHANNEL_REPORTING_IND = 0x28,
     LL_CTRL_OPCODE_CHANNEL_STATUS_IND = 0x29,
+    LL_CTRL_OPCODE_PERIODIC_SYNC_WR_IND = 0x2A,
 } ll_ctrl_proc_opcodes_t;
 
 static const value_string control_opcode_vals[] = {
@@ -828,6 +848,7 @@ static const value_string control_opcode_vals[] = {
     { LL_CTRL_OPCODE_SUBRATE_IND, "LL_SUBRATE_IND" },
     { LL_CTRL_OPCODE_CHANNEL_REPORTING_IND, "LL_CHANNEL_REPORTING_IND" },
     { LL_CTRL_OPCODE_CHANNEL_STATUS_IND, "LL_CHANNEL_STATUS_IND" },
+    { LL_CTRL_OPCODE_PERIODIC_SYNC_WR_IND, "LL_PERIODIC_SYNC_WR_IND" },
     { 0, NULL }
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
@@ -848,6 +869,7 @@ static const value_string ll_version_number_vals[] = {
     { 0x0A, "5.1" },
     { 0x0B, "5.2" },
     { 0x0C, "5.3" },
+    { 0x0D, "5.4" },
     { 0, NULL }
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
@@ -1040,8 +1062,11 @@ dissect_feature_set(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
     proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_5, ENC_NA);
     offset += 1;
 
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_6, ENC_NA);
+    offset += 1;
+
     proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 3, ENC_NA);
-    offset += 3;
+    offset += 2;
 
     return offset;
 }
@@ -1426,6 +1451,31 @@ dissect_channel_status_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
 {
     proto_tree_add_item(btle_tree, hf_control_channel_classification, tvb, offset, 10, ENC_NA);
     offset += 10;
+
+    return offset;
+}
+
+
+static gint
+dissect_periodic_sync_wr_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset, packet_info *pinfo, guint32 interface_id, guint32 adapter_id)
+{
+    /* The first part of LL_PERIODIC_SYNC_WR_IND is identical to LL_PERIODIC_SYNC_IND */
+    offset += dissect_periodic_sync_ind(tvb, btle_tree, offset, pinfo, interface_id, adapter_id);
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_rsp_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_num_subevents, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_subevent_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_response_slot_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_response_slot_spacing, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
 
     return offset;
 }
@@ -4144,6 +4194,21 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     }
                 }
                 break;
+            case LL_CTRL_OPCODE_PERIODIC_SYNC_WR_IND:
+                offset = dissect_periodic_sync_wr_ind(tvb, btle_tree, offset, pinfo, interface_id, adapter_id);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    control_proc_info_t *proc_info;
+                    proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                   connection_info->direction_info[direction].control_procs,
+                                                   last_control_proc[other_direction],
+                                                   control_opcode);
+
+                    /* Procedure completes in the same frame. */
+                    if (proc_info) {
+                        proc_info->last_frame = pinfo->num;
+                    }
+                }
+                break;
             default:
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
                 break;
@@ -5045,6 +5110,31 @@ proto_register_btle(void)
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
+        { &hf_control_feature_set_adv_coding_selection,
+        { "Advertising Coding Selection", "btle.control.feature_set.adv_coding_selection",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        { &hf_control_feature_set_adv_coding_selection_host_support,
+        { "Advertising Coding Selection (Host Support)", "btle.control.feature_set.adv_coding_selection_host_support",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        { &hf_control_feature_set_periodic_adv_with_responses_advertiser,
+        {"Periodic Advertising with Responses - Advertiser", "btle.control.feature_set.periodic_adv_with_responses_advertiser",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        { &hf_control_feature_set_periodic_adv_with_responses_scanner,
+        {"Periodic Advertising with Responses - Scanner", "btle.control.feature_set.adv_with_responses_scanner",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        { &hf_control_feature_set_reserved_bits,
+        { "Reserved bits", "btle.control.feature_set.reserved_bits",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL}
+        },
         { &hf_control_feature_set_reserved,
             { "Reserved",                        "btle.control.feature_set.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -5665,6 +5755,31 @@ proto_register_btle(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_control_sync_info_rsp_access_address,
+            {"Response Access Address", "btle.control.sync_info.rsp_aa",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_control_sync_info_num_subevents,
+            {"Num subevents", "btle.control.sync_info.num_subevents",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_control_sync_info_subevent_interval,
+            {"Subevent interval", "btle.control.sync_info.subevent_interval",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_control_sync_info_response_slot_delay,
+            {"Response slot delay", "btle.control.sync_info.response_slot_delay",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_control_sync_info_response_slot_spacing,
+            {"Response slot spacing", "btle.control.sync_info.response_slot_spacing",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL}
+        },
         { &hf_big_control_opcode,
             { "BIG Control Opcode",              "btle.big_control_opcode",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &big_control_opcode_vals_ext, 0x0,
@@ -5884,7 +5999,7 @@ proto_register_btle(void)
 
     module = prefs_register_protocol_subtree("Bluetooth", proto_btle, NULL);
     prefs_register_static_text_preference(module, "version",
-            "Bluetooth LE LL version: 5.3 (Core)",
+            "Bluetooth LE LL version: 5.4 (Core)",
             "Version of protocol supported by this dissector.");
 
     prefs_register_bool_preference(module, "detect_retransmit",

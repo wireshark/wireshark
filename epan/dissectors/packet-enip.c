@@ -1264,13 +1264,19 @@ enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* tria
    conn_key.T2OConnID          = 0;
 
    cip_conn_info_t* conn_val = (cip_conn_info_t*)wmem_map_lookup( enip_conn_hashtable, &conn_key );
-   if ( conn_val )
+   if (!conn_val)
+   {
+      return;
+   }
+
+   // Only mark the first Forward Close Request for a given connection.
+   if (conn_val->close_frame == 0)
    {
       conn_val->close_frame = pinfo->num;
-
-      /* Save the connection info for the conversation filter */
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
    }
+
+   /* Save the connection info for the conversation filter */
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
 }
 
 /* Save the connection info for the conversation filter */

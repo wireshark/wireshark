@@ -241,8 +241,7 @@ SuccessfulOutcome/value successfulOutcome_value
     guint32 tvb_len = tvb_captured_length(parameter_tvb);
     guint name_len = (gint)strlen(g_ran_functioname_table[n].name);
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
-      if (strcmp(tvb_get_ptr(parameter_tvb, m, name_len),
-                 g_ran_functioname_table[n].name) == 0) {
+      if (tvb_strneql(parameter_tvb, m, g_ran_functioname_table[n].name, name_len) == 0) {
         /* Call the set's dissector */
         g_ran_functioname_table[n].functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
         found = TRUE;

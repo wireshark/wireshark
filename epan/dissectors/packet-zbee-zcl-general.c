@@ -5328,7 +5328,7 @@ dissect_zcl_rssi_location_rssi_response(tvbuff_t *tvb, proto_tree *tree, guint *
    *offset += 1;
 
    /* Retrieve "Number RSSI Measurements" field */
-   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
    *offset += 1;
 
 } /*dissect_zcl_rssi_location_rssi_response*/
@@ -6484,16 +6484,16 @@ proto_register_zbee_zcl_analog_output_basic(void)
 
         { &hf_zbee_zcl_analog_output_basic_attr_id,
             { "Attribute", "zbee_zcl_general.analog_output_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_analog_output_basic_attr_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_reliability,
             { "Reliability", "zbee_zcl_general.analog_output_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         /* start Status Flags fields */
         { &hf_zbee_zcl_analog_output_basic_status_flags,
             { "Status Flags", "zbee_zcl_general.analog_output_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_in_alarm,
             { "In Alarm Status", "zbee_zcl_general.analog_output_basic.attr.status.in_alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false),
@@ -6514,19 +6514,19 @@ proto_register_zbee_zcl_analog_output_basic(void)
 
         { &hf_zbee_zcl_analog_output_basic_priority_array_bool,
             { "Valid/Invalid", "zbee_zcl_general.analog_output_basic.attr.priority_array.bool", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid),
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_priority_array_sing_prec,
-            { "Priority Value", "zbee_zcl_general.analog_output_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
-            0x00, NULL, HFILL } },
+            { "Priority Value", "zbee_zcl_general.analog_output_basic.attr.priority_array.sing_prec", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_priority_array,
             { "Priority Array", "zbee_zcl_general.analog_output_basic.priority_array", FT_NONE, BASE_NONE, NULL,
-            0x00, NULL, HFILL } },
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_structure,
             { "Structure", "zbee_zcl_general.analog_output_basic.structure", FT_NONE, BASE_NONE, NULL,
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
     };
 
     /* ZCL Analog Output Basic subtrees */
@@ -6800,7 +6800,7 @@ proto_register_zbee_zcl_analog_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_priority_array_sing_prec,
-            { "Priority Value", "zbee_zcl_general.analog_value_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            { "Priority Value", "zbee_zcl_general.analog_value_basic.attr.priority_array.sing_prec", FT_UINT32, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_priority_array,
@@ -7361,7 +7361,7 @@ proto_register_zbee_zcl_binary_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_priority_array_sing_prec,
-            { "Priority Value", "zbee_zcl_general.binary_output_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            { "Priority Value", "zbee_zcl_general.binary_output_basic.attr.priority_array.sing_prec", FT_UINT32, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_priority_array,
@@ -7650,7 +7650,7 @@ proto_register_zbee_zcl_binary_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_priority_array_sing_prec,
-            { "Priority Value", "zbee_zcl_general.binary_value_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            { "Priority Value", "zbee_zcl_general.binary_value_basic.attr.priority_array.sing_prec", FT_UINT32, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_priority_array,
@@ -8173,7 +8173,7 @@ proto_register_zbee_zcl_multistate_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_output_basic_priority_array_sing_prec,
-            { "Priority Value", "zbee_zcl_general.multistate_output_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            { "Priority Value", "zbee_zcl_general.multistate_output_basic.attr.priority_array.sing_prec", FT_UINT32, BASE_HEX, NULL,
             0x00, NULL, HFILL } } ,
 
         { &hf_zbee_zcl_multistate_output_basic_priority_array,
@@ -8463,7 +8463,7 @@ proto_register_zbee_zcl_multistate_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_priority_array_sing_prec,
-            { "Priority Value", "zbee_zcl_general.multistate_value_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            { "Priority Value", "zbee_zcl_general.multistate_value_basic.attr.priority_array.sing_prec", FT_UINT32, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_priority_array,
@@ -9473,8 +9473,6 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     guint   tvb_len = tvb_reported_length(tvb);
     guint   i = 0;
     guint8  options;
-    guint16 first_frame_id;
-    guint16 nack_id;
 
     static int * const ack_opts[] = {
         &hf_zbee_zcl_part_ack_opt_nack_id_len,
@@ -9491,14 +9489,12 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     if ((options & ZBEE_ZCL_PART_ACK_OPT_NACK_LEN) ==  0)
     {
         /* 1-byte length */
-        first_frame_id = (guint16)tvb_get_guint8(tvb, *offset);
-        proto_tree_add_item(tree, hf_zbee_zcl_part_first_frame_id, tvb, *offset, 1, (first_frame_id & 0xFF));
+        proto_tree_add_item(tree, hf_zbee_zcl_part_first_frame_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
         *offset += 1;
     }
     else {
         /* 2-bytes length */
-        first_frame_id = tvb_get_letohs(tvb, *offset);
-        proto_tree_add_item(tree, hf_zbee_zcl_part_first_frame_id, tvb, *offset, 2, first_frame_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_first_frame_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
     }
 
@@ -9508,14 +9504,12 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         if ((options & ZBEE_ZCL_PART_ACK_OPT_NACK_LEN) ==  0)
         {
             /* 1-byte length */
-            nack_id = (guint16)tvb_get_guint8(tvb, *offset);
-            proto_tree_add_item(tree, hf_zbee_zcl_part_nack_id, tvb, *offset, 1, (nack_id & 0xFF));
+            proto_tree_add_item(tree, hf_zbee_zcl_part_nack_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
             *offset += 1;
         }
         else {
             /* 2-bytes length */
-            nack_id = tvb_get_letohs(tvb, *offset);
-            proto_tree_add_item(tree, hf_zbee_zcl_part_nack_id, tvb, *offset, 2, nack_id);
+            proto_tree_add_item(tree, hf_zbee_zcl_part_nack_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
         }
 
@@ -9630,7 +9624,7 @@ void proto_register_zbee_zcl_part(void)
 
         { &hf_zbee_zcl_part_nack_id,
             { "Nack Id", "zbee_zcl_general.part.nack_id", FT_UINT16, BASE_DEC, NULL,
-            0x00, NULL, HFILL } }
+            0x0, NULL, HFILL } }
 
     };
 
@@ -16502,7 +16496,7 @@ proto_register_zbee_zcl_touchlink(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_touchlink_profile_id,
-            { "Profile ID", "zbee_zcl_general.touchlink.profile_id", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_apid_names),
+            { "Profile ID", "zbee_zcl_general.touchlink.profile_id", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_apid_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_touchlink_device_id,

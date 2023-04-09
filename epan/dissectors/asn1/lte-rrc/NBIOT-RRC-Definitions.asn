@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.3.0 (2022-12)
+-- 3GPP TS 36.331 V17.4.0 (2023-03)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2176,6 +2176,8 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 	]],
 	[[
 	uplinkSegmentedPrecompensationGap-r17  ENUMERATED {sym1,sl1,sl2}	OPTIONAL  -- Need OR
+	]],
+	[[	npusch-ConfigDedicated-v1740	NPUSCH-ConfigDedicated-NB-v1700	OPTIONAL	-- Need ON
 	]]
 }
 

@@ -50,6 +50,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
+#include <epan/proto_data.h>
 #include <epan/oui.h>
 #include <epan/addr_resolv.h>
 #include "packet-ptp.h"
@@ -1817,6 +1818,8 @@ static expert_field ei_ptp_v2_period_invalid    = EI_INIT;
 static gboolean ptp_analyze_messages = TRUE;
 
 /* Definitions for Analysis features */
+#define PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS 60
+
 typedef struct ptp_frame_info_sync {
     guint32  sync_frame_num;
     guint32  fup_frame_num;
@@ -1875,6 +1878,7 @@ typedef struct ptp_frame_info {
     };
 
     struct ptp_frame_info *prev;
+    nstime_t ref_time;
 } ptp_frame_info_t;
 
 #define PTP_FRAME_INFO_SYNC_SEEN(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_SYNC_MESSAGE && (fi)->sync.sync_frame_num != 0)
@@ -1912,7 +1916,7 @@ calculate_frame_key(guint8 ptp_major, guint8 ptp_minor, guint8 majorsdoid, guint
 }
 
 static ptp_frame_info_t *
-get_frame_info_and_opt_create(guint8 ptp_major, guint8 ptp_minor, guint8 majorsdoid, guint8 minorsdoid, guint8 messagetype, guint8 domain, guint64 clockidentity, guint16 portid, guint16 seqid, gboolean create_missing)
+get_frame_info_and_opt_create(packet_info *pinfo, guint8 ptp_major, guint8 ptp_minor, guint8 majorsdoid, guint8 minorsdoid, guint8 messagetype, guint8 domain, guint64 clockidentity, guint16 portid, guint16 seqid, gboolean create_missing)
 {
     DISSECTOR_ASSERT(ptp_clocks != NULL);
 
@@ -1933,6 +1937,20 @@ get_frame_info_and_opt_create(guint8 ptp_major, guint8 ptp_minor, guint8 majorsd
     guint64 key2 = calculate_frame_key(ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, portid, seqid);
     ptp_frame_info_t *tmp = (ptp_frame_info_t *)wmem_map_lookup(clock_info->frames, GUINT_TO_POINTER(key2));
 
+    if (tmp != NULL)
+    {
+        /* Is this a real match or did have wrapped the ptp seqid? */
+        nstime_t delta_time;
+        nstime_delta(&delta_time, &(pinfo->abs_ts), &(tmp->ref_time));
+        double delta_secs = nstime_to_sec(&delta_time);
+
+        if (fabs(delta_secs) > PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS)
+        {
+            /* Not our match! */
+            tmp = NULL;
+        }
+    }
+
     if (tmp == NULL && create_missing)
     {
         tmp = wmem_new0(wmem_file_scope(), ptp_frame_info_t);
@@ -1941,27 +1959,24 @@ get_frame_info_and_opt_create(guint8 ptp_major, guint8 ptp_minor, guint8 majorsd
             tmp->pdelay.neighborRateRatio_valid = false;
         }
         wmem_map_insert(clock_info->frames, GUINT_TO_POINTER(key2), tmp);
+
+        nstime_copy(&(tmp->ref_time), &(pinfo->abs_ts));
     }
 
     return tmp;
 }
 
 static ptp_frame_info_t *
-create_frame_info(guint8 ptp_major, guint8 ptp_minor, guint8 majorsdoid, guint8 minorsdoid, guint8 messagetype, guint8 domain, guint64 clockidentity, guint16 portid, guint16 seqid)
+create_frame_info(packet_info *pinfo, guint8 ptp_major, guint8 ptp_minor, guint8 majorsdoid, guint8 minorsdoid, guint8 messagetype, guint8 domain, guint64 clockidentity, guint16 portid, guint16 seqid)
 {
-    ptp_frame_info_t *ret = get_frame_info_and_opt_create(ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid, true);
+    ptp_frame_info_t *ret = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid, true);
 
     guint16 seqid_prev = seqid == 0 ? G_MAXUINT16 : seqid - 1;
-    ret->prev = get_frame_info_and_opt_create(ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid_prev, false);
+    ret->prev = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid_prev, false);
 
     return ret;
 }
 
-static ptp_frame_info_t *
-get_frame_info(guint8 ptp_major, guint8 ptp_minor, guint8 majorsdoid, guint8 minorsdoid, guint8 messagetype, guint8 domain, guint64 clockidentity, guint16 portid, guint16 seqid)
-{
-    return get_frame_info_and_opt_create(ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid, false);
-}
 
 /* forward declaration of local functions for v1 and v2 */
 
@@ -2855,7 +2870,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             switch (ptp_v2_messageid)
             {
             case PTP_V2_SYNC_MESSAGE:
-                frame_info = create_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
+                frame_info = create_frame_info(pinfo, ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                 frame_info->messagetype = PTP_V2_SYNC_MESSAGE;
                 frame_info->sync.sync_two_step = (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK;
                 frame_info->sync.sync_ts = pinfo->abs_ts;
@@ -2871,7 +2886,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 }
                 break;
             case PTP_V2_FOLLOWUP_MESSAGE:
-                frame_info = create_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
+                frame_info = create_frame_info(pinfo, ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                 frame_info->messagetype = PTP_V2_SYNC_MESSAGE;
                 frame_info->sync.fup_frame_num = pinfo->num;
                 frame_info->sync.timestamp_s = tvb_get_guint48(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, ENC_BIG_ENDIAN);
@@ -2880,13 +2895,13 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 frame_info->sync.correction_subns = ptp_v2_correction % 16;
                 break;
             case PTP_V2_PEER_DELAY_REQ_MESSAGE:
-                frame_info = create_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
+                frame_info = create_frame_info(pinfo, ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                 frame_info->messagetype = PTP_V2_PEER_DELAY_REQ_MESSAGE;
                 frame_info->pdelay.pdelay_req_frame_num = pinfo->num;
                 frame_info->pdelay.pdelay_req_ts = pinfo->abs_ts;
                 break;
             case PTP_V2_PEER_DELAY_RESP_MESSAGE:
-                frame_info = create_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
+                frame_info = create_frame_info(pinfo, ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
                 frame_info->messagetype = PTP_V2_PEER_DELAY_REQ_MESSAGE;
                 frame_info->pdelay.pdelay_res_frame_num = pinfo->num;
                 frame_info->pdelay.pdelay_res_two_step = (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK;
@@ -2895,12 +2910,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 frame_info->pdelay.pdelay_req_recv_ts_ns = tvb_get_guint32(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPNANOSECONDS_OFFSET, ENC_BIG_ENDIAN);
                 break;
             case PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE:
-                frame_info = create_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
+                frame_info = create_frame_info(pinfo, ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
                 frame_info->messagetype = PTP_V2_PEER_DELAY_REQ_MESSAGE;
                 frame_info->pdelay.pdelay_fup_frame_num = pinfo->num;
                 frame_info->pdelay.pdelay_res_send_ts_s = tvb_get_guint48(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, ENC_BIG_ENDIAN);
                 frame_info->pdelay.pdelay_res_send_ts_ns = tvb_get_guint32(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPNANOSECONDS_OFFSET, ENC_BIG_ENDIAN);
                 break;
+            }
+
+            if (frame_info != NULL) {
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_ptp, 0, frame_info);
             }
 
             if PTP_FRAME_INFO_SYNC_SEEN(frame_info) {
@@ -3117,6 +3136,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
    }
 
    if (tree) {
+        ptp_frame_info_t *frame_info = (ptp_frame_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ptp, 0);
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_domainnumber, tvb, PTP_V2_DOMAIN_NUMBER_OFFSET, 1, ENC_BIG_ENDIAN);
@@ -3586,7 +3606,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 }
 
                 if (ptp_analyze_messages) {
-                    ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                     if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
                         if (frame_info->sync.syncInterval_valid) {
                             ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_period, tvb, 0, 0, frame_info->sync.syncInterval);
@@ -3656,7 +3675,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 }
 
                 if (ptp_analyze_messages) {
-                    ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                     if (frame_info != NULL) {
                         if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info) && frame_info->sync.sync_two_step) {
                             if (frame_info->sync.calculated_timestamp_valid) {
@@ -3717,7 +3735,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 }
 
                 if (ptp_analyze_messages) {
-                    ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                     if (frame_info != NULL) {
                         if PTP_FRAME_INFO_PDELAY_REQ_SEEN(frame_info) {
                             if (frame_info->pdelay.pdelayInterval_valid) {
@@ -3754,7 +3771,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     PTP_V2_PDRS_REQUESTINGSOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
 
                 if (ptp_analyze_messages) {
-                    ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
                     if (frame_info != NULL) {
                         if (frame_info->pdelay.pdelay_req_frame_num != 0) {
                             ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_pdelayres_to_pdelayreq, tvb, 0, 0, frame_info->pdelay.pdelay_req_frame_num);
@@ -3796,7 +3812,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     PTP_V2_PDFU_REQUESTINGSOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
 
                 if (ptp_analyze_messages) {
-                    ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
                     if (frame_info != NULL) {
                         if PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) {
                             ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_pdelay_mpd_unscaled, tvb, 0, 0, nstime_to_sec(&frame_info->pdelay.mean_propagation_delay_unscaled));

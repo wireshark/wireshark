@@ -164,6 +164,163 @@ dissect_usbms_bot_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
     return tvb_captured_length(tvb);
 }
 
+static proto_tree *
+create_usbms_bot_protocol_tree(tvbuff_t *tvb, proto_tree *parent_tree)
+{
+    proto_tree *tree;
+    proto_item *ti;
+
+    ti = proto_tree_add_protocol_format(parent_tree, proto_usbms_bot, tvb, 0, -1, "USB Mass Storage");
+    tree = proto_item_add_subtree(ti, ett_usbms_bot);
+
+    return tree;
+}
+
+static int
+dissect_usbms_bot_cbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, usbms_bot_conv_info_t *usbms_bot_conv_info)
+{
+    proto_tree *tree = create_usbms_bot_protocol_tree(tvb, parent_tree);
+    tvbuff_t *cdb_tvb;
+    int offset=0;
+    int cdbrlen, cdblen;
+    guint8 lun, flags;
+    guint32 datalen;
+    itl_nexus_t *itl;
+    itlq_nexus_t *itlq;
+
+    /* dCBWSignature */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWSignature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+
+    /* dCBWTag */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWTag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+
+    /* dCBWDataTransferLength */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWDataTransferLength, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    datalen=tvb_get_letohl(tvb, offset);
+    offset+=4;
+
+    /* dCBWFlags */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWFlags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    flags=tvb_get_guint8(tvb, offset);
+    offset+=1;
+
+    /* dCBWLUN */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWTarget, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWLUN, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    lun=tvb_get_guint8(tvb, offset)&0x0f;
+    offset+=1;
+
+    /* make sure we have a ITL structure for this LUN */
+    itl=(itl_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itl, lun);
+    if(!itl){
+        itl=wmem_new(wmem_file_scope(), itl_nexus_t);
+        itl->cmdset=0xff;
+        itl->conversation=NULL;
+        wmem_tree_insert32(usbms_bot_conv_info->itl, lun, itl);
+    }
+
+    /* make sure we have an ITLQ structure for this LUN/transaction */
+    itlq=(itlq_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itlq, pinfo->num);
+    if(!itlq){
+        itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
+        itlq->lun=lun;
+        itlq->scsi_opcode=0xffff;
+        itlq->task_flags=0;
+        if(datalen){
+            if(flags&0x80){
+                itlq->task_flags|=SCSI_DATA_READ;
+            } else {
+                itlq->task_flags|=SCSI_DATA_WRITE;
+            }
+        }
+        itlq->data_length=datalen;
+        itlq->bidir_data_length=0;
+        itlq->fc_time=pinfo->abs_ts;
+        itlq->first_exchange_frame=pinfo->num;
+        itlq->last_exchange_frame=0;
+        itlq->flags=0;
+        itlq->alloc_len=0;
+        itlq->extra_data=NULL;
+        wmem_tree_insert32(usbms_bot_conv_info->itlq, pinfo->num, itlq);
+    }
+
+    /* dCBWCBLength */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWCBLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    cdbrlen=tvb_get_guint8(tvb, offset)&0x1f;
+    offset+=1;
+
+    cdblen=cdbrlen;
+    if(cdblen>tvb_captured_length_remaining(tvb, offset)){
+        cdblen=tvb_captured_length_remaining(tvb, offset);
+    }
+    if(cdblen){
+        cdb_tvb=tvb_new_subset_length_caplen(tvb, offset, cdblen, cdbrlen);
+        dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, itlq, itl);
+    }
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_usbms_bot_csw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, usbms_bot_conv_info_t *usbms_bot_conv_info)
+{
+    proto_tree *tree = create_usbms_bot_protocol_tree(tvb, parent_tree);
+    int offset=0;
+    guint8 status;
+    itl_nexus_t *itl;
+    itlq_nexus_t *itlq;
+
+    /* dCSWSignature */
+    proto_tree_add_item(tree, hf_usbms_bot_dCSWSignature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+
+    /* dCSWTag */
+    proto_tree_add_item(tree, hf_usbms_bot_dCBWTag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+
+    /* dCSWDataResidue */
+    proto_tree_add_item(tree, hf_usbms_bot_dCSWDataResidue, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+
+    /* dCSWStatus */
+    proto_tree_add_item(tree, hf_usbms_bot_dCSWStatus, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    status=tvb_get_guint8(tvb, offset);
+    /*offset+=1;*/
+
+    itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usbms_bot_conv_info->itlq, pinfo->num);
+    if(!itlq){
+        return tvb_captured_length(tvb);
+    }
+    itlq->last_exchange_frame=pinfo->num;
+
+    itl=(itl_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itl, itlq->lun);
+    if(!itl){
+        return tvb_captured_length(tvb);
+    }
+
+    if(!status){
+        dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0);
+    } else {
+        /* just send "check condition" */
+        dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0x02);
+    }
+    return tvb_captured_length(tvb);
+}
+
+static gboolean
+usbms_bot_bulk_is_cbw(tvbuff_t *tvb, int offset, gboolean is_request)
+{
+    return is_request && (tvb_reported_length(tvb)==(guint)offset+31) &&
+           tvb_get_letohl(tvb, offset) == 0x43425355;
+}
+
+static gboolean
+usbms_bot_bulk_is_csw(tvbuff_t *tvb, int offset, gboolean is_request)
+{
+    return !is_request && (tvb_reported_length(tvb)==(guint)offset+13) &&
+           tvb_get_letohl(tvb, offset) == 0x53425355;
+}
 
 /* dissector for mass storage bulk data */
 static int
@@ -171,13 +328,11 @@ dissect_usbms_bot_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 {
     usb_conv_info_t *usb_conv_info;
     usbms_bot_conv_info_t *usbms_bot_conv_info;
-    proto_tree *tree;
-    proto_item *ti;
-    guint32 signature=0;
     int offset=0;
     gboolean is_request;
     itl_nexus_t *itl;
     itlq_nexus_t *itlq;
+    tvbuff_t *payload_tvb;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -204,154 +359,62 @@ dissect_usbms_bot_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     col_clear(pinfo->cinfo, COL_INFO);
 
 
-    ti = proto_tree_add_protocol_format(parent_tree, proto_usbms_bot, tvb, 0, -1, "USB Mass Storage");
-    tree = proto_item_add_subtree(ti, ett_usbms_bot);
-
-    signature=tvb_get_letohl(tvb, offset);
-
-
     /*
      * SCSI CDB inside CBW
      */
-    if(is_request&&(signature==0x43425355)&&(tvb_reported_length(tvb)==31)){
-        tvbuff_t *cdb_tvb;
-        int cdbrlen, cdblen;
-        guint8 lun, flags;
-        guint32 datalen;
-
-        /* dCBWSignature */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWSignature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=4;
-
-        /* dCBWTag */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWTag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=4;
-
-        /* dCBWDataTransferLength */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWDataTransferLength, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        datalen=tvb_get_letohl(tvb, offset);
-        offset+=4;
-
-        /* dCBWFlags */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWFlags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        flags=tvb_get_guint8(tvb, offset);
-        offset+=1;
-
-        /* dCBWLUN */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWTarget, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWLUN, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        lun=tvb_get_guint8(tvb, offset)&0x0f;
-        offset+=1;
-
-        /* make sure we have a ITL structure for this LUN */
-        itl=(itl_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itl, lun);
-        if(!itl){
-            itl=wmem_new(wmem_file_scope(), itl_nexus_t);
-            itl->cmdset=0xff;
-            itl->conversation=NULL;
-            wmem_tree_insert32(usbms_bot_conv_info->itl, lun, itl);
-        }
-
-        /* make sure we have an ITLQ structure for this LUN/transaction */
-        itlq=(itlq_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itlq, pinfo->num);
-        if(!itlq){
-            itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
-            itlq->lun=lun;
-            itlq->scsi_opcode=0xffff;
-            itlq->task_flags=0;
-            if(datalen){
-                if(flags&0x80){
-                    itlq->task_flags|=SCSI_DATA_READ;
-                } else {
-                    itlq->task_flags|=SCSI_DATA_WRITE;
-                }
-            }
-            itlq->data_length=datalen;
-            itlq->bidir_data_length=0;
-            itlq->fc_time=pinfo->abs_ts;
-            itlq->first_exchange_frame=pinfo->num;
-            itlq->last_exchange_frame=0;
-            itlq->flags=0;
-            itlq->alloc_len=0;
-            itlq->extra_data=NULL;
-            wmem_tree_insert32(usbms_bot_conv_info->itlq, pinfo->num, itlq);
-        }
-
-        /* dCBWCBLength */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWCBLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        cdbrlen=tvb_get_guint8(tvb, offset)&0x1f;
-        offset+=1;
-
-        cdblen=cdbrlen;
-        if(cdblen>tvb_captured_length_remaining(tvb, offset)){
-            cdblen=tvb_captured_length_remaining(tvb, offset);
-        }
-        if(cdblen){
-            cdb_tvb=tvb_new_subset_length_caplen(tvb, offset, cdblen, cdbrlen);
-            dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, itlq, itl);
-        }
-        return tvb_captured_length(tvb);
+    if (usbms_bot_bulk_is_cbw(tvb, offset, is_request)) {
+        return dissect_usbms_bot_cbw(tvb, pinfo, parent_tree, usbms_bot_conv_info);
     }
 
 
     /*
      * SCSI RESPONSE inside CSW
      */
-    if((!is_request)&&(signature==0x53425355)&&(tvb_reported_length(tvb)==13)){
-        guint8 status;
-
-        /* dCSWSignature */
-        proto_tree_add_item(tree, hf_usbms_bot_dCSWSignature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=4;
-
-        /* dCSWTag */
-        proto_tree_add_item(tree, hf_usbms_bot_dCBWTag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=4;
-
-        /* dCSWDataResidue */
-        proto_tree_add_item(tree, hf_usbms_bot_dCSWDataResidue, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=4;
-
-        /* dCSWStatus */
-        proto_tree_add_item(tree, hf_usbms_bot_dCSWStatus, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        status=tvb_get_guint8(tvb, offset);
-        /*offset+=1;*/
-
-        itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usbms_bot_conv_info->itlq, pinfo->num);
-        if(!itlq){
-            return tvb_captured_length(tvb);
-        }
-        itlq->last_exchange_frame=pinfo->num;
-
-        itl=(itl_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itl, itlq->lun);
-        if(!itl){
-            return tvb_captured_length(tvb);
-        }
-
-        if(!status){
-            dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0);
-        } else {
-            /* just send "check condition" */
-            dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0x02);
-        }
-        return tvb_captured_length(tvb);
+    if (usbms_bot_bulk_is_csw(tvb, offset, is_request)) {
+        return dissect_usbms_bot_csw(tvb, pinfo, parent_tree, usbms_bot_conv_info);
     }
 
     /*
      * Ok it was neither CDB not STATUS so just assume it is either data in/out
      */
-    itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usbms_bot_conv_info->itlq, pinfo->num);
+    itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usbms_bot_conv_info->itlq, pinfo->num-1);
     if(!itlq){
+        create_usbms_bot_protocol_tree(tvb, parent_tree);
         return tvb_captured_length(tvb);
     }
 
     itl=(itl_nexus_t *)wmem_tree_lookup32(usbms_bot_conv_info->itl, itlq->lun);
     if(!itl){
+        create_usbms_bot_protocol_tree(tvb, parent_tree);
         return tvb_captured_length(tvb);
     }
 
-    dissect_scsi_payload(tvb, pinfo, parent_tree, is_request, itlq, itl, 0);
-    return tvb_captured_length(tvb);
+    /*
+     * Workaround USBLL reassembly limitations by anticipating concatenated
+     * SCSI Data IN with CSW and SCSI Data OUT with next CBW. Proper would
+     * involve implementing a framework to allow USB class dissectors to signal
+     * expected transfer length on Bulk IN or Bulk OUT endpoint whenever CBW is
+     * encountered.
+     */
+    payload_tvb = tvb_new_subset_length(tvb, 0, itlq->data_length);
+    if (usbms_bot_bulk_is_cbw(tvb, itlq->data_length, is_request)) {
+        tvbuff_t *cbw_tvb = tvb_new_subset_length(tvb, itlq->data_length, 31);
+
+        dissect_scsi_payload(payload_tvb, pinfo, parent_tree, is_request, itlq, itl, 0);
+        dissect_usbms_bot_cbw(cbw_tvb, pinfo, parent_tree, usbms_bot_conv_info);
+        return tvb_captured_length(tvb);
+    } else if (usbms_bot_bulk_is_csw(tvb, itlq->data_length, is_request)) {
+        tvbuff_t *csw_tvb = tvb_new_subset_length(tvb, itlq->data_length, 13);
+
+        dissect_scsi_payload(payload_tvb, pinfo, parent_tree, is_request, itlq, itl, 0);
+        dissect_usbms_bot_csw(csw_tvb, pinfo, parent_tree, usbms_bot_conv_info);
+        return tvb_captured_length(tvb);
+    }
+
+    /* Create empty protocol tree so "usbms" filter displays this packet */
+    create_usbms_bot_protocol_tree(tvb, parent_tree);
+    dissect_scsi_payload(payload_tvb, pinfo, parent_tree, is_request, itlq, itl, 0);
+    return tvb_captured_length(payload_tvb);
 }
 
 static gboolean

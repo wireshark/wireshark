@@ -360,6 +360,9 @@ static const value_string disk_state_names[] = {
 #define STATE_SUSP_FEN (0x1 << 22)  /* IO suspended because fence peer handler runs*/
 #define STATE_QUORUM (0x1 << 23)
 
+#define TWOPC_HAS_FLAGS     0x80000000 /* For packet dissectors */
+#define TWOPC_HAS_REACHABLE 0x40000000 /* The reachable_nodes field is valid */
+
 #define UUID_FLAG_DISCARD_MY_DATA 1
 #define UUID_FLAG_CRASHED_PRIMARY 2
 #define UUID_FLAG_INCONSISTENT 4
@@ -577,6 +580,7 @@ static int hf_drbd_state = -1;
 static int hf_drbd_retcode = -1;
 static int hf_drbd_twopc_prepare_in = -1;
 static int hf_drbd_tid = -1;
+static int hf_drbd_twopc_flags = -1;
 static int hf_drbd_initiator_node_id = -1;
 static int hf_drbd_target_node_id = -1;
 static int hf_drbd_nodes_to_reach = -1;
@@ -606,6 +610,8 @@ static int hf_drbd_state_susp_nod = -1;
 static int hf_drbd_state_susp_fen = -1;
 static int hf_drbd_state_quorum = -1;
 
+static int hf_drbd_twopc_flag_has_reachable = -1;
+
 static int hf_drbd_uuid_flag_discard_my_data = -1;
 static int hf_drbd_uuid_flag_crashed_primary = -1;
 static int hf_drbd_uuid_flag_inconsistent = -1;
@@ -632,6 +638,7 @@ static int hf_drbd_dp_zeroes = -1;
 
 static gint ett_drbd = -1;
 static gint ett_drbd_state = -1;
+static gint ett_drbd_twopc_flags = -1;
 static gint ett_drbd_uuid_flags = -1;
 static gint ett_drbd_history_uuids = -1;
 static gint ett_drbd_data_flags = -1;
@@ -649,6 +656,11 @@ static int * const state_fields[] = {
     &hf_drbd_state_susp_nod,
     &hf_drbd_state_susp_fen,
     &hf_drbd_state_quorum,
+    NULL
+};
+
+static int * const twopc_flag_fields[] = {
+    &hf_drbd_twopc_flag_has_reachable,
     NULL
 };
 
@@ -1029,9 +1041,14 @@ static gboolean dissect_drbd_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static void insert_twopc(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data, enum drbd_packet command)
 {
+    guint32 flags = tvb_get_ntohl(tvb, 4);
+
     drbd_twopc_key *key = wmem_new0(wmem_file_scope(), drbd_twopc_key);
     key->tid = tvb_get_ntohl(tvb, 0);
-    key->initiator_node_id = tvb_get_ntohil(tvb, 4);
+    if (flags & TWOPC_HAS_FLAGS)
+        key->initiator_node_id = tvb_get_gint8(tvb, 10);
+    else
+        key->initiator_node_id = tvb_get_ntohil(tvb, 4);
 
     drbd_twopc_val *val = wmem_new0(wmem_file_scope(), drbd_twopc_val);
     val->prepare_frame = pinfo->num;
@@ -1231,21 +1248,36 @@ static void decode_payload_out_of_sync(tvbuff_t *tvb, proto_tree *tree, drbd_con
     proto_tree_add_item(tree, hf_drbd_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_twopc_request_common(tvbuff_t *tvb, proto_tree *tree, drbd_twopc_key *key)
+/* Return the twopc flags, if present. */
+static guint32 decode_twopc_request_common(tvbuff_t *tvb, proto_tree *tree, drbd_twopc_key *key)
 {
     proto_tree_add_item_ret_uint(tree, hf_drbd_tid, tvb, 0, 4, ENC_BIG_ENDIAN,
             key ? &key->tid : NULL);
-    proto_tree_add_item_ret_int(tree, hf_drbd_initiator_node_id, tvb, 4, 4, ENC_BIG_ENDIAN,
-            key ? &key->initiator_node_id : NULL);
-    proto_tree_add_item(tree, hf_drbd_target_node_id, tvb, 8, 4, ENC_BIG_ENDIAN);
+
+    guint32 flags = tvb_get_ntohl(tvb, 4);
+    if (flags & TWOPC_HAS_FLAGS) {
+        proto_tree_add_bitmask(tree, tvb, 4, hf_drbd_twopc_flags, ett_drbd_twopc_flags, twopc_flag_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_int(tree, hf_drbd_initiator_node_id, tvb, 10, 1, ENC_BIG_ENDIAN,
+                key ? &key->initiator_node_id : NULL);
+        proto_tree_add_item(tree, hf_drbd_target_node_id, tvb, 11, 1, ENC_BIG_ENDIAN);
+    } else {
+        flags = 0;
+        proto_tree_add_item_ret_int(tree, hf_drbd_initiator_node_id, tvb, 4, 4, ENC_BIG_ENDIAN,
+                key ? &key->initiator_node_id : NULL);
+        proto_tree_add_item(tree, hf_drbd_target_node_id, tvb, 8, 4, ENC_BIG_ENDIAN);
+    }
+
     proto_tree_add_item(tree, hf_drbd_nodes_to_reach, tvb, 12, 8, ENC_BIG_ENDIAN);
+    return flags;
 }
 
 static void decode_payload_twopc_prepare(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
-    decode_twopc_request_common(tvb, tree, NULL);
+    guint32 flags = decode_twopc_request_common(tvb, tree, NULL);
 
-    proto_tree_add_item(tree, hf_drbd_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
+    if (!(flags & TWOPC_HAS_FLAGS))
+        proto_tree_add_item(tree, hf_drbd_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
+
     decode_state_change(tvb, tree, 28);
 }
 
@@ -1260,7 +1292,7 @@ static void decode_payload_twopc_prep_rsz(tvbuff_t *tvb, proto_tree *tree, drbd_
 static void decode_payload_twopc_commit(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data)
 {
     drbd_twopc_key key;
-    decode_twopc_request_common(tvb, tree, &key);
+    guint32 flags = decode_twopc_request_common(tvb, tree, &key);
 
     if (!conv_data)
         return;
@@ -1275,7 +1307,10 @@ static void decode_payload_twopc_commit(tvbuff_t *tvb, proto_tree *tree, drbd_co
 
     if (val->command == P_TWOPC_PREPARE) {
         proto_tree_add_item(tree, hf_drbd_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
-        decode_state_change(tvb, tree, 28);
+        if (!(flags & TWOPC_HAS_FLAGS))
+            decode_state_change(tvb, tree, 28);
+        else if (flags & TWOPC_HAS_REACHABLE)
+            proto_tree_add_item(tree, hf_drbd_reachable_nodes, tvb, 28, 8, ENC_BIG_ENDIAN);
     } else if (val->command == P_TWOPC_PREP_RSZ) {
         proto_tree_add_item(tree, hf_drbd_diskful_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_drbd_exposed_size, tvb, 28, 8, ENC_BIG_ENDIAN);
@@ -1529,6 +1564,7 @@ void proto_register_drbd(void)
         { &hf_drbd_retcode, { "retcode", "drbd.retcode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_twopc_prepare_in, { "Two-phase commit prepare in", "drbd.twopc_prepare_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL }},
         { &hf_drbd_tid, { "tid", "drbd.tid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_twopc_flags, { "twopc_flags", "drbd.twopc_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_initiator_node_id, { "initiator_node_id", "drbd.initiator_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_target_node_id, { "target_node_id", "drbd.target_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_nodes_to_reach, { "nodes_to_reach", "drbd.nodes_to_reach", FT_UINT64, BASE_CUSTOM, CF_FUNC(format_node_mask), 0x0, NULL, HFILL }},
@@ -1558,6 +1594,8 @@ void proto_register_drbd(void)
         { &hf_drbd_state_susp_fen, { "susp_fen", "drbd.state.susp_fen", FT_BOOLEAN, 32, NULL, STATE_SUSP_FEN, NULL, HFILL }},
         { &hf_drbd_state_quorum, { "quorum", "drbd.state.quorum", FT_BOOLEAN, 32, NULL, STATE_QUORUM, NULL, HFILL }},
 
+        { &hf_drbd_twopc_flag_has_reachable, { "has_reachable", "drbd.twopc_flags.has_reachable", FT_BOOLEAN, 32, NULL, TWOPC_HAS_REACHABLE, NULL, HFILL }},
+
         { &hf_drbd_uuid_flag_discard_my_data, { "discard_my_data", "drbd.uuid_flag.discard_my_data", FT_BOOLEAN, 64, NULL, UUID_FLAG_DISCARD_MY_DATA, NULL, HFILL }},
         { &hf_drbd_uuid_flag_crashed_primary, { "crashed_primary", "drbd.uuid_flag.crashed_primary", FT_BOOLEAN, 64, NULL, UUID_FLAG_CRASHED_PRIMARY, NULL, HFILL }},
         { &hf_drbd_uuid_flag_inconsistent, { "inconsistent", "drbd.uuid_flag.inconsistent", FT_BOOLEAN, 64, NULL, UUID_FLAG_INCONSISTENT, NULL, HFILL }},
@@ -1586,6 +1624,7 @@ void proto_register_drbd(void)
     static gint *ett[] = {
         &ett_drbd,
         &ett_drbd_state,
+        &ett_drbd_twopc_flags,
         &ett_drbd_uuid_flags,
         &ett_drbd_history_uuids,
         &ett_drbd_data_flags,

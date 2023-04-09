@@ -481,7 +481,7 @@ proto_register_vp8(void)
         },
         { &hf_vp8_pld_extended_picture_id,
             { "Extended Picture ID",           "vp8.pld.pictureid",
-            FT_UINT8, BASE_DEC, NULL, BIT_EXT_PICTURE_MASK,
+            FT_UINT16, BASE_DEC, NULL, BIT_EXT_PICTURE_MASK,
             NULL, HFILL }
         },
         { &hf_vp8_pld_tl0picidx,

@@ -1595,7 +1595,7 @@ proto_register_gdsdb(void)
 		},
 		{ &hf_gdsdb_receive_offset,
 			{ "Scroll offset", "gdsdb.receive.offset",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
+			FT_UINT64, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		/* gdsdb_send */

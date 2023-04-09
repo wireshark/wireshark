@@ -365,15 +365,13 @@ void proto_report_dissector_bug(const char *format, ...)
  * and the bottom bit (which we ignore for now so that programs that
  * pass TRUE for the encoding just do ASCII).
  *
- * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
- * ASCII, all bytes with the 8th bit set should be mapped to some "this
- * is not a valid character" code point, as ENC_ASCII should mean "this
- * is ASCII, not some extended variant thereof".  We should also map
- * 0x00 to that as well - null-terminated and null-padded strings
- * never have NULs in them, but counted strings might.  (Either that,
- * or the values for strings should be counted, not null-terminated.)
- * For UTF-8, invalid UTF-8 sequences should be mapped to the same
- * code point.
+ * For ENC_ASCII, we map ASCII characters with the high bit set to the UTF-8
+ * REPLACEMENT CHARACTER, and do the same for ENC_UTF_8 with invalid UTF-8
+ * sequences. We should also map 0x00 to that as well - null-terminated and
+ * null-padded strings never have NULs in them, but counted strings might.
+ * Either that, or strings should be counted, not null-terminated. Note
+ * that conversion of ASCII and UTF-8 can change the length of the string,
+ * as with any other encoding, due to REPLACEMENT CHARACTERs.
  *
  * For display, perhaps we should also map control characters to the
  * Unicode glyphs showing the name of the control character in small

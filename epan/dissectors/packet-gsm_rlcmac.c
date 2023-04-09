@@ -9027,7 +9027,6 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     guint8              cs = (data->block_format & 0x0F);
     guint64 e;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "DATA: CS%d", cs);
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GPRS DL DATA (CS%d)", cs);
@@ -9167,7 +9166,6 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     guint16      bit_length = tvb_reported_length(tvb) * 8;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EGPRS DL DATA:");
     /* Dissect the MAC header */
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
@@ -9228,7 +9226,6 @@ dissect_ec_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     guint16      bit_length = tvb_reported_length(tvb) * 8;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT DL:HEADER");
     /* Dissect the MAC header */
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
@@ -9400,7 +9397,6 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   csnStream_t  ar;
   guint16      bit_length = tvb_reported_length(tvb) * 8;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "PACCH ACCESS BURST");
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
                                       "GPRS UL PACCH ACCESS BURST");
@@ -9451,7 +9447,6 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   guint16     bit_length   = tvb_reported_length(tvb) * 8;
   gint        bit_offset   = 0;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS UL");
   if (payload_type == PAYLOAD_TYPE_DATA)
   {
@@ -9544,7 +9539,6 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint16      bit_offset = 0;
     guint16      bit_length = tvb_reported_length(tvb) * 8;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EGPRS UL DATA:");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GSM RLC/MAC: EGPRS UL HEADER");
@@ -9602,7 +9596,6 @@ dissect_ec_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint16      bit_offset = 0;
     guint16      bit_length = tvb_reported_length(tvb) * 8;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EC-GSM-IoT UL:HEADER");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GSM RLC/MAC: EC-GSM-IoT UL HEADER");
@@ -9740,6 +9733,8 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   RlcMacDownlink_t    *rlc_dl;
   RlcMacPrivateData_t *rlc_mac = (RlcMacPrivateData_t*)data;
 
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+
   /* allocate a data structure and guess the coding scheme */
   rlc_dl = wmem_new0(pinfo->pool, RlcMacDownlink_t);
 
@@ -9821,6 +9816,8 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   RlcMacUplink_t      *rlc_ul;
   RlcMacPrivateData_t *rlc_mac = (RlcMacPrivateData_t*)data;
 
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+
   /* allocate a data structure and set the coding scheme */
   rlc_ul = wmem_new0(pinfo->pool, RlcMacUplink_t);
 
@@ -9868,21 +9865,19 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       }
       break;
     case RLCMAC_EC_CS1:
-      {
-        dissect_ul_rlc_ec_control_message(tvb, pinfo, tree, rlc_ul);
-      }
-    break;
+      dissect_ul_rlc_ec_control_message(tvb, pinfo, tree, rlc_ul);
+      break;
 
     case RLCMAC_HDR_TYPE_1_EC:
     case RLCMAC_HDR_TYPE_2_EC:
     case RLCMAC_HDR_TYPE_3_EC:
         if (rlc_ul->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
         {
-            dissect_egprs_ul_data_block(tvb, pinfo, tree, rlc_ul, &rlc_mac->u.egprs_ul_header_info);
+          dissect_egprs_ul_data_block(tvb, pinfo, tree, rlc_ul, &rlc_mac->u.egprs_ul_header_info);
         }
         else
         {
-            dissect_ec_egprs_ul_header_block(tvb, pinfo, tree, rlc_ul, rlc_mac);
+          dissect_ec_egprs_ul_header_block(tvb, pinfo, tree, rlc_ul, rlc_mac);
         }
         break;
 

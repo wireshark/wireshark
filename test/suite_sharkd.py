@@ -70,11 +70,20 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             {"jsonrpc":"2.0","id":1,"error":{"code":-2001,"message":"Unable to open the file"}},
         ))
 
+    def test_sharkd_req_load_truncated_pcap(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('trunc.pcap')}
+            },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"Less data was read than was expected","err":-12}},
+        ))
+
     def test_sharkd_req_status_no_pcap(self, check_sharkd_session):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"status"},
         ), (
-            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000}},
+            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000,"columns":["No.","Time","Source","Destination","Protocol","Length","Info"]}},
         ))
 
     def test_sharkd_req_status(self, check_sharkd_session, capture_file):
@@ -86,7 +95,8 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"result":{"frames": 4, "duration": 0.070345000,
-                "filename": "dhcp.pcap", "filesize": 1400}},
+                "filename": "dhcp.pcap", "filesize": 1400,
+                "columns":["No.","Time","Source","Destination","Protocol","Length","Info"]}},
         ))
 
     def test_sharkd_req_analyse(self, check_sharkd_session, capture_file):
@@ -248,6 +258,55 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                         ],
                     },
                 ]
+            }},
+        ))
+
+    def test_sharkd_req_tap_rtp_streams(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('sip-rtp.pcapng')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"tap", "params":{"tap0": "rtp-streams"}},
+            {"jsonrpc":"2.0", "id":2, "method":"tap", "params":{"tap0": "rtp-analyse:200.57.7.204_8000_200.57.7.196_40376_0xd2bd4e3e"}},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{
+                "taps":[{
+                    "tap":"rtp-streams",
+                    "type":"rtp-streams",
+                    "streams":[{
+                        "ssrc":"0xd2bd4e3e",
+                        "payload":"g711A",
+                        "saddr":"200.57.7.204",
+                        "sport":8000,
+                        "daddr":"200.57.7.196",
+                        "dport":40376,
+                        "pkts":548,
+                        "max_delta":5843.742000,
+                        "max_jitter":7.406751,
+                        "mean_jitter":2.517173,
+                        "expectednr":548,
+                        "totalnr":548,
+                        "problem":False,
+                        "ipver":4
+                    }]
+                }]
+            }},
+            {"jsonrpc":"2.0","id":2,"result":
+                {"taps":[{
+                    "tap":"rtp-analyse:200.57.7.204_8000_200.57.7.196_40376_0xd2bd4e3e",
+                    "type":"rtp-analyse",
+                    "ssrc":"0xd2bd4e3e",
+                    "max_delta":5843.742000,
+                    "max_delta_nr":168,
+                    "max_jitter":7.406751,
+                    "mean_jitter":2.517173,
+                    "max_skew":319.289000,
+                    "total_nr":548,
+                    "seq_err":0,
+                    "duration":24124.055000,
+                    "items": MatchAny()
+                }]
             }},
         ))
 
@@ -476,7 +535,7 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
         ))
 
     def test_sharkd_req_download_tls_secrets(self, check_sharkd_session, capture_file):
-        # XXX test download for eo: and rtp: too
+        # XXX test download for eo: too
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"load",
             "params":{"file": capture_file('tls12-dsb.pcapng')}
@@ -490,6 +549,25 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             {"jsonrpc":"2.0","id":2,"result":{"file": "keylog.txt", "mime": "text/plain",
                 "data": MatchRegExp(r'UlNBIFNlc3Npb24tSUQ6.+')}
             },
+        ))
+
+    def test_sharkd_req_download_rtp_stream(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('sip-rtp.pcapng')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"download",
+            "params":{"token": "rtp:200.57.7.204_8000_200.57.7.196_40376_0xd2bd4e3e"}},
+            {"jsonrpc":"2.0", "id":3, "method":"download",
+            "params":{"token": "rtp:1.1.1.1_8000_1.1.1.2_9000_0xdddddddd"}},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{
+                "file":"rtp:200.57.7.204_8000_200.57.7.196_40376_0xd2bd4e3e",
+                "mime":"audio/x-wav",
+                "data":MatchRegExp(r'UklGRv.+')}
+            },
+            {"jsonrpc":"2.0","id":3,"error":{"code":-10003,"message":"no rtp data available"}},
         ))
 
     def test_sharkd_req_bye(self, check_sharkd_session):

@@ -22,9 +22,12 @@ typedef struct _someip_info
 {
     guint16 service_id;
     guint16 method_id;
+    guint16 client_id;
+    guint16 session_id;
     guint8  message_type;
     guint8  major_version;
 } someip_info_t;
+#define SOMEIP_INFO_T_INIT { 0, 0, 0, 0, 0, 0 }
 
 typedef struct _someip_messages_tap {
     guint16 service_id;

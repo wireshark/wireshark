@@ -44,7 +44,7 @@ def name_has_one_of(name, substring_list):
 # A call is an individual call to an API we are interested in.
 # Internal to APICheck below.
 class Call:
-    def __init__(self, hf_name, line_number=None, length=None, fields=None):
+    def __init__(self, hf_name, macros, line_number=None, length=None, fields=None):
         self.hf_name = hf_name
         self.line_number = line_number
         self.fields = fields
@@ -53,6 +53,12 @@ class Call:
             try:
                 self.length = int(length)
             except:
+                if length.isupper():
+                    if length in macros:
+                        try:
+                            self.length = int(macros[length])
+                        except:
+                            pass
                 pass
 
 
@@ -91,7 +97,7 @@ class APICheck:
             self.mask_allowed = False
 
 
-    def find_calls(self, file):
+    def find_calls(self, file, macros):
         self.file = file
         self.calls = []
 
@@ -124,6 +130,7 @@ class APICheck:
                         # Add call. We have length if re had 3 groups.
                         num_groups = self.p.groups
                         self.calls.append(Call(m.group(2),
+                                               macros,
                                                line_number=line_number,
                                                length=length,
                                                fields=fields))
@@ -172,20 +179,20 @@ class APICheck:
 class ProtoTreeAddItemCheck(APICheck):
     def __init__(self, ptv=None):
 
-        # RE will capture whole call.  N.B. only looking at calls with literal numerical length field.
+        # RE will capture whole call.
 
         if not ptv:
             # proto_item *
             # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
             #                     const gint start, gint length, const guint encoding)
             self.fun_name = 'proto_tree_add_item'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\(\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\(\s*[a-zA-Z0-9_]+?,\s*([a-zA-Z0-9_]+?),\s*[a-zA-Z0-9_\+\s]+?,\s*[^,.]+?,\s*(.+),\s*([^,.]+?)\);')
         else:
             # proto_item *
             # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
             #               const guint encoding)
             self.fun_name = 'ptvcursor_add'
-            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([a-zA-Z_0-9]+),\s*([a-zA-Z0-9_\-\>]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
 
         self.lengths = {}
@@ -209,7 +216,7 @@ class ProtoTreeAddItemCheck(APICheck):
         self.lengths['FT_ETHER']  = 6
         # TODO: other types...
 
-    def find_calls(self, file):
+    def find_calls(self, file, macros):
         self.file = file
         self.calls = []
         with open(file, 'r') as f:
@@ -221,28 +228,53 @@ class ProtoTreeAddItemCheck(APICheck):
                 # Want to check this, and next few lines
                 to_check = lines[line_number-1] + '\n'
                 # Nothing to check if function name isn't in it
-                if to_check.find(self.fun_name) != -1:
+                fun_idx = to_check.find(self.fun_name)
+                if fun_idx != -1:
                     # Ok, add the next file lines before trying RE
                     for i in range(1, 5):
                         if to_check.find(';') != -1:
                             break
                         elif line_number+i < total_lines:
                             to_check += (lines[line_number-1+i] + '\n')
+                    # Lose anything before function call itself.
+                    to_check = to_check[fun_idx:]
                     m = self.p.search(to_check)
                     if m:
+                        # Throw out if parens not matched
+                        if m.group(0).count('(') != m.group(0).count(')'):
+                            continue
+
                         enc = m.group(3)
                         hf_name = m.group(1)
                         if not enc.startswith('ENC_'):
                             if not enc in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
-                                            'p_mq_parm', 'iEnc', 'strid_enc', 'iCod', 'nl_data', 'argp', 'gquic_info', 'writer_encoding',
-                                            'tds_get_int2_encoding', 'tds_get_int4_encoding',
-                                            'DREP_ENC_INTEGER' }:
+                                            'p_mq_parm->mq_str_enc', 'p_mq_parm->mq_int_enc',
+                                            'iEnc', 'strid_enc', 'iCod', 'nl_data->encoding',
+                                            'argp->info->encoding', 'gquic_info->encoding', 'writer_encoding',
+                                            'tds_get_int2_encoding(tds_info)',
+                                            'tds_get_int4_encoding(tds_info)',
+                                            'tds_get_char_encoding(tds_info)',
+                                            'info->encoding',
+                                            'item->encoding',
+                                            'DREP_ENC_INTEGER(drep)', 'string_encoding', 'item', 'type',
+                                            'dvb_enc_to_item_enc(encoding)',
+                                            'packet->enc',
+                                            'IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII',
+                                            'DREP_ENC_INTEGER(hdr->drep)',
+                                            'dhcp_uuid_endian',
+                                            'payload_le',
+                                            'local_encoding',
+                                            'big_endian',
+                                            'hf_data_encoding',
+                                            'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
+                                            'big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
+                                            '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN'  }:
                                 global warnings_found
 
                                 print('Warning:', self.file + ':' + str(line_number),
                                       self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
                                 warnings_found += 1
-                        self.calls.append(Call(hf_name, line_number=line_number, length=m.group(2)))
+                        self.calls.append(Call(hf_name, macros, line_number=line_number, length=m.group(2)))
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -288,7 +320,11 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu',
                                 'stun.type.method', # figure 3 in rfc 5389
                                 'tds.done.status', # covers all bits in bitset
-                                'hf_iax2_video_csub'  # RFC 5456, table 8.7
+                                'hf_iax2_video_csub',  # RFC 5456, table 8.7
+                                'iax2.video.subclass',
+                                'dnp3.al.ana.int',
+                                'pwcesopsn.cw.lm',
+                                'gsm_a.rr.format_id' # EN 301 503
                               }
 ##################################################################################################
 
@@ -350,6 +386,7 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^ocfs2.dlm.lvb'),
         re.compile(r'^oran_fh_cus.reserved'),
         re.compile(r'^qnet6.kif.msgsend.msg.read.xtypes0-7'),
+        re.compile(r'^qnet6.kif.msgsend.msg.write.xtypes0-7'),
         re.compile(r'^mih.sig_strength'),
         re.compile(r'^couchbase.flex_frame.frame.len'),
         re.compile(r'^nvme-rdma.read_to_host_req'),
@@ -392,7 +429,23 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^gryphon.sched.channel'),
         re.compile(r'^pn_io.ioxs'),
         re.compile(r'^pn_dcp.block_qualifier_reset'),
-        re.compile(r'^pn_dcp.suboption_device_instance')
+        re.compile(r'^pn_dcp.suboption_device_instance'),
+        re.compile(r'^nfs.attr'),
+        re.compile(r'^nfs.create_session_flags'),
+        re.compile(r'^rmt-lct.toi64'),
+        re.compile(r'^gryphon.data.header_length'),
+        re.compile(r'^quake2.game.client.command.move.movement'),
+        re.compile(r'^isup.parameter_type'),
+        re.compile(r'^cip.port'),
+        re.compile(r'^adwin.fifo_no'),
+        re.compile(r'^bthci_evt.hci_vers_nr'),
+        re.compile(r'^gryphon.usdt.stmin_active'),
+        re.compile(r'^dnp3.al.anaout.int'),
+        re.compile(r'^dnp3.al.ana.int'),
+        re.compile(r'^dnp3.al.cnt'),
+        re.compile(r'^bthfp.chld.mode'),
+        re.compile(r'^nat-pmp.pml'),
+        re.compile(r'^systemactivator.actproperties.ts.hdr')
     ]
 
     for patt in ignore_patterns:
@@ -500,9 +553,9 @@ class Item:
             return
 
         # Do see non-contiguous bits often for these..
-        if name_has_one_of(self.hf, ['reserved', 'unknown']):
+        if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused', 'spare']):
             return
-        if name_has_one_of(self.label, ['reserved', 'unknown']):
+        if name_has_one_of(self.label, ['reserved', 'unknown', 'unused', 'spare']):
             return
 
 
@@ -557,14 +610,20 @@ class Item:
                 return 8  # i.e. 1 byte
             elif self.type_modifier == 'BASE_NONE':
                 return 8
-            elif self.type_modifier == 'SEP_DOT':   # from proto.h
+            elif self.type_modifier == 'SEP_DOT':   # from proto.h, only meant for FT_BYTES
                 return 64
             else:
-                # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
-                return int(self.type_modifier)+3
+                try:
+                    # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
+                    return int((int(self.type_modifier) + 3)/4)*4
+                except:
+                    return None
         else:
-            # Lookup fixed width for this type
-            return field_widths[self.item_type]
+            if self.item_type in field_widths:
+                # Lookup fixed width for this type
+                return field_widths[self.item_type]
+            else:
+                return None
 
     # N.B. Not currently used.
     def check_mask_too_long(self, mask):
@@ -793,6 +852,21 @@ def isGeneratedFile(filename):
     f_read.close()
     return False
 
+
+def find_macros(filename):
+    macros = {}
+    with open(filename, 'r') as f:
+        contents = f.read()
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        matches = re.finditer( r'#define\s*([A-Z0-9_]*)\s*([0-9xa-fA-F]*)\n', contents)
+        for m in matches:
+            # Store this mapping.
+            macros[m.group(1)] = m.group(2)
+    return macros
+
+
 # Look for hf items (i.e. full item to be registered) in a dissector file.
 def find_items(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
@@ -807,7 +881,6 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            #print(hf)
             items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
                              type_modifier=m.group(5),
                              check_mask=check_mask,
@@ -828,6 +901,7 @@ def find_field_arrays(filename, all_fields, all_hf):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
+        # Find definition of hf array
         matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
         for m in matches:
             name = m.group(1)
@@ -837,6 +911,8 @@ def find_field_arrays(filename, all_fields, all_hf):
             all_fields = m.group(2)
             all_fields = all_fields.replace('&', '')
             all_fields = all_fields.replace(',', '')
+
+            # Get list of each hf field in the array
             fields = all_fields.split()
 
             if fields[0].startswith('ett_'):
@@ -862,6 +938,17 @@ def find_field_arrays(filename, all_fields, all_hf):
                         print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
                         warnings_found += 1
                     combined_mask |= new_mask
+
+            # Make sure all entries have the same width
+            set_field_width = None
+            for f in fields[0:-1]:
+                if f in all_hf:
+                    new_field_width = all_hf[f].get_field_width_in_bits()
+                    if set_field_width is not None and new_field_width != set_field_width:
+                        print('Warning:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
+                        warnings_found += 1
+                    set_field_width = new_field_width
+
     return []
 
 def find_item_declarations(filename):
@@ -921,6 +1008,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         print(filename, 'does not exist!')
         return
 
+    # Find simple macros so can subtitute into items and calls.
+    macros = find_macros(filename)
+
     # Find important parts of items.
     items_defined = find_items(filename, check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
@@ -934,7 +1024,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     # Check each API
     for c in apiChecks:
-        c.find_calls(filename)
+        c.find_calls(filename, macros)
         for call in c.calls:
             if call.fields:
                 fields.add(call.fields)
@@ -973,10 +1063,18 @@ parser.add_argument('--missing-items', action='store_true',
                     help='when set, look for used items that were never registered')
 parser.add_argument('--check-bitmask-fields', action='store_true',
                     help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
-
+parser.add_argument('--all-checks', action='store_true',
+                    help='when set, apply all checks to selected files')
 
 
 args = parser.parse_args()
+
+# Turn all checks on.
+if args.all_checks:
+    args.mask = True
+    args.mask_exact_width = True
+    args.consecutive = True
+    args.check_bitmask_fields = True
 
 
 # Get files from wherever command-line args indicate.

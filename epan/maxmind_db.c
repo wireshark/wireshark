@@ -12,6 +12,8 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MMDB
+
 #include <glib.h>
 
 #include <epan/maxmind_db.h>
@@ -22,6 +24,10 @@ static mmdb_lookup_t mmdb_not_found;
 
 #include <stdio.h>
 #include <errno.h>
+
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 
 #include <epan/wmem_scopes.h>
 
@@ -58,6 +64,7 @@ static GRWLock mmdbr_pipe_mtx;
 
 // Hashes of mmdb_lookup_t
 typedef struct _mmdbr_response_t {
+    gboolean fatal_err;
     gboolean is_ipv4;
     ws_in4_addr ipv4_addr;
     ws_in6_addr ipv6_addr;
@@ -100,16 +107,6 @@ UAT_DIRECTORYNAME_CB_DEF(maxmind_mod, path, maxmind_db_path_t)
 static GPtrArray *mmdb_file_arr; // .mmdb files
 
 static gboolean resolve_synchronously = FALSE;
-
-#if 0
-#define MMDB_DEBUG(...) { \
-    char *MMDB_DEBUG_MSG = ws_strdup_printf(__VA_ARGS__); \
-    ws_warning("mmdb: %s:%d %s", G_STRFUNC, __LINE__, MMDB_DEBUG_MSG); \
-    g_free(MMDB_DEBUG_MSG); \
-}
-#else
-#define MMDB_DEBUG(...)
-#endif
 
 static void mmdb_resolve_stop(void);
 
@@ -168,7 +165,7 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
     GIOStatus status;
     GError *err = NULL;
     gsize bytes_written;
-    MMDB_DEBUG("starting write worker");
+    ws_debug("starting write worker");
 
     while (1) {
         // On some operating systems (most notably macOS), g_async_queue_timeout_pop
@@ -186,12 +183,15 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
             return NULL;
         }
 
-        MMDB_DEBUG("write %s ql %d", request, g_async_queue_length(mmdbr_request_q));
+        ws_noisy("write %s ql %d", request, g_async_queue_length(mmdbr_request_q));
         status = g_io_channel_write_chars(mmdbr_pipe.stdin_io, request, strlen(request), &bytes_written, &err);
         if (status != G_IO_STATUS_NORMAL) {
-            MMDB_DEBUG("write error %s. exiting thread.", err->message);
+            ws_debug("write error %s. exiting thread.", err->message);
             g_clear_error(&err);
             g_free(request);
+            mmdb_response_t *response = g_new0(mmdb_response_t, 1);
+            response->fatal_err = TRUE;
+            g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
             return NULL;
         }
         g_clear_error(&err);
@@ -214,7 +214,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
     size_t bytes_in_buffer, search_offset;
     gboolean line_feed_found;
 
-    MMDB_DEBUG("starting read worker");
+    ws_debug("starting read worker");
 
     bytes_in_buffer = search_offset = 0;
     line_feed_found = FALSE;
@@ -245,11 +245,14 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                 if (bytes_read > 0) {
                     bytes_in_buffer += bytes_read;
                 } else {
-                    MMDB_DEBUG("no pipe data. exiting thread.");
+                    ws_debug("no pipe data. exiting thread.");
+                    response->fatal_err = TRUE;
+                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
+                    response = NULL;
                     break;
                 }
             } else {
-                MMDB_DEBUG("long line");
+                ws_debug("long line");
                 bytes_in_buffer = g_strlcpy(line_buf, RES_INVALID_LINE, MAX_MMDB_LINE_LEN);
                 search_offset = bytes_in_buffer;
             }
@@ -258,7 +261,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
 
         char *line = g_strstrip(line_buf);
         size_t line_len = strlen(line);
-        MMDB_DEBUG("read %zd bytes: %s", line_len, line);
+        ws_noisy("read %zd bytes: %s", line_len, line);
         if (line_len < 1) continue;
 
         char *val_start = strchr(line, ':');
@@ -275,7 +278,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
             } else if (ws_inet_pton6(cur_addr, &response->ipv6_addr)) {
                 response->is_ipv4 = FALSE;
             } else if (strcmp(cur_addr, "init") != 0) {
-                MMDB_DEBUG("Invalid address: %s", cur_addr);
+                ws_debug("Invalid address: %s", cur_addr);
                 cur_addr[0] = '\0';
             }
             // Reset state.
@@ -305,7 +308,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
             if (ws_strtou32(val_start, NULL, &response->mmdb_val.as_number)) {
                 response->mmdb_val.found = TRUE;
             } else {
-                MMDB_DEBUG("Invalid ASN: %s", val_start);
+                ws_debug("Invalid ASN: %s", val_start);
             }
         } else if (val_start && g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
             response->mmdb_val.found = TRUE;
@@ -317,7 +320,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
             if (ws_strtou16(val_start, NULL, &response->mmdb_val.accuracy)) {
                 response->mmdb_val.found = TRUE;
             } else {
-                MMDB_DEBUG("Invalid accuracy radius: %s", val_start);
+                ws_debug("Invalid accuracy radius: %s", val_start);
             }
         } else if (g_str_has_prefix(line, RES_END)) {
             if (response->mmdb_val.found && cur_addr[0]) {
@@ -333,18 +336,18 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                 if (as_org->len) {
                     response->mmdb_val.as_org = g_strdup(as_org->str);
                 }
-                MMDB_DEBUG("queued %p %s %s: city %s country %s", response, response->is_ipv4 ? "v4" : "v6", cur_addr, response->mmdb_val.city, response->mmdb_val.country);
-                g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
+                ws_debug("queued %p %s %s: city %s country %s", response, response->is_ipv4 ? "v4" : "v6", cur_addr, response->mmdb_val.city, response->mmdb_val.country);
+                g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
                 response = g_new0(mmdb_response_t, 1);
             } else if (strcmp(cur_addr, "init") != 0) {
                 if (resolve_synchronously) {
                     // Synchronous lookups expect a 1-in 1-out resolution.
-                    MMDB_DEBUG("Pushing not-found result due to bad address");
-                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
+                    ws_debug("Pushing not-found result due to bad address");
+                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_pop_response.
                     response = g_new0(mmdb_response_t, 1);
                 }
                 else {
-                    MMDB_DEBUG("Discarded previous values due to bad address");
+                    ws_debug("Discarded previous values due to bad address");
                 }
             }
             cur_addr[0] = '\0';
@@ -374,7 +377,7 @@ static void mmdb_resolve_stop(void) {
     }
 
     if (!mmdbr_pipe_valid()) {
-        MMDB_DEBUG("not cleaning up, invalid PID %d", mmdbr_pipe.pid);
+        ws_debug("not cleaning up, invalid PID %"G_PID_FORMAT, mmdbr_pipe.pid);
         return;
     }
 
@@ -388,11 +391,38 @@ static void mmdb_resolve_stop(void) {
     g_thread_join(write_mmdbr_stdin_thread);
     write_mmdbr_stdin_thread = NULL;
 
-    MMDB_DEBUG("closing stdin IO");
+    ws_debug("closing stdin IO");
     g_io_channel_unref(mmdbr_pipe.stdin_io);
 
-    MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
+    ws_debug("closing pid %"G_PID_FORMAT, mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
+#ifndef _WIN32
+    /* Reap mmdbresolve, especially as we may not be shutting down.
+     * (E.g. when the configuration changed or it terminated unexpectedly,
+     * leading to this getting called when the worker threads exited.)
+     */
+    for (int retry_waitpid = 0; retry_waitpid <= 3; ++retry_waitpid) {
+        if (waitpid(mmdbr_pipe.pid, NULL, 0) != -1) {
+            /* waitpid() succeeded. We don't care about the exit status
+             * (we could log it in case it's unexpected)
+             */
+        } else {
+            /* waitpid() failed */
+            if (errno == EINTR) {
+                /* signal interrupted. Just try again */
+                continue;
+            } else if (errno == ECHILD) {
+                /* PID doesn't exist any more or isn't our child.
+                 * possibly already reaped?
+                 */
+            } else {
+                /* Unexpected error. */
+                ws_warning("Error from waitpid(): %s", g_strerror(errno));
+            }
+        }
+        break;
+    }
+#endif
     mmdbr_pipe.pid = WS_INVALID_PID;
 
     // child process notices broken stdin pipe and exits (breaks stdout pipe)
@@ -401,7 +431,7 @@ static void mmdb_resolve_stop(void) {
     g_thread_join(read_mmdbr_stdout_thread);
     read_mmdbr_stdout_thread = NULL;
 
-    MMDB_DEBUG("closing stdout IO");
+    ws_debug("closing stdout IO");
     g_io_channel_unref(mmdbr_pipe.stdout_io);
 
     while (mmdbr_response_q && (response = (mmdb_response_t *) g_async_queue_try_pop(mmdbr_response_q)) != NULL) {
@@ -409,8 +439,8 @@ static void mmdb_resolve_stop(void) {
         g_free((char *) response->mmdb_val.country);
         g_free((char *) response->mmdb_val.city);
         g_free((char *) response->mmdb_val.as_org);
+        ws_debug("cleaned response %p", response);
         g_free(response);
-        MMDB_DEBUG("cleaned response %p", response);
     }
 }
 
@@ -443,14 +473,14 @@ static void mmdb_resolve_start(void) {
     }
 
     if (!mmdb_file_arr) {
-        MMDB_DEBUG("unexpected mmdb_file_arr == NULL");
+        ws_debug("unexpected mmdb_file_arr == NULL");
         return;
     }
 
     mmdb_resolve_stop();
 
     if (mmdb_file_arr->len == 0) {
-        MMDB_DEBUG("no GeoIP databases found");
+        ws_debug("no GeoIP databases found");
         return;
     }
 
@@ -465,11 +495,11 @@ static void mmdb_resolve_start(void) {
 
     ws_pipe_init(&mmdbr_pipe);
     GPid pipe_pid = ws_pipe_spawn_async(&mmdbr_pipe, args);
-    MMDB_DEBUG("spawned %s pid %d", mmdbresolve, pipe_pid);
+    ws_debug("spawned %s pid %"G_PID_FORMAT, mmdbresolve, pipe_pid);
 
     for (guint i = 0; i < args->len; i++) {
         char *arg = (char *)g_ptr_array_index(args, i);
-        MMDB_DEBUG("args: %s", arg);
+        ws_debug("args: %s", arg);
         g_free(arg);
     }
     g_ptr_array_free(args, TRUE);
@@ -565,7 +595,9 @@ static void maxmind_db_post_update_cb(void) {
         }
     }
 
-    mmdb_resolve_start();
+    if (gbl_resolv_flags.maxmind_geoip) {
+        mmdb_resolve_start();
+    }
 }
 
 /**
@@ -574,6 +606,12 @@ static void maxmind_db_post_update_cb(void) {
 void
 maxmind_db_pref_init(module_t *nameres)
 {
+    prefs_register_bool_preference(nameres,
+            "maxmind_geoip",
+            "Enable IP geolocation",
+            "Lookup geolocation information for IPv4 and IPv6 addresses with configured MaxMind databases",
+            &gbl_resolv_flags.maxmind_geoip);
+
     static uat_field_t maxmind_db_paths_fields[] = {
         UAT_FLD_DIRECTORYNAME(maxmind_mod, path, "MaxMind Database Directory", "The MaxMind database directory path"),
         UAT_END_FIELDS
@@ -608,35 +646,54 @@ void maxmind_db_pref_cleanup(void)
     mmdb_resolve_stop();
 }
 
+void maxmind_db_pref_apply(void)
+{
+    if (gbl_resolv_flags.maxmind_geoip) {
+        if (!mmdbr_pipe_valid()) {
+            mmdb_resolve_start();
+        }
+    } else {
+        if (mmdbr_pipe_valid()) {
+            mmdb_resolve_stop();
+        }
+    }
+}
+
 static void maxmind_db_pop_response(mmdb_response_t *response)
 {
-    mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &response->mmdb_val, sizeof(mmdb_lookup_t));
-    if (response->mmdb_val.country_iso) {
-        char *country_iso = (char *) response->mmdb_val.country_iso;
-        mmdb_val->country_iso = chunkify_string(country_iso);
-        g_free(country_iso);
-    }
-    if (response->mmdb_val.country) {
-        char *country = (char *) response->mmdb_val.country;
-        mmdb_val->country = chunkify_string(country);
-        g_free(country);
-    }
-    if (response->mmdb_val.city) {
-        char *city = (char *) response->mmdb_val.city;
-        mmdb_val->city = chunkify_string(city);
-        g_free(city);
-    }
-    if (response->mmdb_val.as_org) {
-        char *as_org = (char *) response->mmdb_val.as_org;
-        mmdb_val->as_org = chunkify_string(as_org);
-        g_free(as_org);
-    }
-    MMDB_DEBUG("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
-
-    if (response->is_ipv4) {
-        wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
+    /* This is only called in the main thread */
+    if (response->fatal_err == TRUE) {
+        mmdb_resolve_stop();
+        /* XXX: We could call mmdb_resolve_start() instead */
     } else {
-        wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&response->ipv6_addr), mmdb_val);
+        mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &response->mmdb_val, sizeof(mmdb_lookup_t));
+        if (response->mmdb_val.country_iso) {
+            char *country_iso = (char *) response->mmdb_val.country_iso;
+            mmdb_val->country_iso = chunkify_string(country_iso);
+            g_free(country_iso);
+        }
+        if (response->mmdb_val.country) {
+            char *country = (char *) response->mmdb_val.country;
+            mmdb_val->country = chunkify_string(country);
+            g_free(country);
+        }
+        if (response->mmdb_val.city) {
+            char *city = (char *) response->mmdb_val.city;
+            mmdb_val->city = chunkify_string(city);
+            g_free(city);
+        }
+        if (response->mmdb_val.as_org) {
+            char *as_org = (char *) response->mmdb_val.as_org;
+            mmdb_val->as_org = chunkify_string(as_org);
+            g_free(as_org);
+        }
+        ws_debug("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
+
+        if (response->is_ipv4) {
+            wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
+        } else {
+            wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&response->ipv6_addr), mmdb_val);
+        }
     }
     g_free(response);
 }
@@ -646,9 +703,9 @@ static void maxmind_db_await_response(void)
     mmdb_response_t *response;
 
     if (mmdbr_response_q != NULL) {
-        MMDB_DEBUG("entering blocking wait for response");
+        ws_debug("entering blocking wait for response");
         response = (mmdb_response_t *) g_async_queue_pop(mmdbr_response_q);
-        MMDB_DEBUG("exiting blocking wait for response");
+        ws_debug("exiting blocking wait for response");
         maxmind_db_pop_response(response);
     }
 }
@@ -672,6 +729,10 @@ gboolean maxmind_db_lookup_process(void)
 
 const mmdb_lookup_t *
 maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
+    if (!gbl_resolv_flags.maxmind_geoip) {
+        return &mmdb_not_found;
+    }
+
     mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(*addr));
 
     if (!result) {
@@ -681,7 +742,7 @@ maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
         if (mmdbr_pipe_valid()) {
             char addr_str[WS_INET_ADDRSTRLEN];
             ws_inet_ntop4(addr, addr_str, WS_INET_ADDRSTRLEN);
-            MMDB_DEBUG("looking up %s", addr_str);
+            ws_debug("looking up %s", addr_str);
             g_async_queue_push(mmdbr_request_q, ws_strdup_printf("%s\n", addr_str));
             if (resolve_synchronously) {
                 maxmind_db_await_response();
@@ -695,6 +756,10 @@ maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
 
 const mmdb_lookup_t *
 maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
+    if (!gbl_resolv_flags.maxmind_geoip) {
+        return &mmdb_not_found;
+    }
+
     mmdb_lookup_t * result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
 
     if (!result) {
@@ -704,7 +769,7 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
         if (mmdbr_pipe_valid()) {
             char addr_str[WS_INET6_ADDRSTRLEN];
             ws_inet_ntop6(addr, addr_str, WS_INET6_ADDRSTRLEN);
-            MMDB_DEBUG("looking up %s", addr_str);
+            ws_debug("looking up %s", addr_str);
             g_async_queue_push(mmdbr_request_q, ws_strdup_printf("%s\n", addr_str));
             if (resolve_synchronously) {
                 maxmind_db_await_response();
@@ -753,6 +818,8 @@ maxmind_db_pref_init(module_t *nameres _U_) {}
 void
 maxmind_db_pref_cleanup(void) {}
 
+void
+maxmind_db_pref_apply(void) {}
 
 gboolean
 maxmind_db_lookup_process(void)

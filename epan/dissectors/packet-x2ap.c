@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V17.3.0 (2022-12)
+ * 3GPP TS 36.423 V17.4.0 (2023-03)
  */
 
 #include "config.h"
@@ -12307,6 +12307,8 @@ dissect_x2ap_SCGChangeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static const value_string x2ap_SCGreconfigNotification_vals[] = {
   {   0, "executed" },
+  {   1, "executed-deleted" },
+  {   2, "deleted" },
   { 0, NULL }
 };
 
@@ -12314,7 +12316,7 @@ static const value_string x2ap_SCGreconfigNotification_vals[] = {
 static int
 dissect_x2ap_SCGreconfigNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, TRUE, 2, NULL);
 
   return offset;
 }

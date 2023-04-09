@@ -239,9 +239,9 @@ void TrafficTypesList::setProtocolInfo(QString name, GList ** recentList)
 {
     _name = name;
 
-    _sortModel = new TrafficListSortModel();
+    _sortModel = new TrafficListSortModel(this);
 
-    _model = new TrafficTypesModel(recentList);
+    _model = new TrafficTypesModel(recentList, this);
     _sortModel->setSourceModel(_model);
     setModel(_sortModel);
 

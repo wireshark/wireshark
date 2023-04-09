@@ -53,7 +53,7 @@ public:
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
-    void openFollowStreamDialog(follow_type_t type);
+    void openFollowStreamDialog(int proto_id);
     void openTcpStreamGraph(int graph_type);
 
 protected:

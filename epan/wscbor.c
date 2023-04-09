@@ -368,7 +368,6 @@ gboolean wscbor_is_indefinite_break(const wscbor_chunk_t *chunk) {
 static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, gboolean *is_break) {
     wscbor_chunk_t *chunk = wscbor_chunk_read(alloc, tvb, offset);
     if (wscbor_has_errors(chunk)) {
-        *offset = chunk->start;
         wscbor_chunk_free(chunk);
         return FALSE;
     }

@@ -11,25 +11,32 @@
  */
 
 /*
- * The Zebra Protocol is the protocol used between the Zebra routing daemon and other
- * protocol daemons (ones for BGP, OSPF, etc.) within the Zebra and Quagga open-source
- * routing suites. Zebra itself (https://www.gnu.org/software/zebra) is discontinued,
+ * The Zebra Protocol is the protocol used between the Zebra routing daemon and
+ * other protocol daemons (ones for BGP, OSPF, etc.) within the Zebra, Quagga,
+ * and FRRouting open-source routing suites.
+ * Zebra itself (https://www.gnu.org/software/zebra) is discontinued,
  * and its successor is Quagga (http://www.nongnu.org/quagga).
+ * The successor to Quagga is FRRouting (https://frrouting.org/).
  *
- * Both Zebra and Quagga use a "Zebra Protocol", but starting with Quagga v0.99 the
- * Zebra Protocol has changed, with a different header format and more commands/types.
- * Quagga 0.99.0 was version 1, and 0.99.20 or so changed it to version 2.
+ * All three use the "Zebra Protocol" (or ZAPI), but starting with Quagga v0.99
+ * there are different versions, with different header formats and more
+ * commands/types.
  *
- * See http://www.nongnu.org/quagga/docs/docs-info.html#Zebra-Protocol for some details.
+ * http://www.nongnu.org/quagga/docs/docs-info.html#Zebra-Protocol
+ * http://docs.frrouting.org/projects/dev-guide/en/latest/zebra.html
  *
- * Quagga 0.99.24 changed to Zebra Protocol version 3.
- * FRRouting version 2 and 3 use Zebra Protocol version 4
- * FRRouting version 4 and 5 use Zebra Protocol version 5
- * FRRouting version 4 and 5 have incompatible commands partialy.
- * This file use commands of FRRRouting version 5.
- * FRRouting version 6 and 7 use Zebra Protocol version 6
- * FRRouting version 6 and 7 have incompatible commands partialy.
- * This file use commands of FRRRouting version 7.
+ * Version 0 (implicit): Zebra, Quagga up to version 0.98
+ * Version 1: Quagga 0.99.3 through 0.99.20
+ * Version 2: Quagga 0.99.21 though 0.99.23
+ * Version 3: Quagga 0.99.24 and later
+ * Version 4: FRRouting 2.0 through 3.0.3
+ * Version 5: FRRouting 4.0 though 5.0.1
+ * Version 6: FRRouting 6.0 and later
+ *
+ * FRRouting versions 4 and 5 have partially incompatible commands.
+ * This dissector uses the commands of FRRRouting version 5.
+ * FRRouting versions 6 and 7 have partially incompatible commands.
+ * This dissector uses the commands of FRRRouting version 7.
  */
 
 #include "config.h"
@@ -989,6 +996,13 @@ static const value_string blackhole_type[] = {
 #define INTERFACE_NAMSIZ      20
 
 #define PSIZE(a) (((a) + 7) / (8))
+
+typedef struct _zebra_header_t {
+	guint16 len;
+	guint16 command;
+	guint8  version;
+
+} zebra_header_t;
 
 static int
 zebra_route_nexthop(proto_tree *tree, gboolean request, tvbuff_t *tvb,
@@ -2266,7 +2280,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 	|           Length (2)          |   Command (1) |
 	+-------------------------------+---------------+
 
- Zebra Protocol header version 1:
+ Zebra Protocol header version 1, 2:
 	0                   1                   2                   3
 	0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 	+-------------------------------+---------------+-------------+
@@ -2274,21 +2288,136 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 	+-------------------------------+---------------+-------------+
 	|          Command (2)          |
 	+-------------------------------+
- The Marker is 0xFF to distinguish it from a version 0 header.
+
+ Version 3, 4:
+
+	 0                   1                   2                   3
+	 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|             Length            |     Marker    |    Version    |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|             VRF ID            |            Command            |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ Version 5, 6:
+
+	 0                   1                   2                   3
+	 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|             Length            |     Marker    |    Version    |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|                             VRF ID                            |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|            Command            |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ The Marker byte in later versions uses reserved command values 0xFF (version
+ 1-3, Quagga) or 0xFE (version 4-6, FRR) to distinguish later protocol versions
+ from version 0.
  */
+
+static gboolean
+zebra_get_header(tvbuff_t *tvb, int offset, zebra_header_t *header)
+{
+	guint16 len, command;
+	guint8  version;
+
+	if (tvb_captured_length_remaining(tvb, offset) < 3) {
+		return FALSE;
+	}
+
+	len = tvb_get_ntohs(tvb, offset);
+	if (len < 3) {
+		return FALSE;
+	}
+
+	offset += 2;
+	command = tvb_get_guint8(tvb, offset);
+	if (command < 0xFE) { // version 0
+		version = 0;
+	} else { // not version 0
+		offset++;
+		if (tvb_captured_length_remaining(tvb, offset) < 3) {
+			return FALSE;
+		}
+		version = tvb_get_guint8(tvb, offset);
+		if (version == 1 || version == 2) {
+			offset++;
+		} else if (version == 3 || version == 4) {
+			offset += 3;
+		} else if (version < 9) {
+			/* The current highest version is 6. Give room
+			 * to invent a few more. */
+			offset += 5;
+		} else {
+			return FALSE;
+		}
+		if (tvb_captured_length_remaining(tvb, offset) < 2) {
+			return FALSE;
+		}
+		command = tvb_get_ntohs(tvb, offset);
+	}
+	if (header) {
+		header->len = len;
+		header->command = command;
+		header->version = version;
+	}
+	return TRUE;
+}
+
+static gboolean
+test_zebra(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	zebra_header_t header;
+
+	if (!zebra_get_header(tvb, offset, &header)) {
+		return FALSE;
+	}
+
+	if (header.len > 1024) {
+		/* There can be multiple PDUs in a segment, but PDUs themselves
+		 * are small. Even 1024 is a generous overestimate.
+		 */
+		return FALSE;
+	}
+
+	if (header.version < 4) {
+		if (!try_val_to_str(header.command, messages)) {
+			return FALSE;
+		}
+	} else if (header.version == 4) {
+		if (!try_val_to_str(header.command, frr_zapi4_messages)) {
+			return FALSE;
+		}
+	} else if (header.version == 5) {
+		if (!try_val_to_str(header.command, frr_zapi5_messages)) {
+			return FALSE;
+		}
+	} else {
+		if (!try_val_to_str(header.command, frr_zapi6_messages)) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 static int
 dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*ti;
 	proto_tree	*zebra_tree;
 	gboolean	request;
-	int		left, offset;
+	int		left, offset = 0;
+
+	if (!test_zebra(pinfo, tvb, offset, data)) {
+		return 0;
+	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZEBRA");
 
 	request = (pinfo->destport == pinfo->match_uint);
 	left = tvb_reported_length(tvb);
-	offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_INFO,
 		    request? "Zebra Request" : "Zebra Reply");
@@ -2302,65 +2431,49 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		proto_item_set_hidden(ti);
 
 		for (;;) {
-			guint8 		headermarker, version;
-			guint16		command, len;
+			zebra_header_t header;
 			proto_tree	*zebra_request_tree;
 
-			if (left < 3)
+			if (!zebra_get_header(tvb, offset, &header)) {
 				break;
-			len = tvb_get_ntohs(tvb, offset);
-			if (len < 3)
-				break;
-
-			headermarker = tvb_get_guint8(tvb,offset+2);
-			// header marker is 255(0xFF) on version 1, 2 and 3
-			// header marker is 254(0XFE) on version 4 and 5 (FRRouting)
-			if (headermarker < 0xFE) { // version 0
-				// header marker is not contained in vesion 0 header
-				command = headermarker;
-				version = 0;
-			} else { // not version 0
-				version = tvb_get_guint8(tvb, offset+3);
-				if (version == 1 || version == 2) {
-					command = tvb_get_ntohs(tvb, offset + 4);
-				} else if (version == 3 || version == 4) {
-					command = tvb_get_ntohs(tvb, offset + 6);
-				} else {
-					command = tvb_get_ntohs(tvb, offset + 8);
-				}
 			}
 
-			if (version < 4) {
+			if (header.version < 4) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-						val_to_str(command, messages,
+						val_to_str(header.command, messages,
 							   "Command Type 0x%02d"));
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command,
-							 tvb, offset, len, command);
-			} else if (version == 4) {
+							 tvb, offset, header.len,
+							 header.command);
+			} else if (header.version == 4) {
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v4,
-							 tvb, offset, len, command);
+							 tvb, offset, header.len,
+							 header.command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-						val_to_str(command, frr_zapi4_messages,
+						val_to_str(header.command, frr_zapi4_messages,
 							   "Command Type 0x%02d"));
-			} else if (version == 5) {
+			} else if (header.version == 5) {
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v5,
-							 tvb, offset, len, command);
+							 tvb, offset, header.len,
+							 header.command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-						val_to_str(command, frr_zapi5_messages,
+						val_to_str(header.command, frr_zapi5_messages,
 							   "Command Type 0x%02d"));
 			} else {
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v6,
-							 tvb, offset, len, command);
+							 tvb, offset, header.len,
+							 header.command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-						val_to_str(command, frr_zapi6_messages,
+						val_to_str(header.command, frr_zapi6_messages,
 							   "Command Type 0x%02d"));
 			}
 			zebra_request_tree = proto_item_add_subtree(ti,
 							ett_zebra_request);
 			dissect_zebra_request(zebra_request_tree, request, tvb,
-					      offset, left, len, command, version);
-			offset += len;
-			left -= len;
+					      offset, left, header.len,
+					      header.command, header.version);
+			offset += header.len;
+			left -= header.len;
 		}
 	}
 

@@ -130,6 +130,7 @@ void ColoringRulesModel::addColor(color_filter_t* colorf)
 
         beginInsertRows(QModelIndex(), count, count);
         ColoringRuleItem* item = new ColoringRuleItem(colorf, root_);
+        color_filter_delete(colorf);
         root_->appendChild(item);
         endInsertRows();
     }

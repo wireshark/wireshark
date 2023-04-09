@@ -251,6 +251,9 @@
 #include <epan/reassemble.h>
 #include <epan/export_object.h>
 
+#include <wsutil/str_util.h>
+#include <wsutil/utf8_entities.h>
+
 #include "packet-tcp.h"
 
 #include "packet-dcm.h"
@@ -2581,6 +2584,11 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
             vals = tvb_format_text(pinfo->pool, tvb, offset, vl_max);
         }
 
+        if (grp == 0x0000 && elm == 0x0902) {
+            /* The error comment */
+            pdv->comment = g_strstrip(wmem_strdup(wmem_file_scope(), vals));
+        }
+
         if ((strncmp(vr, "UI", 2) == 0)) {
             /* This is a UID. Attempt a lookup. Will only return something for classes of course */
 
@@ -2594,7 +2602,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         }
         else {
             if (strlen(vals) > 50) {
-                *tag_value = wmem_strdup_printf(pinfo->pool, "%-50.50s...", vals);
+                *tag_value = wmem_strdup_printf(pinfo->pool, "%s%s", ws_utf8_truncate(vals, 50), UTF8_HORIZONTAL_ELLIPSIS);
             }
             else {
                 *tag_value = vals;
@@ -2602,10 +2610,6 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         }
         proto_tree_add_string(tree, hf_dcm_tag_value_str, tvb, offset, vl_max, *tag_value);
 
-        if (grp == 0x0000 && elm == 0x0902) {
-            /* The error comment */
-            pdv->comment = wmem_strdup(wmem_file_scope(), g_strstrip(vals));
-        }
     }
     else if ((strncmp(vr, "OB", 2) == 0) || (strncmp(vr, "OW", 2) == 0) ||
              (strncmp(vr, "OF", 2) == 0) || (strncmp(vr, "OD", 2) == 0)) {

@@ -180,8 +180,8 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 error_value = 0;
     guint64 flags_value = 0;
 
-    wmem_strbuf_t* supported_messages = wmem_strbuf_new(wmem_packet_scope(), "");
-    wmem_strbuf_t* module_addr_strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t* supported_messages = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_t* module_addr_strbuf = wmem_strbuf_new(pinfo->pool, "");
 
     static int* flags[] = {
         &hf_shicp_reserved_flag,
@@ -198,16 +198,16 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     shicp_tree = proto_item_add_subtree(ti, ett_shicp);
     proto_item_append_text(ti,
         ", Src:%s, Dst:%s",
-        address_with_resolution_to_str(wmem_packet_scope(), &pinfo->dl_src),
-        address_with_resolution_to_str(wmem_packet_scope(), &pinfo->dl_dst));
+        address_with_resolution_to_str(pinfo->pool, &pinfo->dl_src),
+        address_with_resolution_to_str(pinfo->pool, &pinfo->dl_dst));
     proto_tree_add_item_ret_uint(shicp_tree, hf_shicp_header, tvb, offset, SHICP_HEADER_SIZE, ENC_LITTLE_ENDIAN, &version);
     proto_tree_add_uint(shicp_tree, hf_shicp_protocol_version, tvb, offset, SHICP_HEADER_SIZE, version & 0x07);
     offset += SHICP_HEADER_SIZE;
     proto_tree_add_item(shicp_tree, hf_shicp_dst, tvb, offset, SHICP_ADDRESS_SIZE, ENC_NA);
-    gchar* dst = tvb_address_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset);
+    gchar* dst = tvb_address_to_str(pinfo->pool, tvb, AT_ETHER, offset);
     offset += SHICP_ADDRESS_SIZE;
     proto_tree_add_item(shicp_tree, hf_shicp_src, tvb, offset, SHICP_ADDRESS_SIZE, ENC_NA);
-    gchar* src = tvb_address_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset);
+    gchar* src = tvb_address_to_str(pinfo->pool, tvb, AT_ETHER, offset);
     offset += SHICP_ADDRESS_SIZE;
     flags_pi = proto_tree_add_bitmask_ret_uint64(shicp_tree, tvb, offset, hf_shicp_flags, ett_shicp_flags, flags, ENC_LITTLE_ENDIAN, &flags_value);
     offset += SHICP_FLAGS_SIZE;
@@ -596,7 +596,7 @@ proto_register_shicp(void)
     /* Setup protocol expert items */
     static ei_register_info ei[] = {
         { &ei_shicp_error,
-          { "shicp.error", PI_RESPONSE_CODE, PI_NOTE,
+          { "shicp.expert.error", PI_RESPONSE_CODE, PI_NOTE,
             "Message contains an error code", EXPFILL }
         },
         { &ei_shicp_malformed,

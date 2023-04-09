@@ -4198,11 +4198,50 @@ proto_reg_handoff_f5ethtrailer(void)
 
 /* Platform ID to platform name mapping
  *
- * https://support.f5.com/kb/en-us/products/big-ip_ltm/releasenotes/product/relnote-ltm-11-6-0.html
- * https://support.f5.com/csp/article/K9476
+ * https://my.f5.com/manage/s/article/K9476
+ * https://my.f5.com/manage/s/article/K86001294
  */
 
 static const string_string f5info_platform_strings[] = {
+    /* rSeries */
+    {"C128", "F5 r10000 Series (r10600, r10800, r10900)"},
+    {"C129", "F5 r5000 Series (r5600, r5800, r5900)"},
+    {"C130", "F5 r2000 Series (r2600, r2800)"},
+    {"C131", "F5 r4000 Series (r4600, r4800)"},
+
+    /* iSeries */
+    {"C115", "BIG-IP i4000 Series (i4600, i4800)"},
+    {"C116", "BIG-IP i10000 Series (i10600, i10800)"},
+    {"C117", "BIG-IP i2000 Series (i2600, i2800), BIG-IP i850)"},
+    {"C118", "BIG-IP i7000 Series (i7600, i7800)"},
+    {"C119", "BIG-IP i5000 Series (i5600, i5800)"},
+    {"C123", "BIG-IP i11600, i11800"},
+    {"C124", "BIG-IP i11400-DS, i11600-DS, i11800-DS"},
+    {"C125", "BIG-IP i5820-DF"},
+    {"C126", "BIG-IP i7820-DF"},
+    {"D116", "BIG-IP i15000 Series (i15600, i15800)"},
+    {"D120", "BIG-IP i15820-DF"},
+
+    /* Standard series */
+    {"C102", "BIG-IP 1600"},
+    {"C103", "BIG-IP 3600"},
+    {"C106", "BIG-IP 3900, Enterprise Manager 4000"},
+    {"C109", "BIG-IP 5000s, 5050s, 5200v, 5250v, 5250v-F"},
+    {"C112", "BIG-IP 2000 Series (2000s, 2200s)"},
+    {"C113", "BIG-IP 4000 Series (4000s, 4200v)"},
+    {"C114", "BIG-IP 800 (LTM only)"},
+    {"D104", "BIG-IP 6900 Series (6900, 6900S, 6900F, 6900N)"},
+    {"D106", "BIG-IP 8900"},
+    {"D107", "BIG-IP 8950"},
+    {"D110", "BIG-IP 7000 Series (7000s, 7050s, 7055s, 7200v, 7250v, 7255v), BIG-IQ 7000"},
+    {"D111", "BIG-IP 12000 Series (12250v)"},
+    {"D112", "BIG-IP 10050 Series (10150s-NEBS, 10350v (AC), 10350v-NEBS, 10350v-FIPS)"},
+    {"D113", "BIG-IP 10000 Series (10000s, 10050s, 10055, 10200v, 10250v, 10255)"},
+    {"E101", "BIG-IP 11000, BIG-IP 11000 FIPS"},
+    {"E102", "BIG-IP 11050, 11050 NEBS"},
+    {"E103", "BIG-IP 11050N"},
+
+    /* VIPRION */
     {"A100", "VIPRION B4100 Blade"},
     {"A105", "VIPRION B4100N Blade"},
     {"A107", "VIPRION B4200 Blade"},
@@ -4213,38 +4252,15 @@ static const string_string f5info_platform_strings[] = {
     {"A112", "VIPRION B2250 Blade"},
     {"A113", "VIPRION B2150 Blade"},
     {"A114", "VIPRION B4450 Blade"},
-    {"C102", "BIG-IP 1600"},
-    {"C103", "BIG-IP 3600"},
-    {"C106", "BIG-IP 3900, Enterprise Manager 4000"},
-    {"C109", "BIG-IP 5000s, 5050s, 5200v, 5250v, 5250v-F"},
-    {"C112", "BIG-IP 2000 Series (2000s, 2200s)"},
-    {"C113", "BIG-IP 4000 Series (4000s, 4200v)"},
-    {"C114", "BIG-IP 800 (LTM only)"},
-    {"C115", "BIG-IP i4000 Series (i4600, i4800)"},
-    {"C116", "BIG-IP i10000 Series (i10600, i10800)"},
-    {"C117", "BIG-IP i2000 Series (i2600, i2800), BIG-IP i850)"},
-    {"C118", "BIG-IP i7000 Series (i7600, i7800)"},
-    {"C119", "BIG-IP i5000 Series (i5600, i5800)"},
+
+    /* Herculon */
     {"C120", "Herculon i2800"},
     {"C121", "Herculon i5800"},
     {"C122", "Herculon i10800"},
-    {"C123", "BIG-IP i11600, i11800"},
-    {"C124", "BIG-IP i11400-DS, i11600-DS, i11800-DS"},
-    {"C125", "BIG-IP i5820-DF"},
-    {"C126", "BIG-IP i7820-DF"},
-    {"D104", "BIG-IP 6900 Series (6900, 6900S, 6900F, 6900N)"},
-    {"D106", "BIG-IP 8900"},
-    {"D107", "BIG-IP 8950"},
-    {"D110", "BIG-IP 7000 Series (7000s, 7050s, 7055s, 7200v, 7250v, 7255v), BIG-IQ 7000"},
-    {"D111", "BIG-IP 12000 Series (12250v)"},
-    {"D112", "BIG-IP 10050 Series (10150s-NEBS, 10350v (AC), 10350v-NEBS, 10350v-FIPS)"},
-    {"D113", "BIG-IP 10000 Series (10000s, 10050s, 10055, 10200v, 10250v, 10255)"},
-    {"D116", "BIG-IP i15000 Series (i15600, i15800)"},
-    {"E101", "BIG-IP 11000, BIG-IP 11000 FIPS"},
-    {"E102", "BIG-IP 11050, 11050 NEBS"},
-    {"E103", "BIG-IP 11050N"},
-    {"Z100", "Virtual Edition (VE)"},
-    {"Z101", "vCMP Guest"},
+
+    /* Virtualized platforms*/
+    {"Z100", "BIG-IP Virtual Edition (VE)"},
+    {"Z101", "BIG-IP vCMP Guest"},
     {NULL, NULL}
 };
     /* It currently looks like these do not apply. Kept for completeness only */
@@ -4255,6 +4271,7 @@ static const string_string f5info_platform_strings[] = {
     {"D101", "FirePass 4300"},
     {"D114", "VIPRION C2200 Chassis"},
     {"F100", "VIPRION C2400 Chassis"},
+    {"F101", "VELOS CX410 Chassis"},
     {"J100", "VIPRION C4400 Chassis"},
     {"J101", "VIPRION C4400N Chassis"},
     {"J102", "VIPRION C4480 Chassis"},

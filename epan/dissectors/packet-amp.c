@@ -497,7 +497,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                 if ( (ariFlags & 0x0F) != 0x03 )
                 {
                     // ARI is NOT Literal
-                    proto_tree_add_item(amp_report_tree, hf_amp_report_bytestring, tvb, offset+1, (int) tmpObj3.uint-1, 0x00);
+                    proto_tree_add_item(amp_report_tree, hf_amp_report_bytestring, tvb, offset+1, (int) tmpObj3.uint-1, ENC_NA);
                 }
                 old_offset = offset;
                 offset += (int) tmpObj3.uint;

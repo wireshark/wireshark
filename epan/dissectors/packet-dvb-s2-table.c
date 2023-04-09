@@ -3487,12 +3487,12 @@ void proto_register_dvb_s2_table(void)
         },
         {&hf_dvb_s2_tdt_date, {
                 "Date", "dvb-s2_table.date",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_tdt_hour, {
                 "Hour", "dvb-s2_table.hour",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_tdt_minute, {

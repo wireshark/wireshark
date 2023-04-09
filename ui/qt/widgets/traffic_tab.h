@@ -97,15 +97,14 @@ public:
     void setProtocolInfo(QString tableName, TrafficTypesList * trafficList, GList ** recentColumnList, ATapModelCallback createModel);
 
     /**
-     * @brief Set the Delegate object for a specific column
+     * @brief Set the Delegate object for the tab. It will apply for all
+     * models residing in this tab object
      *
-     * @param column the column to set the delegate for. It will apply for all models
-     * residing inside this tab object
      * @param createDelegate the callback for the delegate creation
      *
      * @see ATapCreateDelegate
      */
-    void setDelegate(int column, ATapCreateDelegate createDelegate);
+    void setDelegate(ATapCreateDelegate createDelegate);
 
     /**
      * @brief Set the filter or remove it by providing an empty filter
@@ -221,7 +220,7 @@ private:
     QList<int> _allProtocols;
     QMap<int, int> _tabs;
     ATapModelCallback _createModel;
-    QMap<int, ATapCreateDelegate> _createDelegates;
+    ATapCreateDelegate _createDelegate;
     GList ** _recentColumnList;
 
     bool _disableTaps;

@@ -1469,7 +1469,7 @@ wtap_deregister_file_type_subtype(const int subtype)
  * WTAP_ENCAP_PER_PACKET.
  */
 int
-wtap_dump_file_encap_type(const GArray *file_encaps)
+wtap_dump_required_file_encap_type(const GArray *file_encaps)
 {
 	int encap;
 
@@ -1559,7 +1559,7 @@ wtap_dump_can_write_format(int ft, const GArray *file_encaps,
 	 * Yes.  Is the required per-file encapsulation type supported?
 	 * This might be WTAP_ENCAP_PER_PACKET.
 	 */
-	if (!wtap_dump_can_write_encap(ft, wtap_dump_file_encap_type(file_encaps))) {
+	if (!wtap_dump_can_write_encap(ft, wtap_dump_required_file_encap_type(file_encaps))) {
 		/* No. */
 		return FALSE;
 	}
@@ -2301,7 +2301,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 
 	wdh->file_type_subtype = file_type_subtype;
 	wdh->snaplen = params->snaplen;
-	wdh->encap = params->encap;
+	wdh->file_encap = params->encap;
 	wdh->compression_type = compression_type;
 	wdh->wslua_data = NULL;
 	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
@@ -2823,7 +2823,7 @@ wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 }
 #endif
 
-/* internally writing raw bytes (compressed or not) */
+/* internally writing raw bytes (compressed or not). Updates wdh->bytes_dumped on success */
 gboolean
 wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err)
 {
@@ -2856,6 +2856,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 			return FALSE;
 		}
 	}
+	wdh->bytes_dumped += bufsize;
 	return TRUE;
 }
 

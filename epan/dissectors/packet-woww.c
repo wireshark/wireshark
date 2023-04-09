@@ -86,22 +86,16 @@ static int hf_woww_action_bars = -1;
 static int hf_woww_action_type = -1;
 static int hf_woww_activate_taxi_reply = -1;
 static int hf_woww_actual_roll = -1;
-static int hf_woww_addon_crc = -1;
-static int hf_woww_addon_extra_crc = -1;
-static int hf_woww_addon_has_signature = -1;
-static int hf_woww_addon_name = -1;
 static int hf_woww_addon_type = -1;
 static int hf_woww_agility = -1;
 static int hf_woww_ai_reaction = -1;
 static int hf_woww_allow_movement = -1;
 static int hf_woww_allowed_class = -1;
-static int hf_woww_allowed_classes = -1;
 static int hf_woww_allowed_genders = -1;
 static int hf_woww_allowed_guild_id = -1;
 static int hf_woww_allowed_maximum_level = -1;
 static int hf_woww_allowed_minimum_level = -1;
 static int hf_woww_allowed_race = -1;
-static int hf_woww_allowed_races = -1;
 static int hf_woww_ammo_display_id = -1;
 static int hf_woww_ammo_inventory_type = -1;
 static int hf_woww_ammo_type = -1;
@@ -121,6 +115,7 @@ static int hf_woww_amount_of_emotes = -1;
 static int hf_woww_amount_of_entries = -1;
 static int hf_woww_amount_of_events = -1;
 static int hf_woww_amount_of_extra_fields = -1;
+static int hf_woww_amount_of_faction_standings = -1;
 static int hf_woww_amount_of_factions = -1;
 static int hf_woww_amount_of_friends = -1;
 static int hf_woww_amount_of_gossip_items = -1;
@@ -146,6 +141,7 @@ static int hf_woww_amount_of_required_items = -1;
 static int hf_woww_amount_of_rights = -1;
 static int hf_woww_amount_of_signatures = -1;
 static int hf_woww_amount_of_spells = -1;
+static int hf_woww_amount_of_splines = -1;
 static int hf_woww_amount_of_states = -1;
 static int hf_woww_amount_of_strings = -1;
 static int hf_woww_amount_of_targets = -1;
@@ -158,9 +154,9 @@ static int hf_woww_answer_comment = -1;
 static int hf_woww_apply = -1;
 static int hf_woww_arcane_resistance = -1;
 static int hf_woww_area = -1;
+static int hf_woww_argument = -1;
 static int hf_woww_armor = -1;
 static int hf_woww_attacker = -1;
-static int hf_woww_attacker_guid = -1;
 static int hf_woww_auction_duration_in_minutes = -1;
 static int hf_woww_auction_house_id = -1;
 static int hf_woww_auction_id = -1;
@@ -169,19 +165,18 @@ static int hf_woww_auction_out_bid = -1;
 static int hf_woww_auction_slot_id = -1;
 static int hf_woww_auction_sub_category = -1;
 static int hf_woww_auctioneer = -1;
-static int hf_woww_auctioneer_guid = -1;
 static int hf_woww_aura_duration = -1;
 static int hf_woww_aura_slot = -1;
 static int hf_woww_aura_type = -1;
 static int hf_woww_auto_decline_time_in_msecs = -1;
 static int hf_woww_auto_finish = -1;
+static int hf_woww_autocast_enabled = -1;
 static int hf_woww_average_wait_time_in_ms = -1;
 static int hf_woww_background_color = -1;
 static int hf_woww_backwards_running_speed = -1;
 static int hf_woww_backwards_swimming_speed = -1;
 static int hf_woww_bag = -1;
 static int hf_woww_bag_family = -1;
-static int hf_woww_bag_guid = -1;
 static int hf_woww_bag_index = -1;
 static int hf_woww_bag_slot = -1;
 static int hf_woww_bag_type_subclass = -1;
@@ -218,10 +213,7 @@ static int hf_woww_buyout_amount = -1;
 static int hf_woww_cash_on_delivery_amount = -1;
 static int hf_woww_cast_failure_reason = -1;
 static int hf_woww_cast_flags = -1;
-static int hf_woww_cast_item = -1;
 static int hf_woww_caster = -1;
-static int hf_woww_caster_guid = -1;
-static int hf_woww_caster_is_spirit_healer = -1;
 static int hf_woww_category_cooldown_in_msecs = -1;
 static int hf_woww_channel = -1;
 static int hf_woww_channel_flags = -1;
@@ -250,28 +242,24 @@ static int hf_woww_client_seed = -1;
 static int hf_woww_code = -1;
 static int hf_woww_coded = -1;
 static int hf_woww_comment = -1;
-static int hf_woww_compressed_chat_data = -1;
+static int hf_woww_compressed_data = -1;
 static int hf_woww_container_slots = -1;
 static int hf_woww_content = -1;
 static int hf_woww_cooldown_count = -1;
 static int hf_woww_cooldown_in_msecs = -1;
 static int hf_woww_cooldown_time_in_msecs = -1;
 static int hf_woww_corpse_query_result = -1;
-static int hf_woww_corpse_target_ally = -1;
-static int hf_woww_corpse_target_enemy = -1;
 static int hf_woww_cos_angle = -1;
 static int hf_woww_cost_in_copper = -1;
 static int hf_woww_count = -1;
-static int hf_woww_countdown_time = -1;
+static int hf_woww_countdown_time_in_milliseconds = -1;
 static int hf_woww_counter = -1;
-static int hf_woww_create_id = -1;
 static int hf_woww_created_day = -1;
 static int hf_woww_created_month = -1;
 static int hf_woww_created_year = -1;
 static int hf_woww_creature = -1;
 static int hf_woww_creature_entry = -1;
 static int hf_woww_creature_family = -1;
-static int hf_woww_creature_guid = -1;
 static int hf_woww_creature_id = -1;
 static int hf_woww_creature_rank = -1;
 static int hf_woww_creature_type = -1;
@@ -283,7 +271,6 @@ static int hf_woww_damage_float = -1;
 static int hf_woww_damage_maximum = -1;
 static int hf_woww_damage_minimum = -1;
 static int hf_woww_damage_state = -1;
-static int hf_woww_damage_type = -1;
 static int hf_woww_damage_uint = -1;
 static int hf_woww_data = -1;
 static int hf_woww_data_type = -1;
@@ -293,19 +280,19 @@ static int hf_woww_days_since_oldest_ticket_creation = -1;
 static int hf_woww_days_since_ticket_creation = -1;
 static int hf_woww_deadline = -1;
 static int hf_woww_deaths = -1;
+static int hf_woww_debug_log_format = -1;
 static int hf_woww_decompressed_addon_info_size = -1;
+static int hf_woww_decompressed_size = -1;
 static int hf_woww_delay = -1;
 static int hf_woww_delay_in_seconds = -1;
 static int hf_woww_delay_time = -1;
 static int hf_woww_description = -1;
 static int hf_woww_destination_bag = -1;
 static int hf_woww_destination_node = -1;
-static int hf_woww_destination_position_x = -1;
-static int hf_woww_destination_position_y = -1;
-static int hf_woww_destination_position_z = -1;
 static int hf_woww_destination_slot = -1;
 static int hf_woww_destionation_slot = -1;
 static int hf_woww_details = -1;
+static int hf_woww_dismount_result = -1;
 static int hf_woww_display_id = -1;
 static int hf_woww_duel_winner_reason = -1;
 static int hf_woww_durability = -1;
@@ -317,13 +304,13 @@ static int hf_woww_emote_delay = -1;
 static int hf_woww_emote_delay_in_msecs = -1;
 static int hf_woww_emote_enum = -1;
 static int hf_woww_emote_int = -1;
-static int hf_woww_enable_next = -1;
 static int hf_woww_enable_pvp = -1;
-static int hf_woww_enabled = -1;
 static int hf_woww_enchantment = -1;
+static int hf_woww_encrypted_data = -1;
 static int hf_woww_end_text = -1;
 static int hf_woww_ended_without_interruption = -1;
-static int hf_woww_enemy = -1;
+static int hf_woww_energize_amount = -1;
+static int hf_woww_energize_power = -1;
 static int hf_woww_energy = -1;
 static int hf_woww_entry = -1;
 static int hf_woww_entry_id = -1;
@@ -340,12 +327,14 @@ static int hf_woww_experience_reward = -1;
 static int hf_woww_experience_without_rested = -1;
 static int hf_woww_expiration_time = -1;
 static int hf_woww_extend_flag = -1;
+static int hf_woww_extra_attacks = -1;
 static int hf_woww_face = -1;
 static int hf_woww_facial_hair = -1;
+static int hf_woww_faction = -1;
 static int hf_woww_faction_flag = -1;
-static int hf_woww_faction_id = -1;
 static int hf_woww_fall_time = -1;
 static int hf_woww_far_sight_operation = -1;
+static int hf_woww_feed_pet_item = -1;
 static int hf_woww_fields = -1;
 static int hf_woww_fire_resistance = -1;
 static int hf_woww_first_bag_display_id = -1;
@@ -354,7 +343,6 @@ static int hf_woww_first_login = -1;
 static int hf_woww_first_rank = -1;
 static int hf_woww_flags = -1;
 static int hf_woww_focus = -1;
-static int hf_woww_friend_name = -1;
 static int hf_woww_friend_result = -1;
 static int hf_woww_friend_status = -1;
 static int hf_woww_frost_resistance = -1;
@@ -386,7 +374,6 @@ static int hf_woww_guild_command = -1;
 static int hf_woww_guild_command_result = -1;
 static int hf_woww_guild_emblem_result = -1;
 static int hf_woww_guild_event = -1;
-static int hf_woww_guild_guid = -1;
 static int hf_woww_guild_id = -1;
 static int hf_woww_guild_info = -1;
 static int hf_woww_guild_member_status = -1;
@@ -394,8 +381,9 @@ static int hf_woww_guild_name = -1;
 static int hf_woww_hair_color = -1;
 static int hf_woww_hair_style = -1;
 static int hf_woww_happiness = -1;
-static int hf_woww_has_been_saved = -1;
 static int hf_woww_has_transport = -1;
+static int hf_woww_heal_amount = -1;
+static int hf_woww_heal_critical = -1;
 static int hf_woww_health = -1;
 static int hf_woww_highest_bid = -1;
 static int hf_woww_highest_bidder = -1;
@@ -408,13 +396,12 @@ static int hf_woww_honorable_kills = -1;
 static int hf_woww_horizontal_speed = -1;
 static int hf_woww_icon = -1;
 static int hf_woww_id = -1;
-static int hf_woww_ignore_name = -1;
 static int hf_woww_ignored = -1;
 static int hf_woww_inactive = -1;
 static int hf_woww_index = -1;
 static int hf_woww_info_block = -1;
 static int hf_woww_info_type = -1;
-static int hf_woww_initiator_guid = -1;
+static int hf_woww_initiator = -1;
 static int hf_woww_initiator_name = -1;
 static int hf_woww_instance_id = -1;
 static int hf_woww_instance_reset_failed_reason = -1;
@@ -426,20 +413,18 @@ static int hf_woww_invited_player = -1;
 static int hf_woww_is_applied = -1;
 static int hf_woww_is_frozen = -1;
 static int hf_woww_is_online = -1;
-static int hf_woww_is_wrapped = -1;
 static int hf_woww_issue_date = -1;
 static int hf_woww_item = -1;
 static int hf_woww_item_bag_index = -1;
 static int hf_woww_item_charges = -1;
 static int hf_woww_item_class = -1;
+static int hf_woww_item_class_and_sub_class = -1;
 static int hf_woww_item_count = -1;
 static int hf_woww_item_creator = -1;
 static int hf_woww_item_display_id = -1;
-static int hf_woww_item_display_info = -1;
 static int hf_woww_item_enchant_id = -1;
 static int hf_woww_item_enchantment = -1;
-static int hf_woww_item_entry = -1;
-static int hf_woww_item_guid = -1;
+static int hf_woww_item_flag = -1;
 static int hf_woww_item_icon = -1;
 static int hf_woww_item_id = -1;
 static int hf_woww_item_level = -1;
@@ -457,15 +442,11 @@ static int hf_woww_item_spell_charges = -1;
 static int hf_woww_item_stack_count = -1;
 static int hf_woww_item_stack_size = -1;
 static int hf_woww_item_stat_type = -1;
-static int hf_woww_item_stat_value = -1;
-static int hf_woww_item_sub_class = -1;
 static int hf_woww_item_sub_class_mask = -1;
 static int hf_woww_item_suffix_factor = -1;
-static int hf_woww_item_target = -1;
-static int hf_woww_item_target_entry = -1;
 static int hf_woww_item_template = -1;
 static int hf_woww_item_text_id = -1;
-static int hf_woww_item_trade_target = -1;
+static int hf_woww_item_to_damage = -1;
 static int hf_woww_items_required = -1;
 static int hf_woww_join_as_group = -1;
 static int hf_woww_key_version = -1;
@@ -473,7 +454,6 @@ static int hf_woww_kill_count = -1;
 static int hf_woww_killing_blows = -1;
 static int hf_woww_lag = -1;
 static int hf_woww_language = -1;
-static int hf_woww_language_id = -1;
 static int hf_woww_last_week_honor = -1;
 static int hf_woww_last_week_honorable = -1;
 static int hf_woww_leader = -1;
@@ -494,13 +474,13 @@ static int hf_woww_loot = -1;
 static int hf_woww_loot_master = -1;
 static int hf_woww_loot_method = -1;
 static int hf_woww_loot_slot = -1;
-static int hf_woww_looted_target_guid = -1;
+static int hf_woww_loot_slot_type = -1;
+static int hf_woww_looted_target = -1;
 static int hf_woww_loyalty = -1;
 static int hf_woww_mail_id = -1;
 static int hf_woww_mail_template_id = -1;
 static int hf_woww_mail_type = -1;
 static int hf_woww_mailbox = -1;
-static int hf_woww_mailbox_guid = -1;
 static int hf_woww_mailbox_id = -1;
 static int hf_woww_mana = -1;
 static int hf_woww_map = -1;
@@ -538,6 +518,7 @@ static int hf_woww_mount_result = -1;
 static int hf_woww_move_event = -1;
 static int hf_woww_movement_counter = -1;
 static int hf_woww_movement_flags = -1;
+static int hf_woww_multiplier = -1;
 static int hf_woww_name = -1;
 static int hf_woww_nature_resistance = -1;
 static int hf_woww_nearest_node = -1;
@@ -558,11 +539,8 @@ static int hf_woww_nodes = -1;
 static int hf_woww_note = -1;
 static int hf_woww_notification = -1;
 static int hf_woww_npc = -1;
-static int hf_woww_npc_guid = -1;
 static int hf_woww_number_of_battlegrounds = -1;
 static int hf_woww_number_of_choices = -1;
-static int hf_woww_object_target = -1;
-static int hf_woww_object_target_locked = -1;
 static int hf_woww_object_type = -1;
 static int hf_woww_objective_text = -1;
 static int hf_woww_objective_texts = -1;
@@ -578,12 +556,10 @@ static int hf_woww_orientation = -1;
 static int hf_woww_out_bid = -1;
 static int hf_woww_outbid_item_ids = -1;
 static int hf_woww_outfit_id = -1;
-static int hf_woww_own_flags = -1;
-static int hf_woww_owner_guid = -1;
-static int hf_woww_padding = -1;
+static int hf_woww_owner = -1;
 static int hf_woww_page_id = -1;
-static int hf_woww_page_material = -1;
 static int hf_woww_page_text = -1;
+static int hf_woww_page_text_material = -1;
 static int hf_woww_party_operation = -1;
 static int hf_woww_party_result = -1;
 static int hf_woww_party_status = -1;
@@ -594,9 +570,7 @@ static int hf_woww_pet_current_health = -1;
 static int hf_woww_pet_current_power = -1;
 static int hf_woww_pet_display_id = -1;
 static int hf_woww_pet_enabled = -1;
-static int hf_woww_pet_family = -1;
 static int hf_woww_pet_feedback = -1;
-static int hf_woww_pet_guid = -1;
 static int hf_woww_pet_level = -1;
 static int hf_woww_pet_max_health = -1;
 static int hf_woww_pet_max_power = -1;
@@ -608,12 +582,12 @@ static int hf_woww_pet_slot = -1;
 static int hf_woww_pet_talk_reason = -1;
 static int hf_woww_pet_tame_failure_reason = -1;
 static int hf_woww_petition = -1;
-static int hf_woww_petition_guid = -1;
+static int hf_woww_petition_id = -1;
 static int hf_woww_petition_result = -1;
 static int hf_woww_pitch = -1;
 static int hf_woww_player = -1;
 static int hf_woww_player_chat_tag = -1;
-static int hf_woww_player_guid = -1;
+static int hf_woww_player_is_saved_to_a_raid = -1;
 static int hf_woww_player_name = -1;
 static int hf_woww_player_rank = -1;
 static int hf_woww_player_with_killing_blow = -1;
@@ -625,12 +599,12 @@ static int hf_woww_position_x_int = -1;
 static int hf_woww_position_y = -1;
 static int hf_woww_position_y_int = -1;
 static int hf_woww_power = -1;
-static int hf_woww_power_type = -1;
 static int hf_woww_price = -1;
 static int hf_woww_probability = -1;
 static int hf_woww_public_key = -1;
 static int hf_woww_public_note = -1;
 static int hf_woww_pvp_rank = -1;
+static int hf_woww_query = -1;
 static int hf_woww_quest_completable = -1;
 static int hf_woww_quest_failed_reason = -1;
 static int hf_woww_quest_flags = -1;
@@ -666,34 +640,28 @@ static int hf_woww_read_by_gm = -1;
 static int hf_woww_realm_name = -1;
 static int hf_woww_receiver = -1;
 static int hf_woww_records = -1;
-static int hf_woww_reputation_id = -1;
-static int hf_woww_reputation_list_id = -1;
-static int hf_woww_reputation_objective_faction = -1;
 static int hf_woww_reputation_objective_value = -1;
 static int hf_woww_reputation_rank = -1;
 static int hf_woww_request_items_text = -1;
 static int hf_woww_requested_rank = -1;
 static int hf_woww_required_city_rank = -1;
+static int hf_woww_required_faction_rank = -1;
 static int hf_woww_required_honor_rank = -1;
 static int hf_woww_required_item_count = -1;
 static int hf_woww_required_item_id = -1;
 static int hf_woww_required_kill_count = -1;
 static int hf_woww_required_level = -1;
 static int hf_woww_required_money = -1;
-static int hf_woww_required_opposite_faction = -1;
 static int hf_woww_required_opposite_reputation_value = -1;
-static int hf_woww_required_reputation_faction = -1;
-static int hf_woww_required_reputation_rank = -1;
-static int hf_woww_required_skill = -1;
 static int hf_woww_required_skill_rank = -1;
 static int hf_woww_required_skill_value = -1;
 static int hf_woww_required_spell = -1;
 static int hf_woww_required_spell_focus = -1;
+static int hf_woww_required_spells = -1;
 static int hf_woww_reserved_for_future_use = -1;
 static int hf_woww_reset_time = -1;
 static int hf_woww_resist = -1;
 static int hf_woww_resisted = -1;
-static int hf_woww_respect_resurrection_timer = -1;
 static int hf_woww_reward = -1;
 static int hf_woww_reward_spell = -1;
 static int hf_woww_reward_spell_cast = -1;
@@ -717,12 +685,13 @@ static int hf_woww_server_message_type = -1;
 static int hf_woww_server_seed = -1;
 static int hf_woww_set_assistant = -1;
 static int hf_woww_shadow_resistance = -1;
-static int hf_woww_sheath = -1;
 static int hf_woww_sheath_state = -1;
+static int hf_woww_sheathe_type = -1;
+static int hf_woww_show_affiliation = -1;
 static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
 static int hf_woww_sin_angle = -1;
-static int hf_woww_skill_id = -1;
+static int hf_woww_skill = -1;
 static int hf_woww_skin = -1;
 static int hf_woww_skin_color = -1;
 static int hf_woww_slot = -1;
@@ -732,9 +701,6 @@ static int hf_woww_sound_id = -1;
 static int hf_woww_source_bag = -1;
 static int hf_woww_source_item_id = -1;
 static int hf_woww_source_node = -1;
-static int hf_woww_source_position_x = -1;
-static int hf_woww_source_position_y = -1;
-static int hf_woww_source_position_z = -1;
 static int hf_woww_source_slot = -1;
 static int hf_woww_speech_bubble_credit = -1;
 static int hf_woww_speed = -1;
@@ -744,29 +710,27 @@ static int hf_woww_spell_cast_result = -1;
 static int hf_woww_spell_cast_target_flags = -1;
 static int hf_woww_spell_category = -1;
 static int hf_woww_spell_category_cooldown = -1;
-static int hf_woww_spell_chain_previous = -1;
-static int hf_woww_spell_chain_required = -1;
 static int hf_woww_spell_charges = -1;
 static int hf_woww_spell_cooldown = -1;
 static int hf_woww_spell_cost = -1;
 static int hf_woww_spell_count = -1;
 static int hf_woww_spell_data_id = -1;
 static int hf_woww_spell_effect = -1;
-static int hf_woww_spell_effect_item_type = -1;
 static int hf_woww_spell_id = -1;
 static int hf_woww_spell_index = -1;
 static int hf_woww_spell_miss_info = -1;
 static int hf_woww_spell_on_lowest_slot = -1;
-static int hf_woww_spell_ppm_rate = -1;
 static int hf_woww_spell_school = -1;
 static int hf_woww_spell_school_mask = -1;
-static int hf_woww_spell_trigger = -1;
+static int hf_woww_spell_trigger_type = -1;
 static int hf_woww_spell_visual_kit = -1;
 static int hf_woww_spells = -1;
 static int hf_woww_spirit = -1;
+static int hf_woww_spirit_released = -1;
 static int hf_woww_spline_elevation = -1;
 static int hf_woww_spline_flag = -1;
 static int hf_woww_spline_id = -1;
+static int hf_woww_stable_master = -1;
 static int hf_woww_stable_result = -1;
 static int hf_woww_stable_slots = -1;
 static int hf_woww_stack_count = -1;
@@ -786,7 +750,7 @@ static int hf_woww_string = -1;
 static int hf_woww_sub_name = -1;
 static int hf_woww_subject = -1;
 static int hf_woww_suggestion = -1;
-static int hf_woww_summoner_guid = -1;
+static int hf_woww_summoner = -1;
 static int hf_woww_survey_id = -1;
 static int hf_woww_swap_with_name = -1;
 static int hf_woww_swimming_speed = -1;
@@ -795,7 +759,6 @@ static int hf_woww_talent_point_cost = -1;
 static int hf_woww_talent_reset_cost = -1;
 static int hf_woww_target = -1;
 static int hf_woww_target_error = -1;
-static int hf_woww_target_guid = -1;
 static int hf_woww_target_player = -1;
 static int hf_woww_target_string = -1;
 static int hf_woww_targets = -1;
@@ -816,6 +779,7 @@ static int hf_woww_time_left_in_msecs = -1;
 static int hf_woww_time_offline = -1;
 static int hf_woww_time_passed = -1;
 static int hf_woww_time_remaining = -1;
+static int hf_woww_time_skipped = -1;
 static int hf_woww_time_to_bg_autoleave_in_ms = -1;
 static int hf_woww_time_to_bg_start_in_ms = -1;
 static int hf_woww_time_to_remove_in_queue_in_ms = -1;
@@ -848,10 +812,7 @@ static int hf_woww_tutorial_data = -1;
 static int hf_woww_tutorial_flag = -1;
 static int hf_woww_type_flags = -1;
 static int hf_woww_unimplemented = -1;
-static int hf_woww_unit_enemy_target = -1;
 static int hf_woww_unit_stand_state = -1;
-static int hf_woww_unit_target = -1;
-static int hf_woww_unknown_bytes = -1;
 static int hf_woww_unknown_flags = -1;
 static int hf_woww_unknown_float = -1;
 static int hf_woww_unknown_guid = -1;
@@ -869,19 +830,18 @@ static int hf_woww_v_cos = -1;
 static int hf_woww_v_sin = -1;
 static int hf_woww_value = -1;
 static int hf_woww_vendor = -1;
-static int hf_woww_vendor_guid = -1;
 static int hf_woww_vendor_slot = -1;
 static int hf_woww_vertical_speed = -1;
 static int hf_woww_victim = -1;
-static int hf_woww_victim_guid = -1;
 static int hf_woww_walking_speed = -1;
 static int hf_woww_weather_change_type = -1;
 static int hf_woww_weather_type = -1;
-static int hf_woww_winning_player_guid = -1;
+static int hf_woww_winning_player = -1;
 static int hf_woww_winning_roll = -1;
 static int hf_woww_wiping_npc = -1;
 static int hf_woww_won = -1;
 static int hf_woww_world_result = -1;
+static int hf_woww_wrapped = -1;
 static int hf_woww_x = -1;
 static int hf_woww_xy_speed = -1;
 static int hf_woww_y = -1;
@@ -889,7 +849,6 @@ static int hf_woww_yesterday_honor = -1;
 static int hf_woww_yesterday_honorable = -1;
 static int hf_woww_z = -1;
 static int hf_woww_z_speed = -1;
-static int hf_woww_zone_id = -1;
 static int hf_woww_zone_or_sort = -1;
 static int hf_woww_zones = -1;
 /* AUTOGENERATED_END_HF */
@@ -1531,6 +1490,7 @@ static const value_string e_gender_strings[] =  {
 };
 
 typedef enum {
+    AREA_NONE = 0x000,
     AREA_DUN_MOROGH = 0x001,
     AREA_LONGSHORE = 0x002,
     AREA_BADLANDS = 0x003,
@@ -2614,6 +2574,7 @@ typedef enum {
     AREA_RAVENHOLDT_MANOR = 0xD9E,
 } e_area;
 static const value_string e_area_strings[] =  {
+    { AREA_NONE, "None" },
     { AREA_DUN_MOROGH, "Dun Morogh" },
     { AREA_LONGSHORE, "Longshore" },
     { AREA_BADLANDS, "Badlands" },
@@ -3712,11 +3673,11 @@ typedef enum {
     MAP_AZSHARA_CRATER = 0x025,
     MAP_COLLINS_TEST = 0x02A,
     MAP_WAILING_CAVERNS = 0x02B,
-    MAP_MONASTERY = 0x02C,
+    MAP_MONASTERY_UNUSED = 0x02C,
     MAP_RAZORFEN_KRAUL = 0x02F,
     MAP_BLACKFATHOM_DEEPS = 0x030,
     MAP_ULDAMAN = 0x046,
-    MAP_GNOMERAGON = 0x05A,
+    MAP_GNOMEREGAN = 0x05A,
     MAP_SUNKEN_TEMPLE = 0x06D,
     MAP_RAZORFEN_DOWNS = 0x081,
     MAP_EMERALD_DREAM = 0x0A9,
@@ -3725,11 +3686,11 @@ typedef enum {
     MAP_BLACKROCK_SPIRE = 0x0E5,
     MAP_BLACKROCK_DEPTHS = 0x0E6,
     MAP_ONYXIAS_LAIR = 0x0F9,
-    MAP_CAVERNS_OF_TIME = 0x10D,
+    MAP_OPENING_OF_THE_DARK_PORTAL = 0x10D,
     MAP_SCHOLOMANCE = 0x121,
     MAP_ZUL_GURUB = 0x135,
     MAP_STRATHOLME = 0x149,
-    MAP_MAURADON = 0x15D,
+    MAP_MARAUDON = 0x15D,
     MAP_DEEPRUN_TRAM = 0x171,
     MAP_RAGEFIRE_CHASM = 0x185,
     MAP_MOLTEN_CORE = 0x199,
@@ -3758,11 +3719,11 @@ static const value_string e_map_strings[] =  {
     { MAP_AZSHARA_CRATER, "Azshara Crater" },
     { MAP_COLLINS_TEST, "Collins Test" },
     { MAP_WAILING_CAVERNS, "Wailing Caverns" },
-    { MAP_MONASTERY, "Monastery" },
+    { MAP_MONASTERY_UNUSED, "Monastery Unused" },
     { MAP_RAZORFEN_KRAUL, "Razorfen Kraul" },
     { MAP_BLACKFATHOM_DEEPS, "Blackfathom Deeps" },
     { MAP_ULDAMAN, "Uldaman" },
-    { MAP_GNOMERAGON, "Gnomeragon" },
+    { MAP_GNOMEREGAN, "Gnomeregan" },
     { MAP_SUNKEN_TEMPLE, "Sunken Temple" },
     { MAP_RAZORFEN_DOWNS, "Razorfen Downs" },
     { MAP_EMERALD_DREAM, "Emerald Dream" },
@@ -3771,11 +3732,11 @@ static const value_string e_map_strings[] =  {
     { MAP_BLACKROCK_SPIRE, "Blackrock Spire" },
     { MAP_BLACKROCK_DEPTHS, "Blackrock Depths" },
     { MAP_ONYXIAS_LAIR, "Onyxias Lair" },
-    { MAP_CAVERNS_OF_TIME, "Caverns Of Time" },
+    { MAP_OPENING_OF_THE_DARK_PORTAL, "Opening Of The Dark Portal" },
     { MAP_SCHOLOMANCE, "Scholomance" },
     { MAP_ZUL_GURUB, "Zul Gurub" },
     { MAP_STRATHOLME, "Stratholme" },
-    { MAP_MAURADON, "Mauradon" },
+    { MAP_MARAUDON, "Maraudon" },
     { MAP_DEEPRUN_TRAM, "Deeprun Tram" },
     { MAP_RAGEFIRE_CHASM, "Ragefire Chasm" },
     { MAP_MOLTEN_CORE, "Molten Core" },
@@ -3789,6 +3750,60 @@ static const value_string e_map_strings[] =  {
     { MAP_ARATHI_BASIN, "Arathi Basin" },
     { MAP_AHN_QIRAJ_TEMPLE, "Ahn Qiraj Temple" },
     { MAP_NAXXRAMAS, "Naxxramas" },
+    { 0, NULL }
+};
+
+typedef enum {
+    CREATURE_FAMILY_NONE = 0x00,
+    CREATURE_FAMILY_WOLF = 0x01,
+    CREATURE_FAMILY_CAT = 0x02,
+    CREATURE_FAMILY_SPIDER = 0x03,
+    CREATURE_FAMILY_BEAR = 0x04,
+    CREATURE_FAMILY_BOAR = 0x05,
+    CREATURE_FAMILY_CROCOLISK = 0x06,
+    CREATURE_FAMILY_CARRION_BIRD = 0x07,
+    CREATURE_FAMILY_CRAB = 0x08,
+    CREATURE_FAMILY_GORILLA = 0x09,
+    CREATURE_FAMILY_RAPTOR = 0x0B,
+    CREATURE_FAMILY_TALLSTRIDER = 0x0C,
+    CREATURE_FAMILY_FELHUNTER = 0x0F,
+    CREATURE_FAMILY_VOIDWALKER = 0x10,
+    CREATURE_FAMILY_SUCCUBUS = 0x11,
+    CREATURE_FAMILY_DOOMGUARD = 0x13,
+    CREATURE_FAMILY_SCORPID = 0x14,
+    CREATURE_FAMILY_TURTLE = 0x15,
+    CREATURE_FAMILY_IMP = 0x17,
+    CREATURE_FAMILY_BAT = 0x18,
+    CREATURE_FAMILY_HYENA = 0x19,
+    CREATURE_FAMILY_OWL = 0x1A,
+    CREATURE_FAMILY_WIND_SERPENT = 0x1B,
+    CREATURE_FAMILY_REMOTE_CONTROL = 0x1C,
+} e_creature_family;
+static const value_string e_creature_family_strings[] =  {
+    { CREATURE_FAMILY_NONE, "None" },
+    { CREATURE_FAMILY_WOLF, "Wolf" },
+    { CREATURE_FAMILY_CAT, "Cat" },
+    { CREATURE_FAMILY_SPIDER, "Spider" },
+    { CREATURE_FAMILY_BEAR, "Bear" },
+    { CREATURE_FAMILY_BOAR, "Boar" },
+    { CREATURE_FAMILY_CROCOLISK, "Crocolisk" },
+    { CREATURE_FAMILY_CARRION_BIRD, "Carrion Bird" },
+    { CREATURE_FAMILY_CRAB, "Crab" },
+    { CREATURE_FAMILY_GORILLA, "Gorilla" },
+    { CREATURE_FAMILY_RAPTOR, "Raptor" },
+    { CREATURE_FAMILY_TALLSTRIDER, "Tallstrider" },
+    { CREATURE_FAMILY_FELHUNTER, "Felhunter" },
+    { CREATURE_FAMILY_VOIDWALKER, "Voidwalker" },
+    { CREATURE_FAMILY_SUCCUBUS, "Succubus" },
+    { CREATURE_FAMILY_DOOMGUARD, "Doomguard" },
+    { CREATURE_FAMILY_SCORPID, "Scorpid" },
+    { CREATURE_FAMILY_TURTLE, "Turtle" },
+    { CREATURE_FAMILY_IMP, "Imp" },
+    { CREATURE_FAMILY_BAT, "Bat" },
+    { CREATURE_FAMILY_HYENA, "Hyena" },
+    { CREATURE_FAMILY_OWL, "Owl" },
+    { CREATURE_FAMILY_WIND_SERPENT, "Wind Serpent" },
+    { CREATURE_FAMILY_REMOTE_CONTROL, "Remote Control" },
     { 0, NULL }
 };
 
@@ -3857,6 +3872,394 @@ static const value_string e_inventory_type_strings[] =  {
 };
 
 typedef enum {
+    FACTION_NONE = 0x000,
+    FACTION_PLAYER_HUMAN = 0x001,
+    FACTION_PLAYER_ORC = 0x002,
+    FACTION_PLAYER_DWARF = 0x003,
+    FACTION_PLAYER_NIGHT_ELF = 0x004,
+    FACTION_PLAYER_UNDEAD = 0x005,
+    FACTION_PLAYER_TAUREN = 0x006,
+    FACTION_CREATURE = 0x007,
+    FACTION_PLAYER_GNOME = 0x008,
+    FACTION_PLAYER_TROLL = 0x009,
+    FACTION_MONSTER = 0x00E,
+    FACTION_DEFIAS_BROTHERHOOD = 0x00F,
+    FACTION_GNOLL_RIVERPAW = 0x010,
+    FACTION_GNOLL_REDRIDGE = 0x011,
+    FACTION_GNOLL_SHADOWHIDE = 0x012,
+    FACTION_MURLOC = 0x013,
+    FACTION_UNDEAD_SCOURGE = 0x014,
+    FACTION_BOOTY_BAY = 0x015,
+    FACTION_BEAST_SPIDER = 0x016,
+    FACTION_BEAST_BOAR = 0x017,
+    FACTION_WORGEN = 0x018,
+    FACTION_KOBOLD = 0x019,
+    FACTION_TROLL_BLOODSCALP = 0x01A,
+    FACTION_TROLL_SKULLSPLITTER = 0x01B,
+    FACTION_PREY = 0x01C,
+    FACTION_BEAST_WOLF = 0x01D,
+    FACTION_DEFIAS_BROTHERHOOD_TRAITOR = 0x01E,
+    FACTION_FRIENDLY = 0x01F,
+    FACTION_TROGG = 0x020,
+    FACTION_TROLL_FROSTMANE = 0x021,
+    FACTION_ORC_BLACKROCK = 0x022,
+    FACTION_VILLIAN = 0x023,
+    FACTION_VICTIM = 0x024,
+    FACTION_BEAST_BEAR = 0x025,
+    FACTION_OGRE = 0x026,
+    FACTION_KURZENS_MERCENARIES = 0x027,
+    FACTION_ESCORTEE = 0x028,
+    FACTION_VENTURE_COMPANY = 0x029,
+    FACTION_BEAST_RAPTOR = 0x02A,
+    FACTION_BASILISK = 0x02B,
+    FACTION_DRAGONFLIGHT_GREEN = 0x02C,
+    FACTION_LOST_ONES = 0x02D,
+    FACTION_BLACKSMITHING_ARMORSMITHING = 0x02E,
+    FACTION_IRONFORGE = 0x02F,
+    FACTION_DARK_IRON_DWARVES = 0x030,
+    FACTION_HUMAN_NIGHT_WATCH = 0x031,
+    FACTION_DRAGONFLIGHT_RED = 0x032,
+    FACTION_GNOLL_MOSSHIDE = 0x033,
+    FACTION_ORC_DRAGONMAW = 0x034,
+    FACTION_GNOME_LEPER = 0x035,
+    FACTION_GNOMEREGAN_EXILES = 0x036,
+    FACTION_LEOPARD = 0x037,
+    FACTION_SCARLET_CRUSADE = 0x038,
+    FACTION_GNOLL_ROTHIDE = 0x039,
+    FACTION_BEAST_GORILLA = 0x03A,
+    FACTION_THORIUM_BROTHERHOOD = 0x03B,
+    FACTION_NAGA = 0x03C,
+    FACTION_DALARAN = 0x03D,
+    FACTION_FORLORN_SPIRIT = 0x03E,
+    FACTION_DARKHOWL = 0x03F,
+    FACTION_GRELL = 0x040,
+    FACTION_FURBOLG = 0x041,
+    FACTION_HORDE_GENERIC = 0x042,
+    FACTION_HORDE = 0x043,
+    FACTION_UNDERCITY = 0x044,
+    FACTION_DARNASSUS = 0x045,
+    FACTION_SYNDICATE = 0x046,
+    FACTION_HILLSBRAD_MILITIA = 0x047,
+    FACTION_STORMWIND = 0x048,
+    FACTION_DEMON = 0x049,
+    FACTION_ELEMENTAL = 0x04A,
+    FACTION_SPIRIT = 0x04B,
+    FACTION_ORGRIMMAR = 0x04C,
+    FACTION_TREASURE = 0x04D,
+    FACTION_GNOLL_MUDSNOUT = 0x04E,
+    FACTION_HILLSBRAD_SOUTHSHORE_MAYOR = 0x04F,
+    FACTION_DRAGONFLIGHT_BLACK = 0x050,
+    FACTION_THUNDER_BLUFF = 0x051,
+    FACTION_TROLL_WITHERBARK = 0x052,
+    FACTION_LEATHERWORKING_ELEMENTAL = 0x053,
+    FACTION_QUILBOAR_RAZORMANE = 0x054,
+    FACTION_QUILBOAR_BRISTLEBACK = 0x055,
+    FACTION_LEATHERWORKING_DRAGONSCALE = 0x056,
+    FACTION_BLOODSAIL_BUCCANEERS = 0x057,
+    FACTION_BLACKFATHOM = 0x058,
+    FACTION_MAKRURA = 0x059,
+    FACTION_CENTAUR_KOLKAR = 0x05A,
+    FACTION_CENTAUR_GALAK = 0x05B,
+    FACTION_GELKIS_CLAN_CENTAUR = 0x05C,
+    FACTION_MAGRAM_CLAN_CENTAUR = 0x05D,
+    FACTION_MARAUDINE = 0x05E,
+    FACTION_THERAMORE = 0x06C,
+    FACTION_QUILBOAR_RAZORFEN = 0x06D,
+    FACTION_QUILBOAR_RAZORMANE_2 = 0x06E,
+    FACTION_QUILBOAR_DEATHSHEAD = 0x06F,
+    FACTION_ENEMY = 0x080,
+    FACTION_AMBIENT = 0x094,
+    FACTION_NETHERGARDE_CARAVAN = 0x0A8,
+    FACTION_STEAMWHEEDLE_CARTEL = 0x0A9,
+    FACTION_ALLIANCE_GENERIC = 0x0BD,
+    FACTION_NETHERGARDE = 0x0D1,
+    FACTION_WAILING_CAVERNS = 0x0E5,
+    FACTION_SILITHID = 0x0F9,
+    FACTION_SILVERMOON_REMNANT = 0x10D,
+    FACTION_ZANDALAR_TRIBE = 0x10E,
+    FACTION_BLACKSMITHING_WEAPONSMITHING = 0x121,
+    FACTION_SCORPID = 0x135,
+    FACTION_BEAST_BAT = 0x136,
+    FACTION_TITAN = 0x137,
+    FACTION_TASKMASTER_FIZZULE = 0x149,
+    FACTION_RAVENHOLDT = 0x15D,
+    FACTION_GADGETZAN = 0x171,
+    FACTION_GNOMEREGAN_BUG = 0x185,
+    FACTION_HARPY = 0x199,
+    FACTION_BURNING_BLADE = 0x1AD,
+    FACTION_SHADOWSILK_POACHER = 0x1C1,
+    FACTION_SEARING_SPIDER = 0x1C2,
+    FACTION_ALLIANCE = 0x1D5,
+    FACTION_RATCHET = 0x1D6,
+    FACTION_WILDHAMMER_CLAN = 0x1D7,
+    FACTION_GOBLIN_DARK_IRON_BAR_PATRON = 0x1E9,
+    FACTION_THE_LEAGUE_OF_ARATHOR = 0x1FD,
+    FACTION_THE_DEFILERS = 0x1FE,
+    FACTION_GIANT = 0x1FF,
+    FACTION_ARGENT_DAWN = 0x211,
+    FACTION_DARKSPEAR_TROLLS = 0x212,
+    FACTION_DRAGONFLIGHT_BRONZE = 0x213,
+    FACTION_DRAGONFLIGHT_BLUE = 0x214,
+    FACTION_LEATHERWORKING_TRIBAL = 0x225,
+    FACTION_ENGINEERING_GOBLIN = 0x226,
+    FACTION_ENGINEERING_GNOME = 0x227,
+    FACTION_BLACKSMITHING_HAMMERSMITHING = 0x239,
+    FACTION_BLACKSMITHING_AXESMITHING = 0x23A,
+    FACTION_BLACKSMITHING_SWORDSMITHING = 0x23B,
+    FACTION_TROLL_VILEBRANCH = 0x23C,
+    FACTION_SOUTHSEA_FREEBOOTERS = 0x23D,
+    FACTION_CAER_DARROW = 0x23E,
+    FACTION_FURBOLG_UNCORRUPTED = 0x23F,
+    FACTION_TIMBERMAW_HOLD = 0x240,
+    FACTION_EVERLOOK = 0x241,
+    FACTION_WINTERSABER_TRAINERS = 0x24D,
+    FACTION_CENARION_CIRCLE = 0x261,
+    FACTION_SHATTERSPEAR_TROLLS = 0x275,
+    FACTION_RAVASAUR_TRAINERS = 0x276,
+    FACTION_MAJORDOMO_EXECUTUS = 0x289,
+    FACTION_BEAST_CARRION_BIRD = 0x29D,
+    FACTION_BEAST_CAT = 0x29E,
+    FACTION_BEAST_CRAB = 0x29F,
+    FACTION_BEAST_CROCILISK = 0x2A0,
+    FACTION_BEAST_HYENA = 0x2A1,
+    FACTION_BEAST_OWL = 0x2A2,
+    FACTION_BEAST_SCORPID = 0x2A3,
+    FACTION_BEAST_TALLSTRIDER = 0x2A4,
+    FACTION_BEAST_TURTLE = 0x2A5,
+    FACTION_BEAST_WIND_SERPENT = 0x2A6,
+    FACTION_TRAINING_DUMMY = 0x2A7,
+    FACTION_DRAGONFLIGHT_BLACK_BAIT = 0x2B1,
+    FACTION_BATTLEGROUND_NEUTRAL = 0x2C5,
+    FACTION_FROSTWOLF_CLAN = 0x2D9,
+    FACTION_STORMPIKE_GUARD = 0x2DA,
+    FACTION_HYDRAXIAN_WATERLORDS = 0x2ED,
+    FACTION_SULFURON_FIRELORDS = 0x2EE,
+    FACTION_GIZLOCKS_DUMMY = 0x301,
+    FACTION_GIZLOCKS_CHARM = 0x302,
+    FACTION_GIZLOCK = 0x303,
+    FACTION_MORO_GAI = 0x315,
+    FACTION_SPIRIT_GUIDE_ALLIANCE = 0x316,
+    FACTION_SHEN_DRALAR = 0x329,
+    FACTION_OGRE_CAPTAIN_KROMCRUSH = 0x33D,
+    FACTION_SPIRIT_GUIDE_HORDE = 0x351,
+    FACTION_JAEDENAR = 0x365,
+    FACTION_WARSONG_OUTRIDERS = 0x379,
+    FACTION_SILVERWING_SENTINELS = 0x37A,
+    FACTION_ALLIANCE_FORCES = 0x37B,
+    FACTION_HORDE_FORCES = 0x37C,
+    FACTION_REVANTUSK_TROLLS = 0x37D,
+    FACTION_DARKMOON_FAIRE = 0x38D,
+    FACTION_BROOD_OF_NOZDORMU = 0x38E,
+    FACTION_MIGHT_OF_KALIMDOR = 0x390,
+    FACTION_ARMIES_OF_C_THUN = 0x393,
+    FACTION_SILITHID_ATTACKERS = 0x394,
+    FACTION_THE_IRONFORGE_BRIGADE = 0x395,
+    FACTION_RC_ENEMIES = 0x396,
+    FACTION_RC_OBJECTS = 0x397,
+    FACTION_RED = 0x398,
+    FACTION_BLUE = 0x399,
+    FACTION_SCOURGE_INVADERS = 0x3A0,
+    FACTION_TEST_FACTION_NOT_A_REAL_FACTION = 0x3A3,
+    FACTION_TOWOW_FLAG = 0x3B6,
+    FACTION_TOWOW_FLAG_TRIGGER_ALLIANCE_DND = 0x3B7,
+    FACTION_TOWOW_FLAG_TRIGGER_HORDE_DND = 0x3BA,
+} e_faction;
+static const value_string e_faction_strings[] =  {
+    { FACTION_NONE, "None" },
+    { FACTION_PLAYER_HUMAN, "Player Human" },
+    { FACTION_PLAYER_ORC, "Player Orc" },
+    { FACTION_PLAYER_DWARF, "Player Dwarf" },
+    { FACTION_PLAYER_NIGHT_ELF, "Player Night Elf" },
+    { FACTION_PLAYER_UNDEAD, "Player Undead" },
+    { FACTION_PLAYER_TAUREN, "Player Tauren" },
+    { FACTION_CREATURE, "Creature" },
+    { FACTION_PLAYER_GNOME, "Player Gnome" },
+    { FACTION_PLAYER_TROLL, "Player Troll" },
+    { FACTION_MONSTER, "Monster" },
+    { FACTION_DEFIAS_BROTHERHOOD, "Defias Brotherhood" },
+    { FACTION_GNOLL_RIVERPAW, "Gnoll Riverpaw" },
+    { FACTION_GNOLL_REDRIDGE, "Gnoll Redridge" },
+    { FACTION_GNOLL_SHADOWHIDE, "Gnoll Shadowhide" },
+    { FACTION_MURLOC, "Murloc" },
+    { FACTION_UNDEAD_SCOURGE, "Undead Scourge" },
+    { FACTION_BOOTY_BAY, "Booty Bay" },
+    { FACTION_BEAST_SPIDER, "Beast Spider" },
+    { FACTION_BEAST_BOAR, "Beast Boar" },
+    { FACTION_WORGEN, "Worgen" },
+    { FACTION_KOBOLD, "Kobold" },
+    { FACTION_TROLL_BLOODSCALP, "Troll Bloodscalp" },
+    { FACTION_TROLL_SKULLSPLITTER, "Troll Skullsplitter" },
+    { FACTION_PREY, "Prey" },
+    { FACTION_BEAST_WOLF, "Beast Wolf" },
+    { FACTION_DEFIAS_BROTHERHOOD_TRAITOR, "Defias Brotherhood Traitor" },
+    { FACTION_FRIENDLY, "Friendly" },
+    { FACTION_TROGG, "Trogg" },
+    { FACTION_TROLL_FROSTMANE, "Troll Frostmane" },
+    { FACTION_ORC_BLACKROCK, "Orc Blackrock" },
+    { FACTION_VILLIAN, "Villian" },
+    { FACTION_VICTIM, "Victim" },
+    { FACTION_BEAST_BEAR, "Beast Bear" },
+    { FACTION_OGRE, "Ogre" },
+    { FACTION_KURZENS_MERCENARIES, "Kurzens Mercenaries" },
+    { FACTION_ESCORTEE, "Escortee" },
+    { FACTION_VENTURE_COMPANY, "Venture Company" },
+    { FACTION_BEAST_RAPTOR, "Beast Raptor" },
+    { FACTION_BASILISK, "Basilisk" },
+    { FACTION_DRAGONFLIGHT_GREEN, "Dragonflight Green" },
+    { FACTION_LOST_ONES, "Lost Ones" },
+    { FACTION_BLACKSMITHING_ARMORSMITHING, "Blacksmithing Armorsmithing" },
+    { FACTION_IRONFORGE, "Ironforge" },
+    { FACTION_DARK_IRON_DWARVES, "Dark Iron Dwarves" },
+    { FACTION_HUMAN_NIGHT_WATCH, "Human Night Watch" },
+    { FACTION_DRAGONFLIGHT_RED, "Dragonflight Red" },
+    { FACTION_GNOLL_MOSSHIDE, "Gnoll Mosshide" },
+    { FACTION_ORC_DRAGONMAW, "Orc Dragonmaw" },
+    { FACTION_GNOME_LEPER, "Gnome Leper" },
+    { FACTION_GNOMEREGAN_EXILES, "Gnomeregan Exiles" },
+    { FACTION_LEOPARD, "Leopard" },
+    { FACTION_SCARLET_CRUSADE, "Scarlet Crusade" },
+    { FACTION_GNOLL_ROTHIDE, "Gnoll Rothide" },
+    { FACTION_BEAST_GORILLA, "Beast Gorilla" },
+    { FACTION_THORIUM_BROTHERHOOD, "Thorium Brotherhood" },
+    { FACTION_NAGA, "Naga" },
+    { FACTION_DALARAN, "Dalaran" },
+    { FACTION_FORLORN_SPIRIT, "Forlorn Spirit" },
+    { FACTION_DARKHOWL, "Darkhowl" },
+    { FACTION_GRELL, "Grell" },
+    { FACTION_FURBOLG, "Furbolg" },
+    { FACTION_HORDE_GENERIC, "Horde Generic" },
+    { FACTION_HORDE, "Horde" },
+    { FACTION_UNDERCITY, "Undercity" },
+    { FACTION_DARNASSUS, "Darnassus" },
+    { FACTION_SYNDICATE, "Syndicate" },
+    { FACTION_HILLSBRAD_MILITIA, "Hillsbrad Militia" },
+    { FACTION_STORMWIND, "Stormwind" },
+    { FACTION_DEMON, "Demon" },
+    { FACTION_ELEMENTAL, "Elemental" },
+    { FACTION_SPIRIT, "Spirit" },
+    { FACTION_ORGRIMMAR, "Orgrimmar" },
+    { FACTION_TREASURE, "Treasure" },
+    { FACTION_GNOLL_MUDSNOUT, "Gnoll Mudsnout" },
+    { FACTION_HILLSBRAD_SOUTHSHORE_MAYOR, "Hillsbrad Southshore Mayor" },
+    { FACTION_DRAGONFLIGHT_BLACK, "Dragonflight Black" },
+    { FACTION_THUNDER_BLUFF, "Thunder Bluff" },
+    { FACTION_TROLL_WITHERBARK, "Troll Witherbark" },
+    { FACTION_LEATHERWORKING_ELEMENTAL, "Leatherworking Elemental" },
+    { FACTION_QUILBOAR_RAZORMANE, "Quilboar Razormane" },
+    { FACTION_QUILBOAR_BRISTLEBACK, "Quilboar Bristleback" },
+    { FACTION_LEATHERWORKING_DRAGONSCALE, "Leatherworking Dragonscale" },
+    { FACTION_BLOODSAIL_BUCCANEERS, "Bloodsail Buccaneers" },
+    { FACTION_BLACKFATHOM, "Blackfathom" },
+    { FACTION_MAKRURA, "Makrura" },
+    { FACTION_CENTAUR_KOLKAR, "Centaur Kolkar" },
+    { FACTION_CENTAUR_GALAK, "Centaur Galak" },
+    { FACTION_GELKIS_CLAN_CENTAUR, "Gelkis Clan Centaur" },
+    { FACTION_MAGRAM_CLAN_CENTAUR, "Magram Clan Centaur" },
+    { FACTION_MARAUDINE, "Maraudine" },
+    { FACTION_THERAMORE, "Theramore" },
+    { FACTION_QUILBOAR_RAZORFEN, "Quilboar Razorfen" },
+    { FACTION_QUILBOAR_RAZORMANE_2, "Quilboar Razormane 2" },
+    { FACTION_QUILBOAR_DEATHSHEAD, "Quilboar Deathshead" },
+    { FACTION_ENEMY, "Enemy" },
+    { FACTION_AMBIENT, "Ambient" },
+    { FACTION_NETHERGARDE_CARAVAN, "Nethergarde Caravan" },
+    { FACTION_STEAMWHEEDLE_CARTEL, "Steamwheedle Cartel" },
+    { FACTION_ALLIANCE_GENERIC, "Alliance Generic" },
+    { FACTION_NETHERGARDE, "Nethergarde" },
+    { FACTION_WAILING_CAVERNS, "Wailing Caverns" },
+    { FACTION_SILITHID, "Silithid" },
+    { FACTION_SILVERMOON_REMNANT, "Silvermoon Remnant" },
+    { FACTION_ZANDALAR_TRIBE, "Zandalar Tribe" },
+    { FACTION_BLACKSMITHING_WEAPONSMITHING, "Blacksmithing Weaponsmithing" },
+    { FACTION_SCORPID, "Scorpid" },
+    { FACTION_BEAST_BAT, "Beast Bat" },
+    { FACTION_TITAN, "Titan" },
+    { FACTION_TASKMASTER_FIZZULE, "Taskmaster Fizzule" },
+    { FACTION_RAVENHOLDT, "Ravenholdt" },
+    { FACTION_GADGETZAN, "Gadgetzan" },
+    { FACTION_GNOMEREGAN_BUG, "Gnomeregan Bug" },
+    { FACTION_HARPY, "Harpy" },
+    { FACTION_BURNING_BLADE, "Burning Blade" },
+    { FACTION_SHADOWSILK_POACHER, "Shadowsilk Poacher" },
+    { FACTION_SEARING_SPIDER, "Searing Spider" },
+    { FACTION_ALLIANCE, "Alliance" },
+    { FACTION_RATCHET, "Ratchet" },
+    { FACTION_WILDHAMMER_CLAN, "Wildhammer Clan" },
+    { FACTION_GOBLIN_DARK_IRON_BAR_PATRON, "Goblin Dark Iron Bar Patron" },
+    { FACTION_THE_LEAGUE_OF_ARATHOR, "The League Of Arathor" },
+    { FACTION_THE_DEFILERS, "The Defilers" },
+    { FACTION_GIANT, "Giant" },
+    { FACTION_ARGENT_DAWN, "Argent Dawn" },
+    { FACTION_DARKSPEAR_TROLLS, "Darkspear Trolls" },
+    { FACTION_DRAGONFLIGHT_BRONZE, "Dragonflight Bronze" },
+    { FACTION_DRAGONFLIGHT_BLUE, "Dragonflight Blue" },
+    { FACTION_LEATHERWORKING_TRIBAL, "Leatherworking Tribal" },
+    { FACTION_ENGINEERING_GOBLIN, "Engineering Goblin" },
+    { FACTION_ENGINEERING_GNOME, "Engineering Gnome" },
+    { FACTION_BLACKSMITHING_HAMMERSMITHING, "Blacksmithing Hammersmithing" },
+    { FACTION_BLACKSMITHING_AXESMITHING, "Blacksmithing Axesmithing" },
+    { FACTION_BLACKSMITHING_SWORDSMITHING, "Blacksmithing Swordsmithing" },
+    { FACTION_TROLL_VILEBRANCH, "Troll Vilebranch" },
+    { FACTION_SOUTHSEA_FREEBOOTERS, "Southsea Freebooters" },
+    { FACTION_CAER_DARROW, "Caer Darrow" },
+    { FACTION_FURBOLG_UNCORRUPTED, "Furbolg Uncorrupted" },
+    { FACTION_TIMBERMAW_HOLD, "Timbermaw Hold" },
+    { FACTION_EVERLOOK, "Everlook" },
+    { FACTION_WINTERSABER_TRAINERS, "Wintersaber Trainers" },
+    { FACTION_CENARION_CIRCLE, "Cenarion Circle" },
+    { FACTION_SHATTERSPEAR_TROLLS, "Shatterspear Trolls" },
+    { FACTION_RAVASAUR_TRAINERS, "Ravasaur Trainers" },
+    { FACTION_MAJORDOMO_EXECUTUS, "Majordomo Executus" },
+    { FACTION_BEAST_CARRION_BIRD, "Beast Carrion Bird" },
+    { FACTION_BEAST_CAT, "Beast Cat" },
+    { FACTION_BEAST_CRAB, "Beast Crab" },
+    { FACTION_BEAST_CROCILISK, "Beast Crocilisk" },
+    { FACTION_BEAST_HYENA, "Beast Hyena" },
+    { FACTION_BEAST_OWL, "Beast Owl" },
+    { FACTION_BEAST_SCORPID, "Beast Scorpid" },
+    { FACTION_BEAST_TALLSTRIDER, "Beast Tallstrider" },
+    { FACTION_BEAST_TURTLE, "Beast Turtle" },
+    { FACTION_BEAST_WIND_SERPENT, "Beast Wind Serpent" },
+    { FACTION_TRAINING_DUMMY, "Training Dummy" },
+    { FACTION_DRAGONFLIGHT_BLACK_BAIT, "Dragonflight Black Bait" },
+    { FACTION_BATTLEGROUND_NEUTRAL, "Battleground Neutral" },
+    { FACTION_FROSTWOLF_CLAN, "Frostwolf Clan" },
+    { FACTION_STORMPIKE_GUARD, "Stormpike Guard" },
+    { FACTION_HYDRAXIAN_WATERLORDS, "Hydraxian Waterlords" },
+    { FACTION_SULFURON_FIRELORDS, "Sulfuron Firelords" },
+    { FACTION_GIZLOCKS_DUMMY, "Gizlocks Dummy" },
+    { FACTION_GIZLOCKS_CHARM, "Gizlocks Charm" },
+    { FACTION_GIZLOCK, "Gizlock" },
+    { FACTION_MORO_GAI, "Moro Gai" },
+    { FACTION_SPIRIT_GUIDE_ALLIANCE, "Spirit Guide Alliance" },
+    { FACTION_SHEN_DRALAR, "Shen Dralar" },
+    { FACTION_OGRE_CAPTAIN_KROMCRUSH, "Ogre Captain Kromcrush" },
+    { FACTION_SPIRIT_GUIDE_HORDE, "Spirit Guide Horde" },
+    { FACTION_JAEDENAR, "Jaedenar" },
+    { FACTION_WARSONG_OUTRIDERS, "Warsong Outriders" },
+    { FACTION_SILVERWING_SENTINELS, "Silverwing Sentinels" },
+    { FACTION_ALLIANCE_FORCES, "Alliance Forces" },
+    { FACTION_HORDE_FORCES, "Horde Forces" },
+    { FACTION_REVANTUSK_TROLLS, "Revantusk Trolls" },
+    { FACTION_DARKMOON_FAIRE, "Darkmoon Faire" },
+    { FACTION_BROOD_OF_NOZDORMU, "Brood Of Nozdormu" },
+    { FACTION_MIGHT_OF_KALIMDOR, "Might Of Kalimdor" },
+    { FACTION_ARMIES_OF_C_THUN, "Armies Of C Thun" },
+    { FACTION_SILITHID_ATTACKERS, "Silithid Attackers" },
+    { FACTION_THE_IRONFORGE_BRIGADE, "The Ironforge Brigade" },
+    { FACTION_RC_ENEMIES, "Rc Enemies" },
+    { FACTION_RC_OBJECTS, "Rc Objects" },
+    { FACTION_RED, "Red" },
+    { FACTION_BLUE, "Blue" },
+    { FACTION_SCOURGE_INVADERS, "Scourge Invaders" },
+    { FACTION_TEST_FACTION_NOT_A_REAL_FACTION, "Test Faction Not A Real Faction" },
+    { FACTION_TOWOW_FLAG, "Towow Flag" },
+    { FACTION_TOWOW_FLAG_TRIGGER_ALLIANCE_DND, "Towow Flag Trigger Alliance Dnd" },
+    { FACTION_TOWOW_FLAG_TRIGGER_HORDE_DND, "Towow Flag Trigger Horde Dnd" },
+    { 0, NULL }
+};
+
+typedef enum {
     FRIEND_STATUS_OFFLINE = 0x0,
     FRIEND_STATUS_ONLINE = 0x1,
     FRIEND_STATUS_AFK = 0x2,
@@ -3883,6 +4286,54 @@ static const value_string e_guild_member_status_strings[] =  {
 };
 
 typedef enum {
+    SPELL_TRIGGER_TYPE_ON_USE = 0x0,
+    SPELL_TRIGGER_TYPE_ON_EQUIP = 0x1,
+    SPELL_TRIGGER_TYPE_CHANCE_ON_HIT = 0x2,
+} e_spell_trigger_type;
+static const value_string e_spell_trigger_type_strings[] =  {
+    { SPELL_TRIGGER_TYPE_ON_USE, "On Use" },
+    { SPELL_TRIGGER_TYPE_ON_EQUIP, "On Equip" },
+    { SPELL_TRIGGER_TYPE_CHANCE_ON_HIT, "Chance On Hit" },
+    { 0, NULL }
+};
+
+typedef enum {
+    ITEM_STAT_TYPE_MANA = 0x0,
+    ITEM_STAT_TYPE_HEALTH = 0x1,
+    ITEM_STAT_TYPE_AGILITY = 0x3,
+    ITEM_STAT_TYPE_STRENGTH = 0x4,
+    ITEM_STAT_TYPE_INTELLECT = 0x5,
+    ITEM_STAT_TYPE_SPIRIT = 0x6,
+    ITEM_STAT_TYPE_STAMINA = 0x7,
+} e_item_stat_type;
+static const value_string e_item_stat_type_strings[] =  {
+    { ITEM_STAT_TYPE_MANA, "Mana" },
+    { ITEM_STAT_TYPE_HEALTH, "Health" },
+    { ITEM_STAT_TYPE_AGILITY, "Agility" },
+    { ITEM_STAT_TYPE_STRENGTH, "Strength" },
+    { ITEM_STAT_TYPE_INTELLECT, "Intellect" },
+    { ITEM_STAT_TYPE_SPIRIT, "Spirit" },
+    { ITEM_STAT_TYPE_STAMINA, "Stamina" },
+    { 0, NULL }
+};
+
+typedef enum {
+    LOOT_SLOT_TYPE_TYPE_ALLOW_LOOT = 0x0,
+    LOOT_SLOT_TYPE_TYPE_ROLL_ONGOING = 0x1,
+    LOOT_SLOT_TYPE_TYPE_MASTER = 0x2,
+    LOOT_SLOT_TYPE_TYPE_LOCKED = 0x3,
+    LOOT_SLOT_TYPE_TYPE_OWNER = 0x4,
+} e_loot_slot_type;
+static const value_string e_loot_slot_type_strings[] =  {
+    { LOOT_SLOT_TYPE_TYPE_ALLOW_LOOT, "Type Allow Loot" },
+    { LOOT_SLOT_TYPE_TYPE_ROLL_ONGOING, "Type Roll Ongoing" },
+    { LOOT_SLOT_TYPE_TYPE_MASTER, "Type Master" },
+    { LOOT_SLOT_TYPE_TYPE_LOCKED, "Type Locked" },
+    { LOOT_SLOT_TYPE_TYPE_OWNER, "Type Owner" },
+    { 0, NULL }
+};
+
+typedef enum {
     MAIL_TYPE_NORMAL = 0x0,
     MAIL_TYPE_AUCTION = 0x2,
     MAIL_TYPE_CREATURE = 0x3,
@@ -3895,6 +4346,22 @@ static const value_string e_mail_type_strings[] =  {
     { MAIL_TYPE_CREATURE, "Creature" },
     { MAIL_TYPE_GAMEOBJECT, "Gameobject" },
     { MAIL_TYPE_ITEM, "Item" },
+    { 0, NULL }
+};
+
+typedef enum {
+    MONSTER_MOVE_TYPE_NORMAL = 0x0,
+    MONSTER_MOVE_TYPE_STOP = 0x1,
+    MONSTER_MOVE_TYPE_FACING_SPOT = 0x2,
+    MONSTER_MOVE_TYPE_FACING_TARGET = 0x3,
+    MONSTER_MOVE_TYPE_FACING_ANGLE = 0x4,
+} e_monster_move_type;
+static const value_string e_monster_move_type_strings[] =  {
+    { MONSTER_MOVE_TYPE_NORMAL, "Normal" },
+    { MONSTER_MOVE_TYPE_STOP, "Stop" },
+    { MONSTER_MOVE_TYPE_FACING_SPOT, "Facing Spot" },
+    { MONSTER_MOVE_TYPE_FACING_TARGET, "Facing Target" },
+    { MONSTER_MOVE_TYPE_FACING_ANGLE, "Facing Angle" },
     { 0, NULL }
 };
 
@@ -4263,6 +4730,24 @@ static const value_string e_spell_effect_strings[] =  {
 };
 
 typedef enum {
+    POWER_MANA = 0x00,
+    POWER_RAGE = 0x01,
+    POWER_FOCUS = 0x02,
+    POWER_ENERGY = 0x03,
+    POWER_HAPPINESS = 0x04,
+    POWER_HEALTH = 0xFE,
+} e_power;
+static const value_string e_power_strings[] =  {
+    { POWER_MANA, "Mana" },
+    { POWER_RAGE, "Rage" },
+    { POWER_FOCUS, "Focus" },
+    { POWER_ENERGY, "Energy" },
+    { POWER_HAPPINESS, "Happiness" },
+    { POWER_HEALTH, "Health" },
+    { 0, NULL }
+};
+
+typedef enum {
     SPELL_MISS_INFO_NONE = 0x0,
     SPELL_MISS_INFO_MISS = 0x1,
     SPELL_MISS_INFO_RESIST = 0x2,
@@ -4301,6 +4786,260 @@ static const value_string e_trainer_spell_state_strings[] =  {
     { TRAINER_SPELL_STATE_GREEN, "Green" },
     { TRAINER_SPELL_STATE_RED, "Red" },
     { TRAINER_SPELL_STATE_GRAY, "Gray" },
+    { 0, NULL }
+};
+
+typedef enum {
+    SKILL_NONE = 0x000,
+    SKILL_FROST = 0x006,
+    SKILL_FIRE = 0x008,
+    SKILL_ARMS = 0x01A,
+    SKILL_COMBAT = 0x026,
+    SKILL_SUBTLETY = 0x027,
+    SKILL_POISONS = 0x028,
+    SKILL_SWORDS = 0x02B,
+    SKILL_AXES = 0x02C,
+    SKILL_BOWS = 0x02D,
+    SKILL_GUNS = 0x02E,
+    SKILL_BEAST_MASTERY = 0x032,
+    SKILL_SURVIVAL = 0x033,
+    SKILL_MACES = 0x036,
+    SKILL_TWO_HANDED_SWORDS = 0x037,
+    SKILL_HOLY = 0x038,
+    SKILL_SHADOW = 0x04E,
+    SKILL_DEFENSE = 0x05F,
+    SKILL_LANGUAGE_COMMON = 0x062,
+    SKILL_RACIAL_DWARVEN = 0x065,
+    SKILL_LANGUAGE_ORCISH = 0x06D,
+    SKILL_LANGUAGE_DWARVEN = 0x06F,
+    SKILL_LANGUAGE_DARNASSIAN = 0x071,
+    SKILL_LANGUAGE_TAURAHE = 0x073,
+    SKILL_DUAL_WIELD = 0x076,
+    SKILL_RACIAL_TAUREN = 0x07C,
+    SKILL_ORC_RACIAL = 0x07D,
+    SKILL_RACIAL_NIGHT_ELF = 0x07E,
+    SKILL_FIRST_AID = 0x081,
+    SKILL_FERAL_COMBAT = 0x086,
+    SKILL_STAVES = 0x088,
+    SKILL_LANGUAGE_THALASSIAN = 0x089,
+    SKILL_LANGUAGE_DRACONIC = 0x08A,
+    SKILL_LANGUAGE_DEMON_TONGUE = 0x08B,
+    SKILL_LANGUAGE_TITAN = 0x08C,
+    SKILL_LANGUAGE_OLD_TONGUE = 0x08D,
+    SKILL_SURVIVAL2 = 0x08E,
+    SKILL_RIDING_HORSE = 0x094,
+    SKILL_RIDING_WOLF = 0x095,
+    SKILL_RIDING_TIGER = 0x096,
+    SKILL_RIDING_RAM = 0x098,
+    SKILL_SWIMING = 0x09B,
+    SKILL_TWO_HANDED_MACES = 0x0A0,
+    SKILL_UNARMED = 0x0A2,
+    SKILL_MARKSMANSHIP = 0x0A3,
+    SKILL_BLACKSMITHING = 0x0A4,
+    SKILL_LEATHERWORKING = 0x0A5,
+    SKILL_ALCHEMY = 0x0AB,
+    SKILL_TWO_HANDED_AXES = 0x0AC,
+    SKILL_DAGGERS = 0x0AD,
+    SKILL_THROWN = 0x0B0,
+    SKILL_HERBALISM = 0x0B6,
+    SKILL_GENERIC_DND = 0x0B7,
+    SKILL_RETRIBUTION = 0x0B8,
+    SKILL_COOKING = 0x0B9,
+    SKILL_MINING = 0x0BA,
+    SKILL_PET_IMP = 0x0BC,
+    SKILL_PET_FELHUNTER = 0x0BD,
+    SKILL_TAILORING = 0x0C5,
+    SKILL_ENGINEERING = 0x0CA,
+    SKILL_PET_SPIDER = 0x0CB,
+    SKILL_PET_VOIDWALKER = 0x0CC,
+    SKILL_PET_SUCCUBUS = 0x0CD,
+    SKILL_PET_INFERNAL = 0x0CE,
+    SKILL_PET_DOOMGUARD = 0x0CF,
+    SKILL_PET_WOLF = 0x0D0,
+    SKILL_PET_CAT = 0x0D1,
+    SKILL_PET_BEAR = 0x0D2,
+    SKILL_PET_BOAR = 0x0D3,
+    SKILL_PET_CROCILISK = 0x0D4,
+    SKILL_PET_CARRION_BIRD = 0x0D5,
+    SKILL_PET_CRAB = 0x0D6,
+    SKILL_PET_GORILLA = 0x0D7,
+    SKILL_PET_RAPTOR = 0x0D9,
+    SKILL_PET_TALLSTRIDER = 0x0DA,
+    SKILL_RACIAL_UNDED = 0x0DC,
+    SKILL_CROSSBOWS = 0x0E2,
+    SKILL_WANDS = 0x0E4,
+    SKILL_POLEARMS = 0x0E5,
+    SKILL_PET_SCORPID = 0x0EC,
+    SKILL_ARCANE = 0x0ED,
+    SKILL_PET_TURTLE = 0x0FB,
+    SKILL_ASSASSINATION = 0x0FD,
+    SKILL_FURY = 0x100,
+    SKILL_PROTECTION = 0x101,
+    SKILL_BEAST_TRAINING = 0x105,
+    SKILL_PROTECTION2 = 0x10B,
+    SKILL_PET_TALENTS = 0x10E,
+    SKILL_PLATE_MAIL = 0x125,
+    SKILL_LANGUAGE_GNOMISH = 0x139,
+    SKILL_LANGUAGE_TROLL = 0x13B,
+    SKILL_ENCHANTING = 0x14D,
+    SKILL_DEMONOLOGY = 0x162,
+    SKILL_AFFLICTION = 0x163,
+    SKILL_FISHING = 0x164,
+    SKILL_ENHANCEMENT = 0x175,
+    SKILL_RESTORATION = 0x176,
+    SKILL_ELEMENTAL_COMBAT = 0x177,
+    SKILL_SKINNING = 0x189,
+    SKILL_MAIL = 0x19D,
+    SKILL_LEATHER = 0x19E,
+    SKILL_CLOTH = 0x19F,
+    SKILL_SHIELD = 0x1B1,
+    SKILL_FIST_WEAPONS = 0x1D9,
+    SKILL_RIDING_RAPTOR = 0x215,
+    SKILL_RIDING_MECHANOSTRIDER = 0x229,
+    SKILL_RIDING_UNDEAD_HORSE = 0x22A,
+    SKILL_RESTORATION2 = 0x23D,
+    SKILL_BALANCE = 0x23E,
+    SKILL_DESTRUCTION = 0x251,
+    SKILL_HOLY2 = 0x252,
+    SKILL_DISCIPLINE = 0x265,
+    SKILL_LOCKPICKING = 0x279,
+    SKILL_PET_BAT = 0x28D,
+    SKILL_PET_HYENA = 0x28E,
+    SKILL_PET_OWL = 0x28F,
+    SKILL_PET_WIND_SERPENT = 0x290,
+    SKILL_LANGUAGE_GUTTERSPEAK = 0x2A1,
+    SKILL_RIDING_KODO = 0x2C9,
+    SKILL_RACIAL_TROLL = 0x2DD,
+    SKILL_RACIAL_GNOME = 0x2F1,
+    SKILL_RACIAL_HUMAN = 0x2F2,
+    SKILL_PET_EVENT_RC = 0x2F6,
+    SKILL_RIDING = 0x2FA,
+} e_skill;
+static const value_string e_skill_strings[] =  {
+    { SKILL_NONE, "None" },
+    { SKILL_FROST, "Frost" },
+    { SKILL_FIRE, "Fire" },
+    { SKILL_ARMS, "Arms" },
+    { SKILL_COMBAT, "Combat" },
+    { SKILL_SUBTLETY, "Subtlety" },
+    { SKILL_POISONS, "Poisons" },
+    { SKILL_SWORDS, "Swords" },
+    { SKILL_AXES, "Axes" },
+    { SKILL_BOWS, "Bows" },
+    { SKILL_GUNS, "Guns" },
+    { SKILL_BEAST_MASTERY, "Beast Mastery" },
+    { SKILL_SURVIVAL, "Survival" },
+    { SKILL_MACES, "Maces" },
+    { SKILL_TWO_HANDED_SWORDS, "Two Handed Swords" },
+    { SKILL_HOLY, "Holy" },
+    { SKILL_SHADOW, "Shadow" },
+    { SKILL_DEFENSE, "Defense" },
+    { SKILL_LANGUAGE_COMMON, "Language Common" },
+    { SKILL_RACIAL_DWARVEN, "Racial Dwarven" },
+    { SKILL_LANGUAGE_ORCISH, "Language Orcish" },
+    { SKILL_LANGUAGE_DWARVEN, "Language Dwarven" },
+    { SKILL_LANGUAGE_DARNASSIAN, "Language Darnassian" },
+    { SKILL_LANGUAGE_TAURAHE, "Language Taurahe" },
+    { SKILL_DUAL_WIELD, "Dual Wield" },
+    { SKILL_RACIAL_TAUREN, "Racial Tauren" },
+    { SKILL_ORC_RACIAL, "Orc Racial" },
+    { SKILL_RACIAL_NIGHT_ELF, "Racial Night Elf" },
+    { SKILL_FIRST_AID, "First Aid" },
+    { SKILL_FERAL_COMBAT, "Feral Combat" },
+    { SKILL_STAVES, "Staves" },
+    { SKILL_LANGUAGE_THALASSIAN, "Language Thalassian" },
+    { SKILL_LANGUAGE_DRACONIC, "Language Draconic" },
+    { SKILL_LANGUAGE_DEMON_TONGUE, "Language Demon Tongue" },
+    { SKILL_LANGUAGE_TITAN, "Language Titan" },
+    { SKILL_LANGUAGE_OLD_TONGUE, "Language Old Tongue" },
+    { SKILL_SURVIVAL2, "Survival2" },
+    { SKILL_RIDING_HORSE, "Riding Horse" },
+    { SKILL_RIDING_WOLF, "Riding Wolf" },
+    { SKILL_RIDING_TIGER, "Riding Tiger" },
+    { SKILL_RIDING_RAM, "Riding Ram" },
+    { SKILL_SWIMING, "Swiming" },
+    { SKILL_TWO_HANDED_MACES, "Two Handed Maces" },
+    { SKILL_UNARMED, "Unarmed" },
+    { SKILL_MARKSMANSHIP, "Marksmanship" },
+    { SKILL_BLACKSMITHING, "Blacksmithing" },
+    { SKILL_LEATHERWORKING, "Leatherworking" },
+    { SKILL_ALCHEMY, "Alchemy" },
+    { SKILL_TWO_HANDED_AXES, "Two Handed Axes" },
+    { SKILL_DAGGERS, "Daggers" },
+    { SKILL_THROWN, "Thrown" },
+    { SKILL_HERBALISM, "Herbalism" },
+    { SKILL_GENERIC_DND, "Generic Dnd" },
+    { SKILL_RETRIBUTION, "Retribution" },
+    { SKILL_COOKING, "Cooking" },
+    { SKILL_MINING, "Mining" },
+    { SKILL_PET_IMP, "Pet Imp" },
+    { SKILL_PET_FELHUNTER, "Pet Felhunter" },
+    { SKILL_TAILORING, "Tailoring" },
+    { SKILL_ENGINEERING, "Engineering" },
+    { SKILL_PET_SPIDER, "Pet Spider" },
+    { SKILL_PET_VOIDWALKER, "Pet Voidwalker" },
+    { SKILL_PET_SUCCUBUS, "Pet Succubus" },
+    { SKILL_PET_INFERNAL, "Pet Infernal" },
+    { SKILL_PET_DOOMGUARD, "Pet Doomguard" },
+    { SKILL_PET_WOLF, "Pet Wolf" },
+    { SKILL_PET_CAT, "Pet Cat" },
+    { SKILL_PET_BEAR, "Pet Bear" },
+    { SKILL_PET_BOAR, "Pet Boar" },
+    { SKILL_PET_CROCILISK, "Pet Crocilisk" },
+    { SKILL_PET_CARRION_BIRD, "Pet Carrion Bird" },
+    { SKILL_PET_CRAB, "Pet Crab" },
+    { SKILL_PET_GORILLA, "Pet Gorilla" },
+    { SKILL_PET_RAPTOR, "Pet Raptor" },
+    { SKILL_PET_TALLSTRIDER, "Pet Tallstrider" },
+    { SKILL_RACIAL_UNDED, "Racial Unded" },
+    { SKILL_CROSSBOWS, "Crossbows" },
+    { SKILL_WANDS, "Wands" },
+    { SKILL_POLEARMS, "Polearms" },
+    { SKILL_PET_SCORPID, "Pet Scorpid" },
+    { SKILL_ARCANE, "Arcane" },
+    { SKILL_PET_TURTLE, "Pet Turtle" },
+    { SKILL_ASSASSINATION, "Assassination" },
+    { SKILL_FURY, "Fury" },
+    { SKILL_PROTECTION, "Protection" },
+    { SKILL_BEAST_TRAINING, "Beast Training" },
+    { SKILL_PROTECTION2, "Protection2" },
+    { SKILL_PET_TALENTS, "Pet Talents" },
+    { SKILL_PLATE_MAIL, "Plate Mail" },
+    { SKILL_LANGUAGE_GNOMISH, "Language Gnomish" },
+    { SKILL_LANGUAGE_TROLL, "Language Troll" },
+    { SKILL_ENCHANTING, "Enchanting" },
+    { SKILL_DEMONOLOGY, "Demonology" },
+    { SKILL_AFFLICTION, "Affliction" },
+    { SKILL_FISHING, "Fishing" },
+    { SKILL_ENHANCEMENT, "Enhancement" },
+    { SKILL_RESTORATION, "Restoration" },
+    { SKILL_ELEMENTAL_COMBAT, "Elemental Combat" },
+    { SKILL_SKINNING, "Skinning" },
+    { SKILL_MAIL, "Mail" },
+    { SKILL_LEATHER, "Leather" },
+    { SKILL_CLOTH, "Cloth" },
+    { SKILL_SHIELD, "Shield" },
+    { SKILL_FIST_WEAPONS, "Fist Weapons" },
+    { SKILL_RIDING_RAPTOR, "Riding Raptor" },
+    { SKILL_RIDING_MECHANOSTRIDER, "Riding Mechanostrider" },
+    { SKILL_RIDING_UNDEAD_HORSE, "Riding Undead Horse" },
+    { SKILL_RESTORATION2, "Restoration2" },
+    { SKILL_BALANCE, "Balance" },
+    { SKILL_DESTRUCTION, "Destruction" },
+    { SKILL_HOLY2, "Holy2" },
+    { SKILL_DISCIPLINE, "Discipline" },
+    { SKILL_LOCKPICKING, "Lockpicking" },
+    { SKILL_PET_BAT, "Pet Bat" },
+    { SKILL_PET_HYENA, "Pet Hyena" },
+    { SKILL_PET_OWL, "Pet Owl" },
+    { SKILL_PET_WIND_SERPENT, "Pet Wind Serpent" },
+    { SKILL_LANGUAGE_GUTTERSPEAK, "Language Gutterspeak" },
+    { SKILL_RIDING_KODO, "Riding Kodo" },
+    { SKILL_RACIAL_TROLL, "Racial Troll" },
+    { SKILL_RACIAL_GNOME, "Racial Gnome" },
+    { SKILL_RACIAL_HUMAN, "Racial Human" },
+    { SKILL_PET_EVENT_RC, "Pet Event Rc" },
+    { SKILL_RIDING, "Riding" },
     { 0, NULL }
 };
 
@@ -4870,33 +5609,33 @@ static const value_string e_guild_emblem_result_strings[] =  {
 
 typedef enum {
     ACTIVATE_TAXI_REPLY_OK = 0x0,
-    ACTIVATE_TAXI_REPLY_UNSPECIFIEDSERVERERROR = 0x1,
-    ACTIVATE_TAXI_REPLY_NOSUCHPATH = 0x2,
-    ACTIVATE_TAXI_REPLY_NOTENOUGHMONEY = 0x3,
-    ACTIVATE_TAXI_REPLY_TOOFARAWAY = 0x4,
-    ACTIVATE_TAXI_REPLY_NOVENDORNEARBY = 0x5,
-    ACTIVATE_TAXI_REPLY_NOTVISITED = 0x6,
-    ACTIVATE_TAXI_REPLY_PLAYERBUSY = 0x7,
-    ACTIVATE_TAXI_REPLY_PLAYERALREADYMOUNTED = 0x8,
-    ACTIVATE_TAXI_REPLY_PLAYERSHAPESHIFTED = 0x9,
-    ACTIVATE_TAXI_REPLY_PLAYERMOVING = 0xA,
-    ACTIVATE_TAXI_REPLY_SAMENODE = 0xB,
-    ACTIVATE_TAXI_REPLY_NOTSTANDING = 0xC,
+    ACTIVATE_TAXI_REPLY_UNSPECIFIED_SERVER_ERROR = 0x1,
+    ACTIVATE_TAXI_REPLY_NO_SUCH_PATH = 0x2,
+    ACTIVATE_TAXI_REPLY_NOT_ENOUGH_MONEY = 0x3,
+    ACTIVATE_TAXI_REPLY_TOO_FAR_AWAY = 0x4,
+    ACTIVATE_TAXI_REPLY_NO_VENDOR_NEARBY = 0x5,
+    ACTIVATE_TAXI_REPLY_NOT_VISITED = 0x6,
+    ACTIVATE_TAXI_REPLY_PLAYER_BUSY = 0x7,
+    ACTIVATE_TAXI_REPLY_PLAYER_ALREADY_MOUNTED = 0x8,
+    ACTIVATE_TAXI_REPLY_PLAYER_SHAPE_SHIFTED = 0x9,
+    ACTIVATE_TAXI_REPLY_PLAYER_MOVING = 0xA,
+    ACTIVATE_TAXI_REPLY_SAME_NODE = 0xB,
+    ACTIVATE_TAXI_REPLY_NOT_STANDING = 0xC,
 } e_activate_taxi_reply;
 static const value_string e_activate_taxi_reply_strings[] =  {
     { ACTIVATE_TAXI_REPLY_OK, "Ok" },
-    { ACTIVATE_TAXI_REPLY_UNSPECIFIEDSERVERERROR, "Unspecifiedservererror" },
-    { ACTIVATE_TAXI_REPLY_NOSUCHPATH, "Nosuchpath" },
-    { ACTIVATE_TAXI_REPLY_NOTENOUGHMONEY, "Notenoughmoney" },
-    { ACTIVATE_TAXI_REPLY_TOOFARAWAY, "Toofaraway" },
-    { ACTIVATE_TAXI_REPLY_NOVENDORNEARBY, "Novendornearby" },
-    { ACTIVATE_TAXI_REPLY_NOTVISITED, "Notvisited" },
-    { ACTIVATE_TAXI_REPLY_PLAYERBUSY, "Playerbusy" },
-    { ACTIVATE_TAXI_REPLY_PLAYERALREADYMOUNTED, "Playeralreadymounted" },
-    { ACTIVATE_TAXI_REPLY_PLAYERSHAPESHIFTED, "Playershapeshifted" },
-    { ACTIVATE_TAXI_REPLY_PLAYERMOVING, "Playermoving" },
-    { ACTIVATE_TAXI_REPLY_SAMENODE, "Samenode" },
-    { ACTIVATE_TAXI_REPLY_NOTSTANDING, "Notstanding" },
+    { ACTIVATE_TAXI_REPLY_UNSPECIFIED_SERVER_ERROR, "Unspecified Server Error" },
+    { ACTIVATE_TAXI_REPLY_NO_SUCH_PATH, "No Such Path" },
+    { ACTIVATE_TAXI_REPLY_NOT_ENOUGH_MONEY, "Not Enough Money" },
+    { ACTIVATE_TAXI_REPLY_TOO_FAR_AWAY, "Too Far Away" },
+    { ACTIVATE_TAXI_REPLY_NO_VENDOR_NEARBY, "No Vendor Nearby" },
+    { ACTIVATE_TAXI_REPLY_NOT_VISITED, "Not Visited" },
+    { ACTIVATE_TAXI_REPLY_PLAYER_BUSY, "Player Busy" },
+    { ACTIVATE_TAXI_REPLY_PLAYER_ALREADY_MOUNTED, "Player Already Mounted" },
+    { ACTIVATE_TAXI_REPLY_PLAYER_SHAPE_SHIFTED, "Player Shape Shifted" },
+    { ACTIVATE_TAXI_REPLY_PLAYER_MOVING, "Player Moving" },
+    { ACTIVATE_TAXI_REPLY_SAME_NODE, "Same Node" },
+    { ACTIVATE_TAXI_REPLY_NOT_STANDING, "Not Standing" },
     { 0, NULL }
 };
 
@@ -5573,30 +6312,12 @@ static const value_string e_chat_notify_strings[] =  {
 };
 
 typedef enum {
-    MOUNT_RESULT_INVALIDMOUNTEE = 0x0,
-    MOUNT_RESULT_TOOFARAWAY = 0x1,
-    MOUNT_RESULT_ALREADYMOUNTED = 0x2,
-    MOUNT_RESULT_NOTMOUNTABLE = 0x3,
-    MOUNT_RESULT_NOTYOURPET = 0x4,
-    MOUNT_RESULT_OTHER = 0x5,
-    MOUNT_RESULT_LOOTING = 0x6,
-    MOUNT_RESULT_RACECANTMOUNT = 0x7,
-    MOUNT_RESULT_SHAPESHIFTED = 0x8,
-    MOUNT_RESULT_FORCEDDISMOUNT = 0x9,
-    MOUNT_RESULT_OK = 0xA,
-} e_mount_result;
-static const value_string e_mount_result_strings[] =  {
-    { MOUNT_RESULT_INVALIDMOUNTEE, "Invalidmountee" },
-    { MOUNT_RESULT_TOOFARAWAY, "Toofaraway" },
-    { MOUNT_RESULT_ALREADYMOUNTED, "Alreadymounted" },
-    { MOUNT_RESULT_NOTMOUNTABLE, "Notmountable" },
-    { MOUNT_RESULT_NOTYOURPET, "Notyourpet" },
-    { MOUNT_RESULT_OTHER, "Other" },
-    { MOUNT_RESULT_LOOTING, "Looting" },
-    { MOUNT_RESULT_RACECANTMOUNT, "Racecantmount" },
-    { MOUNT_RESULT_SHAPESHIFTED, "Shapeshifted" },
-    { MOUNT_RESULT_FORCEDDISMOUNT, "Forceddismount" },
-    { MOUNT_RESULT_OK, "Ok" },
+    DISMOUNT_RESULT_NOT_MOUNTED = 0x1,
+    DISMOUNT_RESULT_OK = 0x3,
+} e_dismount_result;
+static const value_string e_dismount_result_strings[] =  {
+    { DISMOUNT_RESULT_NOT_MOUNTED, "Not Mounted" },
+    { DISMOUNT_RESULT_OK, "Ok" },
     { 0, NULL }
 };
 
@@ -6053,40 +6774,588 @@ static const value_string e_new_item_chat_alert_strings[] =  {
 };
 
 typedef enum {
-    ITEM_CLASS_CONSUMABLE = 0x0,
-    ITEM_CLASS_CONTAINER = 0x1,
-    ITEM_CLASS_WEAPON = 0x2,
-    ITEM_CLASS_RESERVED_1 = 0x3,
-    ITEM_CLASS_ARMOR = 0x4,
-    ITEM_CLASS_REAGENT = 0x5,
-    ITEM_CLASS_PROJECTILE = 0x6,
-    ITEM_CLASS_TRADE_GOODS = 0x7,
-    ITEM_CLASS_RESERVED_2 = 0x8,
-    ITEM_CLASS_RECIPE = 0x9,
-    ITEM_CLASS_RESERVED_3 = 0xA,
-    ITEM_CLASS_QUIVER = 0xB,
-    ITEM_CLASS_QUEST = 0xC,
-    ITEM_CLASS_KEY = 0xD,
-    ITEM_CLASS_RESERVED_4 = 0xE,
-    ITEM_CLASS_MISC = 0xF,
-} e_item_class;
-static const value_string e_item_class_strings[] =  {
-    { ITEM_CLASS_CONSUMABLE, "Consumable" },
-    { ITEM_CLASS_CONTAINER, "Container" },
-    { ITEM_CLASS_WEAPON, "Weapon" },
-    { ITEM_CLASS_RESERVED_1, "Reserved 1" },
-    { ITEM_CLASS_ARMOR, "Armor" },
-    { ITEM_CLASS_REAGENT, "Reagent" },
-    { ITEM_CLASS_PROJECTILE, "Projectile" },
-    { ITEM_CLASS_TRADE_GOODS, "Trade Goods" },
-    { ITEM_CLASS_RESERVED_2, "Reserved 2" },
-    { ITEM_CLASS_RECIPE, "Recipe" },
-    { ITEM_CLASS_RESERVED_3, "Reserved 3" },
-    { ITEM_CLASS_QUIVER, "Quiver" },
-    { ITEM_CLASS_QUEST, "Quest" },
-    { ITEM_CLASS_KEY, "Key" },
-    { ITEM_CLASS_RESERVED_4, "Reserved 4" },
-    { ITEM_CLASS_MISC, "Misc" },
+    ITEM_CLASS_AND_SUB_CLASS_CONSUMABLE = 0x0000000000,
+    ITEM_CLASS_AND_SUB_CLASS_CHEESE_OR_BREAD_OBSOLETE = 0x0000000000,
+    ITEM_CLASS_AND_SUB_CLASS_LIQUID_OBSOLETE = 0x0000000000,
+    ITEM_CLASS_AND_SUB_CLASS_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_SOUL_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_HERB_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_BAG = 0x0000000001,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_AXE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_AXE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_BOW = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_GUN = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_MACE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_MACE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_POLEARM = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_SWORD = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_SWORD = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_OBSOLETE_WEAPON = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_STAFF = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_EXOTIC = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_EXOTIC = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_FIST_WEAPON = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_WEAPON = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_DAGGER = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_THROWN = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_SPEAR = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_CROSSBOW = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_WAND = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_FISHING_POLE = 0x0000000002,
+    ITEM_CLASS_AND_SUB_CLASS_JEWELRY_OBSOLETE = 0x0000000003,
+    ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_CLOTH_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_LEATHER_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_MAIL_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_PLATE_ARMOR = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_BUCKLER_OBSOLETE = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_SHIELD = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_LIBRAM = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_IDOL = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_TOTEM = 0x0000000004,
+    ITEM_CLASS_AND_SUB_CLASS_REAGENT = 0x0000000005,
+    ITEM_CLASS_AND_SUB_CLASS_WAND_OBSOLETE = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_BOLT_OBSOLETE = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_ARROW = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_BULLET = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_THROWN_OBSOLETE = 0x0000000006,
+    ITEM_CLASS_AND_SUB_CLASS_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_PART_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_EXPLOSIVE_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_DEVICE_TRADE_GOOD = 0x0000000007,
+    ITEM_CLASS_AND_SUB_CLASS_GENERIC_OBSOLETE = 0x0000000008,
+    ITEM_CLASS_AND_SUB_CLASS_BOOK = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_LEATHERWORKING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_TAILORING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_BLACKSMITHING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_COOKING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_ALCHEMY_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_FIRST_AID_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_FISHING_RECIPE = 0x0000000009,
+    ITEM_CLASS_AND_SUB_CLASS_MONEY_OBSOLETE = 0x000000000A,
+    ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE1 = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_QUIVER = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_AMMO_POUCH = 0x000000000B,
+    ITEM_CLASS_AND_SUB_CLASS_QUEST = 0x000000000C,
+    ITEM_CLASS_AND_SUB_CLASS_KEY = 0x000000000D,
+    ITEM_CLASS_AND_SUB_CLASS_LOCKPICK = 0x000000000D,
+    ITEM_CLASS_AND_SUB_CLASS_PERMANENT = 0x000000000E,
+    ITEM_CLASS_AND_SUB_CLASS_JUNK = 0x000000000F,
+} e_item_class_and_sub_class;
+static const val64_string e_item_class_and_sub_class_strings[] =  {
+    { ITEM_CLASS_AND_SUB_CLASS_CONSUMABLE, "Consumable" },
+    { ITEM_CLASS_AND_SUB_CLASS_CHEESE_OR_BREAD_OBSOLETE, "Cheese Or Bread Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_LIQUID_OBSOLETE, "Liquid Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_BAG, "Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_SOUL_BAG, "Soul Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_HERB_BAG, "Herb Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_BAG, "Enchanting Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_BAG, "Engineering Bag" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_AXE, "One Handed Axe" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_AXE, "Two Handed Axe" },
+    { ITEM_CLASS_AND_SUB_CLASS_BOW, "Bow" },
+    { ITEM_CLASS_AND_SUB_CLASS_GUN, "Gun" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_MACE, "One Handed Mace" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_MACE, "Two Handed Mace" },
+    { ITEM_CLASS_AND_SUB_CLASS_POLEARM, "Polearm" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_SWORD, "One Handed Sword" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_SWORD, "Two Handed Sword" },
+    { ITEM_CLASS_AND_SUB_CLASS_OBSOLETE_WEAPON, "Obsolete Weapon" },
+    { ITEM_CLASS_AND_SUB_CLASS_STAFF, "Staff" },
+    { ITEM_CLASS_AND_SUB_CLASS_ONE_HANDED_EXOTIC, "One Handed Exotic" },
+    { ITEM_CLASS_AND_SUB_CLASS_TWO_HANDED_EXOTIC, "Two Handed Exotic" },
+    { ITEM_CLASS_AND_SUB_CLASS_FIST_WEAPON, "Fist Weapon" },
+    { ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_WEAPON, "Miscellaneous Weapon" },
+    { ITEM_CLASS_AND_SUB_CLASS_DAGGER, "Dagger" },
+    { ITEM_CLASS_AND_SUB_CLASS_THROWN, "Thrown" },
+    { ITEM_CLASS_AND_SUB_CLASS_SPEAR, "Spear" },
+    { ITEM_CLASS_AND_SUB_CLASS_CROSSBOW, "Crossbow" },
+    { ITEM_CLASS_AND_SUB_CLASS_WAND, "Wand" },
+    { ITEM_CLASS_AND_SUB_CLASS_FISHING_POLE, "Fishing Pole" },
+    { ITEM_CLASS_AND_SUB_CLASS_JEWELRY_OBSOLETE, "Jewelry Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_MISCELLANEOUS_ARMOR, "Miscellaneous Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_CLOTH_ARMOR, "Cloth Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_LEATHER_ARMOR, "Leather Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_MAIL_ARMOR, "Mail Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_PLATE_ARMOR, "Plate Armor" },
+    { ITEM_CLASS_AND_SUB_CLASS_BUCKLER_OBSOLETE, "Buckler Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_SHIELD, "Shield" },
+    { ITEM_CLASS_AND_SUB_CLASS_LIBRAM, "Libram" },
+    { ITEM_CLASS_AND_SUB_CLASS_IDOL, "Idol" },
+    { ITEM_CLASS_AND_SUB_CLASS_TOTEM, "Totem" },
+    { ITEM_CLASS_AND_SUB_CLASS_REAGENT, "Reagent" },
+    { ITEM_CLASS_AND_SUB_CLASS_WAND_OBSOLETE, "Wand Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_BOLT_OBSOLETE, "Bolt Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_ARROW, "Arrow" },
+    { ITEM_CLASS_AND_SUB_CLASS_BULLET, "Bullet" },
+    { ITEM_CLASS_AND_SUB_CLASS_THROWN_OBSOLETE, "Thrown Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_TRADE_GOOD, "Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_PART_TRADE_GOOD, "Part Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_EXPLOSIVE_TRADE_GOOD, "Explosive Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_DEVICE_TRADE_GOOD, "Device Trade Good" },
+    { ITEM_CLASS_AND_SUB_CLASS_GENERIC_OBSOLETE, "Generic Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_BOOK, "Book" },
+    { ITEM_CLASS_AND_SUB_CLASS_LEATHERWORKING_RECIPE, "Leatherworking Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_TAILORING_RECIPE, "Tailoring Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENGINEERING_RECIPE, "Engineering Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_BLACKSMITHING_RECIPE, "Blacksmithing Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_COOKING_RECIPE, "Cooking Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_ALCHEMY_RECIPE, "Alchemy Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_FIRST_AID_RECIPE, "First Aid Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_ENCHANTING_RECIPE, "Enchanting Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_FISHING_RECIPE, "Fishing Recipe" },
+    { ITEM_CLASS_AND_SUB_CLASS_MONEY_OBSOLETE, "Money Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE, "Quiver Obsolete" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUIVER_OBSOLETE1, "Quiver Obsolete1" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUIVER, "Quiver" },
+    { ITEM_CLASS_AND_SUB_CLASS_AMMO_POUCH, "Ammo Pouch" },
+    { ITEM_CLASS_AND_SUB_CLASS_QUEST, "Quest" },
+    { ITEM_CLASS_AND_SUB_CLASS_KEY, "Key" },
+    { ITEM_CLASS_AND_SUB_CLASS_LOCKPICK, "Lockpick" },
+    { ITEM_CLASS_AND_SUB_CLASS_PERMANENT, "Permanent" },
+    { ITEM_CLASS_AND_SUB_CLASS_JUNK, "Junk" },
+    { 0, NULL }
+};
+
+typedef enum {
+    BONDING_NO_BIND = 0x0,
+    BONDING_PICK_UP = 0x1,
+    BONDING_EQUIP = 0x2,
+    BONDING_USE = 0x3,
+    BONDING_QUEST_ITEM = 0x4,
+    BONDING_QUEST_ITEM1 = 0x5,
+} e_bonding;
+static const value_string e_bonding_strings[] =  {
+    { BONDING_NO_BIND, "No Bind" },
+    { BONDING_PICK_UP, "Pick Up" },
+    { BONDING_EQUIP, "Equip" },
+    { BONDING_USE, "Use" },
+    { BONDING_QUEST_ITEM, "Quest Item" },
+    { BONDING_QUEST_ITEM1, "Quest Item1" },
+    { 0, NULL }
+};
+
+typedef enum {
+    PAGE_TEXT_MATERIAL_NONE = 0x0,
+    PAGE_TEXT_MATERIAL_PARCHMENT = 0x1,
+    PAGE_TEXT_MATERIAL_STONE = 0x2,
+    PAGE_TEXT_MATERIAL_MARBLE = 0x3,
+    PAGE_TEXT_MATERIAL_SILVER = 0x4,
+    PAGE_TEXT_MATERIAL_BRONZE = 0x5,
+    PAGE_TEXT_MATERIAL_VALENTINE = 0x6,
+} e_page_text_material;
+static const value_string e_page_text_material_strings[] =  {
+    { PAGE_TEXT_MATERIAL_NONE, "None" },
+    { PAGE_TEXT_MATERIAL_PARCHMENT, "Parchment" },
+    { PAGE_TEXT_MATERIAL_STONE, "Stone" },
+    { PAGE_TEXT_MATERIAL_MARBLE, "Marble" },
+    { PAGE_TEXT_MATERIAL_SILVER, "Silver" },
+    { PAGE_TEXT_MATERIAL_BRONZE, "Bronze" },
+    { PAGE_TEXT_MATERIAL_VALENTINE, "Valentine" },
+    { 0, NULL }
+};
+
+typedef enum {
+    SHEATHE_TYPE_NONE = 0x0,
+    SHEATHE_TYPE_MAIN_HAND = 0x1,
+    SHEATHE_TYPE_OFF_HAND = 0x2,
+    SHEATHE_TYPE_LARGE_WEAPON_LEFT = 0x3,
+    SHEATHE_TYPE_LARGE_WEAPON_RIGHT = 0x4,
+    SHEATHE_TYPE_HIP_WEAPON_LEFT = 0x5,
+    SHEATHE_TYPE_HIP_WEAPON_RIGHT = 0x6,
+    SHEATHE_TYPE_SHIELD = 0x7,
+} e_sheathe_type;
+static const value_string e_sheathe_type_strings[] =  {
+    { SHEATHE_TYPE_NONE, "None" },
+    { SHEATHE_TYPE_MAIN_HAND, "Main Hand" },
+    { SHEATHE_TYPE_OFF_HAND, "Off Hand" },
+    { SHEATHE_TYPE_LARGE_WEAPON_LEFT, "Large Weapon Left" },
+    { SHEATHE_TYPE_LARGE_WEAPON_RIGHT, "Large Weapon Right" },
+    { SHEATHE_TYPE_HIP_WEAPON_LEFT, "Hip Weapon Left" },
+    { SHEATHE_TYPE_HIP_WEAPON_RIGHT, "Hip Weapon Right" },
+    { SHEATHE_TYPE_SHIELD, "Shield" },
+    { 0, NULL }
+};
+
+typedef enum {
+    ITEM_SET_NONE = 0x000,
+    ITEM_SET_THE_GLADIATOR = 0x001,
+    ITEM_SET_DAL_RENDS_ARMS = 0x029,
+    ITEM_SET_SPIDERS_KISS = 0x041,
+    ITEM_SET_THE_POSTMASTER = 0x051,
+    ITEM_SET_CADAVEROUS_GARB = 0x079,
+    ITEM_SET_NECROPILE_RAIMENT = 0x07A,
+    ITEM_SET_BLOODMAIL_REGALIA = 0x07B,
+    ITEM_SET_DEATHBONE_GUARDIAN = 0x07C,
+    ITEM_SET_VOLCANIC_ARMOR = 0x08D,
+    ITEM_SET_STORMSHROUD_ARMOR = 0x08E,
+    ITEM_SET_DEVILSAUR_ARMOR = 0x08F,
+    ITEM_SET_IRONFEATHER_ARMOR = 0x090,
+    ITEM_SET_DEFIAS_LEATHER = 0x0A1,
+    ITEM_SET_EMBRACE_OF_THE_VIPER = 0x0A2,
+    ITEM_SET_CHAIN_OF_THE_SCARLET_CRUSADE = 0x0A3,
+    ITEM_SET_MAGISTERS_REGALIA = 0x0B5,
+    ITEM_SET_VESTMENTS_OF_THE_DEVOUT = 0x0B6,
+    ITEM_SET_DREADMIST_RAIMENT = 0x0B7,
+    ITEM_SET_SHADOWCRAFT_ARMOR = 0x0B8,
+    ITEM_SET_WILDHEART_RAIMENT = 0x0B9,
+    ITEM_SET_BEASTSTALKER_ARMOR = 0x0BA,
+    ITEM_SET_THE_ELEMENTS = 0x0BB,
+    ITEM_SET_LIGHTFORGE_ARMOR = 0x0BC,
+    ITEM_SET_BATTLEGEAR_OF_VALOR = 0x0BD,
+    ITEM_SET_ARCANIST_REGALIA = 0x0C9,
+    ITEM_SET_VESTMENTS_OF_PROPHECY = 0x0CA,
+    ITEM_SET_FELHEART_RAIMENT = 0x0CB,
+    ITEM_SET_NIGHTSLAYER_ARMOR = 0x0CC,
+    ITEM_SET_CENARION_RAIMENT = 0x0CD,
+    ITEM_SET_GIANTSTALKER_ARMOR = 0x0CE,
+    ITEM_SET_THE_EARTHFURY = 0x0CF,
+    ITEM_SET_LAWBRINGER_ARMOR = 0x0D0,
+    ITEM_SET_BATTLEGEAR_OF_MIGHT = 0x0D1,
+    ITEM_SET_NETHERWIND_REGALIA = 0x0D2,
+    ITEM_SET_VESTMENTS_OF_TRANSCENDENCE = 0x0D3,
+    ITEM_SET_NEMESIS_RAIMENT = 0x0D4,
+    ITEM_SET_BLOODFANG_ARMOR = 0x0D5,
+    ITEM_SET_STORMRAGE_RAIMENT = 0x0D6,
+    ITEM_SET_DRAGONSTALKER_ARMOR = 0x0D7,
+    ITEM_SET_THE_TEN_STORMS = 0x0D8,
+    ITEM_SET_JUDGEMENT_ARMOR = 0x0D9,
+    ITEM_SET_BATTLEGEAR_OF_WRATH = 0x0DA,
+    ITEM_SET_GARB_OF_THERO_SHAN = 0x0DD,
+    ITEM_SET_SHARD_OF_THE_GODS = 0x0F1,
+    ITEM_SET_SPIRIT_OF_ESKHANDAR = 0x105,
+    ITEM_SET_CHAMPIONS_BATTLEGEAR = 0x119,
+    ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEGEAR = 0x11A,
+    ITEM_SET_CHAMPIONS_EARTHSHAKER = 0x12D,
+    ITEM_SET_IMPERIAL_PLATE = 0x141,
+    ITEM_SET_CHAMPIONS_REGALIA = 0x155,
+    ITEM_SET_CHAMPIONS_RAIMENT = 0x156,
+    ITEM_SET_LIEUTENANT_COMMANDERS_REGALIA = 0x157,
+    ITEM_SET_LIEUTENANT_COMMANDERS_RAIMENT = 0x158,
+    ITEM_SET_CHAMPIONS_THREADS = 0x159,
+    ITEM_SET_LIEUTENANT_COMMANDERS_THREADS = 0x15A,
+    ITEM_SET_CHAMPIONS_VESTMENTS = 0x15B,
+    ITEM_SET_LIEUTENANT_COMMANDERS_VESTMENTS = 0x15C,
+    ITEM_SET_CHAMPIONS_PURSUIT = 0x169,
+    ITEM_SET_LIEUTENANT_COMMANDERS_PURSUIT = 0x16A,
+    ITEM_SET_LIEUTENANT_COMMANDERS_SANCTUARY = 0x17D,
+    ITEM_SET_CHAMPIONS_SANCTUARY = 0x17E,
+    ITEM_SET_WARLORDS_BATTLEGEAR = 0x17F,
+    ITEM_SET_FIELD_MARSHALS_BATTLEGEAR = 0x180,
+    ITEM_SET_WARLORDS_EARTHSHAKER = 0x182,
+    ITEM_SET_WARLORDS_REGALIA = 0x183,
+    ITEM_SET_FIELD_MARSHALS_REGALIA = 0x184,
+    ITEM_SET_FIELD_MARSHALS_RAIMENT = 0x185,
+    ITEM_SET_WARLORDS_RAIMENT = 0x186,
+    ITEM_SET_WARLORDS_THREADS = 0x187,
+    ITEM_SET_FIELD_MARSHALS_THREADS = 0x188,
+    ITEM_SET_WARLORDS_VESTMENTS = 0x189,
+    ITEM_SET_FIELD_MARSHALS_VESTMENTS = 0x18A,
+    ITEM_SET_FIELD_MARSHALS_PURSUIT = 0x18B,
+    ITEM_SET_WARLORDS_PURSUIT = 0x18C,
+    ITEM_SET_FIELD_MARSHALS_SANCTUARY = 0x18D,
+    ITEM_SET_WARLORDS_SANCTUARY = 0x18E,
+    ITEM_SET_LIEUTENANT_COMMANDERS_AEGIS = 0x191,
+    ITEM_SET_FIELD_MARSHALS_AEGIS = 0x192,
+    ITEM_SET_BLOODVINE_GARB = 0x1A5,
+    ITEM_SET_PRIMAL_BATSKIN = 0x1B9,
+    ITEM_SET_BLOOD_TIGER_HARNESS = 0x1BA,
+    ITEM_SET_BLOODSOUL_EMBRACE = 0x1BB,
+    ITEM_SET_THE_DARKSOUL = 0x1BC,
+    ITEM_SET_THE_TWIN_BLADES_OF_HAKKARI = 0x1CD,
+    ITEM_SET_ZANZILS_CONCENTRATION = 0x1CE,
+    ITEM_SET_PRIMAL_BLESSING = 0x1CF,
+    ITEM_SET_OVERLORDS_RESOLUTION = 0x1D0,
+    ITEM_SET_PRAYER_OF_THE_PRIMAL = 0x1D1,
+    ITEM_SET_MAJOR_MOJO_INFUSION = 0x1D2,
+    ITEM_SET_THE_HIGHLANDERS_RESOLUTION = 0x1D3,
+    ITEM_SET_THE_HIGHLANDERS_RESOLVE = 0x1D4,
+    ITEM_SET_THE_HIGHLANDERS_DETERMINATION = 0x1D5,
+    ITEM_SET_THE_HIGHLANDERS_FORTITUDE = 0x1D6,
+    ITEM_SET_THE_HIGHLANDERS_PURPOSE = 0x1D7,
+    ITEM_SET_THE_HIGHLANDERS_WILL = 0x1D8,
+    ITEM_SET_THE_HIGHLANDERS_INTENT = 0x1D9,
+    ITEM_SET_VINDICATORS_BATTLEGEAR = 0x1DA,
+    ITEM_SET_FREETHINKERS_ARMOR = 0x1DB,
+    ITEM_SET_AUGURS_REGALIA = 0x1DC,
+    ITEM_SET_PREDATORS_ARMOR = 0x1DD,
+    ITEM_SET_MADCAPS_OUTFIT = 0x1DE,
+    ITEM_SET_HARUSPEXS_GARB = 0x1DF,
+    ITEM_SET_CONFESSORS_RAIMENT = 0x1E0,
+    ITEM_SET_DEMONIACS_THREADS = 0x1E1,
+    ITEM_SET_ILLUSIONISTS_ATTIRE = 0x1E2,
+    ITEM_SET_THE_DEFILERS_DETERMINATION = 0x1E3,
+    ITEM_SET_THE_DEFILERS_FORTITUDE = 0x1E4,
+    ITEM_SET_THE_DEFILERS_INTENT = 0x1E5,
+    ITEM_SET_THE_DEFILERS_PURPOSE = 0x1E6,
+    ITEM_SET_THE_DEFILERS_RESOLUTION = 0x1E7,
+    ITEM_SET_THE_DEFILERS_WILL = 0x1E8,
+    ITEM_SET_BLACK_DRAGON_MAIL = 0x1E9,
+    ITEM_SET_GREEN_DRAGON_MAIL = 0x1EA,
+    ITEM_SET_BLUE_DRAGON_MAIL = 0x1EB,
+    ITEM_SET_TWILIGHT_TRAPPINGS = 0x1EC,
+    ITEM_SET_GENESIS_RAIMENT = 0x1ED,
+    ITEM_SET_SYMBOLS_OF_UNENDING_LIFE = 0x1EE,
+    ITEM_SET_BATTLEGEAR_OF_UNYIELDING_STRENGTH = 0x1EF,
+    ITEM_SET_CONQUERORS_BATTLEGEAR = 0x1F0,
+    ITEM_SET_DEATHDEALERS_EMBRACE = 0x1F1,
+    ITEM_SET_EMBLEMS_OF_VEILED_SHADOWS = 0x1F2,
+    ITEM_SET_DOOMCALLERS_ATTIRE = 0x1F3,
+    ITEM_SET_IMPLEMENTS_OF_UNSPOKEN_NAMES = 0x1F4,
+    ITEM_SET_STORMCALLERS_GARB = 0x1F5,
+    ITEM_SET_GIFT_OF_THE_GATHERING_STORM = 0x1F6,
+    ITEM_SET_ENIGMA_VESTMENTS = 0x1F7,
+    ITEM_SET_TRAPPINGS_OF_VAULTED_SECRETS = 0x1F8,
+    ITEM_SET_AVENGERS_BATTLEGEAR = 0x1F9,
+    ITEM_SET_BATTLEGEAR_OF_ETERNAL_JUSTICE = 0x1FA,
+    ITEM_SET_GARMENTS_OF_THE_ORACLE = 0x1FB,
+    ITEM_SET_FINERY_OF_INFINITE_WISDOM = 0x1FC,
+    ITEM_SET_STRIKERS_GARB = 0x1FD,
+    ITEM_SET_TRAPPINGS_OF_THE_UNSEEN_PATH = 0x1FE,
+    ITEM_SET_BATTLEGEAR_OF_HEROISM = 0x1FF,
+    ITEM_SET_DARKMANTLE_ARMOR = 0x200,
+    ITEM_SET_FERALHEART_RAIMENT = 0x201,
+    ITEM_SET_VESTMENTS_OF_THE_VIRTUOUS = 0x202,
+    ITEM_SET_BEASTMASTER_ARMOR = 0x203,
+    ITEM_SET_SOULFORGE_ARMOR = 0x204,
+    ITEM_SET_SORCERERS_REGALIA = 0x205,
+    ITEM_SET_DEATHMIST_RAIMENT = 0x206,
+    ITEM_SET_THE_FIVE_THUNDERS = 0x207,
+    ITEM_SET_IRONWEAVE_BATTLESUIT = 0x208,
+    ITEM_SET_DREAMWALKER_RAIMENT = 0x209,
+    ITEM_SET_CHAMPIONS_GUARD = 0x20A,
+    ITEM_SET_DREADNAUGHTS_BATTLEGEAR = 0x20B,
+    ITEM_SET_BONESCYTHE_ARMOR = 0x20C,
+    ITEM_SET_VESTMENTS_OF_FAITH = 0x20D,
+    ITEM_SET_FROSTFIRE_REGALIA = 0x20E,
+    ITEM_SET_THE_EARTHSHATTERER = 0x20F,
+    ITEM_SET_REDEMPTION_ARMOR = 0x210,
+    ITEM_SET_PLAGUEHEART_RAIMENT = 0x211,
+    ITEM_SET_CRYPTSTALKER_ARMOR = 0x212,
+    ITEM_SET_BATTLEGEAR_OF_UNDEAD_SLAYING = 0x215,
+    ITEM_SET_UNDEAD_SLAYERS_ARMOR = 0x216,
+    ITEM_SET_GARB_OF_THE_UNDEAD_SLAYER = 0x217,
+    ITEM_SET_REGALIA_OF_UNDEAD_CLEANSING = 0x218,
+    ITEM_SET_CHAMPIONS_BATTLEARMOR = 0x219,
+    ITEM_SET_CHAMPIONS_STORMCALLER = 0x21A,
+    ITEM_SET_CHAMPIONS_REFUGE = 0x21B,
+    ITEM_SET_CHAMPIONS_INVESTITURE = 0x21C,
+    ITEM_SET_CHAMPIONS_DREADGEAR = 0x21D,
+    ITEM_SET_CHAMPIONS_ARCANUM = 0x21E,
+    ITEM_SET_CHAMPIONS_PURSUANCE = 0x21F,
+    ITEM_SET_LIEUTENANT_COMMANDERS_REDOUBT = 0x220,
+    ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEARMOR = 0x221,
+    ITEM_SET_LIEUTENANT_COMMANDERS_ARCANUM = 0x222,
+    ITEM_SET_LIEUTENANT_COMMANDERS_DREADGEAR = 0x223,
+    ITEM_SET_LIEUTENANT_COMMANDERS_GUARD = 0x224,
+    ITEM_SET_LIEUTENANT_COMMANDERS_INVESTITURE = 0x225,
+    ITEM_SET_LIEUTENANT_COMMANDERS_PURSUANCE = 0x226,
+    ITEM_SET_LIEUTENANT_COMMANDERS_REFUGE = 0x227,
+} e_item_set;
+static const value_string e_item_set_strings[] =  {
+    { ITEM_SET_NONE, "None" },
+    { ITEM_SET_THE_GLADIATOR, "The Gladiator" },
+    { ITEM_SET_DAL_RENDS_ARMS, "Dal Rends Arms" },
+    { ITEM_SET_SPIDERS_KISS, "Spiders Kiss" },
+    { ITEM_SET_THE_POSTMASTER, "The Postmaster" },
+    { ITEM_SET_CADAVEROUS_GARB, "Cadaverous Garb" },
+    { ITEM_SET_NECROPILE_RAIMENT, "Necropile Raiment" },
+    { ITEM_SET_BLOODMAIL_REGALIA, "Bloodmail Regalia" },
+    { ITEM_SET_DEATHBONE_GUARDIAN, "Deathbone Guardian" },
+    { ITEM_SET_VOLCANIC_ARMOR, "Volcanic Armor" },
+    { ITEM_SET_STORMSHROUD_ARMOR, "Stormshroud Armor" },
+    { ITEM_SET_DEVILSAUR_ARMOR, "Devilsaur Armor" },
+    { ITEM_SET_IRONFEATHER_ARMOR, "Ironfeather Armor" },
+    { ITEM_SET_DEFIAS_LEATHER, "Defias Leather" },
+    { ITEM_SET_EMBRACE_OF_THE_VIPER, "Embrace Of The Viper" },
+    { ITEM_SET_CHAIN_OF_THE_SCARLET_CRUSADE, "Chain Of The Scarlet Crusade" },
+    { ITEM_SET_MAGISTERS_REGALIA, "Magisters Regalia" },
+    { ITEM_SET_VESTMENTS_OF_THE_DEVOUT, "Vestments Of The Devout" },
+    { ITEM_SET_DREADMIST_RAIMENT, "Dreadmist Raiment" },
+    { ITEM_SET_SHADOWCRAFT_ARMOR, "Shadowcraft Armor" },
+    { ITEM_SET_WILDHEART_RAIMENT, "Wildheart Raiment" },
+    { ITEM_SET_BEASTSTALKER_ARMOR, "Beaststalker Armor" },
+    { ITEM_SET_THE_ELEMENTS, "The Elements" },
+    { ITEM_SET_LIGHTFORGE_ARMOR, "Lightforge Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_VALOR, "Battlegear Of Valor" },
+    { ITEM_SET_ARCANIST_REGALIA, "Arcanist Regalia" },
+    { ITEM_SET_VESTMENTS_OF_PROPHECY, "Vestments Of Prophecy" },
+    { ITEM_SET_FELHEART_RAIMENT, "Felheart Raiment" },
+    { ITEM_SET_NIGHTSLAYER_ARMOR, "Nightslayer Armor" },
+    { ITEM_SET_CENARION_RAIMENT, "Cenarion Raiment" },
+    { ITEM_SET_GIANTSTALKER_ARMOR, "Giantstalker Armor" },
+    { ITEM_SET_THE_EARTHFURY, "The Earthfury" },
+    { ITEM_SET_LAWBRINGER_ARMOR, "Lawbringer Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_MIGHT, "Battlegear Of Might" },
+    { ITEM_SET_NETHERWIND_REGALIA, "Netherwind Regalia" },
+    { ITEM_SET_VESTMENTS_OF_TRANSCENDENCE, "Vestments Of Transcendence" },
+    { ITEM_SET_NEMESIS_RAIMENT, "Nemesis Raiment" },
+    { ITEM_SET_BLOODFANG_ARMOR, "Bloodfang Armor" },
+    { ITEM_SET_STORMRAGE_RAIMENT, "Stormrage Raiment" },
+    { ITEM_SET_DRAGONSTALKER_ARMOR, "Dragonstalker Armor" },
+    { ITEM_SET_THE_TEN_STORMS, "The Ten Storms" },
+    { ITEM_SET_JUDGEMENT_ARMOR, "Judgement Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_WRATH, "Battlegear Of Wrath" },
+    { ITEM_SET_GARB_OF_THERO_SHAN, "Garb Of Thero Shan" },
+    { ITEM_SET_SHARD_OF_THE_GODS, "Shard Of The Gods" },
+    { ITEM_SET_SPIRIT_OF_ESKHANDAR, "Spirit Of Eskhandar" },
+    { ITEM_SET_CHAMPIONS_BATTLEGEAR, "Champions Battlegear" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEGEAR, "Lieutenant Commanders Battlegear" },
+    { ITEM_SET_CHAMPIONS_EARTHSHAKER, "Champions Earthshaker" },
+    { ITEM_SET_IMPERIAL_PLATE, "Imperial Plate" },
+    { ITEM_SET_CHAMPIONS_REGALIA, "Champions Regalia" },
+    { ITEM_SET_CHAMPIONS_RAIMENT, "Champions Raiment" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_REGALIA, "Lieutenant Commanders Regalia" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_RAIMENT, "Lieutenant Commanders Raiment" },
+    { ITEM_SET_CHAMPIONS_THREADS, "Champions Threads" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_THREADS, "Lieutenant Commanders Threads" },
+    { ITEM_SET_CHAMPIONS_VESTMENTS, "Champions Vestments" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_VESTMENTS, "Lieutenant Commanders Vestments" },
+    { ITEM_SET_CHAMPIONS_PURSUIT, "Champions Pursuit" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_PURSUIT, "Lieutenant Commanders Pursuit" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_SANCTUARY, "Lieutenant Commanders Sanctuary" },
+    { ITEM_SET_CHAMPIONS_SANCTUARY, "Champions Sanctuary" },
+    { ITEM_SET_WARLORDS_BATTLEGEAR, "Warlords Battlegear" },
+    { ITEM_SET_FIELD_MARSHALS_BATTLEGEAR, "Field Marshals Battlegear" },
+    { ITEM_SET_WARLORDS_EARTHSHAKER, "Warlords Earthshaker" },
+    { ITEM_SET_WARLORDS_REGALIA, "Warlords Regalia" },
+    { ITEM_SET_FIELD_MARSHALS_REGALIA, "Field Marshals Regalia" },
+    { ITEM_SET_FIELD_MARSHALS_RAIMENT, "Field Marshals Raiment" },
+    { ITEM_SET_WARLORDS_RAIMENT, "Warlords Raiment" },
+    { ITEM_SET_WARLORDS_THREADS, "Warlords Threads" },
+    { ITEM_SET_FIELD_MARSHALS_THREADS, "Field Marshals Threads" },
+    { ITEM_SET_WARLORDS_VESTMENTS, "Warlords Vestments" },
+    { ITEM_SET_FIELD_MARSHALS_VESTMENTS, "Field Marshals Vestments" },
+    { ITEM_SET_FIELD_MARSHALS_PURSUIT, "Field Marshals Pursuit" },
+    { ITEM_SET_WARLORDS_PURSUIT, "Warlords Pursuit" },
+    { ITEM_SET_FIELD_MARSHALS_SANCTUARY, "Field Marshals Sanctuary" },
+    { ITEM_SET_WARLORDS_SANCTUARY, "Warlords Sanctuary" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_AEGIS, "Lieutenant Commanders Aegis" },
+    { ITEM_SET_FIELD_MARSHALS_AEGIS, "Field Marshals Aegis" },
+    { ITEM_SET_BLOODVINE_GARB, "Bloodvine Garb" },
+    { ITEM_SET_PRIMAL_BATSKIN, "Primal Batskin" },
+    { ITEM_SET_BLOOD_TIGER_HARNESS, "Blood Tiger Harness" },
+    { ITEM_SET_BLOODSOUL_EMBRACE, "Bloodsoul Embrace" },
+    { ITEM_SET_THE_DARKSOUL, "The Darksoul" },
+    { ITEM_SET_THE_TWIN_BLADES_OF_HAKKARI, "The Twin Blades Of Hakkari" },
+    { ITEM_SET_ZANZILS_CONCENTRATION, "Zanzils Concentration" },
+    { ITEM_SET_PRIMAL_BLESSING, "Primal Blessing" },
+    { ITEM_SET_OVERLORDS_RESOLUTION, "Overlords Resolution" },
+    { ITEM_SET_PRAYER_OF_THE_PRIMAL, "Prayer Of The Primal" },
+    { ITEM_SET_MAJOR_MOJO_INFUSION, "Major Mojo Infusion" },
+    { ITEM_SET_THE_HIGHLANDERS_RESOLUTION, "The Highlanders Resolution" },
+    { ITEM_SET_THE_HIGHLANDERS_RESOLVE, "The Highlanders Resolve" },
+    { ITEM_SET_THE_HIGHLANDERS_DETERMINATION, "The Highlanders Determination" },
+    { ITEM_SET_THE_HIGHLANDERS_FORTITUDE, "The Highlanders Fortitude" },
+    { ITEM_SET_THE_HIGHLANDERS_PURPOSE, "The Highlanders Purpose" },
+    { ITEM_SET_THE_HIGHLANDERS_WILL, "The Highlanders Will" },
+    { ITEM_SET_THE_HIGHLANDERS_INTENT, "The Highlanders Intent" },
+    { ITEM_SET_VINDICATORS_BATTLEGEAR, "Vindicators Battlegear" },
+    { ITEM_SET_FREETHINKERS_ARMOR, "Freethinkers Armor" },
+    { ITEM_SET_AUGURS_REGALIA, "Augurs Regalia" },
+    { ITEM_SET_PREDATORS_ARMOR, "Predators Armor" },
+    { ITEM_SET_MADCAPS_OUTFIT, "Madcaps Outfit" },
+    { ITEM_SET_HARUSPEXS_GARB, "Haruspexs Garb" },
+    { ITEM_SET_CONFESSORS_RAIMENT, "Confessors Raiment" },
+    { ITEM_SET_DEMONIACS_THREADS, "Demoniacs Threads" },
+    { ITEM_SET_ILLUSIONISTS_ATTIRE, "Illusionists Attire" },
+    { ITEM_SET_THE_DEFILERS_DETERMINATION, "The Defilers Determination" },
+    { ITEM_SET_THE_DEFILERS_FORTITUDE, "The Defilers Fortitude" },
+    { ITEM_SET_THE_DEFILERS_INTENT, "The Defilers Intent" },
+    { ITEM_SET_THE_DEFILERS_PURPOSE, "The Defilers Purpose" },
+    { ITEM_SET_THE_DEFILERS_RESOLUTION, "The Defilers Resolution" },
+    { ITEM_SET_THE_DEFILERS_WILL, "The Defilers Will" },
+    { ITEM_SET_BLACK_DRAGON_MAIL, "Black Dragon Mail" },
+    { ITEM_SET_GREEN_DRAGON_MAIL, "Green Dragon Mail" },
+    { ITEM_SET_BLUE_DRAGON_MAIL, "Blue Dragon Mail" },
+    { ITEM_SET_TWILIGHT_TRAPPINGS, "Twilight Trappings" },
+    { ITEM_SET_GENESIS_RAIMENT, "Genesis Raiment" },
+    { ITEM_SET_SYMBOLS_OF_UNENDING_LIFE, "Symbols Of Unending Life" },
+    { ITEM_SET_BATTLEGEAR_OF_UNYIELDING_STRENGTH, "Battlegear Of Unyielding Strength" },
+    { ITEM_SET_CONQUERORS_BATTLEGEAR, "Conquerors Battlegear" },
+    { ITEM_SET_DEATHDEALERS_EMBRACE, "Deathdealers Embrace" },
+    { ITEM_SET_EMBLEMS_OF_VEILED_SHADOWS, "Emblems Of Veiled Shadows" },
+    { ITEM_SET_DOOMCALLERS_ATTIRE, "Doomcallers Attire" },
+    { ITEM_SET_IMPLEMENTS_OF_UNSPOKEN_NAMES, "Implements Of Unspoken Names" },
+    { ITEM_SET_STORMCALLERS_GARB, "Stormcallers Garb" },
+    { ITEM_SET_GIFT_OF_THE_GATHERING_STORM, "Gift Of The Gathering Storm" },
+    { ITEM_SET_ENIGMA_VESTMENTS, "Enigma Vestments" },
+    { ITEM_SET_TRAPPINGS_OF_VAULTED_SECRETS, "Trappings Of Vaulted Secrets" },
+    { ITEM_SET_AVENGERS_BATTLEGEAR, "Avengers Battlegear" },
+    { ITEM_SET_BATTLEGEAR_OF_ETERNAL_JUSTICE, "Battlegear Of Eternal Justice" },
+    { ITEM_SET_GARMENTS_OF_THE_ORACLE, "Garments Of The Oracle" },
+    { ITEM_SET_FINERY_OF_INFINITE_WISDOM, "Finery Of Infinite Wisdom" },
+    { ITEM_SET_STRIKERS_GARB, "Strikers Garb" },
+    { ITEM_SET_TRAPPINGS_OF_THE_UNSEEN_PATH, "Trappings Of The Unseen Path" },
+    { ITEM_SET_BATTLEGEAR_OF_HEROISM, "Battlegear Of Heroism" },
+    { ITEM_SET_DARKMANTLE_ARMOR, "Darkmantle Armor" },
+    { ITEM_SET_FERALHEART_RAIMENT, "Feralheart Raiment" },
+    { ITEM_SET_VESTMENTS_OF_THE_VIRTUOUS, "Vestments Of The Virtuous" },
+    { ITEM_SET_BEASTMASTER_ARMOR, "Beastmaster Armor" },
+    { ITEM_SET_SOULFORGE_ARMOR, "Soulforge Armor" },
+    { ITEM_SET_SORCERERS_REGALIA, "Sorcerers Regalia" },
+    { ITEM_SET_DEATHMIST_RAIMENT, "Deathmist Raiment" },
+    { ITEM_SET_THE_FIVE_THUNDERS, "The Five Thunders" },
+    { ITEM_SET_IRONWEAVE_BATTLESUIT, "Ironweave Battlesuit" },
+    { ITEM_SET_DREAMWALKER_RAIMENT, "Dreamwalker Raiment" },
+    { ITEM_SET_CHAMPIONS_GUARD, "Champions Guard" },
+    { ITEM_SET_DREADNAUGHTS_BATTLEGEAR, "Dreadnaughts Battlegear" },
+    { ITEM_SET_BONESCYTHE_ARMOR, "Bonescythe Armor" },
+    { ITEM_SET_VESTMENTS_OF_FAITH, "Vestments Of Faith" },
+    { ITEM_SET_FROSTFIRE_REGALIA, "Frostfire Regalia" },
+    { ITEM_SET_THE_EARTHSHATTERER, "The Earthshatterer" },
+    { ITEM_SET_REDEMPTION_ARMOR, "Redemption Armor" },
+    { ITEM_SET_PLAGUEHEART_RAIMENT, "Plagueheart Raiment" },
+    { ITEM_SET_CRYPTSTALKER_ARMOR, "Cryptstalker Armor" },
+    { ITEM_SET_BATTLEGEAR_OF_UNDEAD_SLAYING, "Battlegear Of Undead Slaying" },
+    { ITEM_SET_UNDEAD_SLAYERS_ARMOR, "Undead Slayers Armor" },
+    { ITEM_SET_GARB_OF_THE_UNDEAD_SLAYER, "Garb Of The Undead Slayer" },
+    { ITEM_SET_REGALIA_OF_UNDEAD_CLEANSING, "Regalia Of Undead Cleansing" },
+    { ITEM_SET_CHAMPIONS_BATTLEARMOR, "Champions Battlearmor" },
+    { ITEM_SET_CHAMPIONS_STORMCALLER, "Champions Stormcaller" },
+    { ITEM_SET_CHAMPIONS_REFUGE, "Champions Refuge" },
+    { ITEM_SET_CHAMPIONS_INVESTITURE, "Champions Investiture" },
+    { ITEM_SET_CHAMPIONS_DREADGEAR, "Champions Dreadgear" },
+    { ITEM_SET_CHAMPIONS_ARCANUM, "Champions Arcanum" },
+    { ITEM_SET_CHAMPIONS_PURSUANCE, "Champions Pursuance" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_REDOUBT, "Lieutenant Commanders Redoubt" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_BATTLEARMOR, "Lieutenant Commanders Battlearmor" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_ARCANUM, "Lieutenant Commanders Arcanum" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_DREADGEAR, "Lieutenant Commanders Dreadgear" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_GUARD, "Lieutenant Commanders Guard" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_INVESTITURE, "Lieutenant Commanders Investiture" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_PURSUANCE, "Lieutenant Commanders Pursuance" },
+    { ITEM_SET_LIEUTENANT_COMMANDERS_REFUGE, "Lieutenant Commanders Refuge" },
+    { 0, NULL }
+};
+
+typedef enum {
+    BAG_FAMILY_NONE = 0x0,
+    BAG_FAMILY_ARROWS = 0x1,
+    BAG_FAMILY_BULLETS = 0x2,
+    BAG_FAMILY_SOUL_SHARDS = 0x3,
+    BAG_FAMILY_UNKNOWN4 = 0x4,
+    BAG_FAMILY_UNKNOWN5 = 0x5,
+    BAG_FAMILY_HERBS = 0x6,
+    BAG_FAMILY_ENCHANTING_SUPPLIES = 0x7,
+    BAG_FAMILY_ENGINEERING_SUPPLIES = 0x8,
+    BAG_FAMILY_KEYS = 0x9,
+} e_bag_family;
+static const value_string e_bag_family_strings[] =  {
+    { BAG_FAMILY_NONE, "None" },
+    { BAG_FAMILY_ARROWS, "Arrows" },
+    { BAG_FAMILY_BULLETS, "Bullets" },
+    { BAG_FAMILY_SOUL_SHARDS, "Soul Shards" },
+    { BAG_FAMILY_UNKNOWN4, "Unknown4" },
+    { BAG_FAMILY_UNKNOWN5, "Unknown5" },
+    { BAG_FAMILY_HERBS, "Herbs" },
+    { BAG_FAMILY_ENCHANTING_SUPPLIES, "Enchanting Supplies" },
+    { BAG_FAMILY_ENGINEERING_SUPPLIES, "Engineering Supplies" },
+    { BAG_FAMILY_KEYS, "Keys" },
     { 0, NULL }
 };
 
@@ -6191,18 +7460,30 @@ static const value_string e_player_chat_tag_strings[] =  {
 };
 
 typedef enum {
-    MONSTER_MOVE_TYPE_NORMAL = 0x0,
-    MONSTER_MOVE_TYPE_STOP = 0x1,
-    MONSTER_MOVE_TYPE_FACING_SPOT = 0x2,
-    MONSTER_MOVE_TYPE_FACING_TARGET = 0x3,
-    MONSTER_MOVE_TYPE_FACING_ANGLE = 0x4,
-} e_monster_move_type;
-static const value_string e_monster_move_type_strings[] =  {
-    { MONSTER_MOVE_TYPE_NORMAL, "Normal" },
-    { MONSTER_MOVE_TYPE_STOP, "Stop" },
-    { MONSTER_MOVE_TYPE_FACING_SPOT, "Facing Spot" },
-    { MONSTER_MOVE_TYPE_FACING_TARGET, "Facing Target" },
-    { MONSTER_MOVE_TYPE_FACING_ANGLE, "Facing Angle" },
+    MOUNT_RESULT_INVALID_MOUNTEE = 0x0,
+    MOUNT_RESULT_TOO_FAR_AWAY = 0x1,
+    MOUNT_RESULT_ALREADY_MOUNTED = 0x2,
+    MOUNT_RESULT_NOT_MOUNTABLE = 0x3,
+    MOUNT_RESULT_NOT_YOUR_PET = 0x4,
+    MOUNT_RESULT_OTHER = 0x5,
+    MOUNT_RESULT_LOOTING = 0x6,
+    MOUNT_RESULT_RACE_CANT_MOUNT = 0x7,
+    MOUNT_RESULT_SHAPESHIFTED = 0x8,
+    MOUNT_RESULT_FORCED_DISMOUNT = 0x9,
+    MOUNT_RESULT_OK = 0xA,
+} e_mount_result;
+static const value_string e_mount_result_strings[] =  {
+    { MOUNT_RESULT_INVALID_MOUNTEE, "Invalid Mountee" },
+    { MOUNT_RESULT_TOO_FAR_AWAY, "Too Far Away" },
+    { MOUNT_RESULT_ALREADY_MOUNTED, "Already Mounted" },
+    { MOUNT_RESULT_NOT_MOUNTABLE, "Not Mountable" },
+    { MOUNT_RESULT_NOT_YOUR_PET, "Not Your Pet" },
+    { MOUNT_RESULT_OTHER, "Other" },
+    { MOUNT_RESULT_LOOTING, "Looting" },
+    { MOUNT_RESULT_RACE_CANT_MOUNT, "Race Cant Mount" },
+    { MOUNT_RESULT_SHAPESHIFTED, "Shapeshifted" },
+    { MOUNT_RESULT_FORCED_DISMOUNT, "Forced Dismount" },
+    { MOUNT_RESULT_OK, "Ok" },
     { 0, NULL }
 };
 
@@ -6241,33 +7522,15 @@ static const value_string e_party_result_strings[] =  {
 };
 
 typedef enum {
-    POWER_MANA = 0x00,
-    POWER_RAGE = 0x01,
-    POWER_FOCUS = 0x02,
-    POWER_ENERGY = 0x03,
-    POWER_HAPPINESS = 0x04,
-    POWER_HEALTH = 0xFE,
-} e_power;
-static const value_string e_power_strings[] =  {
-    { POWER_MANA, "Mana" },
-    { POWER_RAGE, "Rage" },
-    { POWER_FOCUS, "Focus" },
-    { POWER_ENERGY, "Energy" },
-    { POWER_HAPPINESS, "Happiness" },
-    { POWER_HEALTH, "Health" },
-    { 0, NULL }
-};
-
-typedef enum {
     TIMER_TYPE_FATIGUE = 0x0,
     TIMER_TYPE_BREATH = 0x1,
-    TIMER_TYPE_FEIGNDEATH = 0x2,
+    TIMER_TYPE_FEIGN_DEATH = 0x2,
     TIMER_TYPE_ENVIRONMENTAL = 0x3,
 } e_timer_type;
 static const value_string e_timer_type_strings[] =  {
     { TIMER_TYPE_FATIGUE, "Fatigue" },
     { TIMER_TYPE_BREATH, "Breath" },
-    { TIMER_TYPE_FEIGNDEATH, "Feigndeath" },
+    { TIMER_TYPE_FEIGN_DEATH, "Feign Death" },
     { TIMER_TYPE_ENVIRONMENTAL, "Environmental" },
     { 0, NULL }
 };
@@ -6292,13 +7555,13 @@ static const value_string e_petition_result_strings[] =  {
 
 typedef enum {
     PET_FEEDBACK_PET_DEAD = 0x1,
-    PET_FEEDBACK_NOTHING_TO_EAT = 0x2,
+    PET_FEEDBACK_NOTHING_TO_ATTACK = 0x2,
     PET_FEEDBACK_CANT_ATTACK_TARGET = 0x3,
     PET_FEEDBACK_NO_PATH_TO = 0x4,
 } e_pet_feedback;
 static const value_string e_pet_feedback_strings[] =  {
     { PET_FEEDBACK_PET_DEAD, "Pet Dead" },
-    { PET_FEEDBACK_NOTHING_TO_EAT, "Nothing To Eat" },
+    { PET_FEEDBACK_NOTHING_TO_ATTACK, "Nothing To Attack" },
     { PET_FEEDBACK_CANT_ATTACK_TARGET, "Cant Attack Target" },
     { PET_FEEDBACK_NO_PATH_TO, "No Path To" },
     { 0, NULL }
@@ -6639,32 +7902,32 @@ static const value_string e_pet_enabled_strings[] =  {
 };
 
 typedef enum {
-    PET_TAME_FAILURE_REASON_INVALIDCREATURE = 0x1,
-    PET_TAME_FAILURE_REASON_TOOMANY = 0x2,
-    PET_TAME_FAILURE_REASON_CREATUREALREADYOWNED = 0x3,
-    PET_TAME_FAILURE_REASON_NOTTAMEABLE = 0x4,
-    PET_TAME_FAILURE_REASON_ANOTHERSUMMONACTIVE = 0x5,
-    PET_TAME_FAILURE_REASON_UNITSCANTTAME = 0x6,
-    PET_TAME_FAILURE_REASON_NOPETAVAILABLE = 0x7,
-    PET_TAME_FAILURE_REASON_INTERNALERROR = 0x8,
-    PET_TAME_FAILURE_REASON_TOOHIGHLEVEL = 0x9,
+    PET_TAME_FAILURE_REASON_INVALID_CREATURE = 0x1,
+    PET_TAME_FAILURE_REASON_TOO_MANY = 0x2,
+    PET_TAME_FAILURE_REASON_CREATURE_ALREADY_OWNED = 0x3,
+    PET_TAME_FAILURE_REASON_NOT_TAMEABLE = 0x4,
+    PET_TAME_FAILURE_REASON_ANOTHER_SUMMON_ACTIVE = 0x5,
+    PET_TAME_FAILURE_REASON_UNITS_CANT_TAME = 0x6,
+    PET_TAME_FAILURE_REASON_NO_PET_AVAILABLE = 0x7,
+    PET_TAME_FAILURE_REASON_INTERNAL_ERROR = 0x8,
+    PET_TAME_FAILURE_REASON_TOO_HIGH_LEVEL = 0x9,
     PET_TAME_FAILURE_REASON_DEAD = 0xA,
-    PET_TAME_FAILURE_REASON_NOTDEAD = 0xB,
-    PET_TAME_FAILURE_REASON_UNKNOWNERROR = 0xC,
+    PET_TAME_FAILURE_REASON_NOT_DEAD = 0xB,
+    PET_TAME_FAILURE_REASON_UNKNOWN_ERROR = 0xC,
 } e_pet_tame_failure_reason;
 static const value_string e_pet_tame_failure_reason_strings[] =  {
-    { PET_TAME_FAILURE_REASON_INVALIDCREATURE, "Invalidcreature" },
-    { PET_TAME_FAILURE_REASON_TOOMANY, "Toomany" },
-    { PET_TAME_FAILURE_REASON_CREATUREALREADYOWNED, "Creaturealreadyowned" },
-    { PET_TAME_FAILURE_REASON_NOTTAMEABLE, "Nottameable" },
-    { PET_TAME_FAILURE_REASON_ANOTHERSUMMONACTIVE, "Anothersummonactive" },
-    { PET_TAME_FAILURE_REASON_UNITSCANTTAME, "Unitscanttame" },
-    { PET_TAME_FAILURE_REASON_NOPETAVAILABLE, "Nopetavailable" },
-    { PET_TAME_FAILURE_REASON_INTERNALERROR, "Internalerror" },
-    { PET_TAME_FAILURE_REASON_TOOHIGHLEVEL, "Toohighlevel" },
+    { PET_TAME_FAILURE_REASON_INVALID_CREATURE, "Invalid Creature" },
+    { PET_TAME_FAILURE_REASON_TOO_MANY, "Too Many" },
+    { PET_TAME_FAILURE_REASON_CREATURE_ALREADY_OWNED, "Creature Already Owned" },
+    { PET_TAME_FAILURE_REASON_NOT_TAMEABLE, "Not Tameable" },
+    { PET_TAME_FAILURE_REASON_ANOTHER_SUMMON_ACTIVE, "Another Summon Active" },
+    { PET_TAME_FAILURE_REASON_UNITS_CANT_TAME, "Units Cant Tame" },
+    { PET_TAME_FAILURE_REASON_NO_PET_AVAILABLE, "No Pet Available" },
+    { PET_TAME_FAILURE_REASON_INTERNAL_ERROR, "Internal Error" },
+    { PET_TAME_FAILURE_REASON_TOO_HIGH_LEVEL, "Too High Level" },
     { PET_TAME_FAILURE_REASON_DEAD, "Dead" },
-    { PET_TAME_FAILURE_REASON_NOTDEAD, "Notdead" },
-    { PET_TAME_FAILURE_REASON_UNKNOWNERROR, "Unknownerror" },
+    { PET_TAME_FAILURE_REASON_NOT_DEAD, "Not Dead" },
+    { PET_TAME_FAILURE_REASON_UNKNOWN_ERROR, "Unknown Error" },
     { 0, NULL }
 };
 
@@ -6795,20 +8058,40 @@ static const value_string e_server_message_type_strings[] =  {
 };
 
 typedef enum {
-    POWER_TYPE_MANA = 0x00000000,
-    POWER_TYPE_RAGE = 0x00000001,
-    POWER_TYPE_FOCUS = 0x00000002,
-    POWER_TYPE_ENERGY = 0x00000003,
-    POWER_TYPE_HAPPINESS = 0x00000004,
-    POWER_TYPE_HEALTH = -0x0000002,
-} e_power_type;
-static const value_string e_power_type_strings[] =  {
-    { POWER_TYPE_MANA, "Mana" },
-    { POWER_TYPE_RAGE, "Rage" },
-    { POWER_TYPE_FOCUS, "Focus" },
-    { POWER_TYPE_ENERGY, "Energy" },
-    { POWER_TYPE_HAPPINESS, "Happiness" },
-    { POWER_TYPE_HEALTH, "Health" },
+    ITEM_CLASS_CONSUMABLE = 0x0,
+    ITEM_CLASS_CONTAINER = 0x1,
+    ITEM_CLASS_WEAPON = 0x2,
+    ITEM_CLASS_GEM = 0x3,
+    ITEM_CLASS_ARMOR = 0x4,
+    ITEM_CLASS_REAGENT = 0x5,
+    ITEM_CLASS_PROJECTILE = 0x6,
+    ITEM_CLASS_TRADE_GOODS = 0x7,
+    ITEM_CLASS_GENERIC = 0x8,
+    ITEM_CLASS_RECIPE = 0x9,
+    ITEM_CLASS_MONEY = 0xA,
+    ITEM_CLASS_QUIVER = 0xB,
+    ITEM_CLASS_QUEST = 0xC,
+    ITEM_CLASS_KEY = 0xD,
+    ITEM_CLASS_PERMANENT = 0xE,
+    ITEM_CLASS_MISC = 0xF,
+} e_item_class;
+static const value_string e_item_class_strings[] =  {
+    { ITEM_CLASS_CONSUMABLE, "Consumable" },
+    { ITEM_CLASS_CONTAINER, "Container" },
+    { ITEM_CLASS_WEAPON, "Weapon" },
+    { ITEM_CLASS_GEM, "Gem" },
+    { ITEM_CLASS_ARMOR, "Armor" },
+    { ITEM_CLASS_REAGENT, "Reagent" },
+    { ITEM_CLASS_PROJECTILE, "Projectile" },
+    { ITEM_CLASS_TRADE_GOODS, "Trade Goods" },
+    { ITEM_CLASS_GENERIC, "Generic" },
+    { ITEM_CLASS_RECIPE, "Recipe" },
+    { ITEM_CLASS_MONEY, "Money" },
+    { ITEM_CLASS_QUIVER, "Quiver" },
+    { ITEM_CLASS_QUEST, "Quest" },
+    { ITEM_CLASS_KEY, "Key" },
+    { ITEM_CLASS_PERMANENT, "Permanent" },
+    { ITEM_CLASS_MISC, "Misc" },
     { 0, NULL }
 };
 
@@ -6989,6 +8272,42 @@ typedef enum {
 } e_faction_flag;
 
 typedef enum {
+    SPLINE_FLAG_NONE = 0x00000000,
+    SPLINE_FLAG_DONE = 0x00000001,
+    SPLINE_FLAG_FALLING = 0x00000002,
+    SPLINE_FLAG_UNKNOWN3 = 0x00000004,
+    SPLINE_FLAG_UNKNOWN4 = 0x00000008,
+    SPLINE_FLAG_UNKNOWN5 = 0x00000010,
+    SPLINE_FLAG_UNKNOWN6 = 0x00000020,
+    SPLINE_FLAG_UNKNOWN7 = 0x00000040,
+    SPLINE_FLAG_UNKNOWN8 = 0x00000080,
+    SPLINE_FLAG_RUN_MODE = 0x00000100,
+    SPLINE_FLAG_FLYING = 0x00000200,
+    SPLINE_FLAG_NO_SPLINE = 0x00000400,
+    SPLINE_FLAG_UNKNOWN12 = 0x00000800,
+    SPLINE_FLAG_UNKNOWN13 = 0x00001000,
+    SPLINE_FLAG_UNKNOWN14 = 0x00002000,
+    SPLINE_FLAG_UNKNOWN15 = 0x00004000,
+    SPLINE_FLAG_UNKNOWN16 = 0x00008000,
+    SPLINE_FLAG_FINAL_POINT = 0x00010000,
+    SPLINE_FLAG_FINAL_TARGET = 0x00020000,
+    SPLINE_FLAG_FINAL_ANGLE = 0x00040000,
+    SPLINE_FLAG_UNKNOWN19 = 0x00080000,
+    SPLINE_FLAG_CYCLIC = 0x00100000,
+    SPLINE_FLAG_ENTER_CYCLE = 0x00200000,
+    SPLINE_FLAG_FROZEN = 0x00400000,
+    SPLINE_FLAG_UNKNOWN23 = 0x00800000,
+    SPLINE_FLAG_UNKNOWN24 = 0x01000000,
+    SPLINE_FLAG_UNKNOWN25 = 0x02000000,
+    SPLINE_FLAG_UNKNOWN26 = 0x04000000,
+    SPLINE_FLAG_UNKNOWN27 = 0x08000000,
+    SPLINE_FLAG_UNKNOWN28 = 0x10000000,
+    SPLINE_FLAG_UNKNOWN29 = 0x20000000,
+    SPLINE_FLAG_UNKNOWN30 = 0x40000000,
+    SPLINE_FLAG_UNKNOWN31 = -0x7FFFFFFF,
+} e_spline_flag;
+
+typedef enum {
     UPDATE_FLAG_NONE = 0x00,
     UPDATE_FLAG_SELF = 0x01,
     UPDATE_FLAG_TRANSPORT = 0x02,
@@ -7028,42 +8347,6 @@ typedef enum {
 } e_movement_flags;
 
 typedef enum {
-    SPLINE_FLAG_NONE = 0x00000000,
-    SPLINE_FLAG_DONE = 0x00000001,
-    SPLINE_FLAG_FALLING = 0x00000002,
-    SPLINE_FLAG_UNKNOWN3 = 0x00000004,
-    SPLINE_FLAG_UNKNOWN4 = 0x00000008,
-    SPLINE_FLAG_UNKNOWN5 = 0x00000010,
-    SPLINE_FLAG_UNKNOWN6 = 0x00000020,
-    SPLINE_FLAG_UNKNOWN7 = 0x00000040,
-    SPLINE_FLAG_UNKNOWN8 = 0x00000080,
-    SPLINE_FLAG_RUNMODE = 0x00000100,
-    SPLINE_FLAG_FLYING = 0x00000200,
-    SPLINE_FLAG_NO_SPLINE = 0x00000400,
-    SPLINE_FLAG_UNKNOWN12 = 0x00000800,
-    SPLINE_FLAG_UNKNOWN13 = 0x00001000,
-    SPLINE_FLAG_UNKNOWN14 = 0x00002000,
-    SPLINE_FLAG_UNKNOWN15 = 0x00004000,
-    SPLINE_FLAG_UNKNOWN16 = 0x00008000,
-    SPLINE_FLAG_FINAL_POINT = 0x00010000,
-    SPLINE_FLAG_FINAL_TARGET = 0x00020000,
-    SPLINE_FLAG_FINAL_ANGLE = 0x00040000,
-    SPLINE_FLAG_UNKNOWN19 = 0x00080000,
-    SPLINE_FLAG_CYCLIC = 0x00100000,
-    SPLINE_FLAG_ENTER_CYCLE = 0x00200000,
-    SPLINE_FLAG_FROZEN = 0x00400000,
-    SPLINE_FLAG_UNKNOWN23 = 0x00800000,
-    SPLINE_FLAG_UNKNOWN24 = 0x01000000,
-    SPLINE_FLAG_UNKNOWN25 = 0x02000000,
-    SPLINE_FLAG_UNKNOWN26 = 0x04000000,
-    SPLINE_FLAG_UNKNOWN27 = 0x08000000,
-    SPLINE_FLAG_UNKNOWN28 = 0x10000000,
-    SPLINE_FLAG_UNKNOWN29 = 0x20000000,
-    SPLINE_FLAG_UNKNOWN30 = 0x40000000,
-    SPLINE_FLAG_UNKNOWN31 = -0x7FFFFFFF,
-} e_spline_flag;
-
-typedef enum {
     SPELL_CAST_TARGET_FLAGS_SELF = 0x0000,
     SPELL_CAST_TARGET_FLAGS_UNUSED1 = 0x0001,
     SPELL_CAST_TARGET_FLAGS_UNIT = 0x0002,
@@ -7095,28 +8378,74 @@ typedef enum {
 } e_channel_flags;
 
 typedef enum {
-    GROUP_UPDATE_FLAGS_FLAG_NONE = 0x00000000,
-    GROUP_UPDATE_FLAGS_FLAG_STATUS = 0x00000001,
-    GROUP_UPDATE_FLAGS_FLAG_CUR_HP = 0x00000002,
-    GROUP_UPDATE_FLAGS_FLAG_MAX_HP = 0x00000004,
-    GROUP_UPDATE_FLAGS_FLAG_POWER_TYPE = 0x00000008,
-    GROUP_UPDATE_FLAGS_FLAG_CUR_POWER = 0x00000010,
-    GROUP_UPDATE_FLAGS_FLAG_MAX_POWER = 0x00000020,
-    GROUP_UPDATE_FLAGS_FLAG_LEVEL = 0x00000040,
-    GROUP_UPDATE_FLAGS_FLAG_ZONE = 0x00000080,
-    GROUP_UPDATE_FLAGS_FLAG_POSITION = 0x00000100,
-    GROUP_UPDATE_FLAGS_FLAG_AURAS = 0x00000200,
-    GROUP_UPDATE_FLAGS_FLAG_AURAS_2 = 0x00000400,
-    GROUP_UPDATE_FLAGS_FLAG_PET_GUID = 0x00000800,
-    GROUP_UPDATE_FLAGS_FLAG_PET_NAME = 0x00001000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_MODEL_ID = 0x00002000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_CUR_HP = 0x00004000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_MAX_HP = 0x00008000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_POWER_TYPE = 0x00010000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_CUR_POWER = 0x00020000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_MAX_POWER = 0x00040000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_AURAS = 0x00080000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_AURAS_2 = 0x00100000,
+    ITEM_FLAG_NONE = 0x00000,
+    ITEM_FLAG_NO_PICKUP = 0x00001,
+    ITEM_FLAG_CONJURED = 0x00002,
+    ITEM_FLAG_LOOTABLE = 0x00004,
+    ITEM_FLAG_DEPRECATED = 0x00010,
+    ITEM_FLAG_INDESTRUCTIBLE = 0x00020,
+    ITEM_FLAG_PLAYER_CAST = 0x00040,
+    ITEM_FLAG_NO_EQUIP_COOLDOWN = 0x00080,
+    ITEM_FLAG_INT_BONUS_INSTEAD = 0x00100,
+    ITEM_FLAG_WRAPPER = 0x00200,
+    ITEM_FLAG_IGNORE_BAG_SPACE = 0x00400,
+    ITEM_FLAG_PARTY_LOOT = 0x00800,
+    ITEM_FLAG_CHARTER = 0x02000,
+    ITEM_FLAG_HAS_TEXT = 0x04000,
+    ITEM_FLAG_NO_DISENCHANT = 0x08000,
+    ITEM_FLAG_REAL_DURATION = 0x10000,
+    ITEM_FLAG_NO_CREATOR = 0x20000,
+} e_item_flag;
+
+typedef enum {
+    ALLOWED_CLASS_ALL = 0x000,
+    ALLOWED_CLASS_WARRIOR = 0x001,
+    ALLOWED_CLASS_PALADIN = 0x002,
+    ALLOWED_CLASS_HUNTER = 0x004,
+    ALLOWED_CLASS_ROGUE = 0x008,
+    ALLOWED_CLASS_PRIEST = 0x010,
+    ALLOWED_CLASS_SHAMAN = 0x040,
+    ALLOWED_CLASS_MAGE = 0x080,
+    ALLOWED_CLASS_WARLOCK = 0x100,
+    ALLOWED_CLASS_DRUID = 0x400,
+} e_allowed_class;
+
+typedef enum {
+    ALLOWED_RACE_ALL = 0x000,
+    ALLOWED_RACE_HUMAN = 0x001,
+    ALLOWED_RACE_ORC = 0x002,
+    ALLOWED_RACE_DWARF = 0x004,
+    ALLOWED_RACE_NIGHT_ELF = 0x008,
+    ALLOWED_RACE_UNDEAD = 0x010,
+    ALLOWED_RACE_TAUREN = 0x020,
+    ALLOWED_RACE_GNOME = 0x040,
+    ALLOWED_RACE_TROLL = 0x080,
+    ALLOWED_RACE_GOBLIN = 0x100,
+} e_allowed_race;
+
+typedef enum {
+    GROUP_UPDATE_FLAGS_NONE = 0x00000000,
+    GROUP_UPDATE_FLAGS_STATUS = 0x00000001,
+    GROUP_UPDATE_FLAGS_CUR_HP = 0x00000002,
+    GROUP_UPDATE_FLAGS_MAX_HP = 0x00000004,
+    GROUP_UPDATE_FLAGS_POWER_TYPE = 0x00000008,
+    GROUP_UPDATE_FLAGS_CUR_POWER = 0x00000010,
+    GROUP_UPDATE_FLAGS_MAX_POWER = 0x00000020,
+    GROUP_UPDATE_FLAGS_LEVEL = 0x00000040,
+    GROUP_UPDATE_FLAGS_ZONE = 0x00000080,
+    GROUP_UPDATE_FLAGS_POSITION = 0x00000100,
+    GROUP_UPDATE_FLAGS_AURAS = 0x00000200,
+    GROUP_UPDATE_FLAGS_AURAS_2 = 0x00000400,
+    GROUP_UPDATE_FLAGS_PET_GUID = 0x00000800,
+    GROUP_UPDATE_FLAGS_PET_NAME = 0x00001000,
+    GROUP_UPDATE_FLAGS_PET_MODEL_ID = 0x00002000,
+    GROUP_UPDATE_FLAGS_PET_CUR_HP = 0x00004000,
+    GROUP_UPDATE_FLAGS_PET_MAX_HP = 0x00008000,
+    GROUP_UPDATE_FLAGS_PET_POWER_TYPE = 0x00010000,
+    GROUP_UPDATE_FLAGS_PET_CUR_POWER = 0x00020000,
+    GROUP_UPDATE_FLAGS_PET_MAX_POWER = 0x00040000,
+    GROUP_UPDATE_FLAGS_PET_AURAS = 0x00080000,
+    GROUP_UPDATE_FLAGS_PET_AURAS_2 = 0x00100000,
     GROUP_UPDATE_FLAGS_MODE_OFFLINE = 0x10000000,
 } e_group_update_flags;
 
@@ -7658,7 +8987,7 @@ typedef enum
     CMSG_GM_SET_SECURITY_GROUP                      = 0x1F9,
     CMSG_GM_NUKE                                    = 0x1FA,
     MSG_RANDOM_ROLL                                 = 0x1FB,
-    SMSG_ENVIRONMENTALDAMAGELOG                     = 0x1FC,
+    SMSG_ENVIRONMENTAL_DAMAGE_LOG                   = 0x1FC,
     CMSG_RWHOIS_OBSOLETE                            = 0x1FD,
     SMSG_RWHOIS                                     = 0x1FE,
     MSG_LOOKING_FOR_GROUP                           = 0x1FF,
@@ -8567,7 +9896,7 @@ static const value_string world_packet_strings[] = {
     { CMSG_GM_SET_SECURITY_GROUP, "CMSG_GM_SET_SECURITY_GROUP" },
     { CMSG_GM_NUKE, "CMSG_GM_NUKE" },
     { MSG_RANDOM_ROLL, "MSG_RANDOM_ROLL" },
-    { SMSG_ENVIRONMENTALDAMAGELOG, "SMSG_ENVIRONMENTALDAMAGELOG" },
+    { SMSG_ENVIRONMENTAL_DAMAGE_LOG, "SMSG_ENVIRONMENTAL_DAMAGE_LOG" },
     { CMSG_RWHOIS_OBSOLETE, "CMSG_RWHOIS_OBSOLETE" },
     { SMSG_RWHOIS, "SMSG_RWHOIS" },
     { MSG_LOOKING_FOR_GROUP, "MSG_LOOKING_FOR_GROUP" },
@@ -9148,7 +10477,7 @@ static gint32
 get_null_terminated_string_length( tvbuff_t* tvb,
                                    gint32 offset)
 {
-    const gint32 maximum_length = 255;
+    const gint32 maximum_length = 0x7FFF;
     for (gint32 length = 0; length < maximum_length; length++) {
         guint8 character = tvb_get_guint8(tvb, offset + length);
         if (character == 0) {
@@ -9249,6 +10578,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_entries = 0;
     guint32 amount_of_events = 0;
     guint32 amount_of_extra_fields = 0;
+    guint32 amount_of_faction_standings = 0;
     guint32 amount_of_factions = 0;
     guint32 amount_of_friends = 0;
     guint32 amount_of_gossip_items = 0;
@@ -9273,6 +10603,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_rights = 0;
     guint32 amount_of_signatures = 0;
     guint32 amount_of_spells = 0;
+    guint32 amount_of_splines = 0;
     guint32 amount_of_states = 0;
     guint32 amount_of_strings = 0;
     guint32 amount_of_targets = 0;
@@ -9286,13 +10617,14 @@ add_body_fields(guint32 opcode,
     guint32 effect = 0;
     guint32 exp_type = 0;
     guint32 flags = 0;
-    guint32 index = 0;
     guint32 info_block = 0;
     guint32 key_version = 0;
     guint32 listed_players = 0;
     guint32 map = 0;
     guint32 mask = 0;
     guint32 message_type = 0;
+    guint32 miss_info = 0;
+    guint32 move_type = 0;
     guint32 node_count = 0;
     guint32 number_of_battlegrounds = 0;
     guint32 reason = 0;
@@ -9302,6 +10634,7 @@ add_body_fields(guint32 opcode,
     guint32 status = 0;
     guint32 status_id = 0;
     guint32 target_flags = 0;
+    guint32 target_index = 0;
     guint32 update_flag = 0;
     guint32 update_type = 0;
     guint32 url_info = 0;
@@ -9326,10 +10659,10 @@ add_body_fields(guint32 opcode,
             }
             break;
         case CMSG_ADD_FRIEND:
-            add_cstring(ptv, &hf_woww_friend_name);
+            add_cstring(ptv, &hf_woww_name);
             break;
         case CMSG_ADD_IGNORE:
-            add_cstring(ptv, &hf_woww_ignore_name);
+            add_cstring(ptv, &hf_woww_name);
             break;
         case CMSG_AREATRIGGER:
             ptvcursor_add(ptv, hf_woww_trigger_id, 4, ENC_LITTLE_ENDIAN);
@@ -9352,7 +10685,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case CMSG_AUCTION_LIST_ITEMS:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_list_start_item, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_searched_name);
             ptvcursor_add(ptv, hf_woww_minimum_level, 1, ENC_LITTLE_ENDIAN);
@@ -9364,16 +10697,16 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_usable, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_LIST_OWNER_ITEMS:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_list_from, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_PLACE_BID:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_price, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_REMOVE_ITEM:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_SELL_ITEM:
@@ -9453,20 +10786,20 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_ITEM:
-            ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_vendor, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_ITEM_IN_SLOT:
-            ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_bag_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_vendor, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_bag, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_slot, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_STABLE_SLOT:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_CANCEL_AURA:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
@@ -9484,38 +10817,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -9600,6 +10925,9 @@ add_body_fields(guint32 opcode,
         case CMSG_CREATURE_QUERY:
             ptvcursor_add(ptv, hf_woww_creature, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
+            break;
+        case CMSG_DBLOOKUP:
+            add_cstring(ptv, &hf_woww_query);
             break;
         case CMSG_DEL_FRIEND:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -9953,7 +11281,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_GET_MAIL_LIST:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_GMSURVEY_SUBMIT:
             ptvcursor_add(ptv, hf_woww_survey_id, 4, ENC_LITTLE_ENDIAN);
@@ -9998,7 +11326,7 @@ add_body_fields(guint32 opcode,
             break;
         case CMSG_GROUP_ASSISTANT_LEADER:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_set_assistant, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_set_assistant, 1, ENC_NA);
             break;
         case CMSG_GROUP_CHANGE_SUB_GROUP:
             add_cstring(ptv, &hf_woww_name);
@@ -10070,7 +11398,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_ITEM_NAME_QUERY:
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_ITEM_QUERY_SINGLE:
@@ -10116,12 +11444,12 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_LOOT_ROLL:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_CREATE_TEXT_ITEM:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_template_id, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -10130,7 +11458,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_MARK_AS_READ:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_RETURN_TO_SENDER:
@@ -10138,11 +11466,11 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_TAKE_ITEM:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_TAKE_MONEY:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MEETINGSTONE_JOIN:
@@ -10452,8 +11780,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_OFFER_PETITION:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_OPEN_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
@@ -10483,26 +11811,26 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_QUERY:
-            ptvcursor_add(ptv, hf_woww_guild_guid, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_guild_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_SHOWLIST:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_SHOW_SIGNATURES:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_SIGN:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_ABANDON:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_ACTION:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_data, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_CANCEL_AURA:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -10511,13 +11839,45 @@ add_body_fields(guint32 opcode,
         case CMSG_PET_CAST_SPELL:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellCastTargets");
+            ptvcursor_add_ret_uint(ptv, hf_woww_spell_cast_target_flags, 2, ENC_LITTLE_ENDIAN, &target_flags);
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
+                add_cstring(ptv, &hf_woww_target_string);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            ptvcursor_pop_subtree(ptv);
             break;
         case CMSG_PET_NAME_QUERY:
             ptvcursor_add(ptv, hf_woww_pet_number, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_RENAME:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_name);
             break;
         case CMSG_PET_SET_ACTION:
@@ -10533,13 +11893,13 @@ add_body_fields(guint32 opcode,
         case CMSG_PET_SPELL_AUTOCAST:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_enabled, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_autocast_enabled, 1, ENC_NA);
             break;
         case CMSG_PET_STOP_ATTACK:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_UNLEARN:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PING:
             ptvcursor_add(ptv, hf_woww_sequence_id, 4, ENC_LITTLE_ENDIAN);
@@ -10599,8 +11959,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_REPAIR_ITEM:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_REQUEST_ACCOUNT_DATA:
             ptvcursor_add(ptv, hf_woww_data_type, 4, ENC_LITTLE_ENDIAN);
@@ -10613,8 +11973,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_status, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SELL_ITEM:
-            ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_vendor, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SEND_MAIL:
@@ -10649,11 +12009,11 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SET_FACTION_ATWAR:
-            ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_faction_flag, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SET_FACTION_INACTIVE:
-            ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_inactive, 1, ENC_NA);
             break;
         case CMSG_SET_SELECTION:
@@ -10671,7 +12031,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_slot, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SET_WATCHED_FACTION:
-            ptvcursor_add(ptv, hf_woww_reputation_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SPIRIT_HEALER_ACTIVATE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -10684,7 +12044,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_STABLE_PET:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_stable_master, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_STABLE_SWAP_PET:
             ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
@@ -10694,7 +12054,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unit_stand_state, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SUMMON_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_summoner_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_summoner, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SWAP_INV_ITEM:
             ptvcursor_add(ptv, hf_woww_source_slot, 1, ENC_LITTLE_ENDIAN);
@@ -10734,23 +12094,23 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_TURN_IN_PETITION:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_TUTORIAL_FLAG:
             ptvcursor_add(ptv, hf_woww_tutorial_flag, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UNLEARN_SKILL:
-            ptvcursor_add(ptv, hf_woww_skill_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UNSTABLE_PET:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_stable_master, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_pet_number, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UPDATE_ACCOUNT_DATA:
             ptvcursor_add(ptv, hf_woww_data_type, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unknown_bytes, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_compressed_data, len, ENC_NA);
             break;
         case CMSG_USE_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
@@ -10761,30 +12121,25 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
@@ -10792,14 +12147,11 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             ptvcursor_pop_subtree(ptv);
             break;
         case CMSG_WARDEN_DATA:
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_encrypted_data, len, ENC_NA);
             break;
         case CMSG_WHO:
             ptvcursor_add(ptv, hf_woww_minimum_level, 4, ENC_LITTLE_ENDIAN);
@@ -10868,6 +12220,17 @@ add_body_fields(guint32 opcode,
                 }
             }
             else {
+            }
+            break;
+        case MSG_CHANNEL_START:
+            if (WOWW_SERVER_TO_CLIENT) {
+                ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+            }
+            break;
+        case MSG_CHANNEL_UPDATE:
+            if (WOWW_SERVER_TO_CLIENT) {
+                ptvcursor_add(ptv, hf_woww_time, 4, ENC_LITTLE_ENDIAN);
             }
             break;
         case MSG_CORPSE_QUERY:
@@ -10987,6 +12350,46 @@ add_body_fields(guint32 opcode,
                 ptvcursor_pop_subtree(ptv);
             }
             else {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "MovementInfo");
+                ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &flags);
+                ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+                ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+                if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
+                    ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
+                    add_packed_guid(ptv, pinfo);
+                    ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                    ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_pop_subtree(ptv);
+                    ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_pop_subtree(ptv);
+                }
+                if (flags & MOVEMENT_FLAGS_SWIMMING) {
+                    ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_add(ptv, hf_woww_fall_time, 4, ENC_LITTLE_ENDIAN);
+                if (flags & MOVEMENT_FLAGS_JUMPING) {
+                    ptvcursor_add(ptv, hf_woww_z_speed, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_cos_angle, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_sin_angle, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_xy_speed, 4, ENC_LITTLE_ENDIAN);
+                }
+                if (flags & MOVEMENT_FLAGS_SPLINE_ELEVATION) {
+                    ptvcursor_add(ptv, hf_woww_spline_elevation, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_pop_subtree(ptv);
+            }
+            break;
+        case MSG_MOVE_FEATHER_FALL:
+            if (WOWW_SERVER_TO_CLIENT) {
+                add_packed_guid(ptv, pinfo);
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "MovementInfo");
                 ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &flags);
                 ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
@@ -12605,16 +14008,60 @@ add_body_fields(guint32 opcode,
                 ptvcursor_pop_subtree(ptv);
             }
             else {
-                ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
+                add_packed_guid(ptv, pinfo);
                 ptvcursor_add(ptv, hf_woww_movement_counter, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_time_in_msecs, 4, ENC_LITTLE_ENDIAN);
             }
+            break;
+        case MSG_MOVE_TIME_SKIPPED:
+            if (WOWW_SERVER_TO_CLIENT) {
+                add_packed_guid(ptv, pinfo);
+                ptvcursor_add(ptv, hf_woww_time_skipped, 4, ENC_LITTLE_ENDIAN);
+            }
+            break;
+        case MSG_MOVE_WATER_WALK:
+            add_packed_guid(ptv, pinfo);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "MovementInfo");
+            ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &flags);
+            ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+            ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_pop_subtree(ptv);
+            ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+            if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
+                add_packed_guid(ptv, pinfo);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+                ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            if (flags & MOVEMENT_FLAGS_SWIMMING) {
+                ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
+            }
+            ptvcursor_add(ptv, hf_woww_fall_time, 4, ENC_LITTLE_ENDIAN);
+            if (flags & MOVEMENT_FLAGS_JUMPING) {
+                ptvcursor_add(ptv, hf_woww_z_speed, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_cos_angle, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_sin_angle, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_xy_speed, 4, ENC_LITTLE_ENDIAN);
+            }
+            if (flags & MOVEMENT_FLAGS_SPLINE_ELEVATION) {
+                ptvcursor_add(ptv, hf_woww_spline_elevation, 4, ENC_LITTLE_ENDIAN);
+            }
+            ptvcursor_pop_subtree(ptv);
             break;
         case MSG_PETITION_DECLINE:
             ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             break;
         case MSG_PETITION_RENAME:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_new_name);
             break;
         case MSG_PVP_LOG_DATA:
@@ -12687,8 +14134,8 @@ add_body_fields(guint32 opcode,
                 }
             }
             else {
-                ptvcursor_add_ret_uint(ptv, hf_woww_raid_target_index, 1, ENC_LITTLE_ENDIAN, &index);
-                if (index != RAID_TARGET_INDEX_REQUEST_ICONS) {
+                ptvcursor_add_ret_uint(ptv, hf_woww_raid_target_index, 1, ENC_LITTLE_ENDIAN, &target_index);
+                if (target_index != RAID_TARGET_INDEX_REQUEST_ICONS) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 }
             }
@@ -12794,8 +14241,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_blocked_amount, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ATTACKSTART:
-            ptvcursor_add(ptv, hf_woww_attacker_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_victim_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_attacker, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_victim, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ATTACKSTOP:
             add_packed_guid(ptv, pinfo);
@@ -12807,7 +14254,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < count; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AuctionListItem");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -12842,7 +14289,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < count; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AuctionListItem");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -12864,7 +14311,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < count; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AuctionListItem");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -12886,11 +14333,11 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_bid, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_out_bid, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bidder, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_AUCTION_REMOVED_NOTIFICATION:
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_template, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_random_property_id, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -12921,7 +14368,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_queue_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN, &map);
             if (map != MAP_EASTERN_KINGDOMS) {
-                ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_battleground_bracket, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_client_instance_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add_ret_uint(ptv, hf_woww_status_id, 1, ENC_LITTLE_ENDIAN, &status_id);
                 if (status_id == STATUS_ID_WAIT_QUEUE) {
@@ -12938,7 +14385,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_BATTLEGROUND_PLAYER_JOINED:
-            ptvcursor_add(ptv, hf_woww_player_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_BATTLEGROUND_PLAYER_LEFT:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -12960,7 +14407,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_BUY_FAILED:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_buy_result, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_BUY_ITEM:
@@ -13038,7 +14485,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_first_login, 1, ENC_NA);
                 ptvcursor_add(ptv, hf_woww_pet_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_pet_level, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_pet_family, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_creature_family, 4, ENC_LITTLE_ENDIAN);
                 for (i = 0; i < 19; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "CharacterGear");
                     ptvcursor_add(ptv, hf_woww_equipment_display_id, 4, ENC_LITTLE_ENDIAN);
@@ -13062,19 +14509,11 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_CLEAR_COOLDOWN:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_CLIENT_CONTROL_UPDATE:
             add_packed_guid(ptv, pinfo);
-            ptvcursor_add(ptv, hf_woww_allow_movement, 1, ENC_LITTLE_ENDIAN);
-            break;
-        case SMSG_COMPRESSED_MOVES:
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
-            break;
-        case SMSG_COMPRESSED_UPDATE_OBJECT:
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_allow_movement, 1, ENC_NA);
             break;
         case SMSG_COOLDOWN_EVENT:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
@@ -13111,11 +14550,11 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DISMOUNTRESULT:
-            ptvcursor_add(ptv, hf_woww_mount_result, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_dismount_result, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DISPEL_FAILED:
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             while (ptvcursor_current_offset(ptv) < offset_packet_end) {
                 ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
             }
@@ -13127,8 +14566,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_time_in_seconds, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DUEL_REQUESTED:
-            ptvcursor_add(ptv, hf_woww_initiator_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_initiator, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DUEL_WINNER:
             ptvcursor_add(ptv, hf_woww_duel_winner_reason, 1, ENC_LITTLE_ENDIAN);
@@ -13140,13 +14579,13 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ENCHANTMENTLOG:
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_show_affiliation, 1, ENC_NA);
             break;
-        case SMSG_ENVIRONMENTALDAMAGELOG:
+        case SMSG_ENVIRONMENTAL_DAMAGE_LOG:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_environmental_damage_type, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
@@ -13321,13 +14760,14 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_GROUP_LIST:
             ptvcursor_add(ptv, hf_woww_group_type, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_own_flags, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_flags, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_members, 4, ENC_LITTLE_ENDIAN, &amount_of_members);
             for (i = 0; i < amount_of_members; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "GroupListMember");
                 add_cstring(ptv, &hf_woww_name);
                 ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_is_online, 1, ENC_NA);
+                ptvcursor_add(ptv, hf_woww_flags, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add(ptv, hf_woww_leader, 8, ENC_LITTLE_ENDIAN);
@@ -13455,7 +14895,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_INSTANCE_RESET_FAILED:
-            ptvcursor_add(ptv, hf_woww_instance_reset_failed_reason, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_instance_reset_failed_reason, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_INSTANCE_SAVE_CREATED:
@@ -13466,9 +14906,6 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_INVENTORY_CHANGE_FAILURE:
             ptvcursor_add_ret_uint(ptv, hf_woww_inventory_result, 1, ENC_LITTLE_ENDIAN, &result);
-            if (result == INVENTORY_RESULT_CANT_EQUIP_LEVEL_I) {
-                ptvcursor_add(ptv, hf_woww_required_level, 4, ENC_LITTLE_ENDIAN);
-            }
             if (result != INVENTORY_RESULT_OK) {
                 ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
@@ -13486,7 +14923,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ITEM_NAME_QUERY_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_item_name);
             break;
         case SMSG_ITEM_PUSH_RESULT:
@@ -13496,7 +14933,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_new_item_chat_alert, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_slot, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_count, 4, ENC_LITTLE_ENDIAN);
@@ -13505,15 +14942,14 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             len = offset_packet_end - ptvcursor_current_offset(ptv);
             if (len > 0) {
-                ptvcursor_add(ptv, hf_woww_item_class, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_sub_class, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_class_and_sub_class, 8, ENC_LITTLE_ENDIAN);
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
                 add_cstring(ptv, &hf_woww_name);
-                ptvcursor_add(ptv, hf_woww_item_display_info, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_quality, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_flags, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_flag, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_buy_price, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_sell_price, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_inventory_type, 4, ENC_LITTLE_ENDIAN);
@@ -13521,27 +14957,27 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_allowed_race, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_level, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_level, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_skill, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_skill_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_spell, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_honor_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_city_rank, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_reputation_faction, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_reputation_rank, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_required_faction_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_max_count, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stackable, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_container_slots, 4, ENC_LITTLE_ENDIAN);
                 for (i = 0; i < 10; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ItemStat");
                     ptvcursor_add(ptv, hf_woww_item_stat_type, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_item_stat_value, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_value, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_pop_subtree(ptv);
                 }
                 for (i = 0; i < 5; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ItemDamageType");
                     ptvcursor_add(ptv, hf_woww_damage_minimum, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_damage_maximum, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_damage_type, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_spell_school, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_pop_subtree(ptv);
                 }
                 ptvcursor_add(ptv, hf_woww_armor, 4, ENC_LITTLE_ENDIAN);
@@ -13557,9 +14993,8 @@ add_body_fields(guint32 opcode,
                 for (i = 0; i < 5; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ItemSpells");
                     ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_spell_trigger, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_spell_trigger_type, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_charges, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_spell_ppm_rate, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_cooldown, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_category, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_category_cooldown, 4, ENC_LITTLE_ENDIAN);
@@ -13568,12 +15003,12 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_bonding, 4, ENC_LITTLE_ENDIAN);
                 add_cstring(ptv, &hf_woww_description);
                 ptvcursor_add(ptv, hf_woww_page_text, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_language_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_page_material, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_language, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_page_text_material, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_start_quest, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_lock_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_material, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_sheath, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_sheathe_type, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_random_property, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_block, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_set, 4, ENC_LITTLE_ENDIAN);
@@ -13614,7 +15049,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < amount_of_items; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ListInventoryItem");
                 ptvcursor_add(ptv, hf_woww_item_stack_count, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_max_items, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_price, 4, ENC_LITTLE_ENDIAN);
@@ -13650,9 +15085,9 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_LOOT_ALL_PASSED:
-            ptvcursor_add(ptv, hf_woww_looted_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_looted_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix_id, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -13675,34 +15110,43 @@ add_body_fields(guint32 opcode,
         case SMSG_LOOT_RESPONSE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_method, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_gold, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_items, 1, ENC_LITTLE_ENDIAN, &amount_of_items);
+            for (i = 0; i < amount_of_items; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "LootItem");
+                ptvcursor_add(ptv, hf_woww_index, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_loot_slot_type, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_LOOT_ROLL:
-            ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_creature, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_number, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_LOOT_ROLL_WON:
-            ptvcursor_add(ptv, hf_woww_looted_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_looted_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_winning_player_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_winning_player, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_winning_roll, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_LOOT_START_ROLL:
-            ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_creature, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_countdown_time, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_countdown_time_in_milliseconds, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_MAIL_LIST_RESULT:
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_mails, 1, ENC_LITTLE_ENDIAN, &amount_of_mails);
@@ -13724,7 +15168,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_item_text_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stationery, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchant_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -13790,9 +15234,33 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_spline_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN, &move_type);
+            if (move_type == MONSTER_MOVE_TYPE_FACING_TARGET) {
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_ANGLE) {
+                ptvcursor_add(ptv, hf_woww_angle, 4, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_SPOT) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            ptvcursor_add(ptv, hf_woww_spline_flag, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_splines, 4, ENC_LITTLE_ENDIAN, &amount_of_splines);
+            for (i = 0; i < amount_of_splines; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_MONSTER_MOVE_TRANSPORT:
+            add_packed_guid(ptv, pinfo);
             add_packed_guid(ptv, pinfo);
             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
             ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
@@ -13800,7 +15268,30 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_spline_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_monster_move_type, 1, ENC_LITTLE_ENDIAN, &move_type);
+            if (move_type == MONSTER_MOVE_TYPE_FACING_TARGET) {
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_ANGLE) {
+                ptvcursor_add(ptv, hf_woww_angle, 4, ENC_LITTLE_ENDIAN);
+            }
+            else if (move_type == MONSTER_MOVE_TYPE_FACING_SPOT) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            ptvcursor_add(ptv, hf_woww_spline_flag, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_splines, 4, ENC_LITTLE_ENDIAN, &amount_of_splines);
+            for (i = 0; i < amount_of_splines; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_MOUNTRESULT:
             ptvcursor_add(ptv, hf_woww_mount_result, 4, ENC_LITTLE_ENDIAN);
@@ -13898,124 +15389,133 @@ add_body_fields(guint32 opcode,
         case SMSG_PARTY_MEMBER_STATS:
             add_packed_guid(ptv, pinfo);
             ptvcursor_add_ret_uint(ptv, hf_woww_group_update_flags, 4, ENC_LITTLE_ENDIAN, &mask);
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_STATUS) {
+            if (mask & GROUP_UPDATE_FLAGS_STATUS) {
                 ptvcursor_add(ptv, hf_woww_group_member_online_status, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_LEVEL) {
+            if (mask & GROUP_UPDATE_FLAGS_LEVEL) {
                 ptvcursor_add(ptv, hf_woww_level, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_ZONE) {
+            if (mask & GROUP_UPDATE_FLAGS_ZONE) {
                 ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POSITION) {
+            if (mask & GROUP_UPDATE_FLAGS_POSITION) {
                 ptvcursor_add(ptv, hf_woww_position_x_int, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_position_y_int, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_AURAS) {
                 add_aura_mask(ptv);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_NAME) {
+            if (mask & GROUP_UPDATE_FLAGS_AURAS_2) {
+                add_aura_mask(ptv);
+            }
+            if (mask & GROUP_UPDATE_FLAGS_PET_GUID) {
+                ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
+            }
+            if (mask & GROUP_UPDATE_FLAGS_PET_NAME) {
                 add_cstring(ptv, &hf_woww_pet_name);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MODEL_ID) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MODEL_ID) {
                 ptvcursor_add(ptv, hf_woww_pet_display_id, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_AURAS) {
                 add_aura_mask(ptv);
             }
             break;
         case SMSG_PARTY_MEMBER_STATS_FULL:
             add_packed_guid(ptv, pinfo);
             ptvcursor_add_ret_uint(ptv, hf_woww_group_update_flags, 4, ENC_LITTLE_ENDIAN, &mask);
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_STATUS) {
+            if (mask & GROUP_UPDATE_FLAGS_STATUS) {
                 ptvcursor_add(ptv, hf_woww_group_member_online_status, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_LEVEL) {
+            if (mask & GROUP_UPDATE_FLAGS_LEVEL) {
                 ptvcursor_add(ptv, hf_woww_level, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_ZONE) {
+            if (mask & GROUP_UPDATE_FLAGS_ZONE) {
                 ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POSITION) {
+            if (mask & GROUP_UPDATE_FLAGS_POSITION) {
                 ptvcursor_add(ptv, hf_woww_position_x_int, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_position_y_int, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_AURAS) {
                 add_aura_mask(ptv);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_NAME) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_GUID) {
+                ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
+            }
+            if (mask & GROUP_UPDATE_FLAGS_PET_NAME) {
                 add_cstring(ptv, &hf_woww_pet_name);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MODEL_ID) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MODEL_ID) {
                 ptvcursor_add(ptv, hf_woww_pet_display_id, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_AURAS) {
                 add_aura_mask(ptv);
             }
             break;
         case SMSG_PAUSE_MIRROR_TIMER:
             ptvcursor_add(ptv, hf_woww_timer_type, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_is_frozen, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_is_frozen, 1, ENC_NA);
             break;
         case SMSG_PERIODICAURALOG:
             add_packed_guid(ptv, pinfo);
@@ -14050,7 +15550,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_PETITION_QUERY_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_charter_owner, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_guild_name);
             add_cstring(ptv, &hf_woww_body_text);
@@ -14060,8 +15560,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_deadline, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_issue_date, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_guild_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_allowed_classes, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_allowed_races, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_allowed_class, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_allowed_race, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_genders, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_minimum_level, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_allowed_maximum_level, 4, ENC_LITTLE_ENDIAN);
@@ -14082,9 +15582,9 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_PETITION_SHOW_SIGNATURES:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_owner_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_petition_guid, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_owner, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_signatures, 1, ENC_LITTLE_ENDIAN, &amount_of_signatures);
             for (i = 0; i < amount_of_signatures; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetitionSignature");
@@ -14094,8 +15594,8 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_PETITION_SIGN_RESULTS:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_owner_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_owner, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_petition_result, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PET_ACTION_FEEDBACK:
@@ -14132,32 +15632,36 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_PET_SPELLS:
             ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_pet_react_state, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_pet_command_state, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 2, ENC_LITTLE_ENDIAN);
-            for (i = 0; i < 10; ++i) {
-                ptvcursor_add(ptv, hf_woww_action_bars, 4, ENC_LITTLE_ENDIAN);
-            }
-            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_spells, 1, ENC_LITTLE_ENDIAN, &amount_of_spells);
-            for (i = 0; i < amount_of_spells; ++i) {
-                ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
-            }
-            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_cooldowns, 1, ENC_LITTLE_ENDIAN, &amount_of_cooldowns);
-            for (i = 0; i < amount_of_cooldowns; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetSpellCooldown");
-                ptvcursor_add(ptv, hf_woww_spell_id, 2, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_category, 2, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_category_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_pop_subtree(ptv);
+            len = offset_packet_end - ptvcursor_current_offset(ptv);
+            if (len > 0) {
+                ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_pet_react_state, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_pet_command_state, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_pet_enabled, 1, ENC_LITTLE_ENDIAN);
+                for (i = 0; i < 10; ++i) {
+                    ptvcursor_add(ptv, hf_woww_action_bars, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_spells, 1, ENC_LITTLE_ENDIAN, &amount_of_spells);
+                for (i = 0; i < amount_of_spells; ++i) {
+                    ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_cooldowns, 1, ENC_LITTLE_ENDIAN, &amount_of_cooldowns);
+                for (i = 0; i < amount_of_cooldowns; ++i) {
+                    ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetSpellCooldown");
+                    ptvcursor_add(ptv, hf_woww_spell, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_spell_category, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_category_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_pop_subtree(ptv);
+                }
             }
             break;
         case SMSG_PET_TAME_FAILURE:
             ptvcursor_add(ptv, hf_woww_pet_tame_failure_reason, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PET_UNLEARN_CONFIRM:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_talent_reset_cost, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PLAYED_TIME:
@@ -14167,6 +15671,9 @@ add_body_fields(guint32 opcode,
         case SMSG_PLAYERBOUND:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
+            break;
+        case SMSG_PLAYER_SKINNED:
+            ptvcursor_add(ptv, hf_woww_spirit_released, 1, ENC_NA);
             break;
         case SMSG_PLAY_MUSIC:
             ptvcursor_add(ptv, hf_woww_sound_id, 4, ENC_LITTLE_ENDIAN);
@@ -14208,7 +15715,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_quest_id, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_offer_reward_text);
-            ptvcursor_add(ptv, hf_woww_enable_next, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_emotes, 4, ENC_LITTLE_ENDIAN, &amount_of_emotes);
             for (i = 0; i < amount_of_emotes; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "NpcTextUpdateEmote");
@@ -14218,16 +15725,18 @@ add_body_fields(guint32 opcode,
             }
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_choice_item_rewards, 4, ENC_LITTLE_ENDIAN, &amount_of_choice_item_rewards);
             for (i = 0; i < amount_of_choice_item_rewards; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemReward");
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemRequirement");
                 ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_count, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_item_rewards, 4, ENC_LITTLE_ENDIAN, &amount_of_item_rewards);
             for (i = 0; i < amount_of_item_rewards; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemReward");
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemRequirement");
                 ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_count, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add(ptv, hf_woww_money_reward, 4, ENC_LITTLE_ENDIAN);
@@ -14332,7 +15841,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_QUESTUPDATE_ADD_KILL:
             ptvcursor_add(ptv, hf_woww_quest_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_create_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_creature_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_kill_count, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_required_kill_count, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14357,9 +15866,9 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_quest_level, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_zone_or_sort, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_quest_type, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_reputation_objective_faction, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_reputation_objective_value, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_required_opposite_faction, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_required_opposite_reputation_value, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_next_quest_in_chain, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_money_reward, 4, ENC_LITTLE_ENDIAN);
@@ -14380,8 +15889,10 @@ add_body_fields(guint32 opcode,
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add(ptv, hf_woww_point_map_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_position_x, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_position_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector2d");
+            ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_point_opt, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_objective_text);
@@ -14428,7 +15939,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_REMOVED_SPELL:
-            ptvcursor_add(ptv, hf_woww_spell_id, 2, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_spell, 2, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_RESISTLOG:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14442,8 +15953,7 @@ add_body_fields(guint32 opcode,
         case SMSG_RESURRECT_REQUEST:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             add_sized_cstring(ptv, &hf_woww_name);
-            ptvcursor_add(ptv, hf_woww_caster_is_spirit_healer, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_respect_resurrection_timer, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 1, ENC_NA);
             break;
         case SMSG_SELL_ITEM:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14459,16 +15969,16 @@ add_body_fields(guint32 opcode,
             add_cstring(ptv, &hf_woww_message);
             break;
         case SMSG_SET_FACTION_STANDING:
-            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_factions, 4, ENC_LITTLE_ENDIAN, &amount_of_factions);
-            for (i = 0; i < amount_of_factions; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Faction");
-                ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_faction_standings, 4, ENC_LITTLE_ENDIAN, &amount_of_faction_standings);
+            for (i = 0; i < amount_of_faction_standings; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "FactionStanding");
+                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_standing, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             break;
         case SMSG_SET_FACTION_VISIBLE:
-            ptvcursor_add(ptv, hf_woww_reputation_list_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SET_FLAT_SPELL_MODIFIER:
             ptvcursor_add(ptv, hf_woww_eff, 1, ENC_LITTLE_ENDIAN);
@@ -14479,7 +15989,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_reactions, 4, ENC_LITTLE_ENDIAN, &amount_of_reactions);
             for (i = 0; i < amount_of_reactions; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ForcedReaction");
-                ptvcursor_add(ptv, hf_woww_faction_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_faction, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_reputation_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
@@ -14508,14 +16018,14 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLDAMAGESHIELD:
-            ptvcursor_add(ptv, hf_woww_victim_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_victim, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell_school, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLDISPELLOG:
-            ptvcursor_add(ptv, hf_woww_victim, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
+            add_packed_guid(ptv, pinfo);
+            add_packed_guid(ptv, pinfo);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_spells, 4, ENC_LITTLE_ENDIAN, &amount_of_spells);
             for (i = 0; i < amount_of_spells; ++i) {
                 ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
@@ -14525,7 +16035,7 @@ add_body_fields(guint32 opcode,
             add_packed_guid(ptv, pinfo);
             add_packed_guid(ptv, pinfo);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_power_type, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_power, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLHEALLOG:
@@ -14536,7 +16046,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_critical, 1, ENC_NA);
             break;
         case SMSG_SPELLINSTAKILLLOG:
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLLOGEXECUTE:
@@ -14549,13 +16059,27 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_amount_of_logs, 4, ENC_LITTLE_ENDIAN);
                 if (effect == SPELL_EFFECT_POWER_DRAIN) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_float, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_amount, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_power, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_multiplier, 4, ENC_LITTLE_ENDIAN);
+                }
+                else if (effect == SPELL_EFFECT_HEAL
+                 || effect == SPELL_EFFECT_HEAL_MAX_HEALTH) {
+                    ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_heal_amount, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_heal_critical, 4, ENC_LITTLE_ENDIAN);
+                }
+                else if (effect == SPELL_EFFECT_ENERGIZE) {
+                    ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_energize_amount, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_energize_power, 4, ENC_LITTLE_ENDIAN);
                 }
                 else if (effect == SPELL_EFFECT_ADD_EXTRA_ATTACKS) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_extra_attacks, 4, ENC_LITTLE_ENDIAN);
+                }
+                else if (effect == SPELL_EFFECT_CREATE_ITEM) {
+                    ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 }
                 else if (effect == SPELL_EFFECT_INTERRUPT_CAST) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
@@ -14563,16 +16087,14 @@ add_body_fields(guint32 opcode,
                 }
                 else if (effect == SPELL_EFFECT_DURABILITY_DAMAGE) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_item_to_damage, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                }
-                else if (effect == SPELL_EFFECT_CREATE_ITEM) {
-                    ptvcursor_add(ptv, hf_woww_spell_effect_item_type, 4, ENC_LITTLE_ENDIAN);
                 }
                 else if (effect == SPELL_EFFECT_FEED_PET) {
-                    ptvcursor_add(ptv, hf_woww_item_target_entry, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_feed_pet_item, 4, ENC_LITTLE_ENDIAN);
                 }
-                else if (effect == SPELL_EFFECT_RESURRECT
+                else if (effect == SPELL_EFFECT_INSTAKILL
+                 || effect == SPELL_EFFECT_RESURRECT
                  || effect == SPELL_EFFECT_DISPEL
                  || effect == SPELL_EFFECT_THREAT
                  || effect == SPELL_EFFECT_DISTRACT
@@ -14584,10 +16106,27 @@ add_body_fields(guint32 opcode,
                  || effect == SPELL_EFFECT_SKIN_PLAYER_CORPSE
                  || effect == SPELL_EFFECT_MODIFY_THREAT_PERCENT
                  || effect == SPELL_EFFECT_UNKNOWN126
-                 || effect == SPELL_EFFECT_DISMISS_PET
                  || effect == SPELL_EFFECT_OPEN_LOCK
                  || effect == SPELL_EFFECT_OPEN_LOCK_ITEM
-                 || effect == SPELL_EFFECT_INSTAKILL) {
+                 || effect == SPELL_EFFECT_DISMISS_PET
+                 || effect == SPELL_EFFECT_TRANS_DOOR
+                 || effect == SPELL_EFFECT_SUMMON
+                 || effect == SPELL_EFFECT_SUMMON_PET
+                 || effect == SPELL_EFFECT_SUMMON_WILD
+                 || effect == SPELL_EFFECT_SUMMON_GUARDIAN
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT1
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT2
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT3
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT4
+                 || effect == SPELL_EFFECT_SUMMON_POSSESSED
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM
+                 || effect == SPELL_EFFECT_SUMMON_CRITTER
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_WILD
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT1
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT2
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT3
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT4
+                 || effect == SPELL_EFFECT_SUMMON_DEMON) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 }
                 ptvcursor_pop_subtree(ptv);
@@ -14595,12 +16134,12 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_SPELLLOGMISS:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_targets, 4, ENC_LITTLE_ENDIAN, &amount_of_targets);
             for (i = 0; i < amount_of_targets; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss");
-                ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellLogMiss");
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
@@ -14613,17 +16152,17 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_spell_school, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_absorbed_damage, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_resisted, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_periodic_log, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_periodic_log, 1, ENC_NA);
             ptvcursor_add(ptv, hf_woww_unused, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_blocked, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_hit_info, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_extend_flag, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLORDAMAGE_IMMUNE:
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_debug_log_format, 1, ENC_NA);
             break;
         case SMSG_SPELL_COOLDOWN:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14639,12 +16178,12 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_delay_time, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELL_FAILED_OTHER:
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELL_FAILURE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell_cast_result, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELL_GO:
@@ -14659,8 +16198,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_misses, 1, ENC_LITTLE_ENDIAN, &amount_of_misses);
             for (i = 0; i < amount_of_misses; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss");
-                ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN, &miss_info);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellCastTargets");
@@ -14668,38 +16207,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -14719,38 +16250,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -14848,8 +16371,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_timer_type, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SUMMON_REQUEST:
-            ptvcursor_add(ptv, hf_woww_summoner_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_zone_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_summoner, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auto_decline_time_in_msecs, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SUPERCEDED_SPELL:
@@ -14890,10 +16413,10 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < 7; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TradeSlot");
                 ptvcursor_add(ptv, hf_woww_trade_slot_number, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stack_count, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_is_wrapped, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_wrapped, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_gift_wrapper, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_creator, 8, ENC_LITTLE_ENDIAN);
@@ -14927,11 +16450,11 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_talent_point_cost, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_first_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_level, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_skill, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_skill_value, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_chain_required, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_chain_previous, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                for (i = 0; i < 3; ++i) {
+                    ptvcursor_add(ptv, hf_woww_required_spells, 4, ENC_LITTLE_ENDIAN);
+                }
                 ptvcursor_pop_subtree(ptv);
             }
             add_cstring(ptv, &hf_woww_greeting);
@@ -14939,7 +16462,7 @@ add_body_fields(guint32 opcode,
         case SMSG_TRANSFER_ABORTED:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_transfer_abort_reason, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_padding, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_argument, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_TRANSFER_PENDING:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
@@ -14965,7 +16488,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_aura_duration, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_UPDATE_INSTANCE_OWNERSHIP:
-            ptvcursor_add(ptv, hf_woww_has_been_saved, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player_is_saved_to_a_raid, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_UPDATE_LAST_INSTANCE:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
@@ -15199,7 +16722,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_WARDEN_DATA:
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_encrypted_data, len, ENC_NA);
             break;
         case SMSG_WEATHER:
             ptvcursor_add(ptv, hf_woww_weather_type, 4, ENC_LITTLE_ENDIAN);
@@ -15217,7 +16740,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_level, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_class, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_race, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_zone_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_party_status, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
@@ -15461,30 +16984,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_addon_crc,
-            { "Addon Crc", "woww.addon.crc",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_addon_extra_crc,
-            { "Addon Extra Crc", "woww.addon.extra.crc",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_addon_has_signature,
-            { "Addon Has Signature", "woww.addon.has.signature",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_addon_name,
-            { "Addon Name", "woww.addon.name",
-                FT_STRINGZ, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_addon_type,
             { "Addon Type", "woww.addon.type",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_addon_type_strings), 0,
@@ -15515,12 +17014,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_allowed_classes,
-            { "Allowed Classes", "woww.allowed.classes",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_allowed_genders,
             { "Allowed Genders", "woww.allowed.genders",
                 FT_UINT16, BASE_HEX_DEC, NULL, 0,
@@ -15547,12 +17040,6 @@ proto_register_woww(void)
         },
         { &hf_woww_allowed_race,
             { "Allowed Race", "woww.allowed.race",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_allowed_races,
-            { "Allowed Races", "woww.allowed.races",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -15667,6 +17154,12 @@ proto_register_woww(void)
         },
         { &hf_woww_amount_of_extra_fields,
             { "Amount Of Extra Fields", "woww.amount.of.extra.fields",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_amount_of_faction_standings,
+            { "Amount Of Faction Standings", "woww.amount.of.faction.standings",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -15821,6 +17314,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_amount_of_splines,
+            { "Amount Of Splines", "woww.amount.of.splines",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_amount_of_states,
             { "Amount Of States", "woww.amount.of.states",
                 FT_UINT16, BASE_HEX_DEC, NULL, 0,
@@ -15893,6 +17392,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_argument,
+            { "Argument", "woww.argument",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_armor,
             { "Armor", "woww.armor",
                 FT_INT32, BASE_DEC, NULL, 0,
@@ -15901,12 +17406,6 @@ proto_register_woww(void)
         },
         { &hf_woww_attacker,
             { "Attacker", "woww.attacker",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_attacker_guid,
-            { "Attacker Guid", "woww.attacker.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -15959,12 +17458,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_auctioneer_guid,
-            { "Auctioneer Guid", "woww.auctioneer.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_aura_duration,
             { "Aura Duration", "woww.aura.duration",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -15995,6 +17488,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_autocast_enabled,
+            { "Autocast Enabled", "woww.autocast.enabled",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_average_wait_time_in_ms,
             { "Average Wait Time In Ms", "woww.average.wait.time.in.ms",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -16021,19 +17520,13 @@ proto_register_woww(void)
         },
         { &hf_woww_bag,
             { "Bag", "woww.bag",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_bag_family,
             { "Bag Family", "woww.bag.family",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_bag_guid,
-            { "Bag Guid", "woww.bag.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_bag_family_strings), 0,
                 NULL, HFILL
             }
         },
@@ -16159,7 +17652,7 @@ proto_register_woww(void)
         },
         { &hf_woww_bonding,
             { "Bonding", "woww.bonding",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_bonding_strings), 0,
                 NULL, HFILL
             }
         },
@@ -16253,27 +17746,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_cast_item,
-            { "Cast Item", "woww.cast.item",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_caster,
             { "Caster", "woww.caster",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_caster_guid,
-            { "Caster Guid", "woww.caster.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_caster_is_spirit_healer,
-            { "Caster Is Spirit Healer", "woww.caster.is.spirit.healer",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -16445,8 +17920,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_compressed_chat_data,
-            { "Compressed Chat Data", "woww.compressed.chat.data",
+        { &hf_woww_compressed_data,
+            { "Compressed Data", "woww.compressed.data",
                 FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
@@ -16487,18 +17962,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_corpse_target_ally,
-            { "Corpse Target Ally", "woww.corpse.target.ally",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_corpse_target_enemy,
-            { "Corpse Target Enemy", "woww.corpse.target.enemy",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_cos_angle,
             { "Cos Angle", "woww.cos.angle",
                 FT_FLOAT, BASE_NONE, NULL, 0,
@@ -16517,20 +17980,14 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_countdown_time,
-            { "Countdown Time", "woww.countdown.time",
+        { &hf_woww_countdown_time_in_milliseconds,
+            { "Countdown Time In Milliseconds", "woww.countdown.time.in.milliseconds",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_counter,
             { "Counter", "woww.counter",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_create_id,
-            { "Create Id", "woww.create.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -16555,7 +18012,7 @@ proto_register_woww(void)
         },
         { &hf_woww_creature,
             { "Creature", "woww.creature",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -16567,13 +18024,7 @@ proto_register_woww(void)
         },
         { &hf_woww_creature_family,
             { "Creature Family", "woww.creature.family",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_creature_guid,
-            { "Creature Guid", "woww.creature.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_creature_family_strings), 0,
                 NULL, HFILL
             }
         },
@@ -16643,12 +18094,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_damage_type,
-            { "Damage Type", "woww.damage.type",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_damage_uint,
             { "Damage Uint", "woww.damage.uint",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -16703,8 +18148,20 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_debug_log_format,
+            { "Debug Log Format", "woww.debug.log.format",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_decompressed_addon_info_size,
             { "Decompressed Addon Info Size", "woww.decompressed.addon.info.size",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_decompressed_size,
+            { "Decompressed Size", "woww.decompressed.size",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -16745,24 +18202,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_destination_position_x,
-            { "Destination Position X", "woww.destination.position.x",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_destination_position_y,
-            { "Destination Position Y", "woww.destination.position.y",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_destination_position_z,
-            { "Destination Position Z", "woww.destination.position.z",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_destination_slot,
             { "Destination Slot", "woww.destination.slot",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -16778,6 +18217,12 @@ proto_register_woww(void)
         { &hf_woww_details,
             { "Details", "woww.details",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_dismount_result,
+            { "Dismount Result", "woww.dismount.result",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_dismount_result_strings), 0,
                 NULL, HFILL
             }
         },
@@ -16847,20 +18292,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_enable_next,
-            { "Enable Next", "woww.enable.next",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_enable_pvp,
             { "Enable Pvp", "woww.enable.pvp",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_enabled,
-            { "Enabled", "woww.enabled",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -16868,6 +18301,12 @@ proto_register_woww(void)
         { &hf_woww_enchantment,
             { "Enchantment", "woww.enchantment",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_encrypted_data,
+            { "Encrypted Data", "woww.encrypted.data",
+                FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -16883,9 +18322,15 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_enemy,
-            { "Enemy", "woww.enemy",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_energize_amount,
+            { "Energize Amount", "woww.energize.amount",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_energize_power,
+            { "Energize Power", "woww.energize.power",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -16985,6 +18430,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_extra_attacks,
+            { "Extra Attacks", "woww.extra.attacks",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_face,
             { "Face", "woww.face",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -16997,15 +18448,15 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_faction_flag,
-            { "Faction Flag", "woww.faction.flag",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_faction,
+            { "Faction", "woww.faction",
+                FT_UINT16, BASE_HEX_DEC, VALS(e_faction_strings), 0,
                 NULL, HFILL
             }
         },
-        { &hf_woww_faction_id,
-            { "Faction Id", "woww.faction.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_faction_flag,
+            { "Faction Flag", "woww.faction.flag",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17018,6 +18469,12 @@ proto_register_woww(void)
         { &hf_woww_far_sight_operation,
             { "Far Sight Operation", "woww.far.sight.operation",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_far_sight_operation_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_feed_pet_item,
+            { "Feed Pet Item", "woww.feed.pet.item",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17066,12 +18523,6 @@ proto_register_woww(void)
         { &hf_woww_focus,
             { "Focus", "woww.focus",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_friend_name,
-            { "Friend Name", "woww.friend.name",
-                FT_STRINGZ, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17261,12 +18712,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_guild_guid,
-            { "Guild Guid", "woww.guild.guid",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_guild_id,
             { "Guild Id", "woww.guild.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17309,15 +18754,21 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_has_been_saved,
-            { "Has Been Saved", "woww.has.been.saved",
+        { &hf_woww_has_transport,
+            { "Has Transport", "woww.has.transport",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_heal_amount,
+            { "Heal Amount", "woww.heal.amount",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
-        { &hf_woww_has_transport,
-            { "Has Transport", "woww.has.transport",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_heal_critical,
+            { "Heal Critical", "woww.heal.critical",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17393,12 +18844,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_ignore_name,
-            { "Ignore Name", "woww.ignore.name",
-                FT_STRINGZ, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_ignored,
             { "Ignored", "woww.ignored",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
@@ -17429,8 +18874,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_initiator_guid,
-            { "Initiator Guid", "woww.initiator.guid",
+        { &hf_woww_initiator,
+            { "Initiator", "woww.initiator",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -17449,7 +18894,7 @@ proto_register_woww(void)
         },
         { &hf_woww_instance_reset_failed_reason,
             { "Instance Reset Failed Reason", "woww.instance.reset.failed.reason",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_instance_reset_failed_reason_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_instance_reset_failed_reason_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17501,12 +18946,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_is_wrapped,
-            { "Is Wrapped", "woww.is.wrapped",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_issue_date,
             { "Issue Date", "woww.issue.date",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17533,7 +18972,13 @@ proto_register_woww(void)
         },
         { &hf_woww_item_class,
             { "Item Class", "woww.item.class",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_item_class_strings), 0,
+                FT_UINT8, BASE_HEX_DEC, VALS(e_item_class_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_item_class_and_sub_class,
+            { "Item Class And Sub Class", "woww.item.class.and.sub.class",
+                FT_UINT64, BASE_HEX_DEC | BASE_VAL64_STRING, VALS64(e_item_class_and_sub_class_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17555,12 +19000,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_display_info,
-            { "Item Display Info", "woww.item.display.info",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_item_enchant_id,
             { "Item Enchant Id", "woww.item.enchant.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17573,15 +19012,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_entry,
-            { "Item Entry", "woww.item.entry",
+        { &hf_woww_item_flag,
+            { "Item Flag", "woww.item.flag",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_guid,
-            { "Item Guid", "woww.item.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17593,7 +19026,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_id,
             { "Item Id", "woww.item.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT16, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17653,7 +19086,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_set,
             { "Item Set", "woww.item.set",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_item_set_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17683,19 +19116,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_stat_type,
             { "Item Stat Type", "woww.item.stat.type",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_stat_value,
-            { "Item Stat Value", "woww.item.stat.value",
-                FT_INT32, BASE_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_sub_class,
-            { "Item Sub Class", "woww.item.sub.class",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_item_stat_type_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17707,18 +19128,6 @@ proto_register_woww(void)
         },
         { &hf_woww_item_suffix_factor,
             { "Item Suffix Factor", "woww.item.suffix.factor",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_target,
-            { "Item Target", "woww.item.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_target_entry,
-            { "Item Target Entry", "woww.item.target.entry",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -17735,9 +19144,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_trade_target,
-            { "Item Trade Target", "woww.item.trade.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_item_to_damage,
+            { "Item To Damage", "woww.item.to.damage",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17780,12 +19189,6 @@ proto_register_woww(void)
         { &hf_woww_language,
             { "Language", "woww.language",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_language_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_language_id,
-            { "Language Id", "woww.language.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17909,8 +19312,14 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_looted_target_guid,
-            { "Looted Target Guid", "woww.looted.target.guid",
+        { &hf_woww_loot_slot_type,
+            { "Loot Slot Type", "woww.loot.slot.type",
+                FT_UINT8, BASE_HEX_DEC, VALS(e_loot_slot_type_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_looted_target,
+            { "Looted Target", "woww.looted.target",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -17941,12 +19350,6 @@ proto_register_woww(void)
         },
         { &hf_woww_mailbox,
             { "Mailbox", "woww.mailbox",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_mailbox_guid,
-            { "Mailbox Guid", "woww.mailbox.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -18173,6 +19576,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_multiplier,
+            { "Multiplier", "woww.multiplier",
+                FT_FLOAT, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_name,
             { "Name", "woww.name",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
@@ -18293,12 +19702,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_npc_guid,
-            { "Npc Guid", "woww.npc.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_number_of_battlegrounds,
             { "Number Of Battlegrounds", "woww.number.of.battlegrounds",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18308,18 +19711,6 @@ proto_register_woww(void)
         { &hf_woww_number_of_choices,
             { "Number Of Choices", "woww.number.of.choices",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_object_target,
-            { "Object Target", "woww.object.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_object_target_locked,
-            { "Object Target Locked", "woww.object.target.locked",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18413,21 +19804,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_own_flags,
-            { "Own Flags", "woww.own.flags",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_owner_guid,
-            { "Owner Guid", "woww.owner.guid",
+        { &hf_woww_owner,
+            { "Owner", "woww.owner",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_padding,
-            { "Padding", "woww.padding",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18437,15 +19816,15 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_page_material,
-            { "Page Material", "woww.page.material",
+        { &hf_woww_page_text,
+            { "Page Text", "woww.page.text",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
-        { &hf_woww_page_text,
-            { "Page Text", "woww.page.text",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_page_text_material,
+            { "Page Text Material", "woww.page.text.material",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_page_text_material_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18509,21 +19888,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_pet_family,
-            { "Pet Family", "woww.pet.family",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_pet_feedback,
             { "Pet Feedback", "woww.pet.feedback",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_pet_feedback_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_pet_guid,
-            { "Pet Guid", "woww.pet.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18593,9 +19960,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_petition_guid,
-            { "Petition Guid", "woww.petition.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_petition_id,
+            { "Petition Id", "woww.petition.id",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18623,9 +19990,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_player_guid,
-            { "Player Guid", "woww.player.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_player_is_saved_to_a_raid,
+            { "Player Is Saved To A Raid", "woww.player.is.saved.to.a.raid",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18691,13 +20058,7 @@ proto_register_woww(void)
         },
         { &hf_woww_power,
             { "Power", "woww.power",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_power_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_power_type,
-            { "Power Type", "woww.power.type",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_power_type_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_power_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18728,6 +20089,12 @@ proto_register_woww(void)
         { &hf_woww_pvp_rank,
             { "Pvp Rank", "woww.pvp.rank",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_pvp_rank_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_query,
+            { "Query", "woww.query",
+                FT_STRINGZ, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18941,24 +20308,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_reputation_id,
-            { "Reputation Id", "woww.reputation.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_reputation_list_id,
-            { "Reputation List Id", "woww.reputation.list.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_reputation_objective_faction,
-            { "Reputation Objective Faction", "woww.reputation.objective.faction",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_reputation_objective_value,
             { "Reputation Objective Value", "woww.reputation.objective.value",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18985,6 +20334,12 @@ proto_register_woww(void)
         },
         { &hf_woww_required_city_rank,
             { "Required City Rank", "woww.required.city.rank",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_required_faction_rank,
+            { "Required Faction Rank", "woww.required.faction.rank",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19025,32 +20380,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_required_opposite_faction,
-            { "Required Opposite Faction", "woww.required.opposite.faction",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_required_opposite_reputation_value,
             { "Required Opposite Reputation Value", "woww.required.opposite.reputation.value",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_required_reputation_faction,
-            { "Required Reputation Faction", "woww.required.reputation.faction",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_required_reputation_rank,
-            { "Required Reputation Rank", "woww.required.reputation.rank",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_required_skill,
-            { "Required Skill", "woww.required.skill",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19079,6 +20410,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_required_spells,
+            { "Required Spells", "woww.required.spells",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_reserved_for_future_use,
             { "Reserved For Future Use", "woww.reserved.for.future.use",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
@@ -19100,12 +20437,6 @@ proto_register_woww(void)
         { &hf_woww_resisted,
             { "Resisted", "woww.resisted",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_respect_resurrection_timer,
-            { "Respect Resurrection Timer", "woww.respect.resurrection.timer",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19247,15 +20578,21 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_sheath,
-            { "Sheath", "woww.sheath",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_sheath_state,
             { "Sheath State", "woww.sheath.state",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_sheath_state_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_sheathe_type,
+            { "Sheathe Type", "woww.sheathe.type",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_sheathe_type_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_show_affiliation,
+            { "Show Affiliation", "woww.show.affiliation",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19277,9 +20614,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_skill_id,
-            { "Skill Id", "woww.skill.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_skill,
+            { "Skill", "woww.skill",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_skill_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19337,24 +20674,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_source_position_x,
-            { "Source Position X", "woww.source.position.x",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_source_position_y,
-            { "Source Position Y", "woww.source.position.y",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_source_position_z,
-            { "Source Position Z", "woww.source.position.z",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_source_slot,
             { "Source Slot", "woww.source.slot",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -19409,18 +20728,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_spell_chain_previous,
-            { "Spell Chain Previous", "woww.spell.chain.previous",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_spell_chain_required,
-            { "Spell Chain Required", "woww.spell.chain.required",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_spell_charges,
             { "Spell Charges", "woww.spell.charges",
                 FT_INT32, BASE_DEC, NULL, 0,
@@ -19457,12 +20764,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_spell_effect_item_type,
-            { "Spell Effect Item Type", "woww.spell.effect.item.type",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_spell_id,
             { "Spell Id", "woww.spell.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -19487,12 +20788,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_spell_ppm_rate,
-            { "Spell Ppm Rate", "woww.spell.ppm.rate",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_spell_school,
             { "Spell School", "woww.spell.school",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_spell_school_strings), 0,
@@ -19505,9 +20800,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_spell_trigger,
-            { "Spell Trigger", "woww.spell.trigger",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_spell_trigger_type,
+            { "Spell Trigger Type", "woww.spell.trigger.type",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_spell_trigger_type_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19529,6 +20824,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_spirit_released,
+            { "Spirit Released", "woww.spirit.released",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_spline_elevation,
             { "Spline Elevation", "woww.spline.elevation",
                 FT_FLOAT, BASE_NONE, NULL, 0,
@@ -19544,6 +20845,12 @@ proto_register_woww(void)
         { &hf_woww_spline_id,
             { "Spline Id", "woww.spline.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_stable_master,
+            { "Stable Master", "woww.stable.master",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19661,8 +20968,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_summoner_guid,
-            { "Summoner Guid", "woww.summoner.guid",
+        { &hf_woww_summoner,
+            { "Summoner", "woww.summoner",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19712,12 +21019,6 @@ proto_register_woww(void)
         { &hf_woww_target_error,
             { "Target Error", "woww.target.error",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_target_guid,
-            { "Target Guid", "woww.target.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19837,6 +21138,12 @@ proto_register_woww(void)
         },
         { &hf_woww_time_remaining,
             { "Time Remaining", "woww.time.remaining",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_time_skipped,
+            { "Time Skipped", "woww.time.skipped",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -20033,27 +21340,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_unit_enemy_target,
-            { "Unit Enemy Target", "woww.unit.enemy.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_unit_stand_state,
             { "Unit Stand State", "woww.unit.stand.state",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_unit_stand_state_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_unit_target,
-            { "Unit Target", "woww.unit.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_unknown_bytes,
-            { "Unknown Bytes", "woww.unknown.bytes",
-                FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -20149,18 +21438,12 @@ proto_register_woww(void)
         },
         { &hf_woww_value,
             { "Value", "woww.value",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_INT32, BASE_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_vendor,
             { "Vendor", "woww.vendor",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_vendor_guid,
-            { "Vendor Guid", "woww.vendor.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -20183,12 +21466,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_victim_guid,
-            { "Victim Guid", "woww.victim.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_walking_speed,
             { "Walking Speed", "woww.walking.speed",
                 FT_FLOAT, BASE_NONE, NULL, 0,
@@ -20207,8 +21484,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_winning_player_guid,
-            { "Winning Player Guid", "woww.winning.player.guid",
+        { &hf_woww_winning_player,
+            { "Winning Player", "woww.winning.player",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -20234,6 +21511,12 @@ proto_register_woww(void)
         { &hf_woww_world_result,
             { "World Result", "woww.world.result",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_world_result_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_wrapped,
+            { "Wrapped", "woww.wrapped",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -20276,12 +21559,6 @@ proto_register_woww(void)
         { &hf_woww_z_speed,
             { "Z Speed", "woww.z.speed",
                 FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_zone_id,
-            { "Zone Id", "woww.zone.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },

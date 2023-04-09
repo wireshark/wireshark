@@ -67,8 +67,8 @@ the present time, so it’s recommended that you use it on macOS or Linux.
 To edit and build Wireshark using Qt Creator, open the top-level
 _CMakeLists.txt_ within Qt Creator. It should ask you to choose a build
 location. Do so. It should then ask you to run CMake. Fill in any
-desired build arguments (e.g. `-D CMAKE_BUILD_TYPE=Debug` or `-D
-ENABLE_CCACHE=ON`) and click the btn:[Run CMake] button. When that
+desired build arguments (e.g. <<ChSrcBuildType,`-D CMAKE_BUILD_TYPE=Debug`>> or
+`-D ENABLE_CCACHE=ON`) and click the btn:[Run CMake] button. When that
 completes select menu:Build[Open Build and Run Kit Selector...] and make
 sure _wireshark_ is selected.
 

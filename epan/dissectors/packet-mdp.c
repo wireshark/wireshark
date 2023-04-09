@@ -124,7 +124,7 @@ proto_register_mdp(void)
         { &hf_mdp_type_six, {"Type 6 UID", "mdp.type_six", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mdp_type_seven, {"Type 7 UID", "mdp.type_seven", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mdp_length, {"Length", "mdp.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_mdp_data, {"Unknown Data", "mdp.data", FT_BYTES, BASE_NONE, NULL, 0X0, NULL, HFILL }}
+        { &hf_mdp_data, {"Unknown Data", "mdp.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {

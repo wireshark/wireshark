@@ -2988,10 +2988,10 @@ proto_register_ipmi_picmg(void)
 
 		{ &hf_ipmi_picmg_0f_iface,
 			{ "Interface",
-				"ipmi.linkinfo.iface", FT_UINT8, BASE_HEX, VALS(linkinfo_iface_vals), 0x000000c0, NULL, HFILL }},
+				"ipmi.linkinfo.iface", FT_UINT8, BASE_HEX, VALS(linkinfo_iface_vals), 0xc0, NULL, HFILL }},
 		{ &hf_ipmi_picmg_0f_chan,
 			{ "Channel",
-				"ipmi.linkinfo.chan", FT_UINT8, BASE_DEC, NULL, 0x0000003f, NULL, HFILL }},
+				"ipmi.linkinfo.chan", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
 
 		{ &hf_ipmi_picmg_10_fruid,
 			{ "FRU ID",

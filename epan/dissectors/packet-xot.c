@@ -13,8 +13,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "packet-tcp.h"
 #include <epan/prefs.h>
+#include <epan/conversation.h>
+
+#include "packet-tcp.h"
 
 #define TCP_PORT_XOT 1998
 #define XOT_HEADER_LENGTH 4
@@ -83,6 +85,7 @@ static gint hf_xot_pvc_init_itf_name = -1;
 static gint hf_xot_pvc_resp_itf_name = -1;
 
 static dissector_handle_t xot_handle;
+static dissector_handle_t xot_tcp_handle;
 
 static dissector_handle_t x25_handle;
 
@@ -291,47 +294,38 @@ static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    }
    return tvb_captured_length(tvb);
 }
-static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+
+static int
+dissect_xot_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-   int tvb_len = tvb_captured_length(tvb);
-   int len = 0;
-
-   if (tvb_len >= 2 && tvb_get_ntohs(tvb,0) != XOT_VERSION) {
-      return 0;
-   }
-
    if (!x25_desegment || !xot_desegment){
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
                        get_xot_pdu_len,
                        dissect_xot_pdu, data);
-      len=get_xot_pdu_len(pinfo, tvb, 0, NULL);
    } else {
       /* Use length version that "peeks" into X25, possibly several XOT packets */
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
                        get_xot_pdu_len_mult,
                        dissect_xot_mult, data);
-      len=get_xot_pdu_len_mult(pinfo, tvb, 0, NULL);
    }
-   /*As tcp_dissect_pdus will not report the success/failure, we have to compute
-     again */
-   if (len < XOT_HEADER_LENGTH) {
-      /* TCP has reported bounds error */
-      len = 0;
-   } else if (tvb_len < XOT_HEADER_LENGTH) {
-      pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-      len=tvb_len - XOT_HEADER_LENGTH; /* bytes missing */
-   } else if (tvb_len < len) {
-      if (x25_desegment){
-         /* As the "fixed_len" is not fixed here, just request new segments */
-         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-      } else {
-         pinfo->desegment_len = len - tvb_len;
-      }
-      len=tvb_len - len; /* bytes missing */
+   return tvb_reported_length(tvb);
+}
+
+static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+   int tvb_len = tvb_captured_length(tvb);
+   conversation_t *conversation;
+
+   if (tvb_len < 2 || tvb_get_ntohs(tvb, 0) != XOT_VERSION) {
+      return 0;
    }
-   return len;
+
+   conversation = find_or_create_conversation(pinfo);
+   conversation_set_dissector(conversation, xot_tcp_handle);
+
+   return dissect_xot_tcp(tvb, pinfo, tree, data);
 }
 
 /* Register the protocol with Wireshark */
@@ -417,6 +411,7 @@ proto_register_xot(void)
    proto_register_field_array(proto_xot, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
    xot_handle = register_dissector("xot", dissect_xot_tcp_heur, proto_xot);
+   xot_tcp_handle = create_dissector_handle(dissect_xot_tcp, proto_xot);
    xot_module = prefs_register_protocol(proto_xot, NULL);
 
    prefs_register_bool_preference(xot_module, "desegment",

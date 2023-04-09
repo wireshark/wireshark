@@ -26,7 +26,7 @@ wmem_stack_peek(const wmem_stack_t *stack)
 
     frame = wmem_list_head(stack);
 
-    ASSERT(frame);
+    ws_assert(frame);
 
     return wmem_list_frame_data(frame);
 }

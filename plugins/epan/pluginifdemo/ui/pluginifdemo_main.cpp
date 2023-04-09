@@ -42,7 +42,7 @@ void PluginIfTypeModel::addPluginIfType(const PluginIfType &ifType)
 
 int PluginIfTypeModel::rowCount(const QModelIndex &) const
 {
-    return m_pluginIfTypes.count();
+    return static_cast<int>(m_pluginIfTypes.count());
 }
 
 QVariant PluginIfTypeModel::data(const QModelIndex & idx, int role) const
@@ -286,7 +286,7 @@ void PluginIFDemo_Main::on_btnRemoveItem_clicked()
             bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
 
             QString content = listModel->data(idx).toString();
-            int pos = content.indexOf(":");
+            int pos = static_cast<int>(content.indexOf(":"));
 
             gchar * value = g_strdup(content.left(pos).toUtf8().constData() );
             /* -2 because removal of : and space */
@@ -314,11 +314,11 @@ void PluginIFDemo_Main::on_btnSendList_clicked()
     for( int i = 0; i < listModel->rowCount(); i++ )
     {
         QString content = listModel->data(listModel->index(i, 0)).toString();
-        int pos = content.indexOf(":");
+        int pos = static_cast<int>(content.indexOf(":"));
 
         ext_toolbar_value_t * valEntry = g_new0(ext_toolbar_value_t, 1);
-        valEntry->value = g_strdup(content.left(pos).toStdString().c_str() );
-        valEntry->display = g_strdup(content.right(content.size() - pos + 1).toStdString().c_str());
+        valEntry->value = g_strdup(content.left(pos).toUtf8().constData());
+        valEntry->display = g_strdup(content.right(content.size() - pos + 1).toUtf8().constData());
 
         items = g_list_append(items, valEntry);
     }
@@ -360,7 +360,7 @@ void PluginIFDemo_Main::on_lstItems_clicked(const QModelIndex &idx)
     bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
 
     QString content = listModel->data(listModel->index(idx.row(), 0)).toString();
-    int pos = content.indexOf(":");
+    int pos = static_cast<int>(content.indexOf(":"));
 
     gchar * idxData = g_strdup(content.left(pos).toUtf8().constData() );
 

@@ -9,12 +9,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __UI_CMDARG_ERR_H__
-#define __UI_CMDARG_ERR_H__
+#ifndef __CMDARG_ERR_H__
+#define __CMDARG_ERR_H__
 
+#include <wireshark.h>
 #include <stdarg.h>
-
-#include <glib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,25 +22,25 @@ extern "C" {
 /*
  * Set the reporting functions for error messages.
  */
-extern void
+WS_DLL_PUBLIC void
 cmdarg_err_init(void (*err)(const char *, va_list),
                 void (*err_cont)(const char *, va_list));
 
 /*
  * Report an error in command-line arguments.
  */
-extern void
+WS_DLL_PUBLIC void
 vcmdarg_err(const char *fmt, va_list ap)
     G_GNUC_PRINTF(1, 0);
 
-extern void
+WS_DLL_PUBLIC void
 cmdarg_err(const char *fmt, ...)
     G_GNUC_PRINTF(1, 2);
 
 /*
  * Report additional information for an error in command-line arguments.
  */
-extern void
+WS_DLL_PUBLIC void
 cmdarg_err_cont(const char *fmt, ...)
     G_GNUC_PRINTF(1, 2);
 
@@ -49,4 +48,4 @@ cmdarg_err_cont(const char *fmt, ...)
 }
 #endif /* __cplusplus */
 
-#endif /* __UI_CMDARG_ERR_H__ */
+#endif /* __CMDARG_ERR_H__ */

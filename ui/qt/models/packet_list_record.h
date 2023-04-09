@@ -40,10 +40,13 @@ public:
     frame_data *frameData() const { return fdata_; }
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
-    bool colorized() { return colorized_; }
+    bool colorized() { return colorized_ && (color_ver_ == rows_color_ver_); }
     unsigned int conversation() { return conv_index_; }
 
     int columnTextSize(const char *str);
+
+    void invalidateColorized() { colorized_ = false; }
+    void invalidateRecord() { col_text_cache_.remove(fdata_->num); }
     static void invalidateAllRecords() { col_text_cache_.clear(); }
     /* In Qt 6, QCache maxCost is a qsizetype, but the QAbstractItemModel
      * number of rows is still an int, so we're limited to INT_MAX anyway.

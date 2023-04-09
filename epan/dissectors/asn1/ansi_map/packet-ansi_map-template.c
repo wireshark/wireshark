@@ -5055,7 +5055,7 @@ void proto_register_ansi_map(void) {
            NULL, HFILL }},
         {&hf_ansi_map_cdmachanneldata_nominal_pwr,
          { "Nominal Power", "ansi_map.cdmachanneldata.nominal_pwr",
-           FT_UINT8, BASE_DEC, NULL, 0x71,
+           FT_UINT8, BASE_DEC, NULL, 0x78,
            NULL, HFILL }},
         {&hf_ansi_map_cdmachanneldata_nr_preamble,
          { "Number Preamble", "ansi_map.cdmachanneldata.nr_preamble",

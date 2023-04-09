@@ -291,39 +291,38 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     {
         int override_id = -1;
 
-        MainWindow* topWidget = dynamic_cast<MainWindow*> (QApplication::topLevelAt(parentWidget()->mapToGlobal(QPoint())));
+        /* ensure we have access to MainWindow, and indirectly to the selection */
+        if (mainApp) {
+            QWidget * mainWin = mainApp->mainWindow();
 
-        // the very first call does not have access to topWidget
-        if (topWidget) {
-            frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
-            if (fdata) {
-                // read stored value from frame
-                override_id = fdata->tcp_snd_manual_analysis;
-            }
-            else {
-                /* unexpected case */
+            if (qobject_cast<MainWindow *>(mainWin)) {
+                frame_data * fdata = qobject_cast<MainWindow *>(mainWin)->frameDataForRow((qobject_cast<MainWindow *>(mainWin)->selectedRows()).at(0));
+                if(fdata) {
+                    override_id = fdata->tcp_snd_manual_analysis;
+                }
             }
         }
 
-        QMenu *enum_menu = addMenu(prefs_get_title(pref));
-        const enum_val_t *enum_valp = prefs_get_enumvals(pref);
-        if (enum_valp && enum_valp->name) {
-            QActionGroup *ag = new QActionGroup(this);
-            while (enum_valp->name) {
-                EnumCustomTCPOverridePreferenceAction *epa = new EnumCustomTCPOverridePreferenceAction(pref, enum_valp->description, enum_valp->value, ag, this);
-                if (override_id>=0) {
-                    if(override_id==enum_valp->value)
-                        epa->setChecked(true);
-                }
-                else {
-                    if(enum_valp->value == 0)
-                        epa->setChecked(true);
-                }
+        if (override_id != -1) {
+            QMenu *enum_menu = addMenu(prefs_get_title(pref));
+            const enum_val_t *enum_valp = prefs_get_enumvals(pref);
+            if (enum_valp && enum_valp->name) {
+                QActionGroup *ag = new QActionGroup(this);
+                while (enum_valp->name) {
+                    EnumCustomTCPOverridePreferenceAction *epa = new EnumCustomTCPOverridePreferenceAction(pref, enum_valp->description, enum_valp->value, ag, this);
+                    if (override_id>=0) {
+                        if(override_id==enum_valp->value)
+                            epa->setChecked(true);
+                    }
+                    else {
+                        if(enum_valp->value == 0)
+                            epa->setChecked(true);
+                    }
 
-                enum_menu->addAction(epa);
-                //connect(epa, SIGNAL(triggered(bool)), this, SLOT(enumPreferenceTriggered()));
-                connect(epa, SIGNAL(triggered(bool)), this, SLOT(enumCustomTCPOverridePreferenceTriggered()));
-                enum_valp++;
+                    enum_menu->addAction(epa);
+                    connect(epa, SIGNAL(triggered(bool)), this, SLOT(enumCustomTCPOverridePreferenceTriggered()));
+                    enum_valp++;
+                }
             }
         }
         break;
@@ -405,17 +404,23 @@ void ProtocolPreferencesMenu::enumCustomTCPOverridePreferenceTriggered()
     EnumCustomTCPOverridePreferenceAction *epa = static_cast<EnumCustomTCPOverridePreferenceAction *>(QObject::sender());
     if (!epa) return;
 
-    MainWindow* topWidget = dynamic_cast<MainWindow*> (QApplication::topLevelAt(parentWidget()->mapToGlobal(QPoint())));
-    frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
-    if (! fdata)
-        return;
+    /* ensure we have access to MainWindow, and indirectly to the selection */
+    if (mainApp) {
+        QWidget * mainWin = mainApp->mainWindow();
+        if (qobject_cast<MainWindow *>(mainWin)) {
+            frame_data * fdata = qobject_cast<MainWindow *>(mainWin)->frameDataForRow((qobject_cast<MainWindow *>(mainWin)->selectedRows()).at(0));
+            if(!fdata)
+                return;
 
-    if (fdata->tcp_snd_manual_analysis != epa->getEnumValue()) { // Changed
-        fdata->tcp_snd_manual_analysis = epa->getEnumValue();
-        /* Protocol preference changes almost always affect dissection,
-           so don't bother checking flags */
-        mainApp->emitAppSignal(MainApplication::FieldsChanged);
-        mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
+            if (fdata->tcp_snd_manual_analysis != epa->getEnumValue()) { // Changed
+                fdata->tcp_snd_manual_analysis = epa->getEnumValue();
+
+                /* Protocol preference changes almost always affect dissection,
+                   so don't bother checking flags */
+                mainApp->emitAppSignal(MainApplication::FieldsChanged);
+                mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
+            }
+        }
     }
 }
 

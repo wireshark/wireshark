@@ -84,6 +84,16 @@ WS_DLL_PUBLIC
 guint
 wmem_array_get_count(wmem_array_t *array);
 
+/* Truncates the underlying array to the elements contained within
+ * (including null terminator if set), frees the wmem_array_t
+ * structure, and returns a pointer to the raw array. The wmem_array_t
+ * struct cannot be used after this is called. This is for when you are
+ * done adding elements to the array but still need the underlying array.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_array_finalize(wmem_array_t *array);
+
 WS_DLL_PUBLIC
 void
 wmem_destroy_array(wmem_array_t *array);

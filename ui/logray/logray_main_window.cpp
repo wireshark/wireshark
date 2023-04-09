@@ -2193,7 +2193,7 @@ void LograyMainWindow::initConversationMenus()
         main_ui_->menuConversationFilter->addAction(conv_action);
 
         connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
+        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()), Qt::QueuedConnection);
 
         // Packet list context menu items
         packet_list_->conversationMenu()->addAction(conv_action);

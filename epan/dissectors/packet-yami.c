@@ -83,7 +83,7 @@ static int ett_yami_msg_data = -1;
 static int ett_yami_param = -1;
 
 static int
-dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *par_ti)
+dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item *par_ti)
 {
 	const int orig_offset = offset;
 
@@ -103,7 +103,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 	name_len = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
-	name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_len, ENC_ASCII | ENC_NA);
+	name = tvb_get_string_enc(pinfo->pool, tvb, offset, name_len, ENC_ASCII | ENC_NA);
 	proto_item_append_text(ti, ": %s", name);
 	proto_item_append_text(par_ti, "%s, ", name);
 	offset += WS_ROUNDUP_4(name_len);
@@ -159,7 +159,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			val_len = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII | ENC_NA);
+			val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 			proto_item_append_text(ti, ", Type: string, Value: \"%s\"", val);
 			offset += WS_ROUNDUP_4(val_len);
@@ -178,7 +178,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			offset += 4;
 
 			val = tvb_get_ptr(tvb, offset, val_len);
-			repr = bytes_to_str(wmem_packet_scope(), val, val_len);
+			repr = bytes_to_str(pinfo->pool, val, val_len);
 
 			proto_item_append_text(ti, ", Type: binary, Value: %s", repr);
 			offset += WS_ROUNDUP_4(val_len);
@@ -311,7 +311,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				val_len = tvb_get_letohl(tvb, offset);
 				offset += 4;
 
-				val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII | ENC_NA);
+				val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 				proto_item_append_text(ti, "\"%s\", ", val);
 				proto_tree_add_string(yami_param, hf_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
@@ -342,7 +342,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				offset += 4;
 
 				val = tvb_get_ptr(tvb, offset, val_len);
-				repr = bytes_to_str(wmem_packet_scope(), val, val_len);
+				repr = bytes_to_str(pinfo->pool, val, val_len);
 
 				proto_item_append_text(ti, "%s, ", repr);
 				offset += WS_ROUNDUP_4(val_len);
@@ -364,7 +364,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			proto_item_append_text(ti, ", Type: nested, %u parameters: ", count);
 
 			for (i = 0; i < count; i++) {
-				offset = dissect_yami_parameter(tvb, yami_param, offset, ti);
+				offset = dissect_yami_parameter(tvb, pinfo, yami_param, offset, ti);
 				/* smth went wrong */
 				if (offset == -1)
 					return -1;
@@ -382,7 +382,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 }
 
 static int
-dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
+dissect_yami_data(tvbuff_t *tvb, packet_info *pinfo, gboolean data, proto_tree *tree, int offset)
 {
 	const int orig_offset = offset;
 
@@ -402,7 +402,7 @@ dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
 	proto_item_append_text(ti, ", %u parameters: ", count);
 
 	for (i = 0; i < count; i++) {
-		offset = dissect_yami_parameter(tvb, yami_data_tree, offset, ti);
+		offset = dissect_yami_parameter(tvb, pinfo, yami_data_tree, offset, ti);
 		/* smth went wrong */
 		if (offset == -1)
 			return -1;
@@ -459,13 +459,13 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		if (message_header_size <= frame_payload_size) {
 			const int orig_offset = offset;
 
-			offset = dissect_yami_data(tvb, FALSE, yami_tree, offset);
+			offset = dissect_yami_data(tvb, pinfo, FALSE, yami_tree, offset);
 			if (offset != orig_offset + message_header_size) {
 				/* XXX, expert info */
 				offset = orig_offset + message_header_size;
 			}
 
-			dissect_yami_data(tvb, TRUE, yami_tree, offset);
+			dissect_yami_data(tvb, pinfo, TRUE, yami_tree, offset);
 		}
 	}
 

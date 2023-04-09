@@ -13,8 +13,7 @@
 
 #include <epan/dfilter/dfilter.h>
 
-#include <ui/filter_files.h>
-
+#include <wsutil/filter_files.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/field_filter_edit.h>

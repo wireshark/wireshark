@@ -868,6 +868,14 @@ id-UE-MulticastMRBs-ToBeSetup-atModify-Item          ProtocolIE-ID
 id-MC-PagingCell-List                                ProtocolIE-ID
 id-MC-PagingCell-Item                                ProtocolIE-ID
 id-SRSPosRRCInactiveQueryIndication                  ProtocolIE-ID
+id-UlTxDirectCurrentMoreCarrierInformation           ProtocolIE-ID
+id-CPACMCGInformation                                ProtocolIE-ID
+id-TwoPHRModeMCG                                     ProtocolIE-ID
+id-TwoPHRModeSCG                                     ProtocolIE-ID
+id-ExtendedUEIdentityIndexValue                      ProtocolIE-ID
+id-ServingCellMO-List                                ProtocolIE-ID
+id-ServingCellMO-List-Item                           ProtocolIE-ID
+id-ServingCellMO-encoded-in-CGC-List                 ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1375,6 +1383,12 @@ UE-MulticastMRBs-ToBeSetup-atModify-Item          N f1ap.ies id-UE-MulticastMRBs
 MC-PagingCell-list                                N f1ap.ies id-MC-PagingCell-List
 MC-PagingCell-Item                                N f1ap.ies id-MC-PagingCell-Item
 SRSPosRRCInactiveQueryIndication                  N f1ap.ies id-SRSPosRRCInactiveQueryIndication
+UlTxDirectCurrentMoreCarrierInformation           N f1ap.ies id-UlTxDirectCurrentMoreCarrierInformation
+CPACMCGInformation                                N f1ap.ies id-CPACMCGInformation
+ExtendedUEIdentityIndexValue                      N f1ap.ies id-ExtendedUEIdentityIndexValue
+ServingCellMO-List                                N f1ap.ies id-ServingCellMO-List
+ServingCellMO-List-Item                           N f1ap.ies id-ServingCellMO-List-Item
+ServingCellMO-encoded-in-CGC-List                 N f1ap.ies id-ServingCellMO-encoded-in-CGC-List
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1545,6 +1559,8 @@ RedCapIndication                                  N f1ap.extension id-RedCapIndi
 UL-GapFR2-Config                                  N f1ap.extension id-UL-GapFR2-Config
 ConfigRestrictInfoDAPS                            N f1ap.extension id-ConfigRestrictInfoDAPS
 MulticastF1UContextReferenceCU                    N f1ap.extension id-MulticastF1UContextReferenceCU
+TwoPHRModeMCG                                     N f1ap.extension id-TwoPHRModeMCG
+TwoPHRModeSCG                                     N f1ap.extension id-TwoPHRModeSCG
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -2783,7 +2799,7 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     dissect_nr_rrc_MBS_NeighbourCellList_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY MBS-CUtoDURRCInformation/mRB-PDCP-Config-Broadcast VAL_PTR = &param_tvb
+#.FN_BODY MBS-Broadcast-MRB-Item/mRB-PDCP-Config-Broadcast VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {

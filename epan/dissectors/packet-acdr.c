@@ -1893,7 +1893,7 @@ dissect_acdr_mii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         private_data.mii_header_exist = acdr_data->medium_mii;
     }
 
-    packet_item = proto_tree_add_item(tree, proto_ac5xmii, tvb, 0, -1, FALSE);
+    packet_item = proto_tree_add_item(tree, proto_ac5xmii, tvb, 0, -1, ENC_NA);
     packet_tree = proto_item_add_subtree(packet_item, ett_ac5x_mii_packet);
 
     col_clear(pinfo->cinfo, COL_INFO);

@@ -69,6 +69,7 @@ TrafficTab::TrafficTab(QWidget * parent) :
     DetachableTabWidget(parent)
 {
     _createModel = nullptr;
+    _createDelegate = nullptr;
     _disableTaps = false;
     _nameResolution = false;
     setTabBasename(QString());
@@ -90,29 +91,19 @@ void TrafficTab::setProtocolInfo(QString tableName, TrafficTypesList * trafficLi
     setOpenTabs(trafficList->protocols(true));
 }
 
-void TrafficTab::setDelegate(int column, ATapCreateDelegate createDelegate)
+void TrafficTab::setDelegate(ATapCreateDelegate createDelegate)
 {
-    if (! createDelegate || column < 0)
+    if (! createDelegate)
         return;
 
-    if (_createDelegates.keys().contains(column))
-        _createDelegates.remove(column);
-    _createDelegates.insert(column, createDelegate);
+    _createDelegate = createDelegate;
 
 
     for (int idx = 0; idx < count(); idx++) {
-        int setColumn = column;
-        ATapDataModel * model = modelForTabIndex(idx);
-        if (model->portsAreHidden()) {
-            if (model->modelType() == ATapDataModel::DATAMODEL_ENDPOINT && column > EndpointDataModel::ENDP_COLUMN_PORT)
-                setColumn -= 1;
-            else if (model->modelType() == ATapDataModel::DATAMODEL_CONVERSATION && column > ConversationDataModel::CONV_COLUMN_DST_PORT)
-                setColumn -= 2;
-        }
         if (qobject_cast<QTreeView *>(widget(idx)))
         {
             QTreeView * tree = qobject_cast<QTreeView *>(widget(idx));
-            tree->setItemDelegateForColumn(setColumn, createDelegate(tree));
+            tree->setItemDelegate(createDelegate(tree));
         }
     }
 }
@@ -123,20 +114,17 @@ QTreeView * TrafficTab::createTree(int protoId)
 
     if (_createModel) {
         ATapDataModel * model = _createModel(protoId, "");
+        model->setParent(tree);
         connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
 
         model->enableTap();
 
-        foreach(int col, _createDelegates.keys())
+        if (_createDelegate)
         {
-            if (_createDelegates[col])
-            {
-                ATapCreateDelegate creator = _createDelegates[col];
-                tree->setItemDelegateForColumn(col, creator(tree));
-            }
+            tree->setItemDelegate(_createDelegate(tree));
         }
 
-        TrafficDataFilterProxy * proxyModel = new TrafficDataFilterProxy();
+        TrafficDataFilterProxy * proxyModel = new TrafficDataFilterProxy(tree);
         proxyModel->setSourceModel(model);
         tree->setModel(proxyModel);
 

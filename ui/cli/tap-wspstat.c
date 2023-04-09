@@ -27,7 +27,7 @@
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-wsp.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_wspstat(void);
 

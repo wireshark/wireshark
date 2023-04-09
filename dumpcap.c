@@ -31,7 +31,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
@@ -60,7 +60,7 @@
 #include <sys/un.h>
 #endif
 
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/privileges.h>
 
 #include "sync_pipe.h"
@@ -93,8 +93,13 @@
 #include "wiretap/pcapng_module.h"
 #include "wiretap/pcapng.h"
 
-/**#define DEBUG_DUMPCAP**/
-/**#define DEBUG_CHILD_DUMPCAP**/
+/*
+ * Define these for extra logging messages at INFO and below. Note
+ * that when dumpcap is spawned as a child process, logs are sent
+ * to the parent via the sync pipe.
+ */
+/**#define DEBUG_DUMPCAP**/       /* Logs INFO and below messages normally */
+/**#define DEBUG_CHILD_DUMPCAP**/ /* Writes INFO and below logs to file */
 
 #ifdef _WIN32
 #include "wsutil/win32-utils.h"
@@ -107,6 +112,9 @@
 FILE *debug_log;   /* for logging debug messages to  */
                    /*  a file if DEBUG_CHILD_DUMPCAP */
                    /*  is defined                    */
+#ifdef DEBUG_DUMPCAP
+#include <stdarg.h> /* va_copy */
+#endif
 #endif
 
 static GAsyncQueue *pcap_queue;
@@ -121,6 +129,82 @@ static const char *report_capture_filename = NULL; /* capture child file name */
 static gchar *sig_pipe_name = NULL;
 static HANDLE sig_pipe_handle = NULL;
 static gboolean signal_pipe_check_running(void);
+#endif
+
+#ifdef ENABLE_ASAN
+/* This has public visibility so that if compiled with shared libasan (the
+ * gcc default) function interposition occurs.
+ */
+WS_DLL_PUBLIC int
+__lsan_is_turned_off(void)
+{
+    /* If we're in capture child mode, don't run a LSan report and
+     * send it to stderr, because it isn't properly formatted for
+     * the sync pipe.
+     * We could, if debugging variables are set, send the reports
+     * elsewhere instead, by calling __sanitizer_set_report_path()
+     * or __sanitizer_set_report_fd()
+     */
+    if (capture_child) {
+        return 1;
+    }
+#ifdef HAVE_LIBCAP
+    /* LSan dies with a fatal error without explanation if it can't ptrace.
+     * Normally, the "dumpable" attribute (which also controls ptracing)
+     * is set to 1 (SUID_DUMP_USER, process is dumpable.) However, it is
+     * reset to the current value in /proc/sys/fs/suid_dumpable in the
+     * following circumstances: euid/egid changes, fsuid/fsgid changes,
+     * execve of a setuid or setgid program that changes the euid or egid,
+     * execve of a program with capabilities exceeding those already
+     * permitted for the process.
+     *
+     * Unless we're running as root, one of those applies to dumpcap.
+     *
+     * The default value of /proc/sys/fs/suid_dumpable is 0, SUID_DUMP_DISABLE.
+     * In such a case, LeakSanitizer temporarily sets the value to 1 to
+     * allow ptracing, and then sets it back to 0.
+     *
+     * Another possible value, used by Ubuntu, Fedora, etc., is 2,
+     * which creates dumps readable by root only. For security reasons,
+     * unprivileged programs are not allowed to change the value to 2.
+     * (See https://nvd.nist.gov/vuln/detail/CVE-2006-2451 )
+     *
+     * LSan does not check for the value 2 and change dumpable to 1 in that
+     * case, possibly because if it did it could not change it back to 2
+     * and would have to either leave the process dumpable or change it to 0.
+     *
+     * The usual way to control the family of sanitizers is through environment
+     * variables. However, complicating things, changing the dumpable attribute
+     * to 0 or 2 changes the ownership of files in /proc/[pid] (including
+     * /proc/self ) to root:root, in particular /proc/[pid]/environ, and so
+     * ASAN_OPTIONS=detect_leaks=0 has no effect. (Unless the process has
+     * CAP_SYS_PTRACE, which allows tracing of any process, but that's also
+     * a security risk and we'll have dropped that with other privileges.)
+     *
+     * So if prctl(PR_GET_DUMPABLE) returns 2, we know that the process will
+     * die with a fatal error if it attempts to run LSan, so don't.
+     *
+     * See proc(5), prctl(2), ptrace(2), and
+     * https://github.com/google/sanitizers/issues/1306
+     * https://github.com/llvm/llvm-project/issues/55944
+     */
+    if (prctl(PR_GET_DUMPABLE) == 2) {
+        ws_debug("Not running LeakSanitizer because /proc/sys/fs/suid_dumpable is 2");
+        return 1;
+    }
+#endif
+    return 0;
+}
+
+WS_DLL_PUBLIC const char*
+__asan_default_options(void)
+{
+    /* By default don't override our exit code if there's a leak or error.
+     * We particularly don't want to do this if running as a capture child,
+     * because capture/capture_sync doesn't expect the ASan exit codes.
+     */
+    return "exitcode=0";
+}
 #endif
 
 #ifdef SIGINFO
@@ -320,7 +404,7 @@ static gboolean need_timeout_workaround;
 
 static void
 dumpcap_log_writer(const char *domain, enum ws_log_level level,
-                                   struct timespec timestamp,
+                                   const char *fatal_msg, struct timespec timestamp,
                                    const char *file, long line, const char *func,
                                    const char *user_format, va_list user_ap,
                                    void *user_data);
@@ -393,6 +477,7 @@ print_usage(FILE *output)
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
+    fprintf(output, "  --update-interval        interval between updates with new packets (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
     fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
     fprintf(output, "                           set channel on wifi interface\n");
@@ -4091,19 +4176,19 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
         } /* inpkts */
 
-        /* Only update once every 500ms so as not to overload slow displays.
+        /* Only update after an interval so as not to overload slow displays.
          * This also prevents too much context-switching between the dumpcap
          * and wireshark processes.
+         * XXX: Should we send updates sooner if there have been lots of
+         * packets we haven't notified the parent about, such as on fast links?
          */
-#define DUMPCAP_UPD_TIME 500
-
 #ifdef _WIN32
         cur_time = GetTickCount();  /* Note: wraps to 0 if sys runs for 49.7 days */
-        if ((cur_time - upd_time) > DUMPCAP_UPD_TIME) /* wrap just causes an extra update */
+        if ((cur_time - upd_time) > capture_opts->update_interval) /* wrap just causes an extra update */
 #else
         gettimeofday(&cur_time, NULL);
         if (((guint64)cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
-            ((guint64)upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000))
+            ((guint64)upd_time.tv_sec * 1000000 + upd_time.tv_usec + capture_opts->update_interval*1000))
 #endif
         {
 
@@ -4910,6 +4995,23 @@ main(int argc, char *argv[])
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+    /* sync_pipe_start does not pass along log level information from
+     * the parent (XXX: it probably should.) Assume that if we're
+     * specially compiled with dumpcap debugging then we want it on.
+     */
+    if (capture_child) {
+        ws_log_set_level(LOG_LEVEL_DEBUG);
+    }
+#endif
+
+#ifdef DEBUG_CHILD_DUMPCAP
+    if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
+        fprintf (stderr, "Unable to open debug log file .\n");
+        exit (1);
+    }
+#endif
+
     ws_noisy("Finished log init and parsing command line log arguments");
 
 #ifdef _WIN32
@@ -4944,13 +5046,6 @@ main(int argc, char *argv[])
 #endif
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
-
-#ifdef DEBUG_CHILD_DUMPCAP
-    if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
-        fprintf (stderr, "Unable to open debug log file .\n");
-        exit (1);
-    }
-#endif
 
 #if defined(__APPLE__) && defined(__LP64__)
     /*
@@ -5168,6 +5263,7 @@ main(int argc, char *argv[])
 #endif
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
         case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
+        case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
             status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
             if (status != 0) {
                 exit_main(status);
@@ -5592,26 +5688,33 @@ main(int argc, char *argv[])
 
 static void
 dumpcap_log_writer(const char *domain, enum ws_log_level level,
-                                   struct timespec timestamp,
-                                   const char *file, long line, const char *func,
-                                   const char *user_format, va_list user_ap,
-                                   void *user_data _U_)
+                                    const char *fatal_msg _U_,
+                                    struct timespec timestamp,
+                                    const char *file, long line, const char *func,
+                                    const char *user_format, va_list user_ap,
+                                    void *user_data _U_)
 {
-    /* ignore log message, if log_level isn't interesting */
-    if (level <= LOG_LEVEL_INFO) {
-#if !defined(DEBUG_DUMPCAP) && !defined(DEBUG_CHILD_DUMPCAP)
-        return;
-#endif
-    }
-
     /* DEBUG & INFO msgs (if we're debugging today)                 */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
     if (level <= LOG_LEVEL_INFO && ws_log_msg_is_active(domain, level)) {
 #ifdef DEBUG_DUMPCAP
-        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
-#endif
 #ifdef DEBUG_CHILD_DUMPCAP
-        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+        va_list user_ap_copy;
+        va_copy(user_ap_copy, user_ap);
+#endif
+        if (capture_child) {
+            gchar *msg = ws_strdup_vprintf(user_format, user_ap);
+            sync_pipe_errmsg_to_parent(2, msg, "");
+            g_free(msg);
+        } else {
+            ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+        }
+#ifdef DEBUG_CHILD_DUMPCAP
+        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap_copy);
+        va_end(user_ap_copy);
+#endif
+#elif DEBUG_CHILD_DUMPCAP
+        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap);
 #endif
         return;
     }
@@ -5624,7 +5727,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else if(ws_log_msg_is_active(domain, level)) {
-        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+        ws_log_console_writer(domain, level, timestamp, getpid(), file, line, func, user_format, user_ap);
     }
 }
 

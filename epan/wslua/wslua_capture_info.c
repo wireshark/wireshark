@@ -337,7 +337,7 @@ WSLUA_METAMETHOD CaptureInfoConst__tostring(lua_State* L) {
     } else {
         wtap_dumper *wdh = fi->wdh;
         lua_pushfstring(L, "CaptureInfoConst: file_type_subtype=%d, snaplen=%d, encap=%d, compression_type=%d",
-            wdh->file_type_subtype, wdh->snaplen, wdh->encap, wdh->compression_type);
+            wdh->file_type_subtype, wdh->snaplen, wdh->file_encap, wdh->compression_type);
     }
 
     WSLUA_RETURN(1); /* String of debug information. */
@@ -355,7 +355,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,snapshot_length,wdh->snaple
 
     See `wtap_encaps` in init.lua for available types.  It is set to `wtap_encaps.PER_PACKET` if packets can
     have different types, in which case each Frame identifies its type, in `FrameInfo.packet_encap`. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,encap,wdh->encap);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,encap,wdh->file_encap);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_comment RW A comment for the whole capture file, if the
     `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */

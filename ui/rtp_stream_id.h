@@ -49,9 +49,15 @@ guint rtpstream_id_to_hash(const rtpstream_id_t *id);
 void rtpstream_id_copy(const rtpstream_id_t *src, rtpstream_id_t *dest);
 
 /**
- * Copy addresses and ports from pinfo
+ * Deep copy addresses and ports from pinfo
  */
 void rtpstream_id_copy_pinfo(const packet_info *pinfo, rtpstream_id_t *dest, gboolean swap_src_dst);
+
+/**
+ * Shallow copy addresses and ports from pinfo
+ * Do not call rtpstream_id_free if you use this function.
+ */
+void rtpstream_id_copy_pinfo_shallow(const packet_info *pinfo, rtpstream_id_t *dest, gboolean swap_src_dst);
 
 /**
  * Free memory allocated for id

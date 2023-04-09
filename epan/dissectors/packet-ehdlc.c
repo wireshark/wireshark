@@ -306,7 +306,7 @@ proto_register_ehdlc(void)
 	static hf_register_info hf[] = {
 		{ &hf_ehdlc_data_len,
 		  { "DataLen", "ehdlc.data_len",
-		    FT_UINT16, BASE_DEC, NULL, 0x1FF,
+		    FT_UINT16, BASE_DEC, NULL, 0x01FF,
 		    "The length of the data (in bytes)", HFILL }
 		},
 		{ &hf_ehdlc_csapi,

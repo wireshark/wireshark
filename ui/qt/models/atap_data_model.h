@@ -46,6 +46,7 @@ public:
 #endif
         TIMELINE_DATA,
         ENDPOINT_DATATYPE,
+        PROTO_ID,
         CONVERSATION_ID,
         ROW_IS_FILTERED,
         DATA_ADDRESS_TYPE,

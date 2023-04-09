@@ -1575,49 +1575,49 @@ proto_register_cast(void)
 
     { &hf_cast_partyPIRestrictionBits_CallingPartyName,
       { "RestrictCallingPartyName", "cast.partyPIRestrictionBits.CallingPartyName",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x01,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_CallingPartyNumber,
       { "RestrictCallingPartyNumber", "cast.partyPIRestrictionBits.CallingPartyNumber",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x02,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_CalledPartyName,
       { "RestrictCalledPartyName", "cast.partyPIRestrictionBits.CalledPartyName",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x04,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_CalledPartyNumber,
       { "RestrictCalledPartyNumber", "cast.partyPIRestrictionBits.CalledPartyNumber",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x08,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_OriginalCalledPartyName,
       { "RestrictOriginalCalledPartyName", "cast.partyPIRestrictionBits.OriginalCalledPartyName",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x10,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber,
       { "RestrictOriginalCalledPartyNumber", "cast.partyPIRestrictionBits.OriginalCalledPartyNumber",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x20,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_LastRedirectPartyName,
       { "RestrictLastRedirectPartyName", "cast.partyPIRestrictionBits.LastRedirectPartyName",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x40,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
         NULL, HFILL }
     },
 
     { &hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber,
       { "RestrictLastRedirectPartyNumber", "cast.partyPIRestrictionBits.LastRedirectPartyNumber",
-        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80,
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
         NULL, HFILL }
     },
 

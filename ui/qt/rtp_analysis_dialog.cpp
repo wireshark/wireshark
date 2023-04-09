@@ -334,6 +334,7 @@ void RtpAnalysisDialog::deleteTabInfo(tab_info_t *tab_info)
     delete tab_info->jitter_vals;
     delete tab_info->diff_vals;
     delete tab_info->delta_vals;
+    delete tab_info->tab_name;
     // tab_info->tree_widget was deleted by ui
     // tab_info->statistics_label was deleted by ui
     rtpstream_info_free_data(&tab_info->stream);
@@ -350,6 +351,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
             .arg(s_calc.dst_addr_str)
             .arg(s_calc.dst_port)
             .arg(int_to_qstring(s_calc.ssrc, 8, 16)));
+    rtpstream_info_calc_free(&s_calc);
 
     QWidget *tab = new QWidget();
     tab->setProperty("tab_data", QVariant::fromValue((void *)new_tab));
@@ -784,6 +786,7 @@ void RtpAnalysisDialog::updateStatistics()
                 .arg(s_calc.clock_drift_ms, 0, 'f', 0);
         stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
                 .arg(s_calc.freq_drift_hz, 0, 'f', 0).arg(s_calc.freq_drift_perc, 0, 'f', 2);
+        rtpstream_info_calc_free(&s_calc);
         stats_tables += "</table></p>\n";
 
         tabs_[i]->statistics_label->setText(stats_tables);
@@ -1142,7 +1145,7 @@ QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     analysis_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     analysis_button->setPopupMode(QToolButton::MenuButtonPopup);
 
-    ca = new QAction(tr("&Analyze"));
+    ca = new QAction(tr("&Analyze"), analysis_button);
     ca->setToolTip(tr("Open the analysis window for the selected stream(s)"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisReplace()));
     analysis_button->setDefaultAction(ca);

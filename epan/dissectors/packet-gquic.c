@@ -204,6 +204,7 @@ static expert_field ei_gquic_tag_unknown = EI_INIT;
 static expert_field ei_gquic_version_invalid = EI_INIT;
 static expert_field ei_gquic_invalid_parameter = EI_INIT;
 static expert_field ei_gquic_length_invalid = EI_INIT;
+static expert_field ei_gquic_data_invalid = EI_INIT;
 
 static const value_string gquic_short_long_header_vals[] = {
     { 0, "Short Header" },
@@ -1743,6 +1744,11 @@ dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint
 
 int
 dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info){
+    if (!gquic_info) {
+        expert_add_info(pinfo, gquic_tree, &ei_gquic_data_invalid);
+        return offset + tvb_reported_length_remaining(tvb, offset);
+    }
+
     proto_item *ti, *ti_ft, *ti_ftflags /*, *expert_ti*/;
     proto_tree *ft_tree, *ftflags_tree;
     guint8 frame_type;
@@ -3244,7 +3250,8 @@ proto_register_gquic(void)
         { &ei_gquic_tag_unknown, { "gquic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
         { &ei_gquic_version_invalid, { "gquic.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL }},
         { &ei_gquic_invalid_parameter, { "gquic.invalid.parameter", PI_MALFORMED, PI_ERROR, "Invalid Parameter", EXPFILL }},
-        { &ei_gquic_length_invalid, { "gquic.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }}
+        { &ei_gquic_length_invalid, { "gquic.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
+        { &ei_gquic_data_invalid, { "gquic.data.invalid", PI_PROTOCOL, PI_WARN, "Invalid Data", EXPFILL }},
     };
 
     expert_module_t *expert_gquic;

@@ -1855,7 +1855,7 @@ void proto_register_uftp(void)
         },
         { &hf_uftp_fileseg_seq_num,
             { "Sequence Number", "uftp.fileseg.seq_num",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_fileseg_data,
             { "Data", "uftp.fileseg.data",

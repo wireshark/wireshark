@@ -1416,7 +1416,7 @@ void proto_register_p_mul (void)
       { "Destination ID", "p_mul.dest_id", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_msg_seq_no,
-      { "Message Sequence Number", "p_mul.msg_seq_no", FT_UINT16, BASE_DEC,
+      { "Message Sequence Number", "p_mul.msg_seq_no", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_sym_key,
       { "Symmetric Key", "p_mul.sym_key", FT_NONE, BASE_NONE,

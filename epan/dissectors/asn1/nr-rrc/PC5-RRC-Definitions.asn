@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.3.0 (2022-12)
+-- 3GPP TS 38.331 V17.4.0 (2023-03)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -178,8 +178,8 @@ SL-PagingInfo-RemoteUE-r17 ::=                SEQUENCE {
 }
 
 SL-SIB-ReqInfo-r17 ::=                   ENUMERATED { sib1, sib2, sib3, sib4, sib5, sib6, sib7, sib8, sib9, sib10, sib11, sib12, sib13,
-                                                      sib14, sib15, sib16, sib17, sib18, sib19, sib20, sib21, spare11, spare10, spare9,
-                                                      spare8, spare7, spare6, spare5, spare4, spare3, spare2, spare1, ... }
+                                                      sib14, sib15, sib16, sib17, sib18, sib19, sib20, sib21, sibNotReq11, sibNotReq10, sibNotReq9,
+                                                      sibNotReq8, sibNotReq7, sibNotReq6, sibNotReq5, sibNotReq4, sibNotReq3, sibNotReq2, sibNotReq1, ... }
 
 -- TAG-REMOTEUEINFORMATIONSIDELINK-STOP
 -- TAG-RRCRECONFIGURATIONSIDELINK-START

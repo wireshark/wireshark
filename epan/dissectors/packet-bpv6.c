@@ -1970,11 +1970,11 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
 
-    wscbor_chunk_t *frame = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
+    wscbor_chunk_t *frame = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     if (frame->type_major == CBOR_TYPE_ARRAY) {
-        wscbor_chunk_t *primary = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
+        wscbor_chunk_t *primary = wscbor_chunk_read(pinfo->pool, tvb, &offset);
         if (primary->type_major == CBOR_TYPE_ARRAY) {
-            wscbor_chunk_t *version = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
+            wscbor_chunk_t *version = wscbor_chunk_read(pinfo->pool, tvb, &offset);
             if (version->type_major == CBOR_TYPE_UINT) {
                 guint64 vers_val = version->head_value;
                 if (vers_val == 7) {

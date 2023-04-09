@@ -287,20 +287,6 @@ This option may be specified multiple times.  Note that Wireshark
 currently only displays the first comment of a capture file.
 --
 
--d  <layer type>==<selector>,<decode-as protocol>::
-+
---
-Like Wireshark's *Decode As...* feature, this lets you specify how a
-layer type should be dissected.  If the layer type in question (for example,
-*tcp.port* or *udp.port* for a TCP or UDP port number) has the specified
-selector value, packets should be dissected as the specified protocol.
-
-Example: *-d tcp.port==8888,http* will decode any traffic running over
-TCP port 8888 as HTTP.
-
-See the xref:tshark.html[tshark](1) manual page for more examples.
---
-
 -D|--list-interfaces::
 +
 --
@@ -319,30 +305,6 @@ contain a GUID.
 Specifies the X display to use.  A hostname and screen (otherhost:0.0)
 or just a screen (:0.0) can be specified.  This option is not available
 under macOS or Windows.
---
-
---disable-protocol <proto_name>::
-+
---
-Disable dissection of proto_name.
---
-
---disable-heuristic <short_name>::
-+
---
-Disable dissection of heuristic protocol.
---
-
---enable-protocol <proto_name>::
-+
---
-Enable dissection of proto_name.
---
-
---enable-heuristic <short_name>::
-+
---
-Enable dissection of heuristic protocol.
 --
 
 -f  <capture filter>::
@@ -464,15 +426,6 @@ interfaces; if there are no interfaces, *Wireshark* reports an error and
 doesn't start the capture.
 --
 
--K  <keytab>::
-+
---
-Load kerberos crypto keys from the specified keytab file.
-This option can be used multiple times to load keys from several files.
-
-Example: *-K krb5.keytab*
---
-
 -l::
 +
 --
@@ -492,38 +445,6 @@ List the data link types supported by the interface and exit.
 --
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
---
-
--n::
-+
---
-Disable network object name resolution (such as hostname, TCP and UDP port
-names), the *-N* flag might override this one.
---
-
--N  <name resolving flags>::
-+
---
-Turn on name resolving only for particular types of addresses and port
-numbers, with name resolving for other types of addresses and port
-numbers turned off.  This flag overrides *-n* if both *-N* and *-n* are
-present.  If both *-N* and *-n* flags are not present, all name resolutions
-are turned on.
-
-The argument is a string that may contain the letters:
-
-*m* to enable MAC address resolution
-
-*n* to enable network address resolution
-
-*N* to enable using external resolvers (e.g., DNS) for network address
-resolution
-
-*t* to enable transport-layer port number resolution
-
-*d* to enable resolution from captured DNS packets
-
-*v* to enable VLAN IDs to names resolution
 --
 
 -o  <preference/recent setting>::
@@ -619,54 +540,15 @@ the default snapshot length is used if provided.
 Automatically update the packet display as packets are coming in.
 --
 
--t  a|ad|adoy|d|dd|e|r|u|ud|udoy::
-+
---
-Set the format of the packet timestamp displayed in the packet list
-window.  The format can be one of:
-
-*a* absolute: The absolute time, as local time in your time zone,
-is the actual time the packet was captured, with no date displayed
-
-*ad* absolute with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as local time in your time zone, is the actual time and date
-the packet was captured
-
-*adoy* absolute with date using day of year: The absolute date,
-displayed as YYYY/DOY, and time, as local time in your time zone,
-is the actual time and date the packet was captured
-
-*d* delta: The delta time is the time since the previous packet was
-captured
-
-*dd* delta_displayed: The delta_displayed time is the time since the
-previous displayed packet was captured
-
-*e* epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
-
-*r* relative: The relative time is the time elapsed between the first packet
-and the current packet
-
-*u* UTC: The absolute time, as UTC, is the actual time the packet was
-captured, with no date displayed
-
-*ud* UTC with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as UTC, is the actual time and date the packet was captured
-
-*udoy* UTC with date using day of year: The absolute date, displayed
-as YYYY/DOY, and time, as UTC, is the actual time and date the packet
-was captured
-
-The default format is relative.
---
-
 --temp-dir <directory>::
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behaviour is to use your system's
-temporary directory (typically __/tmp__ on UNIX-compatible systems, such
-as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
+files) are to be written.  The default behavior on UNIX-compatible sytems,
+such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
+variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
+is not.  On Windows, the __%TEMP%__ environment variable is used, which
+typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 --time-stamp-type <type>::
@@ -675,10 +557,12 @@ as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
 Change the interface's timestamp method. See --list-time-stamp-types.
 --
 
--u <s|hms>::
+--update-interval  <interval>::
 +
 --
-Output format of seconds (def: s: seconds)
+Set the length of time in milliseconds between new packet reports during
+a capture. Also sets the granularity of file duration conditions.
+The default value is 100ms.
 --
 
 -v|--version::
@@ -1091,6 +975,8 @@ Show IEEE 802.11 network and station statistics.
 Show WSP packet counters.
 --
 
+include::dissection-options.adoc[tag=!tshark]
+
 include::diagnostic-options.adoc[]
 
 == INTERFACE
@@ -1166,9 +1052,6 @@ packets to be printed (which packets are printed), and the output format of
 each packet (how each packet is printed).  The output format will be similar
 to the displayed values, so a summary line, the packet details view, and/or
 the hex dump of the packet can be printed.
-
-Printing options can be set with the __Edit:Preferences__ menu item, or in the
-dialog box popped up by this menu item.
 --
 
 menu:File[Quit]::
@@ -1270,7 +1153,7 @@ menu:Edit[Configuration Profiles]::
 Manage configuration profiles to be able to use more than one set of preferences and configurations.
 
 menu:Edit[Preferences]::
-Set the GUI, capture, printing and protocol options (see /Preferences dialog below).
+Set the GUI, capture, and protocol options (see /Preferences dialog below).
 
 menu:View[Main Toolbar]::
 
@@ -1415,10 +1298,11 @@ menu:Capture[Options]::
 --
 Initiate a live packet capture (see /"Capture Options Dialog"
 below).  If no filename is specified, a temporary file will be created
-to hold the capture.  The location of the file can be chosen by setting your
-TMPDIR environment variable before starting *Wireshark*.  Otherwise, the
-default TMPDIR location is system-dependent, but is likely either __/var/tmp__
-or __/tmp__.
+to hold the capture.  Temporary files are written in the directory listed
+in menu:Help[About Wireshark > Folders]. This location can be chosen with the
+command line option *--temp-dir*, or by setting the environment variable
+TMPDIR (on UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris,
+and AIX) or TEMP (on Windows) before starting **Wireshark**.
 --
 
 menu:Capture[Start]::
@@ -2253,20 +2137,6 @@ list pane should automatically scroll to show the most recently captured
 packets.
 --
 
-Printing Preferences::
-+
---
-The radio buttons at the top of the __Printing__ page allow you choose
-between printing packets with the __File:Print Packet__ menu item as
-text or PostScript, and sending the output directly to a command or
-saving it to a file.  The __Command:__ text entry box, on
-UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,
-is the command to send files to (usually *lpr*), and the __File:__ entry
-box lets you enter the name of the file you wish to save to. 
-Additionally, you can select the __File:__ button to browse the file
-system for a particular save file.
---
-
 Name Resolution Preferences::
 +
 --
@@ -2583,7 +2453,7 @@ menu:About[Folders]::
 +
 --
 The __Folders__ page lets you view the directory names where Wireshark is
-searching it's various configuration and other files.
+searching its various configuration and other files.
 --
 
 menu:About[Plugins]::

@@ -193,6 +193,7 @@ typedef struct _e_prefs {
   gboolean     capture_prom_mode;
   gboolean     capture_pcap_ng;
   gboolean     capture_real_time;
+  guint        capture_update_interval;
   gboolean     capture_auto_scroll; /* XXX - Move to recent */
   gboolean     capture_no_interface_load;
   gboolean     capture_no_extcap;
@@ -208,9 +209,9 @@ typedef struct _e_prefs {
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;
+  gint         gui_debounce_timer;
   gchar       *saved_at_version;
   gboolean     unknown_prefs; /* unknown or obsolete pref(s) */
-  gboolean     unknown_colorfilters; /* Warn when saving unknown or obsolete color filters. */
   gboolean     gui_qt_packet_list_separator;
   gboolean     gui_qt_packet_header_column_definition;
   gboolean     gui_qt_packet_list_hover_style; /* Enable/Disable mouse-over colorization */

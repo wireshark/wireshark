@@ -6812,9 +6812,9 @@ proto_register_dcerpc(void)
         { &hf_dcerpc_cn_bind_trans_btfn, /* [MS-RPCE] 2.2.2.14 */
           {"Bind Time Features", "dcerpc.cn_bind_trans_btfn", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
         { &hf_dcerpc_cn_bind_trans_btfn_01,
-          { "Security Context Multiplexing Supported", "dcerpc.cn_bind_trans_btfn.01", FT_BOOLEAN, 16, NULL, 0x01, NULL, HFILL }},
+          { "Security Context Multiplexing Supported", "dcerpc.cn_bind_trans_btfn.01", FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
         { &hf_dcerpc_cn_bind_trans_btfn_02,
-          { "Keep Connection On Orphan Supported", "dcerpc.cn_bind_trans_btfn.02", FT_BOOLEAN, 16, NULL, 0x02, NULL, HFILL }},
+          { "Keep Connection On Orphan Supported", "dcerpc.cn_bind_trans_btfn.02", FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
         { &hf_dcerpc_cn_alloc_hint,
           { "Alloc hint", "dcerpc.cn_alloc_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_sec_addr_len,

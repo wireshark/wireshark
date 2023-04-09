@@ -440,6 +440,10 @@
     <enum name="INDICATION_OF_ACCESS_NETWORK_INFO_REPORTING_FAILURE" code="14"/>
     <enum name="INDICATION_OF_TRANSFER_POLICY_EXPIRED" code="15"/>
     <enum name="PLMN_CHANGE" code="16"/>
+    <enum name="EPS_FALLBACK" code="17"/>
+    <enum name="INDICATION_OF_REALLOCATION_OF_CREDIT" code="18"/>
+    <enum name="SUCCESSFUL_QOS_UPDATE" code="19"/>
+    <enum name="FAILED_QOS_UPDATE" code="20"/>
   </avp>
 
   <avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">

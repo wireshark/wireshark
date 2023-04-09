@@ -116,30 +116,12 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
         ui->coloringRulesTreeView->setCurrentIndex(QModelIndex());
     }
 
-    checkUnknownColorfilters();
-
     updateHint();
 }
 
 ColoringRulesDialog::~ColoringRulesDialog()
 {
     delete ui;
-}
-
-void ColoringRulesDialog::checkUnknownColorfilters()
-{
-    if (prefs.unknown_colorfilters) {
-        QMessageBox *mb = new QMessageBox();
-        mb->setText(tr("Your coloring rules file contains unknown rules"));
-        mb->setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
-                                 "They have been disabled."));
-        mb->setStandardButtons(QMessageBox::Ok);
-
-        mb->setWindowModality(Qt::ApplicationModal);
-        mb->setAttribute(Qt::WA_DeleteOnClose);
-        mb->show();
-        prefs.unknown_colorfilters = FALSE;
-    }
 }
 
 void ColoringRulesDialog::copyFromProfile(QString filename)
@@ -153,8 +135,6 @@ void ColoringRulesDialog::copyFromProfile(QString filename)
     for (int i = 0; i < colorRuleModel_.columnCount(); i++) {
         ui->coloringRulesTreeView->resizeColumnToContents(i);
     }
-
-    checkUnknownColorfilters();
 }
 
 void ColoringRulesDialog::showEvent(QShowEvent *)
@@ -440,8 +420,6 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             if (!colorRuleModel_.importColors(file_name, err)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
             }
-
-            checkUnknownColorfilters();
         }
     } else if (button == export_button_) {
         int num_items = static_cast<int>(ui->coloringRulesTreeView->selectionModel()->selectedIndexes().count()) / colorRuleModel_.columnCount();

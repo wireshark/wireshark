@@ -1477,7 +1477,7 @@ proto_reg_handoff_saphdb(void)
 
 	if (!initialized) {
 		saphdb_handle = create_dissector_handle(dissect_saphdb, proto_saphdb);
-		saphdb_handle_tls = register_dissector("SAPHDB over TLS", dissect_saphdb, proto_saphdb);
+		saphdb_handle_tls = register_dissector_with_description("saphdb_tls", "SAPHDB over TLS", dissect_saphdb, proto_saphdb);
 		initialized = TRUE;
 	} else {
 		range_foreach(saphdb_port_range, range_delete_callback, NULL);

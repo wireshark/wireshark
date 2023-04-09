@@ -281,7 +281,8 @@ e_addr_resolve gbl_resolv_flags = {
     TRUE,   /* use_external_net_name_resolver */
     FALSE,  /* load_hosts_file_from_profile_only */
     FALSE,  /* vlan_name */
-    FALSE   /* ss7 point code names */
+    FALSE,  /* ss7 point code names */
+    TRUE,   /* maxmind_geoip */
 };
 static guint name_resolve_concurrency = 500;
 static gboolean resolve_synchronously = FALSE;
@@ -2936,6 +2937,7 @@ addr_resolve_pref_init(module_t *nameres)
 void addr_resolve_pref_apply(void)
 {
     c_ares_set_dns_servers();
+    maxmind_db_pref_apply();
 }
 
 void
@@ -2947,6 +2949,7 @@ disable_name_resolution(void) {
     gbl_resolv_flags.use_external_net_name_resolver     = FALSE;
     gbl_resolv_flags.vlan_name                          = FALSE;
     gbl_resolv_flags.ss7pc_name                         = FALSE;
+    gbl_resolv_flags.maxmind_geoip                      = FALSE;
 }
 
 gboolean

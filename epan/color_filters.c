@@ -22,6 +22,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 
@@ -442,6 +443,10 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
         /* Disable the color filter in the list of color filters. */
         colorf->disabled = TRUE;
     }
+
+    /* XXX: What if the color filter tests "frame.coloring_rule.name" or
+     * "frame.coloring_rule.string"?
+     */
 }
 
 /* apply changes from the edit list */
@@ -513,6 +518,52 @@ color_filters_prime_edt(epan_dissect_t *edt)
         g_slist_foreach(color_filter_list, prime_edt, edt);
 }
 
+static gint
+find_hfid(gconstpointer data, gconstpointer user_data)
+{
+    color_filter_t *colorf = (color_filter_t *)data;
+    int hfid = GPOINTER_TO_INT(user_data);
+
+    if ((!colorf->disabled) && colorf->c_colorfilter != NULL) {
+        if (dfilter_interested_in_field(colorf->c_colorfilter, hfid)) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+gboolean
+color_filters_use_hfid(int hfid)
+{
+    GSList *item = NULL;
+    if (color_filters_used())
+        item = g_slist_find_custom(color_filter_list, GINT_TO_POINTER(hfid), find_hfid);
+    return (item != NULL);
+}
+
+static gint
+find_proto(gconstpointer data, gconstpointer user_data)
+{
+    color_filter_t *colorf = (color_filter_t *)data;
+    int proto_id = GPOINTER_TO_INT(user_data);
+
+    if ((!colorf->disabled) && colorf->c_colorfilter != NULL) {
+        if (dfilter_interested_in_proto(colorf->c_colorfilter, proto_id)) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+gboolean
+color_filters_use_proto(int proto_id)
+{
+    GSList *item = NULL;
+    if (color_filters_used())
+        item = g_slist_find_custom(color_filter_list, GINT_TO_POINTER(proto_id), find_proto);
+    return (item != NULL);
+}
+
 /* * Return the color_t for later use */
 const color_filter_t *
 color_filters_colorize_packet(epan_dissect_t *edt)
@@ -558,8 +609,6 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
 
     name = (gchar *)g_malloc(name_len + 1);
     filter_exp = (gchar *)g_malloc(filter_exp_len + 1);
-
-    prefs.unknown_colorfilters = FALSE;
 
     while (1) {
 
@@ -654,10 +703,8 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
             df_error_t *df_err = NULL;
 
             if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
-                ws_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
-                          name, path, df_err->msg);
+                report_warning("Disabling color filter: Could not compile \"%s\" in colorfilters file \"%s\".\n%s", name, path, df_err->msg);
                 dfilter_error_free(df_err);
-                prefs.unknown_colorfilters = TRUE;
 
                 /* skip_end_of_line = TRUE; */
                 disabled = TRUE;

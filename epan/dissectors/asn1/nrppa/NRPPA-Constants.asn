@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.3.0 (2022-12)
+-- 3GPP TS 38.455 V17.4.0 (2023-03)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -219,6 +219,7 @@ id-procedure-code-102-not-to-be-used							ProtocolIE-ID ::= 102
 id-procedure-code-103-not-to-be-used							ProtocolIE-ID ::= 103
 id-UETxTimingErrorMargin										ProtocolIE-ID ::= 104
 id-MeasurementPeriodicityNR-AoA									ProtocolIE-ID ::= 105
+id-SRSTransmissionStatus										ProtocolIE-ID ::= 106
 
 
 

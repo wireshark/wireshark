@@ -17,7 +17,7 @@
 #include <epan/srt_table.h>
 #include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 #define NANOSECS_PER_SEC 1000000000
@@ -29,14 +29,21 @@ typedef struct _srt_t {
 } srt_t;
 
 static void
-draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer)
+draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer, const char *subfilter)
 {
 	int i;
 	guint64 td;
 	guint64 sum;
 
 	if (rst->num_procs > 0) {
-		printf("Filter: %s\n", rst->filter_string ? rst->filter_string : "");
+		if (rst->filter_string != NULL && subfilter != NULL) {
+			printf("Filter: %s and (%s)\n", rst->filter_string, subfilter);
+		} else if (subfilter != NULL) {
+			/* Print (subfilter) to disambiguate from just rst->filter_string. */
+			printf("Filter: (%s)\n", subfilter);
+		} else {
+			printf("Filter: %s\n", rst->filter_string ? rst->filter_string : "");
+		}
 		printf("Index  %-22s Calls    Min SRT    Max SRT    Avg SRT    Sum SRT\n", (rst->proc_column_name != NULL) ? rst->proc_column_name : "Procedure");
 	}
 	for(i=0;i<rst->num_procs;i++){
@@ -81,7 +88,7 @@ srt_draw(void *arg)
 	printf("%s SRT Statistics:\n", ui->type);
 
 	srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
-	draw_srt_table_data(srt_table, data->srt_array->len == 1);
+	draw_srt_table_data(srt_table, data->srt_array->len == 1, ui->filter);
 	if (srt_table->num_procs > 0) {
 		need_newline = TRUE;
 	}
@@ -94,7 +101,7 @@ srt_draw(void *arg)
 			need_newline = FALSE;
 		}
 		srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
-		draw_srt_table_data(srt_table, i == data->srt_array->len-1);
+		draw_srt_table_data(srt_table, i == data->srt_array->len-1, ui->filter);
 		if (srt_table->num_procs > 0) {
 			need_newline = TRUE;
 		}

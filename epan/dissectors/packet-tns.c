@@ -1537,7 +1537,7 @@ void proto_register_tns(void)
 			NULL, 0x0200, NULL, HFILL }},
 
 		{ &hf_tns_data_id, {
-			"Data ID", "tns.data_id", FT_UINT8, BASE_HEX,
+			"Data ID", "tns.data_id", FT_UINT32, BASE_HEX,
 			VALS(tns_data_funcs), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_length, {
 			"Data Length", "tns.data_length", FT_UINT16, BASE_DEC,

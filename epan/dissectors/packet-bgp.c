@@ -1166,6 +1166,7 @@ static const value_string bgpnotify_minor_state_machine[] = {
 #define BGP_CEASE_MINOR_CONN_COLLISION    7
 #define BGP_CEASE_MINOR_OUT_RESOURCES     8
 #define BGP_CEASE_MINOR_HARD_RESET        9
+#define BGP_CEASE_MINOR_BFD_DOWN          10
 
 /* RFC4486 Subcodes for BGP Cease Notification Message */
 static const value_string bgpnotify_minor_cease[] = {
@@ -1178,6 +1179,7 @@ static const value_string bgpnotify_minor_cease[] = {
     { BGP_CEASE_MINOR_CONN_COLLISION,    "Connection Collision Resolution"},
     { BGP_CEASE_MINOR_OUT_RESOURCES,     "Out of Resources"},
     { BGP_CEASE_MINOR_HARD_RESET,        "Hard Reset"},
+    { BGP_CEASE_MINOR_BFD_DOWN,          "BFD Down"},
     { 0,                                 NULL }
 };
 
@@ -10755,11 +10757,11 @@ example 2
         proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_flag, tvb, p, 1, ENC_BIG_ENDIAN);
         p += 1;
 
-        ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_type, tvb, p , 1, ENC_BIG_ENDIAN);
+        ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_type, tvb, p, 1, ENC_BIG_ENDIAN);
         orftype = tvb_get_guint8(tvb, p);
         p += 1;
 
-        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_length, tvb, p , 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_length, tvb, p, 2, ENC_BIG_ENDIAN);
         orflen = tvb_get_ntohs(tvb, p);
         proto_item_set_len(ti, orflen + 4);
         p += 2;
@@ -11136,7 +11138,7 @@ proto_register_bgp(void)
         { "ORF type", "bgp.route_refresh.orf.type", FT_UINT8, BASE_DEC,
           VALS(orf_type_vals), 0x0, NULL, HFILL }},
       { &hf_bgp_route_refresh_orf_length,
-        { "ORF length", "bgp.route_refresh.orf.length", FT_UINT8, BASE_DEC,
+        { "ORF length", "bgp.route_refresh.orf.length", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_route_refresh_orf_entry_prefixlist,
         { "ORFEntry PrefixList", "bgp.route_refresh.orf.entry", FT_NONE, BASE_NONE,
@@ -12152,16 +12154,16 @@ proto_register_bgp(void)
           TFS(&tfs_set_notset), BGPNLRI_FSPEC_UNUSED_BIT5, "Unused (must be zero)", HFILL}},
       { &hf_bgp_flowspec_nlri_dec_val_8,
         { "Decimal value", "bgp.flowspec_nlri.dec_val_8", FT_UINT8, BASE_DEC,
-          NULL, 0X0, NULL, HFILL }},
+          NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dec_val_16,
         { "Decimal value", "bgp.flowspec_nlri.dec_val_16", FT_UINT16, BASE_DEC,
-          NULL, 0X0, NULL, HFILL }},
+          NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dec_val_32,
         { "Decimal value", "bgp.flowspec_nlri.dec_val_32", FT_UINT32, BASE_DEC,
-          NULL, 0X0, NULL, HFILL }},
+          NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dec_val_64,
         { "Decimal value", "bgp.flowspec_nlri.dec_val_64", FT_UINT64, BASE_DEC,
-          NULL, 0X0, NULL, HFILL }},
+          NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_lt,
         { "less than", "bgp.flowspec_nlri.op.lt", FT_BOOLEAN, 8,
           TFS(&tfs_set_notset), BGPNLRI_FSPEC_LESS_THAN, NULL, HFILL }},

@@ -45,6 +45,7 @@ dumpcap - Dump network traffic
 [ *--capture-comment* <comment> ]
 [ *--list-time-stamp-types* ]
 [ *--time-stamp-type* <type> ]
+[ *--update-interval* <interval> ]
 
 == DESCRIPTION
 
@@ -216,10 +217,6 @@ If used after an *-i* option, it sets the capture filter expression for
 the interface specified by the last *-i* option occurring before
 this option. If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
-
-Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
-can be used by prefixing the argument with "predef:".
-Example: *-f "predef:MyPredefinedHostOnlyFilter"*
 --
 
 -g::
@@ -454,9 +451,11 @@ Use a separate thread per interface.
 +
 --
 Specifies the directory into which temporary files (including capture
-files) are to be written.  The default behaviour is to use your system's
-temporary directory (typically __/tmp__ on UNIX-compatible systems, such
-as Linux, macOS, \*BSD, Solaris, and AIX, and __C:\\Temp__ on Windows).
+files) are to be written.  The default behavior on UNIX-compatible sytems,
+such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
+variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
+is not.  On Windows, the __%TEMP%__ environment variable is used, which
+typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 -v|--version::
@@ -509,6 +508,14 @@ set, no time stamp types are listed.
 +
 --
 Change the interface's timestamp method.
+--
+
+--update-interval  <interval>::
++
+--
+Set the length of time in milliseconds between new packet reports during
+a capture. Also sets the granularity of file duration conditions.
+The default value is 100ms.
 --
 
 include::diagnostic-options.adoc[]

@@ -70,6 +70,12 @@ int ws_utf8_seqlen[256];
 WS_DLL_PUBLIC guint8 *
 ws_utf8_make_valid(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length);
 
+/*
+ * Same as ws_utf8_make_valid() but returns a wmem_strbuf_t.
+ */
+WS_DLL_PUBLIC wmem_strbuf_t *
+ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const guint8 *ptr, ssize_t length);
+
 #ifdef _WIN32
 
 /** Given a UTF-8 string, convert it to UTF-16.  This is meant to be used

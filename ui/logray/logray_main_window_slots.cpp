@@ -1229,7 +1229,6 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
 
     bool can_match_selected = false;
     bool is_framenum = false;
-    bool have_field_info = false;
     bool have_subtree = false;
     bool can_open_url = false;
     bool have_packet_bytes = false;
@@ -1256,7 +1255,6 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
         header_field_info *hfinfo = fi->hfinfo;
         int linked_frame = -1;
 
-        have_field_info = true;
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
         if (hfinfo && hfinfo->type == FT_FRAMENUM) {
             is_framenum = true;
@@ -1266,6 +1264,7 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
         char *tmp_field = proto_construct_match_selected_string(fi, capture_file_.capFile()->edt);
         field_filter = tmp_field;
         wmem_free(NULL, tmp_field);
+        emit fieldFilterChanged(field_filter);
 
         field_id = fi->hfinfo->id;
         /* if the selected field isn't a protocol, get its parent */
@@ -1290,8 +1289,6 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     }
 
     // Always enable / disable the following items.
-    main_ui_->actionFileExportPacketBytes->setEnabled(have_field_info);
-
     main_ui_->actionCopyAllVisibleItems->setEnabled(capture_file_.capFile() != NULL && ! packet_list_->multiSelectActive());
     main_ui_->actionCopyAllVisibleSelectedTreeItems->setEnabled(can_match_selected);
     main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
@@ -1320,7 +1317,6 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     if (!proto_tree_ || !proto_tree_->hasFocus()) return;
 
     emit packetInfoChanged(capture_file_.packetInfo());
-    emit fieldFilterChanged(field_filter);
 
     //    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
     //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
@@ -1367,6 +1363,16 @@ void LograyMainWindow::applyGlobalCommandLineOptions()
                 tda->setChecked(true);
                 recent.gui_time_format = global_dissect_options.time_format;
                 timestamp_set_type(global_dissect_options.time_format);
+                break;
+            }
+        }
+    }
+    if (global_dissect_options.time_precision != TS_PREC_NOT_SET) {
+        foreach(QAction* tpa, tp_actions.keys()) {
+            if (global_dissect_options.time_precision == tp_actions[tpa]) {
+                tpa->setChecked(true);
+                recent.gui_time_precision = global_dissect_options.time_precision;
+                timestamp_set_precision(global_dissect_options.time_precision);
                 break;
             }
         }
@@ -1726,7 +1732,7 @@ void LograyMainWindow::connectFileMenuActions()
         [this]() { exportDissections(export_type_json); });
 
     connect(main_ui_->actionFileExportPacketBytes, &QAction::triggered, this,
-        [this]() { exportPacketBytes(); });
+        [this]() { exportPacketBytes(); }, Qt::QueuedConnection);
 
     connect(main_ui_->actionFileExportPDU, &QAction::triggered, this,
         [this]() { exportPDU(); });
@@ -3026,8 +3032,8 @@ void LograyMainWindow::on_actionStatisticsConversations_triggered()
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
     connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
         this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t, guint, guint)),
-        this, SLOT(openFollowStreamDialog(follow_type_t, guint, guint)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
+        this, SLOT(openFollowStreamDialog(int, guint, guint)));
     conv_dialog->show();
 }
 
@@ -3036,8 +3042,8 @@ void LograyMainWindow::on_actionStatisticsEndpoints_triggered()
     EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
     connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
-            this, SLOT(openFollowStreamDialogForType(follow_type_t)));
+    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
+            this, SLOT(openFollowStreamDialog(int)));
     endp_dialog->show();
 }
 

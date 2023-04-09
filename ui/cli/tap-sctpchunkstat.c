@@ -24,7 +24,7 @@
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/to_str.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_sctpstat(void);
 

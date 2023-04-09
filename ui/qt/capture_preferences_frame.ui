@@ -88,6 +88,34 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="captureUpdateInterval">
+     <item>
+      <widget class="QLabel" name="captureUpdateIntervalLabel">
+       <property name="text">
+        <string>Interval between updates (ms)</string>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="SyntaxLineEdit" name="captureUpdateIntervalLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="captureUpdateIntervalHorizontalSpacer">
+       <property name="orientation">
+        <enum>Qt:Horizontal</enum>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QCheckBox" name="captureAutoScrollCheckBox">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -126,6 +154,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SyntaxLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/syntax_line_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

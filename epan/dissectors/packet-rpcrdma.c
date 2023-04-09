@@ -24,6 +24,7 @@
 #include <epan/addr_resolv.h>
 
 #include "packet-rpcrdma.h"
+#include "packet-frame.h"
 #include "packet-infiniband.h"
 #include "packet-iwarp-ddp-rdmap.h"
 
@@ -283,6 +284,18 @@ gboolean rpcrdma_is_reduced(void)
 void rpcrdma_insert_offset(gint offset)
 {
     wmem_array_append_one(gp_rdma_write_offsets, offset);
+}
+
+/*
+ * Reset the array of write offsets at the end of the frame. These
+ * are packet scoped, so they don't need to be freed, but we want
+ * to ensure that the global doesn't point to no longer allocated
+ * memory in a later packet.
+ */
+static void
+reset_write_offsets(void)
+{
+    gp_rdma_write_offsets = NULL;
 }
 
 /* Get conversation state, it is created if it does not exist */
@@ -1600,6 +1613,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (write_size > 0 && !pinfo->fd->visited) {
                 /* Initialize array of write chunk offsets */
                 gp_rdma_write_offsets = wmem_array_new(wmem_packet_scope(), sizeof(gint));
+                register_frame_end_routine(pinfo, reset_write_offsets);
                 TRY {
                     /*
                      * Call the upper layer dissector to get a list of offsets

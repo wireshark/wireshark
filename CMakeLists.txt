@@ -132,6 +132,8 @@ if(WIN32)
 			set(WIRESHARK_TARGET_PLATFORM win64)
 		elseif($ENV{MSYSTEM_CARCH} MATCHES "i686")
 			set(WIRESHARK_TARGET_PLATFORM win32)
+		elseif($ENV{MSYSTEM_CARCH} MATCHES "aarch64")
+			set(WIRESHARK_TARGET_PLATFORM "win64arm")
 		else()
 			set(WIRESHARK_TARGET_PLATFORM "$ENV{MSYSTEM_CARCH}")
 		endif()
@@ -149,6 +151,8 @@ if(WIN32)
 	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win32")
 		message(FATAL_ERROR "Deprecated target platform ${WIRESHARK_TARGET_PLATFORM}. See https://gitlab.com/wireshark/wireshark/-/issues/17779 for details.")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE x86)
+	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win64arm")
+		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE arm64)
 	else()
 		message(FATAL_ERROR "Invalid target platform: ${WIRESHARK_TARGET_PLATFORM}")
 	endif()
@@ -270,26 +274,25 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 		# Some systems support $ORIGIN in RPATH to enable relocatable
 		# binaries. In other cases, only absolute paths can be used.
 		# https://www.lekensteyn.nl/rpath.html
+		#
+		# Also note that some systems (notably those using GNU libc)
+		# silently ignore $ORIGIN in RPATH for binaries that are
+		# setuid root or use privileged capabilities.
+		#
 		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
 			set(_enable_rpath_origin TRUE)
-			if(BUILD_dumpcap AND ENABLE_PCAP)
-				# dumpcap will most likely be installed with
-				# capabilities or setuid. Relative RPATHs that
-				# resolve to non-standard library directories
-				# are ignored for such binaries and since we
-				# cannot achieve relocatable builds, just
-				# disable it by default.
-				set(_enable_rpath_origin FALSE)
-			endif()
-			# Provide a knob to optionally force absolute rpaths,
-			# to support old/buggy systems and as a user preference
-			# for hardening.
-			set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
-				"Use $ORIGIN with INSTALL_RPATH")
-			mark_as_advanced(ENABLE_RPATH_ORIGIN)
 		else()
-			set(ENABLE_RPATH_ORIGIN FALSE)
+			set(_enable_rpath_origin FALSE)
 		endif()
+
+		# Provide a knob to optionally force absolute rpaths,
+		# to support old/buggy systems and as a user preference
+		# for hardening.
+		# XXX Should this be a CMake option?
+		set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
+			"Use $ORIGIN with INSTALL_RPATH")
+		mark_as_advanced(ENABLE_RPATH_ORIGIN)
+
 		if(ENABLE_RPATH_ORIGIN)
 			set(LIBRARY_INSTALL_RPATH     "$ORIGIN")
 			set(EXECUTABLE_INSTALL_RPATH  "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
@@ -898,17 +901,33 @@ endif()
 include(CMakePushCheckState)
 
 if(ENABLE_ASAN)
+	# Available since MSVC 2019 version 16.9
 	cmake_push_check_state()
-	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
-	check_c_compiler_flag(-fsanitize=address C__fsanitize_address_VALID)
-	check_cxx_compiler_flag(-fsanitize=address CXX__fsanitize_address_VALID)
+	set(ASAN_FLAG "-fsanitize=address")
+	set(CMAKE_REQUIRED_FLAGS ${ASAN_FLAG})
+	check_c_compiler_flag(${ASAN_FLAG} C__fsanitize_address_VALID)
+	check_cxx_compiler_flag(${ASAN_FLAG} CXX__fsanitize_address_VALID)
 	cmake_pop_check_state()
 	if(NOT C__fsanitize_address_VALID OR NOT CXX__fsanitize_address_VALID)
 		message(FATAL_ERROR "ENABLE_ASAN was requested, but not supported!")
 	endif()
-	set(CMAKE_C_FLAGS "-fsanitize=address ${CMAKE_C_FLAGS}")
-	set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
+	add_compile_options(${ASAN_FLAG})
+	if (MSVC)
+		# Using ASAN makes some of our code require object files with
+		# a 32-bit index to the section table instead of 16-bit.
+		# This makes the .obj files slightly larger (~2%) and makes
+		# it so that Microsoft linkers prior to MSVC 2005 can't read
+		# the files, but those are too old anyway.
+		add_compile_options(/bigobj)
+		# The Microsoft LINK linker doesn't recognize or need the
+		# ASAN flag, and will give a LNK4044 warning.
+	else()
+		# Clang/gcc need the flag added to the linker
+		# add_link_options since CMake 3.13 (our minimum)
+		add_link_options(${ASAN_FLAG})
+	endif()
 	# Disable ASAN for build-time tools, e.g. lemon
+	# (MSVC doesn't support this flag)
 	check_c_compiler_flag(-fno-sanitize=all C__fno_sanitize_all_VALID)
 	if(C__fno_sanitize_all_VALID)
 		set(NO_SANITIZE_CFLAGS "-fno-sanitize=all")
@@ -1285,6 +1304,8 @@ ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
+ws_find_package(AMRNB ENABLE_AMRNB HAVE_AMRNB)
+
 ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
@@ -1625,6 +1646,11 @@ if(ENABLE_PLUGINS)
 			plugins/codecs/G729
 		)
 	endif()
+	if(AMRNB_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/amrnb
+		)
+	endif()
 	if(ILBC_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
 			plugins/codecs/iLBC
@@ -1763,6 +1789,11 @@ set_package_properties(BCG729 PROPERTIES
 	DESCRIPTION "G.729 decoder"
 	URL "https://www.linphone.org/technical-corner/bcg729"
 	PURPOSE "Support for G.729 codec in RTP player"
+)
+set_package_properties(AMRNB PROPERTIES
+	DESCRIPTION "AMRNB decoder"
+	URL "https://sourceforge.net/p/opencore-amr"
+	PURPOSE "Support for AMRNB codec in RTP player"
 )
 set_package_properties(ILBC PROPERTIES
 	DESCRIPTION "iLBC decoder"
@@ -2085,6 +2116,9 @@ if(USE_REPOSITORY)
 	if (BCG729_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${BCG729_DLL_DIR}/${BCG729_DLL}")
 	endif(BCG729_FOUND)
+	if (AMRNB_FOUND)
+		list (APPEND OPTIONAL_DLLS "${AMRNB_DLL_DIR}/${AMRNB_DLL}")
+	endif(AMRNB_FOUND)
 	if (ILBC_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${ILBC_DLL_DIR}/${ILBC_DLL}")
 	endif(ILBC_FOUND)
@@ -2641,17 +2675,15 @@ if(BUILD_wireshark AND QT_FOUND)
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/WiresharkInfo.plist
 		)
 		if(CMAKE_CFG_INTDIR STREQUAL ".")
-			# Add a wrapper script which opens the bundle. This adds
-			# convenience but makes debugging more difficult.
+			# Add a wrapper script which opens the bundle. This is more convenient
+			# and lets Sparkle find our CFBundleIdentifier, but means that you have
+			# to pass the full path to run/Wireshark.app/Contents/MacOS/Wireshark
+			# to your debugger.
 			# It is not created if using Xcode
-			# XXX Running run/Wireshark.app/Contents/MacOS/Wireshark works
-			# fine for me (Gerald) here on Mojave. Can we just make this a
-			# symlink?
 			file(REMOVE ${CMAKE_BINARY_DIR}/run/wireshark)
 			file(WRITE ${CMAKE_BINARY_DIR}/run/wireshark "#!/bin/sh\n")
 			file(APPEND ${CMAKE_BINARY_DIR}/run/wireshark "# Generated by ${CMAKE_CURRENT_LIST_FILE}\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/wireshark "# Wrapper script which should work around the issue described at\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/wireshark "# https://stackoverflow.com/questions/25318524/what-exactly-should-i-pass-to-nsapp-activateignoringotherapps-to-get-my-appl\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/wireshark "# Wrapper script which ensures that we're properly activated via Launch Services\n")
 			file(APPEND ${CMAKE_BINARY_DIR}/run/wireshark "exec ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/MacOS/Wireshark \"\$\@\"\n")
 			execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/wireshark)
 		endif()
@@ -2711,6 +2743,7 @@ if(BUILD_logray AND QT_FOUND)
 		${WINSPARKLE_LIBRARIES}
 		$<$<BOOL:${WIN32}>:UxTheme.lib>
 		${SPEEXDSP_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${MINIZIP_LIBRARIES}
 	)
 
@@ -2745,17 +2778,15 @@ if(BUILD_logray AND QT_FOUND)
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/LograyInfo.plist
 		)
 		if(CMAKE_CFG_INTDIR STREQUAL ".")
-			# Add a wrapper script which opens the bundle. This adds
-			# convenience but makes debugging more difficult.
+			# Add a wrapper script which opens the bundle. This is more convenient
+			# and lets Sparkle find our CFBundleIdentifier, but means that you have
+			# to pass the full path to run/Wireshark.app/Contents/MacOS/Logray
+			# to your debugger.
 			# It is not created if using Xcode
-			# XXX Running run/Logray.app/Contents/MacOS/Logray works
-			# fine for me (Gerald) here on Mojave. Can we just make this a
-			# symlink?
 			file(REMOVE ${CMAKE_BINARY_DIR}/run/logray)
 			file(WRITE ${CMAKE_BINARY_DIR}/run/logray "#!/bin/sh\n")
 			file(APPEND ${CMAKE_BINARY_DIR}/run/logray "# Generated by ${CMAKE_CURRENT_LIST_FILE}\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/logray "# Wrapper script which should work around the issue described at\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/logray "# https://stackoverflow.com/questions/25318524/what-exactly-should-i-pass-to-nsapp-activateignoringotherapps-to-get-my-appl\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/logray "# Wrapper script which ensures that we're properly activated via Launch Services\n")
 			file(APPEND ${CMAKE_BINARY_DIR}/run/logray "exec ${CMAKE_BINARY_DIR}/run/Logray.app/Contents/MacOS/Logray \"\$\@\"\n")
 			execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/logray)
 		endif()
@@ -3120,29 +3151,47 @@ endif()
 if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
 		writecap
-		wsutil
-		caputils
-		iface_monitor
-		ui
+		wsutil_static
 		pcap::pcap
 		${CAP_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${NL_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 	)
+	if(UNIX)
+		list(APPEND CAPUTILS_SRC
+			capture/capture-pcap-util-unix.c)
+	endif()
+	if(WIN32)
+		list(APPEND CAPUTILS_SRC
+			capture/capture_win_ifnames.c
+			capture/capture-wpcap.c
+		)
+	endif()
+	list(APPEND CAPUTILS_SRC
+		capture/capture-pcap-util.c
+	)
+	if (AIRPCAP_FOUND)
+		list(APPEND CAPUTILS_SRC capture/airpcap_loader.c)
+	endif()
 	set(dumpcap_FILES
-		$<TARGET_OBJECTS:capture_opts>
-		$<TARGET_OBJECTS:cli_main>
+		capture_opts.c
+		cli_main.c
 		dumpcap.c
 		ringbuffer.c
 		sync_pipe_write.c
+		capture/iface_monitor.c
+		capture/ws80211_utils.c
+		${CAPUTILS_SRC}
 	)
 	set_executable_resources(dumpcap "Dumpcap" UNIQUE_RC)
 	add_executable(dumpcap ${dumpcap_FILES})
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
-	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS})
+	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS} ${NL_INCLUDE_DIRS})
+	target_compile_definitions(dumpcap PRIVATE ENABLE_STATIC)
 	executable_link_mingw_unicode(dumpcap)
 	install(TARGETS dumpcap
 			RUNTIME	DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -3246,6 +3295,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	# --preserve-xattr is undocumented but ensures that we install
 	# a signed ChmodBPF script.
+	set (_chmodbpf_version 1.2)
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
 	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
 		COMMAND find
@@ -3259,7 +3309,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-extras.sh"
 		COMMAND pkgbuild
 			--identifier org.wireshark.ChmodBPF.pkg
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--preserve-xattr
 			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-scripts"
@@ -3273,7 +3323,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${install_chmodbpf_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.install.ChmodBPF.product
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${install_chmodbpf_pkg}
@@ -3286,7 +3336,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_chmodbpf_component_pkg}"
 		COMMAND pkgbuild
 			--identifier org.wireshark.uninstall.ChmodBPF.pkg
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--nopayload
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-scripts"
 			${uninstall_chmodbpf_component_pkg}
@@ -3297,7 +3347,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_chmodbpf_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.uninstall.ChmodBPF.product
-			--version 1.1
+			--version ${_chmodbpf_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${uninstall_chmodbpf_pkg}
@@ -3308,6 +3358,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	add_custom_target(chmodbpf DEPENDS ${install_chmodbpf_pkg} ${uninstall_chmodbpf_pkg})
 
+	set (_path_helper_version 1.1)
 	set (install_path_helper_component_pkg "${CMAKE_BINARY_DIR}/install.path_helper.pkg")
 	add_custom_command(OUTPUT "${install_path_helper_component_pkg}"
 		COMMAND find
@@ -3320,7 +3371,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 			-exec chmod 644 "{}" +
 		COMMAND pkgbuild
 			--identifier org.wireshark.path_helper.pkg
-			--version 1.0
+			--version ${_path_helper_version}
 			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root/etc"
 			--install-location /private/etc
 			${install_path_helper_component_pkg}
@@ -3332,7 +3383,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${install_path_helper_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.install.path_helper.product
-			--version 1.0
+			--version ${_path_helper_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/install-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${install_path_helper_pkg}
@@ -3345,7 +3396,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_path_helper_component_pkg}"
 		COMMAND pkgbuild
 			--identifier org.wireshark.uninstall.path_helper.pkg
-			--version 1.0
+			--version ${_path_helper_version}
 			--nopayload
 			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-scripts"
 			${uninstall_path_helper_component_pkg}
@@ -3356,7 +3407,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	add_custom_command(OUTPUT "${uninstall_path_helper_pkg}"
 		COMMAND productbuild
 			--identifier org.wireshark.uninstall.path_helper.product
-			--version 1.0
+			--version ${_path_helper_version}
 			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-distribution.xml"
 			--package-path "${CMAKE_BINARY_DIR}"
 			${uninstall_path_helper_pkg}
@@ -3598,6 +3649,9 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if (BCG729_FOUND)
 		list(APPEND _rpmbuild_with_args --with bcg729)
+	endif()
+	if (AMRNB_FOUND)
+		list(APPEND _rpmbuild_with_args --with amrnb)
 	endif()
 	if (ILBC_FOUND)
 		list(APPEND _rpmbuild_with_args --with ilbc)

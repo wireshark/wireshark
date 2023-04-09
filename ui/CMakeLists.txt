@@ -11,8 +11,6 @@ set(NONGENERATED_UI_SRC
 	alert_box.c
 	capture.c
 	capture_ui_utils.c
-	clopts_common.c
-	cmdarg_err.c
 	commandline.c
 	decode_as_utils.c
 	dissect_opts.c
@@ -20,7 +18,6 @@ set(NONGENERATED_UI_SRC
 	help_url.c
 	failure_message.c
 	file_dialog.c
-	filter_files.c
 	firewall_rules.c
 	iface_toolbar.c
 	iface_lists.c

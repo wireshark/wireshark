@@ -9,8 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __UI_CLOPTS_COMMON_H__
-#define __UI_CLOPTS_COMMON_H__
+#ifndef __CLOPTS_COMMON_H__
+#define __CLOPTS_COMMON_H__
+
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,23 +34,23 @@ extern "C" {
 // Base value for GUI specific long options
 #define LONGOPT_BASE_GUI            4000
 
-extern int
+WS_DLL_PUBLIC int
 get_natural_int(const char *string, const char *name);
 
-extern int
+WS_DLL_PUBLIC int
 get_positive_int(const char *string, const char *name);
 
-extern guint32
+WS_DLL_PUBLIC guint32
 get_guint32(const char *string, const char *name);
 
-extern guint32
+WS_DLL_PUBLIC guint32
 get_nonzero_guint32(const char *string, const char *name);
 
-extern double
+WS_DLL_PUBLIC double
 get_positive_double(const char *string, const char *name);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __UI_CLOPTS_COMMON_H__ */
+#endif /* __CLOPTS_COMMON_H__ */

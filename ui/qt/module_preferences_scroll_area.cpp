@@ -472,8 +472,11 @@ void ModulePreferencesScrollArea::updateWidgets()
 
         if (prefs_get_type(pref) == PREF_PROTO_TCP_SNDAMB_ENUM && !prefs_get_enum_radiobuttons(pref)) {
             MainWindow* topWidget = dynamic_cast<MainWindow*> (mainApp->mainWindow());
-            frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
-            enum_cb->setCurrentIndex(fdata->tcp_snd_manual_analysis);
+            /* Ensure there is one unique or multiple selections. See issue 18642 */
+            if (topWidget->hasSelection() || topWidget->hasUniqueSelection()) {
+                frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));
+                enum_cb->setCurrentIndex(fdata->tcp_snd_manual_analysis);
+            }
         }
     }
 }

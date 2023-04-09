@@ -698,7 +698,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
        * Make sure this packet doesn't have a link-layer type that
        * differs from the one for the file.
        */
-      if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+      if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
             *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
             return FALSE;
             }
@@ -729,7 +729,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
             itmp->start   = rec->ts;
             itmp->pkts    = 0;
             itmp->init    = TRUE;
-            itmp->encap   = wdh->encap;
+            itmp->encap   = wdh->file_encap;
             itmp->lastlen = 0;
             }
 
@@ -762,8 +762,6 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
 
       if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
             return FALSE;
-
-      wdh->bytes_dumped += thisSize;
 
       return TRUE;
 }
@@ -960,7 +958,13 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
         gchar **err_info _U_)
 {
+      /* bytes_dumped already accounts for the size of the header,
+       * but lanalyzer_dump_header() (via wtap_dump_file_write())
+       * will keep incrementing it.
+       */
+      gint64 saved_bytes_dumped = wdh->bytes_dumped;
       lanalyzer_dump_header(wdh,err);
+      wdh->bytes_dumped = saved_bytes_dumped;
       return *err ? FALSE : TRUE;
 }
 

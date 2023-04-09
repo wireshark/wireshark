@@ -47,7 +47,7 @@ will be described later).
 
 [#ChUseFig01]
 .The Main window
-image::wsug_graphics/ws-main.png[{screenshot-attrs}]
+image::images/ws-main.png[{screenshot-attrs}]
 
 Wireshark’s main window consists of parts that are commonly known from many
 other GUI programs.
@@ -129,7 +129,7 @@ or loaded any packets.
 
 [#ChUseWiresharkMenu]
 .The Menu
-image::wsug_graphics/ws-menu.png[{screenshot-attrs}]
+image::images/ws-menu.png[{screenshot-attrs}]
 
 The main menu contains the following items:
 
@@ -200,7 +200,7 @@ The Wireshark file menu contains the fields shown in <<ChUseTabFile>>.
 
 [#ChUseWiresharkFileMenu]
 .The “File” Menu
-image::wsug_graphics/ws-file-menu.png[{screenshot-attrs}]
+image::images/ws-file-menu.png[{screenshot-attrs}]
 
 [#ChUseTabFile]
 .File menu items
@@ -296,7 +296,7 @@ The Wireshark Edit menu contains the fields shown in <<ChUseTabEdit>>.
 
 [#ChUseWiresharkEditMenu]
 .The “Edit” Menu
-image::wsug_graphics/ws-edit-menu.png[{screenshot-attrs}]
+image::images/ws-edit-menu.png[{screenshot-attrs}]
 
 [#ChUseTabEdit]
 .Edit menu items
@@ -394,7 +394,7 @@ The Wireshark View menu contains the fields shown in <<ChUseTabView>>.
 
 [#ChUseWiresharkViewMenu]
 .The “View” Menu
-image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
+image::images/ws-view-menu.png[{screenshot-attrs}]
 
 [#ChUseTabView]
 .View menu items
@@ -483,7 +483,7 @@ The Wireshark Go menu contains the fields shown in <<ChUseTabGo>>.
 
 [#ChUseWiresharkGoMenu]
 .The “Go” Menu
-image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
+image::images/ws-go-menu.png[{screenshot-attrs}]
 
 [#ChUseTabGo]
 .Go menu items
@@ -510,7 +510,7 @@ The Wireshark Capture menu contains the fields shown in <<ChUseTabCap>>.
 
 [#ChUseWiresharkCaptureMenu]
 .The “Capture” Menu
-image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
+image::images/ws-capture-menu.png[{screenshot-attrs}]
 
 [#ChUseTabCap]
 .Capture menu items
@@ -552,7 +552,7 @@ The Wireshark Analyze menu contains the fields shown in <<ChUseAnalyze>>.
 
 [#ChUseWiresharkAnalyzeMenu]
 .The “Analyze” Menu
-image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
+image::images/ws-analyze-menu.png[{screenshot-attrs}]
 
 [#ChUseAnalyze]
 .Analyze menu items
@@ -628,7 +628,7 @@ The Wireshark Statistics menu contains the fields shown in <<ChUseStatistics>>.
 
 [#ChUseWiresharkStatisticsMenu]
 .The “Statistics” Menu
-image::wsug_graphics/ws-statistics-menu.png[{screenshot-attrs}]
+image::images/ws-statistics-menu.png[{screenshot-attrs}]
 
 Each menu item brings up a new window showing specific statistics.
 
@@ -678,7 +678,7 @@ The Wireshark Telephony menu contains the fields shown in <<ChUseTelephony>>.
 
 [#ChUseWiresharkTelephonyMenu]
 .The “Telephony” Menu
-image::wsug_graphics/ws-telephony-menu.png[{screenshot-attrs}]
+image::images/ws-telephony-menu.png[{screenshot-attrs}]
 
 Each menu item shows specific telephony related statistics.
 
@@ -715,7 +715,7 @@ The Wireless menu lets you analyze Bluetooth and IEEE 802.11 wireless LAN activi
 
 [#ChUseWiresharkWirelessMenu]
 .The “Wireless” Menu
-image::wsug_graphics/ws-wireless-menu.png[{screenshot-attrs}]
+image::images/ws-wireless-menu.png[{screenshot-attrs}]
 
 Each menu item shows specific Bluetooth and IEEE 802.11 statistics.
 
@@ -740,7 +740,7 @@ The Wireshark Tools menu contains the fields shown in <<ChUseTools>>.
 
 [#ChUseWiresharkToolsMenu]
 .The “Tools” Menu
-image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
+image::images/ws-tools-menu.png[{screenshot-attrs}]
 
 [#ChUseTools]
 .Tools menu items
@@ -767,7 +767,7 @@ The Wireshark Help menu contains the fields shown in <<ChUseHelp>>.
 
 [#ChUseWiresharkHelpMenu]
 .The “Help” Menu
-image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
+image::images/ws-help-menu.png[{screenshot-attrs}]
 
 [#ChUseHelp]
 .Help menu items
@@ -813,7 +813,7 @@ disabled because a capture is not in progress.
 [#ChUseWiresharkMainToolbar]
 
 .The “Main” toolbar
-image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
+image::images/ws-main-toolbar.png[{screenshot-attrs}]
 
 :toolbar-icon-attrs: height=24,width=24
 
@@ -822,32 +822,32 @@ image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
 [options="header",cols="1,2,2,4"]
 |===
 |Toolbar Icon|Toolbar Item|Menu Item|Description
-|image:wsug_graphics/toolbar/x-capture-start.png[{toolbar-icon-attrs}] |btn:[Start]|menu:Capture[Start]| Starts capturing packets with the same options as the last capture or the default options if none were set (<<ChCapCapturingSection>>).
-|image:wsug_graphics/toolbar/x-capture-stop.png[{toolbar-icon-attrs}]      |btn:[Stop]|menu:Capture[Stop]| Stops the currently running capture (<<ChCapCapturingSection>>).
-|image:wsug_graphics/toolbar/x-capture-restart.png[{toolbar-icon-attrs}]   |btn:[Restart]|menu:Capture[Restart]| Restarts the current capture session.
-|image:wsug_graphics/toolbar/x-capture-options.png[{toolbar-icon-attrs}]   |btn:[Options...]|menu:Capture[Options...]| Opens the “Capture Options” dialog box. See <<ChCapCapturingSection>> for details.
+|image:images/toolbar/x-capture-start.png[{toolbar-icon-attrs}] |btn:[Start]|menu:Capture[Start]| Starts capturing packets with the same options as the last capture or the default options if none were set (<<ChCapCapturingSection>>).
+|image:images/toolbar/x-capture-stop.png[{toolbar-icon-attrs}]      |btn:[Stop]|menu:Capture[Stop]| Stops the currently running capture (<<ChCapCapturingSection>>).
+|image:images/toolbar/x-capture-restart.png[{toolbar-icon-attrs}]   |btn:[Restart]|menu:Capture[Restart]| Restarts the current capture session.
+|image:images/toolbar/x-capture-options.png[{toolbar-icon-attrs}]   |btn:[Options...]|menu:Capture[Options...]| Opens the “Capture Options” dialog box. See <<ChCapCapturingSection>> for details.
 // --
-|image:wsug_graphics/toolbar/document-open.png[{toolbar-icon-attrs}]         |btn:[Open...]|menu:File[Open...]| Opens the file open dialog box, which allows you to load a capture file for viewing. It is discussed in more detail in <<ChIOOpen>>.
-|image:wsug_graphics/toolbar/x-capture-file-save.png[{toolbar-icon-attrs}]   |btn:[Save As...]|menu:File[Save As...]| Save the current capture file to whatever file you would like. See <<ChIOSaveAs>> for details. If you currently have a temporary capture file open the “Save” icon  will be shown instead.
-|image:wsug_graphics/toolbar/x-capture-file-close.png[{toolbar-icon-attrs}]  |btn:[Close]|menu:File[Close]|Closes the current capture. If you have not saved the capture, you will be asked to save it first.
-|image:wsug_graphics/toolbar/x-capture-file-reload.png[{toolbar-icon-attrs}] |btn:[Reload]|menu:View[Reload]| Reloads the current capture file.
+|image:images/toolbar/document-open.png[{toolbar-icon-attrs}]         |btn:[Open...]|menu:File[Open...]| Opens the file open dialog box, which allows you to load a capture file for viewing. It is discussed in more detail in <<ChIOOpen>>.
+|image:images/toolbar/x-capture-file-save.png[{toolbar-icon-attrs}]   |btn:[Save As...]|menu:File[Save As...]| Save the current capture file to whatever file you would like. See <<ChIOSaveAs>> for details. If you currently have a temporary capture file open the “Save” icon  will be shown instead.
+|image:images/toolbar/x-capture-file-close.png[{toolbar-icon-attrs}]  |btn:[Close]|menu:File[Close]|Closes the current capture. If you have not saved the capture, you will be asked to save it first.
+|image:images/toolbar/x-capture-file-reload.png[{toolbar-icon-attrs}] |btn:[Reload]|menu:View[Reload]| Reloads the current capture file.
 // --
-|image:wsug_graphics/toolbar/edit-find.png[{toolbar-icon-attrs}]   |btn:[Find Packet...]|menu:Edit[Find Packet...]|Find a packet based on different criteria. See <<ChWorkFindPacketSection>> for details.
-|image:wsug_graphics/toolbar/go-previous.png[{toolbar-icon-attrs}] |btn:[Go Back]|menu:Go[Go Back]|Jump back in the packet history. Hold down the kbd:[Alt] key (kbd:[Option] on macOS) to go back in the selection history.
-|image:wsug_graphics/toolbar/go-next.png[{toolbar-icon-attrs}]     |btn:[Go Forward]|menu:Go[Go Forward]|Jump forward in the packet history. Hold down the kbd:[Alt] key (kbd:[Option] on macOS) to go forward in the selection history.
-|image:wsug_graphics/toolbar/go-jump.png[{toolbar-icon-attrs}]     |btn:[Go to Packet...]|menu:Go[Go to Packet...]| Go to a specific packet.
-|image:wsug_graphics/toolbar/go-first.png[{toolbar-icon-attrs}]    |btn:[Go To First Packet]|menu:Go[First Packet]| Jump to the first packet of the capture file.
-|image:wsug_graphics/toolbar/go-last.png[{toolbar-icon-attrs}]     |btn:[Go To Last Packet]|menu:Go[Last Packet]| Jump to the last packet of the capture file.
-|image:wsug_graphics/toolbar/x-stay-last.png[{toolbar-icon-attrs}] |btn:[Auto Scroll in Live Capture]|menu:View[Auto Scroll in Live Capture]| Auto scroll packet list while doing a live capture (or not).
+|image:images/toolbar/edit-find.png[{toolbar-icon-attrs}]   |btn:[Find Packet...]|menu:Edit[Find Packet...]|Find a packet based on different criteria. See <<ChWorkFindPacketSection>> for details.
+|image:images/toolbar/go-previous.png[{toolbar-icon-attrs}] |btn:[Go Back]|menu:Go[Go Back]|Jump back in the packet history. Hold down the kbd:[Alt] key (kbd:[Option] on macOS) to go back in the selection history.
+|image:images/toolbar/go-next.png[{toolbar-icon-attrs}]     |btn:[Go Forward]|menu:Go[Go Forward]|Jump forward in the packet history. Hold down the kbd:[Alt] key (kbd:[Option] on macOS) to go forward in the selection history.
+|image:images/toolbar/go-jump.png[{toolbar-icon-attrs}]     |btn:[Go to Packet...]|menu:Go[Go to Packet...]| Go to a specific packet.
+|image:images/toolbar/go-first.png[{toolbar-icon-attrs}]    |btn:[Go To First Packet]|menu:Go[First Packet]| Jump to the first packet of the capture file.
+|image:images/toolbar/go-last.png[{toolbar-icon-attrs}]     |btn:[Go To Last Packet]|menu:Go[Last Packet]| Jump to the last packet of the capture file.
+|image:images/toolbar/x-stay-last.png[{toolbar-icon-attrs}] |btn:[Auto Scroll in Live Capture]|menu:View[Auto Scroll in Live Capture]| Auto scroll packet list while doing a live capture (or not).
 // --
-|image:wsug_graphics/toolbar/x-colorize-packets.png[{toolbar-icon-attrs}] |btn:[Colorize]|menu:View[Colorize]| Colorize the packet list (or not).
+|image:images/toolbar/x-colorize-packets.png[{toolbar-icon-attrs}] |btn:[Colorize]|menu:View[Colorize]| Colorize the packet list (or not).
 // --
-|image:wsug_graphics/toolbar/zoom-in.png[{toolbar-icon-attrs}]          |btn:[Zoom In]|menu:View[Zoom In]| Zoom into the packet data (increase the font size).
-|image:wsug_graphics/toolbar/zoom-out.png[{toolbar-icon-attrs}]         |btn:[Zoom Out]|menu:View[Zoom Out]| Zoom out of the packet data (decrease the font size).
-|image:wsug_graphics/toolbar/zoom-original.png[{toolbar-icon-attrs}]    |btn:[Normal Size]|menu:View[Normal Size]| Set zoom level back to 100%.
-|image:wsug_graphics/toolbar/x-resize-columns.png[{toolbar-icon-attrs}] |btn:[Resize Columns]|menu:View[Resize Columns]| Resize columns, so the content fits into them.
+|image:images/toolbar/zoom-in.png[{toolbar-icon-attrs}]          |btn:[Zoom In]|menu:View[Zoom In]| Zoom into the packet data (increase the font size).
+|image:images/toolbar/zoom-out.png[{toolbar-icon-attrs}]         |btn:[Zoom Out]|menu:View[Zoom Out]| Zoom out of the packet data (decrease the font size).
+|image:images/toolbar/zoom-original.png[{toolbar-icon-attrs}]    |btn:[Normal Size]|menu:View[Normal Size]| Set zoom level back to 100%.
+|image:images/toolbar/x-resize-columns.png[{toolbar-icon-attrs}] |btn:[Resize Columns]|menu:View[Resize Columns]| Resize columns, so the content fits into them.
 // --
-//|image:wsug_graphics/toolbar/stock_colorselector_24.png[{toolbar-icon-attrs}]|btn:[Coloring Rules...]|menu:View[Coloring Rules...]| This item brings up a dialog box that allows you to color packets in the packet list pane according to filter expressions you choose. It can be very useful for spotting certain types of packets. More detail on this subject is provided in <<ChCustColorizationSection>>.
+//|image:images/toolbar/stock_colorselector_24.png[{toolbar-icon-attrs}]|btn:[Coloring Rules...]|menu:View[Coloring Rules...]| This item brings up a dialog box that allows you to color packets in the packet list pane according to filter expressions you choose. It can be very useful for spotting certain types of packets. More detail on this subject is provided in <<ChCustColorizationSection>>.
 |===
 
 [#ChUseFilterToolbarSection]
@@ -860,7 +860,7 @@ information on display filters is available in <<ChWorkDisplayFilterSection>>.
 [#ChUseWiresharkFilterToolbar]
 
 .The “Filter” toolbar
-image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
+image::images/ws-filter-toolbar.png[{screenshot-attrs}]
 
 // Icons themselves are 32px high.
 :filter-icon-attrs: height=24
@@ -870,21 +870,21 @@ image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
 [options="header",cols="1,3,5"]
 |===
 |Toolbar Icon|Name|Description
-|image:wsug_graphics/toolbar/filter-toolbar-bookmark.png[{filter-icon-attrs}]|Bookmarks|Manage or select saved filters.
-|image:wsug_graphics/toolbar/filter-toolbar-input.png[{filter-icon-attrs}]|Filter Input|The area to enter or edit a display filter string, see <<ChWorkBuildDisplayFilterSection>>. A syntax check of your filter string is done while you are typing. The background will turn red if you enter an incomplete or invalid string, and will become green when you enter a valid string.
+|image:images/toolbar/filter-toolbar-bookmark.png[{filter-icon-attrs}]|Bookmarks|Manage or select saved filters.
+|image:images/toolbar/filter-toolbar-input.png[{filter-icon-attrs}]|Filter Input|The area to enter or edit a display filter string, see <<ChWorkBuildDisplayFilterSection>>. A syntax check of your filter string is done while you are typing. The background will turn red if you enter an incomplete or invalid string, and will become green when you enter a valid string.
 
 After you’ve changed something in this field, don’t forget to press the Apply
 button (or the Enter/Return key), to apply this filter string to the display.
 
 This field is also where the current applied filter is displayed.
 
-|image:wsug_graphics/toolbar/filter-toolbar-clear.png[{filter-icon-attrs}]|Clear|Reset the current display filter and clear the edit area.
-|image:wsug_graphics/toolbar/filter-toolbar-apply.png[{filter-icon-attrs}]|Apply|Apply the current value in the edit area as the new display filter.
+|image:images/toolbar/filter-toolbar-clear.png[{filter-icon-attrs}]|Clear|Reset the current display filter and clear the edit area.
+|image:images/toolbar/filter-toolbar-apply.png[{filter-icon-attrs}]|Apply|Apply the current value in the edit area as the new display filter.
 
 Applying a display filter on large capture files might take quite a long time.
 
-|image:wsug_graphics/toolbar/filter-toolbar-recent.png[{filter-icon-attrs}]|Recent|Select from a list of recently applied filters.
-|image:wsug_graphics/toolbar/filter-toolbar-add.png[{filter-icon-attrs}]|Add Button|Add a new filter button.
+|image:images/toolbar/filter-toolbar-recent.png[{filter-icon-attrs}]|Recent|Select from a list of recently applied filters.
+|image:images/toolbar/filter-toolbar-add.png[{filter-icon-attrs}]|Add Button|Add a new filter button.
 |btn:[Squirrels]|Filter Button|
 Filter buttons are handy shortcuts that apply a display filter as soon as you press them.
 You can create filter buttons by pressing the btn:[{plus}] button, right-clicking in the filter button area, or opening the Filter Button section of the <<ChCustPreferencesSection,Preferences Dialog>>.
@@ -903,7 +903,7 @@ The packet list pane displays all the packets in the current capture file.
 
 [#ChUseWiresharkListPane]
 .The “Packet List” pane
-image::wsug_graphics/ws-list-pane.png[{screenshot-attrs}]
+image::images/ws-list-pane.png[{screenshot-attrs}]
 
 Each line in the packet list corresponds to one packet in the capture file. If
 you select a line in this pane, more details will be displayed in the “Packet
@@ -954,31 +954,31 @@ them.
 [horizontal]
 .Related packet symbols
 
-image:wsug_graphics/related-first.png[{related-attrs}]::
+image:images/related-first.png[{related-attrs}]::
   First packet in a conversation.
 
-image:wsug_graphics/related-current.png[{related-attrs}]::
+image:images/related-current.png[{related-attrs}]::
   Part of the selected conversation.
 
-image:wsug_graphics/related-other.png[{related-attrs}]::
+image:images/related-other.png[{related-attrs}]::
   _Not_ part of the selected conversation.
 
-image:wsug_graphics/related-last.png[{related-attrs}]::
+image:images/related-last.png[{related-attrs}]::
   Last packet in a conversation.
 
-image:wsug_graphics/related-request.png[{related-attrs}]::
+image:images/related-request.png[{related-attrs}]::
   Request.
 
-image:wsug_graphics/related-response.png[{related-attrs}]::
+image:images/related-response.png[{related-attrs}]::
   Response.
 
-image:wsug_graphics/related-ack.png[{related-attrs}]::
+image:images/related-ack.png[{related-attrs}]::
   The selected packet acknowledges this packet.
 
-image:wsug_graphics/related-dup-ack.png[{related-attrs}]::
+image:images/related-dup-ack.png[{related-attrs}]::
   The selected packet is a duplicate acknowledgement of this packet.
 
-image:wsug_graphics/related-segment.png[{related-attrs}]::
+image:images/related-segment.png[{related-attrs}]::
   The selected packet is related to this packet in some other way, e.g., as part
   of reassembly.
 
@@ -1003,7 +1003,7 @@ pane) in a more detailed form.
 [#ChUseWiresharkDetailsPane]
 
 .The “Packet Details” pane
-image::wsug_graphics/ws-details-pane.png[{screenshot-attrs}]
+image::images/ws-details-pane.png[{screenshot-attrs}]
 
 This pane shows the protocols and protocol fields of the packet selected in the
 “Packet List” pane. The protocol summary lines (subtree labels) and fields of the
@@ -1035,7 +1035,7 @@ The packet bytes pane shows the data of the current packet (selected in the
 [#ChUseWiresharkBytesPane]
 
 .The “Packet Bytes” pane
-image::wsug_graphics/ws-bytes-pane.png[{screenshot-attrs}]
+image::images/ws-bytes-pane.png[{screenshot-attrs}]
 
 The “Packet Bytes” pane shows a canonical
 https://en.wikipedia.org/wiki/Hex_dump[hex dump] of the packet data. Each line
@@ -1061,7 +1061,7 @@ methods for deactivating the functionality:
 
 [#ChUseWiresharkBytesPaneTabs]
 .The “Packet Bytes” pane with tabs
-image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
+image::images/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
 Additional tabs typically contain data reassembled from multiple packets or
 decrypted data.
@@ -1076,7 +1076,7 @@ pane) as a diagram, similar to ones used in textbooks and IETF RFCs.
 [#ChUseWiresharkDiagramPane]
 
 .The “Packet Diagram” pane
-image::wsug_graphics/ws-diagram-pane.png[{screenshot-attrs}]
+image::images/ws-diagram-pane.png[{screenshot-attrs}]
 
 This pane shows the protocols and top-level protocol fields of the packet selected in the “Packet List” pane as a series of diagrams.
 
@@ -1096,13 +1096,13 @@ to change the size.
 
 [#ChUseWiresharkStatusbarEmpty]
 .The initial Statusbar
-image::wsug_graphics/ws-statusbar-empty.png[{statusbar-attrs}]
+image::images/ws-statusbar-empty.png[{statusbar-attrs}]
 
 This statusbar is shown while no capture file is loaded, e.g., when Wireshark is started.
 
 [#ChUseWiresharkStatusbarLoaded]
 .The Statusbar with a loaded capture file
-image::wsug_graphics/ws-statusbar-loaded.png[{statusbar-attrs}]
+image::images/ws-statusbar-loaded.png[{statusbar-attrs}]
 
 The colorized bullet...:: on the left shows the highest expert information level found in the currently loaded capture file.
 Hovering the mouse over this icon will show a description of the expert info level, and clicking the icon will bring up the Expert Information dialog box.
@@ -1133,13 +1133,13 @@ Clicking on this part of the statusbar will bring up a menu with all available c
 
 [#ChUseWiresharkStatusbarProfile]
 .The Statusbar with a configuration profile menu
-image::wsug_graphics/ws-statusbar-profile.png[{pdf-scaledwidth},height=192]
+image::images/ws-statusbar-profile.png[{pdf-scaledwidth},height=192]
 
 For a detailed description of configuration profiles, see <<ChCustConfigProfilesSection>>.
 
 [#ChUseWiresharkStatusbarSelected]
 .The Statusbar with a selected protocol field
-image::wsug_graphics/ws-statusbar-selected.png[{statusbar-attrs}]
+image::images/ws-statusbar-selected.png[{statusbar-attrs}]
 
 This is displayed if you have selected a protocol field in the “Packet Details” pane.
 
@@ -1153,7 +1153,7 @@ You can become more familiar with display filter fields by selecting different p
 
 //FIXME: Remove or choose a better example of a display filter message.
 .The Statusbar with a display filter message
-image::wsug_graphics/ws-statusbar-filter.png[{statusbar-attrs}]
+image::images/ws-statusbar-filter.png[{statusbar-attrs}]
 
 This is displayed if you are trying to use a display filter which may have unexpected results.
 

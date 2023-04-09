@@ -379,8 +379,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	*dfp = NULL;
 
 	if (text == NULL) {
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
-			"%s() called from %s() with null filter",
+		ws_debug("%s() called from %s() with null filter",
 			__func__, caller);
 		/* XXX This BUG happens often. Some callers are ignoring these errors. */
 		dfw_error_set_msg(errpp, "BUG: NULL text pointer passed to dfilter_compile");
@@ -388,13 +387,11 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	}
 	else if (*text == '\0') {
 		/* An empty filter is considered a valid input. */
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
-			"%s() called from %s() with empty filter",
+		ws_debug("%s() called from %s() with empty filter",
 			__func__, caller);
 	}
 	else {
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
-			"%s() called from %s(), compiling filter: %s",
+		ws_debug("%s() called from %s(), compiling filter: %s",
 			__func__, caller, text);
 	}
 
@@ -611,6 +608,43 @@ gboolean
 dfilter_has_interesting_fields(const dfilter_t *df)
 {
 	return (df->num_interesting_fields > 0);
+}
+
+gboolean
+dfilter_interested_in_field(const dfilter_t *df, int hfid)
+{
+	int i;
+
+	for (i = 0; i < df->num_interesting_fields; i++) {
+		if (df->interesting_fields[i] == hfid) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+gboolean
+dfilter_interested_in_proto(const dfilter_t *df, int proto_id)
+{
+	int i;
+
+	for (i = 0; i < df->num_interesting_fields; i++) {
+		int df_hfid = df->interesting_fields[i];
+		if (proto_registrar_is_protocol(df_hfid)) {
+			/* XXX: Should we go up to the parent of a pino?
+			 * We can tell if df_hfid is a PINO, but there's
+			 * no function to return the parent proto ID yet.
+			 */
+			if (df_hfid == proto_id) {
+				return TRUE;
+			}
+		} else {
+			if (proto_registrar_get_parent(df_hfid) == proto_id) {
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
 }
 
 GPtrArray *

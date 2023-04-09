@@ -1,0 +1,64 @@
+:doctype: book
+include::../attributes.adoc[]
+
+// Electronic book attributes
+:author: Richard Sharpe, Ed Warnicke, Ulf Lamping
+:description: Wireshark User’s Guide
+:keywords: Wireshark User Guide
+ifdef::ebook-format-epub3[]
+:front-cover-image: images/ws-user-guide-cover.png
+:toc:
+endif::[]
+
+= Wireshark User’s Guide: Version {wireshark-version}
+
+:source-highlighter: coderay
+
+include::wsug_preface.adoc[]
+
+include::../common_src/typographic_conventions.adoc[]
+
+// Chapters
+
+include::wsug_introduction.adoc[]
+
+include::wsug_build_install.adoc[]
+
+include::wsug_use.adoc[]
+
+include::wsug_capture.adoc[]
+
+include::wsug_io.adoc[]
+
+include::wsug_work.adoc[]
+
+include::wsug_advanced.adoc[]
+
+include::wsug_statistics.adoc[]
+
+include::wsug_telephony.adoc[]
+
+include::wsug_wireless.adoc[]
+
+include::wsug_customize.adoc[]
+
+include::wsug_mate.adoc[]
+
+// Needs to be reworked
+//include::wsug_troubleshoot.adoc[]
+
+// Appendices
+include::wsug_messages.adoc[]
+
+include::wsug_files.adoc[]
+
+include::wsug_protocols.adoc[]
+
+// Needs to be reworked
+//include::wsug_howitworks.adoc[]
+
+include::wsug_tools.adoc[]
+
+// License
+
+include::../common_src/gpl_appendix.adoc[]

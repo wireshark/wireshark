@@ -8,6 +8,8 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * https://download.beckhoff.com/download/document/io/ethercat-development-products/ethercat_esc_datasheet_sec1_technology_2i3.pdf
  */
 
 /* Include files */
@@ -3095,11 +3097,11 @@ void proto_register_ecat(void)
            {"EEPROM Data 3 (0x50e)", "ecat.reg.data3",
            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
          },
+
          { &hf_ecat_reg_mio_ctrlstat,
            {"Phy MIO Ctrl/Status (0x510)", "ecat.reg.mio.ctrlstat",
            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
          },
-
          /* TODO: check these masks (ecat_esc_reg_510) against spec.
           * In particular hf_ecat_reg_mio_ctrlstat_offsphy is non-contiguous and overlaps wracc1 */
          { &hf_ecat_reg_mio_ctrlstat_wracc1,

@@ -52,7 +52,7 @@
 #include "wsutil/pint.h"
 #include "wsutil/strtoi.h"
 #include "wsutil/str_util.h"
-#include <wsutil/wslog.h>
+#include <wsutil/unicode-utils.h>
 
 #ifdef HAVE_NGHTTP2
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
@@ -2273,15 +2273,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         /* Add header unescaped. */
         header_unescaped = g_uri_unescape_string(header_value, NULL);
         if (header_unescaped != NULL) {
-            if (g_utf8_validate(header_unescaped, -1, NULL)) {
-                ti = proto_tree_add_string(header_tree, hf_http2_header_unescaped, header_tvb, hoffset, header_value_length, header_unescaped);
-            } else {
-                gchar* header_unescaped_valid = g_utf8_make_valid(header_unescaped, -1);
-                if (header_unescaped_valid != NULL) {
-                    ti = proto_tree_add_string(header_tree, hf_http2_header_unescaped, header_tvb, hoffset, header_value_length, header_unescaped_valid);
-                    g_free(header_unescaped_valid);
-                }
-            }
+            char *header_unescaped_valid = ws_utf8_make_valid(pinfo->pool, header_unescaped, strlen(header_unescaped));
+            ti = proto_tree_add_string(header_tree, hf_http2_header_unescaped, header_tvb, hoffset, header_value_length, header_unescaped_valid);
             proto_item_set_generated(ti);
             g_free(header_unescaped);
         }

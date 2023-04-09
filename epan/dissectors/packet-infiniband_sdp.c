@@ -294,15 +294,15 @@ proto_register_ib_sdp(void)
         },
         {&hf_ib_sdp_flags_oobpres, {
             "OOB_PRES", "infiniband_sdp.bsdh.oobpres",
-            FT_UINT8, BASE_HEX, NULL, 0x1, "Out-Of-Band Data is present", HFILL}
+            FT_UINT8, BASE_HEX, NULL, 0x01, "Out-Of-Band Data is present", HFILL}
         },
         {&hf_ib_sdp_flags_oob_pend, {
             "OOB_PEND", "infiniband_sdp.bsdh.oobpend",
-            FT_UINT8, BASE_HEX, NULL, 0x2, "Out-Of-Band Data is pending", HFILL}
+            FT_UINT8, BASE_HEX, NULL, 0x02, "Out-Of-Band Data is pending", HFILL}
         },
         {&hf_ib_sdp_flags_reqpipe, {
             "REQ_PIPE", "infiniband_sdp.bsdh.reqpipe",
-            FT_UINT8, BASE_HEX, NULL, 0x4, "Request change to Pipelined Mode", HFILL}
+            FT_UINT8, BASE_HEX, NULL, 0x04, "Request change to Pipelined Mode", HFILL}
         },
         {&hf_ib_sdp_bufs, {
             "Buffers", "infiniband_sdp.bsdh.bufs",
@@ -323,7 +323,7 @@ proto_register_ib_sdp(void)
         /* SDP Hello Header */
         {&hf_ib_sdp_hh, {
             "Hello Header", "infiniband_sdp.hh",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_majv, {
             "Major Protocol Version Number", "infiniband_sdp.hh.majv",

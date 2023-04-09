@@ -119,7 +119,7 @@ bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
 
 void DecodeAsDelegate::decodeAddProtocol(const gchar *, const gchar *proto_name, gpointer value, gpointer user_data)
 {
-    QMap<QString, dissector_info_t*>* proto_list = (QMap<QString, dissector_info_t*>*)user_data;
+    QList<dissector_info_t*>* proto_list = (QList<dissector_info_t*>*)user_data;
 
     if (!proto_list)
         return;
@@ -128,7 +128,7 @@ void DecodeAsDelegate::decodeAddProtocol(const gchar *, const gchar *proto_name,
     dissector_info->proto_name = proto_name;
     dissector_info->dissector_handle = (dissector_handle_t) value;
 
-    proto_list->insert(proto_name, dissector_info);
+    proto_list->append(dissector_info);
 }
 
 QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptionViewItem &option,
@@ -250,7 +250,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
     case DecodeAsModel::colProtocol:
         {
         QComboBox *cb_editor = new QComboBox(parentWidget);
-        QMap<QString, dissector_info_t*> protocols;
+        QList<dissector_info_t*> protocols;
 
         cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
@@ -262,14 +262,17 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
             }
         }
 
+        // Sort by description in a human-readable way (case-insensitive, etc)
+        std::sort(protocols.begin(), protocols.end(), [](dissector_info_t* d1, dissector_info_t* d2) {
+            return d1->proto_name.localeAwareCompare(d2->proto_name) < 0;
+        });
+
         cb_editor->addItem(DECODE_AS_NONE);
         cb_editor->insertSeparator(cb_editor->count());
 
-        //QMap already sorts the keys (protocols) alphabetically
-        QMap<QString, dissector_info_t*>::iterator protocol;
-        for (protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
+        for (dissector_info_t* protocol : protocols)
         {
-            cb_editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
+            cb_editor->addItem(protocol->proto_name, VariantPointer<dissector_info_t>::asQVariant(protocol));
         }
 
         //Make sure the combo box is at least as wide as the column

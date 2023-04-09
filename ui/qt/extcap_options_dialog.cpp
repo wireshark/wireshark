@@ -475,15 +475,15 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
             continue;
         }
 
-        gchar * call_string = g_strdup(call.toStdString().c_str());
+        gchar * call_string = qstring_strdup(call);
         gchar * value_string = NULL;
         if (value.length() > 0)
-            value_string = g_strdup(value.toStdString().c_str());
+            value_string = qstring_strdup(value);
 
         g_hash_table_insert(ret_args, call_string, value_string);
 
         // For current value we need strdup even it is empty
-        value_string = g_strdup(prefValue.toStdString().c_str());
+        value_string = qstring_strdup(prefValue);
         // Update current value with new value
         // We use prefValue because for bool/boolflag it returns value
         // even it is false
@@ -624,9 +624,9 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool in
 
         if ((key.length() > 0) && (includeEmptyValues || isBoolflag || value.length() > 0) )
         {
-            gchar * val = g_strdup(value.toStdString().c_str());
+            gchar * val = qstring_strdup(value);
 
-            g_hash_table_insert(entries, g_strdup(key.toStdString().c_str()), val);
+            g_hash_table_insert(entries, qstring_strdup(key), val);
         }
     }
 

@@ -4194,37 +4194,37 @@ proto_register_glusterfs(void)
 		/* setattr.valid flags from libglusterfs/src/xlator.h */
 		{ &hf_glusterfs_setattr_set_mode,
 			{ "SET_ATTR_MODE", "glusterfs.setattr.set_mode",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x1,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_set_uid,
 			{ "SET_ATTR_UID", "glusterfs.setattr.set_uid",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x2,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_set_gid,
 			{ "SET_ATTR_GID", "glusterfs.setattr.set_gid",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x4,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_set_size,
 			{ "SET_ATTR_SIZE", "glusterfs.setattr.set_size",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x8,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_set_atime,
 			{ "SET_ATTR_ATIME", "glusterfs.setattr.set_atime",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x10,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_set_mtime,
 			{ "SET_ATTR_MTIME", "glusterfs.setattr.set_mtime",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x20,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_set_reserved,
 			{ "Reserved", "glusterfs.setattr.set_reserved",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), ~0x3f,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xffffffcf,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_xflags,

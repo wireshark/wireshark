@@ -1560,6 +1560,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>实时更新分组列表</translation>
     </message>
     <message>
+        <source>Interval between updates (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获进行时，保持分组列表滚动到底部。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1675,11 +1687,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>您的着色规则文件包含未知规则</translation>
+        <translation type="vanished">您的着色规则文件包含未知规则</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation>Wireshark 无法识别您的一个或多个着色规则。它们已被禁用。</translation>
+        <translation type="vanished">Wireshark 无法识别您的一个或多个着色规则。它们已被禁用。</translation>
     </message>
 </context>
 <context>
@@ -2297,6 +2309,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click OK to insert this filter</source>
         <translation>点击确定插入此过滤器</translation>
+    </message>
+</context>
+<context>
+    <name>DissectorSyntaxLineEdit</name>
+    <message>
+        <source>Dissector entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a dissector %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3281,6 +3304,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>典型文件</translation>
+    </message>
+</context>
+<context>
+    <name>FollowStreamAction</name>
+    <message>
+        <source>%1 Stream</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6551,6 +6581,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>使用系统设置</translation>
     </message>
     <message>
+        <source>Debounce Timer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How long to wait (in milliseconds) before processing user input&lt;br/&gt;If you type quickly, consider lowering the value for a &apos;snappier&apos; experience.&lt;br/&gt; If you type slowly, consider increasing the value to avoid performance issues.&lt;br/&gt;This is currently used to delay searches in View -&gt; Internals -&gt; Supported Protocols and Preferences -&gt; Advanced menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open Files In</source>
         <translation>打开文件夹中的文件</translation>
     </message>
@@ -7086,6 +7124,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13230,27 +13272,15 @@ a:hover {
         <translation>TCP 窗口尺寸</translation>
     </message>
     <message>
-        <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>TLS Stream</source>
-        <translation>TLS 流</translation>
+        <translation type="vanished">TLS 流</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTP 流</translation>
+        <translation type="vanished">HTTP 流</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Websocket Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13578,6 +13608,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show packet times as the seconds since the first captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>分组图(&amp;D)</translation>
     </message>
@@ -13791,11 +13825,11 @@ a:hover {
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP 流</translation>
+        <translation type="vanished">TCP 流</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP 流</translation>
+        <translation type="vanished">UDP 流</translation>
     </message>
     <message>
         <source>Request Sequences</source>

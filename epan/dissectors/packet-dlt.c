@@ -12,7 +12,7 @@
 
 /*
  * For further information about the "Diagnostic Log and Trace" (DLT) protocol see:
- * - GENIVI Alliance (https://www.genivi.org and https://github.com/GENIVI/)
+ * - GENIVI Alliance (https://covesa.global/ and https://github.com/GENIVI/)
  * - AUTOSAR (https://www.autosar.org) -> AUTOSAR_SWS_DiagnosticLogAndTrace.pdf
  */
 

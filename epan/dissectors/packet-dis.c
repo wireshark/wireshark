@@ -623,7 +623,7 @@ typedef enum
     DIS_TDL_TYPE_TCDL                         = 64,
     DIS_TDL_TYPE_LLAPI                        = 65,
     DIS_TDL_TYPE_WEAPONS_DL                   = 66,
-    DIS_TDL_TYPE_AIS                          = 67, 
+    DIS_TDL_TYPE_AIS                          = 67,
     DIS_TDL_TYPE_GC3                          = 99,
     DIS_TDL_TYPE_LINK16_STD                   = 100,
     DIS_TDL_TYPE_LINK16_EDR                   = 101,
@@ -6967,7 +6967,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     }
 
     if (altitude || (parameter_5 & 0x2000)) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=FL%d", altitude);
-   
+
     if (parameter_6)
     {
         if (tcas_acas_indicator == 0)
@@ -6981,7 +6981,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 col_append_str(pinfo->cinfo, COL_INFO, ", TCAS II");
             }
         }
-        else 
+        else
         {
             if (tcas_acas_type == 1)
             {
@@ -7270,7 +7270,7 @@ static int dissect_DIS_PARSER_RECEIVER_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
     col_append_fstr( pinfo->cinfo, COL_INFO, ", RadioID=%u", radioID);
     offset += 2;
 
-    disRadioReceiveState = tvb_get_guint8(tvb, offset);
+    disRadioReceiveState = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_dis_radio_receive_state, tvb, offset, 2, ENC_BIG_ENDIAN);
     col_append_fstr( pinfo->cinfo, COL_INFO, ", Receive State=%s", val_to_str_const(disRadioReceiveState, DIS_PDU_RadioReceiveState_Strings, "Unknown Receive State"));
     offset += 2;
@@ -8475,8 +8475,8 @@ static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
         return dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvb, pinfo, tree, offset);
     case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
         return dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvb, pinfo, tree, offset);
-    
-    /* IFF PDU needs the header information to be parsed, so it is handled separately. 
+
+    /* IFF PDU needs the header information to be parsed, so it is handled separately.
      *    case DIS_PDUTYPE_IFF:
      */
 
@@ -8605,7 +8605,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * or default to "Unknown".
       */
     pduString = val_to_str_ext_const(header.pduType, &DIS_PDU_Type_Strings_Ext, "Unknown");
-    
+
     /* set the basic info column (pdu type) */
     col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t ", header.pduType);
 
@@ -10071,7 +10071,7 @@ void proto_register_dis(void)
                 NULL, HFILL},
             },
             { &hf_dis_signal_link16_stn,
-              { "Source Track Number", "dis.signal.link16.stn", FT_UINT32, BASE_OCT, NULL, 0x7FFF0,
+              { "Source Track Number", "dis.signal.link16.stn", FT_UINT32, BASE_OCT, NULL, 0x0007FFF0,
                 NULL, HFILL },
             },
             { &hf_dis_signal_link16_sdusn,
@@ -10835,22 +10835,22 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_mode_code_element_1,
               { "Code Element 1",  "dis.iff.mode_code.element_1",
-                FT_UINT16, BASE_OCT, NULL, 0x7,
+                FT_UINT16, BASE_OCT, NULL, 0x0007,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_code_element_2,
               { "Code Element 2",  "dis.iff.mode_code.element_2",
-                FT_UINT16, BASE_OCT, NULL, 0x38,
+                FT_UINT16, BASE_OCT, NULL, 0x0038,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_code_element_3,
               { "Code Element 3",  "dis.iff.mode_code.element_3",
-                FT_UINT16, BASE_OCT, NULL, 0x1C0,
+                FT_UINT16, BASE_OCT, NULL, 0x01C0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_code_element_4,
               { "Code Element 4",  "dis.iff.mode_code.element_4",
-                FT_UINT16, BASE_OCT, NULL, 0xE00,
+                FT_UINT16, BASE_OCT, NULL, 0x0E00,
                 NULL, HFILL }
             },
             { &hf_dis_iff_rrb,
@@ -10860,12 +10860,12 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_rrb_rrb_code,
               { "RRB Code",  "dis.iff.rrb.rrb_code",
-                FT_UINT16, BASE_DEC, NULL, 0x1F,
+                FT_UINT16, BASE_DEC, NULL, 0x001F,
                 NULL, HFILL }
             },
             { &hf_dis_iff_rrb_power_reduction_indicator,
               { "Power Reduction Indicator",  "dis.iff.rrb.power_reduction_indicator",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x800,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0800,
                 NULL, HFILL }
             },
             { &hf_dis_iff_rrb_radar_enhancement_indicator,
@@ -10880,17 +10880,17 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type,
               { "Primary IC Type",  "dis.iff.mode_s_interrogator_identifier.primary_ic_type",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x1,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x0001,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code,
               { "Primary IC Code",  "dis.iff.mode_s_interrogator_identifier.primary_ic_code",
-                 FT_UINT16, BASE_DEC, NULL, 0xFE,
+                 FT_UINT16, BASE_DEC, NULL, 0x00FE,
                  NULL, HFILL }
             },
             { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type,
               { "Secondary IC Type",  "dis.iff.mode_s_interrogator_identifier.secondary_ic_type",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x100,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x0100,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code,
@@ -10900,17 +10900,17 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_mode_4,
               { "Mode 4 Code",  "dis.iff.mode_4",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0xFFF,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0x0FFF,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_c_altitude_indicator,
               { "Altitude Indicator",  "dis.iff.mode_c.altitude_indicator",
-               FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeCAltitudeIndicator_Strings), 0x1,
+               FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeCAltitudeIndicator_Strings), 0x0001,
                NULL, HFILL }
             },
             { &hf_dis_iff_mode_c_altitude,
               { "Mode C Altitude",  "dis.iff.mode_c.altitude",
-               FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeC_Strings), 0xFFE,
+               FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeC_Strings), 0x0FFE,
                NULL, HFILL }
             },
             { &hf_dis_iff_tcas_acas,
@@ -10920,22 +10920,22 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_tcas_acas_basic_advanced_indicator,
               { "Basic/Advanced",  "dis.iff.tcas_acas.basic_advanced_indicator",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASBasicAdvanced_Strings), 0x1,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASBasicAdvanced_Strings), 0x0001,
                 NULL, HFILL }
             },
             { &hf_dis_iff_tcas_acas_tcas_acas_indicator,
               { "TCAS/ACAS",  "dis.iff.tcas_acas.tcas_acas_indicator",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASIndicator_Strings), 0x2,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASIndicator_Strings), 0x0002,
                 NULL, HFILL }
             },
             { &hf_dis_iff_tcas_acas_software_version,
               { "Software Version",  "dis.iff.tcas_acas.software_version",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASSoftwareVersion_Strings), 0x1C,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASSoftwareVersion_Strings), 0x001C,
                 NULL, HFILL }
             },
             { &hf_dis_iff_tcas_acas_tcas_acas_type,
               { "TCAS/ACAS Type",  "dis.iff.tcas_acas.tcas_acas_type",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASType_Strings), 0xE00,
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASType_Strings), 0x0E00,
                 NULL, HFILL }
             },
             { &hf_dis_iff_tcas_acas_tcas_type,

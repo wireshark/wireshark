@@ -2459,6 +2459,9 @@ proto_reg_handoff_vrt(void)
 
     vrt_handle = create_dissector_handle(dissect_vrt, proto_vrt);
     dissector_add_uint_with_preference("udp.port", VITA_49_PORT, vrt_handle);
+
+    dissector_add_string("rtp_dyn_payload_type","VITA 49", vrt_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", vrt_handle);
 }
 
 /*

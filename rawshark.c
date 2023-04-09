@@ -42,7 +42,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
@@ -51,7 +51,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
-#include <ui/clopts_common.h>
+#include <wsutil/clopts_common.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -179,19 +179,30 @@ print_usage(FILE *output)
 #ifndef _WIN32
     fprintf(output, "  -m                       virtual memory limit, in bytes\n");
 #endif
-    fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
+    fprintf(output, "  -n                       disable all name resolutions (def: \"mNd\" enabled, or\n");
+    fprintf(output, "                           as set in preferences)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
     fprintf(output, "  -p                       use the system's packet header format\n");
     fprintf(output, "                           (which may have 64-bit timestamps)\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -s                       skip PCAP header on input\n");
+    fprintf(output, "  --enable-protocol <proto_name>\n");
+    fprintf(output, "                           enable dissection of proto_name\n");
+    fprintf(output, "  --disable-protocol <proto_name>\n");
+    fprintf(output, "                           disable dissection of proto_name\n");
+    fprintf(output, "  --enable-heuristic <short_name>\n");
+    fprintf(output, "                           enable dissection of heuristic protocol\n");
+    fprintf(output, "  --disable-heuristic <short_name>\n");
+    fprintf(output, "                           disable dissection of heuristic protocol\n");
 
     fprintf(output, "\n");
     fprintf(output, "Output:\n");
     fprintf(output, "  -l                       flush output after each packet\n");
     fprintf(output, "  -S                       format string for fields\n");
     fprintf(output, "                           (%%D - name, %%S - stringval, %%N numval)\n");
-    fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+    fprintf(output, "  -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]\n");
+    fprintf(output, "                           output format of time stamps (def: r: rel. to first)\n");
+    fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "\n");
 
     ws_log_print_usage(output);
@@ -199,9 +210,10 @@ print_usage(FILE *output)
 
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
-    fprintf(output, "  -h                       display this help and exit\n");
+    fprintf(output, "  -h, --help               display this help and exit\n");
+    fprintf(output, "  -v, --version            display version info and exit\n");
     fprintf(output, "  -o <name>:<value> ...    override preference setting\n");
-    fprintf(output, "  -v                       display version info and exit\n");
+    fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
 }
 
 /**
@@ -407,7 +419,6 @@ main(int argc, char *argv[])
     gchar               *pipe_name = NULL;
     gchar               *rfilters[64];
     e_prefs             *prefs_p;
-    char                 badopt;
     GPtrArray           *disp_fields = g_ptr_array_new();
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
@@ -415,10 +426,11 @@ main(int argc, char *argv[])
     static const struct ws_option long_options[] = {
       {"help", ws_no_argument, NULL, 'h'},
       {"version", ws_no_argument, NULL, 'v'},
+      LONGOPT_DISSECT_COMMON
       {0, 0, 0, 0 }
     };
 
-#define OPTSTRING_INIT "d:F:hlm:nN:o:pr:R:sS:t:v"
+#define OPTSTRING_INIT OPTSTRING_DISSECT_COMMON "F:hlm:o:pr:R:sS:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
     static const struct report_message_routines rawshark_report_routines = {
@@ -540,6 +552,9 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':        /* Payload type */
+                /* XXX: This option should probably be changed so it doesn't
+                 * conflict with the common dissection option for Decode As.
+                 */
                 if (!set_link_type(ws_optarg)) {
                     cmdarg_err("Invalid link type or protocol \"%s\"", ws_optarg);
                     ret = WS_EXIT_INVALID_OPTION;
@@ -581,18 +596,6 @@ main(int argc, char *argv[])
                 }
                 break;
 #endif
-            case 'n':        /* No name resolution */
-                disable_name_resolution();
-                break;
-            case 'N':        /* Select what types of addresses/port #s to resolve */
-                badopt = string_to_name_resolve(ws_optarg, &gbl_resolv_flags);
-                if (badopt != '\0') {
-                    cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'd', m', 'n', 'N', and 't'",
-                               badopt);
-                    ret = WS_EXIT_INVALID_OPTION;
-                    goto clean_exit;
-                }
-                break;
             case 'o':        /* Override preference from command line */
             {
                 char *errmsg = NULL;
@@ -650,49 +653,29 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 break;
-            case 't':        /* Time stamp type */
-                if (strcmp(ws_optarg, "r") == 0)
-                    timestamp_set_type(TS_RELATIVE);
-                else if (strcmp(ws_optarg, "a") == 0)
-                    timestamp_set_type(TS_ABSOLUTE);
-                else if (strcmp(ws_optarg, "ad") == 0)
-                    timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
-                else if (strcmp(ws_optarg, "adoy") == 0)
-                    timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
-                else if (strcmp(ws_optarg, "d") == 0)
-                    timestamp_set_type(TS_DELTA);
-                else if (strcmp(ws_optarg, "dd") == 0)
-                    timestamp_set_type(TS_DELTA_DIS);
-                else if (strcmp(ws_optarg, "e") == 0)
-                    timestamp_set_type(TS_EPOCH);
-                else if (strcmp(ws_optarg, "u") == 0)
-                    timestamp_set_type(TS_UTC);
-                else if (strcmp(ws_optarg, "ud") == 0)
-                    timestamp_set_type(TS_UTC_WITH_YMD);
-                else if (strcmp(ws_optarg, "udoy") == 0)
-                    timestamp_set_type(TS_UTC_WITH_YDOY);
-                else {
-                    cmdarg_err("Invalid time stamp type \"%s\"",
-                               ws_optarg);
-                    cmdarg_err_cont(
-"It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
-                    cmdarg_err_cont(
-"\"adoy\" for absolute with YYYY/DOY date, \"d\" for delta,");
-                    cmdarg_err_cont(
-"\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative,");
-                    cmdarg_err_cont(
-"\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
-                    cmdarg_err_cont(
-"or \"udoy\" for absolute UTC with YYYY/DOY date.");
-                    ret = WS_EXIT_INVALID_OPTION;
-                    goto clean_exit;
-                }
-                break;
             case 'v':        /* Show version and exit */
             {
                 show_version();
                 goto clean_exit;
             }
+            /* Common dissection options - 'd' for Decode As also makes
+             * sense, but rawshark uses it for the payload link layer/
+             * dissector selection.
+             */
+            case 'K':        /* Kerberos keytab file */
+            case 'n':        /* No name resolution */
+            case 'N':        /* Select what types of addresses/port #s to resolve */
+            case 't':        /* Time stamp type */
+            case 'u':        /* Seconds type */
+            case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
+            case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
+            case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
+            case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
+                if (!dissect_opts_handle_opt(opt, ws_optarg)) {
+                    ret = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
+                break;
             default:
             case '?':        /* Bad flag - print usage message */
                 print_usage(stderr);
@@ -749,11 +732,17 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
+    timestamp_set_type(global_dissect_options.time_format);
+    timestamp_set_precision(global_dissect_options.time_precision);
+
     /*
      * Enabled and disabled protocols and heuristic dissectors as per
      * command-line options.
      */
-    setup_enabled_and_disabled_protocols();
+    if (!setup_enabled_and_disabled_protocols()) {
+        ret = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
 
     /* Build the column format array */
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);

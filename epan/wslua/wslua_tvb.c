@@ -338,6 +338,7 @@ WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("TvbRange"));
     A <<lua_class_TvbRange,`TvbRange`>> represents a usable range of a <<lua_class_Tvb,`Tvb`>> and is used to extract data from the <<lua_class_Tvb,`Tvb`>> that generated it.
 
     <<lua_class_TvbRange,`TvbRange`>>s are created by calling a <<lua_class_Tvb,`Tvb`>> (e.g. 'tvb(offset,length)').
+    A length of -1, which is the default, means to use the bytes up to the end of the <<lua_class_Tvb,`Tvb`>>.
     If the <<lua_class_TvbRange,`TvbRange`>> span is outside the <<lua_class_Tvb,`Tvb`>>'s range the creation will cause a runtime error.
     */
 
@@ -374,6 +375,9 @@ gboolean push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
             luaL_error(L,"out of bounds");
             return FALSE;
         }
+    } else if (len < -1) {
+        luaL_error(L, "negative length in tvb range");
+        return FALSE;
     } else if ( (guint)(len + offset) > tvb_captured_length(ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
         return FALSE;

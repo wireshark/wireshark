@@ -1,5 +1,5 @@
 /* packet-wccp.c
- * Routines for Web Cache Communication Protocol dissection
+ * Routines for Web Cache C* Protocol dissection
  * Jerry Talkington <jtalkington@users.sourceforge.net>
  *
  * Wireshark - Network traffic analyzer
@@ -270,19 +270,22 @@ static expert_field ei_wccp_a_zero_not_c = EI_INIT;
 /*
  * At
  *
- *      https://tools.ietf.org/html/draft-forster-wrec-wccp-v1-00
+ *      https://datatracker.ietf.org/doc/html/draft-forster-wrec-wccp-v1-00
  *
- * is a copy of the now-expired Internet-Draft for WCCP 1.0.
+ * is the now-expired Internet-Draft for WCCP 1.0 (Web Cache Coordination
+ * Protocol V1.0).
  *
  * At
  *
- *      https://tools.ietf.org/html/draft-wilson-wrec-wccp-v2-01
+ *      https://datatracker.ietf.org/doc/html/draft-wilson-wrec-wccp-v2-01
  *
- * is an Internet-Draft for WCCP 2.0.
+ * is the now-expired Internet-Draft for WCCP 2.0 (Web Cache Communication
+ * Protocol V2.0).
  *
- *      https://tools.ietf.org/html/draft-param-wccp-v2rev1-01
+ *      https://datatracker.ietf.org/doc/html/draft-param-wccp-v2rev1-01
  *
- * is the current draft for WCCP 2.01.
+ * is the now-expired Internet-Draft for WCCP 2.01 (Web Cache Communication
+ * Protocol V2, Revision 1).
  */
 
 /* This is NOT IANA assigned */

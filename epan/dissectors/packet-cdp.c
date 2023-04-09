@@ -156,7 +156,7 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, guint16 length,
 static void
 dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
-add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, gint start,
   gint len, int hf);
 
 #define TYPE_DEVICE_ID          0x0001
@@ -452,7 +452,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                            length, ett_cdp_tlv, NULL, "Software Version");
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-                add_multi_line_string_to_tree(tlv_tree, tvb, offset + 4,
+                add_multi_line_string_to_tree(pinfo->pool, tlv_tree, tvb, offset + 4,
                                               length - 4, hf_cdp_software_version);
             }
             offset += length;
@@ -1279,7 +1279,7 @@ dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
 }
 
 static void
-add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, gint start,
   gint len, int hf)
 {
     gint next;
@@ -1289,7 +1289,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
     while (len > 0) {
         line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
         data_len = next - start;
-        proto_tree_add_string(tree, hf, tvb, start, data_len, tvb_format_stringzpad(wmem_packet_scope(), tvb, start, line_len));
+        proto_tree_add_string(tree, hf, tvb, start, data_len, tvb_format_stringzpad(scope, tvb, start, line_len));
         start += data_len;
         len   -= data_len;
     }

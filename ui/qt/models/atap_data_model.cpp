@@ -522,7 +522,9 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         return ipAddress;
     }
 #endif
-    else if (role == ATapDataModel::DATA_ADDRESS_TYPE) {
+    else if (role == ATapDataModel::PROTO_ID) {
+        return protoId();
+    } else if (role == ATapDataModel::DATA_ADDRESS_TYPE) {
         if (idx.column() == EndpointDataModel::ENDP_COLUMN_ADDR)
             return (int)item->myaddress.type;
         return (int) AT_NONE;
@@ -738,12 +740,21 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
 
             if (_absoluteTime) {
                 nstime_t *abs_time = &conv_item->start_abs_time;
-                QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
-                /* XXX: Should the display include the date as well? More
-                 * clutter, but captures can span midnight. It's probably
-                 * fine so long as the capture isn't more than 24 hours.
+                /* XXX: QDateTime only supports millisecond resolution,
+                 * and we have microseconds or nanoseconds.
+                 * Should we use something else, particularly for exporting
+                 * raw data? GDateTime handles microseconds.
                  */
-                return role == Qt::DisplayRole ? abs_dt.time().toString(Qt::ISODateWithMs) : QVariant(abs_dt);
+                QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
+                if (role == Qt::DisplayRole) {
+                    if (_maxRelStopTime >= 24*60*60) {
+                        return abs_dt.toString(Qt::ISODateWithMs);
+                    } else {
+                        return abs_dt.time().toString(Qt::ISODateWithMs);
+                    }
+                } else {
+                    return QVariant(abs_dt);
+                }
             } else {
                 return role == Qt::DisplayRole ?
                     QString::number(nstime_to_sec(&conv_item->start_time), 'f', width) :
@@ -756,9 +767,9 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return role == Qt::DisplayRole ? QString::number(duration, 'f', width) : (QVariant)duration;
         }
         case CONV_COLUMN_BPS_AB:
-            return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ab) : QVariant((qlonglong)bps_ab)): QVariant();
+            return bpsCalculated ? (role == Qt::DisplayRole ? gchar_free_to_qstring(format_size((int64_t)bps_ab, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI)) : QVariant((qlonglong)bps_ab)): QVariant();
         case CONV_COLUMN_BPS_BA:
-            return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ba) : QVariant((qlonglong)bps_ba)): QVariant();
+            return bpsCalculated ? (role == Qt::DisplayRole ? gchar_free_to_qstring(format_size((int64_t)bps_ba, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI)) : QVariant((qlonglong)bps_ba)): QVariant();
         }
     } else if (role == Qt::ToolTipRole) {
         if (idx.column() == CONV_COLUMN_START || idx.column() == CONV_COLUMN_DURATION)
@@ -781,6 +792,8 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         }
     } else if (role == ATapDataModel::ENDPOINT_DATATYPE) {
         return (int)(conv_item->ctype);
+    } else if (role == ATapDataModel::PROTO_ID) {
+        return protoId();
     } else if (role == ATapDataModel::CONVERSATION_ID) {
         return (int)(conv_item->conv_id);
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.3.0 (2022-12)
+-- 3GPP TS 36.413 V17.4.0 (2023-03)
 -- B.2	ASN.1 definition
 -- **************************************************************
 --
@@ -286,7 +286,7 @@ FailureEventReport::= CHOICE {
 }
 
 TooEarlyInterRATHOReportReportFromEUTRAN ::= SEQUENCE {
-	uERLFReportContainer	OCTET STRING, -- as defined in TS 36.331 [16] --
+	uERLFReportContainer	OCTET STRING,
 	mobilityInformation		MobilityInformation		OPTIONAL,
 	...
 }

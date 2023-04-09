@@ -77,7 +77,7 @@ to examine them.
 
 [#ChIntroFig1]
 .Wireshark captures packets and lets you examine their contents.
-image::wsug_graphics/ws-main.png[{screenshot-attrs}]
+image::images/ws-main.png[{screenshot-attrs}]
 
 ==== Live capture from many different network media
 

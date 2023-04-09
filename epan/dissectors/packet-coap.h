@@ -366,6 +366,33 @@ coap_common_dissect_t name = {							\
 	    FT_STRING, BASE_NONE, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
+	{ & name .hf.opt_echo,							\
+	  { "Echo",  prefix ".opt.opt_echo",					\
+	    FT_BYTES, BASE_NONE, NULL, 0x0,					\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_no_response,						\
+	  { "No-Response",  prefix ".opt.opt_no_response",			\
+	    FT_UINT8, BASE_DEC, NULL, 0x0,					\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_request_tag,						\
+	  { "Request-Tag",  prefix ".opt.opt_request_tag",			\
+	    FT_BYTES, BASE_NONE, NULL, 0x0,					\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_ocf_version,						\
+	  { "OCF-Content-Format-Version",					\
+	    prefix ".opt.opt_ocf_version",					\
+	    FT_UINT8, BASE_DEC, NULL, 0x0,					\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_ocf_accept_version,					\
+	  { "OCF-Accept-Content-Format-Version",				\
+	    prefix ".opt.opt_ocf_accept_version",				\
+	    FT_UINT8, BASE_DEC, NULL, 0x0,					\
+	    NULL, HFILL }							\
+	},									\
 	{ & name .hf.opt_unknown,						\
 	  { "Unknown",  prefix ".opt.unknown",					\
 	    FT_BYTES, BASE_NONE, NULL, 0x0,					\

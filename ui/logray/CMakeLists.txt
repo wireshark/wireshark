@@ -26,6 +26,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/detachable_tabwidget.h
 	../qt/widgets/display_filter_combo.h
 	../qt/widgets/display_filter_edit.h
+	../qt/widgets/dissector_syntax_line_edit.h
 	../qt/widgets/dissector_tables_view.h
 	../qt/widgets/drag_drop_toolbar.h
 	../qt/widgets/drag_label.h
@@ -168,6 +169,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/filter_dialog.h
 	../qt/filter_dialog.h
 	../qt/filter_expression_frame.h
+	../qt/follow_stream_action.h
 	../qt/font_color_preferences_frame.h
 	../qt/funnel_statistics.h
 	../qt/funnel_string_dialog.h
@@ -253,6 +255,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/detachable_tabwidget.cpp
 	../qt/widgets/display_filter_combo.cpp
 	../qt/widgets/display_filter_edit.cpp
+	../qt/widgets/dissector_syntax_line_edit.cpp
 	../qt/widgets/dissector_tables_view.cpp
 	../qt/widgets/drag_drop_toolbar.cpp
 	../qt/widgets/drag_label.cpp
@@ -387,6 +390,7 @@ set(WIRESHARK_QT_SRC
 	../qt/filter_action.cpp
 	../qt/filter_dialog.cpp
 	../qt/filter_expression_frame.cpp
+	../qt/follow_stream_action.cpp
 	../qt/font_color_preferences_frame.cpp
 	../qt/funnel_string_dialog.cpp
 	../qt/funnel_text_dialog.cpp

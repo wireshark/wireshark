@@ -2521,7 +2521,7 @@ integers, or unsigned 64-bit integers. Unlike conversation_new, element
 lists are matched strictly; wildcards aren't (yet) supported.
 
 The conversation_new_full prototype:
-    conversation_t *conversation_new(const guint32 setup_frame,
+    conversation_t *conversation_new_full(const guint32 setup_frame,
         conversation_element_t *elements);
 
 Where:
@@ -2612,7 +2612,7 @@ Where:
 
 The frame number and the addresses necessary for find_conversation() are
 taken from the addresses and ports in the pinfo structure,
-pinfo->conv_endpoint if pinfo->use_endpoint is set, or
+pinfo->conv_addr_port_endpoints if pinfo->use_conv_addr_port_endpoints is set, or
 pinfo->conv_elements if it is set.
 
 2.2.1.7 The find_or_create_conversation function.
@@ -3459,7 +3459,7 @@ The arguments to udp_dissect_pdus are:
 
 2.9 PINOs (Protocols in name only)
 
-For the typical dissector there is a 1-1 relationship between it and it's
+For the typical dissector there is a 1-1 relationship between it and its
 protocol. However, there are times when a protocol needs multiple "names"
 because it has multiple dissection functions going into the same dissector
 table. The multiple names removes confusion when picking dissection through

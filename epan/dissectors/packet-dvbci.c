@@ -44,7 +44,8 @@ void proto_reg_handoff_dvbci(void);
 #define AES_BLOCK_LEN 16
 #define AES_KEY_LEN 16
 
-#define EXPORTED_SAC_MSG_PROTO "CI+ SAC message"
+#define EXPORTED_SAC_MSG_PROTO "ciplus_sac_msg"
+#define EXPORTED_SAC_MSG_DESCRIPTION "CI+ SAC message"
 
 #define IS_DATA_TRANSFER(e) (e==DVBCI_EVT_DATA_CAM_TO_HOST || e==DVBCI_EVT_DATA_HOST_TO_CAM)
 
@@ -3491,7 +3492,7 @@ dissect_dvbci_exported_sac_msg(
     if (!IS_DATA_TRANSFER(evt))
         return 0;
 
-    col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, NULL, EXPORTED_SAC_MSG_PROTO);
+    col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, NULL, EXPORTED_SAC_MSG_DESCRIPTION);
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* we only export cc_sac_data_req and _cnf, therefore, the tag can be
@@ -6457,7 +6458,8 @@ proto_register_dvbci(void)
 
 
     /* the dissector for decrypted CI+ SAC messages which we can export */
-    register_dissector(EXPORTED_SAC_MSG_PROTO,
+    register_dissector_with_description(EXPORTED_SAC_MSG_PROTO,
+        EXPORTED_SAC_MSG_DESCRIPTION,
         dissect_dvbci_exported_sac_msg, proto_dvbci);
 
     exported_pdu_tap = register_export_pdu_tap("DVB-CI");

@@ -74,6 +74,8 @@ static int st_smpp_res                                = -1;
 static int st_smpp_res_status                         = -1;
 
 static int hf_smpp_command_id                         = -1;
+static int hf_smpp_command_request                    = -1;
+static int hf_smpp_command_response                   = -1;
 static int hf_smpp_command_length                     = -1;
 static int hf_smpp_command_status                     = -1;
 static int hf_smpp_sequence_number                    = -1;
@@ -2497,18 +2499,25 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
      * Create display subtree for the PDU
      */
     proto_tree_add_uint(smpp_tree, hf_smpp_command_length, tvb, 0, 4, command_length);
+    if (command_id & SMPP_COMMAND_ID_RESPONSE_MASK) {
+        ti = proto_tree_add_boolean(smpp_tree, hf_smpp_command_response, tvb, 4, 4, TRUE);
+    }
+    else {
+        ti = proto_tree_add_boolean(smpp_tree, hf_smpp_command_request, tvb, 4, 4, TRUE);
+    }
+    proto_item_set_generated(ti);
     proto_tree_add_uint(smpp_tree, hf_smpp_command_id, tvb, 4, 4, command_id);
-    proto_item_append_text(ti, ", Command: %s", command_str);
+    proto_item_append_text(smpp_tree, ", Command: %s", command_str);
 
     /*
      * Status is only meaningful with responses
      */
     if (command_id & SMPP_COMMAND_ID_RESPONSE_MASK) {
         proto_tree_add_uint(smpp_tree, hf_smpp_command_status, tvb, 8, 4, command_status);
-        proto_item_append_text (ti, ", Status: \"%s\"", command_status_str);
+        proto_item_append_text (smpp_tree, ", Status: \"%s\"", command_status_str);
     }
     proto_tree_add_uint(smpp_tree, hf_smpp_sequence_number, tvb, 12, 4, sequence_number);
-    proto_item_append_text(ti, ", Seq: %u, Len: %u", sequence_number, command_length);
+    proto_item_append_text(smpp_tree, ", Seq: %u, Len: %u", sequence_number, command_length);
 
     if (command_length <= tvb_reported_length(tvb))
     {
@@ -2763,6 +2772,20 @@ proto_register_smpp(void)
             {   "Operation", "smpp.command_id",
                 FT_UINT32, BASE_HEX, VALS(vals_command_id), 0x00,
                 "Defines the SMPP PDU.",
+                HFILL
+            }
+        },
+        {   &hf_smpp_command_request,
+            {   "Request", "smpp.request",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+                "TRUE if this is a SMPP request.",
+                HFILL
+            }
+        },
+        {   &hf_smpp_command_response,
+            {   "Response", "smpp.response",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+                "TRUE if this is a SMPP response.",
                 HFILL
             }
         },

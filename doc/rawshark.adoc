@@ -18,16 +18,14 @@ rawshark - Dump and analyze raw pcap data
 [ *-h* ]
 [ *-l* ]
 [ *-m* <bytes> ]
-[ *-n* ]
-[ *-N* <name resolving flags> ]
 [ *-o* <preference setting> ] ...
 [ *-p* ]
 [ *-r* <pipe>|- ]
 [ *-R* <read (display) filter> ]
 [ *-s* ]
 [ *-S* <field format> ]
-[ *-t* a|ad|adoy|d|dd|e|r|u|ud|udoy ]
 [ *-v* ]
+[ *options* ]
 
 == DESCRIPTION
 
@@ -167,38 +165,6 @@ Limit rawshark's memory usage to the specified number of bytes. POSIX
 (non-Windows) only.
 --
 
--n::
-+
---
-Disable network object name resolution (such as hostname, TCP and UDP port
-names), the *-N* flag might override this one.
---
-
--N  <name resolving flags>::
-+
---
-Turn on name resolving only for particular types of addresses and port
-numbers, with name resolving for other types of addresses and port
-numbers turned off. This flag overrides *-n* if both *-N* and *-n* are
-present. If both *-N* and *-n* flags are not present, all name resolutions are
-turned on.
-
-The argument is a string that may contain the letters:
-
-*m* to enable MAC address resolution
-
-*n* to enable network address resolution
-
-*N* to enable using external resolvers (e.g., DNS) for network address
-resolution
-
-*t* to enable transport-layer port number resolution
-
-*d* to enable resolution from captured DNS packets
-
-*v* to enable VLAN IDs to names resolution
---
-
 -o  <preference>:<value>::
 +
 --
@@ -260,52 +226,13 @@ For something similar to Wireshark's standard display ("Type: A (1)") you
 could use *%D: %S (%N)*.
 --
 
--t  a|ad|adoy|d|dd|e|r|u|ud|udoy::
-+
---
-Set the format of the packet timestamp printed in summary lines.
-The format can be one of:
-
-*a* absolute: The absolute time, as local time in your time zone,
-is the actual time the packet was captured, with no date displayed
-
-*ad* absolute with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as local time in your time zone, is the actual time and date
-the packet was captured
-
-*adoy* absolute with date using day of year: The absolute date,
-displayed as YYYY/DOY, and time, as local time in your time zone,
-is the actual time and date the packet was captured
-
-*d* delta: The delta time is the time since the previous packet was
-captured
-
-*dd* delta_displayed: The delta_displayed time is the time since the
-previous displayed packet was captured
-
-*e* epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
-
-*r* relative: The relative time is the time elapsed between the first packet
-and the current packet
-
-*u* UTC: The absolute time, as UTC, is the actual time the packet was
-captured, with no date displayed
-
-*ud* UTC with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as UTC, is the actual time and date the packet was captured
-
-*udoy* UTC with date using day of year: The absolute date, displayed
-as YYYY/DOY, and time, as UTC, is the actual time and date the packet
-was captured
-
-The default format is relative.
---
-
 -v::
 +
 --
 Print the version and exit.
 --
+
+include::dissection-options.adoc[tags=!tshark;!decode_as]
 
 include::diagnostic-options.adoc[]
 

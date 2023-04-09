@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.3.0 (2022-12)
+-- 3GPP TS 37.483 V17.4.0 (2023-03)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -1635,7 +1635,7 @@ HFN		::=		INTEGER	(0..4294967295)
 HW-CapacityIndicator ::= SEQUENCE {
 	offeredThroughput				INTEGER (1..16777216, ...),
 	availableThroughput				INTEGER (0..100, ...),
-	iE-Extensions		ProtocolExtensionContainer { { HW-CapacityIndicator-ExtIEs } },
+	iE-Extensions		ProtocolExtensionContainer { { HW-CapacityIndicator-ExtIEs } } OPTIONAL,
 	...
 }
 
@@ -2194,7 +2194,6 @@ MCForwardingResourceRequest ::= SEQUENCE {
 	mcForwardingResourceID				MCForwardingResourceID,
 	mbsAreaSession-ID					MBSAreaSessionID					OPTIONAL,
 	mrbForwardingResourceRequestList	MRBForwardingResourceRequestList	OPTIONAL,
-	mbsSessionAssociatedInformation		MBSSessionAssociatedInformation		OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCForwardingResourceRequest-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2223,6 +2222,7 @@ MRBForwardingResourceRequest-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 MCForwardingResourceIndication ::= SEQUENCE {
 	mcForwardingResourceID				MCForwardingResourceID,
 	mrbForwardingResourceIndicationList	MRBForwardingResourceIndicationList		OPTIONAL,
+	mbsSessionAssociatedInformation		MBSSessionAssociatedInformation			OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {MCForwardingResourceIndication-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -3340,7 +3340,7 @@ TNL-AvailableCapacityIndicator ::= SEQUENCE {
 	dL-TNL-AvailableCapacity			INTEGER (0..100, ...),
 	uL-TNL-OfferedCapacity				INTEGER (0..16777216, ...),
 	uL-TNL-AvailableCapacity			INTEGER (0..100, ...),
-	iE-Extensions		ProtocolExtensionContainer { { TNL-AvailableCapacityIndicator-ExtIEs } },
+	iE-Extensions		ProtocolExtensionContainer { { TNL-AvailableCapacityIndicator-ExtIEs } } OPTIONAL,
 	...
 }
 

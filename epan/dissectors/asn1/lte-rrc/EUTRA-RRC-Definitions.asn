@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.3.0 (2022-12)
+-- 3GPP TS 36.331 V17.4.0 (2023-03)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -11331,6 +11331,10 @@ MeasObjectNR-r15 ::=				SEQUENCE {
 	]],
 	[[
 	rmtc-ConfigNR-r16						CHOICE {release NULL, setup RMTC-ConfigNR-r16}			OPTIONAL		-- Cond SharedSpectrum
+	]],
+	[[
+	cellsToRemoveList-r16			CellIndexList					OPTIONAL,		-- Need ON
+	cellsToAddModList-r16			CellsToAddModListNR-r16		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -11358,9 +11362,17 @@ RS-ConfigSSB-NR-r15 ::=			SEQUENCE {
 
 CellsToAddModListNR-r15 ::=			SEQUENCE (SIZE (1..maxCellMeas)) OF CellsToAddModNR-r15
 
+CellsToAddModListNR-r16 ::=			SEQUENCE (SIZE (1..maxCellMeas)) OF CellsToAddModNR-r16
+
 CellsToAddModNR-r15 ::=			SEQUENCE {
 	cellIndex-r15					INTEGER (1..maxCellMeas),
 	physCellId-r15					PhysCellIdNR-r15
+}
+
+CellsToAddModNR-r16 ::=			SEQUENCE {
+	cellIndex-r16						INTEGER (1..maxCellMeas),
+	physCellId-r16						PhysCellIdNR-r15,
+	cellIndividualOffset-r16			Q-OffsetRange
 }
 
 SSB-PositionQCL-CellsToAddModListNR-r16 ::=	SEQUENCE (SIZE (1..maxCellMeas)) OF SSB-PositionQCL-CellsToAddNR-r16
@@ -12846,13 +12858,31 @@ UE-EUTRA-Capability-v1470-IEs ::= SEQUENCE {
 
 UE-EUTRA-Capability-v14a0-IEs ::= SEQUENCE {
 	phyLayerParameters-v14a0				PhyLayerParameters-v14a0,
-	-- Following field is only to be used for late REL-14 extensions
 	nonCriticalExtension					UE-EUTRA-Capability-v14b0-IEs			OPTIONAL
 }
 
 UE-EUTRA-Capability-v14b0-IEs ::= SEQUENCE {
 	rf-Parameters-v14b0				RF-Parameters-v14b0				OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}					OPTIONAL
+	nonCriticalExtension				UE-EUTRA-Capability-v14x0-IEs		OPTIONAL
+}
+
+UE-EUTRA-Capability-v14x0-IEs ::= SEQUENCE {
+	-- Following field is only to be used for late REL-14 extensions
+	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v15x0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v15x0-IEs ::= SEQUENCE {
+	-- Following field is only to be used for late REL-15 extensions
+	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v16c0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v16c0-IEs ::= SEQUENCE {
+	measParameters-v16c0 				MeasParameters-v16c0,
+	-- Following field is only to be used for late REL-16 extensions
+	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
 -- Regular non critical extensions
@@ -14608,6 +14638,10 @@ MeasParameters-v1630 ::=		SEQUENCE {
 	nr-IdleInactiveBeamMeasFR1-r16		ENUMERATED {supported}		OPTIONAL,
 	nr-IdleInactiveBeamMeasFR2-r16		ENUMERATED {supported}		OPTIONAL,
 	ce-MeasRSS-DedicatedSameRBs-r16		ENUMERATED {supported}		OPTIONAL
+}
+
+MeasParameters-v16c0 ::=		SEQUENCE {
+	nr-CellIndividualOffset-r16			ENUMERATED {supported}		OPTIONAL
 }
 
 MeasParameters-v1700 ::=		SEQUENCE {

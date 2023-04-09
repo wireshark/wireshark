@@ -76,13 +76,10 @@ static dissector_table_t subdissector_table;
 static void
 dissect_nsh_md_type_1(tvbuff_t *tvb, proto_tree *nsh_tree, int offset)
 {
-
 	proto_tree_add_item(nsh_tree, hf_nsh_context_header, tvb, offset, 4, ENC_NA);
 	proto_tree_add_item(nsh_tree, hf_nsh_context_header, tvb, offset + 4, 4, ENC_NA);
 	proto_tree_add_item(nsh_tree, hf_nsh_context_header, tvb, offset + 8, 4, ENC_NA);
 	proto_tree_add_item(nsh_tree, hf_nsh_context_header, tvb, offset + 12, 4, ENC_NA);
-
-
 }
 
 /*

@@ -5260,12 +5260,12 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_kif_msg_io_read_xtypes_0_7,
      {"Xtype", "qnet6.kif.msgsend.msg.read.xtypes0-7",
-      FT_UINT32, BASE_HEX, VALS(qnet6_kif_msgsend_msg_io_read_xtypes_vals), 0xff,
+      FT_UINT32, BASE_HEX, VALS(qnet6_kif_msgsend_msg_io_read_xtypes_vals), 0x000000ff,
       "Extended types 0-7 bits", HFILL}
     },
     {&hf_qnet6_kif_msg_io_read_xtypes_8,
      {"DirExtraHint", "qnet6.kif.msgsend.msg.read.xtypes8",
-      FT_UINT32, BASE_HEX, NULL, 0x100,
+      FT_UINT32, BASE_HEX, NULL, 0x00000100,
       "_IO_XFLAG_DIR_EXTRA_HINT", HFILL}
     },
     {&hf_qnet6_kif_msg_io_read_xtypes_14,
@@ -5316,22 +5316,22 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_kif_msg_io_write_xtypes_0_7,
      {"Xtype", "qnet6.kif.msgsend.msg.write.xtypes0-7",
-      FT_UINT32, BASE_HEX, VALS(qnet6_kif_msgsend_msg_io_read_xtypes_vals), 0xff,
+      FT_UINT32, BASE_HEX, VALS(qnet6_kif_msgsend_msg_io_read_xtypes_vals), 0x000000ff,
       "Extended types 0-7 bits", HFILL}
     },
     {&hf_qnet6_kif_msg_io_write_xtypes_8,
      {"DirExtraHint", "qnet6.kif.msgsend.msg.write.xtypes8",
-      FT_UINT32, BASE_HEX, NULL, 0x100,
+      FT_UINT32, BASE_HEX, NULL, 0x00000100,
       "_IO_XFLAG_DIR_EXTRA_HINT", HFILL}
     },
     {&hf_qnet6_kif_msg_io_write_xtypes_14,
      {"Nonblock", "qnet6.kif.msgsend.msg.write.xtypes0-7",
-      FT_UINT32, BASE_HEX, NULL, 0x4000,
+      FT_UINT32, BASE_HEX, NULL, 0x00004000,
       "_IO_XFLAG_NONBLOCK", HFILL}
     },
     {&hf_qnet6_kif_msg_io_write_xtypes_15,
      {"Block", "qnet6.kif.msgsend.msg.write.xtypes0-7",
-      FT_UINT32, BASE_HEX, NULL, 0x8000,
+      FT_UINT32, BASE_HEX, NULL, 0x00008000,
       "_IO_XFLAG_BLOCK", HFILL}
     },
     {&hf_qnet6_kif_msg_io_write_xoffset,
@@ -5698,17 +5698,17 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_kif_msg_io_mmap_prot_read,
      {"Read", "qnet6.kif.msgsend.msg.mmap.prot.read",
-      FT_BOOLEAN, 32, NULL, 0x100,
+      FT_BOOLEAN, 32, NULL, 0x00000100,
       "protection field of mmap", HFILL}
     },
     {&hf_qnet6_kif_msg_io_mmap_prot_write,
      {"Write", "qnet6.kif.msgsend.msg.mmap.prot.write",
-      FT_BOOLEAN, 32, NULL, 0x200,
+      FT_BOOLEAN, 32, NULL, 0x00000200,
       "protection field of mmap", HFILL}
     },
     {&hf_qnet6_kif_msg_io_mmap_prot_exec,
      {"Exec", "qnet6.kif.msgsend.msg.mmap.prot.exec",
-      FT_BOOLEAN, 32, NULL, 0x400,
+      FT_BOOLEAN, 32, NULL, 0x00000400,
       "protection field of mmap", HFILL}
     },
     {&hf_qnet6_kif_msg_io_mmap_offset,

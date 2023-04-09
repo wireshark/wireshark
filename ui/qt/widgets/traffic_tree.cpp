@@ -44,6 +44,7 @@
 #include <QWidgetAction>
 #include <QLineEdit>
 #include <QActionGroup>
+#include <QDateTime>
 #include <QTime>
 
 MenuEditAction::MenuEditAction(QString text, QString hintText, QObject * parent) :
@@ -275,7 +276,7 @@ void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString f
     if (filterOn < 0 || filterOn > TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
         column = -1;
 
-    _filterColumn = column;
+    _filterColumn = mapToSourceColumn(column);
     _filterOn = filterOn;
     _filterText = filterText;
     invalidateFilter();
@@ -284,36 +285,32 @@ void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString f
 int TrafficDataFilterProxy::mapToSourceColumn(int proxyColumn) const
 {
     ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
-    int column = proxyColumn;
-    if (model) {
+    if (!model || proxyColumn == -1) {
+        return proxyColumn;
+    }
 
-        if (qobject_cast<EndpointDataModel *>(model))
-        {
-            if (model->portsAreHidden() && column > EndpointDataModel::ENDP_COLUMN_ADDR)
-                column++;
-            if (! model->showTotalColumn()) {
-                if (column > EndpointDataModel::ENDP_COLUMN_BYTES)
-                    column+=2;
-            }
-        } else if (qobject_cast<ConversationDataModel *>(model)) {
-            if (model->portsAreHidden()) {
-                if (column > ConversationDataModel::CONV_COLUMN_SRC_ADDR)
-                    column++;
-                if (column > ConversationDataModel::CONV_COLUMN_DST_ADDR)
-                    column++;
-            }
-            ConversationDataModel * convModel = qobject_cast<ConversationDataModel *>(model);
-            if (!convModel->showConversationId() && column > ConversationDataModel::CONV_COLUMN_BYTES) {
-                column++;
-            }
-            if (! model->showTotalColumn()) {
-                if (column > ConversationDataModel::CONV_COLUMN_CONV_ID)
-                    column+=2;
+    if (rowCount() > 0) {
+        return mapToSource(index(0, proxyColumn)).column();
+    }
+
+    /* mapToSource() requires a valid QModelIndex, and thus does not work when
+     * all rows are filtered out by the current filter. (E.g., the user has
+     * accidentally entered an incorrect filter or operator and wants to fix
+     * it.) Since our filterAcceptsColumn doesn't depend on the row, we can
+     * determine the mapping between the currently displayed column number and
+     * the column number in the model this way, even if no rows are displayed.
+     * It is linear time in the number of columns, though.
+     */
+    int currentProxyColumn = 0;
+    for (int column=0; column < model->columnCount(); ++column) {
+        if (filterAcceptsColumn(column, QModelIndex())) {
+            if (currentProxyColumn++ == proxyColumn) {
+                return column;
             }
         }
     }
 
-    return column;
+    return -1;
 }
 
 bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -323,9 +320,11 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
         bool isFiltered = dataModel->data(dataModel->index(source_row, 0), ATapDataModel::ROW_IS_FILTERED).toBool();
         if (isFiltered && dataModel->filter().length() > 0)
             return false;
+        /* XXX: What if the filter column is now hidden? Should the filter
+         * still apply or should it be cleared? Right now it is still applied.
+         */
 
-        int sourceColumn = mapToSourceColumn(_filterColumn);
-        QModelIndex srcIdx = dataModel->index(source_row, sourceColumn);
+        QModelIndex srcIdx = dataModel->index(source_row, _filterColumn);
         if (srcIdx.isValid()) {
             QVariant data = srcIdx.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
 
@@ -339,20 +338,21 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
              */
             QVariant rhs = QVariant(_filterText);
             if (data.userType() == QMetaType::QDateTime) {
-                /* When we display start time in absolute format, we only
-                 * display the time portion, so users will expect to enter
-                 * time-only filters. Convert to QTime instead of QDateTime.
-                 * (Sorting in the table will use the date as well, but it's
-                 * unreasonable to expect users to type in a date that they
-                 * can't see when filtering.)
+                /* Try to parse with a date included in the filter, and
+                 * fallback to time only if that fails.
                  */
-                QTime filterTime = QTime::fromString(_filterText, Qt::ISODateWithMs);
-                if (filterTime.isValid()) {
-                    rhs.setValue(filterTime);
+                QDateTime filter_dt = QDateTime::fromString(_filterText, Qt::ISODateWithMs);
+                if (filter_dt.isValid()) {
+                    rhs.setValue(filter_dt);
                 } else {
-                    rhs = QVariant();
+                    QTime filterTime = QTime::fromString(_filterText, Qt::ISODateWithMs);
+                    if (filterTime.isValid()) {
+                        rhs.setValue(filterTime);
+                        data.setValue(data.toTime());
+                    } else {
+                        rhs = QVariant();
+                    }
                 }
-                data.setValue(data.toTime());
             }
             QPartialOrdering result = QVariant::compare(data, rhs);
             if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
@@ -392,18 +392,33 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
                         filtered = data.toDouble() == _filterText.toDouble();
                     break;
                 case QMetaType::QDateTime:
-                case QMetaType::QTime:
-                    /* When we display start time in absolute format, we only
-                     * display the time portion, so users will expect to enter
-                     * time-only filters. Convert to QTime instead of QDateTime.
+                {
+                    /* Try to parse with a date included, and fall back to time
+                     * only if that fails.
                      */
+                    QDateTime filter_dt = QDateTime::fromString(_filterText, Qt::ISODateWithMs);
+                    if (filter_dt.isValid()) {
+                        if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                            filtered = data.toDateTime() < filter_dt;
+                        else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                            filtered = data.toDateTime() > filter_dt;
+                        else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+                            filtered = data.toDateTime() == filter_dt;
+                        break;
+                    }
+                }
+                /* FALLTHROUGH */
+                case QMetaType::QTime:
+                {
+                    QTime filter_t = QTime::fromString(_filterText, Qt::ISODateWithMs);
                     if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                        filtered = data.toTime() < QTime::fromString(_filterText, Qt::ISODateWithMs);
+                        filtered = data.toTime() < filter_t;
                     else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                        filtered = data.toTime() > QTime::fromString(_filterText, Qt::ISODateWithMs);
+                        filtered = data.toTime() > filter_t;
                     else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                        filtered = data.toTime() == QTime::fromString(_filterText, Qt::ISODateWithMs);
+                        filtered = data.toTime() == filter_t;
                     break;
+                }
                 case QMetaType::QString:
                 default:
                     /* XXX: We don't do UTF-8 aware coallating in Packet List

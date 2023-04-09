@@ -25,6 +25,7 @@
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <ui/qt/show_packet_bytes_dialog.h>
 #include <ui/qt/filter_action.h>
+#include <ui/qt/follow_stream_action.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/alert_box.h>
 #include <ui/urls.h>
@@ -303,18 +304,18 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         colorize_menu_.setTitle(tr("Colorize with Filter"));
         ctx_menu->addMenu(&colorize_menu_);
 
+        /* XXX: Should we just get a Follow action (if it exists) for the currently
+         * selected field info, similar to preferences and filters?
+         */
         main_menu_item = window()->findChild<QMenu *>("menuFollow");
         if (main_menu_item) {
             submenu = new QMenu(main_menu_item->title(), ctx_menu);
             ctx_menu->addMenu(submenu);
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowDCCPStream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTP2Stream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowQUICStream"));
-            submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSIPCall"));
+            foreach (FollowStreamAction *follow_action, main_menu_item->findChildren<FollowStreamAction *>()) {
+                if (follow_action->isEnabled()) {
+                    submenu->addAction(follow_action);
+                }
+            }
         }
 
         ctx_menu->addSeparator();

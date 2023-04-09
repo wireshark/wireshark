@@ -827,8 +827,9 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     return item_eid;
 }
 
-static void proto_tree_add_dtn_time(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_dtn_time_t *out) {
-    proto_item *item_time = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, 0);
+static void dissect_dtn_time(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_dtn_time_t *out)
+{
+    proto_item *item_time = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, ENC_NA);
     proto_tree *tree_time = proto_item_add_subtree(item_time, ett_time);
     const gint offset_start = *offset;
 
@@ -875,8 +876,9 @@ static void proto_tree_add_dtn_time(proto_tree *tree, int hfindex, packet_info *
  * @param[in,out] offset Starting offset within @c tvb.
  * @param[out] ts If non-null, the timestamp to write to.
  */
-static void proto_tree_add_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_creation_ts_t *ts) {
-    proto_item *item_ts = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, 0);
+static void dissect_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, gint *offset, bp_creation_ts_t *ts)
+{
+    proto_item *item_ts = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, ENC_NA);
     proto_tree *tree_ts = proto_item_add_subtree(item_ts, ett_create_ts);
 
     wscbor_chunk_t *chunk_ts = wscbor_chunk_read(wmem_packet_scope(), tvb, offset);
@@ -884,7 +886,7 @@ static void proto_tree_add_cbor_timestamp(proto_tree *tree, int hfindex, packet_
     wscbor_chunk_mark_errors(pinfo, item_ts, chunk_ts);
     if (!wscbor_skip_if_errors(wmem_packet_scope(), tvb, offset, chunk_ts)) {
         bp_dtn_time_t abstime;
-        proto_tree_add_dtn_time(tree_ts, hf_create_ts_time, pinfo, tvb, offset, &abstime);
+        dissect_dtn_time(tree_ts, hf_create_ts_time, pinfo, tvb, offset, &abstime);
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, offset);
         const guint64 *seqno = wscbor_require_uint64(wmem_file_scope(), chunk);
@@ -906,7 +908,8 @@ static void proto_tree_add_cbor_timestamp(proto_tree *tree, int hfindex, packet_
  * @param[in,out] item_type The item associated with the type field.
  * @param[in,out] item_parent The parent item to label.
  */
-static void label_type_field(const guint64 *type_code, dissector_handle_t type_dissect, proto_item *item_type, proto_item *item_parent) {
+static void label_type_field(const guint64 *type_code, dissector_handle_t type_dissect, proto_item *item_type, proto_item *item_parent)
+{
     if (!item_type || !item_parent) {
         return;
     }
@@ -1060,7 +1063,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     field_ix++;
 
     // Complex type
-    proto_tree_add_cbor_timestamp(tree_block, hf_primary_create_ts, pinfo, tvb, &offset, &(block->ts));
+    dissect_cbor_timestamp(tree_block, hf_primary_create_ts, pinfo, tvb, &offset, &(block->ts));
     field_ix++;
 
     chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1666,8 +1669,9 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return offset;
 }
 
-static gboolean proto_tree_add_status_assertion(proto_tree *tree, int hfassert, packet_info *pinfo, tvbuff_t *tvb, gint *offset) {
-    proto_item *item_assert = proto_tree_add_item(tree, hfassert, tvb, *offset, -1, 0);
+static gboolean dissect_status_assertion(proto_tree *tree, int hfassert, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+{
+    proto_item *item_assert = proto_tree_add_item(tree, hfassert, tvb, *offset, -1, ENC_NA);
 
     gboolean result = FALSE;
 
@@ -1686,7 +1690,7 @@ static gboolean proto_tree_add_status_assertion(proto_tree *tree, int hfassert, 
 
         if (chunk_assert->head_value > 1) {
             bp_dtn_time_t abstime;
-            proto_tree_add_dtn_time(tree_assert, hf_status_assert_time, pinfo, tvb, offset, &abstime);
+            dissect_dtn_time(tree_assert, hf_status_assert_time, pinfo, tvb, offset, &abstime);
         }
     }
 
@@ -1767,10 +1771,10 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         if (!wscbor_skip_if_errors(wmem_packet_scope(), tvb, &offset, chunk_info)) {
             proto_tree *tree_info = proto_item_add_subtree(item_info, ett_status_info);
 
-            status_received = proto_tree_add_status_assertion(tree_info, hf_status_rep_received, pinfo, tvb, &offset);
-            status_forwarded = proto_tree_add_status_assertion(tree_info, hf_status_rep_forwarded, pinfo, tvb, &offset);
-            status_delivered = proto_tree_add_status_assertion(tree_info, hf_status_rep_delivered, pinfo, tvb, &offset);
-            status_deleted = proto_tree_add_status_assertion(tree_info, hf_status_rep_deleted, pinfo, tvb, &offset);
+            status_received = dissect_status_assertion(tree_info, hf_status_rep_received, pinfo, tvb, &offset);
+            status_forwarded = dissect_status_assertion(tree_info, hf_status_rep_forwarded, pinfo, tvb, &offset);
+            status_delivered = dissect_status_assertion(tree_info, hf_status_rep_delivered, pinfo, tvb, &offset);
+            status_deleted = dissect_status_assertion(tree_info, hf_status_rep_deleted, pinfo, tvb, &offset);
         }
 
         proto_item_set_len(item_info, offset - chunk_info->start);
@@ -1787,7 +1791,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     status_field_ix++;
 
     bp_creation_ts_t subj_ts;
-    proto_tree_add_cbor_timestamp(tree_status, hf_status_rep_subj_ts, pinfo, tvb, &offset, &subj_ts);
+    dissect_cbor_timestamp(tree_status, hf_status_rep_subj_ts, pinfo, tvb, &offset, &subj_ts);
     status_field_ix++;
 
     bp_bundle_ident_t *subj = bp_bundle_ident_new(wmem_file_scope(), subj_eid, &subj_ts, NULL, NULL);

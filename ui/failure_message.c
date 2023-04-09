@@ -17,7 +17,7 @@
 #include <wiretap/wtap.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 #include "ui/failure_message.h"
 

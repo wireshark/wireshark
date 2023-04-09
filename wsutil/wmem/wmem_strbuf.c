@@ -18,6 +18,8 @@
 #include "wmem-int.h"
 #include "wmem_strutl.h"
 
+#include <wsutil/unicode-utils.h>
+
 #define DEFAULT_MINIMUM_SIZE 16
 
 /* _ROOM accounts for the null-terminator, _RAW_ROOM does not.
@@ -59,7 +61,7 @@ wmem_strbuf_new_len(wmem_allocator_t *allocator, const gchar *str, size_t len)
     strbuf = wmem_strbuf_new_sized(allocator, alloc_size);
 
     if (str && len > 0) {
-        ASSERT(strbuf->alloc_size >= len + 1);
+        ws_assert(strbuf->alloc_size >= len + 1);
         memcpy(strbuf->str, str, len);
         strbuf->str[len] = '\0';
         strbuf->len = len;
@@ -130,7 +132,7 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
     append_len = strlen(str);
     wmem_strbuf_grow(strbuf, append_len);
 
-    ASSERT(WMEM_STRBUF_RAW_ROOM(strbuf) >= append_len + 1);
+    ws_assert(WMEM_STRBUF_RAW_ROOM(strbuf) >= append_len + 1);
     memcpy(&strbuf->str[strbuf->len], str, append_len);
     strbuf->len += append_len;
     strbuf->str[strbuf->len] = '\0';
@@ -194,7 +196,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
     wmem_strbuf_grow(strbuf, want_len);
     want_len = _strbuf_vsnprintf(strbuf, fmt, ap);
     /* Second time must succeed or error out. */
-    ASSERT(want_len <= 0);
+    ws_assert(want_len <= 0);
 }
 
 void
@@ -444,16 +446,14 @@ wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endpptr)
 void
 wmem_strbuf_utf8_make_valid(wmem_strbuf_t *strbuf)
 {
-    /* Sanitize the contents to a temporary string. */
-    char *tmp = g_utf8_make_valid(strbuf->str, strbuf->len);
+    wmem_strbuf_t *tmp = ws_utf8_make_valid_strbuf(strbuf->allocator, strbuf->str, strbuf->len);
 
-    /* Reset the strbuf, keeping the backing memory allocation */
-    *strbuf->str = '\0';
-    strbuf->len = 0;
+    wmem_free(strbuf->allocator, strbuf->str);
+    strbuf->str = tmp->str;
+    strbuf->len = tmp->len;
+    strbuf->alloc_size = tmp->alloc_size;
 
-    /* Copy the temporary string to the strbuf. */
-    wmem_strbuf_append(strbuf, tmp);
-    g_free(tmp);
+    wmem_free(strbuf->allocator, tmp);
 }
 
 /*

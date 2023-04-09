@@ -307,6 +307,7 @@ extern "C" {
 #define WTAP_ENCAP_AUTOSAR_DLT                  218
 #define WTAP_ENCAP_AUERSWALD_LOG                219
 #define WTAP_ENCAP_ATSC_ALP                     220
+#define WTAP_ENCAP_FIRA_UCI                     221
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -2002,7 +2003,7 @@ gboolean wtap_dump_can_open(int filetype);
  * type that would be needed to write out a file with those types.
  */
 WS_DLL_PUBLIC
-int wtap_dump_file_encap_type(const GArray *file_encaps);
+int wtap_dump_required_file_encap_type(const GArray *file_encaps);
 
 /**
  * Return TRUE if we can write this encapsulation type in this
@@ -2208,6 +2209,43 @@ gboolean wtap_dump_close(wtap_dumper *wdh, gboolean *needs_reload,
  */
 WS_DLL_PUBLIC
 gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types);
+
+/**
+ * Generates arbitrary packet data in "exported PDU" format
+ * and appends it to buf.
+ * For filetype readers to transform non-packetized data.
+ * Calls ws_buffer_asssure_space() for you and handles padding
+ * to 4-byte boundary.
+ *
+ * @param[in,out] buf   Buffer into which to write field
+ * @param epdu_tag      tag ID of field to create
+ * @param data          data to be written
+ * @param data_len      length of data
+ */
+WS_DLL_PUBLIC
+void wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, const guint8 *data, guint16 data_len);
+
+/**
+ * Generates packet data for an unsigned integer in "exported PDU" format.
+ * For filetype readers to transform non-packetized data.
+ *
+ * @param[in,out] buf   Buffer into which to write field
+ * @param epdu_tag      tag ID of field to create
+ * @param val           integer value to write to buf
+ */
+WS_DLL_PUBLIC
+void wtap_buffer_append_epdu_uint(Buffer *buf, guint16 epdu_tag, guint32 val);
+
+/**
+ * Close off a set of "exported PDUs" added to the buffer.
+ * For filetype readers to transform non-packetized data.
+ *
+ * @param[in,out] buf   Buffer into which to write field
+ *
+ * @return Total length of buf populated to date
+ */
+WS_DLL_PUBLIC
+gint wtap_buffer_append_epdu_end(Buffer *buf);
 
 /*
  * Sort the file types by name or by description?

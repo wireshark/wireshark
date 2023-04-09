@@ -1635,7 +1635,7 @@ static void amqp_message_decode_free_cb(void *record)
 
 UAT_VS_DEF(message_decode, match_criteria, amqp_message_decode_t, guint32, MATCH_CRITERIA_EQUAL, "Equal to")
 UAT_CSTRING_CB_DEF(message_decode, topic_pattern, amqp_message_decode_t)
-UAT_PROTO_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, amqp_message_decode_t)
+UAT_DISSECTOR_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, amqp_message_decode_t)
 UAT_CSTRING_CB_DEF(message_decode, topic_more_info, amqp_message_decode_t)
 
 
@@ -13650,8 +13650,8 @@ proto_register_amqp(void)
     static uat_field_t amqp_message_decode_flds[] = {
         UAT_FLD_VS(message_decode, match_criteria, "Match criteria", match_criteria, "Match criteria"),
         UAT_FLD_CSTRING(message_decode, topic_pattern, "Topic pattern", "Pattern to match for the topic"),
-        UAT_FLD_PROTO(message_decode, payload_proto, "Payload protocol",
-                      "Protocol to be used for the message part of the matching topic"),
+        UAT_FLD_DISSECTOR(message_decode, payload_proto, "Payload dissector",
+                      "Dissector to be used for the message part of the matching topic"),
         UAT_FLD_CSTRING(message_decode, topic_more_info, "Additional Data", "Additional Data to pass to the dissector"),
         UAT_END_FIELDS
     };

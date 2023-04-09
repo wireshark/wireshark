@@ -374,8 +374,8 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
     rtpdump_info_t rtpdump_info;
 
     /* gather infos on the stream this packet is part of.
-     * Addresses and strings are read-only and must be duplicated if copied. */
-    rtpstream_id_copy_pinfo(pinfo,&new_stream_id,FALSE);
+     * Shallow copy addresses as this is just for examination. */
+    rtpstream_id_copy_pinfo_shallow(pinfo,&new_stream_id,FALSE);
     new_stream_id.ssrc = rtpinfo->info_sync_src;
 
     if (tapinfo->mode == TAP_ANALYSE) {
@@ -393,6 +393,7 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
         if (!stream_info) {
             /* init info and collect id */
             stream_info = rtpstream_info_malloc_and_init();
+            /* Deep copy addresses for the new entry. */
             rtpstream_id_copy_pinfo(pinfo,&(stream_info->id),FALSE);
             stream_info->id.ssrc = rtpinfo->info_sync_src;
 

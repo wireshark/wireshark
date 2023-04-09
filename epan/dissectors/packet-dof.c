@@ -10445,7 +10445,7 @@ static void dof_tun_register(void)
     proto_register_field_array(proto_2012_1_tunnel, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector(TUNNEL_PROTOCOL_STACK, dissect_tunnel_common, proto_2012_1_tunnel);
+    register_dissector_with_description("dof.tunnel", TUNNEL_PROTOCOL_STACK, dissect_tunnel_common, proto_2012_1_tunnel);
     dof_tun_app_dissectors = register_dissector_table("dof.tunnel.app", "DOF Tunnel Version", proto_2012_1_tunnel, FT_UINT8, BASE_DEC);
 }
 
@@ -10462,7 +10462,7 @@ static void dof_tun_handoff(void)
 {
     static dissector_handle_t tcp_handle;
 
-    register_dissector(TUNNEL_APPLICATION_PROTOCOL, dissect_tun_app_common, proto_2008_1_app);
+    register_dissector_with_description("dof.app", TUNNEL_APPLICATION_PROTOCOL, dissect_tun_app_common, proto_2008_1_app);
 
     tcp_handle = create_dissector_handle(dissect_tunnel_tcp, proto_2012_1_tunnel);
 
@@ -10913,7 +10913,7 @@ static void dof_handoff(void)
 {
     static dissector_handle_t tcp_handle;
 
-    dof_oid_handle = register_dissector(DOF_OBJECT_IDENTIFIER, dissect_2009_11_type_4, oid_proto);
+    dof_oid_handle = register_dissector_with_description("dof.oid", DOF_OBJECT_IDENTIFIER, dissect_2009_11_type_4, oid_proto);
 
     tcp_handle = create_dissector_handle(dissect_dof_tcp, proto_2008_1_dof);
     dof_udp_handle = create_dissector_handle(dissect_dof_udp, proto_2008_1_dof);

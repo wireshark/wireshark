@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.3.0 (2022-12)
+-- 3GPP TS 38.413 V17.4.0 (2023-03)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -1464,7 +1464,8 @@ PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-TimeSyncAssistanceInfo						CRITICALITY ignore	TYPE TimeSyncAssistanceInfo							PRESENCE optional		}|
 	{ ID id-FiveG-ProSeAuthorized						CRITICALITY ignore	TYPE FiveG-ProSeAuthorized							PRESENCE optional		}|
 	{ ID id-FiveG-ProSeUEPC5AggregateMaximumBitRate		CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
-	{ ID id-FiveG-ProSePC5QoSParameters					CRITICALITY ignore	TYPE FiveG-ProSePC5QoSParameters					PRESENCE optional		},
+	{ ID id-FiveG-ProSePC5QoSParameters					CRITICALITY ignore	TYPE FiveG-ProSePC5QoSParameters					PRESENCE optional		}|
+	{ ID id-ManagementBasedMDTPLMNModificationList		CRITICALITY ignore	TYPE MDTPLMNModificationList						PRESENCE optional		},
 	...
 }
 

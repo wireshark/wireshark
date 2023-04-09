@@ -1294,7 +1294,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
      * Make sure this packet doesn't have a link-layer type that
      * differs from the one for the file.
      */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
@@ -1371,6 +1371,10 @@ static gboolean k12_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info _U_
     if (! wtap_dump_file_write(wdh, d.b, 4, err))
         return FALSE;
 
+    /* Prevent the above calls to wtap_dump_file_write() from
+     * double-counting the header length
+     */
+    wdh->bytes_dumped = k12->file_len;
     return TRUE;
 }
 
@@ -1385,6 +1389,7 @@ static gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) 
     if (wtap_dump_file_seek(wdh, K12_FILE_HDR_LEN, SEEK_SET, err) == -1)
         return FALSE;
 
+    wdh->bytes_dumped = K12_FILE_HDR_LEN;
     wdh->subtype_write = k12_dump;
     wdh->subtype_finish = k12_dump_finish;
 

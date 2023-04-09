@@ -6,8 +6,8 @@ To learn how to write a dissector, read this first, then read the file
 README.dissector.
 
 This file is compiled to give in depth information on Wireshark.
-It is by no means all inclusive and complete. Please feel free to send
-remarks and patches to the developer mailing list.
+It is by no means all inclusive and complete. Please feel free to discuss on
+the developer mailing list or upload merge requests to gitlab.
 
 0. Prerequisites.
 
@@ -24,29 +24,31 @@ README.md files of the sources root dir.
 
 You'll find additional information in the following README files:
 
-- README.capture        - the capture engine internals
-- README.design         - Wireshark software design - incomplete
-- README.developer      - this file
-- README.dissector      - How to dissect a packet
-- README.display_filter - Display Filter Engine
-- README.idl2wrs        - CORBA IDL converter
-- README.packaging      - how to distribute a software package containing WS
-- README.regression     - regression testing of WS and TS
-- README.stats_tree     - a tree statistics counting specific packets
-- README.tapping        - "tap" a dissector to get protocol specific events
-- README.xml-output     - how to work with the PDML exported output
-- wiretap/README.developer - how to add additional capture file types to
-  Wiretap
+- doc/README.capture        - the capture engine internals
+- doc/README.design         - Wireshark software design - incomplete
+- doc/README.developer      - this file
+- doc/README.dissector      - How to dissect a packet
+- doc/README.display_filter - Display Filter Engine
+- doc/README.idl2wrs        - CORBA IDL converter
+- doc/README.regression     - regression testing of WS and TS
+- doc/README.stats_tree     - a tree statistics counting specific packets
+- doc/README.tapping        - "tap" a dissector to get protocol specific events
+- doc/README.vagrant        - how to create a development VM using vagrant
+- doc/README.wslua          - working with LUA
+- doc/README.xml-output     - how to work with the PDML exported output
+- wiretap/README.developer  - how to add additional capture file types to
+                              Wiretap
 
 0.2. Dissector related README files.
 
 You'll find additional dissector related information in the file
 README.dissector as well as the following README files:
 
-- README.heuristic      - what are heuristic dissectors and how to write them
-- README.plugins        - how to "pluginize" a dissector
-- README.request_response_tracking - how to track req./resp. times and such
-- README.wmem           - how to obtain "memory leak free" memory
+- doc/README.heuristic      - what are heuristic dissectors and how to write
+                              them
+- doc/README.plugins        - how to "pluginize" a dissector
+- doc/README.request_response_tracking - how to track req./resp. times and such
+- doc/README.wmem           - how to obtain "memory leak free" memory
 
 0.3 Contributors
 
@@ -66,7 +68,7 @@ different compilers; here are some rules for writing code that will work
 on multiple platforms.
 
 Building Wireshark requires a compiler that supports C11. This includes
-reasonably recent version of GCC and clang. Microsoft Visual Studio supports
+reasonably recent versions of GCC and clang. Microsoft Visual Studio supports
 C11 from Visual Studio 2019 version 16.8 and later. Support requires an updated
 Universal C Runtime (UCRT) and Windows SDK version to work properly with the
 conforming preprocessor. The minimum SDK version is 10.0.20348.0 (version 2104).
@@ -115,8 +117,14 @@ instead.
 
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", "u_long" or "boolean"; they aren't defined on all platforms.
-Use the fixed width integers provided in C since C99. These are defined
-in <stdint.h>.
+
+glib typedefs are used extensively throughout the codebase (gchar, guint8,
+gint16, etc).  We would like to move instead towards the fixed width integers
+provided in C since C99. These are defined in <stdint.h>. However, lots of our
+internal APIs are defined using these glib types, and it seems that even the
+glib project is finding it difficult to move away from them.  So when you
+have a choice, choose stdint types, but realise that until we can change
+our APIs, in many situations the glib types still make sense.
 
 If you want an 8-bit unsigned quantity, use "uint8_t"; if you want an
 8-bit character value with the 8th bit not interpreted as a sign bit,
@@ -335,7 +343,7 @@ Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
 "fopen()", "freopen()" directly.  Instead use "ws_open()", "ws_rename()",
 "ws_mkdir()", "ws_stat()", "ws_unlink()", "ws_remove()", "ws_fopen()",
 "ws_freopen()": these wrapper functions change the path and file name from
-UTF8 to UTF16 on Windows allowing the functions to work correctly when the
+UTF-8 to UTF-16 on Windows allowing the functions to work correctly when the
 path or file name contain non-ASCII characters.
 
 Also, use ws_read(), ws_write(), ws_lseek(), ws_dup(), ws_fstat(), and
@@ -429,7 +437,7 @@ own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
 Wireshark requires minimum versions of each of the libraries it uses, in
-particular GLib 2.50.0 and Qt 5.12.0 or newer. If you require a mechanism
+particular GLib 2.54.0 and Qt 5.12.0 or newer. If you require a mechanism
 that is available only in a newer version of a library then use its
 version detection macros, e.g. "#if GLIB_CHECK_VERSION(...)" and "#if
 QT_VERSION_CHECK(...)" to conditionally compile code using that
@@ -617,22 +625,6 @@ and
     2) it won't crash trying to allocate an absurdly-large chunk of
        memory if the size field has a bogus large value.
 
-If you're fetching into such a chunk of memory a string from the buffer,
-and the string has a specified size, you can use "tvb_get_*_string()",
-which will check whether the entire string is present before allocating
-a buffer for the string, and will also put a trailing '\0' at the end of
-the buffer.
-
-If you're fetching into such a chunk of memory a 2-byte Unicode string
-from the buffer, and the string has a specified size, you can use
-"tvb_get_faked_unicode()", which will check whether the entire string
-is present before allocating a buffer for the string, and will also
-put a trailing '\0' at the end of the buffer.  The resulting string will be
-a sequence of single-byte characters; the only Unicode characters that
-will be handled correctly are those in the ASCII range.  (Wireshark's
-ability to handle non-ASCII strings is limited; it needs to be
-improved.)
-
 If you're fetching into such a chunk of memory a sequence of bytes from
 the buffer, and the sequence has a specified size, you can use
 "tvb_memdup()", which will check whether the entire sequence is present
@@ -644,16 +636,47 @@ TVB-accessor routines can handle requests to read data beyond the end of
 the TVB (by throwing an exception which will either mark the frame as
 truncated--not all the data was captured--or as malformed).
 
+If you're fetching a string only to add it to the tree, you should
+generally be using "proto_tree_add_item()" instead. If you also need
+the string, you can use the variant "proto_tree_add_item_ret_string()"
+or "proto_tree_add_item_ret_string_and_length()" forms.
+
+If you must fetch it from the tvbuff, and the string has a specified
+size and known encoding, you can use "tvb_get_string_enc()" for most
+encodings, which will check whether the entire string is present before
+allocating a buffer for the string, will put a trailing '\0' at the end
+of the buffer, and will also check for invalid characters in the supplied
+encoding and convert the string to UTF-8. The "tvb_get_*_string()" set of
+functions is available as well, and must be used for some encodings,
+primarily non byte aligned ones. If the string has a known encoding and
+is null terminated, the "stringz" variants can be used. (Note that these
+functions are called with memory allocators, and if called with a NULL
+allocator you are required to free the string when finished with it.)
+
+If the string has a known encoding but requires token parsing or other
+text manipulation to determine the offset and size, do so by calling
+tvb_*() functions on the tvbuff that perform bounds checking if possible.
+Only extract the bytes into a newly allocated buffer to extract a string
+if absolutely necessary. If you do so, then you *must* ensure that the
+string is valid UTF-8 when passing it to a libwireshark API function
+such as proto_tree_add_string(). (Cf. 7.5: Unicode and string encoding
+best practices.)
+
+Conversion to UTF-8 can produce a string with a length longer than
+that of the string in the original packet data; this includes strings
+encoded in ASCII or UTF-8 itself if they have invalid character sequences
+that are replaced with the 3 byte UTF-8 REPLACEMENT CHARACTER. Truncating
+a valid UTF-8 string to an arbitrary number of bytes does not gurarantee
+that the result is a valid UTF-8 string, because a multibyte character
+might span the boundary.
+
 Note also that you should only fetch string data into a fixed-length
 buffer if the code ensures that no more bytes than will fit into the
 buffer are fetched ("the protocol ensures" isn't good enough, as
 protocol specifications can't ensure only packets that conform to the
 specification will be transmitted or that only packets for the protocol
 in question will be interpreted as packets for that protocol by
-Wireshark).  If there's no maximum length of string data to be fetched,
-routines such as "tvb_get_*_string()" are safer, as they allocate a buffer
-large enough to hold the string.  (Note that some variants of this call
-require you to free the string once you're finished with it.)
+Wireshark).
 
 If you have gotten a pointer using "tvb_get_ptr()" (which you should not
 have: you should seriously consider a better alternative to this function),
@@ -724,7 +747,7 @@ Testing using editcap can be done using preexisting capture files and the
     editcap -E 0.03 infile.pcap outfile.pcap
     tshark -nVr outfile.pcap
 
-The script fuzz-test.sh is available to help automate these tests.
+tools/fuzz-test.sh is available to help automate these tests.
 
 4. Name convention.
 
@@ -919,11 +942,11 @@ new extension languages).
 
 7.5 Unicode and string encoding best practices
 
-Wireshark strings are always encoded in UTF-8 internally, regardless of the platform
-where it is running. The C datatype used is "pointer to char" and this is assumed
-to point to a valid UTF-8 string. Sometimes older code uses char to point to opaque
-byte strings but this archaic usage should be avoided. A better data type
-for that is uint8_t.
+Wireshark strings are always encoded in UTF-8 internally, regardless of the
+platform where it is running. The C datatype used is "pointer to char" and this
+is assumed to point to a valid UTF-8 string. Sometimes older code uses char to
+point to opaque byte strings but this archaic usage should be avoided. A better
+data type for that is uint8_t.
 
 Every untrusted string needs to be validated for correct and error-free UTF-8
 encoding, or converted from the source encoding to UTF-8. This should be done
@@ -942,6 +965,11 @@ extracts text strings from the TVBuff or tries to do line oriented input from
 TVBuffs it *must* make sure it passes only valid UTF-8 to libwireshark APIs.
 This should be done using tvb_get_string_enc() to extract a string from a TVbuff
 or get_utf_8_string() to validate a string after it has been constructed.
+
+The Qt API uses UTF-16 for its QString class; when converting between a
+QString and a pointer to char, functions that convert to or from UTF-8
+encoded pointers to char (or QByteArrays) such as toUtf8() should be used,
+not toLocal8Bit() or toLatin1().
 
 8. Miscellaneous notes
 

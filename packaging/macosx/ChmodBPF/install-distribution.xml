@@ -21,5 +21,5 @@ https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/I
     <choice id="org.wireshark.ChmodBPF.pkg" visible="false">
         <pkg-ref id="org.wireshark.ChmodBPF.pkg"/>
     </choice>
-    <pkg-ref id="org.wireshark.ChmodBPF.pkg" version="1.1" onConclusion="none">install.ChmodBPF.pkg</pkg-ref>
+    <pkg-ref id="org.wireshark.ChmodBPF.pkg" onConclusion="none">install.ChmodBPF.pkg</pkg-ref>
 </installer-gui-script>

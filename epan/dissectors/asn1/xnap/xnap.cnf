@@ -1,6 +1,6 @@
 # xnap.cnf
 # xnap conformation file
-# Copyright 2018-2022 Pascal Quantin
+# Copyright 2018-2023 Pascal Quantin
 
 #.OPT
 PER
@@ -633,15 +633,6 @@ BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.TYPE_ATTR
 ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_ExtendedPacketDelayBudget_fmt)
 
-#.FN_BODY ImmediateMDT-EUTRA VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-  proto_tree *subtree;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_ImmediateMDT_EUTRA);
-    dissect_s1ap_ImmediateMDT_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-  }
-
 #.TYPE_ATTR
 M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
 
@@ -930,6 +921,14 @@ TSCAssistanceInformation/periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
 
 #.TYPE_ATTR
 QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.FN_BODY MDTMode-EUTRA VAL_PTR = &mdt_mode_eutra_tvb
+  tvbuff_t *mdt_mode_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (mdt_mode_eutra_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_MDTMode_EUTRA);
+    dissect_s1ap_MDTMode_PDU(mdt_mode_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.END
 

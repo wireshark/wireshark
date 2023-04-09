@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.3.0 (2022-12)
+-- 3GPP TS 38.423 V17.4.0 (2023-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2323,7 +2323,7 @@ GNB-DU-Cell-Resource-Configuration	::= SEQUENCE {
 	subcarrierSpacing				SSB-subcarrierSpacing,
 	dUFTransmissionPeriodicity		DUFTransmissionPeriodicity		OPTIONAL,
 	dUF-Slot-Config-List			DUF-Slot-Config-List			OPTIONAL,
-	hSNATransmissionPeriodicity		HSNATransmissionPeriodicity		OPTIONAL,
+	hSNATransmissionPeriodicity		HSNATransmissionPeriodicity,
 	hNSASlotConfigList				HSNASlotConfigList				OPTIONAL,
 	rBsetConfiguration						RBsetConfiguration		OPTIONAL,
 	freqDomainHSNAconfiguration-List		FreqDomainHSNAconfiguration-List 	OPTIONAL,
@@ -2707,9 +2707,6 @@ IABTNLAddress-ItemExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 
-ImmediateMDT-EUTRA ::= OCTET STRING
-
-
 ImmediateMDT-NR ::= SEQUENCE {
 	measurementsToActivate		MeasurementsToActivate,
 	m1Configuration				M1Configuration				OPTIONAL,
@@ -2928,20 +2925,6 @@ LocationReportingInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
 	...
 }
 
-
-LoggedMDT-EUTRA ::= SEQUENCE {
-	loggingInterval								LoggingInterval,
-	loggingDuration								LoggingDuration,
-	bluetoothMeasurementConfiguration			BluetoothMeasurementConfiguration		OPTIONAL,
-	wLANMeasurementConfiguration				WLANMeasurementConfiguration			OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { {LoggedMDT-EUTRA-ExtIEs} } OPTIONAL,
-	...
-}
-
-LoggedMDT-EUTRA-ExtIEs	XNAP-PROTOCOL-EXTENSION ::= {
-...
-}
-
 LoggedEventTriggeredConfig ::= SEQUENCE {
 	eventTypeTrigger					EventTypeTrigger,
 	iE-Extensions		ProtocolExtensionContainer { { LoggedEventTriggeredConfig-ExtIEs} } OPTIONAL,
@@ -2969,7 +2952,7 @@ LoggedMDT-NR-ExtIEs	XNAP-PROTOCOL-EXTENSION ::= {
 ...
 }
 
-LoggingInterval ::= ENUMERATED { ms320, ms640, ms1280, ms2560, ms5120, ms10240, ms20480, ms30720, ms40960, ms61440}
+LoggingInterval ::= ENUMERATED { ms320, ms640, ms1280, ms2560, ms5120, ms10240, ms20480, ms30720, ms40960, ms61440, infinity,...}
 
 LoggingDuration ::= ENUMERATED {m10, m20, m40, m60, m90, m120}
 
@@ -3379,7 +3362,7 @@ MDT-Configuration-NR ::= SEQUENCE {
 	mdt-Activation				MDT-Activation,
 	areaScopeOfMDT-NR			AreaScopeOfMDT-NR	OPTIONAL,
 	mDTMode-NR					MDTMode-NR,
-	signallingBasedMDTPLMNList	MDTPLMNList,
+	signallingBasedMDTPLMNList	MDTPLMNList         OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { MDT-Configuration-NR-ExtIEs} } OPTIONAL,
 	...
 }
@@ -3420,18 +3403,8 @@ MDTMode-NR-ExtensionIE XNAP-PROTOCOL-IES ::= {
 	...
 }
 
-MDTMode-EUTRA ::= CHOICE {
-	immediateMDT				ImmediateMDT-EUTRA,
-	loggedMDT					LoggedMDT-EUTRA,
-	...,
-	mDTMode-EUTRA-Extension			MDTMode-EUTRA-Extension
-}
+MDTMode-EUTRA ::= OCTET STRING
 
-MDTMode-EUTRA-Extension ::= ProtocolIE-Single-Container {{ MDTMode-EUTRA-ExtensionIE }}
-
-MDTMode-EUTRA-ExtensionIE XNAP-PROTOCOL-IES ::= {
-	...
-}
 
 MeasObjectContainer ::= OCTET STRING
 
@@ -6085,7 +6058,7 @@ RRCResumeCause ::= ENUMERATED {
 
 -- S
 
-SCGreconfigNotification ::= ENUMERATED {executed, ...}
+SCGreconfigNotification ::= ENUMERATED {executed, ... , executed-deleted, deleted }
 
 S-NSSAIListQoE ::= SEQUENCE (SIZE(1..maxnoofSNSSAIforQMC)) OF S-NSSAI
 
@@ -6159,7 +6132,7 @@ SDT-DRBsToBeSetupList ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF SDT-DRBsToBeSetupLi
 
 SDT-DRBsToBeSetupList-Item	::= SEQUENCE {
 	drb-ID							DRB-ID,
-	uL-TNLInfo						UPTransportParameters,
+	uL-TNLInfo						UPTransportLayerInformation,
 	dRB-RLC-Bearer-Configuration	OCTET STRING,
 	dRB-QoS							QoSFlowLevelQoSParameters,
 	rLC-Mode						RLCMode,
@@ -6193,7 +6166,7 @@ SDTDataForwardingDRBList ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF SDTDataForwardin
 
 SDTDataForwardingDRBList-Item ::= SEQUENCE {
 	drb-ID							DRB-ID,
-	dL-TNLInfo						UPTransportParameters		OPTIONAL,
+	dL-TNLInfo						UPTransportLayerInformation		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { SDTDataForwardingDRBList-Item-ExtIEs} } OPTIONAL,
 	...
 }
@@ -6390,6 +6363,7 @@ ServedCells-ToModify-E-UTRA-Item ::= SEQUENCE {
 }
 
 Served-cells-ToModify-E-UTRA-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SFN-Offset				CRITICALITY ignore EXTENSION SFN-Offset					PRESENCE optional },
 	...
 }
 
@@ -7105,8 +7079,8 @@ TargetCellList-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-Threshold-RSRQ ::= INTEGER(0..34)
-Threshold-RSRP ::= INTEGER(0..97)
+Threshold-RSRQ ::= INTEGER(0..127)
+Threshold-RSRP ::= INTEGER(0..127)
 Threshold-SINR ::= INTEGER(0..127)
 
 TimeSynchronizationAssistanceInformation ::= SEQUENCE {
@@ -7513,7 +7487,7 @@ UERLFReportContainer-ExtIEs XNAP-PROTOCOL-IES ::= {
 }
 
 UERLFReportContainerLTE ::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the RLF-Report-r9 IE contained in the UEInformationResponse message (TS 36.331 [14])
+-- This IE is a transparent container and includes the RLF-Report-r9 IE contained in the UEInformationResponse message as defined in TS 36.331 [14].
 
 
 UERLFReportContainerLTEExtension ::= SEQUENCE {
@@ -7525,7 +7499,7 @@ UERLFReportContainerLTEExtension ::= SEQUENCE {
 
 
 UERLFReportContainerLTEExtendBand ::= OCTET STRING
--- This IE is a transparent container and includes the rLF-Report-v9e0 contained in the UEInformationResponse message (TS 36.331 [14])
+-- This IE is a transparent container and includes the rLF-Report-v9e0 contained in the UEInformationResponse message as defined in TS 36.331 [14].
 
 
 UERLFReportContainerLTEExtension-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
@@ -7534,7 +7508,7 @@ UERLFReportContainerLTEExtension-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 
 UERLFReportContainerNR ::= OCTET STRING
--- This IE is a transparent container and shall be encoded as the nr-RLF-Report-r16 IE contained in the UEInformationResponse message (TS 38.331 [10])
+-- This IE is a transparent container and includes the nr-RLF-Report-r16 IE contained in the  UEInformationResponse message as defined in TS 38.331 [10].
 
 
 UESliceMaximumBitRateList ::= SEQUENCE (SIZE(1.. maxnoofSMBR)) OF UESliceMaximumBitRate-Item

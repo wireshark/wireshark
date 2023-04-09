@@ -2578,7 +2578,7 @@ void proto_register_dvb_s2_modeadapt(void)
 
     virtual_stream_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), virtual_stream_hash, virtual_stream_equal);
 
-    dvb_s2_modeadapt_handle = register_dissector("DVB-S2 Mode adaptation header", dissect_dvb_s2_modeadapt, proto_dvb_s2_modeadapt);
+    dvb_s2_modeadapt_handle = register_dissector_with_description("dvb-s2_modeadapt", "DVB-S2 Mode adaptation header", dissect_dvb_s2_modeadapt, proto_dvb_s2_modeadapt);
 }
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)

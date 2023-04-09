@@ -463,12 +463,12 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
      * Make sure this packet doesn't have a link-layer type that
      * differs from the one for the file.
      */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+    if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
 
-    switch (wdh->encap) {
+    switch (wdh->file_encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         {
             gint skipped_length;
@@ -483,7 +483,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
         break;
     case WTAP_ENCAP_LOGCAT:
         /* Skip EXPORTED_PDU*/
-        if (wdh->encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
+        if (wdh->file_encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
             gint skipped_length;
 
             skipped_length = logcat_exported_pdu_length(pd);
@@ -562,8 +562,6 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
                 g_free(log);
                 return FALSE;
             }
-
-            wdh->bytes_dumped += length;
         } while (log_next != NULL );
 
         g_free(log);
@@ -576,7 +574,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     case WTAP_ENCAP_LOGCAT_THREAD:
     case WTAP_ENCAP_LOGCAT_THREADTIME:
     case WTAP_ENCAP_LOGCAT_LONG:
-        if (dumper->type == wdh->encap) {
+        if (dumper->type == wdh->file_encap) {
             if (!wtap_dump_file_write(wdh, (const gchar*) pd, rec->rec_header.packet_header.caplen, err)) {
                 return FALSE;
             }

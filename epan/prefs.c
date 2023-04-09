@@ -34,6 +34,7 @@
 #include <epan/strutil.h>
 #include <epan/column.h>
 #include <epan/decode_as.h>
+#include <capture_opts.h>
 #include "print.h"
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
@@ -3322,6 +3323,18 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_update_interval);
 
+    prefs_register_uint_preference(gui_module, "debounce.timer",
+                                   "How long to wait before processing computationally intensive user input",
+                                   "How long to wait (in milliseconds) before processing\
+                                   computationally intensive user input.\
+                                   If you type quickly, consider lowering the value for a 'snappier'\
+                                   experience.\
+                                   If you type slowly, consider increasing the value to avoid performance issues.\
+                                   This is currently used to delay searches in View -> Internals -> Supported Protocols\
+                                   and Preferences -> Advanced menu.",
+                                   10,
+                                   &prefs.gui_debounce_timer);
+
     register_string_like_preference(gui_module, "window_title", "Custom window title",
         "Custom window title to be appended to the existing title\n"
         "%F = file path of the capture file\n"
@@ -3605,6 +3618,12 @@ prefs_register_modules(void)
 
     prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
         "Update packet list in real time during capture?", &prefs.capture_real_time);
+
+    prefs_register_uint_preference(capture_module, "update_interval",
+                                   "Capture update interval",
+                                   "Capture update interval in ms",
+                                   10,
+                                   &prefs.capture_update_interval);
 
     prefs_register_bool_preference(capture_module, "no_interface_load", "Don't load interfaces on startup",
         "Don't automatically load capture interfaces on startup", &prefs.capture_no_interface_load);
@@ -4180,6 +4199,7 @@ pre_init_prefs(void)
     prefs.gui_update_enabled         = TRUE;
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
+    prefs.gui_debounce_timer         = 400; /* milliseconds */
     g_free(prefs.gui_window_title);
     prefs.gui_window_title           = g_strdup("");
     g_free(prefs.gui_prepend_window_title);
@@ -4232,6 +4252,7 @@ pre_init_prefs(void)
     prefs.capture_prom_mode             = TRUE;
     prefs.capture_pcap_ng               = TRUE;
     prefs.capture_real_time             = TRUE;
+    prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;
     prefs.capture_no_extcap             = FALSE;
     prefs.capture_auto_scroll           = TRUE;
     prefs.capture_show_info             = FALSE;
@@ -5095,6 +5116,9 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
     memset(name_resolve, 0, sizeof(e_addr_resolve));
     while ((c = *string++) != '\0') {
         switch (c) {
+        case 'g':
+            name_resolve->maxmind_geoip = TRUE;
+            break;
         case 'm':
             name_resolve->mac_name = TRUE;
             break;
@@ -6003,16 +6027,27 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                 } else if (strcmp(pref_name, "name_resolve_suppress_smi_errors") == 0) {
                     pref = prefs_find_preference(nameres_module, "suppress_smi_errors");
                 }
+            } else if (strcmp(module->name, "extcap") == 0) {
+                /* Handle the old "sshdump.remotesudo" preference; map it to the new
+                  "sshdump.remotepriv" preference, and map the boolean values to the
+                  appropriate strings of the new preference. */
+                if (strcmp(dotp, "sshdump.remotesudo") == 0) {
+                    pref = prefs_find_preference(module, "sshdump.remotepriv");
+                    if (g_ascii_strcasecmp(value, "true") == 0)
+                        value = "sudo";
+                    else
+                        value = "none";
+                }
             }
         }
         if (pref == NULL ) {
             if (strcmp(module->name, "extcap") == 0 && g_list_length(module->prefs) <= 1) {
-                /*
-                 * Assume that we've skipped extcap preference registration
-                 * and that only extcap.gui_save_on_start is loaded.
-                 */
-                return PREFS_SET_OK;
-            }
+                    /*
+                    * Assume that we've skipped extcap preference registration
+                    * and that only extcap.gui_save_on_start is loaded.
+                    */
+                    return PREFS_SET_OK;
+                }
             return PREFS_SET_NO_SUCH_PREF;    /* no such preference */
         }
 

@@ -2207,7 +2207,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                                 break;
                                             case 0x05:
                                                 proto_item_append_text(dpoe_opcode_response, " Copy output field");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_copy, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_copy, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x06:
                                                 proto_item_append_text(dpoe_opcode_response, " Delete field");
@@ -3074,32 +3074,32 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_user_port_object_result_rr_copy,
             { "Field Code to set from field used in last clause of rule", "oampdu.user.port.object.result.rr.copy",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT32, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_delete,
             { "Field Code to remove from frame", "oampdu.user.port.object.result.rr.delete",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_insert,
             { "Field Code to insert into frame", "oampdu.user.port.object.result.rr.insert",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_replace,
             { "Field Code to replace", "oampdu.user.port.object.result.rr.replace",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_cd,
             { "Field Code not to delete", "oampdu.user.port.object.result.rr.cd",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_ci,
             { "Field Code not to insert", "oampdu.user.port.object.result.rr.ci",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_qc_ll_u,

@@ -498,13 +498,16 @@ void RtpStreamDialog::tapReset(rtpstream_tapinfo_t *tapinfo)
         rtp_stream_dialog->freeLastSelected();
         /* Copy currently selected rtpstream_ids */
         QTreeWidgetItemIterator iter(rtp_stream_dialog->ui->streamTreeWidget);
+        rtpstream_id_t selected_id;
         while (*iter) {
             RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
             rtpstream_info_t *stream_info = rsti->streamInfo();
             if ((*iter)->isSelected()) {
-                rtpstream_id_t *i = (rtpstream_id_t *)g_malloc0(sizeof(rtpstream_id_t));
-                rtpstream_id_copy(&stream_info->id, i);
-                rtp_stream_dialog->last_selected_.append(*i);
+                /* QList.append() does a member by member copy, so allocate new
+                 * addresses. rtpstream_id_copy() overwrites all struct members.
+                 */
+                rtpstream_id_copy(&stream_info->id, &selected_id);
+                rtp_stream_dialog->last_selected_.append(selected_id);
             }
             ++iter;
         }

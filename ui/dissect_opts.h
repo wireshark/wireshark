@@ -49,6 +49,7 @@ extern "C" {
 /** Capture options coming from user interface */
 typedef struct dissect_options_tag {
     ts_type time_format;
+    ts_precision time_precision;
     GSList *enable_protocol_slist; //enable protocols that are disabled by default
     GSList *disable_protocol_slist;
     GSList *enable_heur_slist;

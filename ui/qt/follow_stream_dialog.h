@@ -40,7 +40,7 @@ class FollowStreamDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type = FOLLOW_TCP);
+    explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id);
     ~FollowStreamDialog();
 
     void addCodecs(const QMap<QString, QTextCodec *> &codecMap);

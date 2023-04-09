@@ -5057,7 +5057,7 @@ proto_register_isis_lsp(void)
 
         { &hf_isis_lsp_sid_sli_label,
             { "SID/Label/Index", "isis.lsp.sid.sli_label",
-              FT_UINT24, BASE_DEC, NULL, 0xFFFFF,
+              FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
               NULL, HFILL }
         },
 
@@ -5970,7 +5970,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_mt_cap_spsourceid,
             { "SPSourceId", "isis.lsp.mt_cap.spsourceid",
-              FT_UINT32, BASE_HEX_DEC, NULL, 0xfffff,
+              FT_UINT32, BASE_HEX_DEC, NULL, 0x000fffff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_mt_cap_overload,

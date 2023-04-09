@@ -9216,19 +9216,19 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_vht_support_80plus_mhz_flag,
           { "VHT support for 80+80 MHz", "ieee1905.ap_vht.vht_80plus_mhz",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x80, NULL, HFILL}},
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0080, NULL, HFILL}},
 
         { &hf_ieee1905_vht_support_160_mhz_flag,
           { "VHT support for 160 MHz", "ieee1905.ap_vht.vht_160mhz",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL}},
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL}},
 
         { &hf_ieee1905_su_beamformer_capable_flag,
           { "SU beamformer capable", "ieee1905.ap_vht.su_beamformer",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL}},
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0020, NULL, HFILL}},
 
         { &hf_ieee1905_mu_beamformer_capable_flag,
           { "MU beamformer capable", "ieee1905.ap_vht.mu_beamformer",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL}},
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0010, NULL, HFILL}},
 
         { &hf_ieee1905_ap_vht_capabilities_radio_id,
           { "Radio unique ID", "ieee1905.ap_vht.radio_id",
@@ -10101,7 +10101,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_channel_scan_result_neigh_num,
           { "Number of Neighbors", "ieee1905.channel_scan_result.number_of_neighbors",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_channel_scan_result_bssid,
           { "BSSID", "ieee1905.channel_scan_result.bssid",

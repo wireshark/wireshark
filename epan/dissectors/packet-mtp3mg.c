@@ -304,8 +304,8 @@ static const value_string japan_test_message_type_acro_values[] = {
 #define ANSI_MIM_SLC_MASK 0x0f
 
 #define ANSI_DLC_LENGTH    3
-#define ANSI_DLC_SLC_MASK  0x0000f
-#define ANSI_DLC_LINK_MASK 0x3fff0
+#define ANSI_DLC_SLC_MASK  0x00000f
+#define ANSI_DLC_LINK_MASK 0x03fff0
 #define ITU_DLC_LENGTH     2
 #define ITU_DLC_LINK_MASK  0x0fff
 
@@ -1203,11 +1203,11 @@ proto_register_mtp3mg(void)
               "Message type", HFILL }},
         { &hf_mtp3mg_coo_ansi_slc,
             { "Signalling Link Code", "mtp3mg.slc",
-              FT_UINT8, BASE_DEC, NULL, ANSI_COO_SLC_MASK,
+              FT_UINT16, BASE_DEC, NULL, ANSI_COO_SLC_MASK,
               "SLC of affected link", HFILL }},
         { &hf_mtp3mg_coo_ansi_fsn,
             { "Forward Sequence Number", "mtp3mg.fsn",
-              FT_UINT8, BASE_DEC, NULL, ANSI_COO_FSN_MASK,
+              FT_UINT16, BASE_DEC, NULL, ANSI_COO_FSN_MASK,
               "Forward Sequence Number of last accepted message", HFILL }},
         { &hf_mtp3mg_coo_itu_fsn,
             { "Forward Sequence Number", "mtp3mg.fsn",
@@ -1315,15 +1315,15 @@ proto_register_mtp3mg(void)
               "SLC of affected link", HFILL }},
         { &hf_mtp3mg_dlc_ansi_slc,
             { "Signalling Link Code", "mtp3mg.slc",
-              FT_UINT8, BASE_DEC, NULL, ANSI_DLC_SLC_MASK,
+              FT_UINT24, BASE_DEC, NULL, ANSI_DLC_SLC_MASK,
               "SLC of affected link", HFILL }},
         { &hf_mtp3mg_dlc_ansi_link,
             { "Link", "mtp3mg.link",
-              FT_UINT8, BASE_DEC, NULL, ANSI_DLC_LINK_MASK,
+              FT_UINT24, BASE_DEC, NULL, ANSI_DLC_LINK_MASK,
               "CIC of BIC used to carry data", HFILL }},
         { &hf_mtp3mg_dlc_itu_link,
             { "Link", "mtp3mg.link",
-              FT_UINT8, BASE_DEC, NULL, ITU_DLC_LINK_MASK,
+              FT_UINT16, BASE_DEC, NULL, ITU_DLC_LINK_MASK,
               "CIC of BIC used to carry data", HFILL }},
         { &hf_mtp3mg_upu_user,
             { "User", "mtp3mg.user",

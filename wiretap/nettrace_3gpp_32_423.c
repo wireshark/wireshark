@@ -239,11 +239,9 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	int dissector_table_val = 0;
 
 	int name_str_len = 0;
-	int tag_str_len = 0;
-	int proto_str_len, dissector_table_str_len, raw_data_len, pkt_data_len,  exp_pdu_tags_len, i, j;
+	int proto_str_len, dissector_table_str_len, raw_data_len, pkt_data_len, exp_pdu_tags_len, i;
 	guint8 *packet_buf;
 	gint val1, val2;
-	gboolean port_type_defined = FALSE;
 	gboolean use_proto_table = FALSE;
 
 	/* We should always and only be called with a <msg....</msg> payload */
@@ -439,167 +437,54 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	next_pos = STRNSTR(curr_pos, "<");
 	raw_data_len = (int)(next_pos - curr_pos);
 
-	/* Calculate the space needed for exp pdu tags */
-	if (use_proto_table == FALSE) {
-		tag_str_len = (proto_str_len + 3) & 0xfffffffc;
-		exp_pdu_tags_len = tag_str_len + 4;
-	} else {
-		tag_str_len = (dissector_table_str_len + 3) & 0xfffffffc;
-		exp_pdu_tags_len = tag_str_len + 4;
-		/* Add EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL + length */
-		exp_pdu_tags_len += 4 + 4;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
-		/* The assert prevents static code analyzers to raise warnings */
-		ws_assert(exported_pdu_info.proto_col_str);
-		exp_pdu_tags_len += 4 + (int)strlen(exported_pdu_info.proto_col_str);
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
-		exp_pdu_tags_len += 4 + EXP_PDU_TAG_IPV4_LEN;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_SRC_BIT) {
-		exp_pdu_tags_len += 4 + EXP_PDU_TAG_IPV6_LEN;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_SRC_PORT_BIT) {
-		if (!port_type_defined) {
-			exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_TYPE_LEN;
-			port_type_defined = TRUE;
-		}
-		exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_LEN;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
-		exp_pdu_tags_len += 4 + EXP_PDU_TAG_IPV4_LEN;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
-		exp_pdu_tags_len += 4 + EXP_PDU_TAG_IPV6_LEN;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
-		if (!port_type_defined) {
-			exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_TYPE_LEN;
-		}
-		exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_LEN;
-	}
-	exp_pdu_tags_len += 4; /* account for opt_endofopt */
-
-	/* Allocate the packet buf */
-	pkt_data_len = raw_data_len / 2;
-	ws_buffer_assure_space(buf, (gsize)pkt_data_len + (gsize)exp_pdu_tags_len);
-	ws_buffer_increase_length(buf, (gsize)pkt_data_len + (gsize)exp_pdu_tags_len);
-	packet_buf = ws_buffer_start_ptr(buf);
-
 	/* Fill packet buff */
+	ws_buffer_clean(buf);
 	if (use_proto_table == FALSE) {
-		phton16(packet_buf, EXP_PDU_TAG_DISSECTOR_NAME);
-		packet_buf += 2;
-		phton16(packet_buf, tag_str_len);
-		packet_buf += 2;
-		memset(packet_buf, 0, tag_str_len);
-		memcpy(packet_buf, proto_name_str, proto_str_len);
-		packet_buf += tag_str_len;
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, proto_name_str, proto_str_len);
 	}
 	else {
-		phton16(packet_buf, EXP_PDU_TAG_DISSECTOR_TABLE_NAME);
-		packet_buf += 2;
-		phton16(packet_buf, tag_str_len);
-		packet_buf += 2;
-		memset(packet_buf, 0, tag_str_len);
-		memcpy(packet_buf, dissector_table_str, dissector_table_str_len);
-		packet_buf += tag_str_len;
-
-		phton16(packet_buf, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL);
-		packet_buf += 2;
-		phton16(packet_buf, 4); /* option length */
-		packet_buf += 2;
-		phton32(packet_buf, dissector_table_val);
-		packet_buf += 4;
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_TABLE_NAME, dissector_table_str, dissector_table_str_len);
+		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL, dissector_table_val);
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_COL_PROT_TEXT);
-		packet_buf += 2;
-		/* XXX - what if it's longer than 65535 bytes? */
-		phton16(packet_buf, (guint16)strlen(exported_pdu_info.proto_col_str));
-		packet_buf += 2;
-		for (j = 0; j < (int)strlen(exported_pdu_info.proto_col_str); j++) {
-			*packet_buf++ = exported_pdu_info.proto_col_str[j];
-		}
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str, (guint16)strlen(exported_pdu_info.proto_col_str));
 		g_free(exported_pdu_info.proto_col_str);
 		exported_pdu_info.proto_col_str = NULL;
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_IPV4_SRC);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_IPV4_LEN);
-		packet_buf += 2;
-		memcpy(packet_buf, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
-		packet_buf += EXP_PDU_TAG_IPV4_LEN;
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_IPV4_DST);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_IPV4_LEN);
-		packet_buf += 2;
-		memcpy(packet_buf, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
-		packet_buf += EXP_PDU_TAG_IPV4_LEN;
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_SRC_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_IPV6_SRC);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_IPV6_LEN);
-		packet_buf += 2;
-		memcpy(packet_buf, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
-		packet_buf += EXP_PDU_TAG_IPV6_LEN;
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_IPV6_DST);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_IPV6_LEN);
-		packet_buf += 2;
-		memcpy(packet_buf, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
-		packet_buf += EXP_PDU_TAG_IPV6_LEN;
+		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
 	}
 
 	if (exported_pdu_info.presence_flags & (EXP_PDU_TAG_SRC_PORT_BIT | EXP_PDU_TAG_DST_PORT_BIT)) {
-		phton16(packet_buf, EXP_PDU_TAG_PORT_TYPE);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_PORT_TYPE_LEN);
-		packet_buf += 2;
-		phton32(packet_buf, exported_pdu_info.ptype);
-		packet_buf += 4;
+		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_PORT_TYPE, exported_pdu_info.ptype);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_SRC_PORT_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_SRC_PORT);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_PORT_LEN);
-		packet_buf += 2;
-		phton32(packet_buf, exported_pdu_info.src_port);
-		packet_buf += 4;
+		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_SRC_PORT, exported_pdu_info.src_port);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
-		phton16(packet_buf, EXP_PDU_TAG_DST_PORT);
-		packet_buf += 2;
-		phton16(packet_buf, EXP_PDU_TAG_PORT_LEN);
-		packet_buf += 4;
-		phton32(packet_buf, exported_pdu_info.dst_port);
-		packet_buf += 4;
+		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_DST_PORT, exported_pdu_info.dst_port);
 	}
 
 	/* Add end of options */
-	*packet_buf++ = 0;
-	*packet_buf++ = 0;
-	*packet_buf++ = 0;
-	*packet_buf++ = 0;
+	exp_pdu_tags_len = wtap_buffer_append_epdu_end(buf);
 
 	/* Convert the hex raw msg data to binary and write to the packet buf*/
+	pkt_data_len = raw_data_len / 2;
+	ws_buffer_assure_space(buf, pkt_data_len);
+	packet_buf = ws_buffer_end_ptr(buf);
+
 	for (i = 0; i < pkt_data_len; i++) {
 		gchar chr1, chr2;
 
@@ -622,9 +507,10 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 			goto end;
 		}
 	}
+	ws_buffer_increase_length(buf, pkt_data_len);
 
-	rec->rec_header.packet_header.caplen = pkt_data_len + exp_pdu_tags_len;
-	rec->rec_header.packet_header.len = pkt_data_len + exp_pdu_tags_len;
+	rec->rec_header.packet_header.caplen = (guint32)ws_buffer_length(buf);
+	rec->rec_header.packet_header.len = (guint32)ws_buffer_length(buf);
 
 end:
 	return status;

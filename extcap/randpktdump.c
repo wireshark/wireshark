@@ -24,7 +24,7 @@
 #include <wsutil/wslog.h>
 
 #include <cli_main.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/cmdarg_err.h>
 
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR "0"

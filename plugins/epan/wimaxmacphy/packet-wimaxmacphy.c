@@ -4859,7 +4859,7 @@ proto_register_wimaxmacphy(void)
             {
                 &hf_wimaxmacphy_sub_burst_harq_chase_harq_channel_id,
                 {
-                    "HARQ channeld id (ACID)",
+                    "HARQ channel id (ACID)",
                     "wimaxmacphy.sub_burst_harq_chase_harq_channel_id",
                     FT_UINT8,
                     BASE_DEC,

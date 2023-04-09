@@ -1157,7 +1157,7 @@ wmem_test_strbuf_validate(void)
 
     strbuf = wmem_strbuf_new(NULL, "TEST\xEF ABC");
     g_assert_false(wmem_strbuf_utf8_validate(strbuf, &endptr));
-    g_assert(endptr == &strbuf->str[4]);
+    g_assert_true(endptr == &strbuf->str[4]);
     wmem_strbuf_destroy(strbuf);
 
     strbuf = wmem_strbuf_new(NULL, NULL);
@@ -1168,7 +1168,7 @@ wmem_test_strbuf_validate(void)
     strbuf = wmem_strbuf_new(NULL, NULL);
     wmem_strbuf_append_len(strbuf, "TEST\x00\xEF ABC", 10);
     g_assert_false(wmem_strbuf_utf8_validate(strbuf, &endptr));
-    g_assert(endptr == &strbuf->str[5]);
+    g_assert_true(endptr == &strbuf->str[5]);
     wmem_strbuf_destroy(strbuf);
 
     strbuf = wmem_strbuf_new(NULL, NULL);

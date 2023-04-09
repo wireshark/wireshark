@@ -322,6 +322,37 @@ fix_endianness_blf_canfdmessage64(blf_canfdmessage64_t *header) {
 }
 
 static void
+fix_endianness_blf_canerror(blf_canerror_t *header) {
+    header->channel = GUINT16_FROM_LE(header->channel);
+    header->length = GUINT16_FROM_LE(header->length);
+}
+
+static void
+fix_endianness_blf_canerrorext(blf_canerrorext_t *header) {
+    header->channel = GUINT16_FROM_LE(header->channel);
+    header->length = GUINT16_FROM_LE(header->length);
+    header->flags = GUINT32_FROM_LE(header->flags);
+    header->frameLength_in_ns = GUINT32_FROM_LE(header->frameLength_in_ns);
+    header->id = GUINT32_FROM_LE(header->id);
+    header->errorCodeExt = GUINT16_FROM_LE(header->errorCodeExt);
+}
+
+static void
+fix_endianness_blf_canfderror64(blf_canfderror64_t *header) {
+    header->flags = GUINT16_FROM_LE(header->flags);
+    header->errorCodeExt = GUINT16_FROM_LE(header->errorCodeExt);
+    header->extFlags = GUINT16_FROM_LE(header->extFlags);
+    header->id = GUINT32_FROM_LE(header->id);
+    header->frameLength_in_ns = GUINT32_FROM_LE(header->frameLength_in_ns);
+    header->btrCfgArb = GUINT32_FROM_LE(header->btrCfgArb);
+    header->btrCfgData = GUINT32_FROM_LE(header->btrCfgData);
+    header->timeOffsetBrsNs = GUINT32_FROM_LE(header->timeOffsetBrsNs);
+    header->timeOffsetCrcDelNs = GUINT32_FROM_LE(header->timeOffsetCrcDelNs);
+    header->crc = GUINT32_FROM_LE(header->crc);
+    header->errorPosition = GUINT16_FROM_LE(header->errorPosition);
+}
+
+static void
 fix_endianness_blf_flexraydata(blf_flexraydata_t *header) {
     header->channel = GUINT16_FROM_LE(header->channel);
     header->messageId = GUINT16_FROM_LE(header->messageId);
@@ -1282,6 +1313,223 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
 }
 
 static gboolean
+blf_read_canerror(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp) {
+    blf_canerror_t canheader;
+    guint32  canid;
+    guint8   payload_length;
+    guint8   tmpbuf[16] = {0};
+
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: CAN_ERROR: not enough bytes for canerror header in object");
+        ws_debug("not enough bytes for canerror header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
+        ws_debug("not enough bytes for canerror header in file");
+        return FALSE;
+    }
+    fix_endianness_blf_canerror(&canheader);
+
+    // Set CAN_ERR_FLAG in unused bits of Can ID to indicate error in socketcan
+    canid = CAN_ERR_FLAG;
+
+    // Fixed packet data length for socketcan error messages
+    payload_length = CAN_ERR_DLC;
+
+    tmpbuf[0] = (canid & 0xff000000) >> 24;
+    tmpbuf[1] = (canid & 0x00ff0000) >> 16;
+    tmpbuf[2] = (canid & 0x0000ff00) >> 8;
+    tmpbuf[3] = (canid & 0x000000ff);
+    tmpbuf[4] = payload_length;
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+
+    blf_init_rec(params, timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, sizeof(tmpbuf), sizeof(tmpbuf));
+    return TRUE;
+}
+
+static gboolean
+blf_read_canerrorext(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp) {
+    blf_canerrorext_t canheader;
+
+    gboolean err_ack = false;
+    gboolean err_prot = false;
+    gboolean direction_tx;
+    guint32  canid;
+    guint8   payload_length;
+    guint8   tmpbuf[16] = {0};
+
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: CAN_ERROR_EXT: not enough bytes for canerrorext header in object");
+        ws_debug("not enough bytes for canerrorext header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
+        ws_debug("not enough bytes for canerrorext header in file");
+        return FALSE;
+    }
+    fix_endianness_blf_canerrorext(&canheader);
+
+    if (canheader.flags & BLF_CANERROREXT_FLAG_CANCORE) {
+        // Map Vector Can Core error codes to compareable socketcan errors
+        switch ((canheader.errorCodeExt >> 6) & 0x3f) {
+        case BLF_CANERROREXT_ECC_MEANING_BIT_ERROR:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_BIT;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_FORM_ERROR:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_FORM;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_STUFF_ERROR:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_STUFF;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_CRC_ERROR:
+            err_prot = true;
+            tmpbuf[11] = CAN_ERR_PROT_LOC_CRC_SEQ;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_NACK_ERROR:
+            err_ack = true;
+            tmpbuf[11] = CAN_ERR_PROT_LOC_ACK;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_OVERLOAD:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_OVERLOAD;
+            break;
+        default:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_UNSPEC;
+            break;
+        }
+        err_ack = err_ack || (canheader.errorCodeExt & BLF_CANERROREXT_EXTECC_NOT_ACK) == 0x0;
+        if (err_ack) {
+            // Don't set protocol error on ack errors
+            err_prot = false;
+        }
+    }
+
+    // CanID contains error class in socketcan
+    canid = CAN_ERR_FLAG;
+    canid |= err_prot ? CAN_ERR_PROT : 0;
+    canid |= err_ack ? CAN_ERR_ACK : 0;
+
+    // Fixed packet data length for socketcan error messages
+    payload_length = CAN_ERR_DLC;
+    canheader.dlc = payload_length;
+
+    tmpbuf[0] = (canid & 0xff000000) >> 24;
+    tmpbuf[1] = (canid & 0x00ff0000) >> 16;
+    tmpbuf[2] = (canid & 0x0000ff00) >> 8;
+    tmpbuf[3] = (canid & 0x000000ff);
+    tmpbuf[4] = payload_length;
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+
+    blf_init_rec(params, timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, sizeof(tmpbuf), sizeof(tmpbuf));
+    if (canheader.flags & BLF_CANERROREXT_FLAG_CANCORE) {
+        direction_tx = (canheader.errorCodeExt & BLF_CANERROREXT_EXTECC_TX) == BLF_CANERROREXT_EXTECC_TX;
+        blf_add_direction_option(params, direction_tx ? BLF_DIR_TX: BLF_DIR_RX);
+    }
+    return TRUE;
+}
+
+static gboolean
+blf_read_canfderror64(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp) {
+    blf_canfderror64_t canheader;
+
+    gboolean err_ack = false;
+    gboolean err_prot = false;
+    gboolean direction_tx;
+    guint32  canid;
+    guint8   payload_length;
+    guint8   tmpbuf[16] = {0};
+
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: CAN_FD_ERROR_64: not enough bytes for canfderror header in object");
+        ws_debug("not enough bytes for canfderror header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
+        ws_debug("not enough bytes for canfderror header in file");
+        return FALSE;
+    }
+    fix_endianness_blf_canfderror64(&canheader);
+
+    if (canheader.flags & BLF_CANERROREXT_FLAG_CANCORE) {
+        // Map Vector Can Core error codes to compareable socketcan errors
+        switch ((canheader.errorCodeExt >> 6) & 0x3f) {
+        case BLF_CANERROREXT_ECC_MEANING_BIT_ERROR:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_BIT;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_FORM_ERROR:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_FORM;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_STUFF_ERROR:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_STUFF;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_CRC_ERROR:
+            err_prot = true;
+            tmpbuf[11] = CAN_ERR_PROT_LOC_CRC_SEQ;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_NACK_ERROR:
+            err_ack = true;
+            tmpbuf[11] = CAN_ERR_PROT_LOC_ACK;
+            break;
+        case BLF_CANERROREXT_ECC_MEANING_OVERLOAD:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_OVERLOAD;
+            break;
+        default:
+            err_prot = true;
+            tmpbuf[10] = CAN_ERR_PROT_UNSPEC;
+            break;
+        }
+        err_ack = err_ack || (canheader.errorCodeExt & BLF_CANERROREXT_EXTECC_NOT_ACK) == 0x0;
+        if (err_ack) {
+            // Don't set protocol error on ack errors
+            err_prot = false;
+        }
+    }
+
+    // CanID contains error class in socketcan
+    canid = CAN_ERR_FLAG;
+    canid |= err_prot ? CAN_ERR_PROT : 0;
+    canid |= err_ack ? CAN_ERR_ACK : 0;
+
+    // Fixed packet data length for socketcan error messages
+    payload_length = CAN_ERR_DLC;
+    canheader.dlc = payload_length;
+
+    tmpbuf[0] = (canid & 0xff000000) >> 24;
+    tmpbuf[1] = (canid & 0x00ff0000) >> 16;
+    tmpbuf[2] = (canid & 0x0000ff00) >> 8;
+    tmpbuf[3] = (canid & 0x000000ff);
+    tmpbuf[4] = payload_length;
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+
+    blf_init_rec(params, timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, sizeof(tmpbuf), sizeof(tmpbuf));
+    if (canheader.flags & BLF_CANERROREXT_FLAG_CANCORE) {
+        direction_tx = (canheader.errorCodeExt & BLF_CANERROREXT_EXTECC_TX) == BLF_CANERROREXT_EXTECC_TX;
+        blf_add_direction_option(params, direction_tx ? BLF_DIR_TX: BLF_DIR_RX);
+    }
+    return TRUE;
+}
+
+static gboolean
 blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp) {
     blf_flexraydata_t frheader;
 
@@ -1784,8 +2032,16 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             return blf_read_canmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp, FALSE);
             break;
 
+        case BLF_OBJTYPE_CAN_ERROR:
+            return blf_read_canerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp);
+            break;
+
         case BLF_OBJTYPE_CAN_MESSAGE2:
             return blf_read_canmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp, TRUE);
+            break;
+
+        case BLF_OBJTYPE_CAN_ERROR_EXT:
+            return blf_read_canerrorext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp);
             break;
 
         case BLF_OBJTYPE_CAN_FD_MESSAGE:
@@ -1794,6 +2050,10 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
 
         case BLF_OBJTYPE_CAN_FD_MESSAGE_64:
             return blf_read_canfdmessage64(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp);
+            break;
+
+        case BLF_OBJTYPE_CAN_FD_ERROR_64:
+            return blf_read_canfderror64(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, timestamp);
             break;
 
         case BLF_OBJTYPE_FLEXRAY_DATA:

@@ -391,10 +391,11 @@ dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 	first_byte = tvb_get_guint8(tvb, 0);
 
 	/* If first_byte of bfcp_packet is a combination of the
-	 * version and the I bit. The value must be either 0x20 or 0x30
+	 * version, the R-bit and the F-bit. The value must be:
+	 * 0x20 || 0x30 || 0x40 || 0x48 || 0x50 || 0x58
 	 * if the bit is set, otherwise it is not BFCP.
 	 */
-	if ((first_byte != 0x20) && (first_byte != 0x30))
+	if ((first_byte != 0x20) && (first_byte != 0x30) && (first_byte != 0x40) && (first_byte != 0x48) && (first_byte != 0x50) && (first_byte != 0x58))
 		return FALSE;
 
 	primitive = tvb_get_guint8(tvb, 1);

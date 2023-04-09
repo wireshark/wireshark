@@ -2781,7 +2781,7 @@ proto_register_ipmi_transport(void)
 
 		{ &hf_ipmi_trn_lan54_flow_label,
 			{ "Flow Label",
-				"ipmi.lan.flow_label", FT_UINT24, BASE_HEX, NULL, 0xFFFFF, NULL, HFILL }},
+				"ipmi.lan.flow_label", FT_UINT24, BASE_HEX, NULL, 0x0FFFFF, NULL, HFILL }},
 
 		{ &hf_ipmi_trn_lan55_static_addr_max,
 			{ "Static Address Max",

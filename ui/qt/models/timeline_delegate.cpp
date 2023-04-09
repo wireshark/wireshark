@@ -15,6 +15,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QTreeView>
+#include <QAbstractProxyModel>
 
 // XXX We might want to move this to conversation_dialog.cpp.
 
@@ -40,26 +41,52 @@ void TimelineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QStyleOptionViewItem option_vi = option;
     QStyledItemDelegate::initStyleOption(&option_vi, index);
 
+    bool drawBar = false;
     struct timeline_span span_px = index.data(_dataRole).value<struct timeline_span>();
     if (_dataRole == ATapDataModel::TIMELINE_DATA) {
         double span_s = span_px.maxRelTime - span_px.minRelTime;
-        if (qobject_cast<QTreeView *>(parent()) == nullptr)
-            return;
         QTreeView * tree = qobject_cast<QTreeView *>(parent());
-        int start_px = tree->columnWidth(span_px.colStart);
-        int column_px = start_px + tree->columnWidth(span_px.colDuration);
+        if (tree) {
+            QAbstractProxyModel * proxy = qobject_cast<QAbstractProxyModel *>(tree->model());
+            if (proxy && proxy->sourceModel()) {
+                QModelIndex indexStart = proxy->mapFromSource(proxy->sourceModel()->index(0, span_px.colStart));
+                int colStart = -1;
+                int start_px = 0;
+                if (indexStart.isValid()) {
+                    colStart = indexStart.column();
+                    start_px = tree->columnWidth(colStart);
+                }
+                int colDuration = -1;
+                int column_px = start_px;
+                QModelIndex indexDuration = proxy->mapFromSource(proxy->sourceModel()->index(0, span_px.colDuration));
+                if (indexDuration.isValid()) {
+                    colDuration = indexDuration.column();
+                    column_px += tree->columnWidth(colDuration);
+                }
 
-        span_px.start = ((span_px.startTime - span_px.minRelTime) * column_px) / span_s;
-        span_px.width = ((span_px.stopTime - span_px.startTime) * column_px) / span_s;
+                span_px.start = ((span_px.startTime - span_px.minRelTime) * column_px) / span_s;
+                span_px.width = ((span_px.stopTime - span_px.startTime) * column_px) / span_s;
 
-        if (index.column() == span_px.colDuration) {
-            span_px.start -= start_px;
+                if (index.column() == colStart) {
+                    drawBar = true;
+                } else if (index.column() == colDuration) {
+                    drawBar = true;
+                    span_px.start -= start_px;
+                }
+            }
         }
+    }
+
+    if (!drawBar) {
+        QStyledItemDelegate::paint(painter, option, index);
+        return;
     }
 
     // Paint our rect with no text using the current style, then draw our
     // bar and text over it.
-    QStyledItemDelegate::paint(painter, option, index);
+    option_vi.text = QString();
+    QStyle *style = option_vi.widget ? option_vi.widget->style() : QApplication::style();
+    style->drawControl(QStyle::CE_ItemViewItem, &option_vi, painter, option_vi.widget);
 
     if (QApplication::style()->objectName().contains("vista")) {
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there

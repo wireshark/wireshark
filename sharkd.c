@@ -24,8 +24,8 @@
 #include <epan/exceptions.h>
 #include <epan/epan.h>
 
-#include <ui/clopts_common.h>
-#include <ui/cmdarg_err.h>
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -46,7 +46,7 @@
 #include "ui/util.h"
 #include "ui/ws_ui_util.h"
 #include "ui/decode_as_utils.h"
-#include "ui/filter_files.h"
+#include "wsutil/filter_files.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/failure_message.h"
 #include "wtap.h"

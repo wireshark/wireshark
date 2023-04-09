@@ -64,8 +64,6 @@ set(PIDL_DISSECTOR_lsa_EXTRA_DEPS
 	idl_types.h
 )
 set(PIDL_DISSECTOR_mapi_EXTRA_DEPS
-	mapi/request.cnf.c
-	mapi/response.cnf.c
 	idl_types.h
 	mapicodes_enum.h
 	mapitags_enum.h

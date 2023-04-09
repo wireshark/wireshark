@@ -359,7 +359,7 @@ QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
     player_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     player_button->setPopupMode(QToolButton::MenuButtonPopup);
 
-    ca = new QAction(tr("&Play Streams"));
+    ca = new QAction(tr("&Play Streams"), player_button);
     ca->setToolTip(tr("Open RTP player dialog"));
     ca->setIcon(StockIcon("media-playback-start"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
@@ -1533,7 +1533,7 @@ void RtpPlayerDialog::outputNotify()
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     // First notify can show end of buffer, not play point so we have
     // remember the shift
-    if ( -1 == notify_timer_start_diff_) {
+    if ( -1 == notify_timer_start_diff_ || 0 == notify_timer_start_diff_) {
       notify_timer_start_diff_ = usecs;
     }
     usecs -= notify_timer_start_diff_;

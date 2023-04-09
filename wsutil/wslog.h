@@ -64,7 +64,7 @@ ws_log_console_open_pref ws_log_console_open;
 
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,
-                            struct timespec timestamp,
+                            const char *fatal_msg, struct timespec timestamp,
                             const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data);
@@ -76,14 +76,14 @@ typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 WS_DLL_PUBLIC
 void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
-                            struct timespec timestamp,
+                            struct timespec timestamp, intmax_t pid,
                             const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap);
 
 
 WS_DLL_PUBLIC
 void ws_log_console_writer(const char *domain, enum ws_log_level level,
-                            struct timespec timestamp,
+                            struct timespec timestamp, intmax_t pid,
                             const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap);
 

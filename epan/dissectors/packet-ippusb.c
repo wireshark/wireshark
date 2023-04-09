@@ -240,7 +240,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (is_http_header(first_linelen, first_line) && last == TAG_END_OF_ATTRIBUTES && status_code != PRINT_JOB && status_code != SEND_DOCUMENT) {
         /* An indiviual ippusb packet with http header */
 
-        proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, 0);
+        proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
 
         if (ippusb_last_pdu >= 0 && !pinfo->fd->visited) {
             ippusb_last_pdu = -1;
@@ -257,7 +257,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             gboolean save_fragmented = pinfo->fragmented;
             pinfo->fragmented = TRUE;
 
-            proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, 0);
+            proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
 
             if (is_http_header(first_linelen, first_line)) {
                 /* The start of a new packet that will need to be reassembled */
@@ -355,7 +355,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             if (current_msp && !current_msp->finished && current_msp->nxtpdu == 0) {
                 /* This is a packet that was not completed and assembly will be attempted */
 
-                proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, 0);
+                proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
                 fragment_head *head;
 
                 if (!current_msp->reassembled) {
@@ -404,7 +404,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             else if (current_msp &&last_chunk && strncmp(last_chunk, CHUNKED_END, CHUNK_LENGTH_MIN) == 0) {
                 /* This is the last segment of the chunked transfer and reassembled packet */
 
-                proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, 0);
+                proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
 
                 fragment_head *head = fragment_get_reassembled_id(&ippusb_reassembly_table, pinfo, current_msp->first_frame);
 
