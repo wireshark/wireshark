@@ -249,7 +249,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         // Normal timestamp sequence
         in_time_sequence = TRUE;
     } else if ((statinfo->first_timestamp > rtpinfo->info_timestamp) &&
-        (TIMESTAMP_DIFFERENCE(0x00000000,statinfo->first_timestamp) + TIMESTAMP_DIFFERENCE(rtpinfo->info_timestamp, 0xFFFFFFFF)) < 0x80000000) {
+        (TIMESTAMP_DIFFERENCE(statinfo->first_timestamp, 0xFFFFFFFF) + TIMESTAMP_DIFFERENCE(0x00000000, rtpinfo->info_timestamp)) < 0x80000000) {
         // Normal timestamp sequence with wraparound
         in_time_sequence = TRUE;
     } else {
