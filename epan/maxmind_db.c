@@ -377,7 +377,7 @@ static void mmdb_resolve_stop(void) {
     }
 
     if (!mmdbr_pipe_valid()) {
-        ws_debug("not cleaning up, invalid PID %d", mmdbr_pipe.pid);
+        ws_debug("not cleaning up, invalid PID %"G_PID_FORMAT, mmdbr_pipe.pid);
         return;
     }
 
@@ -394,7 +394,7 @@ static void mmdb_resolve_stop(void) {
     ws_debug("closing stdin IO");
     g_io_channel_unref(mmdbr_pipe.stdin_io);
 
-    ws_debug("closing pid %d", mmdbr_pipe.pid);
+    ws_debug("closing pid %"G_PID_FORMAT, mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
 #ifndef _WIN32
     /* Reap mmdbresolve, especially as we may not be shutting down.
@@ -495,7 +495,7 @@ static void mmdb_resolve_start(void) {
 
     ws_pipe_init(&mmdbr_pipe);
     GPid pipe_pid = ws_pipe_spawn_async(&mmdbr_pipe, args);
-    ws_debug("spawned %s pid %d", mmdbresolve, pipe_pid);
+    ws_debug("spawned %s pid %"G_PID_FORMAT, mmdbresolve, pipe_pid);
 
     for (guint i = 0; i < args->len; i++) {
         char *arg = (char *)g_ptr_array_index(args, i);
