@@ -659,6 +659,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-zbee.h
 	packet-zbee-aps.h
 	packet-zbee-nwk.h
+	packet-zbee-tlv.h
 	packet-zbee-security.h
 	packet-zbee-zcl.h
 	packet-zbee-zdp.h
@@ -2089,6 +2090,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zdp-binding.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zdp-discovery.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zdp-management.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-tlv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbncp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zebra.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zep.c

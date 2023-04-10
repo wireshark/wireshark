@@ -22,6 +22,7 @@
 #include "packet-zbee-aps.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-zdp.h"
+#include "packet-zbee-zdp.h"
 
 void proto_reg_handoff_zbee_zdp(void);
 void proto_register_zbee_zdp(void);
@@ -89,6 +90,7 @@ static int hf_zbee_zdp_server_stk_compl_rev = -1;
 static int hf_zbee_zdp_node_type = -1;
 static int hf_zbee_zdp_node_complex = -1;
 static int hf_zbee_zdp_node_user = -1;
+static int hf_zbee_zdp_node_frag_support = -1;
 static int hf_zbee_zdp_node_freq_868 = -1;
 static int hf_zbee_zdp_node_freq_900 = -1;
 static int hf_zbee_zdp_node_freq_2400 = -1;
@@ -139,6 +141,7 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_target = -1;
        int hf_zbee_zdp_replacement = -1;
        int hf_zbee_zdp_replacement_ep = -1;
+       int hf_zbee_zdp_bind_src = -1;
        int hf_zbee_zdp_bind_src64 = -1;
        int hf_zbee_zdp_bind_src_ep = -1;
        int hf_zbee_zdp_bind_dst = -1;
@@ -165,6 +168,7 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_pan_eui64 = -1;
        int hf_zbee_zdp_pan_uint = -1;
        int hf_zbee_zdp_channel = -1;
+       int hf_zbee_zdp_nwk_desc_profile = -1;
        int hf_zbee_zdp_profile_version = -1;
        int hf_zbee_zdp_beacon = -1;
        int hf_zbee_zdp_superframe = -1;
@@ -188,7 +192,18 @@ static int hf_zbee_zdp_scan_channel = -1;
        int hf_zbee_zdp_ieee_join_list_count = -1;
        int hf_zbee_zdp_ieee_join_list_ieee = -1;
        int hf_zbee_zdp_number_of_children = -1;
-
+       int hf_zbee_zdp_beacon_survey_scan_mask = -1;
+       int hf_zbee_zdp_beacon_survey_scan_mask_cnt = -1;
+       int hf_zbee_zdp_beacon_survey_conf_mask = -1;
+       int hf_zbee_zdp_beacon_survey_total = -1;
+       int hf_zbee_zdp_beacon_survey_cur_zbn = -1;
+       int hf_zbee_zdp_beacon_survey_cur_zbn_potent_parents = -1;
+       int hf_zbee_zdp_beacon_survey_other_zbn = -1;
+       int hf_zbee_zdp_beacon_survey_current_parent = -1;
+       int hf_zbee_zdp_beacon_survey_cnt_parents = -1;
+       int hf_zbee_zdp_beacon_survey_parent = -1;
+       int hf_zbee_zdp_tlv_count = -1;
+       int hf_zbee_zdp_tlv_id = -1;
 /* Routing Table */
        int hf_zbee_zdp_rtg = -1;
        int hf_zbee_zdp_rtg_entry = -1;
@@ -218,6 +233,7 @@ static gint ett_zbee_zdp_bind_table = -1;
        gint ett_zbee_zdp_bind_source = -1;
        gint ett_zbee_zdp_assoc_device = -1;
        gint ett_zbee_zdp_nwk = -1;
+       gint ett_zbee_zdp_perm_join_fc = -1;
        gint ett_zbee_zdp_lqi = -1;
        gint ett_zbee_zdp_rtg = -1;
        gint ett_zbee_zdp_cache = -1;
@@ -273,6 +289,8 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_RECOVER_BIND_TABLE,            "Recover Binding Table Request" },
     { ZBEE_ZDP_REQ_BACKUP_SOURCE_BIND,            "Backup Source Binding Request" },
     { ZBEE_ZDP_REQ_RECOVER_SOURCE_BIND,           "Recover Source Binding Request" },
+    { ZBEE_ZDP_REQ_CLEAR_ALL_BINDINGS,            "Clear All Bindings Request" },
+
     { ZBEE_ZDP_REQ_MGMT_NWK_DISC,                 "Network Discovery Request" },
     { ZBEE_ZDP_REQ_MGMT_LQI,                      "Link Quality Request" },
     { ZBEE_ZDP_REQ_MGMT_RTG,                      "Routing Table Request" },
@@ -284,6 +302,15 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE,                "Network Update Request" },
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH,            "Network Update Enhanced Request" },
     { ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Request" },
+    { ZBEE_ZDP_REQ_MGMT_NWK_BEACON_SURVEY,        "Beacon Survey Request"},
+    { ZBEE_ZDP_REQ_SECURITY_START_KEY_NEGOTIATION,"Security Start Key Negotiation Request" },
+    { ZBEE_ZDP_REQ_SECURITY_GET_AUTH_TOKEN,       "Security Get Authentication Token Request"},
+    { ZBEE_ZDP_REQ_SECURITY_GET_AUTH_LEVEL,       "Security Get Authentication Level Request"},
+    { ZBEE_ZDP_REQ_SECURITY_SET_CONFIGURATION,    "Security Set Configuration Request"},
+    { ZBEE_ZDP_REQ_SECURITY_GET_CONFIGURATION,    "Security Get Configuration Request"},
+    { ZBEE_ZDP_REQ_SECURITY_START_KEY_UPDATE,     "Security Start Key Update Request"},
+    { ZBEE_ZDP_REQ_SECURITY_DECOMMISSION,         "Security Decommission Request"},
+    { ZBEE_ZDP_REQ_SECURITY_CHALLENGE,            "Security Challenge Request"},
 
     { ZBEE_ZDP_RSP_NWK_ADDR,                      "Network Address Response" },
     { ZBEE_ZDP_RSP_IEEE_ADDR,                     "Extended Address Response" },
@@ -318,6 +345,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_RSP_RECOVER_BIND_TABLE,            "Recover Binding Table Response" },
     { ZBEE_ZDP_RSP_BACKUP_SOURCE_BIND,            "Backup Source Binding Response" },
     { ZBEE_ZDP_RSP_RECOVER_SOURCE_BIND,           "Recover Source Binding Response" },
+    { ZBEE_ZDP_RSP_CLEAR_ALL_BINDINGS,            "Clear All Bindings Response" },
     { ZBEE_ZDP_RSP_MGMT_NWK_DISC,                 "Network Discovery Response" },
     { ZBEE_ZDP_RSP_MGMT_LQI,                      "Link Quality Response" },
     { ZBEE_ZDP_RSP_MGMT_RTG,                      "Routing Table Response" },
@@ -330,6 +358,15 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_NOT_MGMT_NWKUPDATE_ENH,            "Network Enhanced Update Notify" },
     { ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Response" },
     { ZBEE_ZDP_NOT_MGMT_UNSOLICITED_NWKUPDATE,    "Unsolicited Enhanced Network Update Notify" },
+    { ZBEE_ZDP_RSP_MGMT_NWK_BEACON_SURVEY,        "Beacon Survey Response"},
+    { ZBEE_ZDP_RSP_SECURITY_START_KEY_NEGOTIATION,"Security Start Key Negotiation Response" },
+    { ZBEE_ZDP_RSP_SECURITY_GET_AUTH_TOKEN,       "Security Get Authentication Token Response"},
+    { ZBEE_ZDP_RSP_SECURITY_GET_AUTH_LEVEL,       "Security Get Authentication Level Response"},
+    { ZBEE_ZDP_RSP_SECURITY_SET_CONFIGURATION,    "Security Set Configuration Response"},
+    { ZBEE_ZDP_RSP_SECURITY_GET_CONFIGURATION,    "Security Get Configuration Response"},
+    { ZBEE_ZDP_RSP_SECURITY_START_KEY_UPDATE,     "Security Start Key Update Response"},
+    { ZBEE_ZDP_RSP_SECURITY_DECOMMISSION,         "Security Decommission Response"},
+    { ZBEE_ZDP_RSP_SECURITY_CHALLENGE,            "Security Challenge Response"},
     { 0, NULL }
 };
 
@@ -350,6 +387,8 @@ static const value_string zbee_zdp_status_names[] = {
     { ZBEE_ZDP_STATUS_NOT_AUTHORIZED,             "Not Authorized" },
     { ZBEE_ZDP_STATUS_DEVICE_BINDING_TABLE_FULL,  "Device Binding Table Full" },
     { ZBEE_ZDP_STATUS_INVALID_INDEX,              "Invalid Index" },
+    { ZBEE_ZDP_STATUS_RESPONSE_TOO_LARGE,         "Response Too Large" },
+    { ZBEE_ZDP_STATUS_MISSING_TLV,                "Missing TLV" },
     { 0, NULL }
 };
 
@@ -591,6 +630,7 @@ zdp_parse_status(proto_tree *tree, tvbuff_t *tvb, guint *offset)
     return status;
 } /* zdp_parse_status */
 
+
 /**
  *Parses and displays the a channel mask.
  *
@@ -738,6 +778,7 @@ zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, gboolean show_ver_flag
     static int * const nodes[] = {
         &hf_zbee_zdp_node_complex,
         &hf_zbee_zdp_node_user,
+        &hf_zbee_zdp_node_frag_support,
         &hf_zbee_zdp_node_freq_868,
         &hf_zbee_zdp_node_freq_900,
         &hf_zbee_zdp_node_freq_2400,
@@ -953,6 +994,7 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
     };
 
     proto_tree  *field_tree;
+
     gchar   *complex;
     guint8  tag;
 
@@ -965,7 +1007,7 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
     tag = tvb_get_guint8(tvb, *offset);
     if (tag == tag_charset) {
         gchar   *lang_str[2];
-        guint8   ch;
+        guint8  ch;
         guint8  charset  = tvb_get_guint8(tvb, *offset + 3);
         const gchar *charset_str;
 
@@ -1178,6 +1220,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             dissect_zbee_zdp_req_recover_source_bind(zdp_tvb, pinfo, zdp_tree);
             expert_add_info(pinfo, zdp_tree, &ei_deprecated_command);
             break;
+        case ZBEE_ZDP_REQ_CLEAR_ALL_BINDINGS:
+            dissect_zbee_zdp_req_clear_all_bindings(zdp_tvb, pinfo, zdp_tree);
+            break;
         case ZBEE_ZDP_REQ_MGMT_NWK_DISC:
             dissect_zbee_zdp_req_mgmt_nwk_disc(zdp_tvb, pinfo, zdp_tree, hf_zbee_zdp_scan_channel);
             break;
@@ -1212,6 +1257,33 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         case ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST:
             dissect_zbee_zdp_req_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_MGMT_NWK_BEACON_SURVEY:
+            dissect_zbee_zdp_req_mgmt_nwk_beacon_survey(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_START_KEY_NEGOTIATION:
+            dissect_zbee_zdp_req_security_start_key_negotiation(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_GET_AUTH_TOKEN:
+            dissect_zbee_zdp_req_security_get_auth_token(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_GET_AUTH_LEVEL:
+            dissect_zbee_zdp_req_security_get_auth_level(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_SET_CONFIGURATION:
+            dissect_zbee_zdp_req_security_set_configuration(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_GET_CONFIGURATION:
+            dissect_zbee_zdp_req_security_get_configuration(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_START_KEY_UPDATE:
+            dissect_zbee_zdp_req_security_start_key_update(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_DECOMMISSION:
+            dissect_zbee_zdp_req_security_decommission(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_SECURITY_CHALLENGE:
+            dissect_zbee_zdp_req_security_challenge(zdp_tvb, pinfo, zdp_tree);
             break;
         case ZBEE_ZDP_RSP_NWK_ADDR:
             dissect_zbee_zdp_rsp_nwk_addr(zdp_tvb, pinfo, zdp_tree);
@@ -1333,6 +1405,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             dissect_zbee_zdp_rsp_recover_source_bind(zdp_tvb, pinfo, zdp_tree);
             expert_add_info(pinfo, zdp_tree, &ei_deprecated_command);
             break;
+        case ZBEE_ZDP_RSP_CLEAR_ALL_BINDINGS:
+            dissect_zbee_zdp_rsp_clear_all_bindings(zdp_tvb, pinfo, zdp_tree);
+            break;
         case ZBEE_ZDP_RSP_MGMT_NWK_DISC:
             dissect_zbee_zdp_rsp_mgmt_nwk_disc(zdp_tvb, pinfo, zdp_tree, nwk->version);
             break;
@@ -1368,6 +1443,33 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         case ZBEE_ZDP_NOT_MGMT_UNSOLICITED_NWKUPDATE:
             dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_MGMT_NWK_BEACON_SURVEY:
+            dissect_zbee_zdp_rsp_mgmt_nwk_beacon_survey(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_START_KEY_NEGOTIATION:
+            dissect_zbee_zdp_rsp_security_start_key_negotiation(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_GET_AUTH_TOKEN:
+            dissect_zbee_zdp_rsp_security_get_auth_token(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_GET_AUTH_LEVEL:
+            dissect_zbee_zdp_rsp_security_get_auth_level(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_SET_CONFIGURATION:
+            dissect_zbee_zdp_rsp_security_set_configuration(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_GET_CONFIGURATION:
+            dissect_zbee_zdp_rsp_security_get_configuration(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_START_KEY_UPDATE:
+            dissect_zbee_zdp_rsp_security_start_key_update(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_DECOMMISSION:
+            dissect_zbee_zdp_rsp_security_decommission(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_RSP_SECURITY_CHALLENGE:
+            dissect_zbee_zdp_rsp_security_challenge(zdp_tvb, pinfo, zdp_tree);
             break;
         default:
             /* Invalid Cluster Identifier. */
@@ -1412,7 +1514,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_status,
-        { "Status",                     "zbee_zdp.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_status_names), 0x0,
+        { "Status",                     "zbee_zdp.status", FT_UINT8, BASE_HEX, VALS(zbee_zdp_status_names), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_endpoint,
@@ -1559,6 +1661,10 @@ void proto_register_zbee_zdp(void)
         { "User Descriptor",            "zbee_zdp.node.user", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_USER,
             NULL, HFILL }},
 
+        { &hf_zbee_zdp_node_frag_support,
+        { "Fragmentation Supported",    "zbee_zdp.node.frag_support", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FRAG_SUPPORT,
+            NULL, HFILL }},
+
         { &hf_zbee_zdp_node_freq_868,
         { "868MHz BPSK Band",           "zbee_zdp.node.freq.868mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_868MHZ,
             NULL, HFILL }},
@@ -1699,6 +1805,10 @@ void proto_register_zbee_zdp(void)
         { "Replacement Endpoint",       "zbee_zdp.replacement_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_zbee_zdp_bind_src,
+        { "Source",                     "zbee_zdp.bind.src", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_zbee_zdp_bind_src64,
         { "Source",                     "zbee_zdp.bind.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -1793,6 +1903,10 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_channel,
         { "Channel",         "zbee_zdp.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_nwk_desc_profile,
+        { "Profile",         "zbee_zdp.profile", FT_UINT16, BASE_HEX, NULL, 0x0F,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_profile_version,
@@ -1906,6 +2020,54 @@ void proto_register_zbee_zdp(void)
         { &hf_zbee_zdp_number_of_children,
           { "NumberOfChildren",    "zbee_zdp.n_children", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_scan_mask,
+          { "ScanChannelItem",    "zbee_zdp.scan_ch_list", FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_scan_mask_cnt,
+          { "ScanChannelCount",    "zbee_zdp.scan_ch_cnt", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_conf_mask,
+          { "Configuration Bitmask",    "zbee_zdp.conf_mask", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_total,
+          { "Total beacons surveyed", "zbee_zdp.total_beacons", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_cur_zbn,
+          { "On-network beacons", "zbee_zdp.on_nwk_beacons", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_cur_zbn_potent_parents,
+          { "Potential Parent Beacons", "zbee_zdp.num_of_parents", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_other_zbn,
+          { "Other Network Beacons", "zbee_zdp.other_nwk_beacons", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_current_parent,
+          { "Current Parent", "zbee_zdp.cur_parent", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_parent,
+          { "Potential Parent", "zbee_zdp.p_parent", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon_survey_cnt_parents,
+          { "Count of potential parents", "zbee_zdp.cnt_parents", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_tlv_count,
+          { "TLV Count", "zbee_zdp.tlv_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_tlv_id,
+          { "TLV_ID", "zbee_zdp.tlv_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     /*  APS subtrees */
@@ -1936,6 +2098,7 @@ void proto_register_zbee_zdp(void)
         &ett_zbee_zdp_nwk_desc,
         &ett_zbee_zdp_table_entry,
         &ett_zbee_zdp_descriptor_capability_field,
+        &ett_zbee_zdp_perm_join_fc,
     };
 
     expert_module_t *expert_zbee_zdp;

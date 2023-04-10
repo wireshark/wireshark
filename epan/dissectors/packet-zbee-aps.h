@@ -53,6 +53,8 @@
 #define ZBEE_APS_CMD_TUNNEL                 0x0e
 #define ZBEE_APS_CMD_VERIFY_KEY             0x0f
 #define ZBEE_APS_CMD_CONFIRM_KEY            0x10
+#define ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM   0x11
+#define ZBEE_APS_CMD_RELAY_MSG_UPSTREAM     0x12
 
 #define ZBEE_APS_CMD_KEY_TC_MASTER          0x00
 #define ZBEE_APS_CMD_KEY_STANDARD_NWK       0x01

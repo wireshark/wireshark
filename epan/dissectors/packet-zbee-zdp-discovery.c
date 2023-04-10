@@ -18,6 +18,7 @@
 #include "packet-zbee.h"
 #include "packet-zbee-zdp.h"
 #include "packet-zbee-aps.h"
+#include "packet-zbee-tlv.h"
 
 /**************************************
  * DISCOVERY REQUESTS
@@ -93,6 +94,8 @@ dissect_zbee_zdp_req_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     offset += 2;
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_NODE_DESC);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -806,6 +809,8 @@ dissect_zbee_zdp_rsp_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_NODE_DESC);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);

@@ -54,6 +54,8 @@
 #define ZBEE_NWK_CMD_ED_TIMEOUT_REQUEST         0x0b    /* r21 */
 #define ZBEE_NWK_CMD_ED_TIMEOUT_RESPONSE        0x0c    /* r21 */
 #define ZBEE_NWK_CMD_LINK_PWR_DELTA             0x0d    /* r22 */
+#define ZBEE_NWK_CMD_COMMISSIONING_REQUEST      0x0e    /* r23 */
+#define ZBEE_NWK_CMD_COMMISSIONING_RESPONSE     0x0f    /* r23 */
 
 /*  ZigBee NWK Route Options Flags */
 #define ZBEE_NWK_CMD_ROUTE_OPTION_REPAIR        0x80    /* ZigBee 2004 only. */
@@ -162,6 +164,14 @@ typedef struct {
     guint64     gt_addr64; /* greater than address */
 } table_link_key_t;
 
+
+typedef enum
+{
+    ZBEE_APS_NO_RELAY,
+    ZBEE_APS_RELAY_UPSTREAM,
+    ZBEE_APS_RELAY_DOWNSTREAM
+} aps_relay_type_t;
+
 /* Values in the key rings. */
 typedef struct {
     guint       frame_num;
@@ -178,6 +188,8 @@ typedef struct {
     ieee802154_map_rec     *map_rec;    /* extended src from nwk */
     key_record_t           *nwk;        /* Network key found for this packet */
     key_record_t           *link;       /* Link key found for this packet */
+    aps_relay_type_t        relay_type ; /* Is it upstream/downstream relayed packet? */
+    guint64                 joiner_addr64; /* long address from Relay frame */
 } zbee_nwk_hints_t;
 
 extern ieee802154_map_tab_t zbee_nwk_map;
@@ -206,6 +218,7 @@ extern GHashTable *zbee_table_link_keyring;
 #define ZBEE_IP_BEACON_TLV_LENGTH_MASK         0x0f
 #define ZBEE_IP_BEACON_TLV_TYPE_MASK           0xf0
 #define ZBEE_IP_BEACON_TLV_TYPE_LFDI           0x0
+
 
 #endif /* PACKET_ZBEE_NWK_H */
 

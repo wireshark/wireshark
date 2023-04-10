@@ -43,6 +43,7 @@ static gboolean    zbee_security_parse_key(const gchar *, guint8 *, gboolean);
 
 /* Field pointers. */
 static int hf_zbee_sec_field = -1;
+static int hf_zbee_sec_level = -1;
 static int hf_zbee_sec_key_id = -1;
 static int hf_zbee_sec_nonce = -1;
 static int hf_zbee_sec_counter = -1;
@@ -223,6 +224,10 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
         { &hf_zbee_sec_field,
           { "Security Control Field",   "zbee.sec.field", FT_UINT8, BASE_HEX, NULL,
             0x0, NULL, HFILL }},
+
+        { &hf_zbee_sec_level,
+          { "Security Level",          "zbee.sec.sec_level", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_SEC_CONTROL_LEVEL, NULL, HFILL }},
 
         { &hf_zbee_sec_key_id,
           { "Key Id",                    "zbee.sec.key_id", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
@@ -448,6 +453,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     ieee802154_map_rec *map_rec = NULL;
 
     static int * const sec_flags[] = {
+        &hf_zbee_sec_level,
         &hf_zbee_sec_key_id,
         &hf_zbee_sec_nonce,
         NULL
@@ -546,7 +552,33 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
             default:
                 /* use the nwk extended source address for APS decryption */
                 if ( nwk_hints && (map_rec = nwk_hints->map_rec) )
-                    packet.src64 = map_rec->addr64;
+                {
+                    switch (nwk_hints->relay_type)
+                    {
+                        case ZBEE_APS_RELAY_DOWNSTREAM:
+                        {
+                            ieee802154_short_addr   addr16;
+                            /* In case of downstream Relay must use long address
+                             * of ZC. Seek for it in the address translation
+                             * table. */
+                            addr16.addr = 0;
+                            addr16.pan = ieee_hints->src_pan;
+                            map_rec = (ieee802154_map_rec *) g_hash_table_lookup(zbee_nwk_map.short_table, &addr16);
+                            if (map_rec)
+                            {
+                                packet.src64 = map_rec->addr64;
+                            }
+                        }
+                        break;
+                        case ZBEE_APS_RELAY_UPSTREAM:
+                            /* In case of downstream Relay must use long address of Joiner from the Relay message */
+                            packet.src64 = nwk_hints->joiner_addr64;
+                            break;
+                        default:
+                            packet.src64 = map_rec->addr64;
+                            break;
+                    }
+                }
                 else
                     proto_tree_add_expert(sec_tree, pinfo, &ei_zbee_sec_extended_source_unknown, tvb, 0, 0);
                 break;
@@ -591,8 +623,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 mic_len, ENC_NA);
     }
 
-    /* Check for null payload. */
     payload_len = tvb_reported_length_remaining(tvb, offset+mic_len);
+
+    /* Check for null payload. */
     if (payload_len == 0)
         return NULL;
 
@@ -1224,7 +1257,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
         if ( !nwk_keyring ) {
             nwk_keyring = (GSList **)g_malloc0(sizeof(GSList*));
             g_hash_table_insert(zbee_table_nwk_keyring,
-                    g_memdup2(&nwk_hints->src_pan, sizeof(nwk_hints->src_pan)), nwk_keyring);
+                g_memdup2(&nwk_hints->src_pan, sizeof(nwk_hints->src_pan)), nwk_keyring);
         }
 
         if ( nwk_keyring ) {
