@@ -175,7 +175,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
         /* Only change the filter rule if this is the rule to change or if
          * a matching filter string has been found
          */
-        if(colorf && ( (i==filt_nr) || (!strcmp(filter, colorf->filter_text)) ) ) {
+        if(colorf && ( i == filt_nr || filter == NULL || !strcmp(filter, colorf->filter_text) ) ) {
             /* set filter string to "frame" if we are resetting the rules
              * or if we found a matching filter string which need to be cleared
              */
