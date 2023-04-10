@@ -266,14 +266,14 @@
      <item>
       <widget class="QCheckBox" name="automaticUpdateCheckBox">
        <property name="text">
-        <string>Automatic Update</string>
+        <string>Automatic update</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="enableLegendCheckBox">
        <property name="text">
-        <string>Enable Legend</string>
+        <string>Enable legend</string>
        </property>
       </widget>
      </item>

@@ -216,11 +216,11 @@ between relative (“Rel Start”) and absolute (“Abs Start”) times. Relativ
 times match the “Seconds Since First Captured Packet” time display format in the
 packet list and absolute start times match the “Time of Day” display format.
 
-If a display filter had been applied before the dialog is opened, _Limit to 
+If a display filter had been applied before the dialog is opened, _Limit to
 display filter_ will be set automatically. Additionally, after a display filter
 had been applied, two columns ("Total Packets") and ("Percent Filtered") show
 the number of unfiltered total packets and the percentage of packets in this filter
-display. 
+display.
 
 The btn:[Copy] button will copy the list values to the clipboard in CSV
 (Comma Separated Values), YAML format or JSON format. The numbers are generally
@@ -330,15 +330,15 @@ conversations matching the current display filter. Note that in this
 example we have MaxMind DB configured which gives us extra geographic
 columns. See <<ChMaxMindDbPaths>> for more information.
 
-If a display filter had been applied before the dialog is opened, _Limit to 
+If a display filter had been applied before the dialog is opened, _Limit to
 display filter_ will be set automatically. Additionally, after a display filter
 had been applied, two columns ("Total Packets") and ("Percent Filtered") show
 the number of unfiltered total packets and the percentage of packets in this filter
-display. 
+display.
 
 The btn:[Copy] button will copy the list values to the clipboard in CSV
 (Comma Separated Values), YAML format or JSON format. The numbers are generally
-exported without special formatting, but this can be enabled if needed. 
+exported without special formatting, but this can be enabled if needed.
 The btn:[Map] button will show the endpoints mapped in your web browser.
 
 btn:[Endpoint Types] lets you choose which traffic type tabs are shown. See
@@ -493,6 +493,12 @@ Switch between showing the absolute time of day or the time relative from the st
 
 Log scale::
 Switch between a logarithmic or linear Y axis.
+
+Automatic updates::
+Redraw each graph automatically.
+
+Enable legend::
+Show a legend for graphs with more than one type of Y axis.
 
 The main dialog buttons along the bottom let you do the following:
 
