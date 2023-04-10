@@ -9,7 +9,7 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "bcg729-.*" "BCG729_HINTS" )
 
-if (NOT WIN32)
+if (NOT USE_REPOSITORY)
   find_package(PkgConfig QUIET)
   pkg_search_module(BCG729 QUIET bcg729)
 endif()

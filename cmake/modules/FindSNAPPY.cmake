@@ -11,7 +11,7 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "snappy-.*" "SNAPPY_HINTS" )
 
-if( NOT WIN32)
+if( NOT USE_REPOSITORY)
   find_package(PkgConfig QUIET)
   pkg_search_module(SNAPPY QUIET libsnappy)
 endif()

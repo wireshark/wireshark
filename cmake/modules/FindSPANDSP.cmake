@@ -9,7 +9,7 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "spandsp-.*" "SPANDSP_HINTS" )
 
-if( NOT WIN32)
+if( NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(SPANDSP spandsp)
 

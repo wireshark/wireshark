@@ -10,7 +10,7 @@
 include(FindWSWinLibs)
 FindWSWinLibs("vcpkg-export-*" "GMODULE2_HINTS")
 
-if(NOT WIN32)
+if(NOT USE_REPOSITORY)
 	find_package(PkgConfig QUIET)
 	pkg_check_modules(PC_GMODULE2 gmodule-2.0)
 endif()

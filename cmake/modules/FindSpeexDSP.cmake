@@ -9,7 +9,7 @@
 include(FindWSWinLibs)
 FindWSWinLibs("speexdsp-.*" "SPEEXDSP_HINTS")
 
-if(NOT WIN32)
+if(NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(PC_SPEEXDSP speexdsp)
 endif()

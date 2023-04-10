@@ -17,7 +17,7 @@
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("lua-5*" "LUA_HINTS")
 
-if(NOT WIN32)
+if(NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(LUA lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51)
   if(NOT LUA_FOUND)

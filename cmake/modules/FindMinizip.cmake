@@ -7,7 +7,7 @@
 
 FindWSWinLibs( "minizip-*" "MINIZIP_HINTS" )
 
-if(NOT WIN32)
+if(NOT USE_REPOSITORY)
   find_package(PkgConfig QUIET)
   pkg_search_module(MINIZIP QUIET minizip)
 endif()
