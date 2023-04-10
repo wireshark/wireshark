@@ -50,7 +50,7 @@ typedef struct {
 /* Initialize to a specified number of seconds */
 #define NSTIME_INIT_SECS(secs)			{secs, 0}
 
-/* Initialize to the maxximum possible value */
+/* Initialize to the maximum possible value */
 #define NSTIME_INIT_MAX	{sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX}
 
 /* functions */
