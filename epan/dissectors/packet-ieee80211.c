@@ -3357,6 +3357,16 @@ static const true_false_string twt_requester_tfs = {
   "This STA is a TWT Responding STA or a TWT scheduling AP",
 };
 
+static const true_false_string twt_info_frame_disabled_tfs = {
+  "Reception of TWT Information frames is disabled",
+  "Reception of TWT Information frames is enabled",
+};
+
+static const true_false_string twt_wake_duration_unit_tfs = {
+  "1 TU",
+  "256 microseconds",
+};
+
 #define REQUEST_TWT   0
 #define SUGGEST_TWT   1
 #define DEMAND_TWT    2
@@ -7407,6 +7417,8 @@ static int hf_ieee80211_tag_twt_control_field = -1;
 static int hf_ieee80211_tag_twt_ndp_paging_indicator = -1;
 static int hf_ieee80211_tag_twt_responder_pm_mode = -1;
 static int hf_ieee80211_tag_twt_neg_type = -1;
+static int hf_ieee80211_tag_twt_info_frame_disabled = -1;
+static int hf_ieee80211_tag_twt_wake_duration_unit = -1;
 static int hf_ieee80211_tag_twt_ctrl_field_reserved = -1;
 
 static int hf_ieee80211_tag_twt_req_type_field = -1;
@@ -29681,6 +29693,8 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     &hf_ieee80211_tag_twt_ndp_paging_indicator,
     &hf_ieee80211_tag_twt_responder_pm_mode,
     &hf_ieee80211_tag_twt_neg_type,
+    &hf_ieee80211_tag_twt_info_frame_disabled,
+    &hf_ieee80211_tag_twt_wake_duration_unit,
     &hf_ieee80211_tag_twt_ctrl_field_reserved,
     NULL,
   };
@@ -52006,9 +52020,17 @@ proto_register_ieee80211(void)
       {"Negotiation type", "wlan.twt.neg_type",
        FT_UINT8, BASE_HEX, VALS(twt_neg_type_vals), 0xc, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_twt_info_frame_disabled,
+     {"TWT Information Frame Disabled", "wlan.twt.info_frame_disabled",
+      FT_BOOLEAN, 8, TFS(&twt_info_frame_disabled_tfs), 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_wake_duration_unit,
+     {"Wake Duration Unit", "wlan.twt.wake_duration_unit",
+      FT_BOOLEAN, 8, TFS(&twt_wake_duration_unit_tfs), 0x20, NULL, HFILL }},
+
     {&hf_ieee80211_tag_twt_ctrl_field_reserved,
       {"Reserved", "wlan.twt.control_field_reserved",
-       FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
+       FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_req_type_field,
       {"Request Type", "wlan.twt.request_type",
