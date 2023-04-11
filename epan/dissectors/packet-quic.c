@@ -216,6 +216,7 @@ static expert_field ei_quic_bad_retry = EI_INIT;
 static expert_field ei_quic_coalesced_padding_data = EI_INIT;
 static expert_field ei_quic_retransmission = EI_INIT;
 static expert_field ei_quic_overlap = EI_INIT;
+static expert_field ei_quic_data_after_forcing_vn = EI_INIT;
 
 static gint ett_quic = -1;
 static gint ett_quic_af = -1;
@@ -508,12 +509,13 @@ static inline guint8 quic_draft_version(guint32 version) {
     /* https://tools.ietf.org/html/draft-ietf-quic-transport-32#section-15
        "Versions that follow the pattern 0x?a?a?a?a are reserved for use in
        forcing version negotiation to be exercised"
-       It is tricky to return a correct draft version: such number is primarily
-       used to select a proper salt (which depends on the version itself), but
-       we don't have a real version here! Let's hope that we need to handle
-       only latest drafts... */
+       We can't return a correct draft version because we don't have a real
+       version here! That means that we can't decode any data and we can dissect
+       only the cleartext header.
+       Let's return v1 (any other numbers should be fine, anyway) to only allow
+       the dissection of the (expected) long header */
     if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
-        return 29;
+        return 34;
     }
     /* QUIC (final?) constants for v1 are defined in draft-33, but draft-34 is the
        final draft version */
@@ -4041,6 +4043,22 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return offset;
 }
 
+static int
+dissect_quic_forcing_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, const quic_packet_info_t *quic_packet)
+{
+    guint       offset = 0;
+    quic_cid_t  dcid = {.len=0}, scid = {.len=0};
+
+    col_set_str(pinfo->cinfo, COL_INFO, "Forcing Version Negotiation");
+
+    proto_tree_add_item(quic_tree, hf_quic_vn_unused, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &dcid, &scid);
+
+    return offset;
+}
+
 static tvbuff_t *
 quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
 {
@@ -4310,6 +4328,15 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA);
             guint32 version = tvb_get_ntohl(next_tvb, 1);
             guint8 long_packet_type = quic_get_long_packet_type(first_byte, version);
+            if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
+                offset += dissect_quic_forcing_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
+                if (tvb_reported_length_remaining(tvb, offset)) {
+                    /* We can't decrypt any remaining data because we don't have a valid version */
+                    expert_add_info_format(pinfo, quic_tree, &ei_quic_data_after_forcing_vn,
+                                           "Data appended after a Forcing VN can't be decrypted");
+                }
+                break;
+            }
             if (version == 0) {
                 offset += dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
                 break;
@@ -5395,6 +5422,10 @@ proto_register_quic(void)
         { &ei_quic_overlap,
           { "quic.overlap", PI_SEQUENCE, PI_NOTE,
             "This QUIC frame overlaps a previous frame in the stream", EXPFILL }
+        },
+        { &ei_quic_data_after_forcing_vn,
+          { "quic.data_after_forcing_vn", PI_PROTOCOL, PI_NOTE,
+            "Unexpected data on a Forcing Version Negotiation paket", EXPFILL }
         },
     };
 
