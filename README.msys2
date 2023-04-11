@@ -21,6 +21,7 @@ How to build Wireshark from source:
 
 3. Build using CMake + Ninja:
 
+    $ mkdir build && cd build
     $ cmake -DENABLE_CCACHE=On ..
     $ ninja
     $ ninja test        # optional
