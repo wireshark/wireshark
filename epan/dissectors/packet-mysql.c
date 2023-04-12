@@ -1368,6 +1368,7 @@ typedef struct mysql_conn_data {
 	guint32 mariadb_client_ext_caps;
 	guint64 remaining_field_packet_count;
 	my_metadata_list_t field_metas;
+	guint8 *auth_method;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -1697,6 +1698,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		lenstr = tvb_strsize(tvb,offset);
 		proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(pinfo->pool, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -1846,6 +1848,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		mysql_set_conn_state(pinfo, conn_data, AUTH_SWITCH_REQUEST);
 		lenstr= my_tvb_strsize(tvb,offset);
 		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(pinfo->pool, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -2792,6 +2795,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			}
 			break;
 
+		case AUTH_SHA2:
+			proto_item_append_text(pi, " - %s", val_to_str(AUTH_SHA2, state_vals, "Unknown (%u)"));
+			offset = mysql_dissect_auth_sha2(tvb, pinfo, offset, tree, conn_data);
+			break;
+
 		default:
 			ti = proto_tree_add_item(tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
 			expert_add_info(pinfo, ti, &ei_mysql_unknown_response);
@@ -3703,6 +3711,7 @@ mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/* name */
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_mysql_auth_switch_request_name, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(pinfo->pool, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 
 		/* Data */
@@ -3732,6 +3741,10 @@ mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset
 	lenstr = my_tvb_strsize(tvb, offset);
 	proto_tree_add_item(tree, hf_mysql_auth_switch_response_data, tvb, offset, lenstr, ENC_NA);
 	offset += lenstr;
+
+	if (g_strcmp0(conn_data->auth_method,"caching_sha2_password") == 0) {
+		mysql_set_conn_state(pinfo, conn_data, AUTH_SHA2);
+	}
 
 	return offset + tvb_reported_length_remaining(tvb, offset);
 
