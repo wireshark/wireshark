@@ -37,7 +37,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2023-09[]
 RPCoRDMA dissector crash.
 wsbuglink:18852[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-1992[].
 // Fixed in master: 3c8be14c82
 // Fixed in release-4.0: 04e506a337
 // Fixed in release-3.6: c224405c31
@@ -48,7 +48,7 @@ wsbuglink:18852[].
 * wssalink:2023-10[]
 LISP dissector large loop.
 wsbuglink:18900[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-1993[].
 // Fixed in master: b911cf286f
 // Fixed in release-4.0: 560f328cda
 // Fixed in release-3.6: 646b131303
@@ -59,7 +59,7 @@ wsbuglink:18900[].
 * wssalink:2023-11[]
 GQUIC dissector crash
 wsbuglink:18947[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-1994[].
 // Fixed in master: ee314ace8a
 // Fixed in release-4.0: 9681566329
 // Fixed in release-3.6: 8970fc17e8

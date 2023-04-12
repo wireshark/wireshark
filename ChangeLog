@@ -1,0 +1,441 @@
+commit 0e389f3220
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 12 09:31:17 2023 -0700
+
+    Build: 3.6.13
+
+    [skip ci]
+
+commit d327677957
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 10 18:34:37 2023 -0700
+
+    Prep for 3.6.13
+
+    [skip ci]
+
+commit 1f1f89ecb4
+Author: Jirka Novak <j.novak@netsystem.cz>
+Date:   Sun Apr 9 20:08:57 2023 +0200
+
+    RTP: Fix of incorrect timestamp sequence error on timestamp rollover
+
+    There was inversed calculation of timestamp difference on rollover.
+
+    Closes #18973
+
+    (cherry picked from commit 81114dafc15d545ece127af51edde68a4d5df409)
+
+commit c1a38ae866
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Apr 5 10:54:11 2023 +0200
+
+    ff: fix bitmask for value_string
+
+    #18962
+
+    (cherry picked from commit 1d2336ee4d6cca2a68ea1bc281d350b381b466f8)
+
+commit 0de34b9c0d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 9 16:37:22 2023 +0000
+
+    [Automatic update for 2023-04-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 6980950c03
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Apr 6 14:54:53 2023 -0700
+
+    SMB: Initialize a variable
+
+    Fixes #18934.
+
+    (cherry picked from commit 7482a45b399275094e1ed04530f200469469aeca)
+
+commit 646b131303
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 10 22:55:54 2023 -0500
+
+    LISP: Don't go past a LCAF payload length
+
+    The LISP Canonical Address Format has a payload length indicator.
+    Use that to create a payload tvb and don't dissect outside the
+    payload length. With fuzzed and malformed packets, this was causing
+    the same bytes to be dissected many times, particularly in the
+    recursive address types.
+
+    A LCAF would be dissected outside the payload region, but then
+    elsewhere the offset was only advanced by the payload length.
+
+    Fix #18900
+
+    (cherry picked from commit b911cf286f495ba068c77b8b2b3445d1a325a819)
+
+commit 163dffb010
+Author: Stefan Kimmer <skimmer@s2e-systems.com>
+Date:   Thu Mar 30 14:53:54 2023 +0000
+
+    Add new DDS vendors to the RTPS vendor id list
+
+    (cherry picked from commit 7d5745629594269e9b884cc04614e108968986d5)
+
+commit 8970fc17e8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 2 15:29:12 2023 -0700
+
+    GQUIC: Fix a null pointer exception
+
+    Ensure that dissect_gquic_frame_type has a valid info pointer.
+
+    Fixes #18947.
+
+    (cherry picked from commit ee314ace8ae2d2fa8c6f7280231010252054fd7b)
+
+commit f7803b2692
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 2 16:34:53 2023 +0000
+
+    [Automatic update for 2023-04-02]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit d23253f6d1
+Author: Vadim Yanitskiy <vyanitskiy@sysmocom.de>
+Date:   Fri Mar 31 19:51:03 2023 +0700
+
+    GSM A-bis/OML: fix parsing of IPA NS Link Configuration attribute
+
+    The Destination (SGSN) port and Source (PCU) port are swapped and
+    displayed incorrectly.  The Destination (SGSN) port goes first.
+
+    (cherry picked from commit b226b6b68ecb0602a7513fea365a353444c3cceb)
+
+commit dfc9d170f8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 30 18:50:24 2023 -0700
+
+    GitLab CI: Adjust our fuzz times
+
+    [skip ci]
+
+commit 5fa9116ecd
+Author: Otto Moerbeek <otto@drijf.net>
+Date:   Wed Mar 29 15:45:03 2023 +0200
+
+    Add more DNS EDE codes
+
+    (cherry picked from commit 128d959e7814600cbb8515a9d826804ed147d4e3)
+
+commit ff827f7bdf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 29 11:07:11 2023 -0700
+
+    GitLab CI: Move Valgrind fuzzing to its own resource group
+
+    (cherry picked from commit 79b3bdf8414d80e108b5be0da75b0b03c671b898)
+
+commit 4ac091be14
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 19 15:49:02 2023 -0700
+
+    WCP: Make sure a couple of buffers are initialized
+
+    Fix
+
+        ==14702== Conditional jump or move depends on uninitialised value(s)
+        ==14702==    at 0x7146BF9: dissect_fr_nlpid (packet-fr.c:768)
+        ==14702==    by 0x7146B8F: dissect_fr_uncompressed (packet-fr.c:749)
+        ==14702==    by 0x8675740: call_dissector_through_handle (packet.c:828)
+        ==14702==    by 0x8675973: call_dissector_work (packet.c:919)
+        ==14702==    by 0x8679F45: call_dissector_only (packet.c:3405)
+        ==14702==    by 0x8679F8C: call_dissector_with_data (packet.c:3418)
+        ==14702==    by 0x867A03D: call_dissector (packet.c:3435)
+        ==14702==    by 0x7B86DE5: dissect_wcp (packet-wcp.c:373)
+        ==14702==    by 0x8675740: call_dissector_through_handle (packet.c:828)
+        ==14702==    by 0x8675973: call_dissector_work (packet.c:919)
+        ==14702==    by 0x8676BB7: dissector_try_uint_new (packet.c:1522)
+        ==14702==    by 0x8676C15: dissector_try_uint (packet.c:1546)
+
+    Fixes #18917
+
+    (cherry picked from commit d9a19e1bd7ffdccaa95c5de099efaa3f65895a38)
+
+commit 2304b24486
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 26 16:35:35 2023 +0000
+
+    [Automatic update for 2023-03-26]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 028e35dadd
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Tue Mar 21 16:18:14 2023 +0100
+
+    ITS: Change to ITS_RTCMEM_PROT_VER 1
+
+    Closes #18862
+
+    (cherry picked from commit 81868e7a667ffec6c326fcd0f4509a41c78c4ee7)
+
+commit dbbff04875
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Mar 21 15:57:52 2023 -0700
+
+    GitLab CI: Copy our release dfilter lists
+
+commit 4c58a8e5c1
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Mar 21 16:21:29 2023 -0700
+
+    netscaler: don't allow multiple encapsulations.
+
+    All packets in a NetScaler nstrace file must have the encapsulation
+    appropriate to the version of the file.
+
+    (cherry picked from commit 9599efe6820b8a578cc6ca9ea9e2002fc2806871)
+
+commit 8159ccf0be
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 19 15:42:44 2023 -0700
+
+    HL7: Initialize a variable
+
+    Fix
+
+        ==13918== Conditional jump or move depends on uninitialised value(s)
+        ==13918==    at 0x864F479: get_ascii_string (charsets.c:83)
+        ==13918==    by 0x728501A: dissect_hl7_message (packet-hl7.c:880)
+        ==13918==    by 0x72853A4: dissect_hl7 (packet-hl7.c:967)
+        ==13918==    by 0x867572D: call_dissector_through_handle (packet.c:828)
+        ==13918==    by 0x8675960: call_dissector_work (packet.c:919)
+        ==13918==    by 0x8676BA4: dissector_try_uint_new (packet.c:1522)
+        ==13918==    by 0x7A55D1C: decode_tcp_ports (packet-tcp.c:7295)
+        ==13918==    by 0x7A5619D: process_tcp_payload (packet-tcp.c:7364)
+        ==13918==    by 0x7A564CB: dissect_tcp_payload (packet-tcp.c:7446)
+        ==13918==    by 0x7A5A064: dissect_tcp (packet-tcp.c:8506)
+        ==13918==    by 0x867572D: call_dissector_through_handle (packet.c:828)
+        ==13918==    by 0x8675960: call_dissector_work (packet.c:919)
+
+    (cherry picked from commit 07e56c42f34ac32b320bea51a0fb1df25b8ce5de)
+
+commit c224405c31
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 19 15:16:39 2023 -0400
+
+    RPCoRDMA: Frame end cleanup for global write offsets
+
+    Add a frame end routine for a global which is assigned to packet
+    scoped memory. It really should be made proto data, but is used
+    in a function in the header (that doesn't take the packet info
+    struct as an argument) and this fix needs to be made in stable
+    branches.
+
+    Fix #18852
+
+    (cherry picked from commit 3c8be14c827f1587da3c2b3bb0d9c04faff57413)
+
+commit 18565307ed
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 19 00:16:24 2023 -0700
+
+    netmon: don't allow multiple encapsulations for NetMon 1.x format.
+
+    It has a per-file encapsulation, so fail if an attempt is made to write
+    a packet with a different encapsulation, just as we do with other
+    formats that have a per-file encapsulation, such as libpcap.
+
+    (cherry picked from commit ab8de464c15da0844da641185ad86998e3e6a17e)
+
+commit dae49bb637
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Mar 18 23:46:56 2023 -0700
+
+    editcap: always close the dump file, if we have one, before exiting.
+
+    The file might need to have some writes done after all packets have been
+    written, in order to make the file valid, so, if we get an error from
+    wtap_dump() or process_new_idbs(), close the dump file after reporting
+    the error.  Don't report an error if the close fails - we've already
+    reported one problem.
+
+    In addition, always free up filename, and frames_user_comments, before
+    exiting, if there's anything to be freed.
+
+    While we're at it, fix a comment - in English, they're called "packets",
+    not "packages".
+
+    (backported from commit 8d86509345f7bd03a3eba49abd04e923e60b1ae7)
+
+commit 0b57f31d83
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Sun Aug 21 08:00:56 2022 -0500
+
+    spelling: "two pass" -> two-pass
+
+    (backported from commit b60240a8a64fad0f6345033dea114a3878ee2bbf)
+
+commit c7be52db1e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 19 16:36:27 2023 +0000
+
+    [Automatic update for 2023-03-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit a54254c82a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Mar 18 14:27:49 2023 +0100
+
+    802.11: Heading != Altitude
+
+    (cherry picked from commit 112c2e5f397d25613ba9eeb6458f493c56a88afb)
+
+commit 446a1ead85
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Mar 18 17:43:36 2023 -0700
+
+    netmon: fix writing of v1 files to write v1 files.
+
+    The is_v2 argument to netmon_dump_open() is a Boolean, with FALSE
+    meaning "not v2" and TRUE meaning "v2", not a version number.  Don't
+    pass a version number, as that causes both v1 and v2 to be treated as
+    v2.
+
+    (cherry picked from commit 3d9d17ca50ea16f55918bf3a2f18fa03889374be)
+
+commit e492a2e09e
+Author: Sake Blok <sake.blok@syn-bit.nl>
+Date:   Sun Mar 12 18:18:43 2023 +0000
+
+    Revert "epan: Allow nested dependent packets"
+
+    This reverts commit 08f50df26d27273f5837940ff7a1e93d07d6e9d5
+
+commit b510fbfdb0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 12 16:30:57 2023 +0000
+
+    [Automatic update for 2023-03-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit dbbed286da
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 9 10:40:47 2023 -0800
+
+    Docs: Fix the Developer's Guide chapter order
+
+    The build intro should be the first chapter in part II.
+
+    (cherry picked from commit 3b7f810f36d909724ab42fec851a4a4db46aa793)
+
+commit 69458e33e6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Mar 7 19:44:35 2023 +0100
+
+    netlink: implement new identifiers from Linux 6.2 kernel
+
+    (cherry picked from commit 0e63c25f6694ea45baaaea96c9b6fd4be50be492)
+
+commit 3adc76e90d
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Mar 6 09:20:44 2023 +0100
+
+    ieee80211: Save AKM_KEY for tag number 221
+
+    Tag number 221 (Microsoft WPA Information Element) contains an AKM type.
+    Save this to fix wlan decryption when this tag is used by Access Point.
+
+    (cherry picked from commit 7af40c9971b5c8fbb47decf155abfc4045b671de)
+
+commit 1616cd486e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 5 16:36:14 2023 +0000
+
+    [Automatic update for 2023-03-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a12fcc1eaf
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 5 00:05:26 2023 -0800
+
+    sharkd: don't report an error if there is no error.
+
+    If dfilter_compile() succeeds, but the filter contains deprecated
+    tokens, don't report an error from dfilter_compile() as a warning, as
+    there *is* no error from dfilter_compile().  Instead, report "Filter
+    contains deprecated tokens".  (Feel free to improve the error text.)
+
+    Fixes the error in #18886.  (See that bug for a note about why it's not
+    a crash in this branch.)
+
+    (backported from commit 3854770f15f20a218270feb332fe45fd404746b3)
+
+commit b70c7c5e6d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 4 08:38:28 2023 -0500
+
+    VNC: Fix accidental offset increment in RRE
+
+    This was accidentally added in f4242568896a611cfc563c90b57a421ad2805f31
+    and is clearly incorrect: https://www.rfc-editor.org/rfc/rfc6143#section-7.7.3
+
+    Fix #18883
+
+    (cherry picked from commit c7823a14ec27d1ac72f1d6c0d3ec5eb72aa661e6)
+
+commit 186ba3cd44
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 2 13:55:33 2023 -0800
+
+    Tools: Fix the docinfo paths in make-version.pl
+
+commit 04d000b002
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Mar 2 07:40:23 2023 -0500
+
+    Qt: Sequence diagram comments are not numbers
+
+    The comments in the flow diagrams are conceptually an extra y Axis
+    ticker label on the right. Tell QCustomPlot that we don't want to
+    render things that look like sufficiently large numbers in scientific
+    notation.
+
+    Fix #18879
+
+    (cherry picked from commit 224d8dba97cb63b6096bfb6b9fe19c7c52679c31)
+
+commit 6fe9543948
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Mar 2 07:58:51 2023 -0500
+
+    Qt: Don't double escape sequence diagram comments
+
+    In the flow diagram, the hint is an ElidedLabel, which now
+    escapes HTML: d9adb6f712a63dca13957802664d37c52ea4181c
+
+    So don't escape the comment before passing it to ElidedLabel, or
+    the double-escaping will cause quotes, angle brackets, etc. to
+    look like HTML entities.
+
+    (cherry picked from commit 36395517d348718ab3af01df9ea058f16a578631)
+
+commit e356a2d40a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 2 13:48:34 2023 -0800
+
+    Version: 3.6.12 → 3.6.13
+
+    [skip ci]

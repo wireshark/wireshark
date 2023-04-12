@@ -20,7 +20,31 @@
 
    The following vulnerabilities have been fixed:
 
+     • wnpa-sec-2023-09[3] RPCoRDMA dissector crash. Issue 18852[4].
+       CVE-2023-1992[5].
+
+     • wnpa-sec-2023-10[6] LISP dissector large loop. Issue 18900[7].
+       CVE-2023-1993[8].
+
+     • wnpa-sec-2023-11[9] GQUIC dissector crash Issue 18947[10].
+       CVE-2023-1994[11].
+
    The following bugs have been fixed:
+
+     • Wireshark ITS Dissector RTCMEM wrong protocol version selector 2
+       - should use 1 Issue 18862[12].
+
+     • Wireshark treats the letter E in SSRC as an exponential
+       representation of a number Issue 18879[13].
+
+     • VNC RRE Parser skips over data Issue 18883[14].
+
+     • Fuzz job crash output: fuzz-2023-03-27-7564.pcap Issue 18934[15].
+
+     • Fuzz job crash output: fuzz-2023-03-31-6903.pcap Issue 18947[16].
+
+     • RTP analysis shows incorrect timestamp error when timestamp is
+       rolled over Issue 18973[17].
 
   New and Updated Features
 
@@ -30,9 +54,13 @@
 
   Updated Protocol Support
 
+   DNS, ERF, FF, genl, GQUIC, GSM A-bis OML, HL7, IEEE 802.11, ITS, ITS,
+   LISP, netlink, netlink-netfilter, netlink-sock_diag, nl80211, RLC,
+   RPCoRDMA, RTPS, SCTP, SMB, VNC, and WCP
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   Netmon and NetScaler
 
   New File Format Decoding Support
 
@@ -48,7 +76,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[18] on the Wireshark web site.
 
  File Locations
 
@@ -63,29 +91,44 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[19] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[20].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[21].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[7].
+  at wiresharkfoundation.org[22].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[23].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://wiresharkfoundation.org
-   8. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/security/wnpa-sec-2023-09
+   4. https://gitlab.com/wireshark/wireshark/-/issues/18852
+   5. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-1992
+   6. https://www.wireshark.org/security/wnpa-sec-2023-10
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18900
+   8. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-1993
+   9. https://www.wireshark.org/security/wnpa-sec-2023-11
+  10. https://gitlab.com/wireshark/wireshark/-/issues/18947
+  11. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-1994
+  12. https://gitlab.com/wireshark/wireshark/-/issues/18862
+  13. https://gitlab.com/wireshark/wireshark/-/issues/18879
+  14. https://gitlab.com/wireshark/wireshark/-/issues/18883
+  15. https://gitlab.com/wireshark/wireshark/-/issues/18934
+  16. https://gitlab.com/wireshark/wireshark/-/issues/18947
+  17. https://gitlab.com/wireshark/wireshark/-/issues/18973
+  18. https://www.wireshark.org/download.html
+  19. https://ask.wireshark.org/
+  20. https://www.wireshark.org/lists/
+  21. https://gitlab.com/wireshark/wireshark/-/issues
+  22. https://wiresharkfoundation.org
+  23. https://www.wireshark.org/faq.html
