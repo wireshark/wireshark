@@ -130,9 +130,9 @@ void ATapDataModel::disableTap()
     emit tapListenerChanged(false);
 }
 
-int ATapDataModel::rowCount(const QModelIndex &) const
+int ATapDataModel::rowCount(const QModelIndex &parent) const
 {
-    return storage_ ? (int) storage_->len : 0;
+    return (storage_ && !parent.isValid()) ? (int) storage_->len : 0;
 }
 
 void ATapDataModel::tapReset(void *tapdata) {

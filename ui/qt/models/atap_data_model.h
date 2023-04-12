@@ -76,12 +76,14 @@ public:
     virtual ~ATapDataModel();
 
     /**
-     * @brief Number of rows in this model
+     * @brief Number of rows under the given parent in this model, which
+     * is the total number of rows for the empty QModelIndex, and 0 for
+     * any valid parent index (as no row has children; this is a flat table.)
      *
-     * @param idx not used
-     * @return int the number of rows
+     * @param parent index of parent, QModelIndex() for the root
+     * @return int the number of rows under the parent
      */
-    int rowCount(const QModelIndex &idx = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
     virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const = 0;
