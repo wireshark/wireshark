@@ -62,6 +62,9 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
+        <release version="4.0.5" date="2023-04-12">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html</url>
+        </release>
         <release version="4.0.4" date="2023-03-02">
             <url>https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html</url>
         </release>
