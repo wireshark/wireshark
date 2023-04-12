@@ -28,38 +28,15 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2023-09[]
-RPCoRDMA dissector crash.
-wsbuglink:18852[].
-cveidlink:2023-1992[].
-// Fixed in master: 3c8be14c82
-// Fixed in release-4.0: 04e506a337
-// Fixed in release-3.6: c224405c31
+// * wssalink:2023-12[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2023-xxxx[].
+// Fixed in master: xxxx
+// Fixed in release-4.0: xxxx
+// Fixed in release-3.6: xxxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-126
-// * Fuzz job crash output: fuzz-2023-02-09-6781.pcap. wsbuglink:18852[].
-
-* wssalink:2023-10[]
-LISP dissector large loop.
-wsbuglink:18900[].
-cveidlink:2023-1993[].
-// Fixed in master: b911cf286f
-// Fixed in release-4.0: 560f328cda
-// Fixed in release-3.6: 646b131303
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-834
-// * Fuzz job crash output: fuzz-2023-03-10-6859.pcap. wsbuglink:18900[].
-
-* wssalink:2023-11[]
-GQUIC dissector crash
-wsbuglink:18947[].
-cveidlink:2023-1994[].
-// Fixed in master: ee314ace8a
-// Fixed in release-4.0: 9681566329
-// Fixed in release-3.6: 8970fc17e8
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-476
-// * Fuzz job crash output: fuzz-2023-03-31-6903.pcap. wsbuglink:18947[].
 
 
 The following bugs have been fixed:
@@ -68,18 +45,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
-
-* Wireshark ITS Dissector RTCMEM wrong protocol version selector 2 - should use 1. wsbuglink:18862[].
-* Wireshark treats the letter E in SSRC as an exponential representation of a number. wsbuglink:18879[].
-* VNC RRE Parser skips over data. wsbuglink:18883[].
-* sshdump coredump when --remote-interface is left empty. wsbuglink:18904[].
-* Fuzz job crash output: fuzz-2023-03-17-7298.pcap. wsbuglink:18917[].
-* Fuzz job crash output: fuzz-2023-03-27-7564.pcap. wsbuglink:18934[].
-* RFC8925 support (dhcp option 108) wsbuglink:18943[].
-* DIS dissector shows an incorrect state in the packet list info column. wsbuglink:18967[].
-* RTP analysis shows incorrect timestamp error when timestamp is rolled over. wsbuglink:18973[].
-* Asterisk (*) key crash on Endpoint/Conversation dialog. wsbuglink:18975[].
-* The RTP player waveform now synchronizes better with audio.
 
 === New and Updated Features
 
@@ -105,41 +70,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.5.. | ag packet- | sort -u)
 [commaize]
 --
-DHCP
-DIS
-DNS
-ERF
-FF
-genl
-GQUIC
-GSM A-bis OML
-HL7
-IEEE 802.11
-ITS
-LAPD
-netfilter
-netlink-route
-netlink-sock_diag
-nl80211
-RLC
-RPCoRDMA
-RTPS
-SCTP
-SMB
-UDS
-VNC
-WCP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-Netmon
-NetScaler
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
