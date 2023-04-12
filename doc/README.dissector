@@ -3,9 +3,8 @@ on Wireshark protocol dissectors. It describes expected code patterns and the
 use of some of the important functions and variables.
 
 This file is compiled to give in depth information on Wireshark.
-It is by no means all inclusive and complete. Please feel free to send
-remarks and patches to the developer mailing list.
-
+It is by no means all inclusive and complete. Please feel free to discuss on
+the developer mailing list or upload merge requests to gitlab.
 If you haven't read README.developer, read that first!
 
 0. Prerequisites.
@@ -24,10 +23,10 @@ README.md files of the sources root dir.
 You'll find additional dissector related information in the following README
 files:
 
-- README.heuristic      - what are heuristic dissectors and how to write them
-- README.plugins        - how to "pluginize" a dissector
-- README.request_response_tracking - how to track req./resp. times and such
-- README.wmem           - how to obtain "memory leak free" memory
+- doc/README.heuristic      - what are heuristic dissectors and how to write them
+- doc/README.plugins        - how to "pluginize" a dissector
+- doc/README.request_response_tracking - how to track req./resp. times and such
+- doc/README.wmem           - how to obtain "memory leak free" memory
 
 0.2 Contributors
 

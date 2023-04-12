@@ -87,7 +87,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   /* Make entries in Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TALI");
 
-  col_set_str(pinfo->cinfo, COL_INFO, "");
+  col_clear(pinfo->cinfo, COL_INFO);
   col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] packet, [%u] bytes in payload", opcode, length);
 
   if (tree) {

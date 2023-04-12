@@ -359,7 +359,7 @@ lnet_dissect_struct_nid(tvbuff_t * tvb, proto_tree *parent_tree, int offset, int
     item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 8, ENC_NA);
     tree = proto_item_add_subtree(item, ett_lnet_nid);
 
-    ip = tvb_get_ntohl(tvb, offset);
+    ip = tvb_get_ipv4(tvb, offset);
     proto_tree_add_item(tree, hf_lnet_nid_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
     proto_tree_add_item_ret_uint(tree, hf_lnet_nid_interface, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interface);

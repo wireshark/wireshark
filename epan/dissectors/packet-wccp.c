@@ -1514,7 +1514,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       if ((wccp_wccp_address_table->in_use == FALSE) &&
           (wccp_wccp_address_table->table_ipv4 != NULL) &&
           (i < wccp_wccp_address_table->table_length))
-        wccp_wccp_address_table->table_ipv4[i] = tvb_get_ntohl(tvb, offset);
+        wccp_wccp_address_table->table_ipv4[i] = tvb_get_ipv4(tvb, offset);
       break;
     case 2:
       /* IPv6 */

@@ -2497,7 +2497,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         }
 
         if (offset == 0)
-            col_set_str(pinfo->cinfo, COL_INFO, "");
+            col_clear(pinfo->cinfo, COL_INFO);
         else
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
 

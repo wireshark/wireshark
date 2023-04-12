@@ -86,7 +86,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     ua_tap_info.expseq = 0;
     ua_tap_info.sntseq = 0;
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
     uasip_item = proto_tree_add_protocol_format(tree, proto_uasip, tvb, 0, 5,
                                                 "SIP/NOE Protocol, %s",

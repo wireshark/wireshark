@@ -14,11 +14,12 @@ import subprocess
 # This utility scans the dissector code for proto_tree_add_...() calls that constrain the type
 # or length of the item added, and checks that the used item is acceptable.
 #
-# Note that this can only work where the hf_item variable or length is passed in directly - where it
-# is assigned to a different variable or a macro is used, it isn't tracked.
+# - Note that this can only work where the hf_item variable or length is passed in directly - simple
+#   macro substitution is now done in a limited way 
 
 # TODO:
-# Attempt to check for allowed encoding types (most likely will be literal values |'d)?
+# - Attempt to check for allowed encoding types (most likely will be literal values |'d)?
+# - Create maps from type -> display types for hf items (see display (FIELDDISPLAY)) in docs/README.dissector
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -509,7 +510,6 @@ class Item:
         if check_mask:
             if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00'}:
                 self.check_contiguous_bits(mask)
-                #self.check_mask_too_long(mask)
                 self.check_num_digits(mask)
                 self.check_digits_all_zeros(mask)
 
@@ -625,18 +625,6 @@ class Item:
             else:
                 return None
 
-    # N.B. Not currently used.
-    def check_mask_too_long(self, mask):
-        if not self.mask_value:
-            return
-        if mask.startswith('0x00') or mask.endswith('00'):
-            # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
-            # all lined up as part of the same word may make it clearer.  But some cases have been found
-            # where the grouping does not seem to be natural..
-            print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
-            global warnings_found
-            warnings_found += 1
-
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
@@ -677,7 +665,7 @@ class Item:
                 warnings_found += 1
 
     def check_digits_all_zeros(self, mask):
-        if mask.startswith('0x') and len(mask) > 3:
+        if mask.startswith('0x') and len(mask) >= 3:
             if mask[2:] == '0'*(len(mask)-2):
                 print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
                 global warnings_found

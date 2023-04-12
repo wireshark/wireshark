@@ -404,7 +404,7 @@ dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero
             ti = proto_tree_add_item_ret_string(fb_zero_tree, hf_fb_zero_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &message_tag_str);
 
             proto_item_append_text(ti, ", Type: %s (%s)", message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
+            col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_tag, message_tag_vals, "Unknown"));
             offset += 4;
 
             proto_tree_add_item(fb_zero_tree, hf_fb_zero_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);

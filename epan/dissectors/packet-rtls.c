@@ -401,7 +401,7 @@ dissect_rtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* RTLS Header */
     type = tvb_get_ntohs(tvb, offset);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(type, rtls_message_type_vals, "(unknown %d)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(type, rtls_message_type_vals, "(unknown %d)"));
 
     offset = dissect_rtls_header(tvb, pinfo, rtls_tree, offset, NULL);
 
