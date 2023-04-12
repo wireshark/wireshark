@@ -562,6 +562,8 @@ static int hf_dhcp_option_vi_class_cl_address_mode = -1;		/* 124 */
 static int hf_dhcp_option_vi_class_enterprise = -1;			/* 124 */
 static int hf_dhcp_option_vi_class_data_length = -1;			/* 124 */
 static int hf_dhcp_option_vi_class_data = -1;				/* 124 */
+static int hf_dhcp_option_vi_class_data_item_length = -1;		/* 124 */
+static int hf_dhcp_option_vi_class_data_item_data = -1;			/* 124 */
 
 static int hf_dhcp_option125_enterprise = -1;
 static int hf_dhcp_option125_length = -1;
@@ -660,6 +662,7 @@ static gint ett_dhcp_option63_suboption = -1;
 static gint ett_dhcp_option77_instance = -1;
 static gint ett_dhcp_option82_suboption = -1;
 static gint ett_dhcp_option82_suboption9 = -1;
+static gint ett_dhcp_option124_vendor_class_data_item = -1;
 static gint ett_dhcp_option125_suboption = -1;
 static gint ett_dhcp_option125_tr111_suboption = -1;
 static gint ett_dhcp_option125_cl_suboption = -1;
@@ -3077,6 +3080,10 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	int offset = 0;
 	int data_len;
+	int s_end;
+	proto_item *eti;
+	proto_tree *e_tree;
+	proto_tree *vcdi_tree;
 
 	if (tvb_reported_length(tvb) == 1) {
 		/* CableLab specific */
@@ -3086,16 +3093,31 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	while (tvb_reported_length_remaining(tvb, offset)  >= 5) {
 
-		proto_tree_add_item(tree, hf_dhcp_option_vi_class_enterprise, tvb, offset, 4, ENC_BIG_ENDIAN);
+		eti = proto_tree_add_item(tree, hf_dhcp_option_vi_class_enterprise, tvb, offset, 4, ENC_BIG_ENDIAN);
+		e_tree = proto_item_add_subtree(eti, ett_dhcp_option);
 		offset += 4;
-		proto_tree_add_item(tree, hf_dhcp_option_vi_class_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(e_tree, hf_dhcp_option_vi_class_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		data_len = tvb_get_guint8(tvb, offset);
 		offset += 1;
 
-		proto_tree_add_item(tree, hf_dhcp_option_vi_class_data, tvb, offset, data_len, ENC_ASCII);
+		s_end = offset + data_len;
+		if ( tvb_reported_length_remaining(tvb, s_end) < 0) {
+			break;
+		}
 
-		/* look for next enterprise number */
-		offset += data_len;
+		while (offset < s_end) {
+			vcdi_tree = proto_tree_add_subtree(e_tree, tvb, offset, data_len, ett_dhcp_option124_vendor_class_data_item, NULL, "Vendor Class Data Item");
+
+			data_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_length, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_data, tvb, offset, data_len, ENC_NA);
+
+			/* look for next vendor-class-data-item */
+			offset += data_len;
+		}
+
+		/* loop for the next Enterprise number */
 	}
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -9622,13 +9644,23 @@ proto_register_dhcp(void)
 		    "Option 124: Enterprise", HFILL }},
 
 		{ &hf_dhcp_option_vi_class_data_length,
-		  { "CableLab Address Mode", "dhcp.option.vi_class.length",
+		  { "Length", "dhcp.option.vi_class.length",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 124: Length", HFILL }},
 
 		{ &hf_dhcp_option_vi_class_data,
-		  { "NetInfo Parent Server Tag", "dhcp.option.vi_class.data",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  { "Vendor Class Data", "dhcp.option.vi_class.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Option 124: Data", HFILL }},
+
+		{ &hf_dhcp_option_vi_class_data_item_length,
+		  { "Length", "dhcp.option.vi_class.vendor_class_data.item.length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 124: Length", HFILL }},
+
+		{ &hf_dhcp_option_vi_class_data_item_data,
+		  { "Data", "dhcp.option.vi_class.vendor_class_data.item.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 124: Data", HFILL }},
 
 		{ &hf_dhcp_option125_enterprise,
@@ -10156,6 +10188,7 @@ proto_register_dhcp(void)
 		&ett_dhcp_option77_instance,
 		&ett_dhcp_option82_suboption,
 		&ett_dhcp_option82_suboption9,
+		&ett_dhcp_option124_vendor_class_data_item,
 		&ett_dhcp_option125_suboption,
 		&ett_dhcp_option125_tr111_suboption,
 		&ett_dhcp_option125_cl_suboption,
