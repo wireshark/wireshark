@@ -1993,10 +1993,12 @@ proto_reg_handoff_drda(void)
     dissector_handle_t ccsid_handle;
     dissector_handle_t codpntdr_handle;
     dissector_handle_t collection_handle;
+    dissector_handle_t sqlstt_handle;
 
     ccsid_handle = create_dissector_handle(dissect_drda_ccsid, proto_drda);
     codpntdr_handle = create_dissector_handle(dissect_drda_codpntdr, proto_drda);
     collection_handle = create_dissector_handle(dissect_drda_collection, proto_drda);
+    sqlstt_handle = create_dissector_handle(dissect_drda_sqlstt, proto_drda);
 
     dissector_add_uint("drda.opcode", DRDA_CP_MGRLVLLS, create_dissector_handle(dissect_drda_mgrlvlls, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFOVR, collection_handle);
@@ -2015,7 +2017,6 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_PKGDFTCST, codpntdr_handle);
     dissector_add_uint("drda.opcode", 0x2460, codpntdr_handle); /* Not in DRDA, Version 5 */
 
-    dissector_add_uint("drda.opcode", DRDA_CP_SQLSTT, create_dissector_handle(dissect_drda_sqlstt, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_MONITOR, create_dissector_handle(dissect_drda_monitor, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_ETIME, create_dissector_handle(dissect_drda_etime, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_RESPKTSZ, create_dissector_handle(dissect_drda_respktsz, proto_drda));
@@ -2046,7 +2047,10 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_TYPSQLDA, create_dissector_handle(dissect_drda_typsqlda, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_OUTOVROPT, create_dissector_handle(dissect_drda_outovropt, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_DYNDTAFMT, create_dissector_handle(dissect_drda_dyndtafmt, proto_drda));
+
     dissector_add_uint("drda.opcode", DRDA_CP_PKTOBJ, create_dissector_handle(dissect_drda_pktobj, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_SQLSTT, sqlstt_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_SQLATTR, sqlstt_handle);
 }
 
 /*
