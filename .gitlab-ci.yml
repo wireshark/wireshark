@@ -858,7 +858,11 @@ Code Lines:
     MAX_PASSES: 15
   before_script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get --yes install llvm-$CLANG_VERSION
+    # Use DPkg::options::="--force-overwrite" until
+    # https://bugs.launchpad.net/ubuntu/+source/llvm-toolchain-15/+bug/2008755
+    # https://github.com/llvm/llvm-project/issues/62104
+    # are fixed.
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes --option DPkg::options::="--force-overwrite" install llvm-$CLANG_VERSION
     - mkdir -p ccache
     # Signal after_script, which runs in its own shell.
     - echo "export FUZZ_PASSED=true" > /tmp/fuzz_result.sh
