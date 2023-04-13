@@ -7269,7 +7269,7 @@ static int get_connection_timeout_multiplier(guint32 timeout_value)
    return timeout_multiplier;
 }
 
-void fwd_open_analysis_safety_open(packet_info* pinfo, proto_item* cmd_item, cip_safety_epath_info_t* safety_fwdopen)
+static void fwd_open_analysis_safety_open(packet_info* pinfo, proto_item* cmd_item, cip_safety_epath_info_t* safety_fwdopen)
 {
    if (safety_fwdopen->safety_seg == FALSE)
    {
