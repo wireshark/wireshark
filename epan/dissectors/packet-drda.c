@@ -79,6 +79,7 @@ static int hf_drda_param_length = -1;
 static int hf_drda_param_codepoint = -1;
 static int hf_drda_param_data = -1;
 static int hf_drda_param_data_ebcdic = -1;
+static int hf_drda_null_ind = -1;
 static int hf_drda_sqlstatement_length = -1;
 static int hf_drda_sqlstatement = -1;
 static int hf_drda_sqlstatement_ebcdic = -1;
@@ -796,6 +797,111 @@ static const value_string drda_max_vals[] =
     {  0, NULL }
 };
 
+static const range_string drda_null_ind_rvals[] =
+{
+    { 0x00, 0x00, "Complete data value follows" },
+    { 0x01, 0x7F, "Truncation has occurred (should not occur in DRDA)" },
+    { 0x80, 0xFD, "Reserved; no data value follows" },
+    { 0xFE, 0xFE, "Undefined result; no data value follows" },
+    { 0xFF, 0xFF, "NULL; no data value follows" },
+    { 0, 0, NULL },
+};
+
+static int
+dissect_drda_sqlstt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+
+    guint32 null_ind, sqlstt_length;
+
+    /* If SECMGR is Level 6 and higher, it's possible to select a SECMEC
+     * that means that the security-sensitive DDM/FD:OCA objects are encrypted.
+     * They are SQLDTA, SQLDTARD, SQLSTT, SQLDARD, SQLATTR, SQLCINRD,
+     * SQLRSLRD, SQLSTTVRB, QRYDTA, EXTDTA, and SECTKNOVR.
+     * XXX: We don't handle the encryption, and we don't handle looking at
+     * the SECMEC to see if they are encrypted.
+     */
+
+    /* From the DRDA Specification Volume 1, 1.1 The DRDA Reference
+     * (Version 4 and later):
+     * Greater than 32,767 Byte SQL Statements
+     * "Existing early descriptor character fields are mapped to a Variable
+     * Character Mixed or a Variable Character SBCS which allow a maximum of
+     * 32,767 bytes. SQL Statements described by the SQL Statement Group use
+     * these character fields. To allow SQL Statements to extend beyond the 32K
+     * limit, SQL statements are changed to map to nullable Large Character
+     * Objects Mixed and nullable Large Character Objects SBCS to allow for
+     * very large SQL Statements."
+     *
+     * In other words, it changed from a pair of non nullable LONG VARCHARs
+     * to a pair of nullable CLOBs, meaning that each string gained a
+     * null indicator byte and the length field grew from 2 to 4 bytes.
+     *
+     * This requires SQLAM Level 7 on both client server, as sent in the
+     * MGRLVLLS in the EXCSAT and EXCSATRD (really, we only need look at
+     * the value in the EXCSATRD, as this must be supported on both sides,
+     * unlike the CCSID values, which can be different.)
+     */
+
+    /* If we don't store the handshake values, we can heuristically
+     * determine which format we have. In the old format, there's
+     * two 2-byte length fields, one of which is zero, and the other
+     * of which has value the reported tvb length minus 4.
+     * Either the nonzero length comes first or second:
+     */
+    sqlstt_length = tvb_get_ntohs(tvb, offset);
+    if (sqlstt_length == 0) {
+        sqlstt_length = tvb_get_ntohs(tvb, offset + 2);
+    }
+    if (sqlstt_length + 4 == tvb_reported_length(tvb)) {
+        proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 2, ENC_BIG_ENDIAN, &sqlstt_length);
+        offset += 2;
+        if (sqlstt_length) {
+            /* This should be in the CCSID given by the CCSIDMBC contained
+             * in the TYPDEFOVR in either the ACCRDB or ACCRDBRM, depending
+             * on direction. */
+            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
+            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
+            offset += sqlstt_length;
+        }
+        proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 2, ENC_BIG_ENDIAN, &sqlstt_length);
+        offset += 2;
+        if (sqlstt_length) {
+            /* This should be in the CCSID given by the CCSIDSBC */
+            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
+            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
+            offset += sqlstt_length;
+        }
+    } else {
+        proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+        offset++;
+        if ((gint8)null_ind >= 0) {
+            /* At least the length is always Big Endian, even if other integers
+             * aren't.
+             */
+            proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 4, ENC_BIG_ENDIAN, &sqlstt_length);
+            offset += 4;
+            /* This should be in the CCSID given by the CCSIDMBC contained
+             * in the TYPDEFOVR in either the ACCRDB or ACCRDBRM, depending
+             * on direction. */
+            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
+            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
+            offset += sqlstt_length;
+        }
+        proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+        offset++;
+        if ((gint8)null_ind >= 0) {
+            proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 4, ENC_BIG_ENDIAN, &sqlstt_length);
+            offset += 4;
+            /* This should be in the CCSID given by CCSIDSBC */
+            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
+            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
+            offset += sqlstt_length;
+        }
+    }
+    return offset;
+}
+
 static const value_string drda_secmec_vals[] = {
     { 1, "DCESEC - Distributed Computing Environment" },
     { 3, "USRIDPWD - User ID and Password" },
@@ -1446,16 +1552,6 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 if (!dissector_try_uint(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub)) {
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
-                    if (iCommand == DRDA_CP_SQLSTT)
-                    {
-                        /* Extract SQL statement from packet */
-                        tvbuff_t* next_tvb = NULL;
-                        next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
-                        add_new_data_source(pinfo, next_tvb, "SQL statement");
-                        proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_length, next_tvb, 0, 1, ENC_NA);
-                        proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 1, iLengthParam - 6, ENC_UTF_8);
-                        proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC);
-                    }
                 }
             }
             offset += iLengthParam;
@@ -1586,9 +1682,17 @@ proto_register_drda(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             "Param data converted from EBCDIC to ASCII for display", HFILL }},
 
+        /* The DRDA spec really treats the NULL indicator as a FT_INT8, but
+         * range_strings with negative values are a little annoying.
+         */
+        { &hf_drda_null_ind,
+          { "SQL NULL Indicator", "drda.null_ind",
+            FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(drda_null_ind_rvals),
+            0x0, NULL, HFILL }},
+
         { &hf_drda_sqlstatement_length,
           { "SQL statement Length", "drda.sqlstatement.length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_drda_sqlstatement,
@@ -1911,6 +2015,7 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_PKGDFTCST, codpntdr_handle);
     dissector_add_uint("drda.opcode", 0x2460, codpntdr_handle); /* Not in DRDA, Version 5 */
 
+    dissector_add_uint("drda.opcode", DRDA_CP_SQLSTT, create_dissector_handle(dissect_drda_sqlstt, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_MONITOR, create_dissector_handle(dissect_drda_monitor, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_ETIME, create_dissector_handle(dissect_drda_etime, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_RESPKTSZ, create_dissector_handle(dissect_drda_respktsz, proto_drda));
