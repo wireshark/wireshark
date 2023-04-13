@@ -130,6 +130,9 @@ static int hf_cip_cm_ot_net_params32 = -1;
 static int hf_cip_cm_ot_net_params16 = -1;
 static int hf_cip_cm_to_rpi = -1;
 static int hf_cip_cm_to_timeout = -1;
+
+static int hf_cip_safety_nte_ms = -1;
+
 static int hf_cip_cm_to_net_params32 = -1;
 static int hf_cip_cm_to_net_params16 = -1;
 static int hf_cip_cm_transport_type_trigger = -1;
@@ -675,6 +678,9 @@ static expert_field ei_mal_opt_service_list = EI_INIT;
 static expert_field ei_mal_padded_epath_size = EI_INIT;
 static expert_field ei_mal_missing_string_data = EI_INIT;
 
+static expert_field ei_cip_safety_open_type1 = EI_INIT;
+static expert_field ei_cip_safety_open_type2a = EI_INIT;
+static expert_field ei_cip_safety_open_type2b = EI_INIT;
 static expert_field ei_cip_no_fwd_close = EI_INIT;
 
 static dissector_table_t   subdissector_class_table;
@@ -5208,23 +5214,30 @@ static int dissect_segment_port(tvbuff_t* tvb, int offset, gboolean generate,
 }
 
 static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset, gboolean generate,
-   proto_tree* net_tree, cip_safety_epath_info_t* safety)
+   proto_tree* net_tree, cip_safety_epath_info_t* safety, cip_simple_request_info_t* req_data)
 {
    guint16 seg_size = tvb_get_guint8(tvb, offset + 1) * 2;
    int segment_len = seg_size + 2;
 
+   guint32 safety_format;
    if (generate)
    {
-      /* TODO: Skip printing information in response packets for now. Think of a better way to handle
-         generated data that doesn't require a lot of copy-paste. */
+      safety_format = tvb_get_guint8(tvb, offset + 2);
+
+      proto_item* it = proto_tree_add_uint(net_tree, hf_cip_seg_network_size, tvb, 0, 0, seg_size / 2);
+      proto_item_set_generated(it);
+
+      it = proto_tree_add_uint(net_tree, hf_cip_seg_safety_format, tvb, 0, 0, safety_format);
+      proto_item_set_generated(it);
+
+      /* Skip printing further information in response packets. */
       return segment_len;
    }
-
-   /* Segment size */
-   proto_tree_add_item(net_tree, hf_cip_seg_network_size, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-   guint32 safety_format;
-   proto_tree_add_item_ret_uint(net_tree, hf_cip_seg_safety_format, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN, &safety_format);
+   else
+   {
+      proto_tree_add_item(net_tree, hf_cip_seg_network_size, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint(net_tree, hf_cip_seg_safety_format, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN, &safety_format);
+   }
 
    /* Safety Network Segment Format */
    if (safety_format < 3)
@@ -5232,10 +5245,15 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
       cip_connID_info_t ignore;
       proto_tree* safety_tree = proto_tree_add_subtree(net_tree, tvb, offset + 3, seg_size - 1,
          ett_network_seg_safety, NULL, val_to_str_const(safety_format, cip_safety_segment_format_type_vals, "Reserved"));
+
+      gboolean has_scid = FALSE;
+      guint32 ntem_value = 0;
       switch (safety_format)
       {
       case 0:
       {
+         has_scid = TRUE;
+
          /* Target Format - Deprecated*/
          if (safety != NULL)
             safety->format = CIP_SAFETY_BASE_FORMAT;
@@ -5260,7 +5278,7 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
             ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_snn);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_epi_multiplier, tvb, offset + 40, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
-         proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item_ret_uint(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN, &ntem_value);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_timeout_multiplier, tvb, offset + 46, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_consumer_number, tvb, offset + 47, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_conn_param_crc, tvb, offset + 48, 4, ENC_LITTLE_ENDIAN);
@@ -5283,6 +5301,8 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
          break;
       case 2:
       {
+         has_scid = TRUE;
+
          /* Extended Format */
          if (safety != NULL)
             safety->format = CIP_SAFETY_EXTENDED_FORMAT;
@@ -5307,7 +5327,7 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
             ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_snn);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_epi_multiplier, tvb, offset + 40, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
-         proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item_ret_uint(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN, &ntem_value);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_timeout_multiplier, tvb, offset + 46, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_consumer_number, tvb, offset + 47, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_fault_number, tvb, offset + 48, 2, ENC_LITTLE_ENDIAN);
@@ -5318,6 +5338,32 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
          break;
       }
       }  // END switch
+
+      if (safety && req_data && has_scid)
+      {
+         // Check if the SCID (SCCRC + SCTS) is all zeros.
+         guint32 sccrc_value = tvb_get_letohl(tvb, offset + 4);
+         guint64 scts_value = tvb_get_letoh48(tvb, offset + 8);
+         gboolean scid_zero = (sccrc_value == 0) && (scts_value == 0);
+
+         if (req_data->hasSimpleData)
+         {
+            safety->safety_open_type = CIP_SAFETY_OPEN_TYPE1;
+         }
+         else if (scid_zero)
+         {
+            safety->safety_open_type = CIP_SAFETY_OPEN_TYPE2B;
+         }
+         else
+         {
+            safety->safety_open_type = CIP_SAFETY_OPEN_TYPE2A;
+         }
+      }
+
+      if (safety)
+      {
+         safety->nte_value_ms = ntem_value * 0.128f;
+      }
    }
    else
    {
@@ -5335,6 +5381,11 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
 static int dissect_segment_data_simple(packet_info* pinfo, tvbuff_t* tvb, int offset, gboolean generate,
    proto_tree* path_seg_tree, proto_item* path_seg_item, cip_simple_request_info_t* req_data)
 {
+   if (req_data)
+   {
+      req_data->hasSimpleData = TRUE;
+   }
+
    guint16 seg_size = tvb_get_guint8(tvb, offset + 1) * 2;
    int segment_len = seg_size + 2;
 
@@ -5520,7 +5571,8 @@ static int dissect_segment_logical_special(packet_info* pinfo, tvbuff_t* tvb, in
 
 static int dissect_segment_network(packet_info* pinfo, tvbuff_t* tvb, int offset,
    gboolean generate, proto_tree* path_seg_tree, proto_item* path_seg_item,
-   proto_item* epath_item, int display_type, cip_safety_epath_info_t* safety)
+   proto_item* epath_item, int display_type, cip_safety_epath_info_t* safety,
+   cip_simple_request_info_t* req_data)
 {
    int segment_len = 0;
 
@@ -5603,7 +5655,7 @@ static int dissect_segment_network(packet_info* pinfo, tvbuff_t* tvb, int offset
          col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
       }
 
-      segment_len = dissect_segment_safety(pinfo, tvb, offset, generate, path_seg_tree, safety);
+      segment_len = dissect_segment_safety(pinfo, tvb, offset, generate, path_seg_tree, safety, req_data);
       break;
 
    default:
@@ -5911,7 +5963,7 @@ int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
          }
 
          case CI_NETWORK_SEGMENT:
-            segment_len = dissect_segment_network(pinfo, tvb, offset, generate, path_seg_tree, path_seg_item, epath_item, display_type, safety);
+            segment_len = dissect_segment_network(pinfo, tvb, offset, generate, path_seg_tree, path_seg_item, epath_item, display_type, safety, req_data);
             break;
 
          case CI_SYMBOLIC_SEGMENT:
@@ -5957,6 +6009,8 @@ void reset_cip_request_info(cip_simple_request_info_t* req_data)
 
    req_data->iConnPoint = SEGMENT_VALUE_NOT_SET;
    req_data->iConnPointA = SEGMENT_VALUE_NOT_SET;
+
+   req_data->hasSimpleData = FALSE;
 }
 
 void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, proto_item *epath_item, int offset, int path_length,
@@ -7215,6 +7269,27 @@ static int get_connection_timeout_multiplier(guint32 timeout_value)
    return timeout_multiplier;
 }
 
+void fwd_open_analysis_safety_open(packet_info* pinfo, proto_item* cmd_item, cip_safety_epath_info_t* safety_fwdopen)
+{
+   if (safety_fwdopen->safety_seg == FALSE)
+   {
+      return;
+   }
+
+   if (safety_fwdopen->safety_open_type == CIP_SAFETY_OPEN_TYPE1)
+   {
+      expert_add_info(pinfo, cmd_item, &ei_cip_safety_open_type1);
+   }
+   else if (safety_fwdopen->safety_open_type == CIP_SAFETY_OPEN_TYPE2A)
+   {
+      expert_add_info(pinfo, cmd_item, &ei_cip_safety_open_type2a);
+   }
+   else if (safety_fwdopen->safety_open_type == CIP_SAFETY_OPEN_TYPE2B)
+   {
+      expert_add_info(pinfo, cmd_item, &ei_cip_safety_open_type2b);
+   }
+}
+
 static void display_previous_route_connection_path(cip_req_info_t* preq_info, proto_tree* item_tree, tvbuff_t* tvb, packet_info* pinfo, int hf_path, int display_type);
 
 // Display all Connection Information and Analysis.
@@ -7238,6 +7313,12 @@ static void display_connection_information_fwd_open_req(packet_info* pinfo, tvbu
    pi = proto_tree_add_float(conn_info_tree, hf_cip_cm_to_timeout, tvb, 0, 0, (conn_info->T2O.rpi / 1000.0f) * conn_info->timeout_multiplier);
    proto_item_set_generated(pi);
 
+   if (conn_info->safety.safety_seg)
+   {
+      pi = proto_tree_add_float(conn_info_tree, hf_cip_safety_nte_ms, tvb, 0, 0, conn_info->safety.nte_value_ms);
+      proto_item_set_generated(pi);
+   }
+
    if (conn_info->close_frame != 0)
    {
       pi = proto_tree_add_uint(conn_info_tree, hf_cip_fwd_close_in, tvb, 0, 0, conn_info->close_frame);
@@ -7247,6 +7328,8 @@ static void display_connection_information_fwd_open_req(packet_info* pinfo, tvbu
    {
       expert_add_info(pinfo, conn_info_item, &ei_cip_no_fwd_close);
    }
+
+   fwd_open_analysis_safety_open(pinfo, conn_info_item, &conn_info->safety);
 }
 
 static void display_connection_information_fwd_open_rsp(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, cip_req_info_t* preq_info)
@@ -7294,10 +7377,29 @@ static void display_connection_information_fwd_close_req(packet_info* pinfo, tvb
 
    proto_item* to_timeout_item = proto_tree_add_float(conn_info_tree, hf_cip_cm_to_timeout, tvb, 0, 0, to_timeout_ms);
    proto_item_set_generated(to_timeout_item);
+
+   if (conn_info->safety.safety_seg)
+   {
+      pi = proto_tree_add_float(conn_info_tree, hf_cip_safety_nte_ms, tvb, 0, 0, conn_info->safety.nte_value_ms);
+      proto_item_set_generated(pi);
+   }
+
+   if (conn_info->safety.safety_seg)
+   {
+      // Make it obvious that the FwdClose is Safety, to match how the FwdOpen looks.
+      col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
+   }
+
 }
 
 static void display_connection_information_fwd_close_rsp(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
 {
+   cip_conn_info_t* conn_val = (cip_conn_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+   if (!conn_val)
+   {
+      return;
+   }
+
    proto_item* conn_info_item = NULL;
    proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
    proto_item_set_generated(conn_info_item);
@@ -7306,6 +7408,12 @@ static void display_connection_information_fwd_close_rsp(packet_info* pinfo, tvb
 
    cip_req_info_t* preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    display_previous_route_connection_path(preq_info, conn_info_tree, tvb, pinfo, hf_cip_cm_conn_path_size, DISPLAY_CONNECTION_PATH);
+
+   if (conn_val->safety.safety_seg)
+   {
+      // Make it obvious that the FwdClose is Safety, to match how the FwdOpen looks.
+      col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
+   }
 }
 
 static void
@@ -9469,6 +9577,9 @@ proto_register_cip(void)
       { &hf_cip_cm_ot_net_params16, { "O->T Network Connection Parameters", "cip.cm.ot_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_to_rpi, { "T->O RPI", "cip.cm.torpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cm_to_timeout, { "T->O Timeout Threshold", "cip.cm.to_timeout", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL }},
+
+      { &hf_cip_safety_nte_ms, { "Network Time Expectation (Produce Timeout)", "cip.safety.nte", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL }},
+
       { &hf_cip_cm_to_net_params32, { "T->O Network Connection Parameters", "cip.cm.to_net_params", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_to_net_params16, { "T->O Network Connection Parameters", "cip.cm.to_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_transport_type_trigger, { "Transport Type/Trigger", "cip.cm.transport_type_trigger", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -9767,6 +9878,9 @@ proto_register_cip(void)
       { &ei_mal_padded_epath_size, { "cip.malformed.epath.size", PI_MALFORMED, PI_ERROR, "Malformed EPATH vs Size", EXPFILL } },
       { &ei_mal_missing_string_data, { "cip.malformed.missing_str_data", PI_MALFORMED, PI_ERROR, "Missing string data", EXPFILL } },
 
+      { &ei_cip_safety_open_type1, { "cip.analysis.safety_open_type1", PI_PROTOCOL, PI_NOTE, "Type 1 - Safety Open with Data", EXPFILL } },
+      { &ei_cip_safety_open_type2a, { "cip.analysis.safety_open_type2a", PI_PROTOCOL, PI_NOTE, "Type 2a - Safety Open with SCID check", EXPFILL } },
+      { &ei_cip_safety_open_type2b, { "cip.analysis.safety_open_type2b", PI_PROTOCOL, PI_NOTE, "Type 2b - Safety Open without SCID check", EXPFILL } },
       { &ei_cip_no_fwd_close, { "cip.analysis.no_fwd_close", PI_PROTOCOL, PI_NOTE, "No Forward Close seen for this CIP Connection", EXPFILL } },
    };
 
