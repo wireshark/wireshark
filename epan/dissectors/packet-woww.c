@@ -15,6 +15,9 @@
  * The WOW protocol (no extra W) packets are Login packets, and they are handled in
  * the packet-wow.c file.
  *
+ * The message definitions are automatically generated from the `wowm` files at
+ * https://github.com/gtker/wow_messages.
+ *
  * More info on world packets and login packets:
  * https://wowdev.wiki/World_Packet
  * https://wowdev.wiki/Login_Packet
