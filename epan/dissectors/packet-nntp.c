@@ -81,14 +81,14 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	if (pinfo->match_uint == pinfo->destport) {
 		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_request, tvb, 0, 0, TRUE);
 
-		if (g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
+		if (line && g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
 			session_state->tls_requested = TRUE;
 		}
 	} else {
 		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_response, tvb, 0, 0, TRUE);
 
 		if (session_state->tls_requested) {
-			if (g_ascii_strncasecmp(line, "382", 3) == 0) {
+			if (line && g_ascii_strncasecmp(line, "382", 3) == 0) {
 				/* STARTTLS command accepted */
 				ssl_starttls_ack(tls_handle, pinfo, nntp_handle);
 			}
