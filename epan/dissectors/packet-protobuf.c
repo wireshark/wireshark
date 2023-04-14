@@ -1373,7 +1373,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     const PbwDescriptor* message_desc, int hf_msg, gboolean is_top_level, json_dumper *dumper, wmem_allocator_t* scope, char** retval)
 {
     proto_tree *message_tree;
-    proto_item *ti_message, *ti, *ti_parent = proto_tree_get_parent(protobuf_tree);
+    proto_item *ti_message, *ti;
     const gchar* message_name = "<UNKNOWN> Message Type";
     guint max_offset = offset + length;
     const PbwFieldDescriptor* field_desc;
@@ -1393,18 +1393,15 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
 
         if (strcmp(message_name, "google.protobuf.Timestamp") == 0) {
             /* parse this message as timestamp */
-            if (tvb_get_protobuf_time(tvb, offset, length, &timestamp)) {
-                value_label = abs_time_to_rfc3339(scope ? scope : pinfo->pool, &timestamp, use_utc_fmt);
-                if (hf_msg != -1) {
-                    ti = proto_tree_add_time_format_value(protobuf_tree, hf_msg, tvb, offset, length, &timestamp, "%s", value_label);
-                    protobuf_tree = proto_item_add_subtree(ti, ett_protobuf_message);
-                }
-                if (dumper) {
-                    json_dumper_value_string(dumper, value_label);
-                    dumper = NULL; /* this message will not dump as JSON object */
-                }
-            } else {
-                expert_add_info(pinfo, ti_parent, &ei_protobuf_failed_parse_field);
+            tvb_get_protobuf_time(tvb, offset, length, &timestamp);
+            value_label = abs_time_to_rfc3339(scope ? scope : pinfo->pool, &timestamp, use_utc_fmt);
+            if (hf_msg != -1) {
+                ti = proto_tree_add_time_format_value(protobuf_tree, hf_msg, tvb, offset, length, &timestamp, "%s", value_label);
+                protobuf_tree = proto_item_add_subtree(ti, ett_protobuf_message);
+            }
+            if (dumper) {
+                json_dumper_value_string(dumper, value_label);
+                dumper = NULL; /* this message will not dump as JSON object */
             }
         } else if (hf_msg != -1) {
             ti = proto_tree_add_bytes_format_value(protobuf_tree, hf_msg, tvb, offset, length, NULL, "(%u bytes)", length);
