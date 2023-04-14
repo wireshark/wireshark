@@ -35,12 +35,6 @@ extern stnode_t *df_lval;
 /* Holds the singular instance of our Lemon parser object */
 static void*	ParserObj = NULL;
 
-/*
- * XXX - if we're using a version of Flex that supports reentrant lexical
- * analyzers, we should put this into the lexical analyzer's state.
- */
-dfwork_t *global_dfw;
-
 df_loc_t loc_empty = {-1, 0};
 
 void
@@ -554,7 +548,6 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		*dfp = dfilter;
 	}
 	/* SUCCESS */
-	global_dfw = NULL;
 	dfwork_free(dfw);
 	if (*dfp != NULL)
 		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
@@ -574,7 +567,6 @@ FAILURE:
 		dfw_error_take(errpp, &dfw->error);
 	}
 
-	global_dfw = NULL;
 	dfwork_free(dfw);
 	*dfp = NULL;
 	return FALSE;
