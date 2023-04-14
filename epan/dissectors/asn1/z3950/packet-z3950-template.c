@@ -933,7 +933,7 @@ dissect_z3950(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
     /* create the z3950 protocol tree */
-    z3950_item = proto_tree_add_item(tree, proto_z3950, tvb, 0, -1, FALSE);
+    z3950_item = proto_tree_add_item(tree, proto_z3950, tvb, 0, -1, ENC_NA);
     z3950_tree = proto_item_add_subtree(z3950_item, ett_z3950);
 
     return dissect_z3950_PDU(FALSE, tvb, offset, &asn1_ctx, z3950_tree, -1);

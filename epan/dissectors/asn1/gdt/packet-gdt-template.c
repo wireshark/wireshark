@@ -51,7 +51,7 @@ static int dissect_gdt(tvbuff_t *tvb,
 
     /* create the gdt protocol tree */
     if (tree) {
-        gdt_item = proto_tree_add_item(tree, proto_gdt, tvb, 0, -1, FALSE);
+        gdt_item = proto_tree_add_item(tree, proto_gdt, tvb, 0, -1, ENC_NA);
         gdt_tree = proto_item_add_subtree(gdt_item, ett_gdt);
         dissect_GDTMessage_PDU(tvb, pinfo, gdt_tree, 0);
     }
