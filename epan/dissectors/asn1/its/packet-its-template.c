@@ -356,6 +356,21 @@ find_subcause_from_cause(CauseCodeType_enum cause)
     return cause_to_subcause[idx].hf?cause_to_subcause[idx].hf:&hf_its_subCauseCode;
 }
 
+static unsigned char ita2_ascii[32] = {
+    '\0', 'T', '\r', 'O', ' ', 'H', 'N', 'M', '\n', 'L', 'R', 'G', 'I', 'P', 'C', 'V',
+    'E', 'Z', 'D', 'B', 'S', 'Y', 'F', 'X', 'A', 'W', 'J', '\0', 'U', 'Q', 'K'
+};
+
+static void
+append_country_code_fmt(proto_item *item, tvbuff_t *val_tvb)
+{
+  guint16 v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
+  v >>= 6;  /* 10 bits */
+  guint16 v1 = (v >> 5) & 0x1F;
+  guint16 v2 = v & 0x1F;
+  proto_item_append_text(item, " - %c%c", ita2_ascii[v1], ita2_ascii[v2]);
+}
+
 #include "packet-its-fn.c"
 
 static void

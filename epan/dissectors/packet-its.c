@@ -1317,7 +1317,7 @@ static int hf_ivi_itisCodes = -1;                 /* INTEGER_0_65535 */
 static int hf_ivi_anyCatalogue = -1;              /* AnyCatalogue */
 static int hf_ivi_line = -1;                      /* PolygonalLine */
 static int hf_ivi_tLayoutComponentId = -1;        /* INTEGER_1_4_ */
-static int hf_ivi_language = -1;                  /* BIT_STRING_SIZE_10 */
+static int hf_ivi_language = -1;                  /* T_language */
 static int hf_ivi_textContent = -1;               /* UTF8String */
 static int hf_ivi_toEqualTo = -1;                 /* T_TractorCharactEqualTo */
 static int hf_ivi_toNotEqualTo = -1;              /* T_TractorCharactNotEqualTo */
@@ -2550,6 +2550,21 @@ find_subcause_from_cause(CauseCodeType_enum cause)
         idx++;
 
     return cause_to_subcause[idx].hf?cause_to_subcause[idx].hf:&hf_its_subCauseCode;
+}
+
+static unsigned char ita2_ascii[32] = {
+    '\0', 'T', '\r', 'O', ' ', 'H', 'N', 'M', '\n', 'L', 'R', 'G', 'I', 'P', 'C', 'V',
+    'E', 'Z', 'D', 'B', 'S', 'Y', 'F', 'X', 'A', 'W', 'J', '\0', 'U', 'Q', 'K'
+};
+
+static void
+append_country_code_fmt(proto_item *item, tvbuff_t *val_tvb)
+{
+  guint16 v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
+  v >>= 6;  /* 10 bits */
+  guint16 v1 = (v >> 5) & 0x1F;
+  guint16 v2 = v & 0x1F;
+  proto_item_append_text(item, " - %c%c", ita2_ascii[v1], ita2_ascii[v2]);
 }
 
 
@@ -6360,8 +6375,11 @@ dissect_itsv1_CenDsrcTollingZone(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_anads_CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *val_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, &val_tvb, NULL);
+
+  append_country_code_fmt(actx->created_item, val_tvb);
 
   return offset;
 }
@@ -13026,9 +13044,12 @@ dissect_ivi_RoadSignCodes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static int
-dissect_ivi_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ivi_T_language(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *val_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, &val_tvb, NULL);
+
+  append_country_code_fmt(actx->created_item, val_tvb);
 
   return offset;
 }
@@ -13046,7 +13067,7 @@ dissect_ivi_UTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static const per_sequence_t ivi_Text_sequence[] = {
   { &hf_ivi_tLayoutComponentId, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_4_ },
-  { &hf_ivi_language        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_BIT_STRING_SIZE_10 },
+  { &hf_ivi_language        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_language },
   { &hf_ivi_textContent     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_UTF8String },
   { NULL, 0, 0, NULL }
 };
@@ -16373,7 +16394,6 @@ dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
    * 1111  Cable for    Reserved
            DC charging
    */
-
 
   return offset;
 }
@@ -22861,7 +22881,7 @@ void proto_register_its(void)
     { &hf_ivi_language,
       { "language", "ivi.language",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_10", HFILL }},
+        NULL, HFILL }},
     { &hf_ivi_textContent,
       { "textContent", "ivi.textContent",
         FT_STRING, BASE_NONE, NULL, 0,

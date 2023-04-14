@@ -24,8 +24,6 @@ EV-RSR
 RTCMEM
 CPM
 EvcsnPdu
-
-# Could be Language but size of Language bit string is 10 and DriverLanguage max is 15...
 DriverLanguage
 ChargingPower
 StatusResponseCode
@@ -778,6 +776,20 @@ addGrpC      RegionId
    * 1111  Cable for    Reserved
            DC charging
    */
+#.END
+
+#.FN_BODY CountryCode VAL_PTR=&val_tvb
+  tvbuff_t *val_tvb = NULL;
+%(DEFAULT_BODY)s
+  append_country_code_fmt(actx->created_item, val_tvb);
+#.END
+
+#.FN_BODY Text/language VAL_PTR=&val_tvb
+  tvbuff_t *val_tvb = NULL;
+%(DEFAULT_BODY)s
+  append_country_code_fmt(actx->created_item, val_tvb);
+#.END
+
 
 #.NO_EMIT WITH_VALS
 #.END
