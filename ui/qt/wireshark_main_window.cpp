@@ -1218,7 +1218,7 @@ void WiresharkMainWindow::mergeCaptureFile()
                 QMessageBox::warning(this, tr("Invalid Read Filter"),
                                      QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, df_err->msg)),
                                      QMessageBox::Ok);
-                dfilter_error_free(df_err);
+                df_error_free(&df_err);
                 continue;
             }
         } else {
@@ -3053,7 +3053,7 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
     /* Try to compile the filter. */
     if (!dfilter_compile(filter_text, &sfcode, &df_err)) {
         QString err = QString(df_err->msg);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
         return err;
     }
 

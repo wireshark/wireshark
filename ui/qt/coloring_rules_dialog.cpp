@@ -164,7 +164,7 @@ bool ColoringRulesDialog::isValidFilter(QString filter, QString * error)
     if (df_err)
     {
         error->append(df_err->msg);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
     }
 
     return false;

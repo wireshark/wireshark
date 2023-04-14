@@ -991,7 +991,7 @@ int main(int argc, char *qt_argv[])
                                          QObject::tr("The filter expression %1 isn't a valid display filter. (%2).")
                                                  .arg(global_commandline_info.jfilter, df_err->msg),
                                          QMessageBox::Ok);
-                    dfilter_error_free(df_err);
+                    df_error_free(&df_err);
                 } else {
                     /* Filter ok, jump to the first packet matching the filter
                        conditions. Default search direction is forward, but if

@@ -541,7 +541,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
             autocomplete_accepts_field_ = false;
         }
         dfilter_free(test_df);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
         filter_word_preamble_ = preamble;
     }
 

@@ -1729,7 +1729,7 @@ void IOGraph::setFilter(const QString &filter)
         dfilter_free(dfilter);
         if (!status) {
             config_err_ = QString::fromUtf8(df_err->msg);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             filter_ = full_filter;
             return;
         }

@@ -1178,7 +1178,7 @@ void LograyMainWindow::mergeCaptureFile()
                 QMessageBox::warning(this, tr("Invalid Read Filter"),
                                      QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, df_err->msg)),
                                      QMessageBox::Ok);
-                dfilter_error_free(df_err);
+                df_error_free(&df_err);
                 continue;
             }
         } else {

@@ -560,7 +560,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
 			    fstring, df_err->msg);
-			dfilter_error_free(df_err);
+			df_error_free(&df_err);
 			free_tap_listener(tl);
 			return error_string;
 		}
@@ -621,7 +621,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
 						 fstring, df_err->msg);
-				dfilter_error_free(df_err);
+				df_error_free(&df_err);
 				return error_string;
 			}
 		}

@@ -4099,7 +4099,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
                 sharkd_json_simple_ok(rpcid);
 
             dfilter_free(dfp);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             return 0;
         }
         else
@@ -4108,7 +4108,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
                     rpcid, -5001, NULL,
                     "Filter invalid - %s", df_err->msg
                     );
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             return -5001;
         }
     }

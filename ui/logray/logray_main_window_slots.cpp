@@ -206,7 +206,7 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
                     QString(" isn't a valid display filter. (") +
                     df_err->msg + QString(")."),
                     QMessageBox::Ok);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
 
             if (!name_param) {
                 // go back to the selection dialogue only if the file

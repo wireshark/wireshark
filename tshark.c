@@ -640,15 +640,14 @@ static gboolean
 _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
 {
     gboolean ok;
-    char *err_msg = NULL;
     df_error_t *df_err;
     char *err_off;
     char *expanded;
 
-    expanded = dfilter_expand(text, &err_msg);
+    expanded = dfilter_expand(text, &df_err);
     if (expanded == NULL) {
-        cmdarg_err("%s", err_msg);
-        g_free(err_msg);
+        cmdarg_err("%s", df_err->msg);
+        df_error_free(&df_err);
         return FALSE;
     }
 
@@ -662,7 +661,7 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
             cmdarg_err_cont("    %s", err_off);
             g_free(err_off);
         }
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
     }
 
     g_free(expanded);

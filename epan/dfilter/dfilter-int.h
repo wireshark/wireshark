@@ -46,7 +46,7 @@ typedef struct {
 	stnode_t	*st_root;
 	gboolean	parse_failure;
 	unsigned	field_count;
-	df_error_t	error;
+	df_error_t	*error;
 	GPtrArray	*insns;
 	GHashTable	*loaded_fields;
 	GHashTable	*loaded_raw_fields;
@@ -136,14 +136,5 @@ reference_new(const field_info *finfo, gboolean raw);
 
 void
 reference_free(df_reference_t *ref);
-
-void dfw_error_init(df_error_t *err);
-
-void dfw_error_clear(df_error_t *err);
-
-void dfw_error_set_msg(df_error_t **errp, const char *fmt, ...)
-G_GNUC_PRINTF(2, 3);
-
-void dfw_error_take(df_error_t **errp, df_error_t *src);
 
 #endif

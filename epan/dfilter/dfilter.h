@@ -13,17 +13,42 @@
 #include <wireshark.h>
 
 #include "dfilter-loc.h"
+#include <epan/proto.h>
 
 /* Passed back to user */
 typedef struct epan_dfilter dfilter_t;
-
-#include <epan/proto.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 struct epan_dissect;
+
+#define DF_ERROR_GENERIC		-1
+#define DF_ERROR_UNEXPECTED_END		-2
+
+typedef struct {
+	int code;
+	char *msg;
+	df_loc_t loc;
+} df_error_t;
+
+df_error_t *
+df_error_new(int code, const char *msg, df_loc_t *loc);
+
+df_error_t *
+df_error_new_printf(int code, df_loc_t *loc, const char *fmt, ...)
+G_GNUC_PRINTF(3, 4);
+
+#define df_error_new_msg(msg) \
+	df_error_new_printf(DF_ERROR_GENERIC, NULL, "%s", msg)
+
+df_error_t *
+df_error_new_vprintf(int code, df_loc_t *loc, const char *fmt, va_list ap);
+
+WS_DLL_PUBLIC
+void
+df_error_free(df_error_t **ep);
 
 /* Module-level initialization */
 void
@@ -36,7 +61,18 @@ dfilter_cleanup(void);
 /* Perform macro expansion. */
 WS_DLL_PUBLIC
 char *
-dfilter_expand(const char *expr, char **err_ret);
+dfilter_expand(const char *expr, df_error_t **err_ret);
+
+/* Save textual representation of syntax tree (for debugging purposes). */
+#define DF_SAVE_TREE		(1U << 0)
+/* Perform macro substitution on filter text. */
+#define DF_EXPAND_MACROS	(1U << 1)
+/* Do an optimization pass on the compiled filter. */
+#define DF_OPTIMIZE		(1U << 2)
+/* Enable debug trace for flex. */
+#define DF_DEBUG_FLEX		(1U << 3)
+/* Enable debug trace for lemon. */
+#define DF_DEBUG_LEMON		(1U << 4)
 
 /* Compiles a string to a dfilter_t.
  * On success, sets the dfilter* pointed to by dfp
@@ -52,31 +88,6 @@ dfilter_expand(const char *expr, char **err_ret);
  *
  * Returns TRUE on success, FALSE on failure.
  */
-
-#define DF_ERROR_GENERIC		-1
-#define DF_ERROR_UNEXPECTED_END		-2
-
-typedef struct {
-	int code;
-	char *msg;
-	df_loc_t loc;
-} df_error_t;
-
-WS_DLL_PUBLIC
-void
-dfilter_error_free(df_error_t *);
-
-/* Save textual representation of syntax tree (for debugging purposes). */
-#define DF_SAVE_TREE		(1U << 0)
-/* Perform macro substitution on filter text. */
-#define DF_EXPAND_MACROS	(1U << 1)
-/* Do an optimization pass on the compiled filter. */
-#define DF_OPTIMIZE		(1U << 2)
-/* Enable debug trace for flex. */
-#define DF_DEBUG_FLEX		(1U << 3)
-/* Enable debug trace for lemon. */
-#define DF_DEBUG_LEMON		(1U << 4)
-
 WS_DLL_PUBLIC
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,

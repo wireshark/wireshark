@@ -165,15 +165,15 @@ static char *
 expand_filter(const char *text, GTimer *timer)
 {
     char *expanded = NULL;
-    char *err_msg = NULL;
+    df_error_t *err = NULL;
 
     g_timer_start(timer);
-    expanded = dfilter_expand(text, &err_msg);
+    expanded = dfilter_expand(text, &err);
     g_timer_stop(timer);
     elapsed_expand = g_timer_elapsed(timer, NULL);
     if (expanded == NULL) {
-        fprintf(stderr, "Error: %s\n", err_msg);
-        g_free(err_msg);
+        fprintf(stderr, "Error: %s\n", err->msg);
+        df_error_free(&err);
     }
     return expanded;
 }
@@ -205,7 +205,7 @@ compile_filter(const char *text, dfilter_t **dfp, GTimer *timer)
             fprintf(stderr, "  %s\n  ", text);
             putloc(stderr, df_err->loc);
         }
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
     }
     return ok;
 }
