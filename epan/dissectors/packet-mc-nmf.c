@@ -115,7 +115,10 @@ static int hf_mc_nmf_upgrade_proto_data = -1;
 
 static expert_field ei_mc_nmf_size_too_big = EI_INIT;
 
-#define MC_NMF_TCP_PORT 0
+// [MC-NMF] does not have a defined port https://learn.microsoft.com/en-us/openspecs/windows_protocols/mc-nmf/51b5eb53-f488-4b74-b21d-8a498f016b61
+// but 9389 is ADWS port https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adcap/cfff3d7f-e7cd-4529-86a0-4de89efe3855
+// which relies on [MC-NMF], so by doing this, all ADWS trafic on port 9389 is properly dissected by default
+#define MC_NMF_TCP_PORT 9389
 
 /* Initialize the subtree pointers */
 static gint ett_mc_nmf = -1;
