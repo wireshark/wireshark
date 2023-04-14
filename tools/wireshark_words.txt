@@ -1781,3 +1781,9 @@ zbncp
 zeroes
 zigbee
 zugtyp
+rdtci
+fixme
+slaac
+naptr
+compilable
+cipso

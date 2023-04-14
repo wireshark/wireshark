@@ -1271,7 +1271,7 @@ proto_register_mtp3mg(void)
               NULL, HFILL }},
         { &hf_mtp3mg_tfc_itu_status,
             { "Status", "mtp3mg.status",
-              FT_UINT8, BASE_DEC, NULL, ITU_TFC_STATUS_MASK,
+              FT_UINT16, BASE_DEC, NULL, ITU_TFC_STATUS_MASK,
               "Congestion status", HFILL }},
         { &hf_mtp3mg_chinese_apc,
             { "Affected Point Code", "mtp3mg.chinese_apc",

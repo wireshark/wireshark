@@ -461,7 +461,7 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, hf, filter, label, item_type, type_modifier, mask=None,
+    def __init__(self, filename, hf, filter, label, item_type, type_modifier, macros, mask=None,
                  check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
         self.filename = filename
         self.hf = hf
@@ -473,7 +473,7 @@ class Item:
 
         global warnings_found
 
-        self.set_mask_value()
+        self.set_mask_value(macros)
 
         if check_consecutive:
             if Item.previousItem and Item.previousItem.filter == filter:
@@ -510,8 +510,8 @@ class Item:
         if check_mask:
             if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00'}:
                 self.check_contiguous_bits(mask)
-                self.check_num_digits(mask)
-                self.check_digits_all_zeros(mask)
+                self.check_num_digits(self.mask)
+                self.check_digits_all_zeros(self.mask)
 
 
     def __str__(self):
@@ -519,10 +519,14 @@ class Item:
 
 
 
-    def set_mask_value(self):
+    def set_mask_value(self, macros):
         try:
             self.mask_read = True
-            if any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
+
+            # Substitute mask if found as a macro..
+            if self.mask in macros:
+                self.mask = macros[self.mask]
+            elif any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
                 self.mask_read = False
                 self.mask_value = 0
                 return
@@ -586,7 +590,7 @@ class Item:
 
         # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
         mask_width = n-1-mask_start
-        if mask_width > field_width:
+        if field_width is not None and (mask_width > field_width):
             # N.B. No call, so no line number.
             print(self.filename + ':', self.hf, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
                   'but mask is', mask, 'which is', mask_width, 'bits wide!')
@@ -599,7 +603,8 @@ class Item:
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits',
+                      mask, '(', hex(self.mask_value), ')')
                 warnings_found += 1
                 return
             n += 1
@@ -637,7 +642,10 @@ class Item:
 
             if self.item_type in field_widths:
                 # Longer than it should be?
-                if len(mask)-2 > self.get_field_width_in_bits()/4:
+                width_in_bits = self.get_field_width_in_bits()
+                if width_in_bits is None:
+                    return
+                if len(mask)-2 > width_in_bits/4:
                     extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
                     # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
@@ -856,7 +864,7 @@ def find_macros(filename):
 
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
+def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
     with open(filename, 'r') as f:
@@ -869,11 +877,13 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
+            items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
                              type_modifier=m.group(5),
+                             macros=macros,
+                             mask=m.group(7),
                              check_mask=check_mask,
-                             check_label=check_label,
                              mask_exact_width=mask_exact_width,
+                             check_label=check_label,
                              check_consecutive=(not is_generated and check_consecutive))
     return items
 
@@ -1000,7 +1010,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     macros = find_macros(filename)
 
     # Find important parts of items.
-    items_defined = find_items(filename, check_mask, mask_exact_width, check_label, check_consecutive)
+    items_defined = find_items(filename, macros, check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
     items_declared = {}

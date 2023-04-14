@@ -339,10 +339,7 @@ The first three octets of an encoded VP8 frame are referred to as an
     size2 = tvb_get_guint8(tvb, *offset + 2);
     (*partition1_size) = size0 + (size1*8) + (size2*2048);
     proto_tree_add_uint(vp8_payload_header_tree, hf_vp8_hdr_first_partition_size, tvb, *offset, 3, *partition1_size);
-    (*offset)++;
-    (*offset)++;
-    (*offset)++;
-
+    (*offset) += 3;
 }
 
 static void
@@ -521,7 +518,7 @@ proto_register_vp8(void)
         },
         { &hf_vp8_hdr_first_partition_size,
             { "First partition size",           "vp8.hdr.partition_size",
-            FT_UINT8, BASE_DEC, NULL, BIT_PARTITION_SIZE_MASK,
+            FT_UINT24, BASE_DEC, NULL, BIT_PARTITION_SIZE_MASK,
             NULL, HFILL }
         },
         { &hf_vp8_keyframe_start_code,

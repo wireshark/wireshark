@@ -46,8 +46,8 @@ void proto_reg_handoff_devicenet(void);
 #define MESSAGE_GROUP_3_FRAG_MASK       0x80
 #define MESSAGE_GROUP_3_XID_MASK        0x40
 
-#define MESSAGE_GROUP_4_ID              0x7EF
-#define MESSAGE_GROUP_4_MSG_MASK        0x03F
+#define MESSAGE_GROUP_4_ID              0x07EF
+#define MESSAGE_GROUP_4_MSG_MASK        0x003F
 
 static int proto_devicenet = -1;
 
