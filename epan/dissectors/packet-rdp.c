@@ -83,6 +83,7 @@ static int ett_rdp_channelDef = -1;
 static int ett_rdp_channelPDUHeader = -1;
 static int ett_rdp_channelFlags = -1;
 static int ett_rdp_capabilitySet = -1;
+static int ett_rdp_capa_rail = -1;
 
 static int ett_rdp_StandardDate = -1;
 static int ett_rdp_DaylightDate = -1;
@@ -349,6 +350,15 @@ static int hf_rdp_capabilitySet = -1;
 static int hf_rdp_capabilitySetType = -1;
 static int hf_rdp_lengthCapability = -1;
 static int hf_rdp_capabilityData = -1;
+static int hf_rdp_capaRail_supportedLevel = -1;
+static int hf_rdp_capaRail_flag_supported = -1;
+static int hf_rdp_capaRail_flag_dockedlangbar = -1;
+static int hf_rdp_capaRail_flag_shellintegration = -1;
+static int hf_rdp_capaRail_flag_lang_ime_sync = -1;
+static int hf_rdp_capaRail_flag_server_to_client_ime_sync = -1;
+static int hf_rdp_capaRail_flag_hide_minimized = -1;
+static int hf_rdp_capaRail_flag_windows_cloaking = -1;
+static int hf_rdp_capaRail_flag_handshakeex = -1;
 static int hf_rdp_sessionId = -1;
 
 /* static int hf_rdp_unknownData = -1; */
@@ -738,6 +748,7 @@ static const value_string failure_code_vals[] = {
 #define CAPSTYPE_LARGE_POINTER               0x001B
 #define CAPSTYPE_SURFACE_COMMANDS            0x001C
 #define CAPSTYPE_BITMAP_CODECS               0x001D
+#define CAPSTYPE_FRAME_ACKNOWLEDGE           0x001E
 
 
 #define CHANNEL_OPTION_INITIALIZED               0x80000000
@@ -1137,6 +1148,7 @@ static const value_string rdp_capabilityType_vals[] = {
   { CAPSTYPE_LARGE_POINTER,              "Large Pointer" },
   { CAPSTYPE_SURFACE_COMMANDS,           "Surface Commands" },
   { CAPSTYPE_BITMAP_CODECS,              "Bitmap Codecs" },
+  { CAPSTYPE_FRAME_ACKNOWLEDGE,          "Frame acknowledge" },
   {0, NULL },
 };
 
@@ -1446,12 +1458,10 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 		if (rdp_info) {
 			rdp_channel_def_t *channel = &rdp_info->staticChannels[i];
 			channel->value = -1; /* unset */
-			channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb,
-					offset, 8, ENC_ASCII);
+			channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
 			channel->channelType = find_known_channel_by_name(channel->strptr);
 		}
-		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree,
-				def_fields, 0);
+		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
 	}
 
     if (rdp_info) {
@@ -1768,25 +1778,60 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   return offset;
 }
 
+
 static int
 dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 numberCapabilities) {
   guint   i;
-  guint32 lengthCapability;
+  guint32 lengthCapability = 0;
+  guint32 capabilityType = 0;
 
   rdp_field_info_t cs_fields[] = {
-    {&hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_capabilitySetType, 2, &capabilityType, 0, 0, NULL },
     {&hf_rdp_lengthCapability, 2, &lengthCapability, -4, 0, NULL },
     {&hf_rdp_capabilityData, 0, &lengthCapability, 0, 0, NULL },
     FI_TERMINATOR
   };
 
-  rdp_field_info_t set_fields[] = {
-    FI_SUBTREE(&hf_rdp_capabilitySet, 0, ett_rdp_capabilitySet, cs_fields),
-    FI_TERMINATOR
+  rdp_field_info_t railFlags_fields[] = {
+      {&hf_rdp_capaRail_flag_supported, 		4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_dockedlangbar,     4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_shellintegration,  4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_lang_ime_sync,   	4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_server_to_client_ime_sync, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_hide_minimized, 	4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_windows_cloaking,  4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaRail_flag_handshakeex,  		4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      FI_TERMINATOR
+   };
+
+  rdp_field_info_t cs_rail[] = {
+	{&hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_lengthCapability, 2, NULL, 0, 0, NULL },
+	FI_SUBTREE(&hf_rdp_capaRail_supportedLevel, 4, ett_rdp_capa_rail, railFlags_fields),
+	FI_TERMINATOR
   };
 
   for (i = 0; i < numberCapabilities; i++) {
-    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields, 0);
+	  proto_item *capaItem;
+	  proto_tree *capaTree;
+	  rdp_field_info_t *targetFields;
+	  capabilityType = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	  lengthCapability = tvb_get_guint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+
+	  capaItem = proto_tree_add_item(tree, hf_rdp_capabilitySet, tvb, offset, lengthCapability, ENC_NA);
+	  proto_item_set_text(capaItem, "%s", val_to_str_const(capabilityType, rdp_capabilityType_vals, "<unknown capability>"));
+	  capaTree = proto_item_add_subtree(capaItem, ett_rdp_capabilitySet);
+
+	  switch (capabilityType) {
+	  case CAPSTYPE_RAIL:
+		  targetFields = cs_rail;
+		  break;
+	  default:
+		  targetFields = cs_fields;
+		  break;
+	  }
+
+	  offset = dissect_rdp_fields(tvb, offset, pinfo, capaTree, targetFields, 0);
   }
 
   return offset;
@@ -4424,6 +4469,42 @@ proto_register_rdp(void) {
       { "capabilityData", "rdp.capabilityData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+	{ &hf_rdp_capaRail_supportedLevel,
+	  { "RailSupportLevel", "rdp.capability.rail.supportedlevel",
+		FT_UINT32, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_supported,
+	  { "SUPPORTED", "rdp.capability.rail.supported",
+		FT_UINT32, BASE_HEX, NULL, 0x00000001,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_dockedlangbar,
+	  { "DOCKED_LANGBAR", "rdp.capability.rail.dockedlangbar",
+		FT_UINT32, BASE_HEX, NULL, 0x00000002,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_shellintegration,
+	  { "SHELL_INTEGRATION", "rdp.capability.rail.shellintegration",
+		FT_UINT32, BASE_HEX, NULL, 0x00000004,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_lang_ime_sync,
+	  { "LANGUAGE_IME_SYNC", "rdp.capability.rail.langimesync",
+		FT_UINT32, BASE_HEX, NULL, 0x00000008,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_server_to_client_ime_sync,
+	  { "SERVER_TO_CLIENT_IME_SYNC", "rdp.capability.rail.servertoclientimesync",
+		FT_UINT32, BASE_HEX, NULL, 0x00000010,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_hide_minimized,
+	  { "HIDE_MINIMIZED_APPS", "rdp.capability.rail.hideminimized",
+		FT_UINT32, BASE_HEX, NULL, 0x00000020,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_windows_cloaking,
+	  { "WINDOW_CLOAKING", "rdp.capability.rail.windowcloaking",
+		FT_UINT32, BASE_HEX, NULL, 0x00000040,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_flag_handshakeex,
+	  { "HANDSHAKE_EX", "rdp.capability.rail.handshakeex",
+		FT_UINT32, BASE_HEX, NULL, 0x00000080,
+		NULL, HFILL }},
 #if 0
     { &hf_rdp_unknownData,
       { "unknownData", "rdp.unknownData",
@@ -4618,6 +4699,7 @@ proto_register_rdp(void) {
     &ett_rdp_SendData,
     &ett_rdp_MessageData,
     &ett_rdp_capabilitySet,
+    &ett_rdp_capa_rail,
     &ett_rdp_channelDef,
     &ett_rdp_channelDefArray,
     &ett_rdp_channelFlags,
