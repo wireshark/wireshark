@@ -257,7 +257,7 @@ extern "C" {
  * GCC-only. Some  compilers other than GCC also define __GNUC__.
  * We don't want those.
  */
-#if defined(__GNUC__) && !defined(__clang__)
+#if WS_IS_AT_LEAST_GNUC_VERSION(7,1) && !defined(__clang__)
   #define DIAG_OFF_STRINGOP_OVERFLOW() DIAG_OFF(stringop-overflow=)
   #define DIAG_ON_STRINGOP_OVERFLOW() DIAG_ON(stringop-overflow=)
 #else
