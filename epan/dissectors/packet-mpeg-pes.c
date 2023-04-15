@@ -491,9 +491,42 @@ static dissector_handle_t mpeg_handle;
 enum { PES_PREFIX = 1 };
 
 /*
- * XXX - some of these aren't documented in ISO/IEC 13818-1:2007;
- * Table 2-22 "Stream_id assignments" starts with 0xbc, and also
- * lists some types not given here.  Where are the others described?
+ * MPEG uses 32-bit start codes that all begin with the three byte sequence
+ * 00 00 01 (the start code prefix) for bit and byte alignment, among other
+ * purposes.
+ *
+ * The values from 0xb9 through 0xff are "system start codes" and described in
+ * ISO/IEC 13818-1:2019 / ITU-T H.222.0. The bulk of them, 0xbc through 0xff,
+ * are stream_id values and documented in Table 2-22 "Stream_id assignments".
+ * The remaining three are used by Program Streams and found as follows:
+ * 0xb9, the MPEG_program_end_code, in 2.5.3.2 "Semantic definition of fields
+ * in program stream"
+ * 0xba, the pack_start_code, in 2.5.3.4 "Semantic definition of fields in
+ * program stream pack"
+ * 0xbb, the system_header_start_code, in 2.5.3.6 "Semantic definition of fields
+ * in system header"
+ *
+ * The remaining 185 values from 0x00 to 0xb8 are used by MPEG-2 video
+ * (backwards compatible with MPEG-1 video) and documented in ISO/IEC 13818-2 /
+ * ITU-T H.262 (2000), in Table 6-1 "Start code values". These are not stream
+ * id values and do not mark PES packets, but rather demarcate elements in the
+ * coded MPEG-1/2 video bitstream, at a different hierarchical level than the
+ * PES packets. The sets of values used for video start codes and for stream
+ * ids are disjoint to avoid any ambiguity when resynchronizing. Note the
+ * dissector currently conflates MPEG video with MPEG PES.
+ *
+ * Care is taken to ensure that the start code prefix 0x000001 does not occur
+ * elsewhere in the structure (avoiding "emulation of start codes").
+ *
+ * The video can have other formats, given by the stream type, carried on
+ * TS in the PMT and in PS from the similar Program Stream Map. AVC/H.264 and
+ * HEVC/H.265 carried in PES also use the start code prefix, before each NAL,
+ * and escape the raw byte sequence with bytes that prevent internal start code
+ * prefixes. The byte following the prefix (the first byte of the NAL header)
+ * has high bit zero, so the values of the NAL header are in the range used by
+ * the MPEG-2 video bitstream, not the range used by stream ids, allowing for
+ * synchronization in the same way. See Annex B "Byte Stream Format" of H.264
+ * and H.265.
  */
 enum {
 	STREAM_PICTURE = 0x00,
