@@ -10,6 +10,8 @@
 #ifndef GENCODE_H
 #define GENCODE_H
 
+#include "dfilter-int.h"
+
 void
 dfw_gencode(dfwork_t *dfw);
 

@@ -10,8 +10,7 @@
 #ifndef DFILTER_H
 #define DFILTER_H
 
-#include <glib.h>
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #include "dfilter-loc.h"
 

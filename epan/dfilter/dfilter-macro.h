@@ -10,7 +10,7 @@
 #ifndef _DFILTER_MACRO_H
 #define _DFILTER_MACRO_H
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 
 #define DFILTER_MACRO_FILENAME "dfilter_macros"
