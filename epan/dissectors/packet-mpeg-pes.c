@@ -966,7 +966,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 					offset / 8, data_length, ENC_NA);
 		}
-	} else {
+	} else if (stream != STREAM_END) {
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 				offset / 8, -1, ENC_NA);
 	}

@@ -139,6 +139,9 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 				default:
 					packet_size = 12;
 			}
+		} else if (stream == 0xb9) {
+			/* MPEG_program_end_code */
+			packet_size = 4;
 		} else {
 			guint16 length;
 			if (!wtap_read_bytes(fh, &length, sizeof length, err, err_info))
