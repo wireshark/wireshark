@@ -4806,7 +4806,7 @@ static void
 proto_tree_set_fcwwn(field_info *fi, const guint8* value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
-	fvalue_set_bytes(&fi->value, value_ptr);
+	fvalue_set_fcwwn(&fi->value, value_ptr);
 }
 
 static void
@@ -5088,7 +5088,7 @@ proto_tree_set_string(field_info *fi, const char* value)
 static void
 proto_tree_set_ax25(field_info *fi, const guint8* value)
 {
-	fvalue_set_bytes(&fi->value, value);
+	fvalue_set_ax25(&fi->value, value);
 }
 
 static void
@@ -5101,7 +5101,7 @@ proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 static void
 proto_tree_set_vines(field_info *fi, const guint8* value)
 {
-	fvalue_set_bytes(&fi->value, value);
+	fvalue_set_vines(&fi->value, value);
 }
 
 static void
@@ -5172,7 +5172,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
-	fvalue_set_bytes(&fi->value, value);
+	fvalue_set_ether(&fi->value, value);
 }
 
 static void
@@ -6504,7 +6504,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_BYTES:
 			tmp_str = format_bytes_hfinfo(NULL,
 				hfinfo,
-				fvalue_get_bytes(&finfo->value),
+				fvalue_get_bytes_data(&finfo->value),
 				fvalue_length(&finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -6694,21 +6694,21 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			break;
 
 		case FT_REL_OID:
-			bytes = fvalue_get_bytes(&finfo->value);
+			bytes = fvalue_get_bytes_data(&finfo->value);
 			tmp_str = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_OID:
-			bytes = fvalue_get_bytes(&finfo->value);
+			bytes = fvalue_get_bytes_data(&finfo->value);
 			tmp_str = oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_SYSTEM_ID:
-			bytes = fvalue_get_bytes(&finfo->value);
+			bytes = fvalue_get_bytes_data(&finfo->value);
 			tmp_str = print_system_id(NULL, bytes, fvalue_length(&finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -6733,7 +6733,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			tmp_str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, hfinfo->display);
 			if (!tmp_str) {
 				/* Default to show as bytes */
-				bytes = fvalue_get_bytes(&finfo->value);
+				bytes = fvalue_get_bytes_data(&finfo->value);
 				tmp_str = bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
 			}
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
@@ -7146,8 +7146,14 @@ finfo_set_len(field_info *fi, const gint length)
 	 * larger, if there's no data to back that length;
 	 * you can only make it smaller.
 	 */
-	if (fvalue_type_ftenum(&fi->value) == FT_BYTES && fi->length <= (gint)fi->value.value.bytes->len)
-		fi->value.value.bytes->len = fi->length;
+	if (fvalue_type_ftenum(&fi->value) == FT_BYTES && fi->length > 0) {
+		GBytes *bytes = fvalue_get_bytes(&fi->value);
+		if ((gsize)fi->length <= g_bytes_get_size(bytes)) {
+			GByteArray *byte_array = g_bytes_unref_to_array(bytes);
+			g_byte_array_set_size(byte_array, fi->length);
+			fvalue_set_byte_array(&fi->value, byte_array);
+		}
+	}
 }
 
 void
@@ -9237,7 +9243,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			tmp = format_bytes_hfinfo(NULL, hfinfo,
-			    fvalue_get_bytes(&fi->value),
+			    fvalue_get_bytes_data(&fi->value),
 			    fvalue_length(&fi->value));
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
@@ -9355,7 +9361,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_ETHER:
-			bytes = fvalue_get_bytes(&fi->value);
+			bytes = fvalue_get_bytes_data(&fi->value);
 
 			addr.type = AT_ETHER;
 			addr.len  = 6;
@@ -9398,9 +9404,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_FCWWN:
+			bytes = fvalue_get_bytes_data(&fi->value);
 			addr.type = AT_FCWWN;
 			addr.len  = FCWWN_ADDR_LEN;
-			addr.data = fvalue_get_bytes(&fi->value);
+			addr.data = bytes;
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
 			snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -9416,7 +9423,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_OID:
-			bytes = fvalue_get_bytes(&fi->value);
+			bytes = fvalue_get_bytes_data(&fi->value);
 			name = oid_resolved_from_encoded(NULL, bytes, fvalue_length(&fi->value));
 			tmp = oid_encoded2string(NULL, bytes, fvalue_length(&fi->value));
 			if (name) {
@@ -9429,7 +9436,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_REL_OID:
-			bytes = fvalue_get_bytes(&fi->value);
+			bytes = fvalue_get_bytes_data(&fi->value);
 			name = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(&fi->value));
 			tmp = rel_oid_encoded2string(NULL, bytes, fvalue_length(&fi->value));
 			if (name) {
@@ -9442,7 +9449,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_SYSTEM_ID:
-			bytes = fvalue_get_bytes(&fi->value);
+			bytes = fvalue_get_bytes_data(&fi->value);
 			tmp = print_system_id(NULL, bytes, fvalue_length(&fi->value));
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);

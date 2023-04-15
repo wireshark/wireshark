@@ -178,7 +178,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_OID:
             {
                 ByteArray ba = g_byte_array_new();
-                g_byte_array_append(ba, fvalue_get_bytes(&fi->ws_fi->value),
+                g_byte_array_append(ba, fvalue_get_bytes_data(&fi->ws_fi->value),
                                     fvalue_length(&fi->ws_fi->value));
                 pushByteArray(L,ba);
                 return 1;

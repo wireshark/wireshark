@@ -2598,7 +2598,7 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
         case FT_BYTES:
             {
                 gchar *ret;
-                const guint8 *bytes = fvalue_get_bytes(&fi->value);
+                const guint8 *bytes = fvalue_get_bytes_data(&fi->value);
                 if (bytes) {
                     dfilter_string = (gchar *)wmem_alloc(NULL, 3*fvalue_length(&fi->value));
                     switch (fi->hfinfo->display) {

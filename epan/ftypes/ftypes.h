@@ -289,7 +289,7 @@ typedef struct _fvalue_t {
 		gint64			sinteger64;
 		gdouble			floating;
 		wmem_strbuf_t		*strbuf;
-		GByteArray		*bytes;
+		GBytes			*bytes;
 		ipv4_addr_and_mask	ipv4;
 		ipv6_addr_and_prefix	ipv6;
 		e_guid_t		guid;
@@ -358,11 +358,24 @@ fvalue_type_ftenum(fvalue_t *fv);
 const char*
 fvalue_type_name(const fvalue_t *fv);
 
+/* GBytes reference count is automatically incremented. */
 void
-fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
+fvalue_set_bytes(fvalue_t *fv, GBytes *value);
 
 void
-fvalue_set_bytes(fvalue_t *fv, const guint8 *value);
+fvalue_set_fcwwn(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_ax25(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_vines(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_ether(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
 
 void
 fvalue_set_guid(fvalue_t *fv, const e_guid_t *value);
@@ -397,9 +410,19 @@ fvalue_set_floating(fvalue_t *fv, gdouble value);
 void
 fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value);
 
+/* GBytes reference count is automatically incremented. */
 WS_DLL_PUBLIC
-const guint8 *
+GBytes *
 fvalue_get_bytes(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+gsize
+fvalue_get_bytes_size(fvalue_t *fv);
+
+/* Same as fvalue_length() */
+WS_DLL_PUBLIC
+const void *
+fvalue_get_bytes_data(fvalue_t *fv);
 
 WS_DLL_PUBLIC
 const e_guid_t *

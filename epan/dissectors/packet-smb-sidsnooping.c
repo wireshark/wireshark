@@ -115,7 +115,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 			g_hash_table_remove(ctx_handle_table, GINT_TO_POINTER(pinfo->num));
 		}
 		if(!old_ctx){
-			old_ctx=wmem_memdup(wmem_file_scope(), fi->value.value.bytes->data, 20);
+			old_ctx=wmem_memdup(wmem_file_scope(), fvalue_get_bytes_data(&fi->value), 20);
 		}
 		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->num), old_ctx);
 

@@ -660,33 +660,65 @@ fvalue_slice(fvalue_t *fv, drange_t *d_range)
 	drange_foreach_drange_node(d_range, slice_func, &slice_data);
 
 	new_fv = fvalue_new(FT_BYTES);
-	fvalue_set_byte_array(new_fv, slice_data.bytes);
+	GBytes *bytes = g_byte_array_free_to_bytes(slice_data.bytes);
+	fvalue_set_bytes(new_fv, bytes);
+	g_bytes_unref(bytes);
 	return new_fv;
 }
 
-
 void
-fvalue_set_byte_array(fvalue_t *fv, GByteArray *value)
+fvalue_set_bytes(fvalue_t *fv, GBytes *value)
 {
 	ws_assert(fv->ftype->ftype == FT_BYTES ||
 			fv->ftype->ftype == FT_UINT_BYTES ||
 			fv->ftype->ftype == FT_OID ||
 			fv->ftype->ftype == FT_REL_OID ||
-			fv->ftype->ftype == FT_SYSTEM_ID);
-	ws_assert(fv->ftype->set_value.set_value_byte_array);
-	fv->ftype->set_value.set_value_byte_array(fv, value);
+			fv->ftype->ftype == FT_SYSTEM_ID ||
+			fv->ftype->ftype == FT_VINES ||
+			fv->ftype->ftype == FT_ETHER ||
+			fv->ftype->ftype == FT_FCWWN);
+	ws_assert(fv->ftype->set_value.set_value_bytes);
+	fv->ftype->set_value.set_value_bytes(fv, value);
 }
 
 void
-fvalue_set_bytes(fvalue_t *fv, const guint8 *value)
+fvalue_set_byte_array(fvalue_t *fv, GByteArray *value)
 {
-	ws_assert(fv->ftype->ftype == FT_AX25 ||
-			fv->ftype->ftype == FT_VINES ||
-			fv->ftype->ftype == FT_ETHER ||
-			fv->ftype->ftype == FT_FCWWN ||
-			fv->ftype->ftype == FT_IPv6);
-	ws_assert(fv->ftype->set_value.set_value_bytes);
-	fv->ftype->set_value.set_value_bytes(fv, value);
+	GBytes *bytes = g_byte_array_free_to_bytes(value);
+	fvalue_set_bytes(fv, bytes);
+	g_bytes_unref(bytes);
+}
+
+void
+fvalue_set_fcwwn(fvalue_t *fv, const guint8 *value)
+{
+	GBytes *bytes = g_bytes_new(value, FT_FCWWN_LEN);
+	fvalue_set_bytes(fv, bytes);
+	g_bytes_unref(bytes);
+}
+
+void
+fvalue_set_ax25(fvalue_t *fv, const guint8 *value)
+{
+	GBytes *bytes = g_bytes_new(value, FT_AX25_ADDR_LEN);
+	fvalue_set_bytes(fv, bytes);
+	g_bytes_unref(bytes);
+}
+
+void
+fvalue_set_vines(fvalue_t *fv, const guint8 *value)
+{
+	GBytes *bytes = g_bytes_new(value, FT_VINES_ADDR_LEN);
+	fvalue_set_bytes(fv, bytes);
+	g_bytes_unref(bytes);
+}
+
+void
+fvalue_set_ether(fvalue_t *fv, const guint8 *value)
+{
+	GBytes *bytes = g_bytes_new(value, FT_ETHER_LEN);
+	fvalue_set_bytes(fv, bytes);
+	g_bytes_unref(bytes);
 }
 
 void
@@ -801,7 +833,7 @@ fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value)
 	fv->ftype->set_value.set_value_ipv6(fv, value);
 }
 
-const guint8 *
+GBytes *
 fvalue_get_bytes(fvalue_t *fv)
 {
 	ws_assert(fv->ftype->ftype == FT_BYTES ||
@@ -816,6 +848,20 @@ fvalue_get_bytes(fvalue_t *fv)
 			fv->ftype->ftype == FT_IPv6);
 	ws_assert(fv->ftype->get_value.get_value_bytes);
 	return fv->ftype->get_value.get_value_bytes(fv);
+}
+
+gsize
+fvalue_get_bytes_size(fvalue_t *fv)
+{
+	gsize size = g_bytes_get_size(fvalue_get_bytes(fv));
+	//ws_assert(size == fvalue_length(fv));
+	return size;
+}
+
+const void *
+fvalue_get_bytes_data(fvalue_t *fv)
+{
+	return g_bytes_get_data(fvalue_get_bytes(fv), NULL);
 }
 
 const e_guid_t *
