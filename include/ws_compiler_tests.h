@@ -63,6 +63,20 @@
 #endif
 
 /*
+ * Check if the compiler is GCC and not a compiler from another
+ * vendor that also defines __GNUC__ (claiming support for GNU C dialect).
+ * Unfortunately there is no way to test this directly so we need
+ * to exclude other known compilers that claim such support (hacky).
+ */
+#if defined(__GNUC__) && \
+        !defined(__clang__) && \
+        !defined(__INTEL_COMPILER) && \
+        !defined(__INTEL_LLVM_COMPILER)
+  #define WS_GCC_VERSION \
+        (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL)
+#endif
+
+/*
  * Check whether this is Clang major.minor or a later release.
  */
 
