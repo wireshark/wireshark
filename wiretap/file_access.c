@@ -168,7 +168,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "CAM Inspector file", TRUE, "camins" },
 	{ "BLF file", TRUE, "blf" },
 	{ "AUTOSAR DLT file", TRUE, "dlt" },
-	{ "MPEG files", FALSE, "mpg;mp3" },
+	{ "MPEG files", FALSE, "mpeg;mpg;mp3" },
 	{ "Transport-Neutral Encapsulation Format", FALSE, "tnef" },
 	{ "JPEG/JFIF files", FALSE, "jpg;jpeg;jfif" },
 	{ "JavaScript Object Notation file", FALSE, "json" },
@@ -413,7 +413,7 @@ static const struct open_info open_info_base[] = {
 	 */
 	{ "macOS PacketLogger",                     OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
 	/* Some MPEG files have magic numbers, others just have heuristics. */
-	{ "MPEG",                                   OPEN_INFO_HEURISTIC, mpeg_open,                "mpg;mp3",  NULL, NULL },
+	{ "MPEG",                                   OPEN_INFO_HEURISTIC, mpeg_open,                "mpeg;mpg;mp3",  NULL, NULL },
 	{ "Daintree SNA",                           OPEN_INFO_HEURISTIC, daintree_sna_open,        "dcf",      NULL, NULL },
 	{ "STANAG 4607 Format",                     OPEN_INFO_HEURISTIC, stanag4607_open,          NULL,       NULL, NULL },
 	{ "ASN.1 Basic Encoding Rules",             OPEN_INFO_HEURISTIC, ber_open,                 NULL,       NULL, NULL },
@@ -438,7 +438,7 @@ static const struct open_info open_info_base[] = {
 	{ "pppd log (pppdump format)",              OPEN_INFO_HEURISTIC, pppdump_open,             NULL,       NULL, NULL },
 	{ "IBM iSeries comm. trace",                OPEN_INFO_HEURISTIC, iseries_open,             "txt",      NULL, NULL },
 	{ "I4B ISDN trace",                         OPEN_INFO_HEURISTIC, i4btrace_open,            NULL,       NULL, NULL },
-	{ "MPEG2 transport stream",                 OPEN_INFO_HEURISTIC, mp2t_open,                "ts;mpg",   NULL, NULL },
+	{ "MPEG2 transport stream",                 OPEN_INFO_HEURISTIC, mp2t_open,                "mp2t;ts;mpg",   NULL, NULL },
 	{ "CSIDS IPLog",                            OPEN_INFO_HEURISTIC, csids_open,               NULL,       NULL, NULL },
 	{ "TCPIPtrace (VMS)",                       OPEN_INFO_HEURISTIC, vms_open,                 "txt",      NULL, NULL },
 	{ "CoSine IPSX L2 capture",                 OPEN_INFO_HEURISTIC, cosine_open,              "txt",      NULL, NULL },
