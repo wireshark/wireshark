@@ -20,6 +20,13 @@
 #include <epan/cisco_pid.h>
 
 /*
+ *
+ * See
+ *
+ *    https://web.archive.org/web/20000914194913/http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.pdf
+ *
+ * for some documentation on CDP.
+ *
  * See
  *
  *    http://www.cisco.com/c/en/us/td/docs/ios-xml/ios/cdp/configuration/15-mt/cdp-15-mt-book/nm-cdp-discover.html#GUID-84FBA50B-677C-4D90-AF56-2FB96F2DC085
@@ -32,7 +39,7 @@
  *
  * Also see
  *
- *    http://www.rhyshaden.com/cdp.htm
+ *    https://web.archive.org/web/20220711213555/http://www.rhyshaden.com/cdp.htm
  */
 
 void proto_register_cdp(void);
