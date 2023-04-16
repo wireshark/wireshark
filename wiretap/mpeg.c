@@ -1,8 +1,17 @@
 /* mpeg.c
  *
- * MPEG file format decoder for the Wiretap library.
+ * MPEG-1/2 file format decoder for the Wiretap library.
  * Written by Shaun Jackman <sjackman@gmail.com>
  * Copyright 2007 Shaun Jackman
+ *
+ * MPEG-1/2 Program Streams (ISO/IEC 11172-1, ISO/IEC 13818-1 / ITU-T H.220.0)
+ * MPEG-1/2 Video bitstream (ISO/IEC 11172-2, ISO/IEC 13818-2 / ITU-T H.262)
+ * MPEG-1/2 Audio files (ISO/IEC 11172-3, ISO/IEC 13818-3)
+ *
+ * Does not handle other MPEG-2 container formats such as Transport Streams
+ * (also ISO/IEC 13818-1 / ITU-T H.222.0) or MPEG-4 containers such as
+ * MPEG-4 Part 14 / MP4 (ISO/IEC 14496-14). Support in wiretap for those
+ * two formats is provided in mp2t.c and mp4.c, respectively.
  *
  * Wiretap Library
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -236,12 +245,53 @@ struct _mpeg_magic {
 	const gchar* match;
 } magic[] = {
 	{ 3, "TAG" }, /* ID3v1 */
+	/* XXX: ID3v1 tags come at the end of MP3 files, so in practice the
+	 * untagged magic number is used instead.
+	 */
 	{ 3, "ID3" }, /* ID3v2 */
 	{ 3, "\0\0\1" }, /* MPEG PES */
-	{ 2, "\xff\xfb" }, /* MP3, taken from https://en.wikipedia.org/wiki/MP3#File_structure */
+	{ 2, "\xff\xfb" }, /* MP3 (MPEG-1 Audio Layer 3, no CRC), taken from https://en.wikipedia.org/wiki/MP3#File_structure */
+#if 0
+	/* XXX: The value above is for MPEG-1 Audio Layer 3 with no CRC.
+	 * Only the first three nibbles are the guaranteed sync byte.
+	 * For the fourth nibble, the first bit is '1' for MPEG-1 and
+	 * '0' for MPEG-2 (i.e., extension to lower sampling rates),
+	 * the next two bits indicate the layer (1 for layer 3, 2 for
+	 * layer 2, 3 for layer 1, 0 reserved), and the last ("protection")
+	 * bit is 1 if there is no CRC and 0 if there is a CRC.
+	 *
+	 * The mpeg-audio dissector handles these, so wiretap should open
+	 * them. Including all of them might increase false positives though.
+	 */
+	{ 2, "\xff\xf2" }, /* MPEG-2 Audio Layer 3, CRC */
+	{ 2, "\xff\xf3" }, /* MPEG-2 Audio Layer 3, No CRC */
+	{ 2, "\xff\xf4" }, /* MPEG-2 Audio Layer 2, CRC */
+	{ 2, "\xff\xf5" }, /* MPEG-2 Audio Layer 2, No CRC */
+	{ 2, "\xff\xf6" }, /* MPEG-2 Audio Layer 1, CRC */
+	{ 2, "\xff\xf7" }, /* MPEG-2 Audio Layer 1, No CRC */
+	{ 2, "\xff\xfa" }, /* MPEG-1 Audio Layer 3, CRC */
+	{ 2, "\xff\xfc" }, /* MPEG-1 Audio Layer 2, CRC */
+	{ 2, "\xff\xfd" }, /* MPEG-1 Audio Layer 2, No CRC */
+	{ 2, "\xff\xfe" }, /* MPEG-1 Audio Layer 1, CRC */
+	{ 2, "\xff\xff" }, /* MPEG-1 Audio Layer 1, No CRC */
+#endif
 	{ 0, NULL }
 };
 
+/*
+ * Even though this dissector uses magic numbers, it is registered in
+ * file_access.c as OPEN_INFO_HEURISTIC because the magic numbers are
+ * short and prone to false positives.
+ *
+ * XXX: There's room for improvement in detection if needed. A Program Stream
+ * starts with the pack_start_code, \x00\x00\x01\xba, and an uncontainered
+ * Video bitstream starts with the sequence_header_code, \x00\x00\x01\xb3.
+ * We could use those instead of matching any PES packet, which would greatly
+ * reduce false positives with e.g. PacketLogger files. (Unlike Transport
+ * Streams, unaligned file starts are unlikely with PS.)
+ *
+ * Untagged MPEG Audio files would still have to be heuristics, though.
+ */
 wtap_open_return_val
 mpeg_open(wtap *wth, int *err, gchar **err_info)
 {
