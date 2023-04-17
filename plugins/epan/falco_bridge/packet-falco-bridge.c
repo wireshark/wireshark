@@ -627,8 +627,10 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
                 switch (hfinfo->display) {
                 case BASE_HEX:
                     wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIx64, sfe->res_u64);
+                    break;
                 case BASE_OCT:
                     wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIo64, sfe->res_u64);
+                    break;
                 default:
                     wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRId64, sfe->res_u64);
                 }
