@@ -571,6 +571,12 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, gboolean *matches)
 	return FT_OK;
 }
 
+static guint
+bytes_hash(const fvalue_t *fv)
+{
+	return g_bytes_hash(fv->value.bytes);
+}
+
 static gboolean
 bytes_is_zero(const fvalue_t *fv)
 {
@@ -617,6 +623,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -653,6 +660,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -689,6 +697,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -725,6 +734,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -761,6 +771,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -797,6 +808,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -833,6 +845,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -869,6 +882,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -905,6 +919,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
+		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,

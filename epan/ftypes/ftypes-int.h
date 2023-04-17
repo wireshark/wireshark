@@ -85,6 +85,7 @@ typedef enum ft_result (*FvalueMatches)(const fvalue_t*, const ws_regex_t*, gboo
 
 typedef gboolean (*FvalueIs)(const fvalue_t*);
 typedef guint (*FvalueLen)(fvalue_t*);
+typedef guint (*FvalueHashFunc)(const fvalue_t *);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 typedef enum ft_result (*FvalueUnaryOp)(fvalue_t *, const fvalue_t*, gchar **);
 typedef enum ft_result (*FvalueBinaryOp)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
@@ -137,6 +138,7 @@ struct _ftype_t {
 	FvalueContains		cmp_contains;
 	FvalueMatches		cmp_matches;
 
+	FvalueHashFunc		hash;
 	FvalueIs		is_zero;
 	FvalueIs		is_negative;
 	FvalueLen		len;

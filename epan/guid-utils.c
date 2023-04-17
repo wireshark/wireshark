@@ -208,6 +208,11 @@ int guid_cmp(const e_guid_t *g1, const e_guid_t *g2)
 	return memcmp(&g1->data4[0], &g2->data4[0], 8);
 }
 
+guint guid_hash(const e_guid_t *guid)
+{
+	return g_int64_hash((const gint64 *)guid);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

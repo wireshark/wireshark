@@ -412,6 +412,12 @@ relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	return rel_time_to_secs_str(scope, &fv->value.time);
 }
 
+static guint
+time_hash(const fvalue_t *fv)
+{
+	return nstime_hash(&fv->value.time);
+}
+
 static gboolean
 time_is_zero(const fvalue_t *fv)
 {
@@ -473,6 +479,7 @@ ftype_register_time(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		time_hash,			/* hash */
 		time_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		NULL,
@@ -508,6 +515,7 @@ ftype_register_time(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		time_hash,			/* hash */
 		time_is_zero,			/* is_zero */
 		time_is_negative,		/* is_negative */
 		NULL,

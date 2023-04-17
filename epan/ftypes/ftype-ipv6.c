@@ -178,6 +178,17 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
+static guint
+ipv6_hash(const fvalue_t *fv)
+{
+	struct _ipv6 {
+		gint64 val[2];
+	} *addr = (struct _ipv6 *)&fv->value.ipv6.addr;
+	gint64 mask = fv->value.ipv6.prefix;
+
+	return g_int64_hash(&addr[0]) ^ g_int64_hash(&addr[1]) ^ g_int64_hash(&mask);
+}
+
 static gboolean
 is_zero(const fvalue_t *fv_a)
 {
@@ -211,6 +222,7 @@ ftype_register_ipv6(void)
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */
 		NULL,				/* cmp_matches */
 
+		ipv6_hash,
 		is_zero,
 		NULL,
 		NULL,

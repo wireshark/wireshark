@@ -108,6 +108,8 @@ WS_DLL_PUBLIC void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *
  */
 WS_DLL_PUBLIC int nstime_cmp (const nstime_t *a, const nstime_t *b );
 
+WS_DLL_PUBLIC guint nstime_hash(const nstime_t *nstime);
+
 /** converts nstime to double, time base is milli seconds */
 WS_DLL_PUBLIC double nstime_to_msec(const nstime_t *nstime);
 

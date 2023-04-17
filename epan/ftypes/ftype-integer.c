@@ -639,6 +639,13 @@ uint_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err
 	return FT_OK;
 }
 
+static guint
+uint_hash(const fvalue_t *fv)
+{
+	gint64 val = fv->value.uinteger;
+	return g_int64_hash(&val);
+}
+
 static gboolean
 uint_is_zero(const fvalue_t *fv)
 {
@@ -671,6 +678,13 @@ uint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **e
 {
 	dst->value.uinteger64 = a->value.uinteger64 & b->value.uinteger64;
 	return FT_OK;
+}
+
+static guint
+uint64_hash(const fvalue_t *fv)
+{
+	gint64 val = fv->value.uinteger64;
+	return g_int64_hash(&val);
 }
 
 static gboolean
@@ -707,6 +721,13 @@ sint_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err
 	return FT_OK;
 }
 
+static guint
+sint_hash(const fvalue_t *fv)
+{
+	gint64 val = fv->value.sinteger;
+	return g_int64_hash(&val);
+}
+
 static gboolean
 sint_is_zero(const fvalue_t *fv)
 {
@@ -731,6 +752,13 @@ sint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **e
 {
 	dst->value.sinteger64 = a->value.sinteger64 & b->value.sinteger64;
 	return FT_OK;
+}
+
+static guint
+sint64_hash(const fvalue_t *fv)
+{
+	gint64 val = fv->value.sinteger64;
+	return g_int64_hash(&val);
 }
 
 static gboolean
@@ -1144,6 +1172,18 @@ boolean_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 	return FT_OK;
 }
 
+static guint
+boolean_hash(const fvalue_t *fv)
+{
+	int val;
+
+	if (fv->value.uinteger64)
+		val = 1;
+	else
+		val = 0;
+	return g_int_hash(&val);
+}
+
 /* EUI64-specific */
 static gboolean
 eui64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
@@ -1221,6 +1261,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1256,6 +1297,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1291,6 +1333,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1326,6 +1369,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1361,6 +1405,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1396,6 +1441,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1431,6 +1477,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1466,6 +1513,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1501,6 +1549,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1536,6 +1585,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_hash,			/* hash */
 		sint_is_zero,			/* is_zero */
 		sint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1571,6 +1621,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_hash,			/* hash */
 		sint_is_zero,			/* is_zero */
 		sint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1606,6 +1657,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_hash,			/* hash */
 		sint_is_zero,			/* is_zero */
 		sint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1641,6 +1693,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_hash,			/* hash */
 		sint_is_zero,			/* is_zero */
 		sint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1676,6 +1729,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1711,6 +1765,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1746,6 +1801,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1781,6 +1837,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1816,6 +1873,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		boolean_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1852,6 +1910,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1888,6 +1947,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_hash,			/* hash */
 		uint_is_zero,			/* is_zero */
 		uint_is_negative,		/* is_negative */
 		NULL,				/* len */
@@ -1924,6 +1984,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
 		NULL,				/* len */

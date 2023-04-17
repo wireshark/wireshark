@@ -54,6 +54,8 @@ WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid, wmem_
 
 WS_DLL_PUBLIC int guid_cmp(const e_guid_t *g1, const e_guid_t *g2);
 
+WS_DLL_PUBLIC guint guid_hash(const e_guid_t *guid);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -152,6 +152,14 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
+static guint
+ipv4_hash(const fvalue_t *fv)
+{
+	gint64 val1 = fv->value.ipv4.addr;
+	gint64 val2 = fv->value.ipv4.nmask;
+	return g_int64_hash(&val1) ^ g_int64_hash(&val2);
+}
+
 static gboolean
 is_zero(const fvalue_t *fv_a)
 {
@@ -185,6 +193,7 @@ ftype_register_ipv4(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		ipv4_hash,
 		is_zero,
 		NULL,
 		NULL,

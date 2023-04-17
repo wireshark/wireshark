@@ -461,6 +461,13 @@ sfloat_ieee_11073_is_zero(const fvalue_t *a)
     return a->value.sfloat_ieee_11073 == 0;
 }
 
+static guint
+sfloat_ieee_11073_hash(const fvalue_t *fv)
+{
+    gint64 value = fv->value.sfloat_ieee_11073;
+    return g_int64_hash(&value);
+}
+
 /*============================================================================*/
 
 static void
@@ -873,6 +880,13 @@ float_ieee_11073_is_zero(const fvalue_t *a)
     return a->value.float_ieee_11073 == 0;
 }
 
+static guint
+float_ieee_11073_hash(const fvalue_t *fv)
+{
+    gint64 value = fv->value.float_ieee_11073;
+    return g_int64_hash(&value);
+}
+
 /*============================================================================*/
 
 void
@@ -927,11 +941,12 @@ Example: 114 is 0x0072
         NULL,                                 /* cmp_contains */
         NULL,                                 /* cmp_matches */
 
-        sfloat_ieee_11073_is_zero,           /* is_zero */
-        NULL,                                /* is_negative */
-        NULL,                                /* len */
-        NULL,                                /* slice */
-        NULL,                                /* bitwise_and */
+        sfloat_ieee_11073_hash,               /* hash */
+        sfloat_ieee_11073_is_zero,            /* is_zero */
+        NULL,                                 /* is_negative */
+        NULL,                                 /* len */
+        NULL,                                 /* slice */
+        NULL,                                 /* bitwise_and */
         NULL,                                 /* unary_minus */
         NULL,                                 /* add */
         NULL,                                 /* subtract */
@@ -990,6 +1005,7 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* cmp_contains */
         NULL,                                /* cmp_matches */
 
+        float_ieee_11073_hash,               /* hash */
         float_ieee_11073_is_zero,            /* is_zero */
         NULL,                                /* is_negative */
         NULL,                                /* len */

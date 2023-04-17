@@ -502,6 +502,12 @@ fvalue_divide(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 fvalue_t*
 fvalue_modulo(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 
+guint
+fvalue_hash(const fvalue_t *fv);
+
+gboolean
+fvalue_equal(const fvalue_t *a, const fvalue_t *b);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

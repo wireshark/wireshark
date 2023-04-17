@@ -38,6 +38,7 @@ ftype_register_none(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		NULL,				/* hash */
 		NULL,				/* is_zero */
 		NULL,				/* is_negative */
 		NULL,				/* len */

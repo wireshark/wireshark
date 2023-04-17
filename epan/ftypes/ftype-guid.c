@@ -94,6 +94,12 @@ cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
     return FT_OK;
 }
 
+static guint
+value_hash(const fvalue_t *fv)
+{
+    return guid_hash(&fv->value.guid);
+}
+
 void
 ftype_register_guid(void)
 {
@@ -121,6 +127,7 @@ ftype_register_guid(void)
         NULL,
         NULL,                /* cmp_matches */
 
+        value_hash,          /* hash */
         NULL,
         NULL,
         NULL,

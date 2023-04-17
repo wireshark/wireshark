@@ -1163,6 +1163,19 @@ fvalue_unary_minus(const fvalue_t *fv, char **err_msg)
 	return result;
 }
 
+guint
+fvalue_hash(const fvalue_t *fv)
+{
+	ws_assert(fv->ftype->hash);
+	return fv->ftype->hash(fv);
+}
+
+gboolean
+fvalue_equal(const fvalue_t *a, const fvalue_t *b)
+{
+	return fvalue_eq(a, b) == FT_TRUE;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
