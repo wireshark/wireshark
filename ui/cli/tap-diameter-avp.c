@@ -94,10 +94,10 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 		fprintf(stderr, "traverse end: hfi not found. node='%p'\n", (void *)node);
 		return FALSE;
 	}
-	ftype = fvalue_type_ftenum(&fi->value);
+	ftype = fvalue_type_ftenum(fi->value);
 	if (ftype != FT_NONE && ftype != FT_PROTOCOL) {
 		/* convert value to string */
-		val_tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfi->display);
+		val_tmp = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, hfi->display);
 		if (val_tmp)
 		{
 			val_str = g_strdup(val_tmp);

@@ -748,7 +748,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range, gboole
 				if (raw)
 					fv = dfvm_get_raw_fvalue(finfo);
 				else
-					fv = &finfo->value;
+					fv = finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
 			}
 		}
@@ -759,7 +759,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range, gboole
 				if (raw)
 					fv = dfvm_get_raw_fvalue(finfo);
 				else
-					fv = &finfo->value;
+					fv = finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
 			}
 		}
@@ -821,7 +821,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 				if (raw)
 					fv = dfvm_get_raw_fvalue(finfo);
 				else
-					fv = &finfo->value;
+					fv = finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
 			}
 		}

@@ -748,7 +748,7 @@ reference_new(const field_info *finfo, gboolean raw)
 		ref->value = dfvm_get_raw_fvalue(finfo);
 	}
 	else {
-		ref->value = fvalue_dup(&finfo->value);
+		ref->value = fvalue_dup(finfo->value);
 	}
 	ref->proto_layer_num = finfo->proto_layer_num;
 	return ref;

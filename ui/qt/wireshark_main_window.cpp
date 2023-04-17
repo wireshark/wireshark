@@ -3111,7 +3111,7 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
     rtpstream_id_copy_pinfo(&(edt.pi), rev_id, true);
 
     /* Save the SSRC value for the forward direction. */
-    fwd_id->ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
+    fwd_id->ssrc = fvalue_get_uinteger(((field_info *)gp->pdata[0])->value);
 
     epan_dissect_cleanup(&edt);
 

@@ -279,26 +279,7 @@ typedef struct _protocol_value_t
 	gboolean	tvb_is_private;
 } protocol_value_t;
 
-typedef struct _fvalue_t {
-	ftype_t	*ftype;
-	union {
-		/* Put a few basic types in here */
-		guint32			uinteger;
-		gint32			sinteger;
-		guint64			uinteger64;
-		gint64			sinteger64;
-		gdouble			floating;
-		wmem_strbuf_t		*strbuf;
-		GBytes			*bytes;
-		ipv4_addr_and_mask	ipv4;
-		ipv6_addr_and_prefix	ipv6;
-		e_guid_t		guid;
-		nstime_t		time;
-		protocol_value_t 	protocol;
-		guint16			sfloat_ieee_11073;
-		guint32			float_ieee_11073;
-	} value;
-} fvalue_t;
+typedef struct _fvalue_t fvalue_t;
 
 fvalue_t*
 fvalue_new(ftenum_t ftype);

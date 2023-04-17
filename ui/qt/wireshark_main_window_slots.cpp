@@ -1363,7 +1363,7 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
         if (hfinfo && hfinfo->type == FT_FRAMENUM) {
             is_framenum = true;
-            linked_frame = fvalue_get_uinteger(&fi->value);
+            linked_frame = fvalue_get_uinteger(fi->value);
         }
 
         char *tmp_field = proto_construct_match_selected_string(fi, capture_file_.capFile()->edt);
@@ -2715,7 +2715,7 @@ void WiresharkMainWindow::openPacketDialog(bool from_reference)
 
     /* Find the frame for which we're popping up a dialog */
     if (from_reference) {
-        guint32 framenum = fvalue_get_uinteger(&(capture_file_.capFile()->finfo_selected->value));
+        guint32 framenum = fvalue_get_uinteger(capture_file_.capFile()->finfo_selected->value);
         if (framenum == 0)
             return;
 
