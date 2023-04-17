@@ -58,6 +58,8 @@ typedef struct _http_req_res_t {
 	struct _http_req_res_t *next;
 	/** pointer to the previous element in the linked list, NULL for the head node */
 	struct _http_req_res_t *prev;
+	/** private data used by http dissector */
+	void* private_data;
 } http_req_res_t;
 
 /** Conversation data of a HTTP connection. */
@@ -85,6 +87,11 @@ typedef struct _http_conv_t {
 	 * at on the first (sequential) pass, or after startframe /
 	 * startoffset on connections that have proxied/tunneled/Upgraded.
 	 */
+
+	/* TRUE means current message is chunked streaming, and not ended yet.
+	 * This is only meaningful during the first scan.
+	 */
+	gboolean message_ended;
 
 } http_conv_t;
 

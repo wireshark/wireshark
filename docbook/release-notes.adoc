@@ -86,6 +86,9 @@ synchronous.
 * Implement built-in dissector for FiRa UWB Controller Interface (UCI) protocol.
 Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
 
+* The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
+  reassemble the streaming data of a high level protocol that is not on top of TCP.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
@@ -141,6 +144,12 @@ FiRa UWB Controller Interface (UCI)
 
 * The SIP dissector now has a new preference to set default charset for
   displaying the body of SIP messages in raw text view.
+
+* The HTTP dissector now supports dissecting chunked data in streaming reassembly
+  mode. Subdissectors of HTTP can register itself in "streaming_content_type"
+  subdissector table for enabling streaming reassembly mode while transferring in
+  chunked encoding. This feature ensures the server stream messages of GRPC-Web
+  over HTTP/1.1 can be dissected even if the last chunk is absent.
 
 Too many other protocols have been updated to list them all here.
 

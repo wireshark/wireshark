@@ -1418,6 +1418,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
  read_prefs_file@Base 1.9.1
+ reassemble_streaming_data_and_call_subdissector@Base 4.1.0
  reassembly_table_destroy@Base 1.9.1
  reassembly_table_init@Base 1.9.1
  reassembly_table_register@Base 2.3.0
@@ -1644,6 +1645,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stream_find_frag@Base 1.9.1
  stream_new@Base 3.5.0
  stream_process_reassembled@Base 1.9.1
+ streaming_reassembly_info_new@Base 4.1.0
  string_to_name_resolve@Base 1.9.1
  sua_co_class_type_acro_values@Base 1.9.1
  t30_facsimile_control_field_vals_ext@Base 1.12.0~rc1

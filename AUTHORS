@@ -3733,6 +3733,8 @@ Huang Qiangxiong        <qiangxiong.huang[AT]qq.com> {
 	Protobuf dissector
 	gRPC dissector
 	HTTP2 dissector: add streaming mode reassembly and dissecting DATA according to content-type features.
+	Reassembly: add types and functions to simplify streaming data reassembly.
+	HTTP dissector: support dissecting chunked data in streaming reassembly mode.
 }
 
 Jeffrey Nichols		<jsnichols[AT]suprocktech.com> {
