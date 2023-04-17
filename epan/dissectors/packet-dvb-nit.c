@@ -51,14 +51,6 @@ static dissector_handle_t dvb_nit_handle;
 #define DVB_NIT_RESERVED4_MASK                          0xF000
 #define DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK       0x0FFF
 
-static const value_string dvb_nit_cur_next_vals[] = {
-    { 0, "Not yet applicable" },
-    { 1, "Currently applicable" },
-
-    { 0, NULL }
-};
-
-
 static int
 dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -156,7 +148,7 @@ proto_register_dvb_nit(void)
 
         { &hf_dvb_nit_current_next_indicator, {
             "Current/Next Indicator", "dvb_nit.cur_next_ind",
-            FT_UINT8, BASE_DEC, VALS(dvb_nit_cur_next_vals), DVB_NIT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), DVB_NIT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_dvb_nit_section_number, {

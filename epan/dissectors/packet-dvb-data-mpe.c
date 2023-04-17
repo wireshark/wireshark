@@ -59,15 +59,6 @@ static const value_string dvb_data_mpe_scrambling_vals[] = {
     { 0, NULL }
 };
 
-static const value_string dvb_rcs_cur_next_vals[] = {
-
-    { 0x0, "Not yet applicable" },
-    { 0x1, "Currently applicable" },
-    { 0, NULL },
-
-};
-
-
 static int
 dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -180,7 +171,7 @@ proto_register_dvb_data_mpe(void)
 
         { &hf_dvb_data_mpe_current_next_indicator, {
             "Current/Next Indicator", "mpeg_sect.cur_next_ind",
-            FT_UINT8, BASE_HEX, VALS(dvb_rcs_cur_next_vals), DVB_DATA_MPE_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), DVB_DATA_MPE_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_dvb_data_mpe_section_number, {

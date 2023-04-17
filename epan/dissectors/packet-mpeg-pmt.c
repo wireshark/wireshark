@@ -58,15 +58,6 @@ static dissector_handle_t mpeg_pmt_handle;
 #define MPEG_PMT_STREAM_ES_INFO_LENGTH_MASK     0x0FFF
 
 
-static const value_string mpeg_pmt_cur_next_vals[] = {
-
-    { 0x0, "Not yet applicable" },
-    { 0x1, "Currently applicable" },
-
-    { 0x0, NULL }
-
-};
-
 static const value_string mpeg_pmt_stream_type_vals[] = {
     { 0x00, "ITU-T | ISO/IEC Reserved" },
     { 0x01, "ISO/IEC 11172 Video" },
@@ -205,7 +196,7 @@ proto_register_mpeg_pmt(void)
 
         { &hf_mpeg_pmt_current_next_indicator, {
             "Current/Next Indicator", "mpeg_pmt.cur_next_ind",
-            FT_UINT8, BASE_HEX, VALS(mpeg_pmt_cur_next_vals), MPEG_PMT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), MPEG_PMT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_pmt_section_number, {

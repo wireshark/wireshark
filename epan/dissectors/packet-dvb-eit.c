@@ -50,13 +50,6 @@ static gint ett_dvb_eit_event = -1;
 #define DVB_EIT_FREE_CA_MODE_MASK               0x1000
 #define DVB_EIT_DESCRIPTORS_LOOP_LENGTH_MASK    0x0FFF
 
-static const value_string dvb_eit_cur_next_vals[] = {
-    { 0, "Not yet applicable" },
-    { 1, "Currently applicable" },
-
-    { 0, NULL }
-};
-
 static const value_string dvb_eit_running_status_vals[] = {
     { 0, "Undefined" },
     { 1, "Not Running" },
@@ -199,7 +192,7 @@ proto_register_dvb_eit(void)
 
         { &hf_dvb_eit_current_next_indicator, {
             "Current/Next Indicator", "dvb_eit.cur_next_ind",
-            FT_UINT8, BASE_DEC, VALS(dvb_eit_cur_next_vals), DVB_EIT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), DVB_EIT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_dvb_eit_section_number, {

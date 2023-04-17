@@ -31,14 +31,6 @@ static gint ett_mpeg_ca = -1;
 #define MPEG_CA_VERSION_NUMBER_MASK             0x00003E
 #define MPEG_CA_CURRENT_NEXT_INDICATOR_MASK     0x000001
 
-static const value_string mpeg_ca_cur_next_vals[] = {
-
-    { 0x0, "Not yet applicable" },
-    { 0x1, "Currently applicable" },
-    { 0x0, NULL }
-
-};
-
 static int
 dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -99,7 +91,7 @@ proto_register_mpeg_ca(void)
 
         { &hf_mpeg_ca_current_next_indicator, {
             "Current/Next Indicator", "mpeg_ca.cur_next_ind",
-            FT_UINT24, BASE_HEX, VALS(mpeg_ca_cur_next_vals), MPEG_CA_CURRENT_NEXT_INDICATOR_MASK,
+            FT_BOOLEAN, 24, TFS(&tfs_current_not_yet), MPEG_CA_CURRENT_NEXT_INDICATOR_MASK,
                         NULL, HFILL
         } },
 
