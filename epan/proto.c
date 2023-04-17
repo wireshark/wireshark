@@ -306,7 +306,7 @@ proto_tree_set_ipxnet(field_info *fi, guint32 value);
 static void
 proto_tree_set_ipv4(field_info *fi, ws_in4_addr value);
 static void
-proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr);
+proto_tree_set_ipv6(field_info *fi, const ws_in6_addr* value);
 static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
@@ -4730,7 +4730,7 @@ proto_tree_set_ipv4(field_info *fi, ws_in4_addr value)
 /* Add a FT_IPv6 to a proto_tree */
 proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		    gint length, const ws_in6_addr *value_ptr)
+		    gint length, const ws_in6_addr *value)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -4742,7 +4742,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_IPv6);
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
-	proto_tree_set_ipv6(PNODE_FINFO(pi), value_ptr->bytes);
+	proto_tree_set_ipv6(PNODE_FINFO(pi), value);
 
 	return pi;
 }
@@ -4789,16 +4789,16 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 /* Set the FT_IPv6 value */
 static void
-proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr)
+proto_tree_set_ipv6(field_info *fi, const ws_in6_addr *value)
 {
-	DISSECTOR_ASSERT(value_ptr != NULL);
-	fvalue_set_bytes(&fi->value, value_ptr);
+	DISSECTOR_ASSERT(value != NULL);
+	fvalue_set_ipv6(&fi->value, value);
 }
 
 static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 {
-	proto_tree_set_ipv6(fi, tvb_get_ptr(tvb, start, length));
+	proto_tree_set_ipv6(fi, (const ws_in6_addr *)tvb_get_ptr(tvb, start, length));
 }
 
 /* Set the FT_FCWWN value */
@@ -6492,6 +6492,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 	const char *number_out;
 	address addr;
 	ws_in4_addr ipv4;
+	const ws_in6_addr *ipv6;
 
 	switch (hfinfo->type) {
 
@@ -6665,8 +6666,8 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			break;
 
 		case FT_IPv6:
-			bytes = fvalue_get_bytes(&finfo->value);
-			set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), bytes);
+			ipv6 = fvalue_get_ipv6(&finfo->value);
+			set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), ipv6);
 			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -9203,6 +9204,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32		    integer;
 	guint64		    integer64;
 	ws_in4_addr         ipv4;
+	const ws_in6_addr  *ipv6;
 	const e_guid_t	   *guid;
 	gchar		   *name;
 	address		    addr;
@@ -9383,11 +9385,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IPv6:
-			bytes = fvalue_get_bytes(&fi->value);
+			ipv6 = fvalue_get_ipv6(&fi->value);
 
 			addr.type = AT_IPv6;
 			addr.len  = 16;
-			addr.data = bytes;
+			addr.data = ipv6;
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
 			snprintf(label_str, ITEM_LABEL_LENGTH,

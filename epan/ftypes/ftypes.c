@@ -793,6 +793,14 @@ fvalue_set_floating(fvalue_t *fv, gdouble value)
 	fv->ftype->set_value.set_value_floating(fv, value);
 }
 
+void
+fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value)
+{
+	ws_assert(fv->ftype->ftype == FT_IPv6);
+	ws_assert(fv->ftype->set_value.set_value_ipv6);
+	fv->ftype->set_value.set_value_ipv6(fv, value);
+}
+
 const guint8 *
 fvalue_get_bytes(fvalue_t *fv)
 {
@@ -907,6 +915,14 @@ fvalue_get_floating(fvalue_t *fv)
 			fv->ftype->ftype == FT_DOUBLE);
 	ws_assert(fv->ftype->get_value.get_value_floating);
 	return fv->ftype->get_value.get_value_floating(fv);
+}
+
+WS_DLL_PUBLIC const ws_in6_addr *
+fvalue_get_ipv6(fvalue_t *fv)
+{
+	ws_assert(fv->ftype->ftype == FT_IPv6);
+	ws_assert(fv->ftype->get_value.get_value_ipv6);
+	return fv->ftype->get_value.get_value_ipv6(fv);
 }
 
 ft_bool_t

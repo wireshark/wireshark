@@ -394,6 +394,9 @@ fvalue_set_sinteger64(fvalue_t *fv, gint64 value);
 void
 fvalue_set_floating(fvalue_t *fv, gdouble value);
 
+void
+fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value);
+
 WS_DLL_PUBLIC
 const guint8 *
 fvalue_get_bytes(fvalue_t *fv);
@@ -434,6 +437,9 @@ fvalue_get_sinteger64(fvalue_t *fv);
 
 WS_DLL_PUBLIC double
 fvalue_get_floating(fvalue_t *fv);
+
+WS_DLL_PUBLIC const ws_in6_addr *
+fvalue_get_ipv6(fvalue_t *fv);
 
 ft_bool_t
 fvalue_eq(const fvalue_t *a, const fvalue_t *b);

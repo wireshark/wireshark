@@ -15,13 +15,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
 
-static void
-ipv6_fvalue_set(fvalue_t *fv, const guint8 *value)
-{
-	memcpy(fv->value.ipv6.addr.bytes, value, FT_IPv6_LEN);
-	fv->value.ipv6.prefix = 128;
-}
-
 static gboolean
 ipv6_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
@@ -95,10 +88,18 @@ ipv6_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, in
 	return repr;
 }
 
-static const guint8 *
-value_get(fvalue_t *fv)
+static void
+ipv6_set(fvalue_t *fv, const ws_in6_addr *value)
 {
-	return fv->value.ipv6.addr.bytes;
+	memcpy(&fv->value.ipv6.addr, value, FT_IPv6_LEN);
+	fv->value.ipv6.prefix = 128;
+}
+
+
+static const ws_in6_addr *
+ipv6_get(fvalue_t *fv)
+{
+	return &fv->value.ipv6.addr;
 }
 
 static const guint8 bitmasks[9] =
@@ -203,8 +204,8 @@ ftype_register_ipv6(void)
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
 
-		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
-		{ .get_value_bytes = value_get },	/* union get_value */
+		{ .set_value_ipv6 = ipv6_set },	/* union set_value */
+		{ .get_value_ipv6 = ipv6_get },	/* union get_value */
 
 		cmp_order,
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */
