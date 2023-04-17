@@ -386,7 +386,7 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
     offset += 1;
     ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
     offset += sizeof_cluster;
-    proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"));
+    proto_item_append_text(ti, " (%s)", val_to_str_const(cluster, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"));
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_addr_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN, &dst_mode);
     offset += 1;
 
@@ -402,7 +402,7 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
         offset += 1;
     }
 
-    zbee_append_info(tree, pinfo, ", %s (Cluster ID: 0x%04x)", val_to_str(cluster, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"), cluster);
+    zbee_append_info(tree, pinfo, ", %s (Cluster ID: 0x%04x)", val_to_str_const(cluster, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"), cluster);
     zbee_append_info(tree, pinfo, ", Src: %s", eui64_to_display(pinfo->pool, src64));
     zbee_append_info(tree, pinfo, ", Src Endpoint: %d", src_ep);
 

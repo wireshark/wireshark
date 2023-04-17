@@ -476,16 +476,16 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
     case HISLIP_INITIALIZERESPONSE:
 
         proto_tree_add_item(tree, hf_hislip_controlcode_overlap, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str(data->controlcode, overlap, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", val_to_str(data->controlcode, overlap, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, overlap, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, overlap, "Unknown"));
         break;
 
 
     case HISLIP_ASYNCLOCK:
 
         item = proto_tree_add_item(tree, hf_hislip_controlcode_asynclock_code, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str(data->controlcode, asynclock_code, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", val_to_str(data->controlcode, asynclock_code, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_const(data->controlcode, asynclock_code, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, asynclock_code, "Unknown"));
 
         /*if release add ] and leave*/
         if (data->controlcode != 1)
@@ -533,14 +533,14 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
         if (oldcontrolvalue == 1)
         {   /*Requestresponse*/
             proto_tree_add_item(tree, hf_hislip_controlcode_asynclockresponse_code_request, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str(data->controlcode, asynclockresponse_code_request, "Unknown"));
-            proto_item_append_text(data->hislip_item, ", %s", val_to_str(data->controlcode, asynclockresponse_code_request, "Unknown"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, asynclockresponse_code_request, "Unknown"));
+            proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, asynclockresponse_code_request, "Unknown"));
         }
         else
         {   /*Releaseresponse*/
             proto_tree_add_item(tree, hf_hislip_controlcode_asynclockresponse_code_release, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str(data->controlcode, asynclockresponse_code_release, "Unknown"));
-            proto_item_append_text(data->hislip_item, ", %s", val_to_str(data->controlcode, asynclockresponse_code_release, "Unknown"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, asynclockresponse_code_release, "Unknown"));
+            proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, asynclockresponse_code_release, "Unknown"));
         }
         break;
 
@@ -548,17 +548,17 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
     case HISLIP_ASYNCLOCKINFORESPONSE:
 
         proto_tree_add_item(tree, hf_hislip_controlcode_asynclockinforesponse_code, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str(data->controlcode, asynclockinforesponse_code, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", val_to_str(data->controlcode, asynclockinforesponse_code, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, asynclockinforesponse_code, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, asynclockinforesponse_code, "Unknown"));
         break;
 
 
     case HISLIP_ASYNCREMOTELOCALCONTROL:
 
         item = proto_tree_add_item(tree, hf_hislip_controlcode_asyncremotelocalcontrol_code, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        proto_item_append_text(item, " %s", val_to_str(data->controlcode, remotetype, "Unknown"));
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str(data->controlcode, asyncremotelocalcontrol_code, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", val_to_str(data->controlcode, asyncremotelocalcontrol_code, "Unknown"));
+        proto_item_append_text(item, " %s", val_to_str_const(data->controlcode, remotetype, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, asyncremotelocalcontrol_code, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, asyncremotelocalcontrol_code, "Unknown"));
 
         break;
 
@@ -576,7 +576,7 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
     case HISLIP_DEVICECLEARACKNOWLEDGE:
 
         proto_tree_add_item(tree, hf_hislip_controlcode_feature_negotiation, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str(data->controlcode&0x01, feature_negotiation, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode&0x01, feature_negotiation, "Unknown"));
         break;
 
     default:

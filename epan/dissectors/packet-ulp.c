@@ -7754,7 +7754,7 @@ guint32 UlpMessage;
                                  &UlpMessage);
 
 
-  col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+  col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
 
 
   return offset;

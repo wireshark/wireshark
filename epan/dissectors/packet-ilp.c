@@ -4629,7 +4629,7 @@ guint32 IlpMessage;
                                  &IlpMessage);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
 
 
   return offset;

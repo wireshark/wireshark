@@ -4119,7 +4119,7 @@ dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,
 
 const gchar *get_nvmeof_cmd_string(guint8 fctype)
 {
-    return val_to_str(fctype, fctype_tbl, "Unknown Fabric Command");
+    return val_to_str_const(fctype, fctype_tbl, "Unknown Fabric Command");
 }
 
 static void dissect_nvme_cqe_common(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint off, gboolean nvmeof);
