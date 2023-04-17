@@ -4165,18 +4165,18 @@ static int hf_mpeg_descr_logon_initialize_rbdc_timeout = -1;
 #define MPEG_DESCR_LOGON_INITIALIZE_RETURN_CTRL_MNGM_PID_MASK                   0x1FFF
 
 #define MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK                           0x1000
-#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_VPI_RESERVED_MASK                    0x0F00
-#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_VPI_MASK                             0x00FF
+#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_VPI_RESERVED_MASK                    0xF0
+#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_VPI_MASK                             0x0F
 
-#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_SIGNALLING_VPI_RESERVED_MASK         0x0F00
-#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_SIGNALLING_VPI_MASK                  0x00FF
+#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_SIGNALLING_VPI_RESERVED_MASK         0xF0
+#define MPEG_DESCR_LOGON_INITIALIZE_RETURN_SIGNALLING_VPI_MASK                  0x0F
 #define MPEG_DESCR_LOGON_INITIALIZE_FORWARD_SIGNALLING_VPI_RESERVED_MASK        0xFF00
 #define MPEG_DESCR_LOGON_INITIALIZE_FORWARD_SIGNALLING_VPI_MASK                 0x00FF
 
 #define MPEG_DESCR_LOGON_INITIALIZE_VDBC_MAX_RESERVED_MASK                      0xF800
-#define MPEG_DESCR_LOGON_INITIALIZE_VDBC_MAX_MASK                               0x0700
+#define MPEG_DESCR_LOGON_INITIALIZE_VDBC_MAX_MASK                               0x07FF
 
-
+/* ETSI EN 301 790 - 8.5.5.10.4 Logon Initialize descriptor */
 static void
 proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
 {
@@ -4216,28 +4216,40 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
         proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_traffic_burst_type,          tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* If (Traffic_burst_type == 0) { */
         if (flags & MPEG_DESCR_LOGON_INITIALIZE_TRAFFIC_BURST_TYPE_MASK) {
+            /* Connectivity */
             proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_connectivity, tvb, offset, 2, ENC_BIG_ENDIAN);
             flags2 = tvb_get_ntohs(tvb, offset);
             if (flags2 & MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK) {
+                /* Else    { (out of order) */
+
+                /* Return_signalling_VPI (4 bits reserved, 4 bits) */
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vpi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vpi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
+                /* Return_signalling_VCI (16 bits) */
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vci, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
+                /* Forward_signalling_VPI (4 bits reserved, then 4 bits) */
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_forward_signalling_vpi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_forward_signalling_vpi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
+                /* Forward_signalling_VCI (16 bits) */
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_forward_signalling_vci, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             } else {
+                /* If (Connectivity == 0) {  */
+
+                /* Return_signalling_VPI (4 bits reserved, then 4 bits) */
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_vpi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_vpi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
+                /* Return_signalling_VCI (16 bits) */
                 proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_vci, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
@@ -4253,16 +4265,20 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 
         if ((offset < end) && (flags & MPEG_DESCR_LOGON_INITIALIZE_CAPACITY_TYPE_FLAG_MASK)) {
 
+            /* CRA_level (3 bytes) */
             proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_cra_level,         tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
+            /* VBDC_max (5 bits reserved, 11 bits) */
             proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_vbdc_max_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_vbdc_max,          tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
+            /* RBDC_max (3 bytes) */
             proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_max,          tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
+            /* RBDC timeout (2 bytes) */
             proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_timeout,      tvb, offset, 2, ENC_BIG_ENDIAN);
             /*offset += 2;*/
         }

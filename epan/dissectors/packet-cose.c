@@ -731,7 +731,7 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     ws_warning("main dissector did not match any known tag");
-    proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, 0);
+    proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
     expert_add_info(pinfo, item_msg, &ei_invalid_tag);
     return -1;
 }
@@ -978,7 +978,7 @@ static int dissect_header_x5u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int dissect_cose_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
 
-    proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, 0);
+    proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
     proto_item_append_text(item_msg, ": COSE_Key");
 
     dissect_value_cose_key(tvb, pinfo, tree, &offset);
