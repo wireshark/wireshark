@@ -598,15 +598,25 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 
 	buf = wmem_strbuf_new(alloc, NULL);
 
-	if ((flags & DF_DUMP_REFERENCES) && g_hash_table_size(df->references) > 0) {
-		wmem_strbuf_append(buf, "References:\n");
-		append_references(buf, df->references, FALSE);
+	if (flags & DF_DUMP_REFERENCES) {
+		if (g_hash_table_size(df->references) > 0) {
+			wmem_strbuf_append(buf, "References:\n");
+			append_references(buf, df->references, FALSE);
+		}
+		else {
+			wmem_strbuf_append(buf, "References: (none)\n");
+		}
 		wmem_strbuf_append_c(buf, '\n');
 	}
 
-	if ((flags & DF_DUMP_REFERENCES) && g_hash_table_size(df->raw_references) > 0) {
-		wmem_strbuf_append(buf, "Raw references:\n");
-		append_references(buf, df->raw_references, TRUE);
+	if (flags & DF_DUMP_REFERENCES) {
+		if (g_hash_table_size(df->raw_references) > 0) {
+			wmem_strbuf_append(buf, "Raw references:\n");
+			append_references(buf, df->raw_references, TRUE);
+		}
+		else {
+			wmem_strbuf_append(buf, "Raw references: (none)\n");
+		}
 		wmem_strbuf_append_c(buf, '\n');
 	}
 
