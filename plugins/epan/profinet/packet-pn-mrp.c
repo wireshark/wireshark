@@ -21,6 +21,8 @@
 void proto_register_pn_mrp(void);
 void proto_reg_handoff_pn_mrp(void);
 
+static dissector_handle_t mrp_handle;
+
 static int proto_pn_mrp = -1;
 
 static int hf_pn_mrp_type = -1;
@@ -649,18 +651,14 @@ proto_register_pn_mrp (void)
     proto_pn_mrp = proto_register_protocol ("PROFINET MRP", "PN-MRP", "pn_mrp");
     proto_register_field_array (proto_pn_mrp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    mrp_handle = register_dissector("pn_mrp", dissect_PNMRP, proto_pn_mrp);
 }
 
 
 void
 proto_reg_handoff_pn_mrp (void)
 {
-    dissector_handle_t mrp_handle;
-
-
-    mrp_handle = create_dissector_handle(dissect_PNMRP,proto_pn_mrp);
     dissector_add_uint("ethertype", ETHERTYPE_MRP, mrp_handle);
-
 }
 
 /*

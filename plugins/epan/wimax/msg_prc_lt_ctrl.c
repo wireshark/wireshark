@@ -23,6 +23,8 @@
 void proto_register_mac_mgmt_msg_prc_lt_ctrl(void);
 void proto_reg_handoff_mac_mgmt_msg_prc_lt_ctrl(void);
 
+static dissector_handle_t prc_handle;
+
 static gint proto_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
 
 static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
@@ -83,7 +85,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 			&hf_prc_lt_ctrl_precoding,
 			{
 				"Setup/Tear-down long-term precoding with feedback",
-				"wimax.prc_lt_ctrl.precoding",
+				"wmx.prc_lt_ctrl.precoding",
 				FT_UINT8, BASE_DEC, VALS(vals_turn_on), 0x80, NULL, HFILL
 			}
 		},
@@ -91,7 +93,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 			&hf_prc_lt_ctrl_precoding_delay,
 			{
 				"BS precoding application delay",
-				"wimax.prc_lt_ctrl.precoding_delay",
+				"wmx.prc_lt_ctrl.precoding_delay",
 				FT_UINT8, BASE_DEC, NULL, 0x60, NULL, HFILL
 			}
 		}
@@ -106,20 +108,18 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 	proto_mac_mgmt_msg_prc_lt_ctrl_decoder = proto_register_protocol (
 		"WiMax PRC-LT-CTRL Message", /* name       */
 		"WiMax PRC-LT-CTRL (prc)",   /* short name */
-		"wmx.prc"                    /* abbrev     */
+		"wmx.prc_lt_ctrl"            /* abbrev     */
 		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_prc_lt_ctrl_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	prc_handle = register_dissector("mac_mgmt_msg_prc_lt_ctrl_handler", dissect_mac_mgmt_msg_prc_lt_ctrl_decoder, proto_mac_mgmt_msg_prc_lt_ctrl_decoder);
 }
 
 void
 proto_reg_handoff_mac_mgmt_msg_prc_lt_ctrl(void)
 {
-	dissector_handle_t handle;
-
-	handle = create_dissector_handle(dissect_mac_mgmt_msg_prc_lt_ctrl_decoder, proto_mac_mgmt_msg_prc_lt_ctrl_decoder);
-	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PRC_LT_CTRL, handle);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PRC_LT_CTRL, prc_handle);
 }
 
 /*

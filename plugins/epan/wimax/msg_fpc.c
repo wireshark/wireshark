@@ -23,6 +23,8 @@
 void proto_register_mac_mgmt_msg_fpc(void);
 void proto_reg_handoff_mac_mgmt_msg_fpc(void);
 
+static dissector_handle_t fpc_handle;
+
 static gint proto_mac_mgmt_msg_fpc_decoder = -1;
 
 static gint ett_mac_mgmt_msg_fpc_decoder = -1;
@@ -141,14 +143,12 @@ void proto_register_mac_mgmt_msg_fpc(void)
 
 	proto_register_field_array(proto_mac_mgmt_msg_fpc_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	fpc_handle = register_dissector("mac_mgmt_msg_fpc_handler", dissect_mac_mgmt_msg_fpc_decoder, proto_mac_mgmt_msg_fpc_decoder);
 }
 
 void
 proto_reg_handoff_mac_mgmt_msg_fpc(void)
 {
-	dissector_handle_t fpc_handle;
-
-	fpc_handle = create_dissector_handle(dissect_mac_mgmt_msg_fpc_decoder, proto_mac_mgmt_msg_fpc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_FPC, fpc_handle);
 }
 

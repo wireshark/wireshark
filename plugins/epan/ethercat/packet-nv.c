@@ -24,6 +24,8 @@ void proto_reg_handoff_nv(void);
 /* Define the nv proto */
 int proto_nv  = -1;
 
+static dissector_handle_t nv_handle;
+
 static int ett_nv = -1;
 static int ett_nv_header = -1;
 static int ett_nv_var = -1;
@@ -217,13 +219,11 @@ void proto_register_nv(void)
                                       "TC-NV","tc_nv");
    proto_register_field_array(proto_nv,hf,array_length(hf));
    proto_register_subtree_array(ett,array_length(ett));
+   nv_handle = register_dissector("tc_nv", dissect_nv, proto_nv);
 }
 
 void proto_reg_handoff_nv(void)
 {
-   dissector_handle_t nv_handle;
-
-   nv_handle = create_dissector_handle(dissect_nv, proto_nv);
    dissector_add_uint("ecatf.type", 4, nv_handle);
 }
 

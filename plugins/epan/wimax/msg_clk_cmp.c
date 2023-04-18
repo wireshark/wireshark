@@ -22,6 +22,8 @@
 void proto_register_mac_mgmt_msg_clk_cmp(void);
 void proto_reg_handoff_mac_mgmt_msg_clk_cmp(void);
 
+static dissector_handle_t clk_cmp_handle;
+
 static gint proto_mac_mgmt_msg_clk_cmp_decoder = -1;
 
 static gint ett_mac_mgmt_msg_clk_cmp_decoder = -1;
@@ -125,15 +127,13 @@ void proto_register_mac_mgmt_msg_clk_cmp(void)
 
 	proto_register_field_array(proto_mac_mgmt_msg_clk_cmp_decoder, hf_clk_cmp, array_length(hf_clk_cmp));
 	proto_register_subtree_array(ett, array_length(ett));
+	clk_cmp_handle = register_dissector("mac_mgmt_msg_clk_cmp_handler", dissect_mac_mgmt_msg_clk_cmp_decoder, proto_mac_mgmt_msg_clk_cmp_decoder);
 }
 
 void
 proto_reg_handoff_mac_mgmt_msg_clk_cmp(void)
 {
-	dissector_handle_t handle;
-
-	handle = create_dissector_handle(dissect_mac_mgmt_msg_clk_cmp_decoder, proto_mac_mgmt_msg_clk_cmp_decoder);
-	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_CLK_CMP, handle);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_CLK_CMP, clk_cmp_handle);
 }
 
 /*

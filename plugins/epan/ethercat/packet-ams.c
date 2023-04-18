@@ -26,6 +26,8 @@ void proto_reg_handoff_ams(void);
 /* Define the ams proto */
 int proto_ams = -1;
 
+static dissector_handle_t amstcp_handle;
+
 /* Define the tree for ams */
 static int ett_ams = -1;
 static int ett_ams_stateflags = -1;
@@ -1218,15 +1220,13 @@ void proto_register_ams(void)
    proto_register_subtree_array(ett, array_length(ett));
 
    ams_handle = register_dissector("ams", dissect_ams, proto_ams);
+   amstcp_handle = register_dissector("ams.tcp",  dissect_amstcp, proto_ams );
 }
 
 /* The registration hand-off routing */
 
 void proto_reg_handoff_ams(void)
 {
-   dissector_handle_t amstcp_handle;
-
-   amstcp_handle = create_dissector_handle( dissect_amstcp, proto_ams );
    dissector_add_uint_with_preference("tcp.port", AMS_TCP_PORT, amstcp_handle);
    dissector_add_uint("ecatf.type", 2, ams_handle);
 }

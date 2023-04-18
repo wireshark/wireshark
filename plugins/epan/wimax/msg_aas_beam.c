@@ -35,6 +35,8 @@ extern gint proto_mac_mgmt_msg_aas_fbck_decoder;
 void proto_register_mac_mgmt_msg_aas_beam(void);
 void proto_reg_handoff_mac_mgmt_msg_aas_beam(void);
 
+static dissector_handle_t aas_handle;
+
 static gint proto_mac_mgmt_msg_aas_beam_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_beam_select_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_beam_req_decoder = -1;
@@ -311,19 +313,16 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 	proto_register_field_array(proto_mac_mgmt_msg_aas_beam_decoder, hf_aas_beam, array_length(hf_aas_beam));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("mac_mgmt_msg_aas_beam_select_handler", dissect_mac_mgmt_msg_aas_beam_select_decoder, -1);
+	aas_handle = register_dissector("mac_mgmt_msg_aas_beam_select_handler", dissect_mac_mgmt_msg_aas_beam_select_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
 #ifdef OFDM
-	register_dissector("mac_mgmt_msg_aas_beam_req_handler", dissect_mac_mgmt_msg_aas_beam_req_decoder, -1);
-	register_dissector("mac_mgmt_msg_aas_beam_rsp_handler", dissect_mac_mgmt_msg_aas_beam_rsp_decoder, -1);
+	register_dissector("mac_mgmt_msg_aas_beam_req_handler", dissect_mac_mgmt_msg_aas_beam_req_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
+	register_dissector("mac_mgmt_msg_aas_beam_rsp_handler", dissect_mac_mgmt_msg_aas_beam_rsp_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
 #endif
 }
 
 void
 proto_reg_handoff_mac_mgmt_msg_aas_beam(void)
 {
-	dissector_handle_t aas_handle;
-
-	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_beam_select_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_BEAM_SELECT, aas_handle);
 }
 

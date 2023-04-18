@@ -28,6 +28,8 @@
 void proto_register_mac_mgmt_msg_reg_rsp(void);
 void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void);
 
+static dissector_handle_t reg_rsp_handle;
+
 extern gboolean include_cor2_changes;
 
 static dissector_handle_t dsc_rsp_handle = NULL;
@@ -340,16 +342,12 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 	proto_register_field_array(proto_mac_mgmt_msg_reg_rsp_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("mac_mgmt_msg_reg_rsp_handler", dissect_mac_mgmt_msg_reg_rsp_decoder, -1);
+	reg_rsp_handle = register_dissector("mac_mgmt_msg_reg_rsp_handler", dissect_mac_mgmt_msg_reg_rsp_decoder, proto_mac_mgmt_msg_reg_rsp_decoder);
 }
 
 void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void)
 {
-	dissector_handle_t reg_rsp_handle;
-
 	dsc_rsp_handle = find_dissector("mac_mgmt_msg_dsc_rsp_handler");
-
-	reg_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_reg_rsp_decoder, proto_mac_mgmt_msg_reg_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REG_RSP, reg_rsp_handle);
 }
 

@@ -35,6 +35,7 @@ static void extended_tlv_decoder(packet_info *pinfo);
 void proto_tree_add_tlv(tlv_info_t *self, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf, guint encoding);
 
 /* Global variables */
+static dissector_handle_t m2m_handle;
 static dissector_handle_t wimax_cdma_code_burst_handle;
 static dissector_handle_t wimax_ffb_burst_handle;
 static dissector_handle_t wimax_fch_burst_handle;
@@ -773,6 +774,7 @@ void proto_register_m2m(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_m2m = expert_register_protocol(proto_m2m);
 	expert_register_field_array(expert_m2m, ei, array_length(ei));
+	m2m_handle = register_dissector("mac_mgmt_msg_m2m_handler", dissect_m2m, proto_m2m);
 
 	/* Register reassembly table */
 	reassembly_table_register(&pdu_reassembly_table,
@@ -782,9 +784,6 @@ void proto_register_m2m(void)
 /* Register Wimax Mac to Mac Protocol handler */
 void proto_reg_handoff_m2m(void)
 {
-	dissector_handle_t m2m_handle;
-
-	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
 	dissector_add_uint("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 
 	/* find the wimax handlers */

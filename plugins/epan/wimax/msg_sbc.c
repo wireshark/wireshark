@@ -29,6 +29,9 @@
 void proto_register_mac_mgmt_msg_sbc(void);
 void proto_reg_handoff_mac_mgmt_msg_sbc(void);
 
+static dissector_handle_t sbc_req_handle;
+static dissector_handle_t sbc_rsp_handle;
+
 /* This is a global variable declared in mac_hd_generic_decoder.c, which determines whether
  *    or not cor2 changes are included */
 extern gboolean include_cor2_changes;
@@ -2807,19 +2810,15 @@ void proto_register_mac_mgmt_msg_sbc(void)
 	proto_register_field_array(proto_mac_mgmt_msg_sbc_decoder, hf_sbc, array_length(hf_sbc));
 	proto_register_subtree_array(ett_sbc, array_length(ett_sbc));
 
-	register_dissector("mac_mgmt_msg_sbc_rsp_handler", dissect_mac_mgmt_msg_sbc_rsp_decoder, -1);
+	sbc_req_handle = register_dissector("mac_mgmt_msg_sbc_req_handler", dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
+	sbc_rsp_handle = register_dissector("mac_mgmt_msg_sbc_rsp_handler", dissect_mac_mgmt_msg_sbc_rsp_decoder, proto_mac_mgmt_msg_sbc_decoder);
 }
 
 void
 proto_reg_handoff_mac_mgmt_msg_sbc(void)
 {
-	dissector_handle_t sbc_handle;
-
-	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
-	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_REQ, sbc_handle);
-
-	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_rsp_decoder, proto_mac_mgmt_msg_sbc_decoder);
-	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_RSP, sbc_handle);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_REQ, sbc_req_handle);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_RSP, sbc_rsp_handle);
 }
 
 
