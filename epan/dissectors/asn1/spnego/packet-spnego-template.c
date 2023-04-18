@@ -279,7 +279,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     case KRB_TOKEN_AP_REP:
     case KRB_TOKEN_AP_ERR:
       krb5_tvb = tvb_new_subset_remaining(tvb, offset);
-      offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
+      offset += dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
       break;
 
     case KRB_TOKEN_GETMIC:
