@@ -1218,7 +1218,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     /* add nodeid subtree */
     TypeId = getExtensionObjectType(tvb, &iOffset);
-    parseExpandedNodeId(extobj_tree, tvb, pinfo, &iOffset, "TypeId");
+    parseNodeId(extobj_tree, tvb, pinfo, &iOffset, "TypeId");
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
