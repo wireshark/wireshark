@@ -19,4 +19,7 @@
 #define MP2T_PACKET_SIZE 188
 #define MP2T_SYNC_BYTE   0x47
 
+extern void
+mp2t_add_stream_type(packet_info *pinfo, guint32 pid, guint32 stream_type);
+
 #endif /* __PACKET_MP2T_H__ */
