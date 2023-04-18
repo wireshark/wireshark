@@ -2386,13 +2386,15 @@ startover:
     /* In decoder configuration start code may be pressent
      * B.1.1 Byte stream NAL unit syntax
      */
-    dword = tvb_get_bits32(tvb, offset<<3, 32, ENC_BIG_ENDIAN);
-    if (dword == 1) {
-        /* zero_byte + start_code_prefix_one_3bytes */
-        offset+=4;
-    } else if ((dword >> 8) == 1) {
-        /* start_code_prefix_one_3bytes */
-        offset+= 3;
+    if (tvb_reported_length_remaining(tvb, offset<<3) >= 4) {
+        dword = tvb_get_bits32(tvb, offset<<3, 32, ENC_BIG_ENDIAN);
+        if (dword == 1) {
+            /* zero_byte + start_code_prefix_one_3bytes */
+            offset+=4;
+        } else if ((dword >> 8) == 1) {
+            /* start_code_prefix_one_3bytes */
+            offset+= 3;
+        }
     }
     /* Ref: 7.3.1 NAL unit syntax */
     nal_unit_type = tvb_get_guint8(tvb, offset) & 0x1f;
@@ -2472,6 +2474,73 @@ startover:
         expert_add_info(pinfo, nal_item, &ei_h264_nal_unit_type_unspecified);
         break;
     }
+}
+
+/* Annex B "Byte stream format" */
+static int
+dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *h264_tree;
+    proto_item *item;
+
+    tvbuff_t *next_tvb, *rbsp_tvb;
+    gint offset = 0, end_offset;
+    guint32 dword;
+
+    /* Look for the first start word. Assume byte aligned. */
+    while (1) {
+        if (tvb_reported_length(tvb) < 4) {
+            return 0;
+        }
+        dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        if ((dword >> 8) == 1 || dword == 1) {
+            break;
+        } else if (dword != 0) {
+            return 0;
+        }
+        offset += 2;
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.264");
+    item = proto_tree_add_item(tree, proto_h264, tvb, 0, -1, ENC_NA);
+    h264_tree = proto_item_add_subtree(item, ett_h264);
+
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        if ((dword >> 8) != 1) {
+            /* zero_byte */
+            offset++;
+        }
+        /* start_code_prefix_one_3bytes */
+        offset += 3;
+        gint nal_length = tvb_reported_length_remaining(tvb, offset);
+        /* Search for either \0\0\1 or \0\0\0\1:
+         * Find \0\0 and then check if \0\1 is in the next offset or
+         * the one after that. (Note none of this throws exceptions.)
+         */
+        end_offset = tvb_find_guint16(tvb, offset, -1, 0);
+        while (end_offset != -1) {
+            if (tvb_find_guint16(tvb, end_offset + 1, 3, 1) != -1) {
+                nal_length = end_offset - offset;
+                break;
+            }
+            end_offset = tvb_find_guint16(tvb, end_offset + 1, -1, 0);
+        }
+
+        /* If end_offset is -1, we got to the end; assume this is the end
+         * of the NAL. To handle a bytestream that fragments NALs across
+         * lower level packets (does any implementation do this?), we would
+         * need to use epan/stream.h
+         */
+
+        /* Unescape NAL unit */
+        next_tvb = tvb_new_subset_length(tvb, offset, nal_length);
+        rbsp_tvb = dissect_h265_unescap_nal_unit(next_tvb, pinfo, 0);
+
+        dissect_h264_nal_unit(rbsp_tvb, pinfo, h264_tree);
+        offset += nal_length;
+    }
+    return tvb_reported_length(tvb);
 }
 
 /* Code to actually dissect the packets */
@@ -3774,6 +3843,7 @@ proto_register_h264(void)
     prefs_register_obsolete_preference(h264_module, "dynamic.payload.type");
 
     h264_handle = register_dissector("h264", dissect_h264, proto_h264);
+    register_dissector_with_description("h264_bytestream", "H.264 Annex B Byte stream format", dissect_h264_bytestream, proto_h264);
 }
 
 
