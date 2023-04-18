@@ -921,12 +921,6 @@ static const true_false_string tfs_dns_apl_negation = {
   "No (0)"
 };
 
-static const value_string afamily_vals[] = {
-  { AFNUM_INET,      "IPv4" },
-  { AFNUM_INET6,     "IPv6" },
-  { 0,               NULL  }
-};
-
 /* RFC 6844 */
 #define CAA_FLAG_ISSUER_CRITICAL (1<<7)
 
@@ -5912,7 +5906,7 @@ proto_register_dns(void)
     { &hf_dns_opt_client_family,
       { "Family", "dns.opt.client.family",
         FT_UINT16, BASE_DEC,
-        VALS(afamily_vals), 0x0,
+        VALS(afn_vals), 0x0,
         NULL, HFILL }},
 
     { &hf_dns_opt_client_netmask,
@@ -6223,7 +6217,7 @@ proto_register_dns(void)
 
     { &hf_dns_apl_address_family,
       { "Address Family", "dns.apl.address_family",
-        FT_UINT16, BASE_DEC, VALS(afamily_vals), 0,
+        FT_UINT16, BASE_DEC, VALS(afn_vals), 0,
         NULL, HFILL }},
 
     { &hf_dns_apl_coded_prefix,
