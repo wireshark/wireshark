@@ -804,6 +804,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 	df->attempted_load[reg] = TRUE;
 
 	while (hfinfo) {
+		/* The caller should NOT free the GPtrArray. */
 		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
 		if ((finfos == NULL) || (g_ptr_array_len(finfos) == 0)) {
 			hfinfo = hfinfo->same_name_next;
