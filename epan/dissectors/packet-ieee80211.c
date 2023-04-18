@@ -53361,22 +53361,22 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_medium_sync_field,
-     {"Medium Sync Field", "wlan.eht.multi_link.common_info.medium_sync_info",
+     {"Medium Sync Field", "wlan.eht.multi_link.common_info.medium_sync_field",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_medium_sync_duration,
      {"Medium Synchronization Duration",
-      "wlan.eht.multi_link.common_info.medium_sync_info.sync_duration",
+      "wlan.eht.multi_link.common_info.medium_sync.sync_duration",
       FT_UINT16, BASE_DEC, NULL, 0x00FF, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_medium_sync_threshold,
      {"Medium Synchronization OFDM ED Threshold",
-      "wlan.eht.multi_link.common_info.medium_sync_info.ofdm_ed_threshold",
+      "wlan.eht.multi_link.common_info.medium_sync.ofdm_ed_threshold",
       FT_UINT16, BASE_DEC, NULL, 0x0F00, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_medium_sync_max_txops,
      {"Medium Synchronization Maximum Number of TXOPs",
-      "wlan.eht.multi_link.common_info.medium_sync_info.max_number_of_txops",
+      "wlan.eht.multi_link.common_info.medium_sync.max_number_of_txops",
       FT_UINT16, BASE_DEC, NULL, 0xF000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_eml_capabilities,
