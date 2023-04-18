@@ -2636,7 +2636,7 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = type;
 	sub_dissectors->param   = param;
-	sub_dissectors->protocol  = find_protocol_by_id(proto);
+	sub_dissectors->protocol  = (proto == -1) ? NULL : find_protocol_by_id(proto);
 	sub_dissectors->supports_decode_as = FALSE;
 	g_hash_table_insert(dissector_tables, (gpointer)name, (gpointer) sub_dissectors);
 	return sub_dissectors;
@@ -2666,7 +2666,7 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = FT_BYTES; /* Consider key a "blob" of data, no need to really create new type */
 	sub_dissectors->param   = BASE_NONE;
-	sub_dissectors->protocol  = find_protocol_by_id(proto);
+	sub_dissectors->protocol  = (proto == -1) ? NULL : find_protocol_by_id(proto);
 	sub_dissectors->supports_decode_as = FALSE;
 	g_hash_table_insert(dissector_tables, (gpointer)name, (gpointer) sub_dissectors);
 	return sub_dissectors;
@@ -3133,7 +3133,7 @@ register_heur_dissector_list(const char *name, const int proto)
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
 	sub_dissectors = g_slice_new(struct heur_dissector_list);
-	sub_dissectors->protocol  = find_protocol_by_id(proto);
+	sub_dissectors->protocol  = (proto == -1) ? NULL : find_protocol_by_id(proto);
 	sub_dissectors->dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
 			    (gpointer) sub_dissectors);
