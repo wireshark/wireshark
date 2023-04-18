@@ -100,6 +100,7 @@ static int hf_h264_redundant_pic_cnt_present_flag          = -1;
 static int hf_h264_transform_8x8_mode_flag                 = -1;
 static int hf_h264_pic_scaling_matrix_present_flag         = -1;
 static int hf_h264_second_chroma_qp_index_offset           = -1;
+static int hf_h264_primary_pic_type                        = -1;
 static int hf_h264_par_profile                             = -1;
 static int hf_h264_par_profile_b                           = -1;
 static int hf_h264_par_profile_m                           = -1;
@@ -466,6 +467,19 @@ static const value_string h264_slice_group_map_type_vals[] = {
     { 4,    "Changing slice groups" },
     { 5,    "Changing slice groups" },
     { 6,    "Explicit assignment of a slice group to each slice group map unit" },
+    { 0,    NULL }
+};
+
+/* Table 7-5 Meaning of primary_pic_type */
+static const value_string h264_primary_pic_type_vals[] = {
+    { 0,    "2, 7" },
+    { 1,    "0, 2, 5, 7" },
+    { 2,    "0, 1, 2, 5, 6, 7" },
+    { 3,    "4, 9" },
+    { 4,    "3, 4, 8, 9" },
+    { 5,    "2, 4, 7, 9" },
+    { 6,    "0, 2, 3, 4, 5, 7, 8, 9" },
+    { 7,    "0, 1, 2, 3, 4, 5, 6, 7, 8, 9" },
     { 0,    NULL }
 };
 
@@ -2012,9 +2026,13 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 static void
 dissect_h264_access_unit_delimiter_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
+    gint bit_offset = offset << 3;
     /* primary_pic_type 6 u(3) */
+    proto_tree_add_bits_item(tree, hf_h264_primary_pic_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    bit_offset += 3;
+
     /* rbsp_trailing_bits( ) 6 */
-    proto_tree_add_expert(tree, pinfo, &ei_h264_undecoded, tvb, offset, -1);
+    dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
 }
 
 /*
@@ -3122,6 +3140,12 @@ proto_register_h264(void)
             { "second_chroma_qp_index_offset",           "h264.second_chroma_qp_index_offset",
             FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+
+        { &hf_h264_primary_pic_type,
+            { "primary_pic_type",           "h264.primary_pic_type",
+            FT_INT8, BASE_DEC, VALS(h264_primary_pic_type_vals), 0x0,
+            "slice_type values that may be present in the primary coded picture", HFILL }
         },
 
         { &hf_h264_aspect_ratio_info_present_flag,
