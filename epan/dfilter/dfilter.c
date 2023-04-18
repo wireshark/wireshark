@@ -728,6 +728,7 @@ load_references(GHashTable *table, proto_tree *tree, gboolean raw)
 				g_ptr_array_add(refs, reference_new(finfo, raw));
 			}
 
+			g_ptr_array_free(finfos, TRUE);
 			hfinfo = hfinfo->same_name_next;
 		}
 
