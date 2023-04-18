@@ -664,7 +664,7 @@ dissect_atn_ulcs(
             1,
             value_ses_pres,
             "%s (0x%02x)",
-            val_to_str( value_ses_pres & ATN_SES_PRES_MASK , atn_pres_vals, "?"),
+            val_to_str_const( value_ses_pres & ATN_SES_PRES_MASK, atn_pres_vals, "?"),
             value_pres);
 
         /* PPDU errorcode in case of SRF/CPR */
@@ -819,7 +819,7 @@ void proto_register_atn_ulcs (void)
           HFILL}},
       { &hf_atn_pres_pdu_type,
         { "PDU type", "atn-ulcs.pres.pdu_type",
-          FT_UINT8,
+          FT_UINT16,
           BASE_HEX,
           NULL,
           ATN_SES_PRES_MASK,
