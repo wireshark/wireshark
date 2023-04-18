@@ -34,6 +34,7 @@
 #include <epan/exceptions.h>
 #include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
 #include <epan/dissectors/packet-http2.h>
+#include <epan/dissectors/packet-media-type.h>
 
 #ifdef HAVE_NGHTTP2
 #include <epan/uat.h>
@@ -2786,7 +2787,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
 {
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
     gchar *content_type = body_info->content_type;
-    http_message_info_t metadata_used_for_media_type_handle = { HTTP_OTHERS, body_info->content_type_parameters, NULL, NULL };
+    media_content_info_t metadata_used_for_media_type_handle = { MEDIA_CONTAINER_HTTP_OTHERS, body_info->content_type_parameters, NULL, NULL };
     guint32 stream_id;
 
     stream_id = http2_get_stream_id(pinfo);

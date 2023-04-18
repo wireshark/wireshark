@@ -21,6 +21,7 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include "packet-http.h"
+#include "packet-media-type.h"
 
 void proto_register_ipp(void);
 void proto_reg_handoff_ipp(void);
@@ -394,7 +395,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree  *ipp_tree;
     proto_item  *ti;
     int         offset     = 0;
-    http_message_info_t *message_info = (http_message_info_t *)data;
+    media_content_info_t *content_info = (media_content_info_t *)data;
     gboolean    is_request;
     guint16     operation_status;
     const gchar *status_type;
@@ -403,14 +404,14 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     ipp_conv_info_t *ipp_info;
     ipp_transaction_t *ipp_trans;
 
-    if (message_info != NULL) {
-        switch (message_info->type) {
+    if (content_info != NULL) {
+        switch (content_info->type) {
 
-        case HTTP_REQUEST:
+        case MEDIA_CONTAINER_HTTP_REQUEST:
             is_request = TRUE;
             break;
 
-        case HTTP_RESPONSE:
+        case MEDIA_CONTAINER_HTTP_RESPONSE:
             is_request = FALSE;
             break;
 

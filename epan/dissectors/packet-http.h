@@ -95,22 +95,4 @@ typedef struct _http_conv_t {
 
 } http_conv_t;
 
-typedef enum _http_type {
-	HTTP_REQUEST,
-	HTTP_RESPONSE,
-	HTTP_NOTIFICATION,
-	HTTP_OTHERS,
-	SIP_DATA            /* If the content is from the SIP dissector*/
-} http_type_t;
-
-/** Passed to dissectors called by the HTTP dissector. */
-typedef struct _http_message_info_t {
-	http_type_t type;       /**< Message type; may be HTTP_OTHERS if not called by HTTP */
-	const char *media_str;  /**< Content-Type parameters */
-	const char *content_id; /**< Content-ID parameter */
-	/** In http1.0/1.1, data contains the header name/value mappings, valid only within the packet scope.
-	    In other protocols, the http_type is used to indicate the data transported. */
-	void *data;
-} http_message_info_t;
-
 #endif /* __PACKET_HTTP_H__ */

@@ -52,7 +52,7 @@
 #include "packet-e164.h"
 #include "packet-charging_ase.h"
 #include "packet-mtp3.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 void proto_register_isup(void);
 void proto_reg_handoff_isup(void);
@@ -10550,10 +10550,10 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   guint8      itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
   if (data) {
-    http_message_info_t *message_info = (http_message_info_t *)data;
-    if (message_info->media_str) {
-      version = ws_find_media_type_parameter(pinfo->pool, message_info->media_str, "version");
-      base = ws_find_media_type_parameter(pinfo->pool, message_info->media_str, "base");
+    media_content_info_t *content_info = (media_content_info_t *)data;
+    if (content_info->media_str) {
+      version = ws_find_media_type_parameter(pinfo->pool, content_info->media_str, "version");
+      base = ws_find_media_type_parameter(pinfo->pool, content_info->media_str, "base");
       if ((version && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
           (base && g_ascii_strncasecmp(base, "ansi", 4) == 0) ||
           (version && g_ascii_strncasecmp(version, "gr", 2) == 0) ||

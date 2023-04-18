@@ -51,7 +51,7 @@
 #include "packet-e164.h"
 #include "packet-sip.h"
 
-#include "packet-http.h"
+#include "packet-media-type.h"
 #include "packet-acdr.h"
 
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
@@ -3439,7 +3439,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     const char *cseq_method = "";
     char   *call_id = NULL;
     gchar  *media_type_str_lower_case = NULL;
-    http_message_info_t message_info = { SIP_DATA, NULL, NULL, NULL };
+    media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, NULL, NULL, NULL };
     char   *content_encoding_parameter_str = NULL;
     guint   resend_for_packet = 0;
     guint   request_for_response = 0;
@@ -4261,7 +4261,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             content_type_end = tvb_skip_wsp_return(tvb, semi_colon_offset-1);
                             content_type_len = content_type_end - value_offset;
                             content_type_parameter_str_len = value_offset + value_len - parameter_offset;
-                            message_info.media_str = tvb_get_string_enc(wmem_packet_scope(), tvb, parameter_offset,
+                            content_info.media_str = tvb_get_string_enc(wmem_packet_scope(), tvb, parameter_offset,
                                                          content_type_parameter_str_len, ENC_UTF_8|ENC_NA);
                         }
                         media_type_str_lower_case = ascii_strdown_inplace(
@@ -4802,7 +4802,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         setup_info.add_hidden = sip_hide_generatd_call_ids;
         setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_STR;
         setup_info.trace_id.str = wmem_strdup(wmem_file_scope(), call_id);
-        message_info.data = &setup_info;
+        content_info.data = &setup_info;
 
         proto_item_set_end(th, tvb, offset);
         if(content_encoding_parameter_str != NULL &&
@@ -4883,7 +4883,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             found_match = dissector_try_string(media_type_dissector_table,
                                                media_type_str_lower_case,
                                                next_tvb, pinfo,
-                                               message_body_tree, &message_info);
+                                               message_body_tree, &content_info);
             DENDENT();
             DPRINT(("done calling dissector_try_string() with found_match=%u", found_match));
 
@@ -4895,7 +4895,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 found_match = dissector_try_string(media_type_dissector_table,
                                                    "multipart/",
                                                    next_tvb, pinfo,
-                                                   message_body_tree, &message_info);
+                                                   message_body_tree, &content_info);
                 DENDENT();
                 DPRINT(("done calling dissector_try_string() with found_match=%u", found_match));
             }

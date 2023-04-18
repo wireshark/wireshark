@@ -470,6 +470,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-mausb.h
 	packet-mbim.h
 	packet-mbtcp.h
+	packet-media-type.h
 	packet-mgcp.h
 	packet-mle.h
 	packet-mms.h
@@ -1466,6 +1467,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdshdr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-media.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-media-type.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-megaco.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-memcache.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mesh.c

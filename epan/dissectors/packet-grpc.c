@@ -63,9 +63,10 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/proto_data.h>
+#include <epan/dissectors/packet-http.h>
 #include <epan/dissectors/packet-http2.h>
+#include <epan/dissectors/packet-media-type.h>
 
-#include "packet-http.h"
 #include "wsutil/pint.h"
 
 #define GRPC_MESSAGE_HEAD_LEN 5
@@ -407,7 +408,7 @@ dissect_grpc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
     http_req_res_t* curr_req_res;
     tvbuff_t* real_data_tvb;
     grpc_context_info_t grpc_ctx = { 0 };
-    http_message_info_t* http_msg_info = (http_message_info_t*)data;
+    media_content_info_t* content_info = (media_content_info_t*)data;
     gboolean is_grpc_web_text = g_str_has_prefix(pinfo->match_string, "application/grpc-web-text");
 
     if (is_grpc_web_text) {
@@ -429,12 +430,12 @@ dissect_grpc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
     }
     else if (proto_is_frame_protocol(pinfo->layers, "http")) {
         curr_req_res = (http_req_res_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
-        DISSECTOR_ASSERT_HINT(curr_req_res && http_msg_info, "Unexpected error: HTTP request/reply or HTTP message info not available.");
-        grpc_ctx.is_request = (http_msg_info->type == HTTP_REQUEST);
+        DISSECTOR_ASSERT_HINT(curr_req_res && content_info, "Unexpected error: HTTP request/reply or HTTP message info not available.");
+        grpc_ctx.is_request = (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST);
         grpc_ctx.path = curr_req_res->request_uri;
         grpc_ctx.content_type = pinfo->match_string; /* only for grpc-web(-text) over http1.1 */
-        if (http_msg_info->data) {
-            grpc_ctx.encoding = (const gchar*)wmem_map_lookup((wmem_map_t *)http_msg_info->data, HTTP2_HEADER_GRPC_ENCODING);
+        if (content_info->data) {
+            grpc_ctx.encoding = (const gchar*)wmem_map_lookup((wmem_map_t *)content_info->data, HTTP2_HEADER_GRPC_ENCODING);
         }
     }
     else {

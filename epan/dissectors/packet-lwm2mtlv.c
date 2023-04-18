@@ -24,7 +24,7 @@
 #include <wsutil/str_util.h>
 
 #include "packet-gsm_a_common.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 void proto_register_lwm2mtlv(void);
 void proto_reg_handoff_lwm2mtlv(void);
@@ -939,12 +939,12 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
 	proto_tree* lwm2mtlv_tree;
 	proto_item* lwm2mtlv_item;
-	http_message_info_t *message_info = (http_message_info_t *) data;
+	media_content_info_t *content_info = (media_content_info_t *) data;
 	gint object_id = -1;
 	gint resource_id = -1;
 
-	if (message_info && message_info->media_str && message_info->media_str[0]) {
-		gchar **ids = wmem_strsplit(pinfo->pool, message_info->media_str, "/", 5);
+	if (content_info && content_info->media_str && content_info->media_str[0]) {
+		gchar **ids = wmem_strsplit(pinfo->pool, content_info->media_str, "/", 5);
 
 		/* URI path is defined as:
 		 *  ids[1] = Object ID
