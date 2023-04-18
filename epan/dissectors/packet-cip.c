@@ -802,14 +802,6 @@ static const value_string cip_con_owner_vals[] = {
    { 0,        NULL        }
 };
 
-/* Translate function to string - Connection direction */
-static const value_string cip_con_dir_vals[] = {
-   { 0,        "Client" },
-   { 1,        "Server" },
-
-   { 0,        NULL        }
-};
-
 /* Translate function to string - Connection type*/
 static const value_string cip_con_vals[] = {
    { 0,        "Originator" },
@@ -9608,7 +9600,7 @@ proto_register_cip(void)
       { &hf_cip_cm_lfwo_typ, { "Connection Type", "cip.cm.fwo.type", FT_UINT32, BASE_DEC, VALS(cip_con_type_vals), 0x60000000, "Large Fwd Open: Connection type", HFILL }},
       { &hf_cip_cm_fwo_own, { "Redundant Owner", "cip.cm.fwo.owner", FT_UINT16, BASE_DEC, VALS(cip_con_owner_vals), 0x8000, "Fwd Open: Redundant owner bit", HFILL }},
       { &hf_cip_cm_lfwo_own, { "Redundant Owner", "cip.cm.fwo.owner", FT_UINT32, BASE_DEC, VALS(cip_con_owner_vals), 0x80000000, "Large Fwd Open: Redundant owner bit", HFILL }},
-      { &hf_cip_cm_fwo_dir, { "Direction", "cip.cm.fwo.dir", FT_UINT8, BASE_DEC, VALS(cip_con_dir_vals), CI_PRODUCTION_DIR_MASK, "Fwd Open: Direction", HFILL }},
+      { &hf_cip_cm_fwo_dir, { "Direction", "cip.cm.fwo.dir", FT_BOOLEAN, 8, TFS(&tfs_server_client), CI_PRODUCTION_DIR_MASK, "Fwd Open: Direction", HFILL }},
       { &hf_cip_cm_fwo_trigg, { "Trigger", "cip.cm.fwo.trigger", FT_UINT8, BASE_DEC, VALS(cip_con_trigg_vals), CI_PRODUCTION_TRIGGER_MASK, "Fwd Open: Production trigger", HFILL }},
       { &hf_cip_cm_fwo_class, { "Class", "cip.cm.fwo.transport", FT_UINT8, BASE_DEC, VALS(cip_con_class_vals), CI_TRANSPORT_CLASS_MASK, "Fwd Open: Transport Class", HFILL }},
       { &hf_cip_cm_gco_conn, { "Number of Connections", "cip.cm.gco.conn", FT_UINT8, BASE_DEC, NULL, 0, "GetConnOwner: Number of Connections", HFILL }},
@@ -9719,7 +9711,7 @@ proto_register_cip(void)
       { &hf_cip_cco_lfwo_typ, { "Connection Type", "cip.cco.type", FT_UINT32, BASE_DEC, VALS(cip_con_type_vals), 0x60000000, NULL, HFILL }},
       { &hf_cip_cco_fwo_own, { "Redundant Owner", "cip.cco.owner", FT_UINT16, BASE_DEC, VALS(cip_con_owner_vals), 0x8000, NULL, HFILL }},
       { &hf_cip_cco_lfwo_own, { "Redundant Owner", "cip.cco.owner", FT_UINT32, BASE_DEC, VALS(cip_con_owner_vals), 0x80000000, NULL, HFILL }},
-      { &hf_cip_cco_fwo_dir, { "Direction", "cip.cco.dir", FT_UINT8, BASE_DEC, VALS(cip_con_dir_vals), CI_PRODUCTION_DIR_MASK, NULL, HFILL }},
+      { &hf_cip_cco_fwo_dir, { "Direction", "cip.cco.dir", FT_BOOLEAN, 8, TFS(&tfs_server_client), CI_PRODUCTION_DIR_MASK, NULL, HFILL }},
       { &hf_cip_cco_fwo_trigger, { "Trigger", "cip.cco.trigger", FT_UINT8, BASE_DEC, VALS(cip_con_trigg_vals), CI_PRODUCTION_TRIGGER_MASK, NULL, HFILL }},
       { &hf_cip_cco_fwo_class, { "Class", "cip.cco.transport", FT_UINT8, BASE_DEC, VALS(cip_con_class_vals), CI_TRANSPORT_CLASS_MASK, NULL, HFILL }},
       { &hf_cip_cco_conn_path_size, { "Connection Path Size", "cip.cco.connpath_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0, NULL, HFILL }},

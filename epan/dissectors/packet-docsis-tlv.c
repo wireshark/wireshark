@@ -569,12 +569,6 @@ static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_tlv_tlvval_bad = EI_INIT;
 
 
-static const value_string on_off_vals[] = {
-  {0, "Off"},
-  {1, "On"},
-  {0, NULL},
-};
-
 static const true_false_string ena_dis_tfs = {
   "Enable",
   "Disable"
@@ -5688,12 +5682,12 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_8021P_filter,
      {".9 802.1P Filtering Support", "docsis_tlv.mcap.dot1pfiltering",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x80,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80,
       "802.1P Filtering Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_8021Q_filter,
      {".9 802.1Q Filtering Support", "docsis_tlv.mcap.dot1qfilt",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x40,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x40,
       "802.1Q Filtering Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_xmit_eq_taps_per_sym,
@@ -5728,25 +5722,25 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_rnghoff_cm,
      {".16 Ranging Hold-Off (CM)","docsis_tlv.mcap.rnghoffcm",
-      FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x1,
+      FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00000001,
       "Ranging Hold-Off (CM)", HFILL}
     },
     {&hf_docsis_tlv_mcap_rnghoff_erouter,
      {".16 Ranging Hold-Off (ePS or eRouter)",
       "docsis_tlv.mcap.rnghofferouter",
-      FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x2,
+      FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00000002,
       "Ranging Hold-Off (ePS or eRouter)", HFILL}
     },
     {&hf_docsis_tlv_mcap_rnghoff_emta,
      {".16 Ranging Hold-Off (eMTA or EDVA)",
       "docsis_tlv.mcap.rnghoffemta",
-      FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x4,
+      FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00000004,
       "Ranging Hold-Off (eMTA or EDVA)", HFILL}
     },
     {&hf_docsis_tlv_mcap_rnghoff_estb,
      {".16 Ranging Hold-Off (DSG/eSTB)",
       "docsis_tlv.mcap.rnghoffestb",
-      FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x8,
+      FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00000008,
       "Ranging Hold-Off (DSG/eSTB)", HFILL}
     },
     {&hf_docsis_tlv_mcap_l2vpn,
@@ -5774,37 +5768,37 @@ proto_register_docsis_tlv (void)
     {&hf_docsis_tlv_mcap_us_srate_160,
      {".21 Upstream Symbol Rate 160ksps supported",
       "docsis_tlv.mcap.srate160",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x1,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
       "Upstream Symbol Rate 160ksps supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_us_srate_320,
      {".21 Upstream Symbol Rate 320ksps supported",
       "docsis_tlv.mcap.srate320",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x2,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x02,
       "Upstream Symbol Rate 320ksps supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_us_srate_640,
      {".21 Upstream Symbol Rate 640ksps supported",
       "docsis_tlv.mcap.srate640",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x4,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x04,
       "Upstream Symbol Rate 640ksps supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_us_srate_1280,
      {".21 Upstream Symbol Rate 1280ksps supported",
       "docsis_tlv.mcap.srate1280",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x8,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x08,
       "Upstream Symbol Rate 1280ksps supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_us_srate_2560,
      {".21 Upstream Symbol Rate 2560ksps supported",
       "docsis_tlv.mcap.srate2560",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x10,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x10,
       "Upstream Symbol Rate 2560ksps supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_us_srate_5120,
      {".21 Upstream Symbol Rate 5120ksps supported",
       "docsis_tlv.mcap.srate5120",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x20,
+      FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x20,
       "Upstream Symbol Rate 5120ksps supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_sac,

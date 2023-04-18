@@ -4193,13 +4193,6 @@ static const value_string DIS_PDU_IffChangeIndicator_Strings[] =
     {  0, NULL }
 };
 
-static const value_string DIS_PDU_IffNoYes_Strings[] =
-{
-    {  0, "No" },
-    {  1, "Yes" },
-    {  0, NULL }
-};
-
 static const value_string DIS_PDU_IffHeartbeat_Strings[] =
 {
     {  0, "No Heartbeat" },
@@ -4220,13 +4213,6 @@ static const value_string DIS_PDU_IffSimulation_Mode_Strings[] =
 {
     {  0, "Regeneration" },
     {  1, "Interactive" },
-    {  0, NULL }
-};
-
-static const value_string DIS_PDU_IffOffOn_Strings[] =
-{
-    {  0, "Off" },
-    {  1, "On" },
     {  0, NULL }
 };
 
@@ -9514,17 +9500,17 @@ void proto_register_dis(void)
             },
             { &hf_appearance_landform_head_lights,
               { "Head Lights", "dis.appearance.landform.head_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00001000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00001000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_tail_lights,
               { "Tail Lights", "dis.appearance.landform.tail_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00002000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00002000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_brake_lights,
               { "Brake Lights", "dis.appearance.landform.brake_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00004000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00004000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_flaming,
@@ -9574,22 +9560,22 @@ void proto_register_dis(void)
             },
             { &hf_appearance_landform_blackout_lights,
               { "Blackout Lights", "dis.appearance.landform.blackout_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x04000000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x04000000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_blackout_brake_lights,
               { "Blackout Brake Lights", "dis.appearance.landform.blackout_brake_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x08000000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x08000000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_spot_lights,
               { "Spot_lights", "dis.appearance.landform.spot_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x10000000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x10000000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_interior_lights,
               { "Interior_lights", "dis.appearance.landform.interior_lights",
-                FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x20000000,
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x20000000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_surrender_state,
@@ -9824,7 +9810,7 @@ void proto_register_dis(void)
             },
             { &hf_appearance_lifeform_flash_lights,
               {"Flash Lights", "dis.appearance.lifeform.flash_lights",
-               FT_UINT32, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x00001000,
+               FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00001000,
                NULL, HFILL}
             },
             { &hf_appearance_lifeform_state,
@@ -10640,17 +10626,17 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_change_indicator,
               { "Change Indicator",  "dis.iff.change_indicator",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffChangeIndicator_Strings), 0x1,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffChangeIndicator_Strings), 0x01,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_mode_4,
               { "Alternate Mode 4",  "dis.iff.alternate_mode_4",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x2,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_mode_c,
               { "Alternate Mode C",  "dis.iff.alternate_mode_c",
-               FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x4,
+               FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
                NULL, HFILL }
             },
             { &hf_dis_iff_heartbeat_indicator,
@@ -10675,7 +10661,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_test_mode,
               { "Test Mode",  "dis.iff.test_mode",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_designator,
@@ -10695,7 +10681,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_system_status_system_onoff,
               { "System On/Off",  "dis.iff.system_status.system_onoff",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_1,
@@ -10785,22 +10771,22 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_modifier_emergency,
               { "Military Emergency",  "dis.iff.modifier.emergency",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x2,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x02,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier_ident,
               { "Ident/Squawk Flash",  "dis.iff.modifier_ident",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x4,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x04,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier_sti,
               { "STI",  "dis.iff.modifier_sti",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x8,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x08,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier_unmanned_aircraft,
               { "Unmanned Aircraft",  "dis.iff.modifier_unmanned_aircraft",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x10,
                 NULL, HFILL }
             },
             { &hf_dis_iff_parameter_1,
@@ -10865,12 +10851,12 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_rrb_power_reduction_indicator,
               { "Power Reduction Indicator",  "dis.iff.rrb.power_reduction_indicator",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0800,
+                FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x0800,
                 NULL, HFILL }
             },
             { &hf_dis_iff_rrb_radar_enhancement_indicator,
               { "Radar Enhancement Indicator",  "dis.iff.rrb.radar_enhancement_indicator",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1000,
+                FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x1000,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_s_interrogator_identifier,
@@ -10945,7 +10931,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_mode_status,
               { "Status",  "dis.iff.mode_status",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x2000,
+                FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x2000,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_damage,
