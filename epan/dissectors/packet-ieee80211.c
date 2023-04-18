@@ -25082,7 +25082,7 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_bitmap,
                         tvb, offset, bitmap_size, ENC_NA);
-    offset += bitmap_size;
+    /* offset += bitmap_size; */
   }
 
   return len;
@@ -25146,7 +25146,6 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   guint8 common_info_len = 0;
   guint16 multi_link_control = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
   guint16 present = multi_link_control >> 4;
-  int elt = 0;
 
   control = proto_tree_add_item(tree, hf_ieee80211_eht_multi_link_control, tvb,
                                 offset, 2, ENC_LITTLE_ENDIAN);
@@ -25276,7 +25275,6 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         offset += subelt_len;
         break;
     }
-    elt++;
   }
 }
 

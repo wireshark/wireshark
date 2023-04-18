@@ -2619,7 +2619,7 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                             tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 	if ((known & IEEE80211_RADIOTAP_EHT_PRIMARY_80MHZ_CHANNEL_POS_KNOWN)) {
-		item = proto_tree_add_item(sub_tree,
+		proto_tree_add_item(sub_tree,
 	                        hf_radiotap_eht_data1_primary_80_mhz_chan_pos,
 	                        tvb, offset, 4, ENC_LITTLE_ENDIAN);
         } else {
@@ -2631,7 +2631,7 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	offset += 4;
 
-	data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data2, tvb, offset,
+	proto_tree_add_item(eht_tree, hf_radiotap_eht_data2, tvb, offset,
 	                            4, ENC_LITTLE_ENDIAN);
 
 /*
@@ -2640,32 +2640,32 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	offset += 4;
 
-	data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data3, tvb, offset,
+	proto_tree_add_item(eht_tree, hf_radiotap_eht_data3, tvb, offset,
 	                                   4, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
 
-	data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data4, tvb, offset,
+	proto_tree_add_item(eht_tree, hf_radiotap_eht_data4, tvb, offset,
                                    4, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
 
-        data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data5, tvb, offset,
+    proto_tree_add_item(eht_tree, hf_radiotap_eht_data5, tvb, offset,
                                    4, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
 
-        data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data6, tvb, offset,
+    proto_tree_add_item(eht_tree, hf_radiotap_eht_data6, tvb, offset,
                                    4, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
 
-        data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data7, tvb, offset,
+    proto_tree_add_item(eht_tree, hf_radiotap_eht_data7, tvb, offset,
                                    4, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
 
-        data = proto_tree_add_item(eht_tree, hf_radiotap_eht_data8, tvb, offset,
+    proto_tree_add_item(eht_tree, hf_radiotap_eht_data8, tvb, offset,
                                    4, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
