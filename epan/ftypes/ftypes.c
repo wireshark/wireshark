@@ -674,6 +674,7 @@ fvalue_set_bytes(fvalue_t *fv, GBytes *value)
 			fv->ftype->ftype == FT_OID ||
 			fv->ftype->ftype == FT_REL_OID ||
 			fv->ftype->ftype == FT_SYSTEM_ID ||
+			fv->ftype->ftype == FT_AX25 ||
 			fv->ftype->ftype == FT_VINES ||
 			fv->ftype->ftype == FT_ETHER ||
 			fv->ftype->ftype == FT_FCWWN);
