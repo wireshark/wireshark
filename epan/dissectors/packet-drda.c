@@ -58,6 +58,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <epan/iana_charsets.h>
+#include <epan/proto_data.h>
 #include "packet-tcp.h"
 
 void proto_register_drda(void);
@@ -80,9 +83,33 @@ static int hf_drda_param_codepoint = -1;
 static int hf_drda_param_data = -1;
 static int hf_drda_param_data_ebcdic = -1;
 static int hf_drda_null_ind = -1;
-static int hf_drda_sqlstatement_length = -1;
+static int hf_drda_typdefnam = -1;
+static int hf_drda_clob_length = -1;
 static int hf_drda_sqlstatement = -1;
-static int hf_drda_sqlstatement_ebcdic = -1;
+static int hf_drda_sqlcagrp = -1;
+static int hf_drda_sqlcode = -1;
+static int hf_drda_sqlstate = -1;
+static int hf_drda_sqlerrproc = -1;
+static int hf_drda_sqlcaxgrp = -1;
+static int hf_drda_sqlerrd1 = -1;
+static int hf_drda_sqlerrd2 = -1;
+static int hf_drda_sqlerrd3 = -1;
+static int hf_drda_sqlerrd4 = -1;
+static int hf_drda_sqlerrd5 = -1;
+static int hf_drda_sqlerrd6 = -1;
+static int hf_drda_sqlwarn0 = -1;
+static int hf_drda_sqlwarn1 = -1;
+static int hf_drda_sqlwarn2 = -1;
+static int hf_drda_sqlwarn3 = -1;
+static int hf_drda_sqlwarn4 = -1;
+static int hf_drda_sqlwarn5 = -1;
+static int hf_drda_sqlwarn6 = -1;
+static int hf_drda_sqlwarn7 = -1;
+static int hf_drda_sqlwarn8 = -1;
+static int hf_drda_sqlwarn9 = -1;
+static int hf_drda_sqlwarna = -1;
+static int hf_drda_sqlerrmsg = -1;
+static int hf_drda_rlsconv = -1;
 static int hf_drda_secmec = -1;
 static int hf_drda_sectkn = -1;
 static int hf_drda_svrcod = -1;
@@ -138,14 +165,33 @@ static gint ett_drda_ddm_format = -1;
 static gint ett_drda_param = -1;
 static gint ett_drda_monitor = -1;
 static gint ett_drda_rslsetflg = -1;
+static gint ett_drda_sqlcagrp = -1;
+static gint ett_drda_sqlcaxgrp = -1;
 
 static expert_field ei_drda_opcode_invalid_length = EI_INIT;
+static expert_field ei_drda_undecoded = EI_INIT;
 
 static dissector_handle_t drda_tcp_handle;
 
 static dissector_table_t drda_opcode_table;
 
+#define typdefnam_vals_ENUM_VAL_T_LIST(XXX) \
+    XXX(TYPDEFNAM_370, 1, "QTDSQL370", "System/390 SQL type definition") \
+    XXX(TYPDEFNAM_400, 2, "QTDSQL400", "AS/400 SQL type definition") \
+    XXX(TYPDEFNAM_X86, 3, "QTDSQLX86", "Intel 80x86 SQL type definition") \
+    XXX(TYPDEFNAM_ASC, 4, "QTDSQLASC", "General ASCII Big Endian SQL type definition") \
+    XXX(TYPDEFNAM_VAX, 5, "QTDSQLVAX", "DEC VAX SQL type definition")
+
+typedef ENUM_VAL_T_ENUM(typdefnam_vals) enum_typdefnam_t;
+
+ENUM_VAL_T_ARRAY_STATIC(typdefnam_vals);
+
+/* Preferences */
 static gboolean drda_desegment = TRUE;
+static guint drda_default_sqlam = 7;
+static gint drda_default_typdefnam = TYPDEFNAM_X86;
+static gint drda_default_ccsidsbc = IANA_CS_UTF_8;
+static gint drda_default_ccsidmbc = IANA_CS_UTF_8;
 
 #define DRDA_MAGIC  0xD0
 
@@ -180,6 +226,7 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_CCSIDSBC      0x119C
 #define DRDA_CP_CCSIDDBC      0x119D
 #define DRDA_CP_CCSIDMBC      0x119E
+#define DRDA_CP_RLSCONV       0x119F
 #define DRDA_CP_USRID         0x11A0
 #define DRDA_CP_PASSWORD      0x11A1
 #define DRDA_CP_SECMEC        0x11A2
@@ -396,6 +443,7 @@ static const value_string drda_opcode_vals[] = {
     { DRDA_CP_CCSIDSBC,     "CCSID for Single-Byte Characters" },
     { DRDA_CP_CCSIDDBC,     "CCSID for Double-byte Characters" },
     { DRDA_CP_CCSIDMBC,     "CCSID for Mixed-byte Characters" },
+    { DRDA_CP_RLSCONV,      "Release Conversation" },
     { DRDA_CP_USRID,        "User ID at the Target System" },
     { DRDA_CP_PASSWORD,     "Password" },
     { DRDA_CP_SECMEC,       "Security Mechanism" },
@@ -603,6 +651,7 @@ static const value_string drda_opcode_abbr[] = {
     { DRDA_CP_CCSIDSBC,     "CCSIDSBC" },
     { DRDA_CP_CCSIDDBC,     "CCSIDDBC" },
     { DRDA_CP_CCSIDMBC,     "CCSIDMBC" },
+    { DRDA_CP_RLSCONV,      "RLSCONV" },
     { DRDA_CP_USRID,        "USRID" },
     { DRDA_CP_PASSWORD,     "PASSWORD" },
     { DRDA_CP_SECMEC,       "SECMEC" },
@@ -807,12 +856,284 @@ static const range_string drda_null_ind_rvals[] =
     { 0, 0, NULL },
 };
 
+typedef struct _drda_encoding_t {
+    enum_typdefnam_t typdefnam;
+    guint sbc;
+    guint mbc;
+} drda_encoding_t;
+
+typedef struct _drda_flow_t {
+    wmem_tree_t* encoding_tree;
+    wmem_tree_t* sqlam_tree;
+} drda_flow_t;
+
+typedef struct _drda_conv_info_t {
+    drda_flow_t *client; /* AKA source system */
+    drda_flow_t *server; /* AKA target system */
+
+    address srv_addr;
+    port_type srv_ptype;
+    guint srv_port;
+} drda_conv_info_t;
+
+typedef struct _drda_pdu_info_t {
+    guint sqlam;
+    enum_typdefnam_t typdefnam;
+    guint sbc;
+    guint mbc;
+} drda_pdu_info_t;
+
+static drda_flow_t*
+drda_new_flow(wmem_allocator_t *alloc, packet_info *pinfo)
+{
+    drda_flow_t *new_flow = wmem_new(alloc, drda_flow_t);
+
+    new_flow->encoding_tree = wmem_tree_new(alloc);
+    new_flow->sqlam_tree = wmem_tree_new(alloc);
+    wmem_tree_insert32(new_flow->sqlam_tree, pinfo->num, GUINT_TO_POINTER(drda_default_sqlam));
+
+    return new_flow;
+}
+
+static void
+drda_update_flow_encoding(packet_info *pinfo, drda_flow_t *flow, const drda_pdu_info_t *pdu_info)
+{
+    drda_encoding_t *encoding = wmem_tree_lookup32_le(flow->encoding_tree, pinfo->num);
+    if (encoding) {
+        if (encoding->typdefnam == pdu_info->typdefnam && encoding->sbc == pdu_info->sbc && encoding->mbc == pdu_info->mbc) {
+            return;
+        }
+    }
+    encoding = wmem_new(wmem_file_scope(), drda_encoding_t);
+    encoding->mbc = pdu_info->mbc;
+    encoding->sbc = pdu_info->sbc;
+    encoding->typdefnam = pdu_info->typdefnam;
+    wmem_tree_insert32(flow->encoding_tree, pinfo->num, encoding);
+}
+
+static drda_conv_info_t*
+drda_get_conv_info(packet_info *pinfo)
+{
+    conversation_t *conv = find_or_create_conversation(pinfo);
+    drda_conv_info_t *conv_info = conversation_get_proto_data(conv, proto_drda);
+
+    if (conv_info == NULL) {
+        conv_info = wmem_new0(wmem_file_scope(), drda_conv_info_t);
+
+        conv_info->client = drda_new_flow(wmem_file_scope(), pinfo);
+        conv_info->server = drda_new_flow(wmem_file_scope(), pinfo);
+
+        conversation_add_proto_data(conv, proto_drda, conv_info);
+    }
+    return conv_info;
+}
+
+static drda_pdu_info_t*
+drda_get_pdu_info(packet_info *pinfo, guint32 correl, gboolean is_server)
+{
+    drda_pdu_info_t *pdu_info;
+
+    /* "When the TYPDEFNAM object is specified as a command/reply data object,
+     * the value specified applies to the following command data objects and
+     * reply data objects for that command, respectively. When TYPDEFNAM is
+     * repeatable, the value of one TYPDEFNAM object is applicable only to
+     * those objects (command data or reply data) that are sent before another
+     * TYPDEFNAM object is sent. The value of TYPDEFNAM that a command
+     * specifies is in effect only for that command. This rule applies to all
+     * commands, unless specified otherwise." Similar for TYPDEFOVR.
+     *
+     * This means that encoding values are initialized to those set for the
+     * given direction for entire conversation by ACCRDB[RM] for each
+     * frame, or for each time the correlation ID changes (representing
+     * a different command; shared correlation IDs in a frame (after
+     * desegmentation, if needed) are data objects for the same command.)
+     */
+    pdu_info = p_get_proto_data(pinfo->pool, pinfo, proto_drda, correl);
+
+    if (!pdu_info) {
+        pdu_info = wmem_new(pinfo->pool, drda_pdu_info_t);
+        drda_conv_info_t *conv_info = drda_get_conv_info(pinfo);
+        drda_flow_t *flow = is_server ? conv_info->server : conv_info->client;
+        pdu_info->sqlam = GPOINTER_TO_UINT(wmem_tree_lookup32_le(flow->sqlam_tree, pinfo->num));
+        drda_encoding_t *encoding = wmem_tree_lookup32_le(flow->encoding_tree, pinfo->num);
+        if (encoding) {
+            pdu_info->typdefnam = encoding->typdefnam;
+            pdu_info->sbc = encoding->sbc;
+            pdu_info->mbc = encoding->mbc;
+        } else {
+            pdu_info->typdefnam = drda_default_typdefnam;
+            pdu_info->sbc = mibenum_charset_to_encoding((guint)drda_default_ccsidsbc);
+            pdu_info->mbc = mibenum_charset_to_encoding((guint)drda_default_ccsidmbc);
+        }
+
+        p_set_proto_data(pinfo->pool, pinfo, proto_drda, correl, pdu_info);
+    }
+
+
+    return pdu_info;
+}
+
+void
+drda_set_server(drda_conv_info_t *conv_info, address *addr, port_type ptype, guint32 port)
+{
+    copy_address_wmem(wmem_file_scope(), &conv_info->srv_addr, addr);
+    conv_info->srv_ptype = ptype;
+    conv_info->srv_port = port;
+}
+
+gboolean
+drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
+{
+    drda_conv_info_t *conv_info = drda_get_conv_info(pinfo);
+    if (conv_info->srv_addr.type != AT_NONE) {
+        return (conv_info->srv_ptype == pinfo->ptype) &&
+               (conv_info->srv_port == pinfo->srcport) &&
+               addresses_equal(&conv_info->srv_addr, &pinfo->src);
+    }
+    switch (command) {
+    case DRDA_CP_EXCSAT:
+    case DRDA_CP_ACCRDB:
+        /* Client */
+        drda_set_server(conv_info, &pinfo->dst, pinfo->ptype, pinfo->destport);
+        return FALSE;
+
+    case DRDA_CP_EXCSATRD:
+    case DRDA_CP_ACCRDBRM:
+        /* Server (EXCSATRD is OBJDSS, which itself is inconclusive.) */
+        drda_set_server(conv_info, &pinfo->src, pinfo->ptype, pinfo->srcport);
+        return TRUE;
+
+    }
+    /* The above commands are the ones that matter the most for determining
+     * direction.
+     */
+    switch (dsstyp) {
+    case DRDA_DSSFMT_RQSDSS:
+    case DRDA_DSSFMT_NORPYDSS:
+        drda_set_server(conv_info, &pinfo->dst, pinfo->ptype, pinfo->destport);
+        return FALSE;
+
+    case DRDA_DSSFMT_RPYDSS:
+        drda_set_server(conv_info, &pinfo->src, pinfo->ptype, pinfo->srcport);
+        return TRUE;
+
+    default:
+        /* We will be using the default values from the prefs anyway, since
+         * this means we won't have received ACCRDB[RM] yet.
+         */
+        break;
+    }
+
+    return FALSE;
+}
+
+static proto_item*
+dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info)
+{
+    guint endian;
+    switch (pdu_info->typdefnam) {
+    case TYPDEFNAM_370:
+    case TYPDEFNAM_400:
+    case TYPDEFNAM_ASC:
+        endian = ENC_BIG_ENDIAN;
+        break;
+    case TYPDEFNAM_X86:
+    case TYPDEFNAM_VAX:
+    default:
+        endian = ENC_LITTLE_ENDIAN;
+        break;
+    }
+    return proto_tree_add_item(tree, hf_index, tvb, offset, length, endian);
+}
+
+static int
+dissect_fdoca_fcs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, int length, const drda_pdu_info_t *pdu_info)
+{
+    proto_tree_add_item(tree, hf_index, tvb, offset, length, pdu_info->sbc);
+    return offset + length;
+}
+
+static int
+dissect_fdoca_vcs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
+{
+    guint32 item_len;
+    proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &item_len);
+    offset += 2;
+    proto_tree_add_item(tree, hf_index, tvb, offset, item_len, pdu_info->sbc);
+    return offset + (int)item_len;
+}
+
+static int
+dissect_fdoca_vcm(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
+{
+    guint32 item_len;
+    proto_tree_add_item_ret_uint(tree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &item_len);
+    offset += 2;
+    proto_tree_add_item(tree, hf_index, tvb, offset, item_len, pdu_info->mbc);
+    return offset + (int)item_len;
+}
+
+static int
+dissect_fdoca_nocs(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
+{
+    guint32 null_ind, item_length;
+    proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        proto_tree_add_item_ret_uint(tree, hf_drda_clob_length, tvb, offset, 4, ENC_BIG_ENDIAN, &item_length);
+        offset += 4;
+        proto_tree_add_item(tree, hf_index, tvb, offset, item_length, pdu_info->sbc);
+        offset += item_length;
+    }
+    return offset;
+}
+
+static int
+dissect_fdoca_nocm(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset, const drda_pdu_info_t *pdu_info)
+{
+    guint32 null_ind, item_length;
+    proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        proto_tree_add_item_ret_uint(tree, hf_drda_clob_length, tvb, offset, 4, ENC_BIG_ENDIAN, &item_length);
+        offset += 4;
+        proto_tree_add_item(tree, hf_index, tvb, offset, item_length, pdu_info->mbc);
+        offset += item_length;
+    }
+    return offset;
+}
+
+static int
+dissect_drda_typdefnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+    const guint8 *typdefnam;
+
+    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8, pinfo->pool, &typdefnam);
+    for (int i = 0; typdefnam_vals[i].name != NULL; i++) {
+        if (strcmp(typdefnam_vals[i].name, typdefnam) == 0) {
+            pdu_info->typdefnam = typdefnam_vals[i].value;
+            break;
+        }
+    }
+    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_EBCDIC, pinfo->pool, &typdefnam);
+    for (int i = 0; typdefnam_vals[i].name != NULL; i++) {
+        if (strcmp(typdefnam_vals[i].name, typdefnam) == 0) {
+            pdu_info->typdefnam = typdefnam_vals[i].value;
+            break;
+        }
+    }
+    return tvb_reported_length(tvb);
+}
+
 static int
 dissect_drda_sqlstt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
     int offset = 0;
 
-    guint32 null_ind, sqlstt_length;
+    guint32 sqlstt_length;
 
     /* If SECMGR is Level 6 and higher, it's possible to select a SECMEC
      * that means that the security-sensitive DDM/FD:OCA objects are encrypted.
@@ -837,69 +1158,178 @@ dissect_drda_sqlstt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
      * to a pair of nullable CLOBs, meaning that each string gained a
      * null indicator byte and the length field grew from 2 to 4 bytes.
      *
-     * This requires SQLAM Level 7 on both client server, as sent in the
-     * MGRLVLLS in the EXCSAT and EXCSATRD (really, we only need look at
-     * the value in the EXCSATRD, as this must be supported on both sides,
-     * unlike the CCSID values, which can be different.)
+     * This requires SQLAM Level 7 on both client & server, as sent in the
+     * MGRLVLLS in the EXCSATRD.
+     *
+     * We can cheat a bit because we can tell which one it is by
+     * inspection (assuming valid data), so we don't have to check
+     * pdu_info->sqlam
      */
 
-    /* If we don't store the handshake values, we can heuristically
-     * determine which format we have. In the old format, there's
-     * two 2-byte length fields, one of which is zero, and the other
-     * of which has value the reported tvb length minus 4.
-     * Either the nonzero length comes first or second:
-     */
     sqlstt_length = tvb_get_ntohs(tvb, offset);
     if (sqlstt_length == 0) {
         sqlstt_length = tvb_get_ntohs(tvb, offset + 2);
     }
     if (sqlstt_length + 4 == tvb_reported_length(tvb)) {
-        proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 2, ENC_BIG_ENDIAN, &sqlstt_length);
-        offset += 2;
-        if (sqlstt_length) {
-            /* This should be in the CCSID given by the CCSIDMBC contained
-             * in the TYPDEFOVR in either the ACCRDB or ACCRDBRM, depending
-             * on direction. */
-            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
-            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
-            offset += sqlstt_length;
-        }
-        proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 2, ENC_BIG_ENDIAN, &sqlstt_length);
-        offset += 2;
-        if (sqlstt_length) {
-            /* This should be in the CCSID given by the CCSIDSBC */
-            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
-            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
-            offset += sqlstt_length;
-        }
+        /* pdu_info->sqlam < 7 */
+        offset = dissect_fdoca_vcm(tree, hf_drda_sqlstatement, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(tree, hf_drda_sqlstatement, tvb, offset, pdu_info);
     } else {
-        proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
-        offset++;
-        if ((gint8)null_ind >= 0) {
-            /* At least the length is always Big Endian, even if other integers
-             * aren't.
-             */
-            proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 4, ENC_BIG_ENDIAN, &sqlstt_length);
-            offset += 4;
-            /* This should be in the CCSID given by the CCSIDMBC contained
-             * in the TYPDEFOVR in either the ACCRDB or ACCRDBRM, depending
-             * on direction. */
-            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
-            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
-            offset += sqlstt_length;
-        }
-        proto_tree_add_item_ret_uint(tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
-        offset++;
-        if ((gint8)null_ind >= 0) {
-            proto_tree_add_item_ret_uint(tree, hf_drda_sqlstatement_length, tvb, offset, 4, ENC_BIG_ENDIAN, &sqlstt_length);
-            offset += 4;
-            /* This should be in the CCSID given by CCSIDSBC */
-            proto_tree_add_item(tree, hf_drda_sqlstatement, tvb, offset, sqlstt_length, ENC_UTF_8);
-            proto_tree_add_item(tree, hf_drda_sqlstatement_ebcdic, tvb, offset, sqlstt_length, ENC_EBCDIC);
-            offset += sqlstt_length;
-        }
+        offset = dissect_fdoca_nocm(tree, hf_drda_sqlstatement, tvb, offset, pdu_info);
+        offset = dissect_fdoca_nocs(tree, hf_drda_sqlstatement, tvb, offset, pdu_info);
     }
     return offset;
+}
+
+static int
+dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    /* For a description of these fields (at least on DB2), see:
+     *  https://www.ibm.com/docs/en/db2-for-zos/12?topic=sqlca-description-fields
+     */
+
+    proto_item *ti, *sqlcard_ti;
+    proto_tree *subtree, *sqlcard_tree;
+    int offset = 0, len = 4;
+
+    guint32 null_ind, length;
+
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
+    sqlcard_ti = proto_tree_add_item(tree, hf_drda_sqlcagrp, tvb, offset, 1, ENC_NA);
+    sqlcard_tree = proto_item_add_subtree(sqlcard_ti, ett_drda_sqlcagrp);
+    proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        len = 4;
+        dissect_fdoca_integer(sqlcard_tree, hf_drda_sqlcode, tvb, offset, len, pdu_info);
+        offset += len;
+        len = 5;
+        dissect_fdoca_fcs(sqlcard_tree, hf_drda_sqlstate, tvb, offset, len, pdu_info);
+        offset += len;
+        len = 8;
+        dissect_fdoca_fcs(sqlcard_tree, hf_drda_sqlerrproc, tvb, offset, len, pdu_info);
+        offset += len;
+
+        /* SQLCAXGRP (nullable) */
+        proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+        offset++;
+        if ((gint8)null_ind >= 0) {
+            ti = proto_tree_add_item(sqlcard_tree, hf_drda_sqlcaxgrp, tvb, offset, 35, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_drda_sqlcaxgrp);
+            len = 4;
+            /* Earlier than SQLAM Level 7, the RDBName follows here, and is
+             * a fixed string field of length 18. At SQLAM Level 7 and
+             * higher, the SQLRDBNAME is a variable character field and
+             * comes later, after the SQLWARN fields.
+             */
+            if (pdu_info->sqlam < 7) {
+                offset = dissect_fdoca_fcs(subtree, hf_drda_rdbnam, tvb, offset, 18, pdu_info);
+            }
+            dissect_fdoca_integer(subtree, hf_drda_sqlerrd1, tvb, offset, len, pdu_info);
+            offset += len;
+            dissect_fdoca_integer(subtree, hf_drda_sqlerrd2, tvb, offset, len, pdu_info);
+            offset += len;
+            dissect_fdoca_integer(subtree, hf_drda_sqlerrd3, tvb, offset, len, pdu_info);
+            offset += len;
+            dissect_fdoca_integer(subtree, hf_drda_sqlerrd4, tvb, offset, len, pdu_info);
+            offset += len;
+            dissect_fdoca_integer(subtree, hf_drda_sqlerrd5, tvb, offset, len, pdu_info);
+            offset += len;
+            dissect_fdoca_integer(subtree, hf_drda_sqlerrd6, tvb, offset, len, pdu_info);
+            offset += len;
+            len = 1;
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn0, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn1, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn2, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn3, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn4, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn5, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn6, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn7, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn8, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn9, tvb, offset, len, pdu_info);
+            offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarna, tvb, offset, len, pdu_info);
+            if (pdu_info->sqlam >= 7) {
+                offset = dissect_fdoca_vcs(subtree, hf_drda_rdbnam, tvb, offset, pdu_info);
+            }
+            /* SQLERRMSG_m, a variable character string using the mixed
+             * character CCSID. On DB2, contains one or more tokens,
+             * separated by X'FF', that are substituted for variables
+             * in the descriptions of error conditions.
+             */
+            proto_tree_add_item_ret_uint(subtree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+            offset += 2;
+            gint end_offset;
+            while ((end_offset = tvb_find_guint8(tvb, offset, length, 0xFF)) != -1) {
+                proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, end_offset - offset, pdu_info->mbc);
+                length -= (end_offset + 1 - offset);
+                offset = end_offset + 1;
+            }
+            proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, length, pdu_info->mbc);
+            offset += length;
+
+            /* SQLERRMSG_s - same but using the single byte CCSID. Only one
+             * of these should have nonzero length.
+             */
+            proto_tree_add_item_ret_uint(subtree, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+            offset += 2;
+            while ((end_offset = tvb_find_guint8(tvb, offset, length, 0xFF)) != -1) {
+                proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, end_offset - offset, pdu_info->sbc);
+                length -= (end_offset + 1 - offset);
+                offset = end_offset + 1;
+            }
+            proto_tree_add_item(subtree, hf_drda_sqlerrmsg, tvb, offset, length, pdu_info->sbc);
+            offset += length;
+            proto_item_set_end(ti, tvb, offset);
+        }
+
+        if (pdu_info->sqlam >= 7) {
+        /* SQLDIAGGRP (nullable) */
+            proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+            offset++;
+            if ((gint8)null_ind >= 0) {
+                proto_tree_add_expert(sqlcard_tree, pinfo, &ei_drda_undecoded, tvb, offset, -1);
+            }
+        }
+    } else {
+        /* DRDA, Version 4, Volume 1: 5.6.4.6 SQLCAGRP:
+         * "A null SQLCA indicates everything is fine: SQLSTATE='00000'"
+         */
+        ti = proto_tree_add_int(sqlcard_tree, hf_drda_sqlcode, tvb, offset, 0, 0);
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(sqlcard_tree, hf_drda_sqlstate, tvb, offset, 0, "00000");
+        proto_item_set_generated(ti);
+    }
+    proto_item_set_end(sqlcard_ti, tvb, offset);
+
+    return offset;
+}
+
+static int
+dissect_drda_sqldard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    int offset = 0;
+
+    offset = dissect_drda_sqlcard(tvb, pinfo, tree, data);
+
+    proto_tree_add_expert(tree, pinfo, &ei_drda_undecoded, tvb, offset, -1);
+    return offset;
+}
+
+static const value_string drda_rlsconv_vals[] = {
+    { 0xF0, "NO" }, /* EBCDIC '0' */
+    { 0xF1, "TERMINATE" },  /* EBCDIC '1' */
+    { 0xF2, "REUSE" },  /* EBCDIC '2' */
+    { 0xF3, "NO_KDO - Presence of keep dynamic sections" },  /* EBCDIC '3' */
+    { 0, NULL }
+};
+
+static int
+dissect_drda_rlsconv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_drda_rlsconv, tvb, 0, 1, ENC_NA);
+    return 1;
 }
 
 static const value_string drda_secmec_vals[] = {
@@ -998,21 +1428,63 @@ dissect_drda_secchkcd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
  */
 static const value_string drda_ccsid_vals[] = {
     {    0, "Unsupported; use CCSID 500" },
-    {   37, "IBM037" }, /* EBCDIC US */
+    {   37, "IBM037" }, /* EBCDIC US Latin-1 */
     {  367, "US-ASCII" },
-    {  500, "IBM500" }, /* EBCDIC Latin-1 */
+    {  500, "IBM500" }, /* EBCDIC International Latin-1 */
     {  819, "ISO-8859-1" },
     {  850, "IBM850" }, /* DOS Latin-1 */
-    { 1200, "UTF-16" },
+    { 1200, "UTF-16" }, /* UTF-16BE; UTF-16LE is 1202 */
+    { 1202, "UTF-16LE" },
     { 1208, "UTF-8" },
     { 65535, "Requested CCSID unsupported" },
     { 0, NULL }
 };
 
-static int
-dissect_drda_ccsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static guint
+ccsid_to_encoding(guint32 ccsid)
 {
-    proto_tree_add_item(tree, hf_drda_ccsid, tvb, 0, 2, ENC_BIG_ENDIAN);
+    switch (ccsid) {
+
+    case 0:
+    case 500:
+    case 65535:
+        return ENC_EBCDIC; /* XXX: CP 500 not yet supported */
+    case 37:
+        return ENC_EBCDIC_CP037;
+    case 367:
+        return ENC_ASCII;
+    case 819:
+        return ENC_ISO_8859_1;
+    case 850:
+        return ENC_ASCII; /* XXX: CP 850 not yet supported; CP 437 is closer, but ASCII safer */
+    case 1200:
+        return ENC_UTF_16|ENC_BIG_ENDIAN;
+    case 1202:
+        return ENC_UTF_16|ENC_LITTLE_ENDIAN;
+    case 1208:
+        return ENC_UTF_8;
+    default:
+        return ENC_UTF_8;
+    }
+}
+
+static int
+dissect_drda_ccsid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+    guint32 ccsid;
+
+    proto_tree_add_item_ret_uint(tree, hf_drda_ccsid, tvb, 0, 2, ENC_BIG_ENDIAN, &ccsid);
+    switch (pinfo->match_uint) {
+    case DRDA_CP_CCSIDSBC:
+        pdu_info->sbc = ccsid_to_encoding(ccsid);
+        break;
+    case DRDA_CP_CCSIDMBC:
+        pdu_info->mbc = ccsid_to_encoding(ccsid);
+        break;
+    default:
+        break;
+    }
     return 2;
 }
 
@@ -1377,12 +1849,15 @@ dissect_drda_pktobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 }
 
 static int
-dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     proto_tree *drda_tree_sub;
     proto_item *ti;
 
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
     gint offset = 0;
+    guint32 mgrlvln;
     guint16 iParameterCP;
     gint iLengthParam = 4;
 
@@ -1417,15 +1892,13 @@ dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
              * (IBM PC-DOS ASCII Latin-1), and can support others.
              * If the server replies with a 0 to UNICODEMGR, the client can
              * try again with a CCSIDMGR.
-             *
-             * We could perhaps eventually use this in conversation data to
-             * determine which encoding to use for character data (now we
-             * show both UTF-8 and our implentation of the invariant subset
-             * of EBCDIC, as we don't have CCSID 500 support, but it's not
-             * that different from 037), and also separately use TYPDEFNAM
-             * and TYPDEFOVR for FD:OCA.
              */
             proto_tree_add_item(drda_tree_sub, hf_drda_ccsid, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            break;
+
+        case DRDA_CP_SQLAM:
+            proto_tree_add_item_ret_uint(drda_tree_sub, hf_drda_mgrlvln, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &mgrlvln);
+            pdu_info->sqlam = mgrlvln;
             break;
 
         default:
@@ -1438,7 +1911,7 @@ dissect_drda_mgrlvlls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 }
 
 static int
-dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     proto_tree *drda_tree_sub;
     proto_item *ti;
@@ -1464,7 +1937,7 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
             proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, NULL)) {
+            if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, data)) {
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
             }
@@ -1495,9 +1968,15 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item  *ti, *ddm_ti, *ti_length;
     gint offset = 0;
 
-    guint32 iLength, iCommand;
+    drda_conv_info_t *conv_info;
+    drda_flow_t      *flow;
+    drda_pdu_info_t  *pdu_info;
+    guint64 flags;
+    guint32 iLength, iCommand, correl;
 
     guint16 iParameterCP;
+    guint8 dsstyp;
+    gboolean is_server = FALSE;
     gint iLengthParam;
 
     static int * const format_flags[] = {
@@ -1522,18 +2001,23 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_bitmask(drda_tree, tvb, 3, hf_drda_ddm_format, ett_drda_ddm_format, format_flags, ENC_BIG_ENDIAN);
-    proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(drda_tree, tvb, 3, hf_drda_ddm_format, ett_drda_ddm_format, format_flags, ENC_BIG_ENDIAN, &flags);
+    dsstyp = flags & 0xF;
+
+    proto_tree_add_item_ret_uint(drda_tree, hf_drda_ddm_rc, tvb, 4, 2, ENC_BIG_ENDIAN, &correl);
     proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, 6, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item_ret_uint(drda_tree, hf_drda_ddm_codepoint, tvb, 8, 2, ENC_BIG_ENDIAN, &iCommand);
+    is_server = drda_packet_from_server(pinfo, iCommand, dsstyp);
     proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
     proto_item_append_text(ddm_ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
     col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
     col_set_fence(pinfo->cinfo, COL_INFO);
 
+    pdu_info = drda_get_pdu_info(pinfo, correl, is_server);
+
     /* There are a few command objects treated differently, like SNDPKT */
-    if (!dissector_try_uint_new(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree, FALSE, NULL)) {
+    if (!dissector_try_uint_new(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree, FALSE, pdu_info)) {
         /* The number of attributes is variable */
         offset = 10;
         while (tvb_reported_length_remaining(tvb, offset) >= 2)
@@ -1549,13 +2033,31 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, NULL)) {
+                if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, FALSE, pdu_info)) {
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC);
                 }
             }
             offset += iLengthParam;
         }
+    }
+    conv_info = drda_get_conv_info(pinfo);
+    if (iCommand == DRDA_CP_EXCSATRD) {
+        /* EXCSATRD should be from the server, it confirms the negotiated
+         * values for the MGRLVLLS that both directions will use. */
+        flow = conv_info->server;
+        if (GPOINTER_TO_UINT(wmem_tree_lookup32_le(flow->sqlam_tree, pinfo->num)) != pdu_info->sqlam) {
+            wmem_tree_insert32(flow->sqlam_tree, pinfo->num, GUINT_TO_POINTER(pdu_info->sqlam));
+        }
+        flow = conv_info->client;
+        if (GPOINTER_TO_UINT(wmem_tree_lookup32_le(flow->sqlam_tree, pinfo->num)) != pdu_info->sqlam) {
+            wmem_tree_insert32(flow->sqlam_tree, pinfo->num, GUINT_TO_POINTER(pdu_info->sqlam));
+        }
+    } else if (iCommand == DRDA_CP_ACCRDB || iCommand == DRDA_CP_ACCRDBRM) {
+        /* The parameters configured by ACCRDB and ACCRDBRM, OTOH, are
+          * separate per-direction. */
+        flow = (iCommand == DRDA_CP_ACCRDB) ? conv_info->client : conv_info->server;
+        drda_update_flow_encoding(pinfo, flow, pdu_info);
     }
 
     return tvb_captured_length(tvb);
@@ -1690,20 +2192,140 @@ proto_register_drda(void)
             FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(drda_null_ind_rvals),
             0x0, NULL, HFILL }},
 
-        { &hf_drda_sqlstatement_length,
-          { "SQL statement Length", "drda.sqlstatement.length",
+        { &hf_drda_typdefnam,
+          { "Data Type Definition Name", "drda.typdefnam",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_clob_length,
+          { "CLOB Length", "drda.clob.length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_drda_sqlstatement,
-          { "SQL statement (ASCII)", "drda.sqlstatement",
+          { "SQL statement", "drda.sqlstatement",
             FT_STRING, BASE_NONE, NULL, 0x0,
-            "SQL statement left as ASCII for display", HFILL }},
+            NULL, HFILL }},
 
-        { &hf_drda_sqlstatement_ebcdic,
-          { "SQL statement (EBCDIC)", "drda.sqlstatement.ebcdic",
+        { &hf_drda_sqlcagrp,
+          { "SQL Communications Area Group Description", "drda.sqlcagrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlcode,
+          { "SQL code", "drda.sqlcode",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlstate,
+          { "SQL state", "drda.sqlstate",
             FT_STRING, BASE_NONE, NULL, 0x0,
-            "SQL statement converted from EBCDIC to ASCII for display", HFILL }},
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrproc,
+          { "SQLERRPROC", "drda.sqlerrproc",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlcaxgrp,
+          { "SQL Communications Area Exceptions Group", "drda.sqlcaxgrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrd1,
+          { "SQLERRD1", "drda.sqlerrd1",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrd2,
+          { "SQLERRD2", "drda.sqlerrd2",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrd3,
+          { "SQLERRD3", "drda.sqlerrd3",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrd4,
+          { "SQLERRD4", "drda.sqlerrd4",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrd5,
+          { "SQLERRD5", "drda.sqlerrd5",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrd6,
+          { "SQLERRD6", "drda.sqlerrd6",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn0,
+          { "SQLWARN0", "drda.sqlwarn0",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn1,
+          { "SQLWARN1", "drda.sqlwarn1",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn2,
+          { "SQLWARN2", "drda.sqlwarn2",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn3,
+          { "SQLWARN3", "drda.sqlwarn3",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn4,
+          { "SQLWARN4", "drda.sqlwarn4",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn5,
+          { "SQLWARN5", "drda.sqlwarn5",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn6,
+          { "SQLWARN6", "drda.sqlwarn6",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn7,
+          { "SQLWARN7", "drda.sqlwarn7",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn8,
+          { "SQLWARN8", "drda.sqlwarn8",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarn9,
+          { "SQLWARN9", "drda.sqlwarn9",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlwarna,
+          { "SQLWARNA", "drda.sqlwarna",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlerrmsg,
+          { "SQL Error Message Token", "drda.sqlerrmsg",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_rlsconv,
+          { "Release Conversation", "drda.rlsconv", FT_UINT8, BASE_NONE,
+            VALS(drda_rlsconv_vals), 0x0,
+            NULL, HFILL }},
 
         { &hf_drda_secmec,
           { "Security Mechanism", "drda.secmec", FT_UINT16, BASE_DEC,
@@ -1955,10 +2577,13 @@ proto_register_drda(void)
         &ett_drda_param,
         &ett_drda_monitor,
         &ett_drda_rslsetflg,
+        &ett_drda_sqlcagrp,
+        &ett_drda_sqlcaxgrp,
     };
 
     static ei_register_info ei[] = {
         { &ei_drda_opcode_invalid_length, { "drda.opcode.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length detected", EXPFILL }},
+        { &ei_drda_undecoded, { "drda.undecoded", PI_UNDECODED, PI_NOTE, "[Not decoded yet]", EXPFILL }},
     };
 
     module_t *drda_module;
@@ -1982,6 +2607,36 @@ proto_register_drda(void)
                        " \"Allow subdissectors to reassemble TCP streams\""
                        " in the TCP protocol settings.",
                        &drda_desegment);
+
+    prefs_register_uint_preference(drda_module, "sqlam",
+                        "Default SQLAM Level",
+                        "Default SQL Application Manager Level in the absence"
+                        " of EXSATRD command. (Currently the only difference"
+                        " in handling is between values < 7 and >= 7.)",
+                        10, &drda_default_sqlam);
+
+    prefs_register_enum_preference(drda_module, "typdefnam",
+                        "Default TYPDEFNAM",
+                        "Data Type Definition to use in the absence of"
+                        " ACCRDB and ACCRDBRM commands.",
+                        &drda_default_typdefnam,
+                        typdefnam_vals, FALSE);
+
+    prefs_register_enum_preference(drda_module, "ccsidsbc",
+                        "Default Single-byte encoding for FD:OCA data",
+                        "Single-byte encoding to use for FD:OCA character data"
+                        " in the absence of CCSIDSBC TYPDEFOVR parameter.",
+                        &drda_default_ccsidsbc,
+                        ws_supported_mibenum_vals_character_sets_ev_array,
+                        FALSE);
+
+    prefs_register_enum_preference(drda_module, "ccsidmbc",
+                        "Default Mixed-byte encoding for FD:OCA data",
+                        "Mixed-byte encoding to use for FD:OCA character data"
+                        " in the absence of CCSIDMBC TYPDEFOVR parameter.",
+                        &drda_default_ccsidmbc,
+                        ws_supported_mibenum_vals_character_sets_ev_array,
+                        FALSE);
 }
 
 void
@@ -2000,9 +2655,11 @@ proto_reg_handoff_drda(void)
     collection_handle = create_dissector_handle(dissect_drda_collection, proto_drda);
     sqlstt_handle = create_dissector_handle(dissect_drda_sqlstt, proto_drda);
 
+    dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFNAM, create_dissector_handle(dissect_drda_typdefnam, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_MGRLVLLS, create_dissector_handle(dissect_drda_mgrlvlls, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFOVR, collection_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_PKGSNLST, collection_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_RLSCONV, create_dissector_handle(dissect_drda_rlsconv, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SECMEC, create_dissector_handle(dissect_drda_secmec, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SECTKN, create_dissector_handle(dissect_drda_sectkn, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SVRCOD, create_dissector_handle(dissect_drda_svrcod, proto_drda));
@@ -2051,6 +2708,8 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_PKTOBJ, create_dissector_handle(dissect_drda_pktobj, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SQLSTT, sqlstt_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_SQLATTR, sqlstt_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_SQLCARD, create_dissector_handle(dissect_drda_sqlcard, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_SQLDARD, create_dissector_handle(dissect_drda_sqldard, proto_drda));
 }
 
 /*
