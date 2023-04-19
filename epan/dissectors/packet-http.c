@@ -2239,7 +2239,7 @@ dissecting_body:
 			 * dissect the payload - try the heuristic subdissectors.
 			 */
 			dissected = dissector_try_heuristic(heur_subdissector_list,
-							    next_tvb, pinfo, tree, &hdtbl_entry, NULL);
+							    next_tvb, pinfo, tree, &hdtbl_entry, content_info);
 		}
 
 		if (dissected) {
