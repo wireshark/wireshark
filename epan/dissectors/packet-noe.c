@@ -14,6 +14,8 @@
 #include <stdlib.h>
 
 #include "epan/packet.h"
+#include <wsutil/str_util.h>
+
 void proto_register_noe(void);
 void proto_reg_handoff_noe(void);
 
@@ -979,11 +981,9 @@ static guint64 decode_utf8(guint64 utf8)
     This function translates an UNICODE to the name associated.
     Need to have at least 48 bits value.
     ---------------------------------------------------------------------------*/
-static char *decode_key_name(int unicode)
+static const char *decode_key_name(int unicode)
 {
-    char *key_name;
-
-    key_name = (char *)wmem_alloc(wmem_packet_scope(), 24);
+    const char *key_name;
 
     if ((unicode <= 0x20)
         || (unicode == 0x7F)
@@ -993,16 +993,17 @@ static char *decode_key_name(int unicode)
         || (unicode == 0xE9)
         || (unicode == 0xF9))
     {
-        snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
+        key_name = val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown");
     }
     else if (unicode <= 0xFF)
     {
-        snprintf(key_name, 24, "%c", unicode);
+        key_name = format_char(wmem_packet_scope(), unicode);
     }
     else
     {
-        snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
+        key_name = val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown");
     }
+
     return key_name;
 }
 
@@ -1240,7 +1241,7 @@ static void decode_evt(proto_tree  *tree,
             /* utf8_value is the utf8 value to translate into Unicode with the decode_uft8 function */
             guint64  utf8_value = 0;
             guint64  unicode_value;
-            char    *key_name;
+            const char *key_name;
             int      pt_length  = length;
             int      pt_offset  = offset;
 
@@ -1251,20 +1252,18 @@ static void decode_evt(proto_tree  *tree,
                 pt_length  -= 1;
             }
             unicode_value = decode_utf8(utf8_value);
-            key_name      = (char *)wmem_alloc(wmem_packet_scope(), 30);
-            snprintf(key_name, 30, "\"%s\"", decode_key_name((int)unicode_value));
+            key_name  = decode_key_name((int)unicode_value);
 
             /* add text to the frame "INFO" column */
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", key_name);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", key_name);
             /* update text of the main proto item */
-            proto_item_append_text(tree, ", %s",
-                key_name);
+            proto_item_append_text(tree, ", \"%s\"", key_name);
 
             proto_tree_add_string_format_value(tree, hf_noe_key_name,
                 tvb,
                 offset,
                 length, key_name,
-                "%s (UTF-8 Value: %s, Unicode Value: 0x%" PRIx64 ")",
+                "%s (UTF-8 Value: \"%s\", Unicode Value: 0x%" PRIx64 ")",
                 key_name,
                 tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length),
                 unicode_value);
