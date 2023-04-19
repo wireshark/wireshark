@@ -41,7 +41,7 @@ void proto_register_ilp(void);
 
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t lpp_handle;
-static dissector_handle_t ilp_handle;
+static dissector_handle_t ilp_tcp_handle;
 
 
 /* IANA Registered Ports
@@ -6672,7 +6672,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  ilp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  ilp_tcp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));
@@ -6692,9 +6692,12 @@ void proto_register_ilp(void) {
 void
 proto_reg_handoff_ilp(void)
 {
-  dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
+  dissector_handle_t ilp_pdu_handle;
+
+  ilp_pdu_handle = create_dissector_handle(dissect_ILP_PDU_PDU, proto_ilp);
   rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
   lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);
 
-  dissector_add_uint_with_preference("tcp.port", ILP_TCP_PORT, ilp_handle);
+  dissector_add_string("media_type","application/oma-supl-ilp", ilp_pdu_handle);
+  dissector_add_uint_with_preference("tcp.port", ILP_TCP_PORT, ilp_tcp_handle);
 }

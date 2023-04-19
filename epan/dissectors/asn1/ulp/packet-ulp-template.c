@@ -422,15 +422,15 @@ void proto_register_ulp(void) {
 void
 proto_reg_handoff_ulp(void)
 {
-  dissector_handle_t ulp_udp_handle;
+    dissector_handle_t ulp_pdu_handle;
 
-    dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
-    dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_tcp_handle);
-    ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
+    ulp_pdu_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_ulp);
     lpp_handle = find_dissector_add_dependency("lpp", proto_ulp);
 
+    dissector_add_string("media_type","application/oma-supl-ulp", ulp_pdu_handle);
+    dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_pdu_handle);
     dissector_add_uint_with_preference("tcp.port", ULP_PORT, ulp_tcp_handle);
-    dissector_add_uint_with_preference("udp.port", ULP_PORT, ulp_udp_handle);
+    dissector_add_uint_with_preference("udp.port", ULP_PORT, ulp_pdu_handle);
 }
 
