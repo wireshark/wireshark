@@ -364,6 +364,9 @@ static int hf_h265_slice_type = -1;
 static int hf_h265_payloadsize = -1;
 static int hf_h265_payloadtype = -1;
 
+/* access unit delimiter */
+static int hf_h265_pic_type = -1;
+
 /* Initialize the subtree pointers */
 static int ett_h265 = -1;
 static int ett_h265_profile = -1;
@@ -675,6 +678,14 @@ static const value_string h265_sei_payload_vals[] = {
 	{ 179,   "multiview_acquisition_info" }, /* specified in Annex G */
 	{ 180,   "multiview_view_position" }, /* specified in Annex G */
 	{ 181,   "alternative_depth_info" }, /* specified in Annex I */
+	{ 0, NULL }
+};
+
+/* Table 7-2 - Interpretation of pic_type */
+static const value_string h265_pic_type_vals[] = {
+	{ 0,    "I" },
+	{ 1,    "P, I" },
+	{ 2,    "B, P, I" },
 	{ 0, NULL }
 };
 
@@ -1658,9 +1669,17 @@ dissect_h265_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 static void
 dissect_h265_access_unit_delimiter_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
+	gint bit_offset = offset << 3;
+
 	proto_tree *access_unit_delimiter_rbsp_tree;
 	access_unit_delimiter_rbsp_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_h265_access_unit_delimiter_rbsp, NULL, "Access unit delimiter RBSP");
-	proto_tree_add_expert(access_unit_delimiter_rbsp_tree, pinfo, &ei_h265_undecoded, tvb, offset, -1);
+
+	/* pic_type u(3) */
+	proto_tree_add_bits_item(access_unit_delimiter_rbsp_tree, hf_h265_pic_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+	bit_offset += 3;
+
+	/* rbsp_trailing_bits */
+	dissect_h265_rbsp_trailing_bits(access_unit_delimiter_rbsp_tree, tvb, pinfo, bit_offset);
 }
 
 /* Ref 7.3.2.6 End of sequence RBSP syntax*/
@@ -4607,6 +4626,11 @@ proto_register_h265(void)
 		{ "payloadType", "h265.payloadtype",
 			FT_UINT32, BASE_DEC, VALS(h265_sei_payload_vals), 0x0,
 			NULL, HFILL }
+		},
+		{ &hf_h265_pic_type,
+		{ "pic_type", "h265.pic_type",
+			FT_UINT8, BASE_DEC, VALS(h265_pic_type_vals), 0x0,
+			"slice_type values that may be present in the coded picture", HFILL }
 		},
 			/* SDP parameters*/
 		{ &hf_h265_sdp_parameter_sprop_vps,
