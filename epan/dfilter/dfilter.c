@@ -201,9 +201,10 @@ static void free_refs_array(gpointer data)
 
 
 static dfwork_t*
-dfwork_new(void)
+dfwork_new(unsigned flags)
 {
 	dfwork_t *dfw = g_new0(dfwork_t, 1);
+	dfw->flags = flags;
 
 	dfw->references =
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
@@ -349,7 +350,7 @@ dfilter_expand(const char *expr, df_error_t **err_ret)
 }
 
 static gboolean
-dfwork_parse(dfwork_t *dfw, unsigned flags)
+dfwork_parse(dfwork_t *dfw)
 {
 	df_scanner_state_t state;
 	yyscan_t	scanner;
@@ -370,15 +371,15 @@ dfwork_parse(dfwork_t *dfw, unsigned flags)
 	df_yyset_extra(&state, scanner);
 
 #ifdef NDEBUG
-	if (flags & DF_DEBUG_FLEX || flags & DF_DEBUG_LEMON) {
+	if (dfw->flags & DF_DEBUG_FLEX || dfw->flags & DF_DEBUG_LEMON) {
 		ws_message("Compile Wireshark without NDEBUG to enable Flex and/or Lemon debug traces");
 	}
 #else
 	/* Enable/disable debugging for Flex. */
-	df_yyset_debug(flags & DF_DEBUG_FLEX, scanner);
+	df_yyset_debug(dfw->flags & DF_DEBUG_FLEX, scanner);
 
 	/* Enable/disable debugging for Lemon. */
-	DfilterTrace(flags & DF_DEBUG_LEMON ? stderr : NULL, "lemon> ");
+	DfilterTrace(dfw->flags & DF_DEBUG_LEMON ? stderr : NULL, "lemon> ");
 #endif
 
 	while (1) {
@@ -466,8 +467,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 			__func__, caller, text);
 	}
 
-	dfw = dfwork_new();
-	dfw->apply_optimization = flags & DF_OPTIMIZE;
+	dfw = dfwork_new(flags);
 
 	if (flags & DF_EXPAND_MACROS) {
 		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error);
@@ -481,7 +481,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		ws_noisy("Verbatim text: %s", dfw->expanded_text);
 	}
 
-	if (!dfwork_parse(dfw, flags)) {
+	if (!dfwork_parse(dfw)) {
 		goto FAILURE;
 	}
 

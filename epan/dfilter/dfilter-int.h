@@ -43,6 +43,7 @@ struct epan_dfilter {
 
 typedef struct {
 	/* Syntax Tree stuff */
+	unsigned	flags;
 	stnode_t	*st_root;
 	unsigned	field_count;
 	df_error_t	*error;
@@ -56,7 +57,6 @@ typedef struct {
 	GHashTable	*references; /* hfinfo -> pointer to array of references */
 	GHashTable	*raw_references; /* hfinfo -> pointer to array of references */
 	char		*expanded_text;
-	gboolean	apply_optimization;
 	wmem_allocator_t *dfw_scope; /* Because we use exceptions for error handling sometimes
 	                                cleaning up memory allocations is inconvenient. Memory
 					allocated from this pool will be freed when the dfwork_t
