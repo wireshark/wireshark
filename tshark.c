@@ -651,7 +651,7 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
         return FALSE;
     }
 
-    ok = dfilter_compile_real(expanded, dfp, &df_err, DF_OPTIMIZE, caller);
+    ok = dfilter_compile_full(expanded, dfp, &df_err, DF_OPTIMIZE, caller);
     if (!ok ) {
         cmdarg_err("%s", df_err->msg);
 

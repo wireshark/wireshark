@@ -530,7 +530,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
         df_error_t *df_err = NULL;
         dfilter_t *test_df = NULL;
         if (preamble.size() > 0) {
-            dfilter_compile_real(qUtf8Printable(preamble), &test_df, &df_err,
+            dfilter_compile_full(qUtf8Printable(preamble), &test_df, &df_err,
                                             DF_EXPAND_MACROS, __func__);
         }
         if (test_df == NULL || (df_err != NULL && df_err->code == DF_ERROR_UNEXPECTED_END)) {

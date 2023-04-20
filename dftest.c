@@ -195,7 +195,7 @@ compile_filter(const char *text, dfilter_t **dfp, GTimer *timer)
         df_flags |= DF_DEBUG_LEMON;
 
     g_timer_start(timer);
-    ok = dfilter_compile_real(text, dfp, &df_err, df_flags, "dftest");
+    ok = dfilter_compile_full(text, dfp, &df_err, df_flags, "dftest");
     g_timer_stop(timer);
     elapsed_compile = g_timer_elapsed(timer, NULL);
 

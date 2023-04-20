@@ -438,7 +438,7 @@ dfwork_parse(dfwork_t *dfw)
 }
 
 gboolean
-dfilter_compile_real(const gchar *text, dfilter_t **dfp,
+dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 			df_error_t **err_ptr, unsigned flags,
 			const char *caller)
 {
