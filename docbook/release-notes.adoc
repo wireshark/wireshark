@@ -89,6 +89,9 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
 * The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
   reassemble the streaming data of a high level protocol that is not on top of TCP.
 
+* The display filter drop-down list is now sorted by "most recently used" instead
+  of "most recently created".
+
 // === Removed Features and Support
 
 // === Removed Dissectors
