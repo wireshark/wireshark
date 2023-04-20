@@ -93,9 +93,14 @@ dfvm_value_free(dfvm_value_t *v)
 		case PCRE:
 			ws_regex_free(v->value.pcre);
 			break;
-		default:
-			/* nothing */
-			;
+		case EMPTY:
+		case HFINFO:
+		case RAW_HFINFO:
+		case INSN_NUMBER:
+		case REGISTER:
+		case INTEGER:
+		case FUNCTION_DEF:
+			break;
 	}
 	g_free(v);
 }
