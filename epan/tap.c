@@ -554,7 +554,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tl->needs_redraw=TRUE;
 	tl->failed=FALSE;
 	tl->flags=flags;
-	if(fstring){
+	if(fstring && *fstring){
 		if(!dfilter_compile(fstring, &code, &df_err)){
 			error_string = g_string_new("");
 			g_string_printf(error_string,
@@ -564,9 +564,9 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 			free_tap_listener(tl);
 			return error_string;
 		}
+		tl->fstring=g_strdup(fstring);
+		tl->code=code;
 	}
-	tl->fstring=g_strdup(fstring);
-	tl->code=code;
 
 	tl->tap_id=tap_id;
 	tl->tapdata=tapdata;

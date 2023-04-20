@@ -450,22 +450,19 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 	*dfp = NULL;
 
 	if (text == NULL) {
-		ws_debug("%s() called from %s() with null filter",
-			__func__, caller);
-		/* XXX This BUG happens often. Some callers are ignoring these errors. */
+		ws_warning("Called from %s() with null filter", caller);
 		if (err_ptr)
-			*err_ptr = df_error_new_msg("BUG: NULL text pointer passed to dfilter_compile");
+			*err_ptr = df_error_new_msg("BUG: NULL text pointer");
 		return FALSE;
 	}
-	else if (*text == '\0') {
-		/* An empty filter is considered a valid input. */
-		ws_debug("%s() called from %s() with empty filter",
-			__func__, caller);
+	if (*text == '\0') {
+		ws_warning("Called from %s() with empty filter", caller);
+		if (err_ptr)
+			*err_ptr = df_error_new_msg("Filter expression is empty");
+		return FALSE;
 	}
-	else {
-		ws_debug("%s() called from %s(), compiling filter: %s",
-			__func__, caller, text);
-	}
+
+	ws_debug("Called from %s() with filter: %s", caller, text);
 
 	dfw = dfwork_new(flags);
 
