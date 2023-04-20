@@ -945,19 +945,25 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 		 * PCAP_ERROR_NOT_ACTIVATED. and we should report
 		 * them properly.
 		 */
-		if (nlt == PCAP_ERROR) {
-			*status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		switch (nlt) {
+
+		case PCAP_ERROR:
+			*status = CAP_DEVICE_OPEN_ERROR_OTHER;
 			*status_str = ws_strdup_printf("pcap_list_datalinks() failed: %s",
 			    pcap_geterr(pch));
-		} else {
-			if (nlt == PCAP_ERROR_PERM_DENIED)
-				*status = CAP_DEVICE_OPEN_ERR_PERMISSIONS;
-			else
-				*status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-			*status_str = g_strdup(pcap_statustostr(nlt));
+			break;
+
+		default:
+			/*
+			 * This "shouldn't happen".
+			 */
+			*status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			*status_str = ws_strdup_printf("pcap_list_datalinks() failed: %s - %s",
+			    pcap_statustostr(nlt), pcap_geterr(pch));
+			break;
 		}
 #else /* HAVE_PCAP_CREATE */
-		*status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		*status = CAP_DEVICE_OPEN_ERROR_OTHER;
 		*status_str = ws_strdup_printf("pcap_list_datalinks() failed: %s",
 		    pcap_geterr(pch));
 #endif /* HAVE_PCAP_CREATE */
@@ -1175,7 +1181,7 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 
 	pch = pcap_create(interface_opts->name, errbuf);
 	if (pch == NULL) {
-		*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
 		*open_status_str = g_strdup(errbuf);
 		return NULL;
 	}
@@ -1195,16 +1201,31 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 	}
 	if (status < 0) {
 		/* Error. */
-		if (status == PCAP_ERROR) {
-			*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		switch (status) {
+
+		case PCAP_ERROR_NO_SUCH_DEVICE:
+			*open_status = CAP_DEVICE_OPEN_ERROR_NO_SUCH_DEVICE;
 			*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() failed: %s",
 			    pcap_geterr(pch));
-		} else {
-			if (status == PCAP_ERROR_PERM_DENIED)
-				*open_status = CAP_DEVICE_OPEN_ERR_PERMISSIONS;
-			else
-				*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-			*open_status_str = g_strdup(pcap_statustostr(status));
+			break;
+
+		case PCAP_ERROR_PERM_DENIED:
+			*open_status = CAP_DEVICE_OPEN_ERROR_PERM_DENIED;
+			*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() failed: %s",
+			    pcap_geterr(pch));
+			break;
+
+		case PCAP_ERROR:
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() failed: %s",
+			    pcap_geterr(pch));
+			break;
+
+		default:
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() failed: %s - %s",
+			    pcap_statustostr(status), pcap_geterr(pch));
+			break;
 		}
 		pcap_close(pch);
 		return NULL;
@@ -1217,7 +1238,10 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 		if (interface_opts->monitor_mode)
 			pcap_set_rfmon(pch, 1);
 	} else {
-		*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
+		/*
+		 * This "should not happen".
+		 */
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
 		*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() returned %d",
 		    status);
 		pcap_close(pch);
@@ -1228,16 +1252,37 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 	status = pcap_activate(pch);
 	if (status < 0) {
 		/* Error. */
-		if (status == PCAP_ERROR) {
-			*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		switch (status) {
+
+		case PCAP_ERROR_NO_SUCH_DEVICE:
+			*open_status = CAP_DEVICE_OPEN_ERROR_NO_SUCH_DEVICE;
 			*open_status_str = ws_strdup_printf("pcap_activate() failed: %s",
 			    pcap_geterr(pch));
-		} else {
-			if (status == PCAP_ERROR_PERM_DENIED)
-				*open_status = CAP_DEVICE_OPEN_ERR_PERMISSIONS;
-			else
-				*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-			*open_status_str = g_strdup(pcap_statustostr(status));
+			break;
+
+		case PCAP_ERROR_PERM_DENIED:
+			*open_status = CAP_DEVICE_OPEN_ERROR_PERM_DENIED;
+			*open_status_str = ws_strdup_printf("pcap_activate() failed: %s",
+			    pcap_geterr(pch));
+			break;
+
+		case PCAP_ERROR_IFACE_NOT_UP:
+			*open_status = CAP_DEVICE_OPEN_ERROR_IFACE_NOT_UP;
+			*open_status_str = ws_strdup_printf("pcap_activate() failed: %s",
+			    pcap_geterr(pch));
+			break;
+
+		case PCAP_ERROR:
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			*open_status_str = ws_strdup_printf("pcap_activate() failed: %s",
+			    pcap_geterr(pch));
+			break;
+
+		default:
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			*open_status_str = ws_strdup_printf("pcap_activate() failed: %s - %s",
+			    pcap_statustostr(status), pcap_geterr(pch));
+			break;
 		}
 		pcap_close(pch);
 		g_free(caps);
@@ -1279,7 +1324,7 @@ open_capture_device_pcap_create(
 	pcap_h = pcap_create(interface_opts->name, *open_status_str);
 	ws_debug("pcap_create() returned %p.", (void *)pcap_h);
 	if (pcap_h == NULL) {
-		*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
 		return NULL;
 	}
 	if (interface_opts->has_snaplen) {
@@ -1324,7 +1369,7 @@ open_capture_device_pcap_create(
 		 * isn't supported?
 		 */
 		if (status == PCAP_ERROR) {
-			*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
 			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
 			pcap_close(pcap_h);
@@ -1344,17 +1389,49 @@ open_capture_device_pcap_create(
 	ws_debug("pcap_activate() returned %d.", status);
 	if (status < 0) {
 		/* Failed to activate, set to NULL */
-		if (status == PCAP_ERROR) {
-			*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		switch (status) {
+
+		case PCAP_ERROR_NO_SUCH_DEVICE:
+			*open_status = CAP_DEVICE_OPEN_ERROR_NO_SUCH_DEVICE;
 			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
-		} else {
-			if (status == PCAP_ERROR_PERM_DENIED)
-				*open_status = CAP_DEVICE_OPEN_ERR_PERMISSIONS;
-			else
-				*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-			(void) g_strlcpy(*open_status_str, pcap_statustostr(status),
+			break;
+
+		case PCAP_ERROR_PERM_DENIED:
+			*open_status = CAP_DEVICE_OPEN_ERROR_PERM_DENIED;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
+			break;
+
+		case PCAP_ERROR_PROMISC_PERM_DENIED:
+			*open_status = CAP_DEVICE_OPEN_ERROR_PROMISC_PERM_DENIED;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		case PCAP_ERROR_RFMON_NOTSUP:
+			*open_status = CAP_DEVICE_OPEN_ERROR_RFMON_NOTSUP;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		case PCAP_ERROR_IFACE_NOT_UP:
+			*open_status = CAP_DEVICE_OPEN_ERROR_IFACE_NOT_UP;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		case PCAP_ERROR:
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		default:
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			snprintf(*open_status_str, sizeof *open_status_str,
+			    "%s - %s", pcap_statustostr(status), pcap_geterr(pcap_h));
+			break;
 		}
 		pcap_close(pcap_h);
 		return NULL;
@@ -1364,13 +1441,31 @@ open_capture_device_pcap_create(
 		 * Warning.  The call succeeded, but something happened
 		 * that the user might want to know.
 		 */
-		*open_status = CAP_DEVICE_OPEN_WARNING_GENERIC;
-		if (status == PCAP_WARNING) {
+		switch (status) {
+
+		case PCAP_WARNING_PROMISC_NOTSUP:
+			*open_status = CAP_DEVICE_OPEN_WARNING_PROMISC_NOTSUP;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		case PCAP_WARNING_TSTAMP_TYPE_NOTSUP:
+			*open_status = CAP_DEVICE_OPEN_WARNING_TSTAMP_TYPE_NOTSUP;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		case PCAP_WARNING:
+			*open_status = CAP_DEVICE_OPEN_WARNING_OTHER;
+			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+			    sizeof *open_status_str);
+			break;
+
+		default:
+			*open_status = CAP_DEVICE_OPEN_WARNING_OTHER;
 			snprintf(*open_status_str, sizeof *open_status_str,
-			    "Warning: %s", pcap_geterr(pcap_h));
-		} else {
-			snprintf(*open_status_str, sizeof *open_status_str,
-			    "Warning: %s", pcap_statustostr(status));
+			    "%s - %s", pcap_statustostr(status), pcap_geterr(pcap_h));
+			break;
 		}
 	} else {
 		/*
@@ -1393,7 +1488,7 @@ get_if_capabilities_pcap_open_live(interface_options *interface_opts,
 	pch = pcap_open_live(interface_opts->name, MIN_PACKET_SIZE, 0, 0,
 	    errbuf);
 	if (pch == NULL) {
-		*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
 		*open_status_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
 		return NULL;
 	}
@@ -1451,7 +1546,7 @@ open_capture_device_pcap_open_live(interface_options *interface_opts,
 	    interface_opts->promisc_mode, timeout, *open_status_str);
 	ws_debug("pcap_open_live() returned %p.", (void *)pcap_h);
 	if (pcap_h == NULL) {
-		*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
 		return NULL;
 	}
 	if ((*open_status_str)[0] != '\0') {
@@ -1459,7 +1554,7 @@ open_capture_device_pcap_open_live(interface_options *interface_opts,
 		 * Warning.  The call succeeded, but something happened
 		 * that the user might want to know.
 		 */
-		*open_status = CAP_DEVICE_OPEN_WARNING_GENERIC;
+		*open_status = CAP_DEVICE_OPEN_WARNING_OTHER;
 	} else {
 		/*
 		 * No warning issued.
@@ -1530,7 +1625,7 @@ get_if_capabilities(interface_options *interface_opts,
 		 * permission for their own remote account or will have
 		 * to use an account that *does* have permissions.
 		 */
-		*status = CAP_DEVICE_OPEN_ERR_GENERIC;
+		*status = CAP_DEVICE_OPEN_ERROR_GENERIC;
 		*status_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
 		return NULL;
 	}
@@ -1620,7 +1715,7 @@ open_capture_device(capture_options *capture_opts,
 			 * or maybe we just have to ask politely for
 			 * permission.)
 			 */
-			*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
+			*open_status = CAP_DEVICE_OPEN_ERROR_GENERIC;
 			/* Did pcap actually supply an error message? */
 			if ((*open_status_str)[0] == '\0') {
 				/*
