@@ -73,14 +73,6 @@ any "error" symbols are shifted, if possible. */
     FAIL(dfw, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
 }
 
-/* When a parse fails, mark an error. This occurs after
-the above syntax_error code and after the parser fails to
-use error recovery, shifting an "error" symbol and successfully
-shifting 3 more symbols. */
-%parse_failure {
-    dfw->parse_failure = TRUE;
-}
-
 /* ----------------- The grammar -------------- */
 
 /* Associativity */

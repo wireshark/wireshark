@@ -38,8 +38,6 @@ void
 dfilter_vfail(dfwork_t *dfw, int code, df_loc_t loc,
 				const char *format, va_list args)
 {
-	dfw->parse_failure = TRUE;
-
 	/* If we've already reported one error, don't overwite it */
 	if (dfw->error != NULL)
 		return;
@@ -430,7 +428,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		/* Check for scanner failure */
 		if (token == SCAN_FAILED) {
 			ws_noisy("Scanning failed");
-			dfw->parse_failure = TRUE;
+			ws_assert(dfw->error != NULL);
 			break;
 		}
 
@@ -449,7 +447,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		/* The parser has freed the lval for us. */
 		state.lval = NULL;
 
-		if (dfw->parse_failure) {
+		if (dfw->error) {
 			break;
 		}
 
@@ -476,7 +474,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	df_yy_delete_buffer(in_buffer, scanner);
 	df_yylex_destroy(scanner);
 
-	if (dfw->parse_failure)
+	if (dfw->error)
 		goto FAILURE;
 
 	/* Success, but was it an empty filter? If so, discard
