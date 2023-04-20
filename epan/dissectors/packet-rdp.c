@@ -38,6 +38,8 @@ int proto_rdp = -1;
 
 static dissector_handle_t drdynvc_handle;
 static dissector_handle_t rail_handle;
+static dissector_handle_t cliprdr_handle;
+static dissector_handle_t snd_handle;
 
 static int ett_rdp = -1;
 
@@ -1608,6 +1610,8 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   switch (channelType) {
   case RDP_CHANNEL_DRDYNVC:
   case RDP_CHANNEL_RAIL:
+  case RDP_CHANNEL_CLIPBOARD:
+  case RDP_CHANNEL_SOUND:
 	  channelPDU_fields[1].pfield = NULL;
 	  break;
   default:
@@ -1630,6 +1634,14 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   case RDP_CHANNEL_RAIL:
 	  subtvb = tvb_new_subset_length(tvb, offset, length);
 	  offset += call_dissector(rail_handle, subtvb, pinfo, tree);
+	  break;
+  case RDP_CHANNEL_CLIPBOARD:
+	  subtvb = tvb_new_subset_length(tvb, offset, length);
+	  offset += call_dissector(cliprdr_handle, subtvb, pinfo, tree);
+	  break;
+  case RDP_CHANNEL_SOUND:
+	  subtvb = tvb_new_subset_length(tvb, offset, length);
+	  offset += call_dissector(snd_handle, subtvb, pinfo, tree);
 	  break;
   default:
 	  break;
@@ -2788,8 +2800,10 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           next_tree = proto_item_add_subtree(next_tree->last_child, ett_rdp_channelIdArray);
         for (i = 0; i < channelCount; i++) {
           lcl_offset = dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, channel_fields, 0);
-          if (i < RDP_MAX_CHANNELS)
+          if (i < RDP_MAX_CHANNELS) {
             rdp_info->staticChannels[i].value = channelId;
+            //printf("%d: %s -> %d\n", pinfo->num, rdp_info->staticChannels[i].strptr, channelId);
+          }
 
           /* register SendData on this for now */
           register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
@@ -4777,6 +4791,8 @@ proto_reg_handoff_rdp(void)
 {
   drdynvc_handle = find_dissector("rdp_drdynvc");
   rail_handle = find_dissector("rdp_rail");
+  cliprdr_handle = find_dissector("rdp_cliprdr");
+  snd_handle = find_dissector("rdp_snd");
 
   heur_dissector_add("cotp_cr", dissect_rdp_cr, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
   heur_dissector_add("cotp_cc", dissect_rdp_cc, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
