@@ -665,7 +665,7 @@ static void
 cf_coords_lng_custom(gchar *buffer, guint32 value)
 {
 	gint32 coord_int = (value < 0x00800000) ? ((gint32)value) : ((gint32)value - 0x01000000);
-	gdouble coord_double = coord_int * 90. / 0x00800000;
+	gdouble coord_double = coord_int * 180. / 0x00800000;
 
 	snprintf(buffer, ITEM_LABEL_LENGTH, "%.5f%c", fabs(coord_double), (coord_double >= 0) ? 'E' : 'W');
 }
