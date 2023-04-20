@@ -34,7 +34,7 @@ typedef struct {
 } df_error_t;
 
 df_error_t *
-df_error_new(int code, const char *msg, df_loc_t *loc);
+df_error_new(int code, char *msg, df_loc_t *loc);
 
 df_error_t *
 df_error_new_printf(int code, df_loc_t *loc, const char *fmt, ...)

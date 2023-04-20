@@ -152,7 +152,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 #define SET_ERROR(dfw, str) \
 	do {						\
 		if ((str) != NULL && (dfw)->error == NULL) {	\
-			(dfw)->error = df_error_new_msg(str);	\
+			(dfw)->error = df_error_new(DF_ERROR_GENERIC, str, NULL); \
 		}					\
 		else {					\
 			g_free(str);			\

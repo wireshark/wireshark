@@ -766,11 +766,11 @@ reference_free(df_reference_t *ref)
 }
 
 df_error_t *
-df_error_new(int code,  const char *msg, df_loc_t *loc)
+df_error_new(int code, char *msg, df_loc_t *loc)
 {
 	df_error_t *err = g_new(df_error_t, 1);
 	err->code = code;
-	err->msg = ws_strdup(msg);
+	err->msg = msg;
 	if (loc) {
 		err->loc.col_start = loc->col_start;
 		err->loc.col_len = loc->col_len;
