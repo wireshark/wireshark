@@ -38485,7 +38485,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ndp_annc_variant,
      {"NDP Announcement Variant", "wlan.ndp.token.variant",
-      FT_UINT8, BASE_HEX, VALS(ndp_annc_variant_vals), 0x003,
+      FT_UINT8, BASE_HEX, VALS(ndp_annc_variant_vals), 0x03,
       NULL, HFILL }},
 
     {&hf_ieee80211_ndp_annc_token_number,
@@ -53936,7 +53936,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_8_9,
      {"TX Max NSS That Supports EHt-MCS 8-9",
-      "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_8_9",
+      "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_8_9",
       FT_UINT32, BASE_HEX, NULL, 0x0000F000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_rx_max_nss_20mhz_10_11,
@@ -53946,7 +53946,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_10_11,
      {"TX Max NSS That Supports EHt-MCS 10-11",
-      "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_10_11",
+      "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_10_11",
       FT_UINT32, BASE_HEX, NULL, 0x00F00000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_rx_max_nss_20mhz_12_13,
@@ -53956,7 +53956,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_tx_max_nss_20mhz_12_13,
      {"TX Max NSS That Supports EHt-MCS 12-13",
-      "wlan.eht.supported_eht_mcs_bss_non_sta.rx_max_nss_supports_eht_mcs_12_13",
+      "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_12_13",
       FT_UINT32, BASE_HEX, NULL, 0xF0000000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_mcs_and_nss_lt_80mhz,
