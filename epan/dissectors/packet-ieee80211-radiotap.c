@@ -6421,7 +6421,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_eht_data1_ru_mru_index,
 		 {"RU/MRU index",
 		  "radiotap.eht.data_1.ru_mru_index",
-		  FT_UINT32, BASE_DEC, NULL, 0x0001FE0, NULL, HFILL }},
+		  FT_UINT32, BASE_DEC, NULL, 0x00001FE0, NULL, HFILL }},
 
 		{&hf_radiotap_eht_data1_ru_allocation_1,
 		 {"RU Allocation 1",
@@ -6765,7 +6765,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_s1g_ndp_ps_poll_udi_2m,
 		 {"UDI", "radiotap.s1g.ndp.ps_poll.udi",
 		  /* TODO: not sure this mask is correct.. */
-		  FT_UINT40, BASE_HEX, NULL, 0x1FFE00000, NULL, HFILL }},
+		  FT_UINT40, BASE_HEX, NULL, 0x01FFE00000, NULL, HFILL }},
 
 		{&hf_radiotap_s1g_ndp_ps_poll_ack_1m,
 		 {"NDP PS-Poll-Ack 1MHz", "radiotap.s1g.ndp.ndp_ps_poll_ack_1m",
