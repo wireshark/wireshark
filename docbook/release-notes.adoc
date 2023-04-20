@@ -130,6 +130,7 @@ Train Real-Time Data Protocol (TRDP)
 Windows Delivery Optimization (MS-DO)
 FiRa UWB Controller Interface (UCI)
 Matter home automation protocol
+UBX protocol of u-blox GNSS receivers (UBX)
 --
 
 === Updated Protocol Support
