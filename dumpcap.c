@@ -676,7 +676,30 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
      * have platform-specific suggestions at the end (for example, suggestions
      * for how to get permission to capture).
      */
-    if (open_status == CAP_DEVICE_OPEN_ERR_GENERIC) {
+    switch (open_status) {
+
+    case CAP_DEVICE_OPEN_ERROR_NO_SUCH_DEVICE:
+    case CAP_DEVICE_OPEN_ERROR_RFMON_NOTSUP:
+    case CAP_DEVICE_OPEN_ERROR_IFACE_NOT_UP:
+        /*
+         * Not clear what suggestions to make for these cases.
+         */
+        return "";
+
+    case CAP_DEVICE_OPEN_ERROR_PERM_DENIED:
+    case CAP_DEVICE_OPEN_ERROR_PROMISC_PERM_DENIED:
+        /*
+         * This is a permissions error, so no need to specify any other
+         * warnings.
+         */
+        return
+               "Please check to make sure you have sufficient permissions."
+               PLATFORM_PERMISSIONS_SUGGESTION;
+        break;
+
+    case CAP_DEVICE_OPEN_ERROR_OTHER:
+    case CAP_DEVICE_OPEN_ERROR_GENERIC:
+        {
         /*
          * We don't know what kind of error it is.  See if there's a hint
          * in the error string; if not, throw all generic suggestions at
@@ -700,26 +723,36 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
             return
                    "Please turn off promiscuous mode for this device";
         } else {
-            return
-                   "Please check to make sure you have sufficient permissions, and that you have "
-                   "the proper interface or pipe specified."
-                   PLATFORM_PERMISSIONS_SUGGESTION;
+            /*
+             * No.  Was this a "generic" error from pcap_open_live()
+             * or pcap_open(), in which case it might be a permissions
+             * error?
+             */
+            if (open_status == CAP_DEVICE_OPEN_ERROR_GENERIC) {
+                return
+                       "Please check to make sure you have sufficient permissions, and that you have "
+                       "the proper interface or pipe specified."
+                       PLATFORM_PERMISSIONS_SUGGESTION;
+            } else {
+                /*
+                 * This is not a permissons error, so no need to suggest
+                 * checking permissions.
+                 */
+                return
+                    "Please check that you have the proper interface or pipe specified.";
+            }
         }
-    } else if (open_status == CAP_DEVICE_OPEN_ERR_PERMISSIONS) {
-        /*
-         * This is a permissions error, so no need to specify any other
-         * warnings.
-         */
-        return
-               "Please check to make sure you have sufficient permissions."
-               PLATFORM_PERMISSIONS_SUGGESTION;
-    } else {
+        }
+        break;
+
+    default:
         /*
          * This is not a permissons error, so no need to suggest
          * checking permissions.
          */
         return
             "Please check that you have the proper interface or pipe specified.";
+        break;
     }
 }
 
@@ -731,9 +764,45 @@ get_capture_device_open_failure_messages(cap_device_open_status open_status,
                                          char *secondary_errmsg,
                                          size_t secondary_errmsg_len)
 {
-    snprintf(errmsg, (gulong) errmsg_len,
-               "The capture session could not be initiated on capture device \"%s\" (%s).",
-               iface, open_status_str);
+    switch (open_status) {
+
+    case CAP_DEVICE_OPEN_ERROR_NO_SUCH_DEVICE:
+        snprintf(errmsg, (gulong) errmsg_len,
+                 "There is no device named \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_ERROR_RFMON_NOTSUP:
+        snprintf(errmsg, (gulong) errmsg_len,
+                 "Capturing in monitor mode is not supported on device \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_ERROR_PERM_DENIED:
+        snprintf(errmsg, (gulong) errmsg_len,
+                 "You do not have permission to capture on device \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_ERROR_IFACE_NOT_UP:
+        snprintf(errmsg, (gulong) errmsg_len,
+                 "Device \"%s\" is not up.\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_ERROR_PROMISC_PERM_DENIED:
+        snprintf(errmsg, (gulong) errmsg_len,
+                 "You do not have permission to capture in promiscuous mode on device \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_ERROR_OTHER:
+    default:
+        snprintf(errmsg, (gulong) errmsg_len,
+                 "The capture session could not be initiated on capture device \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+    }
     snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
                get_pcap_failure_secondary_error_message(open_status, open_status_str));
 }
