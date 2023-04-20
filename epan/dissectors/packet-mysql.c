@@ -3640,7 +3640,7 @@ mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree, p
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_item_append_text(pi, ": %s", val_to_str(tvb_get_guint8(tvb, offset), mysql_binlog_event_type_vals, "%s"));
+	proto_item_append_text(pi, ": %s", val_to_str(tvb_get_guint8(tvb, offset), mysql_binlog_event_type_vals, "Unknown event type: %d"));
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3835,11 +3835,11 @@ mysql_dissect_clone_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int offse
 		case MYSQL_CLONE_COM_REINIT:
 		case MYSQL_CLONE_COM_EXECUTE:
 		case MYSQL_CLONE_COM_ACK:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "%s"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
 			break;
 		case MYSQL_CLONE_COM_EXIT:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "%s"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
 			mysql_set_conn_state(pinfo, conn_data, CLONE_EXIT);
 			break;
@@ -3871,7 +3871,7 @@ mysql_dissect_clone_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			/* fall through */
 		case MYSQL_CLONE_COM_RES_ERROR:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(resp_code, mysql_clone_response_vals, "%s"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(resp_code, mysql_clone_response_vals, "unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_response_code, tvb, offset, 1, ENC_NA);
 			break;
 		default:
