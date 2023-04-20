@@ -3518,130 +3518,179 @@ int mapi_dissect_enum_MAPI_OBJTYPE(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 #define RoleOwner (0x000007FB)
 extern const value_string mapi_ACLRIGHTS_vals[];
 int mapi_dissect_enum_ACLRIGHTS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
-#define op_MAPI_Release (0x1)
-#define op_MAPI_OpenFolder (0x2)
-#define op_MAPI_OpenMessage (0x3)
-#define op_MAPI_GetHierarchyTable (0x4)
-#define op_MAPI_GetContentsTable (0x5)
-#define op_MAPI_CreateMessage (0x6)
-#define op_MAPI_GetProps (0x7)
-#define op_MAPI_GetPropsAll (0x8)
-#define op_MAPI_GetPropList (0x9)
-#define op_MAPI_SetProps (0xa)
-#define op_MAPI_DeleteProps (0xb)
-#define op_MAPI_SaveChangesMessage (0xc)
-#define op_MAPI_RemoveAllRecipients (0xd)
-#define op_MAPI_ModifyRecipients (0xe)
-#define op_MAPI_ReadRecipients (0xf)
-#define op_MAPI_ReloadCachedInformation (0x10)
-#define op_MAPI_SetMessageReadFlag (0x11)
-#define op_MAPI_SetColumns (0x12)
-#define op_MAPI_SortTable (0x13)
-#define op_MAPI_Restrict (0x14)
-#define op_MAPI_QueryRows (0x15)
-#define op_MAPI_GetStatus (0x16)
-#define op_MAPI_QueryPosition (0x17)
-#define op_MAPI_SeekRow (0x18)
-#define op_MAPI_SeekRowBookmark (0x19)
-#define op_MAPI_SeekRowApprox (0x1a)
-#define op_MAPI_CreateBookmark (0x1b)
-#define op_MAPI_CreateFolder (0x1c)
-#define op_MAPI_DeleteFolder (0x1d)
-#define op_MAPI_DeleteMessages (0x1e)
-#define op_MAPI_GetMessageStatus (0x1f)
-#define op_MAPI_SetMessageStatus (0x20)
-#define op_MAPI_GetAttachmentTable (0x21)
-#define op_MAPI_OpenAttach (0x22)
-#define op_MAPI_CreateAttach (0x23)
-#define op_MAPI_DeleteAttach (0x24)
-#define op_MAPI_SaveChangesAttachment (0x25)
-#define op_MAPI_SetReceiveFolder (0x26)
-#define op_MAPI_GetReceiveFolder (0x27)
-#define op_MAPI_Advise (0x29)
-#define op_MAPI_Notify (0x2a)
-#define op_MAPI_OpenStream (0x2b)
-#define op_MAPI_ReadStream (0x2c)
-#define op_MAPI_WriteStream (0x2d)
-#define op_MAPI_SeekStream (0x2e)
-#define op_MAPI_SetStreamSize (0x2f)
-#define op_MAPI_SetSearchCriteria (0x30)
-#define op_MAPI_GetSearchCriteria (0x31)
-#define op_MAPI_SubmitMessage (0x32)
-#define op_MAPI_MoveCopyMessages (0x33)
-#define op_MAPI_AbortSubmit (0x34)
-#define op_MAPI_MoveFolder (0x35)
-#define op_MAPI_CopyFolder (0x36)
-#define op_MAPI_QueryColumnsAll (0x37)
-#define op_MAPI_Abort (0x38)
-#define op_MAPI_CopyTo (0x39)
-#define op_MAPI_CopyToStream (0x3a)
-#define op_MAPI_CloneStream (0x3b)
-#define op_MAPI_GetPermissionsTable (0x3e)
-#define op_MAPI_GetRulesTable (0x3f)
-#define op_MAPI_ModifyPermissions (0x40)
-#define op_MAPI_ModifyRules (0x41)
-#define op_MAPI_GetOwningServers (0x42)
-#define op_MAPI_LongTermIdFromId (0x43)
-#define op_MAPI_IdFromLongTermId (0x44)
-#define op_MAPI_PublicFolderIsGhosted (0x45)
-#define op_MAPI_OpenEmbeddedMessage (0x46)
-#define op_MAPI_SetSpooler (0x47)
-#define op_MAPI_SpoolerLockMessage (0x48)
-#define op_MAPI_AddressTypes (0x49)
-#define op_MAPI_TransportSend (0x4a)
-#define op_MAPI_FastTransferSourceGetBuffer (0x4e)
-#define op_MAPI_FindRow (0x4f)
-#define op_MAPI_Progress (0x50)
-#define op_MAPI_TransportNewMail (0x51)
-#define op_MAPI_GetValidAttachments (0x52)
-#define op_MAPI_GetNamesFromIDs (0x55)
-#define op_MAPI_GetIDsFromNames (0x56)
-#define op_MAPI_UpdateDeferredActionMessages (0x57)
-#define op_MAPI_EmptyFolder (0x58)
-#define op_MAPI_ExpandRow (0x59)
-#define op_MAPI_CollapseRow (0x5a)
-#define op_MAPI_LockRegionStream (0x5b)
-#define op_MAPI_UnlockRegionStream (0x5c)
-#define op_MAPI_CommitStream (0x5d)
-#define op_MAPI_GetStreamSize (0x5e)
-#define op_MAPI_QueryNamedProperties (0x5f)
-#define op_MAPI_GetPerUserLongTermIds (0x60)
-#define op_MAPI_GetPerUserGuid (0x61)
-#define op_MAPI_ReadPerUserInformation (0x63)
-#define op_MAPI_SetReadFlags (0x66)
-#define op_MAPI_CopyProperties (0x67)
-#define op_MAPI_GetReceiveFolderTable (0x68)
-#define op_MAPI_GetCollapseState (0x6b)
-#define op_MAPI_SetCollapseState (0x6c)
-#define op_MAPI_GetTransportFolder (0x6d)
-#define op_MAPI_Pending (0x6e)
-#define op_MAPI_OptionsData (0x6f)
-#define op_MAPI_SyncConfigure (0x70)
-#define op_MAPI_SyncImportMessageChange (0x72)
-#define op_MAPI_SyncImportHierarchyChange (0x73)
-#define op_MAPI_SyncImportDeletes (0x74)
-#define op_MAPI_SyncUploadStateStreamBegin (0x75)
-#define op_MAPI_SyncUploadStateStreamContinue (0x76)
-#define op_MAPI_SyncUploadStateStreamEnd (0x77)
-#define op_MAPI_SyncImportMessageMove (0x78)
-#define op_MAPI_SetPropertiesNoReplicate (0x79)
-#define op_MAPI_DeletePropertiesNoReplicate (0x7a)
-#define op_MAPI_GetStoreState (0x7b)
-#define op_MAPI_SyncOpenCollector (0x7e)
-#define op_MAPI_GetLocalReplicaIds (0x7f)
-#define op_MAPI_SyncImportReadStateChanges (0x80)
-#define op_MAPI_ResetTable (0x81)
-#define op_MAPI_SyncGetTransferState (0x82)
-#define op_MAPI_OpenPublicFolderByName (0x87)
-#define op_MAPI_SetSyncNotificationGuid (0x88)
-#define op_MAPI_FreeBookmark (0x89)
-#define op_MAPI_WriteAndCommitStream (0x90)
-#define op_MAPI_HardDeleteMessages (0x91)
-#define op_MAPI_HardDeleteMessagesAndSubfolders (0x92)
-#define op_MAPI_OpenMsgStore (0xfe)
-#define op_MAPI_proxypack (0xa5)
-extern const value_string mapi_MAPI_OPNUM_vals[];
-int mapi_dissect_enum_MAPI_OPNUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint8 *param _U_);
+#define RopNone (0x00)
+#define RopRelease (0x01)
+#define RopOpenFolder (0x02)
+#define RopOpenMessage (0x03)
+#define RopGetHierarchyTable (0x04)
+#define RopGetContentsTable (0x05)
+#define RopCreateMessage (0x06)
+#define RopGetPropertiesSpecific (0x07)
+#define RopGetPropertiesAll (0x08)
+#define RopGetPropertiesList (0x09)
+#define RopSetProperties (0x0a)
+#define RopDeleteProperties (0x0b)
+#define RopSaveChangesMessage (0x0c)
+#define RopRemoveAllRecipients (0x0d)
+#define RopModifyRecipients (0x0e)
+#define RopReadRecipients (0x0f)
+#define RopReloadCachedInformation (0x10)
+#define RopSetMessageReadFlag (0x11)
+#define RopSetColumns (0x12)
+#define RopSortTable (0x13)
+#define RopRestrict (0x14)
+#define RopQueryRows (0x15)
+#define RopGetStatus (0x16)
+#define RopQueryPosition (0x17)
+#define RopSeekRow (0x18)
+#define RopSeekRowBookmark (0x19)
+#define RopSeekRowFractional (0x1a)
+#define RopCreateBookmark (0x1b)
+#define RopCreateFolder (0x1c)
+#define RopDeleteFolder (0x1d)
+#define RopDeleteMessages (0x1e)
+#define RopGetMessageStatus (0x1f)
+#define RopSetMessageStatus (0x20)
+#define RopGetAttachmentTable (0x21)
+#define RopOpenAttachment (0x22)
+#define RopCreateAttachment (0x23)
+#define RopDeleteAttachment (0x24)
+#define RopSaveChangesAttachment (0x25)
+#define RopSetReceiveFolder (0x26)
+#define RopGetReceiveFolder (0x27)
+#define RopSpoolerRules (0x28)
+#define RopRegisterNotification (0x29)
+#define RopNotify (0x2a)
+#define RopOpenStream (0x2b)
+#define RopReadStream (0x2c)
+#define RopWriteStream (0x2d)
+#define RopSeekStream (0x2e)
+#define RopSetStreamSize (0x2f)
+#define RopSetSearchCriteria (0x30)
+#define RopGetSearchCriteria (0x31)
+#define RopSubmitMessage (0x32)
+#define RopMoveCopyMessages (0x33)
+#define RopAbortSubmit (0x34)
+#define RopMoveFolder (0x35)
+#define RopCopyFolder (0x36)
+#define RopQueryColumnsAll (0x37)
+#define RopAbort (0x38)
+#define RopCopyTo (0x39)
+#define RopCopyToStream (0x3a)
+#define RopCloneStream (0x3b)
+#define RopRegisterTableNotification (0x3c)
+#define RopDeregisterTableNotification (0x3d)
+#define RopGetPermissionsTable (0x3e)
+#define RopGetRulesTable (0x3f)
+#define RopModifyPermissions (0x40)
+#define RopModifyRules (0x41)
+#define RopGetOwningServers (0x42)
+#define RopLongTermIdFromId (0x43)
+#define RopIdFromLongTermId (0x44)
+#define RopPublicFolderIsGhosted (0x45)
+#define RopOpenEmbeddedMessage (0x46)
+#define RopSetSpooler (0x47)
+#define RopSpoolerLockMessage (0x48)
+#define RopGetAddressTypes (0x49)
+#define RopTransportSend (0x4a)
+#define RopFastTransferSourceCopyMessages (0x4b)
+#define RopFastTransferSourceCopyFolder (0x4c)
+#define RopFastTransferSourceCopyTo (0x4d)
+#define RopFastTransferSourceGetBuffer (0x4e)
+#define RopFindRow (0x4f)
+#define RopProgress (0x50)
+#define RopTransportNewMail (0x51)
+#define RopGetValidAttachments (0x52)
+#define RopFastTransferDestinationConfigure (0x53)
+#define RopFastTransferDestinationPutBuffer (0x54)
+#define RopGetNamesFromPropertyIds (0x55)
+#define RopGetPropertyIdsFromNames (0x56)
+#define RopUpdateDeferredActionMessages (0x57)
+#define RopEmptyFolder (0x58)
+#define RopExpandRow (0x59)
+#define RopCollapseRow (0x5a)
+#define RopLockRegionStream (0x5b)
+#define RopUnlockRegionStream (0x5c)
+#define RopCommitStream (0x5d)
+#define RopGetStreamSize (0x5e)
+#define RopQueryNamedProperties (0x5f)
+#define RopGetPerUserLongTermIds (0x60)
+#define RopGetPerUserGuid (0x61)
+#define RopFlushPerUser (0x62)
+#define RopReadPerUserInformation (0x63)
+#define RopWritePerUserInformation (0x64)
+#define RopCacheCcnRead (0x65)
+#define RopSetReadFlags (0x66)
+#define RopCopyProperties (0x67)
+#define RopGetReceiveFolderTable (0x68)
+#define RopFastTransferSourceCopyProperties (0x69)
+#define RopFastTransferDestinationCopyProperties (0x6a)
+#define RopGetCollapseState (0x6b)
+#define RopSetCollapseState (0x6c)
+#define RopGetTransportFolder (0x6d)
+#define RopPending (0x6e)
+#define RopOptionsData (0x6f)
+#define RopSynchronizationConfigure (0x70)
+#define RopIncrState (0x71)
+#define RopSynchronizationImportMessageChange (0x72)
+#define RopSynchronizationImportHierarchyChange (0x73)
+#define RopSynchronizationImportDeletes (0x74)
+#define RopSynchronizationUploadStateStreamBegin (0x75)
+#define RopSynchronizationUploadStateStreamContinue (0x76)
+#define RopSynchronizationUploadStateStreamEnd (0x77)
+#define RopSynchronizationImportMessageMove (0x78)
+#define RopSetPropertiesNoReplicate (0x79)
+#define RopDeletePropertiesNoReplicate (0x7a)
+#define RopGetStoreState (0x7b)
+#define RopGetRights (0x7c)
+#define RopGetAllPerUserLtids (0x7d)
+#define RopSynchronizationOpenCollector (0x7e)
+#define RopGetLocalReplicaIds (0x7f)
+#define RopSynchronizationImportReadStateChanges (0x80)
+#define RopResetTable (0x81)
+#define RopSynchronizationGetTransferState (0x82)
+#define RopOpenAdvisor (0x83)
+#define RopRegICSNotifs (0x84)
+#define RopOpenCStream (0x85)
+#define RopTellVersion (0x86)
+#define RopOpenPublicFolderByName (0x87)
+#define RopSetSyncNotificationGuid (0x88)
+#define RopFreeBookmark (0x89)
+#define RopWriteAndCommitStream (0x90)
+#define RopHardDeleteMessages (0x91)
+#define RopHardDeleteMessagesAndSubfolders (0x92)
+#define RopSetLocalReplicaMidsetDeleted (0x93)
+#define RopTransportDeliverMessage (0x94)
+#define RopTransportDoneWithMessage (0x95)
+#define RopIdFromLegacyDN (0x96)
+#define RopSetAuthenticatedContext (0x97)
+#define RopCopyToEx (0x98)
+#define RopImportMsgChangePartial (0x99)
+#define RopSetMessageFlags (0x9a)
+#define RopMoveCopyMessagesEx (0x9b)
+#define RopFXSrcGetBufferEx (0x9c)
+#define RopFXDstPutBufferEx (0x9d)
+#define RopTransportDeliverMessage2 (0x9e)
+#define RopCreateMessageEx (0x9f)
+#define RopMoveCopyMessagesEID (0xA0)
+#define RopTransportDupDlvCheck (0xA1)
+#define RopPrereadMessages (0xA2)
+#define RopWriteStreamExtended (0xA3)
+#define RopGetContentsTableExtended (0xA4)
+#define RopStartScope (0xA5)
+#define RopEndScope (0xA6)
+#define RopEchoString (0xC8)
+#define RopEchoInt (0xC9)
+#define RopEchoBinary (0xCA)
+#define RopBackoff (0xF9)
+#define RopExtendedError (0xFA)
+#define RopBookmarkReturned (0xFB)
+#define RopFidReturned (0xFC)
+#define RopHsotReturned (0xFd)
+#define RopLogon (0xFE)
+#define RopBufferTooSmall (0xFF)
+extern const value_string mapi_ROP_OPNUM_vals[];
+int mapi_dissect_enum_ROP_OPNUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint8 *param _U_);
 int mapi_dissect_struct_SBinary_short(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_MV_LONG_STRUCT(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_LPSTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -3699,6 +3748,7 @@ extern const value_string mapi_OpenFolder_OpenModeFlags_vals[];
 int mapi_dissect_enum_OpenFolder_OpenModeFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint8 *param _U_);
 int mapi_dissect_struct_OpenFolder_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_OpenFolder_Replicas(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_OpenFolder_Success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_OpenFolder_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define StringType_NONE (0x0)
 #define StringType_EMPTY (0x1)
@@ -3737,17 +3787,23 @@ int mapi_dissect_struct_RecipExchange(tvbuff_t *tvb _U_, int offset _U_, packet_
 int mapi_dissect_struct_RecipSMTP(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_RecipientRow(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_OpenMessage_recipients(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_OpenMessage_Success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_OpenMessage_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_bitmap_TableFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetHierarchyTable_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_GetHierarchyTable_repl_success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetHierarchyTable_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetContentsTable_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_GetContentsTable_repl_success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetContentsTable_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_CreateMessage_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_CreateMessage_repl_success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_CreateMessage_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetProps_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_GetProps_repl_success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetProps_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetPropsAll_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_GetPropsAll_repl_success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetPropsAll_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetPropList_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GetPropList_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -3929,8 +3985,8 @@ int mapi_dissect_struct_GetReceiveFolder_repl(tvbuff_t *tvb _U_, int offset _U_,
 #define fnevMbit (0x8000)
 extern const value_string mapi_NotificationFlags_vals[];
 int mapi_dissect_enum_NotificationFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint16 *param _U_);
-int mapi_dissect_struct_Advise_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_Advise_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RegisterNotification_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RegisterNotification_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_bitmap_MsgFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_GID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define TABLE_CHANGED (0x1)
@@ -4032,6 +4088,7 @@ int mapi_dissect_struct_GetOwningServers_req(tvbuff_t *tvb _U_, int offset _U_, 
 int mapi_dissect_struct_GetOwningServers_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_LongTermIdFromId_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_LongTermId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_LongTermIdFromId_repl_Success(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_LongTermIdFromId_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_IdFromLongTermId_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_IdFromLongTermId_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -4188,7 +4245,6 @@ int mapi_dissect_struct_HardDeleteMessages_req(tvbuff_t *tvb _U_, int offset _U_
 int mapi_dissect_struct_HardDeleteMessages_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_HardDeleteMessagesAndSubfolders_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_HardDeleteMessagesAndSubfolders_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_OpenMsgStore_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define LogonPrivate (0x1)
 #define UnderCover (0x2)
 #define Ghosted (0x4)
@@ -4207,17 +4263,9 @@ extern const value_string mapi_DayOfWeek_vals[];
 int mapi_dissect_enum_DayOfWeek(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint8 *param _U_);
 int mapi_dissect_struct_LogonTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_bitmap_ResponseFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_store_pf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_Logon_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_Logon_redirect(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_proxypack_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_proxypack_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int mapi_dissect_struct_store_mailbox(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-#define PROVIDER_TYPE_PF (0x0)
-#define PROVIDER_TYPE_MAILBOX (0x1)
-extern const value_string mapi_PROVIDER_TYPE_vals[];
-int mapi_dissect_enum_PROVIDER_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint8 *param _U_);
-int mapi_dissect_struct_OpenMsgStore_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_Logon_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RopBufferTooSmall_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_EcDoRpcMapiRequest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_EcDoRpcMapiResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -4307,4 +4355,10 @@ int mapi_dissect_struct_RPC_HEADER_EXT(tvbuff_t *tvb _U_, int offset _U_, packet
 int mapi_dissect_struct_AuxInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_struct_AuxInfoOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int mapi_dissect_bitmap_RpcExt2Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RopInput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_ROPInputBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RgbIn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RopOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_ROPOutputBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int mapi_dissect_struct_RgbOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #endif /* __PACKET_DCERPC_MAPI_H */

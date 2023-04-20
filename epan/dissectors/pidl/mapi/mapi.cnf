@@ -1,11 +1,286 @@
 # Conformance file for mapi
 
 HF_FIELD hf_mapi_decrypted_data "Decrypted data" "mapi.decrypted.data" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_FIELD hf_mapi_LogonId "LogonId" "mapi.rop.LogonId" FT_UINT8 BASE_DEC NULL 0 NULL HFILL
+HF_FIELD hf_mapi_ResponseHandleIndex "ResponseHandleIndex" "mapi.rop.ResponseHandleIndex" FT_UINT8 BASE_DEC NULL 0 NULL HFILL
+HF_FIELD hf_mapi_InputHandleIndex "InputHandleIndex" "mapi.rop.InputHandleIndex" FT_UINT8 BASE_DEC NULL 0 NULL HFILL
+HF_FIELD hf_mapi_OutputHandleIndex "OutputHandleIndex" "mapi.rop.OutputHandleIndex" FT_UINT8 BASE_DEC NULL 0 NULL HFILL
+HF_FIELD hf_mapi_RgbInSize "RgbInSize" "mapi.RgbIn.RgbInSize" FT_UINT32 BASE_DEC NULL 0 NULL HFILL
+HF_FIELD hf_mapi_RgbOutSize "RgbOutSize" "mapi.RgbOut.RgbOutSize" FT_UINT32 BASE_DEC NULL 0 NULL HFILL
+
+HF_RENAME hf_mapi_AbortSubmit_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_Abort_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_AddressTypes_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CloneStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CollapseRow_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CommitStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CopyFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CopyProperties_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CopyToStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CopyTo_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CreateAttach_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CreateBookmark_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CreateFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_CreateMessage_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_DeleteAttach_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_DeleteFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_DeleteMessages_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_DeletePropertiesNoReplicate_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_DeleteProps_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_EmptyFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ExpandRow_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_FastTransferSourceGetBuffer_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_FindRow_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_FreeBookmark_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetAttachmentTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetCollapseState_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetContentsTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetHierarchyTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetIDsFromNames_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetLocalReplicaIds_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetMessageStatus_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetNamesFromIDs_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetOwningServers_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetPerUserGuid_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetPerUserLongTermIds_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetPermissionsTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetPropList_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetPropsAll_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetProps_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetReceiveFolderTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetReceiveFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetRulesTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetSearchCriteria_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetStatus_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetStoreState_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetStreamSize_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetTransportFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_GetValidAttachments_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_HardDeleteMessagesAndSubfolders_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_HardDeleteMessages_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_IdFromLongTermId_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_LockRegionStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_Logon_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_LongTermIdFromId_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ModifyPermissions_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ModifyRecipients_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ModifyRules_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_MoveCopyMessages_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_MoveFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_OpenAttach_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_OpenEmbeddedMessage_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_OpenFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_OpenMessage_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_OpenStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_OptionsData_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_Progress_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_PublicFolderIsGhosted_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_QueryColumnsAll_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_QueryNamedProperties_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_QueryPosition_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_QueryRows_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ReadPerUserInformation_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ReadRecipients_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ReadStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_RegisterNotification_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_Release_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_RemoveAllRecipients_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_ResetTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SaveChangesAttachment_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SaveChangesMessage_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SeekRowApprox_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SeekRowBookmark_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SeekRow_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SeekStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetCollapseState_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetColumns_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetMessageReadFlag_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetMessageStatus_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetPropertiesNoReplicate_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetProps_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetReadFlags_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetReceiveFolder_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetSearchCriteria_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetSpooler_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SetStreamSize_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SortTable_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SpoolerLockMessage_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SubmitMessage_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncConfigure_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncGetTransferState_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncImportDeletes_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncImportHierarchyChange_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncImportMessageChange_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncImportMessageMove_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncImportReadStateChanges_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncOpenCollector_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncUploadStateStreamBegin_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncUploadStateStreamContinue_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_SyncUploadStateStreamEnd_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_TransportNewMail_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_TransportSend_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_UnlockRegionStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_UpdateDeferredActionMessages_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_WriteAndCommitStream_req_LogonId hf_mapi_LogonId
+HF_RENAME hf_mapi_WriteStream_req_LogonId hf_mapi_LogonId
+
+
+HF_RENAME hf_mapi_AbortSubmit_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_Abort_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_AddressTypes_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CloneStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CollapseRow_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CommitStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CreateAttach_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CreateBookmark_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CreateFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_CreateMessage_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_DeleteAttach_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_DeleteFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_DeleteMessages_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_DeletePropertiesNoReplicate_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_DeleteProps_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_EmptyFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ExpandRow_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_FastTransferSourceGetBuffer_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_FindRow_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_FreeBookmark_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetAttachmentTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetCollapseState_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetContentsTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetHierarchyTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetIDsFromNames_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetLocalReplicaIds_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetMessageStatus_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetNamesFromIDs_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetOwningServers_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetPerUserGuid_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetPerUserLongTermIds_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetPermissionsTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetPropList_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetPropsAll_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetProps_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetReceiveFolderTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetReceiveFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetRulesTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetSearchCriteria_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetStatus_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetStoreState_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetStreamSize_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetTransportFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_GetValidAttachments_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_HardDeleteMessagesAndSubfolders_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_HardDeleteMessages_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_IdFromLongTermId_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_LockRegionStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_LongTermIdFromId_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ModifyPermissions_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ModifyRecipients_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ModifyRules_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_OpenAttach_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_OpenEmbeddedMessage_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_OpenFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_OpenMessage_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_OpenStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_OptionsData_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_Progress_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_PublicFolderIsGhosted_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_QueryColumnsAll_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_QueryNamedProperties_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_QueryPosition_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_QueryRows_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ReadPerUserInformation_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ReadRecipients_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ReadStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_RegisterNotification_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_Release_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_RemoveAllRecipients_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_ResetTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SaveChangesAttachment_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SaveChangesMessage_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SeekRowApprox_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SeekRowBookmark_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SeekRow_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SeekStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetCollapseState_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetColumns_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetMessageReadFlag_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetMessageStatus_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetPropertiesNoReplicate_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetProps_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetReadFlags_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetReceiveFolder_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetSearchCriteria_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetSpooler_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SetStreamSize_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SortTable_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SpoolerLockMessage_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SubmitMessage_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncConfigure_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncGetTransferState_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncImportDeletes_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncImportHierarchyChange_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncImportMessageChange_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncImportMessageMove_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncImportReadStateChanges_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncOpenCollector_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncUploadStateStreamBegin_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncUploadStateStreamContinue_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_SyncUploadStateStreamEnd_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_TransportNewMail_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_TransportSend_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_UnlockRegionStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_UpdateDeferredActionMessages_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_WriteAndCommitStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+HF_RENAME hf_mapi_WriteStream_req_InputHandleIndex hf_mapi_InputHandleIndex
+
+HF_RENAME hf_mapi_CloneStream_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_CreateAttach_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_CreateFolder_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_CreateMessage_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_GetAttachmentTable_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_GetContentsTable_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_GetHierarchyTable_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_GetPermissionsTable_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_GetRulesTable_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_Logon_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_OpenAttach_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_OpenEmbeddedMessage_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_OpenFolder_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_OpenMessage_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_OpenStream_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_RegisterNotification_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_SyncConfigure_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_SyncGetTransferState_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_SyncImportMessageChange_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+HF_RENAME hf_mapi_SyncOpenCollector_req_OutputHandleIndex hf_mapi_OutputHandleIndex
+
+HF_RENAME hf_mapi_SaveChangesAttachment_req_ResponseHandleIndex hf_mapi_ResponseHandleIndex
+HF_RENAME hf_mapi_SaveChangesMessage_req_ResponseHandleIndex hf_mapi_ResponseHandleIndex
+HF_RENAME hf_mapi_SetMessageReadFlag_req_ResponseHandleIndex hf_mapi_ResponseHandleIndex
+
+HF_FIELD  hf_mapi_SyncUploadStateStreamContinue_req_StreamDataValue "StreamData" "mapi.SyncUploadStateStreamContinue_req.StreamData" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_RENAME hf_mapi_SyncUploadStateStreamContinue_req_StreamData hf_mapi_SyncUploadStateStreamContinue_req_StreamDataValue
+
+HF_FIELD  hf_mapi_SyncImportMessageMove_req_SourceFolderIdValue "SourceFolderId" "mapi.SyncImportMessageMove_req.SourceFolderId" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_RENAME hf_mapi_SyncImportMessageMove_req_SourceFolderId hf_mapi_SyncImportMessageMove_req_SourceFolderIdValue
+
+HF_FIELD  hf_mapi_SyncImportMessageMove_req_SourceMessageIdValue "SourceMessageId" "mapi.SyncImportMessageMove_req.SourceMessageId" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_RENAME hf_mapi_SyncImportMessageMove_req_SourceMessageId hf_mapi_SyncImportMessageMove_req_SourceMessageIdValue
+
+HF_FIELD  hf_mapi_SyncImportMessageMove_req_PredecessorChangeListValue "PredecessorChangeList" "mapi.SyncImportMessageMove_req.PredecessorChangeList" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_RENAME hf_mapi_SyncImportMessageMove_req_PredecessorChangeList hf_mapi_SyncImportMessageMove_req_PredecessorChangeListValue
+
+HF_FIELD  hf_mapi_SyncImportMessageMove_req_DestinationMessageIdValue "DestinationMessageId" "mapi.SyncImportMessageMove_req.DestinationMessageId" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_RENAME hf_mapi_SyncImportMessageMove_req_DestinationMessageId hf_mapi_SyncImportMessageMove_req_DestinationMessageIdValue
+
+HF_FIELD  hf_mapi_SyncImportMessageMove_req_ChangeNumberValue "ChangeNumber" "mapi.SyncImportMessageMove_req.ChangeNumber" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_RENAME hf_mapi_SyncImportMessageMove_req_ChangeNumber hf_mapi_SyncImportMessageMove_req_ChangeNumberValue
 
 ETT_FIELD ett_mapi_connect_request
+ETT_FIELD ett_ServerObjectHandleTable
 
 MANUAL mapi_dissect_struct_request
-
 MANUAL mapi_dissect_struct_EcDoRpcMapiRequest
 MANUAL mapi_dissect_struct_AuxInfo
 MANUAL mapi_dissect_struct_AUX_HEADER
@@ -19,7 +294,6 @@ MANUAL mapi_dissect_element_AuxInfo_auxHeader
 MANUAL mapi_dissect_element_EcDoConnect_szUserDN
 MANUAL mapi_dissect_element_EcDoConnectEx_szUserDN
 MANUAL mapi_dissect_element_EcDoConnectEx_rgbAuxOut_
-MANUAL mapi_dissect_struct_AuxInfoOut
 MANUAL mapi_dissect_element_EcDoRpcExt2_rgbAuxOut_
 MANUAL mapi_dissect_element_EcDoConnect_rgwClientVersion
 MANUAL mapi_dissect_element_EcDoConnect_rgwServerVersion
@@ -27,6 +301,16 @@ MANUAL mapi_dissect_element_EcDoConnect_rgwBestVersion
 MANUAL mapi_dissect_element_EcDoConnectEx_rgwClientVersion
 MANUAL mapi_dissect_element_EcDoConnectEx_rgwServerVersion
 MANUAL mapi_dissect_element_EcDoConnectEx_rgwBestVersion
+MANUAL mapi_dissect_struct_SyncUploadStateStreamContinue_req
+MANUAL mapi_dissect_struct_SyncImportMessageMove_req
+MANUAL mapi_dissect_bitmap_OpenFlags
+MANUAL mapi_dissect_bitmap_StoreState
+MANUAL mapi_dissect_struct_Logon_repl
+MANUAL mapi_dissect_struct_RgbIn
+MANUAL mapi_dissect_struct_RgbOut
+MANUAL mapi_dissect_element_EcDoRpcExt2_rgbOut_
+MANUAL mapi_dissect_element_EcDoRpcExt_rgbOut_
+
 
 NOEMIT mapi_dissect_element_EcDoRpc_request
 NOEMIT mapi_dissect_element_request_len
@@ -41,7 +325,7 @@ NOEMIT mapi_dissect_element_response_handles
 NOEMIT mapi_dissect_element_EcDoRpc_response_
 NOEMIT mapi_dissect_element_AuxInfo_auxInSize
 NOEMIT mapi_dissect_element_AuxInfo_auxIn
-NOEMIT mapi_dissect_element_AuxInfo_RPC_HEADER_EXT
+NOEMIT mapi_dissect_element_AuxInfo_RpcHeaderExtension
 NOEMIT mapi_dissect_element_AuxInfo_AUX_HEADER
 NOEMIT mapi_dissect_element_AUX_HEADER_hdrType
 NOEMIT mapi_dissect_element_AUX_HEADER_TYPE_ENUM_Type
@@ -65,12 +349,31 @@ NOEMIT mapi_dissect_element_AUX_PERF_CLIENTINFO_ClientIPMask
 NOEMIT mapi_dissect_element_AUX_PERF_CLIENTINFO_AdapterName
 NOEMIT mapi_dissect_element_AUX_PERF_CLIENTINFO_MacAddress
 NOEMIT mapi_dissect_element_AUX_HEADER_Size
-NOEMIT mapi_dissect_element_AuxInfoOut_RPC_HEADER_EXT
-NOEMIT mapi_dissect_element_AuxInfoOut_auxHeader
 NOEMIT mapi_dissect_element_EcDoConnectEx_rgbAuxOut__
 NOEMIT mapi_dissect_element_EcDoRpcExt2_rgbAuxOut__
 NOEMIT mapi_dissect_element_AuxInfo_auxHeader_
 NOEMIT mapi_dissect_element_EcDoConnect_rgwClientVersion_
+NOEMIT mapi_dissect_element_ROPRequest_RopId
+NOEMIT mapi_dissect_element_SyncUploadStateStreamContinue_req_StreamDataSize
+NOEMIT mapi_dissect_element_SyncUploadStateStreamContinue_req_StreamData
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_SourceFolderIdSize
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_SourceFolderId
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_SourceMessageIdSize
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_SourceMessageId
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_PredecessorChangeListSize
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_PredecessorChangeList
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_DestinationMessageIdSize
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_DestinationMessageId
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_ChangeNumberSize
+NOEMIT mapi_dissect_element_SyncImportMessageMove_req_ChangeNumber
+NOEMIT mapi_dissect_element_Logon_repl_ReturnValue
+NOEMIT mapi_dissect_element_Logon_repl_LogonFlags
+NOEMIT mapi_dissect_element_RgbIn_RpcHeaderExtension
+NOEMIT mapi_dissect_element_RgbIn_ropIn
+NOEMIT mapi_dissect_element_RgbOut_RpcHeaderExtension
+NOEMIT mapi_dissect_element_RgbOut_ropOut
+NOEMIT mapi_dissect_element_EcDoRpcExt2_rgbOut__
+NOEMIT mapi_dissect_element_EcDoRpcExt_rgbOut__
 
 CODE START
 
@@ -184,17 +487,13 @@ mapi_dissect_element_EcDoConnectEx_rgwBestVersion(tvbuff_t *tvb _U_, int offset 
 static int
 mapi_dissect_element_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = mapi_dissect_struct_request(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoRpc_mapi_request, 0);
-
-	return offset;
+	return mapi_dissect_struct_request(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoRpc_mapi_request, 0);
 }
 
 static int
 mapi_dissect_element_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = mapi_dissect_struct_response(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoRpc_mapi_response, 0);
-
-	return offset;
+	return mapi_dissect_struct_response(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_EcDoRpc_mapi_response, 0);
 }
 
 /**
@@ -232,7 +531,6 @@ mapi_dissect_struct_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	tvbuff_t	*decrypted_tvb;
 	guint32		size;
 	guint16		pdu_len;
-	proto_tree	*tr = NULL;
 
 	ALIGN_TO_5_BYTES;
 
@@ -248,23 +546,22 @@ mapi_dissect_struct_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 		return offset;
 	}
 
-	{
-		add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI");
+	offset += size;
+	proto_item_set_len(item, offset - start_offset);
 
-		tr = proto_tree_add_subtree(tree, decrypted_tvb, 0, size, ett_mapi_mapi_response, NULL, "Decrypted MAPI PDU");
+	{
+		add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI Response");
+
+		tree = proto_tree_add_subtree(tree, decrypted_tvb, 0, size, ett_mapi_mapi_response, NULL, "Decrypted MAPI Response PDU");
 
 		pdu_len = tvb_get_letohs(decrypted_tvb, 0);
-		proto_tree_add_uint(tr, hf_mapi_mapi_response_length, decrypted_tvb, 0, sizeof(guint16), pdu_len);
-		proto_tree_add_item(tr, hf_mapi_decrypted_data, decrypted_tvb, sizeof(guint16), pdu_len - sizeof(guint16), ENC_NA);
+		proto_tree_add_uint(tree, hf_mapi_mapi_response_length, decrypted_tvb, 0, sizeof(guint16), pdu_len);
+		proto_tree_add_item(tree, hf_mapi_decrypted_data, decrypted_tvb, sizeof(guint16), pdu_len - sizeof(guint16), ENC_NA);
 
 		/* analyze contents */
-		mapi_dissect_element_response_repl(decrypted_tvb, sizeof(guint16), pinfo, tr, di, drep);
-		mapi_dissect_element_handles_cnf(decrypted_tvb, pdu_len, pinfo, tr, di, hf_mapi_mapi_response_handles, drep);
-
-		offset += size;
+		mapi_dissect_element_response_rpcResponse(decrypted_tvb, sizeof(guint16), pinfo, tree, di, drep);
+		mapi_dissect_element_handles_cnf(decrypted_tvb, pdu_len, pinfo, tree, di, hf_mapi_mapi_response_handles, drep);
 	}
-
-	proto_item_set_len(item, offset - start_offset);
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
 		ALIGN_TO_5_BYTES;
@@ -289,129 +586,6 @@ mapi_dissect_element_AuxInfo_auxHeader(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-	#define  RHEF_Compressed   0x0001
-	#define  RHEF_XorMagic     0x0002
-	#define  RHEF_Last         0x0004
-
-int
-mapi_dissect_struct_AuxInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	int old_offset;
-	guint16 compressedSize= 0, uncompressedSize= 0;
-	guint16 flags;
-	tvbuff_t *uncomp_tvb = NULL;
-	proto_tree	*tr = NULL;
-
-	ALIGN_TO_4_BYTES;
-
-	if(di->conformant_run){
-		return offset;
-	}
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_mapi_AuxInfo);
-	}
-
-	if (di->ptype == PDU_REQ){
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_AuxInfo_auxInSize, NULL);
-	}
-
-	{
-		proto_tree *hTree = NULL;
-		proto_item *rpcItem = NULL;
-
-		ALIGN_TO_2_BYTES;
-
-		if (tree) {
-			rpcItem = proto_tree_add_item(tree, di->ptype == PDU_REQ ? hf_mapi_AuxInfo_RPC_HEADER_EXT : hf_mapi_AuxInfoOut_RPC_HEADER_EXT, tvb, offset, -1, ENC_NA);
-			hTree = proto_item_add_subtree(rpcItem, ett_mapi_RPC_HEADER_EXT);
-		}
-
-		offset = mapi_dissect_element_RPC_HEADER_EXT_Version(tvb, offset, pinfo, hTree, di, drep);
-
-		proto_item *flagItem;
-		static int * const mapi_RPC_HEADER_EXT_Flags_fields[] = {
-			&hf_mapi_RPC_HEADER_EXT_Flags_RHEF_Compressed,
-			&hf_mapi_RPC_HEADER_EXT_Flags_RHEF_XorMagic,
-			&hf_mapi_RPC_HEADER_EXT_Flags_RHEF_Last,
-			NULL
-		};
-
-		ALIGN_TO_2_BYTES;
-
-		flagItem = proto_tree_add_bitmask_with_flags(hTree, tvb, offset, hf_mapi_RPC_HEADER_EXT_Flags,
-					ett_mapi_RPC_HEADER_EXT_Flags, mapi_RPC_HEADER_EXT_Flags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
-
-		offset = dissect_ndr_uint16(tvb, offset, pinfo, hTree, di, drep, -1, &flags);
-
-		if (!flags)
-			proto_item_append_text(flagItem, ": (No values set)");
-
-		if (flags & (~0x00000007)) {
-			flags &= (~0x00000007);
-			proto_item_append_text(flagItem, "Unknown bitmap value 0x%x", flags);
-		}
-
-		offset = PIDL_dissect_uint16_val(tvb, offset, pinfo, hTree, di, drep, hf_mapi_RPC_HEADER_EXT_Size, 0, &compressedSize);
-		offset = PIDL_dissect_uint16_val(tvb, offset, pinfo, hTree, di, drep, hf_mapi_RPC_HEADER_EXT_SizeActual, 0, &uncompressedSize);
-
-		proto_item_set_len(flagItem, offset-old_offset);
-
-		if (di->call_data->flags & DCERPC_IS_NDR64) {
-			ALIGN_TO_2_BYTES;
-		}
-	}
-
-	bool last = RHEF_Last == (flags & RHEF_Last);
-	bool compressed = RHEF_Compressed == (flags & RHEF_Compressed);
-	bool xored = RHEF_XorMagic == (flags & RHEF_XorMagic);
-
-	if (!last){
-		// TODO: Currently we don't support multiple buffers of RPC_HEADER_EXT.
-		return offset;
-	}
-
-	if (compressed && xored){
-		// TODO: Currently we don't support both compressed and Xored
-		return offset;
-	}
-
-	if (compressed){
-		uncomp_tvb= tvb_child_uncompress_lz77(tvb, tvb, offset, compressedSize);
-	} else if (xored){
-		uncomp_tvb= mapi_deobfuscate(tvb, offset, pinfo, uncompressedSize);
-	} else if (!compressed && !xored) {
-		uncomp_tvb = tvb_new_subset_length(tvb, offset, uncompressedSize);
-	} else {
-		return offset;
-	}
-
-	if (!uncomp_tvb || tvb_reported_length(uncomp_tvb) != uncompressedSize) {
-		return offset;
-	}
-
-	add_new_data_source(pinfo, uncomp_tvb, "Decrypted MAPI");
-
-	tr = proto_tree_add_subtree(tree, uncomp_tvb, 0, tvb_reported_length(uncomp_tvb), ett_mapi_connect_request, NULL, "Decrypted MAPI PDU");
-
-	mapi_dissect_element_AuxInfo_auxHeader(uncomp_tvb, 0, pinfo, tr, di, drep);
-
-	offset += compressedSize;
-
-	proto_item_set_len(item, offset-old_offset);
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
-
-	return offset;
-}
-
 int
 dissect_EcDoConnectEx_AuxInfoOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
@@ -424,9 +598,7 @@ dissect_EcDoConnectEx_AuxInfoOut(tvbuff_t *tvb _U_, int offset _U_, int length _
 static int
 mapi_dissect_element_EcDoConnectEx_rgbAuxOut_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoConnectEx_AuxInfoOut);
-
-	return offset;
+	return dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoConnectEx_AuxInfoOut);
 }
 
 int
@@ -441,9 +613,7 @@ dissect_EcDoRpcExt2_AuxInfoOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_
 static int
 mapi_dissect_element_EcDoRpcExt2_rgbAuxOut_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoRpcExt2_AuxInfoOut);
-
-	return offset;
+	return dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoRpcExt2_AuxInfoOut);
 }
 
 int
@@ -629,11 +799,7 @@ mapi_dissect_struct_EcDoRpcMapiRequest(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	offset = PIDL_dissect_uint8_val(tvb, offset, pinfo, tree, di, drep, hf_mapi_EcDoRpcMapiRequest_opnum, param, &opnum);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation"));
-
-	offset = mapi_dissect_element_EcDoRpcMapiRequest_logon_id(tvb, offset, pinfo, tree, di, drep);
-
-	offset = mapi_dissect_element_EcDoRpcMapiRequest_handle_idx(tvb, offset, pinfo, tree, di, drep);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_ROP_OPNUM_vals, "Unknown MAPI operation"));
 
 	offset = mapi_dissect_element_EcDoRpcMapiRequest_u(tvb, offset, pinfo, tree, di, drep, &opnum);
 
@@ -653,7 +819,6 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 	tvbuff_t *decrypted_tvb = NULL;
 	guint16		pdu_len;
 	guint32		size;
-	proto_tree	*tr = NULL;
 
 	ALIGN_TO_5_BYTES;
 
@@ -669,24 +834,23 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 		return offset;
 	}
 
-	{
-		add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI");
+	offset += size;
+	proto_item_set_len(item, offset - start_offset);
 
-		tr = proto_tree_add_subtree(tree, decrypted_tvb, 0, size, ett_mapi_mapi_request, NULL, "Decrypted MAPI PDU");
+	{
+		add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI Request");
+
+		tree = proto_tree_add_subtree(tree, decrypted_tvb, 0, size, ett_mapi_mapi_request, NULL, "Decrypted MAPI Request PDU");
 
 		pdu_len = tvb_get_letohs(decrypted_tvb, 0);
-		proto_tree_add_uint(tr, hf_mapi_mapi_request_length, decrypted_tvb, 0, 2, pdu_len);
-		proto_tree_add_item(tr, hf_mapi_decrypted_data, decrypted_tvb, 2, pdu_len - 2, ENC_NA);
+		proto_tree_add_uint(tree, hf_mapi_mapi_request_length, decrypted_tvb, 0, 2, pdu_len);
+		proto_tree_add_item(tree, hf_mapi_decrypted_data, decrypted_tvb, 2, pdu_len - 2, ENC_NA);
 
 		/* analyze contents */
-		mapi_dissect_element_request_req(decrypted_tvb, 2, pinfo, tr, di, drep);
+		mapi_dissect_element_request_rpcRequest(decrypted_tvb, 2, pinfo, tree, di, drep);
 
-		mapi_dissect_element_handles_cnf(decrypted_tvb, pdu_len, pinfo, tr, di, hf_mapi_mapi_request_handles, drep);
-
-		offset += size;
+		mapi_dissect_element_handles_cnf(decrypted_tvb, pdu_len, pinfo, tree, di, hf_mapi_mapi_request_handles, drep);
 	}
-
-	proto_item_set_len(item, offset - start_offset);
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
 		ALIGN_TO_5_BYTES;
@@ -698,7 +862,7 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 static int
 mapi_dissect_element_EcDoConnect_szUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	char *data;
+	char *data= NULL;
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcDoConnect_szUserDN, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
@@ -710,7 +874,7 @@ mapi_dissect_element_EcDoConnect_szUserDN(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 mapi_dissect_element_EcDoConnectEx_szUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	char *data;
+	char *data= NULL;
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_mapi_mapi_EcDoConnectEx_szUserDN, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
@@ -727,11 +891,9 @@ mapi_dissect_struct_EcDoRpcMapiResponse(tvbuff_t *tvb _U_, int offset _U_, packe
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	gboolean oldalign = di->no_align;
-	int old_offset;
+	int old_offset= offset;
 
 	di->no_align = TRUE;
-
-	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
@@ -739,11 +901,7 @@ mapi_dissect_struct_EcDoRpcMapiResponse(tvbuff_t *tvb _U_, int offset _U_, packe
 	}
 
 	offset = PIDL_dissect_uint8_val(tvb, offset, pinfo, tree, di, drep, hf_mapi_EcDoRpcMapiResponse_opnum, param, &opnum);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation"));
-
-	offset = mapi_dissect_element_EcDoRpcMapiResponse_handle_idx(tvb, offset, pinfo, tree, di, drep);
-
-	offset = mapi_dissect_element_EcDoRpcMapiResponse_error_code(tvb, offset, pinfo, tree, di, drep);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_ROP_OPNUM_vals, "Unknown MAPI operation"));
 
 	offset = mapi_dissect_element_EcDoRpcMapiResponse_u(tvb, offset, pinfo, tree, di, drep, &opnum);
 
@@ -752,6 +910,429 @@ mapi_dissect_struct_EcDoRpcMapiResponse(tvbuff_t *tvb _U_, int offset _U_, packe
 	di->no_align = oldalign;
 
 	return offset;
+}
+
+int
+uint32_size_uint8_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_size_index, int hf_buffer_index, guint32 param)
+{
+	guint32 size= 0;
+
+	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, parent_tree, di, drep, hf_size_index, param, &size);
+
+	proto_tree_add_item(parent_tree, hf_buffer_index, tvb, offset, size, ENC_NA);
+
+	return offset+size;
+}
+
+int
+mapi_dissect_struct_SyncUploadStateStreamContinue_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	gboolean oldalign = di->no_align;
+	int old_offset= offset;
+
+	di->no_align = TRUE;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_mapi_SyncUploadStateStreamContinue_req);
+	}
+
+	offset = mapi_dissect_element_SyncUploadStateStreamContinue_req_LogonId(tvb, offset, pinfo, tree, di, drep);
+
+	offset = mapi_dissect_element_SyncUploadStateStreamContinue_req_InputHandleIndex(tvb, offset, pinfo, tree, di, drep);
+
+	offset = uint32_size_uint8_buffer(tvb, offset, pinfo, tree, di, drep, hf_mapi_SyncUploadStateStreamContinue_req_StreamDataSize, hf_mapi_SyncUploadStateStreamContinue_req_StreamDataValue, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+
+	di->no_align = oldalign;
+
+	return offset;
+}
+
+int
+mapi_dissect_struct_SyncImportMessageMove_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	gboolean oldalign = di->no_align;
+	int old_offset = offset;
+
+	di->no_align = TRUE;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_mapi_SyncImportMessageMove_req);
+	}
+
+	offset = mapi_dissect_element_SyncImportMessageMove_req_LogonId(tvb, offset, pinfo, tree, di, drep);
+	offset = mapi_dissect_element_SyncImportMessageMove_req_InputHandleIndex(tvb, offset, pinfo, tree, di, drep);
+	offset = uint32_size_uint8_buffer(tvb, offset, pinfo, tree, di, drep, hf_mapi_SyncImportMessageMove_req_SourceFolderIdSize, hf_mapi_SyncImportMessageMove_req_SourceFolderIdValue, 0);
+	offset = uint32_size_uint8_buffer(tvb, offset, pinfo, tree, di, drep, hf_mapi_SyncImportMessageMove_req_SourceMessageIdSize, hf_mapi_SyncImportMessageMove_req_SourceMessageIdValue, 0);
+	offset = uint32_size_uint8_buffer(tvb, offset, pinfo, tree, di, drep, hf_mapi_SyncImportMessageMove_req_PredecessorChangeListSize, hf_mapi_SyncImportMessageMove_req_PredecessorChangeListValue, 0);
+	offset = uint32_size_uint8_buffer(tvb, offset, pinfo, tree, di, drep, hf_mapi_SyncImportMessageMove_req_DestinationMessageIdSize, hf_mapi_SyncImportMessageMove_req_DestinationMessageIdValue, 0);
+	offset = uint32_size_uint8_buffer(tvb, offset, pinfo, tree, di, drep, hf_mapi_SyncImportMessageMove_req_ChangeNumberSize, hf_mapi_SyncImportMessageMove_req_ChangeNumberValue, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+
+	di->no_align = oldalign;
+
+	return offset;
+}
+
+/* IDL: bitmap { */
+/* IDL: 	PUBLIC =  0x2 , */
+/* IDL: 	HOME_LOGON =  0x4 , */
+/* IDL: 	TAKE_OWNERSHIP =  0x8 , */
+/* IDL: 	ALTERNATE_SERVER =  0x100 , */
+/* IDL: 	IGNORE_HOME_MDB =  0x200 , */
+/* IDL: 	NO_MAIL =  0x400 , */
+/* IDL: 	USE_PER_MDB_REPLID_MAPPING =  0x010000000 , */
+/* IDL: } */
+
+int
+mapi_dissect_bitmap_OpenFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item= NULL;
+	static int * const mapi_OpenFlags_fields[] = {
+		&hf_mapi_OpenFlags_PUBLIC,
+		&hf_mapi_OpenFlags_HOME_LOGON,
+		&hf_mapi_OpenFlags_TAKE_OWNERSHIP,
+		&hf_mapi_OpenFlags_ALTERNATE_SERVER,
+		&hf_mapi_OpenFlags_IGNORE_HOME_MDB,
+		&hf_mapi_OpenFlags_NO_MAIL,
+		&hf_mapi_OpenFlags_USE_PER_MDB_REPLID_MAPPING,
+		NULL
+	};
+	guint32 flags;
+
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_mapi_OpenFlags, mapi_OpenFlags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
+
+	if (!flags)
+		proto_item_append_text(item, ": (No values set)");
+
+	if (flags & (~0x1000070e)) {
+		flags &= (~0x1000070e);
+		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+	}
+
+	return offset;
+}
+
+int
+mapi_dissect_bitmap_StoreState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item;
+	static int * const mapi_StoreState_fields[] = {
+		&hf_mapi_StoreState_STORE_HAS_SEARCHES,
+		NULL
+	};
+	guint32 flags;
+
+	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
+				ett_mapi_StoreState, mapi_StoreState_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
+
+	if (!flags)
+		proto_item_append_text(item, ": (No values set)");
+
+	if (flags & (~0x10000000)) {
+		flags &= (~0x10000000);
+		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+	}
+
+	return offset;
+}
+
+int
+mapi_dissect_struct_Logon_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	gboolean oldalign = di->no_align;
+	int old_offset= offset;
+	guint32 returnValue;
+
+	di->no_align = TRUE;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_mapi_Logon_repl);
+	}
+
+	offset = mapi_dissect_element_Logon_repl_OutputHandleIndex(tvb, offset, pinfo, tree, di, drep);
+
+	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, tree, di, drep, hf_mapi_Logon_repl_ReturnValue, 0, &returnValue);
+
+	if (returnValue == 0x0){
+		// 2.2.3.1.2 RopLogon ROP Success Response Buffer
+		guint8 LogonFlags= 0;
+
+		offset = mapi_dissect_enum_LogonFlags(tvb, offset, pinfo, tree, di, drep, hf_mapi_Logon_repl_LogonFlags, &LogonFlags);
+
+		if (LogonFlags == 0x1){
+			// Private
+			offset = mapi_dissect_element_Logon_repl_FolderIds(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_ResponseFlags(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_MailboxGuid(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_ReplId(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_ReplGuid(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_LogonTime(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_GwartTime(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_StoreState(tvb, offset, pinfo, tree, di, drep);
+		} else {
+			// Public
+			offset = mapi_dissect_element_Logon_repl_FolderIds(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_ReplId(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_ReplGuid(tvb, offset, pinfo, tree, di, drep);
+			offset = mapi_dissect_element_Logon_repl_PerUserGuid(tvb, offset, pinfo, tree, di, drep);
+		}
+	} else if (returnValue == 0x00000478){
+		// 2.2.1.1.2 RopLogon ROP Redirect Response Buffer
+		offset = mapi_dissect_enum_LogonFlags(tvb, offset, pinfo, tree, di, drep, hf_mapi_Logon_repl_LogonFlags, 0);
+		offset = mapi_dissect_element_Logon_repl_ServerNameSize(tvb, offset, pinfo, tree, di, drep);
+		offset = mapi_dissect_element_Logon_repl_ServerName(tvb, offset, pinfo, tree, di, drep);
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+
+	di->no_align = oldalign;
+
+	return offset;
+}
+
+	#define  RHEF_Compressed   0x0001
+	#define  RHEF_XorMagic     0x0002
+	#define  RHEF_Last         0x0004
+
+int dissect_RPC_HEADER_EXT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, tvbuff_t **ppUncomp_tvb)
+{
+	proto_tree *hTree = NULL;
+	proto_item *rpcItem = NULL;
+	guint16 flags;
+	guint16 compressedSize= 0, uncompressedSize= 0;
+	int old_offset= offset;
+
+	ALIGN_TO_2_BYTES;
+
+	if (parent_tree) {
+		rpcItem = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		hTree = proto_item_add_subtree(rpcItem, ett_mapi_RPC_HEADER_EXT);
+	}
+
+	offset = mapi_dissect_element_RPC_HEADER_EXT_Version(tvb, offset, pinfo, hTree, di, drep);
+
+	proto_item *flagItem;
+	static int * const mapi_RPC_HEADER_EXT_Flags_fields[] = {
+		&hf_mapi_RPC_HEADER_EXT_Flags_RHEF_Compressed,
+		&hf_mapi_RPC_HEADER_EXT_Flags_RHEF_XorMagic,
+		&hf_mapi_RPC_HEADER_EXT_Flags_RHEF_Last,
+		NULL
+	};
+
+	ALIGN_TO_2_BYTES;
+
+	flagItem = proto_tree_add_bitmask_with_flags(hTree, tvb, offset, hf_mapi_RPC_HEADER_EXT_Flags,
+				ett_mapi_RPC_HEADER_EXT_Flags, mapi_RPC_HEADER_EXT_Flags_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, hTree, di, drep, -1, &flags);
+
+	if (!flags)
+		proto_item_append_text(flagItem, ": (No values set)");
+
+	if (flags & (~0x00000007)) {
+		flags &= (~0x00000007);
+		proto_item_append_text(flagItem, "Unknown bitmap value 0x%x", flags);
+	}
+
+	offset = PIDL_dissect_uint16_val(tvb, offset, pinfo, hTree, di, drep, hf_mapi_RPC_HEADER_EXT_Size, 0, &compressedSize);
+	offset = PIDL_dissect_uint16_val(tvb, offset, pinfo, hTree, di, drep, hf_mapi_RPC_HEADER_EXT_SizeActual, 0, &uncompressedSize);
+
+	proto_item_set_len(flagItem, 2);
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_2_BYTES;
+	}
+
+	bool last = RHEF_Last == (flags & RHEF_Last);
+	bool compressed = RHEF_Compressed == (flags & RHEF_Compressed);
+	bool xored = RHEF_XorMagic == (flags & RHEF_XorMagic);
+
+	if (!last){
+		// TODO: Currently we don't support multiple buffers of RPC_HEADER_EXT.
+		return offset;
+	}
+
+	if (compressed && xored){
+		// TODO: Currently we don't support both compressed and Xored
+		return offset;
+	}
+
+	if (compressed){
+		*ppUncomp_tvb= tvb_child_uncompress_lz77(tvb, tvb, offset, compressedSize);
+	} else if (xored){
+		*ppUncomp_tvb= mapi_deobfuscate(tvb, offset, pinfo, uncompressedSize);
+	} else if (!compressed && !xored) {
+		*ppUncomp_tvb = tvb_new_subset_length(tvb, offset, uncompressedSize);
+	} else {
+		return offset;
+	}
+
+	if (!(*ppUncomp_tvb) || tvb_reported_length(*ppUncomp_tvb) != uncompressedSize) {
+		*ppUncomp_tvb= NULL;
+		return offset;
+	}
+
+	offset += compressedSize;
+
+	proto_item_set_len(rpcItem, offset-old_offset);
+
+	return offset;
+}
+
+int
+mapi_dissect_struct_AuxInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset= offset;
+	tvbuff_t *uncomp_tvb = NULL;
+
+	ALIGN_TO_4_BYTES;
+
+	if(di->conformant_run){
+		return offset;
+	}
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_mapi_AuxInfo);
+	}
+
+	if (di->ptype == PDU_REQ){
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_AuxInfo_auxInSize, NULL);
+	}
+
+	offset = dissect_RPC_HEADER_EXT(tvb, offset, pinfo, tree, di, drep, di->ptype == PDU_REQ ? hf_mapi_AuxInfo_RpcHeaderExtension : hf_mapi_AuxInfoOut_RpcHeaderExtension, &uncomp_tvb);
+
+	if (!uncomp_tvb) {
+		return offset;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+
+	add_new_data_source(pinfo, uncomp_tvb, "Decrypted MAPI AuxInfo");
+
+	{
+		tree = proto_tree_add_subtree(tree, uncomp_tvb, 0, tvb_reported_length(uncomp_tvb), ett_mapi_connect_request, NULL, "Decrypted MAPI AuxInfo");
+
+		mapi_dissect_element_AuxInfo_auxHeader(uncomp_tvb, 0, pinfo, tree, di, drep);
+	}
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
+
+	return offset;
+}
+
+int
+mapi_dissect_RgbInOut(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset= offset;
+	tvbuff_t *uncomp_tvb = NULL;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, di->ptype == PDU_REQ ? ett_mapi_RgbIn : ett_mapi_RgbOut);
+	}
+
+	if (di->ptype == PDU_REQ){
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, di->ptype == PDU_REQ ? hf_mapi_RgbInSize : hf_mapi_RgbOutSize, NULL);
+	}
+
+	offset = dissect_RPC_HEADER_EXT(tvb, offset, pinfo, tree, di, drep, di->ptype == PDU_REQ ? hf_mapi_RgbIn_RpcHeaderExtension : hf_mapi_RgbOut_RpcHeaderExtension, &uncomp_tvb);
+
+	if (!uncomp_tvb) {
+		return offset;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+
+	add_new_data_source(pinfo, uncomp_tvb, di->ptype == PDU_REQ ? "Decrypted MAPI ROPIn PDU" : "Decrypted MAPI ROPOut PDU");
+
+	{
+		int uncompressed_offset= 0;
+		guint16 total_length;
+
+		item = proto_tree_add_item(tree, di->ptype == PDU_REQ ? hf_mapi_RgbIn_ropIn : hf_mapi_RgbOut_ropOut, uncomp_tvb, 0, tvb_reported_length(uncomp_tvb), ENC_NA);
+		tree = proto_item_add_subtree(item, di->ptype == PDU_REQ ? ett_mapi_RgbIn : ett_mapi_RgbOut);
+
+		uncompressed_offset = PIDL_dissect_uint16_val(uncomp_tvb, uncompressed_offset, pinfo, tree, di, drep, di->ptype == PDU_REQ ? hf_mapi_ROPInputBuffer_ropSize : hf_mapi_ROPOutputBuffer_ropSize, 0, &total_length);
+
+		while((guint)(uncompressed_offset) < total_length){
+			if (di->ptype == PDU_REQ){
+				uncompressed_offset = mapi_dissect_struct_RopInput(uncomp_tvb, uncompressed_offset,pinfo,tree,di,drep,hf_mapi_ROPInputBuffer_rop,0);
+			} else {
+				uncompressed_offset = mapi_dissect_struct_RopOutput(uncomp_tvb, uncompressed_offset,pinfo,tree,di,drep,hf_mapi_ROPOutputBuffer_rop,0);
+			}
+		}
+	}
+
+	ALIGN_TO_5_BYTES
+
+	return offset;
+}
+
+
+int
+mapi_dissect_struct_RgbIn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
+{
+	return mapi_dissect_RgbInOut(tvb, offset, pinfo, parent_tree, di, drep, hf_index);
+}
+
+int
+dissect_EcDoRpcExt2_RgbOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	if (length == 0){
+		return offset;
+	}
+	return mapi_dissect_struct_RgbOut(tvb, offset, pinfo, parent_tree, di, drep, hf_mapi_mapi_EcDoRpcExt2_rgbOut, 0);
+}
+
+static int
+mapi_dissect_element_EcDoRpcExt2_rgbOut_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoRpcExt2_RgbOut);
+}
+
+int
+dissect_EcDoRpcExt_RgbOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	if (length == 0){
+		return offset;
+	}
+	return mapi_dissect_struct_RgbOut(tvb, offset, pinfo, parent_tree, di, drep, hf_mapi_mapi_EcDoRpcExt_rgbOut, 0);
+}
+
+static int
+mapi_dissect_element_EcDoRpcExt_rgbOut_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	return dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoRpcExt_RgbOut);
+}
+
+int
+mapi_dissect_struct_RgbOut(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	return mapi_dissect_RgbInOut(tvb, offset, pinfo, parent_tree, di, drep, hf_index);
 }
 
 CODE END
