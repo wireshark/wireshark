@@ -622,21 +622,54 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
          */
         static const char promisc_failed[] =
             "failed to set hardware filter to promiscuous mode";
+#if defined(__linux__)
+        static const char af_notsup[] =
+            "socket: Address family not supported by protocol";
+#endif
 
         /*
-         * Does the error string begin with the error produced by WinPcap
-         * and Npcap if attempting to set promiscuous mode fails?
-         * (Note that this string could have a specific error message
-         * from an NDIS error after the initial part, so we do a prefix
-         * check rather than an exact match check.)
+         * Check for some text that pops up in some errors.
          */
         if (strncmp(open_status_str, promisc_failed, sizeof promisc_failed - 1) == 0) {
             /*
-             * Yes.  Suggest that the user turn off promiscuous mode on that
+             * The error string begins with the error produced by WinPcap
+             * and Npcap if attempting to set promiscuous mode fails.
+             * (Note that this string could have a specific error message
+             * from an NDIS error after the initial part, so we do a prefix
+             * check rather than an exact match check.)
+             *
+             * Suggest that the user turn off promiscuous mode on that
              * device.
              */
             return
                    "Please turn off promiscuous mode for this device";
+#if defined(__linux__)
+        } else if (strcmp(open_status_str, af_notsup) == 0) {
+            /*
+             * The error string is the message provided by libpcap on
+	     * Linux if an attempt to open a PF_PACKET socket failed
+	     * with EAFNOSUPPORT.  This probably means that either 1)
+	     * the kernel doesn't have PF_PACKET support configured in
+	     * or 2) this is a Flatpak version of Wireshark that's been
+	     * sandboxed in a way that disallows opening PF_PACKET
+	     * sockets.
+	     *
+	     * Suggest that the user find some other package of
+	     * Wireshark if they want to capture traffic and are
+	     * running a Flatpak of Wireshark or that they configure
+	     * PF_PACKET support back in if it's configured out.
+	     */
+	    return
+                       "If you are running Wireshark from a Flatpak package, "
+                       "it does not support packet capture; you will need "
+                       "to run a different version of Wireshark in order "
+                       "to capture traffic.\n"
+                       "\n"
+                       "Otherwise, if your machine is running a kernel that "
+                       "was not configured with CONFIG_PACKET, that kernel "
+                       "does not support packet capture; you will need to "
+                       "use a kernel configured with CONFIG_PACKET.";
+#endif
         } else {
             /*
              * No.  Was this a "generic" error from pcap_open_live()
