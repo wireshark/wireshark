@@ -62,7 +62,7 @@ class case_dumpcap_capture_clopts(subprocesstest.SubprocessTestCase):
         # $DUMPCAP -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
         self.runProcess((cmd_dumpcap, '-i', invalid_interface, '-w', testout_file))
-        self.assertTrue(self.grepOutput('The capture session could not be initiated'))
+        self.assertTrue(self.grepOutput('There is no device named "__invalid_interface"'))
 
     def test_dumpcap_invalid_interface_index(self, cmd_dumpcap, capture_interface):
         '''Invalid capture interface index'''
@@ -128,7 +128,7 @@ class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
         # $TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
         self.runProcess((cmd_tshark, '-i', invalid_interface, '-w', testout_file))
-        self.assertTrue(self.grepOutput('The capture session could not be initiated'))
+        self.assertTrue(self.grepOutput('There is no device named "__invalid_interface"'))
 
     def test_tshark_invalid_interface_index(self, cmd_tshark, capture_interface):
         '''Invalid capture interface index'''
