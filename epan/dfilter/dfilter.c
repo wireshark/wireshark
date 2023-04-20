@@ -29,9 +29,6 @@
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 
-/* Scanner's lval */
-extern stnode_t *df_lval;
-
 /* Holds the singular instance of our Lemon parser object */
 static void*	ParserObj = NULL;
 
@@ -445,12 +442,12 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 		ws_noisy("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
-				stnode_token(state.df_lval));
+				stnode_token(state.lval));
 
 		/* Give the token to the parser */
-		Dfilter(ParserObj, token, state.df_lval, dfw);
+		Dfilter(ParserObj, token, state.lval, dfw);
 		/* The parser has freed the lval for us. */
-		state.df_lval = NULL;
+		state.lval = NULL;
 
 		if (dfw->parse_failure) {
 			break;
@@ -458,11 +455,11 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 	} /* while (1) */
 
-	/* If we created a df_lval_t but didn't use it, free it; the
+	/* If we created a lval_t but didn't use it, free it; the
 	 * parser doesn't know about it and won't free it for us. */
-	if (state.df_lval) {
-		stnode_free(state.df_lval);
-		state.df_lval = NULL;
+	if (state.lval) {
+		stnode_free(state.lval);
+		state.lval = NULL;
 	}
 
 	/* Tell the parser that we have reached the end of input; that

@@ -70,7 +70,7 @@ typedef struct {
  */
 typedef struct {
 	dfwork_t *dfw;
-	stnode_t *df_lval;
+	stnode_t *lval;
 	GString* quoted_string;
 	gboolean raw_string;
 	df_loc_t string_loc;
