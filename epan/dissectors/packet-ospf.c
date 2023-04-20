@@ -2727,10 +2727,10 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                 default:
                     stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
                                              ett_ospf_lsa_mpls_link_stlv, NULL, "Unknown Link sub-TLV: %u %s", stlv_type,
-                                             rval_to_str(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
+                                             rval_to_str_const(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s %s", stlv_type, stlv_name,
-                                        rval_to_str(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
+                                        rval_to_str_const(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset+4, stlv_len, ENC_NA);
                     break;
@@ -2816,9 +2816,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
         default:
             tlv_tree = proto_tree_add_subtree_format(mpls_tree, tvb, offset, tlv_length+4,
                                      ett_ospf_lsa_mpls_link, NULL, "Unknown LSA: %u %s", tlv_type,
-                                     rval_to_str(tlv_type, mpls_te_tlv_rvals, "Unknown"));
+                                     rval_to_str_const(tlv_type, mpls_te_tlv_rvals, "Unknown"));
             proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, tlv_type, "%u - Unknown %s",
-                                tlv_type, rval_to_str(tlv_type, mpls_te_tlv_rvals, "Unknown"));
+                                tlv_type, rval_to_str_const(tlv_type, mpls_te_tlv_rvals, "Unknown"));
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_value, tvb, offset+4, tlv_length, ENC_NA);
             break;

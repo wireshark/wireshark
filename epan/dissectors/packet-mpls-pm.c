@@ -484,9 +484,9 @@ mpls_pm_build_cinfo(tvbuff_t *tvb, packet_info *pinfo, const char *str_pmt,
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Response, sid: %u, code: %s (%u)",
                      *sid,
-                     rval_to_str(*code,
-                                 mpls_pm_response_ctrl_code_rvals,
-                                 "Unknown"),
+                     rval_to_str_const(*code,
+                                       mpls_pm_response_ctrl_code_rvals,
+                                       "Unknown"),
                      *code);
     }
 }

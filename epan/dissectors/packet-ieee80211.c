@@ -24883,9 +24883,8 @@ dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
     sub_id = tvb_get_guint8(tvb, offset);
-    proto_item_append_text(sub_tree, ": %s", rval_to_str(sub_id,
-                                                         ranging_subelt_types,
-                                                         "Reserved"));
+    proto_item_append_text(sub_tree, ": %s",
+                           rval_to_str_const(sub_id, ranging_subelt_types, "Reserved"));
     proto_tree_add_item(sub_tree, hf_ieee80211_tag_ranging_subelt_tag, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
@@ -32683,8 +32682,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
     subtype = tvb_get_guint8(tvb, offset) & 0x0f;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                    rval_to_str(subtype, ranging_trigger_subtype_vals,
-                                "Reserved"));
+                    rval_to_str_const(subtype, ranging_trigger_subtype_vals, "Reserved"));
 
     if (subtype >= TRIGGER_SUBTYPE_MIN_RESERVED) {
       proto_item *item;

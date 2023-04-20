@@ -5984,7 +5984,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	curr_offset++;
 
 	if (add_string)
-		snprintf(add_string, string_len, " - %s", rval_to_str(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
+		snprintf(add_string, string_len, " - %s", rval_to_str_const(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 

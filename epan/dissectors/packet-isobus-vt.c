@@ -2124,13 +2124,13 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of %s has changed to %s",
-                    get_object_id_string(object_id), rval_to_str(colour, vt_colours, "Unknown"));
+                    get_object_id_string(object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
             }
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of %s should change to %s",
-                get_object_id_string(object_id), rval_to_str(colour, vt_colours, "Unknown"));
+                get_object_id_string(object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
         }
     }
         break;
@@ -3862,8 +3862,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_getwindowmaskdata_backgroundcoloursoftkeymask, tvb, offset, 1, ENC_LITTLE_ENDIAN, &background_colour_soft_key_mask);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of data mask is %s, soft key mask is %s",
-                rval_to_str(background_colour_data_mask, vt_colours, "Unknown"),
-                rval_to_str(background_colour_soft_key_mask, vt_colours, "Unknown"));
+                rval_to_str_const(background_colour_data_mask, vt_colours, "Unknown"),
+                rval_to_str_const(background_colour_soft_key_mask, vt_colours, "Unknown"));
         }
     }
         break;

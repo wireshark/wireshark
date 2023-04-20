@@ -534,7 +534,7 @@ decode_dataitem_extsupp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, v
 
   while(offset < len) {
     proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_extsupp_code, tvb, offset, 2, ENC_BIG_ENDIAN, &extension_code);
-    proto_item_append_text(pi, ", Ext: %s (%u)", rval_to_str(extension_code, extension_code_vals, "Unknown"), extension_code);
+    proto_item_append_text(pi, ", Ext: %s (%u)", rval_to_str_const(extension_code, extension_code_vals, "Unknown"), extension_code);
     offset+=2;
   }
 

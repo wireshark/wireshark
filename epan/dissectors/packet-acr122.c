@@ -558,7 +558,10 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (use_status_word) {
             value = tvb_get_ntohs(tvb, offset);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s%s",  (((value & 0xFF00) != 0x9000) && (value & 0xFF00) != 0x6100) ? "Error: " : "", rval_to_str(value, status_word_rvals, "Unknown error"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s%s",
+                            (((value & 0xFF00) != 0x9000) && (value & 0xFF00) != 0x6100) ?
+                                    "Error: " : "",
+                            rval_to_str_const(value, status_word_rvals, "Unknown error"));
 
             if ((value & 0xFF00) == 0x6100)
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Length %u", value & 0x00FF);

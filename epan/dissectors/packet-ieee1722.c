@@ -2386,7 +2386,7 @@ static int dissect_1722_acf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     set_actual_length(tvb, msg_length);
     proto_item_set_len(ti_acf, msg_length);
-    msg_type_str = rval_to_str(msg_type, acf_msg_type_range_rvals, "%s");
+    msg_type_str = rval_to_str_const(msg_type, acf_msg_type_range_rvals, "Unknown");
     proto_item_append_text(ti_header, ": %s (0x%02X), %d bytes with header",
                            msg_type_str, msg_type, msg_length);
     proto_item_append_text(ti_acf, ": %s (0x%02X)", msg_type_str, msg_type);

@@ -880,7 +880,9 @@ dissect_sprt_data(tvbuff_t *tvb,
         payload_length--;
 
         /* what kind of message is this? */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s(%d)", rval_to_str(payload_msgid, sprt_modem_relay_msg_id_name, "Unknown"), payload_msgid);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s(%d)",
+                        rval_to_str_const(payload_msgid, sprt_modem_relay_msg_id_name, "Unknown"),
+                        payload_msgid);
 
         /* now parse payload stuff after ext. bit & msgid */
         switch(payload_msgid)

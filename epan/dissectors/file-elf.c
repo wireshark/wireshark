@@ -774,7 +774,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
 
         pitem = proto_tree_add_item(entry_tree, hf_elf64_dynamic_tag, tvb, offset, 8, machine_encoding);
         tag = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
-        proto_item_append_text(pitem, " (%s)", rval_to_str(value_guard(tag), dynamic_tag_rvals, "Unknown"));
+        proto_item_append_text(pitem, " (%s)", rval_to_str_const(value_guard(tag), dynamic_tag_rvals, "Unknown"));
         offset += 8;
 
         if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
@@ -788,7 +788,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
         offset += 8;
     }
 
-    proto_item_append_text(entry_item, ": %s", rval_to_str(value_guard(tag), dynamic_tag_rvals, "Unknown"));
+    proto_item_append_text(entry_item, ": %s", rval_to_str_const(value_guard(tag), dynamic_tag_rvals, "Unknown"));
 
     return offset;
 }

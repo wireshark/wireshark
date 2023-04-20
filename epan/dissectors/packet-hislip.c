@@ -514,16 +514,16 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
     case HISLIP_FATALERROR:
 
         proto_tree_add_item(tree, hf_hislip_fatalerrcode, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", rval_to_str(data->controlcode, fatalerrortype, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", rval_to_str(data->controlcode, fatalerrortype, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", rval_to_str_const(data->controlcode, fatalerrortype, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", rval_to_str_const(data->controlcode, fatalerrortype, "Unknown"));
         break;
 
 
     case HISLIP_ERROR:
 
         proto_tree_add_item(tree, hf_hislip_nonfatalerrorcode, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", rval_to_str(data->controlcode, nonfatalerrortype, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", rval_to_str(data->controlcode, nonfatalerrortype, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", rval_to_str_const(data->controlcode, nonfatalerrortype, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", rval_to_str_const(data->controlcode, nonfatalerrortype, "Unknown"));
         break;
 
 
@@ -720,7 +720,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 
     /* Write Messagetype in the info column */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", rval_to_str(hislip_data.messagetype, messagetypestring, "Unknown"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", rval_to_str_const(hislip_data.messagetype, messagetypestring, "Unknown"));
 
 
     if (tree)
@@ -831,7 +831,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     hislip_data.offset += 2;
 
     proto_tree_add_item(hislip_tree, hf_hislip_messagetype, tvb, hislip_data.offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(hislip_data.hislip_item, ", %s", rval_to_str(hislip_data.messagetype, messagetypestring, "Unknown"));
+    proto_item_append_text(hislip_data.hislip_item, ", %s", rval_to_str_const(hislip_data.messagetype, messagetypestring, "Unknown"));
     hislip_data.offset += 1;
 
     decode_controlcode(tvb, pinfo, hislip_tree, &hislip_data, oldcontrolvalue );

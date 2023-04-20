@@ -4148,7 +4148,7 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
             break;
         case USBHID_MAINITEM_TAG_COLLECTION:
             proto_tree_add_item_ret_uint(tree, hf_usb_hid_mainitem_colltype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%s)", rval_to_str(val, usb_hid_mainitem_colltype_vals, "Unknown"));
+            proto_item_append_text(ti, " (%s)", rval_to_str_const(val, usb_hid_mainitem_colltype_vals, "Unknown"));
             break;
         case USBHID_MAINITEM_TAG_ENDCOLLECTION:
             /* No item data */

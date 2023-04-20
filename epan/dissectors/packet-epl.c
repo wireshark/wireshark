@@ -3018,7 +3018,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 	offset += 1;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)->%3d",
-					rval_to_str(svid, soa_svid_id_vals, "Unknown"), target);
+					rval_to_str_const(svid, soa_svid_id_vals, "Unknown"), target);
 
 	/* append info entry with flag information */
 	col_append_fstr(pinfo->cinfo, COL_INFO, "  F:EA=%d,ER=%d  ",
@@ -3126,7 +3126,7 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 	flags2 = tvb_get_guint8(tvb, offset + 1);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-			rval_to_str(svid, asnd_svid_id_vals, "Unknown"));
+			rval_to_str_const(svid, asnd_svid_id_vals, "Unknown"));
 
 	/* append info entry with flag information for sres/ires frames */
 	if ((svid == EPL_ASND_IDENTRESPONSE) || (svid == EPL_ASND_STATUSRESPONSE))

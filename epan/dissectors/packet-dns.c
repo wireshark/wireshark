@@ -4117,7 +4117,7 @@ dissect_dso_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 
     proto_tree_add_item_ret_uint(dso_tlv_tree, hf_dns_dso_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN, &dso_tlv_type);
     offset += 2;
-    proto_item_append_text(dso_tlv_ti, ": %s", rval_to_str(dso_tlv_type, dns_dso_type_rvals, "Unknown Type"));
+    proto_item_append_text(dso_tlv_ti, ": %s", rval_to_str_const(dso_tlv_type, dns_dso_type_rvals, "Unknown Type"));
 
     proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;

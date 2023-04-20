@@ -1761,7 +1761,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
     /* Frame type */
     ti_ftflags = proto_tree_add_item(ft_tree, hf_gquic_frame_type, tvb, offset, 1, ENC_NA);
     frame_type = tvb_get_guint8(tvb, offset);
-    proto_item_set_text(ti_ft, "%s", rval_to_str(frame_type, frame_type_vals, "Unknown"));
+    proto_item_set_text(ti_ft, "%s", rval_to_str_const(frame_type, frame_type_vals, "Unknown"));
 
     if((frame_type & FTFLAGS_SPECIAL) == 0 && frame_type != FT_CRYPTO){ /* Regular Stream Flags */
         offset += 1;

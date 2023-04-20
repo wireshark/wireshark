@@ -2416,7 +2416,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
                            sectionType, val_to_str(direction, data_direction_vals, "Unknown"),
                            frameId, subframeId, slotId, startSymbolId);
-    write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %d %s", sectionType, rval_to_str(sectionType, section_types_short, "Unknown"));
+    write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %d %s", sectionType,
+                             rval_to_str_const(sectionType, section_types_short, "Unknown"));
 
     /* Dissect each C section */
     for (guint32 i = 0; i < nSections; ++i) {
