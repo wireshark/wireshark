@@ -348,59 +348,18 @@ dfilter_expand(const char *expr, df_error_t **err_ret)
 	return dfilter_macro_apply(expr, err_ret);
 }
 
-gboolean
-dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			df_error_t **err_ptr, unsigned flags,
-			const char *caller)
+static gboolean
+dfwork_parse(dfwork_t *dfw, unsigned flags)
 {
-	int		token;
-	dfilter_t	*dfilter;
-	dfwork_t	*dfw;
 	df_scanner_state_t state;
 	yyscan_t	scanner;
 	YY_BUFFER_STATE in_buffer;
 	unsigned token_count = 0;
-	char		*tree_str;
-
-	ws_assert(dfp);
-	*dfp = NULL;
-
-	if (text == NULL) {
-		ws_debug("%s() called from %s() with null filter",
-			__func__, caller);
-		/* XXX This BUG happens often. Some callers are ignoring these errors. */
-		if (err_ptr)
-			*err_ptr = df_error_new_msg("BUG: NULL text pointer passed to dfilter_compile");
-		return FALSE;
-	}
-	else if (*text == '\0') {
-		/* An empty filter is considered a valid input. */
-		ws_debug("%s() called from %s() with empty filter",
-			__func__, caller);
-	}
-	else {
-		ws_debug("%s() called from %s(), compiling filter: %s",
-			__func__, caller, text);
-	}
-
-	dfw = dfwork_new();
-	dfw->apply_optimization = flags & DF_OPTIMIZE;
-
-	if (flags & DF_EXPAND_MACROS) {
-		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error);
-		if (dfw->expanded_text == NULL) {
-			goto FAILURE;
-		}
-		ws_noisy("Expanded text: %s", dfw->expanded_text);
-	}
-	else {
-		dfw->expanded_text = g_strdup(text);
-		ws_noisy("Verbatim text: %s", dfw->expanded_text);
-	}
+	int		token;
 
 	if (df_yylex_init(&scanner) != 0) {
 		dfw->error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "Can't initialize scanner: %s", g_strerror(errno));
-		goto FAILURE;
+		return FALSE;
 	}
 
 	in_buffer = df_yy_scan_string(dfw->expanded_text, scanner);
@@ -474,15 +433,60 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	df_yy_delete_buffer(in_buffer, scanner);
 	df_yylex_destroy(scanner);
 
-	if (dfw->error)
-		goto FAILURE;
+	return dfw->error == NULL;
+}
 
-	/* Success, but was it an empty filter? If so, discard
-	 * it and set *dfp to NULL */
-	if (dfw->st_root == NULL) {
-		*dfp = NULL;
+gboolean
+dfilter_compile_real(const gchar *text, dfilter_t **dfp,
+			df_error_t **err_ptr, unsigned flags,
+			const char *caller)
+{
+	dfilter_t	*dfilter;
+	dfwork_t	*dfw;
+	char		*tree_str;
+
+	ws_assert(dfp);
+	*dfp = NULL;
+
+	if (text == NULL) {
+		ws_debug("%s() called from %s() with null filter",
+			__func__, caller);
+		/* XXX This BUG happens often. Some callers are ignoring these errors. */
+		if (err_ptr)
+			*err_ptr = df_error_new_msg("BUG: NULL text pointer passed to dfilter_compile");
+		return FALSE;
+	}
+	else if (*text == '\0') {
+		/* An empty filter is considered a valid input. */
+		ws_debug("%s() called from %s() with empty filter",
+			__func__, caller);
 	}
 	else {
+		ws_debug("%s() called from %s(), compiling filter: %s",
+			__func__, caller, text);
+	}
+
+	dfw = dfwork_new();
+	dfw->apply_optimization = flags & DF_OPTIMIZE;
+
+	if (flags & DF_EXPAND_MACROS) {
+		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error);
+		if (dfw->expanded_text == NULL) {
+			goto FAILURE;
+		}
+		ws_noisy("Expanded text: %s", dfw->expanded_text);
+	}
+	else {
+		dfw->expanded_text = g_strdup(text);
+		ws_noisy("Verbatim text: %s", dfw->expanded_text);
+	}
+
+	if (!dfwork_parse(dfw, flags)) {
+		goto FAILURE;
+	}
+
+	/* Success, but was it an empty filter? If so we are done. */
+	if (dfw->st_root != NULL) {
 		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check", NULL);
 
 		/* Check semantics and do necessary type conversion*/
