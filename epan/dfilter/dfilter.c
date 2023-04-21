@@ -593,12 +593,18 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 	dfilter_t *dfcode;
 	df_error_t *error = NULL;
 
-	ws_assert(text);
-	ws_assert(*text);
 	ws_assert(dfp);
 	*dfp = NULL;
 	if (caller == NULL)
 		caller = "(unknown)";
+
+	if (text == NULL || *text == '\0') {
+		ws_info("Called from %s() with empty filter expression", caller);
+		if (err_ptr) {
+			*err_ptr = df_error_new_msg("Empty filter expression");
+		}
+		return FALSE;
+	}
 
 	ws_debug("Called from %s() with filter: %s", caller, text);
 
