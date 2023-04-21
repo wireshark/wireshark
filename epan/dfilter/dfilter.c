@@ -201,9 +201,10 @@ static void free_refs_array(gpointer data)
 
 
 static dfwork_t*
-dfwork_new(unsigned flags)
+dfwork_new(char *expanded_text, unsigned flags)
 {
 	dfwork_t *dfw = g_new0(dfwork_t, 1);
+	dfw->expanded_text = expanded_text;
 	dfw->flags = flags;
 
 	dfw->references =
@@ -437,112 +438,90 @@ dfwork_parse(dfwork_t *dfw)
 	return dfw->error == NULL;
 }
 
-gboolean
-dfilter_compile_full(const gchar *text, dfilter_t **dfp,
-			df_error_t **err_ptr, unsigned flags,
-			const char *caller)
+static gboolean
+dfwork_build(dfwork_t *dfw, dfilter_t **dfp)
 {
 	dfilter_t	*dfilter;
-	dfwork_t	*dfw;
 	char		*tree_str;
 
-	ws_assert(text);
-	ws_assert(*text);
-	ws_assert(dfp);
-	*dfp = NULL;
-	if (caller == NULL)
-		caller = "(unknown)";
+	log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check", NULL);
 
-	ws_debug("Called from %s() with filter: %s", caller, text);
+	/* Check semantics and do necessary type conversion*/
+	if (!dfw_semcheck(dfw))
+		return FALSE;
 
-	dfw = dfwork_new(flags);
+	/* Cache tree representation in tree_str. */
+	tree_str = NULL;
+	log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check", &tree_str);
 
-	if (flags & DF_EXPAND_MACROS) {
-		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error);
-		if (dfw->expanded_text == NULL) {
-			goto FAILURE;
-		}
-		ws_noisy("Expanded text: %s", dfw->expanded_text);
+	if ((dfw->flags & DF_SAVE_TREE) && tree_str == NULL) {
+		tree_str = dump_syntax_tree_str(dfw->st_root);
+	}
+
+	/* Create bytecode */
+	dfw_gencode(dfw);
+
+	/* Tuck away the bytecode in the dfilter_t */
+	dfilter = dfilter_new(dfw->deprecated);
+	dfilter->insns = dfw->insns;
+	dfw->insns = NULL;
+	dfilter->interesting_fields = dfw_interesting_fields(dfw,
+		&dfilter->num_interesting_fields);
+	dfilter->expanded_text = dfw->expanded_text;
+	dfw->expanded_text = NULL;
+	dfilter->references = dfw->references;
+	dfw->references = NULL;
+	dfilter->raw_references = dfw->raw_references;
+	dfw->raw_references = NULL;
+	dfilter->warnings = dfw->warnings;
+	dfw->warnings = NULL;
+
+	if (dfw->flags & DF_SAVE_TREE) {
+		ws_assert(tree_str);
+		dfilter->syntax_tree_str = tree_str;
+		tree_str = NULL;
 	}
 	else {
-		dfw->expanded_text = g_strdup(text);
-		ws_noisy("Verbatim text: %s", dfw->expanded_text);
-	}
-
-	if (!dfwork_parse(dfw)) {
-		goto FAILURE;
-	}
-
-	/* Success, but was it an empty filter? If so we are done. */
-	if (dfw->st_root != NULL) {
-		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check", NULL);
-
-		/* Check semantics and do necessary type conversion*/
-		if (!dfw_semcheck(dfw)) {
-			goto FAILURE;
-		}
-
-		/* Cache tree representation in tree_str. */
+		dfilter->syntax_tree_str = NULL;
+		g_free(tree_str);
 		tree_str = NULL;
-		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check", &tree_str);
-
-		if ((flags & DF_SAVE_TREE) && tree_str == NULL) {
-			tree_str = dump_syntax_tree_str(dfw->st_root);
-		}
-
-		/* Create bytecode */
-		dfw_gencode(dfw);
-
-		/* Tuck away the bytecode in the dfilter_t */
-		dfilter = dfilter_new(dfw->deprecated);
-		dfilter->insns = dfw->insns;
-		dfw->insns = NULL;
-		dfilter->interesting_fields = dfw_interesting_fields(dfw,
-			&dfilter->num_interesting_fields);
-		dfilter->expanded_text = dfw->expanded_text;
-		dfw->expanded_text = NULL;
-		dfilter->references = dfw->references;
-		dfw->references = NULL;
-		dfilter->raw_references = dfw->raw_references;
-		dfw->raw_references = NULL;
-		dfilter->warnings = dfw->warnings;
-		dfw->warnings = NULL;
-
-		if (flags & DF_SAVE_TREE) {
-			ws_assert(tree_str);
-			dfilter->syntax_tree_str = tree_str;
-			tree_str = NULL;
-		}
-		else {
-			dfilter->syntax_tree_str = NULL;
-			g_free(tree_str);
-			tree_str = NULL;
-		}
-
-		/* Initialize run-time space */
-		dfilter->num_registers = dfw->next_register;
-		dfilter->registers = g_new0(GSList *, dfilter->num_registers);
-		dfilter->attempted_load = g_new0(gboolean, dfilter->num_registers);
-		dfilter->free_registers = g_new0(GDestroyNotify, dfilter->num_registers);
-
-		/* And give it to the user. */
-		*dfp = dfilter;
 	}
+
+	/* Initialize run-time space */
+	dfilter->num_registers = dfw->next_register;
+	dfilter->registers = g_new0(GSList *, dfilter->num_registers);
+	dfilter->attempted_load = g_new0(gboolean, dfilter->num_registers);
+	dfilter->free_registers = g_new0(GDestroyNotify, dfilter->num_registers);
+
+	*dfp = dfilter;
+	return TRUE;
+}
+
+static gboolean
+compile_filter(char *expanded_text, dfilter_t **dfp, df_error_t **err_ptr, unsigned flags)
+{
+	dfwork_t *dfw;
+
+	dfw = dfwork_new(expanded_text, flags);
+
+	if (!dfwork_parse(dfw))
+		goto FAILURE;
+
+	if (!dfwork_build(dfw, dfp))
+		goto FAILURE;
+
 	/* SUCCESS */
 	dfwork_free(dfw);
-	if (*dfp != NULL)
-		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
-	else
-		ws_debug("Compiled empty filter (successfully).");
+
 	return TRUE;
 
 FAILURE:
-	ws_assert(dfw);
 	if (dfw->error == NULL || dfw->error->msg == NULL) {
 		/* We require an error message. */
-		ws_critical("Unknown error compiling filter: %s", text);
-		if (err_ptr)
-			*err_ptr = df_error_new_printf(DF_ERROR_GENERIC, NULL, "Unknown error compiling filter: %s", text);
+		ws_critical("Unknown error compiling filter: %s", expanded_text);
+		if (err_ptr) {
+			*err_ptr = df_error_new_msg("Unknown error compiling filter");
+		}
 	}
 	else {
 		ws_debug("Compiling filter failed with error: %s.", dfw->error->msg);
@@ -553,8 +532,43 @@ FAILURE:
 	}
 
 	dfwork_free(dfw);
-	*dfp = NULL;
 	return FALSE;
+}
+
+gboolean
+dfilter_compile_full(const gchar *text, dfilter_t **dfp,
+			df_error_t **err_ptr, unsigned flags,
+			const char *caller)
+{
+	char *expanded_text;
+
+	ws_assert(text);
+	ws_assert(*text);
+	ws_assert(dfp);
+	*dfp = NULL;
+	if (caller == NULL)
+		caller = "(unknown)";
+
+	ws_debug("Called from %s() with filter: %s", caller, text);
+
+	if (flags & DF_EXPAND_MACROS) {
+		expanded_text = dfilter_macro_apply(text, err_ptr);
+		if (expanded_text == NULL) {
+			return FALSE;
+		}
+		ws_noisy("Expanded text: %s", expanded_text);
+	}
+	else {
+		expanded_text = g_strdup(text);
+		ws_noisy("Verbatim text: %s", expanded_text);
+	}
+
+	if(!compile_filter(expanded_text, dfp, err_ptr, flags)) {
+		return FALSE;
+	}
+
+	ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
+	return TRUE;
 }
 
 
