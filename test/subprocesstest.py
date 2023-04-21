@@ -60,7 +60,7 @@ class LoggingPopen(subprocess.Popen):
         kwargs['stderr'] = subprocess.PIPE
         # Make sure communicate() gives us bytes.
         kwargs['universal_newlines'] = False
-        self.cmd_str = 'command ' + repr(proc_args)
+        self.proc_args = proc_args
         super().__init__(proc_args, *args, **kwargs)
         self.stdout_str = ''
         self.stderr_str = ''
@@ -84,12 +84,23 @@ class LoggingPopen(subprocess.Popen):
             out_log = self.trim_output(out_log, self.max_lines)
         err_log = err_data.decode('UTF-8', 'replace')
         self.log_fd.flush()
-        self.log_fd.write('-- Begin stdout for {} --\n'.format(self.cmd_str))
-        self.log_fd.write(out_log)
-        self.log_fd.write('-- End stdout for {} --\n'.format(self.cmd_str))
-        self.log_fd.write('-- Begin stderr for {} --\n'.format(self.cmd_str))
-        self.log_fd.write(err_log)
-        self.log_fd.write('-- End stderr for {} --\n'.format(self.cmd_str))
+        if isinstance(self.proc_args, list):
+            cmd_str = ' '.join(self.proc_args)
+        else:
+            cmd_str = self.proc_args
+        self.log_fd.write('-- Command: {}\n'.format(cmd_str))
+        if out_log:
+            self.log_fd.write('-- Begin stdout\n')
+            self.log_fd.write(out_log)
+            self.log_fd.write('-- End stdout\n')
+        else:
+            self.log_fd.write('-- Empty stdout\n')
+        if err_log:
+            self.log_fd.write('-- Begin stderr\n')
+            self.log_fd.write(err_log)
+            self.log_fd.write('-- End stderr\n')
+        else:
+            self.log_fd.write('-- Empty stderr\n')
         self.log_fd.flush()
         # Make sure our output is the same everywhere.
         # Throwing a UnicodeDecodeError exception here is arguably a good thing.
