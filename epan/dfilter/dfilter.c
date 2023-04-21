@@ -438,8 +438,8 @@ dfwork_parse(dfwork_t *dfw)
 	return dfw->error == NULL;
 }
 
-static gboolean
-dfwork_build(dfwork_t *dfw, dfilter_t **dfp)
+static dfilter_t *
+dfwork_build(dfwork_t *dfw)
 {
 	dfilter_t	*dfilter;
 	char		*tree_str;
@@ -448,7 +448,7 @@ dfwork_build(dfwork_t *dfw, dfilter_t **dfp)
 
 	/* Check semantics and do necessary type conversion*/
 	if (!dfw_semcheck(dfw))
-		return FALSE;
+		return NULL;
 
 	/* Cache tree representation in tree_str. */
 	tree_str = NULL;
@@ -493,45 +493,54 @@ dfwork_build(dfwork_t *dfw, dfilter_t **dfp)
 	dfilter->attempted_load = g_new0(gboolean, dfilter->num_registers);
 	dfilter->free_registers = g_new0(GDestroyNotify, dfilter->num_registers);
 
-	*dfp = dfilter;
-	return TRUE;
+	return dfilter;
 }
 
-static gboolean
-compile_filter(char *expanded_text, dfilter_t **dfp, df_error_t **err_ptr, unsigned flags)
+static dfilter_t *
+compile_filter(char *expanded_text, unsigned flags, df_error_t **err_ptr)
 {
 	dfwork_t *dfw;
+	dfilter_t *dfcode = NULL;
+	gboolean ok;
 
 	dfw = dfwork_new(expanded_text, flags);
 
-	if (!dfwork_parse(dfw))
+	ok = dfwork_parse(dfw);
+	if (!ok)
 		goto FAILURE;
 
-	if (!dfwork_build(dfw, dfp))
+	dfcode = dfwork_build(dfw);
+	if (dfcode == NULL)
 		goto FAILURE;
 
 	/* SUCCESS */
 	dfwork_free(dfw);
-
-	return TRUE;
+	return dfcode;
 
 FAILURE:
 	if (dfw->error == NULL || dfw->error->msg == NULL) {
 		/* We require an error message. */
 		ws_critical("Unknown error compiling filter: %s", expanded_text);
-		if (err_ptr) {
-			*err_ptr = df_error_new_msg("Unknown error compiling filter");
-		}
-	}
-	else {
-		ws_debug("Compiling filter failed with error: %s.", dfw->error->msg);
-		if (err_ptr) {
-			*err_ptr = dfw->error;
-			dfw->error = NULL;
-		}
+		dfw->error = df_error_new_msg("Unknown error compiling filter");
 	}
 
+	*err_ptr = dfw->error;
+	dfw->error = NULL;
 	dfwork_free(dfw);
+	return NULL;
+}
+
+static inline gboolean
+compile_failure(df_error_t *error, df_error_t **err_ptr)
+{
+	ws_assert(error);
+	ws_debug("Error compiling filter: (%d) %s", error->code, error->msg);
+
+	if (err_ptr)
+		*err_ptr = error;
+	else
+		df_error_free(&error);
+
 	return FALSE;
 }
 
@@ -541,6 +550,8 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 			const char *caller)
 {
 	char *expanded_text;
+	dfilter_t *dfcode;
+	df_error_t *error = NULL;
 
 	ws_assert(text);
 	ws_assert(*text);
@@ -552,9 +563,9 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 	ws_debug("Called from %s() with filter: %s", caller, text);
 
 	if (flags & DF_EXPAND_MACROS) {
-		expanded_text = dfilter_macro_apply(text, err_ptr);
+		expanded_text = dfilter_macro_apply(text, &error);
 		if (expanded_text == NULL) {
-			return FALSE;
+			return compile_failure(error, err_ptr);
 		}
 		ws_noisy("Expanded text: %s", expanded_text);
 	}
@@ -563,10 +574,12 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 		ws_noisy("Verbatim text: %s", expanded_text);
 	}
 
-	if(!compile_filter(expanded_text, dfp, err_ptr, flags)) {
-		return FALSE;
+	dfcode = compile_filter(expanded_text, flags, &error);
+	if(dfcode == NULL) {
+		return compile_failure(error, err_ptr);
 	}
 
+	*dfp = dfcode;
 	ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
 	return TRUE;
 }
