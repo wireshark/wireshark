@@ -2,33 +2,26 @@
 
 (Summarize the bug encountered concisely)
 
+## Sample capture file
+
+(For non-trivial issues a capture file is essential to reproduce and fix the bug.
+Screenshots are not enough)
+
+(You can attach a capture file using the paper clip button in the editor menu bar.
+Ensure your capture file does not contain private or sensitive information that cannot
+be shared publicly)
 
 ## Steps to reproduce
 
 (How one can reproduce the issue - this is very important)
 
-
 ## What is the current bug behavior?
 
-(What actually happens)
-
+(What actually happens. Include detailed information like logs and screenshots if possible)
 
 ## What is the expected correct behavior?
 
 (What you should see instead)
-
-
-## Sample capture file
-
-(If possible attach a sample capture file, not screenshot of dissection, showing this issue.
- You can do so by using the paper clip button in the editor menu bar.)
-
-
-## Relevant logs and/or screenshots
-```
-(Paste any relevant logs here)
-```
-(Paste any relevant screenshots here)
 
 ## Build information
 ```
