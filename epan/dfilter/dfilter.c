@@ -446,21 +446,12 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 	dfwork_t	*dfw;
 	char		*tree_str;
 
+	ws_assert(text);
+	ws_assert(*text);
 	ws_assert(dfp);
 	*dfp = NULL;
-
-	if (text == NULL) {
-		ws_warning("Called from %s() with null filter", caller);
-		if (err_ptr)
-			*err_ptr = df_error_new_msg("BUG: NULL text pointer");
-		return FALSE;
-	}
-	if (*text == '\0') {
-		ws_warning("Called from %s() with empty filter", caller);
-		if (err_ptr)
-			*err_ptr = df_error_new_msg("Filter expression is empty");
-		return FALSE;
-	}
+	if (caller == NULL)
+		caller = "(unknown)";
 
 	ws_debug("Called from %s() with filter: %s", caller, text);
 
