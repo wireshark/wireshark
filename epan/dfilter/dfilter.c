@@ -35,34 +35,35 @@ static void*	ParserObj = NULL;
 df_loc_t loc_empty = {-1, 0};
 
 void
-dfilter_vfail(dfwork_t *dfw, int code, df_loc_t loc,
+dfilter_vfail(void *state, int code, df_loc_t loc,
 				const char *format, va_list args)
 {
+	df_error_t **ptr = &((dfstate_t *)state)->error;
 	/* If we've already reported one error, don't overwite it */
-	if (dfw->error != NULL)
+	if (*ptr != NULL)
 		return;
 
-	dfw->error = df_error_new_vprintf(code, &loc, format, args);
+	*ptr = df_error_new_vprintf(code, &loc, format, args);
 }
 
 void
-dfilter_fail(dfwork_t *dfw, int code, df_loc_t loc,
+dfilter_fail(void *state, int code, df_loc_t loc,
 				const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format);
-	dfilter_vfail(dfw, code, loc, format, args);
+	dfilter_vfail(state, code, loc, format, args);
 	va_end(args);
 }
 
 void
-dfilter_fail_throw(dfwork_t *dfw, int code, df_loc_t loc, const char *format, ...)
+dfilter_fail_throw(void *state, int code, df_loc_t loc, const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format);
-	dfilter_vfail(dfw, code, loc, format, args);
+	dfilter_vfail(state, code, loc, format, args);
 	va_end(args);
 	THROW(TypeError);
 }
@@ -75,7 +76,7 @@ dfw_set_error_location(dfwork_t *dfw, df_loc_t loc)
 }
 
 header_field_info *
-dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
+dfilter_resolve_unparsed(dfsyntax_t *dfs, const char *name)
 {
 	header_field_info *hfinfo;
 
@@ -88,8 +89,8 @@ dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 	hfinfo = proto_registrar_get_byalias(name);
 	if (hfinfo != NULL) {
 		/* It's an aliased field name */
-		if (dfw)
-			add_deprecated_token(dfw, name);
+		if (dfs)
+			add_deprecated_token(dfs, name);
 		return hfinfo;
 	}
 
@@ -199,6 +200,36 @@ static void free_refs_array(gpointer data)
 	(void)g_ptr_array_free(data, TRUE);
 }
 
+static dfsyntax_t*
+dfsyntax_new(unsigned flags)
+{
+	dfsyntax_t *dfs = g_new0(dfsyntax_t, 1);
+	dfs->flags = flags;
+	return dfs;
+}
+
+static void
+dfsyntax_free(dfsyntax_t *dfs)
+{
+	if (dfs->error)
+		df_error_free(&dfs->error);
+
+	if (dfs->st_root)
+		stnode_free(dfs->st_root);
+
+	if (dfs->deprecated)
+		g_ptr_array_unref(dfs->deprecated);
+
+	if (dfs->lval)
+		stnode_free(dfs->lval);
+
+	if (dfs->quoted_string)
+		g_string_free(dfs->quoted_string, TRUE);
+
+
+
+	g_free(dfs);
+}
 
 static dfwork_t*
 dfwork_new(char *expanded_text, unsigned flags)
@@ -317,12 +348,12 @@ const char *tokenstr(int token)
 }
 
 void
-add_deprecated_token(dfwork_t *dfw, const char *token)
+add_deprecated_token(dfsyntax_t *dfs, const char *token)
 {
-	if (dfw->deprecated == NULL)
-		dfw->deprecated  = g_ptr_array_new_full(0, g_free);
+	if (dfs->deprecated == NULL)
+		dfs->deprecated  = g_ptr_array_new_full(0, g_free);
 
-	GPtrArray *deprecated = dfw->deprecated;
+	GPtrArray *deprecated = dfs->deprecated;
 
 	for (guint i = 0; i < deprecated->len; i++) {
 		const char *str = g_ptr_array_index(deprecated, i);
@@ -351,36 +382,31 @@ dfilter_expand(const char *expr, df_error_t **err_ret)
 }
 
 static gboolean
-dfwork_parse(dfwork_t *dfw)
+dfwork_parse(const char *expanded_text, dfsyntax_t *dfs)
 {
-	df_scanner_state_t state;
 	yyscan_t	scanner;
 	YY_BUFFER_STATE in_buffer;
 	unsigned token_count = 0;
 	int		token;
 
 	if (df_yylex_init(&scanner) != 0) {
-		dfw->error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "Can't initialize scanner: %s", g_strerror(errno));
+		dfs->error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "Can't initialize scanner: %s", g_strerror(errno));
 		return FALSE;
 	}
 
-	in_buffer = df_yy_scan_string(dfw->expanded_text, scanner);
-
-	memset(&state, 0, sizeof(state));
-	state.dfw = dfw;
-
-	df_yyset_extra(&state, scanner);
+	in_buffer = df_yy_scan_string(expanded_text, scanner);
+	df_yyset_extra(dfs, scanner);
 
 #ifdef NDEBUG
-	if (dfw->flags & DF_DEBUG_FLEX || dfw->flags & DF_DEBUG_LEMON) {
+	if (dfs->flags & DF_DEBUG_FLEX || dfs->flags & DF_DEBUG_LEMON) {
 		ws_message("Compile Wireshark without NDEBUG to enable Flex and/or Lemon debug traces");
 	}
 #else
 	/* Enable/disable debugging for Flex. */
-	df_yyset_debug(dfw->flags & DF_DEBUG_FLEX, scanner);
+	df_yyset_debug(dfs->flags & DF_DEBUG_FLEX, scanner);
 
 	/* Enable/disable debugging for Lemon. */
-	DfilterTrace(dfw->flags & DF_DEBUG_LEMON ? stderr : NULL, "lemon> ");
+	DfilterTrace(dfs->flags & DF_DEBUG_LEMON ? stderr : NULL, "lemon> ");
 #endif
 
 	while (1) {
@@ -389,7 +415,7 @@ dfwork_parse(dfwork_t *dfw)
 		/* Check for scanner failure */
 		if (token == SCAN_FAILED) {
 			ws_noisy("Scanning failed");
-			ws_assert(dfw->error != NULL);
+			ws_assert(dfs->error != NULL);
 			break;
 		}
 
@@ -401,25 +427,18 @@ dfwork_parse(dfwork_t *dfw)
 
 		ws_noisy("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
-				stnode_token(state.lval));
+				stnode_token(dfs->lval));
 
 		/* Give the token to the parser */
-		Dfilter(ParserObj, token, state.lval, dfw);
+		Dfilter(ParserObj, token, dfs->lval, dfs);
 		/* The parser has freed the lval for us. */
-		state.lval = NULL;
+		dfs->lval = NULL;
 
-		if (dfw->error) {
+		if (dfs->error) {
 			break;
 		}
 
 	} /* while (1) */
-
-	/* If we created a lval_t but didn't use it, free it; the
-	 * parser doesn't know about it and won't free it for us. */
-	if (state.lval) {
-		stnode_free(state.lval);
-		state.lval = NULL;
-	}
 
 	/* Tell the parser that we have reached the end of input; that
 	 * way, it'll reset its state for the next compile.  (We want
@@ -427,15 +446,13 @@ dfwork_parse(dfwork_t *dfw)
 	 * parser state is cleaned up; we don't create a new parser
 	 * object when we start a new parse, and don't destroy it when
 	 * the parse finishes.) */
-	Dfilter(ParserObj, 0, NULL, dfw);
+	Dfilter(ParserObj, 0, NULL, dfs);
 
 	/* Free scanner state */
-	if (state.quoted_string != NULL)
-		g_string_free(state.quoted_string, TRUE);
 	df_yy_delete_buffer(in_buffer, scanner);
 	df_yylex_destroy(scanner);
 
-	return dfw->error == NULL;
+	return dfs->error == NULL;
 }
 
 static dfilter_t *
@@ -499,34 +516,57 @@ dfwork_build(dfwork_t *dfw)
 static dfilter_t *
 compile_filter(char *expanded_text, unsigned flags, df_error_t **err_ptr)
 {
-	dfwork_t *dfw;
+	dfsyntax_t *dfs = NULL;
+	dfwork_t *dfw = NULL;
 	dfilter_t *dfcode = NULL;
+	df_error_t *error = NULL;
 	gboolean ok;
 
-	dfw = dfwork_new(expanded_text, flags);
+	dfs = dfsyntax_new(flags);
 
-	ok = dfwork_parse(dfw);
-	if (!ok)
+	ok = dfwork_parse(expanded_text, dfs);
+	if (!ok) {
+		error = dfs->error;
+		dfs->error = NULL;
 		goto FAILURE;
+	}
+
+	dfw = dfwork_new(expanded_text, flags);
+	expanded_text = NULL;
+	dfw->st_root = dfs->st_root;
+	dfs->st_root = NULL;
+	if (dfs->deprecated)
+		dfw->deprecated = g_ptr_array_ref(dfs->deprecated);
+	dfsyntax_free(dfs);
+	dfs = NULL;
 
 	dfcode = dfwork_build(dfw);
-	if (dfcode == NULL)
+	if (dfcode == NULL) {
+		error = dfw->error;
+		dfw->error = NULL;
 		goto FAILURE;
+	}
 
 	/* SUCCESS */
 	dfwork_free(dfw);
 	return dfcode;
 
 FAILURE:
-	if (dfw->error == NULL || dfw->error->msg == NULL) {
+	if (error == NULL || error->msg == NULL) {
 		/* We require an error message. */
 		ws_critical("Unknown error compiling filter: %s", expanded_text);
-		dfw->error = df_error_new_msg("Unknown error compiling filter");
+		error = df_error_new_msg("Unknown error compiling filter");
 	}
 
-	*err_ptr = dfw->error;
-	dfw->error = NULL;
-	dfwork_free(dfw);
+	ws_assert(err_ptr && error);
+	*err_ptr = error;
+
+	if (expanded_text)
+		g_free(expanded_text);
+	if (dfs)
+		dfsyntax_free(dfs);
+	if (dfw)
+		dfwork_free(dfw);
 	return NULL;
 }
 
