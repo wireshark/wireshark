@@ -862,15 +862,19 @@ fvalue_get_bytes(fvalue_t *fv)
 gsize
 fvalue_get_bytes_size(fvalue_t *fv)
 {
-	gsize size = g_bytes_get_size(fvalue_get_bytes(fv));
-	//ws_assert(size == fvalue_length(fv));
+	GBytes *bytes = fvalue_get_bytes(fv);
+	gsize size = g_bytes_get_size(bytes);
+	g_bytes_unref(bytes);
 	return size;
 }
 
 const void *
 fvalue_get_bytes_data(fvalue_t *fv)
 {
-	return g_bytes_get_data(fvalue_get_bytes(fv), NULL);
+	GBytes *bytes = fvalue_get_bytes(fv);
+	const void *data = g_bytes_get_data(bytes, NULL);
+	g_bytes_unref(bytes);
+	return data;
 }
 
 const e_guid_t *
