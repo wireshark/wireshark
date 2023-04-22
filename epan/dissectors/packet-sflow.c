@@ -1065,26 +1065,22 @@ dissect_sflow_5_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     proto_tree_add_item(tree, hf_sflow_245_ip_destination_port, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    /* dissect tcp flags bit-by-bit */
-    /* 8 flags are included here, plus 24-bit 0-padding */
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_cwr, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ece, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_urg, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ack, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_psh, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_rst, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_syn, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_fin, tvb, offset, 1, ENC_NA);
-
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_cwr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ece, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_urg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_psh, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_rst, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_syn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_fin, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* 7 bits for type of service, plus 1 reserved bit */
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_precedence_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_delay, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_throughput, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_reliability, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_cost, tvb, offset, 1, ENC_NA);
-
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_precedence_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_throughput, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_reliability, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_cost, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -1112,17 +1108,14 @@ dissect_sflow_5_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     proto_tree_add_item(tree, hf_sflow_245_ip_destination_port, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    /* dissect tcp flags bit-by-bit */
-    /* 8 flags are included here, plus 24-bit 0-padding */
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_cwr, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ece, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_urg, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ack, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_psh, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_rst, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_syn, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_fin, tvb, offset, 1, ENC_NA);
-
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_cwr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ece, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_urg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_psh, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_rst, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_syn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_245_ip_tcp_flag_fin, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Priority -- Traffic class field enables a source to identify the desired
@@ -2606,7 +2599,7 @@ proto_register_sflow(void) {
 #endif
         { &hf_sflow_245_ipv4_precedence_type,
             { "Precedence", "sflow_245.ipv4_precedence_type",
-                FT_UINT8, BASE_DEC, VALS(sflow_245_ipv4_precedence_types), 0xE0,
+                FT_UINT32, BASE_DEC, VALS(sflow_245_ipv4_precedence_types), 0xE0,
                 "IPv4 Precedence Type", HFILL}},
         { &hf_sflow_5_flow_record_format,
             { "Format", "sflow_245.flow_record_format",
@@ -3186,62 +3179,62 @@ proto_register_sflow(void) {
       },
       { &hf_sflow_245_ip_tcp_flag_cwr,
         { "TCP Flag (CWR)", "sflow_245.ip.tcp_flag.cwr",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_ece,
         { "TCP Flag (ECE)", "sflow_245.ip.tcp_flag.ece",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x40,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_urg,
         { "TCP Flag (URG)", "sflow_245.ip.tcp_flag.urg",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x20,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_ack,
         { "TCP Flag (ACK)", "sflow_245.ip.tcp_flag.ack",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x10,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_psh,
         { "TCP Flag (PSH)", "sflow_245.ip.tcp_flag.psh",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x08,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_rst,
         { "TCP Flag (RST)", "sflow_245.ip.tcp_flag.rst",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x04,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_syn,
         { "TCP Flag (SYN)", "sflow_245.ip.tcp_flag.syn",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x02,
           NULL, HFILL }
       },
       { &hf_sflow_245_ip_tcp_flag_fin,
         { "TCP Flag (FIN)", "sflow_245.ip.tcp_flag.fin",
-          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x01,
           NULL, HFILL }
       },
       { &hf_sflow_245_ipv4_delay,
         { "Delay", "sflow_245.ipv4_delay",
-          FT_BOOLEAN, 8, TFS(&tfs_low_normal), 0x10,
+          FT_BOOLEAN, 32, TFS(&tfs_low_normal), 0x10,
           NULL, HFILL }
       },
       { &hf_sflow_245_ipv4_throughput,
         { "Throughput", "sflow_245.ipv4_throughput",
-          FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x08,
+          FT_BOOLEAN, 32, TFS(&tfs_high_normal), 0x08,
           NULL, HFILL }
       },
       { &hf_sflow_245_ipv4_reliability,
         { "Reliability", "sflow_245.ipv4_reliability",
-          FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x04,
+          FT_BOOLEAN, 32, TFS(&tfs_high_normal), 0x04,
           NULL, HFILL }
       },
       { &hf_sflow_245_ipv4_cost,
         { "Cost (RFC1349)", "sflow_245.ipv4_cost",
-          FT_BOOLEAN, 8, TFS(&tfs_minimize_monetary_normal), 0x02,
+          FT_BOOLEAN, 32, TFS(&tfs_minimize_monetary_normal), 0x02,
           NULL, HFILL }
       },
       { &hf_sflow_245_ipv6_priority,
