@@ -2932,9 +2932,9 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 		/* if the type is 49, it would be draw another title */
 		if (type == 49)
-			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 1, ett_h265_nal, NULL, "FU identifier");
+			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 2, ett_h265_nal, NULL, "FU identifier");
 		else
-			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 1, ett_h265_nal, NULL, "NAL unit header or first byte of the payload");
+			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 2, ett_h265_nal, NULL, "NAL unit header or first two bytes of the payload");
 
 		/*   decode the HEVC payload header according to section 4:
 		0                   1
