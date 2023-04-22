@@ -3076,6 +3076,63 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	return tvb_captured_length(tvb);
 }
 
+/* Annex B "Byte stream format" */
+static int
+dissect_h265_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	tvbuff_t *next_tvb; //, *rbsp_tvb;
+	gint offset = 0, end_offset;
+	guint32 dword;
+
+	/* Look for the first start word. Assume byte aligned. */
+	while (1) {
+	        if (tvb_reported_length(tvb) < 4) {
+			return 0;
+		}
+		dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		if ((dword >> 8) == 1 || dword == 1) {
+			break;
+		} else if (dword != 0) {
+			return 0;
+		}
+		offset += 2;
+	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.265");
+        col_clear(pinfo->cinfo, COL_INFO);
+
+	while (tvb_reported_length_remaining(tvb, offset)) {
+		dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		if ((dword >> 8) != 1) {
+			/* zero_byte */
+			offset++;
+		}
+		/* start_code_prefix_one_3bytes */
+		offset += 3;
+		gint nal_length = tvb_reported_length_remaining(tvb, offset);
+		/* Search for \0\0\1 or \0\0\0\1 */
+		end_offset = tvb_find_guint16(tvb, offset, -1, 0);
+		while (end_offset != -1) {
+			if (tvb_find_guint16(tvb, end_offset + 1, 3, 1) != -1) {
+				nal_length = end_offset - offset;
+				break;
+			}
+			end_offset = tvb_find_guint16(tvb, end_offset + 1, -1, 0);
+		}
+
+		/* If end_offset is -1, we got to the end; assume this is the
+		 * end of the NAL. Handling NALs split across lower level
+		 * packets requires something like epan/stream.h
+		 */
+
+		next_tvb = tvb_new_subset_length(tvb, offset, nal_length);
+
+		dissect_h265(next_tvb, pinfo, tree, data);
+		offset += nal_length;
+	}
+	return tvb_reported_length(tvb);
+}
+
 void
 proto_register_h265(void)
 {
@@ -4697,6 +4754,7 @@ proto_register_h265(void)
 	prefs_register_obsolete_preference(h265_module, "dynamic.payload.type");
 
 	h265_handle = register_dissector("h265", dissect_h265, proto_h265);
+	register_dissector_with_description("h265_bytestream", "H.265 Annex B Byte stream format", dissect_h265_bytestream, proto_h265);
 }
 
 /* Register the protocol with Wireshark */
