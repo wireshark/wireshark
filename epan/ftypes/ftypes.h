@@ -344,6 +344,12 @@ void
 fvalue_set_bytes(fvalue_t *fv, GBytes *value);
 
 void
+fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
+
+void
+fvalue_set_bytes_data(fvalue_t *fv, const void *data, size_t size);
+
+void
 fvalue_set_fcwwn(fvalue_t *fv, const guint8 *value);
 
 void
@@ -354,9 +360,6 @@ fvalue_set_vines(fvalue_t *fv, const guint8 *value);
 
 void
 fvalue_set_ether(fvalue_t *fv, const guint8 *value);
-
-void
-fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
 
 void
 fvalue_set_guid(fvalue_t *fv, const e_guid_t *value);

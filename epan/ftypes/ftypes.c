@@ -691,6 +691,14 @@ fvalue_set_byte_array(fvalue_t *fv, GByteArray *value)
 }
 
 void
+fvalue_set_bytes_data(fvalue_t *fv, const void *data, size_t size)
+{
+	GBytes *bytes = g_bytes_new(data, size);
+	fvalue_set_bytes(fv, bytes);
+	g_bytes_unref(bytes);
+}
+
+void
 fvalue_set_fcwwn(fvalue_t *fv, const guint8 *value)
 {
 	GBytes *bytes = g_bytes_new(value, FT_FCWWN_LEN);
