@@ -222,26 +222,24 @@ bool WiresharkMainWindow::openCaptureFile(QString cf_path, QString read_filter, 
             goto finish;
         }
 
-        if (!read_filter.isEmpty()) {
-            if (dfilter_compile(qUtf8Printable(read_filter), &rfcode, &df_err)) {
-                cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
-            } else {
-                /* Not valid.  Tell the user, and go back and run the file
-                selection box again once they dismiss the alert. */
-                //bad_dfilter_alert_box(top_level, read_filter->str);
-                QMessageBox::warning(this, tr("Invalid Display Filter"),
-                        QString("The filter expression ") +
-                        read_filter +
-                        QString(" isn't a valid display filter. (") +
-                        df_err->msg + QString(")."),
-                        QMessageBox::Ok);
-                df_error_free(&df_err);
-                if (!name_param) {
-                    // go back to the selection dialogue only if the file
-                    // was selected from this dialogue
-                    cf_path.clear();
-                    continue;
-                }
+        if (dfilter_compile(qUtf8Printable(read_filter), &rfcode, &df_err)) {
+            cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
+        } else {
+            /* Not valid.  Tell the user, and go back and run the file
+               selection box again once they dismiss the alert. */
+               //bad_dfilter_alert_box(top_level, read_filter->str);
+            QMessageBox::warning(this, tr("Invalid Display Filter"),
+                    QString("The filter expression ") +
+                    read_filter +
+                    QString(" isn't a valid display filter. (") +
+                    df_err->msg + QString(")."),
+                    QMessageBox::Ok);
+            df_error_free(&df_err);
+            if (!name_param) {
+                // go back to the selection dialogue only if the file
+                // was selected from this dialogue
+                cf_path.clear();
+                continue;
             }
         }
 

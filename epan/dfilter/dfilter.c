@@ -232,10 +232,10 @@ dfsyntax_free(dfsyntax_t *dfs)
 }
 
 static dfwork_t*
-dfwork_new(char *expanded_text, unsigned flags)
+dfwork_new(const char *expanded_text, unsigned flags)
 {
 	dfwork_t *dfw = g_new0(dfwork_t, 1);
-	dfw->expanded_text = expanded_text;
+	dfw->expanded_text = g_strdup(expanded_text);
 	dfw->flags = flags;
 
 	dfw->references =
@@ -514,7 +514,7 @@ dfwork_build(dfwork_t *dfw)
 }
 
 static dfilter_t *
-compile_filter(char *expanded_text, unsigned flags, df_error_t **err_ptr)
+compile_filter(const char *expanded_text, unsigned flags, df_error_t **err_ptr)
 {
 	dfsyntax_t *dfs = NULL;
 	dfwork_t *dfw = NULL;
@@ -530,9 +530,17 @@ compile_filter(char *expanded_text, unsigned flags, df_error_t **err_ptr)
 		dfs->error = NULL;
 		goto FAILURE;
 	}
+	else if (dfs->st_root == NULL) {
+		/* Is it an empty filter? If so set the dfcode to NULL and return success.
+		 * This can happen if the user clears the display filter toolbar in the UI.
+		 * In that case the compilation succeeds and the NULL dfcode clears the filter
+		 * (show all frames). */
+		dfsyntax_free(dfs);
+		*err_ptr = NULL;
+		return NULL;
+	}
 
 	dfw = dfwork_new(expanded_text, flags);
-	expanded_text = NULL;
 	dfw->st_root = dfs->st_root;
 	dfs->st_root = NULL;
 	if (dfs->deprecated)
@@ -561,8 +569,6 @@ FAILURE:
 	ws_assert(err_ptr && error);
 	*err_ptr = error;
 
-	if (expanded_text)
-		g_free(expanded_text);
 	if (dfs)
 		dfsyntax_free(dfs);
 	if (dfw)
@@ -598,10 +604,11 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 	if (caller == NULL)
 		caller = "(unknown)";
 
-	if (text == NULL || *text == '\0') {
-		ws_info("Called from %s() with empty filter expression", caller);
+	if (text == NULL) {
+		/* This is a bug. */
+		ws_warning("Called from %s() with invalid NULL expression", caller);
 		if (err_ptr) {
-			*err_ptr = df_error_new_msg("Empty filter expression");
+			*err_ptr = df_error_new_msg("BUG: NULL text argument is invalid");
 		}
 		return FALSE;
 	}
@@ -621,7 +628,10 @@ dfilter_compile_full(const gchar *text, dfilter_t **dfp,
 	}
 
 	dfcode = compile_filter(expanded_text, flags, &error);
-	if(dfcode == NULL) {
+	g_free(expanded_text);
+	expanded_text = NULL;
+
+	if(error != NULL) {
 		return compile_failure(error, err_ptr);
 	}
 
