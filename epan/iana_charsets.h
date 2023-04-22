@@ -92,7 +92,7 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(0, YYY(XXX, IANA_CS_SEN_850200_B,                35, "SEN_850200_B",        ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_KS_C_5601_1987,              36, "KS_C_5601-1987",      ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_ISO_2022_KR,                 37, "ISO-2022-KR",         ENC_NA|_DEFAULT_WS_ENC)) \
-    ZZZ(0, YYY(XXX, IANA_CS_EUC_KR,                      38, "EUC-KR",              ENC_NA|_DEFAULT_WS_ENC)) \
+    ZZZ(1, YYY(XXX, IANA_CS_EUC_KR,                      38, "EUC-KR",              ENC_NA|ENC_EUC_KR)) \
     ZZZ(0, YYY(XXX, IANA_CS_ISO_2022_JP,                 39, "ISO-2022-JP",         ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_ISO_2022_JP_2,               40, "ISO-2022-JP-2",       ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_JIS_C6220_1969_JP,           41, "JIS_C6220-1969-jp",   ENC_NA|_DEFAULT_WS_ENC)) \
@@ -221,7 +221,7 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(1, YYY(XXX, IANA_CS_GB2312,                    2025, "GB2312",              ENC_NA|ENC_GB18030)) \
     ZZZ(0, YYY(XXX, IANA_CS_BIG5,                      2026, "Big5",                ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_MACINTOSH,                 2027, "macintosh",           ENC_NA|_DEFAULT_WS_ENC)) \
-    ZZZ(0, YYY(XXX, IANA_CS_IBM037,                    2028, "IBM037",              ENC_NA|_DEFAULT_WS_ENC)) \
+    ZZZ(1, YYY(XXX, IANA_CS_IBM037,                    2028, "IBM037",              ENC_NA|ENC_EBCDIC_CP037)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM038,                    2029, "IBM038",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM273,                    2030, "IBM273",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM274,                    2031, "IBM274",              ENC_NA|_DEFAULT_WS_ENC)) \
@@ -239,7 +239,7 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(0, YYY(XXX, IANA_CS_IBM424,                    2043, "IBM424",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM500,                    2044, "IBM500",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM851,                    2045, "IBM851",              ENC_NA|_DEFAULT_WS_ENC)) \
-    ZZZ(0, YYY(XXX, IANA_CS_IBM855,                    2046, "IBM855",              ENC_NA|_DEFAULT_WS_ENC)) \
+    ZZZ(1, YYY(XXX, IANA_CS_IBM855,                    2046, "IBM855",              ENC_NA|ENC_CP855)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM857,                    2047, "IBM857",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM860,                    2048, "IBM860",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM861,                    2049, "IBM861",              ENC_NA|_DEFAULT_WS_ENC)) \
@@ -279,7 +279,7 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(0, YYY(XXX, IANA_CS_VIQR,                      2083, "VIQR",                ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_KOI8_R,                    2084, "KOI8-R",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_HZ_GB_2312,                2085, "HZ-GB-2312",          ENC_NA|_DEFAULT_WS_ENC)) \
-    ZZZ(0, YYY(XXX, IANA_CS_IBM866,                    2086, "IBM866",              ENC_NA|_DEFAULT_WS_ENC)) \
+    ZZZ(1, YYY(XXX, IANA_CS_IBM866,                    2086, "IBM866",              ENC_NA|ENC_CP866)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM775,                    2087, "IBM775",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_KOI8_U,                    2088, "KOI8-U",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_IBM00858,                  2089, "IBM00858",            ENC_NA|_DEFAULT_WS_ENC)) \
