@@ -7143,11 +7143,12 @@ finfo_set_len(field_info *fi, const gint length)
 	 */
 	if (fvalue_type_ftenum(fi->value) == FT_BYTES && fi->length > 0) {
 		GBytes *bytes = fvalue_get_bytes(fi->value);
-		if ((gsize)fi->length <= g_bytes_get_size(bytes)) {
-			GByteArray *byte_array = g_bytes_unref_to_array(bytes);
-			g_byte_array_set_size(byte_array, fi->length);
-			fvalue_set_byte_array(fi->value, byte_array);
+		gsize size;
+		const void *data = g_bytes_get_data(bytes, &size);
+		if ((gsize)fi->length <= size) {
+			fvalue_set_bytes_data(fi->value, data, fi->length);
 		}
+		g_bytes_unref(bytes);
 	}
 }
 
