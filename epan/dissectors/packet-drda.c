@@ -973,7 +973,7 @@ drda_get_pdu_info(packet_info *pinfo, guint32 correl, gboolean is_server)
     return pdu_info;
 }
 
-void
+static void
 drda_set_server(drda_conv_info_t *conv_info, address *addr, port_type ptype, guint32 port)
 {
     copy_address_wmem(wmem_file_scope(), &conv_info->srv_addr, addr);
@@ -981,7 +981,7 @@ drda_set_server(drda_conv_info_t *conv_info, address *addr, port_type ptype, gui
     conv_info->srv_port = port;
 }
 
-gboolean
+static gboolean
 drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
 {
     drda_conv_info_t *conv_info = drda_get_conv_info(pinfo);
