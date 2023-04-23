@@ -2822,7 +2822,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             val_to_str(value32, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
 
         proto_tree_add_uint_format_value(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(2, taglength), value32, "%s (%u)",
-            val_to_str(value32, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), value32);
+            val_to_str_const(value32, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), value32);
         proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 6, MIN(2, taglength - 2), ENC_BIG_ENDIAN);
         break;
 
@@ -2964,7 +2964,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      * XXX: Formatting value manually because don't have erf_meta_vs_list
      * populated at registration time.
      */
-    proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), tagtype);
+    proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str_const(tagtype, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), tagtype);
     proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
 
     /* Add truncated expertinfo if needed */

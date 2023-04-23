@@ -2319,7 +2319,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
             http_add_path_components_to_tree(header_tvb, pinfo, ti_named_field, hoffset - header_value_length, header_value_length);
         }
         else if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
-            const gchar* reason_phase = val_to_str((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
+            const gchar* reason_phase = val_to_str_const((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
             /* append response status and reason phrase to info column (for example, HEADERS: 200 OK) */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", header_value, reason_phase);
             /* append response status and reason phrase to header_tree and Stream node */

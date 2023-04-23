@@ -8764,11 +8764,11 @@ dissect_ul_rlc_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                       "GSM RLC/MAC: %s (%d) (Uplink)",
-                                      val_to_str_ext(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Message Type"),
+                                      val_to_str_ext_const(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Message Type"),
                                       data->u.MESSAGE_TYPE);
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-  col_append_sep_str(pinfo->cinfo, COL_INFO, " ", val_to_str_ext(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Message Type"));
+  col_append_sep_str(pinfo->cinfo, COL_INFO, " ", val_to_str_ext_const(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Message Type"));
 
   switch (data->u.MESSAGE_TYPE)
   {
@@ -8864,7 +8864,7 @@ dissect_dl_rlc_control_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
 
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                       "%s (%d) (downlink)",
-                                      val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
+                                      val_to_str_ext_const(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
                                       data->u.MESSAGE_TYPE);
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
   /* Initialize the contexts */
@@ -9099,12 +9099,12 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
       }
     }
     data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, message_type_offset, 6);
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " CTRL: ", "%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " CTRL: ", "%s", val_to_str_ext_const(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"));
     if (s_p)
         col_append_str(pinfo->cinfo, COL_INFO, " [RRBP]");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GSM RLC/MAC: %s (%d) (Downlink)",
-                                        val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
+                                        val_to_str_ext_const(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
                                         data->u.MESSAGE_TYPE);
     rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
@@ -9264,10 +9264,10 @@ dissect_ul_rlc_ec_control_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
   csnStreamInit(&ar, 0, tvb_reported_length(tvb) << 3, pinfo);
   data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, 0, 5);
 
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT UL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type"));
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT UL:%s", val_to_str_ext_const(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type"));
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
                                       "%s (%d) (uplink)",
-                                      val_to_str_ext(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type... "),
+                                      val_to_str_ext_const(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type... "),
                                       data->u.MESSAGE_TYPE);
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
   /* Initialize the contexts */
@@ -9306,10 +9306,10 @@ dissect_dl_rlc_ec_control_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
   csnStreamInit(&ar, header_bit_offset, (tvb_reported_length(tvb) << 3) - header_bit_offset, pinfo);
   data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, header_bit_offset, 5);
 
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type"));
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT DL:%s", val_to_str_ext_const(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type"));
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
                                       "%s (%d) (downlink)",
-                                      val_to_str_ext(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type... "),
+                                      val_to_str_ext_const(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type... "),
                                       data->u.MESSAGE_TYPE);
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
   /* Initialize the contexts */

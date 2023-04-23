@@ -10426,7 +10426,7 @@ dissect_hs20_osu_provider(proto_tree *tree, tvbuff_t *tvb,
       pi = proto_tree_add_item(osu_method_list, hf_ieee80211_hs20_osu_method_val, tvb,
                         offset, 1, ENC_NA);
       proto_item_append_text(pi, ": %s",
-                                val_to_str(method, osu_method_vals,
+                                val_to_str_const(method, osu_method_vals,
                                         "Reserved"));
       offset++;
       osu_method_list_index++;
@@ -20243,7 +20243,7 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     id = tvb_get_guint8(tvb, offset);
     len = tvb_get_guint8(tvb, offset + 1);
-    subtree_name = val_to_str(id, ft_subelem_id_vals, "Unknown");
+    subtree_name = val_to_str_const(id, ft_subelem_id_vals, "Unknown");
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
                                             ett_tag_ft_subelem_tree, NULL,
                                             "Subelement: %s", subtree_name);
@@ -23489,7 +23489,7 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   while (offset + 1 < tag_len) {
     sub_tag_id = tvb_get_guint8(tvb, offset);
     sub_tag_len = tvb_get_guint8(tvb, offset + 1);
-    sub_tag_name = val_to_str(sub_tag_id, multiple_bssid_subelem_ids, "Unknown");
+    sub_tag_name = val_to_str_const(sub_tag_id, multiple_bssid_subelem_ids, "Unknown");
 
     sub_tag_tree = proto_tree_add_subtree_format(tree, tvb, offset, sub_tag_len + 2, ett_tag_multiple_bssid_subelem_tree, NULL, "Subelement: %s", sub_tag_name);
 
@@ -26057,7 +26057,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   {
     sub_tag_id = tvb_get_guint8(tvb, offset);
     sub_tag_len = tvb_get_guint8(tvb, offset + 1);
-    sub_tag_name = val_to_str(sub_tag_id, ieee80211_neighbor_report_subelement_id_vals, "Unknown");
+    sub_tag_name = val_to_str_const(sub_tag_id, ieee80211_neighbor_report_subelement_id_vals, "Unknown");
 
     sub_tag_tree = proto_tree_add_subtree_format(tree, tvb, offset, sub_tag_len + 2, ett_tag_neighbor_report_subelement_tree, NULL, "Subelement: %s", sub_tag_name);
 
@@ -29832,7 +29832,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
           ru_alloc_tree = proto_tree_add_subtree_format(nss_tree, tvb, offset,
                                         -1, ett_he_ppe_ru_alloc, &rualti,
                                         "RU allocation: %s",
-                                        val_to_str(i, ru_alloc_vals, "Unk"));
+                                        val_to_str_const(i, ru_alloc_vals, "Unk"));
 
           /*
            * Assemble the bits we require ... we need 6, or 2x3

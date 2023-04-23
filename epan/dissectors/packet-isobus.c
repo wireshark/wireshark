@@ -403,11 +403,11 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     {
     case 0:
         col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ",
-            val_to_str(pdu_format, pdu_format_dp0_short, "Unknown"));
+            val_to_str_const(pdu_format, pdu_format_dp0_short, "Unknown"));
         break;
     case 1:
         col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ",
-            val_to_str(pdu_format, pdu_format_dp1_short, "Unknown"));
+            val_to_str_const(pdu_format, pdu_format_dp1_short, "Unknown"));
         break;
     }
 

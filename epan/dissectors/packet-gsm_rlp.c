@@ -185,7 +185,7 @@ dissect_gsmrlp_xid(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tre
 		proto_tree *xid_tree;
 
 		proto_tree_add_subtree_format(tree, tvb, cur, 1 + len, ett_gsmrlp_xid, &xid_tree, "XID Parameter: %s",
-					val_to_str(type, rlp_xid_param_vals, "Unknown"));
+		                        val_to_str_const(type, rlp_xid_param_vals, "Unknown"));
 		proto_tree_add_item(xid_tree, hf_gsmrlp_xid_p_type, tvb, cur, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(xid_tree, hf_gsmrlp_xid_p_len, tvb, cur, 1, ENC_BIG_ENDIAN);
 		if (len)

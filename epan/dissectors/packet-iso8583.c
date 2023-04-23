@@ -883,18 +883,18 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   /* Set the Protocol column */
   col_clear(pinfo->cinfo, COL_PROTOCOL);
   col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ISO 8583-1%s",
-      val_to_str((guint)msg_type[0], packetversionnames, " Unknown VERSION"));
+      val_to_str_const((guint)msg_type[0], packetversionnames, " Unknown VERSION"));
   col_clear(pinfo->cinfo, COL_INFO);
   /* print version of the packet*/
   col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s - %s", msg_type,
-      val_to_str((guint)msg_type[1], packettypenames, "Unknown type"));
+      val_to_str_const((guint)msg_type[1], packettypenames, "Unknown type"));
 
   /*** PROTOCOL TREE ***/
 
   /* create display subtree for the protocol */
   ti = proto_tree_add_item(tree, proto_iso8583, tvb, 0, -1, ENC_NA);
   proto_item_append_text(ti, ":  Type %s - %s", msg_type,
-      val_to_str((guint)msg_type[1], packettypenames, "Unknown type"));
+      val_to_str_const((guint)msg_type[1], packettypenames, "Unknown type"));
 
   iso8583_tree = proto_item_add_subtree(ti, ett_iso8583);
 

@@ -1590,14 +1590,14 @@ dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
     switch (bits_15_to_8) {
     case 0:
         proto_item_append_text(pi, ", %s",
-                        val_to_str(bits_7_to_0,
+                        val_to_str_const(bits_7_to_0,
                             ieee1905_media_type_0_vals,
                             "Reserved"));
         break;
 
     case 1:
         proto_item_append_text(pi, ", %s",
-                        val_to_str(bits_7_to_0,
+                        val_to_str_const(bits_7_to_0,
                             ieee1905_media_type_1_vals,
                             "Reserved"));
         break;
@@ -1611,7 +1611,7 @@ dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     case 3:
         proto_item_append_text(pi, ", %s",
-                        val_to_str(bits_7_to_0,
+                        val_to_str_const(bits_7_to_0,
                             ieee1905_media_type_3_vals,
                             "Reserved"));
         break;
@@ -1842,7 +1842,7 @@ dissect_link_metric_result_code(tvbuff_t *tvb, packet_info *pinfo _U_,
                              tvb, offset, 1, ENC_NA);
 
     proto_item_append_text(pi, ", %s",
-                        val_to_str(code, ieee1905_link_metric_result_vals,
+                        val_to_str_const(code, ieee1905_link_metric_result_vals,
                                 "Reserved"));
 
     offset++;
@@ -1883,7 +1883,7 @@ dissect_searched_role(tvbuff_t *tvb, packet_info *pinfo _U_,
                              1, ENC_NA);
 
     proto_item_append_text(pi, ", %s",
-                        val_to_str(role, ieee1905_searched_role_vals,
+                        val_to_str_const(role, ieee1905_searched_role_vals,
                                 "Reserved"));
 
     offset++;
@@ -1908,7 +1908,7 @@ dissect_supported_role(tvbuff_t *tvb, packet_info *pinfo _U_,
      * We can re-use this.
      */
     proto_item_append_text(pi, ", %s",
-                        val_to_str(role, ieee1905_searched_role_vals,
+                        val_to_str_const(role, ieee1905_searched_role_vals,
                                 "Reserved"));
 
     offset++;
@@ -1930,7 +1930,7 @@ dissect_auto_config_freq_band(tvbuff_t *tvb, packet_info *pinfo _U_,
                              offset, 1, ENC_NA);
 
     proto_item_append_text(pi, ", %s",
-                        val_to_str(freq, ieee1905_freq_band_vals,
+                        val_to_str_const(freq, ieee1905_freq_band_vals,
                                 "Reserved"));
 
     offset++;
@@ -1952,7 +1952,7 @@ dissect_supported_freq_band(tvbuff_t *tvb, packet_info *pinfo _U_,
                              offset, 1, ENC_NA);
 
     proto_item_append_text(pi, ", %s",
-                        val_to_str(freq, ieee1905_freq_band_vals,
+                        val_to_str_const(freq, ieee1905_freq_band_vals,
                                 "Reserved"));
 
     offset++;
@@ -2249,7 +2249,7 @@ dissect_ipv4_type(tvbuff_t *tvb, packet_info *pinfo _U_,
             atpi = proto_tree_add_item(addr_tree, hf_ieee1905_addr_type,
                         tvb, offset, 1, ENC_NA);
             proto_item_append_text(atpi, ", %s",
-                        val_to_str(addr_type, ieee1905_ipv4_addr_type_vals,
+                        val_to_str_const(addr_type, ieee1905_ipv4_addr_type_vals,
                                 "Reserved"));
             offset++;
 
@@ -2346,7 +2346,7 @@ dissect_ipv6_type(tvbuff_t *tvb, packet_info *pinfo _U_,
             atpi = proto_tree_add_item(addr_tree, hf_ieee1905_ipv6_addr_type,
                         tvb, offset, 1, ENC_NA);
             proto_item_append_text(atpi, ", %s",
-                        val_to_str(addr_type, ieee1905_ipv6_addr_type_vals,
+                        val_to_str_const(addr_type, ieee1905_ipv6_addr_type_vals,
                                 "Reserved"));
             offset++;
 
@@ -2445,7 +2445,7 @@ dissect_profile_version(tvbuff_t *tvb, packet_info *pinfo _U_,
     pi = proto_tree_add_item(tree, hf_ieee1905_profile_version, tvb,
                 offset, 1, ENC_NA);
     proto_item_append_text(pi, ", %s",
-                val_to_str(profile_version, ieee1905_profile_version_vals,
+                val_to_str_const(profile_version, ieee1905_profile_version_vals,
                            "Reserved"));
     offset++;
 
