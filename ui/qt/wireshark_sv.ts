@@ -3882,7 +3882,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation>Automatisk uppdatering</translation>
+        <translation type="vanished">Automatisk uppdatering</translation>
+    </message>
+    <message>
+        <source>Automatic update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable legend</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset</source>

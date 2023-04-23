@@ -3886,7 +3886,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Skala logarytmiczna</translation>
     </message>
     <message>
-        <source>Automatic Update</source>
+        <source>Automatic update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable legend</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

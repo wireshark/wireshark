@@ -79,6 +79,13 @@ Wireshark 4.1.0 Release Notes
        (UCI) protocol. Recognizes PCAP traces with the link type
        LINKTYPE_FIRA_UCI=299.
 
+     • The reassemble_streaming_data_and_call_subdissector() API has
+       been added to provide a simpler way to reassemble the streaming
+       data of a high level protocol that is not on top of TCP.
+
+     • The display filter drop-down list is now sorted by "most recently
+       used" instead of "most recently created".
+
   New Protocol Support
 
    DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer
@@ -86,15 +93,16 @@ Wireshark 4.1.0 Release Notes
    AaMiDe), FiRa UWB Controller Interface (UCI), Low Level Signalling
    (ATSC3 LLS), Management Component Transport Protocol (MCTP),
    Management Component Transport Protocol - Control Protocol (MCTP CP),
-   Non-volatile Memory Express - Management Interface (NVMe-MI) over
-   MCTP, SAP Enqueue Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA
-   SQL Command Network Protocol (SAPHDB), SAP Internet Graphic Server
-   (SAP IGS), SAP Message Server (SAPMS), SAP Network Interface (SAPNI),
-   SAP Router (SAPROUTER), SAP Secure Network Connection (SNC), Support
-   for almost all WoW 1.12 messages has been added., Train Real-Time
-   Data Protocol (TRDP), Windows Delivery Optimization (MS-DO), and
-   World of Warcraft World (WOWW) display filters have been changed to
-   be more internally consistent.
+   Matter home automation protocol, Non-volatile Memory Express -
+   Management Interface (NVMe-MI) over MCTP, SAP Enqueue Server
+   (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command Network
+   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
+   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
+   (SAPROUTER), SAP Secure Network Connection (SNC), Support for almost
+   all WoW 1.12 messages has been added., Train Real-Time Data Protocol
+   (TRDP), Windows Delivery Optimization (MS-DO), and World of Warcraft
+   World (WOWW) display filters have been changed to be more internally
+   consistent.
 
   Updated Protocol Support
 
@@ -111,6 +119,17 @@ Wireshark 4.1.0 Release Notes
        "encoding" attribute of the XML declaration, and has a new
        preference to set default character encoding for some XML
        document without "encoding" attribute.
+
+     • The SIP dissector now has a new preference to set default charset
+       for displaying the body of SIP messages in raw text view.
+
+     • The HTTP dissector now supports dissecting chunked data in
+       streaming reassembly mode. Subdissectors of HTTP can register
+       itself in "streaming_content_type" subdissector table for
+       enabling streaming reassembly mode while transferring in chunked
+       encoding. This feature ensures the server stream messages of
+       GRPC-Web over HTTP/1.1 can be dissected even if the last chunk is
+       absent.
 
    Too many other protocols have been updated to list them all here.
 

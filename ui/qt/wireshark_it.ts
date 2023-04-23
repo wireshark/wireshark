@@ -3882,7 +3882,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation>Aggiornamento automatico</translation>
+        <translation type="vanished">Aggiornamento automatico</translation>
+    </message>
+    <message>
+        <source>Automatic update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable legend</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset</source>

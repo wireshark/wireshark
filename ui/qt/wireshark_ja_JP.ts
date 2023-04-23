@@ -3866,7 +3866,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation>自動アップデート</translation>
+        <translation type="vanished">自動アップデート</translation>
+    </message>
+    <message>
+        <source>Automatic update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable legend</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset</source>
