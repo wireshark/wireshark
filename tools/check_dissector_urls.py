@@ -79,7 +79,6 @@ class Link(object):
         self.tested = False
         self.r = None
         self.success = False
-        self.result_from_cache = False
 
     def __str__(self):
         epan_idx = self.file.find('epan')
@@ -99,31 +98,16 @@ class Link(object):
                 s += '    <No response Received>'
         return s
 
-    async def validate(self, session):
-        # Fetch, but first look in cache
+    def validate(self):
         global cached_lookups
         global should_exit
         if should_exit:
             return
         self.tested = True
         if self.url in cached_lookups:
-            if args.verbose:
-                print('[Using cached result for', self.url, ']')
             self.r = cached_lookups[self.url]
-            self.result_from_cache = True
         else:
-            try:
-                async with session.get(self.url) as self.r:
-                    # Cache this result.
-                    cached_lookups[self.url] = self.r
-
-            except (asyncio.CancelledError):
-                self.r = FailedLookup()
-
-            except (ValueError, ConnectionError, Exception):
-                # Add bad result to cashed_lookups.
-                cached_lookups[self.url] = FailedLookup()
-                self.r = cached_lookups[self.url]
+            self.r = FailedLookup()
 
         if self.r.status < 200 or self.r.status >= 300:
             self.success = False
@@ -135,7 +119,7 @@ class Link(object):
 
 links = []
 files = []
-
+all_urls = set()
 
 def find_links_in_file(filename):
     with open(filename, 'r') as f:
@@ -152,10 +136,9 @@ def find_links_in_file(filename):
                 # A url must have a period somewhere
                 if '.' not in url:
                     continue
-                if args.verbose:
-                    print('Found URL:', url)
-                global links
+                global links, all_urls
                 links.append(Link(filename, line_number, url))
+                all_urls.add(url)
 
 
 # Scan the given folder for links to test.
@@ -167,20 +150,39 @@ def find_links_in_folder(folder):
             global links
             find_links_in_file(os.path.join(folder, filename))
 
+
+async def populate_cache(sem, session, url):
+    global cached_lookups
+    if should_exit:
+        return
+    async with sem:
+        try:
+            async with session.get(url) as r:
+                cached_lookups[url] = r
+                if args.verbose:
+                    print('checking ', url, ': success', sep='')
+
+        except (asyncio.CancelledError, ValueError, ConnectionError, Exception):
+            cached_lookups[url] = FailedLookup()
+            if args.verbose:
+                print('checking ', url, ': failed', sep='')
+
+
 async def check_all_links(links):
-    max_conn = 120
-    conn = aiohttp.TCPConnector(limit=max_conn)
+    sem = asyncio.Semaphore(50)
     timeout = aiohttp.ClientTimeout(total=25)
+    connector = aiohttp.TCPConnector(limit=30)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
-    async with aiohttp.ClientSession(connector=conn, headers=headers, timeout=timeout) as session:
-        tasks = [l.validate(session) for l in links]
-        task_group = list(tasks[i:i + max_conn] for i in range(0, len(tasks), max_conn))
-        for t in task_group:
-            try:
-                await asyncio.gather(*t)
-            except(asyncio.CancelledError):
-                await session.close()
+    async with aiohttp.ClientSession(connector=connector, headers=headers, timeout=timeout) as session:
+        tasks = [populate_cache(sem, session, u) for u in all_urls]
+        try:
+            await asyncio.gather(*tasks)
+        except (asyncio.CancelledError):
+            await session.close()
+
+    for l in links:
+        l.validate()
 
 
 #################################################################
@@ -277,17 +279,13 @@ with open('successes.txt', 'w') as f_s:
 
 
 # Count and show overall stats.
-passed, failed, cached = 0, 0, 0
+passed, failed = 0, 0
 for l in links:
-    if not l.result_from_cache:
-        if l.tested:
-            if l.success:
-                passed += 1
-            else:
-                failed += 1
-    else:
-        cached += 1
+    if l.tested:
+        if l.success:
+            passed += 1
+        else:
+            failed += 1
 
 print('--------------------------------------------------------------------------------------------------')
-print(len(links), 'links checked: ', passed, 'passed,',
-      failed, 'failed (', cached, 'results from cache)')
+print(len(links), 'links checked: ', passed, 'passed,', failed, 'failed')
