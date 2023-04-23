@@ -3813,13 +3813,13 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	offset += 3;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "Seq:%02d%s,%02d%s",
-					seq_recv >> EPL_ASND_SDO_SEQ_MASK, val_to_str(seq_recv & EPL_ASND_SDO_SEQ_CON_MASK, epl_sdo_init_abbr_vals, "x"),
-					seq_send >> EPL_ASND_SDO_SEQ_MASK, val_to_str(seq_send & EPL_ASND_SDO_SEQ_CON_MASK, epl_sdo_init_abbr_vals, "x"));
+					seq_recv >> EPL_ASND_SDO_SEQ_MASK, val_to_str_const(seq_recv & EPL_ASND_SDO_SEQ_CON_MASK, epl_sdo_init_abbr_vals, "x"),
+					seq_send >> EPL_ASND_SDO_SEQ_MASK, val_to_str_const(seq_send & EPL_ASND_SDO_SEQ_CON_MASK, epl_sdo_init_abbr_vals, "x"));
 
 	seq_recv &= EPL_ASND_SDO_SEQ_CON_MASK;
 	seq_send &= EPL_ASND_SDO_SEQ_CON_MASK;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str((seq_recv << 8) | seq_send, epl_sdo_init_con_vals, "Invalid"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const((seq_recv << 8) | seq_send, epl_sdo_init_con_vals, "Invalid"));
 
 	return offset;
 }

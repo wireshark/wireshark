@@ -2741,7 +2741,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 
         if (grp == 0x0000 && elm == 0x0100) {
             /* This is a command */
-            pdv->command = wmem_strdup(wmem_file_scope(), val_to_str(val16, dcm_cmd_vals, " "));
+            pdv->command = wmem_strdup(wmem_file_scope(), val_to_str_const(val16, dcm_cmd_vals, " "));
             *tag_value = pdv->command;
         }
         else if (grp == 0x0000 && elm == 0x0900) {

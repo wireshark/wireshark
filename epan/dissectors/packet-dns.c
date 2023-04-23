@@ -1684,7 +1684,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     *is_multiple_responds = TRUE;
   }
 
-  type_name = val_to_str_ext(type, &dns_types_vals_ext, "Unknown (%d)");
+  type_name = val_to_str_ext(type, &dns_types_vals_ext, "Unknown (%u)");
 
   /*
    * The name might contain octets that aren't printable characters,
@@ -1842,7 +1842,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
         if (bits & mask) {
           proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, cur_offset, 1, rr_type,
             "RR type in bit map: %s %s",
-            val_to_str_ext(rr_type, &dns_types_vals_ext, " "),
+            val_to_str_ext_const(rr_type, &dns_types_vals_ext, " "),
             val_to_str_ext(rr_type, &dns_types_description_vals_ext, "Unknown (%d)")
             );
         }
@@ -1872,7 +1872,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int 
       if (bits & mask) {
           proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, cur_offset, 1, rr_type,
             "RR type in bit map: %s %s",
-            val_to_str_ext(rr_type, &dns_types_vals_ext, " "),
+            val_to_str_ext_const(rr_type, &dns_types_vals_ext, " "),
             val_to_str_ext(rr_type, &dns_types_description_vals_ext, "Unknown (%d)"));
         }
       mask >>= 1;

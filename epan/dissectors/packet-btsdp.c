@@ -3772,9 +3772,9 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     }
 
     if (name_vals && try_val_to_str(id, name_vals)) {
-        attribute_name = val_to_str(id, name_vals, "Unknown");
+        attribute_name = val_to_str_const(id, name_vals, "Unknown");
     } else {
-        attribute_name = val_to_str(id, vs_general_attribute_id, "Unknown");
+        attribute_name = val_to_str_const(id, vs_general_attribute_id, "Unknown");
         profile_speficic = "";
         hfx_attribute_id = hf_service_attribute_id_generic;
     }

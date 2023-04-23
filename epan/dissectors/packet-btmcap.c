@@ -121,7 +121,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     op_code = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(op_code, op_code_vals, "Unknown Op Code"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(op_code, op_code_vals, "Unknown Op Code"));
     if (op_code >= 0x11 && op_code <= 0x20) {
         proto_item_append_text(pitem, " (Clock Sync)");
         col_append_str(pinfo->cinfo, COL_INFO, " (Clock Sync)");
@@ -217,7 +217,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         response_code = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str(response_code, response_code_vals, "Unknown ResponseCode"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(response_code, response_code_vals, "Unknown ResponseCode"));
 
         if (op_code >= 0x11 && op_code <= 0x20) {
             /* Clock Sync */

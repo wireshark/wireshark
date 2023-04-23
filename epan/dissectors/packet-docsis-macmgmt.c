@@ -2570,7 +2570,7 @@ dissect_ucd_burst_descr(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, p
   tlvpos = pos;
   endtlvpos = tlvpos + len;
   proto_tree_add_item_ret_uint (tree, hf_docsis_ucd_iuc, tvb, tlvpos++, 1, ENC_BIG_ENDIAN, &iuc);
-  proto_item_append_text(item, ": IUC %d (%s)", iuc, val_to_str(iuc,iuc_vals, "Unknown IUC"));
+  proto_item_append_text(item, ": IUC %d (%s)", iuc, val_to_str_const(iuc,iuc_vals, "Unknown IUC"));
   while (tlvpos < endtlvpos)
   {
     tlvtype = tvb_get_guint8 (tvb, tlvpos);

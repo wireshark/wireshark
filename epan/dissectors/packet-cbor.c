@@ -762,7 +762,7 @@ dissect_cbor_float_simple_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cb
 
 	if (type_minor <= 0x17) {
 		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_simple_data5, tvb, *offset, 1, ENC_BIG_ENDIAN, &simple);
-		proto_item_set_text(item, "Simple: %s (%u)", val_to_str(simple, vals_simple_data, "Unknown"), simple);
+		proto_item_set_text(item, "Simple: %s (%u)", val_to_str_const(simple, vals_simple_data, "Unknown"), simple);
 	} else {
 		proto_tree_add_item(subtree, hf_cbor_item_float_simple_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	}
@@ -771,7 +771,7 @@ dissect_cbor_float_simple_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cb
 	switch (type_minor) {
 	case 0x18:
 		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_simple_data8, tvb, *offset, 1, ENC_BIG_ENDIAN, &simple);
-		proto_item_set_text(item, "Simple: %s (%u)", val_to_str(simple, vals_simple_data, "Unknown"), simple);
+		proto_item_set_text(item, "Simple: %s (%u)", val_to_str_const(simple, vals_simple_data, "Unknown"), simple);
 		*offset += 1;
 		break;
 	case 0x19:

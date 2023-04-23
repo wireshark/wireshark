@@ -9237,7 +9237,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x19: /* Appearance */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_appearance, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(entry_item, ": %s", val_to_str(tvb_get_letohs(tvb, offset), bthci_cmd_appearance_vals, "Unknown"));
+            proto_item_append_text(entry_item, ": %s", val_to_str_const(tvb_get_letohs(tvb, offset), bthci_cmd_appearance_vals, "Unknown"));
             offset += 2;
 
             break;

@@ -9068,7 +9068,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohs(tvb,offset+6));
                 break;
         }
-        proto_item_append_text (community_item, " [%s]", val_to_str(com_type_high_byte, bgpext_com_type_high, "Unknown community"));
+        proto_item_append_text (community_item, " [%s]", val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown community"));
         offset = offset + 8;
     }
     return(0);

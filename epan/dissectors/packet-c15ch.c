@@ -4406,18 +4406,18 @@ static int dissect_c15ch_cp_state_ch(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     newpm_value = tvb_get_ntohl(tvb, 4);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: CP_STATE_CH, %s --> ",
-        val_to_str_ext(oldpm_value, &c15_cp_state_pm_types_ext, "Unknown") );
+        val_to_str_ext_const(oldpm_value, &c15_cp_state_pm_types_ext, "Unknown") );
 
     col_append_str(pinfo->cinfo, COL_INFO,
-        val_to_str_ext(newpm_value, &c15_cp_state_pm_types_ext, "Unknown") );
+        val_to_str_ext_const(newpm_value, &c15_cp_state_pm_types_ext, "Unknown") );
 
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_cp_state_ch, tvb, 0, 40, ENC_NA);
         proto_item_append_text(ti, ", Old PM Type: %s",
-            val_to_str_ext(oldpm_value, &c15_cp_state_pm_types_ext, "Unknown"));
+            val_to_str_ext_const(oldpm_value, &c15_cp_state_pm_types_ext, "Unknown"));
         proto_item_append_text(ti, ", New PM Type: %s",
-            val_to_str_ext(newpm_value, &c15_cp_state_pm_types_ext, "Unknown"));
+            val_to_str_ext_const(newpm_value, &c15_cp_state_pm_types_ext, "Unknown"));
 
         c15ch_cp_state_ch_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
         proto_tree_add_item(c15ch_cp_state_ch_tree, hf_c15ch_cp_state_ch_oldpm,
@@ -4631,14 +4631,14 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Msg Type: %s",
-        val_to_str_ext(msgtype_value, &c15_isup_types_ext, "Unknown"));
+        val_to_str_ext_const(msgtype_value, &c15_isup_types_ext, "Unknown"));
 
     if (tree)
     {
 
         ti = proto_tree_add_item(tree, hf_c15ch_isup, tvb, 0, 324, ENC_NA);
         proto_item_append_text(ti, ", Msg Type: %s",
-            val_to_str_ext(msgtype_value, &c15_isup_types_ext, "Unknown"));
+            val_to_str_ext_const(msgtype_value, &c15_isup_types_ext, "Unknown"));
         c15ch_isup_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
         proto_tree_add_item(c15ch_isup_tree, hf_c15ch_isup_direction,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -4688,7 +4688,7 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: ISUP, Msg Type: %s",
-        val_to_str_ext(msgtype_value, &c15_isup_types_ext, "Unknown Type") );
+        val_to_str_ext_const(msgtype_value, &c15_isup_types_ext, "Unknown Type") );
 
     return tvb_reported_length(tvb);
 }
@@ -5737,9 +5737,9 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         ti = proto_tree_add_item(tree, hf_c15ch_cp_event, tvb, 0, 28, ENC_NA);
 
         proto_item_append_text(ti, ", PM Type: %s",
-            val_to_str_ext(pm_value, &c15_pm_types_ext, "Unknown"));
+            val_to_str_ext_const(pm_value, &c15_pm_types_ext, "Unknown"));
         proto_item_append_text(ti, ", Event Type: %s",
-            val_to_str_ext(event_value, &c15_event_types_ext, "Unknown"));
+            val_to_str_ext_const(event_value, &c15_event_types_ext, "Unknown"));
         c15ch_cp_event_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
 
         proto_tree_add_item(c15ch_cp_event_tree, hf_c15ch_cp_event_pm,

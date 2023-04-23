@@ -3025,7 +3025,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
           default:
             /* For reads for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
-            obj_type_str = val_to_str_ext((obj_type & 0xFF00), &dnp3_al_read_obj_vals_ext, "Unknown Object Type");
+            obj_type_str = val_to_str_ext_const((obj_type & 0xFF00), &dnp3_al_read_obj_vals_ext, "Unknown Object Type");
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, obj_type_str);
             break;
         }
@@ -3054,7 +3054,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
 
         /* For writes for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
-        obj_type_str = val_to_str_ext((obj_type & 0xFF00), &dnp3_al_write_obj_vals_ext, "Unknown Object Type");
+        obj_type_str = val_to_str_ext_const((obj_type & 0xFF00), &dnp3_al_write_obj_vals_ext, "Unknown Object Type");
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, obj_type_str);
 
       }

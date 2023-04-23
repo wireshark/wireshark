@@ -128,7 +128,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Control: %s %s",
             ((is_client_message) ? "Request" : "Response"),
-            val_to_str(control_pdu_id, control_pdu_id_vals,  "Unknown PDU ID"));
+            val_to_str_const(control_pdu_id, control_pdu_id_vals,  "Unknown PDU ID"));
 
     if (control_pdu_id >= 0x8000) {
         proto_item_append_text(pitem, " (Vendor Specific)");
@@ -247,7 +247,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (is_client_message) {
                 proto_tree_add_item(tree, hf_bthcrp_control_register, tvb, offset, 1, ENC_BIG_ENDIAN);
                 notification_register = tvb_get_guint8(tvb, offset);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " -  Register: %s", val_to_str(notification_register, register_vals, "unknown register"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -  Register: %s", val_to_str_const(notification_register, register_vals, "unknown register"));
                 offset += 1;
 
                 proto_tree_add_item(tree, hf_bthcrp_callback_context_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -319,7 +319,7 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     notification_pdu_id = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Notification: %s", val_to_str(notification_pdu_id, notification_pdu_id_vals,  "Unknown PDU ID"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Notification: %s", val_to_str_const(notification_pdu_id, notification_pdu_id_vals,  "Unknown PDU ID"));
 
     if (notification_pdu_id >= 0x8000) {
         proto_item_append_text(pitem, " (Vendor Specific)");

@@ -422,7 +422,7 @@ dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, guint offset,
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, BCP_BLOCK_HDR_LEN, ett_bcp_blockheader, NULL,
                "BCP Block Header (%u): Cmd=%s (%u), Len=%u",
                blocknb,
-               val_to_str(*cmd, bcp_cmds, "UNKNOWN"), *cmd,
+               val_to_str_const(*cmd, bcp_cmds, "UNKNOWN"), *cmd,
                *len
                );
 
@@ -525,7 +525,7 @@ static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         /* append text to BCP base */
         proto_item_append_text(bcp_item_base, ", %s (%u) len=%u",
-                               val_to_str(cmd, bcp_cmds, "UNKNOWN"), cmd, len);
+                               val_to_str_const(cmd, bcp_cmds, "UNKNOWN"), cmd, len);
 
         block_tvb = tvb_new_subset_length(tvb, offset, len);
         TRY {

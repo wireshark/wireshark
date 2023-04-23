@@ -8606,7 +8606,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         /* Locate the string name for the PO PDU type enumeration,
          * or default to "Unknown".
          */
-        pduString = val_to_str(persistentObjectPduType, DIS_PDU_PersistentObjectType_Strings, "Unknown");
+        pduString = val_to_str_const(persistentObjectPduType, DIS_PDU_PersistentObjectType_Strings, "Unknown");
 
         /* Append name of persistent PDU to the basic info column */
         col_append_str(pinfo->cinfo, COL_INFO, pduString);

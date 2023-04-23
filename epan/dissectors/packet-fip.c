@@ -270,7 +270,7 @@ fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb, guint8 dtype, int ett, proto_
     proto_tree* ret_tree;
 
     ret_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett, item,
-            "Descriptor: %s ", val_to_str_ext_const(dtype, &fip_desc_types_ext, "Unknown 0x%x"));
+            "Descriptor: %s ", val_to_str_ext(dtype, &fip_desc_types_ext, "Unknown 0x%x"));
     proto_tree_add_item(ret_tree, hf_fip_desc_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ret_tree, hf_fip_desc_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 
