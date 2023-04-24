@@ -1499,10 +1499,25 @@ static void
 proto_tree_write_node_ek(proto_node *node, write_json_data *pdata)
 {
     GHashTable *attr_table  = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    GHashTableIter iter;
+    gpointer key, value;
     ek_fill_attr(node, attr_table, pdata);
 
     // Print attributes
-    g_hash_table_foreach(attr_table, process_ek_attrs, pdata);
+    g_hash_table_iter_init(&iter, attr_table);
+    while (g_hash_table_iter_next (&iter, &key, &value)) {
+        process_ek_attrs(key, value, pdata);
+        g_hash_table_iter_remove(&iter);
+        /* We lookup a list in the table, append to it, and re-insert it; as
+         * g_slist_append() can change the start pointer of the list we can't
+         * just append to the list without replacing the old value. In turn,
+         * that means we can't set the value_destroy_func when creating
+         * the hash table, because on re-insertion that would destroy the
+         * nodes of the old list, which are still being used by the new list.
+         * So free it here.
+         */
+        g_slist_free((GSList*)value);
+    }
     g_hash_table_destroy(attr_table);
 }
 
