@@ -536,6 +536,10 @@ int ImportTextDialog::exec() {
     }
   cleanup_wtap:
     /* g_free checks for null */
+    wtap_block_array_free(params.shb_hdrs);
+    if (params.idb_inf != NULL) {
+        wtap_block_array_free(params.idb_inf->interface_data);
+    }
     g_free(params.idb_inf);
     g_free(tmp);
     g_free((gpointer) import_info_.payload);

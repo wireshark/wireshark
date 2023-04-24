@@ -866,6 +866,10 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
      */
     params->tsprec = WTAP_TSPREC_NSEC;
     if ((ret = text_import_pre_open(params, file_type_subtype, input_filename, interface_name)) != EXIT_SUCCESS) {
+        wtap_block_array_free(params->shb_hdrs);
+        if (params->idb_inf != NULL) {
+            wtap_block_array_free(params->idb_inf->interface_data);
+        }
         g_free(params->idb_inf);
         wtap_dump_params_cleanup(params);
         return ret;
@@ -884,6 +888,10 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     if (!wdh) {
         cfile_dump_open_failure_message(output_filename, err, err_info,
                                         file_type_subtype);
+        wtap_block_array_free(params->shb_hdrs);
+        if (params->idb_inf != NULL) {
+            wtap_block_array_free(params->idb_inf->interface_data);
+        }
         g_free(params->idb_inf);
         wtap_dump_params_cleanup(params);
         return WS_EXIT_OPEN_ERROR;
@@ -1056,6 +1064,10 @@ clean_exit:
         if (!wtap_dump_close(wdh, NULL, &err, &err_info)) {
             cfile_close_failure_message(output_filename, err, err_info);
             ret = 2;
+        }
+        wtap_block_array_free(params.shb_hdrs);
+        if (params.idb_inf != NULL) {
+            wtap_block_array_free(params.idb_inf->interface_data);
         }
         g_free(params.idb_inf);
     }
