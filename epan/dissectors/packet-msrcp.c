@@ -192,12 +192,12 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRCP");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ID %d (0x%X)",
-        val_to_str(type, packettypenames, "MSRCP"), seq, seq);
+        val_to_str_const(type, packettypenames, "MSRCP"), seq, seq);
 
 
     ti = proto_tree_add_item(tree, proto_msrcp, tvb, 0, -1, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, "Type %s",
-        val_to_str(type, packettypenames, "MSRCP"));
+        val_to_str_const(type, packettypenames, "MSRCP"));
     msrcp_tree = proto_item_add_subtree(ti, ett_msrcp);
 
     if (type == MSRCP_REQUEST || type == MSRCP_RESPONSE)

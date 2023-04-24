@@ -4600,7 +4600,7 @@ static void rtps_util_add_transport_info(proto_tree *tree,
     proto_tree *xport_info_tree;
 
     xport_info_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_rtps_transport_info, NULL,
-            "transportInfo %d: %s", transport_index,val_to_str(classId, ndds_transport_class_id_vals, "unknown"));
+            "transportInfo %d: %s", transport_index, val_to_str_const(classId, ndds_transport_class_id_vals, "unknown"));
 
     proto_tree_add_item(xport_info_tree, hf_rtps_transportInfo_classId, tvb,
       offset, 4, encoding);

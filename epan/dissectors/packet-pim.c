@@ -845,7 +845,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                 ja_eos_type = tvb_get_guint8(tvb, ja_offset);
                 proto_tree_add_bitmask(ja_tree, tvb, ja_offset, hf_pim_source_ja_flags,
                                        ett_pim_addr_flags, pim_source_ja_flags, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, ": %s", val_to_str(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
+                proto_item_append_text(ti, ": %s", val_to_str_const(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
                 ja_offset += 1;
                 proto_tree_add_item(ja_tree, hf_pim_source_ja_length, tvb, ja_offset, 1, ENC_BIG_ENDIAN);
                 ja_offset += 1;
@@ -1001,7 +1001,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                 ja_eos_type = tvb_get_guint8(tvb, ja_offset);
                 proto_tree_add_bitmask(ja_tree, tvb, ja_offset, hf_pim_source_ja_flags,
                             ett_pim_addr_flags, pim_source_ja_flags, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, ": %s", val_to_str(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
+                proto_item_append_text(ti, ": %s", val_to_str_const(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
                 ja_offset += 1;
                 proto_tree_add_item(ja_tree, hf_pim_source_ja_length, tvb, ja_offset, 1, ENC_BIG_ENDIAN);
                 ja_offset += 1;

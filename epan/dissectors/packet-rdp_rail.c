@@ -317,7 +317,7 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 
 			proto_tree_add_item_ret_uint(tree, hf_rail_sysparam_server_params, tvb, offset, 4, ENC_LITTLE_ENDIAN, &serverParam);
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str(serverParam, rdp_rail_server_system_params_vals, "<unknown server param>"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str_const(serverParam, rdp_rail_server_system_params_vals, "<unknown server param>"));
 			switch(serverParam) {
 			case SPI_SETSCREENSAVEACTIVE:
 			case SPI_SETSCREENSAVESECURE:
@@ -328,7 +328,7 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 			guint32 clientParam;
 
 			proto_tree_add_item_ret_uint(tree, hf_rail_sysparam_client_params, tvb, offset, 4, ENC_LITTLE_ENDIAN, &clientParam);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str(clientParam, rdp_rail_client_system_params_vals, "<unknown client param>"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str_const(clientParam, rdp_rail_client_system_params_vals, "<unknown client param>"));
 
 			switch(clientParam) {
 			case SPI_SETDRAGFULLWINDOWS:

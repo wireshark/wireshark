@@ -2409,7 +2409,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_set_len(section_tree, offset - section_tree_offset);
 
     proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
-                           sectionType, val_to_str(direction, data_direction_vals, "Unknown"),
+                           sectionType, val_to_str_const(direction, data_direction_vals, "Unknown"),
                            frameId, subframeId, slotId, startSymbolId);
     write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %d %s", sectionType,
                              rval_to_str_const(sectionType, section_types_short, "Unknown"));
@@ -2498,7 +2498,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item_set_generated(pi);
 
     proto_item_append_text(timingHeader, " %s, Frame: %d, Subframe: %d, Slot: %d, Symbol: %d",
-        val_to_str(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
+        val_to_str_const(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
 
     guint sample_bit_width;
     gint compression;

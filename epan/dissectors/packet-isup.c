@@ -8063,11 +8063,11 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                                      "%u (%s)",
                                      parameter_type,
                                      val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "unknown"));
-          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext(parameter_type, &japan_isup_parameter_type_value_ext, "Unknown"));
+          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "Unknown"));
           break;
         default:
           proto_tree_add_uint(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH, parameter_type);
-          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
+          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext_const(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
           break;
 
       }
@@ -8425,7 +8425,8 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
 
       parameter_tree = proto_tree_add_subtree_format(isup_tree, optional_parameters_tvb,
                                            offset, parameter_length  + PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_IND_LENGTH,
-                                           ett_isup_parameter, &parameter_item, "Parameter: (t=%u, l=%u): %s", parameter_type, parameter_length, val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
+                                           ett_isup_parameter, &parameter_item, "Parameter: (t=%u, l=%u): %s",
+                                           parameter_type, parameter_length, val_to_str_ext_const(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
       proto_tree_add_uint(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset,
                                  PARAMETER_TYPE_LENGTH, parameter_type);
       offset += PARAMETER_TYPE_LENGTH;

@@ -362,7 +362,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                     codec_len = (guint)strlen(codecs[i]);
                     ti = proto_tree_add_uint(another_tree, hf_rtpproxy_command_parameter_codec, tvb, begin+offset, codec_len,
                             (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(pinfo->pool, tvb, begin+offset, codec_len, ENC_ASCII), NULL, 10));
-                    proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset,codec_len),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
+                    proto_item_append_text(ti, " (%s)", val_to_str_ext_const((guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset,codec_len),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
                     offset += codec_len;
                     if(codecs[i+1])
                         offset++; /* skip comma */
@@ -426,7 +426,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_transcode);
                 ti = proto_tree_add_uint(another_tree, hf_rtpproxy_command_parameter_transcode, tvb, begin+offset, new_offset,
                         (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(pinfo->pool, tvb, begin+offset, new_offset, ENC_ASCII), NULL, 10));
-                proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset, new_offset),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
+                proto_item_append_text(ti, " (%s)", val_to_str_ext_const((guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset, new_offset),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
                 offset += new_offset;
                 break;
             case 'u':
@@ -645,7 +645,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'c':
         case 'q':
             rtpproxy_info = rtpproxy_add_tid(TRUE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", val_to_str(tvb_get_guint8(tvb, offset), commandtypenames, "Unknown command code"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", val_to_str_const(tvb_get_guint8(tvb, offset), commandtypenames, "Unknown command code"));
             ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
             rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_request);
 

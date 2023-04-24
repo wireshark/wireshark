@@ -1839,50 +1839,50 @@ s7comm_get_szl_id_index_description_text(guint16 id, guint16 idx)
     const gchar* str = NULL;
     switch (id) {
         case 0x0111:
-            str = val_to_str(idx, szl_0111_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0111_index_names, "No description available");
             break;
         case 0x0112:
-            str = val_to_str(idx, szl_0112_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0112_index_names, "No description available");
             break;
         case 0x0113:
-            str = val_to_str(idx, szl_0113_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0113_index_names, "No description available");
             break;
         case 0x0114:
-            str = val_to_str(idx, szl_0114_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0114_index_names, "No description available");
             break;
         case 0x0115:
-            str = val_to_str(idx, szl_0115_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0115_index_names, "No description available");
             break;
         case 0x0116:
-            str = val_to_str(idx, szl_0116_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0116_index_names, "No description available");
             break;
         case 0x0118:
-            str = val_to_str(idx, szl_0118_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0118_index_names, "No description available");
             break;
         case 0x0119:
-            str = val_to_str(idx, szl_0119_0174_ledid_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0119_0174_ledid_index_names, "No description available");
             break;
         case 0x0121:
-            str = val_to_str(idx, szl_0121_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0121_index_names, "No description available");
             break;
         case 0x0222:
-            str = val_to_str(idx, szl_0222_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0222_index_names, "No description available");
             break;
         case 0x0524:
-            str = val_to_str(idx, szl_0524_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0524_index_names, "No description available");
             break;
         case 0x0131:
-            str = val_to_str(idx, szl_0131_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0131_index_names, "No description available");
             break;
         case 0x0132:
-            str = val_to_str(idx, szl_0132_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0132_index_names, "No description available");
             break;
         case 0x0174:
-            str = val_to_str(idx, szl_0119_0174_ledid_index_names, "No description available");
+            str = val_to_str_const(idx, szl_0119_0174_ledid_index_names, "No description available");
             break;
         case 0x011c:
         case 0x031c:
-            str = val_to_str(idx, szl_xy1c_index_names, "No description available");
+            str = val_to_str_const(idx, szl_xy1c_index_names, "No description available");
             break;
     }
     return str;
