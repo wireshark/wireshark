@@ -60,8 +60,8 @@ The following bugs have been fixed:
 
 The following features are new (or have been significantly updated) since version 4.0.0:
 
-// * The Windows installers now ship with Npcap 1.74.
-//   They previously shipped with Npcap 1.71.
+// * The Windows installers now ship with Npcap 1.71.
+//   They previously shipped with Npcap 1.60.
 
 * The API has been updated to ensure that the dissection engine produces valid UTF-8 strings.
 
