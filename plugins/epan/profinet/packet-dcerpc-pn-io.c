@@ -857,6 +857,13 @@ static int hf_pn_io_mau_type_extension = -1;
 
 static int hf_pn_io_pe_operational_mode = -1;
 
+static int hf_pn_io_snmp_community_name_length = -1;
+static int hf_pn_io_snmp_community_name = -1;
+static int hf_pn_io_snmp_read_community_name = -1;
+static int hf_pn_io_snmp_write_community_name = -1;
+
+static int hf_pn_io_snmp_control = -1;
+
 /* static int hf_pn_io_packedframe_SFCRC = -1; */
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -941,6 +948,8 @@ static gint ett_pn_io_tsn_domain_vid_config = -1;
 static gint ett_pn_io_tsn_domain_queue_config = -1;
 static gint ett_pn_io_time_sync_properties = -1;
 static gint ett_pn_io_tsn_domain_port_id = -1;
+
+static gint ett_pn_io_snmp_command_name = -1;
 
 
 #define PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH 4
@@ -1152,7 +1161,7 @@ static const value_string pn_io_block_type[] = {
     { 0x027C, "TSNDomainQueueRateLimiterBlock"},
     { 0x027D, "TSNPortIDBlock"},
     { 0x027E, "TSNExpectedNeighborBlock" },
-    { 0x0300, "PDInterfaceSecurityAdjust"},
+    { 0x0300, "CIMSNMPAdjust"},
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
@@ -1662,7 +1671,10 @@ static const value_string pn_io_index[] = {
     { 0x80F7, "TSNStreamPathDataReal for stream class High Redundant" },
     { 0x80F8, "TSNStreamPathDataReal for stream class Low" },
     { 0x80F9, "TSNStreamPathDataReal for stream class Low Redundant" },
-    /*0x80FA - 0xAFEF reserved */
+    /*0x80FA - 0x80FF reserved for CIM data */
+    /*0x8100 - 0x81FF reserved */
+    { 0x8200, "CIMSNMPAdjust" },
+    /*0x8201 - 0xAFEF reserved */
     { 0xAFF0, "I&M0" },
     { 0xAFF1, "I&M1" },
     { 0xAFF2, "I&M2" },
@@ -3713,6 +3725,13 @@ static const value_string* pn_io_pa_profile_transducer_block_class_vals[] = {
     pn_io_pa_profile_transducer_block_binary_io_class_vals
 };
 
+static const value_string pn_io_snmp_control[] = {
+    { 0x00, "Disable SNMP" },
+    { 0x01, "Enable SNMP read only" },
+    { 0x02, "Enable SNMP read/write" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
 
 static int
 dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -12076,6 +12095,60 @@ dissect_IsochronousModeData_block(tvbuff_t *tvb, int offset,
     return offset+1;
 }
 
+static int
+dissect_CommunityName_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo _U_, proto_tree *tree, const guint8 *drep _U_, int hfindex)
+{
+    guint8 u8CommunityNameLength;
+    proto_item* sub_item;
+    proto_item* sub_tree;
+
+    /* CommunityNameLength */
+    u8CommunityNameLength = tvb_get_guint8(tvb, offset);
+    sub_item = proto_tree_add_item(tree, hfindex, tvb, offset, u8CommunityNameLength + 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_snmp_command_name);
+
+    proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name_length, tvb, offset, 1, DREP_ENC_INTEGER(drep));
+    offset += 1;
+
+    /* community Name */
+    proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name, tvb, offset, u8CommunityNameLength, ENC_ASCII | ENC_NA);
+
+    proto_item_append_text(sub_item, ": %s",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset, u8CommunityNameLength, ENC_ASCII|ENC_NA));
+
+    offset += u8CommunityNameLength;
+    return offset;
+}
+
+/* dissect the CIMSNMPAdjust block */
+static int
+dissect_CIMSNMPAdjust_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+    guint16 u16BodyLength)
+{
+    guint16 u16StartsAtOffset = offset;
+    guint16 u16padding;
+
+    if (u8BlockVersionHigh!=1 || u8BlockVersionLow!=0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* SNMPControl */
+    proto_tree_add_item(tree, hf_pn_io_snmp_control, tvb, offset, 2, DREP_ENC_INTEGER(drep));
+    offset += 2;
+
+    offset = dissect_CommunityName_block(tvb, offset, pinfo, tree, drep, hf_pn_io_snmp_read_community_name);
+    offset = dissect_CommunityName_block(tvb, offset, pinfo, tree, drep, hf_pn_io_snmp_write_community_name);
+
+    u16padding = u16BodyLength - (offset - u16StartsAtOffset);
+    if (u16padding > 0)
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, u16padding);
+
+    return offset;
+}
 
 /* dissect the MultipleBlockHeader block */
 static int
@@ -12718,7 +12791,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0251):
         dissect_PDPortStatistic_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
-	case(0x0260):
+    case(0x0260):
         dissect_OwnPort_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0261):
@@ -12756,7 +12829,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x027A):
         dissect_TSNStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, TRUE);
-	break;
+    break;
     case(0x027B):
         dissect_TSNDomainPortIngressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
@@ -12768,6 +12841,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x027E):
         dissect_TSNExpectedNeighbor_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0300):
+        dissect_CIMSNMPAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
@@ -13349,6 +13425,8 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x80AF):   /* PE_EntityStatusData for one subslot */
     case(0x80CF):   /* RS_AdjustObserver */
 
+    case(0x8200):   /* CIMSNMPAdjust */
+
     case(0xaff0):   /* I&M0 */
     case(0xaff1):   /* I&M1 */
     case(0xaff2):   /* I&M2 */
@@ -13813,6 +13891,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
     case(0x80B0):   /* CombinedObjectContainer*/
     case(0x80CF):   /* RS_AdjustObserver */
+    case(0x8200):   /* CIMSNMPAdjust */
     case(0xaff1):   /* I&M1 */
     case(0xaff2):   /* I&M2 */
     case(0xaff3):   /* I&M3 */
@@ -17606,6 +17685,31 @@ proto_register_pn_io (void)
        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
        NULL, HFILL }
     },
+    { &hf_pn_io_snmp_control,
+    { "SNMPControl", "pn_io.snmp_control",
+        FT_UINT16, BASE_HEX, VALS(pn_io_snmp_control), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_community_name_length,
+    { "CommunityNameLength", "pn_io.snmp_community_name_length",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_community_name,
+    { "CommunityName", "pn_io.snmp_community_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_read_community_name,
+    { "SNMP read only community name", "pn_io.snmp_read_community_name",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_write_community_name,
+    { "SNMP read write community name", "pn_io.snmp_write_community_name",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     };
 
     static gint *ett[] = {
@@ -17678,14 +17782,15 @@ proto_register_pn_io (void)
         &ett_pn_io_peer_to_peer_boundary,
         &ett_pn_io_mau_type_extension,
         &ett_pn_io_pe_operational_mode,
-		&ett_pn_io_neighbor,
-		&ett_pn_io_tsn_domain_vid_config,
+        &ett_pn_io_neighbor,
+        &ett_pn_io_tsn_domain_vid_config,
         &ett_pn_io_tsn_domain_port_config,
         &ett_pn_io_tsn_domain_queue_config,
         &ett_pn_io_tsn_domain_port_ingress_rate_limiter,
         &ett_pn_io_tsn_domain_queue_rate_limiter,
         &ett_pn_io_time_sync_properties,
-		&ett_pn_io_tsn_domain_port_id
+        &ett_pn_io_tsn_domain_port_id,
+        &ett_pn_io_snmp_command_name
     };
 
     static ei_register_info ei[] = {
