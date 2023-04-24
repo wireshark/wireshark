@@ -602,6 +602,8 @@ int main(int argc, char *qt_argv[])
     ws_init_version_info("Logray", gather_wireshark_qt_compiled_info,
                          gather_wireshark_runtime_info);
 
+    init_report_message("Logray", &wireshark_report_routines);
+
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -712,8 +714,6 @@ int main(int argc, char *qt_argv[])
        by preference settings and then again by the command line parameters. */
     capture_opts_init(&global_capture_opts);
 #endif
-
-    init_report_message("Logray", &wireshark_report_routines);
 
     /*
      * Libwiretap must be initialized before libwireshark is, so that
