@@ -449,7 +449,7 @@ static const value_string mausb_status_string[] = {
 
 #define MAUSB_TOKEN_MASK  0x03ff
 #define MAUSB_MGMT_PAD_MASK  0xfffc
-#define MAUSB_MGMT_NUM_EP_DES_MASK 0x001f
+#define MAUSB_MGMT_NUM_EP_DES_MASK 0x1f
 #define MAUSB_MGMT_SIZE_EP_DES_OFFSET 5
 #define MAUSB_MGMT_SIZE_EP_DES_MASK (0x003f << MAUSB_MGMT_SIZE_EP_DES_OFFSET)
 

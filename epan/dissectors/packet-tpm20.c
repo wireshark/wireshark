@@ -609,13 +609,13 @@ static const value_string responses [] = {
 	{ 0, NULL }
 };
 
-#define TPMA_SESSION_CONTINUESESSION 0x00000001
-#define TPMA_SESSION_AUDITEXCLUSIVE  0x00000002
-#define TPMA_SESSION_AUDITRESET      0x00000004
-#define TPMA_SESSION_RESERVED1_MASK  0x00000018
-#define TPMA_SESSION_DECRYPT         0x00000020
-#define TPMA_SESSION_ENCRYPT         0x00000040
-#define TPMA_SESSION_AUDIT           0x00000080
+#define TPMA_SESSION_CONTINUESESSION 0x01
+#define TPMA_SESSION_AUDITEXCLUSIVE  0x02
+#define TPMA_SESSION_AUDITRESET      0x04
+#define TPMA_SESSION_RESERVED1_MASK  0x18
+#define TPMA_SESSION_DECRYPT         0x20
+#define TPMA_SESSION_ENCRYPT         0x40
+#define TPMA_SESSION_AUDIT           0x80
 
 static tpm_entry *get_command_entry(wmem_tree_t *tree, guint32 pnum)
 {

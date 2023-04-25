@@ -269,7 +269,9 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'hf_data_encoding',
                                             'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
                                             'big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
-                                            '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN'  }:
+                                            '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
+                                            'pdu_info->sbc', 'pdu_info->mbc',
+                                            'seq_info->txt_enc | ENC_NA'  }:
                                 global warnings_found
 
                                 print('Warning:', self.file + ':' + str(line_number),
@@ -325,7 +327,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'iax2.video.subclass',
                                 'dnp3.al.ana.int',
                                 'pwcesopsn.cw.lm',
-                                'gsm_a.rr.format_id' # EN 301 503
+                                'gsm_a.rr.format_id', # EN 301 503
+                                'siii.mst.phase' # comment in code seems convinced
                               }
 ##################################################################################################
 
@@ -446,7 +449,8 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^dnp3.al.cnt'),
         re.compile(r'^bthfp.chld.mode'),
         re.compile(r'^nat-pmp.pml'),
-        re.compile(r'^systemactivator.actproperties.ts.hdr')
+        re.compile(r'^isystemactivator.actproperties.ts.hdr'),
+        re.compile(r'^rtpdump.txt_addr')
     ]
 
     for patt in ignore_patterns:
@@ -673,9 +677,9 @@ class Item:
                 warnings_found += 1
 
     def check_digits_all_zeros(self, mask):
-        if mask.startswith('0x') and len(mask) >= 3:
+        if mask.startswith('0x') and len(mask) > 3:
             if mask[2:] == '0'*(len(mask)-2):
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item mask has all zeros - this is confusing! :', '"' + mask + '"')
                 global warnings_found
                 warnings_found += 1
 
@@ -1147,7 +1151,8 @@ for f in files:
     # Do checks against all calls.
     if args.consecutive:
         combined_calls = CombinedCallsCheck(f, apiChecks)
-        combined_calls.check_consecutive_item_calls()
+        # This hasn't really found any issues, but shows lots of false positives (and are difficult to investigate)
+        #combined_calls.check_consecutive_item_calls()
 
 
 # Show summary.
