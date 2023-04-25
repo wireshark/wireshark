@@ -1918,6 +1918,7 @@ ssh_keylog_read_file(void)
     if (ssh_keylog_file && file_needs_reopen(ws_fileno(ssh_keylog_file),
                 pref_keylog_file)) {
         ssh_keylog_reset();
+        g_hash_table_remove_all(ssh_master_key_map);
     }
 
     if (!ssh_keylog_file) {
@@ -1954,6 +1955,7 @@ ssh_keylog_read_file(void)
             if (ferror(ssh_keylog_file)) {
                 ws_debug("Error while reading %s, closing it.", pref_keylog_file);
                 ssh_keylog_reset();
+                g_hash_table_remove_all(ssh_master_key_map);
             }
             break;
         }
@@ -2043,6 +2045,9 @@ ssh_keylog_process_line(const char *line)
 
         bn_priv->data[i] = c;
     }
+    ssh_bignum * bn_cookie_ht = g_new(ssh_bignum, 1);
+    bn_cookie_ht->length = bn_cookie->length;
+    bn_cookie_ht->data = (guint8 *) g_memdup2(bn_cookie->data, bn_cookie->length);
 
     for (size_t i = 0; i < cookie_len/2; i ++) {
         gchar v0 = cookie[i * 2];
@@ -2060,8 +2065,11 @@ ssh_keylog_process_line(const char *line)
 
         bn_cookie->data[i] = c;
     }
+    ssh_bignum * bn_priv_ht = g_new(ssh_bignum, 1);
+    bn_priv_ht->length = bn_priv->length;
+    bn_priv_ht->data = (guint8 *) g_memdup2(bn_priv->data, bn_priv->length);
 
-    g_hash_table_insert(ssh_master_key_map, bn_cookie, bn_priv);
+    g_hash_table_insert(ssh_master_key_map, bn_cookie_ht, bn_priv_ht);
     g_strfreev(split);
 }
 
@@ -4066,7 +4074,25 @@ ssh_hash  (gconstpointer v)
 
     return hash;
 }
+
+static void
+ssh_free_glib_allocated_bignum(gpointer data)
+{
+    ssh_bignum * bignum;
+    if (data == NULL) {
+        return;
+    }
+
+    bignum = (ssh_bignum *) data;
+    g_free(bignum->data);
+    g_free(bignum);
+}
 /* Functions for SSH random hashtables. }}} */
+
+static void
+ssh_shutdown(void) {
+    g_hash_table_destroy(ssh_master_key_map);
+}
 
 void
 proto_register_ssh(void)
@@ -4782,7 +4808,7 @@ proto_register_ssh(void)
                        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                        &ssh_desegment);
 
-    ssh_master_key_map = g_hash_table_new(ssh_hash, ssh_equal);
+    ssh_master_key_map = g_hash_table_new_full(ssh_hash, ssh_equal, ssh_free_glib_allocated_bignum, ssh_free_glib_allocated_bignum);
     prefs_register_filename_preference(ssh_module, "keylog_file", "Key log filename",
             "The path to the file which contains a list of key exchange secrets in the following format:\n"
             "\"<hex-encoded-cookie> <hex-encoded-key>\" (without quotes or leading spaces).\n",
@@ -4796,6 +4822,7 @@ proto_register_ssh(void)
     secrets_register_type(SECRETS_TYPE_SSH, ssh_secrets_block_callback);
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
+    register_shutdown_routine(ssh_shutdown);
 }
 
 void
