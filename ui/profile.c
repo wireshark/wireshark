@@ -59,13 +59,16 @@ add_profile_entry(GList *fl, const char *profilename, const char *reference, int
 static GList *
 remove_profile_entry(GList *fl, GList *fl_entry)
 {
+    GList *list;
     profile_def *profile;
 
     profile = (profile_def *) fl_entry->data;
     g_free(profile->name);
     g_free(profile->reference);
     g_free(profile);
-    return g_list_remove_link(fl, fl_entry);
+    list = g_list_remove_link(fl, fl_entry);
+    g_list_free_1(fl_entry);
+    return list;
 }
 
 const gchar *
