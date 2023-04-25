@@ -352,7 +352,7 @@ static void sdp_dump_transport_info(const transport_info_t* info) {
             return;
         }
         DPRINT2(("sdp_status=%s",
-                 val_to_str(info->sdp_status, sdp_exchange_type_vs, "SDP_EXCHANGE_UNKNOWN")));
+                 val_to_str_const(info->sdp_status, sdp_exchange_type_vs, "SDP_EXCHANGE_UNKNOWN")));
         DPRINT2(("payload type contents:"));
         DINDENT();
             for (i=0; i < SDP_NO_OF_PT; i++) {

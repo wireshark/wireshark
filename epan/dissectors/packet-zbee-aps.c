@@ -948,8 +948,9 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         switch (tvb_get_letohs(tvb, offset + 2)) {
             case ZBEE_DEVICE_PROFILE:
                 proto_tree_add_uint_format(aps_tree, hf_zbee_aps_zdp_cluster, tvb, offset, 2, nwk->cluster_id,
-                    "%s (Cluster ID: 0x%04x)", val_to_str(nwk->cluster_id, zbee_zdp_cluster_names,
-                    "Unknown Device Profile Cluster"), nwk->cluster_id);
+                    "%s (Cluster ID: 0x%04x)",
+                    val_to_str_const(nwk->cluster_id, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"),
+                    nwk->cluster_id);
                 break;
             case ZBEE_PROFILE_T2:
                 proto_tree_add_item(aps_tree, hf_zbee_aps_t2_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);

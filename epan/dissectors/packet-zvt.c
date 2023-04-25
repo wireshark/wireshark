@@ -605,7 +605,7 @@ dissect_zvt_tlv_tag(tvbuff_t *tvb, gint offset,
     tag_ti = proto_tree_add_uint_format(tree, hf_zvt_tlv_tag,
             tvb, offset_start, offset-offset_start, _tag,
             "Tag: %s (0x%x)",
-            val_to_str_ext(_tag, &tlv_tags_ext, "unknown"), _tag);
+            val_to_str_ext_const(_tag, &tlv_tags_ext, "unknown"), _tag);
 
     tag_tree = proto_item_add_subtree(tag_ti, ett_zvt_tlv_tag);
     proto_tree_add_item(tag_tree, hf_zvt_tlv_tag_class,
@@ -901,7 +901,7 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(bitmap_tree, hf_zvt_bmp,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(bitmap_it, ": %s",
-            val_to_str(bmp, bitmap, "unknown"));
+            val_to_str_const(bmp, bitmap, "unknown"));
     offset++;
 
     bi = (bitmap_info_t *)g_hash_table_lookup(
@@ -1114,7 +1114,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         ctrl = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(apdu_tree, hf_zvt_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                val_to_str_const(ctrl, ctrl_field, "Unknown 0x%x"));
+                val_to_str(ctrl, ctrl_field, "Unknown 0x%x"));
         offset += 2;
 
         if (PINFO_FD_VISITED(pinfo)) {

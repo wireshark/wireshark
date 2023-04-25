@@ -3687,7 +3687,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item_ret_boolean(msgtype_tree, hf_someip_messagetype_ack_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype_ack);
     proto_tree_add_item_ret_boolean(msgtype_tree, hf_someip_messagetype_tp_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype_tp);
 
-    proto_item_append_text(ti, " (%s)", val_to_str((~SOMEIP_MSGTYPE_TP_MASK)&msgtype, someip_msg_type, "Unknown Message Type"));
+    proto_item_append_text(ti, " (%s)", val_to_str_const((~SOMEIP_MSGTYPE_TP_MASK)&msgtype, someip_msg_type, "Unknown Message Type"));
     if (msgtype_tp) {
         proto_item_append_text(ti, " (%s)", SOMEIP_MSGTYPE_TP_STRING);
     }
@@ -3695,7 +3695,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Return Code */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_returncode, tvb, offset, 1, ENC_BIG_ENDIAN, &retcode);
-    proto_item_append_text(ti, " (%s)", val_to_str(retcode, someip_return_code, "Unknown Return Code"));
+    proto_item_append_text(ti, " (%s)", val_to_str_const(retcode, someip_return_code, "Unknown Return Code"));
     offset += 1;
 
     /* lets figure out what we have for the rest */

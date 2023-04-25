@@ -2043,7 +2043,7 @@ proto_item * dissect_usb_descriptor_header(proto_tree *tree,
 
     proto_tree_add_uint_format_value(tree, hf_usb_bDescriptorType,
         tvb, offset, 1, desc_type, "0x%02x (%s)", desc_type,
-        val_to_str_ext(desc_type, type_val_str, "unknown"));
+        val_to_str_ext_const(desc_type, type_val_str, "unknown"));
 
     return length_item;
 }

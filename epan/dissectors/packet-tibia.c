@@ -913,7 +913,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
             ptvcursor_pop_subtree(ptvc);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (0x%x)",
-                    val_to_str(cmd, from_loginserv_packet_types, "Unknown"), cmd);
+                    val_to_str_const(cmd, from_loginserv_packet_types, "Unknown"), cmd);
 
             if (ptvcursor_current_offset(ptvc) >= len)
                 break;
@@ -1151,7 +1151,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
             ptvcursor_pop_subtree(ptvc);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (0x%x)",
-                    val_to_str(cmd, from_gameserv_packet_types, "Unknown"), cmd);
+                    val_to_str_const(cmd, from_gameserv_packet_types, "Unknown"), cmd);
 
             if (ptvcursor_current_offset(ptvc) >= len)
                 break;
@@ -1201,7 +1201,7 @@ dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int 
             ptvcursor_pop_subtree(ptvc);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (0x%x)",
-                    val_to_str(cmd, from_client_packet_types, "Unknown"), cmd);
+                    val_to_str_const(cmd, from_client_packet_types, "Unknown"), cmd);
 
             if (ptvcursor_current_offset(ptvc) >= len)
                 break;

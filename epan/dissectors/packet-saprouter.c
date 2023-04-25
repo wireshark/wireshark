@@ -664,8 +664,8 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/* Control Message */
 		} else {
 			/* Add the opcode name */
-			proto_item_append_text(ti, ", opcode=%s", val_to_str(opcode, saprouter_opcode_vals, "Unknown"));
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", opcode=%s", val_to_str(opcode, saprouter_opcode_vals, "Unknown"));
+		        proto_item_append_text(ti, ", opcode=%s", val_to_str_const(opcode, saprouter_opcode_vals, "Unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", opcode=%s", val_to_str_const(opcode, saprouter_opcode_vals, "Unknown"));
 
 			proto_tree_add_item(saprouter_tree, hf_saprouter_control_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;

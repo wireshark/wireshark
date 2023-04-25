@@ -942,7 +942,7 @@ dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 	/* Add the Part fields */
 	partkind = tvb_get_gint8(tvb, offset);
-	proto_item_append_text(part_item, ", %s", val_to_str(partkind, saphdb_part_partkind_vals, "Unknown"));
+	proto_item_append_text(part_item, ", %s", val_to_str_const(partkind, saphdb_part_partkind_vals, "Unknown"));
 	partkind_item = proto_tree_add_item(part_tree, hf_saphdb_part_partkind, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	length += 1;
@@ -1030,8 +1030,8 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	offset += 1;
 	length += 1;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Segment %s (", val_to_str(segmentkind, saphdb_segment_segmentkind_vals, "Unknown"));
-	proto_item_append_text(segment_item, ", %s", val_to_str(segmentkind, saphdb_segment_segmentkind_vals, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Segment %s (", val_to_str_const(segmentkind, saphdb_segment_segmentkind_vals, "Unknown"));
+	proto_item_append_text(segment_item, ", %s", val_to_str_const(segmentkind, saphdb_segment_segmentkind_vals, "Unknown"));
 
 	/* Check a couple of fields */
 	if (segmentlength < 13) {
@@ -1048,8 +1048,8 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	switch (segmentkind) {
 		case 1: /* Request */
 			message_type = tvb_get_gint8(tvb, offset);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s)", val_to_str(message_type, saphdb_segment_messagetype_vals, "Unknown"));
-			proto_item_append_text(segment_item, ", %s", val_to_str(message_type, saphdb_segment_messagetype_vals, "Unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s)", val_to_str_const(message_type, saphdb_segment_messagetype_vals, "Unknown"));
+			proto_item_append_text(segment_item, ", %s", val_to_str_const(message_type, saphdb_segment_messagetype_vals, "Unknown"));
 			proto_tree_add_item(segment_tree, hf_saphdb_segment_messagetype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 			length += 1;
@@ -1071,8 +1071,8 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			length += 1;
 
 			function_code = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s)", val_to_str(function_code, saphdb_segment_functioncode_vals, "Unknown"));
-			proto_item_append_text(segment_item, ", %s", val_to_str(function_code, saphdb_segment_functioncode_vals, "Unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s)", val_to_str_const(function_code, saphdb_segment_functioncode_vals, "Unknown"));
+			proto_item_append_text(segment_item, ", %s", val_to_str_const(function_code, saphdb_segment_functioncode_vals, "Unknown"));
 			proto_tree_add_item(segment_tree, hf_saphdb_segment_functioncode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			length += 2;

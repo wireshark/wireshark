@@ -413,14 +413,14 @@ dissect_sapenqueue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	col_clear(pinfo->cinfo,COL_INFO);
 
 	dest = tvb_get_guint8(tvb, offset + 16);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Dest=%s", val_to_str(dest, sapenqueue_dest_vals, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Dest=%s", val_to_str_const(dest, sapenqueue_dest_vals, "Unknown"));
 
 	opcode = tvb_get_guint8(tvb, offset + 17);
 	type = tvb_get_guint8(tvb, offset + 19);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ",Type=%s", val_to_str(type, sapenqueue_type_vals, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ",Type=%s", val_to_str_const(type, sapenqueue_type_vals, "Unknown"));
 
 	if (dest == 0x06){
-		col_append_fstr(pinfo->cinfo, COL_INFO, ",Opcode=%s", val_to_str(opcode, sapenqueue_conn_admin_opcode_vals, "Unknown"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ",Opcode=%s", val_to_str_const(opcode, sapenqueue_conn_admin_opcode_vals, "Unknown"));
 	}
 
 	/* Add the main sapenqueue subtree */

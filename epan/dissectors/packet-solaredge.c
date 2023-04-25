@@ -1273,7 +1273,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 	header.command_type = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_command_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
-	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(header.command_type, solaredge_packet_commandtypes,"Unknown command"));
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(header.command_type, solaredge_packet_commandtypes, "Unknown command"));
 
 	switch (header.command_type) {
 		case SOLAREDGE_COMMAND_MISC_ENCRYPTED:

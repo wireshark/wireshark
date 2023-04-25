@@ -105,7 +105,7 @@ def checkFile(filename):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'(?<!try_)(?<!char_)(r?val_to_str(?:_ext|)(?:_const|))\(.*?,.*?,\s*(".*?\")\s*\)', contents)
+        matches =   re.finditer(r'(?<!try_)(?<!char_)(?<!bytes)(r?val_to_str(?:_ext|)(?:_const|))\(.*?,.*?,\s*(".*?\")\s*\)', contents)
         for m in matches:
             function = m.group(1)
             format_string = m.group(2)
