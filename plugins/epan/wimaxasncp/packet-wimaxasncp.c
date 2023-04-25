@@ -520,7 +520,7 @@ static const gchar *wimaxasncp_get_enum_name(
 {
     if (tlv_info->enum_vs)
     {
-        return val_to_str(code, tlv_info->enum_vs, "Unknown");
+        return val_to_str_const(code, tlv_info->enum_vs, "Unknown");
     }
     else
     {

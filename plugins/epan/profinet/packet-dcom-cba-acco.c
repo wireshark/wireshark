@@ -4408,7 +4408,7 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 
             proto_item_append_text(sub_item, "[%u]: QC=%s (0x%02x) %s",
                 u32Idx,
-                val_to_str(u16QC, cba_acco_qc_vals, "Unknown"),
+                val_to_str_const(u16QC, cba_acco_qc_vals, "Unknown"),
                 u16QC,
                 val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
             proto_item_set_len(sub_item, offset - u32SubStart);
@@ -4540,7 +4540,7 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 
         proto_item_append_text(sub_item, "[%u]: Item=\"%s\" QC=%s (0x%02x)",
             u32Idx, szStr,
-            val_to_str(u16QC, cba_acco_qc_vals, "Unknown"), u16QC);
+            val_to_str_const(u16QC, cba_acco_qc_vals, "Unknown"), u16QC);
 
         proto_item_set_len(sub_item, offset - u32SubStart);
         u32Idx++;

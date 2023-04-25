@@ -205,7 +205,8 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			/* get the TLV value offset */
 			tlv_offset = get_tlv_value_offset(&m2m_tlv_info);
 			/* display TLV type */
-			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s", val_to_str(tlv_type, tlv_name, "Unknown TLV"));
+			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s",
+												val_to_str_const(tlv_type, tlv_name, "Unknown TLV"));
 			/* add TLV subtree */
 			tlv_tree = proto_item_add_subtree(ti, ett_m2m_tlv);
 			/* update the offset */
@@ -240,7 +241,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				case TLV_FRAG_TYPE:
 					/* add the description */
 					tlv_frag_type = tvb_get_guint8( tvb, offset );
-					proto_item_append_text(ti, ": %s", val_to_str(tlv_frag_type, tlv_frag_type_name, "Unknown"));
+					proto_item_append_text(ti, ": %s", val_to_str_const(tlv_frag_type, tlv_frag_type_name, "Unknown"));
 					hf = hf_m2m_value_frag_type_uint8;
 					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
@@ -307,7 +308,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				case TLV_CRC16_STATUS:
 					/* add the description */
 					tlv_value = tvb_get_guint8( tvb, offset );
-					proto_item_append_text(ti, ": %s", val_to_str(tlv_value, tlv_crc16_status, "Unknown"));
+					proto_item_append_text(ti, ": %s", val_to_str_const(tlv_value, tlv_crc16_status, "Unknown"));
 					hf = hf_m2m_value_crc16_status_uint8;
 					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
