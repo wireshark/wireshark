@@ -70,8 +70,6 @@ static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
 static gboolean prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt);
-static gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
-static void try_convert_to_custom_column(gpointer *el_data);
 static guint prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
                           gpointer user_data, gboolean skip_obsolete);
 static gint find_val_for_string(const char *needle, const enum_val_t *haystack, gint default_value);
@@ -2687,17 +2685,17 @@ column_format_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
       /* Go past the title.  */
       col_l_elt = col_l_elt->next;
 
+      /* Some predefined columns have been migrated to use custom columns.
+       * We'll convert these silently here */
+      try_convert_to_custom_column((char **)&col_l_elt->data);
+
       /* Parse the format to see if it's valid.  */
       if (!parse_column_format(&cfmt_check, (char *)col_l_elt->data)) {
         /* It's not a valid column format.  */
         prefs_clear_string_list(col_l);
         return PREFS_SET_SYNTAX_ERR;
       }
-      if (cfmt_check.fmt != COL_CUSTOM) {
-        /* Some predefined columns have been migrated to use custom columns.
-         * We'll convert these silently here */
-        try_convert_to_custom_column(&col_l_elt->data);
-      } else {
+      if (cfmt_check.fmt == COL_CUSTOM) {
         /* We don't need the custom column field on this pass. */
         g_free(cfmt_check.custom_fields);
       }
@@ -3967,45 +3965,6 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
     return default_value;
 }
 
-
-/* Array of columns that have been migrated to custom columns */
-struct deprecated_columns {
-    const gchar *col_fmt;
-    const gchar *col_expr;
-};
-static struct deprecated_columns migrated_columns[] = {
-    { /* COL_COS_VALUE */ "%U", "vlan.priority" },
-    { /* COL_CIRCUIT_ID */ "%c", "iax2.call" },
-    { /* COL_BSSGP_TLLI */ "%l", "bssgp.tlli" },
-    { /* COL_HPUX_SUBSYS */ "%H", "nettl.subsys" },
-    { /* COL_HPUX_DEVID */ "%P", "nettl.devid" },
-    { /* COL_FR_DLCI */ "%C", "fr.dlci" },
-    { /* COL_REL_CONV_TIME */ "%rct", "tcp.time_relative" },
-    { /* COL_DELTA_CONV_TIME */ "%dct", "tcp.time_delta" },
-    { /* COL_OXID */ "%XO", "fc.ox_id" },
-    { /* COL_RXID */ "%XR", "fc.rx_id" },
-    { /* COL_SRCIDX */ "%Xd", "mdshdr.srcidx" },
-    { /* COL_DSTIDX */ "%Xs", "mdshdr.dstidx" },
-    { /* COL_DCE_CTX */ "%z", "dcerpc.cn_ctx_id" }
-};
-
-static gboolean
-is_deprecated_column_format(const gchar* fmt)
-{
-    guint haystack_idx;
-
-    for (haystack_idx = 0;
-         haystack_idx < G_N_ELEMENTS(migrated_columns);
-         ++haystack_idx) {
-
-        if (strcmp(migrated_columns[haystack_idx].col_fmt, fmt) == 0) {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
 /* Preferences file format:
  * - Configuration directives start at the beginning of the line, and
  *   are terminated with a colon.
@@ -4022,56 +3981,6 @@ print.file: /a/very/long/path/
  */
 
 #define DEF_NUM_COLS    7
-
-/*
- * Parse a column format, filling in the relevant fields of a fmt_data.
- */
-static gboolean
-parse_column_format(fmt_data *cfmt, const char *fmt)
-{
-    const gchar *cust_format = col_format_to_string(COL_CUSTOM);
-    size_t cust_format_len = strlen(cust_format);
-    gchar **cust_format_info;
-    char *p;
-    int col_fmt;
-    gchar *col_custom_fields = NULL;
-    long col_custom_occurrence = 0;
-    gboolean col_resolved = TRUE;
-
-    /*
-     * Is this a custom column?
-     */
-    if ((strlen(fmt) > cust_format_len) && (fmt[cust_format_len] == ':') &&
-        strncmp(fmt, cust_format, cust_format_len) == 0) {
-        /* Yes. */
-        col_fmt = COL_CUSTOM;
-        cust_format_info = g_strsplit(&fmt[cust_format_len+1], ":", 3); /* add 1 for ':' */
-        col_custom_fields = g_strdup(cust_format_info[0]);
-        if (col_custom_fields && cust_format_info[1]) {
-            col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
-            if (p == cust_format_info[1] || *p != '\0') {
-                /* Not a valid number. */
-                g_free(col_custom_fields);
-                g_strfreev(cust_format_info);
-                return FALSE;
-            }
-        }
-        if (col_custom_fields && cust_format_info[1] && cust_format_info[2]) {
-            col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
-        }
-        g_strfreev(cust_format_info);
-    } else {
-        col_fmt = get_column_format_from_str(fmt);
-        if ((col_fmt == -1) && (!is_deprecated_column_format(fmt)))
-            return FALSE;
-    }
-
-    cfmt->fmt = col_fmt;
-    cfmt->custom_fields = col_custom_fields;
-    cfmt->custom_occurrence = (int)col_custom_occurrence;
-    cfmt->resolved = col_resolved;
-    return TRUE;
-}
 
 /* Initialize non-dissector preferences to wired-in default values Called
  * at program startup and any time the profile changes. (The dissector
@@ -5151,27 +5060,6 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
         }
     }
     return '\0';
-}
-
-static void
-try_convert_to_custom_column(gpointer *el_data)
-{
-    guint haystack_idx;
-
-    gchar **fmt = (gchar **) el_data;
-
-    for (haystack_idx = 0;
-         haystack_idx < G_N_ELEMENTS(migrated_columns);
-         ++haystack_idx) {
-
-        if (strcmp(migrated_columns[haystack_idx].col_fmt, *fmt) == 0) {
-            gchar *cust_col = ws_strdup_printf("%%Cus:%s:0",
-                                migrated_columns[haystack_idx].col_expr);
-
-            g_free(*fmt);
-            *fmt = cust_col;
-        }
-    }
 }
 
 static gboolean

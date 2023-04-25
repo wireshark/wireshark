@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
@@ -83,22 +84,8 @@ col_format_to_string(const gint fmt) {
     "%t"                                        /* 49) COL_CLS_TIME */
   };
 
- /* The following formats have been used in deprecated columns.  Noted here
-  * so they aren't reused
-  *
-  *  "%U",                                             COL_COS_VALUE
-  *  "%c",                                             COL_CIRCUIT_ID
-  *  "%l",                                             COL_BSSGP_TLLI
-  *  "%H",                                             COL_HPUX_SUBSYS
-  *  "%P",                                             COL_HPUX_DEVID
-  *  "%C",                                             COL_FR_DLCI
-  *  "%rct",                                           COL_REL_CONV_TIME
-  *  "%dct",                                           COL_DELTA_CONV_TIME
-  *  "%XO",                                            COL_OXID
-  *  "%XR",                                            COL_RXID
-  *  "%Xd",                                            COL_SRCIDX
-  *  "%Xs",                                            COL_DSTIDX
-  *  "%z",                                             COL_DCE_CTX
+ /* Note the formats in migrated_columns[] below have been used in deprecated
+  * columns, and avoid reusing them.
   */
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
@@ -175,6 +162,102 @@ col_format_desc(const gint fmt_num) {
   const gchar *val_str = try_val_to_str(fmt_num, dlist_vals);
   ws_assert(val_str != NULL);
   return val_str;
+}
+
+/* Array of columns that have been migrated to custom columns */
+struct deprecated_columns {
+    const gchar *col_fmt;
+    const gchar *col_expr;
+};
+
+static struct deprecated_columns migrated_columns[] = {
+    { /* COL_COS_VALUE */ "%U", "vlan.priority" },
+    { /* COL_CIRCUIT_ID */ "%c", "iax2.call" },
+    { /* COL_BSSGP_TLLI */ "%l", "bssgp.tlli" },
+    { /* COL_HPUX_SUBSYS */ "%H", "nettl.subsys" },
+    { /* COL_HPUX_DEVID */ "%P", "nettl.devid" },
+    { /* COL_FR_DLCI */ "%C", "fr.dlci" },
+    { /* COL_REL_CONV_TIME */ "%rct", "tcp.time_relative" },
+    { /* COL_DELTA_CONV_TIME */ "%dct", "tcp.time_delta" },
+    { /* COL_OXID */ "%XO", "fc.ox_id" },
+    { /* COL_RXID */ "%XR", "fc.rx_id" },
+    { /* COL_SRCIDX */ "%Xd", "mdshdr.srcidx" },
+    { /* COL_DSTIDX */ "%Xs", "mdshdr.dstidx" },
+    { /* COL_DCE_CTX */ "%z", "dcerpc.cn_ctx_id" }
+    /* The columns above here have been migrated since August 2009 and all
+     * completely removed since January 2016. At some point we could remove
+     * these; how many people have a preference file that they haven't opened
+     * and saved since then?
+     */
+};
+
+/*
+ * Parse a column format, filling in the relevant fields of a fmt_data.
+ */
+gboolean
+parse_column_format(fmt_data *cfmt, const char *fmt)
+{
+    const gchar *cust_format = col_format_to_string(COL_CUSTOM);
+    size_t cust_format_len = strlen(cust_format);
+    gchar **cust_format_info;
+    char *p;
+    int col_fmt;
+    gchar *col_custom_fields = NULL;
+    long col_custom_occurrence = 0;
+    gboolean col_resolved = TRUE;
+
+    /*
+     * Is this a custom column?
+     */
+    if ((strlen(fmt) > cust_format_len) && (fmt[cust_format_len] == ':') &&
+        strncmp(fmt, cust_format, cust_format_len) == 0) {
+        /* Yes. */
+        col_fmt = COL_CUSTOM;
+        cust_format_info = g_strsplit(&fmt[cust_format_len+1], ":", 3); /* add 1 for ':' */
+        col_custom_fields = g_strdup(cust_format_info[0]);
+        if (col_custom_fields && cust_format_info[1]) {
+            col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
+            if (p == cust_format_info[1] || *p != '\0') {
+                /* Not a valid number. */
+                g_free(col_custom_fields);
+                g_strfreev(cust_format_info);
+                return FALSE;
+            }
+        }
+        if (col_custom_fields && cust_format_info[1] && cust_format_info[2]) {
+            col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
+        }
+        g_strfreev(cust_format_info);
+    } else {
+        col_fmt = get_column_format_from_str(fmt);
+        if (col_fmt == -1)
+            return FALSE;
+    }
+
+    cfmt->fmt = col_fmt;
+    cfmt->custom_fields = col_custom_fields;
+    cfmt->custom_occurrence = (int)col_custom_occurrence;
+    cfmt->resolved = col_resolved;
+    return TRUE;
+}
+
+void
+try_convert_to_custom_column(char **fmt)
+{
+    guint haystack_idx;
+
+    for (haystack_idx = 0;
+         haystack_idx < G_N_ELEMENTS(migrated_columns);
+         ++haystack_idx) {
+
+        if (strcmp(migrated_columns[haystack_idx].col_fmt, *fmt) == 0) {
+            gchar *cust_col = ws_strdup_printf("%%Cus:%s:0",
+                                migrated_columns[haystack_idx].col_expr);
+
+            g_free(*fmt);
+            *fmt = cust_col;
+        }
+    }
 }
 
 void

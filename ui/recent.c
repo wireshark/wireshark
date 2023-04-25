@@ -1157,6 +1157,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         /* Check to make sure all column formats are valid.  */
         col_l_elt = g_list_first(col_l);
         while (col_l_elt) {
+            fmt_data cfmt_check;
+
             /* Make sure the format isn't empty.  */
             if (strcmp((const char *)col_l_elt->data, "") == 0) {
                 /* It is.  */
@@ -1164,13 +1166,19 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
                 return PREFS_SET_SYNTAX_ERR;
             }
 
+            /* Some predefined columns have been migrated to use custom
+             * columns. We'll convert these silently here */
+            try_convert_to_custom_column((char **)&col_l_elt->data);
+
             /* Check the format.  */
-            if (strncmp((const char *)col_l_elt->data, cust_format, cust_format_len) != 0) {
-                if (get_column_format_from_str((const gchar *)col_l_elt->data) == -1) {
-                    /* It's not a valid column format.  */
-                    prefs_clear_string_list(col_l);
-                    return PREFS_SET_SYNTAX_ERR;
-                }
+            if (!parse_column_format(&cfmt_check, (char *)col_l_elt->data)) {
+                /* It's not a valid column format.  */
+                prefs_clear_string_list(col_l);
+                return PREFS_SET_SYNTAX_ERR;
+            }
+            if (cfmt_check.fmt == COL_CUSTOM) {
+                /* We don't need the custom column field on this pass. */
+                g_free(cfmt_check.custom_fields);
             }
 
             /* Go past the format.  */
