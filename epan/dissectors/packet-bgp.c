@@ -10808,12 +10808,12 @@ example 2
 
 static int
 dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                void *data)
+                void *data _U_)
 {
-    gboolean      *first = (gboolean *)data;
     guint16       bgp_len;          /* Message length             */
     guint8        bgp_type;         /* Message type               */
     const char    *typ;             /* Message type (string)      */
+    proto_item    *ti = NULL;
     proto_item    *ti_marker = NULL;/* marker item                */
     proto_item    *ti_len = NULL;   /* length item                */
     proto_tree    *bgp_tree = NULL; /* BGP packet tree            */
@@ -10826,14 +10826,10 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     bgp_type = tvb_get_guint8(tvb, BGP_MARKER_SIZE + 2);
     typ = val_to_str(bgp_type, bgptypevals, "Unknown message type (0x%02x)");
 
-    if (*first)
-        col_add_str(pinfo->cinfo, COL_INFO, typ);
-    else
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
-    *first = FALSE;
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, typ);
 
     if (tree) {
-        proto_item *ti;
         ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, ENC_NA);
         proto_item_append_text(ti, " - %s", typ);
 
@@ -10877,6 +10873,10 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return tvb_captured_length(tvb);
     }
 
+    if (tree) {
+        proto_item_set_len(ti, bgp_len);
+    }
+
     proto_tree_add_item(bgp_tree, hf_bgp_type, tvb, 16 + 2, 1, ENC_BIG_ENDIAN);
 
     switch (bgp_type) {
@@ -10902,7 +10902,7 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     default:
         break;
     }
-    return tvb_captured_length(tvb);
+    return bgp_len;
 }
 
 static guint
@@ -10924,11 +10924,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     };
     proto_item    *ti;           /* tree item                        */
     proto_tree    *bgp_tree;     /* BGP packet tree                  */
-    volatile gboolean first = TRUE;  /* TRUE for the first BGP message in packet */
     tvbuff_t *volatile this_tvb; /* for tcp_dissect_pdus()           */
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     /*
      * Scan through the TCP payload looking for a BGP marker.
@@ -10953,6 +10949,8 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
+    col_clear(pinfo->cinfo, COL_INFO);
+
     /*
      * If we skipped any bytes, mark it as a BGP continuation.
      */
@@ -10973,7 +10971,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * Now process the BGP packets in the TCP payload.
      */
     tcp_dissect_pdus(this_tvb, pinfo, tree, bgp_desegment, BGP_HEADER_SIZE,
-                     get_bgp_len, dissect_bgp_pdu, (void *)&first);
+                     get_bgp_len, dissect_bgp_pdu, NULL);
     return tvb_captured_length(tvb);
 }
 
@@ -13604,6 +13602,7 @@ proto_register_bgp(void)
       &bgp_asn_len, asn_len, FALSE);
 
     bgp_handle = register_dissector("bgp", dissect_bgp, proto_bgp);
+    register_dissector("bgp.pdu", dissect_bgp_pdu, proto_bgp);
 }
 
 void

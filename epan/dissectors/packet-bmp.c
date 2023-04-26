@@ -396,6 +396,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
         if (down_reason == BMP_PEER_DOWN_LOCAL_NO_NOTIFY) {
             proto_tree_add_item(tree, hf_peer_down_data, tvb, offset, 2, ENC_NA);
         } else {
+            col_clear(pinfo->cinfo, COL_INFO);
             call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
         }
     }
@@ -438,7 +439,10 @@ dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     proto_tree_add_item(tree, hf_peer_up_remote_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    col_clear(pinfo->cinfo, COL_INFO);
+    offset += call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    offset += call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    /* XXX: (#19004) Information TLVs optionally follow, if bytes remaining. */
 }
 
 /*
@@ -713,6 +717,10 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     switch (bmp_type) {
         case BMP_MSG_TYPE_ROUTE_MONITORING:
         case BMP_MSG_TYPE_ROUTE_MIRRORING:
+            /* XXX: According to RFC 7854, Route Mirroring is different, and
+             * has a set of TLVs here, the last one of which may be a BGP PDU.
+             */
+            col_clear(pinfo->cinfo, COL_INFO);
             call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
             break;
         case BMP_MSG_TYPE_STAT_REPORT:
@@ -1582,7 +1590,7 @@ void
 proto_reg_handoff_bmp(void)
 {
     dissector_add_for_decode_as_with_preference("tcp.port", bmp_handle);
-    dissector_bgp = find_dissector_add_dependency("bgp", proto_bmp);
+    dissector_bgp = find_dissector_add_dependency("bgp.pdu", proto_bmp);
 }
 /*
 * Editor modelines - https://www.wireshark.org/tools/modelines.html
