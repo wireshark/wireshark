@@ -66,3 +66,5 @@ Mono Icons: https://github.com/mono-company/mono-icons
 Tabler Icons: https://github.com/tabler/tabler-icons
 
 Fluent UI System Icons: https://github.com/microsoft/fluentui-system-icons
+
+Hero Icons: https://heroicons.com/
