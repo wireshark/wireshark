@@ -630,7 +630,7 @@ void etw_dump_write_ndiscap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
                     );
             }
         } else {
-            Err = StringCchPrintfA(Comment, COMMENT_MAX_SIZE, "PID=%d ProcessorNumber=%d", ev->EventHeader.ProcessId, ev->BufferContext.ProcessorNumber,);
+            Err = StringCchPrintfA(Comment, COMMENT_MAX_SIZE, "PID=%d ProcessorNumber=%d", ev->EventHeader.ProcessId, ev->BufferContext.ProcessorNumber);
         }
 
         if (Err != NO_ERROR) {
