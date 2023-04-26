@@ -572,7 +572,7 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 offset += 8;
             break;
             default:
-                proto_tree_add_expert(subtree, pinfo, &ei_stat_data_unknown, tvb, 4, stat_type);
+                expert_add_info(pinfo, ti, &ei_stat_data_unknown);
                 offset += stat_len;
             break;
         }
