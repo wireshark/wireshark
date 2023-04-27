@@ -109,6 +109,47 @@ static int hf_drda_sqlwarn8 = -1;
 static int hf_drda_sqlwarn9 = -1;
 static int hf_drda_sqlwarna = -1;
 static int hf_drda_sqlerrmsg = -1;
+static int hf_drda_sqldhgrp = -1;
+static int hf_drda_sqldhold = -1;
+static int hf_drda_sqldreturn = -1;
+static int hf_drda_sqldscroll = -1;
+static int hf_drda_sqldsensitive = -1;
+static int hf_drda_sqldfcode = -1;
+static int hf_drda_sqldkeytype = -1;
+static int hf_drda_sqldoptlck = -1;
+static int hf_drda_sqldschema = -1;
+static int hf_drda_sqldmodule = -1;
+static int hf_drda_sqldagrp = -1;
+static int hf_drda_sqlprecision = -1;
+static int hf_drda_sqlscale = -1;
+static int hf_drda_sqllength = -1;
+static int hf_drda_sqllength32 = -1;
+static int hf_drda_sqltype = -1;
+static int hf_drda_sqlarrextent = -1;
+static int hf_drda_sqldoptgrp = -1;
+static int hf_drda_sqlunnamed = -1;
+static int hf_drda_sqlname = -1;
+static int hf_drda_sqllabel = -1;
+static int hf_drda_sqlcomments = -1;
+static int hf_drda_sqludtgrp = -1;
+static int hf_drda_sqludtxtype = -1;
+static int hf_drda_sqludtschema = -1;
+static int hf_drda_sqludtname = -1;
+static int hf_drda_sqludtmodule = -1;
+static int hf_drda_sqldxgrp = -1;
+static int hf_drda_sqlxkeymem = -1;
+static int hf_drda_sqlxupdateable = -1;
+static int hf_drda_sqlxgenerated = -1;
+static int hf_drda_sqlxparmmode = -1;
+static int hf_drda_sqlxoptlck = -1;
+static int hf_drda_sqlxhidden = -1;
+static int hf_drda_sqlxcorname = -1;
+static int hf_drda_sqlxbasename = -1;
+static int hf_drda_sqlxschema = -1;
+static int hf_drda_sqlxname = -1;
+static int hf_drda_sqlxmodule = -1;
+static int hf_drda_sqldiaggrp = -1;
+static int hf_drda_sqlnum = -1;
 static int hf_drda_rlsconv = -1;
 static int hf_drda_secmec = -1;
 static int hf_drda_sectkn = -1;
@@ -167,6 +208,12 @@ static gint ett_drda_monitor = -1;
 static gint ett_drda_rslsetflg = -1;
 static gint ett_drda_sqlcagrp = -1;
 static gint ett_drda_sqlcaxgrp = -1;
+static gint ett_drda_sqldhgrp = -1;
+static gint ett_drda_sqldagrp = -1;
+static gint ett_drda_sqldoptgrp = -1;
+static gint ett_drda_sqludtgrp = -1;
+static gint ett_drda_sqldxgrp = -1;
+static gint ett_drda_sqldiaggrp = -1;
 
 static expert_field ei_drda_opcode_invalid_length = EI_INIT;
 static expert_field ei_drda_undecoded = EI_INIT;
@@ -1027,8 +1074,8 @@ drda_packet_from_server(packet_info *pinfo, guint32 command, guint8 dsstyp)
     return FALSE;
 }
 
-static proto_item*
-dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info)
+static int
+dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, guint32 *value)
 {
     guint endian;
     switch (pdu_info->typdefnam) {
@@ -1043,7 +1090,28 @@ dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,
         endian = ENC_LITTLE_ENDIAN;
         break;
     }
-    return proto_tree_add_item(tree, hf_index, tvb, offset, length, endian);
+    proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, length, endian, value);
+    return offset + length;
+}
+
+static int
+dissect_fdoca_integer64(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, guint64 *value)
+{
+    guint endian;
+    switch (pdu_info->typdefnam) {
+    case TYPDEFNAM_370:
+    case TYPDEFNAM_400:
+    case TYPDEFNAM_ASC:
+        endian = ENC_BIG_ENDIAN;
+        break;
+    case TYPDEFNAM_X86:
+    case TYPDEFNAM_VAX:
+    default:
+        endian = ENC_LITTLE_ENDIAN;
+        break;
+    }
+    proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, length, endian, value);
+    return offset + length;
 }
 
 static int
@@ -1182,7 +1250,489 @@ dissect_drda_sqlstt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 }
 
 static int
-dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_drda_sqldiaggrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int offset = 0;
+
+    guint32 null_ind;
+
+    ti = proto_tree_add_item(tree, hf_drda_sqldiaggrp, tvb, offset, 1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_drda_sqldiaggrp);
+    proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        proto_tree_add_expert(subtree, pinfo, &ei_drda_undecoded, tvb, offset, 2);
+    }
+    proto_item_set_end(ti, tvb, offset);
+    return offset;
+}
+
+static const value_string drda_udtxtype_vals[] = {
+
+    { 0, "Not a UDT" },
+    { 1, "Distinct type" },
+    { 2, "Structured type" },
+    { 3, "Reference type" },
+    { 0, NULL },
+};
+
+static int
+dissect_drda_sqludtgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int offset = 0;
+
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+    guint32 null_ind;
+
+    ti = proto_tree_add_item(tree, hf_drda_sqludtgrp, tvb, offset, 1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_drda_sqludtgrp);
+    proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        if (pdu_info->sqlam > 6) {
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqludtxtype, tvb, offset, 4, pdu_info, NULL);
+            offset = dissect_fdoca_vcs(subtree, hf_drda_rdbnam, tvb, offset, pdu_info);
+            offset = dissect_fdoca_vcm(subtree, hf_drda_sqludtschema, tvb, offset, pdu_info);
+            offset = dissect_fdoca_vcs(subtree, hf_drda_sqludtschema, tvb, offset, pdu_info);
+        }
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqludtname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqludtname, tvb, offset, pdu_info);
+        if (pdu_info->sqlam >= 10) {
+            offset = dissect_fdoca_vcm(subtree, hf_drda_sqludtmodule, tvb, offset, pdu_info);
+            offset = dissect_fdoca_vcs(subtree, hf_drda_sqludtmodule, tvb, offset, pdu_info);
+        }
+    }
+    proto_item_set_end(ti, tvb, offset);
+    return offset;
+}
+
+static const value_string drda_keymem_vals[] = {
+    { 0, "Not a member of the primary key or of a unique index" },
+    { 1, "Member of the primary key or of a unique index" },
+    { 0, NULL }
+};
+
+static const value_string drda_updateable_vals[] = {
+    { 0, "Not updateable" },
+    { 1, "Updateable" },
+    { 0, NULL }
+};
+
+static const value_string drda_generated_vals[] = {
+    { 0, "None of the other values of this field apply" },
+    { 1, "Data for this column is always generated using an expression" },
+    { 2, "Data for this identity column is always generated" },
+    { 3, "Data for this ROWID column is always generated" },
+    { 4, "Data for this identity column is generated by default" },
+    { 5, "Data for this ROWID column is generated by default" },
+    { 6, "Data for this row change timestamp column is always generated" },
+    { 7, "Data for this row change timestamp column is generated by default" },
+    { 0, NULL }
+};
+
+static const value_string drda_parmmode_vals[] = {
+    { 0, "Not for use with a CALL statement" },
+    { 1, "Input-only parameter" },
+    { 2, "Input and output parameter" },
+    { 4, "Output-only parameter" },
+    { 0, NULL }
+};
+
+static const value_string drda_xoptlck_vals[] = {
+    { 0, "Column not injected because of optimistic locking" },
+    { 1, "Row change token column was injected because optimistic locking was requested" },
+    { 2, "RID column was injected because optimistic locking was requested" },
+    { 0, NULL }
+};
+
+static const value_string drda_hidden_vals[] = {
+    { 0, "Not a hidden column" },
+    { 1, "Hidden column" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_sqldxgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int offset = 0;
+
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+    guint32 null_ind;
+
+    ti = proto_tree_add_item(tree, hf_drda_sqldxgrp, tvb, offset, 1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_drda_sqldxgrp);
+    proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        offset = dissect_fdoca_integer(subtree, hf_drda_sqlxkeymem, tvb, offset, 2, pdu_info, NULL);
+        offset = dissect_fdoca_integer(subtree, hf_drda_sqlxupdateable, tvb, offset, 2, pdu_info, NULL);
+        offset = dissect_fdoca_integer(subtree, hf_drda_sqlxgenerated, tvb, offset, 2, pdu_info, NULL);
+        offset = dissect_fdoca_integer(subtree, hf_drda_sqlxparmmode, tvb, offset, 2, pdu_info, NULL);
+        if (pdu_info->sqlam >= 9) {
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlxoptlck, tvb, offset, 2, pdu_info, NULL);
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlxhidden, tvb, offset, 2, pdu_info, NULL);
+        }
+        offset = dissect_fdoca_vcs(subtree, hf_drda_rdbnam, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlxcorname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlxcorname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlxbasename, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlxbasename, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlxschema, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlxschema, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlxname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlxname, tvb, offset, pdu_info);
+        if (pdu_info->sqlam >= 10) {
+            offset = dissect_fdoca_vcm(subtree, hf_drda_sqlxmodule, tvb, offset, pdu_info);
+            offset = dissect_fdoca_vcs(subtree, hf_drda_sqlxmodule, tvb, offset, pdu_info);
+        }
+    }
+    proto_item_set_end(ti, tvb, offset);
+    return offset;
+}
+
+/* Appendix D of C112. Note that some strings have multiple codes that
+ * map to them.
+ */
+static const value_string drda_fcode_vals[] = {
+
+    {  1, "ALLOCATE CURSOR" },
+    {  2, "ALLOCATE DESCRIPTOR" },
+    {  3, "ALTER DOMAIN" },
+    {  4, "ALTER TABLE" },
+    {  6, "CREATE ASSERTION" },
+    {  7, "CALL" },
+    {  8, "CREATE CHARACTER SET" },
+    {  9, "CLOSE CURSOR" },
+    { 11, "CREATE COLLATION" },
+    { 11, "COMMIT WORK" },
+    { 13, "CONNECT" },
+    { 15, "DEALLOCATE DESCRIPTOR" },
+    { 16, "DEALLOCATE PREPARE" },
+    { 17, "ALTER ROUTINE" },
+    { 18, "DELETE CURSOR" },
+    { 19, "DELETE WHERE" },
+    { 20, "DESCRIBE" },
+    { 21, "SELECT" },
+    { 22, "DISCONNECT" },
+    { 23, "CREATE DOMAIN" },
+    { 24, "DROP ASSERTION" },
+    { 25, "DROP CHARACTER SET" },
+    { 26, "DROP COLLATION" },
+    { 27, "DROP DOMAIN" },
+    { 29, "DROP ROLE" },
+    { 30, "DROP ROUTINE" },
+    { 31, "DROP SCHEMA" },
+    { 32, "DROP TABLE" },
+    { 33, "DROP TRANSLATION" },
+    { 34, "DROP TRIGGER" },
+    { 35, "DROP TYPE" },
+    { 36, "DROP VIEW" },
+    { 37, "DYNAMIC CLOSE" },
+    { 38, "DYNAMIC DELETE CURSOR" },
+    { 39, "DYNAMIC FETCH" },
+    { 40, "DYNAMIC OPEN" },
+    { 41, "SELECT" },
+    { 42, "DYNAMIC UPDATE CURSOR" },
+    { 43, "EXECUTE IMMEDIATE" },
+    { 44, "EXECUTE" },
+    { 45, "FETCH" },
+    { 47, "GET DESCRIPTOR" },
+    { 48, "GRANT" },
+    { 49, "GRANT ROLE" },
+    { 50, "INSERT" },
+    { 53, "OPEN" },
+    { 54, "DYNAMIC DELETE CURSOR" },
+    { 55, "DYNAMIC UPDATE CURSOR" },
+    { 56, "PREPARE" },
+    { 57, "RELEASE SAVEPOINT" },
+    { 58, "RETURN" },
+    { 59, "REVOKE" },
+    { 60, "ALTER TYPE" },
+    { 66, "SET CATALOG" },
+    { 69, "SET CURRENT_PATH" },
+    { 70, "SET DESCRIPTOR" },
+    { 72, "SET NAMES" },
+    { 74, "SET SCHEMA" },
+    { 85, "SELECT CURSOR" },
+    { 98, "FREE LOCATOR" },
+    { 99, "HOLD LOCATOR" },
+    {101, "DECLARE CURSOR" },
+    {115, "DROP ORDERING" },
+    {116, "DROP TRANSFORM" },
+    {118, "SET TRANSFORM GROUP" },
+    { 0, NULL }
+};
+
+static const value_string drda_hold_vals[] = {
+
+    { 0, "No cursor exists, or cursor defined without WITH HOLD clause" },
+    { 1, "Cursor defined using WITH HOLD clause" },
+    {-1, "Unknown if cursor was defined using WITH HOLD clause" },
+    { 0, NULL }
+};
+
+static const value_string drda_return_vals[] = {
+
+    { 0, "Statement is not a query" },
+    { 1, "Cursor defined using the WITH RETURN CLIENT clause" },
+    { 2, "Cursor defined using the WITH RETURN CALLER clause" },
+    {-1, "Unknown if cursor is intended to be used as a result set that will be returned from a procedure" },
+    { 0, NULL }
+};
+
+static const value_string drda_scroll_vals[] = {
+
+    { 0, "No cursor exists, or not scrollable" },
+    { 1, "Cursor defined using SCROLL clause" },
+    {-1, "Cursor exists, but scrollability unknown" },
+    { 0, NULL }
+};
+
+static const value_string drda_sensitive_vals[] = {
+
+    { 0, "No cursor exists" },
+    { 1, "Cursor defined as SENSITIVE DYNAMIC" },
+    { 2, "Cursor defined as SENSITIVE STATIC" },
+    { 3, "Cursor defined as INSENSITIVE" },
+    { 4, "Cursor defined with PARTIAL SENSITIVITY and STATIC size and ordering" },
+    { 5, "Cursor defined with PARTIAL SENSITIVITY and DYNAMIC size and ordering" },
+    {-1, "Cursor exists, but sensitivity unknown" },
+    { 0, NULL }
+};
+
+static const value_string drda_keytype_vals[] = {
+
+    { 0, "Statement is not a query, or no columns are members of a key" },
+    { 1, "Select list includes all columns of the primary key of the base table referenced by the query" },
+    { 2, "Table reference by the query does not have a primary key, but the select list includes a set of columns that are defined as the preferred candidate key" },
+    { 0, NULL }
+};
+
+static const value_string drda_doptlck_vals[] = {
+
+    { 0, "Optimistic locking columns not injected" },
+    { 1, "Optimistic locking columns injected, but might not have the granularity to guarantee no false negatives" },
+    { 2, "Optimistic locking columns injected, guaranteeing no false negatives" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_sqldhgrp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    proto_item *sqldhgrp_ti;
+    proto_tree *sqldhgrp_tree;
+    int offset = 0, len;
+
+    guint32 null_ind;
+
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
+    sqldhgrp_ti = proto_tree_add_item(tree, hf_drda_sqldhgrp, tvb, offset, 1, ENC_NA);
+    sqldhgrp_tree = proto_item_add_subtree(sqldhgrp_ti, ett_drda_sqldhgrp);
+    proto_tree_add_item_ret_uint(sqldhgrp_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        len = 2;
+        offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldhold, tvb, offset, len, pdu_info, NULL);
+        offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldreturn, tvb, offset, len, pdu_info, NULL);
+        offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldscroll, tvb, offset, len, pdu_info, NULL);
+        offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldsensitive, tvb, offset, len, pdu_info, NULL);
+        offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldfcode, tvb, offset, len, pdu_info, NULL);
+        offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldkeytype, tvb, offset, len, pdu_info, NULL);
+        if (pdu_info->sqlam >= 9) {
+            offset = dissect_fdoca_integer(sqldhgrp_tree, hf_drda_sqldoptlck, tvb, offset, len, pdu_info, NULL);
+        }
+        offset = dissect_fdoca_vcs(sqldhgrp_tree, hf_drda_rdbnam, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(sqldhgrp_tree, hf_drda_sqldschema, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(sqldhgrp_tree, hf_drda_sqldschema, tvb, offset, pdu_info);
+        if (pdu_info->sqlam >= 10) {
+            offset = dissect_fdoca_vcm(sqldhgrp_tree, hf_drda_sqldmodule, tvb, offset, pdu_info);
+            offset = dissect_fdoca_vcs(sqldhgrp_tree, hf_drda_sqldmodule, tvb, offset, pdu_info);
+        }
+    }
+    proto_item_set_end(sqldhgrp_ti, tvb, offset);
+
+    return offset;
+}
+
+static const value_string drda_unnamed_vals[] = {
+
+    { 0, "Column name not generated by the RDB" },
+    { 1, "Column name generated by the RDB" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_sqldoptgrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    proto_item *sqldoptgrp_ti, *expert_ti;
+    proto_tree *subtree;
+    int offset = 0;
+
+    guint32 null_ind;
+
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
+    sqldoptgrp_ti = proto_tree_add_item(tree, hf_drda_sqldoptgrp, tvb, offset, 1, ENC_NA);
+    subtree = proto_item_add_subtree(sqldoptgrp_ti, ett_drda_sqldoptgrp);
+    proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+    offset++;
+    if ((gint8)null_ind >= 0) {
+        offset = dissect_fdoca_integer(subtree, hf_drda_sqlunnamed, tvb, offset, 2, pdu_info, NULL);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqllabel, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqllabel, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlcomments, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlcomments, tvb, offset, pdu_info);
+
+        offset += dissect_drda_sqludtgrp(tvb_new_subset_remaining(tvb, offset), pinfo, subtree, data);
+        offset += dissect_drda_sqldxgrp(tvb_new_subset_remaining(tvb, offset), pinfo, subtree, data);
+        if (pdu_info->sqlam >= 10) {
+            expert_ti = proto_tree_add_item_ret_uint(subtree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
+            offset++;
+            if ((gint8)null_ind >= 0) {
+                expert_add_info(pinfo, expert_ti, &ei_drda_undecoded);
+                /* XXX: What is this? It's not in Version 5 of the spec. */
+            }
+        }
+    }
+    proto_item_set_end(sqldoptgrp_ti, tvb, offset);
+    return offset;
+}
+
+static const value_string drda_sqltype_vals[] = {
+
+    { 384, "DATE" },
+    { 385, "DATE (NULLABLE)" },
+    { 388, "TIME" },
+    { 389, "TIME (NULLABLE)" },
+    { 392, "TIMESTAMP" },
+    { 393, "TIMESTAMP (NULLABLE)" },
+    { 396, "DATALINK" },
+    { 397, "DATALINK (NULLABLE)" },
+    { 404, "BLOB" },
+    { 405, "BLOB (NULLABLE)" },
+    { 408, "CLOB" },
+    { 409, "CLOB (NULLABLE)" },
+    { 412, "DBCLOB" },
+    { 413, "DBCLOB (NULLABLE)" },
+    { 448, "VARCHAR" },
+    { 449, "VARCHAR (NULLABLE)" },
+    { 452, "CHAR" },
+    { 453, "CHAR (NULLABLE)" },
+    { 456, "LONG VARCHAR" },
+    { 457, "LONG VARCHAR (NULLABLE)" },
+    { 460, "NULL-TERMINATED CHAR" },
+    { 461, "NULL-TERMINATED CHAR (NULLABLE)" },
+    { 464, "VARGRAPHIC" },
+    { 465, "VARGRAPHIC (NULLABLE)" },
+    { 468, "GRAPHIC" },
+    { 469, "GRAPHIC (NULLABLE)" },
+    { 472, "LONG VARGRAPHIC" },
+    { 473, "LONG VARGRAPHIC (NULLABLE)" },
+    { 476, "PASCAL L STRING" },
+    { 477, "PASCAL L STRING (NULLABLE)" },
+    { 480, "FLOAT" },
+    { 481, "FLOAT (NULLABLE)" },
+    { 484, "FIXED DECIMAL" },
+    { 485, "FIXED DECIMAL (NULLABLE)" },
+    { 488, "ZONED DECIMAL" },
+    { 489, "ZONED DECIMAL (NULLABLE)" },
+    { 492, "BIGINT" },
+    { 493, "BIGINT (NULLABLE)" },
+    { 496, "INTEGER" },
+    { 497, "INTEGER (NULLABLE)" },
+    { 500, "SMALLINT" },
+    { 501, "SMALLINT (NULLABLE)" },
+    { 504, "NUMERIC CHAR" },
+    { 505, "NUMERIC CHAR (NULLABLE)" },
+    { 904, "ROWID" },
+    { 905, "ROWID (NULLABLE)" },
+    { 908, "VARBINARY" },
+    { 909, "VARBINARY (NULLABLE)" },
+    { 912, "BINARY" },
+    { 913, "BINARY (NULLABLE)" },
+    { 960, "BLOB LOCATOR" },
+    { 961, "BLOB LOCATOR (NULLABLE)" },
+    { 964, "CLOB LOCATOR" },
+    { 965, "CLOB LOCATOR (NULLABLE)" },
+    { 968, "DBCLOB LOCATOR" },
+    { 969, "DBCLOB LOCATOR (NULLABLE)" },
+    { 972, "RESULT SET LOCATOR" },
+    { 973, "RESULT SET LOCATOR (NULLABLE)" },
+    { 988, "XML" },
+    { 989, "XML (NULLABLE)" },
+    { 996, "DECFLOAT" },
+    { 997, "DECFLOAT (NULLABLE)" },
+    {2436, "BOOLEAN" },
+    {2437, "BOOLEAN (NULLABLE)" },
+    {2444, "CURSOR TYPE" },
+    {2445, "CURSOR TYPE (NULLABLE)" },
+    {2448, "TIMESTAMP WITH TIME ZONE" },
+    {2449, "TIMESTAMP WITH TIME ZONE (NULLABLE)" },
+    { 0, NULL }
+};
+
+static int
+dissect_drda_sqldagrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    proto_item *sqldagrp_ti;
+    proto_tree *subtree;
+    int offset = 0;
+
+    //guint32 null_ind;
+
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
+    sqldagrp_ti = proto_tree_add_item(tree, hf_drda_sqldagrp, tvb, offset, 1, ENC_NA);
+    subtree = proto_item_add_subtree(sqldagrp_ti, ett_drda_sqldagrp);
+
+    offset = dissect_fdoca_integer(subtree, hf_drda_sqlprecision, tvb, offset, 2, pdu_info, NULL);
+    offset = dissect_fdoca_integer(subtree, hf_drda_sqlscale, tvb, offset, 2, pdu_info, NULL);
+    if (pdu_info->sqlam >= 6) {
+        offset = dissect_fdoca_integer64(subtree, hf_drda_sqllength, tvb, offset, 8, pdu_info, NULL);
+    } else {
+        offset = dissect_fdoca_integer(subtree, hf_drda_sqllength32, tvb, offset, 4, pdu_info, NULL);
+    }
+    offset = dissect_fdoca_integer(subtree, hf_drda_sqltype, tvb, offset, 2, pdu_info, NULL);
+    proto_tree_add_item(subtree, hf_drda_ccsid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    if (pdu_info->sqlam >= 9) {
+        offset = dissect_fdoca_integer64(subtree, hf_drda_sqlarrextent, tvb, offset, 8, pdu_info, NULL);
+
+        if (pdu_info->sqlam >= 10) {
+            proto_tree_add_expert(subtree, pinfo, &ei_drda_undecoded, tvb, offset, 2);
+            /* XXX: What is this? It's not in Version 5 of the spec. */
+            offset += 2;
+        }
+    }
+
+    if (pdu_info->sqlam >= 7) {
+        offset += dissect_drda_sqldoptgrp(tvb_new_subset_remaining(tvb, offset), pinfo, subtree, data);
+    } else {
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlname, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqllabel, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqllabel, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcm(subtree, hf_drda_sqlcomments, tvb, offset, pdu_info);
+        offset = dissect_fdoca_vcs(subtree, hf_drda_sqlcomments, tvb, offset, pdu_info);
+        if (pdu_info->sqlam == 6) {
+            offset += dissect_drda_sqludtgrp(tvb_new_subset_remaining(tvb, offset), pinfo, subtree, data);
+        }
+    }
+    proto_item_set_end(sqldagrp_ti, tvb, offset);
+    return offset;
+}
+
+static int
+dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* For a description of these fields (at least on DB2), see:
      *  https://www.ibm.com/docs/en/db2-for-zos/12?topic=sqlca-description-fields
@@ -1202,14 +1752,11 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
     offset++;
     if ((gint8)null_ind >= 0) {
         len = 4;
-        dissect_fdoca_integer(sqlcard_tree, hf_drda_sqlcode, tvb, offset, len, pdu_info);
-        offset += len;
+        offset = dissect_fdoca_integer(sqlcard_tree, hf_drda_sqlcode, tvb, offset, len, pdu_info, NULL);
         len = 5;
-        dissect_fdoca_fcs(sqlcard_tree, hf_drda_sqlstate, tvb, offset, len, pdu_info);
-        offset += len;
+        offset = dissect_fdoca_fcs(sqlcard_tree, hf_drda_sqlstate, tvb, offset, len, pdu_info);
         len = 8;
-        dissect_fdoca_fcs(sqlcard_tree, hf_drda_sqlerrproc, tvb, offset, len, pdu_info);
-        offset += len;
+        offset = dissect_fdoca_fcs(sqlcard_tree, hf_drda_sqlerrproc, tvb, offset, len, pdu_info);
 
         /* SQLCAXGRP (nullable) */
         proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
@@ -1217,7 +1764,6 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
         if ((gint8)null_ind >= 0) {
             ti = proto_tree_add_item(sqlcard_tree, hf_drda_sqlcaxgrp, tvb, offset, 35, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_drda_sqlcaxgrp);
-            len = 4;
             /* Earlier than SQLAM Level 7, the RDBName follows here, and is
              * a fixed string field of length 18. At SQLAM Level 7 and
              * higher, the SQLRDBNAME is a variable character field and
@@ -1226,18 +1772,13 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
             if (pdu_info->sqlam < 7) {
                 offset = dissect_fdoca_fcs(subtree, hf_drda_rdbnam, tvb, offset, 18, pdu_info);
             }
-            dissect_fdoca_integer(subtree, hf_drda_sqlerrd1, tvb, offset, len, pdu_info);
-            offset += len;
-            dissect_fdoca_integer(subtree, hf_drda_sqlerrd2, tvb, offset, len, pdu_info);
-            offset += len;
-            dissect_fdoca_integer(subtree, hf_drda_sqlerrd3, tvb, offset, len, pdu_info);
-            offset += len;
-            dissect_fdoca_integer(subtree, hf_drda_sqlerrd4, tvb, offset, len, pdu_info);
-            offset += len;
-            dissect_fdoca_integer(subtree, hf_drda_sqlerrd5, tvb, offset, len, pdu_info);
-            offset += len;
-            dissect_fdoca_integer(subtree, hf_drda_sqlerrd6, tvb, offset, len, pdu_info);
-            offset += len;
+            len = 4;
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlerrd1, tvb, offset, len, pdu_info, NULL);
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlerrd2, tvb, offset, len, pdu_info, NULL);
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlerrd3, tvb, offset, len, pdu_info, NULL);
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlerrd4, tvb, offset, len, pdu_info, NULL);
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlerrd5, tvb, offset, len, pdu_info, NULL);
+            offset = dissect_fdoca_integer(subtree, hf_drda_sqlerrd6, tvb, offset, len, pdu_info, NULL);
             len = 1;
             offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn0, tvb, offset, len, pdu_info);
             offset = dissect_fdoca_fcs(subtree, hf_drda_sqlwarn1, tvb, offset, len, pdu_info);
@@ -1285,12 +1826,7 @@ dissect_drda_sqlcard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
         }
 
         if (pdu_info->sqlam >= 7) {
-        /* SQLDIAGGRP (nullable) */
-            proto_tree_add_item_ret_uint(sqlcard_tree, hf_drda_null_ind, tvb, offset, 1, ENC_NA, &null_ind);
-            offset++;
-            if ((gint8)null_ind >= 0) {
-                proto_tree_add_expert(sqlcard_tree, pinfo, &ei_drda_undecoded, tvb, offset, -1);
-            }
+            offset += dissect_drda_sqldiaggrp(tvb_new_subset_remaining(tvb, offset), pinfo, sqlcard_tree, data);
         }
     } else {
         /* DRDA, Version 4, Volume 1: 5.6.4.6 SQLCAGRP:
@@ -1310,11 +1846,27 @@ static int
 dissect_drda_sqldard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     int offset = 0;
+    drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
+
+    guint32 numrows;
 
     offset = dissect_drda_sqlcard(tvb, pinfo, tree, data);
 
-    proto_tree_add_expert(tree, pinfo, &ei_drda_undecoded, tvb, offset, -1);
+    if (pdu_info->sqlam >= 7) {
+        offset += dissect_drda_sqldhgrp(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data);
+    }
+    offset = dissect_fdoca_integer(tree, hf_drda_sqlnum, tvb, offset, 2, pdu_info, &numrows);
+    for (guint32 i = 0; i < numrows; ++i) {
+        offset += dissect_drda_sqldagrp(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data);
+    }
     return offset;
+}
+
+static int
+dissect_drda_undecoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_drda_undecoded, tvb, 0, -1);
+    return tvb_captured_length(tvb);
 }
 
 static const value_string drda_rlsconv_vals[] = {
@@ -1427,7 +1979,7 @@ dissect_drda_secchkcd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
  * https://web.archive.org/web/20160304082631/http://www-01.ibm.com/software/globalization/g11n-res.html
  */
 static const value_string drda_ccsid_vals[] = {
-    {    0, "Unsupported; use CCSID 500" },
+    {    0, "Use default value" },
     {   37, "IBM037" }, /* EBCDIC US Latin-1 */
     {  367, "US-ASCII" },
     {  500, "IBM500" }, /* EBCDIC International Latin-1 */
@@ -2322,6 +2874,212 @@ proto_register_drda(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_drda_sqldhgrp,
+          { "SQL Descriptor Header Group Description", "drda.sqldhgrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldhold,
+          { "SQLDHOLD", "drda.sqldhold",
+            FT_INT16, BASE_DEC, VALS(drda_hold_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldreturn,
+          { "SQLDRETURN", "drda.sqldreturn",
+            FT_INT16, BASE_DEC, VALS(drda_return_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldscroll,
+          { "SQLDSCROLL", "drda.sqldscroll",
+            FT_INT16, BASE_DEC, VALS(drda_scroll_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldsensitive,
+          { "SQLDSENSITIVE", "drda.sqldsensitive",
+            FT_INT16, BASE_DEC, VALS(drda_sensitive_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldfcode,
+          { "SQLDFCODE", "drda.sqldfcode",
+            FT_INT16, BASE_DEC, VALS(drda_fcode_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldkeytype,
+          { "SQLDKEYTYPE", "drda.sqldkeytype",
+            FT_INT16, BASE_DEC, VALS(drda_keytype_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldoptlck,
+          { "SQLDOPTLCK", "drda.sqldoptlck",
+            FT_INT16, BASE_DEC, VALS(drda_doptlck_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldschema,
+          { "SQLDSCHEMA", "drda.sqldschema",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldmodule,
+          { "SQLDMODULE", "drda.sqldmodule",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldagrp,
+          { "SQL Descriptor Area Group Description", "drda.sqldagrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlprecision,
+          { "SQLPRECISION", "drda.sqlprecision",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlscale,
+          { "SQLSCALE", "drda.sqlscale",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqllength,
+          { "SQLLENGTH", "drda.sqllength",
+            FT_INT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqllength32,
+          { "SQLLENGTH", "drda.sqllength",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqltype,
+          { "SQLTYPE", "drda.sqltype",
+            FT_INT16, BASE_DEC, VALS(drda_sqltype_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlarrextent,
+          { "SQLARREXTENT", "drda.sqlarrextent",
+            FT_INT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldoptgrp,
+          { "SQL Descriptor Optional Group Description", "drda.sqldoptgrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlunnamed,
+          { "SQLUNNAMED", "drda.sqlunnamed",
+            FT_INT16, BASE_DEC, VALS(drda_unnamed_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlname,
+          { "SQLNAME", "drda.sqlname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqllabel,
+          { "SQLLABEL", "drda.sqllabel",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlcomments,
+          { "SQLCOMMENTS", "drda.sqlcomments",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqludtgrp,
+          { "SQL Descriptor User-Defined Type Group Description",
+            "drda.sqludtgrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqludtxtype,
+          { "SQLUDTXTYPE", "drda.sqludtxtype",
+            FT_INT32, BASE_DEC, VALS(drda_udtxtype_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqludtschema,
+          { "SQLUDTSCHEMA", "drda.sqludtschema",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqludtname,
+          { "SQLUDTNAME", "drda.sqludtname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqludtmodule,
+          { "SQLUDTMODULE", "drda.sqludtmodule",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldxgrp,
+          { "SQL Descriptor Extended Type Group Description", "drda.sqldxgrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxkeymem,
+          { "SQLXKEYMEM", "drda.sqlxkeymem",
+            FT_INT16, BASE_DEC, VALS(drda_keymem_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxupdateable,
+          { "SQLXUPDATEABLE", "drda.sqlxupdateable",
+            FT_INT16, BASE_DEC, VALS(drda_updateable_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxgenerated,
+          { "SQLXGENERATED", "drda.sqlxgenerated",
+            FT_INT16, BASE_DEC, VALS(drda_generated_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxparmmode,
+          { "SQLXPARMMODE", "drda.sqlxparmmode",
+            FT_INT16, BASE_DEC, VALS(drda_parmmode_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxoptlck,
+          { "SQLXOPTLCK", "drda.sqlxoptlck",
+            FT_INT16, BASE_DEC, VALS(drda_xoptlck_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxhidden,
+          { "SQLXHIDDEN", "drda.sqlxhidden",
+            FT_INT16, BASE_DEC, VALS(drda_hidden_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxcorname,
+          { "SQLXCORNAME", "drda.sqlxcorname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxbasename,
+          { "SQLXBASENAME", "drda.sqlxbasename",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxschema,
+          { "SQLXSCHEMA", "drda.sqlxschema",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxname,
+          { "SQLXNAME", "drda.sqlxname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlxmodule,
+          { "SQLXMODULE", "drda.sqlxmodule",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqldiaggrp,
+          { "SQL Diagnostics Group Description", "drda.sqldiaggrp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_drda_sqlnum,
+          { "SQLNUM", "drda.sqlnum",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_drda_rlsconv,
           { "Release Conversation", "drda.rlsconv", FT_UINT8, BASE_NONE,
             VALS(drda_rlsconv_vals), 0x0,
@@ -2579,6 +3337,12 @@ proto_register_drda(void)
         &ett_drda_rslsetflg,
         &ett_drda_sqlcagrp,
         &ett_drda_sqlcaxgrp,
+        &ett_drda_sqldhgrp,
+        &ett_drda_sqldagrp,
+        &ett_drda_sqldoptgrp,
+        &ett_drda_sqludtgrp,
+        &ett_drda_sqldxgrp,
+        &ett_drda_sqldiaggrp,
     };
 
     static ei_register_info ei[] = {
@@ -2649,11 +3413,13 @@ proto_reg_handoff_drda(void)
     dissector_handle_t codpntdr_handle;
     dissector_handle_t collection_handle;
     dissector_handle_t sqlstt_handle;
+    dissector_handle_t undecoded_handle;
 
     ccsid_handle = create_dissector_handle(dissect_drda_ccsid, proto_drda);
     codpntdr_handle = create_dissector_handle(dissect_drda_codpntdr, proto_drda);
     collection_handle = create_dissector_handle(dissect_drda_collection, proto_drda);
     sqlstt_handle = create_dissector_handle(dissect_drda_sqlstt, proto_drda);
+    undecoded_handle = create_dissector_handle(dissect_drda_undecoded, proto_drda);
 
     dissector_add_uint("drda.opcode", DRDA_CP_TYPDEFNAM, create_dissector_handle(dissect_drda_typdefnam, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_MGRLVLLS, create_dissector_handle(dissect_drda_mgrlvlls, proto_drda));
@@ -2710,6 +3476,10 @@ proto_reg_handoff_drda(void)
     dissector_add_uint("drda.opcode", DRDA_CP_SQLATTR, sqlstt_handle);
     dissector_add_uint("drda.opcode", DRDA_CP_SQLCARD, create_dissector_handle(dissect_drda_sqlcard, proto_drda));
     dissector_add_uint("drda.opcode", DRDA_CP_SQLDARD, create_dissector_handle(dissect_drda_sqldard, proto_drda));
+    dissector_add_uint("drda.opcode", DRDA_CP_FDODSC, undecoded_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_FDODTA, undecoded_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYDSC, undecoded_handle);
+    dissector_add_uint("drda.opcode", DRDA_CP_QRYDTA, undecoded_handle);
 }
 
 /*
