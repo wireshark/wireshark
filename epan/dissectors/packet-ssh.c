@@ -2045,9 +2045,9 @@ ssh_keylog_process_line(const char *line)
 
         bn_priv->data[i] = c;
     }
-    ssh_bignum * bn_cookie_ht = g_new(ssh_bignum, 1);
-    bn_cookie_ht->length = bn_cookie->length;
-    bn_cookie_ht->data = (guint8 *) g_memdup2(bn_cookie->data, bn_cookie->length);
+    ssh_bignum * bn_priv_ht = g_new(ssh_bignum, 1);
+    bn_priv_ht->length = bn_priv->length;
+    bn_priv_ht->data = (guint8 *) g_memdup2(bn_priv->data, bn_priv->length);
 
     for (size_t i = 0; i < cookie_len/2; i ++) {
         gchar v0 = cookie[i * 2];
@@ -2065,9 +2065,9 @@ ssh_keylog_process_line(const char *line)
 
         bn_cookie->data[i] = c;
     }
-    ssh_bignum * bn_priv_ht = g_new(ssh_bignum, 1);
-    bn_priv_ht->length = bn_priv->length;
-    bn_priv_ht->data = (guint8 *) g_memdup2(bn_priv->data, bn_priv->length);
+    ssh_bignum * bn_cookie_ht = g_new(ssh_bignum, 1);
+    bn_cookie_ht->length = bn_cookie->length;
+    bn_cookie_ht->data = (guint8 *) g_memdup2(bn_cookie->data, bn_cookie->length);
 
     g_hash_table_insert(ssh_master_key_map, bn_cookie_ht, bn_priv_ht);
     g_strfreev(split);
