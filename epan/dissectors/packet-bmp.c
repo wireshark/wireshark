@@ -14,6 +14,7 @@
  * RFC8671 Support for Adj-RIB-Out in the BGP Monitoring Protocol (BMP)
  * RFC9069 Support for Local RIB in BGP Monitoring Protocol (BMP)
  * draft-xu-grow-bmp-route-policy-attr-trace-04 BGP Route Policy and Attribute Trace Using BMP
+ * draft-ietf-grow-bmp-tlv-13 BMP v4: TLV support for BMP Route Monitoring and Peer Down Messages
  */
 
 #include "config.h"
@@ -24,6 +25,7 @@
 
 #include "packet-tcp.h"
 #include "packet-bgp.h"
+#include "exceptions.h"
 
 void proto_register_bmp(void);
 void proto_reg_handoff_bmp(void);
@@ -122,6 +124,18 @@ void proto_reg_handoff_bmp(void);
 #define BMP_ROUTE_MIRRORING_TLV_BGP_MESSAGE 0x00
 #define BMP_ROUTE_MIRRORING_TLV_INFORMATION 0x01
 
+/* BMP draft-ietf-grow-bmp-tlv TLV */
+#define BMPv4_TLV_TYPE_VRF_TABLE_NAME         0x03
+#define BMPv4_TLV_TYPE_BGP_MSG                0x04
+#define BMPv4_TLV_TYPE_GROUP                  0x05
+#define BMPv4_TLV_TYPE_BGP_CAP_ADDPATH        0x06
+#define BMPv4_TLV_TYPE_BGP_CAP_MULTIPLE_LBL   0x07
+
+/* BMP draft-item-grow-bmp-tlv TLV Lengths */
+#define BMPv4_TLV_LENGTH_BGP_CAPABILITY             0x01
+#define BMPv4_TLV_LENGTH_GROUP_ITEM                 0x02
+#define BMPv4_TLV_LENGTH_VRF_TABLE_NAME_MAX_LENGTH  0xFF
+
 static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_ROUTE_MONITORING,    "Route Monitoring" },
     { BMP_MSG_TYPE_STAT_REPORT,         "Statistics Report" },
@@ -156,7 +170,7 @@ static const value_string down_reason_typevals[] = {
     { BMP_PEER_DOWN_LOCAL_NO_NOTIFY,        "Local System, No Notification" },
     { BMP_PEER_DOWN_REMOTE_NOTIFY,          "Remote System, Notification" },
     { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,       "Remote System, No Notification" },
-    { BMP_PEER_DOWN_INFO_NO_LONGER,         "Peer no longer be sent INformation (Configuration reasons)" },
+    { BMP_PEER_DOWN_INFO_NO_LONGER,         "Peer no longer be sent Information (Configuration reasons)" },
     { BMP_PEER_DOWN_LOCAL_SYSTEM_CLOSED,    "Local system closed, TLV data Follows" },
     { 0, NULL }
 };
@@ -218,6 +232,15 @@ static const value_string route_policy_tlv_policy_class_typevals[] = {
     { 7, "Aggregation" },
     { 8, "Route Withdraw" },
     { 0, NULL }
+};
+
+static const value_string bmpv4_tlv_typevals[] = {
+        { BMPv4_TLV_TYPE_BGP_MSG,                "BGP Message" },
+        { BMPv4_TLV_TYPE_GROUP,                  "Group" },
+        { BMPv4_TLV_TYPE_VRF_TABLE_NAME,         "Route VRF/Table Name" },
+        { BMPv4_TLV_TYPE_BGP_CAP_ADDPATH,        "BGP Add-Path Capability" },
+        { BMPv4_TLV_TYPE_BGP_CAP_MULTIPLE_LBL,   "BGP Multi-Label Capability" },
+        { 0, NULL }
 };
 
 static const value_string peer_up_tlv_typevals[] = {
@@ -389,6 +412,16 @@ static int hf_route_policy_tlv_policy_flag_res2 = -1;
 
 static int hf_route_policy_tlv_string  = -1;
 
+static int hf_bmpv4_tlv = -1;
+static int hf_bmpv4_tlv_type = -1;
+static int hf_bmpv4_tlv_length = -1;
+static int hf_bmpv4_tlv_index = -1;
+static int hf_bmpv4_tlv_value_bytes = -1;
+static int hf_bmpv4_tlv_value_string = -1;
+static int hf_bmpv4_tlv_value_bool = -1;
+static int hf_bmpv4_tlv_value_index = -1;
+static int hf_bmpv4_tlv_group_id = -1;
+
 static gint ett_bmp = -1;
 static gint ett_bmp_route_monitoring = -1;
 static gint ett_bmp_stat_report = -1;
@@ -409,15 +442,19 @@ static gint ett_bmp_route_policy_flags = -1;
 static gint ett_bmp_route_policy_tlv = -1;
 static gint ett_bmp_route_policy_tlv_policy_flags = -1;
 static gint ett_bmp_route_policy_tlv_policy = -1;
+static gint ett_bmpv4_tlv = -1;
+static gint ett_bmpv4_tlv_value = -1;
 
 static expert_field ei_stat_data_unknown = EI_INIT;
+static expert_field ei_bmpv4_tlv_wrong_cap_size = EI_INIT;
+static expert_field ei_bmpv4_tlv_wrong_cap_value = EI_INIT;
+static expert_field ei_bmpv4_tlv_string_bad_length = EI_INIT;
 
 static dissector_handle_t bmp_handle;
 static dissector_handle_t dissector_bgp;
 
 /* desegmentation */
 static gboolean bmp_desegment = TRUE;
-
 
 /*
  * Dissect BMP Peer Down Notification
@@ -730,6 +767,143 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /*offset += term_len;*/
 }
 
+typedef struct bmpv4_tlv_info {
+    guint16 type;
+    guint16 length;
+    guint16 idx;
+    bool has_index;
+} bmpv4_tlv_info;
+
+/* Dissect BMPv4 TLV Header
+ *
+ *   with Index (Route Monitoring Message)
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |        Type (2 octets)        |     Length (2 octets)         |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |        Index (2 octets)       |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   ~                      Value (variable)                         ~
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ *   without Index
+ *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |        Type (2 octets)        |     Length (2 octets)         |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   ~                      Value (variable)                         ~
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ */
+static bmpv4_tlv_info bmpv4_dissect_tlv_hdr(tvbuff_t *tvb, proto_tree **tree_ref, int *offset_ref, guint8 bmp_type) {
+
+    int offset = *offset_ref;
+    proto_tree *tree = *tree_ref;
+    guint32 value_holder;
+    bmpv4_tlv_info tlv = { 0 };
+
+    tlv.type = tvb_get_ntohs(tvb, offset);
+    tlv.length = tvb_get_ntohs(tvb, offset + 2);
+    tlv.has_index = bmp_type == BMP_MSG_TYPE_ROUTE_MONITORING;
+
+    int total_length = 2 /* type field */
+            + 2 /* length field */
+            + (tlv.has_index ? 2 : 0) /* index field, if present */
+            + tlv.length; /* tlv value length */
+
+    proto_item *ti = proto_tree_add_item(tree, hf_bmpv4_tlv, tvb, offset, total_length, ENC_NA);
+    proto_item_append_text(ti, ": %s", val_to_str(tlv.type, bmpv4_tlv_typevals, "Unknown (0x%02x)"));
+
+    proto_tree *subtree = proto_item_add_subtree(ti, ett_bmpv4_tlv);
+
+    proto_tree_add_item(subtree, hf_bmpv4_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(subtree, hf_bmpv4_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN, &value_holder);
+    offset += 2;
+
+    if (tlv.has_index) {
+        proto_tree_add_item_ret_uint(subtree, hf_bmpv4_tlv_index, tvb, offset, 2, ENC_BIG_ENDIAN, &value_holder);
+        tlv.idx = (guint16) value_holder;
+        offset += 2;
+    }
+
+    *offset_ref = offset;
+    *tree_ref = subtree;
+
+    return tlv;
+}
+
+
+static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 bmp_msg_type) {
+  bmpv4_tlv_info tlv = { 0 };
+
+  while (tvb_captured_length_remaining(tvb, offset) >= 4) {
+    proto_tree *tlv_tree = tree;
+    tlv = bmpv4_dissect_tlv_hdr(tvb, &tlv_tree, &offset, bmp_msg_type);
+
+    switch (tlv.type) {
+      case BMPv4_TLV_TYPE_GROUP: {
+
+        proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_group_id, tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        int list_length = tlv.length - 2 /* group id is not in list */;
+        proto_item *ti = proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_bytes, tvb, offset, list_length, ENC_NA);
+
+        int list_count = list_length / BMPv4_TLV_LENGTH_GROUP_ITEM;
+        proto_item_set_text(ti, "Target Count: %d", list_count);
+        proto_item *subtree = proto_item_add_subtree(ti, ett_bmpv4_tlv_value);
+
+        for (int i = 0; i < list_count; i++) {
+          proto_tree_add_item(subtree, hf_bmpv4_tlv_value_index, tvb, offset, BMPv4_TLV_LENGTH_GROUP_ITEM, ENC_NA);
+          offset += BMPv4_TLV_LENGTH_GROUP_ITEM;
+        }
+
+        break;
+      }
+      case BMPv4_TLV_TYPE_VRF_TABLE_NAME: {
+
+        proto_item *ti = proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_string, tvb, offset, tlv.length, ENC_ASCII);
+        offset += tlv.length;
+
+        if (tlv.length == 0 || tlv.length > BMPv4_TLV_LENGTH_VRF_TABLE_NAME_MAX_LENGTH) {
+          expert_add_info(pinfo, ti, &ei_bmpv4_tlv_string_bad_length);
+        }
+        break;
+      }
+      case BMPv4_TLV_TYPE_BGP_CAP_ADDPATH:
+      case BMPv4_TLV_TYPE_BGP_CAP_MULTIPLE_LBL: {
+
+        guint16 cap_value = tvb_get_ntohs(tvb, offset);
+        if (cap_value != 0 && cap_value != 1) {
+          expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_wrong_cap_value);
+        }
+
+        if (tlv.length != BMPv4_TLV_LENGTH_BGP_CAPABILITY) {
+          expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_wrong_cap_size);
+        }
+
+        proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_bool, tvb, offset, BMPv4_TLV_LENGTH_BGP_CAPABILITY, ENC_NA);
+        offset += BMPv4_TLV_LENGTH_BGP_CAPABILITY;
+
+        break;
+      }
+      case BMPv4_TLV_TYPE_BGP_MSG: {
+
+        proto_item *ti = proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_bytes, tvb, offset, tlv.length, ENC_NA);
+        proto_tree *subtree = proto_item_add_subtree(ti, ett_bmpv4_tlv_value);
+
+        call_dissector(dissector_bgp, tvb_new_subset_length(tvb, offset, tlv.length), pinfo, subtree);
+
+        offset += tlv.length;
+        break;
+      }
+      default:
+        break;
+    }
+  }
+}
+
 
 /*
  * Dissect BMP Per-Peer Header
@@ -755,13 +929,13 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  *
  */
 static void
-dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_type, guint16 len)
+dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_msg_type, guint16 len, guint8 bmp_version)
 {
     guint8  flags;
     guint32 type;
     proto_item *item;
     proto_item *ti;
-    proto_item *subtree;
+    proto_item *peer_hdr_subtree;
 
     static int * const peer_flags[] = {
         &hf_peer_flags_ipv6,
@@ -778,51 +952,58 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     };
 
     ti = proto_tree_add_item(tree, hf_peer_header, tvb, offset, len, ENC_NA);
-    subtree = proto_item_add_subtree(ti, ett_bmp_peer_header);
+    peer_hdr_subtree = proto_item_add_subtree(ti, ett_bmp_peer_header);
 
-    proto_tree_add_item_ret_uint(subtree, hf_peer_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
+    proto_tree_add_item_ret_uint(peer_hdr_subtree, hf_peer_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
     offset += 1;
 
     flags = tvb_get_guint8(tvb, offset);
 
     if (type == BMP_PEER_LOC_RIB_INSTANCE) {
-        proto_tree_add_bitmask(subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags_loc_rib, ENC_NA);
+        proto_tree_add_bitmask(peer_hdr_subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags_loc_rib, ENC_NA);
     } else {
-        proto_tree_add_bitmask(subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags, ENC_NA);
+        proto_tree_add_bitmask(peer_hdr_subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags, ENC_NA);
     }
     offset += 1;
 
-    item = proto_tree_add_item(subtree, hf_peer_distinguisher, tvb, offset, 8, ENC_NA);
+    item = proto_tree_add_item(peer_hdr_subtree, hf_peer_distinguisher, tvb, offset, 8, ENC_NA);
     proto_item_set_text(item, "Peer Distinguisher: %s", decode_bgp_rd(pinfo->pool, tvb, offset));
     offset += 8;
 
     if (flags & BMP_PEER_FLAG_IPV6) {
-        proto_tree_add_item(subtree, hf_peer_ipv6_address, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(peer_hdr_subtree, hf_peer_ipv6_address, tvb, offset, 16, ENC_NA);
         offset += 16;
     } else {
-        proto_tree_add_item(subtree, hf_bmp_unused, tvb, offset, 12, ENC_NA);
+        proto_tree_add_item(peer_hdr_subtree, hf_bmp_unused, tvb, offset, 12, ENC_NA);
         offset += 12;
-        proto_tree_add_item(subtree, hf_peer_ipv4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(peer_hdr_subtree, hf_peer_ipv4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
-    proto_tree_add_item(subtree, hf_peer_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_hdr_subtree, hf_peer_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(subtree, hf_peer_bgp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_hdr_subtree, hf_peer_bgp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(subtree, hf_peer_timestamp_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_hdr_subtree, hf_peer_timestamp_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(subtree, hf_peer_timestamp_msec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_hdr_subtree, hf_peer_timestamp_msec, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    switch (bmp_type) {
-        case BMP_MSG_TYPE_ROUTE_MONITORING:
+    bool is_v4 = bmp_version == 4;
+
+    switch (bmp_msg_type) {
+        case BMP_MSG_TYPE_ROUTE_MONITORING: {
+          if (is_v4) {
+              bmpv4_dissect_tlvs(tree, tvb, offset, pinfo, bmp_msg_type);
+          } else {
             col_clear(pinfo->cinfo, COL_INFO);
             call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
-            break;
+          }
+          break;
+        }
         case BMP_MSG_TYPE_ROUTE_MIRRORING: {
             while (tvb_reported_length_remaining(tvb, offset) > 0) {
                 guint32 route_mirroring_type, length;
@@ -848,9 +1029,13 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
         case BMP_MSG_TYPE_STAT_REPORT:
             dissect_bmp_stat_report(tvb, tree, pinfo, offset, flags);
             break;
-        case BMP_MSG_TYPE_PEER_DOWN:
-            dissect_bmp_peer_down_notification(tvb, tree, pinfo, offset, flags);
-            break;
+        case BMP_MSG_TYPE_PEER_DOWN: {
+          dissect_bmp_peer_down_notification(tvb, tree, pinfo, offset, flags);
+          if (is_v4) {
+            bmpv4_dissect_tlvs(tree, tvb, offset, pinfo, bmp_msg_type);
+          }
+          break;
+        }
         case BMP_MSG_TYPE_PEER_UP:
             dissect_bmp_peer_up_notification(tvb, tree, pinfo, offset, flags);
             break;
@@ -861,8 +1046,6 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
             break;
     }
 }
-
-
 
 /*
  * Dissect BMP Initiation Message
@@ -1253,7 +1436,10 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     bmp_tree = proto_item_add_subtree(ti, arg);
 
-    proto_tree_add_item(bmp_tree, hf_bmp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    guint32 bmp_version_tmp = 0;
+    proto_tree_add_item_ret_uint(bmp_tree, hf_bmp_version, tvb, offset, 1, ENC_BIG_ENDIAN, &bmp_version_tmp);
+    guint8 bmp_version = (guint8) bmp_version_tmp;
+
     offset += 1;
     proto_tree_add_item(bmp_tree, hf_bmp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1271,7 +1457,7 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         case BMP_MSG_TYPE_PEER_DOWN:
         case BMP_MSG_TYPE_PEER_UP:
         case BMP_MSG_TYPE_ROUTE_MIRRORING:
-            dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len);
+            dissect_bmp_peer_header(tvb, bmp_tree, pinfo, offset, bmp_type, len, bmp_version);
             break;
         case BMP_MSG_TYPE_TERM:
             dissect_bmp_termination(tvb, bmp_tree, pinfo, offset, bmp_type, len);
@@ -1691,6 +1877,35 @@ proto_register_bmp(void)
         { &hf_route_policy_tlv_string,
             { "String", "bmp.route_policy.tlv.string", FT_STRING, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
+
+        /* BMPv4 TLVs */
+        { &hf_bmpv4_tlv,
+                { "BMPv4 TLV", "bmp.tlv", FT_NONE, BASE_NONE,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_type,
+                { "Type", "bmp.tlv.type", FT_UINT16, BASE_DEC,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_length,
+                { "Length", "bmp.tlv.length", FT_UINT16, BASE_DEC,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_index,
+                { "Index", "bmp.tlv.index", FT_UINT16, BASE_DEC,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_value_bytes,
+                { "Value", "bmp.tlv.value.bytes", FT_BYTES, SEP_SPACE,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_value_string,
+                { "Value", "bmp.tlv.value.string", FT_STRING, BASE_NONE,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_value_bool,
+                { "Value", "bmp.tlv.value.bool", FT_BOOLEAN, BASE_NONE,
+                  NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_value_index,
+                { "Index", "bmp.tlv.value.index", FT_UINT16, BASE_DEC,
+                        NULL, 0x0, NULL, HFILL }},
+        { &hf_bmpv4_tlv_group_id,
+                { "Group ID", "bmp.tlv.group_id", FT_UINT16, BASE_DEC,
+                        NULL, 0x0, NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -1715,12 +1930,26 @@ proto_register_bmp(void)
         &ett_bmp_route_policy_tlv,
         &ett_bmp_route_policy_tlv_policy_flags,
         &ett_bmp_route_policy_tlv_policy,
+        &ett_bmpv4_tlv,
+        &ett_bmpv4_tlv_value,
     };
 
     static ei_register_info ei[] = {
         { &ei_stat_data_unknown,
           { "bmp.stats.data.unknown", PI_UNDECODED, PI_NOTE,
             "Unknown stats type payload", EXPFILL }
+        },
+        { &ei_bmpv4_tlv_wrong_cap_size,
+          { "bmp.tlv.capability.bad_size", PI_MALFORMED, PI_ERROR,
+            "Wrong capability size (should be 1)", EXPFILL }
+        },
+        { &ei_bmpv4_tlv_wrong_cap_value,
+          { "bmp.tlv.capability.bad_value", PI_MALFORMED, PI_ERROR,
+            "Wrong capability value (should be 0 or 1)", EXPFILL }
+        },
+        { &ei_bmpv4_tlv_string_bad_length,
+          { "bmp.tlv.string.bad_length", PI_MALFORMED, PI_NOTE,
+            "Bad string length (should be in range [1; 255])", EXPFILL }
         },
     };
 
