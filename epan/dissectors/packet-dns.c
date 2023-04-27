@@ -180,6 +180,7 @@ static int hf_dns_qry_type = -1;
 static int hf_dns_qry_class = -1;
 static int hf_dns_qry_class_mdns = -1;
 static int hf_dns_qry_qu = -1;
+static int hf_dns_srv_instance = -1;
 static int hf_dns_srv_service = -1;
 static int hf_dns_srv_proto = -1;
 static int hf_dns_srv_name = -1;
@@ -1747,18 +1748,39 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   proto_item *ti;
 
   if (type == T_SRV && name[0]) {
-    srv_rr_info = wmem_strsplit(pinfo->pool, name, ".", 3);
+    srv_rr_info = wmem_strsplit(pinfo->pool, name, ".", 4);
 
-    proto_tree_add_string(rr_tree, hf_dns_srv_service, tvb, offset,
-                          namelen, srv_rr_info[0]);
+    // If there are >=3 labels and the third label starts with an underscore,
+    // then likely a DNS-SD instance name is present [RFC 6763 sect 4.1], as in
+    // instance._service._proto.example.com
+    if (g_strv_length(srv_rr_info) >= 3 && srv_rr_info[2][0] == '_') {
+      proto_tree_add_string(rr_tree, hf_dns_srv_instance, tvb, offset, namelen, srv_rr_info[0]);
+      proto_tree_add_string(rr_tree, hf_dns_srv_service,  tvb, offset, namelen, srv_rr_info[1]);
+      proto_tree_add_string(rr_tree, hf_dns_srv_proto,    tvb, offset, namelen, srv_rr_info[2]);
+      if (srv_rr_info[3]) {
+        proto_tree_add_string(rr_tree, hf_dns_srv_name,   tvb, offset, namelen, srv_rr_info[3]);
+      }
+    } else {
+      // Else this is a normal SRV record like _service._proto.example.com
 
-    if (srv_rr_info[1]) {
-      proto_tree_add_string(rr_tree, hf_dns_srv_proto, tvb, offset,
-                            namelen, srv_rr_info[1]);
+      proto_tree_add_string(rr_tree, hf_dns_srv_service, tvb, offset, namelen, srv_rr_info[0]);
 
-      if (srv_rr_info[2]) {
-        proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset,
-                              namelen, srv_rr_info[2]);
+      if (srv_rr_info[1]) {
+        proto_tree_add_string(rr_tree, hf_dns_srv_proto, tvb, offset, namelen, srv_rr_info[1]);
+
+        if (srv_rr_info[2]) {
+          // If the name happens to only have 3 labels like "_service._proto.example",
+          // then we can just use srv_rr_info[2] as the name; but otherwise,
+          // the wmem_split above will turn "_service._proto.one.two.example.com"
+          // into ["_service", "_proto", "one", "two.example.com"]
+          // and we need to concatenate "one" + "." + "two.example.com" first
+          if (srv_rr_info[3]) {
+            const char* domain_name = wmem_strjoin(pinfo->pool, ".", srv_rr_info[2], srv_rr_info[3], NULL);
+            proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset, namelen, domain_name);
+          } else {
+            proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset, namelen, srv_rr_info[2]);
+          }
+        }
       }
     }
   } else {
@@ -5007,6 +5029,11 @@ proto_register_dns(void)
       { "Reserved", "dns.resp.z.reserved",
         FT_UINT16, BASE_HEX, NULL, 0x7FFF,
         NULL, HFILL }},
+
+    { &hf_dns_srv_instance,
+      { "Instance", "dns.srv.instance",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Desired service instance", HFILL }},
 
     { &hf_dns_srv_service,
       { "Service", "dns.srv.service",
