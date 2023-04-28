@@ -135,6 +135,7 @@ Windows Delivery Optimization (MS-DO)
 FiRa UWB Controller Interface (UCI)
 Matter home automation protocol
 UBX protocol of u-blox GNSS receivers (UBX)
+SBAS L1 Navigation Messages (SBAS L1)
 FiveCo's Register Access Protocol (5CoRAP)
 --
 
