@@ -1307,7 +1307,8 @@ dissect_m2ap_ENB_MBMS_M2AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_m2ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, TRUE,
+                                          NULL);
 
   return offset;
 }
@@ -1928,7 +1929,8 @@ dissect_m2ap_MCCHrelatedBCCH_ExtConfigPerMBSFNArea_Item(tvbuff_t *tvb _U_, int o
 static int
 dissect_m2ap_MCEname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, TRUE,
+                                          NULL);
 
   return offset;
 }

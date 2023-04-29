@@ -5980,7 +5980,8 @@ dissect_lpp_EPDU_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_lpp_EPDU_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 32, FALSE);
+                                          1, 32, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -13495,7 +13496,8 @@ dissect_lpp_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_lpp_VisibleString_SIZE_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 32, FALSE);
+                                          1, 32, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -16925,7 +16927,8 @@ dissect_lpp_INTEGER_M137438953472_137438953471(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_lpp_VisibleString_SIZE_1_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 256, FALSE);
+                                          1, 256, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -25426,7 +25429,8 @@ dissect_lpp_NR_DL_PRS_BeamInfo_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_lpp_UTCTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                        NO_BOUND, NO_BOUND, FALSE);
+                                        NO_BOUND, NO_BOUND, FALSE,
+                                        NULL);
 
   return offset;
 }

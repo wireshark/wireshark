@@ -246,7 +246,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
 # TBCD-STRING ::= OCTET STRING
 
-#.FN_BODY PLMNidentity  VAL_PTR = parameter_tvb
+#.FN_BODY PLMNidentity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   e212_number_type_t number_type = s1ap_data->number_type;
@@ -268,7 +268,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   }
 #.END
 
-#.FN_BODY ENBname VAL_PTR = parameter_tvb
+#.FN_BODY ENBname VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;
   gboolean is_ascii;
@@ -284,7 +284,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if (is_ascii)
      proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(actx->pinfo->pool, parameter_tvb, 0, length));
 
-#.FN_BODY MMEname VAL_PTR = parameter_tvb
+#.FN_BODY MMEname VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;
   gboolean is_ascii;

@@ -107,7 +107,8 @@ static gint ett_atn_cm = -1;
 static int
 dissect_atn_cm_AircraftFlightIdentification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          2, 8, FALSE);
+                                          2, 8, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -278,7 +279,8 @@ dissect_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersion(tvbuff_t *tvb _U_, int 
 static int
 dissect_atn_cm_FacilityDesignation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          4, 8, FALSE);
+                                          4, 8, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -288,7 +290,8 @@ dissect_atn_cm_FacilityDesignation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_atn_cm_Airport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          4, 4, FALSE);
+                                          4, 4, FALSE,
+                                          NULL);
 
   return offset;
 }

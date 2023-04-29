@@ -1165,7 +1165,8 @@ dissect_h450_2_DummyRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_h450_2_CallIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          0, 4, FALSE);
+                                          0, 4, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -3187,7 +3188,8 @@ dissect_h450_7_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h450_7_NumericString_SIZE_1_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          1, 10, FALSE);
+                                          1, 10, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -3231,7 +3233,8 @@ dissect_h450_7_NbOfMessages(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_h450_7_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                        12, 19, FALSE);
+                                        12, 19, FALSE,
+                                        NULL);
 
   return offset;
 }
