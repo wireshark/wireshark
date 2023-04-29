@@ -314,6 +314,8 @@ typedef struct _ntlmssp_packet_info {
   guint8    verifier[NTLMSSP_KEY_LEN];
   gboolean  payload_decrypted;
   gboolean  verifier_decrypted;
+  int       verifier_offset;
+  guint32   verifier_block_length;
 } ntlmssp_packet_info;
 
 static int
@@ -2190,8 +2192,10 @@ static tvbuff_t*
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                      packet_info *pinfo, proto_tree *tree _U_, gpointer key);
 static void
-decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
-                 packet_info *pinfo, proto_tree *tree, gpointer key);
+store_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length, packet_info *pinfo);
+
+static void
+decrypt_verifier(tvbuff_t *tvb, packet_info *pinfo);
 
 static int
 dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2252,7 +2256,8 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     tvb_memcpy(tvb, key, offset, ntlm_signature_size + ntlm_seq_size);
     /* Try to decrypt */
     decrypt_data_payload (tvb, offset+(ntlm_signature_size + ntlm_seq_size), encrypted_block_length-(ntlm_signature_size + ntlm_seq_size), pinfo, ntlmssp_tree, key);
-    decrypt_verifier (tvb, offset, ntlm_signature_size + ntlm_seq_size, pinfo, ntlmssp_tree, key);
+    store_verifier (tvb, offset, ntlm_signature_size + ntlm_seq_size, pinfo);
+    decrypt_verifier (tvb, pinfo);
     /* let's try to hook ourselves here */
 
     offset += 12;
@@ -2460,12 +2465,33 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   return tvb_captured_length(tvb);
 }
 
+static void
+store_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length, packet_info *pinfo)
+{
+  ntlmssp_packet_info *packet_ntlmssp_info;
+
+  packet_ntlmssp_info = (ntlmssp_packet_info*)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
+  if (packet_ntlmssp_info == NULL) {
+    /* We don't have any packet state, so create one */
+    packet_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_packet_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
+  }
+
+  if (!packet_ntlmssp_info->verifier_decrypted) {
+    /* Store all necessary info for later decryption */
+    packet_ntlmssp_info->verifier_offset = offset;
+    packet_ntlmssp_info->verifier_block_length = encrypted_block_length;
+    /* Setup the buffer to decrypt to */
+    tvb_memcpy(tvb, packet_ntlmssp_info->verifier,
+      offset, MIN(encrypted_block_length, sizeof(packet_ntlmssp_info->verifier)));
+  }
+}
+
 /*
  * See page 45 of "DCE/RPC over SMB" by Luke Kenneth Casson Leighton.
  */
 static void
-decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
-                 packet_info *pinfo, proto_tree *tree, gpointer key)
+decrypt_verifier(tvbuff_t *tvb, packet_info *pinfo)
 {
   proto_tree          *decr_tree;
   conversation_t      *conversation;
@@ -2499,9 +2525,6 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     return;
   }
 
-  if (key != NULL) {
-    stored_packet_ntlmssp_info = (ntlmssp_packet_info *)g_hash_table_lookup(hash_packet, key);
-  }
   if (stored_packet_ntlmssp_info != NULL && stored_packet_ntlmssp_info->verifier_decrypted == TRUE) {
       /* Mat TBD fprintf(stderr, "Found a already decrypted packet\n");*/
       /* In Theory it's aleady the case, and we should be more clever ... like just copying buffers ...*/
@@ -2531,10 +2554,6 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
         return;
       }
 
-      /* Setup the buffer to decrypt to */
-      tvb_memcpy(tvb, packet_ntlmssp_info->verifier,
-                 offset, MIN(encrypted_block_length, sizeof(packet_ntlmssp_info->verifier)));
-
       /*if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & packet_ntlmssp_info->flags)) {*/
       if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY) {
         if ((NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
@@ -2552,7 +2571,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          */
         if (sign_key != NULL) {
           check_buf = (guint8 *)wmem_alloc(wmem_packet_scope(), packet_ntlmssp_info->payload_len+4);
-          tvb_memcpy(tvb, &sequence, offset+8, 4);
+          tvb_memcpy(tvb, &sequence, packet_ntlmssp_info->verifier_offset+8, 4);
           memcpy(check_buf, &sequence, 4);
           memcpy(check_buf+4, packet_ntlmssp_info->decrypted_payload, packet_ntlmssp_info->payload_len);
           if (ws_hmac_buffer(GCRY_MD_MD5, calculated_md5, check_buf, (int)(packet_ntlmssp_info->payload_len+4), sign_key, NTLMSSP_KEY_LEN)) {
@@ -2567,7 +2586,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       else {
         /* The packet has a PAD then a checksum then a sequence and they are encoded in this order so we can decrypt all at once */
         /* Do the actual decryption of the verifier */
-        if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, encrypted_block_length, NULL, 0)) {
+        if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, packet_ntlmssp_info->verifier_block_length, NULL, 0)) {
           return;
         }
       }
@@ -2579,8 +2598,8 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          This is not needed when we just have EXTENDED SECURITY because the signature is not crypted
          and it's also not needed when we have key exchange because server and client have independent keys */
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SECURITY & conv_ntlmssp_info->flags)) {
-        peer_block = (guint8 *)wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->verifier, encrypted_block_length);
-        if (gcry_cipher_decrypt(rc4_handle_peer, peer_block, encrypted_block_length, NULL, 0)) {
+        peer_block = (guint8 *)wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->verifier, packet_ntlmssp_info->verifier_block_length);
+        if (gcry_cipher_decrypt(rc4_handle_peer, peer_block, packet_ntlmssp_info->verifier_block_length, NULL, 0)) {
           return;
         }
       }
@@ -2593,17 +2612,17 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   }
   /* Show the decrypted buffer in a new window */
   decr_tvb = tvb_new_child_real_data(tvb, packet_ntlmssp_info->verifier,
-                                     encrypted_block_length,
-                                     encrypted_block_length);
+                                     packet_ntlmssp_info->verifier_block_length,
+                                     packet_ntlmssp_info->verifier_block_length);
   add_new_data_source(pinfo, decr_tvb,
                       "Decrypted NTLMSSP Verifier");
 
   /* Show the decrypted payload in the tree */
-  decr_tree = proto_tree_add_subtree_format(tree, decr_tvb, 0, -1,
+  decr_tree = proto_tree_add_subtree_format(NULL, decr_tvb, 0, -1,
                            ett_ntlmssp, NULL,
                            "Decrypted Verifier (%d byte%s)",
-                           encrypted_block_length,
-                           plurality(encrypted_block_length, "", "s"));
+                           packet_ntlmssp_info->verifier_block_length,
+                           plurality(packet_ntlmssp_info->verifier_block_length, "", "s"));
 
   if (( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY)) {
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_hmacmd5,
@@ -2741,8 +2760,8 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
                          tvb, offset, encrypted_block_length, ENC_NA);
 
-    /* Try to decrypt */
-    decrypt_verifier (tvb, offset, encrypted_block_length, pinfo, ntlmssp_tree, NULL);
+    /* Extract and store the verifier for later decryption */
+    store_verifier (tvb, offset, encrypted_block_length, pinfo);
     /* let's try to hook ourselves here */
 
     offset += 12;
@@ -2766,6 +2785,8 @@ wrap_dissect_ntlmssp_payload_only(tvbuff_t *header_tvb _U_,
   tvbuff_t *decrypted_tvb;
 
   dissect_ntlmssp_payload_only(payload_tvb, pinfo, NULL, &decrypted_tvb);
+  /* Now the payload is decrypted, we can then decrypt the verifier which was stored earlier */
+  decrypt_verifier(payload_tvb, pinfo);
   return decrypted_tvb;
 }
 
