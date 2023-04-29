@@ -5546,14 +5546,6 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     hdr.call_id = dcerpc_tvb_get_ntohl(tvb, offset, hdr.drep);
     /*offset += 4;*/
 
-    if (decode_data->dcectxid == 0) {
-        col_append_fstr(pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
-    } else {
-        /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-         * prepend a delimiter */
-        col_append_fstr(pinfo->cinfo, COL_DCE_CALL, "#%u", hdr.call_id);
-    }
-
     if (can_desegment && pinfo->can_desegment
         && !tvb_bytes_exist(tvb, start_offset, hdr.frag_len)) {
         pinfo->desegment_offset = start_offset;
@@ -6582,7 +6574,6 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tree)
         proto_tree_add_uint(dcerpc_tree, hf_dcerpc_dg_seqnum, tvb, offset, 4, hdr.seqnum);
     col_append_fstr(pinfo->cinfo, COL_INFO, ": seq: %u", hdr.seqnum);
-    col_append_fstr(pinfo->cinfo, COL_DCE_CALL, "%u", hdr.seqnum);
     offset += 4;
 
     if (tree)

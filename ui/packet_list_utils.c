@@ -30,7 +30,6 @@ right_justify_column (gint col, capture_file *cf)
         case COL_NUMBER:
         case COL_PACKET_LENGTH:
         case COL_CUMULATIVE_BYTES:
-        case COL_DCE_CALL:
         case COL_DSCP_VALUE:
         case COL_UNRES_DST_PORT:
         case COL_UNRES_SRC_PORT:
