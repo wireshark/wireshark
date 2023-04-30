@@ -138,6 +138,8 @@ static int hf_pcapng_dsb_secrets_data = -1;
 
 static int hf_pcapng_cb_pen = -1;
 static int hf_pcapng_cb_data = -1;
+static int hf_pcapng_cb_option_string = -1;
+static int hf_pcapng_cb_option_data = -1;
 
 static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
@@ -252,6 +254,11 @@ static const value_string block_type_vals[] = {
 /* blockId-> local_block_callback_info_t* */
 static GHashTable *s_local_block_callback_table = NULL;
 
+#define OPTION_CODE_CUSTOM_OPTIONS \
+    { 2988,  "Custom Option UTF-8 string which can be copied" }, \
+    { 2989,  "Custom Option which can be copied" }, \
+    { 19372, "Custom Option UTF-8 string which should not be copied" }, \
+    { 19373, "Custom Option which should not be copied" }
 
 static const value_string option_code_section_header_vals[] = {
     { 0,  "End of Options" },
@@ -260,6 +267,7 @@ static const value_string option_code_section_header_vals[] = {
     { 2,  "Hardware Description" },
     { 3,  "OS Description" },
     { 4,  "User Application" },
+    OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
@@ -281,6 +289,7 @@ static const value_string option_code_interface_description_vals[] = {
     { 13, "FCS Length" },
     { 14, "Timestamp Offset" },
     { 15, "Hardware" },
+    OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
@@ -400,6 +409,7 @@ static const value_string option_code_enhanced_packet_vals[] = {
     { 5,  "Packet ID" },
     { 6,  "Queue" },
     { 7,  "Verdict" },
+    OPTION_CODE_CUSTOM_OPTIONS,
     { 32769,   "Darwin DPEB ID" },
     { 32770,   "Darwin Service Class" },
     { 32771,   "Darwin Effective DPEB ID" },
@@ -414,6 +424,7 @@ static const value_string option_code_packet_vals[] = {
 
     { 2,  "Flags" },
     { 3,  "Hash" },
+    OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
@@ -424,6 +435,7 @@ static const value_string option_code_name_resolution_vals[] = {
     { 2,  "DNS Name" },
     { 3,  "DNS IPv4 Address" },
     { 4,  "DNS IPv6 Address" },
+    OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
@@ -438,6 +450,7 @@ static const value_string option_code_interface_statistics_vals[] = {
     { 6,  "Number of Accepted Packets" },
     { 7,  "Number of Packets Dropped by OS" },
     { 8,  "Number of Packets Delivered to the User" },
+    OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
@@ -523,6 +536,25 @@ static const guint8 pcapng_big_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
 static const guint8 pcapng_little_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
     0x4D, 0x3C, 0x2B, 0x1A
 };
+
+void dissect_custom_options(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
+                            guint32 option_code, guint32 option_length, guint encoding)
+{
+    proto_tree_add_item(tree, hf_pcapng_cb_pen, tvb, offset, 4, encoding);
+    offset += 4;
+
+    /* Todo: Add known PEN custom options dissection. */
+    switch (option_code) {
+    case 2988:
+    case 19372:
+        proto_tree_add_item(tree, hf_pcapng_cb_option_string, tvb, offset, option_length - 4, ENC_UTF_8);
+        break;
+    case 2989:
+    case 19373:
+        proto_tree_add_item(tree, hf_pcapng_cb_option_data, tvb, offset, option_length - 4, encoding);
+        break;
+    }
+}
 
 gint dissect_options(proto_tree *tree, packet_info *pinfo,
         guint32 block_type, tvbuff_t *tvb, int offset, guint encoding,
@@ -622,6 +654,9 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
         } else if (option_code == 1) {
             proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
             proto_item_append_text(option_item, " = %s", str);
+            offset += option_length;
+        } else if (option_code == 2988 || option_code == 2989 || option_code == 19372 || option_code == 19373) {
+            dissect_custom_options(option_tree, pinfo, tvb, offset, option_code, option_length, encoding);
             offset += option_length;
         } else switch (block_type) {
         case BLOCK_SECTION_HEADER:
@@ -2637,6 +2672,16 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_cb_data,
             { "Custom Data",                               "pcapng.cb.custom_data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_cb_option_string,
+            { "Custom Option String",                        "pcapng.cb.custom_option.string",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_cb_option_data,
+            { "Custom Option Binary",                        "pcapng.cb.custom_option.data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
