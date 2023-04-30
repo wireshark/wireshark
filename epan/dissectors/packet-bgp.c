@@ -34,6 +34,7 @@
            Information Using BGP
  * RFC8092 BGP Large Communities Attribute
  * RFC8214 Virtual Private Wire Service Support in Ethernet VPN
+ * RFC9234 Route Leak Prevention and Detection Using Roles in UPDATE and OPEN Messages
  * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-knoll-idr-qos-attribute-03
@@ -163,7 +164,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_CAPABILITY_EXTENDED_MESSAGE              6  /* draft-ietf-idr-bgp-extended-messages */
 #define BGP_CAPABILITY_BGPSEC                        7  /* RFC8205 */
 #define BGP_CAPABILITY_MULTIPLE_LABELS               8  /* RFC8277 */
-#define BGP_CAPABILITY_BGP_ROLE                      9  /* draft-ietf-idr-bgp-open-policy */
+#define BGP_CAPABILITY_BGP_ROLE                      9  /* RFC9234 */
 #define BGP_CAPABILITY_GRACEFUL_RESTART             64  /* RFC4724 */
 #define BGP_CAPABILITY_4_OCTET_AS_NUMBER            65  /* RFC6793 */
 #define BGP_CAPABILITY_DYNAMIC_CAPABILITY_CISCO     66  /* Cisco Dynamic capabaility*/
@@ -246,6 +247,7 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_31                  31 /* Deprecated [RFC8093] */
 #define BGPTYPE_LARGE_COMMUNITY     32 /* RFC8092 */
 #define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_PATH [RFC8205] */
+#define BGPTYPE_OTC                 35 /* BGP Only to Customer [RFC9234] */
 #define BGPTYPE_D_PATH              36 /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
 #define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [RFC8669] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
@@ -1248,6 +1250,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_31,                  "Deprecated" },
     { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
     { BGPTYPE_BGPSEC_PATH,         "BGPsec_PATH" },
+    { BGPTYPE_OTC,                 "OTC" },
     { BGPTYPE_D_PATH,              "D_PATH" },
     { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
@@ -1702,6 +1705,16 @@ static const value_string bgpsec_send_receive_vals[] = {
     { 0,        NULL }
 };
 
+/* BGP Role, RFC9234 */
+static const value_string bgprole_vals[] = {
+    { 0,        "Provider" },
+    { 1,        "RS" },
+    { 2,        "RS-Client" },
+    { 3,        "Customer" },
+    { 4,        "Peer" },
+    { 0,        NULL }
+};
+
 static const value_string capability_vals[] = {
     { BGP_CAPABILITY_RESERVED,                      "Reserved capability" },
     { BGP_CAPABILITY_MULTIPROTOCOL,                 "Multiprotocol extensions capability" },
@@ -2075,6 +2088,7 @@ static int hf_bgp_cap_mp_safi = -1;
 static int hf_bgp_cap_enh_afi = -1;
 static int hf_bgp_cap_enh_safi = -1;
 static int hf_bgp_cap_enh_nhafi = -1;
+static int hf_bgp_cap_role = -1;
 static int hf_bgp_cap_gr_timers = -1;
 static int hf_bgp_cap_gr_timers_restart_flag = -1;
 static int hf_bgp_cap_gr_timers_notification_flag = -1;
@@ -2169,6 +2183,7 @@ static int hf_bgp_update_path_attribute_bgpsec_sp_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_ski = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sig_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sig = -1;
+static int hf_bgp_update_path_attribute_otc = -1;
 static int hf_bgp_update_path_attribute_d_path = -1;
 static int hf_bgp_d_path_ga = -1;
 static int hf_bgp_d_path_la = -1;
@@ -7857,6 +7872,17 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 }
             }
             break;
+        case BGP_CAPABILITY_BGP_ROLE:
+            if (clen != 1) {
+                expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be = 1", clen);
+                proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
+                offset += clen;
+            }
+            else {
+                proto_tree_add_item(cap_tree, hf_bgp_cap_role, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+            }
+            break;
         case BGP_CAPABILITY_GRACEFUL_RESTART:
             if ((clen < 6) && (clen != 2)) {
                 expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u too short, must be greater than 6", clen);
@@ -10433,6 +10459,17 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                  alen, plurality(alen, "", "s"));
                 }
                 break;
+            case BGPTYPE_OTC:
+                if (tlen != 4) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Only to Customer (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                } else {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_otc, tvb,
+                                        o + i + aoff, tlen, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_pa, ": %u", tvb_get_ntohl(tvb, o + i + aoff));
+                }
+                break;
             case BGPTYPE_D_PATH:
                 if(tlen < 8){
                     proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
@@ -11194,6 +11231,9 @@ proto_register_bgp(void)
       { &hf_bgp_cap_enh_nhafi,
         { "Next hop AFI", "bgp.cap.enh.nhafi", FT_UINT16, BASE_DEC,
           VALS(afn_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_role,
+        { "BGP Role", "bgp.cap.role", FT_UINT8, BASE_DEC,
+          VALS(bgprole_vals), 0x0, NULL, HFILL }},
       { &hf_bgp_cap_gr_timers,
         { "Restart Timers", "bgp.cap.gr.timers", FT_UINT16, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
@@ -11554,6 +11594,11 @@ proto_register_bgp(void)
       { &hf_bgp_pmsi_tunnel_ingress_rep_addr6,
         {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip6", FT_IPv6, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
+
+        /* BGP Only to Customer (OTC) Attribute, RFC9234 */
+      { &hf_bgp_update_path_attribute_otc,
+        { "Only to Customer", "bgp.update.path_attribute.otc", FT_UINT32, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
 
         /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
       { &hf_bgp_update_path_attribute_d_path,
