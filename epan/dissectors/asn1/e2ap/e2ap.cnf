@@ -539,14 +539,13 @@ E2RemovalResponse                        N e2ap.proc.sout id-E2removal
   e2ap_data->ran_function_id = value;
 
 
-#.FN_BODY RANfunction-Name/ranFunction-ShortName
-  gint start_offset = offset;
+#.FN_BODY RANfunction-Name/ranFunction-ShortName VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
 %(DEFAULT_BODY)s
-  /* TODO: is there a nicer/reliable way to get PrintableString here (VAL_PTR won't get assigned..) */
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   ran_functionid_table_t *table = get_ran_functionid_table(actx->pinfo);
   store_ran_function_mapping(actx->pinfo, table, e2ap_data,
-                             tvb_get_stringz_enc(wmem_packet_scope(), tvb, (start_offset+15)/8, NULL, ENC_ASCII));
+                             tvb_get_string_enc(wmem_packet_scope(), value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
 
 #.FN_BODY GlobalgNB-ID/gnb-id
   int start_offset = offset;
