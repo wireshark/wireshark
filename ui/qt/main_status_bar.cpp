@@ -266,7 +266,8 @@ void MainStatusBar::setStatusbarForCaptureFile()
         QString msgtip = QString("%1 (%2)")
                 .arg(cap_file_->filename)
                 .arg(file_size_to_qstring(cap_file_->f_datalen));
-        pushGenericStatus(STATUS_CTX_FILE, cf_get_display_name(cap_file_), msgtip);
+        pushGenericStatus(STATUS_CTX_FILE,
+                gchar_free_to_qstring(cf_get_display_name(cap_file_)), msgtip);
     }
 }
 
