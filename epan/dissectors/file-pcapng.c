@@ -136,6 +136,9 @@ static int hf_pcapng_dsb_secrets_type = -1;
 static int hf_pcapng_dsb_secrets_length = -1;
 static int hf_pcapng_dsb_secrets_data = -1;
 
+static int hf_pcapng_cb_pen = -1;
+static int hf_pcapng_cb_data = -1;
+
 static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
 static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
@@ -218,6 +221,8 @@ static gboolean pref_dissect_next_layer = FALSE;
 #define BLOCK_ARINC_429              0x00000008
 #define BLOCK_SYSTEMD_JOURNAL_EXPORT 0x00000009
 #define BLOCK_DSB                    0x0000000a
+#define BLOCK_CB_COPY                0x00000BAD
+#define BLOCK_CB_NO_COPY             0x40000BAD
 #define BLOCK_SECTION_HEADER         0x0A0D0D0A
 
 static const value_string block_type_vals[] = {
@@ -237,6 +242,8 @@ static const value_string block_type_vals[] = {
     { 0x00000217,  "Sysdig Event Block with flags v2" },
     { 0x00000221,  "Sysdig Event Block v2 large payload" },
     { 0x00000222,  "Sysdig Event Block with flags v2 large payload" },
+    { 0x00000BAD,  "Custom Block which can be copied"},
+    { 0x40000BAD,  "Custom Block which should not be copied"},
     { 0x0A0D0D0A,  "Section Header Block" },
     { 0, NULL }
 };
@@ -1748,6 +1755,26 @@ dissect_dsb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     dissect_options(tree, pinfo, BLOCK_DSB, tvb, offset, argp->info->encoding, NULL);
 }
 
+static void
+dissect_cb_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
+                block_data_arg *argp)
+{
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_pcapng_cb_pen, tvb, offset, 4, argp->info->encoding);
+    offset += 4;
+
+    /* Todo: Add known PEN custom data dissection. */
+    proto_tree_add_item(tree, hf_pcapng_cb_data, tvb, offset, tvb_reported_length(tvb) - offset, argp->info->encoding);
+
+    /*
+     * The pcapng spec does not tell the size of the custom data without knowing the data content,
+     * so it's not possible to dissect options.
+     *
+     * dissect_options(tree, pinfo, BLOCK_CB_COPY, tvb, offset, argp->info->encoding, NULL);
+     */
+}
+
 gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct info *info)
 {
     proto_tree      *block_tree, *block_type_tree;
@@ -1895,6 +1922,10 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
                 break;
             case BLOCK_DSB:
                 dissect_dsb_data(block_data_tree, pinfo, next_tvb, &arg);
+                break;
+            case BLOCK_CB_COPY:
+            case BLOCK_CB_NO_COPY:
+                dissect_cb_data(block_data_tree, pinfo, next_tvb, &arg);
                 break;
             case BLOCK_IRIG_TIMESTAMP:
             case BLOCK_ARINC_429:
@@ -2596,6 +2627,16 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_dsb_secrets_data,
             { "Secrets Data",                              "pcapng.dsb.secrets_data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_cb_pen,
+            { "Private Enterprise Number (PEN)",           "pcapng.cb.pen",
+            FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_cb_data,
+            { "Custom Data",                               "pcapng.cb.custom_data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
