@@ -428,20 +428,20 @@ ntlmssp_generate_challenge_response(guint8 *response,
 }
 
 
-/* Ultra simple ainsi to unicode converter, will only work for ascii password ...*/
+/* Ultra simple ANSI to unicode converter, will only work for ascii password...*/
 static void
-str_to_unicode(const char *nt_password, char *nt_password_unicode)
+ansi_to_unicode(const char* ansi, char* unicode)
 {
-  size_t password_len;
+  size_t input_len;
   size_t i;
 
-  password_len = strlen(nt_password);
-  if (nt_password_unicode != NULL) {
-    for (i=0; i<(password_len); i++) {
-      nt_password_unicode[i*2]=nt_password[i];
-      nt_password_unicode[i*2+1]=0;
+  input_len = strlen(ansi);
+  if (unicode != NULL) {
+    for (i = 0; i < (input_len); i++) {
+      unicode[i * 2] = ansi[i];
+      unicode[i * 2 + 1] = 0;
     }
-    nt_password_unicode[2*password_len]='\0';
+    unicode[2 * input_len] = '\0';
   }
 }
 
@@ -460,7 +460,7 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
 
   memset(keyexchangekey, 0, NTLMSSP_KEY_LEN);
   memset(basekey, 0, NTLMSSP_KEY_LEN);
-  /* sessionbasekey is either derived from lm_password_hash or from nt_password_hash depending on the key type negotiated */
+  /* sessionbasekey is either derived from lm_hash or from nt_hash depending on the key type negotiated */
   memcpy(basekey, sessionbasekey, 8);
   memset(basekey, 0xBD, 8);
   if (flags&NTLMSSP_NEGOTIATE_LM_KEY) {
@@ -493,9 +493,9 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   guint32        nb_pass = 0;
   enc_key_t     *ek;
-  const char* nt_password = ntlmssp_option_nt_password;
-  unsigned char  nt_password_hash[NTLMSSP_KEY_LEN];
-  char           nt_password_unicode[256];
+  const char*    password = ntlmssp_option_nt_password;
+  unsigned char  nt_hash[NTLMSSP_KEY_LEN];
+  char           password_unicode[256];
   md4_pass*      pass_list;
   int            i;
 
@@ -507,15 +507,15 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
       nb_pass++;
     }
   }
-  memset(nt_password_unicode, 0, sizeof(nt_password_unicode));
-  memset(nt_password_hash, 0, NTLMSSP_KEY_LEN);
+  memset(password_unicode, 0, sizeof(password_unicode));
+  memset(nt_hash, 0, NTLMSSP_KEY_LEN);
   /* Compute the NT hash of the provided password, even if empty */
-  if (strlen(nt_password) < 129) {
+  if (strlen(password) < 129) {
     int password_len;
     nb_pass++;
-    password_len = (int)strlen(nt_password);
-    str_to_unicode(nt_password, nt_password_unicode);
-    gcry_md_hash_buffer(GCRY_MD_MD4, nt_password_hash, nt_password_unicode, password_len*2);
+    password_len = (int)strlen(password);
+    ansi_to_unicode(password, password_unicode);
+    gcry_md_hash_buffer(GCRY_MD_MD4, nt_hash, password_unicode, password_len*2);
   }
   if (nb_pass == 0) {
     /* Unable to calculate the session key without a valid password (128 chars or less) ......*/
@@ -525,8 +525,8 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
   *p_pass_list = (md4_pass *)wmem_alloc0(pool, nb_pass*sizeof(md4_pass));
   pass_list = *p_pass_list;
 
-  if (memcmp(nt_password_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
-    memcpy(pass_list[i].md4, nt_password_hash, NTLMSSP_KEY_LEN);
+  if (memcmp(nt_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
+    memcpy(pass_list[i].md4, nt_hash, NTLMSSP_KEY_LEN);
     snprintf(pass_list[i].key_origin, NTLMSSP_MAX_ORIG_LEN,
                "<Global NT Password>");
     i = 1;
@@ -564,7 +564,7 @@ create_ntlmssp_v2_key(const guint8 *serverchallenge, const guint8 *clientchallen
   char              user_uppercase[USER_BUF_SIZE];
   char              buf[BUF_SIZE];
   /*guint8 md4[NTLMSSP_KEY_LEN];*/
-  unsigned char     nt_password_hash[NTLMSSP_KEY_LEN];
+  unsigned char     nt_hash[NTLMSSP_KEY_LEN];
   unsigned char     nt_proof[NTLMSSP_KEY_LEN];
   unsigned char     ntowfv2[NTLMSSP_KEY_LEN];
   guint8            sessionbasekey[NTLMSSP_KEY_LEN];
@@ -590,7 +590,7 @@ create_ntlmssp_v2_key(const guint8 *serverchallenge, const guint8 *clientchallen
   user_len = strlen(ntlmssph->acct_name);
   if (user_len < USER_BUF_SIZE / 2) {
     memset(buf, 0, BUF_SIZE);
-    str_to_unicode(ntlmssph->acct_name, buf);
+    ansi_to_unicode(ntlmssph->acct_name, buf);
     for (j = 0; j < (2*user_len); j++) {
       if (buf[j] != '\0') {
         user_uppercase[j] = g_ascii_toupper(buf[j]);
@@ -603,7 +603,7 @@ create_ntlmssp_v2_key(const guint8 *serverchallenge, const guint8 *clientchallen
   }
   domain_len = strlen(ntlmssph->domain_name);
   if (domain_len < DOMAIN_NAME_BUF_SIZE / 2) {
-    str_to_unicode(ntlmssph->domain_name, domain_name_unicode);
+    ansi_to_unicode(ntlmssph->domain_name, domain_name_unicode);
   }
   else {
     /* Unable to calculate the session not enough space in buffer, note this is unlikely to happen but ......*/
@@ -614,14 +614,14 @@ create_ntlmssp_v2_key(const guint8 *serverchallenge, const guint8 *clientchallen
     fprintf(stderr, "Turn %d, ", i);
     #endif
     used_md4 = &pass_list[i];
-    memcpy(nt_password_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
-    printnbyte(nt_password_hash, NTLMSSP_KEY_LEN, "Current NT password hash: ", "\n");
+    memcpy(nt_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
+    printnbyte(nt_hash, NTLMSSP_KEY_LEN, "Current NT hash: ", "\n");
     i++;
     /* NTOWFv2 computation */
     memset(buf, 0, BUF_SIZE);
     memcpy(buf, user_uppercase, user_len*2);
     memcpy(buf+user_len*2, domain_name_unicode, domain_len*2);
-    if (ws_hmac_buffer(GCRY_MD_MD5, ntowfv2, buf, domain_len*2+user_len*2, nt_password_hash, NTLMSSP_KEY_LEN)) {
+    if (ws_hmac_buffer(GCRY_MD_MD5, ntowfv2, buf, domain_len*2+user_len*2, nt_hash, NTLMSSP_KEY_LEN)) {
       return;
     }
     printnbyte(ntowfv2, NTLMSSP_KEY_LEN, "NTOWFv2: ", "\n");
@@ -735,10 +735,10 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
                       ntlmssp_header_t *ntlmssph,
                       packet_info *pinfo, proto_tree *ntlmssp_tree)
 {
-  const char *nt_password = ntlmssp_option_nt_password;
+  const char       *password = ntlmssp_option_nt_password;
   unsigned char     lm_password_upper[NTLMSSP_KEY_LEN];
-  unsigned char     lm_password_hash[NTLMSSP_KEY_LEN];
-  unsigned char     nt_password_hash[NTLMSSP_KEY_LEN];
+  unsigned char     lm_hash[NTLMSSP_KEY_LEN];
+  unsigned char     nt_hash[NTLMSSP_KEY_LEN];
   unsigned char     challenges_hash_first8[8];
   unsigned char     challenges[NTLMSSP_KEY_LEN];
   guint8            md4[NTLMSSP_KEY_LEN];
@@ -749,7 +749,7 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
   guint8            nt_challenge_response[24];
   gcry_cipher_hd_t  rc4_handle;
   gcry_md_hd_t      md5_handle;
-  char              nt_password_unicode[256];
+  char              password_unicode[256];
   size_t            password_len;
   unsigned int      i;
   gboolean          found     = FALSE;
@@ -766,10 +766,10 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
 
   /* Create a NT hash of the input password, even if empty */
   // NTOWFv1 as defined in https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/464551a8-9fc4-428e-b3d3-bc5bfb2e73a5
-  password_len = strlen(nt_password);
-  /*Do not forget to free nt_password_nt*/
-  str_to_unicode(nt_password, nt_password_unicode);
-  gcry_md_hash_buffer(GCRY_MD_MD4, nt_password_hash, nt_password_unicode, password_len*2);
+  password_len = strlen(password);
+  /*Do not forget to free password*/
+  ansi_to_unicode(password, password_unicode);
+  gcry_md_hash_buffer(GCRY_MD_MD4, nt_hash, password_unicode, password_len*2);
 
   if ((flags & NTLMSSP_NEGOTIATE_LM_KEY && !(flags & NoLMResponseNTLMv1)) || !(flags & NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY)  || !(flags & NTLMSSP_NEGOTIATE_NTLM)) {
     /* Create a LM hash of the input password, even if empty */
@@ -780,14 +780,14 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
 
     memset(lm_password_upper, 0, sizeof(lm_password_upper));
     for (i = 0; i < password_len; i++) {
-      lm_password_upper[i] = g_ascii_toupper(nt_password[i]);
+      lm_password_upper[i] = g_ascii_toupper(password[i]);
     }
 
-    crypt_des_ecb(lm_password_hash, lmhash_key, lm_password_upper);
-    crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7);
+    crypt_des_ecb(lm_hash, lmhash_key, lm_password_upper);
+    crypt_des_ecb(lm_hash+8, lmhash_key, lm_password_upper+7);
     ntlmssp_generate_challenge_response(lm_challenge_response,
-                                        lm_password_hash, serverchallenge);
-    memcpy(sessionbasekey, lm_password_hash, NTLMSSP_KEY_LEN);
+                                        lm_hash, serverchallenge);
+    memcpy(sessionbasekey, lm_hash, NTLMSSP_KEY_LEN);
   }
   else {
 
@@ -798,8 +798,8 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
       while (i < nb_pass) {
         /*fprintf(stderr, "Turn %d, ", i);*/
         used_md4 = &pass_list[i];
-        memcpy(nt_password_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
-        /*printnbyte(nt_password_hash, NTLMSSP_KEY_LEN, "Current NT password hash: ", "\n");*/
+        memcpy(nt_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
+        /*printnbyte(nt_hash, NTLMSSP_KEY_LEN, "Current NT hash: ", "\n");*/
         i++;
         if(clientchallenge){
           memcpy(lm_challenge_response, clientchallenge, 8);
@@ -811,7 +811,7 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
         gcry_md_write(md5_handle, clientchallenge, 8);
         memcpy(challenges_hash_first8, gcry_md_read(md5_handle, 0), 8);
         gcry_md_close(md5_handle);
-        crypt_des_ecb_long(nt_challenge_response, nt_password_hash, challenges_hash_first8);
+        crypt_des_ecb_long(nt_challenge_response, nt_hash, challenges_hash_first8);
         if (ref_nt_challenge_response && !memcmp(ref_nt_challenge_response, nt_challenge_response, 24)) {
           found = TRUE;
           break;
@@ -819,12 +819,12 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
       }
     }
     else {
-      crypt_des_ecb_long(nt_challenge_response, nt_password_hash, serverchallenge);
+      crypt_des_ecb_long(nt_challenge_response, nt_hash, serverchallenge);
       if (NoLMResponseNTLMv1) {
         memcpy(lm_challenge_response, nt_challenge_response, 24);
       }
       else {
-        crypt_des_ecb_long(lm_challenge_response, lm_password_hash, serverchallenge);
+        crypt_des_ecb_long(lm_challenge_response, lm_hash, serverchallenge);
       }
       if (ref_nt_challenge_response &&
           !memcmp(ref_nt_challenge_response, nt_challenge_response, 24) &&
@@ -835,9 +835,9 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
       }
     }
     /* So it's clearly not like this that's put into NTLMSSP doc but after some digging into samba code I'm quite confident
-     * that sessionbasekey should be based md4(nt_password_hash) only in the case of some NT auth
-     * Otherwise it should be lm_password_hash ...*/
-    gcry_md_hash_buffer(GCRY_MD_MD4, md4, nt_password_hash, NTLMSSP_KEY_LEN);
+     * that sessionbasekey should be based md4(nt_hash) only in the case of some NT auth
+     * Otherwise it should be lm_hash ...*/
+    gcry_md_hash_buffer(GCRY_MD_MD4, md4, nt_hash, NTLMSSP_KEY_LEN);
     if (flags & NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY) {
       memcpy(challenges, serverchallenge, 8);
       if(clientchallenge){
@@ -3644,7 +3644,7 @@ proto_register_ntlmssp(void)
 
   prefs_register_string_preference(ntlmssp_module, "nt_password",
                                    "NT Password",
-                                   "NT Password (used to decrypt payloads)",
+                                   "Cleartext NT Password (used to decrypt payloads, supports only ASCII passwords)",
                                    &ntlmssp_option_nt_password);
 
   ntlmssp_handle = register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
