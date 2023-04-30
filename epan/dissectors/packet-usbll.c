@@ -1700,11 +1700,11 @@ static gboolean is_get_device_descriptor(guint8 setup[8])
 static gboolean is_set_address(guint8 setup[8])
 {
     guint16 addr = setup[2] | (setup[3] << 8);
-    guint16 index = setup[4] | (setup[5] << 8);
+    guint16 idx = setup[4] | (setup[5] << 8);
     guint16 length = setup[6] | (setup[7] << 8);
     return (setup[0] == USB_DIR_OUT) &&
            (setup[1] == USB_SETUP_SET_ADDRESS) &&
-           (addr <= 127) && (index == 0x00) && (length == 0x00);
+           (addr <= 127) && (idx == 0x00) && (length == 0x00);
 }
 
 static void
