@@ -1183,7 +1183,7 @@ static hf_register_info hf[] = {
 	{ "Response rc", "tpm.resp.rc", FT_UINT32, BASE_HEX, VALS(responses),
 	   0x0, NULL, HFILL }},
 	{ &hf_tpm20_startup_type,
-	{ "Startup type", "tpm.statup.type", FT_UINT16, BASE_HEX, VALS(startup_types),
+	{ "Startup type", "tpm.startup.type", FT_UINT16, BASE_HEX, VALS(startup_types),
 	   0x0, NULL, HFILL }},
 	{ &hf_tpmi_dh_object,
 	{ "TPMI_DH_OBJECT", "tpm.handle.TPMI_DH_OBJECT", FT_UINT32, BASE_HEX, VALS(handles),

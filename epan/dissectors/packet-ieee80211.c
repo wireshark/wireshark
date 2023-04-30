@@ -1105,7 +1105,7 @@ static const value_string ieee80211_status_code[] = {
   { 132, "NSEP priority access denied due to reason outside the scope of this standard"},
   { 133, "Request denied because the requested TID-to-link mapping is unacceptable"},
   { 134, "Preferred TID-to-link mapping suggested"},
-  { 135, "Association denied because the requesting STA dones not support EHT features"},
+  { 135, "Association denied because the requesting STA does not support EHT features"},
   {   0, NULL}
 };
 value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
