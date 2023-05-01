@@ -2056,8 +2056,6 @@ void output_fields_free(output_fields_t* fields)
     g_free(fields);
 }
 
-#define COLUMN_FIELD_FILTER  "_ws.col."
-
 void output_fields_add(output_fields_t *fields, const gchar *field)
 {
     gchar *field_copy;
@@ -2112,9 +2110,6 @@ output_field_check(void *data, void *user_data)
 {
     gchar *field = (gchar *)data;
     GSList **invalid_fields = (GSList **)user_data;
-
-    if (!strncmp(field, COLUMN_FIELD_FILTER, strlen(COLUMN_FIELD_FILTER)))
-        return;
 
     if (!proto_registrar_get_byname(field)) {
         *invalid_fields = g_slist_prepend(*invalid_fields, field);
@@ -2398,12 +2393,9 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     }
 }
 
-static void write_specified_fields(fields_format format, output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, json_dumper *dumper)
+static void write_specified_fields(fields_format format, output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo _U_, FILE *fh, json_dumper *dumper)
 {
     gsize     i;
-    gint      col;
-    gchar    *col_name;
-    gpointer  field_index;
 
     write_field_data_t data;
 
@@ -2446,22 +2438,6 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
-
-    /* Add columns to fields */
-    if (fields->includes_col_fields) {
-        for (col = 0; col < cinfo->num_cols; col++) {
-            if (!get_column_visible(col))
-                continue;
-            /* Prepend COLUMN_FIELD_FILTER as the field name */
-            col_name = ws_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
-            field_index = g_hash_table_lookup(fields->field_indicies, col_name);
-            g_free(col_name);
-
-            if (NULL != field_index) {
-                format_field_values(fields, field_index, g_strdup(get_column_text(cinfo, col)));
-            }
-        }
-    }
 
     switch (format) {
     case FORMAT_CSV:

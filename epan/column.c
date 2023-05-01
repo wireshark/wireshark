@@ -26,6 +26,10 @@
 #include <epan/packet.h>
 #include <wsutil/ws_assert.h>
 
+static int proto_cols = -1;
+static hf_register_info *hf_cols = NULL;
+static unsigned int hf_cols_cleanup = 0;
+
 /* Given a format number (as defined in column-utils.h), returns its equivalent
    string */
 const gchar *
@@ -155,6 +159,67 @@ col_format_desc(const gint fmt_num) {
   return val_str;
 }
 
+/* Given a format number (as defined in column-utils.h), returns its
+  filter abbreviation */
+const gchar *
+col_format_abbrev(const gint fmt_num) {
+
+  static const value_string alist_vals[] = {
+
+    { COL_ABS_YMD_TIME, COLUMN_FIELD_FILTER"abs_ymd_time" },
+    { COL_ABS_YDOY_TIME, COLUMN_FIELD_FILTER"abs_ydoy_time" },
+    { COL_ABS_TIME, COLUMN_FIELD_FILTER"abs_time" },
+    { COL_CUMULATIVE_BYTES, COLUMN_FIELD_FILTER"cumulative_bytes" },
+    { COL_CUSTOM, COLUMN_FIELD_FILTER"custom" },
+    { COL_DELTA_TIME_DIS, COLUMN_FIELD_FILTER"delta_time_dis" },
+    { COL_DELTA_TIME, COLUMN_FIELD_FILTER"delta_time" },
+    { COL_RES_DST, COLUMN_FIELD_FILTER"res_dst" },
+    { COL_UNRES_DST, COLUMN_FIELD_FILTER"unres_dst" },
+    { COL_RES_DST_PORT, COLUMN_FIELD_FILTER"res_dst_port" },
+    { COL_UNRES_DST_PORT, COLUMN_FIELD_FILTER"unres_dst_port" },
+    { COL_DEF_DST, COLUMN_FIELD_FILTER"def_dst" },
+    { COL_DEF_DST_PORT, COLUMN_FIELD_FILTER"def_dst_port" },
+    { COL_EXPERT, COLUMN_FIELD_FILTER"expert" },
+    { COL_IF_DIR, COLUMN_FIELD_FILTER"if_dir" },
+    { COL_FREQ_CHAN, COLUMN_FIELD_FILTER"freq_chan" },
+    { COL_DEF_DL_DST, COLUMN_FIELD_FILTER"def_dl_dst" },
+    { COL_DEF_DL_SRC, COLUMN_FIELD_FILTER"def_dl_src" },
+    { COL_RES_DL_DST, COLUMN_FIELD_FILTER"res_dl_dst" },
+    { COL_UNRES_DL_DST, COLUMN_FIELD_FILTER"unres_dl_dst" },
+    { COL_RES_DL_SRC, COLUMN_FIELD_FILTER"res_dl_src" },
+    { COL_UNRES_DL_SRC, COLUMN_FIELD_FILTER"unres_dl_src" },
+    { COL_RSSI, COLUMN_FIELD_FILTER"rssi" },
+    { COL_TX_RATE, COLUMN_FIELD_FILTER"tx_rate" },
+    { COL_DSCP_VALUE, COLUMN_FIELD_FILTER"dscp" },
+    { COL_INFO, COLUMN_FIELD_FILTER"info" },
+    { COL_RES_NET_DST, COLUMN_FIELD_FILTER"res_net_dst" },
+    { COL_UNRES_NET_DST, COLUMN_FIELD_FILTER"unres_net_dst" },
+    { COL_RES_NET_SRC, COLUMN_FIELD_FILTER"res_net_src" },
+    { COL_UNRES_NET_SRC, COLUMN_FIELD_FILTER"unres_net_src" },
+    { COL_DEF_NET_DST, COLUMN_FIELD_FILTER"def_net_dst" },
+    { COL_DEF_NET_SRC, COLUMN_FIELD_FILTER"def_net_src" },
+    { COL_NUMBER, COLUMN_FIELD_FILTER"number" },
+    { COL_PACKET_LENGTH, COLUMN_FIELD_FILTER"packet_length" },
+    { COL_PROTOCOL, COLUMN_FIELD_FILTER"protocol" },
+    { COL_REL_TIME, COLUMN_FIELD_FILTER"rel_time" },
+    { COL_DEF_SRC, COLUMN_FIELD_FILTER"def_src" },
+    { COL_DEF_SRC_PORT, COLUMN_FIELD_FILTER"def_src_port" },
+    { COL_RES_SRC, COLUMN_FIELD_FILTER"res_src" },
+    { COL_UNRES_SRC, COLUMN_FIELD_FILTER"unres_src" },
+    { COL_RES_SRC_PORT, COLUMN_FIELD_FILTER"res_src_port" },
+    { COL_UNRES_SRC_PORT, COLUMN_FIELD_FILTER"unres_src_port" },
+    { COL_CLS_TIME, COLUMN_FIELD_FILTER"cls_time" },
+    { COL_UTC_YMD_TIME, COLUMN_FIELD_FILTER"utc_ymc_time" },
+    { COL_UTC_YDOY_TIME, COLUMN_FIELD_FILTER"utc_ydoy_time" },
+    { COL_UTC_TIME, COLUMN_FIELD_FILTER"utc_time" },
+
+    { 0, NULL }
+  };
+
+  const gchar *val_str = try_val_to_str(fmt_num, alist_vals);
+  ws_assert(val_str != NULL);
+  return val_str;
+}
 /* Array of columns that have been migrated to custom columns */
 struct deprecated_columns {
     const gchar *col_fmt;
@@ -931,13 +996,15 @@ col_finalize(column_info *cinfo)
     get_column_format_matches(col_item->fmt_matx, col_item->col_fmt);
     col_item->col_data = NULL;
 
-    if (col_item->col_fmt == COL_INFO)
+    if (col_item->col_fmt == COL_INFO) {
       col_item->col_buf = g_new(gchar, COL_MAX_INFO_LEN);
-    else
+      cinfo->col_expr.col_expr_val[i] = g_new(gchar, COL_MAX_INFO_LEN);
+    } else {
       col_item->col_buf = g_new(gchar, COL_MAX_LEN);
+      cinfo->col_expr.col_expr_val[i] = g_new(gchar, COL_MAX_LEN);
+    }
 
     cinfo->col_expr.col_expr[i] = "";
-    cinfo->col_expr.col_expr_val[i] = g_new(gchar, COL_MAX_LEN);
   }
 
   cinfo->col_expr.col_expr[i] = NULL;
@@ -975,12 +1042,82 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
       col_item->col_custom_fields = g_strdup(get_column_custom_fields(i));
       col_item->col_custom_occurrence = get_column_custom_occurrence(i);
     }
+    col_item->hf_id = proto_registrar_get_id_byname(col_format_abbrev(col_item->col_fmt));
 
     if(reset_fences)
       col_item->col_fence = 0;
   }
 
   col_finalize(cinfo);
+}
+
+static void
+column_deregister_fields(void)
+{
+  if (hf_cols) {
+    for (unsigned int i = 0; i < hf_cols_cleanup; ++i) {
+      proto_deregister_field(proto_cols, *(hf_cols[i].p_id));
+      g_free(hf_cols[i].p_id);
+    }
+    proto_add_deregistered_data(hf_cols);
+    hf_cols = NULL;
+    hf_cols_cleanup = 0;
+  }
+}
+
+void
+column_register_fields(void)
+{
+
+  int* hf_id;
+  GArray *hf_col_array;
+  hf_register_info new_hf;
+  fmt_data *cfmt;
+  gboolean *used_fmts;
+  if (proto_cols == -1) {
+    proto_cols = proto_get_id_by_filter_name("_ws.col");
+  }
+  if (proto_cols == -1) {
+    proto_cols = proto_register_protocol("Wireshark Columns", "Columns", "_ws.col");
+  }
+  column_deregister_fields();
+  if (prefs.col_list != NULL) {
+    prefs.num_cols = g_list_length(prefs.col_list);
+    hf_col_array = g_array_new(FALSE, TRUE, sizeof(hf_register_info));
+    used_fmts = g_new0(gboolean, NUM_COL_FMTS);
+    /* Only register a field for each format type once, but don't register
+     * these at all. The first two behave oddly (because they depend on
+     * whether the current field and previous fields are displayed). We
+     * might want to do custom columns in the future, though.
+     */
+    used_fmts[COL_DELTA_TIME_DIS] = 1;
+    used_fmts[COL_CUMULATIVE_BYTES] = 1;
+    used_fmts[COL_CUSTOM] = 1;
+
+    for (GList *elem = g_list_first(prefs.col_list); elem != NULL; elem = elem->next) {
+      cfmt = (fmt_data*)elem->data;
+      if (!used_fmts[cfmt->fmt]) {
+        used_fmts[cfmt->fmt] = TRUE;
+        hf_id = g_new(int, 1);
+        *hf_id = -1;
+        new_hf.p_id = hf_id;
+        new_hf.hfinfo.name = g_strdup(col_format_desc(cfmt->fmt));
+        new_hf.hfinfo.abbrev = g_strdup(col_format_abbrev(cfmt->fmt));
+        new_hf.hfinfo.type = FT_STRING;
+        new_hf.hfinfo.display = BASE_NONE;
+        new_hf.hfinfo.strings = NULL;
+        new_hf.hfinfo.bitmask = 0;
+        new_hf.hfinfo.blurb = NULL;
+        HFILL_INIT(new_hf);
+        g_array_append_vals(hf_col_array, &new_hf, 1);
+      }
+    }
+    g_free(used_fmts);
+    hf_cols_cleanup = hf_col_array->len;
+
+    proto_register_field_array(proto_cols, (hf_register_info*)hf_col_array->data, hf_col_array->len);
+    hf_cols = (hf_register_info*)g_array_free(hf_col_array, FALSE);
+  }
 }
 
 /*

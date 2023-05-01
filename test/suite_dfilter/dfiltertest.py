@@ -8,7 +8,7 @@ import pytest
 
 @pytest.fixture
 def dfilter_cmd(cmd_tshark, capture_file, request):
-    def wrapped(dfilter, frame_number=None, prefs=None):
+    def wrapped(dfilter, frame_number=None, prefs=None, read_filter=False):
         cmd = [
             cmd_tshark,
             "-n",       # No name resolution
@@ -20,10 +20,17 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
                 "-2",       # two-pass mode
                 "--selected-frame={}".format(frame_number)
             ])
-        cmd.extend([
-            "-Y",       # packet display filter (used to be -R)
-            dfilter
-        ])
+        if read_filter:
+            cmd.extend([
+                "-2",       # two-pass mode
+                "-R",       # read filter (requires two-pass mode)
+                dfilter
+            ])
+        else:
+            cmd.extend([
+                "-Y",       # packet display filter (used to be -R)
+                dfilter
+            ])
         if prefs:
             cmd.extend([
             "-o",
@@ -67,6 +74,20 @@ def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
         assert dfp_count == expected_count, msg
     return checkDFilterCount_real
 
+@pytest.fixture
+def checkDFilterCountReadFilter(dfilter_cmd, base_env):
+    def checkDFilterCount_real(dfilter, expected_count):
+        """Run a read filter in two pass mode and expect a certain number of packets."""
+        output = subprocess.check_output(dfilter_cmd(dfilter, read_filter=True),
+                                         universal_newlines=True,
+                                         stderr=subprocess.STDOUT,
+                                         env=base_env)
+
+        dfp_count = output.count("\n")
+        msg = "Expected %d, got: %s\noutput: %r" % \
+            (expected_count, dfp_count, output)
+        assert dfp_count == expected_count, msg
+    return checkDFilterCount_real
 
 @pytest.fixture
 def checkDFilterFail(cmd_dftest, base_env):

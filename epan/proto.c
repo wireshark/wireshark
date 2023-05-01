@@ -41,7 +41,7 @@
 #include "tvbuff.h"
 #include <epan/wmem_scopes.h>
 #include "charsets.h"
-#include "column-utils.h"
+#include "column-info.h"
 #include "to_str.h"
 #include "osi-utils.h"
 #include "expert.h"
@@ -585,6 +585,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	register_number_string_decodinws_error();
 	register_string_errors();
 	ftypes_register_pseudofields();
+	col_register_protocol();
 
 	/* Have each built-in dissector register its protocols, fields,
 	   dissector tables, and dissectors to be called through a

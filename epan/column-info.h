@@ -24,6 +24,10 @@ extern "C" {
  * Column info.
  */
 
+typedef struct _proto_node proto_tree;
+
+#define COLUMN_FIELD_FILTER  "_ws.col."
+
 /** Column expression */
 typedef struct {
   const gchar **col_expr;     /**< Filter expression */
@@ -43,6 +47,7 @@ typedef struct {
   gchar              *col_buf;              /**< Buffer into which to copy data for column */
   int                 col_fence;            /**< Stuff in column buffer before this index is immutable */
   gboolean            writable;             /**< writable or not */
+  int                 hf_id;
 } col_item_t;
 
 /** Column info */
@@ -110,6 +115,12 @@ gboolean col_has_time_fmt(column_info *cinfo, const gint col);
 
 WS_DLL_PUBLIC
 gboolean col_based_on_frame_data(column_info *cinfo, const gint col);
+
+void
+col_register_protocol(void);
+
+extern
+void col_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #ifdef __cplusplus
 }

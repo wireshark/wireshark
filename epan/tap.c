@@ -708,6 +708,29 @@ tap_listeners_require_dissection(void)
 
 }
 
+/*
+ * Return TRUE if we have one or more tap listeners that require the columns,
+ * FALSE otherwise.
+ */
+gboolean
+tap_listeners_require_columns(void)
+{
+	tap_listener_t *tap_queue = tap_listener_queue;
+
+	while(tap_queue) {
+		if(tap_queue->flags & TL_REQUIRES_COLUMNS)
+			return TRUE;
+
+		if(dfilter_requires_columns(tap_queue->code))
+			return TRUE;
+
+		tap_queue = tap_queue->next;
+	}
+
+	return FALSE;
+
+}
+
 /* Returns TRUE there is an active tap listener for the specified tap id. */
 gboolean
 have_tap_listener(int tap_id)

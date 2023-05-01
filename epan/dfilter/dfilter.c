@@ -710,6 +710,23 @@ dfilter_interested_in_proto(const dfilter_t *df, int proto_id)
 	return FALSE;
 }
 
+gboolean
+dfilter_requires_columns(const dfilter_t *df)
+{
+	if (df == NULL) {
+		return FALSE;
+	}
+
+	/* XXX: Could cache this like packet_cache_proto_handles */
+	static int proto_cols = -1;
+	if (proto_cols == -1) {
+		proto_cols = proto_get_id_by_filter_name("_ws.col");
+	}
+	ws_assert(proto_cols != -1);
+
+	return dfilter_interested_in_proto(df, proto_cols);
+}
+
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df) {
 	if (df->deprecated && df->deprecated->len > 0) {

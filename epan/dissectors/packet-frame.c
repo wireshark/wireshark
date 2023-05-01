@@ -33,6 +33,7 @@
 #include <epan/proto_data.h>
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
+#include <epan/column-info.h>
 
 #include "packet-frame.h"
 #include "packet-bblog.h"
@@ -1451,6 +1452,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
 		proto_item_set_generated(ti);
 	}
+
+	/* Add the columns as fields. We have to do this here, so that
+	 * they're available for postdissectors that want all the fields.
+	 *
+	 * Note the coloring rule names are set after this, which means
+	 * that you can set a coloring rule based on the value of a column,
+	 * like _ws.col.protocol or _ws.col.info.
+	 * OTOH, if we created _ws.col.custom, and a custom column used
+	 * frame.coloring_rule.name, filtering with it wouldn't work -
+	 * but you can filter on that field directly, so that doesn't matter.
+	 */
+	col_dissect(tvb, pinfo, parent_tree);
 
 	/*  Call postdissectors if we have any (while trying to avoid another
 	 *  TRY/CATCH)

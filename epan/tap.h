@@ -248,6 +248,12 @@ WS_DLL_PUBLIC void remove_tap_listener(void *tapdata);
  */
 WS_DLL_PUBLIC gboolean tap_listeners_require_dissection(void);
 
+/**
+ * Return TRUE if we have one or more tap listeners that require the columns,
+ * FALSE otherwise.
+ */
+WS_DLL_PUBLIC gboolean tap_listeners_require_columns(void);
+
 /** Returns TRUE there is an active tap listener for the specified tap id. */
 WS_DLL_PUBLIC gboolean have_tap_listener(int tap_id);
 

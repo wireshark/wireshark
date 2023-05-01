@@ -1106,6 +1106,8 @@ frame_data *PacketList::getFDataForRow(int row) const
 void PacketList::columnsChanged()
 {
     columns_changed_ = true;
+    column_register_fields();
+    mainApp->emitAppSignal(MainApplication::FieldsChanged);
     if (!cap_file_) {
         // Keep columns_changed_ = true until we load a capture file.
         return;

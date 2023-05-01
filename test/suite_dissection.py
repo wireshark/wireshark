@@ -628,7 +628,7 @@ class TestDissectTcp:
             '-r', capture_file('http-ooo2.pcap'),
             '-otcp.reassemble_out_of_order:TRUE',
             '-Tfields',
-            '-eframe.number', '-etcp.reassembled_in', '-e_ws.col.Info',
+            '-eframe.number', '-etcp.reassembled_in', '-e_ws.col.info',
             '-2',
             ), encoding='utf-8', env=test_env)
         lines = stdout.split('\n')

@@ -152,6 +152,10 @@ gboolean
 dfilter_interested_in_proto(const dfilter_t *df, int proto_id);
 
 WS_DLL_PUBLIC
+gboolean
+dfilter_requires_columns(const dfilter_t *df);
+
+WS_DLL_PUBLIC
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df);
 

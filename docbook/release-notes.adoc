@@ -143,7 +143,24 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
   the capture file via the GUI, similar to the options --inject-secrets and
   --discard-all-secrets in editcap.
 
-// === Removed Features and Support
+* The text of any configured column (displayed or hidden) can be filtered
+anywhere that filters are used - in display filters, filters in taps, coloring
+rules, Wireshark read filters, and the -Y, -R, and -e options to tshark,
+the "Apply as Filter" GUI option, etc.
+** The filter field names are prefixed by "_ws.col", followed by a lowercase
+version of the COL_ name found in epan/column-utils.h, e.g. "_ws.col.info"
+or "_ws.col.protocol"
+** Using the column names as a filter is slower than other filter types
+because the columns must be constructed, so when the same filtering
+can be achieved via other fields, prefer that.
+
+=== Removed Features and Support
+
+* With the addition of the universal and consistent filtering support for
+column text, the previous support in the -e option to tshark for displaying
+column text via the column title, e.g. "_ws.col.Info", has been removed.
+The previous implementation allowed names that are not legal filter names
+and wsbuglink:16576[silently ignored columns that didn't exist.]
 
 // === Removed Dissectors
 

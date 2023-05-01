@@ -560,8 +560,10 @@ cf_read(capture_file *cf, gboolean reloading)
 
     epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
-    /* If any tap listeners require the columns, construct them. */
-    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+    /* If the display filter or any tap listeners require the columns,
+     * construct them. */
+    cinfo = (tap_listeners_require_columns() ||
+        dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
 
     /* Find the size of the file. */
     size = wtap_file_size(cf->provider.wth, NULL);
@@ -828,8 +830,10 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
         gint64 data_offset = 0;
         column_info *cinfo;
 
-        /* If any tap listeners require the columns, construct them. */
-        cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+        /* If the display filter or any tap listeners require the columns,
+         * construct them. */
+        cinfo = (tap_listeners_require_columns() ||
+            dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
 
         while (to_read != 0) {
             wtap_cleareof(cf->provider.wth);
@@ -938,8 +942,10 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err,
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
 
-    /* If any tap listeners require the columns, construct them. */
-    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+    /* If the display filter or any tap listeners require the columns,
+     * construct them. */
+    cinfo = (tap_listeners_require_columns() ||
+        dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
 
     /*
      * Determine whether we need to create a protocol tree.
@@ -1290,12 +1296,16 @@ read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
 
     if (cf->rfcode) {
         epan_dissect_t rf_edt;
+        column_info *rf_cinfo = NULL;
 
         epan_dissect_init(&rf_edt, cf->epan, TRUE, FALSE);
         epan_dissect_prime_with_dfilter(&rf_edt, cf->rfcode);
+        if (dfilter_requires_columns(cf->rfcode)) {
+                rf_cinfo = &cf->cinfo;
+        }
         epan_dissect_run(&rf_edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
-                &fdlocal, NULL);
+                &fdlocal, rf_cinfo);
         passed = dfilter_apply_edt(cf->rfcode, &rf_edt);
         epan_dissect_cleanup(&rf_edt);
     }
@@ -1723,8 +1733,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
 
-    /* If any tap listeners require the columns, construct them. */
-    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+    /* If the display filter or any tap listeners require the columns,
+     * construct them. */
+    cinfo = (tap_listeners_require_columns() ||
+        dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
 
     /*
      * Determine whether we need to create a protocol tree.
@@ -1783,6 +1795,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
            called via epan_new() / init_dissection() when reloading Lua plugins. */
         if (!create_proto_tree && have_filtering_tap_listeners()) {
             create_proto_tree = TRUE;
+        }
+        if (!cinfo && tap_listeners_require_columns()) {
+            cinfo = &cf->cinfo;
         }
 
         /* We need to redissect the packets so we have to discard our old
@@ -2337,7 +2352,7 @@ cf_retap_packets(capture_file *cf)
     tap_flags = union_of_tap_listener_flags();
 
     /* If any tap listeners require the columns, construct them. */
-    callback_args.cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+    callback_args.cinfo = (tap_listeners_require_columns()) ? &cf->cinfo : NULL;
 
     /*
      * Determine whether we need to create a protocol tree.

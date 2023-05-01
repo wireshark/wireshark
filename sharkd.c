@@ -584,7 +584,7 @@ sharkd_retap(void)
     tap_flags = union_of_tap_listener_flags();
 
     /* If any tap listeners require the columns, construct them. */
-    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cfile.cinfo : NULL;
+    cinfo = (tap_listeners_require_columns()) ? &cfile.cinfo : NULL;
 
     /*
      * Determine whether we need to create a protocol tree.

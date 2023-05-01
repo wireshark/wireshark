@@ -116,7 +116,7 @@ static const char *separator = "";
 static gboolean process_file(capture_file *, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
         epan_dissect_t *edt, gint64 offset, wtap_rec *rec,
-        const guchar *pd, guint tap_flags);
+        const guchar *pd);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
@@ -182,7 +182,7 @@ print_usage(FILE *output)
     fprintf(output, "  -T pdml|ps|psml|text|fields\n");
     fprintf(output, "                           format of text output (def: text)\n");
     fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n");
-    fprintf(output, "                           _ws.col.Info)\n");
+    fprintf(output, "                           _ws.col.info)\n");
     fprintf(output, "                           this option can be repeated to print multiple fields\n");
     fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
     fprintf(output, "     header=y|n            switch headers on and off\n");
@@ -1091,7 +1091,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 static gboolean
 process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         frame_data *fdata, wtap_rec *rec,
-        Buffer *buf, guint tap_flags)
+        Buffer *buf)
 {
     column_info    *cinfo;
     gboolean        passed;
@@ -1123,7 +1123,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
            2) we're printing packet info but we're *not* verbose; in verbose
            mode, we print the protocol tree, not the protocol summary.
            */
-        if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary))
+        if ((tap_listeners_require_columns()) || (print_packet_info && print_summary))
             cinfo = &cf->cinfo;
         else
             cinfo = NULL;
@@ -1367,8 +1367,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
                 process_packet_second_pass(cf, edt, fdata, &cf->rec, &buf, tap_flags);
             }
 #else
-            if (!process_packet_second_pass(cf, edt, fdata, &cf->rec, &buf,
-                        tap_flags))
+            if (!process_packet_second_pass(cf, edt, fdata, &cf->rec, &buf))
                 return FALSE;
 #endif
         }
@@ -1424,7 +1423,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
             if (!process_packet_single_pass(cf, edt, data_offset,
                         &file_rec/*wtap_get_rec(cf->provider.wth)*/,
-                        raw_data, tap_flags))
+                        raw_data))
                 return FALSE;
 
             /* Stop reading if we have the maximum number of packets;
@@ -1531,8 +1530,7 @@ out:
 
 static gboolean
 process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-        wtap_rec *rec, const guchar *pd,
-        guint tap_flags)
+        wtap_rec *rec, const guchar *pd)
 {
     frame_data      fdata;
     column_info    *cinfo;
@@ -1566,7 +1564,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
            mode, we print the protocol tree, not the protocol summary.
            or
            3) there is a column mapped as an individual field */
-        if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields))
+        if ((tap_listeners_require_columns()) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields))
             cinfo = &cf->cinfo;
         else
             cinfo = NULL;

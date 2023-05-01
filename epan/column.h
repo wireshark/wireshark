@@ -35,6 +35,8 @@ const gchar         *col_format_to_string(const gint);
 WS_DLL_PUBLIC
 const gchar         *col_format_desc(const gint);
 WS_DLL_PUBLIC
+const gchar         *col_format_abbrev(const gint);
+WS_DLL_PUBLIC
 gint                 get_column_format(const gint);
 WS_DLL_PUBLIC
 void                 set_column_format(const gint, const gint);
@@ -117,6 +119,9 @@ gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
  */
 WS_DLL_PUBLIC
 void try_convert_to_custom_column(char **fmt);
+
+WS_DLL_PUBLIC
+void column_register_fields(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

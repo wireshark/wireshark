@@ -26,6 +26,7 @@
 #include "osi-utils.h"
 #include "value_string.h"
 #include "column-info.h"
+#include "column.h"
 #include "proto.h"
 
 #include <epan/strutil.h>
@@ -48,6 +49,9 @@ static char *col_decimal_point;
 
 /* Used to indicate updated column information, e.g. a new request/response. */
 static gboolean col_data_changed_;
+
+static int proto_cols = -1;
+static gint ett_cols = -1;
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -362,6 +366,34 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
     }
   }
 }
+
+#if 0
+// Needed if we create _ws.col.custom
+static void
+col_custom_set(proto_tree *tree, column_info *cinfo)
+{
+  int i;
+  col_item_t* col_item;
+
+  if (!HAVE_CUSTOM_COLS(cinfo))
+      return;
+
+  for (i = cinfo->col_first[COL_CUSTOM];
+       i <= cinfo->col_last[COL_CUSTOM]; i++) {
+    col_item = &cinfo->columns[i];
+    if (col_item->fmt_matx[COL_CUSTOM] &&
+        col_item->col_custom_fields &&
+        col_item->col_custom_fields_ids) {
+        col_item->col_data = col_item->col_buf;
+        cinfo->col_expr.col_expr[i] = proto_custom_set(tree, col_item->col_custom_fields_ids,
+                                     col_item->col_custom_occurrence,
+                                     col_item->col_buf,
+                                     cinfo->col_expr.col_expr_val[i],
+                                     COL_MAX_LEN);
+    }
+  }
+}
+#endif
 
 void
 col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
@@ -2300,6 +2332,10 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
         col_set_port(pinfo, i, FALSE, FALSE, fill_col_exprs);
         break;
 
+      case COL_CUSTOM:
+        /* Formatting handled by col_custom_set_edt() / col_custom_get_filter() */
+        break;
+
       case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
         ws_assert_not_reached();
         break;
@@ -2308,9 +2344,13 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
           ws_assert_not_reached();
         }
         /*
-         * Formatting handled by col_custom_set_edt() (COL_CUSTOM), expert.c
-         * (COL_EXPERT), or individual dissectors.
+         * Formatting handled by expert.c (COL_EXPERT), or individual
+         * dissectors. Fill in from the text using the internal hfid.
          */
+        if (fill_col_exprs) {
+          pinfo->cinfo->col_expr.col_expr[i] = proto_registrar_get_nth(col_item->hf_id)->abbrev;
+          (void) g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->columns[i].col_data, (col_item->col_fmt == COL_INFO) ? COL_MAX_INFO_LEN : COL_MAX_LEN);
+        }
         break;
       }
     }
@@ -2358,6 +2398,57 @@ gboolean col_data_changed(void) {
   col_data_changed_ = FALSE;
   return cur_cdc;
 }
+
+void
+col_register_protocol(void)
+{
+  /* This gets called by proto_init() before column_register_fields()
+   * gets called by the preference modules actually getting registered.
+   */
+  if (proto_cols == -1) {
+    proto_cols = proto_get_id_by_filter_name("_ws.col");
+  }
+  if (proto_cols == -1) {
+    proto_cols = proto_register_protocol("Wireshark Columns", "Columns", "_ws.col");
+  }
+  static gint *ett[] = {
+    &ett_cols
+  };
+  proto_register_subtree_array(ett, G_N_ELEMENTS(ett));
+}
+
+void
+col_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *col_tree;
+
+  column_info *cinfo = pinfo->cinfo;
+
+  if (!cinfo) {
+    return;
+  }
+
+  if (proto_field_is_referenced(tree, proto_cols)) {
+    // XXX: Needed if we also create _ws.col.custom
+    //col_custom_set(tree, cinfo);
+    col_fill_in(pinfo, FALSE, TRUE);
+    ti = proto_tree_add_item(tree, proto_cols, tvb, 0, 0, ENC_NA);
+    proto_item_set_hidden(ti);
+    col_tree = proto_item_add_subtree(ti, ett_cols);
+    for (int i = 0; i < cinfo->num_cols; ++i) {
+      if (cinfo->columns[i].hf_id != -1) {
+        if (cinfo->columns[i].col_fmt == COL_CUSTOM) {
+          ti = proto_tree_add_string_format(col_tree, cinfo->columns[i].hf_id, tvb, 0, 0, get_column_text(cinfo, i), "%s: %s", get_column_title(i), get_column_text(cinfo, i));
+        } else {
+          ti = proto_tree_add_string(col_tree, cinfo->columns[i].hf_id, tvb, 0, 0, get_column_text(cinfo, i));
+        }
+        proto_item_set_hidden(ti);
+      }
+    }
+  }
+}
+
 /*
  * Editor modelines
  *

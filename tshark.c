@@ -453,7 +453,7 @@ print_usage(FILE *output)
     fprintf(output, "  -J <protocolfilter>      top level protocol filter if -T ek|pdml|json selected\n");
     fprintf(output, "                           (e.g. \"http tcp\", filter which expands all child nodes)\n");
     fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n");
-    fprintf(output, "                           _ws.col.Info)\n");
+    fprintf(output, "                           _ws.col.info)\n");
     fprintf(output, "                           this option can be repeated to print multiple fields\n");
     fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
     fprintf(output, "     bom=y|n               print a UTF-8 BOM\n");
@@ -3096,6 +3096,8 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
        from the dissection or running taps on the packet; if we're doing
        any of that, we'll do it in the second pass.) */
     if (edt) {
+        column_info *cinfo = NULL;
+
         /* If we're running a read filter, prime the epan_dissect_t with that
            filter. */
         if (cf->rfcode)
@@ -3115,9 +3117,14 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
             cf->provider.ref = &ref_frame;
         }
 
+        /* If we're applying a filter that needs the columns, construct them. */
+        if (dfilter_requires_columns(cf->rfcode) || dfilter_requires_columns(cf->dfcode)) {
+            cinfo = &cf->cinfo;
+        }
+
         epan_dissect_run(edt, cf->cd_t, rec,
                 frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
-                &fdlocal, NULL);
+                &fdlocal, cinfo);
 
         /* Run the read filter if we have one. */
         if (cf->rfcode)
@@ -3303,7 +3310,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
 static gboolean
 process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         frame_data *fdata, wtap_rec *rec,
-        Buffer *buf, guint tap_flags)
+        Buffer *buf, guint tap_flags _U_)
 {
     column_info    *cinfo;
     gboolean        passed;
@@ -3328,12 +3335,14 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         col_custom_prime_edt(edt, &cf->cinfo);
 
         /* We only need the columns if either
-           1) some tap needs the columns
+           1) some tap or filter needs the columns
            or
            2) we're printing packet info but we're *not* verbose; in verbose
            mode, we print the protocol tree, not the protocol summary.
+           or
+           3) there is a column mapped to an individual field
            */
-        if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields))
+        if ((tap_listeners_require_columns()) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields) || dfilter_requires_columns(cf->dfcode))
             cinfo = &cf->cinfo;
         else
             cinfo = NULL;
@@ -3959,7 +3968,7 @@ out:
 
 static gboolean
 process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-        wtap_rec *rec, Buffer *buf, guint tap_flags)
+        wtap_rec *rec, Buffer *buf, guint tap_flags _U_)
 {
     frame_data      fdata;
     column_info    *cinfo;
@@ -3994,13 +4003,13 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         col_custom_prime_edt(edt, &cf->cinfo);
 
         /* We only need the columns if either
-           1) some tap needs the columns
+           1) some tap or filter needs the columns
            or
            2) we're printing packet info but we're *not* verbose; in verbose
            mode, we print the protocol tree, not the protocol summary.
            or
            3) there is a column mapped as an individual field */
-        if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields))
+        if ((tap_listeners_require_columns()) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields) || dfilter_requires_columns(cf->dfcode))
             cinfo = &cf->cinfo;
         else
             cinfo = NULL;

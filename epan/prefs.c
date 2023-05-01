@@ -2611,6 +2611,8 @@ column_format_init_cb(pref_t* pref, GList** value)
         dest_cfmt->resolved = src_cfmt->resolved;
         pref->default_val.list = g_list_append(pref->default_val.list, dest_cfmt);
     }
+
+    column_register_fields();
 }
 
 static void
@@ -2717,6 +2719,7 @@ column_format_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
 
     prefs_clear_string_list(col_l);
     free_string_like_preference(hidden_pref);
+    column_register_fields();
     return PREFS_SET_OK;
 }
 
