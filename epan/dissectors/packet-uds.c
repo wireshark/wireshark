@@ -1015,6 +1015,8 @@ static int hf_uds_sdt_encapsulated_message_sid_reply = -1;
 static int hf_uds_sdt_signature_mac = -1;
 
 static int hf_uds_cdtcs_subfunction = -1;
+static int hf_uds_cdtcs_subfunction_no_suppress = -1;
+static int hf_uds_cdtcs_subfunction_pos_rsp_msg_ind = -1;
 static int hf_uds_cdtcs_option_record = -1;
 static int hf_uds_cdtcs_type = -1;
 
@@ -3010,7 +3012,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
                 offset += 1;
             } else {
-                proto_tree_add_item_ret_uint(uds_tree, hf_uds_cdtcs_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
+                ti = proto_tree_add_item(uds_tree, hf_uds_cdtcs_subfunction, tvb, offset, 1, ENC_NA);
+                subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
+                proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_cdtcs_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &enum_val);
+                proto_tree_add_item(subfunction_tree, hf_uds_cdtcs_subfunction_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
                 offset += 1;
 
@@ -3337,11 +3342,11 @@ proto_register_uds(void) {
         { &hf_uds_ars_length_of_challenge_client, {
             "Length of Challenge Client", "uds.ars.length_of_challenge_client", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_ars_challenge_client, {
-            "Certificate Client", "uds.ars.challenge_client", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            "Challenge Client", "uds.ars.challenge_client", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_ars_length_of_challenge_server, {
             "Length of Challenge Server", "uds.ars.length_of_challenge_server", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_ars_challenge_server, {
-            "Certificate Server", "uds.ars.challenge_server", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            "Challenge Server", "uds.ars.challenge_server", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_ars_length_of_proof_of_ownership_client, {
             "Length of Proof of Ownership Client", "uds.ars.length_of_proof_of_ownership_client", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_ars_proof_of_ownership_client, {
@@ -3485,7 +3490,11 @@ proto_register_uds(void) {
             "Signature/MAC", "uds.sdt.signature_mac",  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_cdtcs_subfunction, {
-            "SubFunction", "uds.cdtcs.subfunction", FT_UINT8, BASE_HEX, VALS(uds_cdtcs_types), 0x0, NULL, HFILL } },
+            "SubFunction", "uds.cdtcs.subfunction", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_cdtcs_subfunction_no_suppress, {
+            "DTC Setting Type", "uds.cdtcs.subfunction_without_suppress", FT_UINT8, BASE_HEX, VALS(uds_cdtcs_types), UDS_SUBFUNCTION_MASK, NULL, HFILL } },
+        { &hf_uds_cdtcs_subfunction_pos_rsp_msg_ind, {
+            "Suppress reply", "uds.cdtcs.suppress_reply", FT_BOOLEAN, 8, NULL, UDS_SUPPRESS_POS_RSP_MSG_IND_MASK, NULL, HFILL } },
         { &hf_uds_cdtcs_option_record, {
             "Option Record", "uds.cdtcs.option_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_cdtcs_type, {
