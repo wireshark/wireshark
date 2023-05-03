@@ -53901,13 +53901,13 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_eht_phy_bits_64_71_rx_1024_qam_wid_bw_dl_ofdma_sup,
      {"Rx 1024-QAM In Wider Bandwidth DL OFDMA Support",
       "wlan.eht.phy_capabilities.bits_64_71.rx_1024_qam_in_wider_bw_dl_ofdma",
-      FT_BOOLEAN, 24, TFS(&tfs_supported_not_supported),
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
       0x01, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_64_71_rx_4096_qam_wid_bw_dl_ofdma_sup,
      {"Rx 4096-QAM In Wider Bandwidth DL OFDMA SUpport",
       "wlan.eht.phy_capabilities.bits_64_71.rx_4096_qam_in_wider_bw_dl_ofdma",
-      FT_BOOLEAN, 24, TFS(&tfs_supported_not_supported),
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
       0x02, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_64_71_reserved,

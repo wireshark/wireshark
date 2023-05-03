@@ -120,15 +120,15 @@ static const value_string auth_vals[] = {
 #define OSPF_V2_OPTIONS_DC              0x20
 #define OSPF_V2_OPTIONS_O               0x40
 #define OSPF_V2_OPTIONS_DN              0x80
-#define OSPF_V3_OPTIONS_V6              0x01
-#define OSPF_V3_OPTIONS_E               0x02
-#define OSPF_V3_OPTIONS_MC              0x04
-#define OSPF_V3_OPTIONS_N               0x08
-#define OSPF_V3_OPTIONS_R               0x10
-#define OSPF_V3_OPTIONS_DC              0x20
-#define OSPF_V3_OPTIONS_AF              0x0100
-#define OSPF_V3_OPTIONS_L               0x0200
-#define OSPF_V3_OPTIONS_AT              0x0400
+#define OSPF_V3_OPTIONS_V6              0x000001
+#define OSPF_V3_OPTIONS_E               0x000002
+#define OSPF_V3_OPTIONS_MC              0x000004
+#define OSPF_V3_OPTIONS_N               0x000008
+#define OSPF_V3_OPTIONS_R               0x000010
+#define OSPF_V3_OPTIONS_DC              0x000020
+#define OSPF_V3_OPTIONS_AF              0x000100
+#define OSPF_V3_OPTIONS_L               0x000200
+#define OSPF_V3_OPTIONS_AT              0x000400
 
 /* Bitmask definitions for the informational capabilities bits. */
 #define OSPF_RI_OPTIONS_GRC             0x80

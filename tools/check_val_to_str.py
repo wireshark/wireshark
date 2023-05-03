@@ -72,9 +72,9 @@ def is_dissector_file(filename):
     p = re.compile(r'.*packet-.*\.c')
     return p.match(filename)
 
-def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
-    if dissector_files is None:
-        dissector_files = []
+def findDissectorFilesInFolder(folder, recursive=False):
+    dissector_files = []
+
     if recursive:
         for root, subfolders, files in os.walk(folder):
             for f in files:
@@ -192,8 +192,8 @@ elif args.open:
             files.append(f)
 else:
     # Find all dissector files from folder.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
-    files = findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True, dissector_files=files)
+    files =  findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
 
 
 # If scanning a subset of files, list them here.

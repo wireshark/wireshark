@@ -4500,7 +4500,7 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_mirrorlink_pixel_format,
 		  { "Pixel Format", "vnc.mirrorlink_pixel_format",
-		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "Pixel format support", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_display_width,

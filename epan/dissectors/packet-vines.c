@@ -1260,7 +1260,7 @@ proto_register_vines_arp(void)
 
 	  { &hf_vines_arp_packet_type,
 	    { "Packet Type", "vines_arp.packet_type",
-	      FT_UINT8, BASE_HEX, VALS(vines_arp_packet_type_vals), 0x0,
+	      FT_UINT16, BASE_HEX, VALS(vines_arp_packet_type_vals), 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_arp_address,

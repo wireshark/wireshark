@@ -219,11 +219,11 @@ void proto_reg_handoff_uds(void);
 #define UDS_RFT_MODE_READ_DIR                   0x05
 #define UDS_RFT_MODE_RESUME_FILE                0x06
 
-#define UDS_SDT_ADMIN_PARAM_REQ                 0x01
-#define UDS_SDT_ADMIN_PARAM_PRE_ESTABL_KEY      0x08
-#define UDS_SDT_ADMIN_PARAM_ENCRYPTED           0x10
-#define UDS_SDT_ADMIN_PARAM_SIGNED              0x20
-#define UDS_SDT_ADMIN_PARAM_SIGN_ON_RESP_REQ    0x40
+#define UDS_SDT_ADMIN_PARAM_REQ                 0x0001
+#define UDS_SDT_ADMIN_PARAM_PRE_ESTABL_KEY      0x0008
+#define UDS_SDT_ADMIN_PARAM_ENCRYPTED           0x0010
+#define UDS_SDT_ADMIN_PARAM_SIGNED              0x0020
+#define UDS_SDT_ADMIN_PARAM_SIGN_ON_RESP_REQ    0x0040
 
 #define UDS_CDTCS_ACTIONS_ON  1
 #define UDS_CDTCS_ACTIONS_OFF 2

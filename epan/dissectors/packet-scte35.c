@@ -353,7 +353,7 @@ proto_register_scte35_time_signal(void)
              NULL, 0x7E, NULL, HFILL}},
         {&hf_time_pts,
          {"PTS Time", "scte35_time.splice.pts", FT_UINT64, BASE_DEC,
-             NULL, G_GUINT64_CONSTANT(0x1FFFFFFFF), NULL, HFILL}},
+             NULL, G_GUINT64_CONSTANT(0x01FFFFFFFF), NULL, HFILL}},
     };
 
     proto_scte35_time = proto_register_protocol("SCTE-35 Time Signal", "SCTE35 TS", "scte35_time");

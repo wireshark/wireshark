@@ -43,7 +43,7 @@ void proto_register_vp8(void);
 #define BIT_2BYTE_NO_MASK       0xFFFF
 #define BIT_3BYTE_NO_MASK       0xFFFFFF
 #define BIT_EXT_PICTURE_MASK    0x7FFF
-#define BIT_PARTITION_SIZE_MASK 0xE0FFFF
+#define BIT_PARTITION_SIZE_MASK 0xFFFFE0
 
 static dissector_handle_t vp8_handle;
 

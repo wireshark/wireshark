@@ -278,13 +278,13 @@ static int proto_ptp = -1;
 /**********************************************************/
 /* flag-field-mask-definitions                            */
 /**********************************************************/
-#define PTP_FLAGS_LI61_BITMASK                  0x01
-#define PTP_FLAGS_LI59_BITMASK                  0x02
-#define PTP_FLAGS_BOUNDARY_CLOCK_BITMASK        0x04
-#define PTP_FLAGS_ASSIST_BITMASK                0x08
-#define PTP_FLAGS_EXT_SYNC_BITMASK              0x10
-#define PTP_FLAGS_PARENT_STATS_BITMASK          0x20
-#define PTP_FLAGS_SYNC_BURST_BITMASK            0x40
+#define PTP_FLAGS_LI61_BITMASK                  0x0001
+#define PTP_FLAGS_LI59_BITMASK                  0x0002
+#define PTP_FLAGS_BOUNDARY_CLOCK_BITMASK        0x0004
+#define PTP_FLAGS_ASSIST_BITMASK                0x0008
+#define PTP_FLAGS_EXT_SYNC_BITMASK              0x0010
+#define PTP_FLAGS_PARENT_STATS_BITMASK          0x0020
+#define PTP_FLAGS_SYNC_BURST_BITMASK            0x0040
 
 /* END flag-field-mask-definitions */
 
@@ -884,9 +884,9 @@ static gint ett_ptp_time2 = -1;
 /**********************************************************/
 /* Message Interval Request flag-field-mask-definitions   */
 /**********************************************************/
-#define PTP_AS_FLAGS_COMP_NEIGHBOR_RATE_RATIO_BITMASK           0x0002
-#define PTP_AS_FLAGS_COMP_MEAN_LINK_DELAY_BITMASK               0x0004
-#define PTP_AS_FLAGS_ONE_STEP_RECEIVE_CAPABLE                   0x0008
+#define PTP_AS_FLAGS_COMP_NEIGHBOR_RATE_RATIO_BITMASK           0x02
+#define PTP_AS_FLAGS_COMP_MEAN_LINK_DELAY_BITMASK               0x04
+#define PTP_AS_FLAGS_ONE_STEP_RECEIVE_CAPABLE                   0x08
 
 /* Offsets for PTP_V2_Management (=MM) messages */
 #define PTP_V2_MM_TARGETPORTIDENTITY_OFFSET             34

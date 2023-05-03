@@ -328,7 +328,9 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'dnp3.al.ana.int',
                                 'pwcesopsn.cw.lm',
                                 'gsm_a.rr.format_id', # EN 301 503
-                                'siii.mst.phase' # comment in code seems convinced
+                                'siii.mst.phase', # comment in code seems convinced
+                                'xmcp.type.class',
+                                'xmcp.type.method'
                               }
 ##################################################################################################
 
@@ -450,7 +452,9 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^bthfp.chld.mode'),
         re.compile(r'^nat-pmp.pml'),
         re.compile(r'^isystemactivator.actproperties.ts.hdr'),
-        re.compile(r'^rtpdump.txt_addr')
+        re.compile(r'^rtpdump.txt_addr'),
+        re.compile(r'^unistim.vocoder.id'),
+        re.compile(r'^mac.ueid')
     ]
 
     for patt in ignore_patterns:
@@ -653,20 +657,21 @@ class Item:
                     extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
                     # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
-                        print('Error:', self.filename, self.hf, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                        print('Error:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len is", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
                               "and extra digits are non-zero (" + extra_digits + ")")
                         errors_found += 1
                     else:
                         # Has extra leading zeros, still confusing, so warn.
-                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, self.mask, "with len", len(mask)-2,
+                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
 
                 # Strict/fussy check - expecting mask length to match field width exactly!
-                # Currently only doing for FT_BOOLEAN
+                # Currently only doing for FT_BOOLEAN, and don't expect to be in full for 64-bit fields!
                 if self.mask_exact_width:
-                    if self.item_type == 'FT_BOOLEAN' and  len(mask)-2 != int(self.get_field_width_in_bits()/4):
+                    ideal_mask_width = int(self.get_field_width_in_bits()/4)
+                    if self.item_type == 'FT_BOOLEAN' and ideal_mask_width < 16 and len(mask)-2 != ideal_mask_width:
                         print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
                                 "but type", self.item_type, "|", self.type_modifier,  " indicates should be", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
@@ -982,9 +987,9 @@ def is_dissector_file(filename):
     return p.match(filename)
 
 
-def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
-    if dissector_files is None:
-        dissector_files = []
+def findDissectorFilesInFolder(folder, recursive=False):
+    dissector_files = []
+
     if recursive:
         for root, subfolders, files in os.walk(folder):
             for f in files:
@@ -1084,8 +1089,6 @@ files = []
 if args.file:
     # Add specified file(s)
     for f in args.file:
-        if not f.startswith('epan'):
-            f = os.path.join('epan', 'dissectors', f)
         if not os.path.isfile(f):
             print('Chosen file', f, 'does not exist.')
             exit(1)
@@ -1125,8 +1128,8 @@ elif args.open:
             files.append(f)
 else:
     # Find all dissector files.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
-    files = findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True, dissector_files=files)
+    files  = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
 
 
 # If scanning a subset of files, list them here.
