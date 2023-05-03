@@ -2307,7 +2307,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
     indx = GPOINTER_TO_UINT(field_index) - 1;
 
     if (fields->field_values[indx] == NULL) {
-        fields->field_values[indx] = g_ptr_array_new();
+        fields->field_values[indx] = g_ptr_array_new_with_free_func(g_free);
     }
 
     /* Essentially: fieldvalues[indx] is a 'GPtrArray *' with each array entry */
@@ -2332,11 +2332,11 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
         if (g_ptr_array_len(fv_p) != 0) {
             /*
              * This isn't the first occurrence, so there's already a
-             * value in the array, which won't be used; free the
-             * first (only) element in the array, and then remove
-             * it - this value will replace it.
+             * value in the array, which won't be used; remove the
+             * first (only) element in the array (which will free it,
+             * as we created the GPtrArray with a free func) -
+             * this value will replace it.
              */
-            g_free(g_ptr_array_index(fv_p, 0));
             g_ptr_array_set_size(fv_p, 0);
         }
         break;
@@ -2469,7 +2469,6 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 for (j = 0; j < g_ptr_array_len(fv_p); j++ ) {
                     str = (gchar *)g_ptr_array_index(fv_p, j);
                     print_escaped_csv(fh, str);
-                    g_free(str);
                 }
                 if (fields->quote != '\0') {
                     fputc(fields->quote, fh);
@@ -2497,7 +2496,6 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                     fputs("\"", fh);
                     print_escaped_xml(fh, str);
                     fputs("\"/>\n", fh);
-                    g_free(str);
                 }
                 g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
                 fields->field_values[i] = NULL;
@@ -2522,7 +2520,6 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 for (j = 0; j < (g_ptr_array_len(fv_p)); j += 2) {
                     str = (gchar *) g_ptr_array_index(fv_p, j);
                     json_dumper_value_string(dumper, str);
-                    g_free(str);
                 }
 
                 json_dumper_end_array(dumper);
@@ -2550,7 +2547,6 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 for (j = 0; j < (g_ptr_array_len(fv_p)); j += 2) {
                     str = (gchar *)g_ptr_array_index(fv_p, j);
                     json_dumper_value_string(dumper, str);
-                    g_free(str);
                 }
 
                 json_dumper_end_array(dumper);
