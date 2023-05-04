@@ -27,7 +27,7 @@ Specifies the destination directory for the text files. The path must
 contain the pattern "wireshark-*-libs".
 
 .PARAMETER Platform
-Target platform. Must be "win64".
+Target platform. Must be one of "win64" or "win64arm".
 
 .PARAMETER CMakeExecutable
 Specifies the path to the CMake executable, which is used to extract archives.
@@ -53,7 +53,7 @@ Param(
     $Destination,
 
     [Parameter(Mandatory=$true, Position=1)]
-    [ValidateSet("win64")]
+    [ValidateSet("win64", "win64arm")]
     [String]
     $Platform,
 
@@ -98,6 +98,33 @@ $Win64Archives = @{
     "zstd/zstd-1.5.2-1-win64ws.zip" = "d920afe636951cfcf144824d9c075d1f2c13387f4739152fe185fd9c09fc58f2";
 }
 
+$Win64ArmArchives = @{
+    "bcg729/bcg729-1.1.1-1-win64armws.zip" = "f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625";
+    "brotli/brotli-1.0.9-1-win64armws.zip" = "5ba1b62ebc514d55c3eae85a00ff107e587b6e7cb1275e2d33fcddcd49f8e2af";
+    "c-ares/c-ares-1.19.0-1-win64armws.zip" = "3e02db0c77303fcd5e9b85f2abe7b48ed79b0ed5d3bdada291a71842e91a6215";
+    # "gnutls/gnutls-3.6.3-1-win64armws.zip" = "";
+    # "krb5/krb5-1.17-1-win64armws.zip" = "";
+    "libgcrypt/libgcrypt-1.10.2-1-win64armws.zip" = "d6c362f438a6be006189ffe192e465cc82411270eba7f6ebbd4d450ca9e3b531";
+    # "libilbc/libilbc-3.0.4-1-win64armws.zip" = "";
+    "libmaxminddb/libmaxminddb-1.4.3-1-win64armws.zip" = "9996327f301cb4a4de797bc024ad0471acd95c1850a2afc849c57fcc93360610";
+    "libpcap/libpcap-1.10.1-1-win64armws.zip" = "c0c5d42d96cc407303d71ba5afd06615c660228fa2260d7ecbc8453140529137";
+    # "libsmi/libsmi-svn-40773-win64armws.zip" = "";
+    # "libssh/libssh-0.9.5-win64armws.zip" = "";
+    # "lua/lua-5.2.4-unicode-win64arm-vc14.zip" = "";
+    "lz4/lz4-1.9.4-1-win64armws.zip" = "59a3ed3f9161be7614a89afd2ca21c43f26dd916afd4aa7bfdc4b148fb10d485";
+    "minizip/minizip-1.2.13-1-win64armws.zip" = "b1e79d8feb01b89cebc1e9fed7765d29f5eb412d11bfcf07217fb645863deb2c";
+    "nghttp2/nghttp2-1.51.0-1-win64armws.zip" = "ede5c53fd46ab12b15ff9758cdc2891731bc1475c589681aa10e6aaf2217656c";
+    "opus/opus-1.4-1-win64armws.zip" = "51d10381360d5691b2022dde5b284266d9b0ce9a3c9bd7e86f9a4ff1a4f7d904";
+    "pcre2/pcre2-10.40-1-win64armws.zip" = "e8fc7542845900e7dbecfa4a10d7ec17edf72bc0e8d433268bee111f1d4947d3";
+    # "sbc/sbc-1.3-1-win64armws.zip" = "";
+    "snappy/snappy-1.1.9-1-win64armws.zip" = "f3f6ec841024d18df06934ff70f44068a4e8f1008eca1f363257645647f74d4a";
+    # "spandsp/spandsp-0.0.6-2-win64armws.zip" = "";
+    "speexdsp/speexdsp-1.2.1-1-win64armws.zip" = "1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb";
+    "vcpkg-export/vcpkg-export-20230502-1-win64armws.zip" = "94bc2d98bcb86e79569c7bf638cde8d63175cd65cf07cc219890cdc713707ce9";
+    # "WinSparkle/WinSparkle-0.5.7.zip" = "";
+    "zstd/zstd-1.5.5-1-win64armws.zip" = "0e448875380cc5d5f5539d994062201bfa564e4a27466bc3fdfec84d9008e51d";
+}
+
 # Subdirectory to extract an archive to
 $ArchivesSubDirectory = @{
     "AirPcap/AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
@@ -110,8 +137,19 @@ $Win64Files = @{
     "USBPcap/USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
 }
 
+$Win64ArmFiles = @{
+    "Npcap/npcap-1.75.exe" = "9ac38dff01b48e18033e8a9015b27042ef847c8c84a9065961a30f8ae22d5245";
+    # "USBPcap/USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
+}
+
 $Archives = $Win64Archives;
 $Files = $Win64Files;
+
+if ($Platform -eq "win64arm") {
+    $Archives = $Win64ArmArchives;
+    $Files = $Win64ArmFiles;
+}
+
 $CurrentManifest = $Archives + $Files
 
 $CleanupItems = @(

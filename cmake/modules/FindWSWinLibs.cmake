@@ -23,8 +23,8 @@ function( FindWSWinLibs _WS_LIB_SEARCH_PATH _LIB_HINT_VAR )
     file( GLOB _SUBDIR "${_PROJECT_LIB_DIR}/*" )
     # We might be able to use $ENV{VSCMD_ARG_TGT_ARCH} here.
     set (_vcpkg_arch x64)
-    if(WIRESHARK_TARGET_PLATFORM MATCHES "win32")
-      set (_vcpkg_arch x86)
+    if(WIRESHARK_TARGET_PLATFORM MATCHES win64arm)
+      set (_vcpkg_arch arm64)
     endif()
 
     foreach( _DIR ${_SUBDIR} )

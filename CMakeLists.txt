@@ -137,10 +137,10 @@ if(WIN32)
 		else()
 			set(WIRESHARK_TARGET_PLATFORM "$ENV{MSYSTEM_CARCH}")
 		endif()
-	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
+	elseif($ENV{Platform} MATCHES arm64 OR CMAKE_GENERATOR_PLATFORM MATCHES arm64)
+		set(WIRESHARK_TARGET_PLATFORM win64arm)
+	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES Win64)
 		set(WIRESHARK_TARGET_PLATFORM win64)
-	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
-		set(WIRESHARK_TARGET_PLATFORM win32)
 	else()
 		message(WARNING "Assuming \"win64\" target platform")
 		set(WIRESHARK_TARGET_PLATFORM win64)
@@ -1401,6 +1401,20 @@ if (QT_FOUND)
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the windeployqt utility."
 		)
+		# As of Qt 6.5.0, the official Qt "MSVC 2019 ARM64 (TP)" libraries don't ship
+		# with native Arm64 executables. Instead, you get x64 executables installed in
+		# msvc2019_x64. Look for the path to "qmake.bat", which has to be passed to
+		# windeployqt so that it can install the proper DLLs.
+		# https://bugreports.qt.io/browse/QTBUG-100070
+		set(QT_WINDEPLOYQT_EXTRA_ARGS)
+		find_program(_qt_qmake_bat qmake.bat
+			HINTS ENV CMAKE_PREFIX_PATH
+			PATH_SUFFIXES bin
+			DOC "Path to qmake.bat."
+		)
+		if(_qt_qmake_bat)
+			set (QT_WINDEPLOYQT_EXTRA_ARGS "--qmake \"${_qt_qmake_bat}\"")
+		endif()
 	elseif(APPLE)
 		find_program(QT_MACDEPLOYQT_EXECUTABLE macdeployqt
 			HINTS "${QT_BIN_PATH}"
@@ -2707,6 +2721,7 @@ if(BUILD_wireshark AND QT_FOUND)
 			POST_BUILD
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 			COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
+				${QT_WINDEPLOYQT_EXTRA_ARGS}
 				--no-compiler-runtime
 				--verbose 0
 				$<$<BOOL:${MSVC}>:--pdb>
