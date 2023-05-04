@@ -1185,20 +1185,14 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
  * This is for GSSAPI Wrap tokens ...
  */
 static int
-dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
-#ifndef HAVE_KERBEROS
-  _U_
-#endif
-    , proto_tree *tree, guint16 token_id
-#ifndef HAVE_KERBEROS
-  _U_
-#endif
-  , gssapi_encrypt_info_t* gssapi_encrypt
-  )
+dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id, gssapi_encrypt_info_t* gssapi_encrypt)
 {
   guint16 sgn_alg, seal_alg;
 #ifdef HAVE_KERBEROS
   int start_offset=offset;
+#else
+  (void) pinfo;
+  (void) token_id;
 #endif
 
   /*
@@ -1394,18 +1388,14 @@ dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
  * This is for GSSAPI CFX Wrap tokens ...
  */
 static int
-dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
-#ifndef HAVE_KERBEROS
-  _U_
-#endif
-  , proto_tree *tree, guint16 token_id _U_
-  , gssapi_encrypt_info_t* gssapi_encrypt
-  )
+dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id _U_, gssapi_encrypt_info_t* gssapi_encrypt)
 {
   guint8 flags;
   guint16 ec;
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   guint16 rrc;
+#else
+  (void) pinfo;
 #endif
   int checksum_size;
   int start_offset=offset;
