@@ -486,14 +486,15 @@ static gint hf_mapi_AUX_PERF_CLIENTINFO_AdapterName = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_AdapterNameOffset = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_AdapterSpeed = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientID = -1;
-static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIP = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPMask = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPMaskOffset = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPMaskSize = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPOffset = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPSize = -1;
+static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4 = -1;
+static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV6 = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_ClientMode = -1;
-static gint hf_mapi_AUX_PERF_CLIENTINFO_MacAddress = -1;
+static gint hf_mapi_AUX_PERF_CLIENTINFO_MacAddressEther = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_MacAddressOffset = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_MacAddressSize = -1;
 static gint hf_mapi_AUX_PERF_CLIENTINFO_MachineName = -1;
@@ -8254,8 +8255,12 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, packe
 			offset = cur_end_offset;
 	}
 	if (ClientIPOffset > 0 && ClientIPSize > 0){
-		for (int i = 0; i < ClientIPSize; i++)
-			cur_end_offset = PIDL_dissect_uint8(tvb, ClientIPOffset+i, pinfo, tree, di, drep, hf_mapi_AUX_PERF_CLIENTINFO_ClientIP, 0);
+		if(ClientIPSize == 4){
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4, tvb, ClientIPOffset, 4, ENC_NA);
+		} else if(ClientIPSize == 16){
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV6, tvb, ClientIPOffset, 16, ENC_NA);
+		}
+		cur_end_offset = ClientIPOffset + ClientIPSize;
 		if (cur_end_offset > offset)
 			offset = cur_end_offset;
 	}
@@ -8271,8 +8276,10 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, packe
 			offset = cur_end_offset;
 	}
 	if (MacAddressOffset > 0 && MacAddressSize > 0){
-		for (int i = 0; i < MacAddressSize; i++)
-			cur_end_offset = PIDL_dissect_uint8(tvb, MacAddressOffset+i, pinfo, tree, di, drep, hf_mapi_AUX_PERF_CLIENTINFO_MacAddress, 0);
+		if(MacAddressSize == 6){
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_MacAddressEther, tvb, MacAddressOffset, 6, ENC_NA);
+		}
+		cur_end_offset = MacAddressOffset + MacAddressSize;
 		if (cur_end_offset > offset)
 			offset = cur_end_offset;
 	}
@@ -45562,8 +45569,6 @@ void proto_register_dcerpc_mapi(void)
 	  { "AdapterSpeed", "mapi.AUX_PERF_CLIENTINFO.AdapterSpeed", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientID,
 	  { "ClientID", "mapi.AUX_PERF_CLIENTINFO.ClientID", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientIP,
-	  { "ClientIP", "mapi.AUX_PERF_CLIENTINFO.ClientIP", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientIPMask,
 	  { "ClientIPMask", "mapi.AUX_PERF_CLIENTINFO.ClientIPMask", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientIPMaskOffset,
@@ -45574,10 +45579,14 @@ void proto_register_dcerpc_mapi(void)
 	  { "ClientIPOffset", "mapi.AUX_PERF_CLIENTINFO.ClientIPOffset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientIPSize,
 	  { "ClientIPSize", "mapi.AUX_PERF_CLIENTINFO.ClientIPSize", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4,
+	  { "ClientIP", "mapi.AUX_PERF_CLIENTINFO.ClientIP", FT_IPv4, BASE_NONE, NULL, 0, "NULL", HFILL }},
+	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV6,
+	  { "ClientIPV6", "mapi.AUX_PERF_CLIENTINFO.ClientIPV6", FT_IPv6, BASE_NONE, NULL, 0, "NULL", HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_ClientMode,
 	  { "ClientMode", "mapi.AUX_PERF_CLIENTINFO.ClientMode", FT_UINT16, BASE_DEC, VALS(mapi_ClientMode_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_AUX_PERF_CLIENTINFO_MacAddress,
-	  { "MacAddress", "mapi.AUX_PERF_CLIENTINFO.MacAddress", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_AUX_PERF_CLIENTINFO_MacAddressEther,
+	  { "MacAddress", "mapi.AUX_PERF_CLIENTINFO.MacAddress", FT_ETHER, BASE_NONE, NULL, 0, "NULL", HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_MacAddressOffset,
 	  { "MacAddressOffset", "mapi.AUX_PERF_CLIENTINFO.MacAddressOffset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_AUX_PERF_CLIENTINFO_MacAddressSize,

@@ -7,7 +7,12 @@ HF_FIELD hf_mapi_InputHandleIndex "InputHandleIndex" "mapi.rop.InputHandleIndex"
 HF_FIELD hf_mapi_OutputHandleIndex "OutputHandleIndex" "mapi.rop.OutputHandleIndex" FT_UINT8 BASE_DEC NULL 0 NULL HFILL
 HF_FIELD hf_mapi_RgbInSize "RgbInSize" "mapi.RgbIn.RgbInSize" FT_UINT32 BASE_DEC NULL 0 NULL HFILL
 HF_FIELD hf_mapi_RgbOutSize "RgbOutSize" "mapi.RgbOut.RgbOutSize" FT_UINT32 BASE_DEC NULL 0 NULL HFILL
+HF_FIELD hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4 "ClientIP" "mapi.AUX_PERF_CLIENTINFO.ClientIP" FT_IPv4 BASE_NONE NULL 0 NULL HFILL
+HF_FIELD hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV6 "ClientIPV6" "mapi.AUX_PERF_CLIENTINFO.ClientIPV6" FT_IPv6 BASE_NONE NULL 0 NULL HFILL
+HF_FIELD hf_mapi_AUX_PERF_CLIENTINFO_MacAddressEther "MacAddress" "mapi.AUX_PERF_CLIENTINFO.MacAddress" FT_ETHER BASE_NONE NULL 0 NULL HFILL
 
+HF_RENAME hf_mapi_AUX_PERF_CLIENTINFO_MacAddress hf_mapi_AUX_PERF_CLIENTINFO_MacAddressEther
+HF_RENAME hf_mapi_AUX_PERF_CLIENTINFO_ClientIP hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4
 HF_RENAME hf_mapi_AbortSubmit_req_LogonId hf_mapi_LogonId
 HF_RENAME hf_mapi_Abort_req_LogonId hf_mapi_LogonId
 HF_RENAME hf_mapi_AddressTypes_req_LogonId hf_mapi_LogonId
@@ -681,8 +686,13 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, packe
 	}
 
 	if (ClientIPOffset > 0 && ClientIPSize > 0){
-		for (int i = 0; i < ClientIPSize; i++)
-			cur_end_offset = PIDL_dissect_uint8(tvb, ClientIPOffset+i, pinfo, tree, di, drep, hf_mapi_AUX_PERF_CLIENTINFO_ClientIP, 0);
+		if(ClientIPSize == 4){
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4, tvb, ClientIPOffset, 4, ENC_NA);
+		} else if(ClientIPSize == 16){
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV6, tvb, ClientIPOffset, 16, ENC_NA);
+		}
+
+		cur_end_offset = ClientIPOffset + ClientIPSize;
 
 		if (cur_end_offset > offset)
 			offset = cur_end_offset;
@@ -704,8 +714,11 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, packe
 	}
 
 	if (MacAddressOffset > 0 && MacAddressSize > 0){
-		for (int i = 0; i < MacAddressSize; i++)
-			cur_end_offset = PIDL_dissect_uint8(tvb, MacAddressOffset+i, pinfo, tree, di, drep, hf_mapi_AUX_PERF_CLIENTINFO_MacAddress, 0);
+		if(MacAddressSize == 6){
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_MacAddressEther, tvb, MacAddressOffset, 6, ENC_NA);
+		}
+
+		cur_end_offset = MacAddressOffset + MacAddressSize;
 
 		if (cur_end_offset > offset)
 			offset = cur_end_offset;
