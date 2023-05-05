@@ -3516,7 +3516,8 @@ void WiresharkMainWindow::on_actionStatisticsPacketLengths_triggered()
     openStatisticsTreeDialog("plen");
 }
 
-void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
+// -z io,stat
+void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     QString displayFilter;
@@ -3527,6 +3528,11 @@ void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
+}
+
+void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
+{
+    statCommandIOGraph(NULL, NULL);
 }
 
 void WiresharkMainWindow::on_actionStatisticsSametime_triggered()
