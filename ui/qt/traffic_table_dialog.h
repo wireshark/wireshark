@@ -75,7 +75,7 @@ protected slots:
 
 private slots:
     void on_nameResolutionCheckBox_toggled(bool checked);
-    void on_displayFilterCheckBox_toggled(bool checked);
+    void displayFilterCheckBoxToggled(bool checked);
     void captureEvent(CaptureEvent e);
 
     virtual void on_buttonBox_helpRequested() = 0;
