@@ -3076,7 +3076,8 @@ void LograyMainWindow::on_actionStatisticsPacketLengths_triggered()
     openStatisticsTreeDialog("plen");
 }
 
-void LograyMainWindow::on_actionStatisticsIOGraph_triggered()
+// -z io,stat
+void LograyMainWindow::statCommandIOGraph(const char *, void *)
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     QString displayFilter;
@@ -3087,6 +3088,11 @@ void LograyMainWindow::on_actionStatisticsIOGraph_triggered()
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
+}
+
+void LograyMainWindow::on_actionStatisticsIOGraph_triggered()
+{
+    statCommandIOGraph(NULL, NULL);
 }
 
 // Tools Menu

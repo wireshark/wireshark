@@ -483,6 +483,7 @@ private slots:
     void on_actionStatisticsConversations_triggered();
     void on_actionStatisticsEndpoints_triggered();
     void on_actionStatisticsPacketLengths_triggered();
+    void statCommandIOGraph(const char *, void *);
     void on_actionStatisticsIOGraph_triggered();
 
     void externalMenuItem_triggered();

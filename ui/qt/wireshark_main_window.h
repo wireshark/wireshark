@@ -548,6 +548,7 @@ private slots:
     void on_actionStatisticsHTTPLoadDistribution_triggered();
     void on_actionStatisticsHTTPRequestSequences_triggered();
     void on_actionStatisticsPacketLengths_triggered();
+    void statCommandIOGraph(const char *, void *);
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
     void on_actionStatisticsDNS_triggered();
