@@ -5505,6 +5505,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     module_t *module, *containing_module;
     pref_t   *pref;
     int type;
+    gboolean converted_pref = FALSE;
 
     //The PRS_GUI field names are here for backwards compatibility
     //display filters have been converted to a UAT.
@@ -5639,9 +5640,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                         }
                     }
                     if (module) {
-                        ws_warning("Preference \"%s.%s\" has been converted to \"%s.%s\"\n"
-                                   "Save your preferences to make this change permanent.",
-                                   pref_name, dotp+1, module->name, dotp+1);
+                        converted_pref = TRUE;
                         prefs.unknown_prefs = TRUE;
                     }
                 }
@@ -5933,6 +5932,9 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                         value = "none";
                 }
             }
+            if (pref) {
+                converted_pref = TRUE;
+            }
         }
         if (pref == NULL ) {
             if (strcmp(module->name, "extcap") == 0 && g_list_length(module->prefs) <= 1) {
@@ -5950,6 +5952,12 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             return PREFS_SET_OBSOLETE;        /* no such preference any more */
         } else {
             RESET_PREF_OBSOLETE(type);
+        }
+
+        if (converted_pref) {
+            ws_warning("Preference \"%s\" has been converted to \"%s.%s\"\n"
+                       "Save your preferences to make this change permanent.",
+                       pref_name, module->name ? module->name : module->parent->name, prefs_get_name(pref));
         }
 
         switch (type) {
