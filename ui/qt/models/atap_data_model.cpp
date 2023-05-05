@@ -64,6 +64,11 @@ ATapDataModel::~ATapDataModel()
     /* Only remove the tap if we come from a enabled model */
     if (!_disableTap)
         remove_tap_listener(hash());
+
+    if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
+        reset_endpoint_table_data(&hash_);
+    else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
+        reset_conversation_table_data(&hash_);
 }
 
 int ATapDataModel::protoId() const
@@ -107,7 +112,7 @@ bool ATapDataModel::enableTap()
     /* The errorString is ignored. If this is not working, there is nothing really the user may do about
      * it, so the error is only interesting to the developer.*/
     GString * errorString = register_tap_listener(tap().toUtf8().constData(), hash(), _filter.toUtf8().constData(),
-        TL_IGNORE_DISPLAY_FILTER, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, &ATapDataModel::tapFinish);
+        TL_IGNORE_DISPLAY_FILTER, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
         g_string_free(errorString, TRUE);
         _disableTap = true;
@@ -156,20 +161,6 @@ void ATapDataModel::tapDraw(void *tapdata)
     ATapDataModel * dataModel = qobject_cast<ATapDataModel *>((ATapDataModel *)hash->user_data);
 
     dataModel->updateData(hash->conv_array);
-}
-
-void ATapDataModel::tapFinish(void *tapdata)
-{
-    if (! tapdata)
-        return;
-
-    conv_hash_t *hash = (conv_hash_t*)tapdata;
-    ATapDataModel * dataModel = qobject_cast<ATapDataModel *>((ATapDataModel *)hash->user_data);
-
-    if (dataModel->modelType() == ATapDataModel::DATAMODEL_ENDPOINT)
-        reset_endpoint_table_data(hash);
-    else if (dataModel->modelType() == ATapDataModel::DATAMODEL_CONVERSATION)
-        reset_conversation_table_data(hash);
 }
 
 conv_hash_t * ATapDataModel::hash()

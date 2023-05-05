@@ -216,7 +216,6 @@ protected:
 
     static void tapReset(void *tapdata);
     static void tapDraw(void *tap_data);
-    static void tapFinish(void *tapdata);
 
     virtual tap_packet_cb conversationPacketHandler();
 
