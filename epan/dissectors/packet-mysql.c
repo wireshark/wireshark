@@ -4123,15 +4123,15 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			offset = mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
 
-			// If both zlib and ZSTD flags are set then ZSTD is used.
-			if ((conn_data->srv_caps_ext & MYSQL_CAPS_ZS) && (conn_data->clnt_caps_ext & MYSQL_CAPS_ZS)) {
-				conn_data->frame_start_compressed = pinfo->num;
-				conn_data->compressed_state = MYSQL_COMPRESS_INIT;
-				conn_data->compressed_alg = MYSQL_COMPRESS_ALG_ZSTD;
-			} else if ((conn_data->srv_caps & MYSQL_CAPS_CP) && (conn_data->clnt_caps & MYSQL_CAPS_CP)) {
+			// If both zlib and ZSTD flags are set then zlib is used.
+			if ((conn_data->srv_caps & MYSQL_CAPS_CP) && (conn_data->clnt_caps & MYSQL_CAPS_CP)) {
 				conn_data->frame_start_compressed = pinfo->num;
 				conn_data->compressed_state = MYSQL_COMPRESS_INIT;
 				conn_data->compressed_alg = MYSQL_COMPRESS_ALG_ZLIB;
+			} else if ((conn_data->srv_caps_ext & MYSQL_CAPS_ZS) && (conn_data->clnt_caps_ext & MYSQL_CAPS_ZS)) {
+				conn_data->frame_start_compressed = pinfo->num;
+				conn_data->compressed_state = MYSQL_COMPRESS_INIT;
+				conn_data->compressed_alg = MYSQL_COMPRESS_ALG_ZSTD;
 			}
 		} else if ((mysql_frame_data_p->state == CLONE_ACTIVE) || (mysql_frame_data_p->state == CLONE_EXIT)) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Clone Request");
