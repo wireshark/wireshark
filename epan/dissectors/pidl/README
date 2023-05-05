@@ -107,5 +107,4 @@ pidl generates possibly-incorrect code for these - this needs checking:
 
 pidl rejects these with errors:
 
-	srvsvc.idl
 	wkssvc.cnf
