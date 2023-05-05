@@ -1278,7 +1278,8 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 		if (len_remain<1) return offset;
 		format = tvb_get_guint8(tvb, offset);
 		item = proto_tree_add_uint_format(tree, hf_snmp_engineid_format, tvb, offset, 1, format, "Engine ID Format: %s (%d)",
-						  val_to_str(format, snmp_engineid_format_vals, "Reserved/Enterprise-specific"), format);
+						  val_to_str_const(format, snmp_engineid_format_vals, "Reserved/Enterprise-specific"),
+						  format);
 		offset+=1;
 		len_remain-=1;
 

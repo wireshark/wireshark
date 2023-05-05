@@ -302,7 +302,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
       sccp_msg_lcl->data.co.assoc->payload = SCCP_PLOAD_RANAP;
 
     if (! sccp_msg_lcl->data.co.label && ProcedureCode != 0xFFFFFFFF) {
-      const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
+      const gchar* str = val_to_str_const(ProcedureCode, ranap_ProcedureCode_vals, "Unknown RANAP");
       sccp_msg_lcl->data.co.label = wmem_strdup(wmem_file_scope(), str);
     }
   }

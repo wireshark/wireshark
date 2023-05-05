@@ -9,8 +9,8 @@
 # checking for appropriate format specifier strings in
 # 'unknown' arg.
 # TODO:
-# - scan plugins and ASN.1 templates/configuration files
 # - more detailed format specifier checking (check letter, that there is only 1)
+# - scan conformance (.cnf) files for ASN1 dissectors?
 
 import os
 import re
@@ -123,17 +123,20 @@ def checkFile(filename):
 
             if function.endswith('_const'):
                 # These ones shouldn't have a specifier - its an error if they do.
+                # TODO: I suppose it could be escaped, but haven't seen this...
                 if format_string.find('%') != -1:
+                    # This is an error as format specifier would show in app
                     print('Error:', filename, "  ", m.group(0), '   - should not have specifiers in unknown string')
                     errors_found += 1
             else:
-                # These ones need to have a specifier, and it should be suitable for an int.
+                # These ones need to have a specifier, and it should be suitable for an int
                 specifier_id = format_string.find('%')
                 if specifier_id == -1:
                     print('Warning:', filename, "  ", m.group(0), '   - should have suitable format specifier in unknown string (or use _const()?)')
                     warnings_found += 1
                 # TODO: check allowed specifiers (d, u, x, ?) and modifiers (0-9*) in re ?
                 if format_string.find('%s') != -1:
+                    # This is an error as this likely causes a crash
                     print('Error:', filename, "  ", m.group(0), '    - inappropriate format specifier in unknown string')
                     errors_found += 1
 
@@ -143,7 +146,7 @@ def checkFile(filename):
 # Main logic.
 
 # command-line args.  Controls which dissector files should be checked.
-# If no args given, will just scan epan/dissectors folder.
+# If no args given, will scan all dissectors.
 parser = argparse.ArgumentParser(description='Check calls in dissectors')
 parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
@@ -194,6 +197,7 @@ else:
     # Find all dissector files from folder.
     files =  findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
     files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
+    files += findDissectorFilesInFolder(os.path.join('epan', 'dissectors', 'asn1'), recursive=True)
 
 
 # If scanning a subset of files, list them here.
@@ -204,10 +208,10 @@ if args.file or args.commits or args.open:
     else:
         print('No files to check.\n')
 else:
-    print('All dissector modules\n')
+    print('All dissectors\n')
 
 
-# Now check the files to see if they could have used shared ones instead.
+# Now check the chosen files
 for f in files:
     if should_exit:
         exit(1)
@@ -216,7 +220,6 @@ for f in files:
 
 
 # Show summary.
-print('')
 print(warnings_found, 'warnings found')
 if errors_found:
     print(errors_found, 'errors found')
