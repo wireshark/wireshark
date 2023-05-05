@@ -813,6 +813,12 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 	load_references(df->raw_references, tree, TRUE);
 }
 
+void
+dfilter_load_field_references_edt(const dfilter_t *df, epan_dissect_t *edt)
+{
+	dfilter_load_field_references(df, edt->tree);
+}
+
 df_reference_t *
 reference_new(const field_info *finfo, gboolean raw)
 {

@@ -254,6 +254,11 @@ WS_DLL_PUBLIC gboolean have_tap_listener(int tap_id);
 /** Return TRUE if we have any tap listeners with filters, FALSE otherwise. */
 WS_DLL_PUBLIC gboolean have_filtering_tap_listeners(void);
 
+/** If any tap listeners have a filter with references to the currently
+ * selected frame in the GUI (edt->tree), update them.
+ */
+WS_DLL_PUBLIC void tap_listeners_load_field_references(epan_dissect_t *edt);
+
 /**
  * Get the union of all the flags for all the tap listeners; that gives
  * an indication of whether the protocol tree, or the columns, are

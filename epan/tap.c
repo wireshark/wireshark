@@ -739,6 +739,17 @@ have_filtering_tap_listeners(void)
 	return FALSE;
 }
 
+void
+tap_listeners_load_field_references(epan_dissect_t *edt)
+{
+	tap_listener_t *tl;
+
+	for(tl=tap_listener_queue;tl;tl=tl->next){
+		if(tl->code)
+			dfilter_load_field_references_edt(tl->code, edt);
+	}
+}
+
 /*
  * Get the union of all the flags for all the tap listeners; that gives
  * an indication of whether the protocol tree, or the columns, are

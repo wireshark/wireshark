@@ -1636,6 +1636,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     dfilter_t  *dfcode = NULL;
     column_info *cinfo;
     gboolean    create_proto_tree;
+    gboolean    filtering_tap_listeners;
     guint       tap_flags;
     gboolean    add_to_packet_list = FALSE;
     gboolean    compiled _U_;
@@ -1659,10 +1660,17 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
         ws_assert(compiled && dfcode);
     }
 
-    /* Update references in display filter (if any) for the protocol
+    /* Do we have any tap listeners with filters? */
+    filtering_tap_listeners = have_filtering_tap_listeners();
+
+    /* Update references in filters (if any) for the protocol
      * tree corresponding to the currently selected frame in the GUI. */
-    if (dfcode && cf->edt != NULL && cf->edt->tree != NULL)
-        dfilter_load_field_references(dfcode, cf->edt->tree);
+    if (cf->edt != NULL && cf->edt->tree != NULL) {
+        if (dfcode)
+            dfilter_load_field_references(dfcode, cf->edt->tree);
+        if (filtering_tap_listeners)
+            tap_listeners_load_field_references(cf->edt);
+    }
 
     if (dfcode != NULL) {
         dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_NOISY, NULL, -1, NULL,
@@ -1689,7 +1697,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
      *    values or protocols on the first pass.
      */
     create_proto_tree =
-        (dfcode != NULL || have_filtering_tap_listeners() ||
+        (dfcode != NULL || filtering_tap_listeners ||
          (tap_flags & TL_REQUIRES_PROTO_TREE) ||
          (redissect && postdissectors_want_hfids()));
 
@@ -2261,6 +2269,7 @@ cf_retap_packets(capture_file *cf)
     packet_range_t        range;
     retap_callback_args_t callback_args;
     gboolean              create_proto_tree;
+    gboolean              filtering_tap_listeners;
     guint                 tap_flags;
     psp_return_t          ret;
 
@@ -2270,6 +2279,16 @@ cf_retap_packets(capture_file *cf)
     }
 
     cf_callback_invoke(cf_cb_file_retap_started, cf);
+
+    /* Do we have any tap listeners with filters? */
+    filtering_tap_listeners = have_filtering_tap_listeners();
+
+    /* Update references in filters (if any) for the protocol
+     * tree corresponding to the currently selected frame in the GUI. */
+    if (cf->edt != NULL && cf->edt->tree != NULL) {
+        if (filtering_tap_listeners)
+            tap_listeners_load_field_references(cf->edt);
+    }
 
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
@@ -2286,7 +2305,7 @@ cf_retap_packets(capture_file *cf)
      *    one of the tap listeners requires a protocol tree.
      */
     create_proto_tree =
-        (have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
+        (filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE));
 
     /* Reset the tap listeners. */
     reset_tap_listeners();
