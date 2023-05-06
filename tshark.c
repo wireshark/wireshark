@@ -729,12 +729,21 @@ about_folders(void)
     printf("%-21s\t%s\n", "Global Lua Plugins:", get_plugins_dir());
 #endif
 
-    /* Extcap */
+    /* Personal Extcap */
+    constpath = get_extcap_pers_dir();
+
+    resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+    for(i = 0; resultArray[i]; i++)
+        printf("%-21s\t%s\n", "Personal Extcap path:", g_strstrip(resultArray[i]));
+
+    g_strfreev(resultArray);
+
+    /* Global Extcap */
     constpath = get_extcap_dir();
 
     resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
     for(i = 0; resultArray[i]; i++)
-        printf("%-21s\t%s\n", "Extcap path:", g_strstrip(resultArray[i]));
+        printf("%-21s\t%s\n", "Global Extcap path:", g_strstrip(resultArray[i]));
 
     g_strfreev(resultArray);
 
