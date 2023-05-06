@@ -601,16 +601,9 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * - TLS within a different encrypted TLS tunnel.
      *
      * To support the second case, 'curr_layer_num_ssl' is used as identifier
-     * for the current TLS layer. It is however not a stable identifier for the
-     * second pass (Bug 16109). If the first decrypted record requests
-     * reassembly for HTTP, then the second pass will skip calling the dissector
-     * for the first record. That means that 'pinfo->curr_layer_num' will
-     * actually be lower the second time.
-     *
-     * Since this cannot be easily fixed, we will just break the (hopefully less
-     * common) case of TLS tunneled within TLS.
+     * for the current TLS layer.
      */
-    guint8             curr_layer_num_ssl = 0; // pinfo->curr_layer_num;
+    guint8             curr_layer_num_ssl = pinfo->curr_proto_layer_num;
 
     ti = NULL;
     ssl_tree   = NULL;

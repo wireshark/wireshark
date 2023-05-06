@@ -562,6 +562,22 @@ class TestDecryptTLS:
             ), encoding='utf-8', env=test_env)
         assert 'example.com\t\n\t200\nexample.net\t\n\t200\n' == output
 
+    def test_tls_over_tls(self, cmd_tshark, dirs, capture_file, features, test_env):
+        '''TLS using the server's private key with p < q
+        (test whether libgcrypt is correctly called)'''
+        if not features.have_gnutls:
+            pytest.skip('Requires GnuTLS.')
+        key_file = os.path.join(dirs.key_dir, 'tls-over-tls.key')
+        output = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tls-over-tls.pcapng.gz'),
+                '-o', 'tls.keys_list:0.0.0.0,443,http,{}'.format(key_file),
+                '-z', 'expert,tls.handshake.certificates',
+                '-Tfields',
+                '-e', 'tls.handshake.certificate_length',
+                '-Y', 'tls.handshake.certificates',
+            ), encoding='utf-8', env=test_env)
+        assert '1152,1115,1352\n1152\n1412,1434,1382\n' == output
+
 
 class TestDecryptZigbee:
     def test_zigbee(self, cmd_tshark, capture_file, test_env):

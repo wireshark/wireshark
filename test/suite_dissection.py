@@ -718,6 +718,18 @@ class TestDissectTls:
         expected = ''.join('%04x\n' % i for i in range(1, 1001))
         assert stdout == expected
 
+    @staticmethod
+    def check_tls_reassembly_over_tcp_reassembly(cmd_tshark, capture_file, test_env,
+                                                 extraArgs=[]):
+        stdout = subprocess.check_output([cmd_tshark,
+                               '-r', capture_file('tls-fragmented-over-tcp-segmented.pcapng.gz'),
+                               '-zexpert,note',
+                               '-Yhttp.host',
+                               '-Tfields', '-ehttp.host'] + extraArgs,
+                               encoding='utf-8', env=test_env)
+        stdout = stdout.replace(',', '\n')
+        assert stdout == 'reports.crashlytics.com\n'
+
     def test_tls_handshake_reassembly(self, cmd_tshark, capture_file, test_env):
         '''Verify that TCP and TLS handshake reassembly works.'''
         self.check_tls_handshake_reassembly(cmd_tshark, capture_file, test_env)
@@ -726,6 +738,22 @@ class TestDissectTls:
         '''Verify that TCP and TLS handshake reassembly works (second pass).'''
         self.check_tls_handshake_reassembly(
             cmd_tshark, capture_file, test_env, extraArgs=['-2'])
+
+    def test_tls_reassembly_over_tcp_reassembly(self, cmd_tshark, capture_file, features, test_env):
+        '''Verify that TLS reassembly over TCP reassembly works.'''
+        if not features.have_gnutls:
+            pytest.skip('Requires GnuTLS.')
+        self.check_tls_reassembly_over_tcp_reassembly(cmd_tshark, capture_file, test_env)
+
+    def test_tls_reassembly_over_tcp_reassembly_2(self, cmd_tshark, capture_file, features, test_env):
+        '''Verify that TLS reassembly over TCP reassembly works (second pass).'''
+        # pinfo->curr_layer_num can be different on the second pass than the
+        # first pass, because the HTTP dissector isn't called for the first
+        # TLS record on the second pass.
+        if not features.have_gnutls:
+            pytest.skip('Requires GnuTLS.')
+        self.check_tls_reassembly_over_tcp_reassembly(cmd_tshark, capture_file,
+            test_env, extraArgs=['-2'])
 
 class TestDissectQuic:
     @staticmethod
