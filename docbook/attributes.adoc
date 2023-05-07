@@ -25,18 +25,18 @@
 
 // Wireshark top level URLs (sites)
 :wireshark-main-url: https://www.wireshark.org/
-:wireshark-bugs-url: https://gitlab.com/wireshark/wireshark/-/issues
-:wireshark-code-review-url: https://gitlab.com/wireshark/wireshark/-/merge_requests
-:wireshark-qa-url: https://ask.wireshark.org/
-:wireshark-wiki-url: https://gitlab.com/wireshark/wireshark/wikis/
 :wireshark-gitlab-project-url: https://gitlab.com/wireshark/wireshark
+:wireshark-qa-url: https://ask.wireshark.org/
 
 // Wireshark secondary URLs (pages)
+:wireshark-bugs-url: {wireshark-gitlab-project-url}/-/issues
+:wireshark-code-review-url: {wireshark-gitlab-project-url}/-/merge_requests
+:wireshark-wiki-url: {wireshark-gitlab-project-url}/-/wikis/
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
-:wireshark-code-browse-url: https://gitlab.com/wireshark/wireshark/tree/master
-:wireshark-code-file-url: https://gitlab.com/wireshark/wireshark/blob/master/
-:wireshark-commits-url: https://gitlab.com/wireshark/wireshark/-/commits/master
-:wireshark-merge-request-url: https://gitlab.com/wireshark/wireshark/merge_requests
+:wireshark-code-browse-url: {wireshark-gitlab-project-url}/-/tree/master
+:wireshark-code-file-url: {wireshark-gitlab-project-url}/-/blob/master/
+:wireshark-commits-url: {wireshark-gitlab-project-url}/-/commits/master
+:wireshark-merge-request-url: {wireshark-gitlab-project-url}/-/merge_requests
 :wireshark-developers-guide-url: {wireshark-main-url}docs/wsdg_html_chunked/
 :wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/
 :wireshark-download-url: {wireshark-main-url}download.html
