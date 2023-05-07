@@ -3856,12 +3856,14 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 		ws_label_strcpy(*retval, ITEM_LABEL_LENGTH, 0, value, label_strcat_flags(hfinfo));
 		break;
 	case FT_BYTES:
+		tvb_ensure_bytes_exist(tvb, start, length);
 		value = tvb_get_ptr(tvb, start, length);
 		*retval = format_bytes_hfinfo(scope, hfinfo, value, length);
 		*lenretval = length;
 		break;
 	case FT_UINT_BYTES:
 		n = get_uint_value(tree, tvb, start, length, encoding);
+		tvb_ensure_bytes_exist(tvb, start + length, n);
 		value = tvb_get_ptr(tvb, start + length, n);
 		*retval = format_bytes_hfinfo(scope, hfinfo, value, n);
 		*lenretval = length + n;
@@ -4178,6 +4180,7 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			n = length; /* n is now the "header" length */
 			length = get_uint_value(tree, tvb, start, n, encoding);
 			/* length is now the value's length; only store the value in the array */
+			tvb_ensure_bytes_exist(tvb, start + n, length);
 			g_byte_array_append(bytes, tvb_get_ptr(tvb, start + n, length), length);
 		}
 		else if (length > 0) {
@@ -4511,6 +4514,7 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 static void
 proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length)
 {
+	tvb_ensure_bytes_exist(tvb, offset, length);
 	proto_tree_set_bytes(fi, tvb_get_ptr(tvb, offset, length), length);
 }
 
