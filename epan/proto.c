@@ -4501,6 +4501,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 {
+	DISSECTOR_ASSERT(length >= 0);
 	DISSECTOR_ASSERT(start_ptr != NULL || length == 0);
 
 	fvalue_set_bytes_data(fi->value, start_ptr, length);
