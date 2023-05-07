@@ -390,8 +390,8 @@ void MainApplication::setMonospaceFont(const char *font_string) {
     // Retrieve the effective font and apply it.
     mono_font_.setFamily(QFontInfo(mono_font_).family());
 
-    g_free(prefs.gui_qt_font_name);
-    prefs.gui_qt_font_name = qstring_strdup(mono_font_.toString());
+    g_free(prefs.gui_font_name);
+    prefs.gui_font_name = qstring_strdup(mono_font_.toString());
 }
 
 int MainApplication::monospaceTextSize(const char *str)
@@ -486,7 +486,7 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
     update_local_interfaces();
 #endif
 
-    setMonospaceFont(prefs.gui_qt_font_name);
+    setMonospaceFont(prefs.gui_font_name);
 
     emit columnsChanged();
     emit preferencesChanged();

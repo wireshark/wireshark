@@ -53,13 +53,13 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->statusBarShowSelectedPacketCheckBox->setStyleSheet(indent_ss);
     ui->statusBarShowFileLoadTimeCheckBox->setStyleSheet(indent_ss);
 
-    pref_packet_list_separator_ = prefFromPrefPtr(&prefs.gui_qt_packet_list_separator);
+    pref_packet_list_separator_ = prefFromPrefPtr(&prefs.gui_packet_list_separator);
     ui->packetListSeparatorCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_separator_, pref_stashed));
 
-    pref_packet_header_column_definition_ = prefFromPrefPtr(&prefs.gui_qt_packet_header_column_definition);
+    pref_packet_header_column_definition_ = prefFromPrefPtr(&prefs.gui_packet_header_column_definition);
     ui->packetListHeaderShowColumnDefinition->setChecked(prefs_get_bool_value(pref_packet_header_column_definition_, pref_stashed));
 
-    pref_packet_list_hover_style_ = prefFromPrefPtr(&prefs.gui_qt_packet_list_hover_style);
+    pref_packet_list_hover_style_ = prefFromPrefPtr(&prefs.gui_packet_list_hover_style);
     ui->packetListHoverStyleCheckbox->setChecked(prefs_get_bool_value(pref_packet_list_hover_style_, pref_stashed));
 
     pref_packet_list_sorting_ = prefFromPrefPtr(&prefs.gui_packet_list_sortable);
@@ -67,10 +67,10 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
 
     pref_packet_list_cached_rows_max_ = prefFromPrefPtr(&prefs.gui_packet_list_cached_rows_max);
 
-    pref_show_selected_packet_ = prefFromPrefPtr(&prefs.gui_qt_show_selected_packet);
+    pref_show_selected_packet_ = prefFromPrefPtr(&prefs.gui_show_selected_packet);
     ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_stashed));
 
-    pref_show_file_load_time_ = prefFromPrefPtr(&prefs.gui_qt_show_file_load_time);
+    pref_show_file_load_time_ = prefFromPrefPtr(&prefs.gui_show_file_load_time);
     ui->statusBarShowFileLoadTimeCheckBox->setChecked(prefs_get_bool_value(pref_show_file_load_time_, pref_stashed));
 }
 

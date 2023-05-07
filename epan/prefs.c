@@ -205,7 +205,6 @@ struct preference {
     int type;                        /**< type of that preference */
     unsigned int effect_flags;       /**< Flags of types effected by preference (PREF_TYPE_DISSECTION, PREF_EFFECT_CAPTURE, etc).
                                           Flags must be non-zero to ensure saving to disk */
-    gui_type_t gui;                  /**< type of the GUI (QT, GTK or both) the preference is registered for */
     union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
         guint *uint;
         gboolean *boolp;
@@ -261,11 +260,6 @@ const char* prefs_get_title(pref_t *pref)
 int prefs_get_type(pref_t *pref)
 {
     return pref->type;
-}
-
-gui_type_t prefs_get_gui_type(pref_t *pref)
-{
-    return pref->gui;
 }
 
 const char* prefs_get_name(pref_t *pref)
@@ -986,7 +980,6 @@ register_preference(module_t *module, const char *name, const char *title,
     /* Default to module's preference effects */
     preference->effect_flags = module->effect_flags;
 
-    preference->gui = GUI_ALL;  /* default */
     if (title != NULL)
         preference->ordinal = module->numprefs;
     else
@@ -1768,8 +1761,6 @@ prefs_register_uat_preference_qt(module_t *module, const char *name,
     pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
 
     preference->varp.uat = uat;
-
-    preference->gui = GUI_QT;
 }
 
 struct epan_uat* prefs_get_uat_value(pref_t *pref)
@@ -3150,7 +3141,7 @@ prefs_register_modules(void)
 
     register_string_like_preference(gui_font_module, "qt.font_name", "Font name",
         "Font name for packet list, protocol tree, and hex dump panes. (Qt)",
-        &prefs.gui_qt_font_name, PREF_STRING, NULL, TRUE);
+        &prefs.gui_font_name, PREF_STRING, NULL, TRUE);
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
@@ -3413,27 +3404,27 @@ prefs_register_modules(void)
     prefs_register_bool_preference(gui_layout_module, "packet_list_separator.enabled",
                                    "Enable Packet List Separator",
                                    "Enable Packet List Separator",
-                                   &prefs.gui_qt_packet_list_separator);
+                                   &prefs.gui_packet_list_separator);
 
     prefs_register_bool_preference(gui_layout_module, "packet_header_column_definition.enabled",
                                     "Show column definition in packet list header",
                                     "Show column definition in packet list header",
-                                    &prefs.gui_qt_packet_header_column_definition);
+                                    &prefs.gui_packet_header_column_definition);
 
     prefs_register_bool_preference(gui_layout_module, "packet_list_hover_style.enabled",
                                    "Enable Packet List mouse-over colorization",
                                    "Enable Packet List mouse-over colorization",
-                                   &prefs.gui_qt_packet_list_hover_style);
+                                   &prefs.gui_packet_list_hover_style);
 
     prefs_register_bool_preference(gui_layout_module, "show_selected_packet.enabled",
                                    "Show selected packet in the Status Bar",
                                    "Show selected packet in the Status Bar",
-                                   &prefs.gui_qt_show_selected_packet);
+                                   &prefs.gui_show_selected_packet);
 
     prefs_register_bool_preference(gui_layout_module, "show_file_load_time.enabled",
                                    "Show file load time in the Status Bar",
                                    "Show file load time in the Status Bar",
-                                   &prefs.gui_qt_show_file_load_time);
+                                   &prefs.gui_show_file_load_time);
 
     prefs_register_enum_preference(gui_module, "packet_list_elide_mode",
                        "Elide mode",
@@ -4029,8 +4020,8 @@ pre_init_prefs(void)
     prefs.restore_filter_after_following_stream = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     /* We try to find the best font in the Qt code */
-    g_free(prefs.gui_qt_font_name);
-    prefs.gui_qt_font_name           = g_strdup("");
+    g_free(prefs.gui_font_name);
+    prefs.gui_font_name              = g_strdup("");
     prefs.gui_active_fg.red          =         0;
     prefs.gui_active_fg.green        =         0;
     prefs.gui_active_fg.blue         =         0;
@@ -4134,11 +4125,11 @@ pre_init_prefs(void)
     prefs.gui_interfaces_hide_types = g_strdup("");
     prefs.gui_interfaces_show_hidden = FALSE;
     prefs.gui_interfaces_remote_display = TRUE;
-    prefs.gui_qt_packet_list_separator = FALSE;
-    prefs.gui_qt_packet_header_column_definition = TRUE;
-    prefs.gui_qt_packet_list_hover_style = TRUE;
-    prefs.gui_qt_show_selected_packet = FALSE;
-    prefs.gui_qt_show_file_load_time = FALSE;
+    prefs.gui_packet_list_separator = FALSE;
+    prefs.gui_packet_header_column_definition = TRUE;
+    prefs.gui_packet_list_hover_style = TRUE;
+    prefs.gui_show_selected_packet = FALSE;
+    prefs.gui_show_file_load_time = FALSE;
     prefs.gui_max_export_objects     = 1000;
     prefs.gui_max_tree_items = 1 * 1000 * 1000;
     prefs.gui_max_tree_depth = 5 * 100;

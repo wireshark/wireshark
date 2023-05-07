@@ -949,7 +949,7 @@ int main(int argc, char *qt_argv[])
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
     wsApp->emitAppSignal(WiresharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
-    wsApp->setMonospaceFont(prefs.gui_qt_font_name);
+    wsApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();

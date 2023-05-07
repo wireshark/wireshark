@@ -36,7 +36,7 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    pref_qt_gui_font_name_ = prefFromPrefPtr(&prefs.gui_qt_font_name);
+    pref_qt_gui_font_name_ = prefFromPrefPtr(&prefs.gui_font_name);
     pref_active_fg_ = prefFromPrefPtr(&prefs.gui_active_fg);
     pref_active_bg_ = prefFromPrefPtr(&prefs.gui_active_bg);
     pref_active_style_ = prefFromPrefPtr(&prefs.gui_active_style);

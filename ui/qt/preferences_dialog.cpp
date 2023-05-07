@@ -289,7 +289,7 @@ void PreferencesDialog::on_buttonBox_accepted()
 //    prefs_airpcap_update();
 #endif
 
-    mainApp->setMonospaceFont(prefs.gui_qt_font_name);
+    mainApp->setMonospaceFont(prefs.gui_font_name);
 
     if (redissect_flags & PREF_EFFECT_FIELDS) {
         mainApp->queueAppSignal(MainApplication::FieldsChanged);

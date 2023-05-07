@@ -29,7 +29,6 @@ public:
     QString getName() const {return name_;}
     pref_t* getPref() const {return pref_;}
     int getPrefType() const;
-    int getPrefGUIType() const;
     bool isPrefDefault() const;
     QString getPrefTypeName() const;
     module_t* getModule() const {return module_;}

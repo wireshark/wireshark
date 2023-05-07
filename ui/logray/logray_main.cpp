@@ -920,7 +920,7 @@ int main(int argc, char *qt_argv[])
     lwApp->emitAppSignal(LograyApplication::ColumnsChanged); // We read "recent" widths above.
     lwApp->emitAppSignal(LograyApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
-    lwApp->setMonospaceFont(prefs.gui_qt_font_name);
+    lwApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();

@@ -108,12 +108,6 @@ struct pref_custom_cbs {
  */
 #define PREF_PROTO_TCP_SNDAMB_ENUM   (1u << 16)
 
-typedef enum {
-	GUI_ALL,
-	GUI_GTK,
-	GUI_QT
-} gui_type_t;
-
 /* read_prefs_file: read in a generic config file and do a callback to */
 /* pref_set_pair_fct() for every key/value pair found */
 /**
@@ -136,9 +130,6 @@ const char* prefs_get_name(pref_t *pref);
 
 WS_DLL_PUBLIC
 int prefs_get_type(pref_t *pref);
-
-WS_DLL_PUBLIC
-gui_type_t prefs_get_gui_type(pref_t *pref);
 
 WS_DLL_PUBLIC guint32 prefs_get_max_value(pref_t *pref);
 
