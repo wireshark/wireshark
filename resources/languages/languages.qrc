@@ -1,16 +1,6 @@
 <RCC>
     <qresource prefix="/languages">
-        <file>de.svg</file>
-        <file>en.svg</file>
-        <file>es.svg</file>
-        <file>fr.svg</file>
-        <file>it.svg</file>
-        <file>ja_JP.svg</file>
-        <file>pl.svg</file>
-        <file>ru.svg</file>
-        <file>sv.svg</file>
-        <file>tr_TR.svg</file>
-        <file>uk.svg</file>
-        <file>zh_CN.svg</file>
+        <file>language.svg</file>
+        <file>language.dark.svg</file>
     </qresource>
 </RCC>

@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "main_application.h"
 #include "main_window_preferences_frame.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -16,6 +15,7 @@
 
 #include <epan/prefs-int.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/utils/color_utils.h>
 #include <wsutil/filesystem.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -55,6 +55,10 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     ui->maxFilterLineEdit->setMaximumWidth(num_entry_width);
     ui->maxRecentLineEdit->setMaximumWidth(num_entry_width);
 
+    QString li_path = QString(":/languages/language%1.svg").arg(ColorUtils::themeIsDark() ? ".dark" : "");
+    QIcon language_icon = QIcon(li_path);
+    ui->languageComboBox->setItemIcon(0, language_icon);
+
     QString globalLanguagesPath(QString(get_datafile_dir()) + "/languages/");
     QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", FALSE)));
 
@@ -69,15 +73,8 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
         locale.remove(0, locale.indexOf('_') + 1);
 
         QString lang = QLocale::languageToString(QLocale(locale).language());
-        QIcon ico = QIcon();
-        if (QFile::exists(QString(":/languages/%1.svg").arg(locale)))
-            ico.addFile(QString(":/languages/%1.svg").arg(locale));
-        if (QFile::exists(globalLanguagesPath + locale + ".svg"))
-            ico.addFile(globalLanguagesPath + locale + ".svg");
-        if (QFile::exists(userLanguagesPath + locale + ".svg"))
-            ico.addFile(userLanguagesPath + locale + ".svg");
 
-        ui->languageComboBox->addItem(ico, lang, locale);
+        ui->languageComboBox->addItem(lang, locale);
     }
 
     ui->languageComboBox->setItemData(0, USE_SYSTEM_LANGUAGE);
