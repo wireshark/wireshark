@@ -100,9 +100,9 @@ Wireshark 4.1.0 Release Notes
    Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
    (SAPROUTER), SAP Secure Network Connection (SNC), Support for almost
    all WoW 1.12 messages has been added., Train Real-Time Data Protocol
-   (TRDP), Windows Delivery Optimization (MS-DO), and World of Warcraft
-   World (WOWW) display filters have been changed to be more internally
-   consistent.
+   (TRDP), UBX protocol of u-blox GNSS receivers (UBX), Windows Delivery
+   Optimization (MS-DO), and World of Warcraft World (WOWW) display
+   filters have been changed to be more internally consistent.
 
   Updated Protocol Support
 
