@@ -240,6 +240,7 @@
      </item>
     </layout>
    </item>
+   <!-- Language should be the last item. -->
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
@@ -282,24 +283,7 @@
      </item>
     </layout>
    </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>Debounce Timer</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="debounceTime">
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How long to wait (in milliseconds) before processing user input&lt;br/&gt;If you type quickly, consider lowering the value for a &apos;snappier&apos; experience.&lt;br/&gt; If you type slowly, consider increasing the value to avoid performance issues.&lt;br/&gt;This is currently used to delay searches in View -> Internals -> Supported Protocols and Preferences -> Advanced menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
+   <!-- Language should be the last item. -->
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
