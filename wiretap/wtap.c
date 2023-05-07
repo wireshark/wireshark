@@ -1206,6 +1206,12 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_ATSC_ALP */
 	{ "alp", "ATSC Link-Layer Protocol (A/330) packets" },
+
+	/* WTAP_ENCAP_FIRA_UCI */
+	{ "fira-uci", "FiRa UWB Controller Interface (UCI) protocol." },
+
+	/* WTAP_ENCAP_SILABS_DEBUG_CHANNEL */
+	{ "silabs-dch", "Silabs Debug Channel"},
 };
 
 WS_DLL_LOCAL
