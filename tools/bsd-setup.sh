@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # Setup development environment on BSD-like platforms.
 #
 # Tested on: FreeBSD, OpenBSD, NetBSD.
@@ -12,8 +12,13 @@
 # We drag in tools that might not be needed by all users; it's easier
 # that way.
 #
+# We do not use Bash as the shell for this script, and use the POSIX
+# syntax for function definition rather than the
+# "function <name>() { ... }" syntax, as FreeBSD 13, at least, does
+# not have Bash, and its /bin/sh doesn't support the other syntax.
+#
 
-function print_usage() {
+print_usage() {
 	echo "\nUtility to setup a bsd-based system for Wireshark Development.\n"
 	echo "The basic usage installs the needed software\n\n"
 	echo "Usage: $0 [--install-optional] [...other options...]\n"
