@@ -196,6 +196,9 @@ $ pytest -k decryption
 $ pytest --program-path /path/to/wireshark/build/run
 ----
 
+TIP: Build the "test-capture" target on Linux (using sudo) to set dumpcap
+permissions and enable capture tests.
+
 To list tests without actually executing them, use the `--collect-only` option:
 
 [source,sh]
