@@ -35,6 +35,8 @@ static int hf_tzsp_version;
 static int hf_tzsp_type;
 static int hf_tzsp_encap;
 
+static dissector_table_t tzsp_encap_table;
+
 static dissector_handle_t tzsp_handle;
 
 /*
@@ -90,16 +92,6 @@ static const value_string tzsp_encapsulation[] = {
 
 static gint ett_tzsp;
 static gint ett_tag;
-
-static dissector_handle_t eth_maybefcs_handle;
-static dissector_handle_t tr_handle;
-static dissector_handle_t ppp_handle;
-static dissector_handle_t fddi_handle;
-static dissector_handle_t raw_ip_handle;
-static dissector_handle_t ieee_802_11_handle;
-static dissector_handle_t ieee_802_11_prism_handle;
-static dissector_handle_t ieee_802_11_avs_handle;
-static dissector_handle_t ieee_802_11_radiotap_handle;
 
 /* ************************************************************************* */
 /*                WLAN radio header fields                                    */
@@ -375,50 +367,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         if (tree)
             proto_item_set_end(ti, tvb, pos);
         next_tvb = tvb_new_subset_remaining(tvb, pos);
-        switch (encapsulation) {
-
-        case TZSP_ENCAP_ETHERNET:
-            call_dissector(eth_maybefcs_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_TOKEN_RING:
-            call_dissector(tr_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_PPP:
-            call_dissector(ppp_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_FDDI:
-            call_dissector(fddi_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_RAW:
-            call_dissector(raw_ip_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_IEEE_802_11:
-            /*
-             * XXX - get some of the information from the TLVs
-             * and turn it into a radio metadata header to
-             * hand to the radio dissector, and call it?
-             */
-            call_dissector(ieee_802_11_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_IEEE_802_11_PRISM:
-            call_dissector(ieee_802_11_prism_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_IEEE_802_11_RADIOTAP:
-            call_dissector(ieee_802_11_radiotap_handle, next_tvb, pinfo, tree);
-            break;
-
-        case TZSP_ENCAP_IEEE_802_11_AVS:
-            call_dissector(ieee_802_11_avs_handle, next_tvb, pinfo, tree);
-            break;
-
-        default:
+        if (dissector_try_uint(tzsp_encap_table, encapsulation, next_tvb, pinfo, tree) == 0) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
             col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
                     encapsulation);
@@ -681,15 +630,17 @@ proto_reg_handoff_tzsp(void)
     dissector_add_uint_with_preference("udp.port", UDP_PORT_TZSP, tzsp_handle);
 
     /* Get the data dissector for handling various encapsulation types. */
-    eth_maybefcs_handle = find_dissector_add_dependency("eth_maybefcs", proto_tzsp);
-    tr_handle = find_dissector_add_dependency("tr", proto_tzsp);
-    ppp_handle = find_dissector_add_dependency("ppp_hdlc", proto_tzsp);
-    fddi_handle = find_dissector_add_dependency("fddi", proto_tzsp);
-    raw_ip_handle = find_dissector_add_dependency("raw_ip", proto_tzsp);
-    ieee_802_11_handle = find_dissector_add_dependency("wlan", proto_tzsp);
-    ieee_802_11_prism_handle = find_dissector_add_dependency("prism", proto_tzsp);
-    ieee_802_11_avs_handle = find_dissector_add_dependency("wlancap", proto_tzsp);
-    ieee_802_11_radiotap_handle = find_dissector_add_dependency("radiotap", proto_tzsp);
+    tzsp_encap_table = register_dissector_table("tzsp.encap", "TZSP Encapsulation Type",
+            proto_tzsp, FT_UINT16, BASE_DEC);
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_ETHERNET,           find_dissector("eth_maybefcs"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_TOKEN_RING,         find_dissector("tr"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_PPP,                find_dissector("ppp_hdlc"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_FDDI,               find_dissector("fddi"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_RAW,                find_dissector("raw_ip"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_IEEE_802_11,        find_dissector("wlan"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_IEEE_802_11_PRISM,  find_dissector("prism"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_IEEE_802_11_AVS,    find_dissector("wlancap"));
+    dissector_add_uint("tzsp.encap", TZSP_ENCAP_IEEE_802_11_RADIOTAP, find_dissector("radiotap"));
 
     /* Register this protocol as an encapsulation type. */
     dissector_add_uint("wtap_encap", WTAP_ENCAP_TZSP, tzsp_handle);
