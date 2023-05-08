@@ -122,6 +122,8 @@ fi
 
 install_formulae "${ACTUAL_LIST[@]}"
 
+# Install python modules
+pip3 install pytest pytest-xdist
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
     pip3 install dmgbuild

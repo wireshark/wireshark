@@ -65,6 +65,7 @@ BASIC_LIST="
 	qt5-qtmultimedia-dev
 	qt5-qtsvg-dev
 	speexdsp-dev
+	python3
 	"
 
 ADDITIONAL_LIST="
@@ -87,6 +88,8 @@ ADDITIONAL_LIST="
 	minizip-dev
 	brotli-dev
 	perl
+	py3-pytest
+	py3-pytest-xdist
 	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
