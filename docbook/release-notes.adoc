@@ -135,6 +135,7 @@ Windows Delivery Optimization (MS-DO)
 FiRa UWB Controller Interface (UCI)
 Matter home automation protocol
 UBX protocol of u-blox GNSS receivers (UBX)
+FiveCo's Register Access Protocol (5CoRAP)
 --
 
 === Updated Protocol Support
