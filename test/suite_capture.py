@@ -83,11 +83,11 @@ def capture_command(*args, shell=False):
 
 
 @fixtures.fixture
-def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator):
+def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_10_packets_real(self, cmd=None, to_stdout=False):
         self.assertIsNotNone(cmd)
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
         if to_stdout:
             capture_proc = self.runProcess(capture_command(cmd,
@@ -122,14 +122,14 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator):
 
 
 @fixtures.fixture
-def check_capture_fifo(cmd_dumpcap):
+def check_capture_fifo(cmd_dumpcap, result_file):
     if sys.platform == 'win32':
         fixtures.skip('Test requires OS fifo support.')
 
     def check_capture_fifo_real(self, cmd=None):
         self.assertIsNotNone(cmd)
-        testout_file = self.filename_from_id(testout_pcap)
-        fifo_file = self.filename_from_id('testout.fifo')
+        testout_file = result_file(testout_pcap)
+        fifo_file = result_file('testout.fifo')
         try:
             # If a previous test left its fifo laying around, e.g. from a failure, remove it.
             os.unlink(fifo_file)
@@ -153,12 +153,12 @@ def check_capture_fifo(cmd_dumpcap):
 
 
 @fixtures.fixture
-def check_capture_stdin(cmd_dumpcap):
+def check_capture_stdin(cmd_dumpcap, result_file):
     # Capturing always requires dumpcap, hence the dependency on it.
     def check_capture_stdin_real(self, cmd=None):
         # Similar to suite_io.check_io_4_packets.
         self.assertIsNotNone(cmd)
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         slow_dhcp_cmd = subprocesstest.cat_dhcp_command('slow')
         capture_cmd = capture_command(cmd,
             '-i', '-',
@@ -180,11 +180,11 @@ def check_capture_stdin(cmd_dumpcap):
 
 
 @fixtures.fixture
-def check_capture_read_filter(capture_interface, traffic_generator):
+def check_capture_read_filter(capture_interface, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_read_filter_real(self, cmd=None):
         self.assertIsNotNone(cmd)
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
         capture_proc = self.assertRun(capture_command(cmd,
             '-i', capture_interface,
@@ -201,12 +201,12 @@ def check_capture_read_filter(capture_interface, traffic_generator):
     return check_capture_read_filter_real
 
 @fixtures.fixture
-def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator):
+def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_snapshot_len_real(self, cmd=None):
         self.assertIsNotNone(cmd)
         stop_traffic = start_traffic()
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         capture_proc = self.assertRun(capture_command(cmd,
             '-i', capture_interface,
             '-p',
@@ -219,7 +219,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator)
         self.assertTrue(os.path.isfile(testout_file))
 
         # Use tshark to filter out all packets larger than 68 bytes.
-        testout2_file = self.filename_from_id('testout2.pcap')
+        testout2_file = result_file('testout2.pcap')
 
         filter_proc = self.assertRun((cmd_tshark,
             '-r', testout_file,
@@ -231,10 +231,10 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator)
 
 
 @fixtures.fixture
-def check_dumpcap_autostop_stdin(cmd_dumpcap):
+def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
     def check_dumpcap_autostop_stdin_real(self, packets=None, filesize=None):
         # Similar to check_capture_stdin.
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
         condition='oops:invalid'
 
@@ -307,7 +307,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
 
 
 @fixtures.fixture
-def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
+def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_file):
     if sys.platform == 'win32':
         fixtures.skip('Test requires OS fifo support.')
     def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False):
@@ -333,7 +333,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
         check_vals = [ check_val_d ]
 
         for in_files in in_files_l:
-            fifo_file = self.filename_from_id('dumpcap_pcapng_sections_{}.fifo'.format(len(fifo_files) + 1))
+            fifo_file = result_file('dumpcap_pcapng_sections_{}.fifo'.format(len(fifo_files) + 1))
             fifo_files.append(fifo_file)
             # If a previous test left its fifo laying around, e.g. from a failure, remove it.
             try:
@@ -350,7 +350,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
             check_vals.append(check_val_d.copy())
             # check_vals[]['filename'] will be filled in below
         else:
-            testout_file = self.filename_from_id(testout_pcapng)
+            testout_file = result_file(testout_pcapng)
             check_vals[0]['filename'] = testout_file
 
         # Capture commands

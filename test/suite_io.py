@@ -25,12 +25,12 @@ def io_baseline_str(dirs):
         return f.read()
 
 
-def check_io_4_packets(self, capture_file, cmd=None, from_stdin=False, to_stdout=False):
+def check_io_4_packets(self, capture_file, result_file, cmd=None, from_stdin=False, to_stdout=False):
     # Test direct->direct, stdin->direct, and direct->stdout file I/O.
     # Similar to suite_capture.check_capture_10_packets and
     # suite_capture.check_capture_stdin.
     self.assertIsNotNone(cmd)
-    testout_file = self.filename_from_id(testout_pcap)
+    testout_file = result_file(testout_pcap)
     if from_stdin and to_stdout:
         # XXX If we support this, should we bother with separate stdin->direct
         # and direct->stdout tests?
@@ -57,29 +57,29 @@ def check_io_4_packets(self, capture_file, cmd=None, from_stdin=False, to_stdout
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_tshark_io(subprocesstest.SubprocessTestCase):
-    def test_tshark_io_stdin_direct(self, cmd_tshark, capture_file):
+    def test_tshark_io_stdin_direct(self, cmd_tshark, capture_file, result_file):
         '''Read from stdin and write direct using TShark'''
-        check_io_4_packets(self, capture_file, cmd=cmd_tshark, from_stdin=True)
+        check_io_4_packets(self, capture_file, result_file, cmd=cmd_tshark, from_stdin=True)
 
-    def test_tshark_io_direct_stdout(self, cmd_tshark, capture_file):
+    def test_tshark_io_direct_stdout(self, cmd_tshark, capture_file, result_file):
         '''Read direct and write to stdout using TShark'''
-        check_io_4_packets(self, capture_file, cmd=cmd_tshark, to_stdout=True)
+        check_io_4_packets(self, capture_file, result_file, cmd=cmd_tshark, to_stdout=True)
 
-    def test_tshark_io_direct_direct(self, cmd_tshark, capture_file):
+    def test_tshark_io_direct_direct(self, cmd_tshark, capture_file, result_file):
         '''Read direct and write direct using TShark'''
-        check_io_4_packets(self, capture_file, cmd=cmd_tshark)
+        check_io_4_packets(self, capture_file, result_file, cmd=cmd_tshark)
 
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_rawshark_io(subprocesstest.SubprocessTestCase):
     @unittest.skipUnless(sys.byteorder == 'little', 'Requires a little endian system')
-    def test_rawshark_io_stdin(self, cmd_rawshark, capture_file, io_baseline_str):
+    def test_rawshark_io_stdin(self, cmd_rawshark, capture_file, result_file, io_baseline_str):
         '''Read from stdin using Rawshark'''
         # tail -c +25 "${CAPTURE_DIR}dhcp.pcap" | $RAWSHARK -dencap:1 -R "udp.port==68" -nr - > $IO_RAWSHARK_DHCP_PCAP_TESTOUT 2> /dev/null
         # diff -u --strip-trailing-cr $IO_RAWSHARK_DHCP_PCAP_BASELINE $IO_RAWSHARK_DHCP_PCAP_TESTOUT > $DIFF_OUT 2>&1
         capture_file = capture_file('dhcp.pcap')
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         raw_dhcp_cmd = subprocesstest.cat_dhcp_command('raw')
         rawshark_cmd = '{0} | "{1}" -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, cmd_rawshark)
         rawshark_proc = self.assertRun(rawshark_cmd, shell=True)

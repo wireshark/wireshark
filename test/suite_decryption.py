@@ -784,11 +784,11 @@ class case_decrypt_kerberos(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('ccda7d48219f73c3b28311c4ba7242b3'))
 
 
-@fixtures.fixture(scope='session')
-def run_wireguard_test(cmd_tshark, capture_file, features):
+@fixtures.fixture
+def run_wireguard_test(cmd_tshark, capture_file, result_file, features):
     def runOne(self, args, keylog=None, pcap_file='wireguard-ping-tcp.pcap'):
         if keylog:
-            keylog_file = self.filename_from_id('wireguard.keys')
+            keylog_file = result_file('wireguard.keys')
             args += ['-owg.keylog_file:%s' % keylog_file]
             with open(keylog_file, 'w') as f:
                 f.write("\n".join(keylog))

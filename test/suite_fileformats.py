@@ -138,11 +138,11 @@ def check_pcapng_dsb_fields(request, cmd_tshark):
 @fixtures.mark_usefixtures('base_env')
 @fixtures.uses_fixtures
 class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
-    def test_pcapng_dsb_1(self, cmd_tshark, dirs, capture_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_1(self, cmd_tshark, dirs, capture_file, result_file, check_pcapng_dsb_fields):
         '''Check that DSBs are preserved while rewriting files.'''
         dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
         dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
-        outfile = self.filename_from_id('tls12-dsb-same.pcapng')
+        outfile = result_file('tls12-dsb-same.pcapng')
         self.assertRun((cmd_tshark,
             '-r', capture_file('tls12-dsb.pcapng'),
             '-w', outfile,
@@ -156,10 +156,10 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(dsb2_contents), dsb2_contents),
         ))
 
-    def test_pcapng_dsb_2(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_2(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
         '''Insert a single DSB into a pcapng file.'''
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
-        outfile = self.filename_from_id('dhe1-dsb.pcapng')
+        outfile = result_file('dhe1-dsb.pcapng')
         self.assertRun((cmd_editcap,
             '--inject-secrets', 'tls,%s' % key_file,
             capture_file('dhe1.pcapng.gz'), outfile
@@ -170,11 +170,11 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(keylog_contents), keylog_contents),
         ))
 
-    def test_pcapng_dsb_3(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_3(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
         '''Insert two DSBs into a pcapng file.'''
         key_file1 = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         key_file2 = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
-        outfile = self.filename_from_id('dhe1-dsb.pcapng')
+        outfile = result_file('dhe1-dsb.pcapng')
         self.assertRun((cmd_editcap,
             '--inject-secrets', 'tls,%s' % key_file1,
             '--inject-secrets', 'tls,%s' % key_file2,
@@ -189,12 +189,12 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(keylog2_contents), keylog2_contents),
         ))
 
-    def test_pcapng_dsb_4(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_4(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
         '''Insert a single DSB into a pcapng file with existing DSBs.'''
         dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
         dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
-        outfile = self.filename_from_id('tls12-dsb-extra.pcapng')
+        outfile = result_file('tls12-dsb-extra.pcapng')
         self.assertRun((cmd_editcap,
             '--inject-secrets', 'tls,%s' % key_file,
             capture_file('tls12-dsb.pcapng'), outfile
@@ -214,11 +214,11 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(dsb2_contents), dsb2_contents),
         ))
 
-    def test_pcapng_dsb_bad_key(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_bad_key(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
         '''Insertion of a RSA key file is not very effective.'''
         rsa_keyfile = os.path.join(dirs.key_dir, 'rsasnakeoil2.key')
         p12_keyfile = os.path.join(dirs.key_dir, 'key.p12')
-        outfile = self.filename_from_id('rsasnakeoil2-dsb.pcapng')
+        outfile = result_file('rsasnakeoil2-dsb.pcapng')
         proc = self.assertRun((cmd_editcap,
             '--inject-secrets', 'tls,%s' % rsa_keyfile,
             '--inject-secrets', 'tls,%s' % p12_keyfile,

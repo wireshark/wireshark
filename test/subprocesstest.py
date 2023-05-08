@@ -142,21 +142,13 @@ class SubprocessTestCase(unittest.TestCase):
         self.exit_open_error = 9
 
         self.exit_code = None
-        self.log_fname = None
-        self.log_fd = None
+        self.log_fd = sys.stdout
         self.processes = []
         self.cleanup_files = []
         self.dump_files = []
 
     def log_fd_write_bytes(self, log_data):
         self.log_fd.write(log_data)
-
-    def filename_from_id(self, filename):
-        '''Generate a filename prefixed with our test ID.'''
-        id_filename = self.id() + '.' + filename
-        if id_filename not in self.cleanup_files:
-            self.cleanup_files.append(id_filename)
-        return id_filename
 
     def kill_processes(self):
         '''Kill any processes we've opened so far'''
@@ -166,60 +158,12 @@ class SubprocessTestCase(unittest.TestCase):
             except Exception:
                 pass
 
-    def setUp(self):
-        """
-        Set up a single test. Opens a log file and add it to the cleanup list.
-        """
-        self.processes = []
-        self.log_fname = self.filename_from_id('log')
-        # Our command line utilities generate UTF-8. The log file endcoding
-        # needs to match that.
-        # XXX newline='\n' works for now, but we might have to do more work
-        # to handle line endings in the future.
-        self.log_fd = io.open(self.log_fname, 'w', encoding='UTF-8', newline='\n')
-        self.cleanup_files.append(self.log_fname)
-
-    def _last_test_failed(self):
-        """Check for non-skipped tests that resulted in errors."""
-        # The test outcome is not available via the public unittest API, so
-        # check a private property, "_outcome", set by unittest.TestCase.run.
-        # It remains None when running in debug mode (`pytest --pdb`).
-        # The property is available since Python 3.4 until at least Python 3.7.
-        if self._outcome:
-            if hasattr(self._outcome, 'errors'):
-                # Python 3.4 - 3.10
-                result = self.defaultTestResult()
-                self._feedErrorsToResult(result, self._outcome.errors)
-            else:
-                # Python 3.11+
-                result = self._outcome.result
-            for test_case, exc_info in (result.errors + result.failures):
-                if exc_info:
-                    return True
-        # No errors occurred or running in debug mode.
-        return False
-
     def tearDown(self):
         """
         Tears down a single test. Kills stray processes and closes the log file.
         On errors, display the log contents. On success, remove temporary files.
         """
         self.kill_processes()
-        self.log_fd.close()
-        if self._last_test_failed():
-            self.dump_files.append(self.log_fname)
-            # Leave some evidence behind.
-            self.cleanup_files = []
-            print('\nProcess output for {}:'.format(self.id()))
-            with io.open(self.log_fname, 'r', encoding='UTF-8', errors='backslashreplace') as log_fd:
-                for line in log_fd:
-                    sys.stdout.write(line)
-        for filename in self.cleanup_files:
-            try:
-                os.unlink(filename)
-            except OSError:
-                pass
-        self.cleanup_files = []
 
     def getCaptureInfo(self, capinfos_args=None, cap_file=None):
         '''Run capinfos on a capture file and log its output.
@@ -229,7 +173,7 @@ class SubprocessTestCase(unittest.TestCase):
         # XXX convert users to use a new fixture instead of this function.
         cmd_capinfos = self._fixture_request.getfixturevalue('cmd_capinfos')
         if not cap_file:
-            cap_file = self.filename_from_id('testout.pcap')
+            cap_file = self._fixture_request.getfixturevalue('result_file')('testout.pcap')
         self.log_fd.write('\nOutput of {0} {1}:\n'.format(cmd_capinfos, cap_file))
         capinfos_cmd = [cmd_capinfos]
         if capinfos_args is not None:
