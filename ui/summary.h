@@ -56,7 +56,6 @@ typedef struct _summary_tally {
     const char           *filename;           /**< path of capture file */
     gint64                file_length;        /**< file length in bytes */
     gchar                 file_sha256[HASH_STR_SIZE];  /**< SHA256 hash of capture file */
-    gchar                 file_rmd160[HASH_STR_SIZE];  /**< RIPEMD160 hash of capture file */
     gchar                 file_sha1[HASH_STR_SIZE];    /**< SHA1 hash of capture file */
     int                   file_type;          /**< wiretap file type */
     wtap_compression_type compression_type;   /**< compression type of file, or uncompressed */
