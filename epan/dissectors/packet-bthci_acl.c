@@ -264,14 +264,14 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->bdaddr_to_role, key);
         device_role = (subtree) ? (device_role_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
         if (device_role) {
-            if ((pinfo->p2p_dir == P2P_DIR_SENT && device_role->role == ROLE_MASTER) ||
-                    (pinfo->p2p_dir == P2P_DIR_RECV && device_role->role == ROLE_SLAVE)) {
-                src_role = ROLE_SLAVE;
-                dst_role = ROLE_MASTER;
-            } else if ((pinfo->p2p_dir == P2P_DIR_SENT && device_role->role == ROLE_SLAVE) ||
-                    (pinfo->p2p_dir == P2P_DIR_RECV && device_role->role == ROLE_MASTER)) {
-                src_role = ROLE_MASTER;
-                dst_role = ROLE_SLAVE;
+            if ((pinfo->p2p_dir == P2P_DIR_SENT && device_role->role == ROLE_CENTRAL) ||
+                    (pinfo->p2p_dir == P2P_DIR_RECV && device_role->role == ROLE_PERIPHERAL)) {
+                src_role = ROLE_PERIPHERAL;
+                dst_role = ROLE_CENTRAL;
+            } else if ((pinfo->p2p_dir == P2P_DIR_SENT && device_role->role == ROLE_PERIPHERAL) ||
+                    (pinfo->p2p_dir == P2P_DIR_RECV && device_role->role == ROLE_CENTRAL)) {
+                src_role = ROLE_CENTRAL;
+                dst_role = ROLE_PERIPHERAL;
             }
             role_last_change_in_frame = device_role->change_in_frame;
         }

@@ -158,9 +158,9 @@ typedef struct _stream_connection_handle_pair_t {
     guint32  change_in_frame;
 } stream_connection_handle_pair_t;
 
-#define ROLE_UNKNOWN  0
-#define ROLE_MASTER   1
-#define ROLE_SLAVE    2
+#define ROLE_UNKNOWN    0
+#define ROLE_CENTRAL    1
+#define ROLE_PERIPHERAL 2
 
 typedef struct _localhost_bdaddr_entry_t {
     guint32  interface_id;
