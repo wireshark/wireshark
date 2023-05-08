@@ -1698,7 +1698,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		lenstr = tvb_strsize(tvb,offset);
 		proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
-		conn_data->auth_method = tvb_get_string_enc(pinfo->pool, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(wmem_file_scope(), tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -1848,7 +1848,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		mysql_set_conn_state(pinfo, conn_data, AUTH_SWITCH_REQUEST);
 		lenstr= my_tvb_strsize(tvb,offset);
 		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
-		conn_data->auth_method = tvb_get_string_enc(pinfo->pool, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(wmem_file_scope(), tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -3711,7 +3711,7 @@ mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/* name */
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_mysql_auth_switch_request_name, tvb, offset, lenstr, ENC_ASCII);
-		conn_data->auth_method = tvb_get_string_enc(pinfo->pool, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(wmem_file_scope(), tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 
 		/* Data */
