@@ -23,7 +23,6 @@ jobs:
           -GNinja
           -DENABLE_BROTLI=OFF
           -DENABLE_CAP=OFF
-          -DENABLE_CARES=OFF
           -DENABLE_CHECKHF_CONFLICT=ON
           -DENABLE_GNUTLS=OFF
           -DENABLE_KERBEROS=OFF
