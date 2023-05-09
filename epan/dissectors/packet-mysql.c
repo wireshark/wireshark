@@ -254,7 +254,6 @@ static const value_string mysql_clone_response_vals[] = {
 #define MYSQL_COMPRESS_NONE   0
 #define MYSQL_COMPRESS_INIT   1
 #define MYSQL_COMPRESS_ACTIVE 2
-#define MYSQL_COMPRESS_PAYLOAD 3
 
 #define MYSQL_COMPRESS_ALG_ZLIB 0
 #define MYSQL_COMPRESS_ALG_ZSTD 1
@@ -2567,10 +2566,34 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
  * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression.html
  */
 static int
-mysql_dissect_compressed(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, packet_info *pinfo, mysql_conn_data_t *conn_data)
+dissect_mysql_compressed_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+	proto_tree *mysql_tree;
+	proto_item *ti;
 	tvbuff_t *next_tvb, *next_tvb2;
+
+	conversation_t *conversation;
+	mysql_conn_data_t *conn_data;
+	int offset = 0;
 	guint clen, ulen;
+
+	/* get conversation, create if necessary*/
+	conversation = find_or_create_conversation(pinfo);
+
+	/* get associated state information, create if necessary */
+	conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
+	if (!conn_data) {
+		conn_data = wmem_new0(wmem_file_scope(), mysql_conn_data_t);
+		conn_data->stmts = wmem_tree_new(wmem_file_scope());
+		conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+		conversation_add_proto_data(conversation, proto_mysql, conn_data);
+	}
+
+	ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, 7, ENC_NA);
+	proto_item_append_text(ti, " - compressed packet header");
+	mysql_tree = proto_item_add_subtree(ti, ett_mysql);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MySQL");
 
 	clen = tvb_get_letoh24(tvb, offset);
 	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -2603,9 +2626,7 @@ mysql_dissect_compressed(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, pack
 				guint32 pdulen = tvb_get_letoh24(next_tvb, next_offset) + 4;
 				next_tvb2 = tvb_new_subset_length(next_tvb, next_offset, pdulen);
 
-				conn_data->compressed_state = MYSQL_COMPRESS_PAYLOAD;
-				dissect_mysql_pdu(next_tvb2, pinfo, mysql_tree, NULL);
-				conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+				dissect_mysql_pdu(next_tvb2, pinfo, tree, NULL);
 
 				next_offset += pdulen;
 			}
@@ -2618,9 +2639,7 @@ mysql_dissect_compressed(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, pack
 			guint32 pdulen = tvb_get_letoh24(tvb, offset) + 4;
 			next_tvb = tvb_new_subset_length(tvb, offset, pdulen);
 
-			conn_data->compressed_state = MYSQL_COMPRESS_PAYLOAD;
-			dissect_mysql_pdu(next_tvb, pinfo, mysql_tree, NULL);
-			conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+			dissect_mysql_pdu(next_tvb, pinfo, tree, NULL);
 
 			offset += pdulen;
 		}
@@ -4058,13 +4077,6 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_mysql, tvb_raw_offset(tvb), mysql_frame_data_p);
 	}
 
-	if ((conn_data->frame_start_compressed) && (pinfo->num > conn_data->frame_start_compressed)) {
-		if (conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE) {
-			mysql_dissect_compressed(tvb, offset, tree, pinfo, conn_data);
-			return tvb_reported_length(tvb);
-		}
-	}
-
 	ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, ENC_NA);
 	mysql_tree = proto_item_add_subtree(ti, ett_mysql);
 	proto_tree_add_item(mysql_tree, hf_mysql_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -4167,8 +4179,20 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
-			 get_mysql_pdu_len, dissect_mysql_pdu, data);
+	conversation_t *conversation;
+	mysql_conn_data_t *conn_data = NULL;
+
+	conversation = find_conversation_pinfo(pinfo, 0);
+	if (conversation) {
+		conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
+	}
+	if (conn_data && conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE && pinfo->num > conn_data->frame_start_compressed) {
+		tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
+				 get_mysql_pdu_len, dissect_mysql_compressed_pdu, data);
+	} else {
+		tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
+				 get_mysql_pdu_len, dissect_mysql_pdu, data);
+	}
 
 	return tvb_reported_length(tvb);
 }
