@@ -23,6 +23,8 @@
 void proto_register_calcappprotocol(void);
 void proto_reg_handoff_calcappprotocol(void);
 
+static dissector_handle_t calcappprotocol_handle;
+
 #define CALCAPPPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097603
 
 
@@ -402,14 +404,13 @@ proto_register_calcappprotocol(void)
   tap_calcappprotocol = register_tap("calcappprotocol");
 
   register_stat_tap_table_ui(&calcappprotocol_stat_table);
+
+  calcappprotocol_handle = register_dissector("calcappprotocol", dissect_calcappprotocol, proto_calcappprotocol);
 }
 
 void
 proto_reg_handoff_calcappprotocol(void)
 {
-  dissector_handle_t calcappprotocol_handle;
-
-  calcappprotocol_handle = create_dissector_handle(dissect_calcappprotocol, proto_calcappprotocol);
   dissector_add_uint("sctp.ppi", CALCAPPPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, calcappprotocol_handle);
   dissector_add_uint("sctp.ppi", CALCAPP_PAYLOAD_PROTOCOL_ID, calcappprotocol_handle);
 }

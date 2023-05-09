@@ -31,6 +31,8 @@
 void proto_register_devicenet(void);
 void proto_reg_handoff_devicenet(void);
 
+static dissector_handle_t devicenet_handle;
+
 #define DEVICENET_CANID_MASK            CAN_SFF_MASK
 #define MESSAGE_GROUP_1_ID              0x3FF
 #define MESSAGE_GROUP_1_MSG_MASK        0x3C0
@@ -1044,14 +1046,13 @@ void proto_register_devicenet(void)
                                       "Node bodytypes",
                                       "Node bodytypes",
                                       devicenet_uat);
+
+    devicenet_handle = register_dissector("devicenet",  dissect_devicenet, proto_devicenet );
 }
 
 void
 proto_reg_handoff_devicenet(void)
 {
-    dissector_handle_t devicenet_handle;
-
-    devicenet_handle = create_dissector_handle( dissect_devicenet, proto_devicenet );
     dissector_add_for_decode_as("can.subdissector", devicenet_handle );
 }
 

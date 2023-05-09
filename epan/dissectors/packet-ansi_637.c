@@ -331,6 +331,7 @@ static expert_field ei_ansi_637_no_tele_parameter_dissector = EI_INIT;
 
 static dissector_handle_t ansi_637_tele_handle;
 static dissector_handle_t ansi_637_trans_handle;
+static dissector_handle_t ansi_637_trans_app_handle;
 
 static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
@@ -3314,6 +3315,7 @@ proto_register_ansi_637(void)
 
     ansi_637_tele_handle = register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
     ansi_637_trans_handle = register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
+    ansi_637_trans_app_handle = register_dissector("ansi_637_trans_app", dissect_ansi_637_trans_app, proto_ansi_637_trans);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_637_tele, hf_tele, array_length(hf_tele));
@@ -3333,10 +3335,7 @@ proto_register_ansi_637(void)
 void
 proto_reg_handoff_ansi_637(void)
 {
-    dissector_handle_t  ansi_637_trans_app_handle;
-    guint               i;
-
-    ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
+    guint i;
 
     /* Dissect messages embedded in SIP */
     dissector_add_string("media_type", "application/vnd.3gpp2.sms", ansi_637_trans_app_handle);

@@ -44,6 +44,8 @@
 void proto_register_dec_bpdu(void);
 void proto_reg_handoff_dec_bpdu(void);
 
+static dissector_handle_t dec_bpdu_handle;
+
 static int proto_dec_bpdu = -1;
 static int hf_dec_bpdu_proto_id = -1;
 static int hf_dec_bpdu_type = -1;
@@ -227,15 +229,14 @@ proto_register_dec_bpdu(void)
                                              "DEC_STP", "dec_stp");
     proto_register_field_array(proto_dec_bpdu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    dec_bpdu_handle = register_dissector("dec_stp", dissect_dec_bpdu,
+                                              proto_dec_bpdu);
 }
 
 void
 proto_reg_handoff_dec_bpdu(void)
 {
-    dissector_handle_t dec_bpdu_handle;
-
-    dec_bpdu_handle = create_dissector_handle(dissect_dec_bpdu,
-                                              proto_dec_bpdu);
     dissector_add_uint("ethertype", ETHERTYPE_DEC_LB, dec_bpdu_handle);
     dissector_add_uint("chdlc.protocol", ETHERTYPE_DEC_LB, dec_bpdu_handle);
     dissector_add_uint("ppp.protocol", PPP_DEC_LB, dec_bpdu_handle);

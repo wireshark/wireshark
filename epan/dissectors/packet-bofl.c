@@ -67,6 +67,8 @@
 void proto_register_bofl(void);
 void proto_reg_handoff_bofl(void);
 
+static dissector_handle_t bofl_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_bofl       = -1;
 static int hf_bofl_pdu      = -1;
@@ -141,15 +143,14 @@ proto_register_bofl(void)
                                          "BOFL", "bofl");
     proto_register_field_array(proto_bofl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    bofl_handle = register_dissector("bofl", dissect_bofl, proto_bofl);
 }
 
 
 void
 proto_reg_handoff_bofl(void)
 {
-    dissector_handle_t bofl_handle;
-
-    bofl_handle = create_dissector_handle(dissect_bofl, proto_bofl);
     dissector_add_uint("ethertype", ETHER_TYPE_SLPP, bofl_handle);
 }
 

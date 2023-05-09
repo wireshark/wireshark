@@ -18,6 +18,8 @@
 void proto_register_dpnet(void);
 void proto_reg_handoff_dpnet(void);
 
+static dissector_handle_t dpnet_handle;
+
 #define DPNET_PORT 6073
 
 static int proto_dpnet = -1;
@@ -847,14 +849,13 @@ proto_register_dpnet(void)
 
     proto_register_field_array(proto_dpnet, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    dpnet_handle = register_dissector("dpnet", dissect_dpnet, proto_dpnet);
 }
 
 void
 proto_reg_handoff_dpnet(void)
 {
-    static dissector_handle_t dpnet_handle;
-
-    dpnet_handle = create_dissector_handle(dissect_dpnet, proto_dpnet);
     dissector_add_uint("udp.port", DPNET_PORT, dpnet_handle);
 }
 

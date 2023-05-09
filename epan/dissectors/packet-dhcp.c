@@ -10345,54 +10345,54 @@ proto_reg_handoff_dhcp(void)
 	dissector_add_uint_range_with_preference("udp.port", DHCP_UDP_PORT_RANGE, dhcp_handle);
 
 	/* Create dissection function handles for all DHCP/BOOTP options */
-	dhcpopt_basic_handle = create_dissector_handle( dissect_dhcpopt_basic_type, -1 );
+	dhcpopt_basic_handle = create_dissector_handle( dissect_dhcpopt_basic_type, proto_dhcp );
 	range_convert_str(wmem_epan_scope(), &dhcpopt_basictype_range, DHCP_OPTION_BASICTYPE_RANGE, 0xFF);
 	dissector_add_uint_range("dhcp.option", dhcpopt_basictype_range, dhcpopt_basic_handle);
 
-	dissector_add_uint("dhcp.option", 21, create_dissector_handle( dissect_dhcpopt_policy_filter, -1 ));
-	dissector_add_uint("dhcp.option", 33, create_dissector_handle( dissect_dhcpopt_static_route, -1 ));
-	dissector_add_uint("dhcp.option", 43, create_dissector_handle( dissect_dhcpopt_vendor_specific_info, -1 ));
-	dissector_add_uint("dhcp.option", 52, create_dissector_handle( dissect_dhcpopt_option_overload, -1 ));
-	dissector_add_uint("dhcp.option", 53, create_dissector_handle( dissect_dhcpopt_dhcp, -1 ));
-	dissector_add_uint("dhcp.option", 55, create_dissector_handle( dissect_dhcpopt_param_request_list, -1 ));
-	dissector_add_uint("dhcp.option", 60, create_dissector_handle( dissect_dhcpopt_vendor_class_identifier, -1 ));
-	dissector_add_uint("dhcp.option", 61, create_dissector_handle( dissect_dhcpopt_client_identifier, -1 ));
-	dissector_add_uint("dhcp.option", 63, create_dissector_handle( dissect_dhcpopt_netware_ip, -1 ));
-	dissector_add_uint("dhcp.option", 77, create_dissector_handle( dissect_dhcpopt_user_class_information, -1 ));
-	dissector_add_uint("dhcp.option", 78, create_dissector_handle( dissect_dhcpopt_slp_directory_agent, -1 ));
-	dissector_add_uint("dhcp.option", 79, create_dissector_handle( dissect_dhcpopt_slp_service_scope, -1 ));
-	dissector_add_uint("dhcp.option", 81, create_dissector_handle( dissect_dhcpopt_client_full_domain_name, -1 ));
-	dissector_add_uint("dhcp.option", 82, create_dissector_handle( dissect_dhcpopt_relay_agent_info, -1 ));
-	dissector_add_uint("dhcp.option", 83, create_dissector_handle( dissect_dhcpopt_isns, -1 ));
-	dissector_add_uint("dhcp.option", 85, create_dissector_handle( dissect_dhcpopt_novell_servers, -1 ));
-	dissector_add_uint("dhcp.option", 90, create_dissector_handle( dissect_dhcpopt_dhcp_authentication, -1 ));
-	dissector_add_uint("dhcp.option", 93, create_dissector_handle( dissect_dhcpopt_client_architecture, -1 ));
-	dissector_add_uint("dhcp.option", 94, create_dissector_handle( dissect_dhcpopt_client_network_interface_id, -1 ));
-	dissector_add_uint("dhcp.option", 97, create_dissector_handle( dissect_dhcpopt_client_identifier_uuid, -1 ));
-	dissector_add_uint("dhcp.option", 99, create_dissector_handle( dissect_dhcpopt_civic_location, -1 ));
-	dissector_add_uint("dhcp.option", 114, create_dissector_handle( dissect_dhcpopt_dhcp_captive_portal, -1 ));
-	dissector_add_uint("dhcp.option", 117, create_dissector_handle( dissect_dhcpopt_name_server_search, -1 ));
-	dissector_add_uint("dhcp.option", 119, create_dissector_handle( dissect_dhcpopt_dhcp_domain_search, -1 ));
-	dissector_add_uint("dhcp.option", 120, create_dissector_handle( dissect_dhcpopt_sip_servers, -1 ));
-	dissector_add_uint("dhcp.option", 121, create_dissector_handle( dissect_dhcpopt_classless_static_route, -1 ));
+	dissector_add_uint("dhcp.option", 21, create_dissector_handle( dissect_dhcpopt_policy_filter, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 33, create_dissector_handle( dissect_dhcpopt_static_route, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 43, create_dissector_handle( dissect_dhcpopt_vendor_specific_info, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 52, create_dissector_handle( dissect_dhcpopt_option_overload, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 53, create_dissector_handle( dissect_dhcpopt_dhcp, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 55, create_dissector_handle( dissect_dhcpopt_param_request_list, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 60, create_dissector_handle( dissect_dhcpopt_vendor_class_identifier, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 61, create_dissector_handle( dissect_dhcpopt_client_identifier, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 63, create_dissector_handle( dissect_dhcpopt_netware_ip, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 77, create_dissector_handle( dissect_dhcpopt_user_class_information, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 78, create_dissector_handle( dissect_dhcpopt_slp_directory_agent, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 79, create_dissector_handle( dissect_dhcpopt_slp_service_scope, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 81, create_dissector_handle( dissect_dhcpopt_client_full_domain_name, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 82, create_dissector_handle( dissect_dhcpopt_relay_agent_info, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 83, create_dissector_handle( dissect_dhcpopt_isns, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 85, create_dissector_handle( dissect_dhcpopt_novell_servers, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 90, create_dissector_handle( dissect_dhcpopt_dhcp_authentication, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 93, create_dissector_handle( dissect_dhcpopt_client_architecture, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 94, create_dissector_handle( dissect_dhcpopt_client_network_interface_id, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 97, create_dissector_handle( dissect_dhcpopt_client_identifier_uuid, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 99, create_dissector_handle( dissect_dhcpopt_civic_location, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 114, create_dissector_handle( dissect_dhcpopt_dhcp_captive_portal, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 117, create_dissector_handle( dissect_dhcpopt_name_server_search, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 119, create_dissector_handle( dissect_dhcpopt_dhcp_domain_search, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 120, create_dissector_handle( dissect_dhcpopt_sip_servers, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 121, create_dissector_handle( dissect_dhcpopt_classless_static_route, proto_dhcp ));
 	/* The PacketCable CCC option number can vary. Still handled through preference */
-	dissector_add_uint("dhcp.option", 122, create_dissector_handle( dissect_dhcpopt_packetcable_ccc, -1 ));
+	dissector_add_uint("dhcp.option", 122, create_dissector_handle( dissect_dhcpopt_packetcable_ccc, proto_dhcp ));
 
-	dissector_add_uint("dhcp.option", 123, create_dissector_handle( dissect_dhcpopt_coordinate_based_location, -1 ));
-	dissector_add_uint("dhcp.option", 124, create_dissector_handle( dissect_dhcpopt_vi_vendor_class, -1 ));
-	dissector_add_uint("dhcp.option", 125, create_dissector_handle( dissect_dhcpopt_vi_vendor_specific_info, -1 ));
-	dissector_add_uint("dhcp.option", 145, create_dissector_handle( dissect_dhcpopt_forcerenew_nonce, -1 ));
-	dissector_add_uint("dhcp.option", 146, create_dissector_handle( dissect_dhcpopt_rdnss, -1 ));
-	dissector_add_uint("dhcp.option", 151, create_dissector_handle( dissect_dhcpopt_bulk_lease_status_code, -1 ));
-	dissector_add_uint("dhcp.option", 152, create_dissector_handle( dissect_dhcpopt_bulk_lease_base_time, -1 ));
-	dissector_add_uint("dhcp.option", 154, create_dissector_handle( dissect_dhcpopt_bulk_lease_query_start, -1 ));
-	dissector_add_uint("dhcp.option", 155, create_dissector_handle( dissect_dhcpopt_bulk_lease_query_end, -1 ));
-	dissector_add_uint("dhcp.option", 158, create_dissector_handle( dissect_dhcpopt_pcp_server, -1 ));
-	dissector_add_uint("dhcp.option", 159, create_dissector_handle( dissect_dhcpopt_portparams, -1 ));
-	dissector_add_uint("dhcp.option", 160, create_dissector_handle( dissect_dhcpopt_dhcp_captive_portal, -1 ));
-	dissector_add_uint("dhcp.option", 212, create_dissector_handle( dissect_dhcpopt_6RD_option, -1 ));
-	dissector_add_uint("dhcp.option", 242, create_dissector_handle( dissect_dhcpopt_avaya_ip_telephone, -1 ));
-	dissector_add_uint("dhcp.option", 249, create_dissector_handle( dissect_dhcpopt_classless_static_route, -1 ));
+	dissector_add_uint("dhcp.option", 123, create_dissector_handle( dissect_dhcpopt_coordinate_based_location, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 124, create_dissector_handle( dissect_dhcpopt_vi_vendor_class, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 125, create_dissector_handle( dissect_dhcpopt_vi_vendor_specific_info, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 145, create_dissector_handle( dissect_dhcpopt_forcerenew_nonce, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 146, create_dissector_handle( dissect_dhcpopt_rdnss, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 151, create_dissector_handle( dissect_dhcpopt_bulk_lease_status_code, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 152, create_dissector_handle( dissect_dhcpopt_bulk_lease_base_time, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 154, create_dissector_handle( dissect_dhcpopt_bulk_lease_query_start, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 155, create_dissector_handle( dissect_dhcpopt_bulk_lease_query_end, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 158, create_dissector_handle( dissect_dhcpopt_pcp_server, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 159, create_dissector_handle( dissect_dhcpopt_portparams, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 160, create_dissector_handle( dissect_dhcpopt_dhcp_captive_portal, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 212, create_dissector_handle( dissect_dhcpopt_6RD_option, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 242, create_dissector_handle( dissect_dhcpopt_avaya_ip_telephone, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 249, create_dissector_handle( dissect_dhcpopt_classless_static_route, proto_dhcp ));
 
 	/* Create heuristic dissection for DHCP vendor class id */
 	heur_dissector_add( "dhcp.vendor_id", dissect_packetcable_mta_vendor_id_heur, "PacketCable MTA", "packetcable_mta_dhcp", proto_dhcp, HEURISTIC_ENABLE );
@@ -10416,8 +10416,8 @@ proto_reg_handoff_dhcp(void)
 	heur_dissector_add( "dhcp.vendor_info", dissect_cisco_vendor_info_heur, "Cisco", "cisco_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 
 	/* Create dissection function handles for DHCP Enterprise dissection */
-	dissector_add_uint("dhcp.enterprise", 4491, create_dissector_handle( dissect_vendor_cl_suboption, -1 ));
-	dissector_add_uint("dhcp.enterprise", 3561, create_dissector_handle( dissect_vendor_tr111_suboption, -1 ));
+	dissector_add_uint("dhcp.enterprise", 4491, create_dissector_handle( dissect_vendor_cl_suboption, proto_dhcp ));
+	dissector_add_uint("dhcp.enterprise", 3561, create_dissector_handle( dissect_vendor_tr111_suboption, proto_dhcp ));
 }
 
 /*

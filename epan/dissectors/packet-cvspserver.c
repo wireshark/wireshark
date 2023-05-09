@@ -18,6 +18,8 @@
 void proto_register_cvspserver(void);
 void proto_reg_handoff_cvspserver(void);
 
+static dissector_handle_t cvspserver_handle;
+
 static int proto_cvspserver = -1;
 
 static int hf_cvspserver_data = -1;
@@ -72,14 +74,13 @@ proto_register_cvspserver(void)
 	proto_cvspserver = proto_register_protocol("CVS pserver", "cvspserver", "cvspserver");
 	proto_register_field_array(proto_cvspserver, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	cvspserver_handle = register_dissector("cvspserver", dissect_cvspserver, proto_cvspserver);
 }
 
 void
 proto_reg_handoff_cvspserver(void)
 {
-	dissector_handle_t cvspserver_handle;
-
-	cvspserver_handle = create_dissector_handle(dissect_cvspserver, proto_cvspserver);
 	dissector_add_uint_with_preference("tcp.port", CVSPSERVER_PORT_TCP, cvspserver_handle);
 }
 

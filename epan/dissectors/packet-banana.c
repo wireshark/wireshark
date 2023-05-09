@@ -312,12 +312,13 @@ proto_register_banana(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_banana = expert_register_protocol(proto_banana);
     expert_register_field_array(expert_banana, ei, array_length(ei));
+
+    banana_handle = register_dissector("banana", dissect_banana, proto_banana);
 }
 
 void
 proto_reg_handoff_banana(void)
 {
-    banana_handle = create_dissector_handle(dissect_banana, proto_banana);
     dissector_add_uint_range_with_preference("tcp.port", "", banana_handle);
 }
 

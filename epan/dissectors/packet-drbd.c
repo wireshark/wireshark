@@ -1633,11 +1633,12 @@ void proto_register_drbd(void)
     proto_drbd = proto_register_protocol("DRBD Protocol", "DRBD", "drbd");
     proto_register_field_array(proto_drbd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    drbd_handle = register_dissector("drbd", dissect_drbd, proto_drbd);
 }
 
 void proto_reg_handoff_drbd(void)
 {
-    drbd_handle = create_dissector_handle(dissect_drbd, proto_drbd);
     heur_dissector_add("tcp", test_drbd_protocol, "DRBD over TCP", "drbd_tcp", proto_drbd, HEURISTIC_DISABLE);
     heur_dissector_add("infiniband.payload", dissect_drbd_ib, "DRBD over RDMA", "drbd_rdma", proto_drbd, HEURISTIC_DISABLE);
 }

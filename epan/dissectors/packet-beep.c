@@ -31,6 +31,8 @@
 void proto_register_beep(void);
 void proto_reg_handoff_beep(void);
 
+static dissector_handle_t beep_handle;
+
 static range_t *global_beep_tcp_ports = NULL;
 static int global_beep_strict_term = TRUE;
 
@@ -976,16 +978,14 @@ proto_register_beep(void)
                                  "Specifies that BEEP requires CRLF as a "
                                  "terminator, and not just CR or LF",
                                  &global_beep_strict_term);
+
+  beep_handle = register_dissector("beep", dissect_beep, proto_beep);
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_beep(void)
 {
-  dissector_handle_t beep_handle;
-
-  beep_handle = create_dissector_handle(dissect_beep, proto_beep);
-
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_BEEP, beep_handle);
 
   apply_beep_prefs();

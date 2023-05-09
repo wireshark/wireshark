@@ -23,6 +23,8 @@
 void proto_register_cgmp(void);
 void proto_reg_handoff_cgmp(void);
 
+static dissector_handle_t cgmp_handle;
+
 static int proto_cgmp = -1;
 static int hf_cgmp_version = -1;
 static int hf_cgmp_type = -1;
@@ -121,14 +123,13 @@ proto_register_cgmp(void)
 	    "CGMP", "cgmp");
 	proto_register_field_array(proto_cgmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	cgmp_handle = register_dissector("cgmp", dissect_cgmp, proto_cgmp);
 }
 
 void
 proto_reg_handoff_cgmp(void)
 {
-	dissector_handle_t cgmp_handle;
-
-	cgmp_handle = create_dissector_handle(dissect_cgmp, proto_cgmp);
 	dissector_add_uint("llc.cisco_pid", CISCO_PID_CGMP, cgmp_handle);
 	dissector_add_uint("ethertype", 0x2001, cgmp_handle);
 }

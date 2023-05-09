@@ -122,6 +122,8 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
 static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 static void dissect_cimd_error_code(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 
+static dissector_handle_t cimd_handle;
+
 static int proto_cimd = -1;
 /* Initialize the subtree pointers */
 static gint ett_cimd = -1;
@@ -1067,13 +1069,14 @@ proto_register_cimd(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_cimd, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register the dissector */
+  cimd_handle = register_dissector("cimd", dissect_cimd, proto_cimd);
 }
 
 void
 proto_reg_handoff_cimd(void)
 {
-  dissector_handle_t cimd_handle;
-
   /**
    * CIMD can be spoken on any port so, when not on a specific port, try this
    * one whenever TCP is spoken.
@@ -1083,7 +1086,6 @@ proto_reg_handoff_cimd(void)
   /**
    * Also register as one that can be selected by a TCP port number.
    */
-  cimd_handle = create_dissector_handle(dissect_cimd, proto_cimd);
   dissector_add_for_decode_as_with_preference("tcp.port", cimd_handle);
 }
 

@@ -41,6 +41,8 @@ static const value_string type_tuple[]=
 void proto_register_cnip(void);
 void proto_reg_handoff_cnip(void);
 
+static dissector_handle_t cnip_handle;
+
 static gint hf_cnip_len      = -1;
 static gint hf_cnip_ver      = -1;
 static gint hf_cnip_type     = -1;
@@ -225,14 +227,12 @@ void proto_register_cnip(void)
    /* Register table for subdissectors */
    cnip_dissector_table = register_dissector_table("cnip.protocol",
          "CN/IP Protocol", proto_cnip, FT_UINT8, BASE_DEC);
+
+   cnip_handle = register_dissector("cnip", dissect_cnip, proto_cnip);
 }
 
 void proto_reg_handoff_cnip(void)
 {
-   dissector_handle_t cnip_handle;
-
-   cnip_handle = create_dissector_handle(dissect_cnip, proto_cnip);
-
    dissector_add_uint_range_with_preference("udp.port", CNIP_UDP_PORT_RANGE, cnip_handle);
 }
 

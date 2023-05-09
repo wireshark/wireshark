@@ -42,6 +42,8 @@ Strict mode:
 void proto_register_mcp(void);
 void proto_reg_handoff_mcp(void);
 
+static dissector_handle_t mcp_handle;
+
 static int proto_mcp = -1;
 /* TLV header */
 static int hf_mcp_tlv_type = -1;
@@ -363,14 +365,13 @@ proto_register_mcp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_mcp = expert_register_protocol(proto_mcp);
 	expert_register_field_array(expert_mcp, ei, array_length(ei));
+
+	mcp_handle = register_dissector("mcp", dissect_mcp, proto_mcp);
 }
 
 void
 proto_reg_handoff_mcp(void)
 {
-	dissector_handle_t mcp_handle;
-
-	mcp_handle = create_dissector_handle(dissect_mcp, proto_mcp);
 	dissector_add_uint("llc.cisco_pid", CISCO_PID_MCP, mcp_handle);
 }
 

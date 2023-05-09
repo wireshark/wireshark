@@ -57,6 +57,8 @@ http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/I
 void proto_register_dsi(void);
 void proto_reg_handoff_dsi(void);
 
+static dissector_handle_t dsi_handle;
+
 static int proto_dsi = -1;
 static int hf_dsi_flags = -1;
 static int hf_dsi_command = -1;
@@ -460,14 +462,13 @@ proto_register_dsi(void)
 				       "Whether the DSI dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &dsi_desegment);
+
+	dsi_handle = register_dissector("dsi", dissect_dsi, proto_dsi);
 }
 
 void
 proto_reg_handoff_dsi(void)
 {
-	dissector_handle_t dsi_handle;
-
-	dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_DSI, dsi_handle);
 
 	afp_handle = find_dissector_add_dependency("afp", proto_dsi);

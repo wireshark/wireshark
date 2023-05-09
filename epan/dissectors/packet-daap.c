@@ -205,6 +205,8 @@
 void proto_register_daap(void);
 void proto_reg_handoff_daap(void);
 
+static dissector_handle_t daap_handle;
+
 static dissector_handle_t png_handle;
 
 /*XXX: Sorted by value definition since it appears that the "value" is just */
@@ -779,14 +781,13 @@ proto_register_daap(void)
 
    proto_register_field_array(proto_daap, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+
+   daap_handle = register_dissector("daap", dissect_daap, proto_daap);
 }
 
 void
 proto_reg_handoff_daap(void)
 {
-   dissector_handle_t daap_handle;
-
-   daap_handle = create_dissector_handle(dissect_daap, proto_daap);
    http_tcp_port_add(TCP_PORT_DAAP);
    dissector_add_string("media_type", "application/x-dmap-tagged", daap_handle);
 

@@ -27,6 +27,7 @@
 void proto_register_actrace(void);
 void proto_reg_handoff_actrace(void);
 
+static dissector_handle_t actrace_handle;
 
 /* Define the actrace proto */
 static int proto_actrace = -1;
@@ -786,18 +787,16 @@ void proto_register_actrace(void)
 
 	prefs_register_obsolete_preference(actrace_module, "display_dissect_tree");
 
+	actrace_handle = register_dissector("actrace", dissect_actrace, proto_actrace);
 	actrace_tap = register_tap("actrace");
 }
 
 /* The registration hand-off routine */
 void proto_reg_handoff_actrace(void)
 {
-	dissector_handle_t actrace_handle;
-
 	/* Get a handle for the LAPD-with-pseudoheader dissector. */
 	lapd_phdr_handle = find_dissector_add_dependency("lapd-phdr", proto_actrace);
 
-	actrace_handle = create_dissector_handle(dissect_actrace, proto_actrace);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_ACTRACE, actrace_handle);
 }
 

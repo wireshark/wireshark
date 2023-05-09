@@ -26,6 +26,9 @@
 void proto_register_awdl(void);
 void proto_reg_handoff_awdl(void);
 
+static dissector_handle_t awdl_action_handle;
+static dissector_handle_t awdl_data_handle;
+
 typedef struct awdl_tagged_field_data
 {
   proto_item* item_tag;
@@ -1478,18 +1481,18 @@ dissect_awdl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static void
 awdl_register_tags(void)
 {
-  dissector_add_uint("awdl.tag.number", AWDL_SERVICE_RESPONSE_TLV, create_dissector_handle(awdl_tag_service_response, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_SYNCHRONIZATON_PARAMETERS_TLV, create_dissector_handle(awdl_tag_sync_params, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_ELECTION_PARAMETERS_TLV, create_dissector_handle(awdl_tag_election_params, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_SERVICE_PARAMETERS_TLV, create_dissector_handle(awdl_tag_service_params, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_ENHANCED_DATA_RATE_CAPABILITIES_TLV, create_dissector_handle(awdl_tag_ht_capabilities, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_DATA_PATH_STATE_TLV, create_dissector_handle(awdl_tag_datapath_state, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_ARPA_TLV, create_dissector_handle(awdl_tag_arpa, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_IEEE80211_CONTAINER_TLV, create_dissector_handle(awdl_tag_ieee80211_container, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_CHAN_SEQ_TLV, create_dissector_handle(awdl_tag_channel_sequence, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_SYNCHRONIZATION_TREE_TLV, create_dissector_handle(awdl_tag_sync_tree, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_VERSION_TLV, create_dissector_handle(awdl_tag_version, -1));
-  dissector_add_uint("awdl.tag.number", AWDL_ELECTION_PARAMETERS_V2_TLV, create_dissector_handle(awdl_tag_election_params_v2, -1));
+  dissector_add_uint("awdl.tag.number", AWDL_SERVICE_RESPONSE_TLV, create_dissector_handle(awdl_tag_service_response, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_SYNCHRONIZATON_PARAMETERS_TLV, create_dissector_handle(awdl_tag_sync_params, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_ELECTION_PARAMETERS_TLV, create_dissector_handle(awdl_tag_election_params, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_SERVICE_PARAMETERS_TLV, create_dissector_handle(awdl_tag_service_params, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_ENHANCED_DATA_RATE_CAPABILITIES_TLV, create_dissector_handle(awdl_tag_ht_capabilities, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_DATA_PATH_STATE_TLV, create_dissector_handle(awdl_tag_datapath_state, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_ARPA_TLV, create_dissector_handle(awdl_tag_arpa, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_IEEE80211_CONTAINER_TLV, create_dissector_handle(awdl_tag_ieee80211_container, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_CHAN_SEQ_TLV, create_dissector_handle(awdl_tag_channel_sequence, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_SYNCHRONIZATION_TREE_TLV, create_dissector_handle(awdl_tag_sync_tree, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_VERSION_TLV, create_dissector_handle(awdl_tag_version, proto_awdl));
+  dissector_add_uint("awdl.tag.number", AWDL_ELECTION_PARAMETERS_V2_TLV, create_dissector_handle(awdl_tag_election_params_v2, proto_awdl));
 }
 
 void proto_register_awdl(void)
@@ -2630,8 +2633,10 @@ void proto_register_awdl(void)
   expert_module_t *expert_awdl;
 
   proto_awdl_data = proto_register_protocol("Apple Wireless Direct Link data frame", "AWDL data", "awdl_data");
+  awdl_data_handle = register_dissector("awdl_data", dissect_awdl_data, proto_awdl_data);
 
   proto_awdl = proto_register_protocol("Apple Wireless Direct Link action frame", "AWDL", "awdl");
+  awdl_action_handle = register_dissector("awdl", dissect_awdl_action, proto_awdl);
 
   expert_awdl = expert_register_protocol(proto_awdl);
   expert_register_field_array(expert_awdl, ei, array_length(ei));
@@ -2646,12 +2651,7 @@ void proto_register_awdl(void)
 }
 
 void proto_reg_handoff_awdl(void) {
-  static dissector_handle_t awdl_action_handle, awdl_data_handle;
-
-  awdl_action_handle = create_dissector_handle(dissect_awdl_action, proto_awdl);
   dissector_add_uint("wlan.action.vendor_specific", OUI_APPLE_AWDL, awdl_action_handle);
-
-  awdl_data_handle = create_dissector_handle(dissect_awdl_data, proto_awdl_data);
   dissector_add_uint("llc.apple_awdl_pid", 0x0800, awdl_data_handle);
 
   ethertype_subdissector_table = find_dissector_table("ethertype");

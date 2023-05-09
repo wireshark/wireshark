@@ -19,6 +19,8 @@
 void proto_register_dvb_tot(void);
 void proto_reg_handoff_dvb_tot(void);
 
+static dissector_handle_t dvb_tot_handle;
+
 static int proto_dvb_tot = -1;
 static int hf_dvb_tot_utc_time = -1;
 static int hf_dvb_tot_reserved = -1;
@@ -99,15 +101,12 @@ proto_register_dvb_tot(void)
     proto_register_field_array(proto_dvb_tot, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    dvb_tot_handle = register_dissector("dvb_tot", dissect_dvb_tot, proto_dvb_tot);
 }
 
 
 void proto_reg_handoff_dvb_tot(void)
 {
-    dissector_handle_t dvb_tot_handle;
-
-    dvb_tot_handle = create_dissector_handle(dissect_dvb_tot, proto_dvb_tot);
-
     dissector_add_uint("mpeg_sect.tid", DVB_TOT_TID, dvb_tot_handle);
 }
 

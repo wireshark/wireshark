@@ -17,6 +17,8 @@
 void proto_register_ax4000(void);
 void proto_reg_handoff_ax4000(void);
 
+static dissector_handle_t ax4000_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_ax4000 = -1;
 static int hf_ax4000_port = -1;
@@ -122,6 +124,8 @@ proto_register_ax4000(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ax4000, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ax4000_handle = register_dissector("ax4000", dissect_ax4000, proto_ax4000);
 }
 
 #define AX4000_TCP_PORT 3357 /* assigned by IANA */
@@ -130,10 +134,6 @@ proto_register_ax4000(void)
 void
 proto_reg_handoff_ax4000(void)
 {
-	dissector_handle_t ax4000_handle;
-
-	ax4000_handle = create_dissector_handle(dissect_ax4000, proto_ax4000);
-
 	dissector_add_uint("ip.proto", IP_PROTO_AX4000, ax4000_handle);
 	dissector_add_uint_with_preference("tcp.port", AX4000_TCP_PORT, ax4000_handle);
 	dissector_add_uint_with_preference("udp.port", AX4000_UDP_PORT, ax4000_handle);

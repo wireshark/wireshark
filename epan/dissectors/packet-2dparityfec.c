@@ -248,7 +248,7 @@ void proto_register_2dparityfec(void)
                                   "as FEC data corresponding to Pro-MPEG Code of Practice #3 release 2",
                                   &dissect_fec);
 
-      handle_2dparityfec = create_dissector_handle(dissect_2dparityfec,
+      handle_2dparityfec = register_dissector("2dparityfec", dissect_2dparityfec,
                                                    proto_2dparityfec);
 }
 

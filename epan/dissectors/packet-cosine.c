@@ -34,6 +34,7 @@ static int hf_channel_id = -1;
 
 static gint ett_raw = -1;
 
+static dissector_handle_t cosine_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t llc_handle;
@@ -157,12 +158,13 @@ proto_register_cosine(void)
                                          "CoSine", "cosine");
   proto_register_field_array(proto_cosine, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  cosine_handle = register_dissector("cosine", dissect_cosine, proto_cosine);
 }
 
 void
 proto_reg_handoff_cosine(void)
 {
-  dissector_handle_t cosine_handle;
 
   /*
    * Get handles for dissectors.
@@ -173,7 +175,6 @@ proto_reg_handoff_cosine(void)
   chdlc_handle          = find_dissector_add_dependency("chdlc", proto_cosine);
   fr_handle             = find_dissector_add_dependency("fr", proto_cosine);
 
-  cosine_handle = create_dissector_handle(dissect_cosine, proto_cosine);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_COSINE, cosine_handle);
 }
 

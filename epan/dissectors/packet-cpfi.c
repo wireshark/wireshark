@@ -91,6 +91,7 @@ static gint ett_cpfi = -1;
 static gint ett_cpfi_header = -1;
 static gint ett_cpfi_footer = -1;
 
+static dissector_handle_t cpfi_handle;
 static dissector_handle_t fc_handle;
 
 
@@ -506,19 +507,18 @@ proto_register_cpfi(void)
                 " is always on the left.",
                 &cpfi_arrow_moves);
 
+    cpfi_handle = register_dissector("cpfi", dissect_cpfi, proto_cpfi);
 }
 
 void
 proto_reg_handoff_cpfi(void)
 {
   static gboolean cpfi_init_complete = FALSE;
-  static dissector_handle_t cpfi_handle;
   static guint cpfi_ttot_udp_port;
 
   if ( !cpfi_init_complete )
   {
-    fc_handle     = find_dissector_add_dependency("fc", proto_cpfi);
-    cpfi_handle   = create_dissector_handle(dissect_cpfi, proto_cpfi);
+    fc_handle = find_dissector_add_dependency("fc", proto_cpfi);
     dissector_add_uint_with_preference("udp.port", CPFI_DEFAULT_UDP_PORT, cpfi_handle);
     cpfi_init_complete = TRUE;
   }

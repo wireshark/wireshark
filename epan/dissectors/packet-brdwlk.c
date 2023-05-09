@@ -90,6 +90,7 @@ static guint16 packet_count = 0;
 static gboolean first_pkt = TRUE;                /* start of capture */
 
 static dissector_handle_t fc_dissector_handle;
+static dissector_handle_t brdwlk_handle;
 
 
 static const true_false_string tfs_error_plp = {
@@ -385,15 +386,15 @@ proto_register_brdwlk(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     register_init_routine(&brdwlk_init);
+
+/* Register the dissector */
+    brdwlk_handle = register_dissector("brdwlk", dissect_brdwlk, proto_brdwlk);
 }
 
 
 void
 proto_reg_handoff_brdwlk(void)
 {
-    dissector_handle_t brdwlk_handle;
-
-    brdwlk_handle = create_dissector_handle(dissect_brdwlk, proto_brdwlk);
     dissector_add_uint("ethertype", ETHERTYPE_BRDWALK, brdwlk_handle);
     dissector_add_uint("ethertype", 0xABCD, brdwlk_handle);
     fc_dissector_handle = find_dissector_add_dependency("fc", proto_brdwlk);

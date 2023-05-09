@@ -37,6 +37,8 @@
 void proto_register_mp4(void);
 void proto_reg_handoff_mp4(void);
 
+static dissector_handle_t mp4_handle;
+
 static gint dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 
@@ -1331,12 +1333,13 @@ proto_register_mp4(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_mp4 = expert_register_protocol(proto_mp4);
     expert_register_field_array(expert_mp4, ei, array_length(ei));
+
+    mp4_handle = register_dissector("mp4", dissect_mp4, proto_mp4);
 }
 
 void
 proto_reg_handoff_mp4(void)
 {
-    dissector_handle_t mp4_handle = create_dissector_handle(dissect_mp4, proto_mp4);
     dissector_add_string("media_type", "video/mp4", mp4_handle);
     dissector_add_string("media_type", "audio/mp4", mp4_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MP4, mp4_handle);

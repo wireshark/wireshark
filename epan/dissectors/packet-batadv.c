@@ -5502,7 +5502,7 @@ void proto_register_batadv(void)
 				      "batadv"           /* abbrev */
 			      );
 
-	register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
+	batman_handle = register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
 
 	batadv_module = prefs_register_protocol(proto_batadv_plugin,
 						proto_reg_handoff_batadv);
@@ -5528,8 +5528,6 @@ void proto_reg_handoff_batadv(void)
 	static unsigned int old_batadv_ethertype;
 
 	if (!inited) {
-		batman_handle = create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
-
 		eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_batadv_plugin);
 
 		batadv_tap = register_tap("batman");

@@ -27,6 +27,8 @@
 void proto_register_djiuav(void);
 void proto_reg_handoff_djiuav(void);
 
+static dissector_handle_t djiuav_handle;
+
 /* Enable desegmentation of djiuav over TCP */
 static gboolean djiuav_desegment = TRUE;
 
@@ -366,14 +368,13 @@ proto_register_djiuav(void)
 		"Whether DJIUAV should reassemble messages spanning multiple"
 			" TCP segments (required to get useful results)",
 		&djiuav_desegment);
+
+	djiuav_handle = register_dissector("djiuav", dissect_djiuav_static, proto_djiuav);
 }
 
 void
 proto_reg_handoff_djiuav(void)
 {
-	dissector_handle_t djiuav_handle;
-
-	djiuav_handle = create_dissector_handle(dissect_djiuav_static, proto_djiuav);
 	dissector_add_uint_with_preference("tcp.port", PORT_DJIUAV, djiuav_handle);
 }
 

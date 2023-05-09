@@ -18,6 +18,8 @@
 void proto_register_3com_xns(void);
 void proto_reg_handoff_3com_xns(void);
 
+static dissector_handle_t our_xns_handle;
+
 static int proto_3com_xns = -1;
 
 static int hf_3com_xns_type_ethertype = -1;
@@ -99,18 +101,15 @@ proto_register_3com_xns(void)
 	proto_3com_xns = proto_register_protocol("3Com XNS Encapsulation", "3COMXNS", "3comxns");
 	proto_register_field_array(proto_3com_xns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	our_xns_handle = register_dissector("3comxns", dissect_3com_xns, proto_3com_xns);
 }
 
 void
 proto_reg_handoff_3com_xns(void)
 {
-	dissector_handle_t our_xns_handle;
-
 	retix_bpdu_handle = find_dissector_add_dependency("rbpdu", proto_3com_xns);
-
 	ethertype_subdissector_table = find_dissector_table("ethertype");
-
-	our_xns_handle = create_dissector_handle(dissect_3com_xns, proto_3com_xns);
 	dissector_add_uint("llc.dsap", 0x80, our_xns_handle);
 }
 

@@ -45,6 +45,8 @@ Specs:
 void proto_register_njack(void);
 void proto_reg_handoff_njack(void);
 
+static dissector_handle_t njack_handle;
+
 /* protocol handles */
 static int proto_njack = -1;
 
@@ -771,14 +773,13 @@ proto_register_njack(void)
 	proto_njack = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "njack");
 	proto_register_field_array(proto_njack, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	njack_handle = register_dissector("njack", dissect_njack_static, proto_njack);
 }
 
 void
 proto_reg_handoff_njack(void)
 {
-	dissector_handle_t njack_handle;
-
-	njack_handle = create_dissector_handle(dissect_njack_static, proto_njack);
 	dissector_add_uint_range_with_preference("udp.port", NJACK_PORT_RANGE, njack_handle);
 	/* dissector_add_uint_with_preference("tcp.port", PORT_NJACK_PC, njack_handle); */
 	/* dissector_add_uint_with_preference("tcp.port", PORT_NJACK_SWITCH, njack_handle); */

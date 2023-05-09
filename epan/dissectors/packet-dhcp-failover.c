@@ -39,6 +39,8 @@
 void proto_register_dhcpfo(void);
 void proto_reg_handoff_dhcpfo(void);
 
+static dissector_handle_t dhcpfo_handle;
+
 /* desegmentation of DHCP failover over TCP */
 static gboolean dhcpfo_desegment = TRUE;
 
@@ -1115,14 +1117,13 @@ proto_register_dhcpfo(void)
 	    "Whether the DHCP failover dissector should reassemble messages spanning multiple TCP segments."
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &dhcpfo_desegment);
+
+	dhcpfo_handle = register_dissector("dhcpfo", dissect_dhcpfo, proto_dhcpfo);
 }
 
 void
 proto_reg_handoff_dhcpfo(void)
 {
-	dissector_handle_t dhcpfo_handle;
-
-	dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_DHCPFO, dhcpfo_handle);
 }
 

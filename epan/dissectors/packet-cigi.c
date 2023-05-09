@@ -11985,6 +11985,8 @@ proto_register_cigi(void)
     prefs_register_string_preference(cigi_module, "host", "Host IP", "IPv4 address or hostname of the host", &global_host_ip);
     prefs_register_string_preference(cigi_module, "ig", "Image Generator IP", "IPv4 address or hostname of the image generator", &global_ig_ip);
 
+    /* Register the dissector */
+    cigi_handle = register_dissector("cigi", dissect_cigi, proto_cigi);
 }
 
 /* This function is also called by preferences whenever "Apply" is pressed
@@ -12020,8 +12022,6 @@ proto_reg_handoff_cigi(void)
     }
 
     if( !inited ) {
-
-        cigi_handle = create_dissector_handle(dissect_cigi, proto_cigi);
         dissector_add_for_decode_as_with_preference("udp.port", cigi_handle);
         dissector_add_for_decode_as_with_preference("tcp.port", cigi_handle);
         heur_dissector_add("udp", dissect_cigi_heur, "CIGI over UDP", "cigi_udp", proto_cigi, HEURISTIC_ENABLE);

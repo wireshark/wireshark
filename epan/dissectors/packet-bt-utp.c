@@ -1292,6 +1292,8 @@ proto_register_bt_utp(void)
   expert_register_field_array(expert_bt_utp, ei, array_length(ei));
 
   register_init_routine(utp_init);
+
+  bt_utp_handle = register_dissector("bt-utp", dissect_bt_utp, proto_bt_utp);
 }
 
 void
@@ -1304,7 +1306,6 @@ proto_reg_handoff_bt_utp(void)
    */
   heur_dissector_add("udp", dissect_bt_utp_heur, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp, HEURISTIC_DISABLE);
 
-  bt_utp_handle = create_dissector_handle(dissect_bt_utp, proto_bt_utp);
   dissector_add_for_decode_as_with_preference("udp.port", bt_utp_handle);
 
   bittorrent_handle = find_dissector_add_dependency("bittorrent.utp", proto_bt_utp);

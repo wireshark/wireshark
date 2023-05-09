@@ -30,6 +30,11 @@
 
 #include "packet-bluetooth.h"
 
+static dissector_handle_t bluetooth_handle;
+static dissector_handle_t bluetooth_bthci_handle;
+static dissector_handle_t bluetooth_btmon_handle;
+static dissector_handle_t bluetooth_usb_handle;
+
 int proto_bluetooth = -1;
 
 static int hf_bluetooth_src = -1;
@@ -5024,15 +5029,16 @@ proto_register_bluetooth(void)
                                   "Custom Bluetooth UUID names",
                                   "Assign readable names to custom UUIDs",
                                   bluetooth_uuids_uat);
+
+    bluetooth_handle = register_dissector("bluetooth", dissect_bluetooth, proto_bluetooth);
+    bluetooth_bthci_handle = register_dissector("bluetooth.bthci", dissect_bluetooth_bthci, proto_bluetooth);
+    bluetooth_btmon_handle = register_dissector("bluetooth.btmon", dissect_bluetooth_btmon, proto_bluetooth);
+    bluetooth_usb_handle = register_dissector("bluetooth.usb", dissect_bluetooth_usb, proto_bluetooth);
 }
 
 void
 proto_reg_handoff_bluetooth(void)
 {
-    dissector_handle_t bluetooth_handle = create_dissector_handle(dissect_bluetooth, proto_bluetooth);
-    dissector_handle_t bluetooth_bthci_handle = create_dissector_handle(dissect_bluetooth_bthci, proto_bluetooth);
-    dissector_handle_t bluetooth_btmon_handle = create_dissector_handle(dissect_bluetooth_btmon, proto_bluetooth);
-    dissector_handle_t bluetooth_usb_handle = create_dissector_handle(dissect_bluetooth_usb, proto_bluetooth);
     dissector_handle_t eapol_handle;
     dissector_handle_t btl2cap_handle;
 

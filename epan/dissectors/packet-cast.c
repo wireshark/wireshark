@@ -22,6 +22,8 @@
 void proto_register_cast(void);
 void proto_reg_handoff_cast(void);
 
+static dissector_handle_t cast_handle;
+
 /* I will probably need this again when I change things
  * to function pointers, but let me use the existing
  * infrastructure for now
@@ -1688,14 +1690,13 @@ proto_register_cast(void)
     "Whether the CAST dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &cast_desegment);
+
+  cast_handle = register_dissector("cast", dissect_cast, proto_cast);
 }
 
 void
 proto_reg_handoff_cast(void)
 {
-  dissector_handle_t cast_handle;
-
-  cast_handle = create_dissector_handle(dissect_cast, proto_cast);
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_CAST, cast_handle);
 }
 

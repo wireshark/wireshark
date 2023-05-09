@@ -2367,7 +2367,7 @@ void proto_register_bpv7(void) {
         "BPv7 Admin", /* short name */
         "bpv7.admin_rec" /* abbrev */
     );
-    handle_admin = create_dissector_handle(dissect_payload_admin, proto_bp_admin);
+    handle_admin = register_dissector("bpv7.admin_rec", dissect_payload_admin, proto_bp_admin);
     admin_dissectors = register_custom_dissector_table("bpv7.admin_record_type", "BPv7 Administrative Record Type", proto_bp_admin, g_int64_hash, g_int64_equal, g_free);
     proto_admintype = proto_register_protocol_in_name_only("BPv7 Administrative Record Type", "Admin Type", "bpv7.admin_record_type", proto_bp, FT_PROTOCOL);
 }

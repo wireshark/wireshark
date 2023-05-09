@@ -18,6 +18,8 @@
 void proto_register_ath(void);
 void proto_reg_handoff_ath(void);
 
+static dissector_handle_t ath_handle;
+
 /* IMPORTANT IMPLEMENTATION NOTES
  *
  * You need to be looking at:
@@ -438,14 +440,12 @@ proto_register_ath(void)
   expert_ath = expert_register_protocol(proto_ath);
   expert_register_field_array(expert_ath, ei, array_length(ei));
 
+  ath_handle = register_dissector("ath", dissect_ath, proto_ath);
 }
 
 void
 proto_reg_handoff_ath(void)
 {
-  dissector_handle_t ath_handle;
-
-  ath_handle = create_dissector_handle(dissect_ath, proto_ath);
   dissector_add_uint_with_preference("udp.port", ATH_PORT, ath_handle);
 }
 

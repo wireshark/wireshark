@@ -606,7 +606,7 @@ void proto_register_communityid(void)
     proto_register_field_array(proto_communityid, hf, array_length(hf));
     proto_disable_by_default(proto_communityid);
 
-    communityid_handle = create_dissector_handle(communityid_dissector,
+    communityid_handle = register_dissector("communityid", communityid_dissector,
                                                  proto_communityid);
     register_postdissector(communityid_handle);
 

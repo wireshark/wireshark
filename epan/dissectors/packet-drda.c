@@ -3401,13 +3401,14 @@ proto_register_drda(void)
                         &drda_default_ccsidmbc,
                         ws_supported_mibenum_vals_character_sets_ev_array,
                         FALSE);
+
+    drda_tcp_handle = register_dissector("drda", dissect_drda_tcp, proto_drda);
 }
 
 void
 proto_reg_handoff_drda(void)
 {
     heur_dissector_add("tcp", dissect_drda_heur, "DRDA over TCP", "drda_tcp", proto_drda, HEURISTIC_ENABLE);
-    drda_tcp_handle = create_dissector_handle(dissect_drda_tcp, proto_drda);
 
     dissector_handle_t ccsid_handle;
     dissector_handle_t codpntdr_handle;

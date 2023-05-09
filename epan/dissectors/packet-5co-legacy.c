@@ -34,6 +34,8 @@
 void proto_reg_handoff_FiveCoLegacy(void);
 void proto_register_FiveCoLegacy(void);
 
+static dissector_handle_t FiveCoLegacy_handle;
+
 /****************************************************************************/
 /* Definition declaration */
 /****************************************************************************/
@@ -817,7 +819,6 @@ void proto_register_FiveCoLegacy(void)
         &ett_fiveco,
         &ett_fiveco_checksum};
 
-    /* Register the dissector */
     /* Register the protocol name and description */
     proto_FiveCoLegacy = proto_register_protocol("FiveCo's Legacy Register Access Protocol",
                                                  PROTO_TAG_FIVECO, "5co_legacy");
@@ -825,6 +826,10 @@ void proto_register_FiveCoLegacy(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_FiveCoLegacy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the dissector */
+    FiveCoLegacy_handle = register_dissector("5co_legacy", dissect_FiveCoLegacy,
+                                                    proto_FiveCoLegacy);
 
     /* Register hash init function
         * Protocol hash is used to follow conversation.
@@ -844,16 +849,9 @@ void proto_register_FiveCoLegacy(void)
 void proto_reg_handoff_FiveCoLegacy(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t FiveCoLegacy_handle;
 
     if (!initialized)
     {
-        /* Use create_dissector_handle() to indicate that
-         * dissect_FiveCoLegacy() returns the number of bytes it dissected (or 0
-         * if it thinks the packet does not belong to PROTONAME).
-         */
-        FiveCoLegacy_handle = create_dissector_handle(dissect_FiveCoLegacy,
-                                                      proto_FiveCoLegacy);
         dissector_add_uint("tcp.port", FIVECO_PORT1, FiveCoLegacy_handle);
         dissector_add_uint("tcp.port", FIVECO_PORT2, FiveCoLegacy_handle);
         dissector_add_uint("udp.port", FIVECO_UDP_PORT1, FiveCoLegacy_handle);

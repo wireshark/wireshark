@@ -37,6 +37,8 @@
 void proto_register_aruba_iap(void);
 void proto_reg_handoff_aruba_iap(void);
 
+static dissector_handle_t iap_handle;
+
 static int proto_aruba_iap = -1;
 static gint ett_aruba_iap  = -1;
 
@@ -203,15 +205,14 @@ proto_register_aruba_iap(void)
                     "aruba_iap", "aruba_iap");
     proto_register_field_array(proto_aruba_iap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    iap_handle = register_dissector("aruba_iap", dissect_aruba_iap, proto_aruba_iap);
 }
 
 
 void
 proto_reg_handoff_aruba_iap(void)
 {
-    dissector_handle_t iap_handle;
-
-    iap_handle = create_dissector_handle(dissect_aruba_iap, proto_aruba_iap);
     dissector_add_uint("ethertype", ETHERTYPE_IAP, iap_handle);
 }
 

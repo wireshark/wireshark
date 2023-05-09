@@ -20,6 +20,8 @@
 void proto_register_aol(void);
 void proto_reg_handoff_aol(void);
 
+static dissector_handle_t aol_handle;
+
 /* AOL's port */
 #define AOL_PORT 5190
 
@@ -374,6 +376,9 @@ void proto_register_aol(void) {
 	    "Whether the AOL dissector should reassemble messages spanning multiple TCP segments. "
 	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" "
 	    "in the TCP protocol settings.",&aol_desegment);
+
+	/* Register the dissector */
+	aol_handle = register_dissector("aol", dissect_aol,proto_aol);
 }
 
 /**
@@ -382,9 +387,6 @@ void proto_register_aol(void) {
  * Initialize the dissector.
  */
 void proto_reg_handoff_aol(void) {
-	dissector_handle_t aol_handle;
-
-	aol_handle = create_dissector_handle(dissect_aol,proto_aol);
 	dissector_add_uint_with_preference("tcp.port",AOL_PORT,aol_handle);
 }
 

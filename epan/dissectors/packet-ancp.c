@@ -59,6 +59,8 @@
 void proto_register_ancp(void);
 void proto_reg_handoff_ancp(void);
 
+static dissector_handle_t ancp_handle;
+
 static int hf_ancp_len = -1;
 static int hf_ancp_len2 = -1;
 static int hf_ancp_ver = -1;
@@ -1017,14 +1019,13 @@ proto_register_ancp(void)
     proto_register_field_array(proto_ancp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     ancp_tap = register_tap("ancp");
+
+    ancp_handle = register_dissector("ancp", dissect_ancp, proto_ancp);
 }
 
 void
 proto_reg_handoff_ancp(void)
 {
-    dissector_handle_t ancp_handle;
-
-    ancp_handle = create_dissector_handle(dissect_ancp, proto_ancp);
     dissector_add_uint_with_preference("tcp.port", ANCP_PORT, ancp_handle);
     stats_tree_register("ancp", "ancp", "ANCP", 0,
             ancp_stats_tree_packet, ancp_stats_tree_init, NULL);

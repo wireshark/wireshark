@@ -20,6 +20,8 @@
 void proto_register_ttag(void);
 void proto_reg_handoff_ttag(void);
 
+static dissector_handle_t ttag_handle;
+
 static dissector_handle_t ethertype_handle;
 
 static int proto_ttag = -1;
@@ -94,16 +96,15 @@ proto_register_ttag(void)
     proto_ttag = proto_register_protocol("Cisco ttag", "Cisco ttag", "ttag");
     proto_register_field_array(proto_ttag, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ttag_handle = register_dissector("ttag", dissect_ttag, proto_ttag);
 }
 
 void
 proto_reg_handoff_ttag(void)
 {
-    dissector_handle_t ttag_handle;
-
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_ttag);
 
-    ttag_handle = create_dissector_handle(dissect_ttag, proto_ttag);
     dissector_add_for_decode_as("ethertype", ttag_handle);
 }
 

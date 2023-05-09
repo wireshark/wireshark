@@ -21,6 +21,8 @@
 void proto_register_auto_rp(void);
 void proto_reg_handoff_auto_rp(void);
 
+static dissector_handle_t auto_rp_handle;
+
 static gint proto_auto_rp = -1;
 static gint ett_auto_rp = -1;
 static gint ett_auto_rp_ver_type = -1;
@@ -275,14 +277,13 @@ void proto_register_auto_rp(void)
         proto_auto_rp = proto_register_protocol("Cisco Auto-RP", "Auto-RP", "auto_rp");
         proto_register_field_array(proto_auto_rp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+
+        auto_rp_handle = register_dissector("auto_rp", dissect_auto_rp, proto_auto_rp);
 }
 
 void
 proto_reg_handoff_auto_rp(void)
 {
-        dissector_handle_t auto_rp_handle;
-
-        auto_rp_handle = create_dissector_handle(dissect_auto_rp, proto_auto_rp);
         dissector_add_uint_with_preference("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }
 

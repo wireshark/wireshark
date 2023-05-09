@@ -23,6 +23,8 @@
 void proto_register_cesoeth(void);
 void proto_reg_handoff_cesoeth(void);
 
+static dissector_handle_t cesoeth_handle;
+
 static int proto_cesoeth = -1;
 static int hf_cesoeth_pw_ecid = -1;
 static int hf_cesoeth_pw_res = -1;
@@ -322,15 +324,13 @@ proto_register_cesoeth(void)
     prefs_register_bool_preference(cesoeth_module, "rtp_header_heuristic", "Try to find RTP header in CES payload",
                                    "Heuristically determine if an RTP header is present in the CES payload.", &heuristic_rtp_header);
 
+
+    cesoeth_handle = register_dissector("cesoeth", dissect_cesoeth, proto_cesoeth);
 }
 
 void
 proto_reg_handoff_cesoeth(void)
 {
-    dissector_handle_t cesoeth_handle;
-
-    cesoeth_handle = create_dissector_handle(dissect_cesoeth, proto_cesoeth);
-
     dissector_add_uint("ethertype", ETHERTYPE_CESOETH, cesoeth_handle);
 }
 

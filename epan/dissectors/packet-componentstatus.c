@@ -25,6 +25,8 @@
 void proto_register_componentstatusprotocol(void);
 void proto_reg_handoff_componentstatusprotocol(void);
 
+static dissector_handle_t componentstatusprotocol_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_componentstatusprotocol = -1;
 static int tap_componentstatusprotocol   = -1;
@@ -546,15 +548,15 @@ proto_register_componentstatusprotocol(void)
   proto_register_subtree_array(ett, array_length(ett));
   tap_componentstatusprotocol = register_tap("componentstatusprotocol");
 
+  /* Register the dissector */
+  componentstatusprotocol_handle = register_dissector("componentstatusprotocol", dissect_componentstatusprotocol, proto_componentstatusprotocol);
+
   register_stat_tap_table_ui(&componentstatusprotocol_stat_table);
 }
 
 void
 proto_reg_handoff_componentstatusprotocol(void)
 {
-  dissector_handle_t componentstatusprotocol_handle;
-
-  componentstatusprotocol_handle = create_dissector_handle(dissect_componentstatusprotocol, proto_componentstatusprotocol);
   dissector_add_uint_with_preference("udp.port", COMPONENTSTATUSPROTOCOL_PORT, componentstatusprotocol_handle);
 }
 

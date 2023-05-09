@@ -48,6 +48,8 @@ static gboolean distcc_desegment = TRUE;
 void proto_register_distcc(void);
 extern void proto_reg_handoff_distcc(void);
 
+static dissector_handle_t distcc_handle;
+
 #define CHECK_PDU_LEN(x) \
     if(parameter>(guint)tvb_captured_length_remaining(tvb, offset) || parameter < 1){\
         len=tvb_captured_length_remaining(tvb, offset);\
@@ -358,14 +360,13 @@ proto_register_distcc(void)
         "Whether the DISTCC dissector should reassemble messages spanning multiple TCP segments."
         " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &distcc_desegment);
+
+    distcc_handle = register_dissector("distcc", dissect_distcc, proto_distcc);
 }
 
 void
 proto_reg_handoff_distcc(void)
 {
-    dissector_handle_t distcc_handle;
-
-    distcc_handle = create_dissector_handle(dissect_distcc, proto_distcc);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_DISTCC, distcc_handle);
 }
 

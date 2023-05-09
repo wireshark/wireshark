@@ -8257,6 +8257,8 @@ static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offs
 
 void proto_register_dis(void);
 
+static dissector_handle_t dis_dissector_handle;
+
 static const true_false_string dis_modulation_spread_spectrum = {
     "Spread Spectrum modulation in use",
     "Spread Spectrum modulation not in use"
@@ -11057,6 +11059,8 @@ void proto_register_dis(void)
     proto_dis = proto_register_protocol("Distributed Interactive Simulation", "DIS", "dis");
     proto_register_field_array(proto_dis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    dis_dissector_handle = register_dissector("dis", dissect_dis, proto_dis);
 }
 
 /* Register handoff routine for DIS dissector.  This will be invoked initially
@@ -11065,9 +11069,6 @@ void proto_register_dis(void)
  */
 void proto_reg_handoff_dis(void)
 {
-    dissector_handle_t dis_dissector_handle;
-
-    dis_dissector_handle = create_dissector_handle(dissect_dis, proto_dis);
     dissector_add_uint_with_preference("udp.port", DEFAULT_DIS_UDP_PORT, dis_dissector_handle);
 
     link16_handle = find_dissector_add_dependency("link16", proto_dis);

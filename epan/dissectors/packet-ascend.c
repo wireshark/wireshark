@@ -35,6 +35,7 @@ static const value_string encaps_vals[] = {
   {0,                  NULL                        }
 };
 
+static dissector_handle_t ascend_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t lapd_phdr_handle;
@@ -164,13 +165,13 @@ proto_register_ascend(void)
                                          "Lucent/Ascend", "ascend");
   proto_register_field_array(proto_ascend, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  ascend_handle = register_dissector("ascend", dissect_ascend, proto_ascend);
 }
 
 void
 proto_reg_handoff_ascend(void)
 {
-  dissector_handle_t ascend_handle;
-
   /*
    * Get handles for the Ethernet, PPP-in-HDLC-like-framing, and
    * LAPD-with-pseudoheader dissectors.
@@ -179,7 +180,6 @@ proto_reg_handoff_ascend(void)
   ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_ascend);
   lapd_phdr_handle = find_dissector_add_dependency("lapd-phdr", proto_ascend);
 
-  ascend_handle = create_dissector_handle(dissect_ascend, proto_ascend);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ASCEND, ascend_handle);
 }
 

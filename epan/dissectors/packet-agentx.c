@@ -24,6 +24,7 @@
 void proto_register_agentx(void);
 void proto_reg_handoff_agentx(void);
 
+static dissector_handle_t agentx_handle;
 
 /* Define the agentx proto */
 static int proto_agentx = -1;
@@ -1103,18 +1104,13 @@ proto_register_agentx(void)
 	proto_register_field_array(proto_agentx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("agentx", dissect_agentx, proto_agentx);
-
+	agentx_handle = register_dissector("agentx", dissect_agentx, proto_agentx);
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_agentx(void)
 {
-	dissector_handle_t agentx_handle;
-
-	agentx_handle = create_dissector_handle(dissect_agentx, proto_agentx);
-
 	dissector_add_uint_with_preference("tcp.port", AGENTX_TCP_PORT, agentx_handle);
 }
 

@@ -59,6 +59,7 @@
 void proto_reg_handoff_avsp(void);
 void proto_register_avsp(void);
 
+static dissector_handle_t avsp_handle;
 static int proto_avsp = -1;
 
 /* sub trees */
@@ -365,12 +366,6 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 
 void proto_reg_handoff_avsp(void)
 {
-    /* the handle for the dynamic dissector */
-    dissector_handle_t avsp_handle;
-
-    avsp_handle =
-        create_dissector_handle(dissect_avsp, proto_avsp);
-
     dissector_add_uint("ethertype", ETHERTYPE_AVSP, avsp_handle);
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_avsp);
 }
@@ -541,6 +536,9 @@ void proto_register_avsp(void)
 
     /* Register the expert module. */
     expert_register_field_array(expert_register_protocol(proto_avsp), ei, array_length(ei));
+
+    /* Register the dissector handle. */
+    avsp_handle = register_dissector("avsp", dissect_avsp, proto_avsp);
 }
 
 /*

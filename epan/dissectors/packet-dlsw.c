@@ -22,6 +22,9 @@
 void proto_register_dlsw(void);
 void proto_reg_handoff_dlsw(void);
 
+static dissector_handle_t dlsw_udp_handle;
+static dissector_handle_t dlsw_tcp_handle;
+
 static int proto_dlsw = -1;
 static int hf_dlsw_flow_control_indication = -1;
 static int hf_dlsw_flow_control_ack = -1;
@@ -666,17 +669,14 @@ proto_register_dlsw(void)
   expert_dlsw = expert_register_protocol(proto_dlsw);
   expert_register_field_array(expert_dlsw, ei, array_length(ei));
 
+  dlsw_udp_handle = register_dissector("dlsw.udp", dissect_dlsw_udp, proto_dlsw);
+  dlsw_tcp_handle = register_dissector("dlsw.tcp", dissect_dlsw_tcp, proto_dlsw);
 }
 
 void
 proto_reg_handoff_dlsw(void)
 {
-  dissector_handle_t dlsw_udp_handle, dlsw_tcp_handle;
-
-  dlsw_udp_handle = create_dissector_handle(dissect_dlsw_udp, proto_dlsw);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_DLSW, dlsw_udp_handle);
-
-  dlsw_tcp_handle = create_dissector_handle(dissect_dlsw_tcp, proto_dlsw);
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLSW, dlsw_tcp_handle);
 }
 

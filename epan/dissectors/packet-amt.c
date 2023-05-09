@@ -22,6 +22,8 @@
 void proto_reg_handoff_amt(void);
 void proto_register_amt(void);
 
+static dissector_handle_t amt_handle;
+
 static int proto_amt = -1;
 static int hf_amt_version = -1;
 static int hf_amt_type = -1;
@@ -311,16 +313,14 @@ proto_register_amt(void)
     expert_amt = expert_register_protocol(proto_amt);
     expert_register_field_array(expert_amt, ei, array_length(ei));
 
+    amt_handle = register_dissector("amt", dissect_amt, proto_amt);
 }
 
 void
 proto_reg_handoff_amt(void)
 {
-    dissector_handle_t amt_handle;
-
     ip_handle = find_dissector_add_dependency("ip", proto_amt);
 
-    amt_handle = create_dissector_handle(dissect_amt, proto_amt);
     dissector_add_uint_with_preference("udp.port", AMT_UDP_PORT, amt_handle);
 }
 

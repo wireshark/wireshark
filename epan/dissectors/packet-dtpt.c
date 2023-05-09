@@ -119,6 +119,7 @@ static gint ett_dtpt_blob = -1;
 
 
 
+static dissector_handle_t	dtpt_handle;
 static dissector_handle_t	dtpt_conversation_handle;
 /** static dissector_handle_t	dtpt_data_handle;  **/
 
@@ -1161,18 +1162,16 @@ proto_register_dtpt(void)
 					     "DTPT", "dtpt");
 	proto_register_field_array(proto_dtpt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	dtpt_handle = register_dissector("dtpt", dissect_dtpt, proto_dtpt);
+	dtpt_conversation_handle = register_dissector("dtpt_conversation", dissect_dtpt_conversation, proto_dtpt);
+/**	dtpt_data_handle = register_dissector("dtpt_data", dissect_dtpt_data, proto_dtpt); **/
 }
 
 
 void
 proto_reg_handoff_dtpt(void)
 {
-	dissector_handle_t	dtpt_handle;
-
-	dtpt_handle = create_dissector_handle(dissect_dtpt, proto_dtpt);
-	dtpt_conversation_handle = create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
-/**	dtpt_data_handle = create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
-
 	dissector_add_uint_with_preference("tcp.port", TCP_SERVER_PORT, dtpt_handle);
 }
 

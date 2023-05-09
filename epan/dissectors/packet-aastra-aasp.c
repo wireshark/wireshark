@@ -52,6 +52,8 @@
 void proto_register_aasp(void);
 void proto_reg_handoff_aasp(void);
 
+static dissector_handle_t aasp_handle;
+
 /* Initialize the protocol and registered fields */
 static gint proto_aasp = -1;
 
@@ -499,14 +501,14 @@ proto_register_aasp(void)
 
     /* Register our configuration options */
     /* aasp_module = prefs_register_protocol(proto_aasp, proto_reg_handoff_aasp); */
+
+    aasp_handle = register_dissector("aasp", dissect_aasp, proto_aasp);
 }
 
 /* */
 void
 proto_reg_handoff_aasp(void)
 {
-    dissector_handle_t aasp_handle;
-    aasp_handle = create_dissector_handle(dissect_aasp, proto_aasp);
     dissector_add_string("media_type", "message/x-aasp-signalling", aasp_handle);
 }
 

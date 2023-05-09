@@ -17,6 +17,7 @@
 #include <epan/conversation.h>
 void proto_reg_handoff_adwin(void);
 void proto_register_adwin(void);
+static dissector_handle_t adwin_handle;
 
 #define ADWIN_COMM_PORT 6543 /* Not IANA registered */
 
@@ -1143,9 +1144,6 @@ dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 void
 proto_reg_handoff_adwin(void)
 {
-	dissector_handle_t adwin_handle;
-
-	adwin_handle = create_dissector_handle(dissect_adwin, proto_adwin);
 	dissector_add_uint_with_preference("udp.port", ADWIN_COMM_PORT, adwin_handle);
 }
 
@@ -1419,6 +1417,8 @@ proto_register_adwin(void)
 				       "Specify if the Data sections of packets "
 				       "should be dissected or not",
 				       &global_adwin_dissect_data);
+
+	adwin_handle = register_dissector("adwin", dissect_adwin, proto_adwin);
 }
 
 /*

@@ -73,6 +73,8 @@ static const guint8 scrt[8][31]=
 void proto_register_dect (void);
 void proto_reg_handoff_dect (void);
 
+static dissector_handle_t dect_handle;
+
 static int proto_dect = -1;
 
 
@@ -2572,15 +2574,12 @@ proto_register_dect(void)
 	proto_register_field_array(proto_dect, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("dect", dissect_dect, proto_dect);
+	dect_handle = register_dissector("dect", dissect_dect, proto_dect);
 }
 
 void
 proto_reg_handoff_dect(void)
 {
-	dissector_handle_t dect_handle;
-
-	dect_handle = create_dissector_handle(dissect_dect, proto_dect);
 	dissector_add_uint("ethertype", ETHERTYPE_DECT , dect_handle);
 }
 

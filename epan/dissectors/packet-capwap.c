@@ -23,6 +23,9 @@
 void proto_register_capwap_control(void);
 void proto_reg_handoff_capwap(void);
 
+static dissector_handle_t capwap_control_handle;
+static dissector_handle_t capwap_data_handle;
+
 #define UDP_PORT_CAPWAP_CONTROL 5246
 #define UDP_PORT_CAPWAP_DATA 5247
 
@@ -5761,15 +5764,13 @@ proto_register_capwap_control(void)
         "Swap frame control bytes (needed for some APs).",
         &global_capwap_swap_frame_control);
 
+    capwap_control_handle = register_dissector("capwap", dissect_capwap_control, proto_capwap_control);
+    capwap_data_handle    = register_dissector("capwap.data", dissect_capwap_data, proto_capwap_data);
 }
 
 void
 proto_reg_handoff_capwap(void)
 {
-    dissector_handle_t capwap_control_handle, capwap_data_handle;
-
-    capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap_control);
-    capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
     dtls_handle           = find_dissector_add_dependency("dtls", proto_capwap_control);
     find_dissector_add_dependency("dtls", proto_capwap_data);
     ieee8023_handle       = find_dissector_add_dependency("eth_withoutfcs", proto_capwap_data);

@@ -35,6 +35,8 @@ static const gchar magic[] = "ISO11898";
 void proto_reg_handoff_caneth(void);
 void proto_register_caneth(void);
 
+static dissector_handle_t caneth_handle;
+
 static int proto_caneth = -1;
 static int hf_caneth_magic = -1;
 static int hf_caneth_version = -1;
@@ -281,12 +283,13 @@ proto_register_caneth(void)
 
     proto_register_field_array(proto_caneth, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    caneth_handle = register_dissector("caneth", dissect_caneth, proto_caneth);
 }
 
 void
 proto_reg_handoff_caneth(void)
 {
-    dissector_handle_t caneth_handle = create_dissector_handle(dissect_caneth, proto_caneth);
     dissector_add_uint_with_preference("udp.port", CANETH_UDP_PORT, caneth_handle);
 
     heur_dissector_add("udp", dissect_caneth_heur_udp, "CAN-ETH over UDP", "caneth_udp", proto_caneth, HEURISTIC_ENABLE);

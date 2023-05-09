@@ -21,6 +21,9 @@
 void proto_register_cmd(void);
 void proto_reg_handoff_cmd(void);
 
+static dissector_handle_t cmd_eth_handle;
+static dissector_handle_t cmd_gre_handle;
+
 static dissector_handle_t ethertype_handle;
 
 static dissector_table_t gre_dissector_table;
@@ -160,20 +163,18 @@ proto_register_cmd(void)
     proto_cmd = proto_register_protocol("Cisco MetaData", "Cisco MetaData", "cmd");
     proto_register_field_array(proto_cmd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    cmd_eth_handle = register_dissector("cmd.eth", dissect_cmd_eth, proto_cmd);
+    cmd_gre_handle = register_dissector("cmd.gre", dissect_cmd_gre, proto_cmd);
 }
 
 void
 proto_reg_handoff_cmd(void)
 {
-    dissector_handle_t cmd_eth_handle;
-    dissector_handle_t cmd_gre_handle;
-
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_cmd);
 
     gre_dissector_table = find_dissector_table("gre.proto");
 
-    cmd_eth_handle = create_dissector_handle(dissect_cmd_eth, proto_cmd);
-    cmd_gre_handle = create_dissector_handle(dissect_cmd_gre, proto_cmd);
     dissector_add_uint("ethertype", ETHERTYPE_CMD, cmd_eth_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_CMD, cmd_gre_handle);
 }
