@@ -310,6 +310,7 @@ extern "C" {
 #define WTAP_ENCAP_FIRA_UCI                     221
 #define WTAP_ENCAP_SILABS_DEBUG_CHANNEL         222
 #define WTAP_ENCAP_MDB                          223
+#define WTAP_ENCAP_EMS                          224
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

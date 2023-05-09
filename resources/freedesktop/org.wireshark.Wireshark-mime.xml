@@ -254,4 +254,10 @@
     <glob pattern="*.rtp.zst"/>
     <glob pattern="*.rtp.lz4"/>
   </mime-type>
+
+  <mime-type type="application/x-ems">
+    <comment>EGNOS Message Server (EMS) file</comment>
+    <generic-icon name="org.wireshark.Wireshark-mimetype"/>
+    <glob pattern="*.ems"/>
+  </mime-type>
 </mime-info>

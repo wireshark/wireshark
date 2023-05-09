@@ -1276,6 +1276,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_MDB */
 	{ "mdb", "MDB (Multi-Drop Bus)"},
+
+	/* WTAP_ENCAP_EMS */
+	{ "ems", "EMS (EGNOS Message Server) file"},
 };
 
 WS_DLL_LOCAL

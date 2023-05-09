@@ -92,6 +92,7 @@
 #include "eri_enb_log.h"
 #include "autosar_dlt.h"
 #include "rtpdump.h"
+#include "ems.h"
 
 
 /*
@@ -173,6 +174,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "JavaScript Object Notation file", FALSE, "json" },
 	{ "MP4 file", FALSE, "mp4" },
 	{ "RTPDump file", FALSE, "rtp;rtpdump" },
+	{ "EMS file", FALSE, "ems" },
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
@@ -406,6 +408,7 @@ static const struct open_info open_info_base[] = {
 	/* ASCII trace files from Telnet sessions. */
 	{ "Lucent/Ascend access server trace",      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
 	{ "Toshiba Compact ISDN Router snoop",      OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL, NULL },
+	{ "EGNOS Messager Server (EMS) file",       OPEN_INFO_HEURISTIC, ems_open,                 "ems",      NULL, NULL },
 	/* Extremely weak heuristics - put them at the end. */
 	{ "Ixia IxVeriWave .vwr Raw Capture",       OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },

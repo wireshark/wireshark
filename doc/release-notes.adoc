@@ -123,9 +123,10 @@ Too many other protocol updates have been made to list them all here.
 
 // There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-//[commaize]
-//--
-//--
+[commaize]
+--
+EGNOS Messager Server (EMS) files
+--
 
 // === New and Updated Capture Interfaces support
 
