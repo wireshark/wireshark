@@ -94,7 +94,9 @@ ADDITIONAL_LIST="libcap-devel \
 	libxml2-devel \
 	perl \
 	spandsp-devel \
-	systemd-devel"
+	systemd-devel \
+	python3-pytest \
+	python3-pytest-xdist"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
 # ADDITIONAL_LIST="$ADDITIONAL_LIST \
