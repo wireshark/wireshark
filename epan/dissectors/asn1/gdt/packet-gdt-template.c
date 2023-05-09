@@ -77,6 +77,9 @@ void proto_register_gdt(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_gdt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register dissector */
+    gdt_handle = register_dissector("gdt", dissect_gdt, proto_gdt);
 }
 
 /*--- proto_reg_handoff_gdt -------------------------------------------*/
@@ -84,7 +87,6 @@ void proto_reg_handoff_gdt(void) {
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        gdt_handle = create_dissector_handle(dissect_gdt, proto_gdt);
         dissector_add_for_decode_as("sctp.ppi", gdt_handle);
         dissector_add_uint("sctp.ppi", GDT_PROTOCOL_ID, gdt_handle);
         initialized = TRUE;

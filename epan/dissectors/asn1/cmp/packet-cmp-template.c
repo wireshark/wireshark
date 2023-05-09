@@ -36,6 +36,10 @@
 
 void proto_register_cmp(void);
 
+static dissector_handle_t cmp_http_handle;
+static dissector_handle_t cmp_tcp_style_http_handle;
+static dissector_handle_t cmp_tcp_handle;
+
 /* desegmentation of CMP over TCP */
 static gboolean cmp_desegment = TRUE;
 
@@ -316,6 +320,7 @@ void proto_register_cmp(void) {
 	proto_register_field_array(proto_cmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* Register preferences */
 	cmp_module = prefs_register_protocol(proto_cmp, proto_reg_handoff_cmp);
 	prefs_register_bool_preference(cmp_module, "desegment",
 			"Reassemble CMP-over-TCP messages spanning multiple TCP segments",
@@ -337,6 +342,10 @@ void proto_register_cmp(void) {
 			10,
 			&cmp_alternate_tcp_style_http_port);
 
+	/* Register dissectors */
+	cmp_http_handle = register_dissector("cmp.http", dissect_cmp_http, proto_cmp);
+	cmp_tcp_style_http_handle = register_dissector("cmp.tcp_pdu", dissect_cmp_tcp_pdu, proto_cmp);
+	cmp_tcp_handle = register_dissector("cmp", dissect_cmp_tcp, proto_cmp);
 	register_ber_syntax_dissector("PKIMessage", proto_cmp, dissect_cmp_pdu);
 }
 
@@ -344,22 +353,16 @@ void proto_register_cmp(void) {
 /*--- proto_reg_handoff_cmp -------------------------------------------*/
 void proto_reg_handoff_cmp(void) {
 	static gboolean inited = FALSE;
-	static dissector_handle_t cmp_http_handle;
-	static dissector_handle_t cmp_tcp_style_http_handle;
-	static dissector_handle_t cmp_tcp_handle;
 	static guint cmp_alternate_http_port_prev = 0;
 	static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 	if (!inited) {
-		cmp_http_handle = create_dissector_handle(dissect_cmp_http, proto_cmp);
 		dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
 		dissector_add_string("media_type", "application/x-pkixcmp", cmp_http_handle);
 
-		cmp_tcp_style_http_handle = create_dissector_handle(dissect_cmp_tcp_pdu, proto_cmp);
 		dissector_add_string("media_type", "application/pkixcmp-poll", cmp_tcp_style_http_handle);
 		dissector_add_string("media_type", "application/x-pkixcmp-poll", cmp_tcp_style_http_handle);
 
-		cmp_tcp_handle = create_dissector_handle(dissect_cmp_tcp, proto_cmp);
 		dissector_add_uint_with_preference("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
 		oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");

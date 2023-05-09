@@ -160,6 +160,7 @@ typedef struct {
 #endif
 } kerberos_private_data_t;
 
+static dissector_handle_t kerberos_handle_tcp;
 static dissector_handle_t kerberos_handle_udp;
 
 /* Forward declarations */
@@ -9793,6 +9794,10 @@ void proto_register_kerberos(void) {
 	expert_krb = expert_register_protocol(proto_kerberos);
 	expert_register_field_array(expert_krb, ei, array_length(ei));
 
+	/* Register dissectors */
+	kerberos_handle_udp = register_dissector("kerberos.udp", dissect_kerberos_udp, proto_kerberos);
+	kerberos_handle_tcp = register_dissector("kerberos.tcp", dissect_kerberos_tcp, proto_kerberos);
+
 	/* Register preferences */
 	krb_module = prefs_register_protocol(proto_kerberos, kerberos_prefs_apply_cb);
 	prefs_register_bool_preference(krb_module, "desegment",
@@ -9877,15 +9882,7 @@ static dcerpc_auth_subdissector_fns gss_kerb_auth_seal_fns = {
 void
 proto_reg_handoff_kerberos(void)
 {
-	dissector_handle_t kerberos_handle_tcp;
-
 	krb4_handle = find_dissector_add_dependency("krb4", proto_kerberos);
-
-	kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
-	proto_kerberos);
-
-	kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
-	proto_kerberos);
 
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);

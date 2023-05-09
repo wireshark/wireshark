@@ -30,6 +30,10 @@
 void proto_register_isdn_sup(void);
 void proto_reg_handoff_isdn_sup(void);
 
+static dissector_handle_t isdn_sup_arg_handle;
+static dissector_handle_t isdn_sup_res_handle;
+static dissector_handle_t isdn_sup_err_handle;
+
 #define fPHOID                         "0.4.0.210.1"
 
 /* Initialize the protocol and registered fields */
@@ -2925,17 +2929,9 @@ void proto_reg_handoff_isdn_sup(void) {
   int i;
 #if 0
   dissector_handle_t q931_handle;
-#endif
-  dissector_handle_t isdn_sup_arg_handle;
-  dissector_handle_t isdn_sup_res_handle;
-  dissector_handle_t isdn_sup_err_handle;
-
-#if 0
   q931_handle = find_dissector("q931");
 #endif
 
-  isdn_sup_arg_handle = create_dissector_handle(dissect_isdn_sup_arg, proto_isdn_sup);
-  isdn_sup_res_handle = create_dissector_handle(dissect_isdn_sup_res, proto_isdn_sup);
   for (i=0; i<(int)array_length(isdn_sup_op_tab); i++) {
     dissector_add_uint("q932.ros.etsi.local.arg", isdn_sup_op_tab[i].opcode, isdn_sup_arg_handle);
     dissector_add_uint("q932.ros.etsi.local.res", isdn_sup_op_tab[i].opcode, isdn_sup_res_handle);
@@ -2947,8 +2943,6 @@ void proto_reg_handoff_isdn_sup(void) {
 	  if(isdn_sup_global_op_tab->res_pdu)
 		  dissector_add_string("q932.ros.global.res", isdn_sup_global_op_tab[i].oid, create_dissector_handle(isdn_sup_global_op_tab[i].res_pdu, proto_isdn_sup));
   }
-
-  isdn_sup_err_handle = create_dissector_handle(dissect_isdn_sup_err, proto_isdn_sup);
 
   for (i=0; i<(int)array_length(isdn_sup_err_tab); i++) {
     dissector_add_uint("q932.ros.etsi.local.err", isdn_sup_err_tab[i].errcode, isdn_sup_err_handle);
@@ -3742,4 +3736,9 @@ void proto_register_isdn_sup(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_isdn_sup = expert_register_protocol(proto_isdn_sup);
   expert_register_field_array(expert_isdn_sup, ei, array_length(ei));
+
+  /* Register dissectors */
+  isdn_sup_arg_handle = register_dissector(PFNAME "_arg", dissect_isdn_sup_arg, proto_isdn_sup);
+  isdn_sup_res_handle = register_dissector(PFNAME "_res", dissect_isdn_sup_res, proto_isdn_sup);
+  isdn_sup_err_handle = register_dissector(PFNAME "_err", dissect_isdn_sup_err, proto_isdn_sup);
 }

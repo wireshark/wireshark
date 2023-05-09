@@ -1416,6 +1416,10 @@ void proto_register_c1222(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_c1222 = expert_register_protocol(proto_c1222);
   expert_register_field_array(expert_c1222, ei, array_length(ei));
+  /* Register dissectors */
+  c1222_handle = register_dissector("c1222.tcp", dissect_c1222, proto_c1222);
+  c1222_udp_handle = register_dissector("c1222.udp", dissect_c1222_common, proto_c1222);
+  /* Register dissection preferences */
   c1222_module = prefs_register_protocol(proto_c1222, proto_reg_handoff_c1222);
   prefs_register_bool_preference(c1222_module, "desegment",
         "Reassemble all C12.22 messages spanning multiple TCP segments",
@@ -1463,8 +1467,6 @@ proto_reg_handoff_c1222(void)
   guint8 *temp = NULL;
 
   if( !initialized ) {
-    c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
-    c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
     dissector_add_uint_with_preference("tcp.port", C1222_PORT, c1222_handle);
     dissector_add_uint_with_preference("udp.port", C1222_PORT, c1222_udp_handle);
     initialized = TRUE;

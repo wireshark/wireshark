@@ -37,6 +37,8 @@
 void proto_register_spnego(void);
 void proto_reg_handoff_spnego(void);
 
+static dissector_handle_t spnego_wrap_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_spnego = -1;
 static int proto_spnego_krb5 = -1;
@@ -1404,6 +1406,7 @@ void proto_register_spnego(void) {
   proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   spnego_handle = register_dissector("spnego", dissect_spnego, proto_spnego);
+  spnego_wrap_handle = register_dissector("spnego-wrap", dissect_spnego_wrap, proto_spnego);
 
   proto_spnego_krb5 = proto_register_protocol("SPNEGO-KRB5", "SPNEGO-KRB5", "spnego-krb5");
 
@@ -1421,11 +1424,8 @@ void proto_register_spnego(void) {
 /*--- proto_reg_handoff_spnego ---------------------------------------*/
 void proto_reg_handoff_spnego(void) {
 
-  dissector_handle_t spnego_wrap_handle;
-
   /* Register protocol with GSS-API module */
 
-  spnego_wrap_handle = create_dissector_handle(dissect_spnego_wrap,  proto_spnego);
   gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego,
                   spnego_handle, spnego_wrap_handle,
                   "SPNEGO - Simple Protected Negotiation");

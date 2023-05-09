@@ -2063,9 +2063,7 @@ proto_register_tcap(void)
                                  10, &gtcap_LostTimeout);
 
   /* 'globally' register dissector */
-  register_dissector("tcap", dissect_tcap, proto_tcap);
-
-  tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
+  tcap_handle = register_dissector("tcap", dissect_tcap, proto_tcap);
 
   /* hash-tables for SRT */
   tcaphash_context = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), tcaphash_context_calchash, tcaphash_context_equal);

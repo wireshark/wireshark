@@ -27,6 +27,9 @@
 void proto_register_pkixtsp(void);
 void proto_reg_handoff_pkixtsp(void);
 
+static dissector_handle_t timestamp_reply_handle;
+static dissector_handle_t timestamp_query_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_pkixtsp = -1;
 #include "packet-pkixtsp-hf.c"
@@ -103,6 +106,9 @@ void proto_register_pkixtsp(void) {
   proto_register_field_array(proto_pkixtsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  timestamp_reply_handle = register_dissector(PFNAME "_reply", dissect_timestamp_reply, proto_pkixtsp);
+  timestamp_query_handle = register_dissector(PFNAME "_query", dissect_timestamp_query, proto_pkixtsp);
+
   register_ber_syntax_dissector("TimeStampReq", proto_pkixtsp, dissect_TimeStampReq_PDU);
   register_ber_syntax_dissector("TimeStampResp", proto_pkixtsp, dissect_TimeStampResp_PDU);
 
@@ -113,13 +119,7 @@ void proto_register_pkixtsp(void) {
 
 /*--- proto_reg_handoff_pkixtsp -------------------------------------------*/
 void proto_reg_handoff_pkixtsp(void) {
-	dissector_handle_t timestamp_reply_handle;
-	dissector_handle_t timestamp_query_handle;
-
-	timestamp_reply_handle = create_dissector_handle(dissect_timestamp_reply, proto_pkixtsp);
 	dissector_add_string("media_type", "application/timestamp-reply", timestamp_reply_handle);
-
-	timestamp_query_handle = create_dissector_handle(dissect_timestamp_query, proto_pkixtsp);
 	dissector_add_string("media_type", "application/timestamp-query", timestamp_query_handle);
 
 #include "packet-pkixtsp-dis-tab.c"

@@ -82,12 +82,12 @@ proto_register_charging_ase(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_charging_ase = expert_register_protocol(proto_charging_ase);
   expert_register_field_array(expert_charging_ase, ei, array_length(ei));
+  charging_ase_handle = register_dissector("charging_ase", dissect_charging_ase, proto_charging_ase);
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_charging_ase(void)
 {
-  charging_ase_handle = create_dissector_handle(dissect_charging_ase, proto_charging_ase);
 }
 

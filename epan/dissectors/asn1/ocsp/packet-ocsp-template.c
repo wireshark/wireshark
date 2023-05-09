@@ -29,6 +29,9 @@
 void proto_register_ocsp(void);
 void proto_reg_handoff_ocsp(void);
 
+static dissector_handle_t ocsp_request_handle;
+static dissector_handle_t ocsp_response_handle;
+
 /* Initialize the protocol and registered fields */
 int proto_ocsp = -1;
 static int hf_ocsp_responseType_id = -1;
@@ -109,16 +112,13 @@ void proto_register_ocsp(void) {
   proto_register_field_array(proto_ocsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Register dissectors */
+  ocsp_request_handle = register_dissector(PFNAME "_req", dissect_ocsp_request, proto_ocsp);
+  ocsp_response_handle = register_dissector(PFNAME "_res", dissect_ocsp_response, proto_ocsp);
 }
 
 /*--- proto_reg_handoff_ocsp -------------------------------------------*/
 void proto_reg_handoff_ocsp(void) {
-	dissector_handle_t ocsp_request_handle;
-	dissector_handle_t ocsp_response_handle;
-
-	ocsp_request_handle = create_dissector_handle(dissect_ocsp_request, proto_ocsp);
-	ocsp_response_handle = create_dissector_handle(dissect_ocsp_response, proto_ocsp);
-
 	dissector_add_string("media_type", "application/ocsp-request", ocsp_request_handle);
 	dissector_add_string("media_type", "application/ocsp-response", ocsp_response_handle);
 

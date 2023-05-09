@@ -988,6 +988,7 @@ static gint ett_ulp_HighAccuracyPositionEstimate = -1;
 static gint ett_ulp_HighAccuracyAltitudeInfo = -1;
 
 static dissector_handle_t ulp_tcp_handle;
+static dissector_handle_t ulp_pdu_handle;
 
 static const value_string ulp_ganss_id_vals[] = {
   {  0, "Galileo"},
@@ -10848,6 +10849,7 @@ void proto_register_ulp(void) {
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
   ulp_tcp_handle = register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+  ulp_pdu_handle = register_dissector("ulp.pdu", dissect_ULP_PDU_PDU, proto_ulp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));
@@ -10867,9 +10869,6 @@ void proto_register_ulp(void) {
 void
 proto_reg_handoff_ulp(void)
 {
-    dissector_handle_t ulp_pdu_handle;
-
-    ulp_pdu_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_ulp);
     lpp_handle = find_dissector_add_dependency("lpp", proto_ulp);
 
