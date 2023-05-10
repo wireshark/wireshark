@@ -32,7 +32,7 @@
 #define PSNAME "E2AP"
 #define PFNAME "e2ap"
 
-/* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 37464 */
+/* Dissector will use SCTP PPID 70, 71 or 72 or SCTP port 37464. */
 #define SCTP_PORT_E2AP 37464
 
 void proto_register_e2ap(void);
@@ -507,6 +507,9 @@ void
 proto_reg_handoff_e2ap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E2AP, e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_CP_PROTOCOL_ID, e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_UP_PROTOCOL_ID, e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_DU_PROTOCOL_ID, e2ap_handle);
 
 #include "packet-e2ap-dis-tab.c"
 }
