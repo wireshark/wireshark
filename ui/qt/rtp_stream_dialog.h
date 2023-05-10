@@ -122,7 +122,7 @@ private slots:
     void on_buttonBox_helpRequested();
     void on_actionExportAsRtpDump_triggered();
     void captureEvent(CaptureEvent e);
-    void on_displayFilterCheckBox_toggled(bool checked);
+    void displayFilterCheckBoxToggled(bool checked);
     void on_todCheckBox_toggled(bool checked);
     void on_actionSelectAll_triggered();
     void on_actionSelectInvert_triggered();

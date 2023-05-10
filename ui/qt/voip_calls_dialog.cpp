@@ -138,6 +138,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
         ui->displayFilterCheckBox->setChecked(true);
     }
 
+    connect(ui->displayFilterCheckBox, &QCheckBox::toggled,
+            this, &VoipCallsDialog::displayFilterCheckBoxToggled);
     connect(this, SIGNAL(updateFilter(QString, bool)),
             &parent, SLOT(filterPackets(QString, bool)));
     connect(&parent, SIGNAL(displayFilterSuccess(bool)),
@@ -750,7 +752,7 @@ void VoipCallsDialog::removeAllCalls()
     g_queue_clear(shown_callsinfos_);
 }
 
-void VoipCallsDialog::on_displayFilterCheckBox_toggled(bool checked)
+void VoipCallsDialog::displayFilterCheckBoxToggled(bool checked)
 {
     if (!cap_file_.isValid()) {
         return;

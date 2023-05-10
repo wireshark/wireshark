@@ -359,6 +359,8 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
         ui->displayFilterCheckBox->setChecked(true);
     }
 
+    connect(ui->displayFilterCheckBox, &QCheckBox::toggled,
+            this, &RtpStreamDialog::displayFilterCheckBoxToggled);
     connect(this, SIGNAL(updateFilter(QString, bool)),
             &parent, SLOT(filterPackets(QString, bool)));
     connect(&parent, SIGNAL(displayFilterSuccess(bool)),
@@ -904,7 +906,7 @@ void RtpStreamDialog::on_buttonBox_helpRequested()
     mainApp->helpTopicAction(HELP_TELEPHONY_RTP_STREAMS_DIALOG);
 }
 
-void RtpStreamDialog::on_displayFilterCheckBox_toggled(bool checked _U_)
+void RtpStreamDialog::displayFilterCheckBoxToggled(bool checked)
 {
     if (!cap_file_.isValid()) {
         return;
