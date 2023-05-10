@@ -19,6 +19,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_analysis_dialog.h"
+#include "progress_frame.h"
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -378,10 +379,13 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     connect(this, SIGNAL(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
             &parent, SLOT(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 
-    /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     updateWidgets();
+
+    if (cap_file_.isValid()) {
+        cap_file_.delayedRetapPackets();
+    }
 }
 
 RtpStreamDialog::~RtpStreamDialog()

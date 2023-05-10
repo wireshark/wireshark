@@ -22,6 +22,7 @@
 #include "rtp_player_dialog.h"
 #include "sequence_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
+#include "progress_frame.h"
 #include "main_application.h"
 #include <ui/qt/models/voip_calls_info_model.h>
 
@@ -150,6 +151,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
             &parent, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
     connect(this, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
             &parent, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     updateWidgets();
 
