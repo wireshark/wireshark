@@ -306,6 +306,8 @@ static int smpp_tap             = -1;
 
 #define SMPP_COMMAND_ID_RESPONSE_MASK       0x80000000
 
+#define SMPP_UDHI_MASK 0x40
+
 /*
  * Value-arrays for field-contents
  */
@@ -1968,7 +1970,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
     offset += 1;
     dst_str = smpp_handle_string_return(tree, tvb, pinfo, hf_smpp_destination_addr, &offset);
 
-    smpp_data->udhi = tvb_get_guint8(tvb, offset) & 0x40;
+    smpp_data->udhi = tvb_get_guint8(tvb, offset) & SMPP_UDHI_MASK;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, submit_msg_fields, ENC_NA);
     offset++;
 
@@ -2101,6 +2103,7 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 
     smpp_handle_dlist(tree, tvb, &offset);
 
+    smpp_data->udhi = tvb_get_guint8(tvb, offset) & SMPP_UDHI_MASK;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, submit_msg_fields, ENC_NA);
     offset++;
     proto_tree_add_item(tree, hf_smpp_protocol_id, tvb, offset, 1, ENC_NA);
@@ -2178,6 +2181,7 @@ data_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
     proto_tree_add_item(tree, hf_smpp_dest_addr_npi, tvb, offset, 1, ENC_NA);
     offset += 1;
     dst_str = smpp_handle_string_return(tree, tvb, pinfo, hf_smpp_destination_addr, &offset);
+    smpp_data->udhi = tvb_get_guint8(tvb, offset) & SMPP_UDHI_MASK;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, submit_msg_fields, ENC_NA);
     offset++;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, regdel_fields, ENC_NA);
