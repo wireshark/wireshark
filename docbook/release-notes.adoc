@@ -150,6 +150,7 @@ Windows Delivery Optimization (MS-DO)
 FiRa UWB Controller Interface (UCI)
 Matter home automation protocol
 UBX protocol of u-blox GNSS receivers (UBX)
+GPS L1 C/A LNAV navigation messages
 SBAS L1 Navigation Messages (SBAS L1)
 FiveCo's Register Access Protocol (5CoRAP)
 UDP Tracker Protocol for BitTorrent (BT-Tracker)

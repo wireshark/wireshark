@@ -1968,6 +1968,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubertooth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubx.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/packet-ubx-gps_l1_lnav.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uci.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ucp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-udld.c
