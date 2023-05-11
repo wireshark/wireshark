@@ -818,9 +818,14 @@ static int dissect_ubx_nav_timegps(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     // dissect the registered fields
     itow = tvb_get_guint32(tvb, 0, ENC_LITTLE_ENDIAN);
     ftow = tvb_get_gint32(tvb, 4, ENC_LITTLE_ENDIAN);
+    ftow = (itow % 1000) * 1000000 + ftow;
+    itow = itow / 1000;
+    if (ftow < 0) {
+        itow = itow - 1;
+        ftow = 1000000000 + ftow;
+    }
     proto_tree *tow_tree = proto_tree_add_subtree_format(ubx_nav_timegps_tree,
-            tvb, 0, 8, ett_ubx_nav_timegps_tow, NULL,
-            "TOW: %d.%09ds", itow / 1000, (itow % 1000) * 1000000 + ftow);
+            tvb, 0, 8, ett_ubx_nav_timegps_tow, NULL, "TOW: %d.%09ds", itow, ftow);
     proto_tree_add_item(tow_tree, hf_ubx_nav_timegps_itow,
             tvb, 0, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tow_tree, hf_ubx_nav_timegps_ftow,
