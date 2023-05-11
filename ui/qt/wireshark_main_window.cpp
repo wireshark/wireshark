@@ -3155,5 +3155,7 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
         rtpstream_id_free(rev_id);
         g_free(rev_id);
     }
+
+    rtpstream_reset_cb(&tapinfo);
     return NULL;
 }
