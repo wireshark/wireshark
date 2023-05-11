@@ -845,7 +845,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
     offset += 2;
 
     if (!pinfo->fd->visited) {
-        wmem_tree_key_t    key[7];
+        wmem_tree_key_t    key[8];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
@@ -857,6 +857,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         guint32            chandle;
         psm_data_t        *psm_data;
         guint32            key_cid;
+        guint32            cid_index;
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -871,6 +872,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         k_cid = cid;
         k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
+        cid_index = 0;
 
         psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
 
@@ -909,8 +911,10 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         key[4].key = &k_cmd_ident;
         key[5].length = 1;
         key[5].key = &k_frame_number;
-        key[6].length = 0;
-        key[6].key = NULL;
+        key[6].length = 1;
+        key[6].key = &cid_index;
+        key[7].length = 0;
+        key[7].key = NULL;
 
         wmem_tree_insert32_array(cmd_ident_to_psm_table, key, psm_data);
 
@@ -1014,7 +1018,7 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
 
     if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
-        wmem_tree_key_t    key[7];
+        wmem_tree_key_t    key[8];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
@@ -1025,6 +1029,7 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         guint32            adapter_id;
         guint32            chandle;
         guint32            key_cid;
+        guint32            cid_index;
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -1039,6 +1044,7 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         k_cid = cid;
         k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
+        cid_index = 0;
 
         key[0].length = 1;
         key[0].key = &k_interface_id;
@@ -1052,8 +1058,10 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         key[4].key = &k_cmd_ident;
         key[5].length = 1;
         key[5].key = &k_frame_number;
-        key[6].length = 0;
-        key[6].key = NULL;
+        key[6].length = 1;
+        key[6].key = &cid_index;
+        key[7].length = 0;
+        key[7].key = NULL;
 
         psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cmd_ident_to_psm_table, key);
         if (psm_data &&
