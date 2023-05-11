@@ -92,6 +92,10 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
 * The display filter drop-down list is now sorted by "most recently used" instead
   of "most recently created".
 
+* Running the test suite requires the https://pypi.org/project/pytest/[pytest]
+  Python module. The emulation layer that allowed running tests without pytest
+  installed has been removed.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
