@@ -15,7 +15,6 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
-#include <epan/tfs.h>
 #include <epan/uat.h>
 
 #include "packet-mac-nr.h"

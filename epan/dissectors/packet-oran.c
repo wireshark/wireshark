@@ -21,7 +21,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 
 /* TODO:
  * - sequence analysis based on sequence Id.  N.B. separate counts per antenna for spatial stream (eAxC Id), plane, direction

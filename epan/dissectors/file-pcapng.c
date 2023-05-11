@@ -19,7 +19,6 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
-#include <epan/wmem_scopes.h>
 #include <wiretap/secrets-types.h>
 
 #include <epan/dissectors/file-pcapng.h>

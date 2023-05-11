@@ -15,9 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/wmem_scopes.h>
 
-#include <wiretap/wtap.h>
 
 static dissector_handle_t btsnoop_handle;
 static dissector_handle_t hci_h1_handle;

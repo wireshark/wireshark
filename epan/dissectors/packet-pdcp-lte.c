@@ -28,7 +28,6 @@
 /* #define HAVE_SNOW3G */
 /* #define HAVE_ZUC */
 
-#include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
 void proto_register_pdcp_lte(void);

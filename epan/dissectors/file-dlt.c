@@ -23,11 +23,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/expert.h>
-#include <epan/exceptions.h>
-#include <epan/show_exception.h>
-#include <epan/wmem_scopes.h>
-#include <wiretap/autosar_dlt.h>
 
 static int proto_dlt = -1;
 

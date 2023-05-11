@@ -26,9 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <wiretap/wtap.h>
 
-#include <inttypes.h>
 
 void proto_register_jfif(void);
 void proto_reg_handoff_jfif(void);
