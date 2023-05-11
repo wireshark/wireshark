@@ -4456,13 +4456,12 @@ static int hf_ieee80211_eht_common_info_medium_sync_threshold = -1;
 static int hf_ieee80211_eht_common_info_medium_sync_max_txops = -1;
 static int hf_ieee80211_eht_common_field_eml_capabilities = -1;
 static int hf_ieee80211_eht_common_info_eml_capa_emslr_support = -1;
-static int hf_ieee80211_eht_common_info_eml_capa_emslr_delay = -1;
+static int hf_ieee80211_eht_common_info_eml_capa_emslr_padding_delay = -1;
+static int hf_ieee80211_eht_common_info_eml_capa_emslr_transition_delay = -1;
 static int hf_ieee80211_eht_common_info_eml_capa_emlmr_support = -1;
 static int hf_ieee80211_eht_common_info_eml_capa_emlmr_delay = -1;
 static int hf_ieee80211_eht_common_info_eml_capa_transition_timeout = -1;
 static int hf_ieee80211_eht_common_info_eml_capa_reserved = -1;
-static int hf_ieee80211_eht_common_info_eml_capa_emlmr_rx_nss = -1;
-static int hf_ieee80211_eht_common_info_eml_capa_emlmr_tx_nss = -1;
 static int hf_ieee80211_eht_common_field_mld_capabilities = -1;
 static int hf_ieee80211_eht_common_info_mld_max_simul_links = -1;
 static int hf_ieee80211_eht_common_info_mld_srs_support = -1;
@@ -25117,13 +25116,12 @@ static int * const eht_medium_sync_delay_hdrs[] = {
 
 static int * const eht_eml_capabilities_hdrs[] = {
   &hf_ieee80211_eht_common_info_eml_capa_emslr_support,
-  &hf_ieee80211_eht_common_info_eml_capa_emslr_delay,
+  &hf_ieee80211_eht_common_info_eml_capa_emslr_padding_delay,
+  &hf_ieee80211_eht_common_info_eml_capa_emslr_transition_delay,
   &hf_ieee80211_eht_common_info_eml_capa_emlmr_support,
   &hf_ieee80211_eht_common_info_eml_capa_emlmr_delay,
   &hf_ieee80211_eht_common_info_eml_capa_transition_timeout,
   &hf_ieee80211_eht_common_info_eml_capa_reserved,
-  &hf_ieee80211_eht_common_info_eml_capa_emlmr_rx_nss,
-  &hf_ieee80211_eht_common_info_eml_capa_emlmr_tx_nss,
   NULL
 };
 
@@ -25183,7 +25181,7 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
   /* Handle common info for basic element */
   common_info_len = tvb_get_guint8(tvb, offset);
-  common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len + 1,
+  common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
                                        ett_eht_multi_link_common_info,
                                        NULL, "Common Info");
   proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
@@ -25222,7 +25220,7 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                            hf_ieee80211_eht_common_field_eml_capabilities,
                            ett_eht_multi_link_common_info_eml_capa,
                            eht_eml_capabilities_hdrs, ENC_LITTLE_ENDIAN);
-    offset += 3;
+    offset += 2;
   }
 
   if (present & EHT_MLD_CAPA) {
@@ -53379,47 +53377,42 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_common_field_eml_capabilities,
      {"EML Capabilities", "wlan.eht.multi_link.common_info.eml_capabilities",
-      FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_emslr_support,
      {"EMLSR Support",
       "wlan.eht.multi_link.common_info.eml_capabilities.emlsr_support",
-      FT_BOOLEAN, 24, NULL, 0x000001, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_common_info_eml_capa_emslr_delay,
-     {"EMLSR Delay",
-      "wlan.eht.multi_linl.common_info.eml_capabilities.emlsr_delay",
-      FT_UINT24, BASE_DEC, NULL, 0x00000E, NULL, HFILL }},
+    {&hf_ieee80211_eht_common_info_eml_capa_emslr_padding_delay,
+     {"EMLSR Padding Delay",
+      "wlan.eht.multi_linl.common_info.eml_capabilities.emlsr_padding_delay",
+      FT_UINT16, BASE_DEC, NULL, 0x000E, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_common_info_eml_capa_emslr_transition_delay,
+     {"EMLSR Transition Delay",
+      "wlan.eht.multi_linl.common_info.eml_capabilities.emlsr_transition_delay",
+      FT_UINT16, BASE_DEC, NULL, 0x0070, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_emlmr_support,
      {"EMLMR Support",
       "wlan.eht.multi_link.common_info.eml_capabilities.emlmr_support",
-      FT_BOOLEAN, 24, NULL, 0x000010, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_emlmr_delay,
      {"EMLMR Delay",
       "wlan.eht.multi_link.common_info.eml_capabilities.emlmr_delay",
-      FT_UINT24, BASE_DEC, NULL, 0x0000E0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x0700, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_transition_timeout,
      {"Transition Timeout",
       "wlan.eht.multi_link.common_info.eml_capabilities.transition_timeout",
-      FT_UINT24, BASE_DEC, NULL, 0x000f00, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x7800, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_info_eml_capa_reserved,
      {"Reserved",
       "wlan.eht.multi_link.common_info.eml_capabilities.cap_reserved",
-      FT_UINT24, BASE_HEX, NULL, 0x00F000, NULL, HFILL }},
-
-    {&hf_ieee80211_eht_common_info_eml_capa_emlmr_rx_nss,
-     {"EMLMR Rx NSS",
-      "wlan.eht.multi_link.common_info.eml_capabilities.emlmr_rx_nss",
-      FT_UINT24, BASE_DEC, NULL, 0x0F0000, NULL, HFILL }},
-
-    {&hf_ieee80211_eht_common_info_eml_capa_emlmr_tx_nss,
-     {"EMLMR Tx NSS",
-      "wlan.eht.multi_link.common_info.eml_capabilities.emlmr_tx_mss",
-      FT_UINT24, BASE_DEC, NULL, 0xF00000, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_mld_capabilities,
      {"MLD Capabilities", "wlan.eht.multi_link.common_info.mld_capabilities",
