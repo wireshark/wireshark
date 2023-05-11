@@ -68,7 +68,7 @@ private slots:
     void collapseTree();
     void expandTree();
 
-    void on_limitCheckBox_toggled(bool);
+    void limitCheckBoxToggled(bool);
     void on_groupBySummaryCheckBox_toggled(bool);
     void on_searchLineEdit_textChanged(const QString &search_re);
     void on_buttonBox_helpRequested();
