@@ -393,6 +393,7 @@ RtpStreamDialog::~RtpStreamDialog()
     std::lock_guard<std::mutex> lock(mutex_);
     freeLastSelected();
     delete ui;
+    rtpstream_reset(&tapinfo_);
     remove_tap_listener_rtpstream(&tapinfo_);
     pinstance_ = nullptr;
 }
