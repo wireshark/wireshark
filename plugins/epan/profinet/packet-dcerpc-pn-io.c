@@ -1938,7 +1938,7 @@ static const value_string pn_io_channel_error_type[] = {
     { 0x9002, "Error in internal energy supply" },
     { 0x9003, "Error in sensor element" },
     { 0x9004, "Error in actuator element" },
-    { 0x9005, "Faulty installat e.g. dead space" },
+    { 0x9005, "Faulty installation e.g. dead space" },
     { 0x9006, "Parameter setting error" },
     { 0x9008, "Overloading" },
     { 0x9009, "Wrong polarity of aux power" },

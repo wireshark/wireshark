@@ -235,6 +235,7 @@ cksum
 classifiers
 classmark
 classmark3
+claypaky
 clientkey
 clientout
 clopts
@@ -994,6 +995,7 @@ octetstring
 ofdma
 offloadability
 ofpat
+ofpbac
 ofpet
 ofpmp
 ofppf
@@ -1526,6 +1528,7 @@ toolset
 tooltip
 topup
 toshiba
+totemsrp
 touchlink
 touchpad
 traceroute
@@ -1723,6 +1726,7 @@ vcpkg
 vcredist
 vcxproj
 vector3d
+venusmngr
 verbosity
 verifier
 verizon

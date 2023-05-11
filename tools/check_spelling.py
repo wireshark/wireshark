@@ -250,7 +250,7 @@ def removeContractions(code_string):
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/", re.DOTALL), "" , code_string) # C-style comment
     # Avoid matching // where it is allowed, e.g.,  https://www... or file:///...
-    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!file:/)//.*?\n" ) ,"" , code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!\"\s\s)(?<!file:/)//.*?\n" ) ,"" , code_string)             # C++-style comment
     return code_string
 
 def removeSingleQuotes(code_string):
