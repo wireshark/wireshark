@@ -4396,10 +4396,13 @@ proto_register_http(void)
 	 * Dissectors can register themselves in this table.
 	 * It's just "media_type", not "http.content_type", because
 	 * it's an Internet media type, usable by other protocols as well.
+	 *
+	 * RFC 6838, 4.2 Naming Requirements:
+	 * "Both top-level type and subtype names are case-insensitive."
 	 */
 	media_type_subdissector_table =
 	    register_dissector_table("media_type",
-		"Internet media type", proto_http, FT_STRING, BASE_NONE);
+		"Internet media type", proto_http, FT_STRING, TRUE);
 
 	/*
 	 * Maps the lowercase Upgrade header value.

@@ -66,6 +66,9 @@ There are no new protocols in this release.
 
 === Updated Protocol Support
 
+* The media type dissector table now properly treats media types and subtypes
+as case-insensitive automatically, per RFC 6838. Media types no longer need
+to be lower cased before registering or looking up in the table.
 // Add one protocol per line between the -- delimiters.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.5.. | ag packet- | sort -u)
 [commaize]
