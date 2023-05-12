@@ -176,6 +176,9 @@ Too many other protocols have been updated to list them all here.
 
 // === New and Updated Capture Interfaces support
 
+=== New and Updated Codec support
+Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/opencore-amr/[opencore-amr]
+
 //_Non-empty section placeholder._
 
 // === Major API Changes
