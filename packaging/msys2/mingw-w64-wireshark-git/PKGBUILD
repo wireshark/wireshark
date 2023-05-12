@@ -41,9 +41,11 @@ depends=("${MINGW_PACKAGE_PREFIX}-bcg729"
 makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-ninja"
              "${MINGW_PACKAGE_PREFIX}-cc"
-             "${MINGW_PACKAGE_PREFIX}-python"         
+             "${MINGW_PACKAGE_PREFIX}-python"
              "${MINGW_PACKAGE_PREFIX}-qt6-tools"
              'git')
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python-pytest"
+              "${MINGW_PACKAGE_PREFIX}-python-pytest-xdist")
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 _commit=${PKG_COMMIT:-HEAD}
@@ -82,7 +84,8 @@ build() {
 check() {
   cd "${srcdir}/build-${MSYSTEM}"
 
-  "${MINGW_PREFIX}"/bin/cmake.exe --build . --target test
+  "${MINGW_PREFIX}"/bin/cmake.exe --build . --target test-programs
+  "${MINGW_PREFIX}"/bin/pytest.exe
 }
 
 package() {
