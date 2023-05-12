@@ -19,6 +19,7 @@ import sys
 import threading
 import time
 import uuid
+import sysconfig
 
 capture_duration = 5
 
@@ -75,8 +76,6 @@ def capture_command(*args, shell=False):
     if type(cmd_args[0]) != str:
         # Assume something like ['wireshark', '-k']
         cmd_args = list(cmd_args[0]) + list(cmd_args)[1:]
-    if sys.platform == "win32":
-        cmd_args[0] = '"{}"'.format(cmd_args[0])
     if shell:
         cmd_args = ' '.join(cmd_args)
     return cmd_args
@@ -169,6 +168,8 @@ def check_capture_stdin(cmd_dumpcap, result_file):
         is_gui = type(cmd) != str and '-k' in cmd[0]
         if is_gui:
             capture_cmd += ' --log-level=info'
+        if sysconfig.get_platform().startswith('mingw'):
+            fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = self.assertRun(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         if is_gui:
             self.assertTrue(self.grepOutput('Wireshark is up and ready to go'), 'No startup message.')
@@ -252,6 +253,8 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
             '-w', testout_file,
             '-a', condition,
         ))
+        if sysconfig.get_platform().startswith('mingw'):
+            fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = self.assertRun(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         self.assertTrue(os.path.isfile(testout_file))
 
@@ -288,6 +291,8 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
             '-a', 'files:2',
             '-b', condition,
         ))
+        if sysconfig.get_platform().startswith('mingw'):
+            fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = self.assertRun(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
 
         rb_files = glob.glob(testout_glob)

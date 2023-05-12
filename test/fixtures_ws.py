@@ -38,7 +38,7 @@ def capture_interface(request, cmd_dumpcap):
     # Matches: "lo (Loopback)" (Linux), "lo0 (Loopback)" (macOS) or
     # "\Device\NPF_{...} (Npcap Loopback Adapter)" (Windows)
     print('"dumpcap -D" output:\n%s' % (outs,))
-    m = re.search(r'^(\d+)\. .*\(.*Loopback.*\)', outs, re.MULTILINE)
+    m = re.search(r'^(\d+)\. .*\(.*Loopback.*\)', outs, re.MULTILINE|re.IGNORECASE)
     if not m:
         fixtures.skip('Test requires a capture interface.')
     iface = m.group(1)
