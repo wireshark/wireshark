@@ -19,7 +19,10 @@ proto_register_media_type(void)
 	 * Dissectors can register themselves in this table.
 	 * It's just "media_type", not "http.content_type", because
 	 * it's an Internet media type, used by other protocols as well.
+	 *
+	 * RFC 6838, 4.2 Naming Requirements:
+	 * "Both top-level type and subtype names are case-insensitive."
 	 */
 	 register_dissector_table("media_type", "Internet media type",
-	     -1 /* no protocol */, FT_STRING, BASE_NONE);
+	     -1 /* no protocol */, FT_STRING, TRUE);
 }

@@ -160,6 +160,10 @@ UBX protocol of u-blox GNSS receivers (UBX)
   chunked encoding. This feature ensures the server stream messages of GRPC-Web
   over HTTP/1.1 can be dissected even if the last chunk is absent.
 
+* The media type dissector table now properly treats media types and subtypes
+as case-insensitive automatically, per RFC 6838. Media types no longer need
+to be lower cased before registering or looking up in the table.
+
 Too many other protocols have been updated to list them all here.
 
 === New and Updated Capture File Support
