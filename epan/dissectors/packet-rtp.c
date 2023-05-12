@@ -657,11 +657,6 @@ static gpointer rtp_value(packet_info *pinfo)
 {
     guint payload_type = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_rtp, RTP_DECODE_AS_PROTO_DATA));
 
-    /* Dynamic payload range, don't use value as it may change within conversation */
-    if (payload_type > 95)
-        return GUINT_TO_POINTER(0);
-
-    /* Used fixed value range */
     return GUINT_TO_POINTER(payload_type);
 }
 
