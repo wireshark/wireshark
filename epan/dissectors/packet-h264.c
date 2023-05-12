@@ -2620,10 +2620,10 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
             break;
         case 3: /* Coded slice data partition B */
-            dissect_h264_slice_data_partition_b_layer_rbsp(h264_nal_tree, rbsp_tvb, pinfo, 0);
+            dissect_h264_slice_data_partition_b_layer_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
             break;
         case 4: /* Coded slice data partition C */
-            dissect_h264_slice_data_partition_c_layer_rbsp(h264_nal_tree, rbsp_tvb, pinfo, 0);
+            dissect_h264_slice_data_partition_c_layer_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
             break;
         case 5: /* Coded slice of an IDR picture */
             dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
