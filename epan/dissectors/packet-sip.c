@@ -49,6 +49,7 @@
 
 #include "packet-isup.h"
 #include "packet-e164.h"
+#include "packet-e212.h"
 #include "packet-sip.h"
 
 #include "packet-media-type.h"
@@ -3067,7 +3068,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
  *  gstn-location          = "gstn-location" EQUAL (token / quoted-string)
  *
  */
-void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
 
     gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
@@ -3119,6 +3120,7 @@ void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *tree, g
             if ((param_name != NULL)&&(g_ascii_strcasecmp(param_name, "utran-cell-id-3gpp") == 0)) {
                 proto_tree_add_item(tree, hf_sip_p_acc_net_i_ucid_3gpp, tvb,
                     equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+                dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, equals_offset + 1);
             }
             else {
                 proto_tree_add_format_text(tree, tvb, current_offset, length);
@@ -4613,7 +4615,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 value_offset, value_len);
                             sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                             p_access_net_info_tree = proto_item_add_subtree(sip_element_item, ett_sip_p_access_net_info);
-                            dissect_sip_p_access_network_info_header(tvb, p_access_net_info_tree, value_offset, line_end_offset);
+                            dissect_sip_p_access_network_info_header(tvb, pinfo, p_access_net_info_tree, value_offset, line_end_offset);
                         }
                         break;
                     case POS_P_CHARGING_VECTOR:
