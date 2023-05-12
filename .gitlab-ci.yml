@@ -455,7 +455,7 @@ macOS Arm Package:
       fi
     - cd ..
     - ninja test-programs
-    - pytest
+    - python3 -m pytest
   needs: []
 
 macOS Intel Package:
@@ -489,7 +489,7 @@ macOS Intel Package:
       fi
     - cd ..
     - ninja test-programs
-    - pytest
+    - python3 -m pytest
   needs: []
 
 # Build the User's Guide and Developer's Guide
