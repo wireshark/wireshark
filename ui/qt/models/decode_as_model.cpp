@@ -28,7 +28,7 @@
 static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary
 static const char *DEFAULT_UI_TABLE = "TCP port";    // Arbitrary
 
-DecodeAsItem::DecodeAsItem()
+DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector)
  : tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
@@ -38,12 +38,69 @@ DecodeAsItem::DecodeAsItem()
  current_dissector_(DECODE_AS_NONE),
  dissector_handle_(NULL)
 {
+    if (table_name == nullptr)
+        return;
+
+    init(table_name, selector);
+}
+
+DecodeAsItem::DecodeAsItem(const decode_as_t *entry, gconstpointer selector)
+ : tableName_(DEFAULT_TABLE),
+ tableUIName_(DEFAULT_UI_TABLE),
+ selectorUint_(0),
+ selectorString_(""),
+ selectorDCERPC_(NULL),
+ default_dissector_(DECODE_AS_NONE),
+ current_dissector_(DECODE_AS_NONE),
+ dissector_handle_(NULL)
+{
+    if (entry == nullptr)
+        return;
+
+    init(entry->table_name, selector);
 }
 
 DecodeAsItem::~DecodeAsItem()
 {
 }
 
+void DecodeAsItem::init(const char* table_name, gconstpointer selector)
+{
+    tableName_ = table_name;
+    tableUIName_ = get_dissector_table_ui_name(tableName_);
+
+    dissector_handle_t default_handle = NULL;
+    ftenum_t selector_type = get_dissector_table_selector_type(tableName_);
+    if (IS_FT_STRING(selector_type)) {
+        if (selector != NULL) {
+            default_handle = dissector_get_default_string_handle(tableName_, (const gchar*)selector);
+            selectorString_ = QString((const char*)selector);
+        }
+    } else if (IS_FT_UINT(selector_type)) {
+        if (selector != NULL) {
+            selectorUint_ = GPOINTER_TO_UINT(selector);
+            default_handle = dissector_get_default_uint_handle(tableName_, selectorUint_);
+        }
+    } else if (selector_type == FT_NONE) {
+        // There is no default for an FT_NONE dissector table
+    } else if (selector_type == FT_GUID) {
+        /* Special handling for DCE/RPC dissectors */
+        if (strcmp(tableName_, DCERPC_TABLE_NAME) == 0) {
+            selectorDCERPC_ = (decode_dcerpc_bind_values_t*)(selector);
+        }
+    }
+
+    if (default_handle != NULL) {
+        default_dissector_ = dissector_handle_get_description(default_handle);
+        // When adding a new record, we leave dissector_handle_ NULL,
+        // which means reset "current" to "default", and let "current" equal
+        // default, so the user can explicitly change it and easily reset
+        // the value.
+        // When reading existing values the current dissector should be
+        // set explicitly.
+        current_dissector_ = default_dissector_;
+    }
+}
 
 DecodeAsModel::DecodeAsModel(QObject *parent, capture_file *cf) :
     QAbstractTableModel(parent),
@@ -288,100 +345,55 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
 
     beginInsertRows(QModelIndex(), row, row);
 
-    DecodeAsItem* item = new DecodeAsItem();
-    DecodeAsItem* alternativeItem = NULL;
-    bool lastItemIsOk = false;
+    DecodeAsItem* item = nullptr;
+    const decode_as_t *firstEntry = nullptr;
 
     if (cap_file_ && cap_file_->edt) {
-        //populate the new Decode As item with the last protocol layer
-        //that can support Decode As
-        wmem_list_frame_t * protos = wmem_list_head(cap_file_->edt->pi.layers);
-        gint8 curr_layer_num_saved = cap_file_->edt->pi.curr_layer_num;
-        guint8 curr_layer_num = 1;
+        // Populate the new Decode As item with the last protocol layer
+        // that can support Decode As and has a selector field for that
+        // present in the frame.
+        //
+        // XXX: This treats 0 (for UInts) and empty strings the same as
+        // the fields for the tables not being present at all.
 
-        while (protos != NULL) {
+        wmem_list_frame_t * protos = wmem_list_tail(cap_file_->edt->pi.layers);
+        gint8 curr_layer_num_saved = cap_file_->edt->pi.curr_layer_num;
+        guint8 curr_layer_num = wmem_list_count(cap_file_->edt->pi.layers);
+
+        while (protos != NULL && item == nullptr) {
             int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
             const gchar * proto_name = proto_get_protocol_filter_name(proto_id);
             for (GList *cur = decode_as_list; cur; cur = cur->next) {
                 decode_as_t *entry = (decode_as_t *) cur->data;
                 if (g_strcmp0(proto_name, entry->name) == 0) {
-                    dissector_handle_t dissector = NULL;
+                    if (firstEntry == nullptr) {
+                        firstEntry = entry;
+                    }
                     ftenum_t selector_type = get_dissector_table_selector_type(entry->table_name);
-                    bool itemOk = false;
-
-                    //reset the default and current protocols in case previous layer
-                    //populated it and this layer doesn't have a handle for it
-                    item->default_dissector_ =  item->current_dissector_ = DECODE_AS_NONE;
-
-                    item->tableName_ = entry->table_name;
-                    item->tableUIName_ = get_dissector_table_ui_name(entry->table_name);
-
-                    //see if there is a default dissector that matches value
-                    if (IS_FT_STRING(selector_type)) {
-
-                        //pick the first value in the packet as the default
-                        cap_file_->edt->pi.curr_layer_num = curr_layer_num;
-                        gpointer selector = entry->values[0].build_values[0](&cap_file_->edt->pi);
-                        if (selector != NULL) {
-                            item->selectorString_ = entryString(item->tableName_, selector);
-                            dissector = dissector_get_default_string_handle(entry->table_name, (const gchar*)selector);
-                        } else {
-                            item->selectorString_ = "";
-                        }
-                        itemOk = !item->selectorString_.isEmpty();
-
-                    } else if (IS_FT_UINT(selector_type)) {
-
-                        //pick the first value in the packet as the default
-                        cap_file_->edt->pi.curr_layer_num = curr_layer_num;
-                        item->selectorUint_ = GPOINTER_TO_UINT(entry->values[0].build_values[0](&cap_file_->edt->pi));
-                        itemOk = item->selectorUint_ != 0;
-
-                        dissector = dissector_get_default_uint_handle(entry->table_name, item->selectorUint_);
-                    } else if (selector_type == FT_NONE) {
-                        // There is no default for an FT_NONE dissector table
-                        dissector = NULL;
-                        itemOk = true;
-                    } else if (selector_type == FT_GUID) {
-                        /* Special handling for DCE/RPC dissectors */
-                        if (strcmp(entry->name, "dcerpc") == 0) {
-                            item->selectorDCERPC_ = (decode_dcerpc_bind_values_t*)entry->values[0].build_values[0](&cap_file_->edt->pi);
-                            itemOk = true;
-                        }
+                    // Pick the first value in the packet for the current
+                    // layer for the table
+                    // XXX: What if the Decode As table supports multiple
+                    // values, but the first possible one is 0/NULL?
+                    cap_file_->edt->pi.curr_layer_num = curr_layer_num;
+                    gpointer selector = entry->values[0].build_values[0](&cap_file_->edt->pi);
+                    // FT_NONE tables don't need a value
+                    if (selector != NULL || selector_type == FT_NONE) {
+                        item = new DecodeAsItem(entry, selector);
                     }
 
-                    if (itemOk) {
-                        if (!alternativeItem) {
-                            alternativeItem = new DecodeAsItem();
-                        }
-                        *alternativeItem = *item;
-                    }
-                    lastItemIsOk = itemOk;
-
-                    if (dissector != NULL) {
-                        item->default_dissector_ = dissector_handle_get_description(dissector);
-                        //When adding a new record, "default" should equal "current", so the user can
-                        //explicitly change it
-                        item->current_dissector_ = item->default_dissector_;
-                    }
                 }
             }
-            protos = wmem_list_frame_next(protos);
-            curr_layer_num++;
+            protos = wmem_list_frame_prev(protos);
+            curr_layer_num--;
         }
 
         cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
     }
 
-    // If the last item has an empty selector (e.g. an empty port number),
-    // prefer an entry that has a valid selector.
-    if (alternativeItem) {
-        if (lastItemIsOk) {
-            delete alternativeItem;
-        } else {
-            delete item;
-            item = alternativeItem;
-        }
+    // If we didn't find an entry with a valid selector, create an entry
+    // from the last table with an empty selector, or an empty entry.
+    if (item == nullptr) {
+        item = new DecodeAsItem(firstEntry);
     }
     decode_as_items_ << item;
 
@@ -451,25 +463,21 @@ prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(gchar *key, const gchar *value
 
     /* Parse into table, selector, initial, current */
     gchar **values = g_strsplit_set(value, ",", 4);
-    DecodeAsItem *item = new DecodeAsItem();
+    DecodeAsItem *item = nullptr;
 
     dissector_table_t dissector_table = find_dissector_table(values[0]);
 
     QString tableName(values[0]);
-    bool tableNameFound = false;
     // Get the table values from the Decode As list because they are persistent
     for (GList *cur = decode_as_list; cur; cur = cur->next) {
         decode_as_t *entry = (decode_as_t *) cur->data;
         if (tableName.compare(entry->table_name) == 0) {
-            item->tableName_ = entry->table_name;
-            item->tableUIName_ = get_dissector_table_ui_name(entry->table_name);
-            tableNameFound = true;
+            item = new DecodeAsItem(entry);
             break;
         }
     }
 
-    if (!tableNameFound || !dissector_table) {
-        delete item;
+    if (item == nullptr) {
         g_strfreev(values);
         return PREFS_SET_SYNTAX_ERR;
     }
@@ -609,24 +617,9 @@ void DecodeAsModel::buildChangedList(const gchar *table_name, ftenum_t, gpointer
     if (model == NULL)
         return;
 
-    dissector_handle_t default_dh, current_dh;
-    QString default_dissector(DECODE_AS_NONE), current_dissector(DECODE_AS_NONE);
-    DecodeAsItem* item = new DecodeAsItem();
-    ftenum_t selector_type = get_dissector_table_selector_type(table_name);
-
-    item->tableName_ = table_name;
-    item->tableUIName_ = get_dissector_table_ui_name(table_name);
-    if (IS_FT_UINT(selector_type)) {
-       item->selectorUint_ = GPOINTER_TO_UINT(key);
-    } else if (IS_FT_STRING(selector_type)) {
-       item->selectorString_ = entryString(table_name, key);
-    }
-
-    default_dh = dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
-    if (default_dh) {
-        default_dissector = dissector_handle_get_description(default_dh);
-    }
-    item->default_dissector_ = default_dissector;
+    dissector_handle_t current_dh;
+    QString current_dissector(DECODE_AS_NONE);
+    DecodeAsItem* item = new DecodeAsItem(table_name, key);
 
     current_dh = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current_dh) {
@@ -643,29 +636,21 @@ void DecodeAsModel::buildDceRpcChangedList(gpointer data, gpointer user_data)
     dissector_table_t sub_dissectors;
     guid_key guid_val;
     decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)data;
-    QString default_dissector(DECODE_AS_NONE), current_dissector(DECODE_AS_NONE);
 
     DecodeAsModel *model = (DecodeAsModel*)user_data;
     if (model == NULL)
         return;
 
-    DecodeAsItem* item = new DecodeAsItem();
+    DecodeAsItem* item = new DecodeAsItem(DCERPC_TABLE_NAME, binding);
 
-    item->tableName_ = "dcerpc.uuid";
-    item->tableUIName_ = get_dissector_table_ui_name(item->tableName_);
-
-    item->selectorDCERPC_ = binding;
-
-    sub_dissectors = find_dissector_table(item->tableName_);
+    sub_dissectors = find_dissector_table(DCERPC_TABLE_NAME);
 
     guid_val.ver = binding->ver;
     guid_val.guid = binding->uuid;
     item->dissector_handle_ = dissector_get_guid_handle(sub_dissectors, &guid_val);
     if (item->dissector_handle_) {
-        current_dissector = QString(dissector_handle_get_description(item->dissector_handle_));
+        item->current_dissector_ = QString(dissector_handle_get_description(item->dissector_handle_));
     }
-    item->current_dissector_ = current_dissector;
-    item->default_dissector_ = default_dissector;
 
     model->decode_as_items_ << item;
 }

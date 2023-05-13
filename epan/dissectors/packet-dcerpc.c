@@ -7171,7 +7171,7 @@ proto_register_dcerpc(void)
     expert_dcerpc = expert_register_protocol(proto_dcerpc);
     expert_register_field_array(expert_dcerpc, ei, array_length(ei));
 
-    uuid_dissector_table = register_dissector_table("dcerpc.uuid", "DCE/RPC UUIDs", proto_dcerpc, FT_GUID, BASE_HEX);
+    uuid_dissector_table = register_dissector_table(DCERPC_TABLE_NAME, "DCE/RPC UUIDs", proto_dcerpc, FT_GUID, BASE_HEX);
 
     /* structures and data for BIND */
     dcerpc_binds = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), dcerpc_bind_hash, dcerpc_bind_equal);

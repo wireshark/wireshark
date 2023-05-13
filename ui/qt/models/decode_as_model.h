@@ -21,12 +21,14 @@
 #include "cfile.h"
 
 #include <epan/packet.h>
+#include <epan/decode_as.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 class DecodeAsItem
 {
 public:
-    DecodeAsItem();
+    DecodeAsItem(const char *table_name = NULL, gconstpointer selector = NULL);
+    DecodeAsItem(const decode_as_t *entry, gconstpointer selector = NULL);
     virtual ~DecodeAsItem();
 
     const gchar* tableName_;
@@ -41,6 +43,9 @@ public:
     QString default_dissector_;
     QString current_dissector_;
     dissector_handle_t  dissector_handle_;
+
+private:
+    void init(const char *table_name, gconstpointer selector = NULL);
 };
 
 class DecodeAsModel : public QAbstractTableModel
