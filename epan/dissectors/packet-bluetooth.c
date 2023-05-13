@@ -5002,7 +5002,7 @@ proto_register_bluetooth(void)
     bluetooth_device_tap = register_tap("bluetooth.device");
     bluetooth_hci_summary_tap = register_tap("bluetooth.hci_summary");
 
-    bluetooth_uuid_table = register_dissector_table("bluetooth.uuid", "BT Service UUID", proto_bluetooth, FT_STRING, BASE_NONE);
+    bluetooth_uuid_table = register_dissector_table("bluetooth.uuid", "BT Service UUID", proto_bluetooth, FT_STRING, STRING_CASE_SENSITIVE);
     llc_add_oui(OUI_BLUETOOTH, "llc.bluetooth_pid", "LLC Bluetooth OUI PID", oui_hf, proto_bluetooth);
 
     register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_endpoint_packet);

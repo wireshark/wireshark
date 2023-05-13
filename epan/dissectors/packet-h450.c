@@ -6429,11 +6429,11 @@ void proto_register_h450(void) {
   h450_err_handle = register_dissector("h4501_err", dissect_h450_err, proto_h450);
 
   /* Register dissector tables */
-  h450_rose_ctx.arg_global_dissector_table = register_dissector_table("h450.ros.global.arg", "H.450 Operation Argument (global opcode)", proto_h450, FT_STRING, BASE_NONE);
-  h450_rose_ctx.res_global_dissector_table = register_dissector_table("h450.ros.global.res", "H.450 Operation Result (global opcode)", proto_h450, FT_STRING, BASE_NONE);
+  h450_rose_ctx.arg_global_dissector_table = register_dissector_table("h450.ros.global.arg", "H.450 Operation Argument (global opcode)", proto_h450, FT_STRING, STRING_CASE_SENSITIVE);
+  h450_rose_ctx.res_global_dissector_table = register_dissector_table("h450.ros.global.res", "H.450 Operation Result (global opcode)", proto_h450, FT_STRING, STRING_CASE_SENSITIVE);
   h450_rose_ctx.arg_local_dissector_table = register_dissector_table("h450.ros.local.arg", "H.450 Operation Argument (local opcode)", proto_h450, FT_UINT32, BASE_HEX);
   h450_rose_ctx.res_local_dissector_table = register_dissector_table("h450.ros.local.res", "H.450 Operation Result (local opcode)", proto_h450, FT_UINT32, BASE_HEX);
-  h450_rose_ctx.err_global_dissector_table = register_dissector_table("h450.ros.global.err", "H.450 Error (global opcode)", proto_h450, FT_STRING, BASE_NONE);
+  h450_rose_ctx.err_global_dissector_table = register_dissector_table("h450.ros.global.err", "H.450 Error (global opcode)", proto_h450, FT_STRING, STRING_CASE_SENSITIVE);
   h450_rose_ctx.err_local_dissector_table = register_dissector_table("h450.ros.local.err", "H.450 Error (local opcode)", proto_h450, FT_UINT32, BASE_HEX);
 
 }

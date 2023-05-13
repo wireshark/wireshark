@@ -477,7 +477,7 @@ void proto_register_ros(void) {
   expert_ros = expert_register_protocol(proto_ros);
   expert_register_field_array(expert_ros, ei, array_length(ei));
 
-  ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", proto_ros, FT_STRING, BASE_NONE);
+  ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", proto_ros, FT_STRING, STRING_CASE_SENSITIVE);
   protocol_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 }
 

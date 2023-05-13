@@ -1843,7 +1843,7 @@ proto_register_coap(void)
 	 */
 	coap_tmf_media_type_dissector_table =
 	    register_dissector_table("coap_tmf_media_type",
-		"Internet media type for CoAP-TMF", proto_coap, FT_STRING, BASE_NONE);
+		"Internet media type for CoAP-TMF", proto_coap, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 void

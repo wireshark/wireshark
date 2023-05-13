@@ -4805,7 +4805,7 @@ proto_register_http(void)
 	 * Maps the lowercase Upgrade header value.
 	 * https://tools.ietf.org/html/rfc7230#section-8.6
 	 */
-	upgrade_subdissector_table = register_dissector_table("http.upgrade", "HTTP Upgrade", proto_http, FT_STRING, BASE_NONE);
+	upgrade_subdissector_table = register_dissector_table("http.upgrade", "HTTP Upgrade", proto_http, FT_STRING, STRING_CASE_SENSITIVE);
 
 	/*
 	 * Heuristic dissectors SHOULD register themselves in

@@ -47,6 +47,12 @@ struct epan_range;
 	((guint)(offset) + (guint)(len) > (guint)(offset) && \
 	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
+/* 0 is case insenstive for backwards compatibility with tables that
+ * used FALSE or BASE_NONE for case sensitive, which was the default.
+ */
+#define STRING_CASE_SENSITIVE 0
+#define STRING_CASE_INSENSITIVE 1
+
 extern void packet_init(void);
 extern void packet_cache_proto_handles(void);
 extern void packet_cleanup(void);
@@ -166,9 +172,9 @@ WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
 
 /* a protocol uses the function to register a sub-dissector table
  *
- * 'param' is the display base for integer tables, and TRUE/FALSE for
- * string tables (true indicating case-insensitive, false indicating
- * case-sensitive)
+ * 'param' is the display base for integer tables, STRING_CASE_SENSITIVE
+ * or STRING_CASE_INSENSITIVE for string tables, and ignored for other
+ * table types.
  */
 WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
     const char *ui_name, const int proto, const ftenum_t type, const int param);

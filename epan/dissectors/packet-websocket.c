@@ -982,7 +982,7 @@ proto_register_websocket(void)
       "TCP port for protocols using WebSocket", proto_websocket, FT_UINT16, BASE_DEC);
 
   protocol_subdissector_table = register_dissector_table("ws.protocol",
-      "Negotiated WebSocket protocol", proto_websocket, FT_STRING, BASE_NONE);
+      "Negotiated WebSocket protocol", proto_websocket, FT_STRING, STRING_CASE_SENSITIVE);
 
   reassembly_table_register(&ws_reassembly_table, &addresses_reassembly_table_functions);
 

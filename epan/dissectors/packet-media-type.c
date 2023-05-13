@@ -24,5 +24,5 @@ proto_register_media_type(void)
 	 * "Both top-level type and subtype names are case-insensitive."
 	 */
 	 register_dissector_table("media_type", "Internet media type",
-	     -1 /* no protocol */, FT_STRING, TRUE);
+	     -1 /* no protocol */, FT_STRING, STRING_CASE_INSENSITIVE);
 }

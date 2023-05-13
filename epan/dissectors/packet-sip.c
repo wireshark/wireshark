@@ -7822,7 +7822,7 @@ void proto_register_sip(void)
     sip_tap = register_tap("sip");
     sip_follow_tap = register_tap("sip_follow");
 
-    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE);
+    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, STRING_CASE_SENSITIVE);
 
     register_stat_tap_table_ui(&sip_stat_table);
 

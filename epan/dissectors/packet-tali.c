@@ -196,7 +196,7 @@ proto_register_tali(void)
 
   register_dissector("tali", dissect_tali, proto_tali);
 
-  tali_dissector_table = register_dissector_table("tali.opcode", "Tali OPCODE", proto_tali, FT_STRING, BASE_NONE);
+  tali_dissector_table = register_dissector_table("tali.opcode", "Tali OPCODE", proto_tali, FT_STRING, STRING_CASE_SENSITIVE);
 
   tali_module = prefs_register_protocol(proto_tali, NULL);
   prefs_register_bool_preference(tali_module, "reassemble",

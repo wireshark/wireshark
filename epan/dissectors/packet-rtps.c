@@ -17105,7 +17105,7 @@ void proto_register_rtps(void) {
       &enable_rtps_reassembly);
 
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
-          proto_rtps, FT_STRING, BASE_NONE);
+          proto_rtps, FT_STRING, STRING_CASE_SENSITIVE);
 
   registry = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
   dissection_infos = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);

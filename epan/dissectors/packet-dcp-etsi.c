@@ -901,12 +901,12 @@ proto_register_dcp_etsi (void)
 
   /* subdissector code */
   dcp_dissector_table = register_dissector_table("dcp-etsi.sync",
-            "DCP Sync", proto_dcp_etsi, FT_STRING, BASE_NONE);
+            "DCP Sync", proto_dcp_etsi, FT_STRING, STRING_CASE_SENSITIVE);
   af_dissector_table = register_dissector_table("dcp-af.pt",
             "DCP-AF Payload Type", proto_dcp_etsi, FT_UINT8, BASE_DEC);
 
   tpl_dissector_table = register_dissector_table("dcp-tpl.ptr",
-            "DCP-TPL Protocol Type & Revision", proto_dcp_etsi, FT_STRING, BASE_NONE);
+            "DCP-TPL Protocol Type & Revision", proto_dcp_etsi, FT_STRING, STRING_CASE_SENSITIVE);
 
   reassembly_table_register (&dcp_reassembly_table,
                          &addresses_reassembly_table_functions);

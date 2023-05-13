@@ -3502,7 +3502,7 @@ proto_register_thrift(void)
     thrift_module = prefs_register_protocol(proto_thrift, proto_reg_handoff_thrift);
 
     thrift_method_name_dissector_table = register_dissector_table("thrift.method_names", "Thrift Method names",
-        proto_thrift, FT_STRING, FALSE); /* FALSE because Thrift is case-sensitive */
+        proto_thrift, FT_STRING, STRING_CASE_SENSITIVE); /* FALSE because Thrift is case-sensitive */
 
     prefs_register_enum_preference(thrift_module, "decode_binary",
                                    "Display binary as bytes or strings",

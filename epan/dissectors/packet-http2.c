@@ -4872,7 +4872,7 @@ proto_register_http2(void)
 
     streaming_content_type_dissector_table =
         register_dissector_table("streaming_content_type",
-            "Data Transmitted over HTTP2 in Streaming Mode", proto_http2, FT_STRING, BASE_NONE);
+            "Data Transmitted over HTTP2 in Streaming Mode", proto_http2, FT_STRING, STRING_CASE_SENSITIVE);
 
     stream_id_content_type_dissector_table =
         register_dissector_table("http2.streamid", "HTTP2 content type in stream", proto_http2, FT_UINT32, BASE_DEC);
