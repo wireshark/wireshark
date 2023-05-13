@@ -393,8 +393,8 @@ wv_datetime_from_opaque(wmem_allocator_t *pool, tvbuff_t *tvb, guint32 offset, g
 		time_zone = tvb_get_guint8(tvb, offset + 5);
 		/* Now construct the string */
 		str = wmem_strdup_printf(pool, "WV-CSP DateTime: "
-				      "%04d-%02d-%02dT%02d:%02d:%02d%c",
-				      year, month, day, hour, minute, second, time_zone);
+				      "%04d-%02d-%02dT%02d:%02d:%02d%s",
+				      year, month, day, hour, minute, second, format_char(pool, time_zone));
 	} else { /* Invalid length for a WV-CSP DateTime tag value */
 		str = wmem_strdup_printf(pool, "<Error: invalid binary WV-CSP DateTime value "
 				      "(%u bytes of opaque data)>", data_len);
