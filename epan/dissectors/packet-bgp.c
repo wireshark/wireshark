@@ -7026,7 +7026,6 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
     ws_in4_addr         ip4addr;            /* IPv4 address                 */
     address addr;
     ws_in6_addr         ip6addr;            /* IPv6 address                 */
-    guint16             rd_type;            /* Route Distinguisher type     */
     guint16             nlri_type;          /* NLRI Type                    */
     guint16             tmp16;
     guint32             path_identifier=0;
@@ -7437,7 +7436,6 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 plen -= (labnum * 3*8);
 
-                rd_type = tvb_get_ntohs(tvb,offset);
                 if (plen < 8*8) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled VPN IPv6 prefix length %u invalid",
@@ -7446,76 +7444,25 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 plen -= 8*8;
 
-                switch (rd_type) {
+                length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
+                if (length < 0) {
+                    proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
+                                                 "%s Labeled VPN IPv6 prefix length %u invalid",
+                                                 tag, plen + (labnum * 3*8) + 8*8);
+                    return -1;
+                }
 
-                    case FORMAT_AS2_LOC:
-                        length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
-                        if (length < 0) {
-                            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                                "%s Labeled VPN IPv6 prefix length %u invalid",
-                                                tag, plen + (labnum * 3*8) + 8*8);
-                            return -1;
-                        }
+                proto_tree_add_item(tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_NA);
+                proto_tree_add_string(tree, hf_bgp_label_stack, tvb, start_offset + 1, labnum * 3, wmem_strbuf_get_str(stack_strbuf));
+                proto_tree_add_string(tree, hf_bgp_rd, tvb, offset, 8, decode_bgp_rd(pinfo->pool, tvb, offset));
 
-                        /* XXX - break up into multiple fields */
-                        set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
-                        proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
-                                            (offset + 8 + length) - start_offset,
-                                            wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
-                                            wmem_strbuf_get_str(stack_strbuf),
-                                            tvb_get_ntohs(tvb, offset + 2),
-                                            tvb_get_ntohl(tvb, offset + 4),
-                                            address_to_str(pinfo->pool, &addr), plen);
-                        total_length = (1 + labnum * 3 + 8) + length;
-                        break;
 
-                    case FORMAT_IP_LOC:
-                        length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
-                        if (length < 0) {
-                            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                                "%s Labeled VPN IPv6 prefix length %u invalid",
-                                                tag, plen + (labnum * 3*8) + 8*8);
-                            return -1;
-                        }
+                set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
+                proto_tree_add_ipv6_format_value(tree, hf_addr6, tvb, offset + 8, length,
+                                                 &ip6addr, "%s/%u", address_to_str(pinfo->pool, &addr), plen);
 
-                        /* XXX - break up into multiple fields */
-                        set_address(&addr, AT_IPv6, 16, &ip6addr);
-                        proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
-                                            (offset + 8 + length) - start_offset,
-                                            wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
-                                            wmem_strbuf_get_str(stack_strbuf),
-                                            tvb_ip_to_str(pinfo->pool, tvb, offset + 2),
-                                            tvb_get_ntohs(tvb, offset + 6),
-                                            address_to_str(pinfo->pool, &addr), plen);
-                        total_length = (1 + labnum * 3 + 8) + length;
-                        break;
+                total_length = (1 + labnum * 3 + 8) + length;
 
-                    case FORMAT_AS4_LOC:
-                        length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
-                        if (length < 0) {
-                            proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                                "%s Labeled VPN IPv6 prefix length %u invalid",
-                                                tag, plen + (labnum * 3*8) + 8*8);
-                            return -1;
-                        }
-
-                        /* XXX - break up into multiple fields */
-                        set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
-                        proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
-                                            (offset + 8 + length) - start_offset,
-                                            "Label Stack=%s RD=%u.%u:%u, IPv6=%s/%u",
-                                            wmem_strbuf_get_str(stack_strbuf),
-                                            tvb_get_ntohs(tvb, offset + 2),
-                                            tvb_get_ntohs(tvb, offset + 4),
-                                            tvb_get_ntohs(tvb, offset + 6),
-                                            address_to_str(pinfo->pool, &addr), plen);
-                        total_length = (1 + labnum * 3 + 8) + length;
-                        break;
-                    default:
-                        proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_label_vpn, tvb, start_offset, 0,
-                                            "Unknown labeled VPN IPv6 address format %u", rd_type);
-                        return -1;
-                } /* switch (rd_type) */
                 break;
             case SAFNUM_FSPEC_RULE:
             case SAFNUM_FSPEC_VPN_RULE:
