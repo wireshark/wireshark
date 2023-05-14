@@ -30,7 +30,7 @@ tests require a Loopback interface and capture privileges. To avoid
 capture tests, pass the `--disable-capture` option.
 
 List available tests with `pytest --collectonly`. Enable verbose output
-with `pytest --verbose`. For more details, see <<ChTestsRunPytest>>.
+with `pytest --verbose`. For more details, see <<ChTestsRun>>.
 
 CMake runs pytest when the “test” target is built but the user experience
 is poor. It is strongly recommended to invoke pytest directly instead.
