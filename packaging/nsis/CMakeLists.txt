@@ -23,7 +23,6 @@ set(WIRESHARK_NSIS_FILES
 	wireshark-common.nsh
 	GetWindowsVersion.nsh
 	servicelib.nsh
-	AdditionalTasksPage.ini
 	NpcapPage.ini
 	USBPcapPage.ini
 	${WIRESHARK_NSIS_GENERATED_FILES}
@@ -43,7 +42,6 @@ set(LOGRAY_NSIS_FILES
 	logray-common.nsh
 	GetWindowsVersion.nsh
 	servicelib.nsh
-	AdditionalTasksPage.ini
 	NpcapPage.ini
 	USBPcapPage.ini
 	${LOGRAY_NSIS_GENERATED_FILES}
