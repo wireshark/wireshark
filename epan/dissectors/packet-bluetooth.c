@@ -4425,6 +4425,13 @@ dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+void bluetooth_unit_1p25_ms(gchar *buf, guint32 value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u)", 1.25 * value, value);
+}
+
+void bluetooth_unit_0p125_ms(gchar *buf, guint32 value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u)", 0.125 * value, value);
+}
 
 void
 save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinfo,

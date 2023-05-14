@@ -574,6 +574,11 @@ static int hf_bthci_evt_subevent = -1;
 static int hf_bthci_evt_subevent_tx_status = -1;
 static int hf_bthci_evt_subevent_responses = -1;
 static int hf_bthci_evt_response_slot = -1;
+static int hf_bthci_evt_num_subevents = -1;
+static int hf_bthci_evt_subevent_interval = -1;
+static int hf_bthci_evt_response_slot_delay = -1;
+static int hf_bthci_evt_response_slot_spacing = -1;
+static int hf_bthci_evt_periodic_event_counter = -1;
 static int hf_packet_type_acl = -1;
 static int hf_packet_type_acl_dh5 = -1;
 static int hf_packet_type_acl_dm5 = -1;
@@ -1090,12 +1095,12 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x07, "LE Data Length Change" },
     { 0x08, "LE Read Local P-256 Public Key Complete" },
     { 0x09, "LE Generate DHKey Complete" },
-    { 0x0A, "LE Enhanced Connection Complete" },
+    { 0x0A, "LE Enhanced Connection Complete [v1]" },
     { 0x0B, "LE Direct Advertising Report" },
     { 0x0C, "LE PHY Update Complete" },
     { 0x0D, "LE Extended Advertising Report" },
-    { 0x0E, "LE Periodic Advertising Sync Established" },
-    { 0x0F, "LE Periodic Advertising Report" },
+    { 0x0E, "LE Periodic Advertising Sync Established [v1]" },
+    { 0x0F, "LE Periodic Advertising Report [v1]" },
     { 0x10, "LE Periodic Advertising Sync Lost" },
     { 0x11, "LE Scan Timeout" },
     { 0x12, "LE Advertising Set Terminated" },
@@ -1104,7 +1109,7 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x15, "LE Connectionless IQ Report" },
     { 0x16, "LE Connection IQ Report" },
     { 0x17, "LE CTE Request Failed" },
-    { 0x18, "LE Periodic Advertising Sync Transfer Received" },
+    { 0x18, "LE Periodic Advertising Sync Transfer Received [v1]" },
     { 0x19, "LE CIS Established" },
     { 0x1A, "LE CIS Request" },
     { 0x1B, "LE Create BIG Complete" },
@@ -1116,8 +1121,12 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x21, "LE Transmit Power Reporting" },
     { 0x22, "LE BIGInfo Advertising Report" },
     { 0x23, "LE Subrate Change" },
+    { 0x24, "LE Periodic Advertising Sync Established [v2]" },
+    { 0x25, "LE Periodic Advertising Report [v2]" },
+    { 0x26, "LE Periodic Advertising Sync Transfer Received [v2]" },
     { 0x27, "LE Periodic Advertising Subevent Data Request" },
     { 0x28, "LE Periodic Advertising Response Report" },
+    { 0x29, "LE Enhanced Connection Complete [v2]" },
     { 0, NULL }
 };
 
@@ -1195,6 +1204,7 @@ static const value_string ext_adv_data_status_vals[] = {
 static const value_string bthci_evt_primary_phy_vals[] = {
     {0x01, "LE 1M"},
     {0x03, "LE Coded"},
+    {0x04, "LE Coded, S=2"},
     {0, NULL }
 };
 
@@ -1203,6 +1213,7 @@ static const value_string bthci_evt_secondary_phy_vals[] = {
     {0x01, "LE 1M"},
     {0x02, "LE 2M"},
     {0x03, "LE Coded"},
+    {0x04, "LE Coded, S=2"},
     {0, NULL }
 };
 
@@ -1245,6 +1256,16 @@ static const value_string tx_status_vals[] = {
     {0x00, "Transmitted"},
     {0x01, "Not Transmitted"},
     {0, NULL }
+};
+
+static const value_string uint8_no_handle[] = {
+    {0xFF, "No Handle"},
+    {0, NULL}
+};
+
+static const value_string uint16_no_handle[] = {
+    {0xFFFF, "No Handle"},
+    {0, NULL}
 };
 
 void proto_register_bthci_evt(void);
@@ -2739,7 +2760,8 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             add_opcode(opcode_list, 0x2026, COMMAND_STATUS_NORMAL); /* LE Generate DHKey */
 
             break;
-        case 0x0A: /* LE Enhanced Connection Complete */
+        case 0x0A: /* LE Enhanced Connection Complete [v1] */
+        case 0x29: /* LE Enhanced Connection Complete [v2] */
             proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
             status = tvb_get_guint8(tvb, offset);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
@@ -2772,6 +2794,13 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             proto_tree_add_item(tree, hf_bthci_evt_le_central_clock_accuracy,     tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            if (subevent_code == 0x29) {
+                proto_tree_add_item(tree, hf_bthci_evt_advertising_handle, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(tree, hf_bthci_evt_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
 
             if (!pinfo->fd->visited && status == STATUS_SUCCESS) {
                 wmem_tree_key_t    key[5];
@@ -2936,7 +2965,8 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             }
             }
             break;
-        case 0x0E: /* LE Periodic Advertising Sync Established */
+        case 0x0E: /* LE Periodic Advertising Sync Established [v1] */
+        case 0x24: /* LE Periodic Advertising Sync Established [v2] */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
             status = tvb_get_guint8(tvb, offset);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
@@ -2955,8 +2985,19 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_advertiser_clock_accuracy, tvb, offset, 1, ENC_NA);
             offset += 1;
+            if (subevent_code == 0x24) {
+                proto_tree_add_item(tree, hf_bthci_evt_num_subevents, tvb, offset, 1, ENC_NA);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_evt_subevent_interval, tvb, offset, 1, ENC_NA);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_evt_response_slot_delay, tvb, offset, 1, ENC_NA);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_evt_response_slot_spacing, tvb, offset, 1, ENC_NA);
+                offset+=1;
+            }
             break;
-        case 0x0F: /* LE Periodic Advertising Report */
+        case 0x0F: /* LE Periodic Advertising Report [v1] */
+        case 0x25: /* LE Periodic Advertising Report [v2] */
             {
             guint8 length;
             proto_tree_add_item(tree, hf_bthci_evt_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2971,6 +3012,12 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_cte_type, tvb, offset, 1, ENC_NA);
             offset += 1;
+            if (subevent_code == 0x25) {
+                proto_tree_add_item(tree, hf_bthci_evt_periodic_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tree, hf_bthci_evt_subevent, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
             proto_tree_add_item(tree, hf_bthci_evt_data_status, tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_data_length, tvb, offset, 1, ENC_NA);
@@ -3060,7 +3107,8 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
-        case 0x18: /* LE Periodic Advertising Sync Transfer Received */
+        case 0x18: /* LE Periodic Advertising Sync Transfer Received [v1] */
+        case 0x26: /* LE Periodic Advertising Sync Transfer Received [v2] */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
             status = tvb_get_guint8(tvb, offset);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
@@ -3083,6 +3131,16 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_advertiser_clock_accuracy, tvb, offset, 1, ENC_NA);
             offset += 1;
+            if (subevent_code == 0x26) {
+                proto_tree_add_item(tree, hf_bthci_evt_num_subevents, tvb, offset, 1, ENC_NA);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_evt_subevent_interval, tvb, offset, 1, ENC_NA);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_evt_response_slot_delay, tvb, offset, 1, ENC_NA);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_evt_response_slot_spacing, tvb, offset, 1, ENC_NA);
+                offset+=1;
+            }
             break;
         case 0x19: /* LE CIS Established */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
@@ -9516,7 +9574,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_sync_handle,
           { "Sync Handle", "bthci_evt.sync_handle",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_HEX|BASE_SPECIAL_VALS, VALS(uint16_no_handle), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_data_status,
@@ -9526,7 +9584,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_advertising_handle,
           { "Advertising Handle", "bthci_evt.adv_handle",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX|BASE_SPECIAL_VALS, VALS(uint8_no_handle), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_num_compl_ext_advertising_events,
@@ -10002,6 +10060,31 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_response_slot,
           { "Response Slot", "bthci_evt.response_slot",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_subevents,
+          { "Number of Sub-events", "bthci_evt.num_subevents",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_subevent_interval,
+          { "Sub-event Interval", "bthci_evt.subevent_interval",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(bluetooth_unit_1p25_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_response_slot_delay,
+          { "Response Slot Delay", "bthci_evt.resp_slot_delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(bluetooth_unit_1p25_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_response_slot_spacing,
+          { "Response Slot Spacing", "bthci_evt.resp_slot_spacing",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(bluetooth_unit_0p125_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_periodic_event_counter,
+          { "Periodic Event Counter", "bthci_evt.periodic_evt_counter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
