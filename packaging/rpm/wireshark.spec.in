@@ -350,13 +350,8 @@ development of Wireshark scripts and plugins.
 
 %cmake_install
 %cmake_install --component Development
-
 %if %{with guides}
-%if %{with ninja}
-%ninja_install install_guides -C %{__cmake_builddir}
-%else
-make DESTDIR=$RPM_BUILD_ROOT install_guides -C %{__cmake_builddir}
-%endif
+%cmake_install --component UserGuide
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where

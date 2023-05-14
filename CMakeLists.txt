@@ -1343,6 +1343,7 @@ endif()
 ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
 find_package( Asciidoctor 1.5 )
+find_package( XSLTPROC )
 
 find_package(DOXYGEN)
 
@@ -3861,6 +3862,21 @@ install(
 	DESTINATION
 		${CMAKE_INSTALL_DOCDIR}
 )
+
+if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
+	install(
+		DIRECTORY "${CMAKE_BINARY_DIR}/docbook/wsug_html_chunked"
+		DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+		COMPONENT "UserGuide"
+		EXCLUDE_FROM_ALL
+	)
+	install(
+		DIRECTORY "${CMAKE_BINARY_DIR}/docbook/wsdg_html_chunked"
+		DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+		COMPONENT "DeveloperGuide"
+		EXCLUDE_FROM_ALL
+	)
+endif()
 
 set(SHARK_PUBLIC_HEADERS
 	cfile.h

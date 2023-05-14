@@ -11,9 +11,6 @@
 # - Make the build targets top-level on Windows, similar to the NSIS,
 #   WiX, and PortableApps targets?
 
-find_package( Asciidoctor 1.5 )
-find_package( XSLTPROC )
-
 function(set_docbook_target_properties _target)
 	set_target_properties(${_target} PROPERTIES
 		FOLDER "Documentation"
@@ -25,8 +22,6 @@ set(COMMON_FILES
 	common_src/gpl_appendix.adoc
 	common_src/typographic_conventions.adoc
 )
-
-set(GUIDE_INSTALL_DIRS)
 
 set(WSUG_TITLE "Wireshark User's Guide")
 
@@ -381,7 +376,6 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	)
 	set_docbook_target_properties(user_guide_html)
 	add_dependencies(user_guides user_guide_html)
-	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
@@ -433,7 +427,6 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	)
 	set_docbook_target_properties(developer_guide_html)
 	add_dependencies(developer_guides developer_guide_html)
-	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsdg_html_chunked)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
@@ -458,20 +451,6 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
 	)
 	set_docbook_target_properties(developer_guide_epub)
 	add_dependencies(developer_guides developer_guide_epub)
-endif()
-
-if (GUIDE_INSTALL_DIRS)
-	# The installation location and DOC_DIR in ui/help_url.c must
-	# match.
-	add_custom_target(install_guides
-		COMMAND ${CMAKE_COMMAND} -P
-			${CMAKE_SOURCE_DIR}/cmake/modules/FileInstall.cmake
-			${GUIDE_INSTALL_DIRS}
-			${CMAKE_INSTALL_FULL_DOCDIR}
-		DEPENDS
-			user_guide_html developer_guide_html
-	)
-	set_docbook_target_properties(install_guides)
 endif()
 
 # release_notes: release-notes.html release-notes.txt
