@@ -43,6 +43,9 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-cc"
              "${MINGW_PACKAGE_PREFIX}-python"
              "${MINGW_PACKAGE_PREFIX}-qt6-tools"
+             "${MINGW_PACKAGE_PREFIX}-asciidoctor"
+             "${MINGW_PACKAGE_PREFIX}-docbook-xsl"
+             "${MINGW_PACKAGE_PREFIX}-libxslt"
              'git')
 checkdepends=("${MINGW_PACKAGE_PREFIX}-python-pytest"
               "${MINGW_PACKAGE_PREFIX}-python-pytest-xdist")
@@ -79,6 +82,7 @@ build() {
       ../${_realname}
 
   "${MINGW_PREFIX}"/bin/cmake.exe --build .
+  "${MINGW_PREFIX}"/bin/cmake.exe --build . --target user_guide_html
 }
 
 check() {
@@ -92,6 +96,7 @@ package() {
   cd "${srcdir}/build-${MSYSTEM}"
 
   DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install .
+  DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install . --component UserGuide
 
   install -Dm644 "${srcdir}/${_realname}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
 }
