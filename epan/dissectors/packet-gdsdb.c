@@ -480,7 +480,7 @@ static int add_uint_string(proto_tree *tree, int hf_string, tvbuff_t *tvb, int o
 	int ret_offset = offset + length;
 	if (length < 4 || ret_offset < offset) {
 		expert_add_info_format(NULL, ti, &ei_gdsdb_invalid_length, "Invalid length: %d", length);
-		return tvb_reported_length_remaining(tvb, offset);
+		return tvb_reported_length(tvb);
 	}
 	return ret_offset;
 }
