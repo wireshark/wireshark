@@ -45,7 +45,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         # --failure-level=WARN
         # --trace
         --quiet
-        --attribute build_dir=${CMAKE_CURRENT_BINARY_DIR}
+        --attribute build_dir=${CMAKE_BINARY_DIR}/docbook
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/commaize-block.rb
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/cveidlink-inline-macro.rb
