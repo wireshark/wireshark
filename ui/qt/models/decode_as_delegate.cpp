@@ -99,7 +99,7 @@ bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
 
     foreach(packet_proto_data_t proto, packet_proto_list_)
     {
-        if (g_strcmp0(proto.table_ui_name, item->tableUIName_) == 0) {
+        if (g_strcmp0(proto.table_ui_name, item->tableUIName()) == 0) {
             proto_name = proto.proto_name;
             break;
         }
@@ -108,7 +108,7 @@ bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
     for (GList *cur = decode_as_list; cur; cur = cur->next) {
         decode_as_t *entry = (decode_as_t *) cur->data;
         if ((g_strcmp0(proto_name, entry->name) == 0) &&
-            (g_strcmp0(item->tableName_, entry->table_name) == 0) &&
+            (g_strcmp0(item->tableName(), entry->table_name) == 0) &&
             (cap_file_ && cap_file_->edt)) {
                 return true;
         }
@@ -184,7 +184,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         foreach(packet_proto_data_t proto, packet_proto_list_)
         {
-            if (g_strcmp0(proto.table_ui_name, item->tableUIName_) == 0) {
+            if (g_strcmp0(proto.table_ui_name, item->tableUIName()) == 0) {
                 if (edt_present) {
                     cap_file_->edt->pi.curr_layer_num = proto.curr_layer_num;
                 }
@@ -197,7 +197,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         for (GList *cur = decode_as_list; cur; cur = cur->next) {
             decode_as_t *entry = (decode_as_t *) cur->data;
             if ((g_strcmp0(proto_name, entry->name) == 0) &&
-                (g_strcmp0(item->tableName_, entry->table_name) == 0)) {
+                (g_strcmp0(item->tableName(), entry->table_name) == 0)) {
                 if (edt_present) {
                     //create a combobox to add the entries from the packet
                     cb_editor = new QComboBox(parentWidget);
@@ -256,7 +256,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         for (GList *cur = decode_as_list; cur; cur = cur->next) {
             decode_as_t *entry = (decode_as_t *) cur->data;
-            if (g_strcmp0(item->tableName_, entry->table_name) == 0) {
+            if (g_strcmp0(item->tableName(), entry->table_name) == 0) {
                 entry->populate_list(entry->table_name, decodeAddProtocol, &protocols);
                 break;
             }
