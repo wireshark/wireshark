@@ -974,7 +974,7 @@
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation>ハッシュ (RIPEMD160)</translation>
+        <translation type="vanished">ハッシュ (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
@@ -6594,14 +6594,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Use system setting</source>
         <translation>システム設定を利用</translation>
-    </message>
-    <message>
-        <source>Debounce Timer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How long to wait (in milliseconds) before processing user input&lt;br/&gt;If you type quickly, consider lowering the value for a &apos;snappier&apos; experience.&lt;br/&gt; If you type slowly, consider increasing the value to avoid performance issues.&lt;br/&gt;This is currently used to delay searches in View -&gt; Internals -&gt; Supported Protocols and Preferences -&gt; Advanced menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open Files In</source>
