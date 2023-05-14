@@ -536,6 +536,7 @@ static const guint8 pcapng_little_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
     0x4D, 0x3C, 0x2B, 0x1A
 };
 
+static
 void dissect_custom_options(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                             guint32 option_code, guint32 option_length, guint encoding)
 {
