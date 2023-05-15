@@ -3759,6 +3759,7 @@ void WiresharkMainWindow::on_actionTelephonyRtpPlayer_triggered()
     }
     foreach(rtpstream_id_t *id, stream_ids) {
         rtpstream_id_free(id);
+        g_free(id);
     }
 }
 
