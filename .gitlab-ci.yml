@@ -501,7 +501,6 @@ Documentation:
       changes:
         - "docbook/**/*"
         - "epan/wslua/**/*"
-      when: always
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: manual
   script:
