@@ -17,7 +17,7 @@
 class AudioSilenceGenerator: public QIODevice
 {
 public:
-    explicit AudioSilenceGenerator();
+    explicit AudioSilenceGenerator(QObject *parent = nullptr);
     ~AudioSilenceGenerator() { }
 
     qint64 size() const override;
