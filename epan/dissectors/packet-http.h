@@ -58,6 +58,8 @@ typedef struct _http_req_res_t {
 	struct _http_req_res_t *next;
 	/** pointer to the previous element in the linked list, NULL for the head node */
 	struct _http_req_res_t *prev;
+	/** private data used by http dissector */
+	void* private_data;
 } http_req_res_t;
 
 /** Conversation data of a HTTP connection. */
@@ -86,24 +88,11 @@ typedef struct _http_conv_t {
 	 * startoffset on connections that have proxied/tunneled/Upgraded.
 	 */
 
+	/* TRUE means current message is chunked streaming, and not ended yet.
+	 * This is only meaningful during the first scan.
+	 */
+	gboolean message_ended;
+
 } http_conv_t;
-
-typedef enum _http_type {
-	HTTP_REQUEST,
-	HTTP_RESPONSE,
-	HTTP_NOTIFICATION,
-	HTTP_OTHERS,
-	SIP_DATA            /* If the content is from the SIP dissector*/
-} http_type_t;
-
-/** Passed to dissectors called by the HTTP dissector. */
-typedef struct _http_message_info_t {
-	http_type_t type;       /**< Message type; may be HTTP_OTHERS if not called by HTTP */
-	const char *media_str;  /**< Content-Type parameters */
-	const char *content_id; /**< Content-ID parameter */
-	/** In http1.0/1.1, data contains the header name/value mappings, valid only within the packet scope.
-	    In other protocols, the http_type is used to indicate the data transported. */
-	void *data;
-} http_message_info_t;
 
 #endif /* __PACKET_HTTP_H__ */

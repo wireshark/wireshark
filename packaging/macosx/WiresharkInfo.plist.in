@@ -217,6 +217,21 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rtp</string>
+				<string>rtp.gz</string>
+				<string>rtp.zst</string>
+				<string>rtp.lz4</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>RTP stream (RTPDump)</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
 		<!-- XXX - This dictionary needs a lot more entries -->
 	</array>
 	<key>CFBundleInfoDictionaryVersion</key>

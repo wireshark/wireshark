@@ -133,7 +133,7 @@ private slots:
     void on_buttonBox_helpRequested();
     void updateWidgets();
     void captureEvent(CaptureEvent e);
-    void on_displayFilterCheckBox_toggled(bool checked);
+    void displayFilterCheckBoxToggled(bool checked);
     void on_actionSelectAll_triggered();
     void on_actionSelectInvert_triggered();
     void on_actionSelectNone_triggered();

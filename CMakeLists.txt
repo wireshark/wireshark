@@ -137,10 +137,10 @@ if(WIN32)
 		else()
 			set(WIRESHARK_TARGET_PLATFORM "$ENV{MSYSTEM_CARCH}")
 		endif()
-	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
+	elseif($ENV{Platform} MATCHES arm64 OR CMAKE_GENERATOR_PLATFORM MATCHES arm64)
+		set(WIRESHARK_TARGET_PLATFORM win64arm)
+	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES Win64)
 		set(WIRESHARK_TARGET_PLATFORM win64)
-	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
-		set(WIRESHARK_TARGET_PLATFORM win32)
 	else()
 		message(WARNING "Assuming \"win64\" target platform")
 		set(WIRESHARK_TARGET_PLATFORM win64)
@@ -1343,6 +1343,7 @@ endif()
 ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
 find_package( Asciidoctor 1.5 )
+find_package( XSLTPROC )
 
 find_package(DOXYGEN)
 
@@ -1401,6 +1402,20 @@ if (QT_FOUND)
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the windeployqt utility."
 		)
+		# As of Qt 6.5.0, the official Qt "MSVC 2019 ARM64 (TP)" libraries don't ship
+		# with native Arm64 executables. Instead, you get x64 executables installed in
+		# msvc2019_x64. Look for the path to "qmake.bat", which has to be passed to
+		# windeployqt so that it can install the proper DLLs.
+		# https://bugreports.qt.io/browse/QTBUG-100070
+		set(QT_WINDEPLOYQT_EXTRA_ARGS)
+		find_program(_qt_qmake_bat qmake.bat
+			HINTS ENV CMAKE_PREFIX_PATH
+			PATH_SUFFIXES bin
+			DOC "Path to qmake.bat."
+		)
+		if(_qt_qmake_bat)
+			set (QT_WINDEPLOYQT_EXTRA_ARGS "--qmake \"${_qt_qmake_bat}\"")
+		endif()
 	elseif(APPLE)
 		find_program(QT_MACDEPLOYQT_EXECUTABLE macdeployqt
 			HINTS "${QT_BIN_PATH}"
@@ -1542,7 +1557,9 @@ add_subdirectory( epan )
 add_subdirectory( extcap )
 add_subdirectory( randpkt_core )
 add_subdirectory( tools/lemon )
-add_subdirectory( tools/radiotap-gen )
+if(PCAP_FOUND)
+	add_subdirectory( tools/radiotap-gen )
+endif()
 add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( writecap )
@@ -2707,6 +2724,7 @@ if(BUILD_wireshark AND QT_FOUND)
 			POST_BUILD
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 			COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
+				${QT_WINDEPLOYQT_EXTRA_ARGS}
 				--no-compiler-runtime
 				--verbose 0
 				$<$<BOOL:${MSVC}>:--pdb>
@@ -3845,6 +3863,21 @@ install(
 		${CMAKE_INSTALL_DOCDIR}
 )
 
+if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
+	install(
+		DIRECTORY "${CMAKE_BINARY_DIR}/docbook/wsug_html_chunked"
+		DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+		COMPONENT "UserGuide"
+		EXCLUDE_FROM_ALL
+	)
+	install(
+		DIRECTORY "${CMAKE_BINARY_DIR}/docbook/wsdg_html_chunked"
+		DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+		COMPONENT "DeveloperGuide"
+		EXCLUDE_FROM_ALL
+	)
+endif()
+
 set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	cli_main.h
@@ -3888,9 +3921,6 @@ if(BUILD_wireshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/mimetypes"
 			RENAME org.wireshark.Wireshark-mimetype.png)
 	endforeach()
-	install(FILES resources/icons/wsicon.svg
-		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
-		RENAME org.wireshark.Wireshark.svg)
 endif()
 
 if(BUILD_logray AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
@@ -4042,77 +4072,21 @@ set_target_properties(test-programs PROPERTIES
 	EXCLUDE_FROM_DEFAULT_BUILD True
 )
 
-# Test suites
-enable_testing()
-# We could try to build this list dynamically, but given that we tend to
-# go years between adding suites just run
-#     test/test.py --list-groups | sort
-# and paste the output here.
-set(_test_group_list
-	suite_capture
-	suite_clopts
-	suite_decryption
-	suite_dfilter.group_bytes
-	suite_dfilter.group_double
-	suite_dfilter.group_ether
-	suite_dfilter.group_function
-	suite_dfilter.group_integer
-	suite_dfilter.group_ipv4
-	suite_dfilter.group_ipv6
-	suite_dfilter.group_membership
-	suite_dfilter.group_scanner
-	suite_dfilter.group_slice
-	suite_dfilter.group_string
-	suite_dfilter.group_syntax
-	suite_dfilter.group_time
-	suite_dfilter.group_tvb
-	suite_dissection
-	suite_dissectors.group_asterix
-	suite_extcaps
-	suite_fileformats
-	suite_follow
-	suite_follow_dccp
-	suite_follow_multistream
-	suite_io
-	suite_mergecap
-	suite_nameres
-	suite_netperfmeter
-	suite_outputformats
-	suite_release
-	suite_sharkd
-	suite_text2pcap
-	suite_unittests
-	suite_wslua
+# Add target to enable capturing from the build directory. Requires Linux capabilities
+# and running with sudo.
+if(TARGET dumpcap AND SETCAP_EXECUTABLE)
+	add_custom_target(test-capture
+		COMMAND ${SETCAP_EXECUTABLE} cap_net_raw,cap_net_admin+ep $<TARGET_FILE:dumpcap>
+	)
+endif()
+
+add_custom_target(test
+	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
+		${PYTHON_EXECUTABLE} -m pytest
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	DEPENDS test-programs
+	USES_TERMINAL
 )
-
-# We don't currently handle spaces in arguments. On Windows this
-# means that you will probably have to pass in an interface index
-# instead of a name.
-set(TEST_EXTRA_ARGS "" CACHE STRING "Extra arguments to pass to test/test.py")
-separate_arguments(TEST_EXTRA_ARGS)
-
-add_test(build_unittests
-	"${CMAKE_COMMAND}"
-	--build "${CMAKE_BINARY_DIR}"
-	--config "${CONFIG}"
-	--target test-programs
-)
-set_tests_properties(build_unittests PROPERTIES FIXTURES_SETUP unittests)
-
-foreach(_group_name ${_test_group_list})
-	add_test(
-		NAME ${_group_name}
-		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
-			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
-			--verbose
-			--program-path $<TARGET_FILE_DIR:wmem_test>
-			${TEST_EXTRA_ARGS}
-			${_group_name}
-		)
-	set_tests_properties(${_group_name} PROPERTIES TIMEOUT 600)
-endforeach()
-
-set_tests_properties(suite_unittests PROPERTIES FIXTURES_REQUIRED unittests)
 
 # Make it possible to run pytest without passing the full path as argument.
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)

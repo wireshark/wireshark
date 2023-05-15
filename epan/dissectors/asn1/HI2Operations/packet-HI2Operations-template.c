@@ -1,6 +1,7 @@
 /* packet-HI2Operations.c
- * Routines for HI2 (ETSI TS 101 671 V3.5.1 (2009-11))
+ * Routines for HI2 (ETSI TS 101 671 V3.15.1 (2018-06))
  *  Erwin van Eijk 2010
+ *  Joakim Karlsson 2023
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

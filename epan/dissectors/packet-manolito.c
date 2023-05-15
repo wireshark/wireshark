@@ -157,7 +157,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 			proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
 					4+length, str, "%s (%s): %s",
 					field_name_str,
-					val_to_str_ext(field_name, &field_longname_ext, "unknown"),
+					val_to_str_ext_const(field_name, &field_longname_ext, "unknown"),
 					str);
 			offset += length;
 		}
@@ -192,7 +192,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 				proto_tree_add_uint64_format(manolito_tree, hf_manolito_integer, tvb, start,
 						4+length, n, "%s (%s): %" PRIu64,
 						field_name_str,
-						val_to_str_ext(field_name, &field_longname_ext, "unknown"),
+						val_to_str_ext_const(field_name, &field_longname_ext, "unknown"),
 						n);
 			}
 			else {

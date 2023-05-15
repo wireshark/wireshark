@@ -671,7 +671,7 @@ dissect_sapms_adm_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 		adm_opcode = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(record_tree, hf_sapms_adm_record_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_item_append_text(record_tree, ", Adm Opcode=%s", val_to_str(adm_opcode, sapms_adm_record_opcode_vals, "Unknown"));
+		proto_item_append_text(record_tree, ", Adm Opcode=%s", val_to_str_const(adm_opcode, sapms_adm_record_opcode_vals, "Unknown"));
 		offset+=1;
 		length-=1;
 
@@ -1329,14 +1329,14 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		flag = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(sapms_tree, hf_sapms_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
-		proto_item_append_text(sapms_tree, ", Flag=%s", val_to_str(flag, sapms_flag_vals, "Unknown"));
+		proto_item_append_text(sapms_tree, ", Flag=%s", val_to_str_const(flag, sapms_flag_vals, "Unknown"));
 
 		iflag = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(sapms_tree, hf_sapms_iflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
-		proto_item_append_text(sapms_tree, ", IFlag=%s", val_to_str(iflag, sapms_iflag_vals, "Unknown"));
+		proto_item_append_text(sapms_tree, ", IFlag=%s", val_to_str_const(iflag, sapms_iflag_vals, "Unknown"));
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Flag=%s,IFlag=%s", val_to_str(flag, sapms_flag_vals, "Unknown"), val_to_str(iflag, sapms_iflag_vals, "Unknown"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Flag=%s,IFlag=%s", val_to_str_const(flag, sapms_flag_vals, "Unknown"), val_to_str_const(iflag, sapms_iflag_vals, "Unknown"));
 
 		proto_tree_add_item(sapms_tree, hf_sapms_fromname, tvb, offset, 40, ENC_ASCII|ENC_NA);
 		offset+=40;
@@ -1371,8 +1371,8 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				proto_tree_add_item(sapms_tree, hf_sapms_opcode_charset, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset+=1;
 
-				proto_item_append_text(sapms_tree, ", Opcode=%s", val_to_str(opcode, sapms_opcode_vals, "Unknown"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Opcode=%s", val_to_str(opcode, sapms_opcode_vals, "Unknown"));
+				proto_item_append_text(sapms_tree, ", Opcode=%s", val_to_str_const(opcode, sapms_opcode_vals, "Unknown"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", Opcode=%s", val_to_str_const(opcode, sapms_opcode_vals, "Unknown"));
 
 				/* Add the opcode value subtree */
 				remaining_length = tvb_reported_length_remaining(tvb, offset);

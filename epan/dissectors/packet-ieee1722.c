@@ -144,45 +144,37 @@ typedef struct _ieee1722_seq_data_t {
 /* Bit Field Masks */
 #define IEEE_1722_MR_MASK                               0x08
 #define IEEE_1722_TV_MASK                               0x01
-#define IEEE_1722_SEQ_NUM_MASK                          0x00
+#define IEEE_1722_SEQ_NUM_MASK                          0x0
 #define IEEE_1722_TU_MASK                               0x01
-#define IEEE_1722_STREAM_ID_MASK                        0x00
-#define IEEE_1722_TIMESTAMP_MASK                        0x00
-#define IEEE_1722_FORMAT_MASK                           0x00
+#define IEEE_1722_STREAM_ID_MASK                        0x0
+#define IEEE_1722_TIMESTAMP_MASK                        0x0
+#define IEEE_1722_FORMAT_MASK                           0x0
 #define IEEE_1722_NOM_SAMPLE_RATE_MASK                  0xf000
 #define IEEE_1722_CHANNEL_PER_FRAME_MASK                0x03ff
-#define IEEE_1722_BIT_DEPTH_MASK                        0x00
-#define IEEE_1722_AES3_DATA_TYPE_H_MASK                 0x00
-#define IEEE_1722_STREAM_DATA_LENGTH_MASK               0x00
+#define IEEE_1722_BIT_DEPTH_MASK                        0x0
+#define IEEE_1722_AES3_DATA_TYPE_H_MASK                 0x0
+#define IEEE_1722_STREAM_DATA_LENGTH_MASK               0x0
 #define IEEE_1722_AES3_DATA_TYPE_REFERENCE_MASK         0xe0
 #define IEEE_1722_SP_MASK                               0x10
 #define IEEE_1722_EVT_MASK                              0x0f
-#define IEEE_1722_AES3_DATA_TYPE_L_MASK                 0x00
-#define IEEE_1722_DATA_MASK                             0x00
-#define IEEE_1722_SAMPLE_MASK                           0x00
+#define IEEE_1722_AES3_DATA_TYPE_L_MASK                 0x0
+#define IEEE_1722_DATA_MASK                             0x0
+#define IEEE_1722_SAMPLE_MASK                           0x0
 
 /**************************************************************************************************/
 /* subtype CVF                                                                                    */
 /*                                                                                                */
 /**************************************************************************************************/
 #define IEEE_1722_CVF_FORMAT_RFC                        0x02
-#define IEEE_1722_CVF_FORMAT_SUBTYPE_MJPEG              0x00
+#define IEEE_1722_CVF_FORMAT_SUBTYPE_MJPEG              0x0
 #define IEEE_1722_CVF_FORMAT_SUBTYPE_H264               0x01
 #define IEEE_1722_CVF_FORMAT_SUBTYPE_JPEG2000           0x02
 
-/* Bit Field Masks */
-#define IEEE_1722_MR_MASK                               0x08
-#define IEEE_1722_TV_MASK                               0x01
-#define IEEE_1722_SEQ_NUM_MASK                          0x00
-#define IEEE_1722_TU_MASK                               0x01
-#define IEEE_1722_STREAM_ID_MASK                        0x00
-#define IEEE_1722_TIMESTAMP_MASK                        0x00
-#define IEEE_1722_FORMAT_MASK                           0x00
-#define IEEE_1722_FORMAT_SUBTYPE_MASK                   0x00
-#define IEEE_1722_CVF_H264_TIMESTAMP_MASK               0x00
+/* More bit Field Masks */
+#define IEEE_1722_FORMAT_SUBTYPE_MASK                   0x0
+#define IEEE_1722_CVF_H264_TIMESTAMP_MASK               0x0
 #define IEEE_1722_H264_PTV_MASK                         0x20
 #define IEEE_1722_MARKER_BIT_MASK                       0x10
-#define IEEE_1722_EVT_MASK                              0x0f
 
 /**************************************************************************************************/
 /* subtype CRF                                                                                    */
@@ -204,8 +196,8 @@ typedef struct _ieee1722_seq_data_t {
 #define IEEE_1722_NTSCF_HEADER_SIZE                     12      /* including common header */
 
 /* Bit Field Masks */
-#define IEEE_1722_NTSCF_R_MASK                          0x800
-#define IEEE_1722_NTSCF_DATA_LENGTH_MASK                0x7ff
+#define IEEE_1722_NTSCF_R_MASK                          0x0800
+#define IEEE_1722_NTSCF_DATA_LENGTH_MASK                0x07ff
 #define IEEE_1722_NTSCF_SEQ_NUM_MASK                    0xff
 #define IEEE_1722_NTSCF_STREAM_ID_MASK                  0x00
 
@@ -219,14 +211,14 @@ typedef struct _ieee1722_seq_data_t {
 #define IEEE_1722_TSCF_MR_MASK                          0x08
 #define IEEE_1722_TSCF_RSV1_MASK                        0x06
 #define IEEE_1722_TSCF_TV_MASK                          0x01
-#define IEEE_1722_TSCF_SEQNUM_MASK                      0x00
+#define IEEE_1722_TSCF_SEQNUM_MASK                      0x0
 #define IEEE_1722_TSCF_RSV2_MASK                        0xFE
 #define IEEE_1722_TSCF_TU_MASK                          0x01
-#define IEEE_1722_TSCF_STREAM_ID_MASK                   0x00
-#define IEEE_1722_TSCF_AVTP_TIMESTAMP_MASK              0x00
-#define IEEE_1722_TSCF_RSV3_MASK                        0x00
-#define IEEE_1722_TSCF_DATA_LENGTH_MASK                 0x00
-#define IEEE_1722_TSCF_RSV4_MASK                        0x00
+#define IEEE_1722_TSCF_STREAM_ID_MASK                   0x0
+#define IEEE_1722_TSCF_AVTP_TIMESTAMP_MASK              0x0
+#define IEEE_1722_TSCF_RSV3_MASK                        0x0
+#define IEEE_1722_TSCF_DATA_LENGTH_MASK                 0x0
+#define IEEE_1722_TSCF_RSV4_MASK                        0x0
 
 /**************************************************************************************************/
 /* AVTP Control Format (ACF) Message Header                                                       */
@@ -304,8 +296,8 @@ typedef struct _ieee1722_seq_data_t {
 #define IEEE_1722_ACF_LIN_PAD_MASK                      0xC0
 #define IEEE_1722_ACF_LIN_MTV_MASK                      0x20
 #define IEEE_1722_ACF_LIN_BUS_ID_MASK                   0x1F
-#define IEEE_1722_ACF_LIN_IDENTIFIER_MASK               0x00
-#define IEEE_1722_ACF_LIN_MSG_TIMESTAMP_MASK            0x00
+#define IEEE_1722_ACF_LIN_IDENTIFIER_MASK               0x0
+#define IEEE_1722_ACF_LIN_MSG_TIMESTAMP_MASK            0x0
 
 /**************************************************************************************************/
 /* 1722                                                                                           */
@@ -924,7 +916,7 @@ void proto_register_1722(void)
     static hf_register_info hf[] = {
         { &hf_1722_encap_seqnum,
             { "Encapsulation Sequence Number", "ieee1722.encapsulation_sequence_num",
-              FT_UINT32, BASE_HEX, NULL, 0x00,
+              FT_UINT32, BASE_HEX, NULL, 0x0,
               "Sequence number incremented for each AVTPDU on a 5-tuple", HFILL }
         },
         { &hf_1722_subtype,
@@ -2386,7 +2378,7 @@ static int dissect_1722_acf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     set_actual_length(tvb, msg_length);
     proto_item_set_len(ti_acf, msg_length);
-    msg_type_str = rval_to_str(msg_type, acf_msg_type_range_rvals, "%s");
+    msg_type_str = rval_to_str_const(msg_type, acf_msg_type_range_rvals, "Unknown");
     proto_item_append_text(ti_header, ": %s (0x%02X), %d bytes with header",
                            msg_type_str, msg_type, msg_length);
     proto_item_append_text(ti_acf, ": %s (0x%02X)", msg_type_str, msg_type);

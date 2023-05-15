@@ -12318,7 +12318,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             if (length == 2){
                 proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpid_16bit,
                                                     tvb, offset, length, ENC_BIG_ENDIAN, &cpid);
-                proto_item_append_text (juniper_resilincy_tree, ": %s", val_to_str_ext(cpid, &v10_juniper_cpid_ext, " "));
+                proto_item_append_text (juniper_resilincy_tree, ": %s", val_to_str_ext_const(cpid, &v10_juniper_cpid_ext, " "));
 
                 ti = proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpdesc_16bit,
                                                     tvb, offset, length, ENC_BIG_ENDIAN, &cpdesc);
@@ -12326,7 +12326,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             else if (length == 4){
                 proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpid_32bit,
                                                     tvb, offset, length, ENC_BIG_ENDIAN, &cpid);
-                proto_item_append_text (juniper_resilincy_tree, ": %s", val_to_str_ext(cpid, &v10_juniper_cpid_ext, " "));
+                proto_item_append_text (juniper_resilincy_tree, ": %s", val_to_str_ext_const(cpid, &v10_juniper_cpid_ext, " "));
 
                 ti = proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpdesc_32bit,
                                                     tvb, offset, length, ENC_BIG_ENDIAN, &cpdesc);

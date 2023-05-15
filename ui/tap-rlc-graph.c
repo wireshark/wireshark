@@ -116,6 +116,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
 
     /* Dissect the data from the current frame. */
     if (!cf_read_current_record(cf)) {
+        dfilter_free(sfcode);
         return NULL;  /* error reading the record */
     }
 
@@ -127,6 +128,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
                 error_string->str);
         g_string_free(error_string, TRUE);
+        dfilter_free(sfcode);
         exit(1);   /* XXX: fix this */
     }
 

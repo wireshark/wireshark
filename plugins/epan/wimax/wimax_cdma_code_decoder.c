@@ -98,7 +98,7 @@ void wimax_proto_register_wimax_cdma(void)
 	proto_register_field_array(proto_wimax_cdma_code_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wimax_cdma_code_burst_handler", dissect_wimax_cdma_code_decoder, -1);
+	register_dissector("wimax_cdma_code_burst_handler", dissect_wimax_cdma_code_decoder, proto_wimax_cdma_code_decoder);
 }
 
 

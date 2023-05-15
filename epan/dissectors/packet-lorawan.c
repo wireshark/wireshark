@@ -665,7 +665,7 @@ static void
 cf_coords_lng_custom(gchar *buffer, guint32 value)
 {
 	gint32 coord_int = (value < 0x00800000) ? ((gint32)value) : ((gint32)value - 0x01000000);
-	gdouble coord_double = coord_int * 90. / 0x00800000;
+	gdouble coord_double = coord_int * 180. / 0x00800000;
 
 	snprintf(buffer, ITEM_LABEL_LENGTH, "%.5f%c", fabs(coord_double), (coord_double >= 0) ? 'E' : 'W');
 }
@@ -732,7 +732,7 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		if (uplink) {
 			tf = proto_tree_add_item(mac_command_tree, hf_lorawan_mac_command_uplink_type, tvb, current_offset, 1, ENC_NA);
 			current_offset++;
-			proto_item_append_text(tf, " (%s)", val_to_str(command, lorawan_mac_uplink_commandnames, "RFU"));
+			proto_item_append_text(tf, " (%s)", val_to_str_const(command, lorawan_mac_uplink_commandnames, "RFU"));
 			switch (command) {
 				case LORAWAN_MAC_COMMAND_UP_LINK_CHECK_REQ:
 				case LORAWAN_MAC_COMMAND_UP_DUTY_ANS:
@@ -792,7 +792,7 @@ dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		} else {
 			tf = proto_tree_add_item(mac_command_tree, hf_lorawan_mac_command_downlink_type, tvb, current_offset, 1, ENC_NA);
 			current_offset++;
-			proto_item_append_text(tf, " (%s)", val_to_str(command, lorawan_mac_downlink_commandnames, "RFU"));
+			proto_item_append_text(tf, " (%s)", val_to_str_const(command, lorawan_mac_downlink_commandnames, "RFU"));
 			switch (command) {
 				case LORAWAN_MAC_COMMAND_DOWN_LINK_CHECK_ANS:
 					field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_command);
@@ -899,7 +899,7 @@ dissect_lorawan_beacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
 	guint16 calc_crc1, calc_crc2;
 	nstime_t utctime;
 
-	proto_tree_add_string(tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str(LORAWAN_MAC_BEACON, lorawan_ftypenames, "RFU"));
+	proto_tree_add_string(tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str_const(LORAWAN_MAC_BEACON, lorawan_ftypenames, "RFU"));
 
 	if (length == 17) {
 		calc_crc1 = crc16_r3_ccitt_tvb(tvb, 0, 6);
@@ -1160,9 +1160,11 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 
 	/* MAC header */
 	guint8 mac_ftype = LORAWAN_MAC_FTYPE(tvb_get_guint8(tvb, current_offset));
-	proto_tree_add_string(lorawan_tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str(mac_ftype, lorawan_ftypenames, "RFU"));
+	proto_tree_add_string(lorawan_tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str_const(mac_ftype, lorawan_ftypenames, "RFU"));
 	tf = proto_tree_add_item(lorawan_tree, hf_lorawan_mac_header_type, tvb, current_offset, 1, ENC_NA);
-	proto_item_append_text(tf, " (Message Type: %s, Major Version: %s)", val_to_str(mac_ftype, lorawan_ftypenames, "RFU"), val_to_str(LORAWAN_MAC_MAJOR(tvb_get_guint8(tvb, current_offset)), lorawan_majornames, "RFU"));
+	proto_item_append_text(tf, " (Message Type: %s, Major Version: %s)",
+						   val_to_str_const(mac_ftype, lorawan_ftypenames, "RFU"),
+						   val_to_str_const(LORAWAN_MAC_MAJOR(tvb_get_guint8(tvb, current_offset)), lorawan_majornames, "RFU"));
 
 	/* Validate MHDR fields for LoRaWAN packet, do not dissect malformed packets */
 	if ((tvb_get_guint8(tvb, current_offset) & (LORAWAN_MAC_MAJOR_MASK | LORAWAN_MAC_RFU_MASK)) != LORAWAN_MAC_MAJOR_R1) {

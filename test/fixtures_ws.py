@@ -38,7 +38,7 @@ def capture_interface(request, cmd_dumpcap):
     # Matches: "lo (Loopback)" (Linux), "lo0 (Loopback)" (macOS) or
     # "\Device\NPF_{...} (Npcap Loopback Adapter)" (Windows)
     print('"dumpcap -D" output:\n%s' % (outs,))
-    m = re.search(r'^(\d+)\. .*\(.*Loopback.*\)', outs, re.MULTILINE)
+    m = re.search(r'^(\d+)\. .*\(.*Loopback.*\)', outs, re.MULTILINE|re.IGNORECASE)
     if not m:
         fixtures.skip('Test requires a capture interface.')
     iface = m.group(1)
@@ -209,6 +209,12 @@ def capture_file(dirs):
         return os.path.join(dirs.capture_dir, filename)
     return resolver
 
+@fixtures.fixture
+def result_file(tmp_path):
+    '''Returns the path to a temporary file.'''
+    def result_file_real(filename):
+        return str(tmp_path / filename)
+    return result_file_real
 
 @fixtures.fixture
 def home_path():
@@ -382,14 +388,14 @@ def make_screenshot():
 
 
 @fixtures.fixture
-def make_screenshot_on_error(request, make_screenshot):
+def make_screenshot_on_error(request, make_screenshot, result_file):
     '''Writes a screenshot when a process times out.'''
     @contextmanager
     def make_screenshot_on_error_real():
         try:
             yield
         except subprocess.TimeoutExpired:
-            filename = request.instance.filename_from_id('screenshot.png')
+            filename = result_file('screenshot.png')
             make_screenshot(filename)
             raise
     return make_screenshot_on_error_real

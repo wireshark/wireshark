@@ -148,7 +148,6 @@ static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 
 
 static gchar file_sha256[HASH_STR_SIZE];
-static gchar file_rmd160[HASH_STR_SIZE];
 static gchar file_sha1[HASH_STR_SIZE];
 
 static char  *hash_buf = NULL;
@@ -1026,11 +1025,6 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 
         putsep();
         putquote();
-        printf("%s", file_rmd160);
-        putquote();
-
-        putsep();
-        putquote();
         printf("%s", file_sha1);
         putquote();
     }
@@ -1168,7 +1162,6 @@ calculate_hashes(const char *filename)
     size_t hash_bytes;
 
     (void) g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
-    (void) g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
     (void) g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
 
     if (cap_file_hashes) {

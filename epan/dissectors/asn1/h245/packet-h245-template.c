@@ -363,9 +363,9 @@ static void print_info_column(column_info *cinfo, const gint32 *value,
   }
 
   if (info_col_fmt_prepend == FALSE) {
-    col_append_fstr(cinfo, COL_INFO, "%s ", val_to_str(*value, vals, "<unknown>"));
+    col_append_fstr(cinfo, COL_INFO, "%s ", val_to_str_const(*value, vals, "<unknown>"));
   } else {
-    col_prepend_fstr(cinfo, COL_INFO, "%s ", val_to_str(*value, vals, "<unknown>"));
+    col_prepend_fstr(cinfo, COL_INFO, "%s ", val_to_str_const(*value, vals, "<unknown>"));
   }
 }
 

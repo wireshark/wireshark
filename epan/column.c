@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
@@ -31,74 +32,56 @@
 const gchar *
 col_format_to_string(const gint fmt) {
   static const gchar *const slist[NUM_COL_FMTS] = {
-    "%q",                                       /* 0) COL_8021Q_VLAN_ID */
-    "%Yt",                                      /* 1) COL_ABS_YMD_TIME */
-    "%YDOYt",                                   /* 2) COL_ABS_YDOY_TIME */
-    "%At",                                      /* 3) COL_ABS_TIME */
-    "%V",                                       /* 4) COL_VSAN - !! DEPRECATED !!*/
-    "%B",                                       /* 5) COL_CUMULATIVE_BYTES */
-    "%Cus",                                     /* 6) COL_CUSTOM */
-    "%y",                                       /* 7) COL_DCE_CALL */
-    "%Tt",                                      /* 8) COL_DELTA_TIME */
-    "%Gt",                                      /* 9) COL_DELTA_TIME_DIS */
-    "%rd",                                      /* 10) COL_RES_DST */
-    "%ud",                                      /* 11) COL_UNRES_DST */
-    "%rD",                                      /* 12) COL_RES_DST_PORT */
-    "%uD",                                      /* 13) COL_UNRES_DST_PORT */
-    "%d",                                       /* 14) COL_DEF_DST */
-    "%D",                                       /* 15) COL_DEF_DST_PORT */
-    "%a",                                       /* 16) COL_EXPERT */
-    "%I",                                       /* 17) COL_IF_DIR */
-    "%F",                                       /* 18) COL_FREQ_CHAN */
-    "%hd",                                      /* 19) COL_DEF_DL_DST */
-    "%hs",                                      /* 20) COL_DEF_DL_SRC */
-    "%rhd",                                     /* 21) COL_RES_DL_DST */
-    "%uhd",                                     /* 22) COL_UNRES_DL_DST */
-    "%rhs",                                     /* 23) COL_RES_DL_SRC*/
-    "%uhs",                                     /* 24) COL_UNRES_DL_SRC */
-    "%e",                                       /* 25) COL_RSSI */
-    "%x",                                       /* 26) COL_TX_RATE */
-    "%f",                                       /* 27) COL_DSCP_VALUE */
-    "%i",                                       /* 28) COL_INFO */
-    "%rnd",                                     /* 29) COL_RES_NET_DST */
-    "%und",                                     /* 30) COL_UNRES_NET_DST */
-    "%rns",                                     /* 31) COL_RES_NET_SRC */
-    "%uns",                                     /* 32) COL_UNRES_NET_SRC */
-    "%nd",                                      /* 33) COL_DEF_NET_DST */
-    "%ns",                                      /* 34) COL_DEF_NET_SRC */
-    "%m",                                       /* 35) COL_NUMBER */
-    "%L",                                       /* 36) COL_PACKET_LENGTH */
-    "%p",                                       /* 37) COL_PROTOCOL */
-    "%Rt",                                      /* 38) COL_REL_TIME */
-    "%s",                                       /* 39) COL_DEF_SRC */
-    "%S",                                       /* 40) COL_DEF_SRC_PORT */
-    "%rs",                                      /* 41) COL_RES_SRC */
-    "%us",                                      /* 42) COL_UNRES_SRC */
-    "%rS",                                      /* 43) COL_RES_SRC_PORT */
-    "%uS",                                      /* 44) COL_UNRES_SRC_PORT */
-    "%E",                                       /* 45) COL_TEI */
-    "%Yut",                                     /* 46) COL_UTC_YMD_TIME */
-    "%YDOYut",                                  /* 47) COL_UTC_YDOY_TIME */
-    "%Aut",                                     /* 48) COL_UTC_TIME */
-    "%t"                                        /* 49) COL_CLS_TIME */
+    "%Yt",                                      /* 0) COL_ABS_YMD_TIME */
+    "%YDOYt",                                   /* 1) COL_ABS_YDOY_TIME */
+    "%At",                                      /* 2) COL_ABS_TIME */
+    "%B",                                       /* 3) COL_CUMULATIVE_BYTES */
+    "%Cus",                                     /* 4) COL_CUSTOM */
+    "%Tt",                                      /* 5) COL_DELTA_TIME */
+    "%Gt",                                      /* 6) COL_DELTA_TIME_DIS */
+    "%rd",                                      /* 7) COL_RES_DST */
+    "%ud",                                      /* 8) COL_UNRES_DST */
+    "%rD",                                      /* 9) COL_RES_DST_PORT */
+    "%uD",                                      /* 10) COL_UNRES_DST_PORT */
+    "%d",                                       /* 11) COL_DEF_DST */
+    "%D",                                       /* 12) COL_DEF_DST_PORT */
+    "%a",                                       /* 13) COL_EXPERT */
+    "%I",                                       /* 14) COL_IF_DIR */
+    "%F",                                       /* 15) COL_FREQ_CHAN */
+    "%hd",                                      /* 16) COL_DEF_DL_DST */
+    "%hs",                                      /* 17) COL_DEF_DL_SRC */
+    "%rhd",                                     /* 18) COL_RES_DL_DST */
+    "%uhd",                                     /* 19) COL_UNRES_DL_DST */
+    "%rhs",                                     /* 20) COL_RES_DL_SRC*/
+    "%uhs",                                     /* 21) COL_UNRES_DL_SRC */
+    "%e",                                       /* 22) COL_RSSI */
+    "%x",                                       /* 23) COL_TX_RATE */
+    "%f",                                       /* 24) COL_DSCP_VALUE */
+    "%i",                                       /* 25) COL_INFO */
+    "%rnd",                                     /* 26) COL_RES_NET_DST */
+    "%und",                                     /* 27) COL_UNRES_NET_DST */
+    "%rns",                                     /* 28) COL_RES_NET_SRC */
+    "%uns",                                     /* 29) COL_UNRES_NET_SRC */
+    "%nd",                                      /* 30) COL_DEF_NET_DST */
+    "%ns",                                      /* 31) COL_DEF_NET_SRC */
+    "%m",                                       /* 32) COL_NUMBER */
+    "%L",                                       /* 33) COL_PACKET_LENGTH */
+    "%p",                                       /* 34) COL_PROTOCOL */
+    "%Rt",                                      /* 35) COL_REL_TIME */
+    "%s",                                       /* 36) COL_DEF_SRC */
+    "%S",                                       /* 37) COL_DEF_SRC_PORT */
+    "%rs",                                      /* 38) COL_RES_SRC */
+    "%us",                                      /* 39) COL_UNRES_SRC */
+    "%rS",                                      /* 40) COL_RES_SRC_PORT */
+    "%uS",                                      /* 41) COL_UNRES_SRC_PORT */
+    "%Yut",                                     /* 42) COL_UTC_YMD_TIME */
+    "%YDOYut",                                  /* 43) COL_UTC_YDOY_TIME */
+    "%Aut",                                     /* 44) COL_UTC_TIME */
+    "%t"                                        /* 45) COL_CLS_TIME */
   };
 
- /* The following formats have been used in deprecated columns.  Noted here
-  * so they aren't reused
-  *
-  *  "%U",                                             COL_COS_VALUE
-  *  "%c",                                             COL_CIRCUIT_ID
-  *  "%l",                                             COL_BSSGP_TLLI
-  *  "%H",                                             COL_HPUX_SUBSYS
-  *  "%P",                                             COL_HPUX_DEVID
-  *  "%C",                                             COL_FR_DLCI
-  *  "%rct",                                           COL_REL_CONV_TIME
-  *  "%dct",                                           COL_DELTA_CONV_TIME
-  *  "%XO",                                            COL_OXID
-  *  "%XR",                                            COL_RXID
-  *  "%Xd",                                            COL_SRCIDX
-  *  "%Xs",                                            COL_DSTIDX
-  *  "%z",                                             COL_DCE_CTX
+ /* Note the formats in migrated_columns[] below have been used in deprecated
+  * columns, and avoid reusing them.
   */
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
@@ -118,14 +101,11 @@ col_format_desc(const gint fmt_num) {
    */
   static const value_string dlist_vals[] = {
 
-    { COL_8021Q_VLAN_ID, "802.1Q VLAN id" },
     { COL_ABS_YMD_TIME, "Absolute date, as YYYY-MM-DD, and time" },
     { COL_ABS_YDOY_TIME, "Absolute date, as YYYY/DOY, and time" },
     { COL_ABS_TIME, "Absolute time" },
-    { COL_VSAN, "Cisco VSAN" },
     { COL_CUMULATIVE_BYTES, "Cumulative Bytes" },
     { COL_CUSTOM, "Custom" },
-    { COL_DCE_CALL, "DCE/RPC call (cn_call_id / dg_seqnum)" },
     { COL_DELTA_TIME_DIS, "Delta time displayed" },
     { COL_DELTA_TIME, "Delta time" },
     { COL_RES_DST, "Dest addr (resolved)" },
@@ -163,7 +143,6 @@ col_format_desc(const gint fmt_num) {
     { COL_UNRES_SRC, "Src addr (unresolved)" },
     { COL_RES_SRC_PORT, "Src port (resolved)" },
     { COL_UNRES_SRC_PORT, "Src port (unresolved)" },
-    { COL_TEI, "TEI" },
     { COL_CLS_TIME, "Time (format as specified)" },
     { COL_UTC_YMD_TIME, "UTC date, as YYYY-MM-DD, and time" },
     { COL_UTC_YDOY_TIME, "UTC date, as YYYY/DOY, and time" },
@@ -175,6 +154,106 @@ col_format_desc(const gint fmt_num) {
   const gchar *val_str = try_val_to_str(fmt_num, dlist_vals);
   ws_assert(val_str != NULL);
   return val_str;
+}
+
+/* Array of columns that have been migrated to custom columns */
+struct deprecated_columns {
+    const gchar *col_fmt;
+    const gchar *col_expr;
+};
+
+static struct deprecated_columns migrated_columns[] = {
+    { /* COL_COS_VALUE */ "%U", "vlan.priority" },
+    { /* COL_CIRCUIT_ID */ "%c", "iax2.call" },
+    { /* COL_BSSGP_TLLI */ "%l", "bssgp.tlli" },
+    { /* COL_HPUX_SUBSYS */ "%H", "nettl.subsys" },
+    { /* COL_HPUX_DEVID */ "%P", "nettl.devid" },
+    { /* COL_FR_DLCI */ "%C", "fr.dlci" },
+    { /* COL_REL_CONV_TIME */ "%rct", "tcp.time_relative" },
+    { /* COL_DELTA_CONV_TIME */ "%dct", "tcp.time_delta" },
+    { /* COL_OXID */ "%XO", "fc.ox_id" },
+    { /* COL_RXID */ "%XR", "fc.rx_id" },
+    { /* COL_SRCIDX */ "%Xd", "mdshdr.srcidx" },
+    { /* COL_DSTIDX */ "%Xs", "mdshdr.dstidx" },
+    { /* COL_DCE_CTX */ "%z", "dcerpc.cn_ctx_id" },
+    /* The columns above here have been migrated since August 2009 and all
+     * completely removed since January 2016. At some point we could remove
+     * these; how many people have a preference file that they haven't opened
+     * and saved since then?
+     */
+    { /* COL_8021Q_VLAN_ID */ "%q", "vlan.id||nstrace.vlan" },
+    { /* COL_VSAN */ "%V", "mdshdr.vsan||brdwlk.vsan||fc.vft.vf_id" },
+    { /* COL_DCE_CALL */ "%y", "dcerpc.cn_call_id||dcerpc.dg_seqnum" },
+    { /* COL_TEI */ "%E", "lapd.tei" },
+};
+
+/*
+ * Parse a column format, filling in the relevant fields of a fmt_data.
+ */
+gboolean
+parse_column_format(fmt_data *cfmt, const char *fmt)
+{
+    const gchar *cust_format = col_format_to_string(COL_CUSTOM);
+    size_t cust_format_len = strlen(cust_format);
+    gchar **cust_format_info;
+    char *p;
+    int col_fmt;
+    gchar *col_custom_fields = NULL;
+    long col_custom_occurrence = 0;
+    gboolean col_resolved = TRUE;
+
+    /*
+     * Is this a custom column?
+     */
+    if ((strlen(fmt) > cust_format_len) && (fmt[cust_format_len] == ':') &&
+        strncmp(fmt, cust_format, cust_format_len) == 0) {
+        /* Yes. */
+        col_fmt = COL_CUSTOM;
+        cust_format_info = g_strsplit(&fmt[cust_format_len+1], ":", 3); /* add 1 for ':' */
+        col_custom_fields = g_strdup(cust_format_info[0]);
+        if (col_custom_fields && cust_format_info[1]) {
+            col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
+            if (p == cust_format_info[1] || *p != '\0') {
+                /* Not a valid number. */
+                g_free(col_custom_fields);
+                g_strfreev(cust_format_info);
+                return FALSE;
+            }
+        }
+        if (col_custom_fields && cust_format_info[1] && cust_format_info[2]) {
+            col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
+        }
+        g_strfreev(cust_format_info);
+    } else {
+        col_fmt = get_column_format_from_str(fmt);
+        if (col_fmt == -1)
+            return FALSE;
+    }
+
+    cfmt->fmt = col_fmt;
+    cfmt->custom_fields = col_custom_fields;
+    cfmt->custom_occurrence = (int)col_custom_occurrence;
+    cfmt->resolved = col_resolved;
+    return TRUE;
+}
+
+void
+try_convert_to_custom_column(char **fmt)
+{
+    guint haystack_idx;
+
+    for (haystack_idx = 0;
+         haystack_idx < G_N_ELEMENTS(migrated_columns);
+         ++haystack_idx) {
+
+        if (strcmp(migrated_columns[haystack_idx].col_fmt, *fmt) == 0) {
+            gchar *cust_col = ws_strdup_printf("%%Cus:%s:0",
+                                migrated_columns[haystack_idx].col_expr);
+
+            g_free(*fmt);
+            *fmt = cust_col;
+        }
+    }
 }
 
 void
@@ -504,26 +583,14 @@ get_column_longest_string(const gint format)
     case COL_IF_DIR:
       return "i 00000000 I";
       break;
-    case COL_VSAN:
-     return "000000";
-      break;
     case COL_TX_RATE:
       return "108.0";
       break;
     case COL_RSSI:
       return "100";
       break;
-    case COL_DCE_CALL:
-      return "0000";
-      break;
-    case COL_8021Q_VLAN_ID:
-      return "0000";
-      break;
     case COL_DSCP_VALUE:
       return "AAA BBB";    /* not the longest, but the longest is too long */
-      break;
-    case COL_TEI:
-      return "127";
       break;
     case COL_EXPERT:
       return "ERROR";

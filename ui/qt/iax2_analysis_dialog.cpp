@@ -299,7 +299,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     /* Try to compile the filter. */
     if (!dfilter_compile(filter_text, &sfcode, &df_err)) {
         err_str_ = QString(df_err->msg);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
         updateWidgets();
         return;
     }

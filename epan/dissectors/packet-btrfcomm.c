@@ -237,12 +237,6 @@ static const value_string vs_ea[] = {
     {0, NULL}
 };
 
-static const value_string vs_cr[] = {
-    {1, "Command"},
-    {0, "Response"},
-    {0, NULL}
-};
-
 void proto_register_btrfcomm(void);
 void proto_reg_handoff_btrfcomm(void);
 void proto_register_btdun(void);
@@ -941,7 +935,7 @@ proto_register_btrfcomm(void)
         },
         { &hf_cr,
           { "C/R Flag", "btrfcomm.cr",
-            FT_UINT8, BASE_HEX, VALS(vs_cr), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_command_response), 0x02,
             "Command/Response flag", HFILL}
         },
         { &hf_mcc,
@@ -966,7 +960,7 @@ proto_register_btrfcomm(void)
         },
         { &hf_mcc_cr,
           { "C/R Flag", "btrfcomm.mcc.cr",
-            FT_UINT8, BASE_HEX, VALS(vs_cr), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_command_response), 0x02,
             "Command/Response flag", HFILL}
         },
         { &hf_mcc_const_1,

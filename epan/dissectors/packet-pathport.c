@@ -583,7 +583,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
         else /* default */
         {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(type, pp_pdu_vals, TYPE_UNKNOWN));
+            col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, pp_pdu_vals, TYPE_UNKNOWN));
         }
     }
     if(tree == NULL)

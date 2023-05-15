@@ -1996,7 +1996,7 @@ static const value_string homeplug_av_nvm_img_type_vals[] = {
     { 0, NULL }
 };
 
-#define HOMEPLUG_AV_NVM_IGNORE_MASK_MASK 0x1FF
+#define HOMEPLUG_AV_NVM_IGNORE_MASK_MASK 0x01FF
 
 static const value_string homeplug_av_nvm_ignore_mask_vals[] = {
     { 0x00, "INT6000" },
@@ -5977,7 +5977,7 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     ti_vendor = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug AV");
-    col_set_str(pinfo->cinfo, COL_INFO, "");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_homeplug_av, tvb, 0, -1, ENC_NA);
     homeplug_av_tree = proto_item_add_subtree(ti, ett_homeplug_av);
@@ -6491,7 +6491,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_cc_net_info_cco_sts,
           { "Coordinating status", "homeplug_av.cc_disc_list_cnf.net_info.cco_status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cco_status_vals), HOMEPLUG_AV_CCO_STATUS_MASK, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cco_status_vals), HOMEPLUG_AV_CCO_STATUS_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_cc_net_info_bcn_ofs,
           { "Beacon offset", "homeplug_av.cc_disc_list_cnf.net_info.bcn_ofs",
@@ -6650,7 +6650,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_vendor_oui,
           { "OUI", "homeplug_av.vendor.oui",
-            FT_UINT24, BASE_HEX, VALS(homeplug_av_vendors_oui_vals), 0x00, NULL, HFILL }
+            FT_UINT24, BASE_HEX, VALS(homeplug_av_vendors_oui_vals), 0x0, NULL, HFILL }
         },
         /* Get Device/SW Version */
         { &hf_homeplug_av_get_sw_cnf,
@@ -6732,7 +6732,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_mac_cnf_status,
           { "Module ID", "homeplug_av.st_mac_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_mac_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_mac_status_vals), 0x0, NULL, HFILL }
         },
         /* Get NVM Parameters Confirmation */
         { &hf_homeplug_av_get_nvm_cnf,
@@ -6741,23 +6741,23 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_get_nvm_cnf_status,
           { "Status", "homeplug_av.get_nvm_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_get_nvm_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_get_nvm_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_get_nvm_cnf_nvm_type,
           { "NVM Type", "homeplug_av.get_nvm_cnf.nvm_type",
-            FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_get_nvm_cnf_nvm_page,
           { "NVM Page Size", "homeplug_av.get_nvm_cnf.nvm_page",
-            FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_get_nvm_cnf_nvm_block,
           { "NVM Block Size", "homeplug_av.get_nvm_cnf.nvm_block",
-            FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_get_nvm_cnf_nvm_size,
           { "NVM Memory Size", "homeplug_av.get_nvm_cnf.nvm_size",
-            FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         /* Reset Device Confirmation */
         { &hf_homeplug_av_rs_dev_cnf,
@@ -6766,7 +6766,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_rs_dev_cnf_status,
           { "Status", "homeplug_av.rs_dev_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_rs_dev_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_rs_dev_status_vals), 0x0, NULL, HFILL }
         },
         /* Shared memory related fields */
         { &hf_homeplug_av_mem_len_16bits,
@@ -6787,7 +6787,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_mem_status,
           { "Status", "homeplug_av.mem.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_rd_mem_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_rd_mem_status_vals), 0x0, NULL, HFILL }
         },
         /* Write Module Data Request */
         { &hf_homeplug_av_wr_mod_req,
@@ -6801,7 +6801,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_wr_mod_cnf_status,
           { "Status", "homeplug_av.wr_mod_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_rd_mod_cnf_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_rd_mod_cnf_status_vals), 0x0, NULL, HFILL }
         },
         /* Write Module Data Indicate */
         { &hf_homeplug_av_wr_mod_ind,
@@ -6810,7 +6810,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_wr_mod_ind_status,
           { "Status", "homeplug_av.wr_mod_ind.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_mod_ind_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_mod_ind_status_vals), 0x0, NULL, HFILL }
         },
         /* Read Module Data Request */
         { &hf_homeplug_av_rd_mod_req,
@@ -6824,11 +6824,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_rd_mod_cnf_status,
           { "Status", "homeplug_av.rd_mod_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_rd_mod_cnf_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_wr_rd_mod_cnf_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_mac_module_id,
           { "Module ID", "homeplug_av.module_id",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_mac_module_id_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_mac_module_id_vals), 0x0, NULL, HFILL }
         },
         /* Write Module Data to NVM Request */
         { &hf_homeplug_av_mod_nvm_req,
@@ -6842,7 +6842,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_mod_nvm_cnf_status,
           { "Status", "homeplug_av.mod_nvm_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_mod_nvm_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_mod_nvm_status_vals), 0x0, NULL, HFILL }
         },
         /* Get Watchdog Report Request */
         { &hf_homeplug_av_wd_rpt_req,
@@ -6905,7 +6905,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_lnk_stats_req_lid,
           { "Link ID", "homeplug_av.lnk_stats_req.lid",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_lnk_stats_lid_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_lnk_stats_lid_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_lnk_stats_req_macaddr,
           { "Peer Node", "homeplug_av.lnk_stats_req.macaddr",
@@ -6918,7 +6918,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_lnk_stats_cnf_status,
           { "Status", "homeplug_av.lnk_stats_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_lnk_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_lnk_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_lnk_stats_cnf_dir,
           { "Direction", "homeplug_av.lnk_stats_cnf.dir",
@@ -6926,7 +6926,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_lnk_stats_cnf_lid,
           { "Link ID", "homeplug_av.lnk_stats_cnf.lid",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_lnk_stats_lid_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_lnk_stats_lid_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_lnk_stats_cnf_tei,
           { "TEI", "homeplug_av.lnk_stats_cnf.tei",
@@ -7033,7 +7033,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_sniffer_cnf_status,
           { "Status", "homeplug_av.sniffer_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_sniffer_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_sniffer_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_sniffer_cnf_state,
           { "State", "homeplug_av.sniffer_cnf.state",
@@ -7050,7 +7050,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_sniffer_ind_type,
           { "Sniffer Type", "homeplug_av.sniffer_ind.type",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_sniffer_type_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_sniffer_type_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_sniffer_ind_data,
           { "Sniffer Data", "homeplug_av.sniffer_ind.data",
@@ -7269,7 +7269,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_set_key_req_eks,
           { "EKS", "homeplug_av.set_key_req.eks",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_set_key_peks_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_set_key_peks_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_set_key_req_nmk,
           { "NMK", "homeplug_av.set_key_req.nmk",
@@ -7290,7 +7290,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_set_key_cnf_status,
           { "Status", "homeplug_av.set_key_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_set_key_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_set_key_status_vals), 0x0, NULL, HFILL }
         },
         /* Get Manufacturer String Confirmation */
         { &hf_homeplug_av_mfg_string_cnf,
@@ -7316,7 +7316,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_rd_cblock_cnf_status,
           { "Status", "homeplug_av.rd_block_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cblock_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cblock_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_rd_cblock_cnf_len,
           { "Length", "homeplug_av.rd_block_cnf.len",
@@ -7357,11 +7357,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_cblock_hdr_img_type,
           { "Header image type", "homeplug_av.cblock_hdr.img_type",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_nvm_img_type_vals), HOMEPLUG_AV_NVM_IMG_TYPE_MASK, "Unknown", HFILL }
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_nvm_img_type_vals), HOMEPLUG_AV_NVM_IMG_TYPE_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_cblock_hdr_ignore_mask,
           { "Header ignore mask", "homeplug_av.cblock_hdr.ignore_mask",
-            FT_UINT16, BASE_HEX, VALS(homeplug_av_nvm_ignore_mask_vals), HOMEPLUG_AV_NVM_IGNORE_MASK_MASK, "Unknown", HFILL }
+            FT_UINT16, BASE_HEX, VALS(homeplug_av_nvm_ignore_mask_vals), HOMEPLUG_AV_NVM_IGNORE_MASK_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_cblock_hdr_module_id,
           { "Header module ID", "homeplug_av.cblock_hdr.module_id",
@@ -7428,7 +7428,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_set_sdram_cnf_status,
           { "Status", "homeplug_av.set_sdram_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cblock_status_vals), 0x00, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cblock_status_vals), 0x0, NULL, HFILL }
         },
         /* Embedded Host Action Required Indicate */
         { &hf_homeplug_av_host_action_ind,
@@ -7437,7 +7437,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_host_action_ind_act,
           { "Action required", "homeplug_av.host_action_ind.action",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_host_action_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_host_action_vals), 0x0, NULL, HFILL }
         },
         /* Embedded Host Action Required Response */
         { &hf_homeplug_av_host_action_rsp,
@@ -7446,7 +7446,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_host_action_rsp_sts,
           { "Status", "homeplug_av.host_action_rsp.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), HOMEPLUG_AV_GEN_STATUS_MASK, "Unknown", HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), HOMEPLUG_AV_GEN_STATUS_MASK, NULL, HFILL }
         },
         /* Get Device Attributes Request */
         { &hf_homeplug_av_op_attr_req,
@@ -7459,7 +7459,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_op_attr_rep_type,
           { "Report Type", "homeplug_av.op_attr.rep_type",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_op_attr_report_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_op_attr_report_vals), 0x0, NULL, HFILL }
         },
         /* Get Device Attributes Confirmation */
         { &hf_homeplug_av_op_attr_cnf,
@@ -7555,11 +7555,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_enet_phy_cnf_speed,
           { "Speed", "homeplug_av.enet_phy.speed",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_enet_phy_speed_vals), HOMEPLUG_AV_ENET_PHY_SPEED_MASK, "Unknown", HFILL },
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_enet_phy_speed_vals), HOMEPLUG_AV_ENET_PHY_SPEED_MASK, NULL, HFILL },
         },
         { &hf_homeplug_av_enet_phy_cnf_duplex,
           { "Duplex", "homeplug_av.enet_phy.duplex",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_enet_phy_duplex_vals), HOMEPLUG_AV_ENET_PHY_DUPLEX_MASK, "Unknown", HFILL },
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_enet_phy_duplex_vals), HOMEPLUG_AV_ENET_PHY_DUPLEX_MASK, NULL, HFILL },
         },
         /* Tone Map Tx Characteristics Request */
         { &hf_homeplug_av_tone_map_tx_req,
@@ -7576,7 +7576,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_tone_map_tx_req_coupling,
           { "Coupling", "homeplug_av.tone_map_tx_req.coupling",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, NULL, HFILL }
         },
         /* Tone Map Rx Characteristics Request */
         { &hf_homeplug_av_tone_map_rx_req,
@@ -7593,7 +7593,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_tone_map_rx_req_coupling,
           { "Coupling", "homeplug_av.tone_map_rx_req.coupling",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, NULL, HFILL }
         },
         /* Tone Map Tx Characteristics  Confirmation */
         { &hf_homeplug_av_tone_map_tx_cnf,
@@ -7631,7 +7631,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_tone_map_rx_cnf_status,
           { "Status", "homeplug_av.tone_map_rx_cnf.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_tone_map_rx_cnf_len,
           { "Length", "homeplug_av.tone_map_rx_cnf.len",
@@ -7651,7 +7651,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_tone_map_rx_cnf_coupling,
           { "Coupling", "homeplug_av.tone_map_rx_cnf.coupling",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, NULL, HFILL }
         },
         { &hf_homeplug_av_tone_map_rx_cnf_num_tms,
           { "Number of Tone Maps in use", "homeplug_av.tone_map_rx_cnf.num_tms",
@@ -7689,7 +7689,7 @@ proto_register_homeplug_av(void)
         /* CC_ASSOC.* */
         { &hf_homeplug_av_cc_assoc_reqtype,
           { "Request Type", "homeplug_av.cc_assoc.reqtype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_reqtype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_reqtype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_cc_assoc_nid,
           { "Network ID", "homeplug_av.cc_assoc.nid",
@@ -7701,11 +7701,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_cc_assoc_proxy_net_cap,
           { "Proxy Network Capability", "homeplug_av.cc_assoc.proxy_cap",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_proxy_net_cap_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_proxy_net_cap_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_cc_assoc_result,
           { "Result", "homeplug_av.cc_assoc.result",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_result_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_result_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_cc_assoc_snid,
           { "Short Network ID", "homeplug_av.cc_assoc.snid",
@@ -7731,7 +7731,7 @@ proto_register_homeplug_av(void)
         /* CC_SET_TEI_MAP_IND */
         { &hf_homeplug_av_cc_set_tei_map_ind_mode,
           { "Mode", "homeplug_av.cc_set_tei_map_ind.mode",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_set_tei_map_ind_mode_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_set_tei_map_ind_mode_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_cc_set_tei_map_ind_num,
           { "Number of entries", "homeplug_av.cc_set_tei_map_ind.num",
@@ -7747,7 +7747,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_cc_set_tei_map_ind_status,
           { "Status", "homeplug_av.cc_set_tei_map_ind.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_set_tei_map_ind_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_set_tei_map_ind_status_vals), 0x0, NULL, HFILL }
         },
         /* HPGP */
         /* CM_SLAC_PARM.* */
@@ -7757,7 +7757,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_slac_parm_sectype,
           { "Security in M-Sound Message", "homeplug_av.gp.cm_slac_parm.sectype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_slac_parm_runid,
           { "Run ID", "homeplug_av.gp.cm_slac_parm.runid",
@@ -7785,7 +7785,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_slac_parm_resptype,
           { "Response type", "homeplug_av.gp.cm_slac_parm.resptype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_resptype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_resptype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_slac_parm_forwarding_sta,
           { "Forwarded to MAC", "homeplug_av.gp.cm_slac_parm.forwarding_sta",
@@ -7807,7 +7807,7 @@ proto_register_homeplug_av(void)
         /* CM_ATTEN_CHAR */
         { &hf_homeplug_av_gp_cm_atten_char_result,
           { "Result", "homeplug_av.gp.cm_atten_char.result",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_atten_char_apptype,
           { "Application type", "homeplug_av.gp.cm_atten_char.apptype",
@@ -7815,7 +7815,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_atten_char_sectype,
           { "Security", "homeplug_av.gp.cm_atten_char.sectype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_atten_char_source_mac,
           { "Source MAC", "homeplug_av.gp.cm_atten_char.source_mac",
@@ -7860,7 +7860,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_start_atten_char_resptype,
           { "Response type", "homeplug_av.gp.cm_start_atten_char.resptype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_resptype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_resptype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_start_atten_char_forwarding_sta,
           { "Forwarded to MAC", "homeplug_av.gp.cm_start_atten_char.sound_forwarding_sta",
@@ -7881,7 +7881,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_mnbc_sound_sectype,
           { "Security", "homeplug_av.gp.cm_mnbc_sound.sectype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_mnbc_sound_sender_id,
           { "Sender ID", "homeplug_av.gp.cm_mnbc_sound.sender_id",
@@ -7906,7 +7906,7 @@ proto_register_homeplug_av(void)
         /* CM_VALIDATE */
         { &hf_homeplug_av_gp_cm_validate_signaltype,
           { "Signal type", "homeplug_av.gp.cm_validate.signaltype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_validate_signaltype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_validate_signaltype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_validate_timer,
           { "Timer (N*100 ms)", "homeplug_av.gp.cm_validate.timer",
@@ -7914,7 +7914,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_validate_result,
           { "Result", "homeplug_av.gp.cm_validate.result",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_validate_result_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_validate_result_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_validate_togglenum,
           { "Number of detected toggles", "homeplug_av.gp.cm_validate.togglenum",
@@ -7927,7 +7927,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_slac_match_sectype,
           { "Security", "homeplug_av.gp.cm_slac_match.sectype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_slac_match_length,
           { "Length", "homeplug_av.gp.cm_slac_match.length",
@@ -7988,7 +7988,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_gp_cm_slac_user_data_tlv_oui,
           { "OUI", "homeplug_av.gp.cm_slac_user_data.tlv.oui",
-            FT_UINT24, BASE_HEX, VALS(homeplug_av_vendors_oui_vals), 0x00, NULL, HFILL }
+            FT_UINT24, BASE_HEX, VALS(homeplug_av_vendors_oui_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_gp_cm_slac_user_data_tlv_subtype,
           { "Subtype", "homeplug_av.gp.cm_slac_user_data.tlv.subtype",
@@ -8017,15 +8017,15 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_status_byte,
           { "Status", "homeplug_av.st_iotecha.auth.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_linkstatus_status,
           { "Link status", "homeplug_av.st_iotecha.linkstatus.status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_linkstatus_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_linkstatus_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_linkstatus_devmode,
           { "DevMode", "homeplug_av.st_iotecha.linkstatus.devmode",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_linkstatus_devmode_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_linkstatus_devmode_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_stp_discover_tlv,
           { "ST/IoTecha TLV", "homeplug_av.st_iotecha.stp_discover.tlv",
@@ -8093,7 +8093,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_bss_type,
           { "Type", "homeplug_av.st_iotecha.bss.entry.type",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_get_bss_tlv_type_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_get_bss_tlv_type_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_bss_value_bytes,
           { "Value", "homeplug_av.st_iotecha.bss.entry.value",
@@ -8101,11 +8101,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_chanqual_req_type,
           { "Request Type", "homeplug_av.st_iotecha.chanqual.reqtype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_reqtype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_reqtype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_substatus,
           { "Subscription Status", "homeplug_av.st_iotecha.chanqual.substatus",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_substatus_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_substatus_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_mac_local,
           { "MAC of local node", "homeplug_av.st_iotecha.chanqual.mac.local",
@@ -8117,11 +8117,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_chanqual_source,
           { "Source of this report", "homeplug_av.st_iotecha.chanqual.source",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tei_source_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tei_source_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_response_type,
           { "Response Type", "homeplug_av.st_iotecha.chanqual.responsetype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_responsetype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_responsetype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_tmi_count,
           { "Size of TMI List", "homeplug_av.st_iotecha.chanqual.tmi.count",
@@ -8145,7 +8145,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_chanqual_int_tmi,
           { "Interval", "homeplug_av.st_iotecha.chanqual.int.tmi",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tmi_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tmi_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_chanqual_tmi_attached,
           { "TMI of the attached Tone Map", "homeplug_av.st_iotecha.chanqual.tmi_atteched",
@@ -8193,11 +8193,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_mfct_request_type,
           { "Request Type", "homeplug_av.st_iotecha.mfct.request_type",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_mfct_request_type_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_mfct_request_type_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_mfct_result,
           { "Result", "homeplug_av.st_iotecha.mfct.result",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_mfct_result_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_mfct_result_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_mfct_reboot,
           { "Reboot when complete", "homeplug_av.st_iotecha.mfct.reboot",
@@ -8229,11 +8229,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_stp_fup_mtype,
           { "Message Type", "homeplug_av.st_iotecha.stp_fup.mtype",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_fwup_mtype_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_fwup_mtype_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_cpstate_state,
           { "CP State", "homeplug_av.st_iotecha.cpstate.state",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_cpstate_state_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_cpstate_state_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_cpstate_pwm_duty,
           { "PWM Duty Cycle", "homeplug_av.st_iotecha.cpstate.pwm_duty",
@@ -8249,7 +8249,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_cpstate_adc_bitmask,
           { "ADC Channels", "homeplug_av.st_iotecha.cpstate.adc_bitmask",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(adc_bitmask_base), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(adc_bitmask_base), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_cpstate_adc_voltage_1,
           { "ADC Channel 1 (mV)", "homeplug_av.st_iotecha.cpstate.adc_channel_1",
@@ -8273,7 +8273,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_test_type,
           { "Test Type", "homeplug_av.st_iotecha.test_type",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_type_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_type_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_num_sound,
           { "Number of soundings", "homeplug_av.st_iotecha.num_sound",
@@ -8285,7 +8285,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_agc_lock,
           { "AgcLock", "homeplug_av.st_iotecha.agc_lock",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_agc_lock_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_agc_lock_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_db_agc_val,
           { "DbAgcVal", "homeplug_av.st_iotecha.db_agc_val",
@@ -8293,11 +8293,11 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_st_iotecha_test_status,
           { "Status", "homeplug_av.st_iotecha.test_status",
-            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_status_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_status_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_suppress_data,
           { "Suppress data", "homeplug_av.st_iotecha.suppress_data",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_suppress_data_vals), 0x00, NULL, HFILL }
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_suppress_data_vals), 0x0, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_sound_remain,
           { "Counter of sound remain", "homeplug_av.st_iotecha.sound_remain",

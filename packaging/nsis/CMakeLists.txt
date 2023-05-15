@@ -23,7 +23,6 @@ set(WIRESHARK_NSIS_FILES
 	wireshark-common.nsh
 	GetWindowsVersion.nsh
 	servicelib.nsh
-	AdditionalTasksPage.ini
 	NpcapPage.ini
 	USBPcapPage.ini
 	${WIRESHARK_NSIS_GENERATED_FILES}
@@ -43,7 +42,6 @@ set(LOGRAY_NSIS_FILES
 	logray-common.nsh
 	GetWindowsVersion.nsh
 	servicelib.nsh
-	AdditionalTasksPage.ini
 	NpcapPage.ini
 	USBPcapPage.ini
 	${LOGRAY_NSIS_GENERATED_FILES}
@@ -67,7 +65,7 @@ endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
 # Must match tools/win-setup.ps1.
-set(NPCAP_PACKAGE_VERSION "1.71")
+set(NPCAP_PACKAGE_VERSION "1.75")
 
 set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 

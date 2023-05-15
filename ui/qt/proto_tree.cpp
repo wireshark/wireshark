@@ -447,7 +447,7 @@ void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
     // for each proto_node and not just the ProtoNodes in the model
     if (node->finfo->hfinfo->type == FT_FRAMENUM) {
         ft_framenum_type_t framenum_type = (ft_framenum_type_t)GPOINTER_TO_INT(node->finfo->hfinfo->strings);
-        tree_view->emitRelatedFrame(node->finfo->value.value.uinteger, framenum_type);
+        tree_view->emitRelatedFrame(fvalue_get_uinteger(node->finfo->value), framenum_type);
     }
 
     proto_tree_children_foreach(node, foreachTreeNode, proto_tree_ptr);
@@ -647,7 +647,7 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index)
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
             emit openPacketInNewWindow(true);
         } else {
-            mainApp->gotoFrame(finfo.fieldInfo()->value.value.uinteger);
+            mainApp->gotoFrame(fvalue_get_uinteger(finfo.fieldInfo()->value));
         }
     } else {
         QString url = finfo.url();

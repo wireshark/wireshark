@@ -2,10 +2,8 @@
 # HI2Operations conformation file
 
 #.MODULE
+EpsHI2Operations EpsHI2
 UmtsHI2Operations UmtsHI2
-PCESP PCESP
-TS101909201 TS101909201
-EN301040	EN301040
 HI3CCLinkData	hi3cclinkdata
 #.MODULE_IMPORT
 
@@ -21,21 +19,16 @@ UUS1-Content
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-TTRAFFIC
-CTTRAFFIC
-LIACTIVATEreq
-LIACTIVATEconf
-LIMODIFYreq
-LIMODIFYconf
-LISTATUSind
-StatusType
+CallContentLinkCharacteristics
+CCLink-State
+Intercepted-Call-State
+GPRSCorrelationNumber
+GPRSEvent
+TetraLocation
 
 #.FIELD_RENAME
 GSMLocation/geoCoordinates/latitude geoCoordinates_latitude
 GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
-TetraLocation/ms-Loc/mnc ms_Loc_mnc
-TetraLocation/ms-Loc/mcc ms_Loc_mcc
-TetraLocation/ms-Loc/lai ms_Loc_lai
 
 #.FN_HDR UUS1-Content
 
@@ -103,8 +96,5 @@ TetraLocation/ms-Loc/lai ms_Loc_lai
 #.FIELD_ATTR
 GSMLocation/geoCoordinates/latitude ABBREV=geoCoordinates.latitude
 GSMLocation/geoCoordinates/longitude ABBREV=geoCoordinates.longitude
-TetraLocation/ms-Loc/mnc ABBREV=ms_loc.mnc
-TetraLocation/ms-Loc/mcc ABBREV=ms_loc.mcc
-TetraLocation/ms-Loc/lai ABBREV=ms_loc.lai
 #.END
 

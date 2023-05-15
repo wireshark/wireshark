@@ -347,13 +347,13 @@ udpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 static gboolean
-udp_filter_valid(packet_info *pinfo)
+udp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "udp");
 }
 
 static gchar*
-udp_build_filter(packet_info *pinfo)
+udp_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* UDP over IPv4 */
@@ -1474,7 +1474,7 @@ proto_register_udp(void)
 
     register_decode_as(&udp_da);
     register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_endpoint_packet);
-    register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter);
+    register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter, NULL);
     register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
                         udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count, NULL);
 

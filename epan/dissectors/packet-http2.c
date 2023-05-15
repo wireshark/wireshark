@@ -34,6 +34,7 @@
 #include <epan/exceptions.h>
 #include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
 #include <epan/dissectors/packet-http2.h>
+#include <epan/dissectors/packet-media-type.h>
 
 #ifdef HAVE_NGHTTP2
 #include <epan/uat.h>
@@ -2318,7 +2319,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
             http_add_path_components_to_tree(header_tvb, pinfo, ti_named_field, hoffset - header_value_length, header_value_length);
         }
         else if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
-            const gchar* reason_phase = val_to_str((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
+            const gchar* reason_phase = val_to_str_const((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
             /* append response status and reason phrase to info column (for example, HEADERS: 200 OK) */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", header_value, reason_phase);
             /* append response status and reason phrase to header_tree and Stream node */
@@ -2786,7 +2787,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
 {
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
     gchar *content_type = body_info->content_type;
-    http_message_info_t metadata_used_for_media_type_handle = { HTTP_OTHERS, body_info->content_type_parameters, NULL, NULL };
+    media_content_info_t metadata_used_for_media_type_handle = { MEDIA_CONTAINER_HTTP_OTHERS, body_info->content_type_parameters, NULL, NULL };
     guint32 stream_id;
 
     stream_id = http2_get_stream_id(pinfo);

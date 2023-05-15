@@ -743,6 +743,30 @@ uninstall_meson() {
     fi
 }
 
+install_pytest() {
+    #
+    # Install pytest with pip3 if we don't have it already.
+    #
+    if python3 -m pytest --version >/dev/null 2>&1
+    then
+        # We have it.
+        :
+    else
+        sudo pip3 install pytest pytest-xdist
+        touch pytest-done
+    fi
+}
+
+uninstall_pytest() {
+    #
+    # If we installed pytest, uninstal it with pip3.
+    #
+    if [ -f pytest-done ] ; then
+        sudo pip3 uninstall pytest pytest-xdist
+        rm -f pytest-done
+    fi
+}
+
 install_gettext() {
     if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
         echo "Downloading, building, and installing GNU gettext:"
@@ -2963,9 +2987,11 @@ install_all() {
     install_python3
 
     #
-    # Now install Meson.
+    # Now install Meson and pytest.
     #
     install_meson
+
+    install_pytest
 
     install_ninja
 
@@ -3152,6 +3178,8 @@ uninstall_all() {
         uninstall_asciidoctorpdf
 
         uninstall_asciidoctor
+
+        uninstall_pytest
 
         uninstall_meson
 

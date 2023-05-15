@@ -9,7 +9,7 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "nghttp2-.*" "NGHTTP2_HINTS" )
 
-if( NOT WIN32)
+if( NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(NGHTTP2 libnghttp2)
 endif()

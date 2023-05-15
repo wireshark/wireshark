@@ -3,7 +3,7 @@ CertificateExtensions {joint-iso-itu-t ds(5) module(1)
   certificateExtensions(26) 5} DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
 
--- EXPORTS ALL 
+-- EXPORTS ALL
 IMPORTS
   id-at, id-ce, id-mr, informationFramework, authenticationFramework,
     selectedAttributeTypes, upperBounds
@@ -24,7 +24,7 @@ IMPORTS
 
 -- Unless explicitly noted otherwise, there is no significance to the ordering
 -- of components of a SEQUENCE OF construct in this Specification.
--- public-key certificate and CRL extensions 
+-- public-key certificate and CRL extensions
 authorityKeyIdentifier EXTENSION ::= {
   SYNTAX         AuthorityKeyIdentifier
   IDENTIFIED BY  id-ce-authorityKeyIdentifier
@@ -471,7 +471,7 @@ inhibitAnyPolicy EXTENSION ::= {
   IDENTIFIED BY  id-ce-inhibitAnyPolicy
 }
 
--- PKI matching rules 
+-- PKI matching rules
 certificateExactMatch MATCHING-RULE ::= {
   SYNTAX  CertificateExactAssertion
   ID      id-mr-certificateExactMatch
@@ -617,7 +617,7 @@ AltName ::= SEQUENCE {
   altNameValue  GeneralName OPTIONAL
 }
 
--- Object identifier assignments 
+-- Object identifier assignments
 id-ce-subjectDirectoryAttributes OBJECT IDENTIFIER ::=
   {id-ce 9}
 
@@ -687,7 +687,7 @@ id-ce-expiredCertsOnCRL OBJECT IDENTIFIER ::= {id-ce 60}
 
 id-ce-aAissuingDistributionPoint OBJECT IDENTIFIER ::= {id-ce 63}
 
--- matching rule OIDs 
+-- matching rule OIDs
 id-mr-certificateExactMatch OBJECT IDENTIFIER ::=
   {id-mr 34}
 
@@ -709,9 +709,10 @@ id-mr-pkiPathMatch OBJECT IDENTIFIER ::= {id-mr 62}
 
 id-mr-enhancedCertificateMatch OBJECT IDENTIFIER ::= {id-mr 65}
 
+
 -- The following OBJECT IDENTIFIERS are not used by this Specification:
 -- {id-ce 2}, {id-ce 3}, {id-ce 4}, {id-ce 5}, {id-ce 6}, {id-ce 7},
--- {id-ce 8}, {id-ce 10}, {id-ce 11}, {id-ce 12}, {id-ce 13}, 
+-- {id-ce 8}, {id-ce 10}, {id-ce 11}, {id-ce 12}, {id-ce 13},
 -- {id-ce 22}, {id-ce 25}, {id-ce 26}
 
 -- Microsoft Certificate Extension
@@ -722,6 +723,18 @@ CertificateTemplate ::= SEQUENCE {
   templateMinorVersion INTEGER OPTIONAL
 }
 
+-- Microsoft NTDS CA Security Extension
+NtdsCaSecurity ::= SEQUENCE {
+  ntdsObjectSid NtdsObjectSid
+}
+
+NtdsObjectSid ::= [0] SEQUENCE {
+  type-id OBJECT IDENTIFIER,
+  sid [0] PrintableString
+}
+
+
+
 -- Entrust Certificate Extension
 
 EntrustVersionInfo ::= SEQUENCE {
@@ -730,7 +743,7 @@ EntrustVersionInfo ::= SEQUENCE {
 }
 
 EntrustInfoFlags ::=  BIT STRING {
-  keyUpdateAllowed(0), 
+  keyUpdateAllowed(0),
   newExtensions(1),
   pKIXCertificate(2),
   enterpriseCategory(3),

@@ -107,6 +107,8 @@
 void proto_reg_handoff_its(void);
 void proto_register_its(void);
 
+static dissector_handle_t its_handle;
+
 static expert_field ei_its_no_sub_dis = EI_INIT;
 
 // TAP
@@ -354,6 +356,21 @@ find_subcause_from_cause(CauseCodeType_enum cause)
         idx++;
 
     return cause_to_subcause[idx].hf?cause_to_subcause[idx].hf:&hf_its_subCauseCode;
+}
+
+static unsigned char ita2_ascii[32] = {
+    '\0', 'T', '\r', 'O', ' ', 'H', 'N', 'M', '\n', 'L', 'R', 'G', 'I', 'P', 'C', 'V',
+    'E', 'Z', 'D', 'B', 'S', 'Y', 'F', 'X', 'A', 'W', 'J', '\0', 'U', 'Q', 'K'
+};
+
+static void
+append_country_code_fmt(proto_item *item, tvbuff_t *val_tvb)
+{
+  guint16 v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
+  v >>= 6;  /* 10 bits */
+  guint16 v1 = (v >> 5) & 0x1F;
+  guint16 v2 = v & 0x1F;
+  proto_item_append_text(item, " - %c%c", ita2_ascii[v1], ita2_ascii[v2]);
 }
 
 #include "packet-its-fn.c"
@@ -1076,7 +1093,7 @@ void proto_register_its(void)
 
     expert_register_field_array(expert_its, ei, array_length(ei));
 
-    register_dissector("its", dissect_its_PDU, proto_its);
+    its_handle = register_dissector("its", dissect_its_PDU, proto_its);
 
     // Register subdissector table
     its_version_subdissector_table = register_dissector_table("its.version", "ITS version", proto_its, FT_UINT8, BASE_DEC);
@@ -1137,18 +1154,16 @@ void proto_reg_handoff_its(void)
     const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
     const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS };
     int sdIdx, pIdx;
-    dissector_handle_t its_handle_;
 
     // Register well known ports to btp subdissector table (BTP A and B)
-    its_handle_ = create_dissector_handle(dissect_its_PDU, proto_its);
     for (sdIdx=0; sdIdx < BTP_SUBDISS_SZ; sdIdx++) {
         for (pIdx=0; pIdx < BTP_PORTS_SZ; pIdx++) {
-            dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle_);
+            dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle);
         }
     }
 
     // Enable decode as for its pdu's send via udp
-    dissector_add_for_decode_as("udp.port", its_handle_);
+    dissector_add_for_decode_as("udp.port", its_handle);
 
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        create_dissector_handle( dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1 ));

@@ -271,6 +271,7 @@ column_prefs_remove_link(GList *col_link)
     g_free(cfmt->custom_fields);
     g_free(cfmt);
     prefs.col_list = g_list_remove_link(prefs.col_list, col_link);
+    g_list_free_1(col_link);
 }
 
 void

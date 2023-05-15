@@ -573,32 +573,6 @@ hexdump_option_help(FILE *output)
 }
 
 static void
-protocolfilter_add_opt(const char* arg, pf_flags filter_flags)
-{
-    void* value;
-    gchar **newfilter = NULL;
-    for (newfilter = wmem_strsplit(wmem_epan_scope(), arg, " ", -1); *newfilter; newfilter++) {
-        if (strcmp(*newfilter, "") == 0) {
-            /* Don't treat the empty string as an intended field abbreviation
-             * to output, consecutive spaces on the command line probably
-             * aren't intentional.
-             */
-            continue;
-        }
-        if (!protocolfilter) {
-            protocolfilter = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
-        }
-        if (wmem_map_lookup_extended(protocolfilter, *newfilter, NULL, &value)) {
-            if (GPOINTER_TO_UINT(value) != (guint)filter_flags) {
-
-                cmdarg_err("%s was already specified with different filter flags. Overwriting previous protocol filter.", *newfilter);
-            }
-        }
-        wmem_map_insert(protocolfilter, *newfilter, GINT_TO_POINTER(filter_flags));
-    }
-}
-
-static void
 print_current_user(void)
 {
     gchar *cur_user, *cur_group;
@@ -640,19 +614,18 @@ static gboolean
 _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
 {
     gboolean ok;
-    char *err_msg = NULL;
     df_error_t *df_err;
     char *err_off;
     char *expanded;
 
-    expanded = dfilter_expand(text, &err_msg);
+    expanded = dfilter_expand(text, &df_err);
     if (expanded == NULL) {
-        cmdarg_err("%s", err_msg);
-        g_free(err_msg);
+        cmdarg_err("%s", df_err->msg);
+        df_error_free(&df_err);
         return FALSE;
     }
 
-    ok = dfilter_compile_real(expanded, dfp, &df_err, DF_OPTIMIZE, caller);
+    ok = dfilter_compile_full(expanded, dfp, &df_err, DF_OPTIMIZE, caller);
     if (!ok ) {
         cmdarg_err("%s", df_err->msg);
 
@@ -662,7 +635,7 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
             cmdarg_err_cont("    %s", err_off);
             g_free(err_off);
         }
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
     }
 
     g_free(expanded);
@@ -670,6 +643,37 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
 }
 
 #define compile_dfilter(text, dfp)      _compile_dfilter(text, dfp, __func__)
+
+static gboolean
+protocolfilter_add_opt(const char* arg, pf_flags filter_flags)
+{
+    void* value;
+    gchar **newfilter = NULL;
+    for (newfilter = wmem_strsplit(wmem_epan_scope(), arg, " ", -1); *newfilter; newfilter++) {
+        if (strcmp(*newfilter, "") == 0) {
+            /* Don't treat the empty string as an intended field abbreviation
+             * to output, consecutive spaces on the command line probably
+             * aren't intentional.
+             */
+            continue;
+        }
+        if (!protocolfilter) {
+            protocolfilter = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+        }
+        if (wmem_map_lookup_extended(protocolfilter, *newfilter, NULL, &value)) {
+            if (GPOINTER_TO_UINT(value) != (guint)filter_flags) {
+
+                cmdarg_err("%s was already specified with different filter flags. Overwriting previous protocol filter.", *newfilter);
+            }
+        }
+        if (!proto_registrar_get_byname(*newfilter)) {
+            cmdarg_err("%s is not a valid protocol or field name.", *newfilter);
+            return FALSE;
+        }
+        wmem_map_insert(protocolfilter, *newfilter, GINT_TO_POINTER(filter_flags));
+    }
+    return TRUE;
+}
 
 static void
 about_folders(void)
@@ -730,12 +734,21 @@ about_folders(void)
     printf("%-21s\t%s\n", "Global Lua Plugins:", get_plugins_dir());
 #endif
 
-    /* Extcap */
+    /* Personal Extcap */
+    constpath = get_extcap_pers_dir();
+
+    resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+    for(i = 0; resultArray[i]; i++)
+        printf("%-21s\t%s\n", "Personal Extcap path:", g_strstrip(resultArray[i]));
+
+    g_strfreev(resultArray);
+
+    /* Global Extcap */
     constpath = get_extcap_dir();
 
     resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
     for(i = 0; resultArray[i]; i++)
-        printf("%-21s\t%s\n", "Extcap path:", g_strstrip(resultArray[i]));
+        printf("%-21s\t%s\n", "Global Extcap path:", g_strstrip(resultArray[i]));
 
     g_strfreev(resultArray);
 
@@ -1345,10 +1358,16 @@ main(int argc, char *argv[])
                 goto clean_exit;
                 break;
             case 'j':
-                protocolfilter_add_opt(ws_optarg, PF_NONE);
+                if (!protocolfilter_add_opt(ws_optarg, PF_NONE)) {
+                    exit_status = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
                 break;
             case 'J':
-                protocolfilter_add_opt(ws_optarg, PF_INCLUDE_CHILDREN);
+                if (!protocolfilter_add_opt(ws_optarg, PF_INCLUDE_CHILDREN)) {
+                    exit_status = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
                 break;
             case 'W':        /* Select extra information to save in our capture file */
                 /* This is patterned after the -N flag which may not be the best idea. */

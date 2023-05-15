@@ -17634,6 +17634,7 @@ proto_reg_handoff_btatt(void)
     btmesh_proxy_handle                        = find_dissector_add_dependency("btmesh.proxy", proto_btatt);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_ATT, btatt_handle);
+    dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_EATT, btatt_handle);
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_ATT, btatt_handle);
 
     btatt_tap_handles = register_tap("btatt.handles");

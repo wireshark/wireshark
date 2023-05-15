@@ -26,6 +26,8 @@
 void proto_register_smrse(void);
 void proto_reg_handoff_smrse(void);
 
+static dissector_handle_t smrse_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_smrse = -1;
 static int hf_smrse_reserved = -1;
@@ -154,6 +156,9 @@ void proto_register_smrse(void) {
   /* Register protocol */
   proto_smrse = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
+  /* Register dissector */
+  smrse_handle = register_dissector(PFNAME, dissect_smrse, proto_smrse);
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_smrse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -163,9 +168,6 @@ void proto_register_smrse(void) {
 
 /*--- proto_reg_handoff_smrse -------------------------------------------*/
 void proto_reg_handoff_smrse(void) {
-  dissector_handle_t smrse_handle;
-
-  smrse_handle = create_dissector_handle(dissect_smrse, proto_smrse);
   dissector_add_uint_with_preference("tcp.port",TCP_PORT_SMRSE, smrse_handle);
 }
 

@@ -1108,7 +1108,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
                                val_to_str(message_id, raknet_system_message_names, "Unknown ID: %#x"));
 
         proto_item_append_text(msg_ti, "ID %#x (%s)", message_id,
-                               val_to_str(message_id, raknet_system_message_names, "Unknown"));
+                               val_to_str_const(message_id, raknet_system_message_names, "Unknown"));
 
         col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(message_id, raknet_system_message_names, "Unknown system message ID: %#x"));

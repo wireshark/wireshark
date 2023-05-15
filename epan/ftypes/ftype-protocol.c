@@ -351,6 +351,13 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, gboolean *matches)
 	return FT_OK;
 }
 
+static guint
+val_hash(const fvalue_t *fv)
+{
+	const protocol_value_t *value = &fv->value.protocol;
+	return g_direct_hash(value->tvb) ^ g_int_hash(&value->length) ^ g_str_hash(value->proto_string);
+}
+
 static gboolean
 is_zero(const fvalue_t *fv)
 {
@@ -385,6 +392,7 @@ ftype_register_tvbuff(void)
 		cmp_contains,
 		cmp_matches,
 
+		val_hash,
 		is_zero,
 		NULL,
 		len,

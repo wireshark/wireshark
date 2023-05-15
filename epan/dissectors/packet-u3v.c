@@ -1623,7 +1623,7 @@ dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
     /* Add payload type to information string */
     col_append_fstr(pinfo->cinfo, COL_INFO, "Stream Leader  [ Block ID: %" PRIu64 " , Type %s]",
                     block_id,
-                    val_to_str(payload_type, payload_type_names, "Unknown Payload Type"));
+                    val_to_str_const(payload_type, payload_type_names, "Unknown Payload Type"));
 
     if (payload_type == U3V_STREAM_PAYLOAD_IMAGE ||
         payload_type == U3V_STREAM_PAYLOAD_IMAGE_EXT_CHUNK ||

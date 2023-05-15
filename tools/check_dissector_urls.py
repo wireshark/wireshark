@@ -6,13 +6,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import argparse
+import aiohttp
+import asyncio
 import os
 import re
 import shutil
 import signal
 import subprocess
-
-import requests
 
 # This utility scans the dissector code for URLs, then attempts to
 # fetch the links.  The results are shown in stdout, but also, at
@@ -26,8 +26,6 @@ import requests
 
 # TODO:
 # - option to write back to dissector file when there is a failure?
-# - make requests in parallel (run takes around 35 minutes)?
-# - try a library other than requests for getching links?
 # - optionally parse previous/recent successes.txt and avoid fetching them again?
 # - make sure URLs are really within comments in code?
 # - use urllib.parse or similar to better check URLs?
@@ -41,7 +39,15 @@ def signal_handler(sig, frame):
     global should_exit
     should_exit = True
     print('You pressed Ctrl+C - exiting')
-
+    try:
+        tasks = asyncio.all_tasks()
+    except (RuntimeError):
+        # we haven't yet started the async link checking, we can exit directly
+        exit(1)
+    # ignore further SIGINTs while we're cancelling the running tasks
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    for t in tasks:
+        t.cancel()
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -50,12 +56,12 @@ class FailedLookup:
 
     def __init__(self):
         # Fake values that will be queried (for a requests.get() return value)
-        self.status_code = 0
+        self.status = 0
         self.headers = {}
         self.headers['content-type'] = '<NONE>'
 
     def __str__(self):
-        s = ('FailedLookup: status_code=' + str(self.status_code) +
+        s = ('FailedLookup: status=' + str(self.status) +
              ' content-type=' + self.headers['content-type'])
         return s
 
@@ -73,7 +79,6 @@ class Link(object):
         self.tested = False
         self.r = None
         self.success = False
-        self.result_from_cache = False
 
     def __str__(self):
         epan_idx = self.file.find('epan')
@@ -84,8 +89,8 @@ class Link(object):
         s = ('SUCCESS  ' if self.success else 'FAILED  ') + \
             filename + ':' + str(self.line_number) + '   ' + self.url
         if True:  # self.r:
-            if self.r.status_code:
-                s += "   status-code=" + str(self.r.status_code)
+            if self.r.status:
+                s += "   status-code=" + str(self.r.status)
                 if 'content-type' in self.r.headers:
                     s += (' content-type="' +
                           self.r.headers['content-type'] + '"')
@@ -93,44 +98,28 @@ class Link(object):
                 s += '    <No response Received>'
         return s
 
-    def validate(self, session):
-        # Fetch, but first look in cache
+    def validate(self):
         global cached_lookups
+        global should_exit
+        if should_exit:
+            return
         self.tested = True
         if self.url in cached_lookups:
-            if args.verbose:
-                print('[Using cached result for', self.url, ']')
             self.r = cached_lookups[self.url]
-            self.result_from_cache = True
         else:
+            self.r = FailedLookup()
 
-            try:
-                # Try it.
-                self.r = session.get(self.url, timeout=25)
-
-                # Cache this result.
-                cached_lookups[self.url] = self.r
-            except (ValueError, ConnectionError, Exception):
-                if args.verbose:
-                    print(self.url, ': failed to make request')
-                self.success = False
-                # Add bad result to crashed_lookups.
-                cached_lookups[self.url] = FailedLookup()
-                self.r = cached_lookups[self.url]
-                return
-
-        # Check return value
-        if self.r.status_code < 200 or self.r.status_code >= 300:
+        if self.r.status < 200 or self.r.status >= 300:
             self.success = False
-            return
+        else:
+            self.success = True
 
-        # Assume its Ok.
-        self.success = True
-
+        if args.verbose and not should_exit:
+            print(self)
 
 links = []
 files = []
-
+all_urls = set()
 
 def find_links_in_file(filename):
     with open(filename, 'r') as f:
@@ -147,10 +136,9 @@ def find_links_in_file(filename):
                 # A url must have a period somewhere
                 if '.' not in url:
                     continue
-                if args.verbose:
-                    print('Found URL:', url)
-                global links
+                global links, all_urls
                 links.append(Link(filename, line_number, url))
+                all_urls.add(url)
 
 
 # Scan the given folder for links to test.
@@ -161,6 +149,40 @@ def find_links_in_folder(folder):
         if filename.endswith('.c'):
             global links
             find_links_in_file(os.path.join(folder, filename))
+
+
+async def populate_cache(sem, session, url):
+    global cached_lookups
+    if should_exit:
+        return
+    async with sem:
+        try:
+            async with session.get(url) as r:
+                cached_lookups[url] = r
+                if args.verbose:
+                    print('checking ', url, ': success', sep='')
+
+        except (asyncio.CancelledError, ValueError, ConnectionError, Exception):
+            cached_lookups[url] = FailedLookup()
+            if args.verbose:
+                print('checking ', url, ': failed', sep='')
+
+
+async def check_all_links(links):
+    sem = asyncio.Semaphore(50)
+    timeout = aiohttp.ClientTimeout(total=25)
+    connector = aiohttp.TCPConnector(limit=30)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
+               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
+    async with aiohttp.ClientSession(connector=connector, headers=headers, timeout=timeout) as session:
+        tasks = [populate_cache(sem, session, u) for u in all_urls]
+        try:
+            await asyncio.gather(*tasks)
+        except (asyncio.CancelledError):
+            await session.close()
+
+    for l in links:
+        l.validate()
 
 
 #################################################################
@@ -240,24 +262,7 @@ if args.file or args.commits or args.open:
 else:
     print('All dissector modules\n')
 
-
-# Prepare one session for all requests. For args, see
-# https://requests.readthedocs.io/en/master/
-session = requests.Session()
-# N.B. Can set timeout here but doesn't get used.
-# Default headers don't always get responses where proper browsers do.
-session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'})
-
-# Try out the links.
-for l in links:
-    if should_exit:
-        # i.e. if Ctrl-C has been pressed.
-        exit(1)
-    l.validate(session)
-    if args.verbose or not l.success:
-        print(l)
-
+asyncio.run(check_all_links(links))
 
 # Write failures to a file.  Back up any previous first though.
 if os.path.exists('failures.txt'):
@@ -274,17 +279,13 @@ with open('successes.txt', 'w') as f_s:
 
 
 # Count and show overall stats.
-passed, failed, cached = 0, 0, 0
+passed, failed = 0, 0
 for l in links:
-    if not l.result_from_cache:
-        if l.tested:
-            if l.success:
-                passed += 1
-            else:
-                failed += 1
-    else:
-        cached += 1
+    if l.tested:
+        if l.success:
+            passed += 1
+        else:
+            failed += 1
 
 print('--------------------------------------------------------------------------------------------------')
-print(len(links), 'links checked: ', passed, 'passed,',
-      failed, 'failed (', cached, 'results from cache)')
+print(len(links), 'links checked: ', passed, 'passed,', failed, 'failed')

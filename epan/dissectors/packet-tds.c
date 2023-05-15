@@ -279,9 +279,9 @@
 #define TDS_SP_PREPEXECRPC     14
 #define TDS_SP_UNPREPARE       15
 
-#define TDS_RPC_OPT_WITH_RECOMP    0x01
-#define TDS_RPC_OPT_NO_METADATA    0x02
-#define TDS_RPC_OPT_REUSE_METADATA 0x04
+#define TDS_RPC_OPT_WITH_RECOMP    0x0001
+#define TDS_RPC_OPT_NO_METADATA    0x0002
+#define TDS_RPC_OPT_REUSE_METADATA 0x0004
 
 #define TDS_RPC_PARAMETER_STATUS_BY_REF  0x01
 #define TDS_RPC_PARAMETER_STATUS_DEFAULT 0x02
@@ -8671,7 +8671,7 @@ proto_register_tds(void)
         },
         { &hf_tds_doneinproc_status,
           { "Status flags", "tds.doneinproc.status",
-            FT_UINT16, BASE_HEX, NULL, 0x0177,
+            FT_UINT16, BASE_HEX, NULL, 0x01ff,
             NULL, HFILL }
         },
         { &hf_tds_doneinproc_curcmd,
@@ -9943,12 +9943,12 @@ proto_register_tds(void)
         },
         { &hf_tds_rpc_parameter_status_by_ref,
           { "By reference",     "tds.rpc.parameter.status.by_ref",
-            FT_BOOLEAN, 16, NULL, TDS_RPC_PARAMETER_STATUS_BY_REF,
+            FT_BOOLEAN, 8, NULL, TDS_RPC_PARAMETER_STATUS_BY_REF,
             NULL, HFILL }
         },
         { &hf_tds_rpc_parameter_status_default,
           { "Default value",    "tds.rpc.parameter.status.default",
-            FT_BOOLEAN, 16, NULL, TDS_RPC_PARAMETER_STATUS_DEFAULT,
+            FT_BOOLEAN, 8, NULL, TDS_RPC_PARAMETER_STATUS_DEFAULT,
             NULL, HFILL }
         },
         { &hf_tds_rpc_parameter_value,

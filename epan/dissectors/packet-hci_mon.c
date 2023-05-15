@@ -286,7 +286,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item_set_generated(sub_item);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Adapter Id: %u, Opcode: %s",
-            adapter_id, val_to_str_ext_const(opcode, &hci_mon_opcode_vals_ext, "Unknown (%u)"));
+            adapter_id, val_to_str_ext(opcode, &hci_mon_opcode_vals_ext, "Unknown (%u)"));
 
     bluetooth_data->adapter_id = adapter_id;
 

@@ -53,7 +53,7 @@
 
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 void proto_register_multipart(void);
 void proto_reg_handoff_multipart(void);
@@ -171,7 +171,7 @@ process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
         gboolean *last_boundary);
 static gint
 process_body_part(proto_tree *tree, tvbuff_t *tvb,
-        http_message_info_t *input_message_info, multipart_info_t *m_info,
+        media_content_info_t *input_content_info, multipart_info_t *m_info,
         packet_info *pinfo, gint start, gint idx,
         gboolean *last_boundary);
 static gint
@@ -315,7 +315,7 @@ unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, gint *
  * leading hyphens. (quote from rfc2046)
  */
 static multipart_info_t *
-get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
+get_multipart_info(packet_info *pinfo, media_content_info_t *content_info)
 {
     char *start_boundary, *start_protocol = NULL;
     multipart_info_t *m_info = NULL;
@@ -330,15 +330,15 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     if (type == NULL) {
         return NULL;
     }
-    if (message_info == NULL) {
+    if (content_info == NULL) {
         return NULL;
     }
-    if (message_info->media_str == NULL) {
+    if (content_info->media_str == NULL) {
         return NULL;
     }
 
     /* Clean up the parameters */
-    parameters = unfold_and_compact_mime_header(pinfo->pool, message_info->media_str, &dummy);
+    parameters = unfold_and_compact_mime_header(pinfo->pool, content_info->media_str, &dummy);
 
     start_boundary = ws_find_media_type_parameter(pinfo->pool, parameters, "boundary");
     if (!start_boundary) {
@@ -535,14 +535,14 @@ dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  */
 static gint
 process_body_part(proto_tree *tree, tvbuff_t *tvb,
-        http_message_info_t *input_message_info, multipart_info_t *m_info,
+        media_content_info_t *input_content_info, multipart_info_t *m_info,
         packet_info *pinfo, gint start, gint idx,
         gboolean *last_boundary)
 {
     proto_tree *subtree;
     proto_item *ti;
     gint offset = start, next_offset = 0;
-    http_message_info_t message_info = { input_message_info->type, NULL, NULL, NULL };
+    media_content_info_t content_info = { input_content_info->type, NULL, NULL, NULL };
     gint body_start, boundary_start, boundary_line_len;
 
     gchar *content_type_str = NULL;
@@ -661,9 +661,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
                             if (semicolonp != NULL) {
                                 *semicolonp = '\0';
-                                message_info.media_str = wmem_strdup(pinfo->pool, semicolonp + 1);
+                                content_info.media_str = wmem_strdup(pinfo->pool, semicolonp + 1);
                             } else {
-                                message_info.media_str = NULL;
+                                content_info.media_str = NULL;
                             }
 
                             content_type_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
@@ -672,7 +672,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            mimetypename = ws_find_media_type_parameter(pinfo->pool, message_info.media_str, "name");
+                            mimetypename = ws_find_media_type_parameter(pinfo->pool, content_info.media_str, "name");
 
                             if(strncmp(content_type_str, "application/octet-stream",
                                     sizeof("application/octet-stream")-1) == 0) {
@@ -720,7 +720,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         }
                         break;
                     case POS_CONTENT_ID:
-                        message_info.content_id = wmem_strdup(pinfo->pool, value_str);
+                        content_info.content_id = wmem_strdup(pinfo->pool, value_str);
                         break;
                     default:
                         break;
@@ -762,7 +762,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                     tmp_tvb = encrypt.gssapi_decrypted_tvb;
                     is_raw_data = FALSE;
                     content_type_str = m_info->orig_content_type;
-                    message_info.media_str = m_info->orig_parameters;
+                    content_info.media_str = m_info->orig_parameters;
             } else if(encrypt.gssapi_encrypted_tvb) {
                     tmp_tvb = encrypt.gssapi_encrypted_tvb;
                     proto_tree_add_expert(tree, pinfo, &ei_multipart_decryption_not_possible, tmp_tvb, 0, -1);
@@ -811,21 +811,21 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
              * First try the dedicated multipart dissector table
              */
             dissected = dissector_try_string(multipart_media_subdissector_table,
-                        content_type_str, tmp_tvb, pinfo, subtree, &message_info);
+                        content_type_str, tmp_tvb, pinfo, subtree, &content_info);
             if (! dissected) {
                 /*
                  * Fall back to the default media dissector table
                  */
                 dissected = dissector_try_string(media_type_dissector_table,
-                        content_type_str, tmp_tvb, pinfo, subtree, &message_info);
+                        content_type_str, tmp_tvb, pinfo, subtree, &content_info);
             }
             if (! dissected) {
                 const char *save_match_string = pinfo->match_string;
                 pinfo->match_string = content_type_str;
-                call_dissector_with_data(media_handle, tmp_tvb, pinfo, subtree, &message_info);
+                call_dissector_with_data(media_handle, tmp_tvb, pinfo, subtree, &content_info);
                 pinfo->match_string = save_match_string;
             }
-            message_info.media_str = NULL; /* Shares same memory as content_type_str */
+            content_info.media_str = NULL; /* Shares same memory as content_type_str */
         } else {
             call_data_dissector(tmp_tvb, pinfo, subtree);
         }
@@ -849,8 +849,8 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *subtree;
     proto_item *ti;
     proto_item *type_ti;
-    http_message_info_t *message_info = (http_message_info_t *)data;
-    multipart_info_t *m_info = get_multipart_info(pinfo, message_info);
+    media_content_info_t *content_info = (media_content_info_t *)data;
+    multipart_info_t *m_info = get_multipart_info(pinfo, content_info);
     gint header_start = 0;
     gint body_index = 0;
     gboolean last_boundary = FALSE;
@@ -894,7 +894,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * Process the encapsulated bodies
      */
     while (last_boundary == FALSE) {
-        header_start = process_body_part(subtree, tvb, message_info, m_info,
+        header_start = process_body_part(subtree, tvb, content_info, m_info,
                 pinfo, header_start, body_index++, &last_boundary);
         if (header_start == -1) {
             return tvb_reported_length(tvb);

@@ -11,6 +11,8 @@
 #ifndef STTYPE_TEST_H
 #define STTYPE_TEST_H
 
+#include "syntax-tree.h"
+
 void
 sttype_oper_set1(stnode_t *node, stnode_op_t op, stnode_t *val1);
 

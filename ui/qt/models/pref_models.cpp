@@ -76,14 +76,6 @@ int PrefsItem::getPrefType() const
     return prefs_get_type(pref_);
 }
 
-int PrefsItem::getPrefGUIType() const
-{
-    if (pref_ == NULL)
-        return GUI_ALL;
-
-    return prefs_get_gui_type(pref_);
-}
-
 bool PrefsItem::isPrefDefault() const
 {
     if (pref_ == NULL)
@@ -219,7 +211,7 @@ QVariant PrefsModel::data(const QModelIndex &index, int role) const
         return item->getName();
 
     case colStatus:
-        if ((item->getPrefType() == PREF_UAT && (item->getPrefGUIType() == GUI_ALL || item->getPrefGUIType() == GUI_QT)) || item->getPrefType() == PREF_CUSTOM)
+        if (item->getPrefType() == PREF_UAT || item->getPrefType() == PREF_CUSTOM)
             return QObject::tr("Unknown");
 
         if (item->isPrefDefault())

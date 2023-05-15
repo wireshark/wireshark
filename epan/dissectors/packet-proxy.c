@@ -147,7 +147,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
         proto_tree_add_item_ret_uint(tlv_tree, hf_proxy2_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
         offset += 2;
 
-        proto_item_append_text(ti_tlv, ": (t=%u,l=%d) %s", type, length, val_to_str(type, proxy2_tlv_vals ,"Unknown type") );
+        proto_item_append_text(ti_tlv, ": (t=%u,l=%d) %s", type, length, val_to_str_const(type, proxy2_tlv_vals ,"Unknown type") );
         proto_item_set_len(ti_tlv, 1 + 2 + length);
 
         proto_tree_add_item(tlv_tree, hf_proxy2_tlv_value, tvb, offset, length, ENC_NA);

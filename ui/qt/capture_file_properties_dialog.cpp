@@ -176,11 +176,6 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_row_end;
 
     out << table_row_begin
-        << table_vheader_tmpl.arg(tr("Hash (RIPEMD160)"))
-        << table_data_tmpl.arg(summary.file_rmd160)
-        << table_row_end;
-
-    out << table_row_begin
         << table_vheader_tmpl.arg(tr("Hash (SHA1)"))
         << table_data_tmpl.arg(summary.file_sha1)
         << table_row_end;

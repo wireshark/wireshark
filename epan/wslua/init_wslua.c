@@ -139,6 +139,8 @@ static expert_field ei_lua_proto_deprecated_note    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_warn    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_error   = EI_INIT;
 
+static gint ett_wslua_traceback = -1;
+
 static gboolean
 lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data _U_)
@@ -167,6 +169,103 @@ int get_hf_wslua_text(void) {
     return hf_wslua_text;
 }
 
+#if LUA_VERSION_NUM >= 502
+// Attach the lua traceback to the proto_tree
+static int dissector_error_handler(lua_State *LS) {
+    // Entering, stack: [ error_handler, dissector, errmsg ]
+
+    proto_item *tb_item;
+    proto_tree *tb_tree;
+
+    // Add the expert info Lua error message
+    proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
+            "Lua Error: %s", lua_tostring(LS,-1));
+
+    // Create a new proto sub_tree for the traceback
+    tb_item = proto_tree_add_text_internal(lua_tree->tree, lua_tvb, 0, 0, "Lua Traceback");
+    tb_tree = proto_item_add_subtree(tb_item, ett_wslua_traceback);
+
+    // Push the traceback onto the stack
+    // After call, stack: [ error_handler, dissector, errmsg, tb_string ]
+    luaL_traceback(LS, LS, NULL, 1);
+
+    // Get the string length of the traceback. Note that the string
+    // has a terminating NUL, but string_length doesn't include it.
+    // The lua docs say the string can have NULs in it too, but we
+    // ignore that because the traceback string shouldn't have them.
+    // This function does not own the string; it's still owned by lua.
+    size_t string_length;
+    const char *orig_tb_string = lua_tolstring(LS, -1, &string_length);
+
+    // We make the copy so we can modify the string. Don't forget the
+    // extra byte for the terminating NUL!
+    char *tb_string = (char*) g_memdup2(orig_tb_string, string_length+1);
+
+    // The string has tabs and new lines in it
+    // We will add proto_items for each new-line-delimited sub-string.
+    // We also convert tabs to spaces, because the Wireshark GUI
+    // shows tabs literally as "\t".
+
+    // 'beginning' is the beginning of the sub-string
+    char *beginning = tb_string;
+
+    // 'p' is the pointer to the byte as we iterate over the string
+    char *p = tb_string;
+
+    size_t i;
+    bool skip_initial_tabs = true;
+    size_t last_eol_i = 0;
+    for (i = 0 ; i < string_length ; i++) {
+        // At the beginning of a sub-string, we will convert tabs to spaces
+        if (skip_initial_tabs) {
+            if (*p == '\t') {
+                *p = ' ';
+            } else {
+                // Once we hit the first non-tab character in a substring,
+                // we won't convert tabs (until the next substring)
+                skip_initial_tabs = false;
+            }
+        }
+        // If we see a newline, we add the substring to the proto tree
+        if (*p == '\n') {
+            // Terminate the string.
+            *p = '\0';
+            proto_tree_add_text_internal(tb_tree, lua_tvb, 0, 0, "%s", beginning);
+            beginning = ++p;
+            skip_initial_tabs = true;
+            last_eol_i = i;
+        } else {
+            ++p;
+        }
+    }
+
+    // The last portion of the string doesn't have a newline, so add it here
+    // after the loop. But to be sure, check that we didn't just add it, in
+    // case lua decides to change it in the future.
+    if ( last_eol_i < i-1 ) {
+        proto_tree_add_text_internal(tb_tree, lua_tvb, 0, 0, "%s", beginning);
+    }
+
+    // Cleanup
+    g_free(tb_string);
+
+    // Return the same original error message
+    return -2;
+}
+
+#else
+
+static int dissector_error_handler(lua_State *LS) {
+    // Entering, stack: [ error_handler, dissector, errmsg ]
+    proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
+            "Lua Error: %s", lua_tostring(LS,-1));
+
+    // Return the same error message
+    return -1;
+}
+
+#endif
+
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     int consumed_bytes = tvb_captured_length(tvb);
     tvbuff_t *saved_lua_tvb = lua_tvb;
@@ -180,25 +279,42 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
      * dissectors[current_proto](tvb,pinfo,tree)
      */
 
+    // set the stack top be index 0
     lua_settop(L,0);
 
+    // After call, stack: [ error_handler_func ]
+    lua_pushcfunction(L, dissector_error_handler);
+
+    // Push the dissectors table onto the the stack
+    // After call, stack: [ error_handler_func, dissectors_table ]
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
 
+    // Push a copy of the current_proto string onto the stack
+    // After call, stack: [ error_handler_func, dissectors_table, current_proto ]
     lua_pushstring(L, pinfo->current_proto);
+
+    // dissectors_table[current_proto], a dissector, goes into the stack
+    // The key (current_proto) is popped off the stack.
+    // After call, stack: [ error_handler_func, dissectors_table, dissector ]
     lua_gettable(L, -2);
 
-    lua_remove(L,1);
+    // We don't need the dissectors_table in the stack
+    // After call, stack: [ error_handler_func, dissector ]
+    lua_remove(L,2);
 
+    // Is the dissector a function?
+    if (lua_isfunction(L,2)) {
 
-    if (lua_isfunction(L,1)) {
-
+        // After call, stack: [ error_handler_func, dissector, tvb ]
         push_Tvb(L,tvb);
+        // After call, stack: [ error_handler_func, dissector, tvb, pinfo ]
         push_Pinfo(L,pinfo);
+        // After call, stack: [ error_handler_func, dissector, tvb, pinfo, TreeItem ]
         lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
         proto_item_set_hidden(lua_tree->item);
 
-        if  ( lua_pcall(L,3,1,0) ) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0, "Lua Error: %s", lua_tostring(L,-1));
+        if  ( lua_pcall(L, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
+            // do nothing; the traceback error message handler function does everything
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
@@ -1023,6 +1139,10 @@ void wslua_init(register_cb cb, gpointer client_data) {
           { "Wireshark Lua text",     "_ws.lua.text",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
+    static gint *ett[] = {
+            &ett_wslua_traceback,
+    };
+    proto_register_subtree_array(ett, array_length(ett));
 
     static ei_register_info ei[] = {
         /* the following are created so we can continue to support the TreeItem_add_expert_info()

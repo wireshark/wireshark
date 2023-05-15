@@ -13,7 +13,7 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "pcre2-.*" "PCRE2_HINTS" )
 
-if( NOT WIN32)
+if( NOT USE_REPOSITORY)
 	find_package(PkgConfig QUIET)
 	pkg_search_module(PC_PCRE2 QUIET "libpcre2-8")
 endif()

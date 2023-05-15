@@ -61,7 +61,14 @@ ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QO
 
 ATapDataModel::~ATapDataModel()
 {
-    remove_tap_listener(hash());
+    /* Only remove the tap if we come from a enabled model */
+    if (!_disableTap)
+        remove_tap_listener(hash());
+
+    if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
+        reset_endpoint_table_data(&hash_);
+    else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
+        reset_conversation_table_data(&hash_);
 }
 
 int ATapDataModel::protoId() const
@@ -130,9 +137,9 @@ void ATapDataModel::disableTap()
     emit tapListenerChanged(false);
 }
 
-int ATapDataModel::rowCount(const QModelIndex &) const
+int ATapDataModel::rowCount(const QModelIndex &parent) const
 {
-    return storage_ ? (int) storage_->len : 0;
+    return (storage_ && !parent.isValid()) ? (int) storage_->len : 0;
 }
 
 void ATapDataModel::tapReset(void *tapdata) {

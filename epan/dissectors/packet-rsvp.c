@@ -4077,9 +4077,9 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
 
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_tspec_multiplier, tvb, offset2 + 6, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "Signal [%s], NMC %d, NVC %d, MT %d",
-                               rval_to_str(signal_type,
-                                           gmpls_g709_signal_type_rvals,
-                                           "Unknown"),
+                               rval_to_str_const(signal_type,
+                                                 gmpls_g709_signal_type_rvals,
+                                                 "Unknown"),
                                tvb_get_ntohs(tvb, offset2 + 2),
                                tvb_get_ntohs(tvb, offset2 + 4),
                                tvb_get_ntohs(tvb, offset2 + 6));
@@ -4313,9 +4313,9 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
 
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_flowspec_multiplier, tvb, offset2 + 6, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "Signal [%s], NMC %d, NVC %d, MT %d",
-                               rval_to_str(signal_type,
-                                           gmpls_g709_signal_type_rvals,
-                                           "Unknown"),
+                               rval_to_str_const(signal_type,
+                                                 gmpls_g709_signal_type_rvals,
+                                                 "Unknown"),
                                tvb_get_ntohs(tvb, offset2 + 2),
                                tvb_get_ntohs(tvb, offset2 + 4),
                                tvb_get_ntohs(tvb, offset2 + 6));

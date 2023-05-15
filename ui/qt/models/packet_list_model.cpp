@@ -620,28 +620,26 @@ bool PacketListModel::isNumericColumn(int column)
         return false;
     }
     switch (sort_cap_file_->cinfo.columns[column].col_fmt) {
-    case COL_8021Q_VLAN_ID:  /**< 0) 802.1Q vlan ID */
-    case COL_CUMULATIVE_BYTES: /**< 5) Cumulative number of bytes */
-    case COL_DELTA_TIME:     /**< 8) Delta time */
-    case COL_DELTA_TIME_DIS: /**< 9) Delta time displayed*/
-    case COL_UNRES_DST_PORT: /**< 13) Unresolved dest port */
-    case COL_FREQ_CHAN:      /**< 18) IEEE 802.11 (and WiMax?) - Channel */
-    case COL_RSSI:           /**< 25) IEEE 802.11 - received signal strength */
-    case COL_TX_RATE:        /**< 26) IEEE 802.11 - TX rate in Mbps */
-    case COL_NUMBER:         /**< 35) Packet list item number */
-    case COL_PACKET_LENGTH:  /**< 36) Packet length in bytes */
-    case COL_UNRES_SRC_PORT: /**< 44) Unresolved source port */
-    case COL_TEI:            /**< 45) Q.921 TEI */
+    case COL_CUMULATIVE_BYTES: /**< 3) Cumulative number of bytes */
+    case COL_DELTA_TIME:     /**< 5) Delta time */
+    case COL_DELTA_TIME_DIS: /**< 8) Delta time displayed*/
+    case COL_UNRES_DST_PORT: /**< 10) Unresolved dest port */
+    case COL_FREQ_CHAN:      /**< 15) IEEE 802.11 (and WiMax?) - Channel */
+    case COL_RSSI:           /**< 22) IEEE 802.11 - received signal strength */
+    case COL_TX_RATE:        /**< 23) IEEE 802.11 - TX rate in Mbps */
+    case COL_NUMBER:         /**< 32) Packet list item number */
+    case COL_PACKET_LENGTH:  /**< 33) Packet length in bytes */
+    case COL_UNRES_SRC_PORT: /**< 41) Unresolved source port */
         return true;
 
     /*
      * Try to sort port numbers as number, if the numeric comparison fails (due
      * to name resolution), it will fallback to string comparison.
      * */
-    case COL_RES_DST_PORT:   /**< 12) Resolved dest port */
-    case COL_DEF_DST_PORT:   /**< 15) Destination port */
-    case COL_DEF_SRC_PORT:   /**< 40) Source port */
-    case COL_RES_SRC_PORT:   /**< 43) Resolved source port */
+    case COL_RES_DST_PORT:   /**< 10) Resolved dest port */
+    case COL_DEF_DST_PORT:   /**< 12) Destination port */
+    case COL_DEF_SRC_PORT:   /**< 37) Source port */
+    case COL_RES_SRC_PORT:   /**< 40) Resolved source port */
         return true;
 
     case COL_CUSTOM:

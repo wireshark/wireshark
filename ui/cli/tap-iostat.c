@@ -159,35 +159,35 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
-                    it->counter += fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    it->counter += fvalue_get_uinteger(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_UINT40:
                 case FT_UINT48:
                 case FT_UINT56:
                 case FT_UINT64:
-                    it->counter += fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                    it->counter += fvalue_get_uinteger64(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_INT8:
                 case FT_INT16:
                 case FT_INT24:
                 case FT_INT32:
-                    it->counter += fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    it->counter += fvalue_get_sinteger(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_INT40:
                 case FT_INT48:
                 case FT_INT56:
                 case FT_INT64:
-                    it->counter += (gint64)fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
+                    it->counter += (gint64)fvalue_get_sinteger64(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_FLOAT:
                     it->float_counter +=
-                        (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                        (gfloat)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_DOUBLE:
-                    it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    it->double_counter += fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     it->counter  +=  val;
                     break;
@@ -216,7 +216,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
-                    val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger(((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || (val < it->counter)) {
                         it->counter = val;
                     }
@@ -225,7 +225,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT48:
                 case FT_UINT56:
                 case FT_UINT64:
-                    val = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger64(((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || (val < it->counter)) {
                         it->counter = val;
                     }
@@ -234,7 +234,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_INT16:
                 case FT_INT24:
                 case FT_INT32:
-                    val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger(((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || ((gint32)val < (gint32)it->counter)) {
                         it->counter = val;
                     }
@@ -243,25 +243,25 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_INT48:
                 case FT_INT56:
                 case FT_INT64:
-                    val = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger64(((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || ((gint64)val < (gint64)it->counter)) {
                         it->counter = val;
                     }
                     break;
                 case FT_FLOAT:
-                    float_val = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    float_val = (gfloat)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || (float_val < it->float_counter)) {
                         it->float_counter = float_val;
                     }
                     break;
                 case FT_DOUBLE:
-                    double_val = fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    double_val = fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || (double_val < it->double_counter)) {
                         it->double_counter = double_val;
                     }
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     if ((it->frames == 1 && i == 0) || (val < it->counter)) {
                         it->counter = val;
@@ -292,7 +292,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
-                    val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger(((field_info *)gp->pdata[i])->value);
                     if (val > it->counter)
                         it->counter = val;
                     break;
@@ -300,7 +300,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT48:
                 case FT_UINT56:
                 case FT_UINT64:
-                    val = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger64(((field_info *)gp->pdata[i])->value);
                     if (val > it->counter)
                         it->counter = val;
                     break;
@@ -308,7 +308,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_INT16:
                 case FT_INT24:
                 case FT_INT32:
-                    val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger(((field_info *)gp->pdata[i])->value);
                     if ((gint32)val > (gint32)it->counter)
                         it->counter = val;
                     break;
@@ -316,22 +316,22 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_INT48:
                 case FT_INT56:
                 case FT_INT64:
-                    val = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger64(((field_info *)gp->pdata[i])->value);
                     if ((gint64)val > (gint64)it->counter)
                         it->counter = val;
                     break;
                 case FT_FLOAT:
-                    float_val = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    float_val = (gfloat)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     if (float_val > it->float_counter)
                         it->float_counter = float_val;
                     break;
                 case FT_DOUBLE:
-                    double_val = fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    double_val = fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     if (double_val > it->double_counter)
                         it->double_counter = double_val;
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     if (val > it->counter)
                         it->counter = val;
@@ -360,38 +360,38 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
-                    val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger(((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
                 case FT_UINT40:
                 case FT_UINT48:
                 case FT_UINT56:
                 case FT_UINT64:
-                    val = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger64(((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
                 case FT_INT8:
                 case FT_INT16:
                 case FT_INT24:
                 case FT_INT32:
-                    val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger(((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
                 case FT_INT40:
                 case FT_INT48:
                 case FT_INT56:
                 case FT_INT64:
-                    val = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger64(((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
                 case FT_FLOAT:
-                    it->float_counter += (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    it->float_counter += (gfloat)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_DOUBLE:
-                    it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    it->double_counter += fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     it->counter += val;
                     break;
@@ -420,7 +420,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 int tival;
                 io_stat_item_t *pit;
 
-                new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
+                new_time = fvalue_get_time(((field_info *)gp->pdata[i])->value);
                 val = ((guint64)new_time->secs*G_GUINT64_CONSTANT(1000000)) + (guint64)(new_time->nsecs/1000);
                 tival = (int)(val % parent->interval);
                 it->counter += tival;

@@ -364,6 +364,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     ui->automaticUpdateCheckBox->setChecked(prefs.gui_io_graph_automatic_update ? true : false);
 
+    ui->enableLegendCheckBox->setChecked(prefs.gui_io_graph_enable_legend ? true : false);
+
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);
@@ -981,7 +983,14 @@ void IOGraphDialog::updateLegend()
             }
         }
     }
-    iop->legend->setVisible(true);
+
+    // Only show legend if the user requested it
+    if (prefs.gui_io_graph_enable_legend) {
+        iop->legend->setVisible(true);
+    }
+    else {
+        iop->legend->setVisible(false);
+    }
 }
 
 QRectF IOGraphDialog::getZoomRanges(QRect zoom_rect)
@@ -1444,6 +1453,15 @@ void IOGraphDialog::on_automaticUpdateCheckBox_toggled(bool checked)
     }
 }
 
+void IOGraphDialog::on_enableLegendCheckBox_toggled(bool checked)
+{
+    prefs.gui_io_graph_enable_legend = checked ? TRUE : FALSE;
+
+    prefs_main_write();
+
+    updateLegend();
+}
+
 void IOGraphDialog::on_actionReset_triggered()
 {
     on_resetButton_clicked();
@@ -1711,7 +1729,7 @@ void IOGraph::setFilter(const QString &filter)
         dfilter_free(dfilter);
         if (!status) {
             config_err_ = QString::fromUtf8(df_err->msg);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             filter_ = full_filter;
             return;
         }

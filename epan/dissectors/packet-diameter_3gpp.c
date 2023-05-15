@@ -1521,7 +1521,7 @@ dissect_diameter_3gpp_access_network_information(tvbuff_t *tvb, packet_info *pin
     int offset = 0;
     int length = tvb_reported_length(tvb);
 
-    dissect_sip_p_access_network_info_header(tvb, tree, offset, length);
+    dissect_sip_p_access_network_info_header(tvb, pinfo, tree, offset, length);
 
     return length;
 }

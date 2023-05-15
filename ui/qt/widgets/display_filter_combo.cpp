@@ -17,6 +17,8 @@
 
 #include <QHelpEvent>
 #include <QStyleOptionComboBox>
+#include <QStandardItemModel>
+#include <QDateTime>
 
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/display_filter_combo.h>
@@ -48,7 +50,13 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     updateStyleSheet();
     setToolTip(tr("Select from previously used filters."));
 
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(this->model());
+    model->setSortRole(Qt::UserRole);
+
     connect(mainApp, &MainApplication::preferencesChanged, this, &DisplayFilterCombo::updateMaxCount);
+    // Ugly cast required (?)
+    // https://stackoverflow.com/questions/16794695/connecting-overloaded-signals-and-slots-in-qt-5
+    connect(this, static_cast<void (DisplayFilterCombo::*)(int)>(&DisplayFilterCombo::activated), this, &DisplayFilterCombo::onActivated);
 }
 
 extern "C" void dfilter_recent_combo_write_all(FILE *rf) {
@@ -67,6 +75,15 @@ void DisplayFilterCombo::writeRecent(FILE *rf) {
             fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter.constData());
         }
     }
+}
+
+void DisplayFilterCombo::onActivated(int row)
+{
+    /* Update the row timestamp and resort list. */
+    QStandardItemModel *m = qobject_cast<QStandardItemModel*>(this->model());
+    QModelIndex idx = m->index(row, 0);
+    m->setData(idx, QVariant(QDateTime::currentMSecsSinceEpoch()), Qt::UserRole);
+    m->sort(0, Qt::DescendingOrder);
 }
 
 bool DisplayFilterCombo::event(QEvent *event)
@@ -165,7 +182,7 @@ extern "C" gboolean dfilter_combo_add_recent(const gchar *filter) {
     // the lineEdit's signals.
     // Another approach would be to update QComboBox->model directly.
     bool block_state = cur_display_filter_combo->lineEdit()->blockSignals(true);
-    cur_display_filter_combo->addItem(filter);
+    cur_display_filter_combo->addItem(filter, QVariant(QDateTime::currentMSecsSinceEpoch()));
     cur_display_filter_combo->clearEditText();
     cur_display_filter_combo->lineEdit()->blockSignals(block_state);
     return TRUE;

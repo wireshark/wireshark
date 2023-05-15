@@ -881,7 +881,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Key %s of parent %s %s",
             get_object_id_string(object_id), get_object_id_string(parent_object_id),
-            val_to_str(key_activation_code, key_activation_codes_info_postfix, "unknown action"));
+            val_to_str_const(key_activation_code, key_activation_codes_info_postfix, "unknown action"));
     }
         break;
     case VT_BUTTON_ACTIVATION:
@@ -911,7 +911,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Button %s of parent %s %s",
             get_object_id_string(object_id), get_object_id_string(parent_object_id),
-            val_to_str(key_activation_code, key_activation_codes_info_postfix, "unknown action"));
+            val_to_str_const(key_activation_code, key_activation_codes_info_postfix, "unknown action"));
     }
         break;
     case VT_POINTING_EVENT:
@@ -937,7 +937,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(current_vt_version >= 4)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(touch_state, pointing_touch_state_info_postfix, "unknown action"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(touch_state, pointing_touch_state_info_postfix, "unknown action"));
         }
     }
         break;
@@ -1162,8 +1162,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtonuserlayouthideshow_status_2, tvb, offset, 1, ENC_LITTLE_ENDIAN, &status[1]);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "VT On User-Layout Hide/Show. %s is %s, %s is %s",
-            get_object_id_string(object_id[0]), val_to_str(status[0], vt_hide_show_action_info, "unknown"),
-            get_object_id_string(object_id[1]), val_to_str(status[1], vt_hide_show_action_info, "unknown"));
+            get_object_id_string(object_id[0]), val_to_str_const(status[0], vt_hide_show_action_info, "unknown"),
+            get_object_id_string(object_id[1]), val_to_str_const(status[1], vt_hide_show_action_info, "unknown"));
     }
         break;
     case VT_VT_CONTROL_AUDIO_SIGNAL_TERMINATION:
@@ -1293,7 +1293,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_auxiliaryinputtype1status_booleanvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN, &boolean_value);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "State of input %u is analog %u or digital %s",
-            input_number, analyze_value, val_to_str(boolean_value, auxiliary_boolean_value, "unknown"));
+            input_number, analyze_value, val_to_str_const(boolean_value, auxiliary_boolean_value, "unknown"));
 
     }
         break;
@@ -1603,7 +1603,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_auxiliarycapabilities_requesttype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &request_type);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                val_to_str(request_type, auxiliary_capabilities_request_type, "Request capabilities of Unknown"));
+                val_to_str_const(request_type, auxiliary_capabilities_request_type, "Request capabilities of Unknown"));
         }
         else
         {
@@ -1654,7 +1654,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     offset += 1;
 
                     proto_item_set_text(input_unit_item, "Auxiliary set containing %u instances with function attribute %u assigned to %s",
-                        number_of_instances, function_attribute, val_to_str(assigned_attribute, auxiliary_assigned_attributes, "unknown"));
+                        number_of_instances, function_attribute, val_to_str_const(assigned_attribute, auxiliary_assigned_attributes, "unknown"));
                 }
             }
             col_append_fstr(pinfo->cinfo, COL_INFO, "Received Auxiliary Capabilities");
@@ -2124,13 +2124,13 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of %s has changed to %s",
-                    get_object_id_string(object_id), rval_to_str(colour, vt_colours, "Unknown"));
+                    get_object_id_string(object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
             }
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of %s should change to %s",
-                get_object_id_string(object_id), rval_to_str(colour, vt_colours, "Unknown"));
+                get_object_id_string(object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
         }
     }
         break;
@@ -3229,7 +3229,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_graphicscontext_drawtext_textstring, tvb, offset + bomOffset, number_of_bytes - bomOffset, encoding, pinfo->pool, &value);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Draw string \"%s\" at cursor with a %s background",
-                    value, val_to_str(background, draw_text_background, "unknown"));
+                    value, val_to_str_const(background, draw_text_background, "unknown"));
             }
                 break;
             case PAN_VIEWPORT:
@@ -3862,8 +3862,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_getwindowmaskdata_backgroundcoloursoftkeymask, tvb, offset, 1, ENC_LITTLE_ENDIAN, &background_colour_soft_key_mask);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of data mask is %s, soft key mask is %s",
-                rval_to_str(background_colour_data_mask, vt_colours, "Unknown"),
-                rval_to_str(background_colour_soft_key_mask, vt_colours, "Unknown"));
+                rval_to_str_const(background_colour_data_mask, vt_colours, "Unknown"),
+                rval_to_str_const(background_colour_soft_key_mask, vt_colours, "Unknown"));
         }
     }
         break;
@@ -3942,7 +3942,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_gethardware_ypixels, tvb, offset, 2, ENC_LITTLE_ENDIAN, &y_pixels);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Hardware info received. Graphic type is %s, screen is %u by %u pixels",
-                val_to_str(graphic_type, graphic_types, "unknown"), x_pixels, y_pixels);
+                val_to_str_const(graphic_type, graphic_types, "unknown"),
+                x_pixels, y_pixels);
         }
     }
         break;
@@ -4234,12 +4235,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT function %s (%u) is not supported by ECU",
-                val_to_str_ext(unsupported_vt_function, &vt_function_code_ext, "unknown"), unsupported_vt_function);
+                val_to_str_ext_const(unsupported_vt_function, &vt_function_code_ext, "unknown"), unsupported_vt_function);
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT function %s (%u) is not supported by VT",
-                val_to_str_ext(unsupported_vt_function, &vt_function_code_ext, "unknown"), unsupported_vt_function);
+                val_to_str_ext_const(unsupported_vt_function, &vt_function_code_ext, "unknown"), unsupported_vt_function);
         }
     }
         break;

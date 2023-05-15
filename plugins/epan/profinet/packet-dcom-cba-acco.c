@@ -328,7 +328,7 @@ GList *cba_pdevs;
 const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 
 static gboolean
-cba_filter_valid(packet_info *pinfo)
+cba_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
 
@@ -336,7 +336,7 @@ cba_filter_valid(packet_info *pinfo)
 }
 
 static gchar*
-cba_build_filter(packet_info *pinfo)
+cba_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     gboolean is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
@@ -4408,7 +4408,7 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 
             proto_item_append_text(sub_item, "[%u]: QC=%s (0x%02x) %s",
                 u32Idx,
-                val_to_str(u16QC, cba_acco_qc_vals, "Unknown"),
+                val_to_str_const(u16QC, cba_acco_qc_vals, "Unknown"),
                 u16QC,
                 val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
             proto_item_set_len(sub_item, offset - u32SubStart);
@@ -4540,7 +4540,7 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 
         proto_item_append_text(sub_item, "[%u]: Item=\"%s\" QC=%s (0x%02x)",
             u32Idx, szStr,
-            val_to_str(u16QC, cba_acco_qc_vals, "Unknown"), u16QC);
+            val_to_str_const(u16QC, cba_acco_qc_vals, "Unknown"), u16QC);
 
         proto_item_set_len(sub_item, offset - u32SubStart);
         u32Idx++;
@@ -5107,7 +5107,7 @@ proto_register_dcom_cba_acco (void)
     proto_ICBAAccoSync = proto_register_protocol ("ICBAAccoSync", "ICBAAccoSync", "cba_acco_sync");
     proto_register_subtree_array (ett5, array_length (ett5));
 
-    register_conversation_filter("cba", "PN-CBA", cba_filter_valid, cba_build_filter);
+    register_conversation_filter("cba", "PN-CBA", cba_filter_valid, cba_build_filter, NULL);
 }
 
 

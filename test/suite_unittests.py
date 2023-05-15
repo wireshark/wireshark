@@ -61,26 +61,6 @@ class case_unittests(subprocesstest.SubprocessTestCase):
         '''fieldcount'''
         self.assertRun((cmd_tshark, '-G', 'fieldcount'), env=test_env)
 
-    def test_unit_ctest_coverage(self, all_test_groups):
-        '''Make sure CTest runs all of our tests.'''
-        with open(os.path.join(os.path.dirname(__file__), '..', 'CMakeLists.txt')) as cml_fd:
-            group_re = re.compile(r'set *\( *_test_group_list')
-            in_list = False
-            cml_groups = []
-            for cml_line in cml_fd:
-                if group_re.search(cml_line):
-                    in_list = True
-                    continue
-                if in_list:
-                    if ')' in cml_line:
-                        break
-                    cml_groups.append(cml_line.strip())
-        cml_groups.sort()
-        if not all_test_groups == cml_groups:
-            diff = '\n'.join(list(difflib.unified_diff(all_test_groups, cml_groups, 'all test groups', 'CMakeLists.txt test groups')))
-            self.fail("CMakeLists.txt doesn't test all available groups:\n" + diff)
-
-
 class Proto:
     """Data for a protocol."""
     def __init__(self, line):

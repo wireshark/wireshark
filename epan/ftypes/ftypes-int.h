@@ -14,6 +14,27 @@
 #include <epan/proto.h>
 #include <epan/packet.h>
 
+struct _fvalue_t {
+	ftype_t	*ftype;
+	union {
+		/* Put a few basic types in here */
+		guint32			uinteger;
+		gint32			sinteger;
+		guint64			uinteger64;
+		gint64			sinteger64;
+		gdouble			floating;
+		wmem_strbuf_t		*strbuf;
+		GBytes			*bytes;
+		ipv4_addr_and_mask	ipv4;
+		ipv6_addr_and_prefix	ipv6;
+		e_guid_t		guid;
+		nstime_t		time;
+		protocol_value_t 	protocol;
+		guint16			sfloat_ieee_11073;
+		guint32			float_ieee_11073;
+	} value;
+};
+
 extern ftype_t* type_list[FT_NUM_TYPES];
 
 /* Given an ftenum number, return an ftype_t* */
@@ -34,8 +55,7 @@ typedef char *(*FvalueToStringRepr)(wmem_allocator_t *, const fvalue_t*, ftrepr_
 typedef enum ft_result (*FvalueToUnsignedInteger64Func)(const fvalue_t*, guint64 *);
 typedef enum ft_result (*FvalueToSignedInteger64Func)(const fvalue_t*, gint64 *);
 
-typedef void (*FvalueSetByteArrayFunc)(fvalue_t*, GByteArray *);
-typedef void (*FvalueSetBytesFunc)(fvalue_t*, const guint8 *);
+typedef void (*FvalueSetBytesFunc)(fvalue_t*, GBytes *);
 typedef void (*FvalueSetGuidFunc)(fvalue_t*, const e_guid_t *);
 typedef void (*FvalueSetTimeFunc)(fvalue_t*, const nstime_t *);
 typedef void (*FvalueSetStrbufFunc)(fvalue_t*, wmem_strbuf_t *);
@@ -45,8 +65,9 @@ typedef void (*FvalueSetSignedIntegerFunc)(fvalue_t*, gint32);
 typedef void (*FvalueSetUnsignedInteger64Func)(fvalue_t*, guint64);
 typedef void (*FvalueSetSignedInteger64Func)(fvalue_t*, gint64);
 typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
+typedef void (*FvalueSetIpv6)(fvalue_t*, const ws_in6_addr *);
 
-typedef const guint8 *(*FvalueGetBytesFunc)(fvalue_t*);
+typedef GBytes *(*FvalueGetBytesFunc)(fvalue_t*);
 typedef const e_guid_t *(*FvalueGetGuidFunc)(fvalue_t*);
 typedef const nstime_t *(*FvalueGetTimeFunc)(fvalue_t*);
 typedef const wmem_strbuf_t *(*FvalueGetStrbufFunc)(fvalue_t*);
@@ -56,6 +77,7 @@ typedef gint32  (*FvalueGetSignedIntegerFunc)(fvalue_t*);
 typedef guint64 (*FvalueGetUnsignedInteger64Func)(fvalue_t*);
 typedef gint64 (*FvalueGetSignedInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
+typedef const ws_in6_addr *(*FvalueGetIpv6)(fvalue_t*);
 
 typedef enum ft_result (*FvalueCmp)(const fvalue_t*, const fvalue_t*, int*);
 typedef enum ft_result (*FvalueContains)(const fvalue_t*, const fvalue_t*, gboolean*);
@@ -63,6 +85,7 @@ typedef enum ft_result (*FvalueMatches)(const fvalue_t*, const ws_regex_t*, gboo
 
 typedef gboolean (*FvalueIs)(const fvalue_t*);
 typedef guint (*FvalueLen)(fvalue_t*);
+typedef guint (*FvalueHashFunc)(const fvalue_t *);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 typedef enum ft_result (*FvalueUnaryOp)(fvalue_t *, const fvalue_t*, gchar **);
 typedef enum ft_result (*FvalueBinaryOp)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
@@ -84,7 +107,6 @@ struct _ftype_t {
 	FvalueToSignedInteger64Func		val_to_sinteger64;
 
 	union {
-		FvalueSetByteArrayFunc		set_value_byte_array;
 		FvalueSetBytesFunc		set_value_bytes;
 		FvalueSetGuidFunc		set_value_guid;
 		FvalueSetTimeFunc		set_value_time;
@@ -95,6 +117,7 @@ struct _ftype_t {
 		FvalueSetUnsignedInteger64Func	set_value_uinteger64;
 		FvalueSetSignedInteger64Func	set_value_sinteger64;
 		FvalueSetFloatingFunc		set_value_floating;
+		FvalueSetIpv6			set_value_ipv6;
 	} set_value;
 
 	union {
@@ -108,12 +131,14 @@ struct _ftype_t {
 		FvalueGetUnsignedInteger64Func	get_value_uinteger64;
 		FvalueGetSignedInteger64Func	get_value_sinteger64;
 		FvalueGetFloatingFunc		get_value_floating;
+		FvalueGetIpv6			get_value_ipv6;
 	} get_value;
 
 	FvalueCmp		cmp_order;
 	FvalueContains		cmp_contains;
 	FvalueMatches		cmp_matches;
 
+	FvalueHashFunc		hash;
 	FvalueIs		is_zero;
 	FvalueIs		is_negative;
 	FvalueLen		len;

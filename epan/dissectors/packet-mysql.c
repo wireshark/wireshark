@@ -34,6 +34,9 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/proto_data.h>
+#include <epan/reassemble.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include "packet-tcp.h"
 #include "packet-tls-utils.h"
 
@@ -42,6 +45,8 @@ void proto_reg_handoff_mysql(void);
 
 /* port for protocol registration */
 #define TCP_PORT_MySQL   3306
+
+#define MYSQL_HEADER_LENGTH 4
 
 /* MariaDB Server >= 10.0 sends a 5.5.5- prefix for the version, since
 	 replication doesn't support a two digit version number. Version 5.5.5
@@ -254,7 +259,6 @@ static const value_string mysql_clone_response_vals[] = {
 #define MYSQL_COMPRESS_NONE   0
 #define MYSQL_COMPRESS_INIT   1
 #define MYSQL_COMPRESS_ACTIVE 2
-#define MYSQL_COMPRESS_PAYLOAD 3
 
 #define MYSQL_COMPRESS_ALG_ZLIB 0
 #define MYSQL_COMPRESS_ALG_ZSTD 1
@@ -1234,6 +1238,7 @@ static int hf_mariadb_extmeta_type = -1;
 static int hf_mariadb_extmeta_format = -1;
 
 static dissector_handle_t mysql_handle;
+static dissector_handle_t decompressed_handle;
 static dissector_handle_t tls_handle;
 
 static expert_field ei_mysql_dissector_incomplete = EI_INIT;
@@ -1243,6 +1248,44 @@ static expert_field ei_mysql_unknown_response = EI_INIT;
 static expert_field ei_mysql_command = EI_INIT;
 static expert_field ei_mysql_invalid_length = EI_INIT;
 static expert_field ei_mysql_compression = EI_INIT;
+
+/* Reassembly of decompressed packets in compressed packets {{{ */
+
+static int hf_mysql_fragments = -1;
+static int hf_mysql_fragment = -1;
+static int hf_mysql_fragment_overlap = -1;
+static int hf_mysql_fragment_overlap_conflicts = -1;
+static int hf_mysql_fragment_multiple_tails = -1;
+static int hf_mysql_fragment_too_long_fragment = -1;
+static int hf_mysql_fragment_error = -1;
+static int hf_mysql_fragment_count = -1;
+static int hf_mysql_reassembled_in = -1;
+static int hf_mysql_reassembled_length = -1;
+static int hf_mysql_fragment_data = -1;
+
+static gint ett_mysql_fragment = -1;
+static gint ett_mysql_fragments = -1;
+
+static const fragment_items mysql_frag_items = {
+	&ett_mysql_fragment,
+	&ett_mysql_fragments,
+	&hf_mysql_fragments,
+	&hf_mysql_fragment,
+	&hf_mysql_fragment_overlap,
+	&hf_mysql_fragment_overlap_conflicts,
+	&hf_mysql_fragment_multiple_tails,
+	&hf_mysql_fragment_too_long_fragment,
+	&hf_mysql_fragment_error,
+	&hf_mysql_fragment_count,
+	&hf_mysql_reassembled_in,
+	&hf_mysql_reassembled_length,
+	NULL,
+	"MySQL fragments"
+};
+
+static reassembly_table mysql_reassembly_table;
+
+/* }}} Reassembly of decompressed packets */
 
 /* type constants */
 static const value_string type_constants[] = {
@@ -1368,6 +1411,8 @@ typedef struct mysql_conn_data {
 	guint32 mariadb_client_ext_caps;
 	guint64 remaining_field_packet_count;
 	my_metadata_list_t field_metas;
+	guint8 *auth_method;
+	streaming_reassembly_info_t *reassembly_info;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -1697,6 +1742,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		lenstr = tvb_strsize(tvb,offset);
 		proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(wmem_file_scope(), tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -1846,6 +1892,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		mysql_set_conn_state(pinfo, conn_data, AUTH_SWITCH_REQUEST);
 		lenstr= my_tvb_strsize(tvb,offset);
 		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(wmem_file_scope(), tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -2559,73 +2606,6 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 	return offset;
 }
 
-/*
- * Decode a compressed packet
- * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression.html
- */
-static int
-mysql_dissect_compressed(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, packet_info *pinfo, mysql_conn_data_t *conn_data)
-{
-	tvbuff_t *next_tvb, *next_tvb2;
-	guint clen, ulen;
-
-	clen = tvb_get_letoh24(tvb, offset);
-	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
-	offset += 3;
-
-	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_number, tvb, offset, 1, ENC_NA);
-	offset += 1;
-
-	ulen = tvb_get_letoh24(tvb, offset);
-	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length_uncompressed, tvb, offset, 3, ENC_LITTLE_ENDIAN);
-	offset += 3;
-
-	if (ulen>0) {
-		switch (conn_data->compressed_alg) {
-#ifdef HAVE_ZSTD
-		case MYSQL_COMPRESS_ALG_ZSTD:
-			next_tvb = tvb_child_uncompress_zstd(tvb, tvb, offset, clen);
-			break;
-#endif
-		case MYSQL_COMPRESS_ALG_ZLIB:
-		default:
-			next_tvb = tvb_child_uncompress(tvb, tvb, offset, clen);
-			break;
-		}
-		if (next_tvb) {
-			add_new_data_source(pinfo, next_tvb, "compressed data");
-
-			int next_offset = 0;
-			while (tvb_reported_length_remaining(next_tvb, next_offset) > 0) {
-				guint32 pdulen = tvb_get_letoh24(next_tvb, next_offset) + 4;
-				next_tvb2 = tvb_new_subset_length(next_tvb, next_offset, pdulen);
-
-				conn_data->compressed_state = MYSQL_COMPRESS_PAYLOAD;
-				dissect_mysql_pdu(next_tvb2, pinfo, mysql_tree, NULL);
-				conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
-
-				next_offset += pdulen;
-			}
-			offset += clen;
-		} else {
-			expert_add_info_format(pinfo, mysql_tree, &ei_mysql_compression, "Can't uncompress packet");
-		}
-	} else {
-		while (tvb_reported_length_remaining(tvb, offset) > 0) {
-			guint32 pdulen = tvb_get_letoh24(tvb, offset) + 4;
-			next_tvb = tvb_new_subset_length(tvb, offset, pdulen);
-
-			conn_data->compressed_state = MYSQL_COMPRESS_PAYLOAD;
-			dissect_mysql_pdu(next_tvb, pinfo, mysql_tree, NULL);
-			conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
-
-			offset += pdulen;
-		}
-	}
-
-	return offset;
-}
-
 static int
 mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		       proto_tree *tree, mysql_conn_data_t *conn_data, proto_item *pi, mysql_state_t current_state)
@@ -2790,6 +2770,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				proto_item_append_text(pi, " - %s", val_to_str(AUTH_SWITCH_REQUEST, state_vals, "Unknown (%u)"));
 				offset = mysql_dissect_auth_switch_request(tvb, pinfo, offset, tree, conn_data);
 			}
+			break;
+
+		case AUTH_SHA2:
+			proto_item_append_text(pi, " - %s", val_to_str(AUTH_SHA2, state_vals, "Unknown (%u)"));
+			offset = mysql_dissect_auth_sha2(tvb, pinfo, offset, tree, conn_data);
 			break;
 
 		default:
@@ -3632,7 +3617,7 @@ mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree, p
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_item_append_text(pi, ": %s", val_to_str(tvb_get_guint8(tvb, offset), mysql_binlog_event_type_vals, "%s"));
+	proto_item_append_text(pi, ": %s", val_to_str(tvb_get_guint8(tvb, offset), mysql_binlog_event_type_vals, "Unknown event type: %d"));
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3703,6 +3688,7 @@ mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/* name */
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_mysql_auth_switch_request_name, tvb, offset, lenstr, ENC_ASCII);
+		conn_data->auth_method = tvb_get_string_enc(wmem_file_scope(), tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 
 		/* Data */
@@ -3732,6 +3718,10 @@ mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset
 	lenstr = my_tvb_strsize(tvb, offset);
 	proto_tree_add_item(tree, hf_mysql_auth_switch_response_data, tvb, offset, lenstr, ENC_NA);
 	offset += lenstr;
+
+	if (g_strcmp0(conn_data->auth_method,"caching_sha2_password") == 0) {
+		mysql_set_conn_state(pinfo, conn_data, AUTH_SHA2);
+	}
 
 	return offset + tvb_reported_length_remaining(tvb, offset);
 
@@ -3822,11 +3812,11 @@ mysql_dissect_clone_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int offse
 		case MYSQL_CLONE_COM_REINIT:
 		case MYSQL_CLONE_COM_EXECUTE:
 		case MYSQL_CLONE_COM_ACK:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "%s"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
 			break;
 		case MYSQL_CLONE_COM_EXIT:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "%s"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
 			mysql_set_conn_state(pinfo, conn_data, CLONE_EXIT);
 			break;
@@ -3858,7 +3848,7 @@ mysql_dissect_clone_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			/* fall through */
 		case MYSQL_CLONE_COM_RES_ERROR:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(resp_code, mysql_clone_response_vals, "%s"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(resp_code, mysql_clone_response_vals, "unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_response_code, tvb, offset, 1, ENC_NA);
 			break;
 		default:
@@ -3981,25 +3971,21 @@ tvb_get_fle(tvbuff_t *tvb, proto_tree *tree _U_, int offset, guint64 *res, guint
 	return num_bytes;
 }
 
+static guint
+get_mysql_compressed_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	/* Compressed packet header: compressed length (3) + sequence number (1)
+	 * + uncompressed packet length (3) */
+	guint len = 7 + tvb_get_letoh24(tvb, offset);
+	return len;
+}
+
 /* dissector helper: length of PDU */
 static guint
-get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
+get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/* Regular packet header: length (3) + sequence number (1) */
-	conversation_t	   *conversation;
-	mysql_conn_data_t  *conn_data;
-	guint		    len = 4 + tvb_get_letoh24(tvb, offset);
-
-	conversation = find_conversation_pinfo(pinfo, 0);
-	if (conversation) {
-		conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
-		if (conn_data && conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE &&
-			pinfo->num > conn_data->frame_start_compressed) {
-			/* Compressed packet header includes uncompressed packet length (3) */
-			len += 3;
-		}
-	}
-
+	guint len = 4 + tvb_get_letoh24(tvb, offset);
 	return len;
 }
 
@@ -4043,13 +4029,6 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		mysql_frame_data_p = wmem_new(wmem_file_scope(), struct mysql_frame_data);
 		mysql_frame_data_p->state = conn_data->state;
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_mysql, tvb_raw_offset(tvb), mysql_frame_data_p);
-	}
-
-	if ((conn_data->frame_start_compressed) && (pinfo->num > conn_data->frame_start_compressed)) {
-		if (conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE) {
-			mysql_dissect_compressed(tvb, offset, tree, pinfo, conn_data);
-			return tvb_reported_length(tvb);
-		}
 	}
 
 	ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, ENC_NA);
@@ -4110,15 +4089,15 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			offset = mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
 
-			// If both zlib and ZSTD flags are set then ZSTD is used.
-			if ((conn_data->srv_caps_ext & MYSQL_CAPS_ZS) && (conn_data->clnt_caps_ext & MYSQL_CAPS_ZS)) {
-				conn_data->frame_start_compressed = pinfo->num;
-				conn_data->compressed_state = MYSQL_COMPRESS_INIT;
-				conn_data->compressed_alg = MYSQL_COMPRESS_ALG_ZSTD;
-			} else if ((conn_data->srv_caps & MYSQL_CAPS_CP) && (conn_data->clnt_caps & MYSQL_CAPS_CP)) {
+			// If both zlib and ZSTD flags are set then zlib is used.
+			if ((conn_data->srv_caps & MYSQL_CAPS_CP) && (conn_data->clnt_caps & MYSQL_CAPS_CP)) {
 				conn_data->frame_start_compressed = pinfo->num;
 				conn_data->compressed_state = MYSQL_COMPRESS_INIT;
 				conn_data->compressed_alg = MYSQL_COMPRESS_ALG_ZLIB;
+			} else if ((conn_data->srv_caps_ext & MYSQL_CAPS_ZS) && (conn_data->clnt_caps_ext & MYSQL_CAPS_ZS)) {
+				conn_data->frame_start_compressed = pinfo->num;
+				conn_data->compressed_state = MYSQL_COMPRESS_INIT;
+				conn_data->compressed_alg = MYSQL_COMPRESS_ALG_ZSTD;
 			}
 		} else if ((mysql_frame_data_p->state == CLONE_ACTIVE) || (mysql_frame_data_p->state == CLONE_EXIT)) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Clone Request");
@@ -4150,12 +4129,171 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	return tvb_reported_length(tvb);
 }
 
+/* A helper function to reassemble MySQL decompressed PDUs on top of compressed
+ * packets. Decompressed PDUs may span multiple compressed packets:
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression_packet.html
+ * "The payload can be anything from a piece of a MySQL Packet to several MySQL
+ * Packets."
+ *
+ * Some of this error checking is likely unnecessary when dealing with PDUs
+ * that have been decompressed (would decompression really have succeeded),
+ * but this could be used later instead of tcp_dissect_pdus() for the
+ * uncompressed base case as well.
+ */
+static int
+dissect_mysql_decompressed_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	tvbuff_t *next_tvb;
+	volatile int offset = 0;
+	int offset_before;
+	unsigned int remaining, pdu_len;
+	while (tvb_reported_length_remaining(tvb, offset)) {
+		remaining = tvb_ensure_reported_length_remaining(tvb, offset);
+		if (remaining < 3) {
+			pinfo->desegment_len = 3 - remaining;
+			/* reassemble_streaming_data_and_call_subdissector()
+			 * expects the remaining bytes of the fixed header
+			 * instead of ONE_MORE_SEGMENT. */
+			return tvb_reported_length(tvb);
+		}
+
+		pdu_len = get_mysql_pdu_len(pinfo, tvb, offset, data);
+		if (pdu_len < MYSQL_HEADER_LENGTH) {
+			/* The length value overflowed when adding the
+			 * fixed portion. */
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		if (remaining < pdu_len && pinfo->can_desegment) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = pdu_len - remaining;
+			return tvb_reported_length(tvb);
+		}
+
+		next_tvb = tvb_new_subset_length(tvb, offset, pdu_len);
+		if (remaining < pdu_len && !pinfo->can_desegment) {
+			tvb_set_fragment(next_tvb);
+		}
+		TRY {
+		dissect_mysql_pdu(next_tvb, pinfo, tree, data);
+		}
+		CATCH_NONFATAL_ERRORS {
+			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+			/* We don't need to restore pinfo->current_proto,
+			 * because MySQL doesn't call anything else.
+			 */
+		}
+		ENDTRY;
+		offset_before = offset;
+		offset += pdu_len;
+		if (offset <= offset_before)
+			break;
+	}
+	return tvb_reported_length(tvb);
+}
+
+/*
+ * Decode a compressed packet
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression.html
+ */
+static int
+dissect_mysql_compressed_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	proto_tree *mysql_tree;
+	proto_item *ti;
+	tvbuff_t *next_tvb;
+
+	conversation_t *conversation;
+	mysql_conn_data_t *conn_data;
+	int offset = 0;
+	guint clen, ulen;
+
+	/* get conversation, create if necessary*/
+	conversation = find_or_create_conversation(pinfo);
+
+	/* get associated state information, create if necessary */
+	conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
+	if (!conn_data) {
+		conn_data = wmem_new0(wmem_file_scope(), mysql_conn_data_t);
+		conn_data->stmts = wmem_tree_new(wmem_file_scope());
+		conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+		conversation_add_proto_data(conversation, proto_mysql, conn_data);
+	}
+	if (!conn_data->reassembly_info) {
+		conn_data->reassembly_info = streaming_reassembly_info_new();
+	}
+
+	ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, 7, ENC_NA);
+	proto_item_append_text(ti, " - compressed packet header");
+	mysql_tree = proto_item_add_subtree(ti, ett_mysql);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MySQL");
+
+	clen = tvb_get_letoh24(tvb, offset);
+	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+	offset += 3;
+
+	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_number, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	ulen = tvb_get_letoh24(tvb, offset);
+	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length_uncompressed, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+	offset += 3;
+
+	if (ulen>0) {
+		switch (conn_data->compressed_alg) {
+#ifdef HAVE_ZSTD
+		case MYSQL_COMPRESS_ALG_ZSTD:
+			next_tvb = tvb_child_uncompress_zstd(tvb, tvb, offset, clen);
+			break;
+#endif
+		case MYSQL_COMPRESS_ALG_ZLIB:
+		default:
+			next_tvb = tvb_child_uncompress(tvb, tvb, offset, clen);
+			break;
+		}
+		if (next_tvb) {
+			add_new_data_source(pinfo, next_tvb, "compressed data");
+			reassemble_streaming_data_and_call_subdissector(next_tvb, pinfo, 0, ulen, mysql_tree, tree, mysql_reassembly_table, conn_data->reassembly_info, get_virtual_frame_num64(next_tvb, pinfo, 0), decompressed_handle, tree, data, "MySQL", &mysql_frag_items, hf_mysql_fragment_data);
+
+			offset += clen;
+		} else {
+			expert_add_info_format(pinfo, mysql_tree, &ei_mysql_compression, "Can't uncompress packet");
+		}
+	} else {
+		/* No compression was chosen. It's unlikely that there are
+		 * multiple PDUs, and extremely unlikely that they span
+		 * frame boundaries (otherwise compression would have been
+		 * used), but it doesn't hurt to do this.
+		 */
+		reassemble_streaming_data_and_call_subdissector(tvb, pinfo, offset, tvb_reported_length_remaining(tvb, offset), mysql_tree, tree, mysql_reassembly_table, conn_data->reassembly_info, get_virtual_frame_num64(tvb, pinfo, offset), decompressed_handle, tree, data, "MySQL", &mysql_frag_items, hf_mysql_fragment_data);
+		offset = tvb_reported_length(tvb);
+	}
+
+	return offset;
+}
+
+
 /* dissector entrypoint, handles TCP-desegmentation */
 static int
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
-			 get_mysql_pdu_len, dissect_mysql_pdu, data);
+	conversation_t *conversation;
+	mysql_conn_data_t *conn_data = NULL;
+
+	conversation = find_conversation_pinfo(pinfo, 0);
+	if (conversation) {
+		conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
+	}
+	if (conn_data && conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE && pinfo->num > conn_data->frame_start_compressed) {
+		tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment,
+				 MYSQL_HEADER_LENGTH + 3,
+				 get_mysql_compressed_pdu_len,
+				 dissect_mysql_compressed_pdu, data);
+	} else {
+		tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment,
+				 MYSQL_HEADER_LENGTH, get_mysql_pdu_len,
+				 dissect_mysql_pdu, data);
+	}
 
 	return tvb_reported_length(tvb);
 }
@@ -5430,6 +5568,60 @@ void proto_register_mysql(void)
 		{ "Row nr", "mariadb.bulk.row_nr",
 		FT_UINT32, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }},
+
+		{ &hf_mysql_fragments,
+		{ "Reassembled MySQL fragments", "mysql.fragments",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment,
+		{ "MySQL fragment", "mysql.fragment",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment_overlap,
+		{ "Fragment overlap", "mysql.fragment.overlap",
+		FT_BOOLEAN, 0, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment_overlap_conflicts,
+		{ "Conflicting data in fragment overlap", "mysql.fragment.overlap.conflicts",
+		FT_BOOLEAN, 0, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment_multiple_tails,
+		{ "Multiple tail fragments found", "mysql.fragment.multiple_tails",
+		FT_BOOLEAN, 0, NULL, 0x00,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment_too_long_fragment,
+		{ "Fragment too long", "mysql.fragment.too_long_fragment",
+		FT_BOOLEAN, 0, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment_error,
+		{ "Defragmentation error", "mysql.fragment.error",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fragment_count,
+		{ "Fragment count", "mysql.fragment.count",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_reassembled_in,
+		{ "Reassembled in", "mysql.reassembled.in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_reassembled_length,
+		{ "Reassembled length", "mysql.reassembled.length",
+		FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+
+		{ &hf_mysql_fragment_data,
+		{ "MySQL fragment data", "mysql.fragment.data",
+		FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
 	};
 
 	static gint *ett[]=
@@ -5455,7 +5647,9 @@ void proto_register_mysql(void)
 		&ett_mysql_field,
 		&ett_query_attributes,
 		&ett_binlog_event,
-		&ett_binlog_event_hb_v2
+		&ett_binlog_event_hb_v2,
+		&ett_mysql_fragment,
+		&ett_mysql_fragments,
 	};
 
 	static ei_register_info ei[] = {
@@ -5488,6 +5682,8 @@ void proto_register_mysql(void)
 					"Whether the MySQL dissector should display the SQL query string in the INFO column.",
 					&mysql_showquery);
 
+	reassembly_table_register(&mysql_reassembly_table,
+		&addresses_ports_reassembly_table_functions);
 	mysql_handle = register_dissector("mysql", dissect_mysql, proto_mysql);
 }
 
@@ -5495,6 +5691,7 @@ void proto_register_mysql(void)
 void proto_reg_handoff_mysql(void)
 {
 	tls_handle = find_dissector("tls");
+	decompressed_handle = create_dissector_handle(dissect_mysql_decompressed_pdus, proto_mysql);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 

@@ -22,6 +22,7 @@
 #include "rtp_player_dialog.h"
 #include "sequence_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
+#include "progress_frame.h"
 #include "main_application.h"
 #include <ui/qt/models/voip_calls_info_model.h>
 
@@ -138,6 +139,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
         ui->displayFilterCheckBox->setChecked(true);
     }
 
+    connect(ui->displayFilterCheckBox, &QCheckBox::toggled,
+            this, &VoipCallsDialog::displayFilterCheckBoxToggled);
     connect(this, SIGNAL(updateFilter(QString, bool)),
             &parent, SLOT(filterPackets(QString, bool)));
     connect(&parent, SIGNAL(displayFilterSuccess(bool)),
@@ -148,6 +151,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
             &parent, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
     connect(this, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
             &parent, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     updateWidgets();
 
@@ -322,7 +327,10 @@ void VoipCallsDialog::tapReset(void *tapinfo_ptr)
     VoipCallsDialog *voip_calls_dialog = static_cast<VoipCallsDialog *>(tapinfo->tap_data);
 
     // Create new callsinfos queue in tapinfo. Current callsinfos are
-    // in shown_callsinfos_.
+    // in shown_callsinfos_, so don't free the [shared] data stored in
+    // the queue, but do free the queue itself. (Do this before calling
+    // voip_calls_reset_all_taps(), as that frees the data in the queue.)
+    g_queue_free(voip_calls_dialog->tapinfo_.callsinfos);
     voip_calls_dialog->tapinfo_.callsinfos = g_queue_new();
     voip_calls_reset_all_taps(tapinfo);
 
@@ -750,7 +758,7 @@ void VoipCallsDialog::removeAllCalls()
     g_queue_clear(shown_callsinfos_);
 }
 
-void VoipCallsDialog::on_displayFilterCheckBox_toggled(bool checked)
+void VoipCallsDialog::displayFilterCheckBoxToggled(bool checked)
 {
     if (!cap_file_.isValid()) {
         return;

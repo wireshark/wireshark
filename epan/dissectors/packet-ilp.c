@@ -38,7 +38,7 @@ void proto_register_ilp(void);
 
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t lpp_handle;
-static dissector_handle_t ilp_handle;
+static dissector_handle_t ilp_tcp_handle;
 
 
 /* IANA Registered Ports
@@ -862,7 +862,8 @@ dissect_ilp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_ilp_IA5String_SIZE_1_1000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 1000, FALSE);
+                                          1, 1000, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -2739,7 +2740,8 @@ dissect_ilp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ilp_UTCTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                        NO_BOUND, NO_BOUND, FALSE);
+                                        NO_BOUND, NO_BOUND, FALSE,
+                                        NULL);
 
   return offset;
 }
@@ -4629,7 +4631,7 @@ guint32 IlpMessage;
                                  &IlpMessage);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
 
 
   return offset;
@@ -6617,7 +6619,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  ilp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  ilp_tcp_handle = register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));
@@ -6637,9 +6639,12 @@ void proto_register_ilp(void) {
 void
 proto_reg_handoff_ilp(void)
 {
-  dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
+  dissector_handle_t ilp_pdu_handle;
+
+  ilp_pdu_handle = create_dissector_handle(dissect_ILP_PDU_PDU, proto_ilp);
   rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
   lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);
 
-  dissector_add_uint_with_preference("tcp.port", ILP_TCP_PORT, ilp_handle);
+  dissector_add_string("media_type","application/oma-supl-ilp", ilp_pdu_handle);
+  dissector_add_uint_with_preference("tcp.port", ILP_TCP_PORT, ilp_tcp_handle);
 }

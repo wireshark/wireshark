@@ -527,7 +527,7 @@ ws_load_library(const gchar *library_name)
         return NULL;
 
     /* First try the program directory */
-    full_path = g_module_build_path(program_path, library_name);
+    full_path = g_strconcat(program_path, G_DIR_SEPARATOR_S, library_name, NULL);
     full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
 
     if (full_path && full_path_w) {
@@ -540,7 +540,7 @@ ws_load_library(const gchar *library_name)
     }
 
     /* Next try the system directory */
-    full_path = g_module_build_path(system_path, library_name);
+    full_path = g_strconcat(system_path, G_DIR_SEPARATOR_S, library_name, NULL);
     full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
 
     if (full_path && full_path_w) {
@@ -580,16 +580,18 @@ load_npcap_module(const gchar *full_path, GModuleFlags flags)
 }
 
 GModule *
-ws_module_open(gchar *module_name, GModuleFlags flags)
+load_wpcap_module(void)
 {
+    gchar   *module_name = "wpcap.dll";
     gchar   *full_path;
     GModule *mod;
+    GModuleFlags flags = 0;
 
-    if (!init_dll_load_paths() || !module_name)
+    if (!init_dll_load_paths())
         return NULL;
 
     /* First try the program directory */
-    full_path = g_module_build_path(program_path, module_name);
+    full_path = g_strconcat(program_path, G_DIR_SEPARATOR_S, module_name, NULL);
 
     if (full_path) {
         mod = g_module_open(full_path, flags);
@@ -600,7 +602,7 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
     }
 
     /* Next try the Npcap directory */
-    full_path = g_module_build_path(npcap_path, module_name);
+    full_path = g_strconcat(npcap_path, G_DIR_SEPARATOR_S, module_name, NULL);
 
     if (full_path) {
         mod = load_npcap_module(full_path, flags);
@@ -611,7 +613,7 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
     }
 
     /* At last try the system directory */
-    full_path = g_module_build_path(system_path, module_name);
+    full_path = g_strconcat(system_path, G_DIR_SEPARATOR_S, module_name, NULL);
 
     if (full_path) {
         mod = g_module_open(full_path, flags);

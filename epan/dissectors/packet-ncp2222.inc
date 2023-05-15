@@ -7093,7 +7093,7 @@ ncp2222_compile_dfilters(void)
                              &req_conds[i].dfilter, &df_err)) {
             g_error("NCP dissector failed to compile dfilter \"%s\": %s\n",
                       req_conds[i].dfilter_text, df_err->msg);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             ws_assert_not_reached();
         }
     }

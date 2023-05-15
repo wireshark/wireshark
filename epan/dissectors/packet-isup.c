@@ -52,7 +52,7 @@
 #include "packet-e164.h"
 #include "packet-charging_ase.h"
 #include "packet-mtp3.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 void proto_register_isup(void);
 void proto_reg_handoff_isup(void);
@@ -8063,11 +8063,11 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                                      "%u (%s)",
                                      parameter_type,
                                      val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "unknown"));
-          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext(parameter_type, &japan_isup_parameter_type_value_ext, "Unknown"));
+          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "Unknown"));
           break;
         default:
           proto_tree_add_uint(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH, parameter_type);
-          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
+          proto_item_append_text(parameter_tree, ": %s", val_to_str_ext_const(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
           break;
 
       }
@@ -8425,7 +8425,8 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
 
       parameter_tree = proto_tree_add_subtree_format(isup_tree, optional_parameters_tvb,
                                            offset, parameter_length  + PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_IND_LENGTH,
-                                           ett_isup_parameter, &parameter_item, "Parameter: (t=%u, l=%u): %s", parameter_type, parameter_length, val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
+                                           ett_isup_parameter, &parameter_item, "Parameter: (t=%u, l=%u): %s",
+                                           parameter_type, parameter_length, val_to_str_ext_const(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
       proto_tree_add_uint(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset,
                                  PARAMETER_TYPE_LENGTH, parameter_type);
       offset += PARAMETER_TYPE_LENGTH;
@@ -10550,10 +10551,10 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   guint8      itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
   if (data) {
-    http_message_info_t *message_info = (http_message_info_t *)data;
-    if (message_info->media_str) {
-      version = ws_find_media_type_parameter(pinfo->pool, message_info->media_str, "version");
-      base = ws_find_media_type_parameter(pinfo->pool, message_info->media_str, "base");
+    media_content_info_t *content_info = (media_content_info_t *)data;
+    if (content_info->media_str) {
+      version = ws_find_media_type_parameter(pinfo->pool, content_info->media_str, "version");
+      base = ws_find_media_type_parameter(pinfo->pool, content_info->media_str, "base");
       if ((version && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
           (base && g_ascii_strncasecmp(base, "ansi", 4) == 0) ||
           (version && g_ascii_strncasecmp(version, "gr", 2) == 0) ||

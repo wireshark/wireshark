@@ -628,6 +628,8 @@ int main(int argc, char *qt_argv[])
     ws_init_version_info("Wireshark", gather_wireshark_qt_compiled_info,
                          gather_wireshark_runtime_info);
 
+    init_report_message("Wireshark", &wireshark_report_routines);
+
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -746,8 +748,6 @@ int main(int argc, char *qt_argv[])
        by preference settings and then again by the command line parameters. */
     capture_opts_init(&global_capture_opts);
 #endif
-
-    init_report_message("Wireshark", &wireshark_report_routines);
 
     /*
      * Libwiretap must be initialized before libwireshark is, so that
@@ -949,7 +949,7 @@ int main(int argc, char *qt_argv[])
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
     wsApp->emitAppSignal(WiresharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
-    wsApp->setMonospaceFont(prefs.gui_qt_font_name);
+    wsApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
@@ -991,7 +991,7 @@ int main(int argc, char *qt_argv[])
                                          QObject::tr("The filter expression %1 isn't a valid display filter. (%2).")
                                                  .arg(global_commandline_info.jfilter, df_err->msg),
                                          QMessageBox::Ok);
-                    dfilter_error_free(df_err);
+                    df_error_free(&df_err);
                 } else {
                     /* Filter ok, jump to the first packet matching the filter
                        conditions. Default search direction is forward, but if

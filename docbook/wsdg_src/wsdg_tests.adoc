@@ -30,13 +30,10 @@ tests require a Loopback interface and capture privileges. To avoid
 capture tests, pass the `--disable-capture` option.
 
 List available tests with `pytest --collectonly`. Enable verbose output
-with `pytest --verbose`. For more details, see <<ChTestsRunPytest>>.
+with `pytest --verbose`. For more details, see <<ChTestsRun>>.
 
-If for whatever reason `pytest` is too old or unavailable, you could use
-a more limited test runner, `test/test.py`. Use `test/test.py --help` to
-see all options. For more details, see <<ChTestsRun>>.
-
-CMake currently runs `test/test.py` when the “test” target is built.
+CMake runs pytest when the “test” target is built but the user experience
+is poor. It is strongly recommended to invoke pytest directly instead.
 
 [#ChTestsStructure]
 === Test suite structure
@@ -66,7 +63,7 @@ be skipped while other tests can still run to completion.
 [#TestsLayout]
 ==== Suites, Cases, and Tests
 
-The `test/test.py` script uses Python's “unittest” module. Our tests are
+The test suite uses Python's “unittest” module. Our tests are
 patterned after it, and individual tests are organized according to
 suites, cases, and individual tests. Suites correspond to Python modules
 that match the pattern “suite_*.py”. Cases correspond to one or more
@@ -108,58 +105,6 @@ actually request fixture dependencies.
 [#ChTestsRun]
 === Listing And Running Tests
 
-Tests can be run via the `test/test.py` Python script. To run all tests,
-either run `test/test.py` in the directory that contains the Wireshark
-executables (`wireshark`, `tshark`, etc.), or pass the executable
-path via the `-p` flag:
-
-[source,sh]
-----
-$ python3 test/test.py -p /path/to/wireshark-build/run
-----
-
-You can list tests by passing one or more complete or partial names to
-`test/test.py`. The `-l` flag lists tests. By default all tests are shown.
-
-[source,sh]
-----
-# List all tests
-$ python3 test/test.py -l
-$ python3 test/test.py -l all
-$ python3 test/test.py --list
-$ python3 test/test.py --list all
-
-# List only tests containing "dumpcap"
-$ python3 test/test.py -l dumpcap
-
-# List all suites
-$ python3 test/test.py --list-suites
-
-# List all suites and cases
-$ python3 test/test.py --list-cases
-----
-
-If one of the listing flags is not present, tests are run. If no names or `all` is supplied,
-all tests are run. Otherwise tests that match are run.
-
-[source,sh]
-----
-# Run all tests
-$ python3 test/test.py
-$ python3 test/test.py all
-
-# Only run tests containing "dumpcap"
-$ python3 test/test.py dumpcap
-
-# Run the "clopts" suite
-$ python3 test/test.py suite_clopts
-----
-
-Run `python3 test/test.py --help` for all available options.
-
-[#ChTestsRunPytest]
-=== Listing And Running Tests (pytest)
-
 Tests can also be run with https://pytest.org/[pytest]. Advantages include finer
 test selection, full parallelism, nicer test execution summaries, better output
 in case of failures (containing the contents of variables) and the ability to
@@ -195,6 +140,9 @@ $ pytest -k decryption
 # Run all tests with an explicit path to the Wireshark executables
 $ pytest --program-path /path/to/wireshark/build/run
 ----
+
+TIP: Build the "test-capture" target on Linux (using sudo) to set dumpcap
+permissions and enable capture tests.
 
 To list tests without actually executing them, use the `--collect-only` option:
 

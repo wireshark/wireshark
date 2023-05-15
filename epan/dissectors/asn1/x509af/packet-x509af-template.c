@@ -34,6 +34,8 @@
 void proto_register_x509af(void);
 void proto_reg_handoff_x509af(void);
 
+static dissector_handle_t pkix_crl_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_x509af = -1;
 static int hf_x509af_algorithm_id = -1;
@@ -123,6 +125,8 @@ void proto_register_x509af(void) {
 
   register_cleanup_routine(&x509af_cleanup_protocol);
 
+  pkix_crl_handle = register_dissector(PFNAME, dissect_pkix_crl, proto_x509af);
+
   register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU);
   register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU);
   register_ber_syntax_dissector("CrossCertificatePair", proto_x509af, dissect_CertificatePair_PDU);
@@ -135,9 +139,7 @@ void proto_register_x509af(void) {
 
 /*--- proto_reg_handoff_x509af -------------------------------------------*/
 void proto_reg_handoff_x509af(void) {
-	dissector_handle_t pkix_crl_handle;
 
-	pkix_crl_handle = create_dissector_handle(dissect_pkix_crl, proto_x509af);
 	dissector_add_string("media_type", "application/pkix-crl", pkix_crl_handle);
 
 #include "packet-x509af-dis-tab.c"

@@ -182,7 +182,6 @@ columns_set_vlan(column_info *cinfo, guint16 tci)
                  "PRI: %d  DEI: %d  ID: %s",
                  (tci >> 13), ((tci >> 12) & 1), id_str);
   }
-  col_add_str(cinfo, COL_8021Q_VLAN_ID, id_str);
 }
 
 static int

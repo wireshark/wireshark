@@ -835,17 +835,17 @@ static const value_string service_type_vals[] = {
 /*
  * Service flags.
  */
-#define WCCP2_SI_SRC_IP_HASH                    0x0001
-#define WCCP2_SI_DST_IP_HASH                    0x0002
-#define WCCP2_SI_SRC_PORT_HASH                  0x0004
-#define WCCP2_SI_DST_PORT_HASH                  0x0008
-#define WCCP2_SI_PORTS_DEFINED                  0x0010
-#define WCCP2_SI_PORTS_SOURCE                   0x0020
-#define WCCP2r1_SI_REDIRECT_ONLY_PROTOCOL_0     0x0040
-#define WCCP2_SI_SRC_IP_ALT_HASH                0x0100
-#define WCCP2_SI_DST_IP_ALT_HASH                0x0200
-#define WCCP2_SI_SRC_PORT_ALT_HASH              0x0400
-#define WCCP2_SI_DST_PORT_ALT_HASH              0x0800
+#define WCCP2_SI_SRC_IP_HASH                    0x00000001
+#define WCCP2_SI_DST_IP_HASH                    0x00000002
+#define WCCP2_SI_SRC_PORT_HASH                  0x00000004
+#define WCCP2_SI_DST_PORT_HASH                  0x00000008
+#define WCCP2_SI_PORTS_DEFINED                  0x00000010
+#define WCCP2_SI_PORTS_SOURCE                   0x00000020
+#define WCCP2r1_SI_REDIRECT_ONLY_PROTOCOL_0     0x00000040
+#define WCCP2_SI_SRC_IP_ALT_HASH                0x00000100
+#define WCCP2_SI_DST_IP_ALT_HASH                0x00000200
+#define WCCP2_SI_SRC_PORT_ALT_HASH              0x00000400
+#define WCCP2_SI_DST_PORT_ALT_HASH              0x00000800
 
 
 static gint
@@ -1514,7 +1514,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       if ((wccp_wccp_address_table->in_use == FALSE) &&
           (wccp_wccp_address_table->table_ipv4 != NULL) &&
           (i < wccp_wccp_address_table->table_length))
-        wccp_wccp_address_table->table_ipv4[i] = tvb_get_ntohl(tvb, offset);
+        wccp_wccp_address_table->table_ipv4[i] = tvb_get_ipv4(tvb, offset);
       break;
     case 2:
       /* IPv6 */

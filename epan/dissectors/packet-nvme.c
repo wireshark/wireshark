@@ -4119,7 +4119,7 @@ dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,
 
 const gchar *get_nvmeof_cmd_string(guint8 fctype)
 {
-    return val_to_str(fctype, fctype_tbl, "Unknown Fabric Command");
+    return val_to_str_const(fctype, fctype_tbl, "Unknown Fabric Command");
 }
 
 static void dissect_nvme_cqe_common(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint off, gboolean nvmeof);
@@ -4143,7 +4143,7 @@ dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo,
                             (fctype == NVME_FCTYPE_PROP_GET) ? "Get" : "Set",
                             val_to_str_const(cmd->cmd_ctx.fabric_cmd.prop_get.offset, prop_offset_tbl, "Unknown Property"));
 
-    proto_item_append_text(ti, " (For Cmd: %s)", val_to_str(fctype, fctype_tbl, "Unknown Cmd"));
+    proto_item_append_text(ti, " (For Cmd: %s)", val_to_str_const(fctype, fctype_tbl, "Unknown Cmd"));
 
     cqe_tree = proto_item_add_subtree(ti, ett_data);
 

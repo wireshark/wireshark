@@ -18,10 +18,10 @@ Var hCtl_AdditionalTasksPage_Font1
 
 ; dialog create function
 Function fnc_AdditionalTasksPage_Create
-  
+
   ; custom font definitions
   CreateFont $hCtl_AdditionalTasksPage_Font1 "Microsoft Sans Serif" "8.25" "700"
-  
+
   ; === AdditionalTasksPage (type: Dialog) ===
   nsDialogs::Create 1018
   Pop $hCtl_AdditionalTasksPage
@@ -29,38 +29,38 @@ Function fnc_AdditionalTasksPage_Create
     Abort
   ${EndIf}
   !insertmacro MUI_HEADER_TEXT "Additional Tasks" "Create shortcuts and associate file extensions."
-  
+
   ; === ExtensionsLabel (type: Label) ===
-  ${NSD_CreateLabel} 14u 93u 245u 32u "Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, ipfix, lcap, mplog, ntar, out, pcap, pcapng, pklg, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz."
+  ${NSD_CreateLabel} 14u 93u 245u 32u "Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, ipfix, lcap, mplog, ntar, out, pcap, pcapng, pklg, pkt, rf5, rtp, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz."
   Pop $hCtl_AdditionalTasksPage_ExtensionsLabel
-  
+
   ; === AssociateExtensionsCheckBox (type: Checkbox) ===
   ${NSD_CreateCheckbox} 14u 78u 267u 9u "Associate trace file extensions with Wireshark"
   Pop $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox
-  
+
   ; === DesktopIconCheckBox (type: Checkbox) ===
   ${NSD_CreateCheckbox} 14u 33u 267u 9u "Wireshark Desktop Icon"
   Pop $hCtl_AdditionalTasksPage_DesktopIconCheckBox
-  
+
   ; === StartMenuCheckBox (type: Checkbox) ===
   ${NSD_CreateCheckbox} 14u 21u 267u 9u "Wireshark Start Menu Item"
   Pop $hCtl_AdditionalTasksPage_StartMenuCheckBox
-  
+
   ; === FileExtensionsLabel (type: Label) ===
   ${NSD_CreateLabel} 8u 62u 280u 9u "Associate File Extensions"
   Pop $hCtl_AdditionalTasksPage_FileExtensionsLabel
   SendMessage $hCtl_AdditionalTasksPage_FileExtensionsLabel ${WM_SETFONT} $hCtl_AdditionalTasksPage_Font1 0
-  
+
   ; === CreateShortcutsLabel (type: Label) ===
   ${NSD_CreateLabel} 8u 6u 280u 9u "Create Shortcuts"
   Pop $hCtl_AdditionalTasksPage_CreateShortcutsLabel
   SendMessage $hCtl_AdditionalTasksPage_CreateShortcutsLabel ${WM_SETFONT} $hCtl_AdditionalTasksPage_Font1 0
-  
+
   ; CreateFunctionCustomScript
   ; Defined in wireshark.nsi
   Call InitAdditionalTasksPage
-  
-  
+
+
 FunctionEnd
 
 ; dialog show function

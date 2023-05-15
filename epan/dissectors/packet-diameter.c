@@ -2294,7 +2294,7 @@ dictionary_load(void)
 	g_hash_table_destroy(build_dict.avps);
 	g_hash_table_destroy(vendors);
 
-	cmd_vs = (const value_string *)(void *)all_cmds->data;
+	cmd_vs = (const value_string *)g_array_free(all_cmds, FALSE);
 
 	return 1;
 }

@@ -10,6 +10,7 @@
 #include "rtp_audio_routing_filter.h"
 
 AudioRoutingFilter::AudioRoutingFilter(QIODevice *input, bool stereo_required, AudioRouting audio_routing) :
+    QIODevice(input),
     input_(input),
     stereo_required_(stereo_required),
     audio_routing_(audio_routing)

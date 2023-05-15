@@ -16,7 +16,7 @@ ENDIF (MAXMINDDB_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("libmaxminddb-.*" "MAXMINDDB_HINTS")
 
-IF (NOT WIN32)
+IF (NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_check_modules(PC_LIBMAXMINDDB QUIET libmaxminddb)
   set(MAXMINDDB_DEFINITIONS ${PC_LIBMAXMINDDB_CFLAGS_OTHER})

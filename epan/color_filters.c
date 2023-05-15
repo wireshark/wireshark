@@ -175,14 +175,14 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
         /* Only change the filter rule if this is the rule to change or if
          * a matching filter string has been found
          */
-        if(colorf && ( (i==filt_nr) || (!strcmp(filter, colorf->filter_text)) ) ) {
+        if(colorf && ( i == filt_nr || filter == NULL || !strcmp(filter, colorf->filter_text) ) ) {
             /* set filter string to "frame" if we are resetting the rules
              * or if we found a matching filter string which need to be cleared
              */
             tmpfilter = ( (filter==NULL) || (i!=filt_nr) ) ? "frame" : filter;
             if (!dfilter_compile(tmpfilter, &compiled_filter, &df_err)) {
                 *err_msg = ws_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, df_err->msg);
-                dfilter_error_free(df_err);
+                df_error_free(&df_err);
                 g_free(name);
                 return FALSE;
             } else {
@@ -416,7 +416,7 @@ color_filter_compile_cb(gpointer filter_arg, gpointer err)
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, df_err->msg);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
         /* this filter was compilable before, so this should never happen */
         /* except if the OK button of the parent window has been clicked */
         /* so don't use ws_assert_not_reached() but check the filters again */
@@ -438,7 +438,7 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Disabling color filter name: \"%s\" filter: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, df_err->msg);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
 
         /* Disable the color filter in the list of color filters. */
         colorf->disabled = TRUE;
@@ -704,7 +704,7 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
 
             if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
                 report_warning("Disabling color filter: Could not compile \"%s\" in colorfilters file \"%s\".\n%s", name, path, df_err->msg);
-                dfilter_error_free(df_err);
+                df_error_free(&df_err);
 
                 /* skip_end_of_line = TRUE; */
                 disabled = TRUE;

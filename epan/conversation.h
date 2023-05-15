@@ -154,6 +154,7 @@ typedef enum {
     CE_STRING,			/* string */
     CE_UINT,			/* unsigned integer not representing a port */
     CE_UINT64,			/* 64-bit unsigned integer */
+    CE_INT,             /* signed integer */
 } conversation_element_type;
 
 /**
@@ -186,6 +187,7 @@ typedef struct conversation_element {
         const char *str_val;
         unsigned int uint_val;
         uint64_t uint64_val;
+        int int_val;
     };
 } conversation_element_t;
 

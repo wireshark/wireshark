@@ -122,6 +122,13 @@ pass_plugin_version_compatibility(GModule *handle, const char *name)
     return TRUE;
 }
 
+// GLib and Qt allow ".dylib" and ".so" on macOS. Should we do the same?
+#ifdef _WIN32
+#define MODULE_SUFFIX ".dll"
+#else
+#define MODULE_SUFFIX ".so"
+#endif
+
 static void
 scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, gboolean append_type)
 {
@@ -146,8 +153,8 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     }
 
     while ((name = g_dir_read_name(dir)) != NULL) {
-        /* Skip anything but files with G_MODULE_SUFFIX. */
-        if (!g_str_has_suffix(name, "." G_MODULE_SUFFIX))
+        /* Skip anything but files with .dll or .so. */
+        if (!g_str_has_suffix(name, MODULE_SUFFIX))
             continue;
 
         /*

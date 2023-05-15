@@ -268,14 +268,6 @@ static const value_string ft_vals[] = {
   { 0, NULL }
 };
 
-/* Repeat on error?
-*/
-static const value_string rep_vals[] = {
-  { 0, "Yes" },
-  { 1, "No" },
-  { 0, NULL }
-};
-
 /* Broadcast Type
 */
 static const value_string bt_vals[] = {
@@ -291,22 +283,6 @@ static const value_string prio_vals[] = {
   { 2, "Urgent" },
   { 1, "Normal" },
   { 3, "Low" },
-  { 0, NULL }
-};
-
-/* Ack requested?
-*/
-static const value_string ack_vals[] = {
-  { 0, "No" },
-  { 1, "Yes" },
-  { 0, NULL }
-};
-
-/* Confirmation Error?
-*/
-static const value_string ce_vals[] = {
-  { 0, "No" },
-  { 1, "Yes" },
   { 0, NULL }
 };
 
@@ -3417,11 +3393,11 @@ void proto_register_cemi( void )
     { &hf_cemi_ne, { "Count", "cemi.n", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL } },
     { &hf_cemi_sx, { "Index", "cemi.x", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL } },
     { &hf_cemi_ft, { "Frame Type", "cemi.ft", FT_UINT8, BASE_DEC, VALS( ft_vals ), 0x80, NULL, HFILL } },
-    { &hf_cemi_rep, { "Repeat On Error", "cemi.rep", FT_UINT8, BASE_DEC, VALS( rep_vals ), 0x20, NULL, HFILL } },
+    { &hf_cemi_rep, { "Repeat On Error", "cemi.rep", FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x20, NULL, HFILL } },
     { &hf_cemi_bt, { "Broadcast Type", "cemi.bt", FT_UINT8, BASE_DEC, VALS( bt_vals ), 0x10, NULL, HFILL } },
     { &hf_cemi_prio, { "Priority", "cemi.prio", FT_UINT8, BASE_DEC, VALS( prio_vals ), 0x0C, NULL, HFILL } },
-    { &hf_cemi_ack, { "Ack Wanted", "cemi.ack", FT_UINT8, BASE_DEC, VALS( ack_vals ), 0x02, NULL, HFILL } },
-    { &hf_cemi_ce, { "Confirmation Error", "cemi.ce", FT_UINT8, BASE_DEC, VALS( ce_vals ), 0x01, NULL, HFILL } },
+    { &hf_cemi_ack, { "Ack Wanted", "cemi.ack", FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x02, NULL, HFILL } },
+    { &hf_cemi_ce, { "Confirmation Error", "cemi.ce", FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x01, NULL, HFILL } },
     { &hf_cemi_at, { "Address Type", "cemi.at", FT_UINT8, BASE_DEC, VALS( at_vals ), 0x80, NULL, HFILL } },
     { &hf_cemi_hc, { "Hop Count", "cemi.hc", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
     { &hf_cemi_eff, { "Extended Frame Format", "cemi.eff", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL } },

@@ -10306,12 +10306,12 @@ static gboolean find_data_dissector(tvbuff_t *msg_tvb, packet_info *pinfo, proto
     }
 
     field_info *fi = (field_info*)array->pdata[0];
-    if (fi == NULL || !IS_FT_STRING(fvalue_type_ftenum(&fi->value))) {
+    if (fi == NULL || !IS_FT_STRING(fvalue_type_ftenum(fi->value))) {
         g_ptr_array_free(array, TRUE);
         return FALSE;
     }
 
-    const char* msg_to = fvalue_get_string(&fi->value);
+    const char* msg_to = fvalue_get_string(fi->value);
 
     amqp_message_decode_t *message_decode_entry = NULL;
     size_t topic_str_len;

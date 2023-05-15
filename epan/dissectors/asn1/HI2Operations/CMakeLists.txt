@@ -10,12 +10,10 @@
 set( PROTOCOL_NAME HI2Operations )
 
 set( ASN_FILE_LIST
-	HI2Operations_ver11.asn
+	HI2Operations_ver18.asn
 	HI3CCLinkData.asn
+	EpsHI2Operations.asn
 	UmtsHI2Operations.asn
-	TS101909201.asn
-	PCESP.asn
-	EN301040.asn
 )
 
 set( EXTRA_DIST

@@ -2043,7 +2043,7 @@ proto_item * dissect_usb_descriptor_header(proto_tree *tree,
 
     proto_tree_add_uint_format_value(tree, hf_usb_bDescriptorType,
         tvb, offset, 1, desc_type, "0x%02x (%s)", desc_type,
-        val_to_str_ext(desc_type, type_val_str, "unknown"));
+        val_to_str_ext_const(desc_type, type_val_str, "unknown"));
 
     return length_item;
 }
@@ -5275,7 +5275,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     case USB_HEADER_USBIP:
         iso_numdesc = tvb_get_ntohl(tvb, 0x20);
-        usb_conv_info->transfer_type = endpoint == 0 ? URB_CONTROL : (iso_numdesc > 0 ? URB_ISOCHRONOUS : URB_UNKNOWN);
+        usb_conv_info->transfer_type = endpoint == 0 ? URB_CONTROL : (iso_numdesc != 0xffffffff ? URB_ISOCHRONOUS : URB_UNKNOWN);
         usb_conv_info->direction = ip_header->dir == USBIP_DIR_OUT ? P2P_DIR_SENT : P2P_DIR_RECV;
         usb_conv_info->is_setup = endpoint == 0 ? (tvb_get_ntoh64(tvb, 0x28) != G_GUINT64_CONSTANT(0)) : FALSE;
         usb_conv_info->is_request = (urb_type==URB_SUBMIT);

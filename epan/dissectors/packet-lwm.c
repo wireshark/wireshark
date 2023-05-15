@@ -461,7 +461,13 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 for (i = 0; i < block; i++)
                 {
                     text_dec[i] ^= vector[i];
+                    /*
+                     * GCC 12.2.0 gives a false positive Wstringop-overflow warning.
+                     * https://gitlab.com/wireshark/wireshark/-/issues/18383
+                     */
+                    DIAG_OFF_STRINGOP_OVERFLOW()
                     vector[i] ^= text_dec[i];
+                    DIAG_ON_STRINGOP_OVERFLOW()
                 }
 
                 payload_offset += block;

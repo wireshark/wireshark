@@ -151,9 +151,8 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 /* Don't set the error message if it's already set. */
 #define SET_ERROR(dfw, str) \
 	do {						\
-		if ((str) != NULL && (dfw)->error.msg == NULL) { \
-			(dfw)->error.msg = str;		\
-			(dfw)->error.code = DF_ERROR_GENERIC;	\
+		if ((str) != NULL && (dfw)->error == NULL) {	\
+			(dfw)->error = df_error_new(DF_ERROR_GENERIC, str, NULL); \
 		}					\
 		else {					\
 			g_free(str);			\
@@ -181,7 +180,7 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		 * to an item from value_string.
 		 */
 		if (fv) {
-			dfw_error_clear(&dfw->error);
+			df_error_free(&dfw->error);
 		}
 	}
 	if (fv == NULL) {
@@ -212,7 +211,7 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		 * to an item from value_string.
 		 */
 		if (fv) {
-			dfw_error_clear(&dfw->error);
+			df_error_free(&dfw->error);
 		}
 	}
 	if (fv == NULL) {
@@ -330,7 +329,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			 * Prefer this error message to whatever error message
 			 * has already been set.
 			 */
-			dfw_error_clear(&dfw->error);
+			df_error_free(&dfw->error);
 			dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 			return NULL;
@@ -347,7 +346,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	/* Reset the error message, since *something* interesting will happen,
 	 * and the error message will be more interesting than any error message
 	 * I happen to have now. */
-	dfw_error_clear(&dfw->error);
+	df_error_free(&dfw->error);
 
 	if (hfinfo->display & BASE_RANGE_STRING) {
 		dfilter_fail(dfw, DF_ERROR_GENERIC, loc, "\"%s\" cannot accept [range] strings as values.",

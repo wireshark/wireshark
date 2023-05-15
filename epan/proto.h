@@ -426,6 +426,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_APN_STR                       0x00000054 /* The encoding the APN/DNN field follows 3GPP TS 23.003 [2] clause 9.1.*/
 #define ENC_DECT_STANDARD_8BITS           0x00000056 /* DECT standard character set as defined in ETSI EN 300 175-5 Annex D */
 #define ENC_DECT_STANDARD_4BITS_TBCD      0x00000058 /* DECT standard 4bits character set as defined in ETSI EN 300 175-5 Annex D (BCD with 0xb = SPACE)*/
+#define ENC_EBCDIC_CP500                  0x00000060
 /*
  * TODO:
  *
@@ -794,7 +795,7 @@ typedef struct field_info {
     guint32              flags;           /**< bitfield like FI_GENERATED, ... */
     item_label_t        *rep;             /**< string for GUI tree */
     tvbuff_t            *ds_tvb;          /**< data source tvbuff */
-    fvalue_t             value;
+    fvalue_t            *value;
     int                 total_layer_num;        /**< Hierarchical layer number, for all protocols in the tree. */
     int                 proto_layer_num;        /**< Protocol layer number, so 1st, 2nd, 3rd, ... for protocol X. */
 } field_info;

@@ -79,6 +79,17 @@ Wireshark 4.1.0 Release Notes
        (UCI) protocol. Recognizes PCAP traces with the link type
        LINKTYPE_FIRA_UCI=299.
 
+     • The reassemble_streaming_data_and_call_subdissector() API has
+       been added to provide a simpler way to reassemble the streaming
+       data of a high level protocol that is not on top of TCP.
+
+     • The display filter drop-down list is now sorted by "most recently
+       used" instead of "most recently created".
+
+     • Running the test suite requires the pytest[3] Python module. The
+       emulation layer that allowed running tests without pytest
+       installed has been removed.
+
   New Protocol Support
 
    DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer
@@ -86,15 +97,16 @@ Wireshark 4.1.0 Release Notes
    AaMiDe), FiRa UWB Controller Interface (UCI), Low Level Signalling
    (ATSC3 LLS), Management Component Transport Protocol (MCTP),
    Management Component Transport Protocol - Control Protocol (MCTP CP),
-   Non-volatile Memory Express - Management Interface (NVMe-MI) over
-   MCTP, SAP Enqueue Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA
-   SQL Command Network Protocol (SAPHDB), SAP Internet Graphic Server
-   (SAP IGS), SAP Message Server (SAPMS), SAP Network Interface (SAPNI),
-   SAP Router (SAPROUTER), SAP Secure Network Connection (SNC), Support
-   for almost all WoW 1.12 messages has been added., Train Real-Time
-   Data Protocol (TRDP), Windows Delivery Optimization (MS-DO), and
-   World of Warcraft World (WOWW) display filters have been changed to
-   be more internally consistent.
+   Matter home automation protocol, Non-volatile Memory Express -
+   Management Interface (NVMe-MI) over MCTP, SAP Enqueue Server
+   (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command Network
+   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
+   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
+   (SAPROUTER), SAP Secure Network Connection (SNC), Support for almost
+   all WoW 1.12 messages has been added., Train Real-Time Data Protocol
+   (TRDP), UBX protocol of u-blox GNSS receivers (UBX), Windows Delivery
+   Optimization (MS-DO), and World of Warcraft World (WOWW) display
+   filters have been changed to be more internally consistent.
 
   Updated Protocol Support
 
@@ -112,6 +124,22 @@ Wireshark 4.1.0 Release Notes
        preference to set default character encoding for some XML
        document without "encoding" attribute.
 
+     • The SIP dissector now has a new preference to set default charset
+       for displaying the body of SIP messages in raw text view.
+
+     • The HTTP dissector now supports dissecting chunked data in
+       streaming reassembly mode. Subdissectors of HTTP can register
+       itself in "streaming_content_type" subdissector table for
+       enabling streaming reassembly mode while transferring in chunked
+       encoding. This feature ensures the server stream messages of
+       GRPC-Web over HTTP/1.1 can be dissected even if the last chunk is
+       absent.
+
+     • The media type dissector table now properly treats media types
+       and subtypes as case-insensitive automatically, per RFC 6838.
+       Media types no longer need to be lower cased before registering
+       or looking up in the table.
+
    Too many other protocols have been updated to list them all here.
 
   New and Updated Capture File Support
@@ -126,7 +154,7 @@ Wireshark 4.1.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[4] on the Wireshark web site.
 
  File Locations
 
@@ -141,33 +169,34 @@ Wireshark 4.1.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[7].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[7].
+  SharkFest[8].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[8].
+  at wiresharkfoundation.org[9].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[9].
+  A complete FAQ is available on the Wireshark web site[10].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/18413
    2. https://gitlab.com/wireshark/wireshark/-/issues/18510
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://sharkfest.wireshark.org
-   8. https://wiresharkfoundation.org
-   9. https://www.wireshark.org/faq.html
+   3. https://pypi.org/project/pytest/
+   4. https://www.wireshark.org/download.html
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://gitlab.com/wireshark/wireshark/-/issues
+   8. https://sharkfest.wireshark.org
+   9. https://wiresharkfoundation.org
+  10. https://www.wireshark.org/faq.html

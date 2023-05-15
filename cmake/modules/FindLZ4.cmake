@@ -11,7 +11,7 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "lz4-.*" "LZ4_HINTS" )
 
-if( NOT WIN32)
+if( NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(LZ4 lz4 liblz4)
 endif()

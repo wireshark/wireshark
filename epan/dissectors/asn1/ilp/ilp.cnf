@@ -57,7 +57,7 @@ guint32 IlpMessage;
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str_const(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
 
 #.END
 

@@ -554,19 +554,19 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tl->needs_redraw=TRUE;
 	tl->failed=FALSE;
 	tl->flags=flags;
-	if(fstring){
+	if(fstring && *fstring){
 		if(!dfilter_compile(fstring, &code, &df_err)){
 			error_string = g_string_new("");
 			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
 			    fstring, df_err->msg);
-			dfilter_error_free(df_err);
+			df_error_free(&df_err);
 			free_tap_listener(tl);
 			return error_string;
 		}
+		tl->fstring=g_strdup(fstring);
+		tl->code=code;
 	}
-	tl->fstring=g_strdup(fstring);
-	tl->code=code;
 
 	tl->tap_id=tap_id;
 	tl->tapdata=tapdata;
@@ -621,7 +621,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
 						 fstring, df_err->msg);
-				dfilter_error_free(df_err);
+				df_error_free(&df_err);
 				return error_string;
 			}
 		}
@@ -737,6 +737,17 @@ have_filtering_tap_listeners(void)
 			return TRUE;
 	}
 	return FALSE;
+}
+
+void
+tap_listeners_load_field_references(epan_dissect_t *edt)
+{
+	tap_listener_t *tl;
+
+	for(tl=tap_listener_queue;tl;tl=tl->next){
+		if(tl->code)
+			dfilter_load_field_references_edt(tl->code, edt);
+	}
 }
 
 /*

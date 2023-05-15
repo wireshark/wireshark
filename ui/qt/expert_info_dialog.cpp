@@ -44,6 +44,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
     ui->setupUi(this);
     ui->hintLabel->setSmallText();
     ui->limitCheckBox->setChecked(! display_filter_.isEmpty());
+    connect(ui->limitCheckBox, &QCheckBox::toggled,
+            this, &ExpertInfoDialog::limitCheckBoxToggled);
 
     proxyModel_->setSourceModel(expert_info_model_);
     ui->expertInfoTreeView->setModel(proxyModel_);
@@ -301,7 +303,7 @@ void ExpertInfoDialog::expandTree()
     ui->expertInfoTreeView->expandAll();
 }
 
-void ExpertInfoDialog::on_limitCheckBox_toggled(bool)
+void ExpertInfoDialog::limitCheckBoxToggled(bool)
 {
     retapPackets();
 }

@@ -15,6 +15,8 @@
 //   sinsp-span and make string handling a lot easier. However,
 //   epan/address.h and driver/ppm_events_public.h both define PT_NONE.
 // - Add a configuration preference for configure_plugin?
+// - Add a configuration preference for individual conversation filters vs ANDing them?
+//   We would need to add deregister_(|log_)conversation_filter before we implement this.
 
 #include "config.h"
 
@@ -41,7 +43,6 @@
 #include <wsutil/report_message.h>
 
 #include "sinsp-span.h"
-#include "conversation-macros.h"
 
 typedef enum bridge_field_flags_e {
     BFF_NONE = 0,
@@ -49,6 +50,12 @@ typedef enum bridge_field_flags_e {
     BFF_INFO = 1 << 2,
     BFF_CONVERSATION = 1 << 3
 } bridge_field_flags_e;
+
+typedef struct conv_filter_info {
+    hf_register_info *field_info;
+    bool is_present;
+    wmem_strbuf_t *strbuf;
+} conv_filter_info;
 
 typedef struct bridge_info {
     sinsp_source_info_t *ssi;
@@ -64,13 +71,9 @@ typedef struct bridge_info {
     uint32_t visible_fields;
     uint32_t* field_flags;
     int* field_ids;
+    uint32_t num_conversation_filters;
+    conv_filter_info *conversation_filters;
 } bridge_info;
-
-typedef struct conv_fld_info {
-    const char* proto_name;
-    hf_register_info* field_info;
-    char field_val[4096];
-} conv_fld_info;
 
 static int proto_falco_bridge = -1;
 static gint ett_falco_bridge = -1;
@@ -80,8 +83,6 @@ static dissector_table_t ptype_dissector_table;
 
 static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_sinsp_span(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-void register_conversation_filters_mappings(void);
 
 /*
  * Array of plugin bridges
@@ -123,21 +124,6 @@ static hf_register_info hf[] = {
     },
 };
 
-/*
- * Conversation filters mappers setup
- */
-#define MAX_CONV_FILTER_STR_LEN 1024
-static conv_fld_info conv_fld_infos[MAX_N_CONV_FILTERS];
-DECLARE_CONV_FLTS()
-static char conv_flt_vals[MAX_N_CONV_FILTERS][MAX_CONV_FILTER_STR_LEN];
-static guint conv_vals_cnt = 0;
-
-void
-register_conversation_filters_mappings(void)
-{
-    MAP_CONV_FLTS()
-}
-
 // Returns true if the field might contain an IPv4 or IPv6 address.
 // XXX This should probably be a preference.
 static bool is_addr_field(const char *abbrev) {
@@ -147,6 +133,36 @@ static bool is_addr_field(const char *abbrev) {
         return true;
     }
     return false;
+}
+
+static gboolean
+is_filter_valid(packet_info *pinfo, void *cfi_ptr)
+{
+    conv_filter_info *cfi = (conv_filter_info *)cfi_ptr;
+
+    if (!cfi->is_present) {
+        return FALSE;
+    }
+
+    int proto_id = proto_registrar_get_parent(cfi->field_info->hfinfo.id);
+
+    if (proto_id < 0) {
+        return false;
+    }
+
+    return proto_is_frame_protocol(pinfo->layers, proto_registrar_get_nth(proto_id)->abbrev);
+}
+
+static gchar*
+build_filter(packet_info *pinfo _U_, void *cfi_ptr)
+{
+    conv_filter_info *cfi = (conv_filter_info *)cfi_ptr;
+
+    if (!cfi->is_present) {
+        return FALSE;
+    }
+
+    return ws_strdup_printf("%s eq %s", cfi->field_info->hfinfo.abbrev, cfi->strbuf->str);
 }
 
 void
@@ -161,6 +177,8 @@ configure_plugin(bridge_info* bi, char* config _U_)
     bi->visible_fields = 0;
     uint32_t addr_fields = 0;
     sinsp_field_info_t sfi;
+    bi->num_conversation_filters = 0;
+
     for (size_t j = 0; j < tot_fields; j++) {
         get_sinsp_source_field_info(bi->ssi, j, &sfi);
         if (sfi.is_hidden) {
@@ -174,6 +192,10 @@ configure_plugin(bridge_info* bi, char* config _U_)
             addr_fields++;
         }
         bi->visible_fields++;
+
+        if (sfi.is_conversation) {
+            bi->num_conversation_filters++;
+        }
     }
 
     if (bi->visible_fields) {
@@ -188,6 +210,10 @@ configure_plugin(bridge_info* bi, char* config _U_)
             bi->hf_v4_ids = (int*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(int));
             bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
             bi->hf_v6_ids = (int*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(int));
+        }
+
+        if (bi->num_conversation_filters) {
+            bi->conversation_filters = (conv_filter_info *)wmem_alloc(wmem_epan_scope(), bi->num_conversation_filters * sizeof (conv_filter_info));
         }
 
         uint32_t fld_cnt = 0;
@@ -251,18 +277,22 @@ configure_plugin(bridge_info* bi, char* config _U_)
             };
             *ri = finfo;
 
-            if (sfi.is_info) {
-                bi->field_flags[fld_cnt] |= BFF_INFO;
-            }
-
             if (sfi.is_conversation) {
                 bi->field_flags[fld_cnt] |= BFF_CONVERSATION;
-                conv_fld_infos[conv_fld_cnt].field_info = ri;
+                bi->conversation_filters[conv_fld_cnt].field_info = ri;
+                bi->conversation_filters[conv_fld_cnt].strbuf = wmem_strbuf_new(wmem_epan_scope(), "");
+
                 const char *source_name = get_sinsp_source_name(bi->ssi);
-                conv_fld_infos[conv_fld_cnt].proto_name = source_name;
-                // XXX We currently build a filter per field. Should we "and" them instead?
-                register_log_conversation_filter(source_name, finfo.hfinfo.name, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
+                const char *conv_filter_name = wmem_strdup_printf(wmem_epan_scope(), "%s %s", source_name, ri->hfinfo.name);
+                register_log_conversation_filter(source_name, conv_filter_name, is_filter_valid, build_filter, &bi->conversation_filters[conv_fld_cnt]);
+                if (conv_fld_cnt == 0) {
+                    add_conversation_filter_protocol(source_name);
+                }
                 conv_fld_cnt++;
+            }
+
+            if (sfi.is_info) {
+                bi->field_flags[fld_cnt] |= BFF_INFO;
             }
 
             if (sfi.type == SFT_STRINGZ && is_addr_field(sfi.abbrev)) {
@@ -305,9 +335,6 @@ configure_plugin(bridge_info* bi, char* config _U_)
         if (addr_fld_cnt) {
             proto_register_field_array(proto_falco_bridge, bi->hf_v4, addr_fld_cnt);
             proto_register_field_array(proto_falco_bridge, bi->hf_v6, addr_fld_cnt);
-        }
-        if (conv_fld_cnt > 0) {
-            add_conversation_filter_protocol(get_sinsp_source_name(bi->ssi));
         }
     }
 }
@@ -365,11 +392,6 @@ proto_register_falcoplugin(void)
      */
     ptype_dissector_table = register_dissector_table("falcobridge.id",
         "Falco Bridge Plugin ID", proto_falco_bridge, FT_UINT32, BASE_DEC);
-
-    /*
-     * Create the mapping infrastructure for conversation filtering
-     */
-    register_conversation_filters_mappings();
 
     /*
      * Load the plugins
@@ -455,12 +477,9 @@ get_bridge_info(guint32 source_id)
     return NULL;
 }
 
-#define PROTO_DATA_BRIDGE_HANDLE    0x00
 static int
-dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    conv_vals_cnt = 0;
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Bridge");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
@@ -488,21 +507,19 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     dissector_handle_t dissector = dissector_get_uint_handle(ptype_dissector_table, source_id);
     if (dissector) {
-        p_add_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_BRIDGE_HANDLE, bi);
         tvbuff_t* next_tvb = tvb_new_subset_length(tvb, 12, tvb_captured_length(tvb) - 12);
-        call_dissector_with_data(dissector, next_tvb, pinfo, tree, data);
+        call_dissector_with_data(dissector, next_tvb, pinfo, tree, bi);
     }
 
     return tvb_captured_length(tvb);
 }
 
 static int
-dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
 {
-    bridge_info* bi = p_get_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_BRIDGE_HANDLE);
+    bridge_info* bi = (bridge_info *) bi_ptr;
     guint plen = tvb_captured_length(tvb);
     const char *source_name = get_sinsp_source_name(bi->ssi);
-    wmem_array_t *conversation_elements = wmem_array_new(pinfo->pool, sizeof(conversation_element_t));
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, source_name);
     /* Clear out stuff in the info column */
@@ -526,18 +543,38 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     // If we have a failure, try to dissect what we can first, then bail out with an error.
     bool rc = extract_sisnp_source_fields(bi->ssi, pinfo->num, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
 
+    for (uint32_t idx = 0; idx < bi->num_conversation_filters; idx++) {
+        bi->conversation_filters[idx].is_present = false;
+        wmem_strbuf_truncate(bi->conversation_filters[idx].strbuf, 0);
+    }
+
+    conversation_element_t *first_conv_els = NULL; // hfid + field val + CONVERSATION_LOG
+
     for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
         sinsp_field_extract_t *sfe = &sinsp_fields[fld_idx];
         header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
-        conversation_element_t conv_el = {0};
 
         if (!sfe->is_present) {
             continue;
         }
 
+        conv_filter_info *cur_conv_filter = NULL;
+        conversation_element_t *cur_conv_els = NULL;
         if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
-            conv_vals_cnt++;
+            for (uint32_t cf_idx = 0; cf_idx < bi->num_conversation_filters; cf_idx++) {
+                if (&(bi->conversation_filters[cf_idx].field_info)->hfinfo == hfinfo) {
+                    cur_conv_filter = &bi->conversation_filters[cf_idx];
+                    if (!first_conv_els) {
+                        first_conv_els = wmem_alloc0(pinfo->pool, sizeof(conversation_element_t) * 3);
+                        first_conv_els[0].type = CE_INT;
+                        first_conv_els[0].int_val = hfinfo->id;
+                        cur_conv_els = first_conv_els;
+                    }
+                    break;
+                }
+            }
         }
+
 
         if (sfe->type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
             proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_str);
@@ -545,15 +582,6 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe->res_str);
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
                 proto_item_set_hidden(pi);
-            }
-
-            if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
-                char* cvalptr = conv_flt_vals[conv_vals_cnt];
-                snprintf(cvalptr, MAX_CONV_FILTER_STR_LEN, "%s", sfe->res_str);
-                p_add_proto_data(pinfo->pool,
-                                 pinfo,
-                                 proto_falco_bridge,
-                                 PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
             }
 
             int addr_fld_idx = bi->hf_id_to_addr_id[fld_idx];
@@ -574,30 +602,49 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
                 if (addr_item) {
                     proto_item_set_generated(addr_item);
                 }
-                if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
-                    conv_el.type = CE_ADDRESS;
-                    copy_address(&conv_el.addr_val, &pinfo->net_src);
+                if (cur_conv_filter) {
+                    wmem_strbuf_append(cur_conv_filter->strbuf, sfe->res_str);
+                    cur_conv_filter->is_present = true;
+                }
+                if (cur_conv_els) {
+                    cur_conv_els[1].type = CE_ADDRESS;
+                    copy_address(&cur_conv_els[1].addr_val, &pinfo->net_src);
                 }
             } else {
-                if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
-                    conv_el.type = CE_STRING;
-                    conv_el.str_val = wmem_strdup(pinfo->pool, sfe->res_str);
+                if (cur_conv_filter) {
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "\"%s\"", sfe->res_str);
+                    cur_conv_filter->is_present = true;
+                }
+                if (cur_conv_els) {
+                    cur_conv_els[1].type = CE_STRING;
+                    cur_conv_els[1].str_val = wmem_strdup(pinfo->pool, sfe->res_str);
                 }
             }
         }
         else if (sfe->type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
             proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_u64);
-            if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
-                conv_el.type = CE_UINT64;
-                conv_el.uint64_val = sfe->res_u64;
+            if (cur_conv_filter) {
+                switch (hfinfo->display) {
+                case BASE_HEX:
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIx64, sfe->res_u64);
+                    break;
+                case BASE_OCT:
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIo64, sfe->res_u64);
+                    break;
+                default:
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRId64, sfe->res_u64);
+                }
+                cur_conv_filter->is_present = true;
+            }
+
+            if (cur_conv_els) {
+                cur_conv_els[1].type = CE_UINT64;
+                cur_conv_els[1].uint64_val = sfe->res_u64;
             }
         }
         else {
             REPORT_DISSECTOR_BUG("Field %s has an unrecognized or mismatched type %u != %u",
                 hfinfo->abbrev, sfe->type, hfinfo->type);
-        }
-        if (conv_el.type != CE_CONVERSATION_TYPE) {
-            wmem_array_append_one(conversation_elements, conv_el);
         }
     }
 
@@ -605,17 +652,14 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
         REPORT_DISSECTOR_BUG("Falco plugin %s extract error", get_sinsp_source_name(bi->ssi));
     }
 
-    unsigned num_conv_els = wmem_array_get_count(conversation_elements);
-    if (num_conv_els > 0) {
-        conversation_element_t conv_el;
-        conv_el.type = CE_CONVERSATION_TYPE;
-        conv_el.conversation_type_val = CONVERSATION_LOG;
-        wmem_array_append_one(conversation_elements, conv_el);
-        pinfo->conv_elements = (conversation_element_t *) wmem_array_get_raw(conversation_elements);
-        conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-        if (!conv) {
-            conversation_new_full(pinfo->fd->num, pinfo->conv_elements);
-        }
+    if (first_conv_els) {
+        first_conv_els[2].type = CE_CONVERSATION_TYPE;
+        first_conv_els[2].conversation_type_val = CONVERSATION_LOG;
+        pinfo->conv_elements = first_conv_els;
+//        conversation_t *conv = find_or_create_conversation(pinfo);
+//        if (!conv) {
+//            conversation_new_full(pinfo->fd->num, pinfo->conv_elements);
+//        }
     }
 
     return plen;

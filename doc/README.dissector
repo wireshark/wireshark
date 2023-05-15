@@ -3,9 +3,8 @@ on Wireshark protocol dissectors. It describes expected code patterns and the
 use of some of the important functions and variables.
 
 This file is compiled to give in depth information on Wireshark.
-It is by no means all inclusive and complete. Please feel free to send
-remarks and patches to the developer mailing list.
-
+It is by no means all inclusive and complete. Please feel free to discuss on
+the developer mailing list or upload merge requests to gitlab.
 If you haven't read README.developer, read that first!
 
 0. Prerequisites.
@@ -24,10 +23,10 @@ README.md files of the sources root dir.
 You'll find additional dissector related information in the following README
 files:
 
-- README.heuristic      - what are heuristic dissectors and how to write them
-- README.plugins        - how to "pluginize" a dissector
-- README.request_response_tracking - how to track req./resp. times and such
-- README.wmem           - how to obtain "memory leak free" memory
+- doc/README.heuristic      - what are heuristic dissectors and how to write them
+- doc/README.plugins        - how to "pluginize" a dissector
+- doc/README.request_response_tracking - how to track req./resp. times and such
+- doc/README.wmem           - how to obtain "memory leak free" memory
 
 0.2 Contributors
 
@@ -120,11 +119,12 @@ FIELDABBREV     An abbreviation for the header field; this is used in code and
 FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_UINT32, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64,
                 FT_INT8, FT_INT16, FT_INT24, FT_INT32, FT_INT40, FT_INT48,
-                FT_INT56, FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
-                FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EUI64,
+                FT_INT56, FT_INT64, FT_IEEE_11073_SFLOAT, FT_IEEE_11073_FLOAT,
+                FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME, FT_RELATIVE_TIME,
+                FT_STRING, FT_STRINGZ, FT_STRINGZPAD, FT_STRINGZTRUNC,
                 FT_UINT_STRING, FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
-                FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID,
-                FT_REL_OID, FT_AX25, FT_VINES, FT_SYSTEM_ID, FT_FC, FT_FCWWN
+                FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_EUI64, FT_GUID,
+                FT_OID, FT_REL_OID, FT_AX25, FT_VINES, FT_SYSTEM_ID, FT_FCWWN
 FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                        FT_INT{8,16,24,32,40,48,56,64):
 
@@ -892,6 +892,10 @@ The type of value this field holds. The current field types are:
     FT_INT48    A 48-bit signed integer.
     FT_INT56    A 56-bit signed integer.
     FT_INT64    A 64-bit signed integer.
+    FT_IEEE_11073_SFLOAT    A 16-bit floating point number, consisting
+                of an 4-bit exponent and 12-bit mantissa.
+    FT_IEEE_11073_FLOAT     A 32-bit floating point number, consisting
+                of an 8-bit exponent and 24-bit mantissa.
     FT_FLOAT    A single-precision floating point number.
     FT_DOUBLE   A double-precision floating point number.
     FT_ABSOLUTE_TIME    An absolute time from some fixed point in time,
@@ -1175,14 +1179,14 @@ For fields with that unit name, you would declare a "unit_name_string":
 (the second entry can be NULL if there is no plural form of the unit name.
 This is typically the case when abbreviations are used instead of full words.)
 
-There are several "common" unit name structures already defined in
-epan/unit_strings.h. Dissector authors may choose to add the unit name
-structure there rather than locally in a dissector.
-
-For hf[] array FT_(U)INT*, FT_FlOAT and FT_DOUBLE fields that need a
+For hf[] array FT_(U)INT*, FT_FLOAT and FT_DOUBLE fields that need a
 'unit_name_string' struct, the 'strings' field would be set to
-'&units_second_seconds'. Furthermore, the 'display' field must be ORed
+'&unitname'. Furthermore, the 'display' field must be ORed
 with 'BASE_UNIT_STRING' (e.g. BASE_DEC|BASE_UNIT_STRING).
+
+There are several "common" unit name structures already defined in
+epan/unit_strings.h, e.g. 'units_second_seconds'. Dissector authors may choose
+to add the unit name structure there rather than locally in a dissector.
 
 -- Ranges
 If the field has a numeric type that might logically fit in ranges of values
@@ -1363,7 +1367,7 @@ Note that the formats used must all belong to the same group as defined below:
 - FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64 and FT_EUI64
 - FT_ABSOLUTE_TIME and FT_RELATIVE_TIME
 - FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, and FT_STRINGZTRUNC
-- FT_FLOAT and FT_DOUBLE
+- FT_FLOAT, FT_DOUBLE, FT_IEEE_11073_SFLOAT and FT_IEEE_11073_FLOAT
 - FT_BYTES, FT_UINT_BYTES, FT_ETHER, FT_AX25, FT_VINES and FT_FCWWN
 - FT_OID, FT_REL_OID and FT_SYSTEM_ID
 
@@ -1539,6 +1543,7 @@ currently supported are:
         in ETSI TS 102 221 Annex A
     ENC_EBCDIC - EBCDIC
     ENC_EBCDIC_CP037 - EBCDIC code page 037
+    ENC_EBCDIC_CP500 - EBCDIC code page 500
     ENC_MAC_ROMAN - MAC ROMAN
     ENC_CP437 - DOS code page 437
     ENC_CP855 - DOS code page 855

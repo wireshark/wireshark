@@ -52,14 +52,6 @@ static gint ett_dvb_sdt_service = -1;
 #define DVB_SDT_FREE_CA_MODE_MASK               0x1000
 #define DVB_SDT_DESCRIPTORS_LOOP_LENGTH_MASK    0x0FFF
 
-
-static const value_string dvb_sdt_cur_next_vals[] = {
-    { 0, "Not yet applicable" },
-    { 1, "Currently applicable" },
-
-    { 0, NULL }
-};
-
 static const value_string dvb_sdt_running_status_vals[] = {
     { 0, "Undefined" },
     { 1, "Not Running" },
@@ -177,7 +169,7 @@ proto_register_dvb_sdt(void)
 
         { &hf_dvb_sdt_current_next_indicator, {
             "Current/Next Indicator", "dvb_sdt.cur_next_ind",
-            FT_UINT8, BASE_DEC, VALS(dvb_sdt_cur_next_vals), DVB_SDT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), DVB_SDT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_dvb_sdt_section_number, {

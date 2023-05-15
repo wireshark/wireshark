@@ -171,17 +171,17 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
             pitem = proto_tree_add_item(tree, hf_btbnep_destination_service_uuid, tvb, offset, uuid_size, ENC_NA);
             uuid_dst = tvb_get_ntohs(tvb, offset);
-            proto_item_append_text(pitem, " (%s)", val_to_str_ext(uuid_dst, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
+            proto_item_append_text(pitem, " (%s)", val_to_str_ext_const(uuid_dst, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
             offset += uuid_size;
 
             pitem = proto_tree_add_item(tree, hf_btbnep_source_service_uuid, tvb, offset, uuid_size, ENC_NA);
             uuid_src = tvb_get_ntohs(tvb, offset);
-            proto_item_append_text(pitem, " (%s)", val_to_str_ext(uuid_src, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
+            proto_item_append_text(pitem, " (%s)", val_to_str_ext_const(uuid_src, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
             offset += uuid_size;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - dst: <%s>, src: <%s>",
-                    val_to_str_ext(uuid_dst, &bluetooth_uuid_vals_ext,  "Unknown uuid"),
-                    val_to_str_ext(uuid_src, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
+                    val_to_str_ext_const(uuid_dst, &bluetooth_uuid_vals_ext,  "Unknown uuid"),
+                    val_to_str_ext_const(uuid_src, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
             break;
         case 0x02: /* Setup Connection Response */
             proto_tree_add_item(tree, hf_btbnep_setup_connection_response_message, tvb, offset, 2, ENC_BIG_ENDIAN);

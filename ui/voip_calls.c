@@ -280,7 +280,7 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     /* free the SIP_HASH */
     if(NULL!=tapinfo->callsinfo_hashtable[SIP_HASH])
     {
-        g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
+        g_hash_table_destroy(tapinfo->callsinfo_hashtable[SIP_HASH]);
         tapinfo->callsinfo_hashtable[SIP_HASH] = NULL;
     }
 
@@ -289,11 +289,14 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     while(list)
     {
         strinfo = (rtpstream_info_t *)list->data;
-        rtpstream_info_free_data(strinfo);
+        rtpstream_info_free_all(strinfo);
         list = g_list_next(list);
     }
     g_list_free(tapinfo->rtpstream_list);
     tapinfo->rtpstream_list = NULL;
+
+    g_free(tapinfo->sdp_summary);
+    tapinfo->sdp_summary = NULL;
 
     if (tapinfo->h245_labels) {
         memset(tapinfo->h245_labels, 0, sizeof(h245_labels_t));

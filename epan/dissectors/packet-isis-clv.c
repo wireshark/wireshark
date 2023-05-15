@@ -268,7 +268,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int off
         /* fetch two bytes */
         mt_block=tvb_get_ntohs(tvb, offset);
 
-        mt_desc = val_to_str(mt_block&0x0fff, mt_id_vals, "Unknown");
+        mt_desc = val_to_str_const(mt_block&0x0fff, mt_id_vals, "Unknown");
         proto_tree_add_uint_format ( tree, tree_id, tvb, offset, 2,
             mt_block,
             "%s Topology (0x%03x)%s%s",

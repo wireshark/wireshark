@@ -18,6 +18,7 @@
 
 #include "packet-zbee.h"
 #include "packet-zbee-zdp.h"
+#include "packet-zbee-tlv.h"
 
 /**************************************
  * HELPER FUNCTIONS
@@ -348,11 +349,17 @@ dissect_zbee_zdp_req_mgmt_permit_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     proto_tree_add_item(tree, hf_zbee_zdp_duration, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
     proto_tree_add_item(tree, hf_zbee_zdp_significance, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    /* Dump any leftover bytes. */
-    zdp_dump_excess(tvb, offset, pinfo, tree);
+    if (tvb_captured_length_remaining(tvb, offset))
+    {
+      offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_MGMT_PERMIT_JOIN);
+
+      /* Dump any leftover bytes. */
+      zdp_dump_excess(tvb, offset, pinfo, tree);
+    }
 } /* dissect_zbee_zdp_req_mgmt_permit_join */
 
 /**
@@ -471,6 +478,202 @@ dissect_zbee_zdp_req_mgmt_ieee_join_list(tvbuff_t *tvb, packet_info *pinfo, prot
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_mgmt_ieee_join_list */
 
+/**
+ *ZigBee Device Profile dissector for the NWK Beacon Survey Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_req_mgmt_nwk_beacon_survey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_MGMT_NWK_BEACON_SURVEY);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_mgmt_nwk_beacon_survey */
+
+/**
+ *ZigBee Device Profile dissector for the NWK Beacon Survey Response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_mgmt_nwk_beacon_survey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_MGMT_NWK_BEACON_SURVEY);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_mgmt_nwk_beacon_survey */
+
+/**
+ *ZigBee Device Profile dissector for the Security Start Key Negotiation Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_start_key_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_START_KEY_NEGOTIATION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_start_key_negotiation */
+
+/**
+ *ZigBee Device Profile dissector for the Security Get Authentication Token Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_get_auth_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_GET_AUTH_TOKEN);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_get_auth_token */
+
+/**
+ *ZigBee Device Profile dissector for the Security Get Authentication Level Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_get_auth_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_GET_AUTH_LEVEL);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_get_auth_level */
+
+/**
+ *ZigBee Device Profile dissector for the Security Set Configuration Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_set_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_SET_CONFIGURATION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_set_configuration */
+
+/**
+ *ZigBee Device Profile dissector for the Security Get Configuration Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_get_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+    guint8  count;
+    guint8  i;
+    guint   remaining_length;
+
+    remaining_length = tvb_captured_length_remaining(tvb, offset);
+    if (remaining_length > 0U)
+    {
+        count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_zbee_zdp_tlv_count, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        for (i = 0; i < count; i++)
+        {
+            proto_tree_add_item(tree, hf_zbee_zdp_tlv_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+    }
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_get_configuration */
+
+/**
+ *ZigBee Device Profile dissector for the Security Start Key Update Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_start_key_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_START_KEY_UPDATE);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_start_key_update */
+
+/**
+ *ZigBee Device Profile dissector for the Security Decommission Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_decommission(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_DECOMMISSION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_req_security_decommission */
+
+/**
+ *ZigBee Device Profile dissector for the Security Challenge Request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_req_security_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_REQ_SECURITY_CHALLENGE);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+}
 /**************************************
  * MANAGEMENT RESPONSES
  **************************************
@@ -848,6 +1051,158 @@ dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate(tvbuff_t *tvb, packet_info *pinf
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate */
+
+/**
+ *ZigBee Device Profile dissector for the security start key negotiation response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_start_key_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_START_KEY_NEGOTIATION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_start_key_negotiation */
+
+/**
+ *ZigBee Device Profile dissector for the security get authentication token response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_get_auth_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_GET_AUTH_TOKEN);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_get_auth_token */
+
+/**
+ *ZigBee Device Profile dissector for the security get authentication level response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_get_auth_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_GET_AUTH_LEVEL);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_get_auth_level */
+
+/**
+ *ZigBee Device Profile dissector for the security set configuration response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_set_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_SET_CONFIGURATION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_set_configuration */
+
+/**
+ *ZigBee Device Profile dissector for the security get configuration response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_get_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_GET_CONFIGURATION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_get_configuration */
+
+/**
+ *ZigBee Device Profile dissector for the security start key update response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_start_key_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_START_KEY_UPDATE);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_start_key_update */
+
+/**
+ *ZigBee Device Profile dissector for the security start key update response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_rsp_security_decommission(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_DECOMMISSION);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_rsp_security_decommission */
+
+/**
+ *ZigBee Device Profile dissector for the Security Challenge Response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+void
+dissect_zbee_zdp_rsp_security_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    offset = dissect_zbee_tlvs(tvb, pinfo, tree, offset, NULL, ZBEE_TLV_SRC_TYPE_ZBEE_ZDP, ZBEE_ZDP_RSP_SECURITY_CHALLENGE);
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

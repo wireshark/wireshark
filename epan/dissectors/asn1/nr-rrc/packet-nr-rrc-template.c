@@ -408,7 +408,7 @@ nr_rrc_RSRQ_Range_fmt(gchar *s, guint32 v)
   } else if (v < 127) {
     snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= SS-RSRQ < %.1fdB (%u)", (((float)v-1)/2)-43, ((float)v/2)-43, v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "-20dB <= SS-RSRQ (127)");
+    snprintf(s, ITEM_LABEL_LENGTH, "20dB <= SS-RSRQ (127)");
   }
 }
 

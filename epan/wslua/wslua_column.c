@@ -86,10 +86,8 @@ static const struct col_names_t colnames[] = {
     {"packet_len",COL_PACKET_LENGTH},
     {"cumulative_bytes",COL_CUMULATIVE_BYTES},
     {"direction",COL_IF_DIR},
-    {"vsan",COL_VSAN},
     {"tx_rate",COL_TX_RATE},
     {"rssi",COL_RSSI},
-    {"dce_call",COL_DCE_CALL},
     {NULL,0}
 };
 

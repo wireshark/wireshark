@@ -416,6 +416,8 @@ typedef struct cip_simple_request_info {
    guint32 iConnPointA;
    // Last Connection Point. The 2nd (last) Connection Point defines the Motion I/O Format.
    guint32 iConnPoint;
+
+   gboolean hasSimpleData;
 } cip_simple_request_info_t;
 
 enum cip_datatype {
@@ -503,6 +505,7 @@ typedef struct cip_connID_info {
 } cip_connID_info_t;
 
 enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};
+enum cip_safety_open_type {CIP_SAFETY_OPEN_UNKNOWN, CIP_SAFETY_OPEN_TYPE1, CIP_SAFETY_OPEN_TYPE2A, CIP_SAFETY_OPEN_TYPE2B};
 
 typedef struct cip_connection_triad {
    guint16 ConnSerialNumber;
@@ -512,7 +515,9 @@ typedef struct cip_connection_triad {
 
 typedef struct cip_safety_epath_info {
    gboolean safety_seg;
+
    enum cip_safety_format_type format;
+   enum cip_safety_open_type safety_open_type;
 
    // These 3x variables are only used during a first pass calculation.
    guint16 running_rollover_value;   /* Keep track of the rollover value over the course of the connection */
@@ -521,6 +526,9 @@ typedef struct cip_safety_epath_info {
 
    // The Target CIP Connection Triad from the Forward Open Response, Safety Application Reply Data.
    cip_connection_triad_t target_triad;
+
+   // Network Time Expectation, in milliseconds.
+   float nte_value_ms;
 } cip_safety_epath_info_t;
 
 // Information for a given CIP Connection, for both directions (O->T and T->O)

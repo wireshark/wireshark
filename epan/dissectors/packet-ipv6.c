@@ -652,13 +652,13 @@ ipv6_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static gboolean
-ipv6_filter_valid(packet_info *pinfo)
+ipv6_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "ipv6");
 }
 
 static gchar*
-ipv6_build_filter(packet_info *pinfo)
+ipv6_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     return ws_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
@@ -5418,7 +5418,7 @@ proto_register_ipv6(void)
     register_decode_as(&ipv6_dstopts_da);
 
     register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet, ipv6_endpoint_packet);
-    register_conversation_filter("ipv6", "IPv6", ipv6_filter_valid, ipv6_build_filter);
+    register_conversation_filter("ipv6", "IPv6", ipv6_filter_valid, ipv6_build_filter, NULL);
 
     register_capture_dissector("ipv6", capture_ipv6, proto_ipv6);
 }

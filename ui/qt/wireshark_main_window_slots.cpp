@@ -234,7 +234,7 @@ bool WiresharkMainWindow::openCaptureFile(QString cf_path, QString read_filter, 
                     QString(" isn't a valid display filter. (") +
                     df_err->msg + QString(")."),
                     QMessageBox::Ok);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             if (!name_param) {
                 // go back to the selection dialogue only if the file
                 // was selected from this dialogue
@@ -1363,7 +1363,7 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
         if (hfinfo && hfinfo->type == FT_FRAMENUM) {
             is_framenum = true;
-            linked_frame = fvalue_get_uinteger(&fi->value);
+            linked_frame = fvalue_get_uinteger(fi->value);
         }
 
         char *tmp_field = proto_construct_match_selected_string(fi, capture_file_.capFile()->edt);
@@ -2715,7 +2715,7 @@ void WiresharkMainWindow::openPacketDialog(bool from_reference)
 
     /* Find the frame for which we're popping up a dialog */
     if (from_reference) {
-        guint32 framenum = fvalue_get_uinteger(&(capture_file_.capFile()->finfo_selected->value));
+        guint32 framenum = fvalue_get_uinteger(capture_file_.capFile()->finfo_selected->value);
         if (framenum == 0)
             return;
 
@@ -2886,16 +2886,16 @@ void WiresharkMainWindow::connectCaptureMenuActions()
     connect(main_ui_->actionCaptureStop, &QAction::triggered, this,
             [this]() { stopCapture(); });
 
-    connect(main_ui_->actionCaptureRestart, &QAction::triggered, this, [this]() {
 #ifdef HAVE_LIBPCAP
+    connect(main_ui_->actionCaptureRestart, &QAction::triggered, this, [this]() {
         QString before_what(tr(" before restarting the capture"));
         cap_session_.capture_opts->restart = TRUE;
         if (!testCaptureFileClose(before_what, Restart)) {
             return;
         }
         startCapture(QStringList());
-#endif // HAVE_LIBPCAP
     });
+#endif // HAVE_LIBPCAP
 
     connect(main_ui_->actionCaptureCaptureFilters, &QAction::triggered, this, [this]() {
         FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter);
@@ -3516,7 +3516,8 @@ void WiresharkMainWindow::on_actionStatisticsPacketLengths_triggered()
     openStatisticsTreeDialog("plen");
 }
 
-void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
+// -z io,stat
+void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     QString displayFilter;
@@ -3527,6 +3528,11 @@ void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
+}
+
+void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
+{
+    statCommandIOGraph(NULL, NULL);
 }
 
 void WiresharkMainWindow::on_actionStatisticsSametime_triggered()
@@ -3728,6 +3734,7 @@ void WiresharkMainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
     }
     foreach(rtpstream_id_t *id, stream_ids) {
         rtpstream_id_free(id);
+        g_free(id);
     }
 }
 
@@ -3752,6 +3759,7 @@ void WiresharkMainWindow::on_actionTelephonyRtpPlayer_triggered()
     }
     foreach(rtpstream_id_t *id, stream_ids) {
         rtpstream_id_free(id);
+        g_free(id);
     }
 }
 

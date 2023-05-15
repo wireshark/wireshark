@@ -26,7 +26,7 @@ FindWSWinLibs( "libsinsp-.*" "SINSP_HINTS" )
 
 include(CMakeDependentOption)
 
-if( NOT WIN32)
+if( NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_check_modules(SINSP libsinsp)
 endif()

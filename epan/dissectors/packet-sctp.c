@@ -4827,7 +4827,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCTP");
 
   /* Clear entries in Info column on summary display */
-  col_set_str(pinfo->cinfo, COL_INFO, "");
+  col_clear(pinfo->cinfo, COL_INFO);
 
 
   for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {

@@ -10,7 +10,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 
 #include <epan/dissectors/file-pcapng.h>

@@ -93,9 +93,14 @@ dfvm_value_free(dfvm_value_t *v)
 		case PCRE:
 			ws_regex_free(v->value.pcre);
 			break;
-		default:
-			/* nothing */
-			;
+		case EMPTY:
+		case HFINFO:
+		case RAW_HFINFO:
+		case INSN_NUMBER:
+		case REGISTER:
+		case INTEGER:
+		case FUNCTION_DEF:
+			break;
 	}
 	g_free(v);
 }
@@ -598,15 +603,25 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 
 	buf = wmem_strbuf_new(alloc, NULL);
 
-	if ((flags & DF_DUMP_REFERENCES) && g_hash_table_size(df->references) > 0) {
-		wmem_strbuf_append(buf, "References:\n");
-		append_references(buf, df->references, FALSE);
+	if (flags & DF_DUMP_REFERENCES) {
+		if (g_hash_table_size(df->references) > 0) {
+			wmem_strbuf_append(buf, "References:\n");
+			append_references(buf, df->references, FALSE);
+		}
+		else {
+			wmem_strbuf_append(buf, "References: (none)\n");
+		}
 		wmem_strbuf_append_c(buf, '\n');
 	}
 
-	if ((flags & DF_DUMP_REFERENCES) && g_hash_table_size(df->raw_references) > 0) {
-		wmem_strbuf_append(buf, "Raw references:\n");
-		append_references(buf, df->raw_references, TRUE);
+	if (flags & DF_DUMP_REFERENCES) {
+		if (g_hash_table_size(df->raw_references) > 0) {
+			wmem_strbuf_append(buf, "Raw references:\n");
+			append_references(buf, df->raw_references, TRUE);
+		}
+		else {
+			wmem_strbuf_append(buf, "Raw references: (none)\n");
+		}
 		wmem_strbuf_append_c(buf, '\n');
 	}
 
@@ -738,7 +753,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range, gboole
 				if (raw)
 					fv = dfvm_get_raw_fvalue(finfo);
 				else
-					fv = &finfo->value;
+					fv = finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
 			}
 		}
@@ -749,7 +764,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range, gboole
 				if (raw)
 					fv = dfvm_get_raw_fvalue(finfo);
 				else
-					fv = &finfo->value;
+					fv = finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
 			}
 		}
@@ -794,6 +809,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 	df->attempted_load[reg] = TRUE;
 
 	while (hfinfo) {
+		/* The caller should NOT free the GPtrArray. */
 		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
 		if ((finfos == NULL) || (g_ptr_array_len(finfos) == 0)) {
 			hfinfo = hfinfo->same_name_next;
@@ -810,7 +826,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 				if (raw)
 					fv = dfvm_get_raw_fvalue(finfo);
 				else
-					fv = &finfo->value;
+					fv = finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
 			}
 		}

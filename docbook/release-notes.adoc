@@ -60,8 +60,8 @@ The following bugs have been fixed:
 
 The following features are new (or have been significantly updated) since version 4.0.0:
 
-// * The Windows installers now ship with Npcap 1.71.
-//   They previously shipped with Npcap 1.60.
+// * The Windows installers now ship with Npcap 1.75.
+//   They previously shipped with Npcap 1.71.
 
 * The API has been updated to ensure that the dissection engine produces valid UTF-8 strings.
 
@@ -85,6 +85,16 @@ synchronous.
 
 * Implement built-in dissector for FiRa UWB Controller Interface (UCI) protocol.
 Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
+
+* The reassemble_streaming_data_and_call_subdissector() API has been added to provide a simpler way to
+  reassemble the streaming data of a high level protocol that is not on top of TCP.
+
+* The display filter drop-down list is now sorted by "most recently used" instead
+  of "most recently created".
+
+* Running the test suite requires the https://pypi.org/project/pytest/[pytest]
+  Python module. The emulation layer that allowed running tests without pytest
+  installed has been removed.
 
 // === Removed Features and Support
 
@@ -123,6 +133,8 @@ Low Level Signalling (ATSC3 LLS)
 Train Real-Time Data Protocol (TRDP)
 Windows Delivery Optimization (MS-DO)
 FiRa UWB Controller Interface (UCI)
+Matter home automation protocol
+UBX protocol of u-blox GNSS receivers (UBX)
 --
 
 === Updated Protocol Support
@@ -139,6 +151,19 @@ FiRa UWB Controller Interface (UCI)
   attribute of the XML declaration, and has a new preference to set default
   character encoding for some XML document without "encoding" attribute.
 
+* The SIP dissector now has a new preference to set default charset for
+  displaying the body of SIP messages in raw text view.
+
+* The HTTP dissector now supports dissecting chunked data in streaming reassembly
+  mode. Subdissectors of HTTP can register itself in "streaming_content_type"
+  subdissector table for enabling streaming reassembly mode while transferring in
+  chunked encoding. This feature ensures the server stream messages of GRPC-Web
+  over HTTP/1.1 can be dissected even if the last chunk is absent.
+
+* The media type dissector table now properly treats media types and subtypes
+as case-insensitive automatically, per RFC 6838. Media types no longer need
+to be lower cased before registering or looking up in the table.
+
 Too many other protocols have been updated to list them all here.
 
 === New and Updated Capture File Support
@@ -150,6 +175,9 @@ Too many other protocols have been updated to list them all here.
 --
 
 // === New and Updated Capture Interfaces support
+
+=== New and Updated Codec support
+Adaptive Multi-Rate (AMR), if compiled with https://sourceforge.net/projects/opencore-amr/[opencore-amr]
 
 //_Non-empty section placeholder._
 

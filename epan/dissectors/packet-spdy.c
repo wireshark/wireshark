@@ -28,7 +28,7 @@
 #include <epan/tap.h>
 #include "packet-tcp.h"
 #include "packet-tls.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 #ifdef HAVE_ZLIB
 #define ZLIB_CONST
@@ -166,7 +166,7 @@ typedef struct _spdy_data_frame_t {
 } spdy_data_frame_t;
 
 typedef struct _spdy_stream_info_t {
-  http_type_t message_type;
+  media_container_type_t container_type;
   gchar *content_type;
   gchar *content_type_parameters;
   gchar *content_encoding;
@@ -504,7 +504,7 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
  */
 static void spdy_save_stream_info(spdy_conv_t *conv_data,
                                   guint32 stream_id,
-                                  http_type_t message_type,
+                                  media_container_type_t container_type,
                                   gchar *content_type,
                                   gchar *content_type_params,
                                   gchar *content_encoding) {
@@ -515,7 +515,7 @@ static void spdy_save_stream_info(spdy_conv_t *conv_data,
   }
 
   si = wmem_new(wmem_file_scope(), spdy_stream_info_t);
-  si->message_type = message_type;
+  si->container_type = container_type;
   si->content_type = content_type;
   si->content_type_parameters = content_type_params;
   si->content_encoding = content_encoding;
@@ -717,7 +717,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
   dissector_handle_t handle;
   guint num_data_frames;
   gboolean dissected;
-  http_message_info_t message_info;
+  media_content_info_t content_info;
 
   /* Add frame description. */
   proto_item_append_text(spdy_proto, ", Stream: %d, Length: %d",
@@ -904,14 +904,14 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       handle = dissector_get_string_handle(media_type_subdissector_table,
                                            si->content_type);
     }
-    message_info.type = si->message_type;
-    message_info.media_str = media_str;
-    message_info.data = NULL;
+    content_info.type = si->container_type;
+    content_info.media_str = media_str;
+    content_info.data = NULL;
     if (handle != NULL) {
       /*
        * We have a subdissector - call it.
        */
-      dissected = call_dissector_with_data(handle, data_tvb, pinfo, spdy_tree, &message_info);
+      dissected = call_dissector_with_data(handle, data_tvb, pinfo, spdy_tree, &content_info);
     } else {
       dissected = FALSE;
     }
@@ -921,7 +921,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
        * Calling the default media handle if there is a content-type that
        * wasn't handled above.
        */
-      call_dissector_with_data(media_handle, next_tvb, pinfo, spdy_tree, &message_info);
+      call_dissector_with_data(media_handle, next_tvb, pinfo, spdy_tree, &content_info);
     } else {
       /* Call the default data dissector */
       call_data_dissector(next_tvb, pinfo, spdy_tree);
@@ -1327,7 +1327,7 @@ static int dissect_spdy_header_payload(
   if (content_type != NULL && !pinfo->fd->visited) {
     gchar *content_type_params = spdy_parse_content_type(content_type);
     spdy_save_stream_info(conv_data, stream_id,
-                          (hdr_status == NULL) ? HTTP_REQUEST : HTTP_RESPONSE,
+                          (hdr_status == NULL) ? MEDIA_CONTAINER_HTTP_REQUEST : MEDIA_CONTAINER_HTTP_RESPONSE,
                           content_type, content_type_params, content_encoding);
   }
 

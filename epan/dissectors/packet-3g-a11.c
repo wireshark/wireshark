@@ -33,7 +33,6 @@
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
-#include <epan/to_str.h>
 
 #include "packet-radius.h"
 

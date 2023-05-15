@@ -37,6 +37,7 @@ fill_named_table(gpointer key, gpointer value _U_, gpointer user_data)
         int string_count = 1;
         int uint_count = 1;
         int uint64_count = 1;
+        int int_count = 1;
         for (const conversation_element_t *cur_el = elements; ; cur_el++) {
             QString title;
             switch (cur_el->type) {
@@ -54,6 +55,9 @@ fill_named_table(gpointer key, gpointer value _U_, gpointer user_data)
                 break;
             case CE_UINT64:
                 title = QString("UInt64 %1").arg(uint64_count++);
+                break;
+            case CE_INT:
+                title = QString("Int %1").arg(int_count++);
                 break;
             case CE_CONVERSATION_TYPE:
                 html_table->append(QString("<th>Endpoint</th>"));
@@ -85,6 +89,9 @@ title_done:
             break;
         case CE_UINT64:
             val = QString::number(cur_el->uint64_val);
+            break;
+        case CE_INT:
+            val = QString::number(cur_el->int_val);
             break;
         case CE_CONVERSATION_TYPE:
             html_table->append(QString("<td>%1</td>").arg(QString::number(cur_el->conversation_type_val)));

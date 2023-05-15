@@ -1763,11 +1763,11 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     /* Display the FCF. */
     ti = proto_tree_add_bitmask(nwk_tree, tvb, offset, hf_zbee_nwk_gp_fcf, ett_zbee_nwk_fcf, fields, ENC_NA);
-    proto_item_append_text(ti, " %s", val_to_str(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown Frame Type"));
+    proto_item_append_text(ti, " %s", val_to_str_const(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown Frame Type"));
     offset += 1;
 
     /* Add the frame type to the info column and protocol root. */
-    proto_item_append_text(proto_root, " %s", val_to_str(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown type"));
+    proto_item_append_text(proto_root, " %s", val_to_str_const(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown type"));
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.frame_type, zbee_nwk_gp_frame_types, "Reserved frame type"));
 
     if (packet.nwk_frame_control_extension) {

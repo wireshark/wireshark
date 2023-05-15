@@ -26,9 +26,7 @@
 
 #include <config.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/proto_data.h>
-#include <epan/tvbuff.h>
 #include <string.h>
 #include "packet-tcp.h"
 

@@ -40,12 +40,6 @@ static gint ett_mpeg_pat_prog = -1;
 #define MPEG_PAT_PROGRAM_RESERVED_MASK          0xE000
 #define MPEG_PAT_PROGRAM_MAP_PID_MASK           0x1FFF
 
-static const true_false_string mpeg_pat_cur_next_vals = {
-
-    "Currently applicable", "Not yet applicable"
-
-};
-
 static int
 dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -127,7 +121,7 @@ proto_register_mpeg_pat(void)
 
         { &hf_mpeg_pat_current_next_indicator, {
             "Current/Next Indicator", "mpeg_pat.cur_next_ind",
-            FT_BOOLEAN, 8, TFS(&mpeg_pat_cur_next_vals), MPEG_PAT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), MPEG_PAT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_pat_section_number, {

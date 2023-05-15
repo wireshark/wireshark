@@ -194,9 +194,9 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITH_FCS    0x07
 #define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITHOUT_FCS 0x08
 
-#define PPPOE_CDR_MASK        0x06
-#define PPPOE_MDR_MASK        0x18
-#define PPPOE_RCV_ONLY_MASK   0x01
+#define PPPOE_CDR_MASK        0x0006
+#define PPPOE_MDR_MASK        0x0018
+#define PPPOE_RCV_ONLY_MASK   0x0001
 
 #define PPPOE_SCALE_KBPS      0x00
 #define PPPOE_SCALE_MBPS      0x01

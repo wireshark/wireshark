@@ -95,6 +95,9 @@ static int hf_lldp_tlv_system_cap_router = -1;
 static int hf_lldp_tlv_system_cap_telephone = -1;
 static int hf_lldp_tlv_system_cap_docsis_cable_device = -1;
 static int hf_lldp_tlv_system_cap_station_only = -1;
+static int hf_lldp_tlv_system_cap_cvlan_component = -1;
+static int hf_lldp_tlv_system_cap_svlan_component = -1;
+static int hf_lldp_tlv_system_cap_tpmr_component = -1;
 static int hf_lldp_tlv_system_name = -1;
 static int hf_lldp_tlv_system_desc = -1;
 static int hf_lldp_tlv_enable_system_cap = -1;
@@ -106,6 +109,9 @@ static int hf_lldp_tlv_enable_system_cap_router = -1;
 static int hf_lldp_tlv_enable_system_cap_telephone = -1;
 static int hf_lldp_tlv_enable_system_cap_docsis_cable_device = -1;
 static int hf_lldp_tlv_enable_system_cap_station_only = -1;
+static int hf_lldp_tlv_enable_system_cap_cvlan_component = -1;
+static int hf_lldp_tlv_enable_system_cap_svlan_component = -1;
+static int hf_lldp_tlv_enable_system_cap_tpmr_component = -1;
 static int hf_chassis_id_subtype = -1;
 static int hf_chassis_id = -1;
 static int hf_chassis_id_mac = -1;
@@ -1205,6 +1211,9 @@ static const value_string hytec_mc[] = {
 #define SYSTEM_CAPABILITY_TELEPHONE	0x0020
 #define SYSTEM_CAPABILITY_DOCSIS	0x0040
 #define SYSTEM_CAPABILITY_STATION	0x0080
+#define SYSTEM_CAPABILITY_CVLAN		0x0100
+#define SYSTEM_CAPABILITY_SVLAN		0x0200
+#define SYSTEM_CAPABILITY_TPMR		0x0400
 
 /* Media Capabilities */
 #define MEDIA_CAPABILITY_LLDP				0x0001
@@ -1947,6 +1956,9 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_telephone, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_docsis_cable_device, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_station_only, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_cvlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_svlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_tpmr_component, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	offset += 2;
 	/* Get enabled summary */
@@ -1962,6 +1974,9 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_telephone, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_docsis_cable_device, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_station_only, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_enable_system_cap_cvlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_enable_system_cap_svlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_enable_system_cap_tpmr_component, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	offset += 2;
 
@@ -4807,6 +4822,18 @@ proto_register_lldp(void)
 			{ "Station only", "lldp.tlv.system_cap.station_only", FT_BOOLEAN, 16,
 			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_STATION, NULL, HFILL }
 		},
+		{ &hf_lldp_tlv_system_cap_cvlan_component,
+			{ "C-VLAN component", "lldp.tlv.system_cap.cvlan", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_CVLAN, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_svlan_component,
+			{ "S-VLAN component", "lldp.tlv.system_cap.svlan", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_SVLAN, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_tpmr_component,
+			{ "TPMR component", "lldp.tlv.system_cap.tpmr", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_TPMR, NULL, HFILL }
+		},
 		{ &hf_lldp_tlv_system_name,
 			{ "System Name", "lldp.tlv.system.name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
@@ -4850,6 +4877,18 @@ proto_register_lldp(void)
 		{ &hf_lldp_tlv_enable_system_cap_station_only,
 			{ "Station only", "lldp.tlv.enable_system_cap.station_only", FT_BOOLEAN, 16,
 			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_STATION, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_cvlan_component,
+			{ "C-VLAN component", "lldp.tlv.enable_system_cap.cvlan", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_CVLAN, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_svlan_component,
+			{ "S-VLAN component", "lldp.tlv.enable_system_cap.svlan", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_SVLAN, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_tpmr_component,
+			{ "TPMR component", "lldp.tlv.enable_system_cap.tpmr", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_TPMR, NULL, HFILL }
 		},
 		{ &hf_chassis_id_subtype,
 			{ "Chassis Id Subtype", "lldp.chassis.subtype", FT_UINT8, BASE_DEC,

@@ -29,7 +29,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>
 
-#include "packet-http.h"
+#include "packet-media-type.h"
 #include "packet-sdp.h"
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */
@@ -352,7 +352,7 @@ static void sdp_dump_transport_info(const transport_info_t* info) {
             return;
         }
         DPRINT2(("sdp_status=%s",
-                 val_to_str(info->sdp_status, sdp_exchange_type_vs, "SDP_EXCHANGE_UNKNOWN")));
+                 val_to_str_const(info->sdp_status, sdp_exchange_type_vs, "SDP_EXCHANGE_UNKNOWN")));
         DPRINT2(("payload type contents:"));
         DINDENT();
             for (i=0; i < SDP_NO_OF_PT; i++) {
@@ -2606,9 +2606,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     sdp_setup_info_t *setup_info = NULL;
 
     if (data) {
-        http_message_info_t *message_info = (http_message_info_t *)data;
-        if (message_info->type == SIP_DATA) {
-            setup_info = (sdp_setup_info_t *)message_info->data;
+        media_content_info_t *content_info = (media_content_info_t *)data;
+        if (content_info->type == MEDIA_CONTAINER_SIP_DATA) {
+            setup_info = (sdp_setup_info_t *)content_info->data;
         }
     }
 

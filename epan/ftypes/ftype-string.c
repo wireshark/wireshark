@@ -112,6 +112,12 @@ val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
 	return TRUE;
 }
 
+static guint
+string_hash(const fvalue_t *fv)
+{
+	return g_str_hash(wmem_strbuf_get_str(fv->value.strbuf));
+}
+
 static gboolean
 string_is_zero(const fvalue_t *fv)
 {
@@ -203,6 +209,7 @@ ftype_register_string(void)
 		cmp_contains,
 		cmp_matches,
 
+		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -238,6 +245,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
+		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -273,6 +281,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
+		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -308,6 +317,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
+		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
@@ -343,6 +353,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
+		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,

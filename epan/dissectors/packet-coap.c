@@ -33,7 +33,7 @@
 #include <epan/strutil.h>
 #include "packet-dtls.h"
 #include "packet-coap.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 #include "packet-tcp.h"
 #include "packet-tls.h"
 
@@ -1182,7 +1182,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 	tvbuff_t   *payload_tvb;
 	guint	    payload_length = offset_end - offset;
 	const char *coap_ctype_str_dis;
-	http_message_info_t message_info = {0};
+	media_content_info_t content_info = {0};
 	char	    str_payload[80];
 	int	    result = 0;
 
@@ -1229,8 +1229,8 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 	proto_item_set_generated(length_item);
 	payload_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
-	message_info.type = HTTP_OTHERS;
-	message_info.media_str = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
+	content_info.type = MEDIA_CONTAINER_HTTP_OTHERS;
+	content_info.media_str = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 	/*
 	 * The Thread protocol uses application/octet-stream for its
 	 * messages, rather than having its own media type for those
@@ -1247,7 +1247,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 		 */
 		result = dissector_try_string(coap_tmf_media_type_dissector_table,
 		    coap_ctype_str_dis, payload_tvb, pinfo, parent_tree,
-		    &message_info);
+		    &content_info);
 	}
 	if (result == 0) {
 		/*
@@ -1256,7 +1256,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 		 */
 		dissector_try_string(media_type_dissector_table,
 		    coap_ctype_str_dis, payload_tvb, pinfo, parent_tree,
-		    &message_info);
+		    &content_info);
 	}
 	if (coinfo->object_security && !oscore) {
 		proto_item_set_text(payload_item, "Encrypted OSCORE Data");

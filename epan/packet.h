@@ -465,7 +465,7 @@ typedef struct heur_dtbl_entry {
  *  Call this in the parent dissectors proto_register function.
  *
  * @param name the name of this protocol
- * @param proto the value obtained when regestering the protocol
+ * @param proto the value obtained when registering the protocol
  */
 WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name, const int proto);
 
@@ -497,7 +497,7 @@ WS_DLL_PUBLIC void heur_dissector_table_foreach(const char *table_name,
 WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
     gpointer user_data, GCompareFunc compare_key_func);
 
-/* true if a heur_dissector list of that anme exists to be registered into */
+/* true if a heur_dissector list of that name exists to be registered into */
 WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
 
 /** Try all the dissectors in a given heuristic dissector list. This is done,
@@ -585,7 +585,7 @@ WS_DLL_PUBLIC GList* get_dissector_names(void);
 /** Find a dissector by name. */
 WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);
 
-/** Find a dissector by name and add parent protocol as a depedency*/
+/** Find a dissector by name and add parent protocol as a dependency. */
 WS_DLL_PUBLIC dissector_handle_t find_dissector_add_dependency(const char *name, const int parent_proto);
 
 /** Get a dissector name from handle. */
@@ -667,7 +667,7 @@ WS_DLL_PUBLIC gboolean register_depend_dissector(const char* parent, const char*
 /** Unregister a protocol dependency
  * This is done automatically when removing from a dissector or
  * heuristic table.  This is for "manual" deregistration for things
- * like Lua
+ * like Lua.
  *
  *   @param parent "Parent" protocol short name
  *   @param dependent "Dependent" protocol short name
@@ -738,7 +738,7 @@ WS_DLL_PUBLIC void postseq_cleanup_all_protocols(void);
  * subsystems, liked dfilters, have finished initializing. This is
  * useful for dissector registration routines which need to compile
  * display filters. dfilters can't initialize itself until all protocols
- * have registereed themselvs. */
+ * have registered themselves. */
 WS_DLL_PUBLIC void
 register_final_registration_routine(void (*func)(void));
 
@@ -770,7 +770,7 @@ extern void free_data_sources(packet_info *pinfo);
 
 /* Mark another frame as depended upon by the current frame.
  *
- * This information is used to ensure that the dependend-upon frame is saved
+ * This information is used to ensure that the depended-upon frame is saved
  * if the user does a File->Save-As of only the Displayed packets and the
  * current frame passed the display filter.
  */

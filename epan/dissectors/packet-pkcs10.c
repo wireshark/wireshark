@@ -45,6 +45,8 @@
 
 void proto_register_pkcs10(void);
 
+static dissector_handle_t csr_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_pkcs10 = -1;
 static int hf_pkcs10_Attributes_PDU = -1;         /* Attributes */
@@ -278,6 +280,7 @@ void proto_register_pkcs10(void) {
 	proto_register_field_array(proto_pkcs10, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+  csr_handle = register_dissector(PFNAME, dissect_CertificationRequest_PDU, proto_pkcs10);
   register_ber_syntax_dissector("CertificationRequest", proto_pkcs10, dissect_CertificationRequest_PDU);
   register_ber_oid_syntax(".p10", NULL, "CertificationRequest");
   register_ber_oid_syntax(".csr", NULL, "CertificationRequest");
@@ -286,12 +289,10 @@ void proto_register_pkcs10(void) {
 
 /*--- proto_reg_handoff_pkcs10 -------------------------------------------*/
 void proto_reg_handoff_pkcs10(void) {
-  dissector_handle_t csr_handle;
 
   register_ber_oid_dissector("1.2.840.113549.1.9.9", dissect_Attributes_PDU, proto_pkcs10, "pkcs-9-at-extendedCertificateAttributes");
 
 
-  csr_handle = create_dissector_handle(dissect_CertificationRequest_PDU, proto_pkcs10);
   dissector_add_string("media_type", "application/pkcs10", csr_handle); /* RFC 5967 */
   dissector_add_string("rfc7468.preeb_label", "CERTIFICATE REQUEST", csr_handle); /* RFC 7468 */
   dissector_add_string("rfc7468.preeb_label", "NEW CERTIFICATE REQUEST", csr_handle); /* RFC 7468 Appendix A. Non-conforming expample*/

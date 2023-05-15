@@ -35,6 +35,7 @@ static void extended_tlv_decoder(packet_info *pinfo);
 void proto_tree_add_tlv(tlv_info_t *self, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf, guint encoding);
 
 /* Global variables */
+static dissector_handle_t m2m_handle;
 static dissector_handle_t wimax_cdma_code_burst_handle;
 static dissector_handle_t wimax_ffb_burst_handle;
 static dissector_handle_t wimax_fch_burst_handle;
@@ -205,7 +206,8 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			/* get the TLV value offset */
 			tlv_offset = get_tlv_value_offset(&m2m_tlv_info);
 			/* display TLV type */
-			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s", val_to_str(tlv_type, tlv_name, "Unknown TLV"));
+			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s",
+												val_to_str_const(tlv_type, tlv_name, "Unknown TLV"));
 			/* add TLV subtree */
 			tlv_tree = proto_item_add_subtree(ti, ett_m2m_tlv);
 			/* update the offset */
@@ -240,7 +242,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				case TLV_FRAG_TYPE:
 					/* add the description */
 					tlv_frag_type = tvb_get_guint8( tvb, offset );
-					proto_item_append_text(ti, ": %s", val_to_str(tlv_frag_type, tlv_frag_type_name, "Unknown"));
+					proto_item_append_text(ti, ": %s", val_to_str_const(tlv_frag_type, tlv_frag_type_name, "Unknown"));
 					hf = hf_m2m_value_frag_type_uint8;
 					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
@@ -307,7 +309,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				case TLV_CRC16_STATUS:
 					/* add the description */
 					tlv_value = tvb_get_guint8( tvb, offset );
-					proto_item_append_text(ti, ": %s", val_to_str(tlv_value, tlv_crc16_status, "Unknown"));
+					proto_item_append_text(ti, ": %s", val_to_str_const(tlv_value, tlv_crc16_status, "Unknown"));
 					hf = hf_m2m_value_crc16_status_uint8;
 					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
@@ -772,6 +774,7 @@ void proto_register_m2m(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_m2m = expert_register_protocol(proto_m2m);
 	expert_register_field_array(expert_m2m, ei, array_length(ei));
+	m2m_handle = register_dissector("mac_mgmt_msg_m2m_handler", dissect_m2m, proto_m2m);
 
 	/* Register reassembly table */
 	reassembly_table_register(&pdu_reassembly_table,
@@ -781,9 +784,6 @@ void proto_register_m2m(void)
 /* Register Wimax Mac to Mac Protocol handler */
 void proto_reg_handoff_m2m(void)
 {
-	dissector_handle_t m2m_handle;
-
-	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
 	dissector_add_uint("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 
 	/* find the wimax handlers */

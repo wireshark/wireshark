@@ -15,10 +15,16 @@
 
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_OFF(stringop-overflow)
+#if WS_IS_AT_LEAST_GNUC_VERSION(13,0)
+DIAG_OFF(restrict)
+#endif
 #endif
 #include "interface_toolbar.h"
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_ON(stringop-overflow)
+#if WS_IS_AT_LEAST_GNUC_VERSION(13,0)
+DIAG_ON(restrict)
+#endif
 #endif
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include "simple_dialog.h"

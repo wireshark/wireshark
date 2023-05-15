@@ -311,7 +311,7 @@ dissect_igmp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int* of
 	igmp_tree = proto_item_add_subtree(ti, ett_igmp);
 
 	*type = tvb_get_guint8(tvb, 0);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(*type, commands, "Unknown Type:0x%02x"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(*type, commands, "Unknown Type:0x%02x"));
 
 	/* version of IGMP protocol */
 	ti = proto_tree_add_uint(igmp_tree, hf_version, tvb, 0, 0, version);

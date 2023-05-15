@@ -11,7 +11,7 @@
 #ifndef STTYPE_FIELD_H
 #define STTYPE_FIELD_H
 
-#include "syntax-tree.h"
+#include "dfilter-int.h"
 #include "drange.h"
 
 

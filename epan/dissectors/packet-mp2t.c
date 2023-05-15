@@ -359,6 +359,7 @@ typedef struct pid_analysis_data {
     guint16                  pid;
     gint8                    cc_prev;      /* Previous CC number */
     enum pid_payload_type    pload_type;
+    wmem_tree_t             *stream_types;
 
     /* Fragments information used for first pass */
     gboolean                 fragmentation;
@@ -451,6 +452,7 @@ get_pid_analysis(mp2t_analysis_data_t *mp2t_data, guint32 pid)
         pid_data          = wmem_new0(wmem_file_scope(), struct pid_analysis_data);
         pid_data->cc_prev = -1;
         pid_data->pid     = pid;
+        pid_data->stream_types = wmem_tree_new(wmem_file_scope());
         pid_data->frag_id = (pid << (32 - 13)) | 0x1;
 
         wmem_tree_insert32(mp2t_data->pid_table, pid, (void *)pid_data);
@@ -535,31 +537,45 @@ mp2t_reassembly_table_functions = {
 
 static reassembly_table mp2t_reassembly_table;
 
+void
+mp2t_add_stream_type(packet_info *pinfo, guint32 pid, guint32 stream_type)
+{
+    mp2t_stream_key *stream;
+
+    stream = (mp2t_stream_key *)p_get_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_STREAM);
+    if (!stream) {
+        return;
+    }
+
+    mp2t_analysis_data_t *mp2t_data = get_mp2t_conversation_data(stream);
+    pid_analysis_data_t *pid_data = get_pid_analysis(mp2t_data, pid);
+
+    if (!pid_data->stream_types) {
+        pid_data->stream_types = wmem_tree_new(wmem_file_scope());
+    }
+
+    wmem_tree_insert32(pid_data->stream_types, pinfo->num, GUINT_TO_POINTER(stream_type));
+}
+
 static void
-mp2t_dissect_packet(tvbuff_t *tvb, enum pid_payload_type pload_type,
+mp2t_dissect_packet(tvbuff_t *tvb, const pid_analysis_data_t *pid_analysis,
             packet_info *pinfo, proto_tree *tree)
 {
-    dissector_handle_t handle = NULL;
-
-    switch (pload_type) {
+    switch (pid_analysis->pload_type) {
         case pid_pload_docsis:
-            handle = docsis_handle;
+            call_dissector(docsis_handle, tvb, pinfo, tree);
             break;
         case pid_pload_pes:
-            handle = mpeg_pes_handle;
+            call_dissector_with_data(mpeg_pes_handle, tvb, pinfo, tree, wmem_tree_lookup32_le(pid_analysis->stream_types, pinfo->num));
             break;
         case pid_pload_sect:
-            handle = mpeg_sect_handle;
+            call_dissector(mpeg_sect_handle, tvb, pinfo, tree);
             break;
         default:
             /* Should not happen */
+            call_data_dissector(tvb, pinfo, tree);
             break;
     }
-
-    if (handle)
-        call_dissector(handle, tvb, pinfo, tree);
-    else
-        call_data_dissector(tvb, pinfo, tree);
 }
 
 /* Determine the length of a payload packet. If there aren't enough
@@ -660,7 +676,7 @@ static void
 mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
         proto_tree *tree, guint32 frag_id,
         guint frag_offset, guint frag_len,
-        gboolean fragment_last, enum pid_payload_type pload_type)
+        gboolean fragment_last, const pid_analysis_data_t *pid_analysis)
 {
     fragment_head   *frag_msg;
     proto_item      *ti;
@@ -720,7 +736,7 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
          * back in the calling function.)
          */
         TRY {
-            mp2t_dissect_packet(new_tvb, pload_type, pinfo, tree);
+            mp2t_dissect_packet(new_tvb, pid_analysis, pinfo, tree);
         }
         CATCH_NONFATAL_ERRORS {
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
@@ -958,7 +974,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
          */
         if (fragmentation) {
             mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos,
-                    pointer, TRUE, pid_analysis->pload_type);
+                    pointer, TRUE, pid_analysis);
             frag_id++;
         }
 
@@ -1001,7 +1017,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
             /* Get the next packet's size if possible */
             frag_tot_len = mp2t_get_packet_length(tvb, offset, pinfo, frag_id, pid_analysis->pload_type);
             if (frag_tot_len == (guint)-1 || !frag_tot_len) {
-                mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, 0, remaining_len, FALSE, pid_analysis->pload_type);
+                mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, 0, remaining_len, FALSE, pid_analysis);
                 fragmentation = TRUE;
                 /*offset += remaining_len;*/
                 frag_cur_pos += remaining_len;
@@ -1011,7 +1027,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
             /* Check for full packets within this TS frame */
             if (frag_tot_len <= remaining_len) {
                 next_tvb = tvb_new_subset_length(tvb, offset, frag_tot_len);
-                mp2t_dissect_packet(next_tvb, pid_analysis->pload_type, pinfo, tree);
+                mp2t_dissect_packet(next_tvb, pid_analysis, pinfo, tree);
                 remaining_len -= frag_tot_len;
                 offset += frag_tot_len;
                 frag_tot_len = 0;
@@ -1036,7 +1052,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         /* The case where PUSI was 0, a continuing SECT ended, and stuff
          * bytes follow. */
         stuff_len = frag_cur_pos + remaining_len - frag_tot_len;
-        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len - stuff_len, TRUE, pid_analysis->pload_type);
+        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len - stuff_len, TRUE, pid_analysis);
         offset += remaining_len - stuff_len;
         frag_id++;
         fragmentation = FALSE;
@@ -1045,13 +1061,13 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         stuff_tree = proto_tree_add_subtree_format(tree, tvb, offset, stuff_len, ett_stuff, NULL, "Stuffing");
         proto_tree_add_item(stuff_tree, hf_mp2t_stuff_bytes, tvb, offset, stuff_len, ENC_NA);
     } else if ((frag_tot_len && frag_cur_pos + remaining_len == frag_tot_len) || (!frag_tot_len && pusi_flag)) {
-        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len, TRUE, pid_analysis->pload_type);
+        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len, TRUE, pid_analysis);
         frag_id++;
         fragmentation = FALSE;
         frag_cur_pos = 0;
         frag_tot_len = 0;
     } else {
-        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len, FALSE, pid_analysis->pload_type);
+        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len, FALSE, pid_analysis);
         fragmentation = TRUE;
         frag_cur_pos += remaining_len;
     }

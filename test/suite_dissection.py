@@ -355,6 +355,43 @@ class case_dissect_grpc_web(subprocesstest.SubprocessTestCase):
         self.assertEqual(self.countOutput('greet.HelloRequest'), 1)
         self.assertEqual(self.countOutput('greet.HelloReply'), 1)
 
+    def test_grpc_web_server_stream_over_http1(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web data server stream over http1'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57226,http',
+                '-Y', '(tcp.stream eq 9) && ((pbf.greet.HelloRequest.name && grpc.message_length == 10)'
+                       '|| (pbf.greet.HelloReply.message && grpc.message_length == 18))',
+            ))
+        self.assertTrue(self.grepOutput('GRPC-Web'))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 1)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 9)
+
+    def test_grpc_web_reassembly_and_stream_over_http1(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web data reassembly and server stream over http1'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57226,http',
+                '-Y', '(tcp.stream eq 10) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
+                       '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
+            ))
+        self.assertTrue(self.grepOutput('GRPC-Web'))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 6)
+
+
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures

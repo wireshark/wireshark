@@ -10,6 +10,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
+#include "dfilter-macro.h"
 
 #ifdef DUMP_DFILTER_MACRO
 #include <stdio.h>
@@ -17,8 +18,6 @@
 #include <string.h>
 
 #include "dfilter-int.h"
-#include "dfilter.h"
-#include "dfilter-macro.h"
 #include <ftypes/ftypes.h>
 #include <epan/uat-int.h>
 #include <epan/proto.h>
@@ -37,7 +36,7 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 #define DUMP_MACRO(m)
 #endif
 
-static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
+static gchar* dfilter_macro_resolve(gchar* name, gchar** args, df_error_t** error) {
 	GString* text;
 	int argc = 0;
 	dfilter_macro_t* m = NULL;
@@ -56,7 +55,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 
 	if (!m) {
 		if (error != NULL)
-			*error = g_strdup_printf("macro '%s' does not exist", name);
+			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' does not exist", name);
 		return NULL;
 	}
 
@@ -68,8 +67,9 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 
 	if (argc != m->argc) {
 		if (error != NULL) {
-			*error = ws_strdup_printf("wrong number of arguments for macro '%s', expecting %d instead of %d",
-									  name, m->argc, argc);
+			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL,
+							"wrong number of arguments for macro '%s', expecting %d instead of %d",
+							name, m->argc, argc);
 		}
 		return NULL;
 	}
@@ -132,7 +132,7 @@ static gboolean start_is_field_reference(const char *start)
 	return TRUE;
 }
 
-static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar** error) {
+static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, df_error_t** error) {
 	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
@@ -144,7 +144,7 @@ static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar*
 
 	if ( depth > 31) {
 		if (error != NULL)
-			*error = g_strdup("too much nesting in macros");
+			*error = df_error_new_msg("too much nesting in macros");
 		return NULL;
 	}
 
@@ -238,11 +238,11 @@ static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar*
 					state = OUTSIDE;
 				} else if ( c == '\0') {
 					if (error != NULL)
-						*error = g_strdup("end of filter in the middle of a macro expression");
+						*error = df_error_new_msg("end of filter in the middle of a macro expression");
 					goto on_error;
 				} else {
 					if (error != NULL)
-						*error = g_strdup("invalid character in macro name");
+						*error = df_error_new_msg("invalid character in macro name");
 					goto on_error;
 				}
 				break;
@@ -250,7 +250,7 @@ static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar*
 				switch(c) {
 					case '\0': {
 						if (error != NULL)
-							*error = g_strdup("end of filter in the middle of a macro expression");
+							*error = df_error_new_msg("end of filter in the middle of a macro expression");
 						goto on_error;
 					} case ';': {
 						g_ptr_array_add(args,g_string_free(arg,FALSE));
@@ -264,7 +264,7 @@ static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar*
 							break;
 						} else {
 							if (error != NULL)
-								*error = g_strdup("end of filter in the middle of a macro expression");
+								*error = df_error_new_msg("end of filter in the middle of a macro expression");
 							goto on_error;
 						}
 					} default: {
@@ -316,14 +316,14 @@ on_error:
 		FREE_ALL();
 		if (error != NULL) {
 			if (*error == NULL)
-				*error = g_strdup("unknown error in macro expression");
+				*error = df_error_new_msg("unknown error in macro expression");
 		}
 		g_string_free(out,TRUE);
 		return NULL;
 	}
 }
 
-gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
+gchar* dfilter_macro_apply(const gchar* text, df_error_t** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 

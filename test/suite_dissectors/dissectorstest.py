@@ -26,12 +26,13 @@ class _dissection_validator_real:
     unacceptable overhead during execution of the unittests.
     '''
 
-    def __init__(self, protocol, request, cmd_tshark, cmd_text2pcap):
+    def __init__(self, protocol, request, cmd_tshark, cmd_text2pcap, result_file):
         self.dissection_list = []
         self.protocol = protocol
         self.cmd_tshark = cmd_tshark
         self.cmd_text2pcap = cmd_text2pcap
         self.test_case = request.instance
+        self.result_file = result_file
 
     def add_dissection(self, byte_list, expected_result, line_no=None):
         '''Adds a byte bundle and an expected result to the set of byte
@@ -61,8 +62,8 @@ class _dissection_validator_real:
         '''Processes and verifies all added byte bundles and their expected
         results. At the end of processing the current set is emptied.'''
 
-        text_file = self.test_case.filename_from_id('txt')
-        pcap_file = self.test_case.filename_from_id('pcap')
+        text_file = self.result_file('txt')
+        pcap_file = self.result_file('pcap')
 
         # create our text file of hex encoded messages
         with open(text_file, 'w') as f:
@@ -104,14 +105,15 @@ class _dissection_validator_real:
 
 
 @fixtures.fixture
-def dissection_validator(request, cmd_tshark, cmd_text2pcap):
+def dissection_validator(request, cmd_tshark, cmd_text2pcap, result_file):
 
     def generate_validator(protocol):
         retval = _dissection_validator_real(
             protocol,
             request,
             cmd_tshark,
-            cmd_text2pcap)
+            cmd_text2pcap,
+            result_file)
         return retval
 
     return generate_validator

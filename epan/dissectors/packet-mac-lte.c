@@ -3351,9 +3351,9 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         proto_tree_add_item(tree, hf_mac_lte_padding_data,
                             tvb, offset, -1, ENC_NA);
     }
-    padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
-                                           tvb, offset, 0,
-                                           p_mac_lte_info->length - offset);
+    padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
+                                            tvb, offset, 0,
+                                            p_mac_lte_info->length - offset);
     proto_item_set_generated(padding_length_ti);
 
     /* Update padding bytes in stats */
@@ -6272,9 +6272,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                 tvb, offset, -1, ENC_NA);
         }
-        padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
-                                               tvb, offset, 0,
-                                               p_mac_lte_info->length - offset);
+        padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
+                                                tvb, offset, 0,
+                                                p_mac_lte_info->length - offset);
         proto_item_set_generated(padding_length_ti);
 
         /* Update padding bytes in stats */
@@ -6708,9 +6708,9 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                 tvb, offset, -1, ENC_NA);
         }
-        padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
-                                               tvb, offset, 0,
-                                               p_mac_lte_info->length - offset);
+        padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
+                                                tvb, offset, 0,
+                                                p_mac_lte_info->length - offset);
         proto_item_set_generated(padding_length_ti);
 
         /* Make sure the PDU isn't bigger than reported! */
@@ -7064,9 +7064,9 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                 tvb, offset, -1, ENC_NA);
         }
-        padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
-                                               tvb, offset, 0,
-                                               p_mac_lte_info->length - offset);
+        padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
+                                                tvb, offset, 0,
+                                                p_mac_lte_info->length - offset);
         proto_item_set_generated(padding_length_ti);
 
         /* Make sure the PDU isn't bigger than reported! */
@@ -8493,7 +8493,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_padding_length,
             { "Padding length",
-              "mac-lte.padding-length", FT_INT32, BASE_DEC, NULL, 0x0,
+              "mac-lte.padding-length", FT_UINT32, BASE_DEC, NULL, 0x0,
               "Length of padding data not included at end of frame", HFILL
             }
         },

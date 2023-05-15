@@ -1285,7 +1285,8 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 
 		len -= tlv_length;
 
-		dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(tlv_type));
+		if (a->tlvs_by_id)
+			dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(tlv_type));
 
 		if (!dictionary_entry) {
 			dictionary_entry = &no_dictionary_entry;

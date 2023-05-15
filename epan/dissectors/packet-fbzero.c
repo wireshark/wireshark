@@ -185,8 +185,8 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
         tag_tree = proto_item_add_subtree(ti_tag, ett_fb_zero_tag_value);
         ti_type = proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
         tag = tvb_get_ntohl(tvb, offset);
-        proto_item_append_text(ti_type, " (%s)", val_to_str(tag, tag_vals, "Unknown"));
-        proto_item_append_text(ti_tag, ": %s (%s)", tag_str, val_to_str(tag, tag_vals, "Unknown"));
+        proto_item_append_text(ti_type, " (%s)", val_to_str_const(tag, tag_vals, "Unknown"));
+        proto_item_append_text(ti_tag, ": %s (%s)", tag_str, val_to_str_const(tag, tag_vals, "Unknown"));
         offset += 4;
 
         ti_offset_len = proto_tree_add_item_ret_uint(tag_tree, hf_fb_zero_tag_offset_end, tvb, offset, 4, ENC_LITTLE_ENDIAN, &offset_end);
@@ -259,8 +259,8 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                     while(offset_end - tag_offset >= 4){
                         proto_tree *ti_aead;
                         ti_aead = proto_tree_add_item(tag_tree, hf_fb_zero_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
-                        proto_item_append_text(ti_aead, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
-                        proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
+                        proto_item_append_text(ti_aead, " (%s)", val_to_str_const(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
+                        proto_item_append_text(ti_tag, ", %s", val_to_str_const(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                         tag_offset += 4;
                     }
                     if(offset_end - tag_offset > 0){
@@ -329,8 +329,8 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                     while(offset_end - tag_offset >= 4){
                         proto_tree *ti_kexs;
                         ti_kexs = proto_tree_add_item(tag_tree, hf_fb_zero_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
-                        proto_item_append_text(ti_kexs, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
-                        proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
+                        proto_item_append_text(ti_kexs, " (%s)", val_to_str_const(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
+                        proto_item_append_text(ti_tag, ", %s", val_to_str_const(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                         tag_offset += 4;
                     }
                     if(offset_end - tag_offset > 0){
@@ -357,7 +357,8 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                 expert_add_info_format(pinfo, ti_tag, &ei_fb_zero_tag_undecoded,
                                  "Dissector for FB Zero Tag"
                                  " %s (%s) code not implemented, Contact"
-                                 " Wireshark developers if you want this supported", tvb_get_string_enc(pinfo->pool, tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
+                                 " Wireshark developers if you want this supported",
+                                 tvb_get_string_enc(pinfo->pool, tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str_const(tag, tag_vals, "Unknown"));
                 if(tag_offset_valid){
                     proto_tree_add_item(tag_tree, hf_fb_zero_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                     tag_offset += tag_len;
@@ -403,8 +404,9 @@ dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero
         if(try_val_to_str(message_tag, message_tag_vals)){
             ti = proto_tree_add_item_ret_string(fb_zero_tree, hf_fb_zero_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &message_tag_str);
 
-            proto_item_append_text(ti, ", Type: %s (%s)", message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
+            proto_item_append_text(ti, ", Type: %s (%s)", message_tag_str,
+                                   val_to_str_const(message_tag, message_tag_vals, "Unknown Tag"));
+            col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
             offset += 4;
 
             proto_tree_add_item(fb_zero_tree, hf_fb_zero_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);

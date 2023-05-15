@@ -415,7 +415,7 @@ ptype_to_ipproto(const port_type ptype)
  * @return        True if it is valid IP/IPv6, false otherwise
  */
 static gboolean
-f5_ip_conv_valid(packet_info *pinfo)
+f5_ip_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     gboolean is_ip = FALSE;
     gboolean is_f5ethtrailer = FALSE;
@@ -436,7 +436,7 @@ f5_ip_conv_valid(packet_info *pinfo)
  * @return        True if it is valid IP/IPv6 + TCP, false otherwise
  */
 static gboolean
-f5_tcp_conv_valid(packet_info *pinfo)
+f5_tcp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     gboolean is_ip  = FALSE;
     gboolean is_tcp = FALSE;
@@ -458,7 +458,7 @@ f5_tcp_conv_valid(packet_info *pinfo)
  * @return        True if it is valid IP/IPv6 + UDP, false otherwise
  */
 static gboolean
-f5_udp_conv_valid(packet_info *pinfo)
+f5_udp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     gboolean is_ip  = FALSE;
     gboolean is_udp = FALSE;
@@ -485,7 +485,7 @@ f5_udp_conv_valid(packet_info *pinfo)
  *             (as of WS 1.12).
  */
 static gchar *
-f5_ip_conv_filter(packet_info *pinfo)
+f5_ip_conv_filter(packet_info *pinfo, void *user_data _U_)
 {
     gchar *buf = NULL;
     gchar src_addr[WS_INET6_ADDRSTRLEN];
@@ -540,7 +540,7 @@ f5_ip_conv_filter(packet_info *pinfo)
  *             (as of WS 1.12).
  */
 static gchar *
-f5_tcp_conv_filter(packet_info *pinfo)
+f5_tcp_conv_filter(packet_info *pinfo, void *user_data _U_)
 {
     gchar *buf = NULL;
     gchar src_addr[WS_INET6_ADDRSTRLEN];
@@ -600,7 +600,7 @@ f5_tcp_conv_filter(packet_info *pinfo)
  *             (as of WS 1.12).
  */
 static gchar *
-f5_udp_conv_filter(packet_info *pinfo)
+f5_udp_conv_filter(packet_info *pinfo, void *user_data _U_)
 {
     gchar *buf = NULL;
     gchar src_addr[WS_INET6_ADDRSTRLEN];
@@ -4114,9 +4114,9 @@ proto_register_f5ethtrailer(void)
         "F5 Ethernet Trailer TLS", proto_f5ethtrailer, FT_UINT32, BASE_DEC);
 
     /* Analyze Menu Items */
-    register_conversation_filter("f5ethtrailer", "F5 TCP", f5_tcp_conv_valid, f5_tcp_conv_filter);
-    register_conversation_filter("f5ethtrailer", "F5 UDP", f5_udp_conv_valid, f5_udp_conv_filter);
-    register_conversation_filter("f5ethtrailer", "F5 IP", f5_ip_conv_valid, f5_ip_conv_filter);
+    register_conversation_filter("f5ethtrailer", "F5 TCP", f5_tcp_conv_valid, f5_tcp_conv_filter, NULL);
+    register_conversation_filter("f5ethtrailer", "F5 UDP", f5_udp_conv_valid, f5_udp_conv_filter, NULL);
+    register_conversation_filter("f5ethtrailer", "F5 IP", f5_ip_conv_valid, f5_ip_conv_filter, NULL);
 
     /* Register the f5ethtrailer tap for statistics */
     tap_f5ethtrailer = register_tap("f5ethtrailer");

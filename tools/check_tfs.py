@@ -373,13 +373,7 @@ for f in files:
     if not isGeneratedFile(f):
         checkFile(f, tfs_entries, look_for_common=args.common, check_value_strings=args.check_value_strings)
 
-
-# Show summary.
-print(warnings_found, 'warnings found')
-if errors_found:
-    print(errors_found, 'errors found')
-    exit(1)
-
+# Report on commonly-defined values.
 if args.common:
     # Looking for items that could potentially be moved to tfs.c
     for c in custom_tfs_entries:
@@ -387,3 +381,10 @@ if args.common:
         # Even then, probably only want to consider ones that sound generic.
         if len(custom_tfs_entries[c]) > 2:
             print(c, 'appears', len(custom_tfs_entries[c]), 'times, in: ', custom_tfs_entries[c])
+
+
+# Show summary.
+print(warnings_found, 'warnings found')
+if errors_found:
+    print(errors_found, 'errors found')
+    exit(1)

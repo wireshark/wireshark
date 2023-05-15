@@ -251,6 +251,10 @@ static const value_string command_code_vals[] = {
     { 0x14,   "LE Credit Based Connection Request" },
     { 0x15,   "LE Credit Based Connection Response" },
     { 0x16,   "LE Flow Control Credit" },
+    { 0x17,   "L2CAP Credit Based Connection Request" },
+    { 0x18,   "L2CAP Credit Based Connection Response" },
+    { 0x19,   "L2CAP Credit Based Reconfigure Request" },
+    { 0x1A,   "L2CAP Credit Based Reconfigure Response" },
     { 0, NULL }
 };
 
@@ -272,6 +276,7 @@ static const value_string psm_vals[] = {
     { 0x0021, "3DSP" },
     { 0x0023, "IPSP" },
     { 0x0025, "OTS" },
+    { 0x0027, "EATT" },
     { 0, NULL }
 };
 value_string_ext ext_psm_vals = VALUE_STRING_EXT_INIT(psm_vals);
@@ -840,7 +845,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
     offset += 2;
 
     if (!pinfo->fd->visited) {
-        wmem_tree_key_t    key[7];
+        wmem_tree_key_t    key[8];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
@@ -851,6 +856,8 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         guint32            adapter_id;
         guint32            chandle;
         psm_data_t        *psm_data;
+        guint32            key_cid;
+        guint32            cid_index;
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -865,11 +872,20 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         k_cid = cid;
         k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
+        cid_index = 0;
 
         psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
 
-        psm_data->local_cid = scid;
-        psm_data->remote_cid = BTL2CAP_UNKNOWN_CID;
+        if (pinfo->p2p_dir == P2P_DIR_RECV) {
+            key_cid = scid | 0x80000000;
+            psm_data->local_cid = BTL2CAP_UNKNOWN_CID;
+            psm_data->remote_cid = key_cid;
+        }
+        else {
+            key_cid = scid;
+            psm_data->local_cid = key_cid;
+            psm_data->remote_cid = BTL2CAP_UNKNOWN_CID;
+        }
 
         psm_data->psm = psm;
         psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
@@ -895,12 +911,14 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         key[4].key = &k_cmd_ident;
         key[5].length = 1;
         key[5].key = &k_frame_number;
-        key[6].length = 0;
-        key[6].key = NULL;
+        key[6].length = 1;
+        key[6].key = &cid_index;
+        key[7].length = 0;
+        key[7].key = NULL;
 
         wmem_tree_insert32_array(cmd_ident_to_psm_table, key, psm_data);
 
-        k_cid = scid;
+        k_cid = key_cid;
 
         key[4].length = 1;
         key[4].key = &k_frame_number;
@@ -1000,7 +1018,7 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
 
     if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
-        wmem_tree_key_t    key[7];
+        wmem_tree_key_t    key[8];
         guint32            k_interface_id;
         guint32            k_adapter_id;
         guint32            k_chandle;
@@ -1010,6 +1028,8 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         guint32            interface_id;
         guint32            adapter_id;
         guint32            chandle;
+        guint32            key_cid;
+        guint32            cid_index;
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -1024,6 +1044,7 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         k_cid = cid;
         k_cmd_ident = cmd_ident;
         k_frame_number = pinfo->num;
+        cid_index = 0;
 
         key[0].length = 1;
         key[0].key = &k_interface_id;
@@ -1037,8 +1058,10 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         key[4].key = &k_cmd_ident;
         key[5].length = 1;
         key[5].key = &k_frame_number;
-        key[6].length = 0;
-        key[6].key = NULL;
+        key[6].length = 1;
+        key[6].key = &cid_index;
+        key[7].length = 0;
+        key[7].key = NULL;
 
         psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cmd_ident_to_psm_table, key);
         if (psm_data &&
@@ -1047,12 +1070,12 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
             psm_data->chandle == chandle &&
             psm_data->disconnect_in_frame > pinfo->num)
         {
-            dcid |= 0x80000000;
+            key_cid = dcid | ((pinfo->p2p_dir != P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
 
             k_interface_id = interface_id;
             k_adapter_id = adapter_id;
             k_chandle = chandle;
-            k_cid = dcid;
+            k_cid = key_cid;
             k_frame_number = pinfo->num;
 
             key[0].length = 1;
@@ -1069,9 +1092,9 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
             key[5].key = NULL;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
-                psm_data->remote_cid = dcid;
+                psm_data->remote_cid = key_cid;
             else
-                psm_data->local_cid = dcid;
+                psm_data->local_cid = key_cid;
 
             wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
         }
@@ -1079,7 +1102,298 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
 
     return offset;
 }
+static int
+dissect_l2cap_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, proto_tree *command_tree, guint16 cid, guint8 cmd_ident,
+    guint16 length, bthci_acl_data_t *acl_data, btl2cap_data_t *l2cap_data)
+{
 
+    proto_item  *psm_item;
+    guint32      psm;
+    guint32      scid;
+    guint32      cid_index;
+
+    proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_le_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN, &psm);
+    if (psm < 0x80) {
+        psm_item = proto_tree_add_item(command_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_item_set_generated(psm_item);
+    }
+    offset += 2;
+
+    proto_tree_add_item(command_tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(command_tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(command_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    cid_index = 0;
+    while (offset < length + 8) {
+        proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
+        offset += 2;
+
+        if (!pinfo->fd->visited) {
+            wmem_tree_key_t    key[8];
+            guint32            k_interface_id;
+            guint32            k_adapter_id;
+            guint32            k_chandle;
+            guint32            k_cid;
+            guint32            k_cmd_ident;
+            guint32            k_frame_number;
+            guint32            interface_id;
+            guint32            adapter_id;
+            guint32            chandle;
+            psm_data_t        *psm_data;
+            guint32            key_cid;
+
+            if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+                interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+            else
+                interface_id = HCI_INTERFACE_DEFAULT;
+            adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+            chandle = (acl_data) ? acl_data->chandle : 0;
+
+            k_interface_id = interface_id;
+            k_adapter_id = adapter_id;
+            k_chandle = chandle;
+            k_cid = cid;
+            k_cmd_ident = cmd_ident;
+            k_frame_number = pinfo->num;
+
+            psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
+
+            if (pinfo->p2p_dir == P2P_DIR_RECV) {
+                key_cid = scid | 0x80000000;
+                psm_data->local_cid = BTL2CAP_UNKNOWN_CID;
+                psm_data->remote_cid = key_cid;
+            }
+            else {
+                key_cid = scid;
+                psm_data->local_cid = key_cid;
+                psm_data->remote_cid = BTL2CAP_UNKNOWN_CID;
+            }
+
+            psm_data->psm = psm;
+            psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
+            psm_data->in.mode = L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE;
+            psm_data->in.start_fragments = wmem_tree_new(wmem_file_scope());
+            psm_data->out.mode = L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE;
+            psm_data->out.start_fragments = wmem_tree_new(wmem_file_scope());
+            psm_data->interface_id = k_interface_id;
+            psm_data->adapter_id = k_adapter_id;
+            psm_data->chandle = k_chandle;
+            psm_data->connect_in_frame = pinfo->num;
+            psm_data->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
+
+            key[0].length = 1;
+            key[0].key = &k_interface_id;
+            key[1].length = 1;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_cid;
+            key[4].length = 1;
+            key[4].key = &k_cmd_ident;
+            key[5].length = 1;
+            key[5].key = &k_frame_number;
+            key[6].length = 1;
+            key[6].key = &cid_index;
+            key[7].length = 0;
+            key[7].key = NULL;
+
+            wmem_tree_insert32_array(cmd_ident_to_psm_table, key, psm_data);
+
+            k_cid = key_cid;
+
+            key[4].length = 1;
+            key[4].key = &k_frame_number;
+            key[5].length = 0;
+            key[5].key = NULL;
+
+            wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
+        }
+
+        if (l2cap_data) {
+            proto_item        *sub_item;
+            guint32            bt_uuid = 0;
+            guint32            disconnect_in_frame = 0;
+            psm_data_t        *psm_data;
+            wmem_tree_key_t    key[6];
+            guint32            k_interface_id;
+            guint32            k_adapter_id;
+            guint32            k_chandle;
+            guint32            k_cid;
+            guint32            k_frame_number;
+            guint32            interface_id;
+            guint32            adapter_id;
+            guint32            chandle;
+
+            if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+                interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+            else
+                interface_id = HCI_INTERFACE_DEFAULT;
+            adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+            chandle = (acl_data) ? acl_data->chandle : 0;
+
+            k_interface_id = interface_id;
+            k_adapter_id = adapter_id;
+            k_chandle = chandle;
+            k_cid = scid;
+            k_frame_number = pinfo->num;
+
+            key[0].length = 1;
+            key[0].key = &k_interface_id;
+            key[1].length = 1;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_cid;
+            key[4].length = 1;
+            key[4].key = &k_frame_number;
+            key[5].length = 0;
+            key[5].key = NULL;
+
+            psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cid_to_psm_table, key);
+            if (psm_data &&
+                psm_data->interface_id == interface_id &&
+                psm_data->adapter_id == adapter_id &&
+                psm_data->chandle == chandle &&
+                psm_data->local_cid == k_cid)
+            {
+                bt_uuid = get_service_uuid(pinfo, l2cap_data, psm_data->psm, psm_data->local_service);
+                disconnect_in_frame = psm_data->disconnect_in_frame;
+            }
+
+            if (bt_uuid) {
+                sub_item = proto_tree_add_uint(tree, hf_btl2cap_service, tvb, 0, 0, bt_uuid);
+                proto_item_set_generated(sub_item);
+            }
+
+            if (disconnect_in_frame < bluetooth_max_disconnect_in_frame) {
+                sub_item = proto_tree_add_uint(tree, hf_btl2cap_disconnect_in_frame, tvb, 0, 0, disconnect_in_frame);
+                proto_item_set_generated(sub_item);
+            }
+        }
+
+        cid_index++;
+    }
+    return offset;
+}
+
+static int
+dissect_l2cap_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, guint16 cid, guint8 cmd_ident, guint16 length,
+    bthci_acl_data_t *acl_data)
+{
+    guint32            dcid;
+    guint32            cid_index;
+
+    proto_tree_add_item(tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_btl2cap_le_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    cid_index = 0;
+    while (offset < length + 8) {
+        proto_tree_add_item_ret_uint(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dcid);
+        offset += 2;
+
+        if (pinfo->fd->visited == 0) {
+            psm_data_t        *psm_data;
+            wmem_tree_key_t    key[8];
+            guint32            k_interface_id;
+            guint32            k_adapter_id;
+            guint32            k_chandle;
+            guint32            k_cid;
+            guint32            k_cmd_ident;
+            guint32            k_frame_number;
+            guint32            interface_id;
+            guint32            adapter_id;
+            guint32            chandle;
+            guint32            key_cid;
+
+            if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+                interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+            else
+                interface_id = HCI_INTERFACE_DEFAULT;
+            adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+            chandle = (acl_data) ? acl_data->chandle : 0;
+
+            k_interface_id = interface_id;
+            k_adapter_id = adapter_id;
+            k_chandle = chandle;
+            k_cid = cid;
+            k_cmd_ident = cmd_ident;
+            k_frame_number = pinfo->num;
+
+            key[0].length = 1;
+            key[0].key = &k_interface_id;
+            key[1].length = 1;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_cid;
+            key[4].length = 1;
+            key[4].key = &k_cmd_ident;
+            key[5].length = 1;
+            key[5].key = &k_frame_number;
+            key[6].length = 1;
+            key[6].key = &cid_index;
+            key[7].length = 0;
+            key[7].key = NULL;
+
+            psm_data = (psm_data_t *)wmem_tree_lookup32_array_le(cmd_ident_to_psm_table, key);
+            if (psm_data &&
+                psm_data->interface_id == interface_id &&
+                psm_data->adapter_id == adapter_id &&
+                psm_data->chandle == chandle &&
+                psm_data->disconnect_in_frame > pinfo->num)
+            {
+                key_cid = dcid | ((pinfo->p2p_dir != P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+
+                k_interface_id = interface_id;
+                k_adapter_id = adapter_id;
+                k_chandle = chandle;
+                k_cid = key_cid;
+                k_frame_number = pinfo->num;
+
+                key[0].length = 1;
+                key[0].key = &k_interface_id;
+                key[1].length = 1;
+                key[1].key = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key = &k_chandle;
+                key[3].length = 1;
+                key[3].key = &k_cid;
+                key[4].length = 1;
+                key[4].key = &k_frame_number;
+                key[5].length = 0;
+                key[5].key = NULL;
+
+                if (pinfo->p2p_dir == P2P_DIR_RECV)
+                    psm_data->remote_cid = key_cid;
+                else
+                    psm_data->local_cid = key_cid;
+
+                wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
+            }
+        }
+        cid_index++;
+    }
+    return offset;
+}
 static int
 dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -2613,6 +2927,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Credits: %u)",
                                 tvb_get_letohs(tvb, offset - 4), tvb_get_letohs(tvb, offset - 2));
+                break;
+
+            case 0x17: /* L2CAP Credit Based Connection Request */
+                offset = dissect_l2cap_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, cid, cmd_ident, cmd_length, acl_data, l2cap_data);
+                break;
+
+            case 0x18: /* L2CAP Credit Based Connection Response */
+                offset = dissect_l2cap_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cid, cmd_ident, cmd_length, acl_data);
                 break;
 
             default:

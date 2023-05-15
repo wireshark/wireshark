@@ -219,6 +219,8 @@ void proto_register_sbc_ap(void) {
   proto_register_field_array(proto_sbc_ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Register dissector */
+  sbc_ap_handle = register_dissector(PFNAME, dissect_sbc_ap, proto_sbc_ap);
 
   /* Register dissector tables */
   sbc_ap_ies_dissector_table = register_dissector_table("sbc_ap.ies", "SBC-AP-PROTOCOL-IES", proto_sbc_ap, FT_UINT32, BASE_DEC);
@@ -239,7 +241,6 @@ proto_reg_handoff_sbc_ap(void)
 	static guint SctpPort;
 
     if( !inited ) {
-        sbc_ap_handle = create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
         inited = TRUE;
 #include "packet-sbc-ap-dis-tab.c"

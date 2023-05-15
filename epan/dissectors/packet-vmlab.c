@@ -53,12 +53,6 @@ static int hf_vmlab_trailer = -1;
 
 static gint ett_vmlab = -1;
 
-static const value_string fragment_vals[] = {
-    { 0, "Not set" },
-    { 1, "Set" },
-    { 0, NULL }
-};
-
 static int
 dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -138,7 +132,7 @@ proto_register_vmlab(void)
         { &hf_vmlab_flags_part1,    { "Unknown", "vmlab.unknown1",
             FT_UINT8, BASE_HEX,  NULL, 0xF8, NULL, HFILL }},
         { &hf_vmlab_flags_fragment, { "More Fragments", "vmlab.fragment",
-            FT_UINT8, BASE_DEC, VALS(fragment_vals), 0x04, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
         { &hf_vmlab_flags_part2,    { "Unknown", "vmlab.unknown2",
             FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL }},
 

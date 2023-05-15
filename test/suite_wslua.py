@@ -45,8 +45,8 @@ def check_lua_script(cmd_tshark, features, dirs, capture_file):
     return check_lua_script_real
 
 
-@fixtures.fixture(scope='session')
-def check_lua_script_verify(check_lua_script):
+@fixtures.fixture
+def check_lua_script_verify(check_lua_script, result_file):
     def check_lua_script_verify_real(self, lua_script, cap_file, check_stage_1=False, heur_regmode=None):
         # First run tshark with the dissector script.
         if heur_regmode is None:
@@ -60,7 +60,7 @@ def check_lua_script_verify(check_lua_script):
             )
 
         # then dump tshark's output to a verification file.
-        verify_file = self.filename_from_id('testin.txt')
+        verify_file = result_file('testin.txt')
         with open(verify_file, 'w', newline='\n') as f:
             f.write(tshark_proc.stdout_str)
 
@@ -153,10 +153,10 @@ class case_wslua(subprocesstest.SubprocessTestCase):
 
         self.diffOutput(lua_out, tshark_out, 'tshark + lua script', 'tshark only')
 
-    def test_wslua_file_writer(self, check_lua_script, capture_file):
+    def test_wslua_file_writer(self, check_lua_script, capture_file, result_file):
         '''wslua file writer'''
         cap_file_1 = capture_file(dhcp_pcap)
-        cap_file_2 = self.filename_from_id('lua_writer.pcap')
+        cap_file_2 = result_file('lua_writer.pcap')
 
         # Generate a new capture file using the Lua writer.
         check_lua_script(self, 'pcap_file.lua', cap_file_1, False,
@@ -165,10 +165,10 @@ class case_wslua(subprocesstest.SubprocessTestCase):
         )
         self.assertTrue(filecmp.cmp(cap_file_1, cap_file_2), cap_file_1 + ' differs from ' + cap_file_2)
 
-    def test_wslua_file_acme_reader(self, check_lua_script, cmd_tshark, capture_file):
+    def test_wslua_file_acme_reader(self, check_lua_script, cmd_tshark, capture_file, result_file):
         '''wslua acme file reader'''
 
-        cap_file = self.filename_from_id('lua_acme_reader.pcap')
+        cap_file = result_file('lua_acme_reader.pcap')
         # Read an acme sipmsg.log using the acme Lua reader, writing it out as pcapng.
         check_lua_script(self, 'acme_file.lua', sipmsg_log, False,
             '-w', cap_file,

@@ -3352,11 +3352,11 @@ sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto
             else if (finfo->hfinfo->type == FT_FRAMENUM)
             {
                 sharkd_json_value_string("t", "framenum");
-                sharkd_json_value_anyf("fnum", "%u", finfo->value.value.uinteger);
+                sharkd_json_value_anyf("fnum", "%u", fvalue_get_uinteger(finfo->value));
             }
             else if (FI_GET_FLAG(finfo, FI_URL) && IS_FT_STRING(finfo->hfinfo->type))
             {
-                char *url = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, finfo->hfinfo->display);
+                char *url = fvalue_to_string_repr(NULL, finfo->value, FTREPR_DISPLAY, finfo->hfinfo->display);
 
                 sharkd_json_value_string("t", "url");
                 sharkd_json_value_string("url", url);
@@ -4099,7 +4099,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
                 sharkd_json_simple_ok(rpcid);
 
             dfilter_free(dfp);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             return 0;
         }
         else
@@ -4108,7 +4108,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
                     rpcid, -5001, NULL,
                     "Filter invalid - %s", df_err->msg
                     );
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             return -5001;
         }
     }
@@ -4861,7 +4861,13 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
     const char *tok_token      = json_find_attr(buf, tokens, count, "token");
 
     if (!tok_token)
+    {
+        sharkd_json_error(
+            rpcid, -10005, NULL,
+            "missing token"
+        );
         return;
+    }
 
     if (!strncmp(tok_token, "eo:", 3))
     {
@@ -4973,6 +4979,13 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
                 "no rtp data available"
             );
         }
+    }
+    else
+    {
+        sharkd_json_error(
+            rpcid, -10004, NULL,
+            "unrecognized token"
+        );
     }
 }
 

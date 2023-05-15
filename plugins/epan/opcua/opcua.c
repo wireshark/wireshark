@@ -420,6 +420,7 @@ void proto_register_opcua(void)
         };
 
     proto_opcua = proto_register_protocol("OpcUa Binary Protocol", "OpcUa", "opcua");
+    opcua_handle = register_dissector("opcua", dissect_opcua, proto_opcua);
 
     registerTransportLayerTypes(proto_opcua);
     registerSecurityLayerTypes(proto_opcua);
@@ -439,8 +440,6 @@ void proto_register_opcua(void)
 
 void proto_reg_handoff_opcua(void)
 {
-    opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
-
     dissector_add_uint_range_with_preference("tcp.port", OPCUA_PORT_RANGE, opcua_handle);
 }
 

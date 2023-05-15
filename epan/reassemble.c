@@ -3175,6 +3175,341 @@ reassembly_table_cleanup(void)
 	g_list_free(reassembly_table_list);
 }
 
+/* One instance of this structure is created for each pdu that spans across
+ * multiple segments. (MSP) */
+typedef struct _multisegment_pdu_t {
+	guint64 first_frame;
+	guint64 last_frame;
+	guint start_offset_at_first_frame;
+	guint end_offset_at_last_frame;
+	gint length; /* length of this MSP */
+	guint32 streaming_reassembly_id;
+	/* pointer to previous multisegment_pdu */
+	struct _multisegment_pdu_t* prev_msp;
+} multisegment_pdu_t;
+
+/* struct for keeping the reassembly information of each stream */
+struct streaming_reassembly_info_t {
+	/* This map is keyed by frame num and keeps track of all MSPs for this
+	 * stream. Different frames will point to the same MSP if they contain
+	 * part data of this MSP. If a frame contains data that
+	 * belongs to two MSPs, it will point to the second MSP. */
+	wmem_map_t* multisegment_pdus;
+	/* This map is keyed by frame num and keeps track of the frag_offset
+	 * of the first byte of frames for fragment_add() after first scan. */
+	wmem_map_t* frame_num_frag_offset_map;
+	/* how many bytes the current uncompleted MSP still needs. (only valid for first scan) */
+	gint prev_deseg_len;
+	/* the current uncompleted MSP (only valid for first scan) */
+	multisegment_pdu_t* last_msp;
+};
+
+static guint32
+create_streaming_reassembly_id(void)
+{
+	static guint32 global_streaming_reassembly_id = 0;
+	return ++global_streaming_reassembly_id;
+}
+
+streaming_reassembly_info_t*
+streaming_reassembly_info_new(void)
+{
+	return wmem_new0(wmem_file_scope(), streaming_reassembly_info_t);
+}
+
+/* Following is an example of ProtoA and ProtoB protocols from the declaration of this function in 'reassemble.h':
+ *
+ *                 +------------------ A Multisegment PDU of ProtoB ----------------------+
+ *                 |                                                                      |
+ * +--- ProtoA payload1 ---+   +- payload2 -+  +- Payload3 -+  +- Payload4 -+   +- ProtoA payload5 -+
+ * | EoMSP | OmNFP | BoMSP |   |    MoMSP   |  |    MoMSP   |  |    MoMSP   |   |  EoMSP  |  BoMSP  |
+ * +-------+-------+-------+   +------------+  +------------+  +------------+   +---------+---------+
+ *                 |                                                                      |
+ *                 +----------------------------------------------------------------------+
+ *
+ * For a ProtoA payload composed of EoMSP + OmNFP + BoMSP will call fragment_add() twice on EoMSP and BoMSP; and call
+ * process_reassembled_data() once for generating tvb of a MSP to which EoMSP belongs; and call subdissector twice on
+ * reassembled MSP of EoMSP and OmNFP + BoMSP. After that finds BoMSP is a beginning of a MSP at first scan.
+ *
+ * The rules are:
+ *
+ *  - If a ProtoA payload contains EoMSP, we will need call fragment_add(), process_reassembled_data() and subdissector
+ *    once on it to end a MSP. (May run twice or more times at first scan, because subdissector may only return the
+ *    head length of message by pinfo->desegment_len. We need run second time for subdissector to determine the length
+ *    of entire message).
+ *
+ * - If a ProtoA payload contains OmNFP, we will need only call subdissector once on it. The subdissector need dissect
+ *    all non-fragment PDUs in it. (no desegment_len should output)
+ *
+ *  - If a ProtoA payload contains BoMSP, we will need call subdissector once on BoMSP or OmNFP+BoMSP (because unknown
+ *    during first scan). The subdissector will output desegment_len (!= 0). Then we will call fragment_add()
+ *    with a new reassembly id on BoMSP for starting a new MSP.
+ *
+ *  - If a ProtoA payload only contains MoMSP (entire payload is part of a MSP), we will only call fragment_add() once
+ *    or twice (at first scan) on it. The subdissector will not be called.
+ *
+ * In this implementation, only multisegment PDUs are recorded in multisegment_pdus map keyed by the numbers (guint64)
+ * of frames belongs to MSPs. Each MSP in the map has a pointer referred to previous MSP, because we may need
+ * two MSPs to dissect a ProtoA payload that contains EoMSP + BoMSP at the same time. The multisegment_pdus map is built
+ * during first scan (pinfo->visited == FALSE) with help of prev_deseg_len and last_msp fields of streaming_reassembly_info_t
+ * for each direction of a ProtoA STREAM. The prev_deseg_len record how many bytes of subsequent ProtoA payloads belong to
+ * previous PDU during first scan. The last_msp member of streaming_reassembly_info_t is always point to last MSP which
+ * is created during scan previous or early ProtoA payloads. Since subdissector might return only the head length of entire
+ * message (by pinfo->desegment_len) when there is not enough data to determine the message length, we need to reopen
+ * reassembly fragments for adding more bytes during scanning the next ProtoA payload. We have to use fragment_add()
+ * instead of fragment_add_check() or fragment_add_seq_next().
+ *
+ * Read more: please refer to comments of the declaration of this function in 'reassemble.h'.
+ */
+gint
+reassemble_streaming_data_and_call_subdissector(
+	tvbuff_t* tvb, packet_info* pinfo, guint offset, gint length,
+	proto_tree* segment_tree, proto_tree* reassembled_tree, reassembly_table streaming_reassembly_table,
+	streaming_reassembly_info_t* reassembly_info, guint64 cur_frame_num,
+	dissector_handle_t subdissector_handle, proto_tree* subdissector_tree, void* subdissector_data,
+	const char* label, const fragment_items* frag_hf_items, int hf_segment_data
+)
+{
+	gint orig_length = length;
+	gint datalen = 0;
+	gint bytes_belong_to_prev_msp = 0; /* bytes belong to previous MSP */
+	guint32 reassembly_id = 0, frag_offset = 0;
+	fragment_head* head = NULL;
+	gboolean need_more = FALSE;
+	multisegment_pdu_t* cur_msp = NULL, * prev_msp = NULL;
+	guint16 save_can_desegment;
+	int save_desegment_offset;
+	guint32 save_desegment_len;
+	guint64* frame_ptr;
+
+	save_can_desegment = pinfo->can_desegment;
+	save_desegment_offset = pinfo->desegment_offset;
+	save_desegment_len = pinfo->desegment_len;
+
+	/* calculate how many bytes of this payload belongs to previous MSP (EoMSP) */
+	if (!PINFO_FD_VISITED(pinfo)) {
+		/* this is first scan */
+		if (reassembly_info->prev_deseg_len > 0) {
+			/* part or all of current payload belong to previous MSP */
+			bytes_belong_to_prev_msp = MIN(reassembly_info->prev_deseg_len, length);
+			reassembly_info->prev_deseg_len -= bytes_belong_to_prev_msp;
+			need_more = (reassembly_info->prev_deseg_len > 0);
+		} /* else { beginning of a new PDU (might be a NFP or MSP) } */
+
+		if (bytes_belong_to_prev_msp > 0) {
+			DISSECTOR_ASSERT(reassembly_info->last_msp != NULL);
+			reassembly_id = reassembly_info->last_msp->streaming_reassembly_id;
+			frag_offset = reassembly_info->last_msp->length;
+			if (reassembly_info->frame_num_frag_offset_map == NULL) {
+				reassembly_info->frame_num_frag_offset_map = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
+			}
+			frame_ptr = (guint64*)wmem_memdup(wmem_file_scope(), &cur_frame_num, sizeof(guint64));
+			wmem_map_insert(reassembly_info->frame_num_frag_offset_map, frame_ptr, GUINT_TO_POINTER(frag_offset));
+			/* This payload contains the data of previous msp, so we point to it. That may be overriden late. */
+			wmem_map_insert(reassembly_info->multisegment_pdus, frame_ptr, reassembly_info->last_msp);
+		}
+	} else {
+		/* not first scan, use information of multisegment_pdus built during first scan */
+		if (reassembly_info->multisegment_pdus) {
+			cur_msp = (multisegment_pdu_t*)wmem_map_lookup(reassembly_info->multisegment_pdus, &cur_frame_num);
+		}
+		if (cur_msp) {
+			if (cur_msp->first_frame == cur_frame_num) {
+				/* Current payload contains a beginning of a MSP. (BoMSP)
+				 * The cur_msp contains information about the beginning MSP.
+				 * If prev_msp is not null, that means this payload also contains
+				 * the last part of previous MSP. (EoMSP) */
+				prev_msp = cur_msp->prev_msp;
+			} else {
+				/* Current payload is not a first frame of a MSP (not include BoMSP). */
+				prev_msp = cur_msp;
+				cur_msp = NULL;
+			}
+		}
+
+		if (prev_msp && prev_msp->last_frame >= cur_frame_num) {
+			if (prev_msp->last_frame == cur_frame_num) {
+				/* this payload contains part of previous MSP (contains EoMSP) */
+				bytes_belong_to_prev_msp = prev_msp->end_offset_at_last_frame - offset;
+			} else { /* if (prev_msp->last_frame > cur_frame_num) */
+			    /* this payload all belongs to previous MSP */
+				bytes_belong_to_prev_msp = length;
+				need_more = TRUE;
+			}
+			reassembly_id = prev_msp->streaming_reassembly_id;
+		}
+		if (reassembly_info->frame_num_frag_offset_map) {
+			frag_offset = GPOINTER_TO_UINT(wmem_map_lookup(reassembly_info->frame_num_frag_offset_map, &cur_frame_num));
+		}
+	}
+
+	/* handling EoMSP or MoMSP (entire payload being middle part of a MSP) */
+	while (bytes_belong_to_prev_msp > 0) {
+		tvbuff_t* reassembled_tvb = NULL;
+		DISSECTOR_ASSERT(reassembly_id > 0);
+		pinfo->can_desegment = 2; /* this will be decreased one while passing to subdissector */
+		pinfo->desegment_offset = 0;
+		pinfo->desegment_len = 0;
+
+		head = fragment_add(&streaming_reassembly_table, tvb, offset, pinfo, reassembly_id, NULL,
+			frag_offset, bytes_belong_to_prev_msp, need_more);
+
+		if (head) {
+			if (frag_hf_items->hf_reassembled_in) {
+				proto_item_set_generated(
+					proto_tree_add_uint(segment_tree, *(frag_hf_items->hf_reassembled_in), tvb, offset,
+						bytes_belong_to_prev_msp, head->reassembled_in)
+				);
+			}
+
+			if (!need_more) {
+				reassembled_tvb = process_reassembled_data(tvb, offset, pinfo,
+					wmem_strdup_printf(pinfo->pool, "Reassembled %s", label),
+					head, frag_hf_items, NULL, reassembled_tree);
+			}
+		}
+
+		proto_tree_add_bytes_format(segment_tree, hf_segment_data, tvb, offset,
+			bytes_belong_to_prev_msp, NULL, "%s Segment data (%u byte%s)", label,
+			bytes_belong_to_prev_msp, plurality(bytes_belong_to_prev_msp, "", "s"));
+
+		if (reassembled_tvb) {
+			datalen = tvb_reported_length(reassembled_tvb);
+
+			/* normally, this stage will dissect one or more completed pdus */
+			/* Note, don't call_dissector_with_data because sometime the pinfo->curr_layer_num will changed
+			 * after calling that will make reassembly failed! */
+			call_dissector_only(subdissector_handle, reassembled_tvb, pinfo, subdissector_tree, subdissector_data);
+		}
+
+		if (pinfo->desegment_len) {
+			/* that must only happen during first scan the reassembly_info->prev_deseg_len might be only the
+			 * head length of entire message. */
+			DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
+			DISSECTOR_ASSERT_HINT(pinfo->desegment_len != DESEGMENT_ONE_MORE_SEGMENT
+				&& pinfo->desegment_len != DESEGMENT_UNTIL_FIN, "Subdissector MUST NOT "
+				"set pinfo->desegment_len to DESEGMENT_ONE_MORE_SEGMENT or DESEGMENT_UNTIL_FIN. "
+				"Instead, it can set pinfo->desegment_len to the length of head if the length of "
+				"entire message is not able to be determined.");
+			DISSECTOR_ASSERT_HINT(pinfo->desegment_offset == 0, "Subdissector MUST NOT set pinfo->desegment_len greater than "
+				"the length of one message if the length message is undetermined.");
+
+			/* Remove the data added by previous fragment_add(), and reopen fragments for adding more bytes. */
+			fragment_truncate(&streaming_reassembly_table, pinfo, reassembly_id, NULL, reassembly_info->last_msp->length);
+			fragment_set_partial_reassembly(&streaming_reassembly_table, pinfo, reassembly_id, NULL);
+
+			reassembly_info->prev_deseg_len = bytes_belong_to_prev_msp + pinfo->desegment_len;
+			bytes_belong_to_prev_msp = MIN(reassembly_info->prev_deseg_len, length);
+			reassembly_info->prev_deseg_len -= bytes_belong_to_prev_msp;
+			need_more = (reassembly_info->prev_deseg_len > 0);
+		} else {
+			/* We will arrive here, only when the MSP is defragmented and dissected or this
+			 * payload all belongs to previous MSP (only fragment_add() with need_more=TRUE called)
+			 */
+			offset += bytes_belong_to_prev_msp;
+			length -= bytes_belong_to_prev_msp;
+			DISSECTOR_ASSERT(length >= 0);
+			if (!PINFO_FD_VISITED(pinfo)) {
+				reassembly_info->last_msp->length += bytes_belong_to_prev_msp;
+			}
+
+			if (!PINFO_FD_VISITED(pinfo) && reassembled_tvb) {
+				/* completed current msp */
+				reassembly_info->last_msp->last_frame = cur_frame_num;
+				reassembly_info->last_msp->end_offset_at_last_frame = offset;
+				reassembly_info->prev_deseg_len = 0;
+			}
+			bytes_belong_to_prev_msp = 0; /* break */
+		}
+	}
+
+	/* to find and handle OmNFP, and find BoMSP at first scan. */
+	if (length > 0) {
+		if (!PINFO_FD_VISITED(pinfo)) {
+			/* It is first scan, to dissect remaining bytes to find whether it is OmNFP only, or BoMSP only or OmNFP + BoMSP. */
+			datalen = length;
+			DISSECTOR_ASSERT(cur_msp == NULL);
+		} else {
+			/* Not first scan */
+			if (cur_msp) {
+				/* There's a BoMSP. Let's calculate the length of OmNFP between EoMSP and BoMSP */
+				datalen = cur_msp->start_offset_at_first_frame - offset; /* if result is zero that means no OmNFP */
+			} else {
+				/* This payload is not a beginning of MSP. The remaining bytes all belong to OmNFP without BoMSP */
+				datalen = length;
+			}
+		}
+		DISSECTOR_ASSERT(datalen >= 0);
+
+		/* Dissect the remaining of this payload. If (datalen == 0) means remaining only have one BoMSP without OmNFP. */
+		if (datalen > 0) {
+			/* we dissect if it is not dissected before or it is a non-fragment pdu (between two multisegment pdus) */
+			pinfo->can_desegment = 2;
+			pinfo->desegment_offset = 0;
+			pinfo->desegment_len = 0;
+
+			call_dissector_only(subdissector_handle, tvb_new_subset_length(tvb, offset, datalen),
+				pinfo, subdissector_tree, subdissector_data);
+
+			if (pinfo->desegment_len) {
+				/* only happen during first scan */
+				DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo) && datalen == length);
+				offset += pinfo->desegment_offset;
+				length -= pinfo->desegment_offset;
+			} else {
+				/* all remaining bytes are consumed by subdissector */
+				offset += datalen;
+				length -= datalen;
+			}
+			if (!PINFO_FD_VISITED(pinfo)) {
+				reassembly_info->prev_deseg_len = pinfo->desegment_len;
+			}
+		} /* else all remaining bytes (BoMSP) belong to a new MSP  */
+		DISSECTOR_ASSERT(length >= 0);
+	}
+
+	/* handling BoMSP */
+	if (length > 0) {
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[%s segment of a reassembled PDU] ", label);
+		if (!PINFO_FD_VISITED(pinfo)) {
+			/* create a msp for current frame during first scan */
+			cur_msp = wmem_new0(wmem_file_scope(), multisegment_pdu_t);
+			cur_msp->first_frame = cur_frame_num;
+			cur_msp->start_offset_at_first_frame = offset;
+			cur_msp->length = length;
+			cur_msp->streaming_reassembly_id = reassembly_id = create_streaming_reassembly_id();
+			cur_msp->prev_msp = reassembly_info->last_msp;
+			reassembly_info->last_msp = cur_msp;
+			if (reassembly_info->multisegment_pdus == NULL) {
+				reassembly_info->multisegment_pdus = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
+			}
+			frame_ptr = (guint64*)wmem_memdup(wmem_file_scope(), &cur_frame_num, sizeof(guint64));
+			wmem_map_insert(reassembly_info->multisegment_pdus, frame_ptr, cur_msp);
+		} else {
+			DISSECTOR_ASSERT(cur_msp && cur_msp->start_offset_at_first_frame == offset);
+			reassembly_id = cur_msp->streaming_reassembly_id;
+		}
+		/* add first fragment of the new MSP to reassembly table */
+		head = fragment_add(&streaming_reassembly_table, tvb, offset, pinfo, reassembly_id,
+			NULL, 0, length, TRUE);
+
+		if (head && frag_hf_items->hf_reassembled_in) {
+			proto_item_set_generated(
+				proto_tree_add_uint(segment_tree, *(frag_hf_items->hf_reassembled_in),
+					tvb, offset, length, head->reassembled_in)
+			);
+		}
+		proto_tree_add_bytes_format(segment_tree, hf_segment_data, tvb, offset, length,
+			NULL, "%s Segment data (%u byte%s)", label, length, plurality(length, "", "s"));
+	}
+
+	pinfo->can_desegment = save_can_desegment;
+	pinfo->desegment_offset = save_desegment_offset;
+	pinfo->desegment_len = save_desegment_len;
+
+	return orig_length;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

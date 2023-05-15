@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-mp2t.h"
 #include "packet-mpeg-sect.h"
 #include "packet-mpeg-descriptor.h"
 
@@ -58,15 +59,6 @@ static dissector_handle_t mpeg_pmt_handle;
 #define MPEG_PMT_STREAM_ES_INFO_LENGTH_MASK     0x0FFF
 
 
-static const value_string mpeg_pmt_cur_next_vals[] = {
-
-    { 0x0, "Not yet applicable" },
-    { 0x1, "Currently applicable" },
-
-    { 0x0, NULL }
-
-};
-
 static const value_string mpeg_pmt_stream_type_vals[] = {
     { 0x00, "ITU-T | ISO/IEC Reserved" },
     { 0x01, "ISO/IEC 11172 Video" },
@@ -112,7 +104,9 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     guint   offset = 0, length = 0;
     guint   prog_info_len, es_info_len;
+    guint32 stream_type;
     guint16 pid;
+    gboolean current;
 
     proto_item *ti;
     proto_tree *mpeg_pmt_tree;
@@ -133,7 +127,7 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     proto_tree_add_item(mpeg_pmt_tree, hf_mpeg_pmt_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(mpeg_pmt_tree, hf_mpeg_pmt_version_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(mpeg_pmt_tree, hf_mpeg_pmt_current_next_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_boolean(mpeg_pmt_tree, hf_mpeg_pmt_current_next_indicator, tvb, offset, 1, ENC_BIG_ENDIAN, &current);
     offset += 1;
 
     proto_tree_add_item(mpeg_pmt_tree, hf_mpeg_pmt_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -161,7 +155,10 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         mpeg_pmt_stream_tree = proto_tree_add_subtree_format(mpeg_pmt_tree, tvb, offset, 5 + es_info_len,
                             ett_mpeg_pmt_stream, NULL, "Stream PID=0x%04hx", pid);
 
-        proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_type,      tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_type,      tvb, offset, 1, ENC_BIG_ENDIAN, &stream_type);
+        if (current) {
+            mp2t_add_stream_type(pinfo, pid, stream_type);
+        }
         offset += 1;
 
         proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_reserved1,     tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -205,7 +202,7 @@ proto_register_mpeg_pmt(void)
 
         { &hf_mpeg_pmt_current_next_indicator, {
             "Current/Next Indicator", "mpeg_pmt.cur_next_ind",
-            FT_UINT8, BASE_HEX, VALS(mpeg_pmt_cur_next_vals), MPEG_PMT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+            FT_BOOLEAN, 8, TFS(&tfs_current_not_yet), MPEG_PMT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_pmt_section_number, {

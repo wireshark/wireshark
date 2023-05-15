@@ -267,7 +267,7 @@ select_tcpip_session(capture_file *cf)
     /* no real filter yet */
     if (!dfilter_compile("tcp", &sfcode, &df_err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", df_err->msg);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
         return G_MAXUINT32;
     }
 

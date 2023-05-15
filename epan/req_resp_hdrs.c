@@ -27,7 +27,8 @@
 gboolean
 req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const gboolean desegment_headers, const gboolean desegment_body,
-    gboolean desegment_until_fin, int *last_chunk_offset)
+    gboolean desegment_until_fin, int *last_chunk_offset,
+	dissector_table_t streaming_subdissector_table, dissector_handle_t *streaming_chunk_handle)
 {
 	gint		next_offset = offset;
 	gint		next_offset_sav;
@@ -40,6 +41,24 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	gboolean	chunked_encoding = FALSE;
 	gchar		*line;
 	gchar		*content_type = NULL;
+	dissector_handle_t streaming_handle = NULL;
+	gboolean streaming_chunk_mode = FALSE;
+
+	DISSECTOR_ASSERT_HINT((streaming_subdissector_table && streaming_chunk_handle)
+		|| (streaming_subdissector_table == NULL && streaming_chunk_handle == NULL),
+		"The streaming_subdissector_table and streaming_chunk_handle arguments must "
+		"be both given or both NULL.");
+
+	/* Check whether the first line is the beginning of a chunk.
+	 * If it is the beginning of a chunk, we assume we are working
+	 * in streaming chunk mode. The headers of HTTP request or response
+	 * and at least one chunk should have been dissected in the previous
+	 * packets and now we are processing subsequent chunks.
+	 */
+	if (desegment_body && streaming_subdissector_table
+		&& starts_with_chunk_size(tvb, offset, pinfo)) {
+		streaming_chunk_mode = TRUE;
+	}
 
 	/*
 	 * Do header desegmentation if we've been told to.
@@ -77,8 +96,11 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 * marking end of headers) or request one more byte (we
 	 * don't know how many bytes we'll need, so we just ask
 	 * for one).
+	 *
+	 * If tvb starts with chunk size, then we just ignore headers parsing.
 	 */
-	if (desegment_headers && pinfo->can_desegment) {
+	if (!streaming_chunk_mode
+		&& desegment_headers && pinfo->can_desegment) {
 		for (;;) {
 			next_offset_sav = next_offset;
 
@@ -161,6 +183,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					while (*content_type == ' ') {
 						content_type++;
 					}
+					g_strchomp(content_type);
+					if (streaming_subdissector_table) {
+						streaming_handle = dissector_get_string_handle(streaming_subdissector_table, content_type);
+					}
 				} else if (g_ascii_strncasecmp( line, "Transfer-Encoding:", 18) == 0) {
 					/*
 					 * Find out if this Transfer-Encoding is
@@ -201,6 +227,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 		}
 	}
 
+	if (streaming_chunk_mode) {
+		/* the tvb starts with chunk size without HTTP headers */
+		chunked_encoding = TRUE;
+	} else if (desegment_body && chunked_encoding && streaming_handle && streaming_chunk_handle) {
+		streaming_chunk_mode = TRUE;
+		*streaming_chunk_handle = streaming_handle;
+	}
+
 	/*
 	 * The above loop ends when we reached the end of the headers, so
 	 * there should be content_length bytes after the 4 terminating bytes
@@ -216,6 +250,12 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * This data is chunked, so we need to keep pulling
 			 * data until we reach the end of the stream, or a
 			 * zero sized chunk.
+			 *
+			 * But if streaming_chunk_mode is TRUE,
+			 * we will just pull one more chunk if the end of
+			 * this tvb is in middle of a chunk. Because we want
+			 * to dissect chunks with subdissector as soon as
+			 * possible.
 			 *
 			 * XXX
 			 * This doesn't bother with trailing headers; I don't
@@ -237,6 +277,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				reported_length_remaining =
 				    tvb_reported_length_remaining(tvb,
 				    next_offset);
+
+				if (reported_length_remaining == 0 && streaming_chunk_mode) {
+					return TRUE;
+				}
 
 				if (reported_length_remaining < 1) {
 					pinfo->desegment_offset = offset;
@@ -325,9 +369,20 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 						 * Fetch this chunk, plus the
 						 * trailing CRLF.
 						 */
-						pinfo->desegment_offset = offset;
-						pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-						return FALSE;
+						if (streaming_chunk_mode) {
+							gint size_remaining = chunk_size + linelen + 4 - reported_length_remaining;
+							if (size_remaining == 0) {
+								return TRUE;
+							} else {
+								pinfo->desegment_offset = offset;
+								pinfo->desegment_len = size_remaining;
+								return FALSE;
+							}
+						} else {
+							pinfo->desegment_offset = offset;
+							pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+							return FALSE;
+						}
 					}
 				}
 

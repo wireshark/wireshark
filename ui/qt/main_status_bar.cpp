@@ -266,7 +266,8 @@ void MainStatusBar::setStatusbarForCaptureFile()
         QString msgtip = QString("%1 (%2)")
                 .arg(cap_file_->filename)
                 .arg(file_size_to_qstring(cap_file_->f_datalen));
-        pushGenericStatus(STATUS_CTX_FILE, cf_get_display_name(cap_file_), msgtip);
+        pushGenericStatus(STATUS_CTX_FILE,
+                gchar_free_to_qstring(cf_get_display_name(cap_file_)), msgtip);
     }
 }
 
@@ -385,7 +386,7 @@ void MainStatusBar::showCaptureStatistics()
     if (cap_file_) {
         /* Do we have any packets? */
         if (cs_fixed_ && cs_count_ > 0) {
-            if (prefs.gui_qt_show_selected_packet && rows.count() == 1) {
+            if (prefs.gui_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
                                    .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
@@ -393,7 +394,7 @@ void MainStatusBar::showCaptureStatistics()
             packets_str.append(QString(tr("Packets: %1"))
                                .arg(cs_count_));
         } else if (cs_count_ > 0) {
-            if (prefs.gui_qt_show_selected_packet && rows.count() == 1) {
+            if (prefs.gui_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
                                    .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
@@ -432,7 +433,7 @@ void MainStatusBar::showCaptureStatistics()
                     .arg(UTF8_MIDDLE_DOT)
                     .arg(cap_file_->packet_comment_count));
             }
-            if (prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
+            if (prefs.gui_show_file_load_time && !cap_file_->is_tempfile) {
                 /* Loading an existing file */
                 gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
                 packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))

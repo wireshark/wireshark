@@ -48,27 +48,28 @@ class case_dumpcap_options(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('base_env')
 @fixtures.uses_fixtures
 class case_dumpcap_capture_clopts(subprocesstest.SubprocessTestCase):
-    def test_dumpcap_invalid_capfilter(self, cmd_dumpcap, capture_interface):
+    def test_dumpcap_invalid_capfilter(self, cmd_dumpcap, capture_interface, result_file):
         '''Invalid capture filter'''
         invalid_filter = '__invalid_protocol'
         # $DUMPCAP -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.runProcess((cmd_dumpcap, '-f', invalid_filter, '-w', testout_file))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    def test_dumpcap_invalid_interface_name(self, cmd_dumpcap, capture_interface):
+    def test_dumpcap_invalid_interface_name(self, cmd_dumpcap, capture_interface, result_file):
         '''Invalid capture interface name'''
         invalid_interface = '__invalid_interface'
         # $DUMPCAP -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.runProcess((cmd_dumpcap, '-i', invalid_interface, '-w', testout_file))
-        self.assertTrue(self.grepOutput('The capture session could not be initiated'))
+        self.assertTrue(self.grepOutput('There is no device named "__invalid_interface"') or
+            self.grepOutput('The capture session could not be initiated on capture device "__invalid_interface"'))
 
-    def test_dumpcap_invalid_interface_index(self, cmd_dumpcap, capture_interface):
+    def test_dumpcap_invalid_interface_index(self, cmd_dumpcap, capture_interface, result_file):
         '''Invalid capture interface index'''
         invalid_index = '0'
         # $DUMPCAP -i 0 -w './testout.pcap' > ./testout.txt 2>&1
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.runProcess((cmd_dumpcap, '-i', invalid_index, '-w', testout_file))
         self.assertTrue(self.grepOutput('There is no interface with that adapter index'))
 
@@ -114,27 +115,28 @@ class case_tshark_options(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_invalid_capfilter(self, cmd_tshark, capture_interface):
+    def test_tshark_invalid_capfilter(self, cmd_tshark, capture_interface, result_file):
         '''Invalid capture filter'''
         invalid_filter = '__invalid_protocol'
         # $TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.runProcess((cmd_tshark, '-f', invalid_filter, '-w', testout_file ))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    def test_tshark_invalid_interface_name(self, cmd_tshark, capture_interface):
+    def test_tshark_invalid_interface_name(self, cmd_tshark, capture_interface, result_file):
         '''Invalid capture interface name'''
         invalid_interface = '__invalid_interface'
         # $TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.runProcess((cmd_tshark, '-i', invalid_interface, '-w', testout_file))
-        self.assertTrue(self.grepOutput('The capture session could not be initiated'))
+        self.assertTrue(self.grepOutput('There is no device named "__invalid_interface"') or
+            self.grepOutput('The capture session could not be initiated on capture device "__invalid_interface"'))
 
-    def test_tshark_invalid_interface_index(self, cmd_tshark, capture_interface):
+    def test_tshark_invalid_interface_index(self, cmd_tshark, capture_interface, result_file):
         '''Invalid capture interface index'''
         invalid_index = '0'
         # $TSHARK -i 0 -w './testout.pcap' > ./testout.txt 2>&1
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.runProcess((cmd_tshark, '-i', invalid_index, '-w', testout_file))
         self.assertTrue(self.grepOutput('There is no interface with that adapter index'))
 

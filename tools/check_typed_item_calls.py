@@ -14,11 +14,12 @@ import subprocess
 # This utility scans the dissector code for proto_tree_add_...() calls that constrain the type
 # or length of the item added, and checks that the used item is acceptable.
 #
-# Note that this can only work where the hf_item variable or length is passed in directly - where it
-# is assigned to a different variable or a macro is used, it isn't tracked.
+# - Note that this can only work where the hf_item variable or length is passed in directly - simple
+#   macro substitution is now done in a limited way 
 
 # TODO:
-# Attempt to check for allowed encoding types (most likely will be literal values |'d)?
+# - Attempt to check for allowed encoding types (most likely will be literal values |'d)?
+# - Create maps from type -> display types for hf items (see display (FIELDDISPLAY)) in docs/README.dissector
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -268,7 +269,9 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'hf_data_encoding',
                                             'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
                                             'big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
-                                            '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN'  }:
+                                            '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
+                                            'pdu_info->sbc', 'pdu_info->mbc',
+                                            'seq_info->txt_enc | ENC_NA'  }:
                                 global warnings_found
 
                                 print('Warning:', self.file + ':' + str(line_number),
@@ -324,7 +327,10 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'iax2.video.subclass',
                                 'dnp3.al.ana.int',
                                 'pwcesopsn.cw.lm',
-                                'gsm_a.rr.format_id' # EN 301 503
+                                'gsm_a.rr.format_id', # EN 301 503
+                                'siii.mst.phase', # comment in code seems convinced
+                                'xmcp.type.class',
+                                'xmcp.type.method'
                               }
 ##################################################################################################
 
@@ -445,7 +451,10 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^dnp3.al.cnt'),
         re.compile(r'^bthfp.chld.mode'),
         re.compile(r'^nat-pmp.pml'),
-        re.compile(r'^systemactivator.actproperties.ts.hdr')
+        re.compile(r'^isystemactivator.actproperties.ts.hdr'),
+        re.compile(r'^rtpdump.txt_addr'),
+        re.compile(r'^unistim.vocoder.id'),
+        re.compile(r'^mac.ueid')
     ]
 
     for patt in ignore_patterns:
@@ -460,7 +469,7 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, hf, filter, label, item_type, type_modifier, mask=None,
+    def __init__(self, filename, hf, filter, label, item_type, type_modifier, macros, mask=None,
                  check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
         self.filename = filename
         self.hf = hf
@@ -472,7 +481,7 @@ class Item:
 
         global warnings_found
 
-        self.set_mask_value()
+        self.set_mask_value(macros)
 
         if check_consecutive:
             if Item.previousItem and Item.previousItem.filter == filter:
@@ -509,9 +518,8 @@ class Item:
         if check_mask:
             if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00'}:
                 self.check_contiguous_bits(mask)
-                #self.check_mask_too_long(mask)
-                self.check_num_digits(mask)
-                self.check_digits_all_zeros(mask)
+                self.check_num_digits(self.mask)
+                self.check_digits_all_zeros(self.mask)
 
 
     def __str__(self):
@@ -519,10 +527,14 @@ class Item:
 
 
 
-    def set_mask_value(self):
+    def set_mask_value(self, macros):
         try:
             self.mask_read = True
-            if any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
+
+            # Substitute mask if found as a macro..
+            if self.mask in macros:
+                self.mask = macros[self.mask]
+            elif any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
                 self.mask_read = False
                 self.mask_value = 0
                 return
@@ -586,7 +598,7 @@ class Item:
 
         # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
         mask_width = n-1-mask_start
-        if mask_width > field_width:
+        if field_width is not None and (mask_width > field_width):
             # N.B. No call, so no line number.
             print(self.filename + ':', self.hf, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
                   'but mask is', mask, 'which is', mask_width, 'bits wide!')
@@ -599,7 +611,8 @@ class Item:
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits',
+                      mask, '(', hex(self.mask_value), ')')
                 warnings_found += 1
                 return
             n += 1
@@ -625,18 +638,6 @@ class Item:
             else:
                 return None
 
-    # N.B. Not currently used.
-    def check_mask_too_long(self, mask):
-        if not self.mask_value:
-            return
-        if mask.startswith('0x00') or mask.endswith('00'):
-            # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
-            # all lined up as part of the same word may make it clearer.  But some cases have been found
-            # where the grouping does not seem to be natural..
-            print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
-            global warnings_found
-            warnings_found += 1
-
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
@@ -649,24 +650,28 @@ class Item:
 
             if self.item_type in field_widths:
                 # Longer than it should be?
-                if len(mask)-2 > self.get_field_width_in_bits()/4:
+                width_in_bits = self.get_field_width_in_bits()
+                if width_in_bits is None:
+                    return
+                if len(mask)-2 > width_in_bits/4:
                     extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
                     # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
-                        print('Error:', self.filename, self.hf, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                        print('Error:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len is", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
                               "and extra digits are non-zero (" + extra_digits + ")")
                         errors_found += 1
                     else:
                         # Has extra leading zeros, still confusing, so warn.
-                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, self.mask, "with len", len(mask)-2,
+                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
                               "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
 
                 # Strict/fussy check - expecting mask length to match field width exactly!
-                # Currently only doing for FT_BOOLEAN
+                # Currently only doing for FT_BOOLEAN, and don't expect to be in full for 64-bit fields!
                 if self.mask_exact_width:
-                    if self.item_type == 'FT_BOOLEAN' and  len(mask)-2 != int(self.get_field_width_in_bits()/4):
+                    ideal_mask_width = int(self.get_field_width_in_bits()/4)
+                    if self.item_type == 'FT_BOOLEAN' and ideal_mask_width < 16 and len(mask)-2 != ideal_mask_width:
                         print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
                                 "but type", self.item_type, "|", self.type_modifier,  " indicates should be", int(self.get_field_width_in_bits()/4))
                         warnings_found += 1
@@ -679,7 +684,7 @@ class Item:
     def check_digits_all_zeros(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             if mask[2:] == '0'*(len(mask)-2):
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item mask has all zeros - this is confusing! :', '"' + mask + '"')
                 global warnings_found
                 warnings_found += 1
 
@@ -868,7 +873,7 @@ def find_macros(filename):
 
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
+def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
     with open(filename, 'r') as f:
@@ -881,11 +886,13 @@ def find_items(filename, check_mask=False, mask_exact_width=False, check_label=F
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
+            items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
                              type_modifier=m.group(5),
+                             macros=macros,
+                             mask=m.group(7),
                              check_mask=check_mask,
-                             check_label=check_label,
                              mask_exact_width=mask_exact_width,
+                             check_label=check_label,
                              check_consecutive=(not is_generated and check_consecutive))
     return items
 
@@ -980,9 +987,9 @@ def is_dissector_file(filename):
     return p.match(filename)
 
 
-def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
-    if dissector_files is None:
-        dissector_files = []
+def findDissectorFilesInFolder(folder, recursive=False):
+    dissector_files = []
+
     if recursive:
         for root, subfolders, files in os.walk(folder):
             for f in files:
@@ -1012,7 +1019,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     macros = find_macros(filename)
 
     # Find important parts of items.
-    items_defined = find_items(filename, check_mask, mask_exact_width, check_label, check_consecutive)
+    items_defined = find_items(filename, macros, check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
     items_declared = {}
@@ -1082,8 +1089,6 @@ files = []
 if args.file:
     # Add specified file(s)
     for f in args.file:
-        if not f.startswith('epan'):
-            f = os.path.join('epan', 'dissectors', f)
         if not os.path.isfile(f):
             print('Chosen file', f, 'does not exist.')
             exit(1)
@@ -1123,8 +1128,8 @@ elif args.open:
             files.append(f)
 else:
     # Find all dissector files.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
-    files = findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True, dissector_files=files)
+    files  = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
 
 
 # If scanning a subset of files, list them here.
@@ -1149,7 +1154,8 @@ for f in files:
     # Do checks against all calls.
     if args.consecutive:
         combined_calls = CombinedCallsCheck(f, apiChecks)
-        combined_calls.check_consecutive_item_calls()
+        # This hasn't really found any issues, but shows lots of false positives (and are difficult to investigate)
+        #combined_calls.check_consecutive_item_calls()
 
 
 # Show summary.

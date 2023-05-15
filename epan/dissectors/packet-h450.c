@@ -38,6 +38,9 @@
 void proto_register_h450(void);
 void proto_reg_handoff_h450(void);
 
+static dissector_handle_t h450_arg_handle;
+static dissector_handle_t h450_res_handle;
+static dissector_handle_t h450_err_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_h450 = -1;
@@ -1165,7 +1168,8 @@ dissect_h450_2_DummyRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_h450_2_CallIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          0, 4, FALSE);
+                                          0, 4, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -3187,7 +3191,8 @@ dissect_h450_7_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h450_7_NumericString_SIZE_1_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          1, 10, FALSE);
+                                          1, 10, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -3231,7 +3236,8 @@ dissect_h450_7_NbOfMessages(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_h450_7_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                        12, 19, FALSE);
+                                        12, 19, FALSE,
+                                        NULL);
 
   return offset;
 }
@@ -6417,6 +6423,11 @@ void proto_register_h450(void) {
 
   rose_ctx_init(&h450_rose_ctx);
 
+  /* Register dissectors */
+  h450_arg_handle = register_dissector("h4501_arg", dissect_h450_arg, proto_h450);
+  h450_res_handle = register_dissector("h4501_res", dissect_h450_res, proto_h450);
+  h450_err_handle = register_dissector("h4501_err", dissect_h450_err, proto_h450);
+
   /* Register dissector tables */
   h450_rose_ctx.arg_global_dissector_table = register_dissector_table("h450.ros.global.arg", "H.450 Operation Argument (global opcode)", proto_h450, FT_STRING, BASE_NONE);
   h450_rose_ctx.res_global_dissector_table = register_dissector_table("h450.ros.global.res", "H.450 Operation Result (global opcode)", proto_h450, FT_STRING, BASE_NONE);
@@ -6433,17 +6444,11 @@ void
 proto_reg_handoff_h450(void)
 {
   int i;
-  dissector_handle_t h450_arg_handle;
-  dissector_handle_t h450_res_handle;
-  dissector_handle_t h450_err_handle;
 
-  h450_arg_handle = create_dissector_handle(dissect_h450_arg, proto_h450);
-  h450_res_handle = create_dissector_handle(dissect_h450_res, proto_h450);
   for (i=0; i<(int)array_length(h450_op_tab); i++) {
     dissector_add_uint("h450.ros.local.arg", h450_op_tab[i].opcode, h450_arg_handle);
     dissector_add_uint("h450.ros.local.res", h450_op_tab[i].opcode, h450_res_handle);
   }
-  h450_err_handle = create_dissector_handle(dissect_h450_err, proto_h450);
   for (i=0; i<(int)array_length(h450_err_tab); i++) {
     dissector_add_uint("h450.ros.local.err", h450_err_tab[i].errcode, h450_err_handle);
   }

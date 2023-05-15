@@ -24,6 +24,8 @@
 
 extern	gboolean include_cor2_changes;
 
+static dissector_handle_t ulmap_handle;
+
 void proto_register_mac_mgmt_msg_ulmap(void);
 void proto_reg_handoff_mac_mgmt_msg_ulmap(void);
 
@@ -2918,13 +2920,11 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_mac_mgmt_msg_ulmap = expert_register_protocol(proto_mac_mgmt_msg_ulmap_decoder);
 	expert_register_field_array(expert_mac_mgmt_msg_ulmap, ei, array_length(ei));
+	ulmap_handle = register_dissector("mac_mgmt_msg_ulmap_handler", dissect_mac_mgmt_msg_ulmap_decoder, proto_mac_mgmt_msg_ulmap_decoder);
 }
 
 void proto_reg_handoff_mac_mgmt_msg_ulmap(void)
 {
-	dissector_handle_t ulmap_handle;
-
-	ulmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_ulmap_decoder, proto_mac_mgmt_msg_ulmap_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_UL_MAP, ulmap_handle);
 }
 

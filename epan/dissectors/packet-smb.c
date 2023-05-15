@@ -2677,8 +2677,8 @@ dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	return mask;
 }
 
-#define RAWMODE_READ   0x01
-#define RAWMODE_WRITE  0x02
+#define RAWMODE_READ   0x0001
+#define RAWMODE_WRITE  0x0002
 static const true_false_string tfs_rm_read = {
 	"Read Raw is supported",
 	"Read Raw is not supported"

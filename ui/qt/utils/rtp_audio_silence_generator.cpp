@@ -10,7 +10,7 @@
 #include "rtp_audio_silence_generator.h"
 #include <ws_attributes.h>
 
-AudioSilenceGenerator::AudioSilenceGenerator()
+AudioSilenceGenerator::AudioSilenceGenerator(QObject *parent) : QIODevice(parent)
 {
     QIODevice::open(QIODevice::ReadOnly);
 }

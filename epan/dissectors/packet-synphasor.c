@@ -1853,7 +1853,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 	frame_type = tvb_get_guint8(tvb, 1) >> 4;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, typenames, "invalid packet type"));
 
 	/* CFG-2, CFG3, and DATA frames need special treatment during the first run:
 	 * For CFG-2 & CFG-3 frames, a 'config_frame' struct is created to hold the

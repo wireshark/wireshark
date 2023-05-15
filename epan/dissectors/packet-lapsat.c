@@ -203,12 +203,6 @@ static const value_string lapsat_ctl_u_modifier_vals_resp[] = {
  * Fragment stuff
  */
 
-static const value_string true_false_vals[] = {
-	{ 0, "False" },
-	{ 1, "True" },
-	{ 0, NULL },
-};
-
 
 static const fragment_items lapsat_frag_items = {
 	/* Fragment subtrees */
@@ -634,17 +628,17 @@ proto_register_lapsat(void)
 		},
 		{ &hf_lapsat_ctl_p,
 		  { "Poll", "lapsat.control.p",
-		    FT_UINT16, BASE_DEC, VALS(true_false_vals), LAPSAT_CTL_P_F << 4,
+		    FT_BOOLEAN, 16, TFS(&tfs_true_false), LAPSAT_CTL_P_F << 4,
 		    NULL, HFILL }
 		},
 		{ &hf_lapsat_ctl_f,
 		  { "Final", "lapsat.control.f",
-		    FT_UINT16, BASE_DEC, VALS(true_false_vals), LAPSAT_CTL_P_F << 4,
+		    FT_BOOLEAN, 16, TFS(&tfs_true_false), LAPSAT_CTL_P_F << 4,
 		    NULL, HFILL }
 		},
 		{ &hf_lapsat_ctl_mii,
 		  { "MII", "lapsat.control.mii",
-		    FT_UINT16, BASE_DEC, VALS(true_false_vals), LAPSAT_CTL_MII << 4,
+		    FT_BOOLEAN, 16, TFS(&tfs_true_false), LAPSAT_CTL_MII << 4,
 		    "Mobile Identity Indicator", HFILL }
 		},
 

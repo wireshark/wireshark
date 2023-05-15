@@ -44,7 +44,6 @@ private:
     pref_t *pref_toolbar_main_style_;
     pref_t *pref_window_title_;
     pref_t *pref_prepend_window_title_;
-    pref_t *pref_debounce_timer_;
     void updateWidgets();
 
 private slots:
@@ -61,7 +60,6 @@ private slots:
     void on_languageComboBox_currentIndexChanged(int index);
     void on_windowTitle_textEdited(const QString &new_title);
     void on_prependWindowTitle_textEdited(const QString &new_prefix);
-    void on_debounceTime_textEdited(const QString &new_timer);
 };
 
 #endif // MAIN_WINDOW_PREFERENCES_FRAME_H

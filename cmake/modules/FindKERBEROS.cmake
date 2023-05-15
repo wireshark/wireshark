@@ -21,7 +21,7 @@ endif()
 include(FindWSWinLibs)
 FindWSWinLibs("krb5-.*" "KERBEROS_HINTS")
 
-if(NOT WIN32)
+if(NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(KERBEROS krb5 mit-krb5 heimdal-krb5)
 endif()

@@ -1667,7 +1667,7 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 			atom_length = 0;
 			atom = proto_tree_add_item(tree, hf_sapdiag_item_dynt_atom, tvb, offset, atom_length, ENC_NA);
 			atom_tree = proto_item_add_subtree(atom, ett_sapdiag);
-			proto_item_append_text(atom, ", Etype=%s", val_to_str(etype, sapdiag_item_dynt_atom_item_etype_vals, "Unknown")); /* Add the Etype to the Atom tree also */
+			proto_item_append_text(atom, ", Etype=%s", val_to_str_const(etype, sapdiag_item_dynt_atom_item_etype_vals, "Unknown")); /* Add the Etype to the Atom tree also */
 		}
 
 		/* Check the atom_tree for NULL values. If the atom_tree wasn't created at this point, the atom
@@ -1953,10 +1953,10 @@ dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	proto_tree_add_item(event_valid_tree, ht_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;length-=1;
 
 	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_event_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_item_append_text(tree, ", Event Type=%s", val_to_str(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_event_type_vals, "Unknown")); offset+=2;length-=2;
+	proto_item_append_text(tree, ", Event Type=%s", val_to_str_const(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_event_type_vals, "Unknown")); offset+=2;length-=2;
 
 	proto_tree_add_item(tree, ht_sapdiag_item_ui_event_control_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_item_append_text(tree, ", Control Type=%s", val_to_str(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_control_type_vals, "Unknown")); offset+=2;length-=2;
+	proto_item_append_text(tree, ", Control Type=%s", val_to_str_const(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_control_type_vals, "Unknown")); offset+=2;length-=2;
 
 	/* The semantic of the event data changes depending of the event valid flag and are ignored if the
 	SAPDIAG_UI_EVENT_VALID_FLAG_NAVIGATION_DATA flag or the SAPDIAG_UI_EVENT_VALID_FLAG_FUNCTIONKEY_DATA
@@ -2531,55 +2531,55 @@ get_appl_string(guint8 item_id, guint8 item_sid){
 
 	switch (item_id){
 		case 0x01:{   /* SCRIPT */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_script_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_script_vals, "Unknown");
 			break;
 		} case 0x02:{ /* GRAPH */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_graph_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_graph_vals, "Unknown");
 			break;
 		} case 0x03:{ /* IXOS */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_ixos_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_ixos_vals, "Unknown");
 			break;
 		} case 0x04:{ /* ST_USER */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_st_user_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_st_user_vals, "Unknown");
 			break;
 		} case 0x05:{ /* DYNN */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_dynn_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_dynn_vals, "Unknown");
 			break;
 		} case 0x06:{ /* ST_R3INFO */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_st_r3info_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_st_r3info_vals, "Unknown");
 			break;
 		} case 0x07:{ /* POPU */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_popu_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_popu_vals, "Unknown");
 			break;
 		} case 0x08:{ /* RFC_TR */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_rfc_tr_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_rfc_tr_vals, "Unknown");
 			break;
 		} case 0x09:{ /* DYNT */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_dynt_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_dynt_vals, "Unknown");
 			break;
 		} case 0x0a:{ /* CONTAINER */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_container_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_container_vals, "Unknown");
 			break;
 		} case 0x0b:{ /* MNUENTRY */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_mnuentry_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_mnuentry_vals, "Unknown");
 			break;
 		} case 0x0c:{ /* VARINFO */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_varinfo_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_varinfo_vals, "Unknown");
 			break;
 		} case 0x0e:{ /* CONTROL */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_control_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_control_vals, "Unknown");
 			break;
 		} case 0x0f:{ /* UI_EVENT */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_ui_event_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_ui_event_vals, "Unknown");
 			break;
 		} case 0x12:{ /* ACC_LIST */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_acc_list_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_acc_list_vals, "Unknown");
 			break;
 		} case 0x13:{ /* RCUI */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_rcui_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_rcui_vals, "Unknown");
 			break;
 		} case 0x14:{ /* GUI_PACKET */
-			item_name_string = val_to_str(item_sid, sapdiag_item_appl_gui_packet_vals, "Unknown");
+	                item_name_string = val_to_str_const(item_sid, sapdiag_item_appl_gui_packet_vals, "Unknown");
 			break;
 		}
 	}
@@ -2608,7 +2608,7 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		proto_tree_add_item(item_tree, hf_sapdiag_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		item_length++;
-		proto_item_append_text(item, ": %s", val_to_str(item_type, sapdiag_item_type_vals, "Unknown"));
+		proto_item_append_text(item, ": %s", val_to_str_const(item_type, sapdiag_item_type_vals, "Unknown"));
 
 		switch (item_type){
 			case 0x01:{ /* SES */
@@ -2665,7 +2665,7 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 			case 0x12:{ /* APPL4 */
 				/* Get the APPL(4) ID */
 				item_id = tvb_get_guint8(tvb, offset);
-				proto_item_append_text(item, ", %s", val_to_str(item_id, sapdiag_item_id_vals, "Unknown"));
+				proto_item_append_text(item, ", %s", val_to_str_const(item_id, sapdiag_item_id_vals, "Unknown"));
 				proto_tree_add_item(item_tree, hf_sapdiag_item_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				item_length++;

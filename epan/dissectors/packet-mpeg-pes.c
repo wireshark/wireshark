@@ -488,12 +488,48 @@ static int hf_mpeg_video_quantization_matrix = -1;
 static int hf_mpeg_video_data = -1;
 
 static dissector_handle_t mpeg_handle;
+
+static dissector_table_t stream_type_table;
+
 enum { PES_PREFIX = 1 };
 
 /*
- * XXX - some of these aren't documented in ISO/IEC 13818-1:2007;
- * Table 2-22 "Stream_id assignments" starts with 0xbc, and also
- * lists some types not given here.  Where are the others described?
+ * MPEG uses 32-bit start codes that all begin with the three byte sequence
+ * 00 00 01 (the start code prefix) for bit and byte alignment, among other
+ * purposes.
+ *
+ * The values from 0xb9 through 0xff are "system start codes" and described in
+ * ISO/IEC 13818-1:2019 / ITU-T H.222.0. The bulk of them, 0xbc through 0xff,
+ * are stream_id values and documented in Table 2-22 "Stream_id assignments".
+ * The remaining three are used by Program Streams and found as follows:
+ * 0xb9, the MPEG_program_end_code, in 2.5.3.2 "Semantic definition of fields
+ * in program stream"
+ * 0xba, the pack_start_code, in 2.5.3.4 "Semantic definition of fields in
+ * program stream pack"
+ * 0xbb, the system_header_start_code, in 2.5.3.6 "Semantic definition of fields
+ * in system header"
+ *
+ * The remaining 185 values from 0x00 to 0xb8 are used by MPEG-2 video
+ * (backwards compatible with MPEG-1 video) and documented in ISO/IEC 13818-2 /
+ * ITU-T H.262 (2000), in Table 6-1 "Start code values". These are not stream
+ * id values and do not mark PES packets, but rather demarcate elements in the
+ * coded MPEG-1/2 video bitstream, at a different hierarchical level than the
+ * PES packets. The sets of values used for video start codes and for stream
+ * ids are disjoint to avoid any ambiguity when resynchronizing. Note the
+ * dissector currently conflates MPEG video with MPEG PES.
+ *
+ * Care is taken to ensure that the start code prefix 0x000001 does not occur
+ * elsewhere in the structure (avoiding "emulation of start codes").
+ *
+ * The video can have other formats, given by the stream type, carried on
+ * TS in the PMT and in PS from the similar Program Stream Map. AVC/H.264 and
+ * HEVC/H.265 carried in PES also use the start code prefix, before each NAL,
+ * and escape the raw byte sequence with bytes that prevent internal start code
+ * prefixes. The byte following the prefix (the first byte of the NAL header)
+ * has high bit zero, so the values of the NAL header are in the range used by
+ * the MPEG-2 video bitstream, not the range used by stream ids, allowing for
+ * synchronization in the same way. See Annex B "Byte Stream Format" of H.264
+ * and H.265.
  */
 enum {
 	STREAM_PICTURE = 0x00,
@@ -783,12 +819,13 @@ static int
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static gboolean
-dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int prefix;
 	int stream;
 	asn1_ctx_t asn1_ctx;
 	gint offset = 0;
+	guint8 stream_type;
 
 	if (!tvb_bytes_exist(tvb, 0, 3))
 		return FALSE;	/* not enough bytes for a PES prefix */
@@ -801,6 +838,13 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 	stream = tvb_get_guint8(tvb, 3);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(stream, mpeg_pes_T_stream_vals, "Unknown stream: %d"));
+
+	/* Were we called from MP2T providing a stream type from a PMT? */
+	stream_type = GPOINTER_TO_UINT(data);
+	/* Luckily, stream_type 0 is reserved, so a null value is fine.
+	 * XXX: Implement Program Stream Map for Program Stream (similar
+	 * to PMT but maps stream_ids to stream_types instead of PIDs.)
+	 */
 
 #if 0
 	if (tree == NULL)
@@ -945,18 +989,22 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 			/* length may be zero for Video stream */
 			if(length==0){
-				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb, (offset>>3),-1, ENC_NA);
-				return TRUE;
+				es = tvb_new_subset_remaining(tvb, offset / 8);
+			} else {
+				es = tvb_new_subset_length_caplen(tvb, offset / 8, -1, length);
 			}
-
-			es = tvb_new_subset_length_caplen(tvb, offset / 8, -1, length);
-			if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
-				dissect_mpeg_pes(es, pinfo, tree, NULL);
-			else if (tvb_get_guint8(es, 0) == 0xff)
-				dissect_mpeg(es, pinfo, tree, data);
-			else
-				proto_tree_add_item(tree, hf_mpeg_pes_data, es,
-						0, -1, ENC_NA);
+			if (!dissector_try_uint_new(stream_type_table, stream_type, es, pinfo, tree, TRUE, NULL)) {
+				/* If we didn't get a stream type, then assume
+				 * MPEG-1/2 Audio or Video.
+				 */
+				if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
+					dissect_mpeg_pes(es, pinfo, tree, NULL);
+				else if (tvb_get_guint8(es, 0) == 0xff)
+					dissect_mpeg(es, pinfo, tree, NULL);
+				else
+					proto_tree_add_item(tree, hf_mpeg_pes_data, es,
+							0, -1, ENC_NA);
+			}
 		} else {
 			unsigned int data_length = tvb_get_ntohs(tvb, offset / 8);
 			proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
@@ -966,7 +1014,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 					offset / 8, data_length, ENC_NA);
 		}
-	} else {
+	} else if (stream != STREAM_END) {
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 				offset / 8, -1, ENC_NA);
 	}
@@ -1320,6 +1368,8 @@ proto_register_mpeg_pes(void)
 	proto_register_field_array(proto_mpeg_pes, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("mpeg-pes", dissect_mpeg_pes, proto_mpeg_pes);
+
+	stream_type_table = register_dissector_table("mpeg-pes.stream", "MPEG PES stream type", proto_mpeg_pes, FT_UINT8, BASE_HEX);
 }
 
 void
@@ -1327,4 +1377,7 @@ proto_reg_handoff_mpeg_pes(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
 	heur_dissector_add("mpeg", dissect_mpeg_pes, "MPEG PES", "mpeg_pes", proto_mpeg_pes, HEURISTIC_ENABLE);
+
+	dissector_add_uint("mpeg-pes.stream", 0x1B, find_dissector_add_dependency("h264_bytestream", proto_mpeg_pes));
+	dissector_add_uint("mpeg-pes.stream", 0x24, find_dissector_add_dependency("h265_bytestream", proto_mpeg_pes));
 }

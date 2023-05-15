@@ -839,11 +839,11 @@ add_device_id_text(proto_item *ti, guint16 device_id) {
     if (descr != NULL) {
         proto_item_append_text(ti, " (%s)", descr);
     } else if (device_id >= 0x0070 && device_id <= 0x007f) {
-        descr = val_to_str((device_id), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
+        descr = val_to_str_const((device_id), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
         proto_item_append_text(ti, " (%s)", descr);
     } else {
         /* try to pick a default */
-        descr = val_to_str((device_id & 0xfff0), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
+        descr = val_to_str_const((device_id & 0xfff0), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
 
         if (descr != NULL) {
             if ((device_id & 0x000f) == 0) {

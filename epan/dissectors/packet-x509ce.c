@@ -77,6 +77,8 @@ static int hf_x509ce_CertificateListAssertion_PDU = -1;  /* CertificateListAsser
 static int hf_x509ce_PkiPathMatchSyntax_PDU = -1;  /* PkiPathMatchSyntax */
 static int hf_x509ce_EnhancedCertificateAssertion_PDU = -1;  /* EnhancedCertificateAssertion */
 static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
+static int hf_x509ce_NtdsCaSecurity_PDU = -1;     /* NtdsCaSecurity */
+static int hf_x509ce_NtdsObjectSid_PDU = -1;      /* NtdsObjectSid */
 static int hf_x509ce_EntrustVersionInfo_PDU = -1;  /* EntrustVersionInfo */
 static int hf_x509ce_ScramblerCapabilities_PDU = -1;  /* ScramblerCapabilities */
 static int hf_x509ce_CiplusInfo_PDU = -1;         /* CiplusInfo */
@@ -206,6 +208,9 @@ static int hf_x509ce_altNameValue = -1;           /* GeneralName */
 static int hf_x509ce_templateID = -1;             /* OBJECT_IDENTIFIER */
 static int hf_x509ce_templateMajorVersion = -1;   /* INTEGER */
 static int hf_x509ce_templateMinorVersion = -1;   /* INTEGER */
+static int hf_x509ce_ntdsObjectSid = -1;          /* NtdsObjectSid */
+static int hf_x509ce_type_id_01 = -1;             /* OBJECT_IDENTIFIER */
+static int hf_x509ce_sid = -1;                    /* PrintableString */
 static int hf_x509ce_entrustVers = -1;            /* GeneralString */
 static int hf_x509ce_entrustVersInfoFlags = -1;   /* EntrustInfoFlags */
 static int hf_x509ce_capability = -1;             /* INTEGER_0_MAX */
@@ -297,6 +302,8 @@ static gint ett_x509ce_PkiPathMatchSyntax = -1;
 static gint ett_x509ce_EnhancedCertificateAssertion = -1;
 static gint ett_x509ce_AltName = -1;
 static gint ett_x509ce_CertificateTemplate = -1;
+static gint ett_x509ce_NtdsCaSecurity = -1;
+static gint ett_x509ce_NtdsObjectSid_U = -1;
 static gint ett_x509ce_EntrustVersionInfo = -1;
 static gint ett_x509ce_EntrustInfoFlags = -1;
 static gint ett_x509ce_ScramblerCapabilities = -1;
@@ -1554,6 +1561,56 @@ dissect_x509ce_CertificateTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static int
+dissect_x509ce_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NtdsObjectSid_U_sequence[] = {
+  { &hf_x509ce_type_id_01   , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x509ce_OBJECT_IDENTIFIER },
+  { &hf_x509ce_sid          , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x509ce_PrintableString },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_NtdsObjectSid_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NtdsObjectSid_U_sequence, hf_index, ett_x509ce_NtdsObjectSid_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509ce_NtdsObjectSid(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_CON, 0, TRUE, dissect_x509ce_NtdsObjectSid_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NtdsCaSecurity_sequence[] = {
+  { &hf_x509ce_ntdsObjectSid, BER_CLASS_CON, 0, BER_FLAGS_NOOWNTAG, dissect_x509ce_NtdsObjectSid },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_NtdsCaSecurity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NtdsCaSecurity_sequence, hf_index, ett_x509ce_NtdsCaSecurity);
+
+  return offset;
+}
+
+
+
+static int
 dissect_x509ce_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                             actx, tree, tvb, offset, hf_index,
@@ -1887,6 +1944,20 @@ static int dissect_CertificateTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset = dissect_x509ce_CertificateTemplate(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_CertificateTemplate_PDU);
   return offset;
 }
+static int dissect_NtdsCaSecurity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_x509ce_NtdsCaSecurity(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_NtdsCaSecurity_PDU);
+  return offset;
+}
+static int dissect_NtdsObjectSid_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_x509ce_NtdsObjectSid(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_NtdsObjectSid_PDU);
+  return offset;
+}
 static int dissect_EntrustVersionInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2125,6 +2196,14 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
     { &hf_x509ce_CertificateTemplate_PDU,
       { "CertificateTemplate", "x509ce.CertificateTemplate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_NtdsCaSecurity_PDU,
+      { "NtdsCaSecurity", "x509ce.NtdsCaSecurity_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_NtdsObjectSid_PDU,
+      { "NtdsObjectSid", "x509ce.NtdsObjectSid_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_EntrustVersionInfo_PDU,
@@ -2643,6 +2722,18 @@ void proto_register_x509ce(void) {
       { "templateMinorVersion", "x509ce.templateMinorVersion",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_x509ce_ntdsObjectSid,
+      { "ntdsObjectSid", "x509ce.ntdsObjectSid_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_type_id_01,
+      { "type-id", "x509ce.type_id",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_x509ce_sid,
+      { "sid", "x509ce.sid",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "PrintableString", HFILL }},
     { &hf_x509ce_entrustVers,
       { "entrustVers", "x509ce.entrustVers",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2828,6 +2919,8 @@ void proto_register_x509ce(void) {
     &ett_x509ce_EnhancedCertificateAssertion,
     &ett_x509ce_AltName,
     &ett_x509ce_CertificateTemplate,
+    &ett_x509ce_NtdsCaSecurity,
+    &ett_x509ce_NtdsObjectSid_U,
     &ett_x509ce_EntrustVersionInfo,
     &ett_x509ce_EntrustInfoFlags,
     &ett_x509ce_ScramblerCapabilities,
@@ -2886,6 +2979,8 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.13.65", dissect_EnhancedCertificateAssertion_PDU, proto_x509ce, "id-mr-enhancedCertificateMatch");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.7", dissect_CertificateTemplate_PDU, proto_x509ce, "id-ms-certificate-template");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.10", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ms-application-certificate-policies");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.25.2", dissect_NtdsCaSecurity_PDU, proto_x509ce, "id-ms-ntds-ca-security");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.25.2.1", dissect_NtdsObjectSid_PDU, proto_x509ce, "id-ms-ntds-object-sid");
   register_ber_oid_dissector("1.2.840.113533.7.65.0", dissect_EntrustVersionInfo_PDU, proto_x509ce, "id-ce-entrustVersionInfo");
 
   register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");

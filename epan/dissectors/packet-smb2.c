@@ -3397,8 +3397,8 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 
 
-#define NEGPROT_SIGN_REQ	0x0002
-#define NEGPROT_SIGN_ENABLED	0x0001
+#define NEGPROT_SIGN_REQ	0x02
+#define NEGPROT_SIGN_ENABLED	0x01
 
 static int
 dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)

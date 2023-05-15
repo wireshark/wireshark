@@ -20,13 +20,16 @@
  * appropriate. And it should only be used if failing the condition
  * doesn't necessarily lead to an inconsistent state for the program.
  *
- * It is possible to set the fatal log level to "critical" to abort
+ * It is possible to set the fatal log domain to "InvalidArg" to abort
  * execution for debugging purposes, if one of these checks fail.
  */
 
-#define ws_warn_zero_len(var) ws_critical("Zero length '%s' passed to %s()", var, __func__)
+#define ws_warn_badarg(...) \
+    ws_log_full(LOG_DOMAIN_EINVAL, LOG_LEVEL_INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
-#define ws_warn_null_ptr(var) ws_critical("Null pointer '%s' passed to %s()", var, __func__)
+#define ws_warn_zero_len(var) ws_warn_badarg("Zero length argument '%s' is invalid", var)
+
+#define ws_warn_null_ptr(var) ws_warn_badarg("Null pointer argument '%s' is invalid", var)
 
 
 #define ws_return_str_if_zero(scope, len) \

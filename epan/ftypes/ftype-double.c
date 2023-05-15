@@ -148,6 +148,12 @@ val_is_negative(const fvalue_t *fv_a)
 	return fv_a->value.floating < 0;
 }
 
+static guint
+val_hash(const fvalue_t *fv)
+{
+	return g_double_hash(&fv->value.floating);
+}
+
 void
 ftype_register_double(void)
 {
@@ -175,10 +181,11 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		val_hash,			/* hash */
 		val_is_zero,			/* is_zero */
 		val_is_negative,		/* is_negative */
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 		NULL,				/* bitwise_and */
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
@@ -211,10 +218,11 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		val_hash,			/* hash */
 		val_is_zero,			/* is_zero */
 		val_is_negative,		/* is_negative */
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 		NULL,				/* bitwise_and */
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */

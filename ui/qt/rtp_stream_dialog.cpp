@@ -19,6 +19,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_analysis_dialog.h"
+#include "progress_frame.h"
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -359,6 +360,8 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
         ui->displayFilterCheckBox->setChecked(true);
     }
 
+    connect(ui->displayFilterCheckBox, &QCheckBox::toggled,
+            this, &RtpStreamDialog::displayFilterCheckBoxToggled);
     connect(this, SIGNAL(updateFilter(QString, bool)),
             &parent, SLOT(filterPackets(QString, bool)));
     connect(&parent, SIGNAL(displayFilterSuccess(bool)),
@@ -376,10 +379,13 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     connect(this, SIGNAL(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
             &parent, SLOT(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 
-    /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     updateWidgets();
+
+    if (cap_file_.isValid()) {
+        cap_file_.delayedRetapPackets();
+    }
 }
 
 RtpStreamDialog::~RtpStreamDialog()
@@ -387,6 +393,7 @@ RtpStreamDialog::~RtpStreamDialog()
     std::lock_guard<std::mutex> lock(mutex_);
     freeLastSelected();
     delete ui;
+    rtpstream_reset(&tapinfo_);
     remove_tap_listener_rtpstream(&tapinfo_);
     pinstance_ = nullptr;
 }
@@ -754,7 +761,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
         QString save_file = path.canonicalPath() + "/" + cap_file_.fileBaseName();
         QString extension;
         file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save RTPDump As…")),
-                                                 save_file, "RTPDump Format (*.rtpdump)", &extension);
+                                                 save_file, "RTPDump Format (*.rtp)", &extension);
 
         if (file_name.length() > 0) {
             gchar *dest_file = qstring_strdup(file_name);
@@ -904,7 +911,7 @@ void RtpStreamDialog::on_buttonBox_helpRequested()
     mainApp->helpTopicAction(HELP_TELEPHONY_RTP_STREAMS_DIALOG);
 }
 
-void RtpStreamDialog::on_displayFilterCheckBox_toggled(bool checked _U_)
+void RtpStreamDialog::displayFilterCheckBoxToggled(bool checked)
 {
     if (!cap_file_.isValid()) {
         return;

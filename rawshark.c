@@ -751,7 +751,7 @@ main(int argc, char *argv[])
         for (i = 0; i < n_rfilters; i++) {
             if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes], &df_err)) {
                 cmdarg_err("%s", df_err->msg);
-                dfilter_error_free(df_err);
+                df_error_free(&df_err);
                 ret = INVALID_DFILTER;
                 goto clean_exit;
             }
@@ -1130,7 +1130,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
         label_s = g_string_new("");
     }
 
-    fs_buf = fvalue_to_string_repr(NULL, &finfo->value,
+    fs_buf = fvalue_to_string_repr(NULL, finfo->value,
                           FTREPR_DFILTER, finfo->hfinfo->display);
     if (fs_buf != NULL) {
         /*
@@ -1141,7 +1141,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
         fs_ptr = fs_buf;
 
         /* String types are quoted. Remove them. */
-        if (IS_FT_STRING(fvalue_type_ftenum(&finfo->value)) && fs_len > 2) {
+        if (IS_FT_STRING(fvalue_type_ftenum(finfo->value)) && fs_len > 2) {
             fs_buf[fs_len - 1] = '\0';
             fs_ptr++;
         }
@@ -1164,7 +1164,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                     case SF_STRVAL:
                         switch(hfinfo->type) {
                             case FT_BOOLEAN:
-                                uvalue64 = fvalue_get_uinteger64(&finfo->value);
+                                uvalue64 = fvalue_get_uinteger64(finfo->value);
                                 tfstring = (const true_false_string*) hfinfo->strings;
                                 g_string_append(label_s, tfs_get_string(!!uvalue64, tfstring));
                                 break;
@@ -1173,7 +1173,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                             case FT_INT24:
                             case FT_INT32:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
-                                svalue = fvalue_get_sinteger(&finfo->value);
+                                svalue = fvalue_get_sinteger(finfo->value);
                                 if (hfinfo->display & BASE_RANGE_STRING) {
                                     g_string_append(label_s, rval_to_str_const(svalue, (const range_string *) hfinfo->strings, "Unknown"));
                                 } else if (hfinfo->display & BASE_EXT_STRING) {
@@ -1187,7 +1187,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                             case FT_INT56:
                             case FT_INT64:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
-                                svalue64 = fvalue_get_sinteger64(&finfo->value);
+                                svalue64 = fvalue_get_sinteger64(finfo->value);
                                 if (hfinfo->display & BASE_VAL64_STRING) {
                                     g_string_append(label_s, val64_to_str_const(svalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }
@@ -1197,7 +1197,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                             case FT_UINT24:
                             case FT_UINT32:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
-                                uvalue = fvalue_get_uinteger(&finfo->value);
+                                uvalue = fvalue_get_uinteger(finfo->value);
                                 if (!hfinfo->bitmask && hfinfo->display & BASE_RANGE_STRING) {
                                     g_string_append(label_s, rval_to_str_const(uvalue, (const range_string *) hfinfo->strings, "Unknown"));
                                 } else if (hfinfo->display & BASE_EXT_STRING) {
@@ -1211,7 +1211,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                             case FT_UINT56:
                             case FT_UINT64:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
-                                uvalue64 = fvalue_get_uinteger64(&finfo->value);
+                                uvalue64 = fvalue_get_uinteger64(finfo->value);
                                 if (hfinfo->display & BASE_VAL64_STRING) {
                                     g_string_append(label_s, val64_to_str_const(uvalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }

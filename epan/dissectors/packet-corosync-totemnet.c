@@ -284,12 +284,12 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   /*
    * Generate MAC, CIPHER, IV keys from private key
    */
-  memset (keys, 0, sizeof(keys));
-  sober128_start (&keygen_prng_state);
+  memset(keys, 0, sizeof(keys));
+  sober128_start(&keygen_prng_state);
   sober128_add_entropy(private_key,
-                                  (unsigned long)private_key_len, &keygen_prng_state);
-  sober128_add_entropy (salt, SALT_SIZE, &keygen_prng_state);
-  sober128_read (keys, sizeof (keys), &keygen_prng_state);
+                       (unsigned long)private_key_len, &keygen_prng_state);
+  sober128_add_entropy(salt, SALT_SIZE, &keygen_prng_state);
+  sober128_read(keys, sizeof (keys), &keygen_prng_state);
 
   /*
    * Setup stream cipher
@@ -312,9 +312,9 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
    * Decrypt the contents of the message with the cipher key
    */
 
-  sober128_read (io_base + HASH_SHA1_LENGTH + SALT_SIZE,
-                            io_len - (HASH_SHA1_LENGTH + SALT_SIZE),
-                            &stream_prng_state);
+  sober128_read(io_base + HASH_SHA1_LENGTH + SALT_SIZE,
+                io_len - (HASH_SHA1_LENGTH + SALT_SIZE),
+                &stream_prng_state);
 
 
   /*

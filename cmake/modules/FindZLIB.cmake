@@ -45,7 +45,7 @@ if(MSVC)
 endif()
 
 if (NOT ZLIB_INCLUDE_DIR OR NOT ZLIB_LIBRARY)
-    if (NOT WIN32) # else we'll find Strawberry Perl's pkgconfig
+    if (NOT USE_REPOSITORY) # else we'll find Strawberry Perl's pkgconfig
         find_package(PkgConfig)
         pkg_search_module(ZLIB zlib)
     endif()

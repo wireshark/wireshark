@@ -112,6 +112,8 @@
 void proto_reg_handoff_its(void);
 void proto_register_its(void);
 
+static dissector_handle_t its_handle;
+
 static expert_field ei_its_no_sub_dis = EI_INIT;
 
 // TAP
@@ -1317,7 +1319,7 @@ static int hf_ivi_itisCodes = -1;                 /* INTEGER_0_65535 */
 static int hf_ivi_anyCatalogue = -1;              /* AnyCatalogue */
 static int hf_ivi_line = -1;                      /* PolygonalLine */
 static int hf_ivi_tLayoutComponentId = -1;        /* INTEGER_1_4_ */
-static int hf_ivi_language = -1;                  /* BIT_STRING_SIZE_10 */
+static int hf_ivi_language = -1;                  /* T_language */
 static int hf_ivi_textContent = -1;               /* UTF8String */
 static int hf_ivi_toEqualTo = -1;                 /* T_TractorCharactEqualTo */
 static int hf_ivi_toNotEqualTo = -1;              /* T_TractorCharactNotEqualTo */
@@ -2552,6 +2554,21 @@ find_subcause_from_cause(CauseCodeType_enum cause)
     return cause_to_subcause[idx].hf?cause_to_subcause[idx].hf:&hf_its_subCauseCode;
 }
 
+static unsigned char ita2_ascii[32] = {
+    '\0', 'T', '\r', 'O', ' ', 'H', 'N', 'M', '\n', 'L', 'R', 'G', 'I', 'P', 'C', 'V',
+    'E', 'Z', 'D', 'B', 'S', 'Y', 'F', 'X', 'A', 'W', 'J', '\0', 'U', 'Q', 'K'
+};
+
+static void
+append_country_code_fmt(proto_item *item, tvbuff_t *val_tvb)
+{
+  guint16 v = tvb_get_guint16(val_tvb, 0, ENC_BIG_ENDIAN);
+  v >>= 6;  /* 10 bits */
+  guint16 v1 = (v >> 5) & 0x1F;
+  guint16 v2 = v & 0x1F;
+  proto_item_append_text(item, " - %c%c", ita2_ascii[v1], ita2_ascii[v2]);
+}
+
 
 /* --- Module ITS-Container --- --- ---                                       */
 
@@ -3703,7 +3720,8 @@ dissect_its_BOOLEAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_its_IA5String_SIZE_1_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 24, FALSE);
+                                          1, 24, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -3713,7 +3731,8 @@ dissect_its_IA5String_SIZE_1_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_its_PhoneNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          1, 16, FALSE);
+                                          1, 16, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -4030,7 +4049,8 @@ dissect_its_PositioningSolutionType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_its_WMInumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 3, FALSE);
+                                          1, 3, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -4040,7 +4060,8 @@ dissect_its_WMInumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_its_VDS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          6, 6, FALSE);
+                                          6, 6, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -5454,7 +5475,8 @@ dissect_itsv1_BOOLEAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_itsv1_IA5String_SIZE_1_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 24, FALSE);
+                                          1, 24, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -5771,7 +5793,8 @@ dissect_itsv1_PositioningSolutionType(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_itsv1_WMInumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 3, FALSE);
+                                          1, 3, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -5781,7 +5804,8 @@ dissect_itsv1_WMInumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_itsv1_VDS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          6, 6, FALSE);
+                                          6, 6, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -6360,8 +6384,11 @@ dissect_itsv1_CenDsrcTollingZone(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_anads_CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *val_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, &val_tvb, NULL);
+
+  append_country_code_fmt(actx->created_item, val_tvb);
 
   return offset;
 }
@@ -7041,7 +7068,8 @@ dissect_dsrc_LayerID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_dsrc_DescriptiveName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 63, FALSE);
+                                          1, 63, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -8433,7 +8461,8 @@ dissect_dsrc_RoadSegmentList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_dsrc_IA5String_SIZE_1_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 255, FALSE);
+                                          1, 255, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -13026,9 +13055,12 @@ dissect_ivi_RoadSignCodes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static int
-dissect_ivi_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ivi_T_language(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *val_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, 0, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, &val_tvb, NULL);
+
+  append_country_code_fmt(actx->created_item, val_tvb);
 
   return offset;
 }
@@ -13046,7 +13078,7 @@ dissect_ivi_UTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static const per_sequence_t ivi_Text_sequence[] = {
   { &hf_ivi_tLayoutComponentId, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ivi_INTEGER_1_4_ },
-  { &hf_ivi_language        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_BIT_STRING_SIZE_10 },
+  { &hf_ivi_language        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_T_language },
   { &hf_ivi_textContent     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ivi_UTF8String },
   { NULL, 0, 0, NULL }
 };
@@ -15159,7 +15191,8 @@ dissect_tistpg_UNVehicleClassifcation(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_tistpg_CustomerContract(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 32, FALSE);
+                                          1, 32, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -16304,7 +16337,8 @@ dissect_evcsn_UTF8String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_evcsn_NumericString_SIZE_1_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          1, 16, FALSE);
+                                          1, 16, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -16373,7 +16407,6 @@ dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
    * 1111  Cable for    Reserved
            DC charging
    */
-
 
   return offset;
 }
@@ -16650,7 +16683,8 @@ dissect_evrsr_PreReservationRequestMessage(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_evrsr_Reservation_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          8, 8, FALSE);
+                                          8, 8, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -16790,7 +16824,8 @@ dissect_evrsr_Payment_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_evrsr_Pairing_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 64, FALSE);
+                                          1, 64, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -16843,7 +16878,8 @@ dissect_evrsr_ReservationResponseCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_evrsr_Reservation_Password(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          8, 8, FALSE);
+                                          8, 8, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -22861,7 +22897,7 @@ void proto_register_its(void)
     { &hf_ivi_language,
       { "language", "ivi.language",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_10", HFILL }},
+        NULL, HFILL }},
     { &hf_ivi_textContent,
       { "textContent", "ivi.textContent",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -25952,7 +25988,7 @@ void proto_register_its(void)
 
     expert_register_field_array(expert_its, ei, array_length(ei));
 
-    register_dissector("its", dissect_its_PDU, proto_its);
+    its_handle = register_dissector("its", dissect_its_PDU, proto_its);
 
     // Register subdissector table
     its_version_subdissector_table = register_dissector_table("its.version", "ITS version", proto_its, FT_UINT8, BASE_DEC);
@@ -26013,18 +26049,16 @@ void proto_reg_handoff_its(void)
     const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
     const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS };
     int sdIdx, pIdx;
-    dissector_handle_t its_handle_;
 
     // Register well known ports to btp subdissector table (BTP A and B)
-    its_handle_ = create_dissector_handle(dissect_its_PDU, proto_its);
     for (sdIdx=0; sdIdx < BTP_SUBDISS_SZ; sdIdx++) {
         for (pIdx=0; pIdx < BTP_PORTS_SZ; pIdx++) {
-            dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle_);
+            dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle);
         }
     }
 
     // Enable decode as for its pdu's send via udp
-    dissector_add_for_decode_as("udp.port", its_handle_);
+    dissector_add_for_decode_as("udp.port", its_handle);
 
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        create_dissector_handle( dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1 ));

@@ -239,10 +239,9 @@ public:
     UatPreference(QObject * parent = Q_NULLPTR) : WiresharkPreference(parent) {}
     virtual QWidget * editor(QWidget * parent, const QStyleOptionViewItem &option, const QModelIndex &index)
     {
-        if (prefsItem()->getPrefGUIType() == GUI_ALL || prefsItem()->getPrefGUIType() == GUI_QT) {
-            UatDialog uat_dlg(parent, prefs_get_uat_value(prefsItem()->getPref()));
-            uat_dlg.exec();
-        }
+        UatDialog uat_dlg(parent, prefs_get_uat_value(prefsItem()->getPref()));
+        uat_dlg.exec();
+
         return WiresharkPreference::editor(parent, option, index);
     }
 };

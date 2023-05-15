@@ -153,6 +153,13 @@ int nstime_cmp (const nstime_t *a, const nstime_t *b )
     }
 }
 
+guint nstime_hash(const nstime_t *nstime)
+{
+    gint64 val1 = (gint64)nstime->secs;
+
+    return g_int64_hash(&val1) ^ g_int_hash(&nstime->nsecs);
+}
+
 /*
  * function: nstime_to_msec
  * converts nstime to double, time base is milli seconds

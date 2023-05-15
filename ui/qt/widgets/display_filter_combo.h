@@ -34,6 +34,7 @@ public slots:
 
 private slots:
     void updateMaxCount();
+    void onActivated(int index);
 };
 
 #endif // DISPLAY_FILTER_COMBO_H

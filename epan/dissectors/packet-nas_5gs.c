@@ -29,7 +29,7 @@
 
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 #include "packet-tcp.h"
 
 void proto_register_nas_5gs(void);
@@ -10245,9 +10245,9 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     jsmntok_t *tokens, *cur_tok;
     dissector_handle_t subdissector;
     tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
-    http_message_info_t *message_info = (http_message_info_t *)data;
+    media_content_info_t *content_info = (media_content_info_t *)data;
 
-    if (!json_tvb || !message_info || !message_info->content_id)
+    if (!json_tvb || !content_info || !content_info->content_id)
         return 0;
 
     json_data = tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
@@ -10291,7 +10291,7 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             }
         }
     }
-    if (!str || strcmp(str, message_info->content_id))
+    if (!str || strcmp(str, content_info->content_id))
         return 0;
     if (!strcmp(n1_msg_class, "5GMM") ||
         !strcmp(n1_msg_class, "SM")) {

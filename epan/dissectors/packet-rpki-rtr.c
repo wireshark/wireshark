@@ -35,6 +35,8 @@ static int hf_rpkirtr_serial_number = -1;
 static int hf_rpkirtr_flags = -1;
 static int hf_rpkirtr_flags_aw = -1;
 static int hf_rpkirtr_flags_rk = -1;
+static int hf_rpkirtr_flags_ar = -1;
+static int hf_rpkirtr_flags_arafi = -1;
 static int hf_rpkirtr_prefix_length = -1;
 static int hf_rpkirtr_max_length = -1;
 static int hf_rpkirtr_ipv4_prefix = -1;
@@ -50,6 +52,9 @@ static int hf_rpkirtr_retry_interval = -1;
 static int hf_rpkirtr_expire_interval = -1;
 static int hf_rpkirtr_subject_key_identifier = -1;
 static int hf_rpkirtr_subject_public_key_info = -1;
+static int hf_rpkirtr_aspa_provider_as_count = -1;
+static int hf_rpkirtr_aspa_customer_asn = -1;
+static int hf_rpkirtr_aspa_provider_asn = -1;
 
 #define RPKI_RTR_TCP_PORT 323
 #define RPKI_RTR_TLS_PORT 324
@@ -58,7 +63,9 @@ static guint g_port_rpkirtr_tls = RPKI_RTR_TLS_PORT;
 static gint ett_rpkirtr = -1;
 static gint ett_flags   = -1;
 static gint ett_flags_nd = -1;
+static gint ett_providers = -1;
 
+static expert_field ei_rpkirtr_wrong_version_aspa = EI_INIT;
 static expert_field ei_rpkirtr_wrong_version_router_key = EI_INIT;
 static expert_field ei_rpkirtr_bad_length = EI_INIT;
 
@@ -76,6 +83,7 @@ static dissector_handle_t rpkirtr_handle;
 #define RPKI_RTR_CACHE_RESET_PDU     8
 #define RPKI_RTR_ROUTER_KEY          9
 #define RPKI_RTR_ERROR_REPORT_PDU   10
+#define RPKI_RTR_ASPA_PDU           11
 
 static const value_string rtr_pdu_type_vals[] = {
     { RPKI_RTR_SERIAL_NOTIFY_PDU,  "Serial Notify" },
@@ -88,6 +96,7 @@ static const value_string rtr_pdu_type_vals[] = {
     { RPKI_RTR_CACHE_RESET_PDU,    "Cache Reset" },
     { RPKI_RTR_ROUTER_KEY,         "Router Key" },
     { RPKI_RTR_ERROR_REPORT_PDU,   "Error Report" },
+    { RPKI_RTR_ASPA_PDU,           "ASPA" },
     { 0, NULL }
 };
 
@@ -113,6 +122,16 @@ static const true_false_string tfs_flag_type_aw = {
 static const true_false_string tfs_flag_type_rk = {
     "New Router Key",
     "Delete Router Key"
+};
+
+static const true_false_string tfs_flag_type_ar = {
+    "New Autonomous System Provider Authorization Record",
+    "Delete Autonomous System Provider Authorization Record"
+};
+
+static const true_false_string tfs_flag_type_afi_ar = {
+    "IPv6",
+    "IPv4",
 };
 
 static guint
@@ -291,6 +310,38 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 offset += len_text;
             }
             break;
+            case RPKI_RTR_ASPA_PDU: /* ASPA (11) */
+                if(version < 2){
+                    /* Error about wrong version... */
+                    expert_add_info(pinfo, ti_type, &ei_rpkirtr_wrong_version_aspa);
+                } else {
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_reserved, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    flags_tree = proto_item_add_subtree(ti_flags, ett_flags_nd);
+                    proto_tree_add_item(flags_tree, hf_rpkirtr_flags_ar, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    flags_tree = proto_item_add_subtree(ti_flags, ett_flags_nd);
+                    proto_tree_add_item(flags_tree, hf_rpkirtr_flags_arafi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+
+                    guint cnt_asns;
+                    proto_tree_add_item_ret_uint(rpkirtr_tree, hf_rpkirtr_aspa_provider_as_count, tvb, offset, 2, ENC_BIG_ENDIAN, &cnt_asns);
+                    offset += 2;
+
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_aspa_customer_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+
+                    proto_tree *providers_tree = proto_item_add_subtree(rpkirtr_tree, ett_providers);
+                    for (guint i = 0; i < cnt_asns; i++) {
+                        proto_tree_add_item(providers_tree, hf_rpkirtr_aspa_provider_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                    }
+                }
+                break;
             default:
                 /* No default ? At least sanity check the length*/
                 if (length > tvb_reported_length(tvb)) {
@@ -367,6 +418,16 @@ proto_register_rpkirtr(void)
             FT_BOOLEAN, 8, TFS(&tfs_flag_type_rk), 0x01,
             NULL, HFILL }
         },
+        { &hf_rpkirtr_flags_ar,
+            { "Flag ASPA", "rpki-rtr.flags.ar",
+            FT_BOOLEAN, 8, TFS(&tfs_flag_type_ar), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_rpkirtr_flags_arafi,
+            { "ASPA Address Family Flag", "rpki-rtr.flags.arafi",
+            FT_BOOLEAN, 8, TFS(&tfs_flag_type_afi_ar), 0x01,
+            NULL, HFILL }
+        },
         { &hf_rpkirtr_prefix_length,
             { "Prefix Length", "rpki-rtr.prefix_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -441,16 +502,33 @@ proto_register_rpkirtr(void)
             { "Subject Public Key Info", "rpki-rtr.subject_public_key_info",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_rpkirtr_aspa_provider_as_count,
+            { "ASPA Provider AS Count", "rpki-rtr.aspa_ascount",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The Provider AS Count is the number of 32-bit Provider Autonomous System Numbers in the PDU", HFILL }
+        },
+        { &hf_rpkirtr_aspa_customer_asn,
+            { "ASPA Customer ASN", "rpki-rtr.aspa_customer_asn",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The Customer Autonomous System Number is the 32-bit Autonomous System Number of the customer which authenticated the ASPA RPKI data", HFILL }
+        },
+        { &hf_rpkirtr_aspa_provider_asn,
+            { "ASPA Provider ASN", "rpki-rtr.aspa_provider_asn",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
     static gint *ett[] = {
         &ett_rpkirtr,
         &ett_flags,
-        &ett_flags_nd
+        &ett_flags_nd,
+        &ett_providers
     };
 
     static ei_register_info ei[] = {
+        { &ei_rpkirtr_wrong_version_aspa, { "rpkirtr.aspa.wrong_version", PI_MALFORMED, PI_WARN, "Wrong version for ASPA type", EXPFILL }},
         { &ei_rpkirtr_wrong_version_router_key, { "rpkirtr.router_key.wrong_version", PI_MALFORMED, PI_WARN, "Wrong version for Router Key type", EXPFILL }},
         { &ei_rpkirtr_bad_length, { "rpkirtr.bad_length", PI_MALFORMED, PI_ERROR, "Invalid length field", EXPFILL }},
     };

@@ -960,7 +960,7 @@ scsistat_init(struct register_srt* srt, GArray* srt_array)
     scsi_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, SCSI_NUM_PROCEDURES, NULL, tap_data->hf_name, tap_data);
     for (i = 0; i < SCSI_NUM_PROCEDURES; i++)
     {
-        init_srt_table_row(scsi_srt_table, i, val_to_str_ext_const(i, tap_data->cdbnames_ext, "Unknown-0x%02x"));
+        init_srt_table_row(scsi_srt_table, i, val_to_str_ext(i, tap_data->cdbnames_ext, "Unknown-0x%02x"));
     }
 }
 
@@ -5340,7 +5340,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb_a, packet_info *pinfo _U_,
         cdata->itlq->flags=service_action;
     }
     col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str(service_action, mpi_action_vals, "Unknown"));
+            val_to_str_const(service_action, mpi_action_vals, "Unknown"));
 
     proto_tree_add_item(tree, hf_scsi_mpi_service_action, tvb_a,
             offset_a, 1, ENC_BIG_ENDIAN);

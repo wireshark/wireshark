@@ -7,15 +7,6 @@ and WiresharkDoc-*.png in the icons directory.
 
 File descriptions:
 
-wsicon.svg::
-Old vector source for the Wireshark icon.
-
-wsiconcap.svg::
-Old vector source for the "capture" icon.
-
-wsicondoc.svg::
-Old vector source for the "document" icon.
-
 wsicon16.png ... wsicon1024.png::
 Wireshark application icons in various sizes
 
@@ -51,6 +42,9 @@ Various stock icons. Names _mostly_ conform to the freedesktop.org
 https://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html[Icon Naming Specification].
 For example, the INS specifies “list-add” and “list-remove”. and we've added “list-copy”, “list-move-up“, “list-move-down”, and “list-clear”.
 
+historic::
+Old assets that should no longer be used.
+
 The Wireshark application icon, document icon, and several toolbar icons were created by Elliott Aldrich.
 The list-add and list-remove images were created by Peter Hosey and released under CC-PD.
 The list-clear images were created by Freepik, http://www.freepik.com from https://www.flaticon.com.
@@ -66,3 +60,5 @@ Mono Icons: https://github.com/mono-company/mono-icons
 Tabler Icons: https://github.com/tabler/tabler-icons
 
 Fluent UI System Icons: https://github.com/microsoft/fluentui-system-icons
+
+Hero Icons: https://heroicons.com/

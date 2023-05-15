@@ -215,7 +215,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (sstp_control_flag) {
     guint16 sstp_messagetype = tvb_get_guint16(tvb, SSTP_OFFSET_MSGTYPE, ENC_BIG_ENDIAN);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Type: CONTROL, %s; ", val_to_str(sstp_messagetype, sstp_messagetypes, "Unknown Messagetype"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Type: CONTROL, %s; ", val_to_str_const(sstp_messagetype, sstp_messagetypes, "Unknown Messagetype"));
     proto_tree_add_item(sstp_tree, hf_sstp_messagetype, tvb,  SSTP_OFFSET_MSGTYPE, SSTP_FSIZE_MSGTYPE, ENC_BIG_ENDIAN);
     proto_tree_add_item(sstp_tree, hf_sstp_numattrib, tvb,    SSTP_OFFSET_NUMATTRIB, SSTP_FSIZE_NUMATTRIB, ENC_BIG_ENDIAN);
     sstp_numattrib = tvb_get_ntohs(tvb, SSTP_OFFSET_NUMATTRIB);
@@ -231,7 +231,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         /* read attribute id and create subtree for attribute */
         attrib_id = tvb_get_guint8(tvb, offset+1);
         sstp_tree_attribute = proto_tree_add_subtree_format(sstp_tree, tvb, offset, SSTP_FSIZE_ATTRIB_RESERVED, ett_sstp_attribute,
-            NULL, "Attribute %s", val_to_str(attrib_id, sstp_attributes, "Unknown Attribute"));
+            NULL, "Attribute %s", val_to_str_const(attrib_id, sstp_attributes, "Unknown Attribute"));
         proto_tree_add_item(sstp_tree_attribute, hf_sstp_attrib_reserved, tvb, offset, SSTP_FSIZE_ATTRIB_RESERVED, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(sstp_tree_attribute, hf_sstp_attrib_id, tvb, offset, SSTP_FSIZE_ATTRIB_ID, ENC_BIG_ENDIAN);

@@ -254,6 +254,18 @@ extern "C" {
 #endif
 
 /*
+ * This warning is only supported by GCC since version 7.1 (and not
+ * Clang or other compilers that claim GNU C support).
+ */
+#if WS_GCC_VERSION >= 70100
+  #define DIAG_OFF_STRINGOP_OVERFLOW() DIAG_OFF(stringop-overflow=)
+  #define DIAG_ON_STRINGOP_OVERFLOW() DIAG_ON(stringop-overflow=)
+#else
+  #define DIAG_OFF_STRINGOP_OVERFLOW()
+  #define DIAG_ON_STRINGOP_OVERFLOW()
+#endif
+
+/*
  *	For dealing with APIs which are only deprecated in macOS (like the
  *	OpenSSL and MIT/Heimdal Kerberos APIs).
  *

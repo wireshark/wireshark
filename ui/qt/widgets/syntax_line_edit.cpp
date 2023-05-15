@@ -238,7 +238,7 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
         setSyntaxState(SyntaxLineEdit::Invalid);
         syntax_error_message_ = QString::fromUtf8(df_err->msg);
         syntax_error_message_full_ = createSyntaxErrorMessageFull(filter, syntax_error_message_, df_err->loc.col_start, df_err->loc.col_len);
-        dfilter_error_free(df_err);
+        df_error_free(&df_err);
     }
     dfilter_free(dfp);
 

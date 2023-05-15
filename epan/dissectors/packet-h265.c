@@ -364,6 +364,9 @@ static int hf_h265_slice_type = -1;
 static int hf_h265_payloadsize = -1;
 static int hf_h265_payloadtype = -1;
 
+/* access unit delimiter */
+static int hf_h265_pic_type = -1;
+
 /* Initialize the subtree pointers */
 static int ett_h265 = -1;
 static int ett_h265_profile = -1;
@@ -675,6 +678,14 @@ static const value_string h265_sei_payload_vals[] = {
 	{ 179,   "multiview_acquisition_info" }, /* specified in Annex G */
 	{ 180,   "multiview_view_position" }, /* specified in Annex G */
 	{ 181,   "alternative_depth_info" }, /* specified in Annex I */
+	{ 0, NULL }
+};
+
+/* Table 7-2 - Interpretation of pic_type */
+static const value_string h265_pic_type_vals[] = {
+	{ 0,    "I" },
+	{ 1,    "P, I" },
+	{ 2,    "B, P, I" },
 	{ 0, NULL }
 };
 
@@ -1658,9 +1669,17 @@ dissect_h265_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 static void
 dissect_h265_access_unit_delimiter_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
+	gint bit_offset = offset << 3;
+
 	proto_tree *access_unit_delimiter_rbsp_tree;
 	access_unit_delimiter_rbsp_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_h265_access_unit_delimiter_rbsp, NULL, "Access unit delimiter RBSP");
-	proto_tree_add_expert(access_unit_delimiter_rbsp_tree, pinfo, &ei_h265_undecoded, tvb, offset, -1);
+
+	/* pic_type u(3) */
+	proto_tree_add_bits_item(access_unit_delimiter_rbsp_tree, hf_h265_pic_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+	bit_offset += 3;
+
+	/* rbsp_trailing_bits */
+	dissect_h265_rbsp_trailing_bits(access_unit_delimiter_rbsp_tree, tvb, pinfo, bit_offset);
 }
 
 /* Ref 7.3.2.6 End of sequence RBSP syntax*/
@@ -2940,9 +2959,9 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 		/* if the type is 49, it would be draw another title */
 		if (type == 49)
-			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 1, ett_h265_nal, NULL, "FU identifier");
+			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 2, ett_h265_nal, NULL, "FU identifier");
 		else
-			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 1, ett_h265_nal, NULL, "NAL unit header or first byte of the payload");
+			h265_nal_tree = proto_tree_add_subtree(h265_tree, tvb, offset, 2, ett_h265_nal, NULL, "NAL unit header or first two bytes of the payload");
 
 		/*   decode the HEVC payload header according to section 4:
 		0                   1
@@ -3055,6 +3074,63 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 	} /* if (tree) */
 	return tvb_captured_length(tvb);
+}
+
+/* Annex B "Byte stream format" */
+static int
+dissect_h265_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	tvbuff_t *next_tvb; //, *rbsp_tvb;
+	gint offset = 0, end_offset;
+	guint32 dword;
+
+	/* Look for the first start word. Assume byte aligned. */
+	while (1) {
+	        if (tvb_reported_length(tvb) < 4) {
+			return 0;
+		}
+		dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		if ((dword >> 8) == 1 || dword == 1) {
+			break;
+		} else if (dword != 0) {
+			return 0;
+		}
+		offset += 2;
+	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.265");
+        col_clear(pinfo->cinfo, COL_INFO);
+
+	while (tvb_reported_length_remaining(tvb, offset)) {
+		dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		if ((dword >> 8) != 1) {
+			/* zero_byte */
+			offset++;
+		}
+		/* start_code_prefix_one_3bytes */
+		offset += 3;
+		gint nal_length = tvb_reported_length_remaining(tvb, offset);
+		/* Search for \0\0\1 or \0\0\0\1 */
+		end_offset = tvb_find_guint16(tvb, offset, -1, 0);
+		while (end_offset != -1) {
+			if (tvb_find_guint16(tvb, end_offset + 1, 3, 1) != -1) {
+				nal_length = end_offset - offset;
+				break;
+			}
+			end_offset = tvb_find_guint16(tvb, end_offset + 1, -1, 0);
+		}
+
+		/* If end_offset is -1, we got to the end; assume this is the
+		 * end of the NAL. Handling NALs split across lower level
+		 * packets requires something like epan/stream.h
+		 */
+
+		next_tvb = tvb_new_subset_length(tvb, offset, nal_length);
+
+		dissect_h265(next_tvb, pinfo, tree, data);
+		offset += nal_length;
+	}
+	return tvb_reported_length(tvb);
 }
 
 void
@@ -4608,6 +4684,11 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, VALS(h265_sei_payload_vals), 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_h265_pic_type,
+		{ "pic_type", "h265.pic_type",
+			FT_UINT8, BASE_DEC, VALS(h265_pic_type_vals), 0x0,
+			"slice_type values that may be present in the coded picture", HFILL }
+		},
 			/* SDP parameters*/
 		{ &hf_h265_sdp_parameter_sprop_vps,
 		{ "sprop-vps", "h265.sdp.sprop_vps",
@@ -4673,6 +4754,7 @@ proto_register_h265(void)
 	prefs_register_obsolete_preference(h265_module, "dynamic.payload.type");
 
 	h265_handle = register_dissector("h265", dissect_h265, proto_h265);
+	register_dissector_with_description("h265_bytestream", "H.265 Annex B Byte stream format", dissect_h265_bytestream, proto_h265);
 }
 
 /* Register the protocol with Wireshark */

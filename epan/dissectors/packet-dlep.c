@@ -400,7 +400,7 @@ decode_dataitem_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *
   }
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_status_code, tvb, offset, 1, ENC_NA, &status_code);
-  proto_item_append_text(pi, ", Code: %s (%u)", val_to_str(status_code, status_code_vals, "Unknown"), status_code);
+  proto_item_append_text(pi, ", Code: %s (%u)", val_to_str_const(status_code, status_code_vals, "Unknown"), status_code);
   offset+=1;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_status_text, tvb, offset, len-1, ENC_UTF_8);
@@ -534,7 +534,7 @@ decode_dataitem_extsupp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, v
 
   while(offset < len) {
     proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_extsupp_code, tvb, offset, 2, ENC_BIG_ENDIAN, &extension_code);
-    proto_item_append_text(pi, ", Ext: %s (%u)", rval_to_str(extension_code, extension_code_vals, "Unknown"), extension_code);
+    proto_item_append_text(pi, ", Ext: %s (%u)", rval_to_str_const(extension_code, extension_code_vals, "Unknown"), extension_code);
     offset+=2;
   }
 
@@ -933,7 +933,7 @@ decode_dataitem(tvbuff_t *tvb, volatile int offset, proto_tree *pt, packet_info 
   dataitem_pt = proto_item_add_subtree(dataitem_pi, ett_dlep_dataitem);
 
   /* Start the one-line description of the data item */
-  proto_item_set_text(dataitem_pi, "%s Data Item", val_to_str(dataitem_type, dataitem_type_vals, "Unknown"));
+  proto_item_set_text(dataitem_pi, "%s Data Item", val_to_str_const(dataitem_type, dataitem_type_vals, "Unknown"));
 
   /* Add supporting fields underneath */
   proto_tree_add_item(dataitem_pt, hf_dlep_dataitem_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -977,8 +977,8 @@ decode_signal_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt, 
   offset+=4;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_signal_type, tvb, offset, 2, ENC_BIG_ENDIAN, &signal_type);
-  proto_item_append_text(pi, ", Signal: %s (%u)", val_to_str(signal_type, signal_type_vals, "Unknown"), signal_type);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "Signal: %s (%u)", val_to_str(signal_type, signal_type_vals, "Unknown"), signal_type);
+  proto_item_append_text(pi, ", Signal: %s (%u)", val_to_str_const(signal_type, signal_type_vals, "Unknown"), signal_type);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Signal: %s (%u)", val_to_str_const(signal_type, signal_type_vals, "Unknown"), signal_type);
   offset+=2;
 
   tmp_pi = proto_tree_add_item_ret_uint(pt, hf_dlep_signal_length, tvb, offset, 2, ENC_BIG_ENDIAN, &signal_length);
@@ -1012,8 +1012,8 @@ decode_message_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt,
   proto_item_set_hidden(tmp_pi);
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_message_type, tvb, offset, 2, ENC_BIG_ENDIAN, &message_type);
-  proto_item_append_text(pi, ", Message: %s (%u)", val_to_str(message_type, message_type_vals, "Unknown"), message_type);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "Message: %s (%u)", val_to_str(message_type, message_type_vals, "Unknown"), message_type);
+  proto_item_append_text(pi, ", Message: %s (%u)", val_to_str_const(message_type, message_type_vals, "Unknown"), message_type);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Message: %s (%u)", val_to_str_const(message_type, message_type_vals, "Unknown"), message_type);
   offset+=2;
 
   tmp_pi = proto_tree_add_item_ret_uint(pt, hf_dlep_message_length, tvb, offset, 2, ENC_BIG_ENDIAN, &message_length);

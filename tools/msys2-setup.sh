@@ -94,9 +94,10 @@ BASIC_LIST="base-devel \
 
 ADDITIONAL_LIST="${PACKAGE_PREFIX}-asciidoctor \
 	${PACKAGE_PREFIX}-ccache \
+	${PACKAGE_PREFIX}-docbook-xsl \
 	${PACKAGE_PREFIX}-doxygen \
-	${PACKAGE_PREFIX}-perl \
-	${PACKAGE_PREFIX}-libxslt"
+	${PACKAGE_PREFIX}-libxslt \
+	${PACKAGE_PREFIX}-perl"
 
 TESTDEPS_LIST="${PACKAGE_PREFIX}-python-pytest \
 	${PACKAGE_PREFIX}-python-pytest-xdist"

@@ -34,7 +34,7 @@ void conversation_filters_init(void)
 }
 
 static void do_register_conversation_filter(GList **conv_filter_list, const char *proto_name, const char *display_name,
-                                        is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
+                                        is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string, void *user_data) {
     conversation_filter_t *entry;
 
     entry = g_new(conversation_filter_t, 1);
@@ -43,26 +43,29 @@ static void do_register_conversation_filter(GList **conv_filter_list, const char
     entry->display_name         = display_name;
     entry->is_filter_valid      = is_filter_valid;
     entry->build_filter_string  = build_filter_string;
+    entry->user_data            = user_data;
 
     *conv_filter_list = g_list_append(*conv_filter_list, entry);
 }
 
 void register_conversation_filter(const char *proto_name, const char *display_name,
-                                  is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
+                                  is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string, void *user_data) {
     do_register_conversation_filter(&packet_conv_filter_list,
                                         proto_name,
                                         display_name,
                                         is_filter_valid,
-                                        build_filter_string);
+                                        build_filter_string,
+                                        user_data);
 }
 
 void register_log_conversation_filter(const char *proto_name, const char *display_name,
-                                  is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
+                                  is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string, void *user_data) {
     do_register_conversation_filter(&log_conv_filter_list,
                                         proto_name,
                                         display_name,
                                         is_filter_valid,
-                                        build_filter_string);
+                                        build_filter_string,
+                                        user_data);
 }
 
 void add_conversation_filter_protocol(const char *proto_name)
@@ -113,8 +116,8 @@ static gchar *conversation_filter_from_pinfo(GList *conv_filter_list, struct _pa
 
     for (GSList *cur_entry = conversation_proto_names; cur_entry; cur_entry = g_slist_next(cur_entry)) {
         conv_filter = find_conversation_filter(conv_filter_list, (const char *) cur_entry->data);
-        if (conv_filter && conv_filter->is_filter_valid(pinfo)) {
-            if ((filter = conv_filter->build_filter_string(pinfo)) != NULL)
+        if (conv_filter && conv_filter->is_filter_valid(pinfo, conv_filter->user_data)) {
+            if ((filter = conv_filter->build_filter_string(pinfo, conv_filter->user_data)) != NULL)
                 return filter;
         }
     }

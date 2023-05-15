@@ -857,6 +857,13 @@ static int hf_pn_io_mau_type_extension = -1;
 
 static int hf_pn_io_pe_operational_mode = -1;
 
+static int hf_pn_io_snmp_community_name_length = -1;
+static int hf_pn_io_snmp_community_name = -1;
+static int hf_pn_io_snmp_read_community_name = -1;
+static int hf_pn_io_snmp_write_community_name = -1;
+
+static int hf_pn_io_snmp_control = -1;
+
 /* static int hf_pn_io_packedframe_SFCRC = -1; */
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -941,6 +948,8 @@ static gint ett_pn_io_tsn_domain_vid_config = -1;
 static gint ett_pn_io_tsn_domain_queue_config = -1;
 static gint ett_pn_io_time_sync_properties = -1;
 static gint ett_pn_io_tsn_domain_port_id = -1;
+
+static gint ett_pn_io_snmp_command_name = -1;
 
 
 #define PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH 4
@@ -1152,7 +1161,7 @@ static const value_string pn_io_block_type[] = {
     { 0x027C, "TSNDomainQueueRateLimiterBlock"},
     { 0x027D, "TSNPortIDBlock"},
     { 0x027E, "TSNExpectedNeighborBlock" },
-    { 0x0300, "PDInterfaceSecurityAdjust"},
+    { 0x0300, "CIMSNMPAdjust"},
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
@@ -1662,7 +1671,10 @@ static const value_string pn_io_index[] = {
     { 0x80F7, "TSNStreamPathDataReal for stream class High Redundant" },
     { 0x80F8, "TSNStreamPathDataReal for stream class Low" },
     { 0x80F9, "TSNStreamPathDataReal for stream class Low Redundant" },
-    /*0x80FA - 0xAFEF reserved */
+    /*0x80FA - 0x80FF reserved for CIM data */
+    /*0x8100 - 0x81FF reserved */
+    { 0x8200, "CIMSNMPAdjust" },
+    /*0x8201 - 0xAFEF reserved */
     { 0xAFF0, "I&M0" },
     { 0xAFF1, "I&M1" },
     { 0xAFF2, "I&M2" },
@@ -1926,7 +1938,7 @@ static const value_string pn_io_channel_error_type[] = {
     { 0x9002, "Error in internal energy supply" },
     { 0x9003, "Error in sensor element" },
     { 0x9004, "Error in actuator element" },
-    { 0x9005, "Faulty installat e.g. dead space" },
+    { 0x9005, "Faulty installation e.g. dead space" },
     { 0x9006, "Parameter setting error" },
     { 0x9008, "Overloading" },
     { 0x9009, "Wrong polarity of aux power" },
@@ -3077,7 +3089,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_profidrive_parameter_resp_errors[] = 
+static const value_string pn_io_profidrive_parameter_resp_errors[] =
 {
     {0x0, "Disallowed parameter number" },
     {0x1, "The parameter value cannot be changed" },
@@ -3713,6 +3725,13 @@ static const value_string* pn_io_pa_profile_transducer_block_class_vals[] = {
     pn_io_pa_profile_transducer_block_binary_io_class_vals
 };
 
+static const value_string pn_io_snmp_control[] = {
+    { 0x00, "Disable SNMP" },
+    { 0x01, "Enable SNMP read only" },
+    { 0x02, "Enable SNMP read/write" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
 
 static int
 dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -12076,6 +12095,60 @@ dissect_IsochronousModeData_block(tvbuff_t *tvb, int offset,
     return offset+1;
 }
 
+static int
+dissect_CommunityName_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo _U_, proto_tree *tree, const guint8 *drep _U_, int hfindex)
+{
+    guint8 u8CommunityNameLength;
+    proto_item* sub_item;
+    proto_item* sub_tree;
+
+    /* CommunityNameLength */
+    u8CommunityNameLength = tvb_get_guint8(tvb, offset);
+    sub_item = proto_tree_add_item(tree, hfindex, tvb, offset, u8CommunityNameLength + 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_snmp_command_name);
+
+    proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name_length, tvb, offset, 1, DREP_ENC_INTEGER(drep));
+    offset += 1;
+
+    /* community Name */
+    proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name, tvb, offset, u8CommunityNameLength, ENC_ASCII | ENC_NA);
+
+    proto_item_append_text(sub_item, ": %s",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset, u8CommunityNameLength, ENC_ASCII|ENC_NA));
+
+    offset += u8CommunityNameLength;
+    return offset;
+}
+
+/* dissect the CIMSNMPAdjust block */
+static int
+dissect_CIMSNMPAdjust_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+    guint16 u16BodyLength)
+{
+    guint16 u16StartsAtOffset = offset;
+    guint16 u16padding;
+
+    if (u8BlockVersionHigh!=1 || u8BlockVersionLow!=0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* SNMPControl */
+    proto_tree_add_item(tree, hf_pn_io_snmp_control, tvb, offset, 2, DREP_ENC_INTEGER(drep));
+    offset += 2;
+
+    offset = dissect_CommunityName_block(tvb, offset, pinfo, tree, drep, hf_pn_io_snmp_read_community_name);
+    offset = dissect_CommunityName_block(tvb, offset, pinfo, tree, drep, hf_pn_io_snmp_write_community_name);
+
+    u16padding = u16BodyLength - (offset - u16StartsAtOffset);
+    if (u16padding > 0)
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, u16padding);
+
+    return offset;
+}
 
 /* dissect the MultipleBlockHeader block */
 static int
@@ -12407,7 +12480,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-        val_to_str(u16BlockType, pn_io_block_type, "Unknown"));
+        val_to_str_const(u16BlockType, pn_io_block_type, "Unknown"));
 
     /* block length is without type and length fields, but with version field */
     /* as it's already dissected, remove it */
@@ -12718,7 +12791,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0251):
         dissect_PDPortStatistic_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
-	case(0x0260):
+    case(0x0260):
         dissect_OwnPort_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0261):
@@ -12756,7 +12829,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x027A):
         dissect_TSNStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, TRUE);
-	break;
+    break;
     case(0x027B):
         dissect_TSNDomainPortIngressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
@@ -12768,6 +12841,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x027E):
         dissect_TSNExpectedNeighbor_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0300):
+        dissect_CIMSNMPAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
@@ -13043,7 +13119,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
                         hf_pn_io_profidrive_no_of_parameters, &no_of_parameters);
 
     proto_item_append_text(profidrive_item, "ReqRef:0x%02x, ReqId:%s, DO:%u, NoOfParameters:%u",
-        request_reference, val_to_str(request_id, pn_io_profidrive_request_id_vals, "Unknown"),
+        request_reference, val_to_str_const(request_id, pn_io_profidrive_request_id_vals, "Unknown"),
         do_id, no_of_parameters);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Write Request, ReqRef:0x%02x, %s DO:%u",
@@ -13076,7 +13152,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
                             hf_pn_io_profidrive_param_subindex, &idx);
 
         proto_item_append_text(sub_item, "Attr:%s, Elems:%u, Parameter:%u, Index:%u",
-            val_to_str(attribute, pn_io_profidrive_attribute_vals, "Unknown"), no_of_elems,
+            val_to_str_const(attribute, pn_io_profidrive_attribute_vals, "Unknown"), no_of_elems,
             parameter, idx);
 
             if (no_of_elems>1) {
@@ -13105,7 +13181,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
                                 hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
 
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
-                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+                val_to_str_const(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
             while (no_of_vals--)
             {
@@ -13128,7 +13204,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     guint8      addr_idx;
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
-    
+
     profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_response);
     proto_item_set_text(profidrive_item, "PROFIDrive Parameter Response: ");
@@ -13141,11 +13217,11 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, profidrive_tree, drep,
                         hf_pn_io_profidrive_no_of_parameters, &no_of_parameters);
     proto_item_append_text(profidrive_item, "ReqRef:0x%02x, RspId:%s, DO:%u, NoOfParameters:%u",
-        request_reference, val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown"),
+        request_reference, val_to_str_const(response_id, pn_io_profidrive_response_id_vals, "Unknown"),
         do_id, no_of_parameters);
     col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Read Response, ReqRef:0x%02x, RspId:%s",
                            request_reference,
-                           val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown response"));
+                           val_to_str_const(response_id, pn_io_profidrive_response_id_vals, "Unknown response"));
     /* in case of  parameter response value list */
     if (response_id == 0x01) {
         for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
@@ -13164,7 +13240,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                                 hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
 
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
-                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+                val_to_str_const(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
             while (no_of_vals--)
             {
@@ -13176,7 +13252,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     if(response_id == 0x02){
         // change parameter response ok, no data
     }
-    
+
     if(response_id == 0x81){
          for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
             guint8 format;
@@ -13195,12 +13271,12 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                                 hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
 
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
-                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+                val_to_str_const(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
             if(format == 0x44){
-                
+
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                                   hf_pn_io_profidrive_param_value_error, &value16);    
+                                   hf_pn_io_profidrive_param_value_error, &value16);
                 if(value16 == 0x23){
 
                     addr_idx = no_of_parameters;
@@ -13231,7 +13307,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
             }
         }
     }
-    
+
     if(response_id == 0x82){
 
         for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
@@ -13251,17 +13327,17 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                                 hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
 
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
-                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+                val_to_str_const(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
             if(format == 0x44){
-                
+
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                                   hf_pn_io_profidrive_param_value_error, &value16);    
+                                   hf_pn_io_profidrive_param_value_error, &value16);
 
                 if(value16 == 0x23){
                     addr_idx = no_of_parameters;
                 }
-                
+
                 while (--no_of_vals)
                 {
                     switch(value16)
@@ -13273,7 +13349,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                         case 0x7:
                         case 0x14:
                         case 0x20:
-                            
+
                             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                                     hf_pn_io_profidrive_param_value_error_sub, &value16);
                             break;
@@ -13348,6 +13424,8 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
     case(0x80AF):   /* PE_EntityStatusData for one subslot */
     case(0x80CF):   /* RS_AdjustObserver */
+
+    case(0x8200):   /* CIMSNMPAdjust */
 
     case(0xaff0):   /* I&M0 */
     case(0xaff1):   /* I&M1 */
@@ -13813,6 +13891,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
     case(0x80B0):   /* CombinedObjectContainer*/
     case(0x80CF):   /* RS_AdjustObserver */
+    case(0x8200):   /* CIMSNMPAdjust */
     case(0xaff1):   /* I&M1 */
     case(0xaff2):   /* I&M2 */
     case(0xaff3):   /* I&M3 */
@@ -14115,7 +14194,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
                     hf_pn_io_pdu_type_version, &u8PDUVersion);
     u8PDUVersion >>= 4;
     proto_item_append_text(sub_item, ", Type: %s, Version: %u",
-        val_to_str(u8PDUType, pn_io_pdu_type, "Unknown"),
+        val_to_str_const(u8PDUType, pn_io_pdu_type, "Unknown"),
         u8PDUVersion);
 
     /* additional flags */
@@ -14263,7 +14342,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static gboolean
-pn_io_ar_conv_valid(packet_info *pinfo)
+pn_io_ar_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
 
@@ -14271,7 +14350,7 @@ pn_io_ar_conv_valid(packet_info *pinfo)
 }
 
 static gchar *
-pn_io_ar_conv_filter(packet_info *pinfo)
+pn_io_ar_conv_filter(packet_info *pinfo, void *user_data _U_)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
@@ -14296,7 +14375,7 @@ pn_io_ar_conv_filter(packet_info *pinfo)
 }
 
 static gchar *
-pn_io_ar_conv_data_filter(packet_info *pinfo)
+pn_io_ar_conv_data_filter(packet_info *pinfo, void *user_data _U_)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
@@ -17606,6 +17685,31 @@ proto_register_pn_io (void)
        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
        NULL, HFILL }
     },
+    { &hf_pn_io_snmp_control,
+    { "SNMPControl", "pn_io.snmp_control",
+        FT_UINT16, BASE_HEX, VALS(pn_io_snmp_control), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_community_name_length,
+    { "CommunityNameLength", "pn_io.snmp_community_name_length",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_community_name,
+    { "CommunityName", "pn_io.snmp_community_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_read_community_name,
+    { "SNMP read only community name", "pn_io.snmp_read_community_name",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_snmp_write_community_name,
+    { "SNMP read write community name", "pn_io.snmp_write_community_name",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     };
 
     static gint *ett[] = {
@@ -17678,14 +17782,15 @@ proto_register_pn_io (void)
         &ett_pn_io_peer_to_peer_boundary,
         &ett_pn_io_mau_type_extension,
         &ett_pn_io_pe_operational_mode,
-		&ett_pn_io_neighbor,
-		&ett_pn_io_tsn_domain_vid_config,
+        &ett_pn_io_neighbor,
+        &ett_pn_io_tsn_domain_vid_config,
         &ett_pn_io_tsn_domain_port_config,
         &ett_pn_io_tsn_domain_queue_config,
         &ett_pn_io_tsn_domain_port_ingress_rate_limiter,
         &ett_pn_io_tsn_domain_queue_rate_limiter,
         &ett_pn_io_time_sync_properties,
-		&ett_pn_io_tsn_domain_port_id
+        &ett_pn_io_tsn_domain_port_id,
+        &ett_pn_io_snmp_command_name
     };
 
     static ei_register_info ei[] = {
@@ -17750,8 +17855,8 @@ proto_register_pn_io (void)
     /* Cleanup functions of PNIO protocol */
     register_cleanup_routine(pnio_cleanup);
 
-    register_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
-    register_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
+    register_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter, NULL);
+    register_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter, NULL);
 }
 
 

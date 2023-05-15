@@ -1121,7 +1121,7 @@ dissect_bierinfo_subtlv (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         len -= 2;
         proto_item_append_text(ti_subsub, ": %s (t=%u, l=%u)",
-                val_to_str(subsub_type, isis_lsp_bier_subsubtlv_type_vals, "Unknown"),
+                val_to_str_const(subsub_type, isis_lsp_bier_subsubtlv_type_vals, "Unknown"),
                 subsub_type, subsub_len);
         dissect_bierinfo_subsubtlv(tvb, pinfo, subsub_tree, offset, subsub_type, subsub_len);
         offset += subsub_len;
@@ -1296,7 +1296,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                 proto_tree_add_item(subclv_tree, hf_isis_lsp_ext_ip_reachability_code,
                                     tvb, clv_offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subclv_tree, hf_isis_lsp_ext_ip_reachability_len, tvb, clv_offset+1, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_ip_reachability_code_vals, "Unknown"), clv_code, clv_len);
+                proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str_const(clv_code, isis_lsp_ext_ip_reachability_code_vals, "Unknown"), clv_code, clv_len);
 
                 /*
                  * we pass on now the raw data to the ipreach_subtlv dissector
@@ -1880,7 +1880,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             subtree = proto_tree_add_subtree_format(rt_tree, tvb, offset-2, tlv_len+2,
                                                     ett_isis_lsp_clv_flex_algo_def_sub_tlv,
                                                     NULL, "%s (t=%u, l=%u)",
-                                                    val_to_str(tlv_type, isis_lsp_flex_algo_sub_tlv_vals, "Unknown"),
+                                                    val_to_str_const(tlv_type, isis_lsp_flex_algo_sub_tlv_vals, "Unknown"),
                                                     tlv_type, tlv_len);
             switch (tlv_type) {
             case FAD_EXCLUDE_AG:
@@ -2048,7 +2048,8 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
                 proto_tree_add_item(subtree2, hf_isis_lsp_ext_ip_reachability_len,
                                     tvb, clv_offset+1, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)",
-                                       val_to_str(clv_code, isis_lsp_ext_ip_reachability_code_vals, "Unknown"), clv_code, clv_len);
+                                       val_to_str_const(clv_code, isis_lsp_ext_ip_reachability_code_vals, "Unknown"),
+                                       clv_code, clv_len);
 
                 dissect_ipreach_subclv(tvb, pinfo, subtree2, ti_subclvs, clv_offset+2, clv_code, clv_len);
                 i += clv_len + 2;
@@ -2613,7 +2614,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
         clv_len  = tvb_get_guint8(tvb, i+1+tlv_offset);
         ti_subclvs = proto_tree_add_item(tree, hf_isis_lsp_sl_sub_tlv, tvb, tlv_offset, clv_len+2, ENC_NA);
         proto_item_append_text(ti_subclvs, " %s",
-                               val_to_str(clv_code, isis_lsp_sl_sub_tlv_vals, "Unknown capability sub-tlv type"));
+                               val_to_str_const(clv_code, isis_lsp_sl_sub_tlv_vals, "Unknown capability sub-tlv type"));
         subtree = proto_item_add_subtree(ti_subclvs, ett_isis_lsp_sl_sub_tlv);
         proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_type, tvb, i+tlv_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_length, tvb, i+1+tlv_offset, 1, ENC_BIG_ENDIAN);
@@ -3330,7 +3331,9 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
         proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, sub_tlv_offset+1, 1, ENC_BIG_ENDIAN);
         clv_code = tvb_get_guint8(tvb, sub_tlv_offset);
         clv_len  = tvb_get_guint8(tvb, sub_tlv_offset+1);
-        proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
+        proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)",
+                               val_to_str_const(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"),
+                               clv_code, clv_len);
         proto_item_set_len(ti_subclvs, clv_len+2);
 
         sub_tlv_offset += 2;
@@ -3983,7 +3986,8 @@ dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
         proto_tree_add_item(subtree, hf_isis_lsp_srv6_loc_sub_tlv_type, tvb, clv_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_srv6_loc_sub_tlv_length, tvb, clv_offset+1, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_subtree, ": %s (c=%u, l=%u)",
-                               val_to_str(clv_code, isis_lsp_srv6_loc_sub_tlv_vals, "Unknown"), clv_code, clv_len);
+                               val_to_str_const(clv_code, isis_lsp_srv6_loc_sub_tlv_vals, "Unknown"),
+                               clv_code, clv_len);
         if (i + ((int)clv_len + 2) > subtlv_length) {
             proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, clv_offset+2, (subtlv_length-(i+2)),
                                          "Invalid Sub-TLV length %u (%d bytes left)",
@@ -4130,7 +4134,7 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
 	subtype = tvb_get_guint8(tvb, offset);
 	sublength = tvb_get_guint8(tvb, offset + 1);
         subtlvtree = proto_tree_add_subtree_format(tree, tvb, offset, sublength + 2, ett_isis_lsp_clv_avaya_ipvpn_subtlv, &ti, "%s",
-                                    val_to_str(subtype, isis_lsp_avaya_ipvpn_subtlv_code_vals, "Unknown"));
+                                    val_to_str_const(subtype, isis_lsp_avaya_ipvpn_subtlv_code_vals, "Unknown"));
         proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_subtlvtype, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_subtlvlength, tvb, offset + 1, 1, ENC_NA);
         offset += 2;

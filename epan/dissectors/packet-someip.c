@@ -3687,7 +3687,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item_ret_boolean(msgtype_tree, hf_someip_messagetype_ack_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype_ack);
     proto_tree_add_item_ret_boolean(msgtype_tree, hf_someip_messagetype_tp_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype_tp);
 
-    proto_item_append_text(ti, " (%s)", val_to_str((~SOMEIP_MSGTYPE_TP_MASK)&msgtype, someip_msg_type, "Unknown Message Type"));
+    proto_item_append_text(ti, " (%s)", val_to_str_const((~SOMEIP_MSGTYPE_TP_MASK)&msgtype, someip_msg_type, "Unknown Message Type"));
     if (msgtype_tp) {
         proto_item_append_text(ti, " (%s)", SOMEIP_MSGTYPE_TP_STRING);
     }
@@ -3695,7 +3695,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Return Code */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_returncode, tvb, offset, 1, ENC_BIG_ENDIAN, &retcode);
-    proto_item_append_text(ti, " (%s)", val_to_str(retcode, someip_return_code, "Unknown Return Code"));
+    proto_item_append_text(ti, " (%s)", val_to_str_const(retcode, someip_return_code, "Unknown Return Code"));
     offset += 1;
 
     /* lets figure out what we have for the rest */
@@ -3889,13 +3889,13 @@ proto_register_someip(void) {
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_tp_flags,
             { "Flags", "someip.tp.flags",
-            FT_UINT8, BASE_HEX, NULL, SOMEIP_TP_OFFSET_MASK_FLAGS, NULL, HFILL }},
+            FT_UINT32, BASE_HEX, NULL, SOMEIP_TP_OFFSET_MASK_FLAGS, NULL, HFILL }},
         { &hf_someip_tp_reserved,
             { "Reserved", "someip.tp.flags.reserved",
-            FT_UINT8, BASE_HEX, NULL, SOMEIP_TP_OFFSET_MASK_RESERVED, NULL, HFILL }},
+            FT_UINT32, BASE_HEX, NULL, SOMEIP_TP_OFFSET_MASK_RESERVED, NULL, HFILL }},
         { &hf_someip_tp_more_segments,
             { "More Segments", "someip.tp.flags.more_segments",
-            FT_BOOLEAN, 8, NULL, SOMEIP_TP_OFFSET_MASK_MORE_SEGMENTS, NULL, HFILL }},
+            FT_BOOLEAN, 32, NULL, SOMEIP_TP_OFFSET_MASK_MORE_SEGMENTS, NULL, HFILL }},
 
         {&hf_someip_tp_fragments,
             {"SOME/IP-TP segments", "someip.tp.fragments",

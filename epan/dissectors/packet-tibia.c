@@ -169,23 +169,23 @@ static uat_t *xteakeys_uat = NULL;
 static struct xteakeys_assoc *xteakeylist_uats = NULL;
 static guint nxteakeys = 0;
 
-#define COND_POISONED     0x1
-#define COND_BURNING      0x2
-#define COND_ELECTROCUTED 0x4
-#define COND_DRUNK        0x8
-#define COND_MANASHIELD   0x10
-#define COND_PARALYZED    0x20
-#define COND_HASTE        0x40
-#define COND_BATTLE       0x80
-#define COND_DROWNING     0x100
-#define COND_FREEZING     0x200
-#define COND_DAZZLED      0x400
-#define COND_CURSED       0x800
-#define COND_BUFF         0x1000
-#define COND_PZBLOCK      0x2000
-#define COND_PZ           0x4000
-#define COND_BLEEDING     0x8000
-#define COND_HUNGRY       0x10000
+#define COND_POISONED     0x00000001
+#define COND_BURNING      0x00000002
+#define COND_ELECTROCUTED 0x00000004
+#define COND_DRUNK        0x00000008
+#define COND_MANASHIELD   0x00000010
+#define COND_PARALYZED    0x00000020
+#define COND_HASTE        0x00000040
+#define COND_BATTLE       0x00000080
+#define COND_DROWNING     0x00000100
+#define COND_FREEZING     0x00000200
+#define COND_DAZZLED      0x00000400
+#define COND_CURSED       0x00000800
+#define COND_BUFF         0x00001000
+#define COND_PZBLOCK      0x00002000
+#define COND_PZ           0x00004000
+#define COND_BLEEDING     0x00008000
+#define COND_HUNGRY       0x00010000
 
 /* The login server has been traditionally on 7171,
  * For OTServ, the game server often listens on the same IP/port,
@@ -913,7 +913,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
             ptvcursor_pop_subtree(ptvc);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (0x%x)",
-                    val_to_str(cmd, from_loginserv_packet_types, "Unknown"), cmd);
+                    val_to_str_const(cmd, from_loginserv_packet_types, "Unknown"), cmd);
 
             if (ptvcursor_current_offset(ptvc) >= len)
                 break;
@@ -1151,7 +1151,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
             ptvcursor_pop_subtree(ptvc);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (0x%x)",
-                    val_to_str(cmd, from_gameserv_packet_types, "Unknown"), cmd);
+                    val_to_str_const(cmd, from_gameserv_packet_types, "Unknown"), cmd);
 
             if (ptvcursor_current_offset(ptvc) >= len)
                 break;
@@ -1201,7 +1201,7 @@ dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int 
             ptvcursor_pop_subtree(ptvc);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (0x%x)",
-                    val_to_str(cmd, from_client_packet_types, "Unknown"), cmd);
+                    val_to_str_const(cmd, from_client_packet_types, "Unknown"), cmd);
 
             if (ptvcursor_current_offset(ptvc) >= len)
                 break;

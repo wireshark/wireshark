@@ -1509,7 +1509,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
         pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(asn1_ctx.created_item, "  %s (%04x)",
-                               val_to_str(0, pkg->param_names, "Unknown Package"),
+                               val_to_str_const(0, pkg->param_names, "Unknown Package"),
                                name_major);
 
         if(tree){
@@ -1518,7 +1518,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
             package_tree = proto_item_add_subtree(asn1_ctx.created_item, ett_packagename);
             proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
-                "%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
+                "%s (0x%04x)", val_to_str_const(0, pkg->param_names, "Unknown Package"), name_major);
 
             pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 
@@ -1764,13 +1764,13 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
         pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(actx->created_item, "  %s (%04x)",
-                               val_to_str(0, pkg->param_names, "Unknown Package"),
+                               val_to_str_const(0, pkg->param_names, "Unknown Package"),
                                name_major);
 
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
             proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
-                "PkgName: %s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
+                "PkgName: %s (0x%04x)", val_to_str_const(0, pkg->param_names, "Unknown Package"), name_major);
         }
 
         {
@@ -1812,13 +1812,13 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
         pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(actx->created_item, "  %s (%04x)",
-                               val_to_str(0, pkg->param_names, "Unknown Package"),
+                               val_to_str_const(0, pkg->param_names, "Unknown Package"),
                                name_major);
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
         }
         proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
-            "%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
+            "%s (0x%04x)", val_to_str_const(0, pkg->param_names, "Unknown Package"), name_major);
 
         curr_info.pkg = pkg;
 
@@ -1877,13 +1877,13 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
         pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(actx->created_item, "  %s (%04x)",
-                               val_to_str(0, pkg->param_names, "Unknown Package"),
+                               val_to_str_const(0, pkg->param_names, "Unknown Package"),
                                name_major);
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
         }
         proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
-            "%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
+            "%s (0x%04x)", val_to_str_const(0, pkg->param_names, "Unknown Package"), name_major);
 
         if (pkg->signals) {
             for (sig = pkg->signals; sig->hfid; sig++) {

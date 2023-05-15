@@ -2660,7 +2660,7 @@ proto_register_wimaxmacphy(void)
                 {
                     "Initial Frame Number (from PHY)",
                     "wimaxmacphy.prim_initial_frame_number",
-                    FT_UINT8,
+                    FT_UINT24,
                     BASE_DEC,
                     NULL,
                     0x0,
@@ -2868,10 +2868,10 @@ proto_register_wimaxmacphy(void)
                 {
                     "Current Frame Number (lsb)",
                     "wimaxmacphy.prim_current_frame_number",
-                    FT_UINT8,
+                    FT_UINT16,
                     BASE_DEC,
                     NULL,
-                    0xf0,
+                    0x00f0,
                     NULL,
                     HFILL
                 }
@@ -2881,10 +2881,10 @@ proto_register_wimaxmacphy(void)
                 {
                     "ACID for HARQ data bursts",
                     "wimaxmacphy.prim_acid_for_harq_data_bursts",
-                    FT_UINT8,
+                    FT_UINT16,
                     BASE_DEC,
                     NULL,
-                    0x0f,
+                    0x000f,
                     NULL,
                     HFILL
                 }
@@ -3401,7 +3401,7 @@ proto_register_wimaxmacphy(void)
                 {
                     "Number of Zone Descriptors",
                     "wimaxmacphy.number_of_zone_descriptors",
-                    FT_UINT8,
+                    FT_UINT24,
                     BASE_DEC,
                     NULL,
                     0x0,
@@ -5186,10 +5186,10 @@ proto_register_wimaxmacphy(void)
                 {
                     "ACID",
                     "wimaxmacphy.sub_burst_harq_ack_acid",
-                    FT_UINT8,
+                    FT_UINT32,
                     BASE_DEC,
                     NULL,
-                    0xf0,
+                    0x000000f0,
                     NULL,
                     HFILL
                 }
@@ -5202,7 +5202,7 @@ proto_register_wimaxmacphy(void)
                     FT_UINT32,
                     BASE_HEX,
                     NULL,
-                    0x0fff,
+                    0x00000fff,
                     NULL,
                     HFILL
                 }

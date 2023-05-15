@@ -21,6 +21,7 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include "packet-http.h"
+#include "packet-media-type.h"
 
 void proto_register_ipp(void);
 void proto_reg_handoff_ipp(void);
@@ -394,7 +395,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree  *ipp_tree;
     proto_item  *ti;
     int         offset     = 0;
-    http_message_info_t *message_info = (http_message_info_t *)data;
+    media_content_info_t *content_info = (media_content_info_t *)data;
     gboolean    is_request;
     guint16     operation_status;
     const gchar *status_type;
@@ -403,14 +404,14 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     ipp_conv_info_t *ipp_info;
     ipp_transaction_t *ipp_trans;
 
-    if (message_info != NULL) {
-        switch (message_info->type) {
+    if (content_info != NULL) {
+        switch (content_info->type) {
 
-        case HTTP_REQUEST:
+        case MEDIA_CONTAINER_HTTP_REQUEST:
             is_request = TRUE;
             break;
 
-        case HTTP_RESPONSE:
+        case MEDIA_CONTAINER_HTTP_RESPONSE:
             is_request = FALSE;
             break;
 
@@ -786,7 +787,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                  int name_length, const gchar *name, int value_length, guint8 tag)
 {
     int count = 0;
-    const char *type = val_to_str_const(tag, tag_vals, "unknown-%02x");
+    const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
     gchar *value = NULL;
     int valoffset = offset;
 
@@ -873,28 +874,28 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                     temp = "???";
                 } else {
                     if (!strncmp(name, "printer-state", 13)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), printer_state_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), printer_state_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "job-state", 9)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), job_state_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), job_state_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "document-state", 14)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), document_state_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), document_state_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "operations-supported", 20)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), operation_vals, "unknown-%04x");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), operation_vals, "unknown-%04x");
                     }
                     else if (!strncmp(name, "finishings", 10)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), finishings_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), finishings_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "orientation-requested", 21) || !strncmp(name, "media-feed-orientation", 22)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), orientation_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), orientation_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "print-quality", 13)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), quality_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), quality_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "transmission-status", 19)) {
-                        temp = val_to_str_const(tvb_get_ntohl(tvb, valoffset), transmission_status_vals, "unknown-%d");
+                        temp = val_to_str(tvb_get_ntohl(tvb, valoffset), transmission_status_vals, "unknown-%d");
                     }
                     else {
                         temp = wmem_strdup_printf(wmem_packet_scope(), "%d", tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
@@ -1006,7 +1007,7 @@ static proto_tree *
 add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag)
 {
     int count = 0;
-    const char *type = val_to_str_const(tag, tag_vals, "unknown-%02x");
+    const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
     gchar *value = NULL;
     int valoffset = offset;
 
@@ -1370,7 +1371,7 @@ add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                     guint8 tag, int name_length, const gchar *name, int value_length)
 {
     int count = 0, valoffset = offset;
-    const char *type = val_to_str_const(tag, tag_vals, "unknown-%02x");
+    const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
     gchar *value = NULL;
 
     do {

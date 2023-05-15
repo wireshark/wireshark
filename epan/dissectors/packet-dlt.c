@@ -1143,7 +1143,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
 
         proto_tree_add_item(subtree, hf_dlt_mi_msg_type, tvb, offset, 1, ENC_NA);
         proto_tree_add_uint_format_value(subtree, hf_dlt_mi_msg_type_info, tvb, offset, 1, msg_info, "%s (%d)",
-            val_to_str(msg_type_info_comb, dlt_msg_type_info, "Unknown Message Type Info"), msg_type_info);
+            val_to_str_const(msg_type_info_comb, dlt_msg_type_info, "Unknown Message Type Info"), msg_type_info);
         offset += 1;
 
         num_of_args = tvb_get_guint8(tvb, offset);

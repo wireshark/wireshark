@@ -189,7 +189,7 @@ load_wpcap(void)
 	GModule		*wh; /* wpcap handle */
 	const symbol_table_t	*sym;
 
-	wh = ws_module_open("wpcap.dll", 0);
+	wh = load_wpcap_module();
 
 	if (!wh) {
 		return;

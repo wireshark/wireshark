@@ -806,6 +806,25 @@ static int hf_mbim_sys_caps_info_number_of_executors = -1;
 static int hf_mbim_sys_caps_info_number_of_slots = -1;
 static int hf_mbim_sys_caps_info_concurrency = -1;
 static int hf_mbim_sys_caps_info_modem_id = -1;
+static int hf_mbim_ms_set_lte_attach_operation = -1;
+static int hf_mbim_ms_lte_attach_context_count = -1;
+static int hf_mbim_ms_lte_attach_context_offset = -1;
+static int hf_mbim_ms_lte_attach_context_size = -1;
+static int hf_mbim_ms_lte_attach_context_ip_type = -1;
+static int hf_mbim_ms_lte_attach_context_roaming = -1;
+static int hf_mbim_ms_lte_attach_context_source = -1;
+static int hf_mbim_ms_lte_attach_context_access_string = -1;
+static int hf_mbim_ms_lte_attach_context_access_string_offset = -1;
+static int hf_mbim_ms_lte_attach_context_access_string_size = -1;
+static int hf_mbim_ms_lte_attach_context_user_name = -1;
+static int hf_mbim_ms_lte_attach_context_user_name_offset = -1;
+static int hf_mbim_ms_lte_attach_context_user_name_size = -1;
+static int hf_mbim_ms_lte_attach_context_password = -1;
+static int hf_mbim_ms_lte_attach_context_password_offset = -1;
+static int hf_mbim_ms_lte_attach_context_password_size = -1;
+static int hf_mbim_ms_lte_attach_context_compression = -1;
+static int hf_mbim_ms_lte_attach_context_auth_protocol = -1;
+static int hf_mbim_ms_lte_attach_state = -1;
 static int hf_mbim_ms_device_slot_mapping_info_map_count = -1;
 static int hf_mbim_ms_device_slot_mapping_info_map_offset = -1;
 static int hf_mbim_ms_device_slot_mapping_info_map_size = -1;
@@ -2993,6 +3012,18 @@ static const value_string mbim_ms_context_operations_vals[] = {
     { 0, "Default"},
     { 1, "Delete"},
     { 2, "RestoreFactory"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ms_set_lte_attach_operations_vals[] = {
+    { 0, "Default"},
+    { 2, "RestoreFactory"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ms_lte_attach_state_vals[] = {
+    { 0, "Detached"},
+    { 1, "Attached"},
     { 0, NULL}
 };
 
@@ -6301,6 +6332,141 @@ mbim_dissect_device_caps_v3_and_higher_info(tvbuff_t *tvb, packet_info *pinfo _U
 }
 
 static void
+mbim_dissect_lte_attach_context(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint base_offset, gboolean include_roaming_source)
+{
+    guint32 access_string_offset, access_string_size, user_name_offset, user_name_size, password_offset, password_size;
+    proto_item* it;
+
+    proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_ip_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (include_roaming_source)
+    {
+        proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_roaming, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_source, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_access_string_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &access_string_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_access_string_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &access_string_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_user_name_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &user_name_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_user_name_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &user_name_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_password_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &password_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_password_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &password_size);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_compression, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_auth_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (access_string_offset && access_string_size) {
+        it = proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_access_string, tvb,
+            base_offset + access_string_offset, access_string_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+        if (access_string_size > 200) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
+    }
+    if (user_name_offset && user_name_size) {
+        it = proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_user_name, tvb,
+            base_offset + user_name_offset, user_name_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+        if (user_name_size > 510) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
+    }
+    if (password_offset && password_size) {
+        it = proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_password, tvb,
+            base_offset + password_offset, password_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+        if (password_size > 510) {
+            expert_add_info(pinfo, it, &ei_mbim_oversized_string);
+        }
+    }
+}
+
+static void
+mbim_dissect_lte_attach_config_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset)
+{
+    proto_tree* subtree;
+    gint base_offset;
+    guint32 i, elem_count;
+    wmem_array_t* pair_list;
+    struct mbim_pair_list pair_list_item, * p_pair_list_item;
+
+    base_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+    offset += 4;
+    if (elem_count) {
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8 * elem_count, ett_mbim_pair_list, NULL, "Context List");
+        for (i = 0; i < elem_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_lte_attach_context_offset,
+                tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_lte_attach_context_size,
+                tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+        for (i = 0; i < elem_count; i++) {
+            p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+            if (p_pair_list_item->offset && p_pair_list_item->size) {
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
+                    ett_mbim_pair_list, NULL, "Context #%u", i + 1);
+                mbim_dissect_lte_attach_context(tvb, pinfo, subtree, base_offset + p_pair_list_item->offset, base_offset + p_pair_list_item->offset, TRUE);
+            }
+        }
+    }
+}
+
+static void
+mbim_dissect_set_lte_attach_config(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset)
+{
+    proto_tree* subtree;
+    gint base_offset;
+    guint32 i, elem_count;
+    wmem_array_t* pair_list;
+    struct mbim_pair_list pair_list_item, * p_pair_list_item;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_set_lte_attach_operation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_lte_attach_context_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+    offset += 4;
+    if (elem_count) {
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8 * elem_count, ett_mbim_pair_list, NULL, "Context List");
+        for (i = 0; i < elem_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_lte_attach_context_offset,
+                tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_lte_attach_context_size,
+                tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+        for (i = 0; i < elem_count; i++) {
+            p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+            if (p_pair_list_item->offset && p_pair_list_item->size) {
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
+                    ett_mbim_pair_list, NULL, "Context #%u", i + 1);
+                mbim_dissect_lte_attach_context(tvb, pinfo, subtree, base_offset + p_pair_list_item->offset, base_offset + p_pair_list_item->offset, TRUE);
+            }
+        }
+    }
+}
+
+static void
+mbim_dissect_lte_attach_status(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset)
+{
+    gint base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_lte_attach_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    mbim_dissect_lte_attach_context(tvb, pinfo, tree, offset, base_offset, FALSE);
+}
+
+static void
 mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     proto_tree *subtree;
@@ -8089,9 +8255,19 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 }
                                 break;
                             case MBIM_CID_MS_LTE_ATTACH_CONFIG:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_set_lte_attach_config(frag_tvb, pinfo, subtree, offset);
+                                }
+                                else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
                             case MBIM_CID_MS_LTE_ATTACH_STATUS:
-                                if (info_buff_len) {
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
                                 break;
                             case MBIM_CID_MS_SYS_CAPS:
@@ -9056,8 +9232,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 mbim_dissect_ms_network_blacklist_info(pinfo, frag_tvb, subtree, offset);
                                 break;
                             case MBIM_CID_MS_LTE_ATTACH_CONFIG:
+                                mbim_dissect_lte_attach_config_info(frag_tvb, pinfo, subtree, offset);
+                                break;
                             case MBIM_CID_MS_LTE_ATTACH_STATUS:
-                                proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                mbim_dissect_lte_attach_status(frag_tvb, pinfo, subtree, offset);
                                 break;
                             case MBIM_CID_MS_SYS_CAPS:
                                 if (msg_type == MBIM_COMMAND_DONE) {
@@ -13428,6 +13606,101 @@ proto_register_mbim(void)
         { &hf_mbim_sys_caps_info_modem_id,
             { "Modem Id", "mbim.control.sys_caps_info.modem_id",
                FT_UINT64, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_set_lte_attach_operation,
+            { "Operation", "mbim.control.set_lte_attach.operation",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_set_lte_attach_operations_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_count,
+            { "Context Count", "mbim.control.ms_lte_attach_context.count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_offset,
+            { "Context Offset", "mbim.control.ms_lte_attach_context.offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_size,
+            { "Context Size", "mbim.control.ms_lte_attach_context.size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_ip_type,
+            { "IP Type", "mbim.control.ms_lte_attach_context.ip_type",
+               FT_UINT32, BASE_DEC, VALS(mbim_context_ip_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_roaming,
+            { "Roaming", "mbim.control.ms_lte_attach_context.roaming",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_context_roaming_control_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_source,
+            { "Source", "mbim.control.ms_lte_attach_context.source",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_context_source_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_access_string,
+            { "Access String", "mbim.control.ms_lte_attach_context.access_string",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_access_string_offset,
+            { "Access String Offset", "mbim.control.ms_lte_attach_context.access_string_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_access_string_size,
+            { "Access String Size", "mbim.control.ms_lte_attach_context.access_string_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_user_name,
+            { "User Name", "mbim.control.ms_lte_attach_context.user_name",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_user_name_offset,
+            { "User Name Offset", "mbim.control.ms_lte_attach_context.user_name_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_user_name_size,
+            { "User Name Size", "mbim.control.ms_lte_attach_context.user_name_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_password,
+            { "Password", "mbim.control.ms_lte_attach_context.password",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_password_offset,
+            { "Password Offset", "mbim.control.ms_lte_attach_context.password_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_password_size,
+            { "Password Size", "mbim.control.ms_lte_attach_context.password_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_compression,
+            { "Compression", "mbim.control.ms_lte_attach_context.compression",
+               FT_UINT32, BASE_DEC, VALS(mbim_compression_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_context_auth_protocol,
+            { "Auth Protocol", "mbim.control.ms_lte_attach_context.auth_protocol",
+               FT_UINT32, BASE_DEC, VALS(mbim_auth_protocol_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_lte_attach_state,
+            { "Auth Protocol", "mbim.control.ms_lte_attach.state",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_lte_attach_state_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_device_slot_mapping_info_map_count,

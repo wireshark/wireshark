@@ -861,7 +861,7 @@ main(int argc, char *argv[])
     if (rfilter != NULL) {
         if (!dfilter_compile(rfilter, &rfcode, &df_err)) {
             cmdarg_err("%s", df_err->msg);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             exit_status = WS_EXIT_INVALID_FILTER;
             goto clean_exit;
         }
@@ -871,7 +871,7 @@ main(int argc, char *argv[])
     if (dfilter != NULL) {
         if (!dfilter_compile(dfilter, &dfcode, &df_err)) {
             cmdarg_err("%s", df_err->msg);
-            dfilter_error_free(df_err);
+            df_error_free(&df_err);
             exit_status = WS_EXIT_INVALID_FILTER;
             goto clean_exit;
         }

@@ -32,7 +32,7 @@
 #define PSNAME "E2AP"
 #define PFNAME "e2ap"
 
-/* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 37464 */
+/* Dissector will use SCTP PPID 70, 71 or 72 or SCTP port 37464. */
 #define SCTP_PORT_E2AP 37464
 
 void proto_register_e2ap(void);
@@ -254,6 +254,9 @@ ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 /* Store new RANfunctionID -> Service Model mapping in table */
 static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_t *table, struct e2ap_private_data *e2ap_data, const char *name)
 {
+    if (!name) {
+      return;
+    }
     /* Stop if already reached table limit */
     if (table->num_entries == MAX_RANFUNCTION_ENTRIES) {
         /* TODO: expert info warning? */
@@ -267,10 +270,7 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
 
     /* Check known RAN functions */
     for (int n=MIN_RANFUNCTIONS; n < MAX_RANFUNCTIONS; n++) {
-        /* TODO: shouldn't need to check both positions! */
-        if ((strcmp(name,   g_ran_functioname_table[n].name) == 0) ||
-            (strcmp(name+1, g_ran_functioname_table[n].name) == 0)) {
-
+        if (strcmp(name,   g_ran_functioname_table[n].name) == 0) {
             ran_function = n;
             ran_function_pointers = (ran_function_pointers_t*)&(g_ran_functioname_table[n].functions);
             break;
@@ -507,6 +507,9 @@ void
 proto_reg_handoff_e2ap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E2AP, e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_CP_PROTOCOL_ID, e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_UP_PROTOCOL_ID, e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_DU_PROTOCOL_ID, e2ap_handle);
 
 #include "packet-e2ap-dis-tab.c"
 }

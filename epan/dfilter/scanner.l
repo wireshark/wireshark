@@ -52,9 +52,9 @@
 %option noyywrap
 
 /*
- * The type for the state we keep for a scanner.
+ * The type for the dfs we keep for a scanner.
  */
-%option extra-type="df_scanner_state_t *"
+%option extra-type="dfsyntax_t *"
 
 %{
 /*
@@ -70,31 +70,31 @@
  */
 DIAG_OFF_FLEX()
 
-WS_WARN_UNUSED static int set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id);
+WS_WARN_UNUSED static int set_lval_simple(dfsyntax_t *dfs, int token, const char *token_value, sttype_id_t type_id);
 #define simple(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_UNINITIALIZED))
 #define test(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_TEST))
 #define math(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_ARITHMETIC))
 
-WS_WARN_UNUSED static int set_lval_literal(df_scanner_state_t *state,  const char *value, const char *token_value);
-WS_WARN_UNUSED static int set_lval_identifier(df_scanner_state_t *state,  const char *value, const char *token_value);
-WS_WARN_UNUSED static int set_lval_constant(df_scanner_state_t *state,  const char *value, const char *token_value);
-WS_WARN_UNUSED static int set_lval_unparsed(df_scanner_state_t *state, const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_literal(dfsyntax_t *dfs,  const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_identifier(dfsyntax_t *dfs,  const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_constant(dfsyntax_t *dfs,  const char *value, const char *token_value);
+WS_WARN_UNUSED static int set_lval_unparsed(dfsyntax_t *dfs, const char *value, const char *token_value);
 
-WS_WARN_UNUSED static int set_lval_field(df_scanner_state_t *state, const header_field_info *hfinfo, const char *token_value);
-WS_WARN_UNUSED static int set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string);
-WS_WARN_UNUSED static int set_lval_charconst(df_scanner_state_t *state, GString *quoted_string);
+WS_WARN_UNUSED static int set_lval_field(dfsyntax_t *dfs, const header_field_info *hfinfo, const char *token_value);
+WS_WARN_UNUSED static int set_lval_quoted_string(dfsyntax_t *dfs, GString *quoted_string);
+WS_WARN_UNUSED static int set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string);
 
-static gboolean append_escaped_char(df_scanner_state_t *state, GString *str, char c);
-static gboolean append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn);
-static gboolean parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep);
+static gboolean append_escaped_char(dfsyntax_t *dfs, GString *str, char c);
+static gboolean append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn);
+static gboolean parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep);
 
-static void update_location(df_scanner_state_t *state, const char *text);
-static void update_string_loc(df_scanner_state_t *state, const char *text);
+static void update_location(dfsyntax_t *dfs, const char *text);
+static void update_string_loc(dfsyntax_t *dfs, const char *text);
 
 #define FAIL(...) \
 	do { \
 		ws_noisy("Scanning failed here."); \
-		dfilter_fail(yyextra->dfw, DF_ERROR_GENERIC, yyextra->location, __VA_ARGS__); \
+		dfilter_fail(yyextra, DF_ERROR_GENERIC, yyextra->location, __VA_ARGS__); \
 	} while (0)
 
 %}
@@ -169,7 +169,7 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 "all_eq"	return test(TOKEN_TEST_ALL_EQ);
 "!=="		return test(TOKEN_TEST_ANY_NE);
 "~="		{
-	add_deprecated_token(yyextra->dfw, "The operator \"~=\" is deprecated, use \"!==\" instead.");
+	add_deprecated_token(yyextra, "The operator \"~=\" is deprecated, use \"!==\" instead.");
 	return test(TOKEN_TEST_ANY_NE);
 }
 "any_ne"	return test(TOKEN_TEST_ANY_NE);
@@ -516,7 +516,7 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 	/* We use CONSTANT instead of LITERAL because the difference is significant
 	 * in the syntactical grammar. */
 	update_location(yyextra, yytext);
-	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra->dfw, yytext);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, yytext);
 	if (hfinfo != NULL) {
 		return set_lval_identifier(yyextra, yytext, yytext);
 	}
@@ -531,7 +531,7 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 	/* Identifier, prefixed with a '.'. */
 	update_location(yyextra, yytext);
 	const char *name = yytext + 1;
-	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra->dfw, name);
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, name);
 	if (hfinfo == NULL) {
 		FAIL("\"%s\" is not a valid protocol or protocol field.", name);
 		return SCAN_FAILED;
@@ -571,104 +571,104 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 DIAG_ON_FLEX()
 
 static void
-_update_location(df_scanner_state_t *state, size_t len)
+_update_location(dfsyntax_t *dfs, size_t len)
 {
-	state->location.col_start += (long)state->location.col_len;
-	state->location.col_len = len;
+	dfs->location.col_start += (long)dfs->location.col_len;
+	dfs->location.col_len = len;
 }
 
 static void
-update_location(df_scanner_state_t *state, const char *text)
+update_location(dfsyntax_t *dfs, const char *text)
 {
-	_update_location(state, strlen(text));
+	_update_location(dfs, strlen(text));
 }
 
 static void
-update_string_loc(df_scanner_state_t *state, const char *text)
+update_string_loc(dfsyntax_t *dfs, const char *text)
 {
 	size_t len = strlen(text);
-	state->string_loc.col_len += len;
-	_update_location(state, len);
+	dfs->string_loc.col_len += len;
+	_update_location(dfs, len);
 }
 
 static int
-set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id)
+set_lval_simple(dfsyntax_t *dfs, int token, const char *token_value, sttype_id_t type_id)
 {
-	state->df_lval = stnode_new(type_id, NULL, g_strdup(token_value), state->location);
+	dfs->lval = stnode_new(type_id, NULL, g_strdup(token_value), dfs->location);
 	return token;
 }
 
 static int
-set_lval_literal(df_scanner_state_t *state, const char *value, const char *token_value)
+set_lval_literal(dfsyntax_t *dfs, const char *value, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), state->location);
+	dfs->lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), dfs->location);
 	return TOKEN_LITERAL;
 }
 
 static int
-set_lval_identifier(df_scanner_state_t *state, const char *value, const char *token_value)
+set_lval_identifier(dfsyntax_t *dfs, const char *value, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), state->location);
+	dfs->lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), dfs->location);
 	return TOKEN_IDENTIFIER;
 }
 
 static int
-set_lval_constant(df_scanner_state_t *state, const char *value, const char *token_value)
+set_lval_constant(dfsyntax_t *dfs, const char *value, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), state->location);
+	dfs->lval = stnode_new(STTYPE_LITERAL, g_strdup(value), g_strdup(token_value), dfs->location);
 	return TOKEN_CONSTANT;
 }
 
 static int
-set_lval_unparsed(df_scanner_state_t *state, const char *value, const char *token_value)
+set_lval_unparsed(dfsyntax_t *dfs, const char *value, const char *token_value)
 {
 	int token;
-	const header_field_info *hfinfo = dfilter_resolve_unparsed(state->dfw, value);
+	const header_field_info *hfinfo = dfilter_resolve_unparsed(dfs, value);
 	if (hfinfo != NULL) {
-		token = set_lval_field(state, hfinfo, token_value);
+		token = set_lval_field(dfs, hfinfo, token_value);
     	}
 	else {
-		token = set_lval_literal(state, value, token_value);
+		token = set_lval_literal(dfs, value, token_value);
 	}
-	stnode_set_flags(state->df_lval, STFLAG_UNPARSED);
+	stnode_set_flags(dfs->lval, STFLAG_UNPARSED);
 	return token;
 }
 
 static int
-set_lval_field(df_scanner_state_t *state, const header_field_info *hfinfo, const char *token_value)
+set_lval_field(dfsyntax_t *dfs, const header_field_info *hfinfo, const char *token_value)
 {
-	state->df_lval = stnode_new(STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), state->location);
+	dfs->lval = stnode_new(STTYPE_FIELD, (gpointer)hfinfo, g_strdup(token_value), dfs->location);
 	return TOKEN_FIELD;
 }
 
 static int
-set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string)
+set_lval_quoted_string(dfsyntax_t *dfs, GString *quoted_string)
 {
 	char *token_value;
 
 	token_value = ws_escape_string_len(NULL, quoted_string->str, quoted_string->len, true);
-	state->df_lval = stnode_new(STTYPE_STRING, quoted_string, token_value, state->string_loc);
+	dfs->lval = stnode_new(STTYPE_STRING, quoted_string, token_value, dfs->string_loc);
 	return TOKEN_STRING;
 }
 
 static int
-set_lval_charconst(df_scanner_state_t *state, GString *quoted_string)
+set_lval_charconst(dfsyntax_t *dfs, GString *quoted_string)
 {
 	unsigned long number;
 	gboolean ok;
 
 	char *token_value = g_string_free(quoted_string, FALSE);
-	ok = parse_charconst(state, token_value, &number);
+	ok = parse_charconst(dfs, token_value, &number);
 	if (!ok) {
 		g_free(token_value);
 		return SCAN_FAILED;
 	}
-	state->df_lval = stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, state->string_loc);
+	dfs->lval = stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, dfs->string_loc);
 	return TOKEN_CHARCONST;
 }
 
 static gboolean
-append_escaped_char(df_scanner_state_t *state, GString *str, char c)
+append_escaped_char(dfsyntax_t *dfs, GString *str, char c)
 {
 	switch (c) {
 		case 'a':
@@ -697,7 +697,7 @@ append_escaped_char(df_scanner_state_t *state, GString *str, char c)
 		case '\"':
 			break;
 		default:
-			dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->location,
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->location,
 					"\\%c is not a valid character escape sequence", c);
 			return FALSE;
 	}
@@ -707,7 +707,7 @@ append_escaped_char(df_scanner_state_t *state, GString *str, char c)
 }
 
 static gboolean
-parse_universal_character_name(df_scanner_state_t *state _U_, const char *str, char **ret_endptr, gunichar *valuep)
+parse_universal_character_name(dfsyntax_t *dfs _U_, const char *str, char **ret_endptr, gunichar *valuep)
 {
 	guint64 val;
 	char *endptr;
@@ -762,12 +762,12 @@ parse_universal_character_name(df_scanner_state_t *state _U_, const char *str, c
 }
 
 static gboolean
-append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn)
+append_universal_character_name(dfsyntax_t *dfs, GString *str, const char *ucn)
 {
 	gunichar val;
 
-	if (!parse_universal_character_name(state, ucn, NULL, &val)) {
-		dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->location, "%s is not a valid universal character name", ucn);
+	if (!parse_universal_character_name(dfs, ucn, NULL, &val)) {
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->location, "%s is not a valid universal character name", ucn);
 		return FALSE;
 	}
 
@@ -776,7 +776,7 @@ append_universal_character_name(df_scanner_state_t *state, GString *str, const c
 }
 
 static gboolean
-parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
+parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 {
 	const char *cp;
 	unsigned long value;
@@ -785,7 +785,7 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 
 	cp = s + 1;	/* skip the leading ' */
 	if (*cp == '\'') {
-		dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "Empty character constant.");
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "Empty character constant.");
 		return FALSE;
 	}
 
@@ -801,7 +801,7 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 		switch (*cp) {
 
 		case '\0':
-			dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s isn't a valid character constant.", s);
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 			return FALSE;
 
 		case 'a':
@@ -862,7 +862,7 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 			else if (*cp >= 'a' && *cp <= 'f')
 				value = 10 + (*cp - 'a');
 			else {
-				dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s isn't a valid character constant.", s);
+				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 				return FALSE;
 			}
 			cp++;
@@ -875,7 +875,7 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 				else if (*cp >= 'a' && *cp <= 'f')
 					value |= 10 + (*cp - 'a');
 				else {
-					dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s isn't a valid character constant.", s);
+					dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
 			}
@@ -884,8 +884,8 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 
 		case 'u':
 		case 'U':
-			if (!parse_universal_character_name(state, s+1, &endptr, &unival)) {
-				dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s is not a valid universal character name", s);
+			if (!parse_universal_character_name(dfs, s+1, &endptr, &unival)) {
+				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s is not a valid universal character name", s);
 				return FALSE;
 			}
 			value = (unsigned long)unival;
@@ -897,7 +897,7 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 			if (*cp >= '0' && *cp <= '7')
 				value = *cp - '0';
 			else {
-				dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s isn't a valid character constant.", s);
+				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 				return FALSE;
 			}
 			if (*(cp + 1) != '\'') {
@@ -906,7 +906,7 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 				if (*cp >= '0' && *cp <= '7')
 					value |= *cp - '0';
 				else {
-					dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s isn't a valid character constant.", s);
+					dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
 				if (*(cp + 1) != '\'') {
@@ -915,13 +915,13 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 					if (*cp >= '0' && *cp <= '7')
 						value |= *cp - '0';
 					else {
-						dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s isn't a valid character constant.", s);
+						dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 						return FALSE;
 					}
 				}
 			}
 			if (value > 0xFF) {
-				dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s is too large to be a valid character constant.", s);
+				dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s is too large to be a valid character constant.", s);
 				return FALSE;
 			}
 			cp++;
@@ -929,13 +929,13 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 	} else {
 		value = *cp++;
 		if (!g_ascii_isprint(value)) {
-			dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "Non-printable value '0x%02lx' in character constant.", value);
+			dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "Non-printable value '0x%02lx' in character constant.", value);
 			return FALSE;
 		}
 	}
 
 	if ((*cp != '\'') || (*(cp + 1) != '\0')){
-		dfilter_fail(state->dfw, DF_ERROR_GENERIC, state->string_loc, "%s is too long to be a valid character constant.", s);
+		dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s is too long to be a valid character constant.", s);
 		return FALSE;
 	}
 

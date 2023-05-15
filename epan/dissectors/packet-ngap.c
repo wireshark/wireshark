@@ -46,7 +46,7 @@
 #include "packet-cell_broadcast.h"
 #include "packet-ntp.h"
 #include "packet-gsm_a_common.h"
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"
@@ -4771,7 +4771,8 @@ dissect_ngap_AlternativeQoSParaSetList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_AMFName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, TRUE,
+                                          NULL);
 
   return offset;
 }
@@ -4781,7 +4782,8 @@ dissect_ngap_AMFName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_ngap_AMFNameVisibleString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, TRUE,
+                                          NULL);
 
   return offset;
 }
@@ -9425,7 +9427,8 @@ dissect_ngap_ExtendedPacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_ngap_RANNodeNameVisibleString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, TRUE,
+                                          NULL);
 
   return offset;
 }
@@ -18032,7 +18035,8 @@ dissect_ngap_QoSFlowsUsageReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_ngap_RANNodeName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          1, 150, TRUE);
+                                          1, 150, TRUE,
+                                          NULL);
 
   return offset;
 }
@@ -20392,7 +20396,8 @@ dissect_ngap_UPTransportLayerInformationList(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_ngap_URI_address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          NO_BOUND, NO_BOUND, FALSE);
+                                          NO_BOUND, NO_BOUND, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -26997,9 +27002,9 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   jsmntok_t *tokens, *cur_tok;
   dissector_handle_t subdissector = NULL;
   tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
-  http_message_info_t *message_info = (http_message_info_t *)data;
+  media_content_info_t *content_info = (media_content_info_t *)data;
 
-  if (!json_tvb || !message_info || !message_info->content_id)
+  if (!json_tvb || !content_info || !content_info->content_id)
     return 0;
 
   json_data = tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
@@ -27020,19 +27025,19 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       if (!strcmp(n2_info_class, "SM")) {
         cur_tok = json_get_object(json_data, cur_tok, "smInfo");
         if (cur_tok && find_n2_info_content(json_data, cur_tok, "n2InfoContent",
-                                            message_info->content_id, &subdissector))
+                                            content_info->content_id, &subdissector))
           goto found;
       }
       if (!strcmp(n2_info_class, "RAN")) {
         cur_tok = json_get_object(json_data, cur_tok, "ranInfo");
         if (cur_tok && find_n2_info_content(json_data, cur_tok, "n2InfoContent",
-                                            message_info->content_id, &subdissector))
+                                            content_info->content_id, &subdissector))
           goto found;
       }
       if (!strcmp(n2_info_class, "NRPPa")) {
         cur_tok = json_get_object(json_data, cur_tok, "nrppaInfo");
         if (cur_tok && find_n2_info_content(json_data, cur_tok, "nrppaPdu",
-                                            message_info->content_id, &subdissector))
+                                            content_info->content_id, &subdissector))
           goto found;
       }
       if (!strcmp(n2_info_class, "PWS") ||
@@ -27040,7 +27045,7 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           !strcmp(n2_info_class, "PWS-RF")) {
         cur_tok = json_get_object(json_data, cur_tok, "pwsInfo");
         if (cur_tok && find_n2_info_content(json_data, cur_tok, "pwsContainer",
-                                            message_info->content_id, &subdissector))
+                                            content_info->content_id, &subdissector))
           goto found;
       }
     }
@@ -27048,7 +27053,7 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   cur_tok = json_get_object(json_data, tokens, "n2SmInfo");
   if (cur_tok) {
     const char *content_id_str = json_get_string(json_data, cur_tok, "contentId");
-    if (content_id_str && !strcmp(content_id_str, message_info->content_id)) {
+    if (content_id_str && !strcmp(content_id_str, content_info->content_id)) {
       const char *str = json_get_string(json_data, tokens, "n2SmInfoType");
       if (str)
         subdissector = dissector_get_string_handle(ngap_n2_ie_type_dissector_table, str);
@@ -27064,21 +27069,21 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     for (i = 0; i < count; i++) {
       jsmntok_t *array_tok = json_get_array_index(cur_tok, i);
       if (find_n2_info_content(json_data, array_tok, "n2InfoContent",
-                               message_info->content_id, &subdissector))
+                               content_info->content_id, &subdissector))
         goto found;
     }
   }
   if (find_n2_info_content(json_data, tokens, "sourceToTargetData",
-                           message_info->content_id, &subdissector))
+                           content_info->content_id, &subdissector))
     goto found;
   if (find_n2_info_content(json_data, tokens, "targetToSourceData",
-                           message_info->content_id, &subdissector))
+                           content_info->content_id, &subdissector))
     goto found;
   if (find_n2_info_content(json_data, tokens, "targetToSourceFailureData",
-                           message_info->content_id, &subdissector))
+                           content_info->content_id, &subdissector))
     goto found;
   if (find_n2_info_content(json_data, tokens, "ueRadioCapability",
-                           message_info->content_id, &subdissector))
+                           content_info->content_id, &subdissector))
     goto found;
 
 found:

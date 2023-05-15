@@ -12,7 +12,7 @@ FindWSWinLibs("libpcap-*" "PCAP_HINTS")
 #
 # First, try pkg-config on platforms other than Windows.
 #
-if(NOT WIN32)
+if(NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(PC_PCAP libpcap)
 endif()

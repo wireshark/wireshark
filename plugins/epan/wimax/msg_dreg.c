@@ -28,8 +28,13 @@ void proto_register_mac_mgmt_msg_dreg_req(void);
 void proto_register_mac_mgmt_msg_dreg_cmd(void);
 void proto_reg_handoff_mac_mgmt_msg_dreg(void);
 
+static dissector_handle_t dreg_req_handle;
+static dissector_handle_t dreg_cmd_handle;
+
 /* Forward reference */
 static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len);
+static int dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+static int dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static gint proto_mac_mgmt_msg_dreg_req_decoder = -1;
 static gint proto_mac_mgmt_msg_dreg_cmd_decoder = -1;
@@ -341,6 +346,7 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 
 	proto_register_field_array(proto_mac_mgmt_msg_dreg_req_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	dreg_req_handle = register_dissector("mac_mgmt_msg_dreg_req_handler", dissect_mac_mgmt_msg_dreg_req_decoder, proto_mac_mgmt_msg_dreg_req_decoder);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -351,6 +357,7 @@ void proto_register_mac_mgmt_msg_dreg_cmd(void)
 		"WiMax DREG-CMD", /* short name */
 		"wmx.dreg_cmd" /* abbrev */
 		);
+	dreg_cmd_handle = register_dissector("mac_mgmt_msg_dreg_cmd_handler", dissect_mac_mgmt_msg_dreg_cmd_decoder, proto_mac_mgmt_msg_dreg_cmd_decoder);
 }
 
 /* Decode DREG-REQ messages. */
@@ -504,13 +511,8 @@ static int dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pin
 void
 proto_reg_handoff_mac_mgmt_msg_dreg(void)
 {
-	dissector_handle_t dreg_handle;
-
-	dreg_handle = create_dissector_handle(dissect_mac_mgmt_msg_dreg_req_decoder, proto_mac_mgmt_msg_dreg_req_decoder);
-	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_REQ, dreg_handle);
-
-	dreg_handle = create_dissector_handle(dissect_mac_mgmt_msg_dreg_cmd_decoder, proto_mac_mgmt_msg_dreg_cmd_decoder);
-	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_CMD, dreg_handle);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_REQ, dreg_req_handle);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_CMD, dreg_cmd_handle);
 }
 
 /*

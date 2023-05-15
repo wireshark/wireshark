@@ -175,10 +175,13 @@ void proto_reg_handoff_pcep(void);
 #define INVALID_PATH_SETUP_TYPE         21
 #define BAD_PARAMETER_VALUE             23
 #define LSP_INSTANTIATION_ERROR         24
+#define PCEP_STARTTLS_ERROR             25
 #define ASSOCIATION_ERROR               26
 #define WSON_RWA_ERROR                  27
 #define H_PCE_ERROR                     28
 #define PATH_COMPUTATION_FAILURE        29
+#define FLOWSPEC_ERROR                  30
+#define PCECC_FAILURE                   31
 
 /*Different values of Reason in the CLOSE object */
 #define NO_EXP_PROV                      1
@@ -806,7 +809,8 @@ typedef enum {
     PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY,
     PCEP_MSG_PATH_COMPUTATION_LSP_STATE_REPORT,
     PCEP_MSG_PATH_COMPUTATION_LSP_UPDATE_REQUEST,
-    PCEP_MSG_INITIATE
+    PCEP_MSG_INITIATE,
+    PCEP_MSG_STARTTLS
 } pcep_message_types;
 
 static const value_string message_type_vals[] = {
@@ -822,6 +826,7 @@ static const value_string message_type_vals[] = {
     {PCEP_MSG_PATH_COMPUTATION_LSP_STATE_REPORT,   "Path Computation LSP State Report (PCRpt)"      },
     {PCEP_MSG_PATH_COMPUTATION_LSP_UPDATE_REQUEST, "Path Computation LSP Update Request (PCUpd)"    },
     {PCEP_MSG_INITIATE,                            "Path Computation LSP Initiate (PCInitiate)"     },
+    {PCEP_MSG_STARTTLS,                            "StartTLS"                                       },
     {0, NULL }
 };
 
@@ -1093,6 +1098,10 @@ static const value_string pcep_metric_obj_vals[] = {
     {15, "P2MP Path Delay metric"          },   /* draft-ietf-pce-pcep-service-aware */
     {16, "P2MP Path Delay variation metric"},   /* draft-ietf-pce-pcep-service-aware */
     {17, "P2MP Path Loss metric"           },   /* draft-ietf-pce-pcep-service-aware */
+    {18, "Number of adaptations on a path" },   /* RFC8282 */
+    {19, "Number of layers on a path"      },   /* RFC8282 */
+    {20, "Domain Count metric"             },   /* RFC8685 */
+    {21, "Border Node Count metric"        },   /* RFC8685 */
     {0, NULL }
 };
 
@@ -1191,6 +1200,8 @@ static const value_string pcep_tlvs_vals[] = {
     {57, "SRPOLICY-CPATH-ID"                       }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {58, "SRPOLICY-CPATH-NAME"                     }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {59, "SRPOLICY-CPATH-PREFERENCE"               }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {64, "LSP-EXTENDED-FLAG"                       },
+    {65, "VIRTUAL-NETWORK-TLV"                     },
     {0, NULL                                       }
 };
 
@@ -1277,7 +1288,11 @@ static const value_string pcep_error_value_4_vals[] = {
     {1, "Not supported object class"},
     {2, "Not supported object type"},
     {4, "Not supported parameter"},
-    {5, "Unsupported network performance constraint"},  /* draft-ietf-pce-pcep-service-aware*/
+    {5, "Unsupported network performance constraint"},
+    {6, "BANDWIDTH object type 3 or 4 not supported"},
+    {7, "Unsupported endpoint type in END-POINTS Generalized Endpoint object type"},
+    {8, "Unsupported TLV present in END-POINTS Generalized Endpoint object type"},
+    {9, "Unsupported granularity in the RP object flags"},
     {0, NULL}
 };
 
@@ -1308,32 +1323,53 @@ static const value_string pcep_error_value_6_vals[] = {
     {12, "LSP-DB-VERSION TLV missing"},
     {13, "LSP cleanup TLV missing"},
     {14, "SYMBOLIC-PATH-NAME TLV missing"},
+    {15, "DISJOINTNESS-CONFIGURATION TLV missing"},
+    {16, "Scheduled TLV missing"},
+    {17, "CCI object missing"},
+    {18, "VIRTUAL-NETWORK-TLV missing"},
     {0, NULL}
 };
 
 /*Error values for error type 10*/
 static const value_string pcep_error_value_10_vals[] = {
     {1,  "Reception of an object with P flag not set although the P-flag must be set"}, /*RFC 5440*/
-    {2,  "Bad label value"},                                /* RFC 8664 */
-    {3,  "Unsupported number of SR-ERO subobjects"},        /* RFC 8664 */
-    {4,  "Bad label format"},                               /* RFC 8664 */
-    {5,  "ERO mixes SR-ERO subobjects with other subobject types"}, /* RFC 8664 */
-    {6,  "Both SID and NAI are absent in ERO subobject"},   /* RFC 8664 */
-    {7,  "Both SID and NAI are absent in RRO subobject"},   /* RFC 8664 */
-    {8,  "SYMBOLIC-PATH-NAME TLV missing"},                 /* RFC 8281 */
-    {9,  "MSD exceeds the default for the PCEP session"},   /* RFC 8664 */
-    {10, "RRO mixes SR-RRO subobjects with other object types"}, /* RFC 8664 */
-    {11, "Malformed object"},                               /* RFC 8408 */
-    {12, "Missing PCE-SR-CAPABILITY sub-TLV"},              /* RFC 8664 */
-    {13, "Unsupported NAI Type in the SR-ERO/SR-RRO subobject"}, /* RFC 8664 */
-    {14, "Unknown SID"},                                   /* RFC 8664 */
-    {15, "NAI cannot be resolved to a SID"},               /* RFC 8664 */
-    {16, "Could not find SRGB"},                           /* RFC 8664 */
-    {17, "SID index exceeds SRGB size"},                   /* RFC 8664 */
-    {18, "Could not find SRLB"},                           /* RFC 8664 */
-    {19, "SID index exceeds SRLB size"},                   /* RFC 8664 */
-    {20, "Inconsistent SIDs in SR-ERO/SR-RRO subobjects"}, /* RFC 8664 */
-    {21, "MSD must be nonzero"},                           /* RFC 8664 */
+    {2,  "Bad label value"},                                                            /* RFC 8664 */
+    {3,  "Unsupported number of SR-ERO subobjects"},                                    /* RFC 8664 */
+    {4,  "Bad label format"},                                                           /* RFC 8664 */
+    {5,  "ERO mixes SR-ERO subobjects with other subobject types"},                     /* RFC 8664 */
+    {6,  "Both SID and NAI are absent in ERO subobject"},                               /* RFC 8664 */
+    {7,  "Both SID and NAI are absent in RRO subobject"},                               /* RFC 8664 */
+    {8,  "SYMBOLIC-PATH-NAME TLV missing"},                                             /* RFC 8281 */
+    {9,  "MSD exceeds the default for the PCEP session"},                               /* RFC 8664 */
+    {10, "RRO mixes SR-RRO subobjects with other object types"},                        /* RFC 8664 */
+    {11, "Malformed object"},                                                           /* RFC 8408 */
+    {12, "Missing PCE-SR-CAPABILITY sub-TLV"},                                          /* RFC 8664 */
+    {13, "Unsupported NAI Type in the SR-ERO/SR-RRO subobject"},                        /* RFC 8664 */
+    {14, "Unknown SID"},                                                                /* RFC 8664 */
+    {15, "NAI cannot be resolved to a SID"},                                            /* RFC 8664 */
+    {16, "Could not find SRGB"},                                                        /* RFC 8664 */
+    {17, "SID index exceeds SRGB size"},                                                /* RFC 8664 */
+    {18, "Could not find SRLB"},                                                        /* RFC 8664 */
+    {19, "SID index exceeds SRLB size"},                                                /* RFC 8664 */
+    {20, "Inconsistent SIDs in SR-ERO/SR-RRO subobjects"},                              /* RFC 8664 */
+    {21, "MSD must be nonzero"},                                                        /* RFC 8664 */
+    {22, "Mismatch of O field in S2LS and LSP object"},                                 /* RFC 8623 */
+    {23, "Incompatible OF codes in H-PCE"},                                             /* RFC 8685 */
+    {24, "Bad BANDWIDTH object type 3 or 4"},                                           /* RFC 8779 */
+    {25, "Unsupported LSP Protection Flags in PROTECTION-ATTRIBUTE TLV"},               /* RFC 8779 */
+    {26, "Unsupported Secondary LSP Protection Flags in PROTECTION-ATTRIBUTE TLV"},     /* RFC 8779 */
+    {27, "Unsupported Link Protection Type in PROTECTION-ATTRIBUTE TLV"},               /* RFC 8779 */
+    {28, "LABEL-SET TLV present with O bit set but without R bit set in RP"},           /* RFC 8779 */
+    {29, "Wrong LABEL-SET TLV present with O and L bits set"},                          /* RFC 8779 */
+    {30, "Wrong LABEL-SET TLV present with O bit set and wrong format"},                /* RFC 8779 */
+    {31, "Missing GMPLS-CAPABILITY TLV"},                                               /* RFC 8779 */
+    {32, "Incompatible OF code"},                                                       /* RFC 8800 */
+    {33, "Missing PCECC Capability sub-TLV"},                                           /* RFC 9050 */
+    {34, "Missing PCE-SRv6-CAPABILITY sub-TLV"},                                        /* draft-ietf-pce-segment-routing-ipv6-13 */
+    {35, "Both SID and NAI are absent in SRv6-RRO subobject "},                         /* draft-ietf-pce-segment-routing-ipv6-13 */
+    {36, "RRO mixes SRv6-RRO subobjects with other subobject types"},                   /* draft-ietf-pce-segment-routing-ipv6-13 */
+    {37, "Invalid SRv6 SID Structure "},                                                /* draft-ietf-pce-segment-routing-ipv6-13 */
+    {38, "Conflicting Path ID"},                                                        /* draft-ietf-pce-multipath-07 */
     {0, NULL}
 };
 
@@ -1377,6 +1413,9 @@ static const value_string pcep_error_value_17_vals[] = {
 /*Error values for error type 18*/
 static const value_string pcep_error_value_18_vals[] = {
     {1, "Fragmented request failure"},
+    {2, "Fragmented Report failure"},
+    {3, "Fragmented Update failure"},
+    {4, "Fragmented Instantiation failure"},
     {0, NULL}
 };
 
@@ -1385,13 +1424,23 @@ static const value_string pcep_error_value_19_vals[] = {
     {1,  "Attempted LSP Update Request for a non-delegated LSP. The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
     {2,  "Attempted LSP Update Request if active stateful PCE capability was not advertised"},
     {3,  "Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID"},
-    {4,  "A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot accept and process its LSP State Report message"},
     {5,  "Attempted LSP State Report if active stateful PCE capability was not advertised"},
     {6,  "PCE-initiated LSP limit reached"},                    /* draft-ietf-pce-pce-initiated-lsp */
     {7,  "Delegation for PCE-initiated LSP cannot be revoked"}, /* draft-ietf-pce-pce-initiated-lsp */
     {8,  "Non-zero PLSP-ID in LSP initiation request"},         /* draft-ietf-pce-pce-initiated-lsp */
     {9,  "LSP is not PCE-initiated"},                           /* draft-ietf-pce-pce-initiated-lsp */
     {10, "PCE-initiated operation-frequency limit reached"},    /* draft-ietf-pce-pce-initiated-lsp */
+    {11, "Attempted LSP State Report for P2MP if stateful PCE capability for P2MP was not advertised"},
+    {12, "Attempted LSP Update Request for P2MP if active stateful PCE capability for P2MP was not advertised"},
+    {13, "Attempted LSP Instantiation Request for P2MP if stateful PCE instantiation capability for P2MP was not advertised"},
+    {14, "Auto-Bandwidth capability was not advertised"},
+    {15, "Attempted LSP scheduling while the scheduling capability was not advertised"},
+    {16, "Attempted PCECC operations when PCECC capability was not advertised"},
+    {17, "Stateful PCE capability was not advertised"},
+    {18, "Unknown Label"},
+    {19, "Attempted SRv6 when the capability was not advertised"},
+    {20, "Not supported path backup"},
+    {21, "Non-empty path"},
     {0, NULL}
 };
 
@@ -1429,6 +1478,16 @@ static const value_string pcep_error_value_24_vals[] = {
     {0, NULL}
 };
 
+/*Error values for error type 25*/
+static const value_string pcep_error_value_25_vals[] = {
+    {1, "Reception of StartTLS after any PCEP exchange"},
+    {2, "Reception of any other message apart from StartTLS, Open, or PCErr"},
+    {3, "Failure, connection without TLS is not possible"},
+    {4, "Failure, connection without TLS is possible"},
+    {5, "No StartTLS message (nor PCErr/Open) before StartTLSWait timer expiry"},
+    {0, NULL}
+};
+
 /*Error values for error type 26*/
 static const value_string pcep_error_value_26_vals[] = {
     {1, "Association-type is not supported"},                                              /* [RFC8697] */
@@ -1444,6 +1503,12 @@ static const value_string pcep_error_value_26_vals[] = {
     {11, "Protection type is not supported"},                                              /* [RFC8745] */
     {12, "Not expecting policy parameters"},                                               /* [RFC9005] */
     {13, "Unacceptable policy parameters"},                                                /* [RFC9005] */
+    {14, "Association group mismatch"},                                                    /* [RFC9059] */
+    {15, "Tunnel mismatch in the association group"},                                      /* [RFC9059] */
+    {16, "Path Setup Type not supported"},                                                 /* [RFC9059] */
+    {17, "Bidirectional LSP direction mismatch"},                                          /* [RFC9059] */
+    {18, "Bidirectional LSP co-routed mismatch"},                                          /* [RFC9059] */
+    {19, "Endpoint mismatch in the association group"},                                    /* [RFC9059] */
     {0, NULL}
 };
 
@@ -1469,6 +1534,26 @@ static const value_string pcep_error_value_29_vals[] = {
     {3, "Label set constraint could not be met"},           /* [RFC8779] */
     {4, "Label constraint could not be met"},               /* [RFC8779] */
     {5, "Constraints could not be met for some intervals"}, /* [RFC8934] */
+    {0, NULL}
+};
+
+/*Error values for error type 30*/
+static const value_string pcep_error_value_30_vals[] = {
+    {1, "Unsupported FlowSpec"},  /* [RFC9168] */
+    {2, "Malformed FlowSpec"},    /* [RFC9168] */
+    {3, "Unresolvable Conflict"}, /* [RFC9168] */
+    {4, "Unknown FlowSpec"},      /* [RFC9168] */
+    {5, "Unsupported LPM Route"}, /* [RFC9168] */
+    {0, NULL}
+};
+
+/*Error values for error type 31*/
+static const value_string pcep_error_value_31_vals[] = {
+    {1, "Label out of range"},                   /* [RFC9050] */
+    {2, "Instruction failed"},                   /* [RFC9050] */
+    {3, "Invalid CCI"},                          /* [RFC9050] */
+    {4, "Unable to allocate the specified CCI"}, /* [RFC9050] */
+    {5, "Invalid next-hop information"},         /* [RFC9050] */
     {0, NULL}
 };
 
@@ -1547,6 +1632,7 @@ static const value_string pcep_association_type_field_vals[] = {
     {4, "Single-Sided Bidirectional LSP Association"}, /* RFC 9059 */
     {5, "Double-Sided Bidirectional LSP Association"}, /* RFC 9059 */
     {6, "SR Policy Association"}, /* TEMPORARY registered 2021-03-30 expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {7, "VN Association"}, /* RFC 9358 */
     {0, NULL }
 };
 
@@ -3065,6 +3151,9 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
         case LSP_INSTANTIATION_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_24_vals, "Unknown");
             break;
+        case PCEP_STARTTLS_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_25_vals, "Unknown");
+            break;
         case ASSOCIATION_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_26_vals, "Unknown");
             break;
@@ -3076,6 +3165,12 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
             break;
         case PATH_COMPUTATION_FAILURE:
             err_str = val_to_str_const(error_value, pcep_error_value_29_vals, "Unknown");
+            break;
+        case FLOWSPEC_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_30_vals, "Unknown");
+            break;
+        case PCECC_FAILURE:
+            err_str = val_to_str_const(error_value, pcep_error_value_31_vals, "Unknown");
             break;
         default:
             proto_item_append_text(type_item, " (%u Non defined Error-Value)", error_type);

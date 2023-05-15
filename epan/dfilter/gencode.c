@@ -8,7 +8,6 @@
 
 #include "config.h"
 
-#include "dfilter-int.h"
 #include "gencode.h"
 #include "dfvm.h"
 #include "syntax-tree.h"
@@ -845,7 +844,7 @@ dfw_gencode(dfwork_t *dfw)
 	dfw->interesting_fields = g_hash_table_new(g_int_hash, g_int_equal);
 	gencode(dfw, dfw->st_root);
 	dfw_append_insn(dfw, dfvm_insn_new(DFVM_RETURN));
-	if (dfw->apply_optimization) {
+	if (dfw->flags & DF_OPTIMIZE) {
 		optimize(dfw);
 	}
 }

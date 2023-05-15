@@ -188,6 +188,7 @@ carrierfreq
 carrierid
 casio
 categorizes
+cblock
 cccid
 ccitt
 ccpch
@@ -228,11 +229,13 @@ ciphering
 ciphersuite
 ciphertext
 ciplus
+cipso
 citrix
 cksum
 classifiers
 classmark
 classmark3
+claypaky
 clientkey
 clientout
 clopts
@@ -256,10 +259,12 @@ colorize
 colorized
 colorizing
 colormap
+combi
 combiner
 combiners
 communication
 compat
+compilable
 compilers
 compr
 computable
@@ -318,6 +323,7 @@ datalen
 datarate
 datastate
 datetime
+dccreq
 dcerpc
 dct3trace
 deact
@@ -531,6 +537,7 @@ fhandle
 fiber
 fileset
 firewall
+fixme
 flag1
 flag2
 flavored
@@ -908,6 +915,7 @@ mysql
 nacks
 namelen
 namespace
+naptr
 narrowband
 nbrar
 ndpsm
@@ -936,6 +944,7 @@ nghttp
 ngran
 ngsniffer
 niagra
+nitnxlate
 noascii
 noauth
 nodeid
@@ -953,6 +962,7 @@ notarized
 notational
 notif
 notifier
+notset
 notused
 novell
 nowait
@@ -969,6 +979,7 @@ nstrace
 ntlmssp
 ntohl
 ntohs
+ntwkconn
 nullptr
 nvmeof
 nvram
@@ -984,6 +995,7 @@ octetstring
 ofdma
 offloadability
 ofpat
+ofpbac
 ofpet
 ofpmp
 ofppf
@@ -1054,6 +1066,7 @@ periodicities
 peristency
 persistency
 pfname
+pharos
 phaser
 phasor
 phich
@@ -1132,6 +1145,7 @@ pxeclient
 pytest
 qam16
 qam64
+qmgmt
 qnet6
 qosinfo
 qsearch
@@ -1157,6 +1171,7 @@ randomizer
 randpkt
 raster
 rdpudp
+rdtci
 reachability
 readme
 realloc
@@ -1283,6 +1298,7 @@ rgoose
 ripemd
 rlcmac
 rmcap
+rngrsp
 rnsap
 roamer
 routable
@@ -1339,6 +1355,7 @@ setattr
 setcap
 setuid
 severities
+sfiocr
 sflow
 sftpserver
 sftserver
@@ -1357,6 +1374,7 @@ signon
 simulcast
 skippable
 skype
+slaac
 slimp
 slsch
 smpte
@@ -1510,6 +1528,7 @@ toolset
 tooltip
 topup
 toshiba
+totemsrp
 touchlink
 touchpad
 traceroute
@@ -1707,6 +1726,7 @@ vcpkg
 vcredist
 vcxproj
 vector3d
+venusmngr
 verbosity
 verifier
 verizon
@@ -1750,6 +1770,7 @@ winspool
 wiphy
 wireshark
 wiretap
+wisun
 withfcs
 withoutfcs
 wksta

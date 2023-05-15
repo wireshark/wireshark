@@ -21,12 +21,12 @@
 #endif
 
 static stnode_t *
-new_function(dfwork_t *dfw, stnode_t *node);
+new_function(dfsyntax_t *dfs, stnode_t *node);
 
-#define FAIL(dfw, node, ...) \
+#define FAIL(dfs, node, ...) \
     do { \
         ws_noisy("Parsing failed here."); \
-        dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
+        dfilter_fail(dfs, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
     } while (0)
 
 DIAG_OFF_LEMON()
@@ -39,12 +39,12 @@ DIAG_ON_LEMON()
 /* Parser Information */
 %name           Dfilter
 %token_prefix   TOKEN_
-%extra_argument {dfwork_t *dfw}
+%extra_argument {dfsyntax_t *dfs}
 
 /* Terminal and Non-Terminal types and destructors */
 %token_type                     {stnode_t*}
 %token_destructor               {
-    (void)dfw;
+    (void)dfs;
     stnode_free($$);
 }
 
@@ -67,18 +67,10 @@ DIAG_ON_LEMON()
 any "error" symbols are shifted, if possible. */
 %syntax_error {
     if (!TOKEN) {
-        dfilter_fail(dfw, DF_ERROR_UNEXPECTED_END, DFILTER_LOC_EMPTY, "Unexpected end of filter expression.");
+        dfilter_fail(dfs, DF_ERROR_UNEXPECTED_END, DFILTER_LOC_EMPTY, "Unexpected end of filter expression.");
         return;
     }
-    FAIL(dfw, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
-}
-
-/* When a parse fails, mark an error. This occurs after
-the above syntax_error code and after the parser fails to
-use error recovery, shifting an "error" symbol and successfully
-shifting 3 more symbols. */
-%parse_failure {
-    dfw->parse_failure = TRUE;
+    FAIL(dfs, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
 }
 
 /* ----------------- The grammar -------------- */
@@ -95,8 +87,8 @@ shifting 3 more symbols. */
 %nonassoc UNARY_PLUS UNARY_MINUS.
 
 /* Top-level targets */
-sentence ::= expr(X).           { dfw->st_root = X; }
-sentence ::= .                  { dfw->st_root = NULL; }
+sentence ::= expr(X).           { dfs->st_root = X; }
+sentence ::= .                  { dfs->st_root = NULL; }
 
 expr(X) ::= relation(R).        { X = R; }
 expr(X) ::= arithmetic_expr(E). { X = E; }
@@ -147,9 +139,9 @@ named_field(X) ::= IDENTIFIER(U).
 {
     X = U;
     const char *name = stnode_token(U);
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, name);
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfs, name);
     if (hfinfo == NULL) {
-        FAIL(dfw, U, "\"%s\" is not a valid protocol or protocol field.", name);
+        FAIL(dfs, U, "\"%s\" is not a valid protocol or protocol field.", name);
     }
     stnode_replace(X, STTYPE_FIELD, hfinfo);
 }
@@ -174,7 +166,7 @@ layered_field(X) ::= named_field(F) HASH INTEGER(N).
     char *err_msg = NULL;
     drange_node *range = drange_node_from_str(stnode_token(N), &err_msg);
     if (err_msg != NULL) {
-        FAIL(dfw, N, "%s", err_msg);
+        FAIL(dfs, N, "%s", err_msg);
         g_free(err_msg);
     }
     sttype_field_set_range1(X, range);
@@ -473,7 +465,7 @@ range_node_list(L) ::= RANGE_NODE(N).
     char *err_msg = NULL;
     drange_node *rn = drange_node_from_str(stnode_token(N), &err_msg);
     if (err_msg != NULL) {
-        FAIL(dfw, N, "%s", err_msg);
+        FAIL(dfs, N, "%s", err_msg);
         g_free(err_msg);
     }
     L = g_slist_append(NULL, rn);
@@ -485,7 +477,7 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
     char *err_msg = NULL;
     drange_node *rn = drange_node_from_str(stnode_token(N), &err_msg);
     if (err_msg != NULL) {
-        FAIL(dfw, N, "%s", err_msg);
+        FAIL(dfs, N, "%s", err_msg);
         g_free(err_msg);
     }
     L = g_slist_append(P, rn);
@@ -496,13 +488,13 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 
 %code {
     static stnode_t *
-    new_function(dfwork_t *dfw, stnode_t *node)
+    new_function(dfsyntax_t *dfs, stnode_t *node)
     {
         const char *name = stnode_token(node);
 
         df_func_def_t *def = df_func_lookup(name);
         if (!def) {
-            FAIL(dfw, node, "Function '%s' does not exist", name);
+            FAIL(dfs, node, "Function '%s' does not exist", name);
         }
         stnode_replace(node, STTYPE_FUNCTION, def);
         return node;
@@ -512,7 +504,7 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 /* A function can have one or more parameters */
 function(F) ::= IDENTIFIER(U) LPAREN func_params_list(P) RPAREN(R).
 {
-    F = new_function(dfw, U);
+    F = new_function(dfs, U);
     sttype_function_set_params(F, P);
     stnode_merge_location(F, U, R);
     stnode_free(R);
@@ -520,20 +512,20 @@ function(F) ::= IDENTIFIER(U) LPAREN func_params_list(P) RPAREN(R).
 
 function ::= CONSTANT(U) LPAREN func_params_list RPAREN.
 {
-    FAIL(dfw, U, "Function '%s' does not exist", stnode_token(U));
+    FAIL(dfs, U, "Function '%s' does not exist", stnode_token(U));
 }
 
 /* A function can have zero parameters. */
 function(F) ::= IDENTIFIER(U) LPAREN RPAREN(R).
 {
-    F = new_function(dfw, U);
+    F = new_function(dfs, U);
     stnode_merge_location(F, U, R);
     stnode_free(R);
 }
 
 function ::= CONSTANT(U) LPAREN RPAREN.
 {
-    FAIL(dfw, U, "Function '%s' does not exist", stnode_token(U));
+    FAIL(dfs, U, "Function '%s' does not exist", stnode_token(U));
 }
 
 func_params_list(P) ::= arithmetic_expr(E).

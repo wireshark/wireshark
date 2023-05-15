@@ -567,7 +567,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             expert_add_info(pinfo, item_b, &ei_esmc_quality_level_invalid);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-            val_to_str((essm<<8) | ssm, ql_vals_short, "Unknown Quality Level"));
+            val_to_str_const((essm<<8) | ssm, ql_vals_short, "Unknown Quality Level"));
     }
 
     { /* padding */

@@ -50,7 +50,7 @@ typedef struct {
 /* Initialize to a specified number of seconds */
 #define NSTIME_INIT_SECS(secs)			{secs, 0}
 
-/* Initialize to the maxximum possible value */
+/* Initialize to the maximum possible value */
 #define NSTIME_INIT_MAX	{sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX}
 
 /* functions */
@@ -107,6 +107,8 @@ WS_DLL_PUBLIC void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *
  * a < b : < 0
  */
 WS_DLL_PUBLIC int nstime_cmp (const nstime_t *a, const nstime_t *b );
+
+WS_DLL_PUBLIC guint nstime_hash(const nstime_t *nstime);
 
 /** converts nstime to double, time base is milli seconds */
 WS_DLL_PUBLIC double nstime_to_msec(const nstime_t *nstime);

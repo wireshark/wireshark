@@ -248,9 +248,9 @@ def removeContractions(code_string):
     return code_string
 
 def removeComments(code_string):
-    code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
-    # Remove this for now as can get tripped up if see htpps://www.... within a string!
-    code_string = re.sub(re.compile(r"^\s*//.*?\n" ) ,"" ,code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"/\*.*?\*/", re.DOTALL), "" , code_string) # C-style comment
+    # Avoid matching // where it is allowed, e.g.,  https://www... or file:///...
+    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!\"\s\s)(?<!file:/)//.*?\n" ) ,"" , code_string)             # C++-style comment
     return code_string
 
 def removeSingleQuotes(code_string):

@@ -988,6 +988,7 @@ static gint ett_ulp_HighAccuracyPositionEstimate = -1;
 static gint ett_ulp_HighAccuracyAltitudeInfo = -1;
 
 static dissector_handle_t ulp_tcp_handle;
+static dissector_handle_t ulp_pdu_handle;
 
 static const value_string ulp_ganss_id_vals[] = {
   {  0, "Galileo"},
@@ -1375,7 +1376,8 @@ dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_ulp_IA5String_SIZE_1_1000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 1000, FALSE);
+                                          1, 1000, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -4643,7 +4645,8 @@ dissect_ulp_ThirdParty(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_ulp_IA5String_SIZE_1_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 24, FALSE);
+                                          1, 24, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -4653,7 +4656,8 @@ dissect_ulp_IA5String_SIZE_1_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ulp_IA5String_SIZE_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 32, FALSE);
+                                          1, 32, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -4663,7 +4667,8 @@ dissect_ulp_IA5String_SIZE_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_ulp_IA5String_SIZE_1_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 8, FALSE);
+                                          1, 8, FALSE,
+                                          NULL);
 
   return offset;
 }
@@ -4689,7 +4694,8 @@ dissect_ulp_ApplicationID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_ulp_UTCTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                        NO_BOUND, NO_BOUND, FALSE);
+                                        NO_BOUND, NO_BOUND, FALSE,
+                                        NULL);
 
   return offset;
 }
@@ -7754,7 +7760,7 @@ guint32 UlpMessage;
                                  &UlpMessage);
 
 
-  col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+  col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
 
 
   return offset;
@@ -10843,6 +10849,7 @@ void proto_register_ulp(void) {
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
   ulp_tcp_handle = register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+  ulp_pdu_handle = register_dissector("ulp.pdu", dissect_ULP_PDU_PDU, proto_ulp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));
@@ -10862,15 +10869,12 @@ void proto_register_ulp(void) {
 void
 proto_reg_handoff_ulp(void)
 {
-  dissector_handle_t ulp_udp_handle;
-
-    dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
-    dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_tcp_handle);
-    ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_ulp);
     lpp_handle = find_dissector_add_dependency("lpp", proto_ulp);
 
+    dissector_add_string("media_type","application/oma-supl-ulp", ulp_pdu_handle);
+    dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_pdu_handle);
     dissector_add_uint_with_preference("tcp.port", ULP_PORT, ulp_tcp_handle);
-    dissector_add_uint_with_preference("udp.port", ULP_PORT, ulp_udp_handle);
+    dissector_add_uint_with_preference("udp.port", ULP_PORT, ulp_pdu_handle);
 }
 

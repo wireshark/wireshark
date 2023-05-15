@@ -279,26 +279,7 @@ typedef struct _protocol_value_t
 	gboolean	tvb_is_private;
 } protocol_value_t;
 
-typedef struct _fvalue_t {
-	ftype_t	*ftype;
-	union {
-		/* Put a few basic types in here */
-		guint32			uinteger;
-		gint32			sinteger;
-		guint64			uinteger64;
-		gint64			sinteger64;
-		gdouble			floating;
-		wmem_strbuf_t		*strbuf;
-		GByteArray		*bytes;
-		ipv4_addr_and_mask	ipv4;
-		ipv6_addr_and_prefix	ipv6;
-		e_guid_t		guid;
-		nstime_t		time;
-		protocol_value_t 	protocol;
-		guint16			sfloat_ieee_11073;
-		guint32			float_ieee_11073;
-	} value;
-} fvalue_t;
+typedef struct _fvalue_t fvalue_t;
 
 fvalue_t*
 fvalue_new(ftenum_t ftype);
@@ -358,11 +339,27 @@ fvalue_type_ftenum(fvalue_t *fv);
 const char*
 fvalue_type_name(const fvalue_t *fv);
 
+/* GBytes reference count is automatically incremented. */
+void
+fvalue_set_bytes(fvalue_t *fv, GBytes *value);
+
 void
 fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
 
 void
-fvalue_set_bytes(fvalue_t *fv, const guint8 *value);
+fvalue_set_bytes_data(fvalue_t *fv, const void *data, size_t size);
+
+void
+fvalue_set_fcwwn(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_ax25(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_vines(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_ether(fvalue_t *fv, const guint8 *value);
 
 void
 fvalue_set_guid(fvalue_t *fv, const e_guid_t *value);
@@ -394,9 +391,22 @@ fvalue_set_sinteger64(fvalue_t *fv, gint64 value);
 void
 fvalue_set_floating(fvalue_t *fv, gdouble value);
 
+void
+fvalue_set_ipv6(fvalue_t *fv, const ws_in6_addr *value);
+
+/* GBytes reference count is automatically incremented. */
 WS_DLL_PUBLIC
-const guint8 *
+GBytes *
 fvalue_get_bytes(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+gsize
+fvalue_get_bytes_size(fvalue_t *fv);
+
+/* Same as fvalue_length() */
+WS_DLL_PUBLIC
+const void *
+fvalue_get_bytes_data(fvalue_t *fv);
 
 WS_DLL_PUBLIC
 const e_guid_t *
@@ -434,6 +444,9 @@ fvalue_get_sinteger64(fvalue_t *fv);
 
 WS_DLL_PUBLIC double
 fvalue_get_floating(fvalue_t *fv);
+
+WS_DLL_PUBLIC const ws_in6_addr *
+fvalue_get_ipv6(fvalue_t *fv);
 
 ft_bool_t
 fvalue_eq(const fvalue_t *a, const fvalue_t *b);
@@ -491,6 +504,12 @@ fvalue_divide(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 
 fvalue_t*
 fvalue_modulo(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+
+guint
+fvalue_hash(const fvalue_t *fv);
+
+gboolean
+fvalue_equal(const fvalue_t *a, const fvalue_t *b);
 
 #ifdef __cplusplus
 }

@@ -130,7 +130,9 @@ sttype_slice_set(stnode_t *node, stnode_t *entity, GSList* drange_list)
 void
 sttype_slice_set1(stnode_t *node, stnode_t *entity, drange_node *rn)
 {
-	sttype_slice_set(node, entity, g_slist_append(NULL, rn));
+	GSList *drange_list = g_slist_append(NULL, rn);
+	sttype_slice_set(node, entity, drange_list);
+	g_slist_free(drange_list);
 }
 
 void

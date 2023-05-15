@@ -1140,8 +1140,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			sub_tree = proto_tree_add_subtree(tree, tvb,
 			    offset, len << 2, ett, NULL,
-			    val_to_str(type, sna_nlp_opti_vals,
-			    "Unknown Segment Type"));
+			    val_to_str_const(type, sna_nlp_opti_vals, "Unknown Segment Type"));
 			proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_len,
 			    tvb, offset, 1, len);
 			proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_type,

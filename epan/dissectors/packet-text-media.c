@@ -22,7 +22,7 @@
 
 #include <epan/packet.h>
 
-#include "packet-http.h"
+#include "packet-media-type.h"
 
 /*
  * Media dissector for line-based text media like text/plain, message/http.
@@ -48,7 +48,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	proto_item	*ti;
 	gint		offset = 0, next_offset;
 	gint		len;
-	http_message_info_t *message_info;
+	media_content_info_t *content_info;
 	const char	*data_name;
 	int length = tvb_captured_length(tvb);
 
@@ -68,14 +68,14 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		/*
 		 * No information from "match_string"
 		 */
-		message_info = (http_message_info_t *)data;
-		if (message_info == NULL) {
+		content_info = (media_content_info_t *)data;
+		if (content_info == NULL) {
 			/*
 			 * No information from dissector data
 			 */
 			data_name = NULL;
 		} else {
-			data_name = message_info->media_str;
+			data_name = content_info->media_str;
 			if (! (data_name && data_name[0])) {
 				/*
 				 * No information from dissector data

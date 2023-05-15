@@ -545,7 +545,6 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	case NSPR_HEADER_VERSION202:
 		proto_tree_add_item_ret_uint(ns_tree, hf_ns_vlantag, tvb, pnstr->vlantag_offset, 2, ENC_LITTLE_ENDIAN, &vlan);
-		col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%d", vlan);
 		/* fall through */
 
 	case NSPR_HEADER_VERSION201:
@@ -577,7 +576,6 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 			/* NSPR_HEADER_VERSION202 stuff */
 			proto_tree_add_item_ret_uint(ns_tree, hf_ns_vlantag, tvb, pnstr->vlantag_offset, 2, ENC_LITTLE_ENDIAN, &vlan);
-			col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%d", vlan);
 
 			/* NSPR_HEADER_VERSION201 stuff */
 			proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);

@@ -65,24 +65,24 @@ static int hf_dplay_flags_optimize_latency = -1;
 static int hf_dplay_flags_acqire_voice = -1;
 static int hf_dplay_flags_no_sess_desc_changes = -1;
 
-#define DPLAY_FLAG_NO_CREATE_PLAYERS 0x0001
-#define DPLAY_FLAG_0002 0x0002
-#define DPLAY_FLAG_MIGRATE_HOST 0x0004
-#define DPLAY_FLAG_SHORT_PLAYER_MSG 0x0008
-#define DPLAY_FLAG_IGNORED 0x0010
-#define DPLAY_FLAG_CAN_JOIN 0x0020
-#define DPLAY_FLAG_USE_PING 0x0040
-#define DPLAY_FLAG_NO_P_UPD 0x0080
-#define DPLAY_FLAG_USE_AUTH 0x0100
-#define DPLAY_FLAG_PRIV_SESS 0x0200
-#define DPLAY_FLAG_PASS_REQ 0x0400
-#define DPLAY_FLAG_ROUTE 0x0800
-#define DPLAY_FLAG_SRV_ONLY 0x1000
-#define DPLAY_FLAG_RELIABLE 0x2000
-#define DPLAY_FLAG_ORDER 0x4000
-#define DPLAY_FLAG_OPT_LAT 0x8000
-#define DPLAY_FLAG_ACQ_VOICE 0x10000
-#define DPLAY_FLAG_NO_SESS_DESC_CHANGES 0x20000
+#define DPLAY_FLAG_NO_CREATE_PLAYERS 0x00000001
+#define DPLAY_FLAG_0002 0x00000002
+#define DPLAY_FLAG_MIGRATE_HOST 0x00000004
+#define DPLAY_FLAG_SHORT_PLAYER_MSG 0x00000008
+#define DPLAY_FLAG_IGNORED 0x00000010
+#define DPLAY_FLAG_CAN_JOIN 0x00000020
+#define DPLAY_FLAG_USE_PING 0x00000040
+#define DPLAY_FLAG_NO_P_UPD 0x00000080
+#define DPLAY_FLAG_USE_AUTH 0x00000100
+#define DPLAY_FLAG_PRIV_SESS 0x00000200
+#define DPLAY_FLAG_PASS_REQ 0x00000400
+#define DPLAY_FLAG_ROUTE 0x00000800
+#define DPLAY_FLAG_SRV_ONLY 0x00001000
+#define DPLAY_FLAG_RELIABLE 0x00002000
+#define DPLAY_FLAG_ORDER 0x00004000
+#define DPLAY_FLAG_OPT_LAT 0x00008000
+#define DPLAY_FLAG_ACQ_VOICE 0x00010000
+#define DPLAY_FLAG_NO_SESS_DESC_CHANGES 0x00020000
 
 /* Session description structure fields */
 static int hf_dplay_sess_desc_length = -1;
@@ -122,10 +122,10 @@ static int hf_dplay_pp_sp_data = -1;
 static int hf_dplay_pp_player_data = -1;
 static int hf_dplay_pp_player_id = -1;
 static int hf_dplay_pp_parent_id = -1;
-#define DPLAY_PP_FLAG_SYSPLAYER 0x01
-#define DPLAY_PP_FLAG_NAMESERVER 0x02
-#define DPLAY_PP_FLAG_IN_GROUP 0x04
-#define DPLAY_PP_FLAG_SENDING 0x08
+#define DPLAY_PP_FLAG_SYSPLAYER 0x00000001
+#define DPLAY_PP_FLAG_NAMESERVER 0x00000002
+#define DPLAY_PP_FLAG_IN_GROUP 0x00000004
+#define DPLAY_PP_FLAG_SENDING 0x00000008
 
 /* SuperPackedPlayer structure fields */
 static int hf_dplay_spp_size = -1;
@@ -156,10 +156,10 @@ static int hf_dplay_spp_player_id = -1;
 static int hf_dplay_spp_parent_id = -1;
 static int hf_dplay_spp_shortcut_count = -1;
 static int hf_dplay_spp_shortcut_id = -1;
-#define DPLAY_SPP_FLAG_SYSPLAYER 0x01
-#define DPLAY_SPP_FLAG_NAMESERVER 0x02
-#define DPLAY_SPP_FLAG_IN_GROUP 0x04
-#define DPLAY_SPP_FLAG_SENDING 0x08
+#define DPLAY_SPP_FLAG_SYSPLAYER 0x00000001
+#define DPLAY_SPP_FLAG_NAMESERVER 0x00000002
+#define DPLAY_SPP_FLAG_IN_GROUP 0x00000004
+#define DPLAY_SPP_FLAG_SENDING 0x00000008
 
 /* SecurityDesc structure fields */
 static int hf_dplay_sd_size = -1;
@@ -181,9 +181,9 @@ static int hf_dplay_type_02_password = -1;
 static int hf_enum_sess_flag_join = -1;
 static int hf_enum_sess_flag_all = -1;
 static int hf_enum_sess_flag_passwd = -1;
-#define DPLAY_ENUM_SESS_FLAG_JOIN 0x0001
-#define DPLAY_ENUM_SESS_FLAG_ALL 0x0002
-#define DPLAY_ENUM_SESS_FLAG_PASSWD 0x0040
+#define DPLAY_ENUM_SESS_FLAG_JOIN 0x00000001
+#define DPLAY_ENUM_SESS_FLAG_ALL 0x00000002
+#define DPLAY_ENUM_SESS_FLAG_PASSWD 0x00000040
 
 /* Message Type 0x0005 data fields */
 static int hf_dplay_type_05_flags = -1;
@@ -192,11 +192,11 @@ static int hf_dplay_type_05_name_server = -1;
 static int hf_dplay_type_05_local = -1;
 static int hf_dplay_type_05_unknown = -1; /* unknown, but always set */
 static int hf_dplay_type_05_secure = -1;
-#define DPLAY_TYPE05_FLAG_SYSPLAYER 0x001
-#define DPLAY_TYPE05_FLAG_NAMESERVER 0x002
-#define DPLAY_TYPE05_FLAG_LOCAL 0x004
-#define DPLAY_TYPE05_FLAG_UNKNOWN 0x008
-#define DPLAY_TYPE05_FLAG_SECURE 0x200
+#define DPLAY_TYPE05_FLAG_SYSPLAYER 0x00000001
+#define DPLAY_TYPE05_FLAG_NAMESERVER 0x00000002
+#define DPLAY_TYPE05_FLAG_LOCAL 0x00000004
+#define DPLAY_TYPE05_FLAG_UNKNOWN 0x00000008
+#define DPLAY_TYPE05_FLAG_SECURE 0x00000200
 
 /* Message Type 0x0007 data fields */
 static int hf_dplay_type_07_dpid = -1;

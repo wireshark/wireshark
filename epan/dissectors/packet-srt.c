@@ -739,6 +739,21 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
             }
         }
         break;
+    case UMSG_DROPREQ:
+        {
+            guint len = tvb_reported_length(tvb);
+            if (len > (4 + 0) * 4)
+            {
+                guint lo = tvb_get_ntohl(tvb, (4 + 0) * 4);
+                guint hi = tvb_get_ntohl(tvb, (4 + 1) * 4);
+
+                proto_tree_add_expert_format(tree, pinfo, &ei_srt_nak_seqno,
+                        tvb, 16, 8, "Drop sequence range: %u-%u",
+                        lo, hi);
+                proto_item_set_len(srt_item, (gint) len);
+            }
+        }
+        break;
     case UMSG_LOSSREPORT:
         {
             guint len = tvb_reported_length(tvb);

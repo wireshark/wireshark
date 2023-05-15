@@ -1,56 +1,139 @@
--- WS Modified UmtsHI2Operations just containing the imported defines
---
-UmtsHI2Operations {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi2(1) r8(8) version-1(1)}
+--- WS Modified UmtsHI2Operations just containing the imported defines
+---
 
+UmtsHI2Operations {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2)
+threeGPP(4) hi2(1) r16 (16) version-1 (1)}
 DEFINITIONS IMPLICIT TAGS ::=
-
 BEGIN
+IMPORTS
+ LawfulInterceptionIdentifier,
+ TimeStamp,
+ Network-Identifier,
+ National-Parameters,
+ National-HI2-ASN1parameters,
+ DataNodeAddress,
+ IPAddress,
+ IP-value,
+ X25Address
+ FROM HI2Operations
+ {itu-t(0) identified-organization(4) etsi(0) securityDomain(2)
+ lawfulIntercept(2) hi2(1) version18(18)}; -- Imported from TS 101 671 v3.14.1
 
-UmtsQos ::= CHOICE
+CivicAddress ::= CHOICE {
+ detailedCivicAddress SET OF DetailedCivicAddress,
+ xmlCivicAddress XmlCivicAddress,
+ ...
+}
+XmlCivicAddress ::= UTF8String
+ -- Must conform to the February 2008 version of the XML format on the representation of
+ -- civic location described in IETF RFC 5139[72].
+DetailedCivicAddress ::= SEQUENCE {
+ building [1] UTF8String OPTIONAL,
+ -- Building (structure), for example Hope Theatre
+ room [2] UTF8String OPTIONAL,
+ -- Unit (apartment, suite), for example 12a
+ placeType [3] UTF8String OPTIONAL,
+ -- Place-type, for example office
+ postalCommunityName [4] UTF8String OPTIONAL,
+ -- Postal Community Name, for example Leonia
+ additionalCode [5] UTF8String OPTIONAL,
+ -- Additional Code, for example 13203000003
+ seat [6] UTF8String OPTIONAL,
+ -- Seat, desk, or cubicle, workstation, for example WS 181
+ primaryRoad [7] UTF8String OPTIONAL,
+ -- RD is the primary road name, for example Broadway
+ primaryRoadDirection [8] UTF8String OPTIONAL,
+ -- PRD is the leading road direction, for example N or North
+ trailingStreetSuffix [9] UTF8String OPTIONAL,
+ -- POD or trailing street suffix, for example SW or South West
+ streetSuffix [10] UTF8String OPTIONAL,
+ -- Street suffix or type, for example Avenue or Platz or Road
+ houseNumber [11] UTF8String OPTIONAL,
+ -- House number, for example 123
+ houseNumberSuffix [12] UTF8String OPTIONAL,
+ -- House number suffix, for example A or Ter
+ landmarkAddress [13] UTF8String OPTIONAL,
+ -- Landmark or vanity address, for example Columbia University
+ additionalLocation [114] UTF8String OPTIONAL,
+ -- Additional location, for example South Wing
+ name [15] UTF8String OPTIONAL,
+ -- Residence and office occupant, for example Joe's Barbershop
+ floor [16] UTF8String OPTIONAL,
+ -- Floor, for example 4th floor
+ primaryStreet [17] UTF8String OPTIONAL,
+ -- Primary street name, for example Broadway
+ primaryStreetDirection [18] UTF8String OPTIONAL,
+ -- PSD is the leading street direction, for example N or North
+ roadSection [19] UTF8String OPTIONAL,
+ -- Road section, for example 14
+ roadBranch [20] UTF8String OPTIONAL,
+ -- Road branch, for example Lane 7
+ roadSubBranch [21] UTF8String OPTIONAL,
+ -- Road sub-branch, for example Alley 8
+ roadPreModifier [22] UTF8String OPTIONAL,
+ -- Road pre-modifier, for example Old
+ roadPostModifier [23] UTF8String OPTIONAL,
+ -- Road post-modifier, for example Extended
+ postalCode [24]UTF8String OPTIONAL,
+ -- Postal/zip code, for example 10027-1234
+ town [25] UTF8String OPTIONAL,
+ county [26] UTF8String OPTIONAL,
+ -- An administrative sub-section, often defined in ISO.3166-2[74] International
+ -- Organization for Standardization, "Codes for the representation of names of
+ -- countries and their subdivisions - Part 2: Country subdivision code"
+ country [27] UTF8String,
+ -- Defined in ISO.3166-1 [39] International Organization for Standardization, "Codes for
+ -- the representation of names of countries and their subdivisions - Part 1: Country
+ -- codes". Such definition is not optional in case of civic address. It is the
+ -- minimum information needed to qualify and describe a civic address, when a
+ -- regulation of a specific country requires such information
+ language [28] UTF8String,
+ -- Language defined in the IANA registry according to the assignments found
+ -- in the standard ISO 639 Part 1, "ISO 639-1:2002[75], Codes for the representation of
+ -- names of languages - Part 1: Alpha-2 code" or using assignments subsequently made
+ -- by the ISO 639 Part 1 maintenance agency
+ ...
+}
+
+-- LALS extended location parameters are mapped from the MLP pos element parameters
+-- and attributes defined in [88]. For details see specific [88] clauses refered below.
+ExtendedLocParameters ::= SEQUENCE
 {
-	qosMobileRadio [1] OCTET STRING,
-		-- The qosMobileRadio parameter shall be coded in accordance with the S 10.5.6.5 of
-		-- document [9] without the Quality of service IEI and Length of
-		-- quality of service IE (. That is, first
-		-- two octets carrying 'Quality of service IEI' and 'Length of quality of service
- 		-- IE' shall be excluded).
-	qosGn [2] OCTET STRING
-		-- qosGn parameter shall be coded in accordance with S 7.7.34 of document [17]
+ posMethod [0] PrintableString OPTIONAL, -- clause 5.3.93.1
+ mapData [1] -- clause 5.2.2.3
+ CHOICE {base64Map [0] PrintableString, -- clause 5.3.12
+ url [1] PrintableString -- clause 5.3.138
+ } OPTIONAL,
+ altitude [2]
+ SEQUENCE {alt PrintableString, -- clause 5.3.5
+ alt-uncertainty PrintableString OPTIONAL -- clause 5.3.7
+ } OPTIONAL,
+ speed [3] PrintableString OPTIONAL, -- clause 5.3.119
+ direction [4] PrintableString OPTIONAL, -- clause 5.3.26
+ level-conf [5] PrintableString OPTIONAL, -- clause 5.3.24
+ qOS-not-met [6] BOOLEAN OPTIONAL, -- clause 5.3.97
+ motionStateList [7] -- clause 5.2.2.3
+ SEQUENCE {primaryMotionState [0] PrintableString, -- clause 5.3.69
+ secondaryMotionState [1] SEQUENCE OF PrintableString OPTIONAL,
+ confidence [2] PrintableString -- clause 5.3.24
+ } OPTIONAL,
+ floor [8]
+ SEQUENCE {floor-number PrintableString, -- clause 5.3.39
+ floor-number-uncertainty PrintableString OPTIONAL
+ -- clause 5.3.40
+ } OPTIONAL,
+ additional-info [9] PrintableString OPTIONAL, -- clause 5.3.1
+-- The following parameter contains a copy of the unparsed XML code of
+-- MLP response message, i.e. the entire XML document containing
+-- a <slia> (described in [88], clause 5.2.3.2.2) or
+-- a <slirep> (described in [88], clause 5.2.3.2.3) MLP message.
+-- This parameter is present when the LI-LCS client cannot fully map
+-- the MLP response message into an ASN.1 Location object.
+
+ lALS-rawMLPPosData [10] UTF8String OPTIONAL,
+ ...
 }
+LocationErrorCode ::= INTEGER (1..699)
+-- LALS location error codes are the OMA MLP result identifiers defined in [88], Clause 5.4
 
-IMSevent ::= ENUMERATED
-{
-	unfilteredSIPmessage (1),
-		-- This value indicates to LEMF that the whole SIP message is sent.
-
-	...,
-	sIPheaderOnly (2)
-		-- If warrant requires only IRI then specific content in a 'sIPMessage'
-		-- (e.g. 'Message', etc.) has been deleted before sending it to LEMF.
-}
-
-LDIevent ::= ENUMERATED
-{
-	targetEntersIA 			(1),
-	targetLeavesIA			(2),
-	...
-}
-
-CorrelationValues ::= CHOICE {
-
-		iri-to-CC 	[0]		IRI-to-CC-Correlation, -- correlates IRI to Content(s)
-		iri-to-iri	[1]		IRI-to-IRI-Correlation, -- correlates IRI to IRI
-		both-IRI-CC	[2]		SEQUENCE { -- correlates IRI to IRI and IRI to Content(s)
-								iri-CC	[0]	IRI-to-CC-Correlation,
-								iri-IRI	[1]	IRI-to-IRI-Correlation}
-}
-
-
-IRI-to-CC-Correlation ::= SEQUENCE { -- correlates IRI to Content
-			cc 		[0] SET OF 	OCTET STRING,-- correlates IRI to multiple CCs
-			iri 	[1] 		OCTET STRING OPTIONAL
-									-- correlates IRI to CC with signaling
-}
-IRI-to-IRI-Correlation ::= OCTET STRING -- correlates IRI to IRI
-
-END -- OF UmtsHI2Operations
+END -- OF UmtsHI2Operations 

@@ -94,7 +94,9 @@ ADDITIONAL_LIST="libcap-devel \
 	libxml2-devel \
 	perl \
 	spandsp-devel \
-	systemd-devel"
+	systemd-devel \
+	python3-pytest \
+	python3-pytest-xdist"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
 # ADDITIONAL_LIST="$ADDITIONAL_LIST \
@@ -316,6 +318,9 @@ echo "Optional package sbc-devel is unavailable"
 
 add_package ADDITIONAL_LIST libsmi-devel ||
 echo "Optional package libsmi-devel is unavailable"
+
+add_package ADDITIONAL_LIST opencore-amr-devel ||
+echo "Optional package opencore-amr-devel is unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 

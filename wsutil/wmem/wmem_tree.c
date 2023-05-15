@@ -501,6 +501,10 @@ wmem_tree_insert32(wmem_tree_t *tree, guint32 key, void *data)
 
 gboolean wmem_tree_contains32(wmem_tree_t *tree, guint32 key)
 {
+    if (!tree) {
+        return FALSE;
+    }
+
     wmem_tree_node_t *node = tree->root;
 
     while (node) {
@@ -521,6 +525,10 @@ gboolean wmem_tree_contains32(wmem_tree_t *tree, guint32 key)
 void *
 wmem_tree_lookup32(wmem_tree_t *tree, guint32 key)
 {
+    if (!tree) {
+        return NULL;
+    }
+
     wmem_tree_node_t *node = tree->root;
 
     while (node) {
@@ -541,6 +549,10 @@ wmem_tree_lookup32(wmem_tree_t *tree, guint32 key)
 void *
 wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
 {
+    if (!tree) {
+        return NULL;
+    }
+
     wmem_tree_node_t *node = tree->root;
 
     while (node) {

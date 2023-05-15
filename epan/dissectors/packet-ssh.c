@@ -215,6 +215,11 @@ struct ssh_flow_data {
     ssh_channel_info_t *channel_info;
 };
 
+typedef struct {
+    gchar      *type;
+    ssh_bignum *key_material;
+} ssh_key_map_entry_t;
+
 static GHashTable * ssh_master_key_map = NULL;
 
 static int proto_ssh = -1;
@@ -1918,6 +1923,7 @@ ssh_keylog_read_file(void)
     if (ssh_keylog_file && file_needs_reopen(ws_fileno(ssh_keylog_file),
                 pref_keylog_file)) {
         ssh_keylog_reset();
+        g_hash_table_remove_all(ssh_master_key_map);
     }
 
     if (!ssh_keylog_file) {
@@ -1929,10 +1935,13 @@ ssh_keylog_read_file(void)
         }
     }
 
-    /* File format: each line follows the format "<cookie> <key>".
+    /* File format: each line follows the format "<cookie> <type> <key>".
      * <cookie> is the hex-encoded (client or server) 16 bytes cookie
      * (32 characters) found in the SSH_MSG_KEXINIT of the endpoint whose
      * private random is disclosed.
+     * <type> is either SHARED_SECRET or PRIVATE_KEY depending on the
+     * type of key provided. PRIVAT_KEY is only supported for DH,
+     * DH group exchange, and ECDH (including Curve25519) key exchanges.
      * <key> is the private random number that is used to generate the DH
      * negotiation (length depends on algorithm). In RFC4253 it is called
      * x for the client and y for the server.
@@ -1941,10 +1950,11 @@ ssh_keylog_read_file(void)
      * for groupN in file kexdh.c function kex_dh_compute_key
      * for custom group in file kexgexs.c function input_kex_dh_gex_init
      * For openssh and curve25519, it can be found in function kex_c25519_enc
-     * in variable server_key.
+     * in variable server_key. One may also provide the shared secret
+     * directly if <type> is set to SHARED_SECRET.
      *
      * Example:
-     *  90d886612f9c35903db5bb30d11f23c2 DEF830C22F6C927E31972FFB20B46C96D0A5F2D5E7BE5A3A8804D6BFC431619ED10AF589EEDFF4750DEA00EFD7AFDB814B6F3528729692B1F2482041521AE9DC
+     *  90d886612f9c35903db5bb30d11f23c2 PRIVATE_KEY DEF830C22F6C927E31972FFB20B46C96D0A5F2D5E7BE5A3A8804D6BFC431619ED10AF589EEDFF4750DEA00EFD7AFDB814B6F3528729692B1F2482041521AE9DC
      */
     for (;;) {
         char buf[512];
@@ -1954,6 +1964,7 @@ ssh_keylog_read_file(void)
             if (ferror(ssh_keylog_file)) {
                 ws_debug("Error while reading %s, closing it.", pref_keylog_file);
                 ssh_keylog_reset();
+                g_hash_table_remove_all(ssh_master_key_map);
             }
             break;
         }
@@ -1998,19 +2009,26 @@ ssh_keylog_process_line(const char *line)
 {
     ws_noisy("ssh: process line: %s", line);
 
-    gchar **split = g_strsplit(line, " ", 2);
-    gchar *cookie, *key;
+    gchar **split = g_strsplit(line, " ", 3);
+    gchar *cookie, *type, *key;
     size_t cookie_len, key_len;
 
-    if (g_strv_length(split) != 2) {
+    if (g_strv_length(split) == 3) {
+        // New format: [hex-encoded cookie] [key type] [hex-encoded key material]
+        cookie = split[0];
+        type = split[1];
+        key = split[2];
+    } else if (g_strv_length(split) == 2) {
+        // Old format: [hex-encoded cookie] [hex-encoded private key]
+        ws_debug("ssh keylog: detected old keylog format without explicit key type");
+        type = "PRIVATE_KEY";
+        cookie = split[0];
+        key = split[1];
+    } else {
         ws_debug("ssh keylog: invalid format");
         g_strfreev(split);
         return;
     }
-
-// [cookie of corresponding key] [key]
-    cookie = split[0];
-    key = split[1];
 
     key_len = strlen(key);
     cookie_len = strlen(cookie);
@@ -2043,7 +2061,6 @@ ssh_keylog_process_line(const char *line)
 
         bn_priv->data[i] = c;
     }
-
     for (size_t i = 0; i < cookie_len/2; i ++) {
         gchar v0 = cookie[i * 2];
         gint8 h0 = (v0>='0' && v0<='9')?v0-'0':(v0>='a' && v0<='f')?v0-'a'+10:(v0>='A' && v0<='F')?v0-'A'+10:-1;
@@ -2060,8 +2077,18 @@ ssh_keylog_process_line(const char *line)
 
         bn_cookie->data[i] = c;
     }
+    ssh_bignum * bn_priv_ht = g_new(ssh_bignum, 1);
+    bn_priv_ht->length = bn_priv->length;
+    bn_priv_ht->data = (guint8 *) g_memdup2(bn_priv->data, bn_priv->length);
+    ssh_bignum * bn_cookie_ht = g_new(ssh_bignum, 1);
+    bn_cookie_ht->length = bn_cookie->length;
+    bn_cookie_ht->data = (guint8 *) g_memdup2(bn_cookie->data, bn_cookie->length);
 
-    g_hash_table_insert(ssh_master_key_map, bn_cookie, bn_priv);
+    gchar * type_ht = (gchar *) g_memdup2(type, strlen(type) + 1);
+    ssh_key_map_entry_t * entry_ht = g_new(ssh_key_map_entry_t, 1);
+    entry_ht->type = type_ht;
+    entry_ht->key_material = bn_priv_ht;
+    g_hash_table_insert(ssh_master_key_map, bn_cookie_ht, entry_ht);
     g_strfreev(split);
 }
 
@@ -2187,26 +2214,43 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
      */
 
     gcry_md_hd_t hd;
-    ssh_bignum *secret = NULL, *priv;
+    ssh_key_map_entry_t *entry;
+    ssh_bignum *secret = NULL;
     int length;
+    gboolean client_cookie = FALSE;
 
     ssh_keylog_read_file();
 
     guint kex_type = ssh_kex_type(global_data->kex);
     guint kex_hash_type = ssh_kex_hash_type(global_data->kex);
 
-    priv = (ssh_bignum *)g_hash_table_lookup(ssh_master_key_map, global_data->peer_data[SERVER_PEER_DATA].bn_cookie);
-    if(priv){
-        secret = ssh_kex_shared_secret(kex_type, global_data->kex_e, priv, global_data->kex_gex_p);
-    }else{
-        priv = (ssh_bignum *)g_hash_table_lookup(ssh_master_key_map, global_data->peer_data[CLIENT_PEER_DATA].bn_cookie);
-        if(priv){
-            secret = ssh_kex_shared_secret(kex_type, global_data->kex_f, priv, global_data->kex_gex_p);
+    entry = (ssh_key_map_entry_t *)g_hash_table_lookup(ssh_master_key_map, global_data->peer_data[SERVER_PEER_DATA].bn_cookie);
+    if (!entry) {
+        entry = (ssh_key_map_entry_t *)g_hash_table_lookup(ssh_master_key_map, global_data->peer_data[CLIENT_PEER_DATA].bn_cookie);
+        client_cookie = TRUE;
+    }
+    if (!entry) {
+        ws_debug("ssh decryption: no entry in keylog file for this session");
+        global_data->do_decrypt = FALSE;
+        return;
+    }
+
+    if (!strcmp(entry->type, "PRIVATE_KEY")) {
+        if (client_cookie) {
+            secret = ssh_kex_shared_secret(kex_type, global_data->kex_f, entry->key_material, global_data->kex_gex_p);
+        } else {
+            secret = ssh_kex_shared_secret(kex_type, global_data->kex_e, entry->key_material, global_data->kex_gex_p);
         }
+    } else if (!strcmp(entry->type, "SHARED_SECRET")) {
+        secret = ssh_kex_make_bignum(entry->key_material->data, entry->key_material->length);
+    } else {
+        ws_debug("ssh decryption: unknown key type in keylog file");
+        global_data->do_decrypt = FALSE;
+        return;
     }
 
     if (!secret) {
-        ws_debug("ssh decryption: no private key for this session");
+        ws_debug("ssh decryption: no key material for this session");
         global_data->do_decrypt = FALSE;
         return;
     }
@@ -4066,7 +4110,39 @@ ssh_hash  (gconstpointer v)
 
     return hash;
 }
+
+static void
+ssh_free_glib_allocated_bignum(gpointer data)
+{
+    ssh_bignum * bignum;
+    if (data == NULL) {
+        return;
+    }
+
+    bignum = (ssh_bignum *) data;
+    g_free(bignum->data);
+    g_free(bignum);
+}
+
+static void
+ssh_free_glib_allocated_entry(gpointer data)
+{
+    ssh_key_map_entry_t * entry;
+    if (data == NULL) {
+        return;
+    }
+
+    entry = (ssh_key_map_entry_t *) data;
+    g_free(entry->type);
+    ssh_free_glib_allocated_bignum(entry->key_material);
+    g_free(entry);
+}
 /* Functions for SSH random hashtables. }}} */
+
+static void
+ssh_shutdown(void) {
+    g_hash_table_destroy(ssh_master_key_map);
+}
 
 void
 proto_register_ssh(void)
@@ -4782,10 +4858,10 @@ proto_register_ssh(void)
                        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                        &ssh_desegment);
 
-    ssh_master_key_map = g_hash_table_new(ssh_hash, ssh_equal);
+    ssh_master_key_map = g_hash_table_new_full(ssh_hash, ssh_equal, ssh_free_glib_allocated_bignum, ssh_free_glib_allocated_entry);
     prefs_register_filename_preference(ssh_module, "keylog_file", "Key log filename",
             "The path to the file which contains a list of key exchange secrets in the following format:\n"
-            "\"<hex-encoded-cookie> <hex-encoded-key>\" (without quotes or leading spaces).\n",
+            "\"<hex-encoded-cookie> <PRIVATE_KEY|SHARED_SECRET> <hex-encoded-key>\" (without quotes or leading spaces).\n",
             &pref_keylog_file, FALSE);
 
     prefs_register_filename_preference(ssh_module, "debug_file", "SSH debug file",
@@ -4796,6 +4872,7 @@ proto_register_ssh(void)
     secrets_register_type(SECRETS_TYPE_SSH, ssh_secrets_block_callback);
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
+    register_shutdown_routine(ssh_shutdown);
 }
 
 void

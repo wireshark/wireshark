@@ -10,8 +10,8 @@
 #ifndef _DFILTER_MACRO_H
 #define _DFILTER_MACRO_H
 
-#include "ws_symbol_export.h"
-
+#include <wireshark.h>
+#include "dfilter.h"
 
 #define DFILTER_MACRO_FILENAME "dfilter_macros"
 
@@ -30,7 +30,7 @@ typedef struct _dfilter_macro_t {
 } dfilter_macro_t;
 
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
-gchar* dfilter_macro_apply(const gchar* text, gchar** error);
+gchar* dfilter_macro_apply(const gchar* text, df_error_t** error);
 
 void dfilter_macro_init(void);
 

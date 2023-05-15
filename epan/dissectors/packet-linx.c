@@ -241,12 +241,6 @@ static const value_string linx_rlnh_reply[] = {
 	{ 0, NULL}
 };
 
-static const value_string linx_boolean[] = {
-	{ 0, "No"},
-	{ 1, "Yes"},
-	{ 0,	NULL}
-};
-
 static const value_string linx_nofragment[] = {
 	{ 0x7fff, "No Fragment"},
 	{ 0,	NULL}
@@ -663,7 +657,7 @@ proto_register_linx(void)
 			{ "Connection", "linx.connection", FT_UINT32, BASE_DEC, NULL, 0x007f8000, NULL, HFILL },
 		},
 		{ &hf_linx_main_bundle, /* in ETHCM_MAIN */
-			{ "Bundle", "linx.bundle", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00004000, NULL, HFILL },
+			{ "Bundle", "linx.bundle", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00004000, NULL, HFILL },
 		},
 		{ &hf_linx_main_pkgsize, /* in ETHCM_MAIN */
 			{ "Package Size", "linx.pcksize", FT_UINT32, BASE_DEC, NULL, 0x00003fff, NULL, HFILL },
@@ -672,7 +666,7 @@ proto_register_linx(void)
 			{ "Reserved", "linx.reserved5", FT_UINT32, BASE_DEC, NULL, 0x0fff0000, "Udata Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_udata_morefrags, /* in ETHCM_UDATA */
-			{ "More Fragments", "linx.morefra", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00008000, "More fragments follow", HFILL },
+			{ "More Fragments", "linx.morefra", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00008000, "More fragments follow", HFILL },
 		},
 		{ &hf_linx_udata_fragno, /* in ETHCM_UDATA */
 			{ "Fragment Number", "linx.fragno", FT_UINT32, BASE_DEC, VALS(linx_nofragment), 0x00007fff, NULL, HFILL },
@@ -696,7 +690,7 @@ proto_register_linx(void)
 			{ "Payload", "linx.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_linx_ack_request, /* in ETHCM_ACK */
-			{ "ACK-request", "linx.ackreq", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x08000000, NULL, HFILL },
+			{ "ACK-request", "linx.ackreq", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x08000000, NULL, HFILL },
 		},
 		{ &hf_linx_ack_reserved, /* in ETHCM_ACK */
 			{ "Reserved", "linx.reserved7", FT_UINT32, BASE_DEC, NULL, 0x07000000, "ACK Hdr Reserved", HFILL },
@@ -735,7 +729,7 @@ proto_register_linx(void)
 			{ "Reserved", "linx.reserved6", FT_UINT32, BASE_DEC, NULL, 0x0fff0000, "Frag Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_frag_morefrags, /* in ETHCM_FRAG */
-			{ "More Fragments", "linx.morefr2", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00008000, NULL, HFILL },
+			{ "More Fragments", "linx.morefr2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00008000, NULL, HFILL },
 		},
 		{ &hf_linx_frag_fragno, /* in ETHCM_FRAG */
 			{ "Fragment Number", "linx.fragno2", FT_UINT32, BASE_DEC, NULL, 0x00007fff, NULL, HFILL },

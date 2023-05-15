@@ -359,7 +359,7 @@ void PacketList::colorsChanged()
     }
 
     // Set the style sheet
-    if(prefs.gui_qt_packet_list_hover_style) {
+    if(prefs.gui_packet_list_hover_style) {
         setStyleSheet(active_style + inactive_style + hover_style);
     } else {
         setStyleSheet(active_style + inactive_style);
@@ -394,7 +394,7 @@ void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option,
 {
     QTreeView::drawRow(painter, option, index);
 
-    if (prefs.gui_qt_packet_list_separator) {
+    if (prefs.gui_packet_list_separator) {
         QRect rect = visualRect(index);
 
         painter->setPen(QColor(Qt::white));

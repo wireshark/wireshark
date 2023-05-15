@@ -2075,7 +2075,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
-  col_set_str(pinfo->cinfo, COL_INFO, "");
+  col_clear(pinfo->cinfo, COL_INFO);
 
   while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {

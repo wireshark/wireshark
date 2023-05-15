@@ -92,7 +92,7 @@ def compare_capinfos_info(self, cii1, cii2, filename1, filename2):
         self.fail('text2pcap output file differs from input file.')
 
 @fixtures.fixture
-def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
+def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file, result_file):
     def check_text2pcap_real(self, cap_filename, file_type, expected_packets=None, expected_datasize=None):
         # Perform the following actions
         # - Get information for the input pcap file with capinfos
@@ -119,7 +119,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
 
         # text2pcap_generate_input()
         # $TSHARK -o 'gui.column.format:"Time","%t"' -tad -P -x -r $1 > testin.txt
-        testin_file = self.filename_from_id(testin_txt)
+        testin_file = result_file(testin_txt)
         tshark_cmd = '{cmd} -r {cf} -o gui.column.format:"Time","%t" -t ad -P --hexdump frames > {of}'.format(
             cmd = cmd_tshark,
             cf = cap_file,
@@ -128,7 +128,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
         self.assertRun(tshark_cmd, shell=True)
 
         testout_fname = file_type_to_testout[file_type]
-        testout_file = self.filename_from_id(testout_fname)
+        testout_file = result_file(testout_fname)
         # The first word is the file type (the rest might be compression info)
         filetype_flag = pre_cap_info['filetype'].split()[0]
         # We want the -a flag, because the tshark -x format is a hex+ASCII
@@ -263,10 +263,10 @@ def check_rawip(run_text2pcap_capinfos_tshark, request):
 @fixtures.mark_usefixtures('base_env')
 @fixtures.uses_fixtures
 class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
-    def test_text2pcap_eol_hash(self, cmd_text2pcap, capture_file):
+    def test_text2pcap_eol_hash(self, cmd_text2pcap, capture_file, result_file):
         '''Test text2pcap hash sign at the end-of-line.'''
         txt_fname = 'text2pcap_hash_eol.txt'
-        testout_file = self.filename_from_id(testout_pcap)
+        testout_file = result_file(testout_pcap)
         self.assertRun((cmd_text2pcap,
             '-F', 'pcapng',
             '-t', '%Y-%m-%d %H:%M:%S.',
@@ -338,11 +338,11 @@ class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
 
 
 @fixtures.fixture
-def run_text2pcap_capinfos_tshark(cmd_text2pcap, cmd_tshark, request):
+def run_text2pcap_capinfos_tshark(cmd_text2pcap, cmd_tshark, request, result_file):
     def run_text2pcap_capinfos_tshark_real(content, args):
         test = request.instance
-        testin_file = test.filename_from_id(testin_txt)
-        testout_file = test.filename_from_id(testout_pcap)
+        testin_file = result_file(testin_txt)
+        testout_file = result_file(testout_pcap)
 
         with open(testin_file, "w") as f:
             f.write(content)
@@ -442,7 +442,7 @@ class case_text2pcap_ipv4(subprocesstest.SubprocessTestCase):
 
 
 @fixtures.fixture
-def run_text2pcap_ipv6(cmd_tshark, run_text2pcap_capinfos_tshark, request):
+def run_text2pcap_ipv6(cmd_tshark, run_text2pcap_capinfos_tshark, request, result_file):
     self = request.instance
     def run_text2pcap_ipv6_real(content, text2pcap_args, tshark_args = ()):
         #Run the common text2pcap tests
@@ -451,7 +451,7 @@ def run_text2pcap_ipv6(cmd_tshark, run_text2pcap_capinfos_tshark, request):
 
         #Decode the output pcap in JSON format
         self.assertRun((cmd_tshark, '-T', 'json',
-            '-r', self.filename_from_id(testout_pcap)) + tshark_args)
+            '-r', result_file(testout_pcap)) + tshark_args)
         data = json.loads(self.processes[-1].stdout_str)
 
         #Add IPv6 payload length and payload length tree to the result dict
@@ -554,10 +554,10 @@ class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
 @fixtures.uses_fixtures
 class case_text2pcap_other_options(subprocesstest.SubprocessTestCase):
     '''Test other command line options'''
-    def test_text2pcap_option_N(self, cmd_text2pcap, cmd_tshark, capture_file):
+    def test_text2pcap_option_N(self, cmd_text2pcap, cmd_tshark, capture_file, result_file):
         '''Test -N <intf-name> option'''
-        testin_file = self.filename_from_id(testin_txt)
-        testout_file = self.filename_from_id(testout_pcapng)
+        testin_file = result_file(testin_txt)
+        testout_file = result_file(testout_pcapng)
 
         with open(testin_file, 'w') as f:
             f.write("0000 00\n")

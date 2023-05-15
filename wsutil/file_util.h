@@ -145,15 +145,13 @@ gboolean ws_init_dll_search_path(void);
 WS_DLL_PUBLIC
 void *ws_load_library(const gchar *library_name);
 
-/** Load a DLL using g_module_open.
+/** Load wpcap.dll using g_module_open.
  * Only the system and program directories are searched.
  *
- * @param module_name The name of the DLL.
- * @param flags Flags to be passed to g_module_open.
  * @return A handle to the DLL if found, NULL on failure.
  */
 WS_DLL_PUBLIC
-GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
+GModule *load_wpcap_module(void);
 
 /** Create or open a "Wireshark is running" mutex.
  * Create or open a mutex which signals that Wireshark or its associated

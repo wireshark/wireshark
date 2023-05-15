@@ -121,130 +121,178 @@ import "nspi.idl";
   */
   typedef [public, enum8bit, flag(NDR_PAHEX)] enum
     {
-      op_MAPI_Release       = 0x1,
-      op_MAPI_OpenFolder      = 0x2,
-      op_MAPI_OpenMessage     = 0x3,
-      op_MAPI_GetHierarchyTable   = 0x4,
-      op_MAPI_GetContentsTable    = 0x5,
-      op_MAPI_CreateMessage     = 0x6,
-      op_MAPI_GetProps      = 0x7,
-      op_MAPI_GetPropsAll     = 0x8,
-      op_MAPI_GetPropList     = 0x9,
-      op_MAPI_SetProps      = 0xa,
-      op_MAPI_DeleteProps     = 0xb,
-      op_MAPI_SaveChangesMessage    = 0xc,
-      op_MAPI_RemoveAllRecipients   = 0xd,
-      op_MAPI_ModifyRecipients    = 0xe,
-      op_MAPI_ReadRecipients      = 0xf,
-      op_MAPI_ReloadCachedInformation   = 0x10,
-      op_MAPI_SetMessageReadFlag    = 0x11,
-      op_MAPI_SetColumns      = 0x12,
-      op_MAPI_SortTable     = 0x13,
-      op_MAPI_Restrict      = 0x14,
-      op_MAPI_QueryRows     = 0x15,
-      op_MAPI_GetStatus     = 0x16,
-      op_MAPI_QueryPosition     = 0x17,
-      op_MAPI_SeekRow       = 0x18,
-      op_MAPI_SeekRowBookmark     = 0x19,
-      op_MAPI_SeekRowApprox     = 0x1a,
-      op_MAPI_CreateBookmark      = 0x1b,
-      op_MAPI_CreateFolder      = 0x1c,
-      op_MAPI_DeleteFolder      = 0x1d,
-      op_MAPI_DeleteMessages      = 0x1e,
-      op_MAPI_GetMessageStatus    = 0x1f,
-      op_MAPI_SetMessageStatus    = 0x20,
-      op_MAPI_GetAttachmentTable    = 0x21,
-      op_MAPI_OpenAttach      = 0x22,
-      op_MAPI_CreateAttach      = 0x23,
-      op_MAPI_DeleteAttach      = 0x24,
-      op_MAPI_SaveChangesAttachment     = 0x25,
-      op_MAPI_SetReceiveFolder    = 0x26,
-      op_MAPI_GetReceiveFolder    = 0x27,
-      op_MAPI_Advise      = 0x29,
-      op_MAPI_Notify        = 0x2a,
-      op_MAPI_OpenStream      = 0x2b,
-      op_MAPI_ReadStream      = 0x2c,
-      op_MAPI_WriteStream     = 0x2d,
-      op_MAPI_SeekStream      = 0x2e,
-      op_MAPI_SetStreamSize     = 0x2f,
-      op_MAPI_SetSearchCriteria   = 0x30,
-      op_MAPI_GetSearchCriteria   = 0x31,
-      op_MAPI_SubmitMessage     = 0x32,
-      op_MAPI_MoveCopyMessages    = 0x33,
-      op_MAPI_AbortSubmit     = 0x34,
-      op_MAPI_MoveFolder      = 0x35,
-      op_MAPI_CopyFolder      = 0x36,
-      op_MAPI_QueryColumnsAll     = 0x37,
-      op_MAPI_Abort       = 0x38,
-      op_MAPI_CopyTo        = 0x39,
-      op_MAPI_CopyToStream      = 0x3a,
-      op_MAPI_CloneStream     = 0x3b,
-      op_MAPI_GetPermissionsTable   = 0x3e,
-      op_MAPI_GetRulesTable     = 0x3f,
-      op_MAPI_ModifyPermissions   = 0x40,
-      op_MAPI_ModifyRules     = 0x41,
-      op_MAPI_GetOwningServers    = 0x42,
-      op_MAPI_LongTermIdFromId    = 0x43,
-      op_MAPI_IdFromLongTermId    = 0x44,
-      op_MAPI_PublicFolderIsGhosted   = 0x45,
-      op_MAPI_OpenEmbeddedMessage   = 0x46,
-      op_MAPI_SetSpooler      = 0x47,
-      op_MAPI_SpoolerLockMessage    = 0x48,
-      op_MAPI_AddressTypes      = 0x49,
-      op_MAPI_TransportSend     = 0x4a,
-      op_MAPI_FastTransferSourceGetBuffer = 0x4e,
-      op_MAPI_FindRow       = 0x4f,
-      op_MAPI_Progress      = 0x50,
-      op_MAPI_TransportNewMail    = 0x51,
-      op_MAPI_GetValidAttachments   = 0x52,
-      op_MAPI_GetNamesFromIDs     = 0x55,
-      op_MAPI_GetIDsFromNames     = 0x56,
-      op_MAPI_UpdateDeferredActionMessages  = 0x57,
-      op_MAPI_EmptyFolder     = 0x58,
-      op_MAPI_ExpandRow     = 0x59,
-      op_MAPI_CollapseRow     = 0x5a,
-      op_MAPI_LockRegionStream    = 0x5b,
-      op_MAPI_UnlockRegionStream    = 0x5c,
-      op_MAPI_CommitStream      = 0x5d,
-      op_MAPI_GetStreamSize     = 0x5e,
-      op_MAPI_QueryNamedProperties    = 0x5f,
-      op_MAPI_GetPerUserLongTermIds   = 0x60,
-      op_MAPI_GetPerUserGuid      = 0x61,
-      op_MAPI_ReadPerUserInformation    = 0x63,
-      op_MAPI_SetReadFlags      = 0x66,
-      op_MAPI_CopyProperties      = 0x67,
-      op_MAPI_GetReceiveFolderTable   = 0x68,
-      op_MAPI_GetCollapseState    = 0x6b,
-      op_MAPI_SetCollapseState    = 0x6c,
-      op_MAPI_GetTransportFolder    = 0x6d,
-      op_MAPI_Pending       = 0x6e,
-      op_MAPI_OptionsData     = 0x6f,
-      op_MAPI_SyncConfigure     = 0x70,
-      op_MAPI_SyncImportMessageChange   = 0x72,
-      op_MAPI_SyncImportHierarchyChange = 0x73,
-      op_MAPI_SyncImportDeletes   = 0x74,
-      op_MAPI_SyncUploadStateStreamBegin  = 0x75,
-      op_MAPI_SyncUploadStateStreamContinue = 0x76,
-      op_MAPI_SyncUploadStateStreamEnd  = 0x77,
-      op_MAPI_SyncImportMessageMove   = 0x78,
-      op_MAPI_SetPropertiesNoReplicate  = 0x79,
-      op_MAPI_DeletePropertiesNoReplicate = 0x7a,
-      op_MAPI_GetStoreState     = 0x7b,
-      op_MAPI_SyncOpenCollector   = 0x7e,
-      op_MAPI_GetLocalReplicaIds    = 0x7f,
-      op_MAPI_SyncImportReadStateChanges  = 0x80,
-      op_MAPI_ResetTable      = 0x81,
-      op_MAPI_SyncGetTransferState    = 0x82,
-      op_MAPI_OpenPublicFolderByName    = 0x87,
-      op_MAPI_SetSyncNotificationGuid   = 0x88,
-      op_MAPI_FreeBookmark      = 0x89,
-      op_MAPI_WriteAndCommitStream    = 0x90,
-      op_MAPI_HardDeleteMessages    = 0x91,
-      op_MAPI_HardDeleteMessagesAndSubfolders = 0x92,
-      op_MAPI_OpenMsgStore       = 0xfe,
-      /****** custom MAPI opnum for mapiproxy ******/
-      op_MAPI_proxypack     = 0xa5
-    } MAPI_OPNUM;
+      RopNone                                     = 0x00,
+      RopRelease                                  = 0x01,
+      RopOpenFolder                               = 0x02,
+      RopOpenMessage                              = 0x03,
+      RopGetHierarchyTable                        = 0x04,
+      RopGetContentsTable                         = 0x05,
+      RopCreateMessage                            = 0x06,
+      RopGetPropertiesSpecific                    = 0x07,
+      RopGetPropertiesAll                         = 0x08,
+      RopGetPropertiesList                        = 0x09,
+      RopSetProperties                            = 0x0a,
+      RopDeleteProperties                         = 0x0b,
+      RopSaveChangesMessage                       = 0x0c,
+      RopRemoveAllRecipients                      = 0x0d,
+      RopModifyRecipients                         = 0x0e,
+      RopReadRecipients                           = 0x0f,
+      RopReloadCachedInformation                  = 0x10,
+      RopSetMessageReadFlag                       = 0x11,
+      RopSetColumns                               = 0x12,
+      RopSortTable                                = 0x13,
+      RopRestrict                                 = 0x14,
+      RopQueryRows                                = 0x15,
+      RopGetStatus                                = 0x16,
+      RopQueryPosition                            = 0x17,
+      RopSeekRow                                  = 0x18,
+      RopSeekRowBookmark                          = 0x19,
+      RopSeekRowFractional                        = 0x1a,
+      RopCreateBookmark                           = 0x1b,
+      RopCreateFolder                             = 0x1c,
+      RopDeleteFolder                             = 0x1d,
+      RopDeleteMessages                           = 0x1e,
+      RopGetMessageStatus                         = 0x1f,
+      RopSetMessageStatus                         = 0x20,
+      RopGetAttachmentTable                       = 0x21,
+      RopOpenAttachment                           = 0x22,
+      RopCreateAttachment                         = 0x23,
+      RopDeleteAttachment                         = 0x24,
+      RopSaveChangesAttachment                    = 0x25,
+      RopSetReceiveFolder                         = 0x26,
+      RopGetReceiveFolder                         = 0x27,
+      RopSpoolerRules                             = 0x28,
+      RopRegisterNotification                     = 0x29,
+      RopNotify                                   = 0x2a,
+      RopOpenStream                               = 0x2b,
+      RopReadStream                               = 0x2c,
+      RopWriteStream                              = 0x2d,
+      RopSeekStream                               = 0x2e,
+      RopSetStreamSize                            = 0x2f,
+      RopSetSearchCriteria                        = 0x30,
+      RopGetSearchCriteria                        = 0x31,
+      RopSubmitMessage                            = 0x32,
+      RopMoveCopyMessages                         = 0x33,
+      RopAbortSubmit                              = 0x34,
+      RopMoveFolder                               = 0x35,
+      RopCopyFolder                               = 0x36,
+      RopQueryColumnsAll                          = 0x37,
+      RopAbort                                    = 0x38,
+      RopCopyTo                                   = 0x39,
+      RopCopyToStream                             = 0x3a,
+      RopCloneStream                              = 0x3b,
+      RopRegisterTableNotification                = 0x3c,
+      RopDeregisterTableNotification              = 0x3d,
+      RopGetPermissionsTable                      = 0x3e, /* RopGetACLTable */
+      RopGetRulesTable                            = 0x3f,
+      RopModifyPermissions                        = 0x40,
+      RopModifyRules                              = 0x41,
+      RopGetOwningServers                         = 0x42,
+      RopLongTermIdFromId                         = 0x43,
+      RopIdFromLongTermId                         = 0x44,
+      RopPublicFolderIsGhosted                    = 0x45,
+      RopOpenEmbeddedMessage                      = 0x46,
+      RopSetSpooler                               = 0x47,
+      RopSpoolerLockMessage                       = 0x48,
+      RopGetAddressTypes                          = 0x49,
+      RopTransportSend                            = 0x4a,
+      RopFastTransferSourceCopyMessages           = 0x4b, /* NEW */
+      RopFastTransferSourceCopyFolder             = 0x4c, /* NEW */
+      RopFastTransferSourceCopyTo                 = 0x4d, /* NEW */
+      RopFastTransferSourceGetBuffer              = 0x4e,
+      RopFindRow                                  = 0x4f,
+      RopProgress                                 = 0x50,
+      RopTransportNewMail                         = 0x51,
+      RopGetValidAttachments                      = 0x52,
+      RopFastTransferDestinationConfigure         = 0x53, /* NEW */
+      RopFastTransferDestinationPutBuffer         = 0x54, /* NEW */
+      RopGetNamesFromPropertyIds                  = 0x55,
+      RopGetPropertyIdsFromNames                  = 0x56,
+      RopUpdateDeferredActionMessages             = 0x57,
+      RopEmptyFolder                              = 0x58,
+      RopExpandRow                                = 0x59,
+      RopCollapseRow                              = 0x5a,
+      RopLockRegionStream                         = 0x5b,
+      RopUnlockRegionStream                       = 0x5c,
+      RopCommitStream                             = 0x5d,
+      RopGetStreamSize                            = 0x5e,
+      RopQueryNamedProperties                     = 0x5f,
+      RopGetPerUserLongTermIds                    = 0x60,
+      RopGetPerUserGuid                           = 0x61,
+      RopFlushPerUser                             = 0x62,
+      RopReadPerUserInformation                   = 0x63,
+      RopWritePerUserInformation                  = 0x64, /* NEW */
+      RopCacheCcnRead                             = 0x65,
+      RopSetReadFlags                             = 0x66,
+      RopCopyProperties                           = 0x67,
+      RopGetReceiveFolderTable                    = 0x68,
+      RopFastTransferSourceCopyProperties         = 0x69, /* NEW */
+      RopFastTransferDestinationCopyProperties    = 0x6a, /* NEW */
+      RopGetCollapseState                         = 0x6b,
+      RopSetCollapseState                         = 0x6c,
+      RopGetTransportFolder                       = 0x6d,
+      RopPending                                  = 0x6e,
+      RopOptionsData                              = 0x6f,
+      RopSynchronizationConfigure                 = 0x70,
+      RopIncrState                                = 0x71,
+      RopSynchronizationImportMessageChange       = 0x72,
+      RopSynchronizationImportHierarchyChange     = 0x73,
+      RopSynchronizationImportDeletes             = 0x74,
+      RopSynchronizationUploadStateStreamBegin    = 0x75,
+      RopSynchronizationUploadStateStreamContinue = 0x76,
+      RopSynchronizationUploadStateStreamEnd      = 0x77,
+      RopSynchronizationImportMessageMove         = 0x78,
+      RopSetPropertiesNoReplicate                 = 0x79,
+      RopDeletePropertiesNoReplicate              = 0x7a,
+      RopGetStoreState                            = 0x7b,
+      RopGetRights                                = 0x7c,
+      RopGetAllPerUserLtids                       = 0x7d,
+      RopSynchronizationOpenCollector             = 0x7e,
+      RopGetLocalReplicaIds                       = 0x7f,
+      RopSynchronizationImportReadStateChanges    = 0x80,
+      RopResetTable                               = 0x81,
+      RopSynchronizationGetTransferState          = 0x82,
+      RopOpenAdvisor                              = 0x83,
+      RopRegICSNotifs                             = 0x84,
+      RopOpenCStream                              = 0x85,
+      RopTellVersion                              = 0x86, /* NEW */
+      RopOpenPublicFolderByName                   = 0x87,
+      RopSetSyncNotificationGuid                  = 0x88,
+      RopFreeBookmark                             = 0x89,
+      RopWriteAndCommitStream                     = 0x90,
+      RopHardDeleteMessages                       = 0x91,
+      RopHardDeleteMessagesAndSubfolders          = 0x92,
+      RopSetLocalReplicaMidsetDeleted             = 0x93, /* NEW */
+      RopTransportDeliverMessage                  = 0x94,
+      RopTransportDoneWithMessage                 = 0x95,
+      RopIdFromLegacyDN                           = 0x96,
+      RopSetAuthenticatedContext                  = 0x97,
+      RopCopyToEx                                 = 0x98,
+      RopImportMsgChangePartial                   = 0x99,
+      RopSetMessageFlags                          = 0x9a,
+      RopMoveCopyMessagesEx                       = 0x9b,
+      RopFXSrcGetBufferEx                         = 0x9c,
+      RopFXDstPutBufferEx                         = 0x9d,
+      RopTransportDeliverMessage2                 = 0x9e,
+      RopCreateMessageEx                          = 0x9f,
+      RopMoveCopyMessagesEID                      = 0xA0,
+      RopTransportDupDlvCheck                     = 0xA1,
+      RopPrereadMessages                          = 0xA2,
+      RopWriteStreamExtended                      = 0xA3,
+      RopGetContentsTableExtended                 = 0xA4,
+      RopStartScope                               = 0xA5,
+      RopEndScope                                 = 0xA6,
+      RopEchoString                               = 0xC8,
+      RopEchoInt                                  = 0xC9,
+      RopEchoBinary                               = 0xCA,
+      RopBackoff                                  = 0xF9, /* NEW */
+      RopExtendedError                            = 0xFA, /* NEW */
+      RopBookmarkReturned                         = 0xFB,
+      RopFidReturned                              = 0xFC,
+      RopHsotReturned                             = 0xFd,
+      RopLogon                                    = 0xFE,
+      RopBufferTooSmall                           = 0xFF
+    } ROP_OPNUM;
 
   typedef [public,noprint,flag(NDR_NOALIGN)] struct {
     uint16        cb;
@@ -443,23 +491,27 @@ import "nspi.idl";
   } ulRowFlags;
 
   /**************************/
-  /* EcDoRpc Function 0x1   */
+  /* ROP: RopRelease(0x1) */
   typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } Release_req;
 
   typedef [nopush,nopull,flag(NDR_NOALIGN)] struct {
   } Release_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x2   */
+  /* ROP: RopOpenFolder(0x2) */
   typedef [enum8bit] enum {
     OpenModeFlags_Folder    = 0x0,
     OpenModeFlags_SoftDeleted = 0x4
   } OpenFolder_OpenModeFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8       handle_idx;
-    hyper       folder_id;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
+    hyper   FolderId;
     OpenFolder_OpenModeFlags  OpenModeFlags;
   } OpenFolder_req;
 
@@ -475,13 +527,24 @@ import "nspi.idl";
   } IsGhosted;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    boolean8                    HasRules;
-    boolean8              IsGhosted;
+    boolean8               HasRules;
+    boolean8               IsGhosted;
     [switch_is(IsGhosted)] IsGhosted  Ghost;
+  } OpenFolder_Success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] OpenFolder_Success Success;
+    [default];
+  } OpenFolder_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8                  OutputHandleIndex;
+    uint32                 ReturnValue;
+    [switch_is(ReturnValue)] OpenFolder_repl_status  repl;
   } OpenFolder_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x3   */
+  /* ROP: RopOpenMessage(0x3) */
   typedef [enum8bit] enum {
     StringType_NONE     = 0x0,
     StringType_EMPTY    = 0x1,
@@ -511,8 +574,10 @@ import "nspi.idl";
   } OpenMessage_OpenModeFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8       handle_idx;
-    uint16        CodePageId;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
+    uint16      CodePageId;
     hyper       FolderId;
     OpenMessage_OpenModeFlags OpenModeFlags;
     hyper       MessageId;
@@ -608,13 +673,25 @@ import "nspi.idl";
     TypedString   SubjectPrefix;
     TypedString   NormalizedSubject;
     uint16      RecipientCount;
+    uint16      ColumnCount;
     mapi_SPropTagArray  RecipientColumns;
     uint8     RowCount;
     [size_is(RowCount)] OpenMessage_recipients  recipients[];
+  } OpenMessage_Success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] OpenMessage_Success Success;
+    [default];
+  } OpenMessage_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8                  OutputHandleIndex;
+    uint32                 ReturnValue;
+    [switch_is(ReturnValue)] OpenMessage_repl_status  repl;
   } OpenMessage_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x4   */
+  /* ROP: RopGetHierarchyTable(0x4) */
   typedef [bitmap8bit] bitmap {
     TableFlags_Depth      = 0x4,
     TableFlags_DeferredErrors   = 0x8,
@@ -625,29 +702,57 @@ import "nspi.idl";
   } TableFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     TableFlags  TableFlags;
   } GetHierarchyTable_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
     uint32    RowCount;
+  } GetHierarchyTable_repl_success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] GetHierarchyTable_repl_success Success;
+    [default];
+  } GetHierarchyTable_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     OutputHandleIndex;
+    uint32    ReturnValue;
+    [switch_is(ReturnValue)] GetHierarchyTable_repl_status  repl;
   } GetHierarchyTable_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x5   */
+  /* ROP: RopGetContentsTable(0x5) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     TableFlags  TableFlags;
   } GetContentsTable_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
     uint32    RowCount;
+  } GetContentsTable_repl_success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] GetContentsTable_repl_success Success;
+    [default];
+  } GetContentsTable_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   OutputHandleIndex;
+    uint32  ReturnValue;
+    [switch_is(ReturnValue)] GetContentsTable_repl_status  repl;
   } GetContentsTable_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x6   */
+  /* ROP: RopCreateMessage(0x6) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     uint16    CodePageId;
     hyper   FolderId;
     boolean8  AssociatedFlag;
@@ -659,13 +764,26 @@ import "nspi.idl";
   } CreateMessage_MessageId;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    boolean8            HasMessageId;
+    boolean8  HasMessageId;
     [switch_is(HasMessageId)] CreateMessage_MessageId MessageId;
+  } CreateMessage_repl_success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] CreateMessage_repl_success Success;
+    [default];
+  } CreateMessage_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8     OutputHandleIndex;
+    uint32    ReturnValue;
+    [switch_is(ReturnValue)] CreateMessage_repl_status  repl;
   } CreateMessage_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x7  */
+  /* ROP: RopGetPropertiesSpecific(0x7) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16    PropertySizeLimit;
     uint16    WantUnicode;
     uint16    prop_count;
@@ -675,22 +793,48 @@ import "nspi.idl";
   typedef [flag(NDR_NOALIGN)] struct {
     uint8   layout;
     [flag(NDR_REMAINING)] DATA_BLOB prop_data;
+  } GetProps_repl_success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] GetProps_repl_success Success;
+    [default];
+  } GetProps_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   InputHandleIndex;
+    uint32  ReturnValue;
+    [switch_is(ReturnValue)] GetProps_repl_status  repl;
   } GetProps_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x8  */
+  /* ROP: RopGetPropertiesAll(0x8) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16    PropertySizeLimit;
     uint16    WantUnicode;
   } GetPropsAll_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
     mapi_SPropValue_array properties;
+  } GetPropsAll_repl_success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] GetPropsAll_repl_success Success;
+    [default];
+  } GetPropsAll_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   InputHandleIndex;
+    uint32  ReturnValue;
+    [switch_is(ReturnValue)] GetPropsAll_repl_status  repl;
   } GetPropsAll_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x9  */
+  /* ROP: RopGetPropertiesList(0x9) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetPropList_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -699,7 +843,7 @@ import "nspi.idl";
   } GetPropList_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xa  */
+  /* ROP: RopSetProperties(0xa) */
   typedef [flag(NDR_NOALIGN)] struct {
     uint32    index;    /* index into array of property tags */
     MAPITAGS  property_tag; /* property for which there was an error */
@@ -707,6 +851,8 @@ import "nspi.idl";
   } PropertyProblem;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     [represent_as(uint16)] mapi_SPropValue_array values;
   } SetProps_req;
 
@@ -716,10 +862,12 @@ import "nspi.idl";
   } SetProps_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xb  */
+  /* ROP: RopDeleteProperties(0xb) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint16    count;
-    [size_is(count)] MAPITAGS  tags[];
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint16    PropertyTagCount;
+    [size_is(PropertyTagCount)] MAPITAGS  tags[];
   } DeleteProps_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -728,7 +876,7 @@ import "nspi.idl";
   } DeleteProps_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xc  */
+  /* ROP: RopSaveChangesMessage(0xc) */
   typedef [enum8bit] enum {
     KeepOpenReadOnly  = 0x9,
     KeepOpenReadWrite = 0xA,
@@ -736,7 +884,9 @@ import "nspi.idl";
   } SaveFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   ResponseHandleIndex;
+    uint8   InputHandleIndex;
     uint8   SaveFlags;
   } SaveChangesMessage_req;
 
@@ -746,8 +896,10 @@ import "nspi.idl";
   } SaveChangesMessage_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xd  */
+  /* ROP: RopRemoveAllRecipients(0xd) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32    ulReserved;
   } RemoveAllRecipients_req;
 
@@ -756,7 +908,7 @@ import "nspi.idl";
   } RemoveAllRecipients_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xe  */
+  /* ROP: RopModifyRecipients(0xe) */
 
   /*
    * MODRECIP_NULL and INVALID are not part of the msdn flags
@@ -777,6 +929,8 @@ import "nspi.idl";
   } ModifyRecipientRow;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16        prop_count;
     [size_is(prop_count)] MAPITAGS      properties[];
     uint16        cValues;
@@ -788,8 +942,10 @@ import "nspi.idl";
   } ModifyRecipients_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xf  */
+  /* ROP: RopReadRecipients(0xf) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32    RowId;
     uint16    ulReserved;
   } ReadRecipients_req;
@@ -808,8 +964,10 @@ import "nspi.idl";
   } ReadRecipients_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x10 */
+  /* ROP: RopReloadCachedInformation(0x10) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     ulRecipClass    RecipientType;
     uint16      CodePageId;
     uint16      Reserved;
@@ -831,8 +989,7 @@ import "nspi.idl";
   } ReloadCachedInformation_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x11 */
-
+  /* ROP: RopSetMessageReadFlag(0x11) */
   typedef [bitmap8bit] bitmap {
     SUPPRESS_RECEIPT  = 0x01,
     CLEAR_READ_FLAG   = 0x04,
@@ -843,8 +1000,10 @@ import "nspi.idl";
   } MSGFLAG_READ;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8       handle_idx;
-    MSGFLAG_READ      flags;
+    uint8   LogonId;
+    uint8   ResponseHandleIndex;
+    uint8   InputHandleIndex;
+    MSGFLAG_READ      ReadFlags;
     [flag(NDR_REMAINING)] DATA_BLOB clientdata;
   } SetMessageReadFlag_req;
 
@@ -865,7 +1024,7 @@ import "nspi.idl";
   } SetMessageReadFlag_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x12 */
+  /* ROP: RopSetColumns(0x12) */
   typedef [enum8bit] enum {
     SetColumns_TBL_SYNC = 0x0,
     SetColumns_TBL_ASYNC  = 0x1
@@ -882,6 +1041,8 @@ import "nspi.idl";
   } TableStatus;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     SetColumnsFlags SetColumnsFlags;
     uint16    prop_count;
     [size_is(prop_count)] MAPITAGS  properties[];
@@ -892,7 +1053,7 @@ import "nspi.idl";
   } SetColumns_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x13  */
+  /* ROP: RopSortTable(0x13) */
   typedef [enum8bit, flag(NDR_PAHEX)] enum {
     TBL_ASYNC = 0x1,
     TBL_BATCH = 0x2
@@ -917,6 +1078,8 @@ import "nspi.idl";
   } SSortOrderSet;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint8   SortTableFlags;
     SSortOrderSet lpSortCriteria;
   } SortTable_req;
@@ -926,7 +1089,7 @@ import "nspi.idl";
   } SortTable_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x14  */
+  /* ROP: RopRestrict(0x14) */
   typedef [flag(NDR_NOALIGN)] struct {
     uint16      cRes;
     [size_is(cRes)] SRestriction_and res[];
@@ -1066,7 +1229,7 @@ import "nspi.idl";
   } Restrict_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x15  */
+  /* ROP: RopQueryRows(0x15) */
   typedef [enum8bit] enum {
     TBL_ADVANCE   = 0x0,
     TBL_NOADVANCE   = 0x1,
@@ -1074,6 +1237,8 @@ import "nspi.idl";
   } QueryRowsFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     QueryRowsFlags  QueryRowsFlags;
     uint8   ForwardRead;
     uint16    RowCount;
@@ -1086,8 +1251,10 @@ import "nspi.idl";
   } QueryRows_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x16  */
+  /* ROP: RopGetStatus(0x16) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetStatus_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1095,8 +1262,10 @@ import "nspi.idl";
   } GetStatus_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x17  */
+  /* ROP: RopQueryPosition(0x17) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } QueryPosition_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1105,7 +1274,7 @@ import "nspi.idl";
   } QueryPosition_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x18  */
+  /* ROP: RopSeekRow(0x18) */
   typedef [enum8bit] enum {
     BOOKMARK_BEGINNING  = 0x0,
     BOOKMARK_CURRENT  = 0x1,
@@ -1114,6 +1283,8 @@ import "nspi.idl";
   } BOOKMARK;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     BOOKMARK  origin;
     int32   offset;
     boolean8  WantRowMovedCount;
@@ -1125,8 +1296,10 @@ import "nspi.idl";
   } SeekRow_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x19  */
+  /* ROP: RopSeekRowBookmark(0x19) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     SBinary_short Bookmark;
     uint32    RowCount;
     boolean8  WantRowMovedCount;
@@ -1139,8 +1312,10 @@ import "nspi.idl";
   } SeekRowBookmark_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x1a  */
+  /* ROP: RopSeekRowFractional(0x1a) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32    ulNumerator;
     uint32    ulDenominator;
   } SeekRowApprox_req;
@@ -1149,8 +1324,10 @@ import "nspi.idl";
   } SeekRowApprox_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x1b  */
+  /* ROP: RopCreateBookmark(0x1b) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } CreateBookmark_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1158,7 +1335,7 @@ import "nspi.idl";
   } CreateBookmark_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x1c  */
+  /* ROP: RopCreateFolder(0x1c) */
   typedef [enum8bit] enum {
     FOLDER_GENERIC  = 0x1,
     FOLDER_SEARCH = 0x2
@@ -1180,7 +1357,9 @@ import "nspi.idl";
   } FOLDER_FLAGS;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8       handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     FOLDER_TYPE     ulFolderType;
     FOLDER_STRING     ulType;
     FOLDER_FLAGS            ulFlags;
@@ -1206,7 +1385,7 @@ import "nspi.idl";
   } CreateFolder_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x1d  */
+  /* ROP: RopDeleteFolder(0x1d) */
   typedef [bitmap8bit] bitmap {
     DEL_MESSAGES    = 0x1,
     DEL_FOLDERS   = 0x4,
@@ -1214,6 +1393,8 @@ import "nspi.idl";
   } DeleteFolderFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     DeleteFolderFlags       DeleteFolderFlags;
     hyper     FolderId;
   } DeleteFolder_req;
@@ -1223,8 +1404,10 @@ import "nspi.idl";
   } DeleteFolder_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x1e  */
+  /* ROP: RopDeleteMessages(0x1e) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  WantAsynchronous;
     boolean8  NotifyNonRead;
     uint16    cn_ids;
@@ -1236,13 +1419,15 @@ import "nspi.idl";
   } DeleteMessages_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x1f  */
+  /* ROP: RopGetMessageStatus(0x1f) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   msgid;
   } GetMessageStatus_req;
 
   /**************************/
-  /* EcDoRpc Function 0x20  */
+  /* ROP: RopSetMessageStatus(0x20) */
   typedef [bitmap32bit] bitmap {
     MSGSTATUS_HIGHLIGHTED   = 0x1,
     MSGSTATUS_TAGGED    = 0x2,
@@ -1253,6 +1438,8 @@ import "nspi.idl";
   } ulMessageStatus;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   msgid;
     uint32    ulNewStatus;
     ulMessageStatus ulNewStatusMask;
@@ -1263,9 +1450,11 @@ import "nspi.idl";
   } SetMessageStatus_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x21  */
+  /* ROP: RopGetAttachmentTable(0x21) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     TableFlags  TableFlags;
   } GetAttachmentTable_req;
 
@@ -1273,7 +1462,7 @@ import "nspi.idl";
   } GetAttachmentTable_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x22 */
+  /* ROP: RopOpenAttachment(0x22) */
   typedef [enum8bit] enum {
     OpenAttachmentFlags_ReadOnly  = 0x0,
     OpenAttachmentFlags_ReadWrite = 0x1,
@@ -1281,7 +1470,9 @@ import "nspi.idl";
   } OpenAttachmentFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8     handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     OpenAttachmentFlags OpenAttachmentFlags;
     uint32      AttachmentID;
   } OpenAttach_req;
@@ -1290,9 +1481,11 @@ import "nspi.idl";
   } OpenAttach_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x23 */
+  /* ROP: RopCreateAttachment(0x23) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8 handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
   } CreateAttach_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1300,8 +1493,10 @@ import "nspi.idl";
   } CreateAttach_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x24 */
+  /* ROP: RopDeleteAttachment(0x24) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32    AttachmentID;
   } DeleteAttach_req;
 
@@ -1310,9 +1505,11 @@ import "nspi.idl";
   } DeleteAttach_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x25 */
+  /* ROP: RopSaveChangesAttachment(0x25) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   ResponseHandleIndex;
+    uint8   InputHandleIndex;
     SaveFlags SaveFlags;
   } SaveChangesAttachment_req;
 
@@ -1320,8 +1517,10 @@ import "nspi.idl";
   } SaveChangesAttachment_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x26 */
+  /* ROP: RopSetReceiveFolder(0x26) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   fid;
     astring   lpszMessageClass;
   } SetReceiveFolder_req;
@@ -1330,8 +1529,10 @@ import "nspi.idl";
   } SetReceiveFolder_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x27 */
+  /* ROP: RopGetReceiveFolder(0x27) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     astring   MessageClass;
   } GetReceiveFolder_req;
 
@@ -1341,7 +1542,7 @@ import "nspi.idl";
   } GetReceiveFolder_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x29 */
+  /* ROP: RopRegisterNotification(0x29) */
   typedef [enum16bit] enum {
     fnevCriticalError   = 0x0001,
     fnevNewMail     = 0x0002,
@@ -1366,17 +1567,19 @@ import "nspi.idl";
   } hyperbool;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8         handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     NotificationFlags     notificationFlags;
     uint8   layout;
     [switch_is(layout)] hyperbool u;
-  } Advise_req;
+  } RegisterNotification_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
-  } Advise_repl;
+  } RegisterNotification_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x2a */
+  /* ROP: RopNotify(0x2a) */
   typedef [bitmap32bit] bitmap {
     MSGFLAG_READ    = 0x1,
     MSGFLAG_UNMODIFIED  = 0x2,
@@ -1639,7 +1842,7 @@ import "nspi.idl";
   } Notify_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x2b */
+  /* ROP: RopOpenStream(0x2b) */
   typedef [enum8bit] enum {
     OpenStream_ReadOnly = 0x0,
     OpenStream_ReadWrite  = 0x1,
@@ -1648,7 +1851,9 @@ import "nspi.idl";
   } OpenStream_OpenModeFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8       handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     MAPITAGS      PropertyTag;
     OpenStream_OpenModeFlags        OpenModeFlags;
   } OpenStream_req;
@@ -1658,13 +1863,15 @@ import "nspi.idl";
   } OpenStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x2c */
+  /* ROP: RopReadStream(0x2c) */
   typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
     [case(0xBABE)] uint32 value;
     [default];
   } MaximumByteCount;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16            ByteCount;
     [switch_is(ByteCount)]  MaximumByteCount  MaximumByteCount;
   } ReadStream_req;
@@ -1674,8 +1881,10 @@ import "nspi.idl";
   } ReadStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x2d */
+  /* ROP: RopWriteStream(0x2d) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     [represent_as(uint16), flag(NDR_REMAINING)] DATA_BLOB  data;
   } WriteStream_req;
 
@@ -1684,8 +1893,10 @@ import "nspi.idl";
   } WriteStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x2e */
+  /* ROP: RopSeekStream(0x2e) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint8   Origin;
     hyper   Offset;
   } SeekStream_req;
@@ -1695,8 +1906,10 @@ import "nspi.idl";
   } SeekStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x2f */
+  /* ROP: RopSetStreamSize(0x2f) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   SizeStream;
   } SetStreamSize_req;
 
@@ -1704,7 +1917,7 @@ import "nspi.idl";
   } SetStreamSize_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x30 */
+  /* ROP: RopSetSearchCriteria(0x30) */
   typedef [bitmap32bit, flag(NDR_PAHEX)] bitmap {
     STOP_SEARCH     = 0x00000001,
     RESTART_SEARCH      = 0x00000002,
@@ -1718,6 +1931,8 @@ import "nspi.idl";
   } SearchFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     [represent_as(uint16)] mapi_SRestriction res;
     uint16          FolderIdCount;
     [size_is(FolderIdCount)] hyper         FolderIds[];
@@ -1728,8 +1943,10 @@ import "nspi.idl";
   } SetSearchCriteria_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x31 */
+  /* ROP: RopGetSearchCriteria(0x31) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  UseUnicode;
     boolean8  IncludeRestriction;
     boolean8  IncludeFolders;
@@ -1744,7 +1961,7 @@ import "nspi.idl";
   } GetSearchCriteria_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x32 */
+  /* ROP: RopSubmitMessage(0x32) */
   typedef [enum8bit] enum {
     None    = 0x0,  /* None */
     PreProcess  = 0x1,  /* Needs to be preprocessed by the server */
@@ -1752,6 +1969,8 @@ import "nspi.idl";
   } SubmitFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     SubmitFlags     SubmitFlags;
   } SubmitMessage_req;
 
@@ -1759,9 +1978,9 @@ import "nspi.idl";
   } SubmitMessage_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x33 */
+  /* ROP: RopMoveCopyMessages(0x33) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
     uint16    count;
     [size_is(count)] hyper   message_id[];
     boolean8  WantAsynchronous;
@@ -1773,8 +1992,10 @@ import "nspi.idl";
   } MoveCopyMessages_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x34 */
+  /* ROP: RopAbortSubmit(0x34) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   FolderId;
     hyper   MessageId;
   } AbortSubmit_req;
@@ -1783,14 +2004,14 @@ import "nspi.idl";
   } AbortSubmit_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x35 */
+  /* ROP: RopMoveFolder(0x35) */
   typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
     [case(0x0)] astring     lpszA;
     [case(0x1)][flag(STR_NULLTERM)] string  lpszW;
   } Folder_name;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8         handle_idx;
+    uint8   LogonId;
     boolean8        WantAsynchronous;
     boolean8        UseUnicode;
     hyper         FolderId;
@@ -1802,9 +2023,9 @@ import "nspi.idl";
   } MoveFolder_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x36 */
+  /* ROP: RopCopyFolder(0x36) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8         handle_idx;
+    uint8   LogonId;
     boolean8        WantAsynchronous;
     boolean8        WantRecursive;
     boolean8        UseUnicode;
@@ -1817,8 +2038,10 @@ import "nspi.idl";
   } CopyFolder_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x37 */
+  /* ROP: RopQueryColumnsAll(0x37) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } QueryColumnsAll_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1827,8 +2050,10 @@ import "nspi.idl";
   } QueryColumnsAll_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x38 */
+  /* ROP: RopAbort(0x38) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } Abort_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1836,14 +2061,14 @@ import "nspi.idl";
   } Abort_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x39 */
+  /* ROP: RopCopyTo(0x39) */
   typedef [bitmap8bit] bitmap {
     CopyFlagsMove   = 0x1,  /* Move properties */
     CopyFlagsNoOverwrite  = 0x2 /* Do not overwrite existing properties */
   } CopyFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8     handle_idx;
+    uint8   LogonId;
     boolean8    WantAsynchronous;
     boolean8    WantSubObjects;
     CopyFlags   CopyFlags;
@@ -1856,9 +2081,9 @@ import "nspi.idl";
   } CopyTo_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x3a */
+  /* ROP: RopCopyToStream(0x3a) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
     hyper   ByteCount;
   } CopyToStream_req;
 
@@ -1868,22 +2093,26 @@ import "nspi.idl";
   } CopyToStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x3b */
+  /* ROP: RopCloneStream(0x3b) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
   } CloneStream_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } CloneStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x3e */
+  /* ROP: RopGetPermissionsTable(0x3e) */
   typedef [bitmap8bit] bitmap {
     IncludeFreeBusy = 0x02
   } PermissionsTableFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8     handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     PermissionsTableFlags TableFlags;
   } GetPermissionsTable_req;
 
@@ -1891,13 +2120,15 @@ import "nspi.idl";
   } GetPermissionsTable_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x3f */
+  /* ROP: RopGetRulesTable(0x3f) */
   typedef [bitmap8bit] bitmap {
     RulesTableFlags_Unicode = 0x40
   } RulesTableFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     RulesTableFlags TableFlags;
   } GetRulesTable_req;
 
@@ -1905,7 +2136,7 @@ import "nspi.idl";
   } GetRulesTable_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x40 */
+  /* ROP: RopModifyPermissions(0x40) */
   typedef [bitmap8bit] bitmap {
     ModifyPerms_IncludeFreeBusy     = 0x02,
     ModifyPerms_ReplaceRows         = 0x01
@@ -1923,6 +2154,8 @@ import "nspi.idl";
   } mapi_PermissionsData;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     mapi_PermissionsData    rowList;
   } ModifyPermissions_req;
 
@@ -1930,7 +2163,7 @@ import "nspi.idl";
   } ModifyPermissions_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x41 */
+  /* ROP: RopModifyRules(0x41) */
   typedef [flag(NDR_NOALIGN)] struct {
     ulRowFlags        RuleDataFlags;
     mapi_SPropValue_array PropertyValues;
@@ -1941,6 +2174,8 @@ import "nspi.idl";
   } ModifyRulesFlag;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     ModifyRulesFlag ModifyRulesFlags;
     uint16    RulesCount;
     [size_is(RulesCount)] RuleData  RulesData[];
@@ -1950,8 +2185,10 @@ import "nspi.idl";
   } ModifyRules_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x42 */
+  /* ROP: RopGetOwningServers(0x42) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   FolderId;
   } GetOwningServers_req;
 
@@ -1962,8 +2199,10 @@ import "nspi.idl";
   } GetOwningServers_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x43 */
+  /* ROP: RopLongTermIdFromId(0x43) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper Id;
   } LongTermIdFromId_req;
 
@@ -1975,11 +2214,24 @@ import "nspi.idl";
 
   typedef [flag(NDR_NOALIGN)] struct {
     LongTermId  LongTermId;
+  } LongTermIdFromId_repl_Success;
+
+  typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
+    [case(0x0)] LongTermIdFromId_repl_Success Success;
+    [default];
+  } LongTermIdFromId_repl_status;
+
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   InputHandleIndex;
+    uint32  ReturnValue;
+    [switch_is(ReturnValue)] LongTermIdFromId_repl_status  repl;
   } LongTermIdFromId_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x44 */
+  /* ROP: RopIdFromLongTermId(0x44) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     LongTermId  LongTermId;
   } IdFromLongTermId_req;
 
@@ -1988,8 +2240,10 @@ import "nspi.idl";
   } IdFromLongTermId_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x45 */
+  /* ROP: RopPublicFolderIsGhosted(0x45) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   FolderId;
   } PublicFolderIsGhosted_req;
 
@@ -1999,7 +2253,7 @@ import "nspi.idl";
   } PublicFolderIsGhosted_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x46 */
+  /* ROP: RopOpenEmbeddedMessage(0x46) */
   typedef [enum8bit, flag(NDR_PAHEX)] enum {
     MAPI_READONLY   = 0x0,
     MAPI_READWRITE  = 0x1,
@@ -2007,7 +2261,9 @@ import "nspi.idl";
   } OpenEmbeddedMessage_OpenModeFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8         handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     uint16          CodePageId;
     OpenEmbeddedMessage_OpenModeFlags OpenModeFlags;
   } OpenEmbeddedMessage_req;
@@ -2026,15 +2282,17 @@ import "nspi.idl";
   } OpenEmbeddedMessage_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x47 */
+  /* ROP: RopSetSpooler(0x47) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } SetSpooler_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } SetSpooler_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x48 */
+  /* ROP: RopSpoolerLockMessage(0x48) */
   typedef [enum8bit] enum {
     LockState_1stLock       = 0x0,
     LockState_1stUnlock = 0x1,
@@ -2042,6 +2300,8 @@ import "nspi.idl";
   } LockState;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   MessageId;
     LockState LockState;
   } SpoolerLockMessage_req;
@@ -2050,8 +2310,10 @@ import "nspi.idl";
   } SpoolerLockMessage_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x49 */
+  /* ROP: RopGetAddressTypes(0x49) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } AddressTypes_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -2061,8 +2323,10 @@ import "nspi.idl";
   } AddressTypes_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x4a  */
+  /* ROP: RopTransportSend(0x4a) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } TransportSend_req;
 
   typedef [nodiscriminant] union {
@@ -2076,8 +2340,22 @@ import "nspi.idl";
   } TransportSend_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x4e  */
+  /* ROP: RopFastTransferSourceCopyMessages(0x4b) */
+  /* TODO */
+
+  /**************************/
+  /* ROP: RopFastTransferSourceCopyFolder(0x4c) */
+  /* TODO */
+
+  /**************************/
+  /* ROP: RopFastTransferSourceCopyTo(0x4d) */
+  /* TODO */
+
+  /**************************/
+  /* ROP: RopFastTransferSourceGetBuffer(0x4e) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16    BufferSize;
   } FastTransferSourceGetBuffer_req;
 
@@ -2099,13 +2377,15 @@ import "nspi.idl";
   } FastTransferSourceGetBuffer_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x4f  */
+  /* ROP: RopFindRow(0x4f) */
   typedef [enum8bit] enum {
     DIR_FORWARD  = 0x0,
     DIR_BACKWARD = 0x1
   } FindRow_ulFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     FindRow_ulFlags ulFlags;
       [represent_as(uint16)] mapi_SRestriction res;
     BOOKMARK  origin;
@@ -2119,8 +2399,10 @@ import "nspi.idl";
   } FindRow_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x50  */
+  /* ROP: RopProgress(0x50) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  WantCancel;
   } Progress_req;
 
@@ -2130,8 +2412,10 @@ import "nspi.idl";
   } Progress_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x51  */
+  /* ROP: RopTransportNewMail(0x51) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   MessageId;
     hyper   FolderId;
     astring   MessageClass;
@@ -2142,8 +2426,10 @@ import "nspi.idl";
   } TransportNewMail_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x52  */
+  /* ROP: RopGetValidAttachments(0x52) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetValidAttachments_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -2151,8 +2437,16 @@ import "nspi.idl";
     [size_is(AttachmentIdCount)] uint32 AttachmentIdArray[];
   } GetValidAttachments_repl;
 
+  /**************************/
+  /* ROP: RopFastTransferDestinationConfigure(0x53) */
+  /* TODO */
+
+  /**************************/
+  /* ROP: RopFastTransferDestinationPutBuffer(0x54) */
+  /* TODO */
+
   /*************************/
-  /* EcDoRpc Function 0x55 */
+  /* ROP: RopGetNamesFromPropertyIds(0x55) */
   typedef [enum8bit] enum {
     MNID_ID = 0,
     MNID_STRING = 1
@@ -2175,6 +2469,8 @@ import "nspi.idl";
   } MAPINAMEID;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16    PropertyIdCount;
     [size_is(PropertyIdCount)] uint16 PropertyIds[];
   } GetNamesFromIDs_req;
@@ -2185,8 +2481,10 @@ import "nspi.idl";
   } GetNamesFromIDs_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x56 */
+  /* ROP: RopGetPropertyIdsFromNames(0x56) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint8   ulFlags;
     uint16    count;
     [size_is(count)] MAPINAMEID  nameid[];
@@ -2198,8 +2496,10 @@ import "nspi.idl";
   } GetIDsFromNames_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x57 */
+  /* ROP: RopUpdateDeferredActionMessages(0x57) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     SBinary_short ServerEntryId;
     SBinary_short ClientEntryId;
   } UpdateDeferredActionMessages_req;
@@ -2208,8 +2508,10 @@ import "nspi.idl";
   } UpdateDeferredActionMessages_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x58 */
+  /* ROP: RopEmptyFolder(0x58) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  WantAsynchronous;
     boolean8  WantDeleteAssociated;
   } EmptyFolder_req;
@@ -2219,8 +2521,10 @@ import "nspi.idl";
   } EmptyFolder_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x59 */
+  /* ROP: RopExpandRow(0x59) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint16    MaxRowCount;
     hyper   CategoryId;
   } ExpandRow_req;
@@ -2232,8 +2536,10 @@ import "nspi.idl";
   } ExpandRow_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x5a */
+  /* ROP: RopCollapseRow(0x5a) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   CategoryId;
   } CollapseRow_req;
 
@@ -2242,8 +2548,10 @@ import "nspi.idl";
   } CollapseRow_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x5b */
+  /* ROP: RopLockRegionStream(0x5b) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   RegionOffset;
     hyper   RegionSize;
     uint32    LockFlags;
@@ -2253,8 +2561,10 @@ import "nspi.idl";
   } LockRegionStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x5c */
+  /* ROP: RopUnlockRegionStream(0x5c) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   RegionOffset;
     hyper   RegionSize;
     uint32    LockFlags;
@@ -2264,16 +2574,20 @@ import "nspi.idl";
   } UnlockRegionStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x5d */
+  /* ROP: RopCommitStream(0x5d) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } CommitStream_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } CommitStream_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x5e */
+  /* ROP: RopGetStreamSize(0x5e) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetStreamSize_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -2281,7 +2595,7 @@ import "nspi.idl";
   } GetStreamSize_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x5f */
+  /* ROP: RopQueryNamedProperties(0x5f) */
   typedef [bitmap8bit] bitmap {
     NoStrings = 0x01,
     NoIds         = 0x02
@@ -2293,6 +2607,8 @@ import "nspi.idl";
   } QueryNamedProperties_guid;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     QueryFlags    QueryFlags;
     boolean8    HasGuid;
     [switch_is(HasGuid)]  QueryNamedProperties_guid PropertyGuid;
@@ -2305,8 +2621,10 @@ import "nspi.idl";
   } QueryNamedProperties_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x60 */
+  /* ROP: RopGetPerUserLongTermIds(0x60) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     GUID  DatabaseGuid;
   } GetPerUserLongTermIds_req;
 
@@ -2316,8 +2634,10 @@ import "nspi.idl";
   } GetPerUserLongTermIds_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x61 */
+  /* ROP: RopGetPerUserGuid(0x61) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     LongTermId  LongTermId;
   } GetPerUserGuid_req;
 
@@ -2326,8 +2646,10 @@ import "nspi.idl";
   } GetPerUserGuid_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x63 */
+  /* ROP: RopReadPerUserInformation(0x63) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint8   FolderId[24];
     boolean8  WhatIfChanged;
     uint32    DataOffset;
@@ -2342,8 +2664,14 @@ import "nspi.idl";
   } ReadPerUserInformation_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x66 */
+  /* ROP: RopWritePerUserInformation(0x64) */
+  /* TODO */
+
+  /*************************/
+  /* ROP: RopSetReadFlags(0x66) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  WantAsynchronous;
     MSGFLAG_READ  ReadFlags;
     uint16    MessageIdCount;
@@ -2355,9 +2683,9 @@ import "nspi.idl";
   } SetReadFlags_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x67 */
+  /* ROP: RopCopyProperties(0x67) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8     handle_idx;
+    uint8   LogonId;
     boolean8    WantAsynchronous;
     CopyFlags   CopyFlags;
     mapi_SPropTagArray  PropertyTags;
@@ -2369,7 +2697,7 @@ import "nspi.idl";
   } CopyProperties_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x68 */
+  /* ROP: RopGetReceiveFolderTable(0x68) */
   typedef struct {
     uint32 dwLowDateTime;
     uint32 dwHighDateTime;
@@ -2383,6 +2711,8 @@ import "nspi.idl";
   } ReceiveFolder;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetReceiveFolderTable_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -2391,8 +2721,14 @@ import "nspi.idl";
   } GetReceiveFolderTable_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x6b */
+  /* ROP: RopFastTransferSourceCopyProperties(0x69) */
+  /* TODO */
+
+  /*************************/
+  /* ROP: RopGetCollapseState(0x6b) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     hyper   RowId;
       uint32    RowInstanceNumber;
   } GetCollapseState_req;
@@ -2402,8 +2738,10 @@ import "nspi.idl";
   } GetCollapseState_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x6c */
+  /* ROP: RopSetCollapseState(0x6c) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     SBinary_short CollapseState;
   } SetCollapseState_req;
 
@@ -2412,8 +2750,10 @@ import "nspi.idl";
   } SetCollapseState_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x6d */
+  /* ROP: RopGetTransportFolder(0x6d) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetTransportFolder_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -2421,14 +2761,16 @@ import "nspi.idl";
   } GetTransportFolder_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x6e */
+  /* ROP: RopPending(0x6e) */
   typedef [flag(NDR_NOALIGN)] struct {
     uint16  SessionIndex;
   } Pending_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x6f */
+  /* ROP: RopOptionsData(0x6f) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     astring   AddressType;
     boolean8  WantWin32;
   } OptionsData_req;
@@ -2447,7 +2789,7 @@ import "nspi.idl";
   } OptionsData_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x70 */
+  /* ROP: RopSynchronizationConfigure(0x70) */
   typedef [enum8bit] enum {
     Contents  = 0x1,
     Hierarchy = 0x2
@@ -2484,7 +2826,9 @@ import "nspi.idl";
   } SynchronizationExtraFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8         handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     SynchronizationType     SynchronizationType;
     SendOptions       SendOptions;
     SynchronizationFlag     SynchronizationFlag;
@@ -2497,14 +2841,16 @@ import "nspi.idl";
   } SyncConfigure_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x72 */
+  /* ROP: RopSynchronizationImportMessageChange(0x72) */
   typedef [bitmap8bit] bitmap {
     ImportFlag_Associated   = 0x10,
     ImportFlag_FailOnConflict = 0x40
   } ImportFlag;
 
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8     handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     ImportFlag    ImportFlag;
     mapi_SPropValue_array PropertyValues;
   } SyncImportMessageChange_req;
@@ -2514,8 +2860,10 @@ import "nspi.idl";
   } SyncImportMessageChange_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x73 */
+  /* ROP: RopSynchronizationImportHierarchyChange(0x73) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     mapi_SPropValue_array HierarchyValues;
     mapi_SPropValue_array PropertyValues;
   } SyncImportHierarchyChange_req;
@@ -2525,8 +2873,10 @@ import "nspi.idl";
   } SyncImportHierarchyChange_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x74 */
+  /* ROP: RopSynchronizationImportDeletes(0x74) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8    IsHierarchy;
     mapi_SPropValue_array PropertyValues;
   } SyncImportDeletes_req;
@@ -2535,7 +2885,7 @@ import "nspi.idl";
   } SyncImportDeletes_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x75 */
+  /* ROP: RopSynchronizationUploadStateStreamBegin(0x75) */
   typedef [v1_enum,flag(NDR_PAHEX)] enum {
     PidTagIdsetGiven  = 0x40170003,
     PidTagCnsetSeen   = 0x67960102,
@@ -2544,6 +2894,8 @@ import "nspi.idl";
   } StateProperty;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     StateProperty   StateProperty;
     uint32      TransferBufferSize;
   } SyncUploadStateStreamBegin_req;
@@ -2552,26 +2904,33 @@ import "nspi.idl";
   } SyncUploadStateStreamBegin_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x76 */
+  /* ROP: RopSynchronizationUploadStateStreamContinue(0x76) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32      StreamDataSize;
-    [size_is(StreamDataSize)] uint8     StreamData[];
+    /* Current PIDL in wireshark repo does not support inline arrays. */
+    [flag(NDR_BUFFERS), size_is(cb)]uint8 StreamData[]; /* [StreamDataSize] */
   } SyncUploadStateStreamContinue_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } SyncUploadStateStreamContinue_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x77 */
+  /* ROP: RopSynchronizationUploadStateStreamEnd(0x77) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } SyncUploadStateStreamEnd_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } SyncUploadStateStreamEnd_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x78 */
+  /* ROP: RopSynchronizationImportMessageMove(0x78) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32    SourceFolderIdSize;
     [size_is(SourceFolderIdSize)] uint8   SourceFolderId[];
     uint32    SourceMessageIdSize;
@@ -2589,8 +2948,10 @@ import "nspi.idl";
   } SyncImportMessageMove_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x79 */
+  /* ROP: RopSetPropertiesNoReplicate(0x79) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     [represent_as(uint16)] mapi_SPropValue_array values;
   } SetPropertiesNoReplicate_req;
 
@@ -2600,8 +2961,10 @@ import "nspi.idl";
   } SetPropertiesNoReplicate_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x7a */
+  /* ROP: RopDeletePropertiesNoReplicate(0x7a) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     mapi_SPropTagArray  PropertyTags;
   } DeletePropertiesNoReplicate_req;
 
@@ -2611,12 +2974,14 @@ import "nspi.idl";
   } DeletePropertiesNoReplicate_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x7b */
+  /* ROP: RopGetStoreState(0x7b) */
   typedef [public,bitmap32bit] bitmap {
     STORE_HAS_SEARCHES    = 0x010000000
   } StoreState;
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } GetStoreState_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -2624,9 +2989,11 @@ import "nspi.idl";
   } GetStoreState_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x7e */
+  /* ROP: RopSynchronizationOpenCollector(0x7e) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
     boolean8  IsContentsCollector;
   } SyncOpenCollector_req;
 
@@ -2634,8 +3001,10 @@ import "nspi.idl";
   } SyncOpenCollector_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x7f */
+  /* ROP: RopGetLocalReplicaIds(0x7f) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     uint32    IdCount;
   } GetLocalReplicaIds_req;
 
@@ -2645,7 +3014,7 @@ import "nspi.idl";
   } GetLocalReplicaIds_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x80 */
+  /* ROP: RopSynchronizationImportReadStateChanges(0x80) */
   #if 0
   typedef [flag(NDR_NOALIGN)] struct {
     uint16    MessageSize;
@@ -2655,6 +3024,8 @@ import "nspi.idl";
   #endif
 
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     [flag(NDR_REMAINING)] [represent_as(uint16)] DATA_BLOB MessageStates;
   } SyncImportReadStateChanges_req;
 
@@ -2662,24 +3033,32 @@ import "nspi.idl";
   } SyncImportReadStateChanges_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x81 */
+  /* ROP: RopResetTable(0x81) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
   } ResetTable_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } ResetTable_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x82 */
+  /* ROP: RopSynchronizationGetTransferState(0x82) */
   typedef [flag(NDR_NOALIGN)] struct {
-    uint8   handle_idx;
+    uint8   LogonId;
+    uint8   InputHandleIndex;
+    uint8   OutputHandleIndex;
   } SyncGetTransferState_req;
 
   typedef [flag(NDR_NOALIGN)] struct {
   } SyncGetTransferState_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x87 */
+  /* ROP: RopTellVersion(0x86) */
+  /* TODO */
+
+  /*************************/
+  /* ROP: OpenPublicFolderByName(0x87) - NOT DOCUMENTED */
   typedef [flag(NDR_NOALIGN)] struct {
     uint8   handle_idx;
     asclstr   name;
@@ -2692,7 +3071,7 @@ import "nspi.idl";
   } OpenPublicFolderByName_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x88 */
+  /* ROP: SetSyncNotificationGuid(0x88) - NOT DOCUMENTED */
   typedef [flag(NDR_NOALIGN)] struct {
     GUID  NotificationGuid;
   } SetSyncNotificationGuid_req;
@@ -2701,8 +3080,10 @@ import "nspi.idl";
   } SetSyncNotificationGuid_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x89 */
+  /* ROP: RopFreeBookmark(0x89) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     SBinary_short bookmark;
   } FreeBookmark_req;
 
@@ -2710,8 +3091,10 @@ import "nspi.idl";
   } FreeBookmark_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x90 */
+  /* ROP: RopWriteAndCommitStream(0x90) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     [represent_as(uint16), flag(NDR_REMAINING)] DATA_BLOB  data;
   } WriteAndCommitStream_req;
 
@@ -2720,8 +3103,10 @@ import "nspi.idl";
   } WriteAndCommitStream_repl;
 
   /**************************/
-  /* EcDoRpc Function 0x91  */
+  /* ROP: RopHardDeleteMessages(0x91) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  WantAsynchronous;
     boolean8  NotifyNonRead;
     uint16    MessageIdCount;
@@ -2733,8 +3118,10 @@ import "nspi.idl";
   } HardDeleteMessages_repl;
 
   /*************************/
-  /* EcDoRpc Function 0x92 */
+  /* ROP: RopHardDeleteMessagesAndSubfolders(0x92) */
   typedef [flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   InputHandleIndex;
     boolean8  WantAsynchronous;
     boolean8  WantDeleteAssociated;
   } HardDeleteMessagesAndSubfolders_req;
@@ -2744,23 +3131,23 @@ import "nspi.idl";
   } HardDeleteMessagesAndSubfolders_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xFE */
-  typedef [flag(NDR_NOALIGN)] struct {
-    uint32  codepage;
-    uint32  padding;
-    uint8 row;
-    uint16  mailbox_str_size;
-    astring mailbox;
-  } OpenMsgStore_req;
+  /* ROP: RopSetLocalReplicaMidsetDeleted(0x93) */
+  /* TODO */
 
-  typedef [public,enum8bit] enum {
+  /*************************/
+  /* ROP: RopBackoff(0xF9) */
+  /* TODO */
+
+  /*************************/
+  /* ROP: RopLogon(0xFE) */
+  typedef [flag(NDR_NOALIGN),public,enum8bit] enum {
     LogonPrivate  = 0x1,
     UnderCover  = 0x2,
     Ghosted   = 0x4,
     SpIProcess  = 0x8
   } LogonFlags;
 
-  typedef [public,bitmap32bit] bitmap {
+  typedef [flag(NDR_NOALIGN),public,bitmap32bit] bitmap {
     PUBLIC        = 0x2,
     HOME_LOGON      = 0x4,
     TAKE_OWNERSHIP      = 0x8,
@@ -2797,337 +3184,315 @@ import "nspi.idl";
     ResponseFlags_OOF   = 0x10
   } ResponseFlags;
 
-  typedef [flag(NDR_NOALIGN)] struct {
-    hyper     FolderIds[13];
-    uint16      ReplId;
-    GUID      Guid;
-    GUID      PerUserGuid;
-  } store_pf;
-
   typedef [nopush,flag(NDR_NOALIGN)] struct {
+    uint8   LogonId;
+    uint8   OutputHandleIndex;
     LogonFlags  LogonFlags;
     OpenFlags OpenFlags;
     StoreState  StoreState;
-    /* TODO: ascstr3   EssDN; */ 
+    uint16 EssdnSize;
+    astring   EssDN;
   } Logon_req;
 
-  /* Logon redirect response buffer (error_code == ecWrongServer) */
-  typedef [public,flag(NDR_NOALIGN)] struct {
+  typedef [flag(NDR_NOALIGN)] struct {
+    uint8   OutputHandleIndex;
+    uint32  ReturnValue;
+    /* Success - Private Mailboxes */
     LogonFlags  LogonFlags;
-    uint8   ServerNameSize;
+    hyper     FolderIds[13];
+    uint8 ResponseFlags;
+    GUID      MailboxGuid;
+    uint16  ReplId;
+    GUID      ReplGuid;
+    hyper LogonTime; /* TODO */
+    hyper GwartTime;
+    StoreState  StoreState;
+    /* Success - Public mailbox */
+    GUID PerUserGuid;
+    /* Success - Redirect */
+    uint8 ServerNameSize;
     astring   ServerName;
-  } Logon_redirect;
+  } Logon_repl;
 
   /*************************/
-  /* EcDoRpc Function 0xA5 */
+  /* ROP: RopBufferTooSmall(0xFF) */
   typedef [flag(NDR_NOALIGN)] struct {
-    SBinary_short bin;
-  } proxypack_req;
-
-  typedef [flag(NDR_NOALIGN)] struct {
-    SBinary_short bin;
-  } proxypack_repl;
+    uint16 SizeNeeded;
+    /* [size_is(SizeNeeded)] RequestBuffers; */
+  } RopBufferTooSmall_repl;
 
   typedef [public, nodiscriminant] union {
-    [case(op_MAPI_Release)] Release_req mapi_Release;
-    [case(op_MAPI_OpenFolder)] OpenFolder_req mapi_OpenFolder;
-    [case(op_MAPI_OpenMessage)] OpenMessage_req mapi_OpenMessage;
-    [case(op_MAPI_GetHierarchyTable)] GetHierarchyTable_req mapi_GetHierarchyTable;
-    [case(op_MAPI_GetContentsTable)] GetContentsTable_req mapi_GetContentsTable;
-    [case(op_MAPI_CreateMessage)] CreateMessage_req mapi_CreateMessage;
-    [case(op_MAPI_GetProps)] GetProps_req mapi_GetProps;
-    [case(op_MAPI_GetPropsAll)] GetPropsAll_req mapi_GetPropsAll;
-    [case(op_MAPI_GetPropList)] GetPropList_req mapi_GetPropList;
-    [case(op_MAPI_SetProps)] SetProps_req mapi_SetProps;
-    [case(op_MAPI_DeleteProps)] DeleteProps_req mapi_DeleteProps;
-    [case(op_MAPI_SaveChangesMessage)] SaveChangesMessage_req mapi_SaveChangesMessage;
-    [case(op_MAPI_SetMessageReadFlag)] SetMessageReadFlag_req mapi_SetMessageReadFlag;
-    [case(op_MAPI_ReloadCachedInformation)] ReloadCachedInformation_req mapi_ReloadCachedInformation;
-    [case(op_MAPI_SetColumns)] SetColumns_req mapi_SetColumns;
-    [case(op_MAPI_SortTable)] SortTable_req mapi_SortTable;
-    [case(op_MAPI_Restrict)] Restrict_req mapi_Restrict;
-    [case(op_MAPI_RemoveAllRecipients)] RemoveAllRecipients_req mapi_RemoveAllRecipients;
-    [case(op_MAPI_ModifyRecipients)] ModifyRecipients_req mapi_ModifyRecipients;
-    [case(op_MAPI_ReadRecipients)] ReadRecipients_req mapi_ReadRecipients;
-    [case(op_MAPI_QueryRows)] QueryRows_req mapi_QueryRows;
-    [case(op_MAPI_GetStatus)] GetStatus_req mapi_GetStatus;
-    [case(op_MAPI_QueryPosition)] QueryPosition_req mapi_QueryPosition;
-    [case(op_MAPI_SeekRow)] SeekRow_req mapi_SeekRow;
-    [case(op_MAPI_SeekRowBookmark)] SeekRowBookmark_req mapi_SeekRowBookmark;
-    [case(op_MAPI_SeekRowApprox)] SeekRowApprox_req mapi_SeekRowApprox;
-    [case(op_MAPI_CreateBookmark)] CreateBookmark_req mapi_CreateBookmark;
-    [case(op_MAPI_CreateFolder)] CreateFolder_req mapi_CreateFolder;
-    [case(op_MAPI_DeleteFolder)] DeleteFolder_req mapi_DeleteFolder;
-    [case(op_MAPI_DeleteMessages)] DeleteMessages_req mapi_DeleteMessages;
-    [case(op_MAPI_GetMessageStatus)] GetMessageStatus_req mapi_GetMessageStatus;
-    [case(op_MAPI_SetMessageStatus)] SetMessageStatus_req mapi_SetMessageStatus;
-    [case(op_MAPI_GetAttachmentTable)] GetAttachmentTable_req mapi_GetAttachmentTable;
-    [case(op_MAPI_OpenAttach)] OpenAttach_req mapi_OpenAttach;
-    [case(op_MAPI_CreateAttach)] CreateAttach_req mapi_CreateAttach;
-    [case(op_MAPI_DeleteAttach)] DeleteAttach_req mapi_DeleteAttach;
-    [case(op_MAPI_SaveChangesAttachment)] SaveChangesAttachment_req mapi_SaveChangesAttachment;
-    [case(op_MAPI_SetReceiveFolder)] SetReceiveFolder_req mapi_SetReceiveFolder;
-    [case(op_MAPI_GetReceiveFolder)] GetReceiveFolder_req mapi_GetReceiveFolder;
-    [case(op_MAPI_Advise)] Advise_req mapi_Advise;
-    [case(op_MAPI_OpenStream)] OpenStream_req mapi_OpenStream;
-    [case(op_MAPI_ReadStream)] ReadStream_req mapi_ReadStream;
-    [case(op_MAPI_WriteStream)] WriteStream_req mapi_WriteStream;
-    [case(op_MAPI_SeekStream)] SeekStream_req mapi_SeekStream;
-    [case(op_MAPI_SetStreamSize)] SetStreamSize_req mapi_SetStreamSize;
-    [case(op_MAPI_SetSearchCriteria)] SetSearchCriteria_req mapi_SetSearchCriteria;
-    [case(op_MAPI_GetSearchCriteria)] GetSearchCriteria_req mapi_GetSearchCriteria;
-    [case(op_MAPI_SubmitMessage)] SubmitMessage_req mapi_SubmitMessage;
-    [case(op_MAPI_MoveCopyMessages)] MoveCopyMessages_req mapi_MoveCopyMessages;
-    [case(op_MAPI_AbortSubmit)] AbortSubmit_req mapi_AbortSubmit;
-    [case(op_MAPI_MoveFolder)] MoveFolder_req mapi_MoveFolder;
-    [case(op_MAPI_CopyFolder)] CopyFolder_req mapi_CopyFolder;
-    [case(op_MAPI_QueryColumnsAll)] QueryColumnsAll_req mapi_QueryColumnsAll;
-    [case(op_MAPI_Abort)] Abort_req mapi_Abort;
-    [case(op_MAPI_CopyTo)] CopyTo_req mapi_CopyTo;
-    [case(op_MAPI_CopyToStream)] CopyToStream_req mapi_CopyToStream;
-    [case(op_MAPI_CloneStream)] CloneStream_req mapi_CloneStream;
-    [case(op_MAPI_GetPermissionsTable)] GetPermissionsTable_req mapi_GetPermissionsTable;
-    [case(op_MAPI_GetRulesTable)] GetRulesTable_req mapi_GetRulesTable;
-    [case(op_MAPI_ModifyPermissions)] ModifyPermissions_req mapi_ModifyPermissions;
-    [case(op_MAPI_ModifyRules)] ModifyRules_req mapi_ModifyRules;
-    [case(op_MAPI_GetOwningServers)] GetOwningServers_req mapi_GetOwningServers;
-    [case(op_MAPI_LongTermIdFromId)] LongTermIdFromId_req mapi_LongTermIdFromId;
-    [case(op_MAPI_IdFromLongTermId)] IdFromLongTermId_req mapi_IdFromLongTermId;
-    [case(op_MAPI_PublicFolderIsGhosted)] PublicFolderIsGhosted_req mapi_PublicFolderIsGhosted;
-    [case(op_MAPI_OpenEmbeddedMessage)] OpenEmbeddedMessage_req mapi_OpenEmbeddedMessage;
-    [case(op_MAPI_SetSpooler)] SetSpooler_req mapi_SetSpooler;
-    [case(op_MAPI_SpoolerLockMessage)] SpoolerLockMessage_req mapi_SpoolerLockMessage;
-    [case(op_MAPI_AddressTypes)] AddressTypes_req mapi_AddressTypes;
-    [case(op_MAPI_TransportSend)] TransportSend_req mapi_TransportSend;
-    [case(op_MAPI_FastTransferSourceGetBuffer)] FastTransferSourceGetBuffer_req mapi_FastTransferSourceGetBuffer;
-    [case(op_MAPI_FindRow)] FindRow_req mapi_FindRow;
-    [case(op_MAPI_Progress)] Progress_req mapi_Progress;
-    [case(op_MAPI_TransportNewMail)] TransportNewMail_req mapi_TransportNewMail;
-    [case(op_MAPI_GetValidAttachments)] GetValidAttachments_req mapi_GetValidAttachments;
-    [case(op_MAPI_GetNamesFromIDs)] GetNamesFromIDs_req mapi_GetNamesFromIDs;
-    [case(op_MAPI_GetIDsFromNames)] GetIDsFromNames_req mapi_GetIDsFromNames;
-    [case(op_MAPI_UpdateDeferredActionMessages)] UpdateDeferredActionMessages_req mapi_UpdateDeferredActionMessages;
-    [case(op_MAPI_EmptyFolder)] EmptyFolder_req mapi_EmptyFolder;
-    [case(op_MAPI_ExpandRow)] ExpandRow_req mapi_ExpandRow;
-    [case(op_MAPI_CollapseRow)] CollapseRow_req mapi_CollapseRow;
-    [case(op_MAPI_LockRegionStream)] LockRegionStream_req mapi_LockRegionStream;
-    [case(op_MAPI_UnlockRegionStream)] UnlockRegionStream_req mapi_UnlockRegionStream;
-    [case(op_MAPI_CommitStream)] CommitStream_req mapi_CommitStream;
-    [case(op_MAPI_GetStreamSize)] GetStreamSize_req mapi_GetStreamSize;
-    [case(op_MAPI_QueryNamedProperties)] QueryNamedProperties_req mapi_QueryNamedProperties;
-    [case(op_MAPI_GetPerUserLongTermIds)] GetPerUserLongTermIds_req mapi_GetPerUserLongTermIds;
-    [case(op_MAPI_GetPerUserGuid)] GetPerUserGuid_req mapi_GetPerUserGuid;
-    [case(op_MAPI_ReadPerUserInformation)] ReadPerUserInformation_req mapi_ReadPerUserInformation;
-    [case(op_MAPI_SetReadFlags)] SetReadFlags_req mapi_SetReadFlags;
-    [case(op_MAPI_CopyProperties)] CopyProperties_req mapi_CopyProperties;
-    [case(op_MAPI_GetReceiveFolderTable)] GetReceiveFolderTable_req mapi_GetReceiveFolderTable;
-    [case(op_MAPI_GetCollapseState)] GetCollapseState_req mapi_GetCollapseState;
-    [case(op_MAPI_SetCollapseState)] SetCollapseState_req mapi_SetCollapseState;
-    [case(op_MAPI_GetTransportFolder)] GetTransportFolder_req mapi_GetTransportFolder;
-    [case(op_MAPI_OptionsData)] OptionsData_req mapi_OptionsData;
-    [case(op_MAPI_SyncConfigure)] SyncConfigure_req mapi_SyncConfigure;
-    [case(op_MAPI_SyncImportMessageChange)] SyncImportMessageChange_req mapi_SyncImportMessageChange;
-    [case(op_MAPI_SyncImportHierarchyChange)] SyncImportHierarchyChange_req mapi_SyncImportHierarchyChange;
-    [case(op_MAPI_SyncImportDeletes)] SyncImportDeletes_req mapi_SyncImportDeletes;
-    [case(op_MAPI_SyncUploadStateStreamBegin)] SyncUploadStateStreamBegin_req mapi_SyncUploadStateStreamBegin;
-    [case(op_MAPI_SyncUploadStateStreamContinue)] SyncUploadStateStreamContinue_req mapi_SyncUploadStateStreamContinue;
-    [case(op_MAPI_SyncUploadStateStreamEnd)] SyncUploadStateStreamEnd_req mapi_SyncUploadStateStreamEnd;
-    [case(op_MAPI_SyncImportMessageMove)] SyncImportMessageMove_req mapi_SyncImportMessageMove;
-    [case(op_MAPI_SetPropertiesNoReplicate)] SetPropertiesNoReplicate_req mapi_SetPropertiesNoReplicate;
-    [case(op_MAPI_DeletePropertiesNoReplicate)] DeletePropertiesNoReplicate_req mapi_DeletePropertiesNoReplicate;
-    [case(op_MAPI_GetStoreState)] GetStoreState_req mapi_GetStoreState;
-    [case(op_MAPI_SyncOpenCollector)] SyncOpenCollector_req mapi_SyncOpenCollector;
-    [case(op_MAPI_GetLocalReplicaIds)] GetLocalReplicaIds_req mapi_GetLocalReplicaIds;
-    [case(op_MAPI_SyncImportReadStateChanges)] SyncImportReadStateChanges_req mapi_SyncImportReadStateChanges;
-    [case(op_MAPI_ResetTable)] ResetTable_req mapi_ResetTable;
-    [case(op_MAPI_SyncGetTransferState)] SyncGetTransferState_req mapi_SyncGetTransferState;
-    [case(op_MAPI_OpenPublicFolderByName)] OpenPublicFolderByName_req mapi_OpenPublicFolderByName;
-    [case(op_MAPI_SetSyncNotificationGuid)] SetSyncNotificationGuid_req mapi_SetSyncNotificationGuid;
-    [case(op_MAPI_FreeBookmark)] FreeBookmark_req mapi_FreeBookmark;
-    [case(op_MAPI_WriteAndCommitStream)] WriteAndCommitStream_req mapi_WriteAndCommitStream;
-    [case(op_MAPI_HardDeleteMessages)] HardDeleteMessages_req mapi_HardDeleteMessages;
-    [case(op_MAPI_HardDeleteMessagesAndSubfolders)] HardDeleteMessagesAndSubfolders_req mapi_HardDeleteMessagesAndSubfolders;
-    [case(op_MAPI_OpenMsgStore)] OpenMsgStore_req mapi_OpenMsgStore;
-    [case(op_MAPI_proxypack)] proxypack_req mapi_proxypack;
-  } EcDoRpcMapiRequestOperation;
-
-  typedef [flag(NDR_NOALIGN)] struct {
-    hyper   folder_id[13];
-    uint8   unknown3;
-    GUID   entryid;
-    uint16    default_store;
-    GUID   msgstore;
-    FILETIME  ts_access;
-    astring   creation_date;
-    uint8   terminator;
-    uint16    unknown4;
-  } store_mailbox;
-
-  typedef [switch_type(uint8)] union {
-    [case(0x0)] store_pf store_pf;
-    [case(0x1)] store_mailbox store_mailbox;
-  } store_type;
-
-  typedef [enum8bit,flag(NDR_NOALIGN)] enum {
-   PROVIDER_TYPE_PF = 0x0,
-   PROVIDER_TYPE_MAILBOX = 0x1
-  } PROVIDER_TYPE;
-
-  typedef [flag(NDR_NOALIGN)] struct {
-    PROVIDER_TYPE pr_object_type;
-    [switch_is(pr_object_type)] store_type type;
-  } OpenMsgStore_repl;
+    [case(RopRelease)] Release_req Release;
+    [case(RopOpenFolder)] OpenFolder_req OpenFolder;
+    [case(RopOpenMessage)] OpenMessage_req OpenMessage;
+    [case(RopGetHierarchyTable)] GetHierarchyTable_req GetHierarchyTable;
+    [case(RopGetContentsTable)] GetContentsTable_req GetContentsTable;
+    [case(RopCreateMessage)] CreateMessage_req CreateMessage;
+    [case(RopGetPropertiesSpecific)] GetProps_req GetProps;
+    [case(RopGetPropertiesAll)] GetPropsAll_req GetPropsAll;
+    [case(RopGetPropertiesList)] GetPropList_req GetPropList;
+    [case(RopSetProperties)] SetProps_req SetProps;
+    [case(RopDeleteProperties)] DeleteProps_req DeleteProps;
+    [case(RopSaveChangesMessage)] SaveChangesMessage_req SaveChangesMessage;
+    [case(RopSetMessageReadFlag)] SetMessageReadFlag_req SetMessageReadFlag;
+    [case(RopReloadCachedInformation)] ReloadCachedInformation_req ReloadCachedInformation;
+    [case(RopSetColumns)] SetColumns_req SetColumns;
+    [case(RopSortTable)] SortTable_req SortTable;
+    [case(RopRestrict)] Restrict_req Restrict;
+    [case(RopRemoveAllRecipients)] RemoveAllRecipients_req RemoveAllRecipients;
+    [case(RopModifyRecipients)] ModifyRecipients_req ModifyRecipients;
+    [case(RopReadRecipients)] ReadRecipients_req ReadRecipients;
+    [case(RopQueryRows)] QueryRows_req QueryRows;
+    [case(RopGetStatus)] GetStatus_req GetStatus;
+    [case(RopQueryPosition)] QueryPosition_req QueryPosition;
+    [case(RopSeekRow)] SeekRow_req SeekRow;
+    [case(RopSeekRowBookmark)] SeekRowBookmark_req SeekRowBookmark;
+    [case(RopSeekRowFractional)] SeekRowApprox_req SeekRowApprox;
+    [case(RopCreateBookmark)] CreateBookmark_req CreateBookmark;
+    [case(RopCreateFolder)] CreateFolder_req CreateFolder;
+    [case(RopDeleteFolder)] DeleteFolder_req DeleteFolder;
+    [case(RopDeleteMessages)] DeleteMessages_req DeleteMessages;
+    [case(RopGetMessageStatus)] GetMessageStatus_req GetMessageStatus;
+    [case(RopSetMessageStatus)] SetMessageStatus_req SetMessageStatus;
+    [case(RopGetAttachmentTable)] GetAttachmentTable_req GetAttachmentTable;
+    [case(RopOpenAttachment)] OpenAttach_req OpenAttach;
+    [case(RopCreateAttachment)] CreateAttach_req CreateAttach;
+    [case(RopDeleteAttachment)] DeleteAttach_req DeleteAttach;
+    [case(RopSaveChangesAttachment)] SaveChangesAttachment_req SaveChangesAttachment;
+    [case(RopSetReceiveFolder)] SetReceiveFolder_req SetReceiveFolder;
+    [case(RopGetReceiveFolder)] GetReceiveFolder_req GetReceiveFolder;
+    [case(RopRegisterNotification)] RegisterNotification_req Advise;
+    [case(RopOpenStream)] OpenStream_req OpenStream;
+    [case(RopReadStream)] ReadStream_req ReadStream;
+    [case(RopWriteStream)] WriteStream_req WriteStream;
+    [case(RopSeekStream)] SeekStream_req SeekStream;
+    [case(RopSetStreamSize)] SetStreamSize_req SetStreamSize;
+    [case(RopSetSearchCriteria)] SetSearchCriteria_req SetSearchCriteria;
+    [case(RopGetSearchCriteria)] GetSearchCriteria_req GetSearchCriteria;
+    [case(RopSubmitMessage)] SubmitMessage_req SubmitMessage;
+    [case(RopMoveCopyMessages)] MoveCopyMessages_req MoveCopyMessages;
+    [case(RopAbortSubmit)] AbortSubmit_req AbortSubmit;
+    [case(RopMoveFolder)] MoveFolder_req MoveFolder;
+    [case(RopCopyFolder)] CopyFolder_req CopyFolder;
+    [case(RopQueryColumnsAll)] QueryColumnsAll_req QueryColumnsAll;
+    [case(RopAbort)] Abort_req Abort;
+    [case(RopCopyTo)] CopyTo_req CopyTo;
+    [case(RopCopyToStream)] CopyToStream_req CopyToStream;
+    [case(RopCloneStream)] CloneStream_req CloneStream;
+    [case(RopGetPermissionsTable)] GetPermissionsTable_req GetPermissionsTable;
+    [case(RopGetRulesTable)] GetRulesTable_req GetRulesTable;
+    [case(RopModifyPermissions)] ModifyPermissions_req ModifyPermissions;
+    [case(RopModifyRules)] ModifyRules_req ModifyRules;
+    [case(RopGetOwningServers)] GetOwningServers_req GetOwningServers;
+    [case(RopLongTermIdFromId)] LongTermIdFromId_req LongTermIdFromId;
+    [case(RopIdFromLongTermId)] IdFromLongTermId_req IdFromLongTermId;
+    [case(RopPublicFolderIsGhosted)] PublicFolderIsGhosted_req PublicFolderIsGhosted;
+    [case(RopOpenEmbeddedMessage)] OpenEmbeddedMessage_req OpenEmbeddedMessage;
+    [case(RopSetSpooler)] SetSpooler_req SetSpooler;
+    [case(RopSpoolerLockMessage)] SpoolerLockMessage_req SpoolerLockMessage;
+    [case(RopGetAddressTypes)] AddressTypes_req AddressTypes;
+    [case(RopTransportSend)] TransportSend_req TransportSend;
+    [case(RopFastTransferSourceGetBuffer)] FastTransferSourceGetBuffer_req FastTransferSourceGetBuffer;
+    [case(RopFindRow)] FindRow_req FindRow;
+    [case(RopProgress)] Progress_req Progress;
+    [case(RopTransportNewMail)] TransportNewMail_req TransportNewMail;
+    [case(RopGetValidAttachments)] GetValidAttachments_req GetValidAttachments;
+    [case(RopGetNamesFromPropertyIds)] GetNamesFromIDs_req GetNamesFromIDs;
+    [case(RopGetPropertyIdsFromNames)] GetIDsFromNames_req GetIDsFromNames;
+    [case(RopUpdateDeferredActionMessages)] UpdateDeferredActionMessages_req UpdateDeferredActionMessages;
+    [case(RopEmptyFolder)] EmptyFolder_req EmptyFolder;
+    [case(RopExpandRow)] ExpandRow_req ExpandRow;
+    [case(RopCollapseRow)] CollapseRow_req CollapseRow;
+    [case(RopLockRegionStream)] LockRegionStream_req LockRegionStream;
+    [case(RopUnlockRegionStream)] UnlockRegionStream_req UnlockRegionStream;
+    [case(RopCommitStream)] CommitStream_req CommitStream;
+    [case(RopGetStreamSize)] GetStreamSize_req GetStreamSize;
+    [case(RopQueryNamedProperties)] QueryNamedProperties_req QueryNamedProperties;
+    [case(RopGetPerUserLongTermIds)] GetPerUserLongTermIds_req GetPerUserLongTermIds;
+    [case(RopGetPerUserGuid)] GetPerUserGuid_req GetPerUserGuid;
+    [case(RopReadPerUserInformation)] ReadPerUserInformation_req ReadPerUserInformation;
+    [case(RopSetReadFlags)] SetReadFlags_req SetReadFlags;
+    [case(RopCopyProperties)] CopyProperties_req CopyProperties;
+    [case(RopGetReceiveFolderTable)] GetReceiveFolderTable_req GetReceiveFolderTable;
+    [case(RopGetCollapseState)] GetCollapseState_req GetCollapseState;
+    [case(RopSetCollapseState)] SetCollapseState_req SetCollapseState;
+    [case(RopGetTransportFolder)] GetTransportFolder_req GetTransportFolder;
+    [case(RopOptionsData)] OptionsData_req OptionsData;
+    [case(RopSynchronizationConfigure)] SyncConfigure_req SyncConfigure;
+    [case(RopSynchronizationImportMessageChange)] SyncImportMessageChange_req SyncImportMessageChange;
+    [case(RopSynchronizationImportHierarchyChange)] SyncImportHierarchyChange_req SyncImportHierarchyChange;
+    [case(RopSynchronizationImportDeletes)] SyncImportDeletes_req SyncImportDeletes;
+    [case(RopSynchronizationUploadStateStreamBegin)] SyncUploadStateStreamBegin_req SyncUploadStateStreamBegin;
+    [case(RopSynchronizationUploadStateStreamContinue)] SyncUploadStateStreamContinue_req SyncUploadStateStreamContinue;
+    [case(RopSynchronizationUploadStateStreamEnd)] SyncUploadStateStreamEnd_req SyncUploadStateStreamEnd;
+    [case(RopSynchronizationImportMessageMove)] SyncImportMessageMove_req SyncImportMessageMove;
+    [case(RopSetPropertiesNoReplicate)] SetPropertiesNoReplicate_req SetPropertiesNoReplicate;
+    [case(RopDeletePropertiesNoReplicate)] DeletePropertiesNoReplicate_req DeletePropertiesNoReplicate;
+    [case(RopGetStoreState)] GetStoreState_req GetStoreState;
+    [case(RopSynchronizationOpenCollector)] SyncOpenCollector_req SyncOpenCollector;
+    [case(RopGetLocalReplicaIds)] GetLocalReplicaIds_req GetLocalReplicaIds;
+    [case(RopSynchronizationImportReadStateChanges)] SyncImportReadStateChanges_req SyncImportReadStateChanges;
+    [case(RopResetTable)] ResetTable_req ResetTable;
+    [case(RopSynchronizationGetTransferState)] SyncGetTransferState_req SyncGetTransferState;
+    [case(RopOpenPublicFolderByName)] OpenPublicFolderByName_req OpenPublicFolderByName;
+    [case(RopSetSyncNotificationGuid)] SetSyncNotificationGuid_req SetSyncNotificationGuid;
+    [case(RopFreeBookmark)] FreeBookmark_req FreeBookmark;
+    [case(RopWriteAndCommitStream)] WriteAndCommitStream_req WriteAndCommitStream;
+    [case(RopHardDeleteMessages)] HardDeleteMessages_req HardDeleteMessages;
+    [case(RopHardDeleteMessagesAndSubfolders)] HardDeleteMessagesAndSubfolders_req HardDeleteMessagesAndSubfolders;
+    [case(RopLogon)] Logon_req Logon;
+    [default];
+  } RopRequest;
 
   typedef [public, nodiscriminant] union {
-    [case(op_MAPI_Release)] Release_repl mapi_Release;
-    [case(op_MAPI_OpenFolder)] OpenFolder_repl mapi_OpenFolder;
-    [case(op_MAPI_OpenMessage)] OpenMessage_repl mapi_OpenMessage;
-    [case(op_MAPI_GetHierarchyTable)] GetHierarchyTable_repl mapi_GetHierarchyTable;
-    [case(op_MAPI_GetContentsTable)] GetContentsTable_repl mapi_GetContentsTable;
-    [case(op_MAPI_CreateMessage)] CreateMessage_repl mapi_CreateMessage;
-    [case(op_MAPI_GetProps)] GetProps_repl mapi_GetProps;
-    [case(op_MAPI_GetPropsAll)] GetPropsAll_repl mapi_GetPropsAll;
-    [case(op_MAPI_GetPropList)] GetPropList_repl mapi_GetPropList;
-    [case(op_MAPI_SetProps)] SetProps_repl mapi_SetProps;
-    [case(op_MAPI_DeleteProps)] DeleteProps_repl mapi_DeleteProps;
-    [case(op_MAPI_SaveChangesMessage)] SaveChangesMessage_repl mapi_SaveChangesMessage;
-    [case(op_MAPI_RemoveAllRecipients)] RemoveAllRecipients_repl mapi_RemoveAllRecipients;
-    [case(op_MAPI_ModifyRecipients)] ModifyRecipients_repl mapi_ModifyRecipients;
-    [case(op_MAPI_ReadRecipients)] ReadRecipients_repl mapi_ReadRecipients;
-    [case(op_MAPI_SetMessageReadFlag)] SetMessageReadFlag_repl mapi_SetMessageReadFlag;
-    [case(op_MAPI_ReloadCachedInformation)] ReloadCachedInformation_repl mapi_ReloadCachedInformation;
-    [case(op_MAPI_SetColumns)] SetColumns_repl mapi_SetColumns;
-    [case(op_MAPI_SortTable)] SortTable_repl mapi_SortTable;
-    [case(op_MAPI_Restrict)] Restrict_repl mapi_Restrict;
-    [case(op_MAPI_QueryRows)] QueryRows_repl mapi_QueryRows;
-    [case(op_MAPI_GetStatus)] GetStatus_repl mapi_GetStatus;
-    [case(op_MAPI_QueryPosition)] QueryPosition_repl mapi_QueryPosition;
-    [case(op_MAPI_SeekRow)] SeekRow_repl mapi_SeekRow;
-    [case(op_MAPI_SeekRowBookmark)] SeekRowBookmark_repl mapi_SeekRowBookmark;
-    [case(op_MAPI_SeekRowApprox)] SeekRowApprox_repl mapi_SeekRowApprox;
-    [case(op_MAPI_CreateBookmark)] CreateBookmark_repl mapi_CreateBookmark;
-    [case(op_MAPI_CreateFolder)] CreateFolder_repl mapi_CreateFolder;
-    [case(op_MAPI_DeleteFolder)] DeleteFolder_repl mapi_DeleteFolder;
-    [case(op_MAPI_DeleteMessages)] DeleteMessages_repl mapi_DeleteMessages;
-    [case(op_MAPI_SetMessageStatus)] SetMessageStatus_repl mapi_SetMessageStatus;
-    [case(op_MAPI_GetAttachmentTable)] GetAttachmentTable_repl mapi_GetAttachmentTable;
-    [case(op_MAPI_OpenAttach)] OpenAttach_repl mapi_OpenAttach;
-    [case(op_MAPI_CreateAttach)] CreateAttach_repl mapi_CreateAttach;
-    [case(op_MAPI_DeleteAttach)] DeleteAttach_repl mapi_DeleteAttach;
-    [case(op_MAPI_SaveChangesAttachment)] SaveChangesAttachment_repl mapi_SaveChangesAttachment;
-    [case(op_MAPI_SetReceiveFolder)] SetReceiveFolder_repl mapi_SetReceiveFolder;
-    [case(op_MAPI_GetReceiveFolder)] GetReceiveFolder_repl mapi_GetReceiveFolder;
-    [case(op_MAPI_Advise)] Advise_repl mapi_Advise;
-    [case(op_MAPI_Notify)] Notify_repl mapi_Notify;
-    [case(op_MAPI_OpenStream)] OpenStream_repl mapi_OpenStream;
-    [case(op_MAPI_ReadStream)] ReadStream_repl mapi_ReadStream;
-    [case(op_MAPI_WriteStream)] WriteStream_repl mapi_WriteStream;
-    [case(op_MAPI_SeekStream)] SeekStream_repl mapi_SeekStream;
-    [case(op_MAPI_SetStreamSize)] SetStreamSize_repl mapi_SetStreamSize;
-    [case(op_MAPI_SetSearchCriteria)] SetSearchCriteria_repl mapi_SetSearchCriteria;
-    [case(op_MAPI_GetSearchCriteria)] GetSearchCriteria_repl mapi_GetSearchCriteria;
-    [case(op_MAPI_SubmitMessage)] SubmitMessage_repl mapi_SubmitMessage;
-    [case(op_MAPI_MoveCopyMessages)] MoveCopyMessages_repl mapi_MoveCopyMessages;
-    [case(op_MAPI_AbortSubmit)] AbortSubmit_repl mapi_AbortSubmit;
-    [case(op_MAPI_MoveFolder)] MoveFolder_repl mapi_MoveFolder;
-    [case(op_MAPI_CopyFolder)] CopyFolder_repl mapi_CopyFolder;
-    [case(op_MAPI_QueryColumnsAll)] QueryColumnsAll_repl mapi_QueryColumnsAll;
-    [case(op_MAPI_Abort)] Abort_repl mapi_Abort;
-    [case(op_MAPI_CopyTo)] CopyTo_repl mapi_CopyTo;
-    [case(op_MAPI_CopyToStream)] CopyToStream_repl mapi_CopyToStream;
-    [case(op_MAPI_CloneStream)] CloneStream_repl mapi_CloneStream;
-    [case(op_MAPI_GetPermissionsTable)] GetPermissionsTable_repl mapi_GetPermissionsTable;
-    [case(op_MAPI_GetRulesTable)] GetRulesTable_repl mapi_GetRulesTable;
-    [case(op_MAPI_ModifyPermissions)] ModifyPermissions_repl mapi_ModifyPermissions;
-    [case(op_MAPI_ModifyRules)] ModifyRules_repl mapi_ModifyRules;
-    [case(op_MAPI_GetOwningServers)] GetOwningServers_repl mapi_GetOwningServers;
-    [case(op_MAPI_LongTermIdFromId)] LongTermIdFromId_repl mapi_LongTermIdFromId;
-    [case(op_MAPI_IdFromLongTermId)] IdFromLongTermId_repl mapi_IdFromLongTermId;
-    [case(op_MAPI_PublicFolderIsGhosted)] PublicFolderIsGhosted_repl mapi_PublicFolderIsGhosted;
-    [case(op_MAPI_OpenEmbeddedMessage)] OpenEmbeddedMessage_repl mapi_OpenEmbeddedMessage;
-    [case(op_MAPI_SetSpooler)] SetSpooler_repl mapi_SetSpooler;
-    [case(op_MAPI_SpoolerLockMessage)] SpoolerLockMessage_repl mapi_SpoolerLockMessage;
-    [case(op_MAPI_AddressTypes)] AddressTypes_repl mapi_AddressTypes;
-    [case(op_MAPI_TransportSend)] TransportSend_repl mapi_TransportSend;
-    [case(op_MAPI_FastTransferSourceGetBuffer)] FastTransferSourceGetBuffer_repl mapi_FastTransferSourceGetBuffer;
-    [case(op_MAPI_FindRow)] FindRow_repl mapi_FindRow;
-    [case(op_MAPI_Progress)] Progress_repl mapi_Progress;
-    [case(op_MAPI_TransportNewMail)] TransportNewMail_repl mapi_TransportNewMail;
-    [case(op_MAPI_GetValidAttachments)] GetValidAttachments_repl mapi_GetValidAttachments;
-    [case(op_MAPI_GetNamesFromIDs)] GetNamesFromIDs_repl mapi_GetNamesFromIDs;
-    [case(op_MAPI_GetIDsFromNames)] GetIDsFromNames_repl mapi_GetIDsFromNames;
-    [case(op_MAPI_UpdateDeferredActionMessages)] UpdateDeferredActionMessages_repl mapi_UpdateDeferredActionMessages;
-    [case(op_MAPI_EmptyFolder)] EmptyFolder_repl mapi_EmptyFolder;
-    [case(op_MAPI_ExpandRow)] ExpandRow_repl mapi_ExpandRow;
-    [case(op_MAPI_CollapseRow)] CollapseRow_repl mapi_CollapseRow;
-    [case(op_MAPI_LockRegionStream)] LockRegionStream_repl mapi_LockRegionStream;
-    [case(op_MAPI_UnlockRegionStream)] UnlockRegionStream_repl mapi_UnlockRegionStream;
-    [case(op_MAPI_CommitStream)] CommitStream_repl mapi_CommitStream;
-    [case(op_MAPI_GetStreamSize)] GetStreamSize_repl mapi_GetStreamSize;
-    [case(op_MAPI_QueryNamedProperties)] QueryNamedProperties_repl mapi_QueryNamedProperties;
-    [case(op_MAPI_GetPerUserLongTermIds)] GetPerUserLongTermIds_repl mapi_GetPerUserLongTermIds;
-    [case(op_MAPI_GetPerUserGuid)] GetPerUserGuid_repl mapi_GetPerUserGuid;
-    [case(op_MAPI_ReadPerUserInformation)] ReadPerUserInformation_repl mapi_ReadPerUserInformation;
-    [case(op_MAPI_SetReadFlags)] SetReadFlags_repl mapi_SetReadFlags;
-    [case(op_MAPI_CopyProperties)] CopyProperties_repl mapi_CopyProperties;
-    [case(op_MAPI_GetReceiveFolderTable)] GetReceiveFolderTable_repl mapi_GetReceiveFolderTable;
-    [case(op_MAPI_Pending)] Pending_repl mapi_Pending;
-    [case(op_MAPI_GetCollapseState)] GetCollapseState_repl mapi_GetCollapseState;
-    [case(op_MAPI_SetCollapseState)] SetCollapseState_repl mapi_SetCollapseState;
-    [case(op_MAPI_GetTransportFolder)] GetTransportFolder_repl mapi_GetTransportFolder;
-    [case(op_MAPI_OptionsData)] OptionsData_repl mapi_OptionsData;
-    [case(op_MAPI_SyncConfigure)] SyncConfigure_repl mapi_SyncConfigure;
-    [case(op_MAPI_SyncImportMessageChange)] SyncImportMessageChange_repl mapi_SyncImportMessageChange;
-    [case(op_MAPI_SyncImportHierarchyChange)] SyncImportHierarchyChange_repl mapi_SyncImportHierarchyChange;
-    [case(op_MAPI_SyncImportDeletes)] SyncImportDeletes_repl mapi_SyncImportDeletes;
-    [case(op_MAPI_SyncUploadStateStreamBegin)] SyncUploadStateStreamBegin_repl mapi_SyncUploadStateStreamBegin;
-    [case(op_MAPI_SyncUploadStateStreamContinue)] SyncUploadStateStreamContinue_repl mapi_SyncUploadStateStreamContinue;
-    [case(op_MAPI_SyncUploadStateStreamEnd)] SyncUploadStateStreamEnd_repl mapi_SyncUploadStateStreamEnd;
-    [case(op_MAPI_SyncImportMessageMove)] SyncImportMessageMove_repl mapi_SyncImportMessageMove;
-    [case(op_MAPI_SetPropertiesNoReplicate)] SetPropertiesNoReplicate_repl mapi_SetPropertiesNoReplicate;
-    [case(op_MAPI_DeletePropertiesNoReplicate)] DeletePropertiesNoReplicate_repl mapi_DeletePropertiesNoReplicate;
-    [case(op_MAPI_GetStoreState)] GetStoreState_repl mapi_GetStoreState;
-    [case(op_MAPI_SyncOpenCollector)] SyncOpenCollector_repl mapi_SyncOpenCollector;
-    [case(op_MAPI_GetLocalReplicaIds)] GetLocalReplicaIds_repl mapi_GetLocalReplicaIds;
-    [case(op_MAPI_SyncImportReadStateChanges)] SyncImportReadStateChanges_repl mapi_SyncImportReadStateChanges;
-    [case(op_MAPI_ResetTable)] ResetTable_repl mapi_ResetTable;
-    [case(op_MAPI_SyncGetTransferState)] SyncGetTransferState_repl mapi_SyncGetTransferState;
-    [case(op_MAPI_OpenPublicFolderByName)] OpenPublicFolderByName_repl mapi_OpenPublicFolderByName;
-    [case(op_MAPI_SetSyncNotificationGuid)] SetSyncNotificationGuid_repl mapi_SetSyncNotificationGuid;
-    [case(op_MAPI_FreeBookmark)] FreeBookmark_repl mapi_FreeBookmark;
-    [case(op_MAPI_WriteAndCommitStream)] WriteAndCommitStream_repl mapi_WriteAndCommitStream;
-    [case(op_MAPI_HardDeleteMessages)] HardDeleteMessages_repl mapi_HardDeleteMessages;
-    [case(op_MAPI_HardDeleteMessagesAndSubfolders)] HardDeleteMessagesAndSubfolders_repl mapi_HardDeleteMessagesAndSubfolders;
-    [case(op_MAPI_OpenMsgStore)] OpenMsgStore_repl mapi_OpenMsgStore;
-    [case(op_MAPI_proxypack)] proxypack_repl mapi_proxypack;
-  } EcDoRpcMapiResponseOperation;
+    [case(RopRelease)] Release_repl Release;
+    [case(RopOpenFolder)] OpenFolder_repl OpenFolder;
+    [case(RopOpenMessage)] OpenMessage_repl OpenMessage;
+    [case(RopGetHierarchyTable)] GetHierarchyTable_repl GetHierarchyTable;
+    [case(RopGetContentsTable)] GetContentsTable_repl GetContentsTable;
+    [case(RopCreateMessage)] CreateMessage_repl CreateMessage;
+    [case(RopGetPropertiesSpecific)] GetProps_repl GetProps;
+    [case(RopGetPropertiesAll)] GetPropsAll_repl GetPropsAll;
+    [case(RopGetPropertiesList)] GetPropList_repl GetPropList;
+    [case(RopSetProperties)] SetProps_repl SetProps;
+    [case(RopDeleteProperties)] DeleteProps_repl DeleteProps;
+    [case(RopSaveChangesMessage)] SaveChangesMessage_repl SaveChangesMessage;
+    [case(RopRemoveAllRecipients)] RemoveAllRecipients_repl RemoveAllRecipients;
+    [case(RopModifyRecipients)] ModifyRecipients_repl ModifyRecipients;
+    [case(RopReadRecipients)] ReadRecipients_repl ReadRecipients;
+    [case(RopSetMessageReadFlag)] SetMessageReadFlag_repl SetMessageReadFlag;
+    [case(RopReloadCachedInformation)] ReloadCachedInformation_repl ReloadCachedInformation;
+    [case(RopSetColumns)] SetColumns_repl SetColumns;
+    [case(RopSortTable)] SortTable_repl SortTable;
+    [case(RopRestrict)] Restrict_repl Restrict;
+    [case(RopQueryRows)] QueryRows_repl QueryRows;
+    [case(RopGetStatus)] GetStatus_repl GetStatus;
+    [case(RopQueryPosition)] QueryPosition_repl QueryPosition;
+    [case(RopSeekRow)] SeekRow_repl SeekRow;
+    [case(RopSeekRowBookmark)] SeekRowBookmark_repl SeekRowBookmark;
+    [case(RopSeekRowFractional)] SeekRowApprox_repl SeekRowApprox;
+    [case(RopCreateBookmark)] CreateBookmark_repl CreateBookmark;
+    [case(RopCreateFolder)] CreateFolder_repl CreateFolder;
+    [case(RopDeleteFolder)] DeleteFolder_repl DeleteFolder;
+    [case(RopDeleteMessages)] DeleteMessages_repl DeleteMessages;
+    [case(RopSetMessageStatus)] SetMessageStatus_repl SetMessageStatus;
+    [case(RopGetAttachmentTable)] GetAttachmentTable_repl GetAttachmentTable;
+    [case(RopOpenAttachment)] OpenAttach_repl OpenAttach;
+    [case(RopCreateAttachment)] CreateAttach_repl CreateAttach;
+    [case(RopDeleteAttachment)] DeleteAttach_repl DeleteAttach;
+    [case(RopSaveChangesAttachment)] SaveChangesAttachment_repl SaveChangesAttachment;
+    [case(RopSetReceiveFolder)] SetReceiveFolder_repl SetReceiveFolder;
+    [case(RopGetReceiveFolder)] GetReceiveFolder_repl GetReceiveFolder;
+    [case(RopRegisterNotification)] RegisterNotification_repl Advise;
+    [case(RopNotify)] Notify_repl Notify;
+    [case(RopOpenStream)] OpenStream_repl OpenStream;
+    [case(RopReadStream)] ReadStream_repl ReadStream;
+    [case(RopWriteStream)] WriteStream_repl WriteStream;
+    [case(RopSeekStream)] SeekStream_repl SeekStream;
+    [case(RopSetStreamSize)] SetStreamSize_repl SetStreamSize;
+    [case(RopSetSearchCriteria)] SetSearchCriteria_repl SetSearchCriteria;
+    [case(RopGetSearchCriteria)] GetSearchCriteria_repl GetSearchCriteria;
+    [case(RopSubmitMessage)] SubmitMessage_repl SubmitMessage;
+    [case(RopMoveCopyMessages)] MoveCopyMessages_repl MoveCopyMessages;
+    [case(RopAbortSubmit)] AbortSubmit_repl AbortSubmit;
+    [case(RopMoveFolder)] MoveFolder_repl MoveFolder;
+    [case(RopCopyFolder)] CopyFolder_repl CopyFolder;
+    [case(RopQueryColumnsAll)] QueryColumnsAll_repl QueryColumnsAll;
+    [case(RopAbort)] Abort_repl Abort;
+    [case(RopCopyTo)] CopyTo_repl CopyTo;
+    [case(RopCopyToStream)] CopyToStream_repl CopyToStream;
+    [case(RopCloneStream)] CloneStream_repl CloneStream;
+    [case(RopGetPermissionsTable)] GetPermissionsTable_repl GetPermissionsTable;
+    [case(RopGetRulesTable)] GetRulesTable_repl GetRulesTable;
+    [case(RopModifyPermissions)] ModifyPermissions_repl ModifyPermissions;
+    [case(RopModifyRules)] ModifyRules_repl ModifyRules;
+    [case(RopGetOwningServers)] GetOwningServers_repl GetOwningServers;
+    [case(RopLongTermIdFromId)] LongTermIdFromId_repl LongTermIdFromId;
+    [case(RopIdFromLongTermId)] IdFromLongTermId_repl IdFromLongTermId;
+    [case(RopPublicFolderIsGhosted)] PublicFolderIsGhosted_repl PublicFolderIsGhosted;
+    [case(RopOpenEmbeddedMessage)] OpenEmbeddedMessage_repl OpenEmbeddedMessage;
+    [case(RopSetSpooler)] SetSpooler_repl SetSpooler;
+    [case(RopSpoolerLockMessage)] SpoolerLockMessage_repl SpoolerLockMessage;
+    [case(RopGetAddressTypes)] AddressTypes_repl AddressTypes;
+    [case(RopTransportSend)] TransportSend_repl TransportSend;
+    [case(RopFastTransferSourceGetBuffer)] FastTransferSourceGetBuffer_repl FastTransferSourceGetBuffer;
+    [case(RopFindRow)] FindRow_repl FindRow;
+    [case(RopProgress)] Progress_repl Progress;
+    [case(RopTransportNewMail)] TransportNewMail_repl TransportNewMail;
+    [case(RopGetValidAttachments)] GetValidAttachments_repl GetValidAttachments;
+    [case(RopGetNamesFromPropertyIds)] GetNamesFromIDs_repl GetNamesFromIDs;
+    [case(RopGetPropertyIdsFromNames)] GetIDsFromNames_repl GetIDsFromNames;
+    [case(RopUpdateDeferredActionMessages)] UpdateDeferredActionMessages_repl UpdateDeferredActionMessages;
+    [case(RopEmptyFolder)] EmptyFolder_repl EmptyFolder;
+    [case(RopExpandRow)] ExpandRow_repl ExpandRow;
+    [case(RopCollapseRow)] CollapseRow_repl CollapseRow;
+    [case(RopLockRegionStream)] LockRegionStream_repl LockRegionStream;
+    [case(RopUnlockRegionStream)] UnlockRegionStream_repl UnlockRegionStream;
+    [case(RopCommitStream)] CommitStream_repl CommitStream;
+    [case(RopGetStreamSize)] GetStreamSize_repl GetStreamSize;
+    [case(RopQueryNamedProperties)] QueryNamedProperties_repl QueryNamedProperties;
+    [case(RopGetPerUserLongTermIds)] GetPerUserLongTermIds_repl GetPerUserLongTermIds;
+    [case(RopGetPerUserGuid)] GetPerUserGuid_repl GetPerUserGuid;
+    [case(RopReadPerUserInformation)] ReadPerUserInformation_repl ReadPerUserInformation;
+    [case(RopSetReadFlags)] SetReadFlags_repl SetReadFlags;
+    [case(RopCopyProperties)] CopyProperties_repl CopyProperties;
+    [case(RopGetReceiveFolderTable)] GetReceiveFolderTable_repl GetReceiveFolderTable;
+    [case(RopPending)] Pending_repl Pending;
+    [case(RopGetCollapseState)] GetCollapseState_repl GetCollapseState;
+    [case(RopSetCollapseState)] SetCollapseState_repl SetCollapseState;
+    [case(RopGetTransportFolder)] GetTransportFolder_repl GetTransportFolder;
+    [case(RopOptionsData)] OptionsData_repl OptionsData;
+    [case(RopSynchronizationConfigure)] SyncConfigure_repl SyncConfigure;
+    [case(RopSynchronizationImportMessageChange)] SyncImportMessageChange_repl SyncImportMessageChange;
+    [case(RopSynchronizationImportHierarchyChange)] SyncImportHierarchyChange_repl SyncImportHierarchyChange;
+    [case(RopSynchronizationImportDeletes)] SyncImportDeletes_repl SyncImportDeletes;
+    [case(RopSynchronizationUploadStateStreamBegin)] SyncUploadStateStreamBegin_repl SyncUploadStateStreamBegin;
+    [case(RopSynchronizationUploadStateStreamContinue)] SyncUploadStateStreamContinue_repl SyncUploadStateStreamContinue;
+    [case(RopSynchronizationUploadStateStreamEnd)] SyncUploadStateStreamEnd_repl SyncUploadStateStreamEnd;
+    [case(RopSynchronizationImportMessageMove)] SyncImportMessageMove_repl SyncImportMessageMove;
+    [case(RopSetPropertiesNoReplicate)] SetPropertiesNoReplicate_repl SetPropertiesNoReplicate;
+    [case(RopDeletePropertiesNoReplicate)] DeletePropertiesNoReplicate_repl DeletePropertiesNoReplicate;
+    [case(RopGetStoreState)] GetStoreState_repl GetStoreState;
+    [case(RopSynchronizationOpenCollector)] SyncOpenCollector_repl SyncOpenCollector;
+    [case(RopGetLocalReplicaIds)] GetLocalReplicaIds_repl GetLocalReplicaIds;
+    [case(RopSynchronizationImportReadStateChanges)] SyncImportReadStateChanges_repl SyncImportReadStateChanges;
+    [case(RopResetTable)] ResetTable_repl ResetTable;
+    [case(RopSynchronizationGetTransferState)] SyncGetTransferState_repl SyncGetTransferState;
+    [case(RopOpenPublicFolderByName)] OpenPublicFolderByName_repl OpenPublicFolderByName;
+    [case(RopSetSyncNotificationGuid)] SetSyncNotificationGuid_repl SetSyncNotificationGuid;
+    [case(RopFreeBookmark)] FreeBookmark_repl FreeBookmark;
+    [case(RopWriteAndCommitStream)] WriteAndCommitStream_repl WriteAndCommitStream;
+    [case(RopHardDeleteMessages)] HardDeleteMessages_repl HardDeleteMessages;
+    [case(RopHardDeleteMessagesAndSubfolders)] HardDeleteMessagesAndSubfolders_repl HardDeleteMessagesAndSubfolders;
+    [case(RopLogon)] Logon_repl Logon;
+    [case(RopBufferTooSmall)] RopBufferTooSmall_repl RopBufferTooSmall;
+    [default];
+  } RopReply;
 
   typedef [public,flag(NDR_NOALIGN)] struct {
     uint8   opnum;
-    uint8   logon_id;
-    uint8   handle_idx;
-    [switch_is(opnum)] EcDoRpcMapiRequestOperation u;
+    [switch_is(opnum)] RopRequest u;
   } EcDoRpcMapiRequest;
 
   typedef [public,nopush,nopull,noprint,flag(NDR_NOALIGN)] struct {
     uint8       opnum;
-    uint8       handle_idx;
-    MAPISTATUS  error_code;
-    [switch_is(opnum)] EcDoRpcMapiResponseOperation u;
+    /*uint8       handle_idx;
+    MAPISTATUS  error_code;*/
+    [switch_is(opnum)] RopReply u;
   } EcDoRpcMapiResponse;
 
   typedef [public,nopull,nopush,noprint] struct {
     uint32      mapi_len; /* whole mapi_data length */
-    uint16      length;   /* content length */
-    EcDoRpcMapiRequest  mapi_req;
-    uint32      *handles; /* handles id array */
+    uint16      length;   /* obfuscated: content length */
+    EcDoRpcMapiRequest  rpcRequest; /* obfuscated */
+    uint32      *handles; /* obfuscated: handles id array */
   } mapi_request;
 
   typedef [public,nopull,nopush,noprint] struct {
     uint32      mapi_len;
-    uint16      length;
-    EcDoRpcMapiResponse mapi_repl;
-    uint32      *handles;
+    uint16      length;               /* obfuscated: content length */
+    EcDoRpcMapiResponse rpcResponse; /* obfuscated */
+    uint32      *handles;            /* obfuscated: handles id array */
   } mapi_response;
 
   WERROR mapi_EcDoRpc(
@@ -3195,9 +3560,9 @@ import "nspi.idl";
   WERROR mapi_EcDoRpcExt(
     [in, out, ref]      policy_handle * pcxh,
     [in, out]           RpcExt2Flags *pulFlags,
-    [in, size_is(cbIn)] uint8 *rgbIn,
+    [in, represent_as(4)] RgbIn *rgbIn,
     [in]                uint32 cbIn,
-    [out, length_is(*pcbOut), size_is(*pcbOut)] uint8 *rgbOut,
+    [out, length_is(*pcbOut), size_is(*pcbOut)] RgbOut *rgbOut,
     [in, out] [range(0x0, 0x40000)] uint32 *pcbOut,
     [in,represent_as(4),flag(NDR_NOALIGN|NDR_REMAINING)] AuxInfo  *rgbAuxIn,
     [in] uint32 cbAuxIn,
@@ -3569,12 +3934,12 @@ import "nspi.idl";
 
   typedef [public,nopull,noprint] struct {
     uint32 auxInSize;
-    RPC_HEADER_EXT RPC_HEADER_EXT;
+    RPC_HEADER_EXT RpcHeaderExtension;
     AUX_HEADER  auxHeader[0]; /* Plain LZ77 Compressed */
   } AuxInfo;
 
   typedef [public,nopull,noprint] struct {
-    RPC_HEADER_EXT RPC_HEADER_EXT;
+    RPC_HEADER_EXT RpcHeaderExtension;
     AUX_HEADER  auxHeader[0]; /* Plain LZ77 Compressed */
   } AuxInfoOut;
 
@@ -3614,12 +3979,44 @@ import "nspi.idl";
     Chain         = 0x00000004
   } RpcExt2Flags;
 
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    ROP_OPNUM   RopId;
+    [switch_is(RopId)] RopRequest u;
+  } RopInput;
+
+  typedef [public,nopull] struct {
+    uint16 ropSize;
+    RopInput rop[0];
+    uint32 objectHandles[0]; /* ServerObjectHandleTable */
+  } ROPInputBuffer;
+
+  typedef [public,nopull] struct {
+    RPC_HEADER_EXT RpcHeaderExtension;
+    [flag(NDR_REMAINING|NDR_NOALIGN)] ROPInputBuffer  ropIn;
+  } RgbIn;
+
+  typedef [public,flag(NDR_NOALIGN)] struct {
+    ROP_OPNUM   RopId;
+    [switch_is(RopId)] RopReply u;
+  } RopOutput;
+
+  typedef [public,nopull] struct {
+    uint16 ropSize;
+    RopOutput rop[0];
+    uint32 objectHandles[0]; /* ServerObjectHandleTable */
+  } ROPOutputBuffer;
+
+  typedef [public,nopull] struct {
+    RPC_HEADER_EXT              RpcHeaderExtension;
+    [flag(NDR_REMAINING|NDR_NOALIGN)] ROPOutputBuffer  ropOut;
+  } RgbOut;
+
   WERROR mapi_EcDoRpcExt2(
     [in, out, ref]      policy_handle * pcxh,
     [in, out]           RpcExt2Flags *pulFlags,
-    [in, size_is(cbIn)] uint8 *rgbIn,
+    [in, represent_as(4)] RgbIn *rgbIn,
     [in]                uint32 cbIn,
-    [out, length_is(*pcbOut), size_is(*pcbOut)] uint8 *rgbOut,
+    [out, length_is(*pcbOut), size_is(*pcbOut)] RgbOut *rgbOut,
     [in, out] [range(0x0, 0x40000)] uint32 *pcbOut,
     [in,represent_as(4),flag(NDR_NOALIGN|NDR_REMAINING)] AuxInfo  *rgbAuxIn,
     [in] uint32 cbAuxIn,

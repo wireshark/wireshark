@@ -520,7 +520,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  */
 #define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-        unsigned char* new_buf = len ? (char *)g_memdup2(buf,len) : NULL; \
+	unsigned char* new_buf = len ? (unsigned char *)g_memdup2(buf,len) : NULL; \
 	g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_buf; \
 	(((rec_t*)rec)->len_element) = len; } \

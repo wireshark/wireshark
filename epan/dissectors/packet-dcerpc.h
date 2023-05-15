@@ -19,6 +19,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define DCERPC_TABLE_NAME "dcerpc.uuid"
 /*
  * Data representation.
  */
