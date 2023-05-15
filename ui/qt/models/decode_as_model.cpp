@@ -417,6 +417,7 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                     // FT_NONE tables don't need a value
                     if (selector != NULL || selector_type == FT_NONE) {
                         item = new DecodeAsItem(entry, selector);
+                        break;
                     }
 
                 }
