@@ -117,6 +117,7 @@ batched
 baudrate
 bayer
 bband
+bblog
 bcast
 beamformed
 beamformee
@@ -308,6 +309,7 @@ crypto
 cryptographic
 csapi
 ctime
+ctxinfo
 ctype
 cumulated
 cumulatively
@@ -490,6 +492,7 @@ enumerator
 envchange
 epasv
 epdcch
+eperm
 epsem
 equinf
 equiv
@@ -834,6 +837,7 @@ memcache
 memcpy
 menubar
 mergecap
+merkle
 meshcop
 messageid
 metadata
@@ -945,6 +949,7 @@ ngran
 ngsniffer
 niagra
 nitnxlate
+nnsvc
 noascii
 noauth
 nodeid
@@ -996,6 +1001,7 @@ ofdma
 offloadability
 ofpat
 ofpbac
+ofpbrc
 ofpet
 ofpmp
 ofppf
@@ -1571,6 +1577,7 @@ ucast
 udpcp
 udpdump
 udphdr
+udrei
 uievent
 uint16
 uint32

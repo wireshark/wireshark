@@ -5425,7 +5425,7 @@ proto_register_quic(void)
         },
         { &ei_quic_data_after_forcing_vn,
           { "quic.data_after_forcing_vn", PI_PROTOCOL, PI_NOTE,
-            "Unexpected data on a Forcing Version Negotiation paket", EXPFILL }
+            "Unexpected data on a Forcing Version Negotiation packet", EXPFILL }
         },
     };
 

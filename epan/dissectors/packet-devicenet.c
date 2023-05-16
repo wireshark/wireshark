@@ -141,7 +141,7 @@ UAT_VS_DEF(uat_devicenet_records, behavior, uat_devicenet_record_t, enum node_be
 #if 0
 static const enum_val_t bodytype_devicenet_protocol_options[] = {
     { "eightovereight", "8/8", 0 },
-    { "eightoversixten", "8/16", 1 },
+    { "eightoversixteen", "8/16", 1 },
     { "sixteenovereight", "16/8", 2 },
     { "sixteenoversixteen", "16/16", 3 },
     { NULL, NULL, 0 }
