@@ -38,6 +38,8 @@
  */
 #define SAPHDB_PORT_RANGE "30013,30015"
 
+/* Header Length */
+#define SAPHDB_HEADER_LEN 32
 
 /* SAP HDB Packet Options values */
 static const value_string saphdb_message_header_packetoptions_vals[] = {
@@ -1127,7 +1129,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	col_clear(pinfo->cinfo,COL_INFO);
 
 	/* we are being asked for details */
-	if (tvb_reported_length(tvb) == 8 || tvb_reported_length(tvb) == 14 || tvb_reported_length(tvb) >= 32) {
+	if (tvb_reported_length(tvb) == 8 || tvb_reported_length(tvb) == 14 || tvb_reported_length(tvb) >= SAPHDB_HEADER_LEN) {
 
 		proto_item *ti = NULL;
 		proto_tree *saphdb_tree = NULL;
@@ -1164,7 +1166,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			col_add_str(pinfo->cinfo, COL_INFO, "Initialization Reply");
 
 		/* All other message types */
-		} else if (tvb_reported_length(tvb) >= 32) {
+		} else if (tvb_reported_length(tvb) >= SAPHDB_HEADER_LEN) {
 
 			gboolean compressed = FALSE;
 			gint16 number_of_segments = 0;
@@ -1173,7 +1175,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			proto_tree *message_header_tree = NULL, *message_buffer_tree = NULL;
 
 			/* Add the Message Header subtree */
-			message_header_item = proto_tree_add_item(saphdb_tree, hf_saphdb_message_header, tvb, offset, 32, ENC_NA);
+			message_header_item = proto_tree_add_item(saphdb_tree, hf_saphdb_message_header, tvb, offset, SAPHDB_HEADER_LEN, ENC_NA);
 			message_header_tree = proto_item_add_subtree(message_header_item, ett_saphdb);
 
 			/* Add the Message Header fields */
@@ -1241,7 +1243,7 @@ get_saphdb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 {
 	/* Entire HDB packets are of 32-bytes header plus the value in varpartlength field */
 	guint32 varpartlength = tvb_get_guint32(tvb, offset + 12, ENC_LITTLE_ENDIAN);
-	return varpartlength + 32;
+	return varpartlength + SAPHDB_HEADER_LEN;
 }
 
 static int
@@ -1258,7 +1260,10 @@ dissect_saphdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	}
 	else
 	{
-		tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 32, get_saphdb_pdu_len, dissect_saphdb_tcp, data);
+		if (!tvb_bytes_exist(tvb, 0, SAPHDB_HEADER_LEN))
+			return 0;
+
+		tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SAPHDB_HEADER_LEN, get_saphdb_pdu_len, dissect_saphdb_tcp, data);
 	}
 	return tvb_reported_length(tvb);
 }
