@@ -150,6 +150,7 @@
 #include <math.h>
 
 #include "packet-tcp.h"
+#include "packet-ber.h"
 
 #define TDS_QUERY_PKT        1 /* SQLBatch in MS-TDS revision 18.0 */
 #define TDS_LOGIN_PKT        2
@@ -1332,6 +1333,7 @@ static gboolean tds_defragment = TRUE;
 static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
+static dissector_handle_t spnego_handle;
 static dissector_handle_t smp_handle;
 static dissector_handle_t tls_handle;
 
@@ -1785,17 +1787,35 @@ struct tds7_login_packet_hdr {
 
 /* support routines */
 
+/*
+ * https://github.com/FreeTDS/freetds/blob/master/src/tds/gssapi.c
+ * " There are some differences between this implementation and MS on
+ * - MS use SPNEGO with 3 mechnisms (MS KRB5, KRB5, NTLMSSP..."
+ *
+ * FreeTDS uses a GSS-API implementation, but MS uses SPNEGO (both
+ * in 4.2 [MS-SSTDS] and 7.x and 8 [MS-TSD]) that is incompatible.
+ * Both report similar TDS versions, so check for either.
+ */
 static void
 dissect_tds_nt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                guint offset)
 {
     tvbuff_t *nt_tvb;
+    gint8 ber_class;
+    gboolean pc;
+    gint32 tag;
 
     nt_tvb = tvb_new_subset_remaining(tvb, offset);
     if(tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0)
         call_dissector(ntlmssp_handle, nt_tvb, pinfo, tree);
-    else
-        call_dissector(gssapi_handle, nt_tvb, pinfo, tree);
+    else {
+        get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+        if (ber_class == BER_CLASS_CON && pc && (tag == 0 || tag == 1)) {
+            call_dissector(spnego_handle, nt_tvb, pinfo, tree);
+        } else {
+            call_dissector(gssapi_handle, nt_tvb, pinfo, tree);
+        }
+    }
 }
 
 static guint
@@ -5407,6 +5427,9 @@ dissect_tds_sspi_token(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tr
 {
     guint cur = offset, len_field_val;
     int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+    guint8 ber_class;
+    gboolean pc;
+    gint32 tag;
 
     len_field_val = tvb_get_guint16(tvb, cur, encoding);
     cur += 2;
@@ -5416,8 +5439,14 @@ dissect_tds_sspi_token(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tr
 
         if(tvb_strneql(tvb, cur, "NTLMSSP", 7) == 0)
             call_dissector(ntlmssp_handle, nt_tvb, pinfo, tree);
-        else
-            call_dissector(gssapi_handle, nt_tvb, pinfo, tree);
+        else {
+            get_ber_identifier(tvb, cur, &ber_class, &pc, &tag);
+            if (ber_class == BER_CLASS_CON && pc && (tag == 0 || tag == 1)) {
+                call_dissector(spnego_handle, nt_tvb, pinfo, tree);
+            } else {
+                call_dissector(gssapi_handle, nt_tvb, pinfo, tree);
+            }
+        }
 
         cur += len_field_val;
     }
@@ -10426,6 +10455,7 @@ proto_reg_handoff_tds(void)
 
     ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_tds);
+    spnego_handle = find_dissector_add_dependency("spnego", proto_tds);
     smp_handle = find_dissector_add_dependency("smp_tds", proto_tds);
     tls_handle = find_dissector_add_dependency("tls", proto_tds);
 
