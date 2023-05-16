@@ -1358,6 +1358,8 @@ typedef struct {
 typedef struct {
     tds_conv_cursor_info_t *tds_conv_cursor_info;
     gint tds_version;
+    guint32 client_version;
+    guint32 server_version;
     guint tds_encoding_int2;
     guint tds_encoding_int4;
     guint tds_encoding_char;
@@ -3999,8 +4001,12 @@ set_tds7_encodings(tds_conv_info_t *tds_info)
 }
 
 static void
-set_tds_version(tds_conv_info_t *tds_info, guint32 tds_version)
+set_tds_version(packet_info *pinfo, tds_conv_info_t *tds_info, guint32 tds_version)
 {
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
     switch (tds_version) {
         case TDS_PROTOCOL_VALUE_4_2:
             tds_info->tds_version = TDS_PROTOCOL_4;
@@ -4011,58 +4017,66 @@ set_tds_version(tds_conv_info_t *tds_info, guint32 tds_version)
         case TDS_PROTOCOL_VALUE_5:
             tds_info->tds_version = TDS_PROTOCOL_5;
             break;
-        case 0x0700026f: /* SQL Server 7.0 */
-        case 0x070002bb: /* SQL Server 7.0 SP1 */
-        case 0x0700034a: /* SQL Server 7.0 SP2 */
-        case 0x070003c1: /* SQL Server 7.0 SP3 */
-        case 0x07000427: /* SQL Server 7.0 SP4 */
         case TDS_PROTOCOL_VALUE_7_0:
             tds_info->tds_version = TDS_PROTOCOL_7_0;
             set_tds7_encodings(tds_info);
             break;
-        case 0x080000c2: /* SQL Server 2000 */
-        case 0x08000180: /* SQL Server 2000 SP1 */
-        case 0x08000214: /* SQL Server 2000 SP2 */
-        case 0x080002f8: /* SQL Server 2000 SP3 */
-        case 0x080007f7: /* SQL Server 2000 SP4 */
         case TDS_PROTOCOL_VALUE_7_1:
         case TDS_PROTOCOL_VALUE_7_1_1:
             tds_info->tds_version = TDS_PROTOCOL_7_1;
             set_tds7_encodings(tds_info);
             break;
-        case 0x09000577: /* SQL Server 2005 */
-        case 0x090007ff: /* SQL Server 2005 SP1 */
-        case 0x09000be2: /* SQL Server 2005 SP2 */
-        case 0x09000fc3: /* SQL Server 2005 SP3 */
-        case 0x09001388: /* SQL Server 2005 SP4 */
         case TDS_PROTOCOL_VALUE_7_2:
             tds_info->tds_version = TDS_PROTOCOL_7_2;
             set_tds7_encodings(tds_info);
             break;
-        case 0x0a000640: /* SQL Server 2008 */
-        case 0x0a0009e3: /* SQL Server 2008 SP1 */
-        case 0x0a0109e3: /* SQL Server 2008 SP1 */
-        case 0x0a000fa0: /* SQL Server 2008 SP2 */
-        case 0x0a020fa0: /* SQL Server 2008 SP2 */
-        case 0x0a00157c: /* SQL Server 2008 SP3 */
-        case 0x0a03157c: /* SQL Server 2008 SP3 */
-        case 0x0a001770: /* SQL Server 2008 SP4 */
-        case 0x0a041770: /* SQL Server 2008 SP4 */
         case TDS_PROTOCOL_VALUE_7_3A:
             tds_info->tds_version = TDS_PROTOCOL_7_3A;
             set_tds7_encodings(tds_info);
             break;
-        case 0x0a320640: /* SQL Server 2008 R2 */
-        case 0x0a3209c4: /* SQL Server 2008 R2 SP1 */
-        case 0x0a3309c4: /* SQL Server 2008 R2 SP1 */
-        case 0x0a320fa0: /* SQL Server 2008 R2 SP2 */
-        case 0x0a340fa0: /* SQL Server 2008 R2 SP2 */
-        case 0x0a321770: /* SQL Server 2008 R2 SP3 */
-        case 0x0a351770: /* SQL Server 2008 R2 SP3 */
         case TDS_PROTOCOL_VALUE_7_3B:
             tds_info->tds_version = TDS_PROTOCOL_7_3B;
             set_tds7_encodings(tds_info);
             break;
+        case TDS_PROTOCOL_VALUE_7_4:
+            tds_info->tds_version = TDS_PROTOCOL_7_4;
+            set_tds7_encodings(tds_info);
+            break;
+        default:
+            tds_info->tds_version = TDS_PROTOCOL_7_4;
+            break;
+    }
+}
+
+static void
+set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info, guint32 prog_version, gboolean is_server)
+{
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
+    /* Support the latest version supported by both client and server,
+     * if known. (It is possible for the LOGIN7 message to be over TLS,
+     * not decrypted, and then in the response a token such as Info
+     * that depends on the version appear before the LoginAck token that
+     * confirms the version. See the capture in !9530.)
+     */
+    if (is_server) {
+        tds_info->server_version = prog_version;
+        if (tds_info->client_version != TDS_PROTOCOL_NOT_SPECIFIED) {
+            prog_version = MIN(prog_version, tds_info->client_version);
+        }
+    } else {
+        tds_info->client_version = prog_version;
+        if (tds_info->server_version != TDS_PROTOCOL_NOT_SPECIFIED) {
+            prog_version = MIN(prog_version, tds_info->server_version);
+        }
+    }
+
+    guint16 major_minor = prog_version >> 16;
+
+    if (major_minor >= 0x0b00) {
+#if 0
         case 0x0b000834: /* SQL Server 2012 */
         case 0x0b000bb8: /* SQL Server 2012 SP1 */
         case 0x0b010bb8: /* SQL Server 2012 SP1 */
@@ -4080,14 +4094,73 @@ set_tds_version(tds_conv_info_t *tds_info, guint32 tds_version)
         case 0x0d000641: /* SQL Server 2016 */
         case 0x0d000fa1: /* SQL Server 2016 SP1 */
         case 0x0d010fa1: /* SQL Server 2016 SP1 */
-        case 0x030003e8: /* SQL Server 2017 */
-        case TDS_PROTOCOL_VALUE_7_4:
-            tds_info->tds_version = TDS_PROTOCOL_7_4;
-            set_tds7_encodings(tds_info);
-            break;
-        default:
-            tds_info->tds_version = TDS_PROTOCOL_7_4;
-            break;
+        case 0x0e0003e8: /* SQL Server 2017 */
+        case 0x0f0007d0: /* SQL Server 2019 */
+        case 0x100003e8: /* SQL Server 2022 - supports TDS version 8.0,
+                            though this dissector does not yet. */
+#endif
+        tds_info->tds_version = TDS_PROTOCOL_7_4;
+    } else if (major_minor >= 0x0a32) {
+#if 0
+        case 0x0a320640: /* SQL Server 2008 R2 */
+        case 0x0a3209c4: /* SQL Server 2008 R2 SP1 */
+        case 0x0a3309c4: /* SQL Server 2008 R2 SP1 */
+        case 0x0a320fa0: /* SQL Server 2008 R2 SP2 */
+        case 0x0a340fa0: /* SQL Server 2008 R2 SP2 */
+        case 0x0a321770: /* SQL Server 2008 R2 SP3 */
+        case 0x0a351770: /* SQL Server 2008 R2 SP3 */
+#endif
+        tds_info->tds_version = TDS_PROTOCOL_7_3B;
+        set_tds7_encodings(tds_info);
+    } else if (major_minor >= 0x0a00) {
+#if 0
+        case 0x0a000640: /* SQL Server 2008 */
+        case 0x0a0009e3: /* SQL Server 2008 SP1 */
+        case 0x0a0109e3: /* SQL Server 2008 SP1 */
+        case 0x0a000fa0: /* SQL Server 2008 SP2 */
+        case 0x0a020fa0: /* SQL Server 2008 SP2 */
+        case 0x0a00157c: /* SQL Server 2008 SP3 */
+        case 0x0a03157c: /* SQL Server 2008 SP3 */
+        case 0x0a001770: /* SQL Server 2008 SP4 */
+        case 0x0a041770: /* SQL Server 2008 SP4 */
+#endif
+        tds_info->tds_version = TDS_PROTOCOL_7_3A;
+        set_tds7_encodings(tds_info);
+    } else if (major_minor >= 0x0900) {
+#if 0
+        case 0x09000577: /* SQL Server 2005 */
+        case 0x090007ff: /* SQL Server 2005 SP1 */
+        case 0x09000be2: /* SQL Server 2005 SP2 */
+        case 0x09000fc3: /* SQL Server 2005 SP3 */
+        case 0x09001388: /* SQL Server 2005 SP4 */
+#endif
+        tds_info->tds_version = TDS_PROTOCOL_7_2;
+        set_tds7_encodings(tds_info);
+    } else if (major_minor >= 0x0800) {
+#if 0
+        case 0x080000c2: /* SQL Server 2000 */
+        case 0x08000180: /* SQL Server 2000 SP1 */
+        case 0x08000214: /* SQL Server 2000 SP2 */
+        case 0x080002f8: /* SQL Server 2000 SP3 */
+        case 0x080007f7: /* SQL Server 2000 SP4 */
+#endif
+        tds_info->tds_version = TDS_PROTOCOL_7_1;
+        set_tds7_encodings(tds_info);
+    } else if (major_minor >= 0x0700) {
+#if 0
+        case 0x0700026f: /* SQL Server 7.0 */
+        case 0x070002bb: /* SQL Server 7.0 SP1 */
+        case 0x0700034a: /* SQL Server 7.0 SP2 */
+        case 0x070003c1: /* SQL Server 7.0 SP3 */
+        case 0x07000427: /* SQL Server 7.0 SP4 */
+#endif
+        tds_info->tds_version = TDS_PROTOCOL_7_0;
+        set_tds7_encodings(tds_info);
+    } else {
+        /* Shouldn't happen. We only call this from a prelogin packet,
+         * which implies TDS 7.0 and later.
+         */
+        tds_info->tds_version = TDS_PROTOCOL_4;
     }
 }
 
@@ -4137,7 +4210,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tre
      * the prelogin packets. That instance will overwrite the value set here.
      */
 
-    set_tds_version(tds_info, TDS_PROTOCOL_VALUE_7_0);
+    set_tds_version(pinfo, tds_info, TDS_PROTOCOL_VALUE_7_0);
 
     prelogin_tree = proto_item_add_subtree(item, ett_tds_message);
     while(tvb_reported_length_remaining(tvb, offset) > 0)
@@ -4172,9 +4245,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tre
                                                 &version);
                 proto_tree_add_item(option_tree, hf_tds_prelogin_option_subbuild, tvb, tokenoffset + 4, 2, ENC_LITTLE_ENDIAN);
                 /* This gives us a better idea of what protocol we'll see. */
-                if (is_response) {
-                    set_tds_version(tds_info, version);
-                }
+                set_tds_version_from_prog_version(pinfo, tds_info, version, is_response);
                 break;
             }
             case TDS7_PRELOGIN_OPTION_ENCRYPTION: {
@@ -4367,7 +4438,7 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
                                  offset, 4, ENC_BIG_ENDIAN,
                                  &tds_version);
     offset += 4;
-    set_tds_version(tds_info, tds_version);
+    set_tds_version(pinfo, tds_info, tds_version);
     proto_item_set_text(login_item, (tds_version == TDS_PROTOCOL_5 ? "TDS 5 Login Packet" : "TDS 4 Login Packet"));
 
     offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
@@ -4458,7 +4529,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
     offset += (int)sizeof(td7hdr.total_packet_size);
 
     proto_tree_add_item_ret_uint(header_tree, hf_tds7login_version, tvb, offset, sizeof(td7hdr.tds_version), ENC_LITTLE_ENDIAN, &(td7hdr.tds_version));
-    set_tds_version(tds_info, td7hdr.tds_version);
+    set_tds_version(pinfo, tds_info, td7hdr.tds_version);
     offset += (int)sizeof(td7hdr.tds_version);
 
     proto_tree_add_item_ret_uint(header_tree, hf_tds7login_packet_size, tvb, offset, sizeof(td7hdr.packet_size), ENC_LITTLE_ENDIAN, &(td7hdr.packet_size));
@@ -5763,7 +5834,7 @@ dissect_tds_info_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_i
 }
 
 static int
-dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
+dissect_tds_login_ack_token(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint8 msg_len;
     guint32 tds_version;
@@ -5775,7 +5846,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_c
     proto_tree_add_item(tree, hf_tds_loginack_interface, tvb, cur, 1, ENC_NA);
     cur +=1;
     proto_tree_add_item_ret_uint(tree, hf_tds_loginack_tdsversion, tvb, cur, 4, ENC_BIG_ENDIAN, &tds_version);
-    set_tds_version(tds_info, tds_version);
+    set_tds_version(pinfo, tds_info, tds_version);
 
     cur += 4;
 
@@ -6714,7 +6785,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                     token_sz = dissect_tds_info_token(tvb, pos + 1, token_tree, tds_info) + 1;
                     break;
                 case TDS_LOGIN_ACK_TOKEN:
-                    token_sz = dissect_tds_login_ack_token(tvb, pos + 1, token_tree, tds_info) + 1;
+                    token_sz = dissect_tds_login_ack_token(tvb, pinfo, pos + 1, token_tree, tds_info) + 1;
                     break;
                 case TDS5_MSG_TOKEN:
                     token_sz = dissect_tds5_msg_token(token_tree, tvb, pos + 1, tds_info) + 1;
@@ -6795,7 +6866,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                     token_sz = dissect_tds_featureextack_token(tvb, pos + 1, token_tree) + 1;
                     break;
                 case TDS_LOGIN_ACK_TOKEN:
-                    token_sz = dissect_tds_login_ack_token(tvb, pos + 1, token_tree, tds_info) + 1;
+                    token_sz = dissect_tds_login_ack_token(tvb, pinfo, pos + 1, token_tree, tds_info) + 1;
                     break;
                 case TDS_NBCROW_TOKEN:
                     token_sz = dissect_tds_nbc_row_token(tvb, pinfo, &nl_data, pos + 1, token_tree, tds_info) + 1;
@@ -6910,6 +6981,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!tds_info) {
         tds_info = wmem_new(wmem_file_scope(), tds_conv_info_t);
         tds_info->tds_version = TDS_PROTOCOL_NOT_SPECIFIED;
+        tds_info->client_version = TDS_PROTOCOL_NOT_SPECIFIED;
+        tds_info->server_version = TDS_PROTOCOL_NOT_SPECIFIED;
         tds_info->tds_packets_in_order = 0;
         fill_tds_info_defaults(tds_info);
         conversation_add_proto_data(conv, proto_tds, tds_info);
