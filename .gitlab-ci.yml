@@ -503,6 +503,7 @@ Documentation:
         - "epan/wslua/**/*"
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: manual
+      allow_failure: true
   script:
     # XXX We might want to move this to wireshark-ubuntu-dev or debian-setup.sh.
     - DEBIAN_FRONTEND=noninteractive apt-get update
