@@ -34,8 +34,9 @@ void register_candump(void);
  * This is written by the candump utility on Linux.
  */
 
-static void
-candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
+static gboolean
+candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
+                     gchar **err_info)
 {
     static const char *can_proto_name    = "can-hostendian";
     static const char *canfd_proto_name  = "canfd";
@@ -67,6 +68,18 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
     {
         canfd_frame_t canfd_frame = {0};
 
+        /*
+         * There's a maximum of CANFD_MAX_DLEN bytes in a CAN-FD frame.
+         */
+        if (msg->data.length > CANFD_MAX_DLEN) {
+            *err = WTAP_ERR_BAD_FILE;
+            if (err_info != NULL) {
+	        *err_info = ws_strdup_printf("candump: File has %u-byte CAN FD packet, bigger than maximum of %u",
+                                             msg->data.length, CANFD_MAX_DLEN);
+            }
+            return FALSE;
+        }
+
         canfd_frame.can_id = msg->id;
         canfd_frame.flags  = msg->flags;
         canfd_frame.len    = msg->data.length;
@@ -77,6 +90,18 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
     else
     {
         can_frame_t can_frame = {0};
+
+        /*
+         * There's a maximum of CAN_MAX_DLEN bytes in a CAN frame.
+         */
+        if (msg->data.length > CAN_MAX_DLEN) {
+            *err = WTAP_ERR_BAD_FILE;
+            if (err_info != NULL) {
+	        *err_info = ws_strdup_printf("candump: File has %u-byte CAN packet, bigger than maximum of %u",
+                                             msg->data.length, CAN_MAX_DLEN);
+            }
+            return FALSE;
+        }
 
         can_frame.can_id  = msg->id;
         can_frame.can_dlc = msg->data.length;
@@ -93,6 +118,8 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
 
     rec->rec_header.packet_header.caplen = packet_length;
     rec->rec_header.packet_header.len    = packet_length;
+
+    return TRUE;
 }
 
 static gboolean
@@ -199,9 +226,7 @@ candump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
     candump_debug_printf("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
-    candump_write_packet(rec, buf, &msg);
-
-    return TRUE;
+    return candump_write_packet(rec, buf, &msg, err, err_info);
 }
 
 static gboolean
@@ -225,9 +250,7 @@ candump_seek_read(wtap *wth , gint64 seek_off, wtap_rec *rec,
     if (!candump_parse(wth->random_fh, &msg, NULL, err, err_info))
         return FALSE;
 
-    candump_write_packet(rec, buf, &msg);
-
-    return TRUE;
+    return candump_write_packet(rec, buf, &msg, err, err_info);
 }
 
 static const struct supported_block_type candump_blocks_supported[] = {
