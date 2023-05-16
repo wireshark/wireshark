@@ -446,7 +446,7 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                                             tvb_get_guint8(tvb, i + 2 + j));
                     }
                 }
-                i += 2 + reg_size;
+                i += (2 + reg_size);
                 break;
             /* Handle a write register command */
             case WRITE_REGISTER:
@@ -503,7 +503,7 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                                                     reg_addr, reg_size);
                     }
                 }
-                i += 2 + reg_size;
+                i += (2 + reg_size);
                 break;
 
             case EXT_REGISTER_ACCESS_ERR:
@@ -605,7 +605,7 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                         }
 
                         /* Recursive call !! */
-                        if (*sub_index_p < MAX_SUB_DEVICES) {
+                        if (*sub_index_p < (MAX_SUB_DEVICES-1)) {
                             (*sub_index_p)++;
                             fiveco_routing_details_tree = proto_item_add_subtree(fiveco_routing_item, ett_fiveco_sub_details[*sub_index_p]);
                             fiveco_data_item = proto_tree_add_item(fiveco_routing_details_tree, hf_fiveco_routing_interface, tvb, i, 1, ENC_NA);
@@ -630,7 +630,6 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                         i = frame_index + data_size;
                         break;
                 }
-
                 break;
         }
     }
@@ -710,7 +709,7 @@ dissect_FiveCoRAP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         /* Handle data and jump to next packet if exists */
         tcp_data_offset = dissect_frame(tvb, pinfo, tree, types_models_p,
-                                            tcp_data_offset, tcp_data_length, &sub_devices_count);
+                                        tcp_data_offset, tcp_data_length, &sub_devices_count);
         if (tcp_data_offset == 0)   /* If no FRAP frame is found, abort */
             return 0;
 
