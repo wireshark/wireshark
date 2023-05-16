@@ -1410,7 +1410,7 @@ static const value_string drda_fcode_vals[] = {
     {  8, "CREATE CHARACTER SET" },
     {  9, "CLOSE CURSOR" },
     { 11, "CREATE COLLATION" },
-    { 11, "COMMIT WORK" },
+    { 12, "COMMIT WORK" },
     { 13, "CONNECT" },
     { 15, "DEALLOCATE DESCRIPTOR" },
     { 16, "DEALLOCATE PREPARE" },
