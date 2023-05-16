@@ -28,11 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/conversation.h>
-#include <epan/proto_data.h>
-#include <epan/tvbuff.h>
 #include <wsutil/utf8_entities.h>
-#include <wsutil/wslog.h>
 #include <string.h>
 #include "packet-tcp.h"
 
@@ -53,8 +49,8 @@ void proto_register_FiveCoRAP(void);
 #define PROTO_TAG_FIVECO "5co-rap"
 
 /* Global sample ports preferences */
-#define FIVECO_TCP_PORT1 8030     /* TCP port of the FiveCo protocol */
-#define FIVECO_UDP_PORT1 7030 /* UDP port of the FiveCo protocol */
+#define FIVECO_TCP_PORT1 8030     /* TCP port of the FiveCo protocol (N.B. unassigned by IANA) */
+#define FIVECO_UDP_PORT1 7030     /* UDP port of the FiveCo protocol (N.B. assigned to "op-probe" by IANA) */
 
 /* 16 bits type known available functions */
 enum fiveco_functions
@@ -140,7 +136,8 @@ typedef struct
     guint32 device_version[MAX_SUB_DEVICES];
 } FCOSConvDevices;
 
-/* Conversation hash tables */
+/* Conversation hash table (conversation-id -> FCOSConvDevices*) */
+/* TODO: could just have FCOSConvDevices* as conversation data type? */
 static GHashTable *fiveco_types_models_hash = NULL;
 
 enum FCOERegistersType {
@@ -215,7 +212,7 @@ static hf_register_info hf_base[] = {
         {&hf_fiveco_ext_frameid, {"Frame ID", "5co-rap.frameid", FT_NONE, BASE_NONE, NULL, 0x0, "ID of the frame", HFILL}},
         {&hf_fiveco_ext_eof, {"End of frame", "5co-rap.eof", FT_NONE, BASE_NONE, NULL, 0x0, "End of the frame", HFILL}},
         {&hf_fiveco_cks, {"Checksum", "5co-rap.checksum", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, "Checksum of the frame", HFILL}},
-        {&hf_fiveco_ext_frameerror, {"Frame error", "5co-rap.frameerror", FT_NONE, BASE_NONE, NULL, 0x0, "Frame error occured", HFILL}},
+        {&hf_fiveco_ext_frameerror, {"Frame error", "5co-rap.frameerror", FT_NONE, BASE_NONE, NULL, 0x0, "Frame error occurred", HFILL}},
         {&hf_fiveco_ext_easyip, {"Easy IP configuration", "5co-rap.easyip", FT_NONE, BASE_NONE, NULL, 0x0, "Change IP config easily by broadcast", HFILL}},
         {&hf_fiveco_ext_easyip_version, {"Extension version", "5co-rap.easyipversion", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         {&hf_fiveco_ext_easyip_interface, {"Destination FRAP interface", "5co-rap.easyipinterface", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -670,9 +667,9 @@ dissect_FiveCoRAP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Look for all future TCP conversations between the
-    * requestiong server and the FiveCo device using the
-    * same src & dest addr and ports.
-    */
+     * requesting server and the FiveCo device using the
+     * same src & dest addr and ports.
+     */
     conversation = find_or_create_conversation(pinfo);
     conversation_key.conversation = conversation->conv_index;
 
@@ -744,11 +741,7 @@ static guint8 checksum_fiveco(tvbuff_t *byte_tab, guint16 start_offset, guint16 
 static guint fiveco_hash(gconstpointer v)
 {
     const FCOSConvKey *key = (const FCOSConvKey *)v;
-    guint val;
-
-    val = key->conversation;
-
-    return val;
+    return key->conversation;
 }
 
 /*****************************************************************************/
@@ -759,11 +752,7 @@ static gint fiveco_hash_equal(gconstpointer v, gconstpointer w)
     const FCOSConvKey *v1 = (const FCOSConvKey *)v;
     const FCOSConvKey *v2 = (const FCOSConvKey *)w;
 
-    if (v1->conversation == v2->conversation)
-    {
-        return 1;
-    }
-    return 0;
+    return (v1->conversation == v2->conversation);
 }
 
 /*****************************************************************************/
@@ -888,7 +877,7 @@ void proto_reg_handoff_FiveCoRAP(void)
          * if it thinks the packet does not belong to PROTONAME).
          */
         FiveCoRAP_handle = create_dissector_handle(dissect_FiveCoRAP,
-                                                      proto_FiveCoRAP);
+                                                   proto_FiveCoRAP);
         dissector_add_uint("tcp.port", FIVECO_TCP_PORT1, FiveCoRAP_handle);
         dissector_add_uint("udp.port", FIVECO_UDP_PORT1, FiveCoRAP_handle);
         initialized = TRUE;
@@ -901,9 +890,9 @@ void proto_reg_handoff_FiveCoRAP(void)
 static void
 disp_type( gchar *result, guint32 type)
 {
-    int nValueH = (type>>16) & 0xFFFF;
-    int nValueL = (type & 0xFFFF);
-    snprintf( result, 18, "%d.%d (%.4X.%.4X)", nValueH, nValueL, nValueH, nValueL);
+    guint nValueH = (type>>16) & 0xFFFF;
+    guint nValueL = (type & 0xFFFF);
+    snprintf( result, 18, "%u.%u (%.4X.%.4X)", nValueH, nValueL, nValueH, nValueL);
 }
 
 static void
@@ -911,24 +900,25 @@ disp_version( gchar *result, guint32 version)
 {
     if ((version & 0xFF000000) == 0)
     {
-        int nValueH = (version>>16) & 0xFFFF;
-        int nValueL = (version & 0xFFFF);
-        snprintf( result, 11, "FW: %d.%d", nValueH, nValueL);
+        guint nValueH = (version>>16) & 0xFFFF;
+        guint nValueL = (version & 0xFFFF);
+        snprintf( result, 11, "FW: %u.%u", nValueH, nValueL);
     }
     else
     {
-        int nHWHigh = (version>>24) & 0xFF;
-        int nHWLow = (version>>16) & 0xFF;
-        int nFWHigh = (version>>8) & 0xFF;
-        int nFWLow = version & 0xFF;
-        snprintf( result, 25, "HW: %d.%d / FW: %d.%d", nHWHigh, nHWLow, nFWHigh, nFWLow);
+        guint nHWHigh = (version>>24) & 0xFF;
+        guint nHWLow = (version>>16) & 0xFF;
+        guint nFWHigh = (version>>8) & 0xFF;
+        guint nFWLow = version & 0xFF;
+        snprintf( result, 25, "HW: %u.%u / FW: %u.%u", nHWHigh, nHWLow, nFWHigh, nFWLow);
     }
 }
 
-static void disp_voltage(gchar *result, guint32 voltage) {
-        int nValueH = (voltage>>16) & 0xFFFF;
-        int nValueL = (voltage & 0xFFFF);
-        snprintf( result, 11, "%d.%d V", nValueH, nValueL);
+static void disp_voltage(gchar *result, guint32 voltage)
+{
+    guint nValueH = (voltage>>16) & 0xFFFF;
+    guint nValueL = (voltage & 0xFFFF);
+    snprintf( result, 11, "%u.%u V", nValueH, nValueL);
 }
 
 static void disp_mac( gchar *result, guint64 mac)
@@ -943,20 +933,21 @@ static void disp_ip( gchar *result, guint32 ip)
 {
     guint8 *pData = (guint8*)(&ip);
 
-    snprintf( result, 15, "%d.%d.%d.%d", pData[3], pData[2], pData[1], pData[0]);
+    snprintf( result, 15, "%u.%u.%u.%u", pData[3], pData[2], pData[1], pData[0]);
 }
 
 static void disp_mask( gchar *result, guint32 mask)
 {
     guint8 *pData = (guint8*)(&mask);
 
-    snprintf( result, 15, "%d.%d.%d.%d", pData[3], pData[2], pData[1], pData[0]);
+    snprintf( result, 15, "%u.%u.%u.%u", pData[3], pData[2], pData[1], pData[0]);
 }
 
 static void disp_timeout( gchar *result, guint32 timeout)
 {
     if (timeout != 0)
-        snprintf( result, 12, "%d secondes", timeout);
+        snprintf( result, 12, "%u%s",
+                  timeout, unit_name_string_get_value(timeout, &units_second_seconds));
     else
         snprintf( result, 8, "Disabled");
 }
