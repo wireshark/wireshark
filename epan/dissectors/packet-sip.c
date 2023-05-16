@@ -2177,13 +2177,22 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, contact_params_start_offset+8,
                     current_offset - (contact_params_start_offset+8), ENC_UTF_8|ENC_NA), NULL, &expire))
                 return contact_params_start_offset+8;
+            has_expires_param = TRUE;
             if (expire == 0) {
                 (*contacts_expires_0)++;
-                /* it is actually unusual - arguably invalid - for a SIP REGISTER
-                 * 200 OK _response_ to contain Contacts with expires=0.
-                 *
-                 * See Bug https://gitlab.com/wireshark/wireshark/-/issues/10364
-                 * Why this warning was removed (3GPP usage, 3GPP TS24.229 )
+                /* RFC 3261 10.3 "Processing REGISTER requests":
+                 * "The registrar returns a 200 (OK) response.  The response
+                 * MUST contain Contact header field values enumerating all
+                 * current bindings."
+                 * This implies it is invalid for the response to contain the
+                 * deregistered, no longer current, Contacts with expires=0.
+                 * However, this warning was removed due to 3GPP usage.
+                 * Cf. 3GPP TS 24.229 "5.4.1.4 User-initiated deregistration":
+                 * "send a 200 (OK) response to a REGISTER request that
+                 * contains a list of Contact header fields enumerating all
+                 * contacts and flows that are currently registered, and all
+                 * contacts that have been deregistered."
+                 * https://gitlab.com/wireshark/wireshark/-/issues/10364
                  */
 #if 0
                 if (stat_info && stat_info->response_code > 199 && stat_info->response_code < 300) {
@@ -2193,8 +2202,6 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                         stat_info->response_code);
                 }
 #endif
-            } else {
-                has_expires_param = TRUE;
             }
         }
 
