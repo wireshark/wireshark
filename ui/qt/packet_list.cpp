@@ -1775,7 +1775,7 @@ void PacketList::applyTimeShift()
 {
     packet_list_model_->resetColumns();
     redrawVisiblePackets();
-    // XXX emit packetDissectionChanged(); ?
+    emit packetDissectionChanged();
 }
 
 void PacketList::updatePackets(bool redraw)
