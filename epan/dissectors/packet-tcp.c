@@ -2300,16 +2300,8 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
         if(tcpd->mptcp_analysis && (tcpd->mptcp_analysis->mp_operations!=tcpd->fwd->mp_operations)) {
             /* just ignore this DUPLICATE ACK */
         } else {
-            switch(tcpd->fwd->tcp_analyze_seq_info->dupacknum) {
-                /* neutralize any 'TCP ACK unseen segment' */
-                case -1:
-                    tcpd->fwd->tcp_analyze_seq_info->dupacknum = 1;
-                    break;
-                /* in normal circumstances, just increment the counter */
-                default:
-                    tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
-                    break;
-            }
+            tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
+
             if(!tcpd->ta) {
                 tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
             }
@@ -2343,22 +2335,34 @@ finished_fwd:
         if(!tcpd->ta) {
             tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
         }
+
+        /* We ensure there is no matching packet waiting in the unacked list,
+         * and take this opportunity to push the tail further than this single packet
+         */
+        gboolean is_seq_in_unacked = FALSE;
+        guint32 maxseqtail = ack;
+        ual = tcpd->rev->tcp_analyze_seq_info->segments;
+        while(ual) {
+            /* prevent false positives */
+            if(GT_SEQ(ack,ual->seq) && LE_SEQ(ack,ual->nextseq)) {
+                is_seq_in_unacked = TRUE;
+            }
+            /* look for a possible tail pushing the maxseqtobeacked further */
+            if(maxseqtail==ual->seq) {
+                maxseqtail = ual->nextseq;
+            }
+            ual=ual->next;
+        }
+
         /* update 'max seq to be acked' in the other direction so we don't get
          * this indication again.
          */
-        if( LT_SEQ(tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked, tcpd->rev->tcp_analyze_seq_info->nextseq) ) {
-          tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=tcpd->rev->tcp_analyze_seq_info->nextseq;
-          tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
+        if(is_seq_in_unacked) {
+            tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=(GT_SEQ(maxseqtail, ack)) ? ack : maxseqtail;
         }
-        /* sometimes the other direction is stalled with pure ACKs, but we still
-         * want to avoid multiple messages related to the very same lost packet.
-         * For this, we need to count at least one ACK seen in this direction,
-         * and decrementation is not necessary.
-         */
         else {
-          if(tcpd->rev->tcp_analyze_seq_info->dupacknum == 0)
+            tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=maxseqtail;
             tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
-          tcpd->rev->tcp_analyze_seq_info->dupacknum = -1;
         }
     }
 
