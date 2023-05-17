@@ -3403,10 +3403,10 @@ proto_register_uds(void) {
             "Memory Size", "uds.dddi.memory_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_wdbi_data_identifier, {
-            "Data Identifier", "uds.wdbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            "Data Identifier", "uds.wdbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_iocbi_data_identifier, {
-            "Data Identifier", "uds.iocbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            "Data Identifier", "uds.iocbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_iocbi_parameter, {
             "Parameter", "uds.iocbi.parameter", FT_UINT8, BASE_HEX, VALS(uds_iocbi_parameters), 0x0, NULL, HFILL } },
         { &hf_uds_iocbi_state, {
