@@ -387,7 +387,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
                 '-w', testout_file
             )
             check_vals[0]['packet_count'] = 88
-            check_vals[0]['idb_count'] = 35
+            check_vals[0]['idb_count'] = 33
             check_vals[0]['ua_dc_count'] = 1
         else:
             # Dumpcap SHBs, multiple output files
@@ -399,10 +399,10 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
                 '-b', 'packets:53'
             )
             check_vals[0]['packet_count'] = 53
-            check_vals[0]['idb_count'] = 13
+            check_vals[0]['idb_count'] = 11
             check_vals[0]['ua_dc_count'] = 1
             check_vals[1]['packet_count'] = 35
-            check_vals[1]['idb_count'] = 35
+            check_vals[1]['idb_count'] = 33
             check_vals[1]['ua_dc_count'] = 1
 
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
