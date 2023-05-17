@@ -57,16 +57,13 @@ variables:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
     when: always
   - if: '$CI_PIPELINE_SOURCE == "web"'
-    when: always
 # Incoming merge requests.
 .if-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    when: always
 # Incoming non-detached merge requests. Must be used for runners which are only
 # available in wireshark/wireshark, e.g. wireshark-windows-*
 .if-w-w-only-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
 # Scheduled jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
 .if-weekly-schedule:
