@@ -469,12 +469,18 @@ blf_find_logcontainer_for_address(blf_t *blf_data, gint64 pos, blf_log_container
 }
 
 static gboolean
-blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_container) {
+blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_container, int *err, gchar **err_info) {
     blf_t *blf_data = params->blf_data;
     blf_log_container_t tmp;
 
     if (index_log_container >= blf_data->log_containers->len) {
-        ws_debug("cannot pull an unknown log container into memory");
+        /*
+         * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
+         * malformed file (WTAP_ERR_BAD_FILE)?
+         */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: index_log_container (%u) >= blf_data->log_containers->len (%u)",
+                                     index_log_container, blf_data->log_containers->len);
         return FALSE;
     }
 
@@ -486,20 +492,56 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
 
     if (tmp.compression_method == BLF_COMPRESSION_ZLIB) {
 #ifdef HAVE_ZLIB
-        int err = 0;
-        gchar *err_info;
-
-        file_seek(params->fh, tmp.infile_data_start, SEEK_SET, &err);
-        if (err < 0) {
-            ws_debug("cannot seek to start of log_container");
+        if (file_seek(params->fh, tmp.infile_data_start, SEEK_SET, err) == -1) {
             return FALSE;
         }
 
         /* pull compressed data into buffer */
         unsigned char *compressed_data = g_try_malloc0((gsize)tmp.infile_length);
-        guint64 data_length = (unsigned int)tmp.infile_length - (tmp.infile_data_start - tmp.infile_start_pos);
-        if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, &err, &err_info)) {
-            ws_debug("cannot read compressed data");
+        if (tmp.infile_start_pos < 0) {
+            /*
+             * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
+             * malformed file (WTAP_ERR_BAD_FILE)?
+             */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: tmp.infile_start_pos (%" G_GINT64_FORMAT ") < 0",
+                                         tmp.infile_start_pos);
+            return FALSE;
+        }
+        if (tmp.infile_data_start < (guint64)tmp.infile_start_pos) {
+            /*
+             * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
+             * malformed file (WTAP_ERR_BAD_FILE)?
+             */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: tmp.infile_data_start (%" G_GUINT64_FORMAT ") < tmp.infile_start_pos (%" G_GINT64_FORMAT ")",
+                                         tmp.infile_data_start, tmp.infile_start_pos);
+            return FALSE;
+        }
+        if (tmp.infile_length < tmp.infile_data_start - (guint64)tmp.infile_start_pos) {
+            /*
+             * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
+             * malformed file (WTAP_ERR_BAD_FILE)?
+             */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: tmp.infile_length (%" G_GUINT64_FORMAT ") < (tmp.infile_data_start (%" G_GUINT64_FORMAT ") - tmp.infile_start_pos (%" G_GINT64_FORMAT ")) = %" G_GUINT64_FORMAT,
+                                         tmp.infile_length,
+                                         tmp.infile_data_start, tmp.infile_start_pos,
+                                         tmp.infile_data_start - (guint64)tmp.infile_start_pos);
+            return FALSE;
+        }
+        guint64 data_length = tmp.infile_length - (tmp.infile_data_start - (guint64)tmp.infile_start_pos);
+        if (data_length > UINT_MAX) {
+            /*
+             * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
+             * malformed file (WTAP_ERR_BAD_FILE)?
+             */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: data_length (%" G_GUINT64_FORMAT ") > UINT_MAX",
+                                         data_length);
+            return FALSE;
+        }
+        if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, err, err_info)) {
             return FALSE;
         }
 
@@ -513,6 +555,18 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
 
         /* the actual DE-compression work. */
         if (Z_OK != inflateInit(&infstream)) {
+            /*
+             * XXX - check the error code and handle this appropriately.
+             */
+            *err = WTAP_ERR_INTERNAL;
+            if (infstream.msg != NULL) {
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %d, message\"%s\"",
+                                              index_log_container,
+                                              infstream.msg);
+            } else {
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %d",
+                                              index_log_container);
+            }
             ws_debug("inflateInit failed for LogContainer %d", index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflateInit returned: \"%s\"", infstream.msg);
@@ -523,6 +577,50 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         int ret = inflate(&infstream, Z_NO_FLUSH);
         /* Z_OK should not happen here since we know how big the buffer should be */
         if (Z_STREAM_END != ret) {
+            switch (ret) {
+
+            case Z_NEED_DICT:
+                *err = WTAP_ERR_DECOMPRESS;
+                *err_info = ws_strdup("preset dictionary needed");
+                break;
+
+            case Z_STREAM_ERROR:
+                *err = WTAP_ERR_DECOMPRESS;
+                *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
+                break;
+
+            case Z_MEM_ERROR:
+                /* This means "not enough memory". */
+                *err = ENOMEM;
+                *err_info = NULL;
+                break;
+
+            case Z_DATA_ERROR:
+                /* This means "deflate stream invalid" */
+                *err = WTAP_ERR_DECOMPRESS;
+                *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
+                break;
+
+            case Z_BUF_ERROR:
+                /* XXX - this is recoverable; what should we do here? */
+                *err = WTAP_ERR_INTERNAL;
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: Z_BUF_ERROR from inflate(), message \"%s\"",
+                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
+                break;
+
+            case Z_VERSION_ERROR:
+                *err = WTAP_ERR_INTERNAL;
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: Z_VERSION_ERROR from inflate(), message \"%s\"",
+                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
+                break;
+
+            default:
+                *err = WTAP_ERR_INTERNAL;
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: unexpected error %d from inflate(), message \"%s\"",
+                                             ret,
+                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
+                break;
+            }
             ws_debug("inflate failed (return code %d) for LogContainer %d", ret, index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflate returned: \"%s\"", infstream.msg);
@@ -531,6 +629,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         }
 
         if (Z_OK != inflateEnd(&infstream)) {
+            /* Returns either Z_OK or Z_STREAM_ERROR. */
+            *err = WTAP_ERR_DECOMPRESS;
+            *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
             ws_debug("inflateEnd failed for LogContainer %d", index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
@@ -542,6 +643,8 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         g_array_index(blf_data->log_containers, blf_log_container_t, index_log_container) = tmp;
         return TRUE;
 #else
+        *err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+        *err_info = NULL;
         return FALSE;
 #endif
     }
@@ -629,14 +732,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
 
     case BLF_COMPRESSION_ZLIB:
         while (current_container_index <= end_container_index) {
-            if (!blf_pull_logcontainer_into_memory(params, current_container_index)) {
-                /*
-                 * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
-                 * malformed file (WTAP_ERR_BAD_FILE)?
-                 */
-                *err = WTAP_ERR_INTERNAL;
-                *err_info = ws_strdup_printf("blf_read_bytes_or_eof: cannot pull in container");
-                ws_debug("cannot pull in container");
+            if (!blf_pull_logcontainer_into_memory(params, current_container_index, err, err_info)) {
                 return FALSE;
             }
 
