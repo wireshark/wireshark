@@ -71,6 +71,28 @@ common_hf_var_names = { 'hf_index', 'hf_item', 'hf_idx', 'hf_x', 'hf_id', 'hf_co
                         'hf_tag', 'hf_type', 'hf_hdr', 'hf_field', 'hf_opcode', 'hf_size',
                         'hf_entry', 'field' }
 
+item_lengths = {}
+item_lengths['FT_CHAR']  = 1
+item_lengths['FT_UINT8']  = 1
+item_lengths['FT_INT8']   = 1
+item_lengths['FT_UINT16'] = 2
+item_lengths['FT_INT16']  = 2
+item_lengths['FT_UINT24'] = 3
+item_lengths['FT_INT24']  = 3
+item_lengths['FT_UINT32'] = 4
+item_lengths['FT_INT32']  = 4
+item_lengths['FT_UINT40'] = 5
+item_lengths['FT_INT40']  = 5
+item_lengths['FT_UINT48'] = 6
+item_lengths['FT_INT48']  = 6
+item_lengths['FT_UINT56'] = 7
+item_lengths['FT_INT56']  = 7
+item_lengths['FT_UINT64'] = 8
+item_lengths['FT_INT64']  = 8
+item_lengths['FT_ETHER']  = 6
+# TODO: other types...
+
+
 # A check for a particular API function.
 class APICheck:
     def __init__(self, fun_name, allowed_types, positive_length=False):
@@ -143,6 +165,17 @@ class APICheck:
         global warnings_found
 
         for call in self.calls:
+
+            # Check lengths, but for now only for APIs that have length in bytes.
+            if self.fun_name.find('add_bits') == -1 and call.hf_name in items_defined:
+                if call.length and items_defined[call.hf_name].item_type in item_lengths:
+                    if item_lengths[items_defined[call.hf_name].item_type] < call.length:
+                        print('Warning:', self.file + ':' + str(call.line_number),
+                              self.fun_name + ' called for', call.hf_name, ' - ',
+                              'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
+                        warnings_found += 1
+
+
             if self.positive_length and call.length != None:
                 if call.length != -1 and call.length <= 0:
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
@@ -195,27 +228,6 @@ class ProtoTreeAddItemCheck(APICheck):
             self.fun_name = 'ptvcursor_add'
             self.p = re.compile('[^\n]*' + self.fun_name + '\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
-
-        self.lengths = {}
-        self.lengths['FT_CHAR']  = 1
-        self.lengths['FT_UINT8']  = 1
-        self.lengths['FT_INT8']   = 1
-        self.lengths['FT_UINT16'] = 2
-        self.lengths['FT_INT16']  = 2
-        self.lengths['FT_UINT24'] = 3
-        self.lengths['FT_INT24']  = 3
-        self.lengths['FT_UINT32'] = 4
-        self.lengths['FT_INT32']  = 4
-        self.lengths['FT_UINT40'] = 5
-        self.lengths['FT_INT40']  = 5
-        self.lengths['FT_UINT48'] = 6
-        self.lengths['FT_INT48']  = 6
-        self.lengths['FT_UINT56'] = 7
-        self.lengths['FT_INT56']  = 7
-        self.lengths['FT_UINT64'] = 8
-        self.lengths['FT_INT64']  = 8
-        self.lengths['FT_ETHER']  = 6
-        # TODO: other types...
 
     def find_calls(self, file, macros):
         self.file = file
@@ -289,8 +301,8 @@ class ProtoTreeAddItemCheck(APICheck):
 
         for call in self.calls:
             if call.hf_name in items_defined:
-                if call.length and items_defined[call.hf_name].item_type in self.lengths:
-                    if self.lengths[items_defined[call.hf_name].item_type] < call.length:
+                if call.length and items_defined[call.hf_name].item_type in item_lengths:
+                    if item_lengths[items_defined[call.hf_name].item_type] < call.length:
                         print('Warning:', self.file + ':' + str(call.line_number),
                               self.fun_name + ' called for', call.hf_name, ' - ',
                               'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
