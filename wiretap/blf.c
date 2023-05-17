@@ -20,6 +20,7 @@
 
 #include <epan/dissectors/packet-socketcan.h>
 #include <string.h>
+#include <errno.h>
 #include <epan/value_string.h>
 #include <wsutil/wslog.h>
 #include "file_wrappers.h"
