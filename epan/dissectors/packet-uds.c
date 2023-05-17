@@ -1470,7 +1470,7 @@ proto_register_uds(void)
                     &hf_uds_wdbi_data_identifier,
                     {
                             "Data Identifier", "uds.wdbi.data_identifier",
-                            FT_UINT8, BASE_HEX,
+                            FT_UINT16, BASE_HEX,
                             NULL, 0x0,
                             NULL, HFILL
                     }
@@ -1489,7 +1489,7 @@ proto_register_uds(void)
                     &hf_uds_iocbi_data_identifier,
                     {
                             "Data Identifier", "uds.iocbi.data_identifier",
-                            FT_UINT8, BASE_HEX,
+                            FT_UINT16, BASE_HEX,
                             NULL, 0x0,
                             NULL, HFILL
                     }
