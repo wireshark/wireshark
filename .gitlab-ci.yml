@@ -45,9 +45,7 @@ variables:
 # repo and allow manual runs in the web UI and in forks.
 .if-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
   - if: '$CI_PIPELINE_SOURCE == "web"'
-    when: always
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
     when: manual
 # Merged commits for runners which are only available in
@@ -55,7 +53,6 @@ variables:
 # the main repo and allow manual runs in the web UI.
 .if-w-w-only-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
   - if: '$CI_PIPELINE_SOURCE == "web"'
 # Incoming merge requests.
 .if-merge-request:
@@ -68,18 +65,14 @@ variables:
 # often doesn't report errors.
 .if-weekly-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "weekly"'
-    when: always
 .if-daily-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
-    when: always
 .if-2x-daily-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "2x-daily"'
-    when: always
 # Fuzz jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
 .if-fuzz-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "fuzz"'
-    when: always
 
 .build-linux:
   stage: build
@@ -661,7 +654,6 @@ Coverity GCC Scan:
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
-      when: always
   stage: analysis
   needs: []
   variables:
@@ -690,7 +682,6 @@ Coverity GCC Submit:
   image: curlimages/curl
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
-      when: always
   stage: .post
   script:
     - . job_environment_variables.sh
@@ -703,7 +694,6 @@ Coverity Visual C++ Scan:
   extends: .build-windows
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
-      when: always
   tags:
     - wireshark-windows-merge-req
   stage: analysis
@@ -728,7 +718,6 @@ Coverity Visual C++ Submit:
   image: curlimages/curl
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
-      when: always
   stage: .post
   script:
     - sed -i -e 's/\r//' job_environment_variables.sh
@@ -767,7 +756,6 @@ Visual Studio Code Analysis:
   rules:
     # The wireshark-windows-* tags are only available in wireshark/wireshark.
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-      when: always
   script:
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
@@ -791,7 +779,6 @@ API Reference:
         aws s3 cp wsar_html.zip "$S3_DESTINATION_DOCS/"
       fi
   artifacts:
-    when: always
     paths:
     - doxygen_errors.txt
     - doxygen_output.txt
