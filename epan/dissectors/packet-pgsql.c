@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 
+#include "packet-gssapi.h"
 #include "packet-tls-utils.h"
 #include "packet-tcp.h"
 
@@ -21,7 +22,9 @@ void proto_register_pgsql(void);
 void proto_reg_handoff_pgsql(void);
 
 static dissector_handle_t pgsql_handle;
+static dissector_handle_t pgsql_gssapi_handle;
 static dissector_handle_t tls_handle;
+static dissector_handle_t gssapi_handle;
 
 static int proto_pgsql = -1;
 static int hf_frontend = -1;
@@ -83,6 +86,7 @@ static int hf_line = -1;
 static int hf_routine = -1;
 static int hf_ssl_response = -1;
 static int hf_gssenc_response = -1;
+static int hf_gssapi_encrypted_payload = -1;
 
 static gint ett_pgsql = -1;
 static gint ett_values = -1;
@@ -103,6 +107,7 @@ typedef enum {
 
 typedef struct pgsql_conn_data {
     wmem_tree_t *state_tree;   /* Tree of encryption and auth state changes */
+    guint32      server_port;
 } pgsql_conn_data_t;
 
 static const value_string fe_messages[] = {
@@ -679,6 +684,16 @@ pgsql_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
     return length+n;
 }
 
+/* This function is called by tcp_dissect_pdus() to find the size of the
+   wrapped GSS-API message starting at tvb[offset] whe. */
+static guint
+pgsql_gssapi_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    /* The length of the GSS-API message is the first four bytes, and does
+     * not include the 4 byte length (the gss_wrap). */
+    return tvb_get_ntohl(tvb, offset) + 4;
+}
+
 
 /* This function is responsible for dissecting a single message. */
 
@@ -695,16 +710,19 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     guchar type;
     const char *typestr;
     guint length;
-    gboolean fe = (pinfo->match_uint == pinfo->destport);
+    gboolean fe;
 
     conversation = find_or_create_conversation(pinfo);
     conn_data = (pgsql_conn_data_t *)conversation_get_proto_data(conversation, proto_pgsql);
     if (!conn_data) {
         conn_data = wmem_new(wmem_file_scope(), pgsql_conn_data_t);
         conn_data->state_tree = wmem_tree_new(wmem_file_scope());
+        conn_data->server_port = pinfo->match_uint;
         wmem_tree_insert32(conn_data->state_tree, pinfo->num, GUINT_TO_POINTER(PGSQL_AUTH_STATE_NONE));
         conversation_add_proto_data(conversation, proto_pgsql, conn_data);
     }
+
+    fe = (conn_data->server_port == pinfo->destport);
 
     n = 0;
     type = tvb_get_guint8(tvb, 0);
@@ -781,6 +799,76 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             dissect_pgsql_be_msg(type, length, tvb, n, ptree, pinfo, conn_data);
     }
 
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_pgsql_gssapi_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    proto_item *ti;
+    proto_tree *ptree;
+
+    conversation_t      *conversation;
+    pgsql_conn_data_t   *conn_data;
+
+    conversation = find_or_create_conversation(pinfo);
+    conn_data = (pgsql_conn_data_t *)conversation_get_proto_data(conversation, proto_pgsql);
+
+    if (!conn_data) {
+        /* This shouldn't happen. */
+        conn_data = wmem_new0(wmem_file_scope(), pgsql_conn_data_t);
+        conn_data->state_tree = wmem_tree_new(wmem_file_scope());
+        conn_data->server_port = pinfo->match_uint;
+        wmem_tree_insert32(conn_data->state_tree, pinfo->num, GUINT_TO_POINTER(PGSQL_AUTH_GSSAPI_SSPI_DATA));
+        conversation_add_proto_data(conversation, proto_pgsql, conn_data);
+    }
+
+    gboolean fe = (pinfo->destport == conn_data->server_port);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
+    col_set_str(pinfo->cinfo, COL_INFO,
+                    fe ? ">" : "<");
+
+    ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, ENC_NA);
+    ptree = proto_item_add_subtree(ti, ett_pgsql);
+
+    proto_tree_add_string(ptree, hf_type, tvb, 0, 0, "GSS-API encrypted message");
+    proto_tree_add_item(ptree, hf_length, tvb, 0, 4, ENC_BIG_ENDIAN);
+
+    gssapi_encrypt_info_t encrypt;
+    memset(&encrypt, 0, sizeof(encrypt));
+    encrypt.decrypt_gssapi_tvb = DECRYPT_GSSAPI_NORMAL;
+
+    int ver_len;
+    tvbuff_t *gssapi_tvb = tvb_new_subset_remaining(tvb, 4);
+
+    ver_len = call_dissector_with_data(gssapi_handle, gssapi_tvb, pinfo, ptree, &encrypt);
+    if (ver_len == 0) {
+        /* GSS-API couldn't do anything with it. */
+        return tvb_captured_length(tvb);
+    }
+    if (encrypt.gssapi_decrypted_tvb) {
+        tvbuff_t *decr_tvb = encrypt.gssapi_decrypted_tvb;
+        add_new_data_source(pinfo, encrypt.gssapi_decrypted_tvb, "Decrypted GSS-API");
+        dissect_pgsql_msg(decr_tvb, pinfo, ptree, data);
+    } else if (encrypt.gssapi_data_encrypted) {
+        /* Encrypted but couldn't be decrypted. */
+        proto_tree_add_item(ptree, hf_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
+    } else {
+        /* No encrypted (sealed) payload. If any bytes are left, that is
+         * signed-only payload. */
+        if (tvb_reported_length_remaining(gssapi_tvb, ver_len)) {
+            dissect_pgsql_msg(tvb_new_subset_remaining(gssapi_tvb, ver_len), pinfo, ptree, data);
+        }
+    }
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_pgsql_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, pgsql_desegment, 4,
+                     pgsql_gssapi_length, dissect_pgsql_gssapi_wrap, data);
     return tvb_captured_length(tvb);
 }
 
@@ -871,7 +959,8 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                  pgsql_length, dissect_pgsql_msg, data);
                 break;
             case 'G':   /* Willing to perform GSSAPI Enc */
-                /* TODO: Add support for GSSAPI Encryption. */
+                wmem_tree_insert32(conn_data->state_tree, pinfo->num + 1, GUINT_TO_POINTER(PGSQL_AUTH_GSSAPI_SSPI_DATA));
+                conversation_set_dissector_from_frame_number(conversation, pinfo->num + 1, pgsql_gssapi_handle);
                 break;
             case 'N':   /* Unwilling to perform GSSAPI Enc */
             default:    /* Unexpected response. */
@@ -957,7 +1046,7 @@ proto_register_pgsql(void)
             "The salt to use while encrypting a password.", HFILL }
         },
         { &hf_gssapi_sspi_data,
-          { "GSSAPI or SSPI data", "pgsql.auth.gssapi_sspi.data", FT_BYTES, BASE_NONE, NULL, 0,
+          { "GSSAPI or SSPI authentication data", "pgsql.auth.gssapi_sspi.data", FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_sasl_auth_mech,
@@ -1133,7 +1222,11 @@ proto_register_pgsql(void)
         { &hf_gssenc_response,
           { "GSSAPI Encrypt Response", "pgsql.gssenc_response", FT_CHAR,
             BASE_HEX, VALS(gssenc_response_vals), 0, NULL, HFILL }
-        }
+        },
+        { &hf_gssapi_encrypted_payload,
+          { "GSS-API encrypted payload", "pgsql.gssapi.encrypted_payload", FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -1145,6 +1238,13 @@ proto_register_pgsql(void)
     pgsql_handle = register_dissector("pgsql", dissect_pgsql, proto_pgsql);
     proto_register_field_array(proto_pgsql, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Unfortunately there's no way to set up a GSS-API conversation
+     * instructing the GSS-API dissector to use our wrap handle; that
+     * only works for protocols that have an OID and that begin the
+     * GSS-API conversation by sending that OID.
+     */
+    pgsql_gssapi_handle = register_dissector("pgsql.gssapi", dissect_pgsql_gssapi, proto_pgsql);
 }
 
 void
@@ -1153,6 +1253,7 @@ proto_reg_handoff_pgsql(void)
     dissector_add_uint_with_preference("tcp.port", PGSQL_PORT, pgsql_handle);
 
     tls_handle = find_dissector_add_dependency("tls", proto_pgsql);
+    gssapi_handle = find_dissector_add_dependency("gssapi", proto_pgsql);
 }
 
 /*
