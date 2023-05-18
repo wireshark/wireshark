@@ -5812,11 +5812,11 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
             ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
         }
 #ifdef DEBUG_CHILD_DUMPCAP
-        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap_copy);
+        ws_log_file_writer(debug_log, domain, level, timestamp, getpid(), file, line, func, user_format, user_ap_copy);
         va_end(user_ap_copy);
 #endif
-#elif DEBUG_CHILD_DUMPCAP
-        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap);
+#elif defined(DEBUG_CHILD_DUMPCAP)
+        ws_log_file_writer(debug_log, domain, level, timestamp, getpid(), file, line, func, user_format, user_ap);
 #endif
         return;
     }
