@@ -4063,12 +4063,14 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
      */
     if (is_server) {
         tds_info->server_version = prog_version;
-        if (tds_info->client_version != TDS_PROTOCOL_NOT_SPECIFIED) {
+        if (tds_info->client_version != TDS_PROTOCOL_NOT_SPECIFIED &&
+            tds_info->client_version != 0) {
             prog_version = MIN(prog_version, tds_info->client_version);
         }
     } else {
         tds_info->client_version = prog_version;
-        if (tds_info->server_version != TDS_PROTOCOL_NOT_SPECIFIED) {
+        if (tds_info->server_version != TDS_PROTOCOL_NOT_SPECIFIED &&
+            tds_info->server_version != 0) {
             prog_version = MIN(prog_version, tds_info->server_version);
         }
     }
@@ -4111,7 +4113,6 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
         case 0x0a351770: /* SQL Server 2008 R2 SP3 */
 #endif
         tds_info->tds_version = TDS_PROTOCOL_7_3B;
-        set_tds7_encodings(tds_info);
     } else if (major_minor >= 0x0a00) {
 #if 0
         case 0x0a000640: /* SQL Server 2008 */
@@ -4125,7 +4126,6 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
         case 0x0a041770: /* SQL Server 2008 SP4 */
 #endif
         tds_info->tds_version = TDS_PROTOCOL_7_3A;
-        set_tds7_encodings(tds_info);
     } else if (major_minor >= 0x0900) {
 #if 0
         case 0x09000577: /* SQL Server 2005 */
@@ -4135,7 +4135,6 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
         case 0x09001388: /* SQL Server 2005 SP4 */
 #endif
         tds_info->tds_version = TDS_PROTOCOL_7_2;
-        set_tds7_encodings(tds_info);
     } else if (major_minor >= 0x0800) {
 #if 0
         case 0x080000c2: /* SQL Server 2000 */
@@ -4145,7 +4144,6 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
         case 0x080007f7: /* SQL Server 2000 SP4 */
 #endif
         tds_info->tds_version = TDS_PROTOCOL_7_1;
-        set_tds7_encodings(tds_info);
     } else if (major_minor >= 0x0700) {
 #if 0
         case 0x0700026f: /* SQL Server 7.0 */
@@ -4155,13 +4153,14 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
         case 0x07000427: /* SQL Server 7.0 SP4 */
 #endif
         tds_info->tds_version = TDS_PROTOCOL_7_0;
-        set_tds7_encodings(tds_info);
     } else {
         /* Shouldn't happen. We only call this from a prelogin packet,
-         * which implies TDS 7.0 and later.
+         * which implies TDS 7.0 and later. (If we change this to
+         * call it from elsewhere, change this perhaps.)
          */
-        tds_info->tds_version = TDS_PROTOCOL_4;
+        tds_info->tds_version = TDS_PROTOCOL_7_0;
     }
+    set_tds7_encodings(tds_info);
 }
 
 static int detect_tls(tvbuff_t *tvb)
