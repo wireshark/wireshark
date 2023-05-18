@@ -4944,7 +4944,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
     ++tk_id;
   }
 
-  (void) g_strlcpy(type_name, rtps_util_typecode_id_to_string(tk_id), 40);
+  (void) g_strlcpy(type_name, rtps_util_typecode_id_to_string(tk_id), sizeof(type_name));
 
     /* Structure of the typecode data:
      *
@@ -5115,7 +5115,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
                     member_name, -1, NULL, ndds_40_hack);
         }
         /* Finally prints the name of the struct (if provided) */
-        (void) g_strlcpy(type_name, "}", 40);
+        (void) g_strlcpy(type_name, "}", sizeof(type_name));
         break;
 
     } /* end of case UNION */
@@ -5286,7 +5286,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
           }
         }
         /* Finally prints the name of the struct (if provided) */
-        (void) g_strlcpy(type_name, "}", 40);
+        (void) g_strlcpy(type_name, "}", sizeof(type_name));
         break;
       }
 
@@ -5378,7 +5378,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
         offset += 4;
         alias_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, alias_name_length, ENC_ASCII);
         offset = check_offset_addition(offset, alias_name_length, tree, NULL, tvb);
-        (void) g_strlcpy(type_name, alias_name, 40);
+        (void) g_strlcpy(type_name, alias_name, sizeof(type_name));
         break;
     }
 
@@ -5413,7 +5413,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
         if (tk_id == RTI_CDR_TK_VALUE_PARAM) {
           type_id_name = "valueparam";
         }
-        snprintf(type_name, 40, "%s '%s'", type_id_name, value_name);
+        snprintf(type_name, sizeof(type_name), "%s '%s'", type_id_name, value_name);
         break;
     }
   } /* switch(tk_id) */
@@ -5577,7 +5577,7 @@ static gint rtps_util_add_type_library_type(proto_tree *tree,
   long_number = tvb_get_guint32(tvb, offset_tmp, encoding);
   name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp+4, long_number, ENC_ASCII);
   if (info)
-    (void) g_strlcpy(info->member_name, name, long_number);
+    (void) g_strlcpy(info->member_name, name, sizeof(info->member_name));
 
   proto_item_append_text(tree, " %s", name);
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
@@ -5753,13 +5753,13 @@ static gint rtps_util_add_type_member(proto_tree *tree,
   proto_item_append_text(tree, " %s (ID: %d)", name, member_id);
   if (member_object) {
     member_object->member_id = member_id;
-    (void) g_strlcpy(member_object->member_name, name, long_number < 256 ? long_number : 256);
+    (void) g_strlcpy(member_object->member_name, name, sizeof(member_object->member_name));
     member_object->type_id = member_type_id;
   }
   if (info && info->extensibility == EXTENSIBILITY_MUTABLE) {
       mutable_member_mapping * mutable_mapping = NULL;
       mutable_mapping = wmem_new(wmem_file_scope(), mutable_member_mapping);
-      (void) g_strlcpy(mutable_mapping->member_name, name, long_number < 256 ? long_number : 256);
+      (void) g_strlcpy(mutable_mapping->member_name, name, sizeof(mutable_mapping->member_name));
       mutable_mapping->struct_type_id = info->type_id;
       mutable_mapping->member_type_id = member_type_id;
       mutable_mapping->member_id = member_id;
@@ -5814,7 +5814,7 @@ static gint rtps_util_add_type_union_member(proto_tree *tree,
     union_member_mapping * mapping = NULL;
 
     mapping = wmem_new(wmem_file_scope(), union_member_mapping);
-    (void) g_strlcpy(mapping->member_name, object.member_name, 256);
+    (void) g_strlcpy(mapping->member_name, object.member_name, sizeof(mapping->member_name));
     mapping->member_type_id = object.type_id;
     mapping->discriminator = HASHMAP_DISCRIMINATOR_CONSTANT;
     mapping->union_type_id = union_type_id + mapping->discriminator;
@@ -5827,7 +5827,7 @@ static gint rtps_util_add_type_union_member(proto_tree *tree,
     union_member_mapping * mapping = NULL;
 
     mapping = wmem_new(wmem_file_scope(), union_member_mapping);
-    (void) g_strlcpy(mapping->member_name, object.member_name, 256);
+    (void) g_strlcpy(mapping->member_name, object.member_name, sizeof(mapping->member_name));
     mapping->member_type_id = object.type_id;
     mapping->discriminator = -1;
     mapping->union_type_id = union_type_id + mapping->discriminator;
@@ -5847,7 +5847,7 @@ static gint rtps_util_add_type_union_member(proto_tree *tree,
     ti = proto_tree_add_item(labels, hf_rtps_type_object_union_label, tvb, offset_tmp, 4, encoding);
     offset_tmp += 4;
 
-    (void) g_strlcpy(mapping->member_name, object.member_name, 256);
+    (void) g_strlcpy(mapping->member_name, object.member_name, sizeof(mapping->member_name));
     mapping->member_type_id = object.type_id;
     mapping->discriminator = discriminator_case;
     mapping->union_type_id = union_type_id + discriminator_case;
