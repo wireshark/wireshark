@@ -1996,15 +1996,15 @@ proto_register_telnet(void)
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_comport_subopt_parity,
-      { "Parity", "telnet.comport_subopt.parity", FT_UINT8, BASE_DEC,
+      { "Parity", "telnet.comport_subopt.parity", FT_UINT16, BASE_DEC,
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_comport_subopt_stop,
-      { "Stop Bits", "telnet.comport_subopt.stop", FT_UINT8, BASE_DEC,
+      { "Stop Bits", "telnet.comport_subopt.stop", FT_UINT16, BASE_DEC,
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_comport_subopt_control,
-      { "Control", "telnet.comport_subopt.control", FT_UINT8, BASE_DEC,
+      { "Control", "telnet.comport_subopt.control", FT_UINT16, BASE_DEC,
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_comport_linestate,
@@ -2032,7 +2032,7 @@ proto_register_telnet(void)
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_comport_subopt_purge,
-      { "Purge", "telnet.comport_subopt.purge", FT_UINT8, BASE_DEC,
+      { "Purge", "telnet.comport_subopt.purge", FT_UINT16, BASE_DEC,
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_rfc_subopt_cmd,

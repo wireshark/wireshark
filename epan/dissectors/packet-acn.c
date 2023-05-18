@@ -3905,15 +3905,15 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
           case 2:
             data_value = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data16, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
             break;
           case 3:
             data_value = tvb_get_ntoh24(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data24, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
             break;
           case 4:
             data_value = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data32, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
             break;
           default:
             /* build string of values */
@@ -3960,15 +3960,15 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
           case 2:
             data_value = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data16, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
             break;
           case 3:
             data_value = tvb_get_ntoh24(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data24, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
             break;
           case 4:
             data_value = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data32, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
             break;
           default:
             /* build string of values */
@@ -7597,7 +7597,7 @@ proto_register_acn(void)
     },
     { &hf_acn_blob_time_zone,
       { "Time Zone", "acn.blob_time_zone",
-        FT_INT8, BASE_DEC, NULL, 0x0,
+        FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_acn_blob_dst_type,

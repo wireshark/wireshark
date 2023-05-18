@@ -2567,12 +2567,12 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_captured_length,
             { "Captured Length",                           "pcapng.packet.captured_length",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_packet_length,
             { "Packet Length",                             "pcapng.packet.packet_length",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_packet_data,
