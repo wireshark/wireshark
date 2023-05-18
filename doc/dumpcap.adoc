@@ -57,10 +57,10 @@ When the *-P* option is specified, the output file is written in the
 Without any options set it will use the libpcap, Npcap, or WinPcap library to
 capture traffic from the first available network interface and writes
 the received raw packet data, along with the packets' time stamps into a
-pcap file.
+capture file.
 
 If the *-w* option is not specified, *Dumpcap* writes to a newly
-created pcap file with a randomly chosen name.
+created capture file with a randomly chosen name.
 If the *-w* option is specified, *Dumpcap* writes to the file
 specified by that option.
 
@@ -98,9 +98,10 @@ Cause *Dumpcap* to run in "multiple files" mode.  In "multiple files" mode,
 *Dumpcap* will write to several capture files. When the first capture file
 fills up, *Dumpcap* will switch writing to the next file and so on.
 
-The created filenames are based on the filename given with the *-w* option,
-the number of the file and on the creation date and time,
-e.g. outfile_00001_20230714120117.pcap, outfile_00002_20230714120523.pcap, ...
+The created filenames are based on the filename given with the *-w*
+option, the number of the file and on the creation date and time, e.g.
+outfile_00001_20230714120117.pcapng,
+outfile_00002_20230714120523.pcapng, ...
 
 With the __files__ option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
@@ -273,7 +274,8 @@ endianness as the capturing host.
 specified port on the specified host and read pcapng or pcap data.
 
 This option can occur multiple times. When capturing from multiple
-interfaces, the capture file will be saved in pcapng format.
+interfaces, the capture file will be saved in pcapng format, even if
+*-P* is specified.
 --
 
 --ifdescr> <description>::
