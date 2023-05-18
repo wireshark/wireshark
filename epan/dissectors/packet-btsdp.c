@@ -1985,6 +1985,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     proto_tree      *last_tree;
     gint             new_offset;
     gint             list_offset;
+    gint             entry_start;
     gint             entry_offset;
     gint             entry_length;
     guint32          value;
@@ -2000,7 +2001,8 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
         feature_item = proto_tree_add_none_format(next_tree, hf_sdp_protocol_item, tvb, list_offset, 0, "Protocol #%u", i_protocol);
         feature_tree = proto_item_add_subtree(feature_item, ett_btsdp_protocol);
-        entry_offset = get_type_length(tvb, list_offset, &entry_length);
+        entry_start = get_type_length(tvb, list_offset, &entry_length);
+        entry_offset = entry_start;
         proto_item_set_len(feature_item, entry_length + (entry_offset - list_offset));
 
         dissect_data_element(feature_tree, &sub_tree, pinfo, tvb, list_offset);
@@ -2020,7 +2022,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
         entry_offset += length;
 
-        if (entry_offset - list_offset <= entry_length) {
+        if (entry_offset - entry_start < entry_length) {
             dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
             new_offset = get_type_length(tvb, entry_offset, &length);
             entry_offset = new_offset;
@@ -2070,7 +2072,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
             entry_offset += length;
         }
 
-        while (entry_offset - list_offset <= entry_length) {
+        while (entry_offset - entry_start < entry_length) {
             gint value_offset;
             gint len;
 
