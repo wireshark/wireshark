@@ -335,7 +335,7 @@ static int ett_sbas_l1_mt25 = -1;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
 // see ICAO Annex 10, Vol I, Appendix B, Section 3.5.3.5
-guint32 sbas_crc24q(const guint8 *data) {
+static guint32 sbas_crc24q(const guint8 *data) {
     guint32 crc = 0;
 
     // source byte and bit level index
