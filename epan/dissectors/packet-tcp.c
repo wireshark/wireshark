@@ -3789,7 +3789,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     struct tcp_multisegment_pdu *msp;
     gboolean cleared_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
     gboolean first_pdu = TRUE;
-    const gboolean reassemble_ooo = tcp_analyze_seq && tcp_desegment && tcp_reassemble_out_of_order;
+    const gboolean reassemble_ooo = tcp_analyze_seq && tcp_desegment && tcp_reassemble_out_of_order && tcpd && tcpd->fwd->ooo_segments;
 
     tcp_endpoint_t orig_endpoint, new_endpoint;
 
