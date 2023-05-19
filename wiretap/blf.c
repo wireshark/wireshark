@@ -462,7 +462,6 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         }
 
         /* pull compressed data into buffer */
-        unsigned char *compressed_data = g_try_malloc0((gsize)tmp.infile_length);
         if (tmp.infile_start_pos < 0) {
             /*
              * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
@@ -506,7 +505,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
                                         data_length);
             return FALSE;
         }
+        unsigned char *compressed_data = g_try_malloc0((gsize)tmp.infile_length);
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, err, err_info)) {
+            g_free(compressed_data);
             if (*err == WTAP_ERR_SHORT_READ) {
                 /*
                  * XXX - our caller will turn this into an EOF.
@@ -534,6 +535,8 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
             /*
              * XXX - check the error code and handle this appropriately.
              */
+            g_free(buf);
+            g_free(compressed_data);
             *err = WTAP_ERR_INTERNAL;
             if (infstream.msg != NULL) {
                 *err_info = g_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %d, message\"%s\"",
@@ -597,6 +600,8 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
                 break;
             }
+            g_free(buf);
+            g_free(compressed_data);
             ws_debug("inflate failed (return code %d) for LogContainer %d", ret, index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflate returned: \"%s\"", infstream.msg);
@@ -615,6 +620,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
             return FALSE;
         }
 
+        g_free(compressed_data);
         tmp.real_data = buf;
         g_array_index(blf_data->log_containers, blf_log_container_t, index_log_container) = tmp;
         return TRUE;
