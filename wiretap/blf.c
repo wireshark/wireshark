@@ -507,6 +507,17 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
             return FALSE;
         }
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, err, err_info)) {
+            if (*err == WTAP_ERR_SHORT_READ) {
+                /*
+                 * XXX - our caller will turn this into an EOF.
+                 * How *should* it be treated?
+                 * For now, we turn it into Yet Another Internal Error,
+                 * pending having better documentation of the file
+                 * format.
+                 */
+                *err = WTAP_ERR_INTERNAL;
+                *err_info = g_strdup("blf_pull_logcontainer_into_memory: short read on compressed data");
+            }
             return FALSE;
         }
 
