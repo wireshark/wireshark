@@ -6120,7 +6120,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_sdo_cmd_abort_code,
 			{ "SDO Transfer Abort", "epl.asnd.sdo.cmd.abort.code",
-				FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+				FT_UINT32, BASE_HEX | BASE_EXT_STRING,
 				&sdo_cmd_abort_code_ext, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_sdo_cmd_data_index,

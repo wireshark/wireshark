@@ -1016,6 +1016,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
                                                0, 3, raw_hdr,
                                                "0x%06x (uncorrectable errors)", raw_hdr );
                 } else {
+                    /* B.3.2.1 Header field */
                     if( errors == 0 ) {
                         proto_tree_add_uint_format_value(hdr_tree, hf_h223_mux_rawhdr, tvb,
                                                    0, 3, raw_hdr,
@@ -1434,11 +1435,11 @@ void proto_register_h223 (void)
             "Corrected header bytes", HFILL }},
 
         { &hf_h223_mux_mc,
-          { "Multiplex Code", "h223.mux.mc", FT_UINT8, BASE_DEC, NULL, 0x0,
+          { "Multiplex Code", "h223.mux.mc", FT_UINT8, BASE_DEC, NULL, 0x0f,
             "H.223 MUX multiplex code", HFILL }},
 
         { &hf_h223_mux_mpl,
-          { "Multiplex Payload Length", "h223.mux.mpl", FT_UINT8, BASE_DEC, NULL, 0x0,
+          { "Multiplex Payload Length", "h223.mux.mpl", FT_UINT16, BASE_DEC, NULL, 0xf00f,
             "H.223 MUX multiplex Payload Length", HFILL }},
 
         { &hf_h223_mux_deact,

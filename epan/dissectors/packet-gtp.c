@@ -4950,6 +4950,7 @@ decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
     nsapi = (tvb_get_guint8(tvb, offset + 1) & 0xF0) >> 4;
     rp = tvb_get_guint8(tvb, offset + 1) & 0x07;
 
+    /* TODO: shouldn't really use int item as tree root.. */
     te = proto_tree_add_uint_format(tree, hf_gtp_rp, tvb, offset, 2, rp, "Radio Priority for NSAPI(%u) : %u", nsapi, rp);
     ext_tree_rp = proto_item_add_subtree(te, ett_gtp_rp);
 
@@ -11477,7 +11478,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ranap_cause,
          { "RANAP cause", "gtp.ranap_cause",
-           FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ranap_cause_type_ext, 0,
+           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ranap_cause_type_ext, 0,
            NULL, HFILL}
         },
         {&hf_gtp_recovery,

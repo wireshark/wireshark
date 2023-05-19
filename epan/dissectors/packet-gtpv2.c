@@ -10767,7 +10767,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mm_context_apn_rte_ctrl_sts_len,
         { "Length of APN Rate Control Statuses", "gtpv2.mm_context.apn_rte_ctrl_sts_len",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gtpv2_mm_context_cnr_len,
