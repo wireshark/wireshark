@@ -1114,13 +1114,13 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
 
 #define PACKET_DESCRIBE(rec,buf,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
-        nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
-        if ((nstrace_buflen - nstrace_buf_offset) < sizeof *type) {\
+        if ((nstrace_buflen - nstrace_buf_offset) < sizeof(nspr_pktrace##fullpart##_v##ver##_t)) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
             return FALSE;\
         }\
+        nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Check sanity of record size */\
         if (pletoh16(&type->nsprRecordSize) < sizeof *type) {\
             *err = WTAP_ERR_BAD_FILE;\
@@ -1186,6 +1186,8 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
 
                 case NSPR_ABSTIME_V10:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v10_t), err, err_info))
+                        return FALSE;
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
                     if (pletoh16(&fp->nsprRecordSize) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
@@ -1199,6 +1201,8 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
 
                 case NSPR_RELTIME_V10:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v10_t), err, err_info))
+                        return FALSE;
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
                     if (pletoh16(&fp->nsprRecordSize) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
@@ -1216,6 +1220,8 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
 
                 default:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v10_t), err, err_info))
+                        return FALSE;
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
                     if (pletoh16(&fp->nsprRecordSize) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
@@ -1500,14 +1506,14 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 #define PACKET_DESCRIBE(rec,buf,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
-        nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
-        if ((nstrace->nstrace_buflen - nstrace_buf_offset) < sizeof *fp) {\
+        if ((nstrace->nstrace_buflen - nstrace_buf_offset) < sizeof(nspr_##structname##_t)) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
             g_free(nstrace_tmpbuff);\
             return FALSE;\
         }\
+        nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         (rec)->rec_type = REC_TYPE_PACKET;\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
@@ -1615,7 +1621,6 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
                 g_free(nstrace_tmpbuff);
                 return FALSE;
             }
-
             hdp = (nspr_hd_v20_t *) &nstrace_buf[nstrace_buf_offset];
             if (nspr_getv20recordsize(hdp) == 0) {
                 *err = WTAP_ERR_BAD_FILE;
