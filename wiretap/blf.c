@@ -642,6 +642,8 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
             if (infstream.msg != NULL) {
                 ws_debug("inflate returned: \"%s\"", infstream.msg);
             }
+            /* Free up any dynamically-allocated memory in infstream */
+            inflateEnd(&infstream);
             return FALSE;
         }
 
