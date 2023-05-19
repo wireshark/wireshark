@@ -133,10 +133,8 @@ typedef struct {
 	drdynvc_pending_packet_t pending_sc;
 } drdynvc_channel_def_t;
 
-#define DRDYNVC_MAX_CHANNELS 32
 typedef struct _drdynvc_conv_info_t {
-  guint8  maxChannels;
-  drdynvc_channel_def_t channels[DRDYNVC_MAX_CHANNELS];
+  wmem_multimap_t *channels;
 } drdynvc_conv_info_t;
 
 
@@ -178,20 +176,6 @@ drdynvc_find_channel_type(const char *name)
 	return DRDYNVC_CHANNEL_UNKNOWN;
 }
 
-static drdynvc_channel_def_t *
-drdynvc_find_channel_by_id(drdynvc_conv_info_t *info, guint32 id)
-{
-	guint8 i;
-
-	for (i = 0; i < info->maxChannels; i++) {
-		if (info->channels[i].channelId == id)
-			return &info->channels[i];
-	}
-
-	return NULL;
-}
-
-
 static drdynvc_conv_info_t *
 drdynvc_get_conversation_data(packet_info *pinfo)
 {
@@ -209,6 +193,7 @@ drdynvc_get_conversation_data(packet_info *pinfo)
 
 	if (info == NULL) {
 		info = wmem_new0(wmem_file_scope(), drdynvc_conv_info_t);
+		info->channels = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conversation_add_proto_data(conversation, proto_rdp_drdynvc, info);
 	}
 
@@ -249,24 +234,9 @@ dissect_rdp_vlength(tvbuff_t *tvb, int hf_index, int offset, guint8 vlen, proto_
 
 static const char *
 find_channel_name_by_id(packet_info *pinfo, drdynvc_conv_info_t *dyninfo, guint32 dvcId) {
-	guint8 i;
-	conversation_t *conv;
-	rdp_conv_info_t *rdp_info;
-
-	drdynvc_channel_def_t *dynChannel = drdynvc_find_channel_by_id(dyninfo, dvcId);
+	drdynvc_channel_def_t *dynChannel = wmem_multimap_lookup32_le(dyninfo->channels, GUINT_TO_POINTER(dvcId), pinfo->num);
 	if (dynChannel)
 		return dynChannel->name;
-
-	/* scan for static channel in the RDP dissector */
-	conv = find_conversation_pinfo(pinfo, 0);
-	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
-	if (!rdp_info)
-		return NULL;
-
-	for (i = 0; i < rdp_info->maxChannels; i++) {
-		if (rdp_info->staticChannels[i].value == dvcId)
-			return rdp_info->staticChannels[i].strptr;
-	}
 
 	return NULL;
 }
@@ -356,11 +326,11 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Request");
 				proto_tree_add_item(tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII);
 
-				if (info->maxChannels < DRDYNVC_MAX_CHANNELS) {
-					drdynvc_channel_def_t *channel = &info->channels[info->maxChannels];
-
+				drdynvc_channel_def_t *channel;
+				if (!PINFO_FD_VISITED(pinfo)) {
+					channel = wmem_alloc(wmem_file_scope(), sizeof(*channel));
 					channel->channelId = channelId;
-					channel->name = tvb_get_string_enc(NULL, tvb, offset, nameLen, ENC_ASCII);
+					channel->name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, nameLen, ENC_ASCII);
 					channel->type = drdynvc_find_channel_type(channel->name);
 					channel->pending_cs.pendingLen = 0;
 					channel->pending_cs.packet = NULL;
@@ -368,12 +338,15 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					channel->pending_sc.pendingLen = 0;
 					channel->pending_sc.packet = NULL;
 					channel->pending_sc.startFrame = pinfo->num;
+					//printf("dynamic %s -> 0x%x\n", channel->name, channel->channelId);
 
-					info->maxChannels++;
+					wmem_multimap_insert32(info->channels, GUINT_TO_POINTER(channelId), pinfo->num, channel);
+				} else {
+					channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 				}
 
 			} else {
-				drdynvc_channel_def_t *channel = drdynvc_find_channel_by_id(info, channelId);
+				drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 
 				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Response");
 
@@ -415,7 +388,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		case DRDYNVC_DATA_FIRST_PDU: {
 			col_set_str(pinfo->cinfo, COL_INFO, "Data first");
 
-			drdynvc_channel_def_t *channel = drdynvc_find_channel_by_id(info, channelId);
+			drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 			if (channel) {
 				drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
 				gint payloadLen = tvb_reported_length_remaining(tvb, offset);
@@ -463,7 +436,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		case DRDYNVC_DATA_PDU: {
 			col_set_str(pinfo->cinfo, COL_INFO, "Data");
 
-			drdynvc_channel_def_t *channel = drdynvc_find_channel_by_id(info, channelId);
+			drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 			if (channel) {
 				tvbuff_t *targetTvb = NULL;
 				gboolean fragmented = FALSE;
@@ -645,7 +618,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			break;
 		}
 		case DRDYNVC_CLOSE_REQUEST_PDU: {
-			drdynvc_channel_def_t *channel = drdynvc_find_channel_by_id(info, channelId);
+			drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 
 			col_set_str(pinfo->cinfo, COL_INFO, "Close request");
 			if (channel) {
