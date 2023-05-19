@@ -1731,13 +1731,15 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
         return TRUE;
     }
 
-    gchar *text = g_try_malloc0((gsize)apptextheader.textLength);
+    /* Add an extra byte for a terminating '\0' */
+    gchar *text = g_try_malloc((gsize)apptextheader.textLength + 1);
 
     if (!blf_read_bytes(params, data_start + sizeof(apptextheader), text, apptextheader.textLength, err, err_info)) {
         ws_debug("not enough bytes for apptext text in file");
         g_free(text);
         return FALSE;
     }
+    text[apptextheader.textLength] = '\0'; /* Here's the '\0' */
 
     /* returns a NULL terminated array of NULL terminates strings */
     gchar **tokens = g_strsplit_set(text, ";", -1);
