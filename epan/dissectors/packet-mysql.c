@@ -1387,6 +1387,12 @@ typedef struct {
 	guint8* types;
 } my_metadata_list_t;
 
+/* Data for the entire conversation. Most data is fixed once known.
+ * For data which changes from packet to packet such as the state,
+ * this holds the value of the last value seen during the first
+ * sequential pass. On subsequent passes, for random packet access,
+ * the per-packet frame data below should be used to access the state.
+ */
 typedef struct mysql_conn_data {
 	guint16 srv_caps;
 	guint16 srv_caps_ext;
@@ -1415,6 +1421,9 @@ typedef struct mysql_conn_data {
 	streaming_reassembly_info_t *reassembly_info;
 } mysql_conn_data_t;
 
+/* Data stored for a particular frame. Use this on random access after
+ * the first pass to obtain the state when the frame was captured.
+ */
 struct mysql_frame_data {
 	mysql_state_t state;
 };
@@ -2364,8 +2373,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, lenstr, ENC_NA);
 		}
 		offset += lenstr;
-		if (conn_data->state != RESPONSE_PREPARE) {
-			// if pipelinning, keeping PREPARE state
+		if (current_state != RESPONSE_PREPARE) {
+			// if pipelining, keeping PREPARE state
 			mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		}
 		break;
@@ -2430,8 +2439,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 				row_nr++;
 			}
 		}
-		if (conn_data->state != RESPONSE_PREPARE) {
-			// if pipelinning, keeping PREPARE state
+		if (current_state != RESPONSE_PREPARE) {
+			// if pipelining, keeping PREPARE state
 			mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		}
 
@@ -2485,8 +2494,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			offset += lenstr;
 		}
 
-		if (conn_data->state != RESPONSE_PREPARE) {
-			// if pipelinning, keeping PREPARE state
+		if (current_state != RESPONSE_PREPARE) {
+			// if pipelining, keeping PREPARE state
 			mysql_set_conn_state(pinfo, conn_data, RESPONSE_TABULAR);
 		}
 
