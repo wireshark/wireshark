@@ -55,6 +55,9 @@ gssapi_init_oid(const char *oid, int proto, int ett, dissector_handle_t handle,
 gssapi_oid_value *
 gssapi_lookup_oid_str(const gchar *oid_key);
 
+typedef struct _dcerpc_info dcerpc_info;
+typedef struct _dcerpc_auth_info dcerpc_auth_info;
+
 int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, guint8 *drep);

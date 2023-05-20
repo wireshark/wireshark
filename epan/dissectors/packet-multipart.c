@@ -51,7 +51,6 @@
 #include <wsutil/str_util.h>
 #include "packet-imf.h"
 
-#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-media-type.h"
 

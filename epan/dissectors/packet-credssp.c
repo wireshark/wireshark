@@ -22,7 +22,6 @@
 #include <epan/exported_pdu.h>
 
 #include "packet-ber.h"
-#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
 #include "packet-ntlmssp.h"

@@ -30,7 +30,6 @@
 #include "packet-rpc.h"
 #include "packet-tcp.h"
 #include "packet-nfs.h"
-#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
 /*

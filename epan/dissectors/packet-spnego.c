@@ -30,7 +30,6 @@
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 #include <wsutil/wsgcrypt.h>
-#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
 #include "packet-ber.h"

@@ -17,7 +17,6 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
-#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
 void proto_register_negoex(void);
