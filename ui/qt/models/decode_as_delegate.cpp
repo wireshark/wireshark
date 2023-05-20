@@ -181,16 +181,15 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         const gchar *proto_name = NULL;
         bool edt_present = cap_file_ && cap_file_->edt;
         gint8 curr_layer_num_saved = edt_present ? cap_file_->edt->pi.curr_layer_num : 0;
+        QList<guint8> proto_layers;
 
         foreach(packet_proto_data_t proto, packet_proto_list_)
         {
             if (g_strcmp0(proto.table_ui_name, item->tableUIName()) == 0) {
                 if (edt_present) {
-                    cap_file_->edt->pi.curr_layer_num = proto.curr_layer_num;
+                    proto_layers << proto.curr_layer_num;
                 }
                 proto_name = proto.proto_name;
-                //XXX - break?  Or do we always want the last layer of tunnelled protocols?
-                //XXX - Or do we want to add *all* the values from all the layers where the protocol appears to the combobox?
             }
         }
 
@@ -213,15 +212,19 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                         cb_editor->addItem(current_value);
 
                     //get the value(s) from the packet
-                    for (uint ni = 0; ni < entry->num_items; ni++) {
-                        if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries
-                            QString entryStr = DecodeAsModel::entryString(entry->table_name,
-                                                                    entry->values[ni].build_values[0](&cap_file_->edt->pi));
-                            //don't duplicate entries
-                            if (cb_editor->findText(entryStr) < 0)
-                                cb_editor->addItem(entryStr);
+                    foreach(guint8 current_layer, proto_layers) {
+                        cap_file_->edt->pi.curr_layer_num = current_layer;
+                        for (uint ni = 0; ni < entry->num_items; ni++) {
+                            if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries
+                                QString entryStr = DecodeAsModel::entryString(entry->table_name,
+                                                                        entry->values[ni].build_values[0](&cap_file_->edt->pi));
+                                //don't duplicate entries
+                                if (cb_editor->findText(entryStr) < 0)
+                                    cb_editor->addItem(entryStr);
+                            }
                         }
                     }
+                    cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
                     cb_editor->setCurrentIndex(entry->default_index_value);
 
                     //Make sure the combo box is at least as wide as the column
@@ -232,10 +235,6 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                 }
                 break;
             }
-        }
-
-        if (edt_present) {
-            cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
         }
 
         //if there isn't a need for a combobox, just let user have a text box for direct edit
