@@ -18,6 +18,8 @@
 void proto_register_canopen(void);
 void proto_reg_handoff_canopen(void);
 
+static dissector_handle_t canopen_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_canopen = -1;
 static int hf_canopen_cob_id = -1;
@@ -1784,14 +1786,13 @@ proto_register_canopen(void)
 
     proto_register_field_array(proto_canopen, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    canopen_handle = register_dissector("canopen",  dissect_canopen, proto_canopen );
 }
 
 void
 proto_reg_handoff_canopen(void)
 {
-   dissector_handle_t canopen_handle;
-
-   canopen_handle = create_dissector_handle( dissect_canopen, proto_canopen );
    dissector_add_for_decode_as("can.subdissector", canopen_handle );
 }
 

@@ -1425,6 +1425,7 @@ void proto_register_dlt(void) {
     proto_dlt = proto_register_protocol(DLT_NAME_LONG, DLT_NAME, DLT_NAME_FILTER);
     dlt_handle_tcp = register_dissector("dlt_tcp", dissect_dlt_tcp, proto_dlt);
     dlt_handle_udp = register_dissector("dlt_udp", dissect_dlt_udp, proto_dlt);
+    dlt_handle_storage = register_dissector("dlt_storage", dissect_dlt_storage_header, proto_dlt_storage_header);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_dlt, hf_dlt, array_length(hf_dlt));
 
@@ -1468,7 +1469,6 @@ void proto_register_dlt_storage_header(void) {
 }
 
 void proto_reg_handoff_dlt_storage_header(void) {
-    dlt_handle_storage = create_dissector_handle(dissect_dlt_storage_header, proto_dlt_storage_header);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_AUTOSAR_DLT, dlt_handle_storage);
 }
 /*

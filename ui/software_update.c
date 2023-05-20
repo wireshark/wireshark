@@ -57,7 +57,7 @@
 #define SU_ARCH "x86-64"
 #elif defined(__i386__) || defined(_M_IX86)
 #define SU_ARCH "x86"
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(_M_ARM64)
 #define SU_ARCH "arm64"
 #else
 #error HAVE_SOFTWARE_UPDATE can only be defined for x86-64 or x86 or arm64.

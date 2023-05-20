@@ -1108,7 +1108,7 @@ proto_register_multipart(void)
     multipart_media_subdissector_table = register_dissector_table(
         "multipart_media_type",
         "Internet media type (for multipart processing)",
-        proto_multipart, FT_STRING, BASE_NONE);
+        proto_multipart, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 

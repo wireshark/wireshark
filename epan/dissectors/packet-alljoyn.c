@@ -18,6 +18,9 @@
 void proto_register_AllJoyn(void);
 void proto_reg_handoff_AllJoyn(void);
 
+static dissector_handle_t alljoyn_handle_ns;
+static dissector_handle_t alljoyn_handle_ardp;
+
 #define ALLJOYN_NAME_SERVER_PORT      9956 /* IANA lists only UDP as being registered (dissector also uses TCP port) */
 #define ALLJOYN_MESSAGE_PORT      9955
 
@@ -2996,6 +2999,7 @@ proto_register_AllJoyn(void)
 
     /* Name service protocols. */                        /* name, short name, abbrev */
     proto_AllJoyn_ns = proto_register_protocol("AllJoyn Name Service Protocol", "AllJoyn NS", "ajns");
+    alljoyn_handle_ns = register_dissector("ajns", dissect_AllJoyn_name_server, proto_AllJoyn_ns);
 
     /* Message protocols */
     proto_AllJoyn_mess = proto_register_protocol("AllJoyn Message Protocol", "AllJoyn", "aj");
@@ -3007,16 +3011,12 @@ proto_register_AllJoyn(void)
 
     /* ARDP */                        /* name, short name, abbrev */
     proto_AllJoyn_ardp = proto_register_protocol("AllJoyn Reliable Datagram Protocol", "AllJoyn ARDP", "ardp");
+    alljoyn_handle_ardp = register_dissector("ardp", dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
 }
 
 void
 proto_reg_handoff_AllJoyn(void)
 {
-    dissector_handle_t alljoyn_handle_ns;
-    dissector_handle_t alljoyn_handle_ardp;
-
-    alljoyn_handle_ns = create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
-    alljoyn_handle_ardp = create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
     dissector_add_uint_with_preference("tcp.port", ALLJOYN_NAME_SERVER_PORT, alljoyn_handle_ns);
     dissector_add_uint_with_preference("tcp.port", ALLJOYN_MESSAGE_PORT, alljoyn_handle_ardp);
 

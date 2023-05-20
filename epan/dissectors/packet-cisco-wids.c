@@ -54,6 +54,8 @@ static gint ett_cwids = -1;
 
 static expert_field ie_ieee80211_subpacket = EI_INIT;
 
+static dissector_handle_t cwids_handle;
+
 static dissector_handle_t ieee80211_radio_handle;
 
 static int
@@ -171,14 +173,13 @@ proto_register_cwids(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_cwids = expert_register_protocol(proto_cwids);
 	expert_register_field_array(expert_cwids, ei, array_length(ei));
+
+	cwids_handle = register_dissector("cwids", dissect_cwids, proto_cwids);
 }
 
 void
 proto_reg_handoff_cwids(void)
 {
-	dissector_handle_t cwids_handle;
-
-	cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
 	dissector_add_for_decode_as_with_preference("udp.port", cwids_handle);
 	ieee80211_radio_handle = find_dissector_add_dependency("wlan_noqos_radio", proto_cwids);
 }

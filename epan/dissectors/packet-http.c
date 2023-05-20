@@ -4398,7 +4398,7 @@ proto_register_http(void)
 		"The full requested URI (including host name)", HFILL }},
 	    { &hf_http_response_code,
 	      { "Status Code", "http.response.code",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		FT_UINT24, BASE_DEC, NULL, 0x0,
 		"HTTP Response Status Code", HFILL }},
 	    { &hf_http_response_code_desc,
 	      { "Status Code Description", "http.response.code.desc",
@@ -4805,7 +4805,7 @@ proto_register_http(void)
 	 * Maps the lowercase Upgrade header value.
 	 * https://tools.ietf.org/html/rfc7230#section-8.6
 	 */
-	upgrade_subdissector_table = register_dissector_table("http.upgrade", "HTTP Upgrade", proto_http, FT_STRING, BASE_NONE);
+	upgrade_subdissector_table = register_dissector_table("http.upgrade", "HTTP Upgrade", proto_http, FT_STRING, STRING_CASE_SENSITIVE);
 
 	/*
 	 * Heuristic dissectors SHOULD register themselves in

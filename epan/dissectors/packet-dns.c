@@ -513,6 +513,10 @@ static expert_field ei_dns_extraneous_data = EI_INIT;
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
 static dissector_handle_t dns_handle;
+static dissector_handle_t mdns_udp_handle;
+static dissector_handle_t llmnr_udp_handle;
+static dissector_handle_t doq_handle;
+
 
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
@@ -4828,13 +4832,6 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
 void
 proto_reg_handoff_dns(void)
 {
-  dissector_handle_t mdns_udp_handle;
-  dissector_handle_t llmnr_udp_handle;
-  dissector_handle_t doq_handle;
-
-  mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
-  llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
-  doq_handle  = create_dissector_handle(dissect_dns_doq, proto_dns);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_handle);
@@ -6557,9 +6554,12 @@ proto_register_dns(void)
                                         "DNS address resolution settings can be changed in the Name Resolution preferences",
                                         "DNS address resolution settings can be changed in the Name Resolution preferences");
 
-  dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC", proto_dns, FT_STRING, BASE_NONE);
+  dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC", proto_dns, FT_STRING, STRING_CASE_SENSITIVE);
 
   dns_handle = register_dissector("dns", dissect_dns, proto_dns);
+  mdns_udp_handle = register_dissector("mdns", dissect_mdns_udp, proto_mdns);
+  llmnr_udp_handle = register_dissector("llmnr", dissect_llmnr_udp, proto_llmnr);
+  doq_handle = register_dissector("dns.doq", dissect_dns_doq, proto_dns);
 
   dns_tap = register_tap("dns");
 }

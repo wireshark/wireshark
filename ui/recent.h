@@ -55,7 +55,9 @@ typedef struct _col_width_data {
 
 typedef enum {
     BYTES_HEX,
-    BYTES_BITS
+    BYTES_BITS,
+    BYTES_DEC,
+    BYTES_OCT
 } bytes_view_type;
 
 typedef enum {

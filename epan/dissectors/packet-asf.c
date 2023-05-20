@@ -27,6 +27,8 @@
 void proto_register_asf(void);
 void proto_reg_handoff_asf(void);
 
+static dissector_handle_t asf_handle;
+
 #define RMCP_CLASS_ASF 0x06
 
 static int proto_asf = -1;
@@ -368,14 +370,13 @@ proto_register_asf(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_asf = expert_register_protocol(proto_asf);
 	expert_register_field_array(expert_asf, ei, array_length(ei));
+
+	asf_handle = register_dissector("asf", dissect_asf, proto_asf);
 }
 
 void
 proto_reg_handoff_asf(void)
 {
-	dissector_handle_t asf_handle;
-
-	asf_handle  = create_dissector_handle(dissect_asf, proto_asf);
 	dissector_add_uint("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 }
 

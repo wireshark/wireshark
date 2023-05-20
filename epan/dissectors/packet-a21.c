@@ -24,6 +24,7 @@ void proto_register_a21(void);
 void proto_reg_handoff_a21(void);
 
 #define A21_PORT 23272
+static dissector_handle_t a21_handle = NULL;
 static dissector_handle_t gcsna_handle = NULL;
 
 static int proto_a21 = -1;
@@ -1254,13 +1255,12 @@ void proto_register_a21(void)
 	proto_register_subtree_array(ett_a21_array, array_length(ett_a21_array));
 	expert_a21 = expert_register_protocol(proto_a21);
 	expert_register_field_array(expert_a21, ei, array_length(ei));
+
+	a21_handle = register_dissector("a21", dissect_a21, proto_a21);
 }
 
 void proto_reg_handoff_a21(void)
 {
-	dissector_handle_t a21_handle;
-
-	a21_handle = create_dissector_handle(dissect_a21, proto_a21);
 	gcsna_handle = find_dissector_add_dependency("gcsna", proto_a21);
 	dissector_add_uint_with_preference("udp.port", A21_PORT, a21_handle);
 }

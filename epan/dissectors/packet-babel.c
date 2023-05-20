@@ -16,6 +16,8 @@
 void proto_register_babel(void);
 void proto_reg_handoff_babel(void);
 
+static dissector_handle_t babel_handle;
+
 static int proto_babel = -1;
 
 static gint ett_babel = -1;
@@ -703,14 +705,13 @@ proto_register_babel(void)
 
     proto_register_field_array(proto_babel, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    babel_handle = register_dissector("babel", dissect_babel, proto_babel);
 }
 
 void
 proto_reg_handoff_babel(void)
 {
-    dissector_handle_t babel_handle;
-
-    babel_handle = create_dissector_handle(dissect_babel, proto_babel);
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BABEL, babel_handle);
 }
 

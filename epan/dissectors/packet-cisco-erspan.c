@@ -150,7 +150,7 @@ static const value_string erspan_granularity_vals[] = {
 static dissector_handle_t ethnofcs_handle;
 
 static int
-dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *erspan_tree = NULL;
@@ -399,7 +399,7 @@ dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		 * We have a header, so dissect it, and then handle
 		 * the payload.
 		 */
-		return dissect_erspan(tvb, pinfo, tree);
+		return dissect_erspan(tvb, pinfo, tree, data);
 	} else {
 		/*
 		 * No header, so just hand the payload off to the
@@ -427,7 +427,7 @@ dissect_erspan_22EB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	 * Frames with a GRE type of 0x22EB always have an ERSPAN
 	 * header.
 	 */
-	return dissect_erspan(tvb, pinfo, tree);
+	return dissect_erspan(tvb, pinfo, tree, data);
 }
 
 void
@@ -598,6 +598,8 @@ proto_register_erspan(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_erspan = expert_register_protocol(proto_erspan);
 	expert_register_field_array(expert_erspan, ei, array_length(ei));
+
+	register_dissector("erspan", dissect_erspan, proto_erspan);
 }
 
 void

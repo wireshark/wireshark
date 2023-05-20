@@ -18,6 +18,8 @@
 void proto_register_dvb_eit(void);
 void proto_reg_handoff_dvb_eit(void);
 
+static dissector_handle_t dvb_eit_handle;
+
 static int proto_dvb_eit = -1;
 static int hf_dvb_eit_service_id = -1;
 static int hf_dvb_eit_reserved = -1;
@@ -266,15 +268,13 @@ proto_register_dvb_eit(void)
     proto_register_field_array(proto_dvb_eit, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    dvb_eit_handle = register_dissector("dvb_eit", dissect_dvb_eit, proto_dvb_eit);
 }
 
 
 void proto_reg_handoff_dvb_eit(void)
 {
     int tid;
-    dissector_handle_t dvb_eit_handle;
-
-    dvb_eit_handle = create_dissector_handle(dissect_dvb_eit, proto_dvb_eit);
 
     for (tid = DVB_EIT_TID_MIN; tid <= DVB_EIT_TID_MAX; tid++)
         dissector_add_uint("mpeg_sect.tid", tid, dvb_eit_handle);

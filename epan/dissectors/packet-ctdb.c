@@ -17,6 +17,8 @@
 void proto_register_ctdb(void);
 void proto_reg_handoff_ctdb(void);
 
+static dissector_handle_t ctdb_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_ctdb = -1;
 static int hf_ctdb_length = -1;
@@ -1382,6 +1384,9 @@ proto_register_ctdb(void)
 	expert_ctdb = expert_register_protocol(proto_ctdb);
 	expert_register_field_array(expert_ctdb, ei, array_length(ei));
 
+	/* Register the dissector */
+	ctdb_handle = register_dissector("ctdb", dissect_ctdb, proto_ctdb);
+
 	ctdb_transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	ctdb_controls     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
@@ -1390,9 +1395,6 @@ proto_register_ctdb(void)
 void
 proto_reg_handoff_ctdb(void)
 {
-	dissector_handle_t ctdb_handle;
-
-	ctdb_handle = create_dissector_handle(dissect_ctdb, proto_ctdb);
 	dissector_add_for_decode_as_with_preference("tcp.port", ctdb_handle);
 
 	heur_dissector_add("tcp", dissect_ctdb, "Cluster TDB over TCP", "ctdb_tcp", proto_ctdb, HEURISTIC_ENABLE);

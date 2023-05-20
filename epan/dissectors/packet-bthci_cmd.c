@@ -11174,7 +11174,7 @@ proto_register_btcommon(void)
 
     // Key for this table is the lower-case hex-representation of the service UUID. 16-bit UUIDs will have 4 characters, 32-bit UUIDs will have 8 characters.
     // 128-bit UUIDs have 4 dashes in them, and therefore have 36 characters.
-    bluetooth_eir_ad_service_uuid            = register_dissector_table("btcommon.eir_ad.entry.uuid",              "BT EIR/AD Service UUID", proto_btcommon, FT_STRING, BASE_NONE);
+    bluetooth_eir_ad_service_uuid            = register_dissector_table("btcommon.eir_ad.entry.uuid",              "BT EIR/AD Service UUID", proto_btcommon, FT_STRING, STRING_CASE_SENSITIVE);
 
     register_decode_as(&bluetooth_eir_ad_manufacturer_company_id_da);
     register_decode_as(&bluetooth_eir_ad_tds_organization_id_da);

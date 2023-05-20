@@ -18,6 +18,8 @@
 void proto_register_at_ldf(void);
 void proto_reg_handoff_at_ldf(void);
 
+static dissector_handle_t at_ldf_handle;
+
 static int proto_at_ldf = -1;
 
 /* Fields */
@@ -136,15 +138,13 @@ proto_register_at_ldf(void)
 
     proto_register_field_array(proto_at_ldf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    at_ldf_handle = register_dissector("atldf", dissect_at_ldf, proto_at_ldf);
 }
 
 void
 proto_reg_handoff_at_ldf(void)
 {
-
-    static dissector_handle_t at_ldf_handle;
-
-    at_ldf_handle = create_dissector_handle(dissect_at_ldf, proto_at_ldf);
     dissector_add_uint("llc.control", AT_LDF_LLC_CTRL, at_ldf_handle);
 }
 

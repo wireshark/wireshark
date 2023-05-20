@@ -132,6 +132,9 @@ static gint ett_c15ch_second_level_sub3 = -1;
 static gint ett_c15ch_second_level_sub4 = -1;
 static int proto_c15ch_second_level = -1;
 
+static dissector_handle_t c15ch_hbeat_handle   = NULL;
+static dissector_handle_t c15ch_handle         = NULL;
+
 static dissector_handle_t general_sccp_handle  = NULL;
 static dissector_handle_t general_isup_handle  = NULL;
 static dissector_handle_t general_q931_handle  = NULL;
@@ -7352,6 +7355,8 @@ void proto_register_c15ch_hbeat(void)
         );
     proto_register_field_array(proto_c15ch_hbeat, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    c15ch_hbeat_handle = register_dissector("c15hbeat", dissect_c15ch_hbeat, proto_c15ch_hbeat);
 }
 
 
@@ -11870,6 +11875,8 @@ void proto_register_c15ch(void)
     proto_register_field_array(proto_c15ch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    c15ch_handle = register_dissector("c15.ch", dissect_c15ch, proto_c15ch);
+
     /* second level dissector */
     proto_c15ch_second_level = proto_register_protocol(
         "C15 Call History Protocol",
@@ -11917,19 +11924,15 @@ void proto_register_c15ch(void)
 /* heartbeat dissector */
 void proto_reg_handoff_c15ch_hbeat(void)
 {
-    static dissector_handle_t c15ch_hbeat_handle;
-    c15ch_hbeat_handle = create_dissector_handle(dissect_c15ch_hbeat, proto_c15ch_hbeat);
     dissector_add_uint("ethertype", ETHERTYPE_C15_HBEAT, c15ch_hbeat_handle);
 }
 
 /* c15 non-heartbeat dissectors : first-level, second-level, and third-level */
 void proto_reg_handoff_c15ch(void)
 {
-    dissector_handle_t c15ch_handle;
     dissector_handle_t c15ch_second_level_handle;
     dissector_handle_t c15ch_third_level_handle;
     /* first level */
-    c15ch_handle = create_dissector_handle(dissect_c15ch, proto_c15ch);
     dissector_add_uint("ethertype", ETHERTYPE_C15_CH, c15ch_handle);
 
     /* second_level */

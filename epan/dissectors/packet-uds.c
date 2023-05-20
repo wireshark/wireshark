@@ -3403,10 +3403,10 @@ proto_register_uds(void) {
             "Memory Size", "uds.dddi.memory_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_wdbi_data_identifier, {
-            "Data Identifier", "uds.wdbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            "Data Identifier", "uds.wdbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_uds_iocbi_data_identifier, {
-            "Data Identifier", "uds.iocbi.data_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            "Data Identifier", "uds.iocbi.data_identifier", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_iocbi_parameter, {
             "Parameter", "uds.iocbi.parameter", FT_UINT8, BASE_HEX, VALS(uds_iocbi_parameters), 0x0, NULL, HFILL } },
         { &hf_uds_iocbi_state, {
@@ -3448,7 +3448,7 @@ proto_register_uds(void) {
         { &hf_uds_rft_max_num_of_block_length, {
             "Max Number of Block Length", "uds.rft.max_number_of_block_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_rft_file_size_or_dir_info_param_length, {
-            "File Size or Dir Info Parameter Length", "uds.rft.file_size_or_dir_info_parameter_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            "File Size or Dir Info Parameter Length", "uds.rft.file_size_or_dir_info_parameter_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_rft_file_size_uncompressed_or_dir_info_length, {
             "File Size Uncompressed or Dir Info Length", "uds.rft.file_size_uncompressed_or_dir_info_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_rft_file_position, {

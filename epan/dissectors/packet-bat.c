@@ -17,6 +17,10 @@
 void proto_register_bat(void);
 void proto_reg_handoff_bat(void);
 
+static dissector_handle_t batman_handle;
+static dissector_handle_t gw_handle;
+static dissector_handle_t vis_handle;
+
 #define BAT_BATMAN_PORT  4305
 #define BAT_GW_PORT  4306 /* Not IANA registered */
 #define BAT_VIS_PORT  4307 /* Not IANA registered */
@@ -827,22 +831,18 @@ void proto_register_bat(void)
 	proto_bat_gw = proto_register_protocol("B.A.T.M.A.N. GW", "BAT GW", "bat.gw");
 	proto_bat_vis = proto_register_protocol("B.A.T.M.A.N. Vis", "BAT VIS", "bat.vis");
 
+	batman_handle = register_dissector("bat", dissect_bat_batman, proto_bat_plugin);
+	gw_handle = register_dissector("bat.gw", dissect_bat_gw, proto_bat_gw);
+	vis_handle = register_dissector("bat.vis", dissect_bat_vis, proto_bat_vis);
+
 	proto_register_field_array(proto_bat_plugin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_reg_handoff_bat(void)
 {
-	dissector_handle_t batman_handle;
-	dissector_handle_t gw_handle;
-	dissector_handle_t vis_handle;
-
 	bat_tap = register_tap("batman");
 	bat_follow_tap = register_tap("batman_follow");
-
-	batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
-	gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
-	vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
 	ip_handle = find_dissector_add_dependency("ip", proto_bat_gw);
 

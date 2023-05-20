@@ -23,6 +23,11 @@
 void proto_register_arcnet(void);
 void proto_reg_handoff_arcnet(void);
 
+static dissector_handle_t arcnet_handle;
+static dissector_handle_t arcnet_linux_handle;
+static capture_dissector_handle_t arcnet_cap_handle;
+static capture_dissector_handle_t arcnet_cap_has_ex_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_arcnet = -1;
 static int hf_arcnet_src = -1;
@@ -386,27 +391,25 @@ proto_register_arcnet (void)
                                                      proto_arcnet, FT_UINT8, BASE_HEX);
 
   arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, NULL, arcnet_col_filter_str, arcnet_len, NULL, NULL);
+
+  arcnet_handle = register_dissector("arcnet", dissect_arcnet, proto_arcnet);
+  arcnet_linux_handle = register_dissector("arcnet_linux", dissect_arcnet_linux, proto_arcnet);
+
+  arcnet_cap_handle = register_capture_dissector("arcnet_linux", capture_arcnet, proto_arcnet);
+  arcnet_cap_has_ex_handle = register_capture_dissector("arcnet", capture_arcnet_has_exception, proto_arcnet);
 }
 
 
 void
 proto_reg_handoff_arcnet (void)
 {
-  dissector_handle_t arcnet_handle, arcnet_linux_handle;
-  capture_dissector_handle_t arcnet_cap_handle;
-
-  arcnet_handle = create_dissector_handle (dissect_arcnet, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
-
-  arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
 
   proto_ipx = proto_get_id_by_filter_name("ipx");
 
-  arcnet_cap_handle = create_capture_dissector_handle(capture_arcnet, proto_arcnet);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_cap_handle);
-  arcnet_cap_handle = create_capture_dissector_handle(capture_arcnet_has_exception, proto_arcnet);
-  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_cap_handle);
+  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_cap_has_ex_handle);
 
   ip_cap_handle = find_capture_dissector("ip");
   arp_cap_handle = find_capture_dissector("arp");

@@ -5467,7 +5467,7 @@ proto_register_quic(void)
      * This could in theory be an arbitrary octet string with embedded NUL
      * bytes, but in practice these do not exist yet.
      */
-    quic_proto_dissector_table = register_dissector_table("quic.proto", "QUIC Protocol", proto_quic, FT_STRING, FALSE);
+    quic_proto_dissector_table = register_dissector_table("quic.proto", "QUIC Protocol", proto_quic, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 void

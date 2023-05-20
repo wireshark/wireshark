@@ -2309,7 +2309,7 @@ proto_register_protobuf(void)
 
     protobuf_field_subdissector_table =
         register_dissector_table("protobuf_field", "Protobuf field subdissector table",
-            proto_protobuf, FT_STRING, BASE_NONE);
+            proto_protobuf, FT_STRING, STRING_CASE_SENSITIVE);
 
     expert_protobuf = expert_register_protocol(proto_protobuf);
     expert_register_field_array(expert_protobuf, ei, array_length(ei));

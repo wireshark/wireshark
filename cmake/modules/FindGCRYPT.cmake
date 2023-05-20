@@ -37,7 +37,7 @@ find_library(GCRYPT_ERROR_LIBRARY
 
 # Try to retrieve version from header if found (available since libgcrypt 1.3.0)
 if(GCRYPT_INCLUDE_DIR)
-  set(_version_regex "^#define[ \t]+GCRYPT_VERSION[ \t]+\"([^\"]+)\".*")
+  set(_version_regex "^#define[ \t]+GCRYPT_VERSION[ \t]+\"([0-9\.]+\.[0-9]+).*")
   file(STRINGS "${GCRYPT_INCLUDE_DIR}/gcrypt.h" GCRYPT_VERSION REGEX "${_version_regex}")
   string(REGEX REPLACE "${_version_regex}" "\\1" GCRYPT_VERSION "${GCRYPT_VERSION}")
   unset(_version_regex)

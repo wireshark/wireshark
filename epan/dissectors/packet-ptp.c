@@ -1236,6 +1236,15 @@ static value_string_ext ptp_v2_messagetype_vals_ext =
     VALUE_STRING_EXT_INIT(ptp_v2_messagetype_vals);
 
 static const value_string ptp_v2_clockAccuracy_vals[] = {
+    {0x17,  "The time is accurate to within 1 ps"},
+    {0x18,  "The time is accurate to within 2,5 ps"},
+    {0x19,  "The time is accurate to within 10 ps"},
+    {0x1A,  "The time is accurate to within 25 ps"},
+    {0x1B,  "The time is accurate to within 100 ps"},
+    {0x1C,  "The time is accurate to within 250 ps"},
+    {0x1D,  "The time is accurate to within 1 ns"},
+    {0x1E,  "The time is accurate to within 2,5 ns"},
+    {0x1F,  "The time is accurate to within 10 ns"},
     {0x20,  "The time is accurate to within 25 ns"},
     {0x21,  "The time is accurate to within 100 ns"},
     {0x22,  "The time is accurate to within 250 ns"},

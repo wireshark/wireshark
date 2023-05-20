@@ -373,7 +373,7 @@ void proto_register_rtse(void) {
                  " \"Allow subdissectors to reassemble TCP streams\""
                  " in the TCP protocol settings.", &rtse_reassemble);
 
-  rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", proto_rtse, FT_STRING, BASE_NONE);
+  rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", proto_rtse, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 

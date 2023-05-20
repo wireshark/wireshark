@@ -706,7 +706,7 @@ proto_register_jdwp(void)
         HFILL }
     },
     { &hf_jdwp_errorcode,
-      { "error code",  "jdwp.errorcode", FT_UINT8, BASE_DEC, VALS(error_codes), 0x0, NULL,
+      { "error code",  "jdwp.errorcode", FT_UINT16, BASE_DEC, VALS(error_codes), 0x0, NULL,
         HFILL }
     },
     { &hf_jdwp_data,

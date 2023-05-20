@@ -276,6 +276,7 @@ typedef struct _capture_src {
 #endif
     gboolean                     pcap_err;
     guint                        interface_id;
+    guint                        idb_id;                 /**< If from_pcapng is false, the output IDB interface ID. Otherwise the mapping in src_iface_to_global is used. */
     GThread                     *tid;
     int                          snaplen;
     int                          linktype;
@@ -2991,18 +2992,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             return FALSE;
         }
 
-        /*
-         * Add our pcapng interface entry. This will be deleted further
-         * down if pcapng_passthrough == TRUE.
-         */
-        saved_idb_t idb_source = { 0 };
-        idb_source.interface_id = i;
-        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
-        g_array_append_val(global_ld.saved_idbs, idb_source);
-        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
-        ws_debug("%s: saved capture_opts IDB %u",
-              G_STRFUNC, i);
-
 #ifdef MUST_DO_SELECT
         pcap_src->pcap_fd = -1;
 #endif
@@ -3143,7 +3132,23 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             g_free(sync_msg_str);
         }
         if (pcap_src->from_pcapng) {
+            /*
+             * We will use the IDBs from the source (but rewrite the
+             * interface IDs if there's more than one source.)
+             */
             pcapng_src_count++;
+        } else {
+            /*
+             * Add our pcapng interface entry.
+             */
+            saved_idb_t idb_source = { 0 };
+            idb_source.interface_id = i;
+            g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
+            pcap_src->idb_id = global_ld.saved_idbs->len;
+            g_array_append_val(global_ld.saved_idbs, idb_source);
+            g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
+            ws_debug("%s: saved capture_opts %u to IDB %u",
+                  G_STRFUNC, i, pcap_src->idb_id);
         }
     }
 
@@ -3158,9 +3163,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
          */
         ld->pcapng_passthrough = TRUE;
         g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
-        ws_debug("%s: Clearing %u interfaces for passthrough",
-              G_STRFUNC, global_ld.saved_idbs->len);
-        g_array_set_size(global_ld.saved_idbs, 0);
+        ws_assert(global_ld.saved_idbs->len == 0);
+        ws_debug("%s: Pass through SHBs and IDBs directly", G_STRFUNC);
         g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
     }
 
@@ -4795,7 +4799,7 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
                                                             NULL,
                                                             phdr->ts.tv_sec, (gint32)phdr->ts.tv_usec,
                                                             phdr->caplen, phdr->len,
-                                                            pcap_src->interface_id,
+                                                            pcap_src->idb_id,
                                                             ts_mul,
                                                             pd, 0,
                                                             &global_ld.bytes_written, &err);
@@ -5812,11 +5816,11 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
             ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
         }
 #ifdef DEBUG_CHILD_DUMPCAP
-        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap_copy);
+        ws_log_file_writer(debug_log, domain, level, timestamp, getpid(), file, line, func, user_format, user_ap_copy);
         va_end(user_ap_copy);
 #endif
-#elif DEBUG_CHILD_DUMPCAP
-        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap);
+#elif defined(DEBUG_CHILD_DUMPCAP)
+        ws_log_file_writer(debug_log, domain, level, timestamp, getpid(), file, line, func, user_format, user_ap);
 #endif
         return;
     }

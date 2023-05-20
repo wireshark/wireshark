@@ -564,7 +564,8 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item      *iso_data_load_item;
     proto_tree      *iso_data_load_tree;
     gint remaining;
-    guint16 seq_no, sdu_length;
+    guint16 seq_no;
+    guint32 sdu_length;
     iso_data_info_t *iso_data_info = (iso_data_info_t *) data;
     int offset = 0;
 
@@ -582,8 +583,7 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(iso_data_load_tree, hf_bthci_iso_data_packet_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    sdu_length = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(iso_data_load_tree, hf_bthci_iso_data_sdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(iso_data_load_tree, hf_bthci_iso_data_sdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sdu_length);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Handle: 0x%x, SeqNo: %d, SDU length: %d", iso_data_info->handle, seq_no, sdu_length);
 
@@ -598,7 +598,7 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if (remaining > 0) {
         proto_item *item;
         item = proto_tree_add_item(iso_data_load_tree, hf_bthci_iso_data_sdu, tvb, offset, -1, ENC_NA);
-        if (remaining < sdu_length)
+        if (remaining < (guint16)sdu_length)
             proto_item_append_text(item, " (Incomplete)");
         offset += remaining;
     }

@@ -17,6 +17,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/sober128.h>
 
+static dissector_handle_t corosync_totemnet_handle;
 static dissector_handle_t corosync_totemsrp_handle;
 
 /* This dissector deals packets defined in totemnet.c of corosync
@@ -451,18 +452,17 @@ proto_register_corosync_totemnet(void)
                                    (const gchar **)&corosync_totemnet_private_keys);
 
   register_shutdown_routine(corosync_totemnet_shutdown);
+
+  corosync_totemnet_handle = register_dissector("corosync_totemnet", dissect_corosynec_totemnet, proto_corosync_totemnet);
 }
 
 void
 proto_reg_handoff_corosync_totemnet(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t corosync_totemnet_handle;
-
 
   if (!initialized)
   {
-    corosync_totemnet_handle = create_dissector_handle(dissect_corosynec_totemnet, proto_corosync_totemnet);
     corosync_totemsrp_handle = find_dissector_add_dependency("corosync_totemsrp", proto_corosync_totemnet);
 
     dissector_add_uint_range_with_preference("udp.port", PORT_COROSYNC_TOTEMNET_RANGE, corosync_totemnet_handle);

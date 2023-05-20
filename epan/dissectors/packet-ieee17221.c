@@ -7022,7 +7022,7 @@ proto_register_17221(void)
    proto_register_subtree_array(ett, array_length(ett));
 
    /* Register the custom handler for vendor specific messages */
-   vendor_unique_protocol_dissector_table = register_dissector_table("ieee17221.protocol_id", "Vendor Unique Protocol ID", proto_17221, FT_STRING, BASE_NONE);
+   vendor_unique_protocol_dissector_table = register_dissector_table("ieee17221.protocol_id", "Vendor Unique Protocol ID", proto_17221, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 void

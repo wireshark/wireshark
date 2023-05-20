@@ -225,6 +225,7 @@ static gboolean generate_md5_hash   = FALSE;
 static gboolean generate_epoch_time = TRUE;
 static gboolean generate_bits_field = TRUE;
 static gboolean disable_packet_size_limited_in_summary = FALSE;
+static guint    max_comment_lines   = 30;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
@@ -402,12 +403,89 @@ frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
 	proto_item *comment_item;
+	proto_item *hidden_item;
+	proto_tree *comments_tree;
+	gchar *newline;             /* location of next newline in comment */
+	gchar *ch;                  /* utility pointer */
+	guint i;                    /* track number of lines */
 
 	if (option_id == OPT_COMMENT) {
-		comment_item = proto_tree_add_string_format(fr_user_data->tree, hf_comments_text,
-							    fr_user_data->tvb, 0, 0,
-							    option->stringval,
-							    "%s", option->stringval);
+		ch = option->stringval;
+		newline = strchr(ch, '\n');
+		if (newline == NULL) {
+			/* Single-line comment, no special treatment needed */
+			comment_item = proto_tree_add_string_format(fr_user_data->tree,
+					hf_comments_text,
+					fr_user_data->tvb, 0, 0,
+					ch,
+					"%s", ch);
+		}
+		else {
+			/* Multi-line comment. Temporarily change the first
+			 * newline to a null so we only show the first line
+			 */
+			*newline = '\0';
+			comment_item = proto_tree_add_string_format(fr_user_data->tree,
+					hf_comments_text,
+					fr_user_data->tvb, 0, 0,
+					ch,
+					"%s [...]", ch);
+			comments_tree = proto_item_add_subtree(comment_item, ett_comments);
+			for (i = 0; i < max_comment_lines; i++) {
+				/* Add each line as a separate item under
+				 * the comment tree
+				 */
+				proto_tree_add_string_format(comments_tree, hf_comments_text,
+					fr_user_data->tvb, 0, 0,
+					ch,
+					"%s", ch);
+				if (newline == NULL) {
+					/* This was set in the previous loop
+					 * iteration; it means we've added the
+					 * final line
+					 */
+					break;
+				}
+				else {
+					/* Put back the newline we removed */
+					*newline = '\n';
+					ch = newline + 1;
+					if (*ch == '\0') {
+						break;
+					}
+					/* Find next newline to repeat the process
+					 * in the next iteration
+					 */
+					newline = strchr(ch, '\n');
+					if (newline != NULL) {
+						*newline = '\0';
+					}
+				}
+			}
+			if (i == max_comment_lines) {
+				/* Put back a newline if we still have one dangling */
+				if (newline != NULL) {
+					*newline = '\n';
+				}
+				/* Add truncation notice */
+				proto_tree_add_string_format(comments_tree, hf_comments_text,
+					fr_user_data->tvb, 0, 0,
+					"",
+					"[comment truncated at %d line%s]",
+					max_comment_lines,
+					plurality(max_comment_lines, "", "s"));
+			}
+			/* Add the original comment unchanged as a hidden
+			 * item, so searches still work like before
+			 */
+			hidden_item = proto_tree_add_string(comments_tree,
+					hf_comments_text,
+					fr_user_data->tvb, 0, 0,
+					option->stringval);
+			proto_item_set_hidden(hidden_item);
+
+			comment_item = comments_tree;
+		}
 		expert_add_info_format(fr_user_data->pinfo, comment_item, &ei_comments_text,
 				"%s",  option->stringval);
 	}
@@ -2285,6 +2363,11 @@ proto_register_frame(void)
 	    "Disable 'packet size limited during capture' message in summary",
 	    "Whether or not 'packet size limited during capture' message in shown in Info column.",
 	    &disable_packet_size_limited_in_summary);
+	prefs_register_uint_preference(frame_module, "max_comment_lines",
+	    "Maximum number of lines to display for one packet comment",
+	    "Show at most this many lines of a multi-line packet comment"
+	    " (applied separately to each comment)",
+	    10, &max_comment_lines);
 
 	frame_tap=register_tap("frame");
 }

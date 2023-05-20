@@ -10720,7 +10720,7 @@ ssl_common_register_ssl_alpn_dissector_table(const char *name,
     const char *ui_name, const int proto)
 {
     ssl_alpn_dissector_table = register_dissector_table(name, ui_name,
-        proto, FT_STRING, FALSE);
+        proto, FT_STRING, STRING_CASE_SENSITIVE);
     register_dissector_table_alias(ssl_alpn_dissector_table, "ssl.handshake.extensions_alpn_str");
 }
 
@@ -10729,7 +10729,7 @@ ssl_common_register_dtls_alpn_dissector_table(const char *name,
     const char *ui_name, const int proto)
 {
     dtls_alpn_dissector_table = register_dissector_table(name, ui_name,
-        proto, FT_STRING, FALSE);
+        proto, FT_STRING, STRING_CASE_SENSITIVE);
     register_dissector_table_alias(ssl_alpn_dissector_table, "dtls.handshake.extensions_alpn_str");
 }
 

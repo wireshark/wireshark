@@ -3390,7 +3390,7 @@ proto_register_rtp(void)
     rtp_pt_dissector_table = register_dissector_table("rtp.pt",
                                     "RTP payload type", proto_rtp, FT_UINT8, BASE_DEC);
     rtp_dyn_pt_dissector_table = register_dissector_table("rtp_dyn_payload_type",
-                                    "Dynamic RTP payload type", proto_rtp, FT_STRING, TRUE);
+                                    "Dynamic RTP payload type", proto_rtp, FT_STRING, STRING_CASE_INSENSITIVE);
 
 
     rtp_hdr_ext_dissector_table = register_dissector_table("rtp.hdr_ext",

@@ -76,6 +76,8 @@ static const value_string rbm_types[] = {
 void proto_register_rbm(void);
 void proto_reg_handoff_rbm(void);
 
+static dissector_handle_t rbm_file_handle;
+
 #define BETWEEN(v, b1, b2) (((v) >= (b1)) && ((v) <= (b2)))
 
 static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** type, gchar** value);
@@ -609,11 +611,12 @@ void proto_register_rbm(void)
 
 	proto_register_field_array(proto_rbm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	rbm_file_handle = register_dissector("rbm", dissect_rbm, proto_rbm);
 }
 
 void proto_reg_handoff_rbm(void)
 {
-	dissector_handle_t rbm_file_handle = create_dissector_handle(dissect_rbm, proto_rbm);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_RUBY_MARSHAL, rbm_file_handle);
 }
 

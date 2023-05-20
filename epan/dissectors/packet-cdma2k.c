@@ -5468,25 +5468,18 @@ void proto_register_cdma2k(void)
         "cdma2k"         /* abbrev */
     );
 
-    register_dissector("cdma2k", dissect_cdma2k, proto_cdma2k);
+    cdma2k_handle = register_dissector("cdma2k", dissect_cdma2k, proto_cdma2k);
 
     proto_register_field_array(proto_cdma2k, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     expert_cdma2k = expert_register_protocol(proto_cdma2k);
     expert_register_field_array(expert_cdma2k, ei, array_length(ei));
-
 }
 
 
 void proto_reg_handoff_cdma2k(void)
 {
-    static int once = 1;
-
-    if(once == 1){
-        cdma2k_handle = create_dissector_handle(dissect_cdma2k, proto_cdma2k);
-        once = 0;
-    }
 }
 /*
 * Editor modelines

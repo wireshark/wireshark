@@ -33,6 +33,7 @@
 void proto_register_cl3(void);
 void proto_reg_handoff_cl3(void);
 
+static dissector_handle_t cl3_handle;
 
 /* persistent handles for this dissector */
 static int               proto_cl3              = -1;
@@ -189,6 +190,9 @@ proto_register_cl3(void) {
   expert_cl3 = expert_register_protocol(proto_cl3);
   expert_register_field_array(expert_cl3, ei, array_length(ei));
 
+  /* register the dissector */
+  cl3_handle = register_dissector("cl3", &dissect_cl3, proto_cl3);
+
   /* subdissector code... */
   cl3_command_table = register_dissector_table("cl3.subprotocol", "CableLabs Subprotocol", proto_cl3, FT_UINT16, BASE_DEC);
 }
@@ -196,8 +200,6 @@ proto_register_cl3(void) {
 /* hooks in our dissector to be called on matching ethertype */
 void
 proto_reg_handoff_cl3(void) {
-  dissector_handle_t cl3_handle;
-  cl3_handle = create_dissector_handle(&dissect_cl3, proto_cl3);
   dissector_add_uint("ethertype", ETHERTYPE_CABLELABS, cl3_handle);
 }
 

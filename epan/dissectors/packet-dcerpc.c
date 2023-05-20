@@ -47,6 +47,8 @@
 void proto_register_dcerpc(void);
 void proto_reg_handoff_dcerpc(void);
 
+static dissector_handle_t dcerpc_tcp_handle;
+
 static int dcerpc_tap = -1;
 
 /* 32bit Network Data Representation, see DCE/RPC Appendix I */
@@ -7226,14 +7228,14 @@ proto_register_dcerpc(void)
                                               sizeof(TRAILER_SIGNATURE),
                                               sizeof(TRAILER_SIGNATURE));
 
+    dcerpc_tcp_handle = register_dissector("dcerpc.tcp", dissect_dcerpc_tcp, proto_dcerpc);
+
     register_shutdown_routine(dcerpc_shutdown);
 }
 
 void
 proto_reg_handoff_dcerpc(void)
 {
-    dissector_handle_t dcerpc_tcp_handle;
-
     heur_dissector_add("tcp", dissect_dcerpc_tcp_heur, "DCE/RPC over TCP", "dcerpc_tcp", proto_dcerpc, HEURISTIC_ENABLE);
     heur_dissector_add("netbios", dissect_dcerpc_cn_pk, "DCE/RPC over NetBios", "dcerpc_netbios", proto_dcerpc, HEURISTIC_ENABLE);
     heur_dissector_add("udp", dissect_dcerpc_dg, "DCE/RPC over UDP", "dcerpc_udp", proto_dcerpc, HEURISTIC_ENABLE);
@@ -7242,7 +7244,6 @@ proto_reg_handoff_dcerpc(void)
     heur_dissector_add("http", dissect_dcerpc_cn_bs, "DCE/RPC over HTTP", "dcerpc_http", proto_dcerpc, HEURISTIC_ENABLE);
     dcerpc_smb_init(proto_dcerpc);
 
-    dcerpc_tcp_handle = create_dissector_handle(dissect_dcerpc_tcp, proto_dcerpc);
     dissector_add_for_decode_as("tcp.port", dcerpc_tcp_handle);
 
     guids_add_uuid(&uuid_data_repr_proto, "32bit NDR");

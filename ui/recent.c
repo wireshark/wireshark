@@ -119,6 +119,8 @@ static const value_string ts_seconds_values[] = {
 static const value_string bytes_view_type_values[] = {
     { BYTES_HEX,    "HEX"  },
     { BYTES_BITS,   "BITS" },
+    { BYTES_DEC,    "DEC" },
+    { BYTES_OCT,    "OCT" },
     { 0, NULL }
 };
 

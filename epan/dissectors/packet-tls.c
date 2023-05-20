@@ -520,7 +520,7 @@ static void dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                                   SslSession *session, gint is_from_server,
                                   SslDecryptSession *conv_data,
                                   const guint16 version,
-                                  gboolean is_first_msg);
+                                  gboolean is_first_msg, guint8 curr_layer_num_tls);
 
 /* heartbeat message dissector */
 static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
@@ -2636,7 +2636,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
             add_new_data_source(pinfo, next_tvb, "Reassembled TLS Handshake");
             show_fragment_tree(fh, &tls_hs_fragment_items, tree, pinfo, next_tvb, &frag_tree_item);
-            dissect_tls_handshake_full(next_tvb, pinfo, tree, 0, session, is_from_server, ssl, version, TRUE);
+            dissect_tls_handshake_full(next_tvb, pinfo, tree, 0, session, is_from_server, ssl, version, TRUE, curr_layer_num_tls);
             is_first_msg = FALSE;
 
             // Skip to the next fragment in case this records ends with another
@@ -2695,7 +2695,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
 
-        dissect_tls_handshake_full(tvb, pinfo, tree, offset, session, is_from_server, ssl, version, is_first_msg);
+        dissect_tls_handshake_full(tvb, pinfo, tree, offset, session, is_from_server, ssl, version, is_first_msg, curr_layer_num_tls);
         offset += msg_len;
         is_first_msg = FALSE;
     }
@@ -2708,7 +2708,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                            SslSession *session, gint is_from_server,
                            SslDecryptSession *ssl,
                            const guint16 version,
-                           gboolean is_first_msg)
+                           gboolean is_first_msg, guint8 curr_layer_num_tls)
 {
     /*     struct {
      *         HandshakeType msg_type;
@@ -2730,11 +2730,12 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
      *         } body;
      *     } Handshake;
      */
-    proto_tree  *ssl_hand_tree = NULL;
-    const gchar *msg_type_str;
-    guint8       msg_type;
-    guint32      length;
-    proto_item  *ti;
+    proto_tree    *ssl_hand_tree = NULL;
+    const gchar   *msg_type_str;
+    guint8         msg_type;
+    guint32        length;
+    proto_item    *ti;
+    SslPacketInfo *pi;
 
     {
         guint32 hs_offset = offset;
@@ -2886,6 +2887,15 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    pi = tls_add_packet_info(proto_tls, pinfo, curr_layer_num_tls);
+                    pi->cipher = session->cipher;
+                } else {
+                    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_tls);
+                    if (pi) {
+                        session->cipher = pi->cipher;
+                    }
+                }
                 ssl_dissect_hnd_srv_keyex(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree, offset, offset + length, session);
                 break;
 
@@ -2903,6 +2913,15 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_KEY_EXCHG:
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    pi = tls_add_packet_info(proto_tls, pinfo, curr_layer_num_tls);
+                    pi->cipher = session->cipher;
+                } else {
+                    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_tls);
+                    if (pi) {
+                        session->cipher = pi->cipher;
+                    }
+                }
                 ssl_dissect_hnd_cli_keyex(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, length, session);
 
                 if (!ssl)

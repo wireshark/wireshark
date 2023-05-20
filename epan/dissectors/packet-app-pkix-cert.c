@@ -24,6 +24,8 @@
 void proto_register_cert(void);
 void proto_reg_handoff_cert(void);
 
+static dissector_handle_t cert_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_cert = -1;
 
@@ -87,17 +89,13 @@ proto_register_cert(void)
         proto_register_field_array(proto_cert, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
-        register_dissector("pkix-cert", dissect_cert, proto_cert);
+        cert_handle = register_dissector("pkix-cert", dissect_cert, proto_cert);
 }
 
 
 void
 proto_reg_handoff_cert(void)
 {
-        dissector_handle_t cert_handle;
-
-        cert_handle = create_dissector_handle(dissect_cert, proto_cert);
-
         /* Register the PKIX-CERT media type */
         dissector_add_string("media_type", "application/pkix-cert", cert_handle);
 }

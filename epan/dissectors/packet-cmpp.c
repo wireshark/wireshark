@@ -23,6 +23,8 @@
 void proto_register_cmpp(void);
 void proto_reg_handoff_cmpp(void);
 
+static dissector_handle_t cmpp_handle;
+
 /* Initialize the protocol and registered fields */
 static gint proto_cmpp = -1;
 
@@ -953,15 +955,13 @@ proto_register_cmpp(void) {
 	proto_register_field_array(proto_cmpp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	cmpp_handle = register_dissector("cmpp", dissect_cmpp, proto_cmpp);
 }
 
 
 void
 proto_reg_handoff_cmpp(void)
 {
-	dissector_handle_t cmpp_handle;
-
-	cmpp_handle = create_dissector_handle(dissect_cmpp, proto_cmpp);
 	dissector_add_uint_range_with_preference("tcp.port", CMPP_PORT_RANGE, cmpp_handle);
 }
 

@@ -468,10 +468,18 @@ proto_register_aruba_erm(void)
     expert_aruba_erm = expert_register_protocol(proto_aruba_erm);
     expert_register_field_array(expert_aruba_erm, ei, array_length(ei));
 
-    register_dissector("aruba_erm", dissect_aruba_erm, proto_aruba_erm);
+    aruba_erm_handle = register_dissector("aruba_erm", dissect_aruba_erm, proto_aruba_erm);
 
     aruba_erm_subdissector_table = register_decode_as_next_proto(proto_aruba_erm, "aruba_erm.type",
                                                                 "Aruba ERM Type", aruba_erm_prompt);
+
+    aruba_erm_handle_type0 = register_dissector("aruba_erm.type0", dissect_aruba_erm_type0, proto_aruba_erm_type0);
+    aruba_erm_handle_type1 = register_dissector("aruba_erm.type1", dissect_aruba_erm_type1, proto_aruba_erm_type1);
+    aruba_erm_handle_type2 = register_dissector("aruba_erm.type2", dissect_aruba_erm_type2, proto_aruba_erm_type2);
+    aruba_erm_handle_type3 = register_dissector("aruba_erm.type3", dissect_aruba_erm_type3, proto_aruba_erm_type3);
+    aruba_erm_handle_type4 = register_dissector("aruba_erm.type4", dissect_aruba_erm_type4, proto_aruba_erm_type4);
+    aruba_erm_handle_type5 = register_dissector("aruba_erm.type5", dissect_aruba_erm_type5, proto_aruba_erm_type5);
+    aruba_erm_handle_type6 = register_dissector("aruba_erm.type6", dissect_aruba_erm_type6, proto_aruba_erm_type6);
 }
 
 void
@@ -482,14 +490,6 @@ proto_reg_handoff_aruba_erm(void)
     ppi_handle = find_dissector_add_dependency("ppi", proto_aruba_erm);
     peek_handle = find_dissector_add_dependency("peekremote", proto_aruba_erm);
     radiotap_handle = find_dissector_add_dependency("radiotap", proto_aruba_erm);
-    aruba_erm_handle = create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
-    aruba_erm_handle_type0 = create_dissector_handle(dissect_aruba_erm_type0, proto_aruba_erm_type0);
-    aruba_erm_handle_type1 = create_dissector_handle(dissect_aruba_erm_type1, proto_aruba_erm_type1);
-    aruba_erm_handle_type2 = create_dissector_handle(dissect_aruba_erm_type2, proto_aruba_erm_type2);
-    aruba_erm_handle_type3 = create_dissector_handle(dissect_aruba_erm_type3, proto_aruba_erm_type3);
-    aruba_erm_handle_type4 = create_dissector_handle(dissect_aruba_erm_type4, proto_aruba_erm_type4);
-    aruba_erm_handle_type5 = create_dissector_handle(dissect_aruba_erm_type5, proto_aruba_erm_type5);
-    aruba_erm_handle_type6 = create_dissector_handle(dissect_aruba_erm_type6, proto_aruba_erm_type6);
 
     dissector_add_uint_range_with_preference("udp.port", "", aruba_erm_handle);
     dissector_add_for_decode_as("aruba_erm.type", aruba_erm_handle_type0);

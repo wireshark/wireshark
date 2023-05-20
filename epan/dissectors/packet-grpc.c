@@ -539,7 +539,7 @@ proto_register_grpc(void)
     */
     grpc_message_type_subdissector_table =
         register_dissector_table("grpc_message_type",
-            "GRPC message type", proto_grpc, FT_STRING, BASE_NONE);
+            "GRPC message type", proto_grpc, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 void

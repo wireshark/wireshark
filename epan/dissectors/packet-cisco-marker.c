@@ -186,7 +186,7 @@ proto_register_erspan_marker(void)
   proto_register_field_array(proto_marker, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  marker_handle = create_dissector_handle(dissect_marker, proto_marker);
+  marker_handle = register_dissector("erspan-marker", dissect_marker, proto_marker);
 }
 
 void

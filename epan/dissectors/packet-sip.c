@@ -2177,13 +2177,22 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, contact_params_start_offset+8,
                     current_offset - (contact_params_start_offset+8), ENC_UTF_8|ENC_NA), NULL, &expire))
                 return contact_params_start_offset+8;
+            has_expires_param = TRUE;
             if (expire == 0) {
                 (*contacts_expires_0)++;
-                /* it is actually unusual - arguably invalid - for a SIP REGISTER
-                 * 200 OK _response_ to contain Contacts with expires=0.
-                 *
-                 * See Bug https://gitlab.com/wireshark/wireshark/-/issues/10364
-                 * Why this warning was removed (3GPP usage, 3GPP TS24.229 )
+                /* RFC 3261 10.3 "Processing REGISTER requests":
+                 * "The registrar returns a 200 (OK) response.  The response
+                 * MUST contain Contact header field values enumerating all
+                 * current bindings."
+                 * This implies it is invalid for the response to contain the
+                 * deregistered, no longer current, Contacts with expires=0.
+                 * However, this warning was removed due to 3GPP usage.
+                 * Cf. 3GPP TS 24.229 "5.4.1.4 User-initiated deregistration":
+                 * "send a 200 (OK) response to a REGISTER request that
+                 * contains a list of Contact header fields enumerating all
+                 * contacts and flows that are currently registered, and all
+                 * contacts that have been deregistered."
+                 * https://gitlab.com/wireshark/wireshark/-/issues/10364
                  */
 #if 0
                 if (stat_info && stat_info->response_code > 199 && stat_info->response_code < 300) {
@@ -2193,8 +2202,6 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                         stat_info->response_code);
                 }
 #endif
-            } else {
-                has_expires_param = TRUE;
             }
         }
 
@@ -3620,8 +3627,50 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     remaining_length = remaining_length - (next_offset - offset);
     offset = next_offset;
 
+    body_offset = offset;
+
+    /*
+     * Find the blank line separating the headers from the message body.
+     * Do this now so we can add the msg_hdr FT_STRING item with the correct
+     * length.
+     */
+    content_length = -1;
+    while (remaining_length > 0) {
+        gint line_end_offset;
+        guchar c;
+
+        linelen = tvb_find_line_end(tvb, body_offset, -1, &next_offset, FALSE);
+        if (linelen == 0) {
+            /*
+             * This is a blank line separating the
+             * message header from the message body.
+             */
+            body_offset = next_offset;
+            break;
+        }
+
+        line_end_offset = body_offset + linelen;
+        if(tvb_reported_length_remaining(tvb, next_offset) > 0){
+            while (tvb_offset_exists(tvb, next_offset) && ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t'))
+            {
+                /*
+                 * This line end is not a header seperator.
+                 * It just extends the header with another line.
+                 * Look for next line end:
+                 */
+                linelen += (next_offset - line_end_offset);
+                linelen += tvb_find_line_end(tvb, next_offset, -1, &next_offset, FALSE);
+                line_end_offset = body_offset + linelen;
+            }
+        }
+        remaining_length = remaining_length - (next_offset - body_offset);
+        body_offset = next_offset;
+    }/* End while */
+
+    remaining_length += (body_offset - offset);
+
     th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
-                                 remaining_length, ENC_UTF_8);
+                                 body_offset - offset, ENC_UTF_8);
     proto_item_set_text(th, "Message Header");
     hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
@@ -4672,7 +4721,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         if (reported_datalen > content_length)
             reported_datalen = content_length;
     }
-    body_offset = offset;
 
     if (!call_id) {
         call_id = wmem_strdup(pinfo->pool, "");
@@ -4806,7 +4854,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         setup_info.trace_id.str = wmem_strdup(wmem_file_scope(), call_id);
         content_info.data = &setup_info;
 
-        proto_item_set_end(th, tvb, offset);
         if(content_encoding_parameter_str != NULL &&
             (!strncmp(content_encoding_parameter_str, "gzip", 4) ||
              !strncmp(content_encoding_parameter_str,"deflate",7))){
@@ -7455,7 +7502,7 @@ void proto_register_sip(void)
         },
         { &hf_sip_msg_body,
           { "Message Body",           "sip.msg_body",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x0,
             "Message Body in SIP message", HFILL }
         },
         { &hf_sip_sec_mechanism,
@@ -7815,7 +7862,7 @@ void proto_register_sip(void)
     sip_tap = register_tap("sip");
     sip_follow_tap = register_tap("sip_follow");
 
-    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE);
+    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, STRING_CASE_SENSITIVE);
 
     register_stat_tap_table_ui(&sip_stat_table);
 

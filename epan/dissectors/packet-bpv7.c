@@ -2296,9 +2296,9 @@ void proto_register_bpv7(void) {
     proto_blocktype = proto_register_protocol_in_name_only("BPv7 Block Type", "Block Type", "bpv7.block_type", proto_bp, FT_PROTOCOL);
 
     // case-sensitive string matching
-    payload_dissectors_dtn_wkssp = register_dissector_table("bpv7.payload.dtn_wkssp", "BPv7 DTN-scheme well-known SSP", proto_bp, FT_STRING, FALSE);
+    payload_dissectors_dtn_wkssp = register_dissector_table("bpv7.payload.dtn_wkssp", "BPv7 DTN-scheme well-known SSP", proto_bp, FT_STRING, STRING_CASE_SENSITIVE);
 
-    payload_dissectors_dtn_serv = register_dissector_table("bpv7.payload.dtn_serv", "BPv7 DTN-scheme service", proto_bp, FT_STRING, FALSE);
+    payload_dissectors_dtn_serv = register_dissector_table("bpv7.payload.dtn_serv", "BPv7 DTN-scheme service", proto_bp, FT_STRING, STRING_CASE_SENSITIVE);
     dissector_table_allow_decode_as(payload_dissectors_dtn_serv);
 
     static build_valid_func dtn_serv_da_build_value[1] = {dtn_serv_value};
@@ -2367,7 +2367,7 @@ void proto_register_bpv7(void) {
         "BPv7 Admin", /* short name */
         "bpv7.admin_rec" /* abbrev */
     );
-    handle_admin = create_dissector_handle(dissect_payload_admin, proto_bp_admin);
+    handle_admin = register_dissector("bpv7.admin_rec", dissect_payload_admin, proto_bp_admin);
     admin_dissectors = register_custom_dissector_table("bpv7.admin_record_type", "BPv7 Administrative Record Type", proto_bp_admin, g_int64_hash, g_int64_equal, g_free);
     proto_admintype = proto_register_protocol_in_name_only("BPv7 Administrative Record Type", "Admin Type", "bpv7.admin_record_type", proto_bp, FT_PROTOCOL);
 }

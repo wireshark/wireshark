@@ -10506,13 +10506,13 @@ proto_register_ceph(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ceph = expert_register_protocol(proto_ceph);
 	expert_register_field_array(expert_ceph, ei, array_length(ei));
+
+	ceph_handle = register_dissector("ceph", dissect_ceph_old, proto_ceph);
 }
 
 void
 proto_reg_handoff_ceph(void)
 {
-	ceph_handle = create_dissector_handle(dissect_ceph_old, proto_ceph);
-
 	heur_dissector_add("tcp", dissect_ceph_heur, "Ceph over TCP", "ceph_tcp", proto_ceph, HEURISTIC_ENABLE);
 }
 

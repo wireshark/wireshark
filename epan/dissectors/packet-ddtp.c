@@ -41,6 +41,8 @@
 void proto_register_ddtp (void);
 void proto_reg_handoff_ddtp (void);
 
+static dissector_handle_t ddtp_handle;
+
 static int proto_ddtp = -1;
 static int hf_ddtp_version = -1;
 static int hf_ddtp_encrypt = -1;
@@ -203,14 +205,13 @@ proto_register_ddtp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_ddtp = expert_register_protocol(proto_ddtp);
     expert_register_field_array(expert_ddtp, ei, array_length(ei));
+
+    ddtp_handle = register_dissector("ddtp", dissect_ddtp, proto_ddtp);
 }
 
 void
 proto_reg_handoff_ddtp(void)
 {
-    dissector_handle_t ddtp_handle;
-
-    ddtp_handle = create_dissector_handle(dissect_ddtp, proto_ddtp);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_DDTP, ddtp_handle);
 }
 

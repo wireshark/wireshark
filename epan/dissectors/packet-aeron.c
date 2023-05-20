@@ -3354,6 +3354,8 @@ void proto_register_aeron(void)
     aeron_module = prefs_register_protocol(proto_aeron, NULL);
     aeron_heuristic_subdissector_list = register_heur_dissector_list("aeron_msg_payload", proto_aeron);
 
+    aeron_dissector_handle = register_dissector("aeron", dissect_aeron, proto_aeron);
+
     prefs_register_bool_preference(aeron_module,
         "sequence_analysis",
         "Analyze transport sequencing",
@@ -3381,7 +3383,6 @@ void proto_register_aeron(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_aeron(void)
 {
-    aeron_dissector_handle = create_dissector_handle(dissect_aeron, proto_aeron);
     dissector_add_for_decode_as_with_preference("udp.port", aeron_dissector_handle);
     heur_dissector_add("udp", test_aeron_packet, "Aeron over UDP", "aeron_udp", proto_aeron, HEURISTIC_DISABLE);
 }

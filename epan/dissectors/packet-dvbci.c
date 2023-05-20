@@ -6448,7 +6448,7 @@ proto_register_dvbci(void)
             &dvbci_dissect_lsc_msg);
 
     sas_msg_dissector_table = register_dissector_table("dvb-ci.sas.app_id_str",
-                "SAS application id", proto_dvbci, FT_STRING, BASE_NONE);
+                "SAS application id", proto_dvbci, FT_STRING, STRING_CASE_SENSITIVE);
 
     register_init_routine(dvbci_init);
     reassembly_table_register(&tpdu_reassembly_table,

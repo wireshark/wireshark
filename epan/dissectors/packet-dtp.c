@@ -33,6 +33,8 @@
 void proto_register_dtp(void);
 void proto_reg_handoff_dtp(void);
 
+static dissector_handle_t dtp_handle;
+
 static int proto_dtp = -1;
 static int hf_dtp_version = -1;
 static int hf_dtp_domain = -1;
@@ -348,14 +350,13 @@ proto_register_dtp(void)
 
 	expert_dtp = expert_register_protocol(proto_dtp);
 	expert_register_field_array(expert_dtp, ei, array_length(ei));
+
+	dtp_handle = register_dissector("dtp", dissect_dtp, proto_dtp);
 }
 
 void
 proto_reg_handoff_dtp(void)
 {
-	dissector_handle_t dtp_handle;
-
-	dtp_handle = create_dissector_handle(dissect_dtp, proto_dtp);
 	dissector_add_uint("llc.cisco_pid", CISCO_PID_DTP, dtp_handle);
 }
 

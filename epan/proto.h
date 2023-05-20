@@ -1142,7 +1142,7 @@ WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const gint length);
 WS_DLL_PUBLIC void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end);
 
 /** Get length of a proto_item. Useful after using proto_tree_add_item()
- * to add a variable-length field (e.g., FT_NSTRING_UINT8).
+ * to add a variable-length field (e.g., FT_UINT_STRING).
  @param pi the item to get the length from
  @return the current length */
 WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);

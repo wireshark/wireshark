@@ -34,6 +34,8 @@
 void proto_register_asap(void);
 void proto_reg_handoff_asap(void);
 
+static dissector_handle_t asap_handle;
+
 /* Initialize the protocol and registered fields */
 static int asap_tap = -1;
 static int proto_asap = -1;
@@ -943,15 +945,14 @@ proto_register_asap(void)
   proto_register_subtree_array(ett, array_length(ett));
   asap_tap = register_tap("asap");
 
+  asap_handle = register_dissector("asap", dissect_asap, proto_asap);
+
   register_stat_tap_table_ui(&asap_stat_table);
 }
 
 void
 proto_reg_handoff_asap(void)
 {
-  dissector_handle_t asap_handle;
-
-  asap_handle = create_dissector_handle(dissect_asap, proto_asap);
   dissector_add_uint("sctp.ppi",  ASAP_PAYLOAD_PROTOCOL_ID, asap_handle);
   dissector_add_uint_with_preference("udp.port",  ASAP_UDP_PORT,  asap_handle);
   dissector_add_uint_with_preference("tcp.port",  ASAP_TCP_PORT,  asap_handle);

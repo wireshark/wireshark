@@ -23,6 +23,8 @@
 void proto_register_papi(void);
 void proto_reg_handoff_papi(void);
 
+static dissector_handle_t papi_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_papi = -1;
 static int hf_papi_hdr_magic = -1;
@@ -912,15 +914,14 @@ proto_register_papi(void)
                        "Do experimental decode",
                        "Attempt to decode parts of the message that aren't fully understood yet",
                        &g_papi_debug);
+
+    papi_handle = register_dissector("papi", dissect_papi, proto_papi);
 }
 
 
 void
 proto_reg_handoff_papi(void)
 {
-    dissector_handle_t papi_handle;
-
-    papi_handle = create_dissector_handle(dissect_papi, proto_papi);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PAPI, papi_handle);
 }
 /*

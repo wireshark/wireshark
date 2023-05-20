@@ -28,6 +28,7 @@ static gint ett_clip = -1;
 
 static expert_field ei_no_link_info = EI_INIT;
 
+static dissector_handle_t clip_handle;
 static dissector_handle_t ip_handle;
 
 static int
@@ -90,19 +91,19 @@ proto_register_clip(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_clip = expert_register_protocol(proto_clip);
   expert_register_field_array(expert_clip, ei, array_length(ei));
+
+  clip_handle = register_dissector("clip", dissect_clip, proto_clip);
 }
 
 void
 proto_reg_handoff_clip(void)
 {
-  dissector_handle_t clip_handle;
 
   /*
    * Get a handle for the IP dissector.
    */
   ip_handle = find_dissector_add_dependency("ip", proto_clip);
 
-  clip_handle = create_dissector_handle(dissect_clip, proto_clip);
       /* XXX - no protocol, can't be disabled */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_handle);
 }

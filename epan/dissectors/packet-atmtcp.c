@@ -21,6 +21,8 @@
 void proto_register_atmtcp(void);
 void proto_reg_handoff_atmtcp(void);
 
+static dissector_handle_t atmtcp_handle;
+
 static int proto_atmtcp = -1;
 static int hf_atmtcp_vpi = -1;
 static int hf_atmtcp_vci = -1;
@@ -116,16 +118,14 @@ proto_register_atmtcp(void)
 
     proto_register_field_array(proto_atmtcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    atmtcp_handle = register_dissector("atm.tcp", dissect_atmtcp, proto_atmtcp);
 }
 
 
 void
 proto_reg_handoff_atmtcp(void)
 {
-    dissector_handle_t atmtcp_handle;
-
-    atmtcp_handle = create_dissector_handle(dissect_atmtcp, proto_atmtcp);
-
     dissector_add_uint_with_preference("tcp.port", ATMTCP_TCP_PORT, atmtcp_handle);
 }
 

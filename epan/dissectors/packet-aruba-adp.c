@@ -22,6 +22,8 @@
 void proto_register_aruba_adp(void);
 void proto_reg_handoff_aruba_adp(void);
 
+static dissector_handle_t adp_handle;
+
 static int proto_aruba_adp = -1;
 static gint ett_aruba_adp  = -1;
 
@@ -127,15 +129,14 @@ proto_register_aruba_adp(void)
                                         "ADP", "adp");
     proto_register_field_array(proto_aruba_adp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    adp_handle = register_dissector("adp", dissect_aruba_adp, proto_aruba_adp);
 }
 
 
 void
 proto_reg_handoff_aruba_adp(void)
 {
-    dissector_handle_t adp_handle;
-
-    adp_handle = create_dissector_handle(dissect_aruba_adp, proto_aruba_adp);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_ADP, adp_handle);
 }
 

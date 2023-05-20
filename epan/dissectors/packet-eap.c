@@ -3234,12 +3234,12 @@ proto_register_eap(void)
     /* Expanded type fields */
     { &hf_eap_ext_vendor_id, {
       "EAP-EXT Vendor Id", "eap.ext.vendor_id",
-      FT_UINT16, BASE_HEX, VALS(eap_ext_vendor_id_vals), 0x0,
+      FT_UINT24, BASE_HEX, VALS(eap_ext_vendor_id_vals), 0x0,
       NULL, HFILL }},
 
     { &hf_eap_ext_vendor_type, {
       "EAP-EXT Vendor Type", "eap.ext.vendor_type",
-      FT_UINT8, BASE_HEX, VALS(eap_ext_vendor_type_vals), 0x0,
+      FT_UINT32, BASE_HEX, VALS(eap_ext_vendor_type_vals), 0x0,
       NULL, HFILL }},
 
     { &hf_eap_ikev2_flags, {

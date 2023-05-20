@@ -38,6 +38,8 @@
 
 #define ICCID_PREFIX 0x98
 
+static dissector_handle_t cattp_handle;
+
 static int proto_cattp = -1;
 
 static gint ett_cattp = -1;
@@ -562,17 +564,16 @@ proto_register_cattp(void)
                                    &cattp_check_checksum);
 
     prefs_register_obsolete_preference(cattp_module, "enable");
+
+    /* Register dissector handle */
+    cattp_handle = register_dissector("cattp", dissect_cattp, proto_cattp);
+
 }
 
 /* Handoff */
 void
 proto_reg_handoff_cattp(void)
 {
-    dissector_handle_t cattp_handle;
-
-    /* Create dissector handle */
-    cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
-
     heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_DISABLE);
     dissector_add_for_decode_as_with_preference("udp.port", cattp_handle);
 }

@@ -1618,8 +1618,8 @@ proto_register_dbus(void) {
 	expert_dbus = expert_register_protocol(proto_dbus);
 	expert_register_field_array(expert_dbus, ei, array_length(ei));
 
-	dbus_handle = create_dissector_handle(dissect_dbus, proto_dbus);
-	dbus_handle_tcp = create_dissector_handle(dissect_dbus_tcp, proto_dbus);
+	dbus_handle = register_dissector("dbus", dissect_dbus, proto_dbus);
+	dbus_handle_tcp = register_dissector("dbus.tcp", dissect_dbus_tcp, proto_dbus);
 
 	dbus_module = prefs_register_protocol(proto_dbus, NULL);
 	prefs_register_bool_preference(dbus_module, "resolve_names",

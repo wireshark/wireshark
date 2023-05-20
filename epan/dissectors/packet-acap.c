@@ -200,7 +200,7 @@ proto_register_acap(void)
     proto_register_field_array(proto_acap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    acap_handle = create_dissector_handle(dissect_acap, proto_acap);
+    acap_handle = register_dissector("acap", dissect_acap, proto_acap);
 }
 
 void

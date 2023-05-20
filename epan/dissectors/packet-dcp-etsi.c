@@ -28,6 +28,9 @@ static int dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 static int dissect_pft (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
 
 static dissector_handle_t dcp_etsi_handle;
+static dissector_handle_t af_handle;
+static dissector_handle_t pft_handle;
+static dissector_handle_t tpl_handle;
 
 static dissector_table_t dcp_dissector_table;
 static dissector_table_t af_dissector_table;
@@ -658,14 +661,6 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
 void
 proto_reg_handoff_dcp_etsi (void)
 {
-  dissector_handle_t af_handle;
-  dissector_handle_t pft_handle;
-  dissector_handle_t tpl_handle;
-
-  dcp_etsi_handle = register_dissector("dcp-etsi", dissect_dcp_etsi, proto_dcp_etsi);
-  af_handle = create_dissector_handle(dissect_af, proto_af);
-  pft_handle = create_dissector_handle(dissect_pft, proto_pft);
-  tpl_handle = create_dissector_handle(dissect_tpl, proto_tpl);
   heur_dissector_add("udp", dissect_dcp_etsi_heur, "DCP (ETSI) over UDP", "dcp_etsi_udp", proto_dcp_etsi, HEURISTIC_ENABLE);
   dissector_add_for_decode_as("udp.port", dcp_etsi_handle);
   dissector_add_string("dcp-etsi.sync", "AF", af_handle);
@@ -906,15 +901,20 @@ proto_register_dcp_etsi (void)
 
   /* subdissector code */
   dcp_dissector_table = register_dissector_table("dcp-etsi.sync",
-            "DCP Sync", proto_dcp_etsi, FT_STRING, BASE_NONE);
+            "DCP Sync", proto_dcp_etsi, FT_STRING, STRING_CASE_SENSITIVE);
   af_dissector_table = register_dissector_table("dcp-af.pt",
             "DCP-AF Payload Type", proto_dcp_etsi, FT_UINT8, BASE_DEC);
 
   tpl_dissector_table = register_dissector_table("dcp-tpl.ptr",
-            "DCP-TPL Protocol Type & Revision", proto_dcp_etsi, FT_STRING, BASE_NONE);
+            "DCP-TPL Protocol Type & Revision", proto_dcp_etsi, FT_STRING, STRING_CASE_SENSITIVE);
 
   reassembly_table_register (&dcp_reassembly_table,
                          &addresses_reassembly_table_functions);
+
+  dcp_etsi_handle = register_dissector("dcp-etsi", dissect_dcp_etsi, proto_dcp_etsi);
+  af_handle = register_dissector("dcp-af", dissect_af, proto_af);
+  pft_handle = register_dissector("dcp-pft", dissect_pft, proto_pft);
+  tpl_handle = register_dissector("dcp-tpl", dissect_tpl, proto_tpl);
 }
 
 /*

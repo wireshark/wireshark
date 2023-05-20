@@ -3392,7 +3392,7 @@ proto_register_thread_coap(void)
     thread_coap_handle = register_dissector("thread_coap", dissect_thread_coap, proto_thread_coap);
 
     dissector_add_string("coap_tmf_media_type", "application/octet-stream", thread_coap_handle);
-    thread_coap_namespace = register_dissector_table("thread.coap_namespace", "Thread CoAP namespace", proto_thread_coap, FT_STRING, BASE_NONE);
+    thread_coap_namespace = register_dissector_table("thread.coap_namespace", "Thread CoAP namespace", proto_thread_coap, FT_STRING, STRING_CASE_SENSITIVE);
 }
 
 void

@@ -1362,6 +1362,9 @@ static expert_field ei_ansi_a_unknown_bsmap_msg = EI_INIT;
 static expert_field ei_ansi_a_undecoded = EI_INIT;
 
 static dissector_handle_t dtap_handle;
+static dissector_handle_t bsmap_handle;
+static dissector_handle_t sip_dtap_bsmap_handle;
+
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
@@ -12872,8 +12875,13 @@ proto_register_ansi_a(void)
         expert_register_protocol(proto_a_bsmap);
     expert_register_field_array(expert_a_bsmap, ei, array_length(ei));
 
+    bsmap_handle = register_dissector("ansi_a_bsmap", dissect_bsmap, proto_a_bsmap);
+
     proto_a_dtap =
         proto_register_protocol("ANSI A-I/F DTAP", "ANSI DTAP", "ansi_a_dtap");
+
+    dtap_handle = register_dissector("ansi_a_dtap", dissect_dtap, proto_a_dtap);
+    sip_dtap_bsmap_handle = register_dissector("ansi_a_dtap_bsmap", dissect_sip_dtap_bsmap, proto_a_dtap);
 
     is637_dissector_table =
         register_dissector_table("ansi_a.sms", "IS-637-A (SMS)",
@@ -12922,12 +12930,6 @@ proto_reg_handoff_ansi_a(void)
 
     if (!ansi_a_prefs_initialized)
     {
-        dissector_handle_t      bsmap_handle, sip_dtap_bsmap_handle;
-
-        bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
-        dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
-        sip_dtap_bsmap_handle = create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
-
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
         dissector_add_string("media_type", "application/femtointerfacemsg", sip_dtap_bsmap_handle);

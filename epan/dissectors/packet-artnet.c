@@ -29,6 +29,8 @@
 void proto_register_artnet(void);
 void proto_reg_handoff_artnet(void);
 
+static dissector_handle_t artnet_handle;
+
 /* Define udp_port for ArtNET */
 
 #define UDP_PORT_ARTNET 0x1936
@@ -8818,13 +8820,12 @@ proto_register_artnet(void) {
 
   expert_artnet = expert_register_protocol(proto_artnet);
   expert_register_field_array(expert_artnet, ei, array_length(ei));
+
+  artnet_handle  = register_dissector("artnet", dissect_artnet, proto_artnet);
 }
 
 void
 proto_reg_handoff_artnet(void) {
-  dissector_handle_t artnet_handle;
-
-  artnet_handle   = create_dissector_handle(dissect_artnet, proto_artnet);
   dissector_add_for_decode_as_with_preference("udp.port", artnet_handle);
   rdm_handle      = find_dissector_add_dependency("rdm", proto_artnet);
   dmx_chan_handle = find_dissector_add_dependency("dmx-chan", proto_artnet);

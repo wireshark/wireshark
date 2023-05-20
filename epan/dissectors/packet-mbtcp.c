@@ -2170,7 +2170,7 @@ proto_register_modbus(void)
     mbudp_handle = register_dissector("mbudp", dissect_mbudp, proto_mbudp);
 
     /* Registering subdissectors table */
-    modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", proto_modbus, FT_STRING, BASE_NONE);
+    modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", proto_modbus, FT_STRING, STRING_CASE_SENSITIVE);
     modbus_dissector_table = register_dissector_table("mbtcp.prot_id", "Modbus/TCP protocol identifier", proto_mbtcp, FT_UINT16, BASE_DEC);
 
     /* Required function calls to register the header fields and subtrees used */

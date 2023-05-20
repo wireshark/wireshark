@@ -364,47 +364,17 @@ static fragment_head *new_head(const guint32 flags)
 	return fd_head;
 }
 
-#define FD_VISITED_FREE 0xffff
-
 /*
  * For a reassembled-packet hash table entry, free the fragment data
- * to which the value refers and also the key itself.
+ * to which the value refers. (The key is freed by reassembled_key_free.)
  */
-static gboolean
-free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
-				   gpointer user_data)
-{
-	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
-	fragment_head *fd_head;
-
-	fd_head = (fragment_head *)value;
-	if (fd_head != NULL) {
-		/*
-		 * A reassembled packet is inserted into the
-		 * hash table once for every frame that made
-		 * up the reassembled packet; add to the array
-		 * the first time seen and later free them in
-		 * free_fragments()
-		 */
-		if (fd_head->flags == FD_VISITED_FREE) {
-			/* Already visited with another key */
-			return TRUE;
-		}
-		if (fd_head->flags & FD_SUBSET_TVB)
-			fd_head->tvb_data = NULL;
-		g_ptr_array_add(allocated_fragments, fd_head);
-		fd_head->flags = FD_VISITED_FREE;
-	}
-
-	return TRUE;
-}
-
 static void
-free_fragments(gpointer data, gpointer user_data _U_)
+free_fd_head(fragment_head *fd_head)
 {
-	fragment_head *fd_head = (fragment_head *) data;
 	fragment_item *fd_i, *tmp;
 
+	if (fd_head->flags & FD_SUBSET_TVB)
+		fd_head->tvb_data = NULL;
 	if (fd_head->tvb_data)
 		tvb_free(fd_head->tvb_data);
 	for (fd_i = fd_head->next; fd_i; fd_i = tmp) {
@@ -417,6 +387,17 @@ free_fragments(gpointer data, gpointer user_data _U_)
 		g_slice_free(fragment_item, fd_i);
 	}
 	g_slice_free(fragment_head, fd_head);
+}
+
+void
+unref_fd_head(gpointer data)
+{
+	fragment_head *fd_head = (fragment_head *) data;
+	fd_head->ref_count--;
+
+	if (fd_head->ref_count == 0) {
+		free_fd_head(fd_head);
+	}
 }
 
 typedef struct register_reassembly_table {
@@ -476,25 +457,17 @@ reassembly_table_init(reassembly_table *table,
 	}
 
 	if (table->reassembled_table != NULL) {
-		GPtrArray *allocated_fragments;
-
 		/*
 		 * The reassembled-packet hash table exists.
 		 *
 		 * Remove all entries and free reassembled packet
 		 * data and key for each entry.
 		 */
-
-		allocated_fragments = g_ptr_array_new();
-		g_hash_table_foreach_remove(table->reassembled_table,
-				free_all_reassembled_fragments, allocated_fragments);
-
-		g_ptr_array_foreach(allocated_fragments, free_fragments, NULL);
-		g_ptr_array_free(allocated_fragments, TRUE);
+		g_hash_table_remove_all(table->reassembled_table);
 	} else {
 		/* The fragment table does not exist. Create it */
 		table->reassembled_table = g_hash_table_new_full(reassembled_hash,
-		    reassembled_equal, reassembled_key_free, NULL);
+		    reassembled_equal, reassembled_key_free, unref_fd_head);
 	}
 }
 
@@ -530,8 +503,6 @@ reassembly_table_destroy(reassembly_table *table)
 		table->fragment_table = NULL;
 	}
 	if (table->reassembled_table != NULL) {
-		GPtrArray *allocated_fragments;
-
 		/*
 		 * The reassembled-packet hash table exists.
 		 *
@@ -539,12 +510,7 @@ reassembly_table_destroy(reassembly_table *table)
 		 * data and key for each entry.
 		 */
 
-		allocated_fragments = g_ptr_array_new();
-		g_hash_table_foreach_remove(table->reassembled_table,
-				free_all_reassembled_fragments, allocated_fragments);
-
-		g_ptr_array_foreach(allocated_fragments, free_fragments, NULL);
-		g_ptr_array_free(allocated_fragments, TRUE);
+		g_hash_table_remove_all(table->reassembled_table);
 
 		/*
 		 * Now destroy the hash table.
@@ -1039,15 +1005,18 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 		new_key = g_slice_new(reassembled_key);
 		new_key->frame = pinfo->num;
 		new_key->id = id;
+		fd_head->ref_count = 1;
 		g_hash_table_insert(table->reassembled_table, new_key, fd_head);
 	} else {
 		/*
 		 * Hash it with the frame numbers for all the frames.
 		 */
+		fd_head->ref_count = 0;
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
 			new_key = g_slice_new(reassembled_key);
 			new_key->frame = fd->frame;
 			new_key->id = id;
+			fd_head->ref_count++;
 			g_hash_table_insert(table->reassembled_table, new_key,
 				fd_head);
 		}
@@ -1077,15 +1046,18 @@ fragment_reassembled_single(reassembly_table *table, fragment_head *fd_head,
 		new_key = g_slice_new(reassembled_key);
 		new_key->frame = pinfo->num;
 		new_key->id = id;
+		fd_head->ref_count = 1;
 		g_hash_table_insert(table->reassembled_table, new_key, fd_head);
 	} else {
 		/*
 		 * Hash it with the frame numbers for all the frames.
 		 */
+		fd_head->ref_count = 0;
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
 			new_key = g_slice_new(reassembled_key);
 			new_key->frame = fd->frame;
 			new_key->id = id + fd->offset;
+			fd_head->ref_count++;
 			g_hash_table_insert(table->reassembled_table, new_key,
 				fd_head);
 		}
@@ -1795,6 +1767,7 @@ fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const i
 			reassembled_key *new_key = g_slice_new(reassembled_key);
 			new_key->frame = pinfo->num;
 			new_key->id = id;
+			fd_head->ref_count++;
 			g_hash_table_insert(table->reassembled_table, new_key, fd_head);
 			late_retransmission = TRUE;
 		}
@@ -2823,6 +2796,7 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 			new_key = g_slice_new(reassembled_key);
 			new_key->frame = pinfo->num;
 			new_key->id = id;
+			fd_head->ref_count++;
 			g_hash_table_insert(table->reassembled_table, new_key, fd_head);
 		}
 

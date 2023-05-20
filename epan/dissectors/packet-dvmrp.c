@@ -47,6 +47,8 @@
 void proto_register_dvmrp(void);
 void proto_reg_handoff_dvmrp(void);
 
+static dissector_handle_t dvmrp_handle;
+
 static int proto_dvmrp = -1;
 static int hf_version = -1;
 static int hf_type = -1;
@@ -894,14 +896,13 @@ proto_register_dvmrp(void)
 	prefs_register_bool_preference(module_dvmrp, "strict_v3", "Allow strict DVMRP V3 only",
 		"Allow only packets with Major=0x03//Minor=0xFF as DVMRP V3 packets",
 		&strict_v3);
+
+	dvmrp_handle = register_dissector("dvmrp", dissect_dvmrp, proto_dvmrp);
 }
 
 void
 proto_reg_handoff_dvmrp(void)
 {
-	dissector_handle_t dvmrp_handle;
-
-	dvmrp_handle = create_dissector_handle(dissect_dvmrp, proto_dvmrp);
 	dissector_add_uint("igmp.type", IGMP_DVMRP, dvmrp_handle);
 }
 

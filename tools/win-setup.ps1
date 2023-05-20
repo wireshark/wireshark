@@ -77,7 +77,7 @@ $Win64Archives = @{
     "c-ares/c-ares-1.18.1-1-win64ws.zip" = "61183970996150e2eb137dfa7f5842ffa6e0eec2819634d5bdadc84013f8411d";
     "gnutls/gnutls-3.6.3-1-win64ws.zip" = "994ac2578e7b4ca01e589ab2598927d53f7370bc3ff679f3006b0e6bb7a06df4";
     "krb5/krb5-1.20.1-1-x64-windows-ws.zip" = "a1e5c582afce6e2f72f0f5bd66df2c0f3cc984532a1da5314fc89d7b7f29cdbf";
-    "libgcrypt/libgcrypt-1.10.1-2-win64ws.zip" = "61e1157f7623ef70e39ddf3aa6689ca581dc2ed14461515f149f83f11d0fb0a5";
+    "libgcrypt/libgcrypt-1.10.2-2-x64-mingw-dynamic-ws.zip" = "477cfce91d791b34df75a5ad83626f1ac2ee147eff7965e52266a4fc3da0f920";
     "libilbc/libilbc-2.0.2-3-win64ws.zip" = "d7baeb98627c405bd7c3e41d6b07c4ea4f0f5db88436e566148320afd10cbb66";
     "libmaxminddb/libmaxminddb-1.4.3-1-win64ws.zip" = "ee89944a19ab6e1c873bdecb9fc6205d317c41e6da6ec1d30bc892fddfd143da";
     "libpcap/libpcap-1.10.1-1-win64ws.zip" = "59f8e0e90a3ab5671df561266ed2b02870a6f8f3a895b80c9db19fea9a12ffb2";
@@ -94,7 +94,7 @@ $Win64Archives = @{
     "spandsp/spandsp-0.0.6-2-win64ws.zip" = "2eb8278633037f60f44815ea1606486ab5dcdf3bddc500b20c9fe356856236b2";
     "speexdsp/speexdsp-1.21.1-1-win64ws.zip" = "d36db62e64ffaee38d9f607bef07d3778d8957ad29757f3eba169eb135f1a4e5";
     "vcpkg-export/vcpkg-export-20220726-1-win64ws.zip" = "b1eaa8124802532fa8d30789219906f90fb80908844e4458327b3f73995a44b0";
-    "WinSparkle/WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
+    "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
     "zstd/zstd-1.5.2-1-win64ws.zip" = "d920afe636951cfcf144824d9c075d1f2c13387f4739152fe185fd9c09fc58f2";
 }
 
@@ -104,7 +104,7 @@ $Win64ArmArchives = @{
     "c-ares/c-ares-1.19.0-1-win64armws.zip" = "3e02db0c77303fcd5e9b85f2abe7b48ed79b0ed5d3bdada291a71842e91a6215";
     # "gnutls/gnutls-3.6.3-1-win64armws.zip" = "";
     "krb5/krb5-1.20.1-1-arm64-windows-ws.zip" = "6afe3185ea7621224544683a89d7c724d32bef6f1b552738dbc713ceb2151437";
-    "libgcrypt/libgcrypt-1.10.2-1-win64armws.zip" = "d6c362f438a6be006189ffe192e465cc82411270eba7f6ebbd4d450ca9e3b531";
+    "libgcrypt/libgcrypt-1.10.2-2-arm64-mingw-dynamic-ws.zip" = "cd42fa2739a204e129d655e1b0dda83ceb27399812b8b2eccddae4a9ecd8d0ce";
     # "libilbc/libilbc-3.0.4-1-win64armws.zip" = "";
     "libmaxminddb/libmaxminddb-1.4.3-1-win64armws.zip" = "9996327f301cb4a4de797bc024ad0471acd95c1850a2afc849c57fcc93360610";
     "libpcap/libpcap-1.10.1-1-win64armws.zip" = "c0c5d42d96cc407303d71ba5afd06615c660228fa2260d7ecbc8453140529137";
@@ -121,7 +121,7 @@ $Win64ArmArchives = @{
     # "spandsp/spandsp-0.0.6-2-win64armws.zip" = "";
     "speexdsp/speexdsp-1.2.1-1-win64armws.zip" = "1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb";
     "vcpkg-export/vcpkg-export-20230502-1-win64armws.zip" = "94bc2d98bcb86e79569c7bf638cde8d63175cd65cf07cc219890cdc713707ce9";
-    # "WinSparkle/WinSparkle-0.5.7.zip" = "";
+    "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
     "zstd/zstd-1.5.5-1-win64armws.zip" = "0e448875380cc5d5f5539d994062201bfa564e4a27466bc3fdfec84d9008e51d";
 }
 

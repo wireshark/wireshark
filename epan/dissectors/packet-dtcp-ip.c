@@ -35,6 +35,8 @@ static int proto_dtcp_ip = -1;
 void proto_register_dtcp_ip(void);
 void proto_reg_handoff_dtcp_ip(void);
 
+static dissector_handle_t dtcp_ip_handle;
+
 static gint ett_dtcp_ip = -1;
 static gint ett_dtcp_ip_ctrl = -1;
 static gint ett_dtcp_ip_ake_procedure = -1;
@@ -276,14 +278,13 @@ proto_register_dtcp_ip(void)
 
     proto_register_field_array(proto_dtcp_ip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    dtcp_ip_handle = register_dissector("dtcp-ip", dissect_dtcp_ip, proto_dtcp_ip);
 }
 
 void
 proto_reg_handoff_dtcp_ip(void)
 {
-    dissector_handle_t dtcp_ip_handle;
-
-    dtcp_ip_handle = create_dissector_handle(dissect_dtcp_ip, proto_dtcp_ip);
     dissector_add_for_decode_as_with_preference("tcp.port", dtcp_ip_handle);
 }
 

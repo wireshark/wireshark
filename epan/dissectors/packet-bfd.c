@@ -39,6 +39,9 @@
 void proto_register_bfd(void);
 void proto_reg_handoff_bfd(void);
 
+static dissector_handle_t bfd_control_handle;
+static dissector_handle_t bfd_echo_handle;
+
 /* 3784: BFD control, 3785: BFD echo, 4784: BFD multi hop control */
 /* 6784: BFD on LAG, 7784: seamless BFD */
 /* https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=bfd */
@@ -897,17 +900,15 @@ proto_register_bfd(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_bfd = expert_register_protocol(proto_bfd);
     expert_register_field_array(expert_bfd, ei, array_length(ei));
+
+    /* Register dissectors */
+    bfd_control_handle = register_dissector("bfd", dissect_bfd_control, proto_bfd);
+    bfd_echo_handle = register_dissector("bfd_echo", dissect_bfd_echo, proto_bfd_echo);
 }
 
 void
 proto_reg_handoff_bfd(void)
 {
-    dissector_handle_t bfd_control_handle;
-    dissector_handle_t bfd_echo_handle;
-
-    bfd_control_handle = create_dissector_handle(dissect_bfd_control, proto_bfd);
-    bfd_echo_handle = create_dissector_handle(dissect_bfd_echo, proto_bfd_echo);
-
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BFD_CTRL, bfd_control_handle);
     dissector_add_uint("udp.port", UDP_PORT_BFD_ECHO, bfd_echo_handle);
 

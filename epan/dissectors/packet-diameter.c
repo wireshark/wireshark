@@ -1422,6 +1422,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
 	}
 
+	diam_sub_dis_inf->parent_message_is_request = (flags_bits & DIAM_FLAGS_R) ? TRUE : FALSE;
+
 	cmd_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_code, tvb, 5, 3, ENC_BIG_ENDIAN, &cmd);
 	diam_sub_dis_inf->cmd_code = cmd;
 

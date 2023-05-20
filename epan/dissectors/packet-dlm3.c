@@ -170,6 +170,9 @@
 void proto_register_dlm3(void);
 void proto_reg_handoff_dlm3(void);
 
+static dissector_handle_t dlm3_tcp_handle;
+static dissector_handle_t dlm3_sctp_handle;
+
 
 /* Initialize the protocol and registered fields */
 static int proto_dlm3 = -1;
@@ -1807,18 +1810,16 @@ proto_register_dlm3(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* dlm3_module = prefs_register_protocol(proto_dlm3, NULL); */
+
+  dlm3_sctp_handle = register_dissector("dlm3", dissect_dlm3, proto_dlm3);
+  dlm3_tcp_handle = register_dissector("dlm3.tcp", dissect_tcp_dlm3, proto_dlm3);
+
 }
 
 
 void
 proto_reg_handoff_dlm3(void)
 {
-  dissector_handle_t dlm3_tcp_handle;
-  dissector_handle_t dlm3_sctp_handle;
-
-  dlm3_sctp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
-  dlm3_tcp_handle = create_dissector_handle(dissect_tcp_dlm3, proto_dlm3);
-
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLM3, dlm3_tcp_handle);
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_DLM3, dlm3_sctp_handle);
 }

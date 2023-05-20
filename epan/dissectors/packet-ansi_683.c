@@ -25,6 +25,7 @@
 void proto_register_ansi_683(void);
 void proto_reg_handoff_ansi_683(void);
 
+static dissector_handle_t ansi_683_handle;
 
 static const char *ansi_proto_name = "ANSI IS-683 (OTA (Mobile))";
 
@@ -3554,16 +3555,15 @@ proto_register_ansi_683(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_ansi_683 = expert_register_protocol(proto_ansi_683);
     expert_register_field_array(expert_ansi_683, ei, array_length(ei));
+
+    /* Register the dissector */
+    ansi_683_handle = register_dissector("ansi_683", dissect_ansi_683, proto_ansi_683);
 }
 
 
 void
 proto_reg_handoff_ansi_683(void)
 {
-    dissector_handle_t  ansi_683_handle;
-
-    ansi_683_handle = create_dissector_handle(dissect_ansi_683, proto_ansi_683);
-
     dissector_add_uint("ansi_map.ota", ANSI_683_FORWARD, ansi_683_handle);
     dissector_add_uint("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);
     dissector_add_uint("ansi_a.ota", ANSI_683_FORWARD, ansi_683_handle);

@@ -18,6 +18,8 @@
 void proto_register_dvb_sdt(void);
 void proto_reg_handoff_dvb_sdt(void);
 
+static dissector_handle_t dvb_sdt_handle;
+
 static int proto_dvb_sdt = -1;
 static int hf_dvb_sdt_transport_stream_id = -1;
 static int hf_dvb_sdt_reserved1 = -1;
@@ -240,14 +242,12 @@ proto_register_dvb_sdt(void)
     proto_register_field_array(proto_dvb_sdt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    dvb_sdt_handle = register_dissector("dvb_sdt", dissect_dvb_sdt, proto_dvb_sdt);
 }
 
 
 void proto_reg_handoff_dvb_sdt(void)
 {
-    dissector_handle_t dvb_sdt_handle;
-
-    dvb_sdt_handle = create_dissector_handle(dissect_dvb_sdt, proto_dvb_sdt);
     dissector_add_uint("mpeg_sect.tid", DVB_SDT_TID_ACTUAL, dvb_sdt_handle);
     dissector_add_uint("mpeg_sect.tid", DVB_SDT_TID_OTHER, dvb_sdt_handle);
 }

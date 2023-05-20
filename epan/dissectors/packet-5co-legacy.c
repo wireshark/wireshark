@@ -34,6 +34,8 @@
 void proto_reg_handoff_FiveCoLegacy(void);
 void proto_register_FiveCoLegacy(void);
 
+static dissector_handle_t FiveCoLegacy_handle;
+
 /****************************************************************************/
 /* Definition declaration */
 /****************************************************************************/
@@ -154,11 +156,11 @@ typedef struct
 {
     guint16 usParaLen;
     guint16 isReplied;
-    tvbuff_t *pData;
+    guint8 *pDataBuffer;
 } FCOSConvRequestVal;
 
 /* Conversation hash tables */
-static GHashTable *FiveCo_requests_hash = NULL;
+static wmem_map_t *FiveCo_requests_hash = NULL;
 
 /* Internal unique ID (used to match answer with question
    since some software set always 0 as packet ID in protocol header)
@@ -254,7 +256,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     guint64 *pulInternalID = NULL;
     FCOSConvRequestKey requestKey, *pNewRequestKey;
     FCOSConvRequestVal *pRequestVal = NULL;
-    guint8 *pNewDataBuffer = NULL;
+    tvbuff_t *pRequestTvb = NULL;
     guint8 ucAdd, ucBytesToWrite, ucBytesToRead;
     guint8 ucRegAdd, ucRegSize;
     guint32 unOffset;
@@ -316,7 +318,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         /* Get info about the request */
         requestKey.usExpCmd = header_type;
         requestKey.unInternalID = *pulInternalID;
-        pRequestVal = (FCOSConvRequestVal *)g_hash_table_lookup(FiveCo_requests_hash, &requestKey);
+        pRequestVal = (FCOSConvRequestVal *)wmem_map_lookup(FiveCo_requests_hash, &requestKey);
         if ((!pinfo->fd->visited) && (!pRequestVal) && (isRequest))
         {
             /* If unknown and if it is a request, allocate new hash element that we want to handle later in answer */
@@ -345,11 +347,14 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             pRequestVal = wmem_new(wmem_file_scope(), FCOSConvRequestVal);
             pRequestVal->usParaLen = header_data_length;
             pRequestVal->isReplied = FALSE;
-            pNewDataBuffer = (guint8 *)wmem_alloc(wmem_file_scope(), header_data_length);
-            pRequestVal->pData = tvb_new_real_data(pNewDataBuffer, header_data_length, header_data_length);
-            tvb_memcpy(tvb, pNewDataBuffer, tcp_data_offset + 6, header_data_length);
+            pRequestVal->pDataBuffer = (guint8 *)wmem_alloc(wmem_file_scope(), header_data_length);
+            tvb_memcpy(tvb, pRequestVal->pDataBuffer, tcp_data_offset + 6, header_data_length);
 
-            g_hash_table_insert(FiveCo_requests_hash, pNewRequestKey, pRequestVal);
+            wmem_map_insert(FiveCo_requests_hash, pNewRequestKey, pRequestVal);
+        }
+
+        if (pRequestVal) {
+            pRequestTvb = tvb_new_child_real_data(tvb, pRequestVal->pDataBuffer, pRequestVal->usParaLen, pRequestVal->usParaLen);
         }
 
         /* Compute checksum of the packet and read one received */
@@ -566,13 +571,13 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         while ((y < pRequestVal->usParaLen) && (i < tcp_data_offset + header_data_length))
                         {
                             // I2C address in first byte of request
-                            ucAdd = tvb_get_guint8(pRequestVal->pData, y++);
+                            ucAdd = tvb_get_guint8(pRequestTvb, y++);
                             // Read number of bytes to write
-                            ucBytesToWrite = tvb_get_guint8(pRequestVal->pData, y);
+                            ucBytesToWrite = tvb_get_guint8(pRequestTvb, y);
                             // Skip number of bytes to write and those bytes
                             y += 1 + ucBytesToWrite;
                             // Read number of bytes to read
-                            ucBytesToRead = tvb_get_guint8(pRequestVal->pData, y++);
+                            ucBytesToRead = tvb_get_guint8(pRequestTvb, y++);
                             if (ucBytesToRead > 0)
                             {
                                 fiveco_data_item = proto_tree_add_item(fiveco_data_tree, hf_fiveco_i2canswer,
@@ -622,7 +627,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         while ((y < pRequestVal->usParaLen) && (i < tcp_data_offset + header_data_length))
                         {
                             // Register address in first byte of request
-                            ucRegAdd = tvb_get_guint8(pRequestVal->pData, y++);
+                            ucRegAdd = tvb_get_guint8(pRequestTvb, y++);
                             // If register address is known & found in answer
                             if ((ucRegAdd < array_length(aRegisters)) &&
                                 (aRegisters[ucRegAdd].unValue == ucRegAdd) &&
@@ -777,16 +782,6 @@ static gint fiveco_hash_equal(gconstpointer v, gconstpointer w)
 }
 
 /*****************************************************************************/
-/* Protocol initialization function                                          */
-/*****************************************************************************/
-static void fiveco_protocol_init(void)
-{
-    if (FiveCo_requests_hash)
-        g_hash_table_destroy(FiveCo_requests_hash);
-    FiveCo_requests_hash = g_hash_table_new(fiveco_hash, fiveco_hash_equal);
-}
-
-/*****************************************************************************/
 /* Register the protocol with Wireshark.
  *
  * This format is required because a script is used to build the C function that
@@ -817,7 +812,6 @@ void proto_register_FiveCoLegacy(void)
         &ett_fiveco,
         &ett_fiveco_checksum};
 
-    /* Register the dissector */
     /* Register the protocol name and description */
     proto_FiveCoLegacy = proto_register_protocol("FiveCo's Legacy Register Access Protocol",
                                                  PROTO_TAG_FIVECO, "5co_legacy");
@@ -826,10 +820,11 @@ void proto_register_FiveCoLegacy(void)
     proto_register_field_array(proto_FiveCoLegacy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Register hash init function
-        * Protocol hash is used to follow conversation.
-        */
-    register_init_routine(&fiveco_protocol_init);
+    /* Register the dissector */
+    FiveCoLegacy_handle = register_dissector("5co_legacy", dissect_FiveCoLegacy,
+                                                    proto_FiveCoLegacy);
+
+    FiveCo_requests_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fiveco_hash, fiveco_hash_equal);
 
     /* Set preference callback to NULL since it is not used */
     prefs_register_protocol(proto_FiveCoLegacy, NULL);
@@ -844,16 +839,9 @@ void proto_register_FiveCoLegacy(void)
 void proto_reg_handoff_FiveCoLegacy(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t FiveCoLegacy_handle;
 
     if (!initialized)
     {
-        /* Use create_dissector_handle() to indicate that
-         * dissect_FiveCoLegacy() returns the number of bytes it dissected (or 0
-         * if it thinks the packet does not belong to PROTONAME).
-         */
-        FiveCoLegacy_handle = create_dissector_handle(dissect_FiveCoLegacy,
-                                                      proto_FiveCoLegacy);
         dissector_add_uint("tcp.port", FIVECO_PORT1, FiveCoLegacy_handle);
         dissector_add_uint("tcp.port", FIVECO_PORT2, FiveCoLegacy_handle);
         dissector_add_uint("udp.port", FIVECO_UDP_PORT1, FiveCoLegacy_handle);

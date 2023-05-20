@@ -794,19 +794,19 @@ void proto_register_lwm(void)
 
         /*Multicast header*/
         { &hf_lwm_multi_nmrad,
-        { "Non-member Radius", "lwm.multi_nmrad", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Non-member Radius", "lwm.multi_nmrad", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Specifies remaining radius (number of hops) for Non-members of multicast group.", HFILL }},
 
         { &hf_lwm_multi_mnmrad,
-        { "Maximum Non-member Radius", "lwm.multi_mnmrad", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Maximum Non-member Radius", "lwm.multi_mnmrad", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Specifies maximum radius (number of hops) for Non-members of multicast group.", HFILL }},
 
         { &hf_lwm_multi_mrad,
-        { "Member Radius", "lwm.multi_mrad", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Member Radius", "lwm.multi_mrad", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Specifies remaining radius (number of hops) for Members of multicast group.", HFILL }},
 
         { &hf_lwm_multi_mmrad,
-        { "Maximum Member Radius", "lwm.multi_mmrad", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Maximum Member Radius", "lwm.multi_mmrad", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Specifies maximum radius (number of hops) for Members of multicast group.", HFILL }},
 
 

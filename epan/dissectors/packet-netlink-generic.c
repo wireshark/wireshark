@@ -543,7 +543,7 @@ proto_register_netlink_generic(void)
 		"genl.family",
 		"Linux Generic Netlink family name",
 		proto_netlink_generic, FT_STRING,
-		BASE_NONE
+		STRING_CASE_SENSITIVE
 	);
 
 	genl_family_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);

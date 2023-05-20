@@ -118,8 +118,25 @@ int DataPrinter::byteLineLength() const
 
 int DataPrinter::hexChars()
 {
-    int row_width = recent.gui_bytes_view == BYTES_HEX ? 16 : 8;
-    int chars_per_byte = recent.gui_bytes_view == BYTES_HEX ? 3 : 9;
+    int row_width, chars_per_byte;
+
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        row_width = 16;
+        chars_per_byte = 3;
+        break;
+    case BYTES_BITS:
+        row_width = 8;
+        chars_per_byte = 9;
+        break;
+    case BYTES_DEC:
+    case BYTES_OCT:
+        row_width = 16;
+        chars_per_byte = 4;
+        break;
+    default:
+        ws_assert_not_reached();
+    }
     return (row_width * chars_per_byte) + ((row_width - 1) / separatorInterval());
 }
 

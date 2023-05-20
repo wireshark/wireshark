@@ -36,6 +36,8 @@ static expert_field ei_dvb_data_mpe_reserved_not_one = EI_INIT;
 static expert_field ei_dvb_data_mpe_payload_scrambled = EI_INIT;
 static expert_field ei_dvb_data_mpe_address_scrambled = EI_INIT;
 
+static dissector_handle_t dvb_data_mpe_handle;
+
 static dissector_handle_t ip_handle;
 static dissector_handle_t llc_handle;
 
@@ -221,16 +223,13 @@ proto_register_dvb_data_mpe(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 
+    dvb_data_mpe_handle = register_dissector("dvb_data_mpe", dissect_dvb_data_mpe, proto_dvb_data_mpe);
 }
 
 
 void
 proto_reg_handoff_dvb_data_mpe(void)
 {
-
-    dissector_handle_t dvb_data_mpe_handle;
-
-    dvb_data_mpe_handle = create_dissector_handle(dissect_dvb_data_mpe, proto_dvb_data_mpe);
     dissector_add_uint("mpeg_sect.tid", DVB_DATA_MPE_TID, dvb_data_mpe_handle);
 
     ip_handle  = find_dissector_add_dependency("ip", proto_dvb_data_mpe);
