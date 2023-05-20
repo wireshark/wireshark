@@ -1885,7 +1885,7 @@ proto_register_dccp(void)
 	{&hf_mpdccp_addrid,{"Address ID", "dccp.mp_addrid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 	{&hf_mpdccp_addr_dec,{"Address", "dccp.mp_ipv4addr",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 	{&hf_mpdccp_addr_hex,{"Address", "dccp.mp_ipv6addr",FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-	{&hf_mpdccp_addrport,{"Port", "dccp.mp_addrport",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{&hf_mpdccp_addrport,{"Port", "dccp.mp_addrport",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{&hf_mpdccp_removeaddr,{"MP_REMOVEADDR", "dccp.mp_removeaddr",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 

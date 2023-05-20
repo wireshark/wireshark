@@ -30,14 +30,14 @@ void proto_reg_handoff_adwin_config(void);
 #define UDPIXP425FlashUpdateLENGTH  92
 #define UDPOutLENGTH                22
 
-#define STATUS_WITH_BOOTLOADER                  0x0001
-#define STATUS_REPROGRAMMABLE                   0x0002
-#define STATUS_CONFIGURABLE                     0x0004
-#define STATUS_BOOTLOADER_BOOTS                 0x0008
-#define STATUS_BOOTLOADER_REPROGRAMMABLE        0x0010
-#define STATUS_BOOTLOADER_RECEIVES_DATA         0x0020
-#define STATUS_BOOTLOADER_REPROGRAMMING_DONE    0x0040
-#define STATUS_WITH_EEPROM_SUPPORT              0x0080
+#define STATUS_WITH_BOOTLOADER                  0x00000001
+#define STATUS_REPROGRAMMABLE                   0x00000002
+#define STATUS_CONFIGURABLE                     0x00000004
+#define STATUS_BOOTLOADER_BOOTS                 0x00000008
+#define STATUS_BOOTLOADER_REPROGRAMMABLE        0x00000010
+#define STATUS_BOOTLOADER_RECEIVES_DATA         0x00000020
+#define STATUS_BOOTLOADER_REPROGRAMMING_DONE    0x00000040
+#define STATUS_WITH_EEPROM_SUPPORT              0x00000080
 
 static const value_string pattern_mapping[] = {
 	{ 0x12343210, "Reset reset/socket counters"},

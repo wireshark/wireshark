@@ -78,17 +78,17 @@ static int ett_smb_logon = -1;
 static int ett_smb_account_flags = -1;
 static int ett_smb_db_info = -1;
 
-#define	ACC_FLAG_AUTO_LOCKED			0x0400
-#define ACC_FLAG_EXPIRE				0x0200
-#define ACC_FLAG_SERVER_TRUST			0x0100
-#define ACC_FLAG_WORKSTATION_TRUST		0x0080
-#define ACC_FLAG_INTERDOMAIN_TRUST		0x0040
-#define ACC_FLAG_MNS_USER			0x0020
-#define ACC_FLAG_NORMAL_USER			0x0010
-#define ACC_FLAG_TEMP_DUP_USER			0x0008
-#define ACC_FLAG_PASSWORD_REQUIRED		0x0004
-#define ACC_FLAG_HOMEDIR_REQUIRED		0x0002
-#define ACC_FLAG_ENABLED			0x0001
+#define ACC_FLAG_AUTO_LOCKED        0x00000400
+#define ACC_FLAG_EXPIRE             0x00000200
+#define ACC_FLAG_SERVER_TRUST       0x00000100
+#define ACC_FLAG_WORKSTATION_TRUST  0x00000080
+#define ACC_FLAG_INTERDOMAIN_TRUST  0x00000040
+#define ACC_FLAG_MNS_USER           0x00000020
+#define ACC_FLAG_NORMAL_USER        0x00000010
+#define ACC_FLAG_TEMP_DUP_USER      0x00000008
+#define ACC_FLAG_PASSWORD_REQUIRED  0x00000004
+#define ACC_FLAG_HOMEDIR_REQUIRED   0x00000002
+#define ACC_FLAG_ENABLED            0x00000001
 
 static const true_false_string tfs_flags_autolock = {
 	"User account auto-locked",

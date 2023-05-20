@@ -34,19 +34,19 @@ void proto_reg_handoff_devicenet(void);
 static dissector_handle_t devicenet_handle;
 
 #define DEVICENET_CANID_MASK            CAN_SFF_MASK
-#define MESSAGE_GROUP_1_ID              0x3FF
-#define MESSAGE_GROUP_1_MSG_MASK        0x3C0
-#define MESSAGE_GROUP_1_MAC_ID_MASK     0x03F
+#define MESSAGE_GROUP_1_ID              0x03FF
+#define MESSAGE_GROUP_1_MSG_MASK        0x03C0
+#define MESSAGE_GROUP_1_MAC_ID_MASK     0x003F
 
-#define MESSAGE_GROUP_2_ID              0x5FF
-#define MESSAGE_GROUP_2_MSG_MASK        0x007
-#define MESSAGE_GROUP_2_MAC_ID_MASK     0x1F8
+#define MESSAGE_GROUP_2_ID              0x05FF
+#define MESSAGE_GROUP_2_MSG_MASK        0x0007
+#define MESSAGE_GROUP_2_MAC_ID_MASK     0x01F8
 
-#define MESSAGE_GROUP_3_ID              0x7BF
-#define MESSAGE_GROUP_3_MSG_MASK        0x1C0
-#define MESSAGE_GROUP_3_MAC_ID_MASK     0x03F
-#define MESSAGE_GROUP_3_FRAG_MASK       0x80
-#define MESSAGE_GROUP_3_XID_MASK        0x40
+#define MESSAGE_GROUP_3_ID              0x07BF
+#define MESSAGE_GROUP_3_MSG_MASK        0x01C0
+#define MESSAGE_GROUP_3_MAC_ID_MASK     0x003F
+#define MESSAGE_GROUP_3_FRAG_MASK       0x0080
+#define MESSAGE_GROUP_3_XID_MASK        0x0040
 
 #define MESSAGE_GROUP_4_ID              0x07EF
 #define MESSAGE_GROUP_4_MSG_MASK        0x003F

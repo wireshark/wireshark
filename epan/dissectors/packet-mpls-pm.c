@@ -869,7 +869,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_flags_r,
             {
                 "Response indicator (R)", "mpls_pm.flags.r",
-                FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_FLAGS_R,
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), MPLS_PM_FLAGS_R,
                 NULL, HFILL
             }
         },
@@ -878,7 +878,7 @@ proto_register_mpls_pm(void)
             {
                 "Traffic-class-specific measurement indicator (T)",
                 "mpls_pm.flags.t",
-                FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_FLAGS_T,
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), MPLS_PM_FLAGS_T,
                 NULL, HFILL
             }
         },
@@ -887,7 +887,7 @@ proto_register_mpls_pm(void)
             {
                 "Reserved",
                 "mpls_pm.flags.res",
-                FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_FLAGS_RES,
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), MPLS_PM_FLAGS_RES,
                 NULL, HFILL
             }
         },

@@ -513,7 +513,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_length,
-		{ "Total Length",			"trmac.length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+		{ "Total Length",			"trmac.length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_srcclass,

@@ -2187,13 +2187,13 @@ proto_register_tibia(void)
         },
         { &hf_tibia_client_clock,
             { "CPU clock", "tibia.client.cpu.clock",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_tibia_client_clock2,
             { "CPU clock2", "tibia.client.cpu.clock2",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },

@@ -35,8 +35,8 @@ void proto_reg_handoff_mih(void);
 #define MORE_FRAG_MASK  0x1
 #define FRAG_NO_MASK    0xFE
 #define SID_MASK        0xF000
-#define OPCODE_MASK     0xC00
-#define AID_MASK        0x3FF
+#define OPCODE_MASK     0x0C00
+#define AID_MASK        0x03FF
 #define TRANS_ID_MASK   0x0FFF
 #define LEN_OF_LEN_MASK 0x80
 

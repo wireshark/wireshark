@@ -526,13 +526,13 @@ static value_string_ext priv_rc_types_ext = VALUE_STRING_EXT_INIT(priv_rc_types)
 #define PRIV_SYS_FLAG_AUTH       0x40
 #define PRIV_SYS_FLAG_CAL        0x80
 
-#define PRIV_RESET_FLAG_ALLPEERS 0x01
-#define PRIV_RESET_FLAG_IO       0x02
-#define PRIV_RESET_FLAG_SYS      0x04
-#define PRIV_RESET_FLAG_MEM      0x08
-#define PRIV_RESET_FLAG_TIMER    0x10
-#define PRIV_RESET_FLAG_AUTH     0x20
-#define PRIV_RESET_FLAG_CTL      0x40
+#define PRIV_RESET_FLAG_ALLPEERS 0x00000001
+#define PRIV_RESET_FLAG_IO       0x00000002
+#define PRIV_RESET_FLAG_SYS      0x00000004
+#define PRIV_RESET_FLAG_MEM      0x00000008
+#define PRIV_RESET_FLAG_TIMER    0x00000010
+#define PRIV_RESET_FLAG_AUTH     0x00000020
+#define PRIV_RESET_FLAG_CTL      0x00000040
 
 static const range_string stratum_rvals[] = {
 	{ 0,	0, "unspecified or invalid" },

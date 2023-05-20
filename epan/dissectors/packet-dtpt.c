@@ -190,21 +190,21 @@ static const value_string names_protocol[] = {
 	{	0, NULL	}
 };
 
-#define LUP_DEEP                0x0001
-#define LUP_CONTAINERS          0x0002
-#define LUP_NOCONTAINERS        0x0004
-#define LUP_NEAREST             0x0008
-#define LUP_RETURN_NAME         0x0010
-#define LUP_RETURN_TYPE         0x0020
-#define LUP_RETURN_VERSION      0x0040
-#define LUP_RETURN_COMMENT      0x0080
-#define LUP_RETURN_ADDR         0x0100
-#define LUP_RETURN_BLOB         0x0200
-#define LUP_RETURN_ALIASES      0x0400
-#define LUP_RETURN_QUERY_STRING 0x0800
-#define LUP_FLUSHCACHE          0x1000
-#define LUP_FLUSHPREVIOUS       0x2000
-#define LUP_RES_SERVICE         0x8000
+#define LUP_DEEP                0x00000001
+#define LUP_CONTAINERS          0x00000002
+#define LUP_NOCONTAINERS        0x00000004
+#define LUP_NEAREST             0x00000008
+#define LUP_RETURN_NAME         0x00000010
+#define LUP_RETURN_TYPE         0x00000020
+#define LUP_RETURN_VERSION      0x00000040
+#define LUP_RETURN_COMMENT      0x00000080
+#define LUP_RETURN_ADDR         0x00000100
+#define LUP_RETURN_BLOB         0x00000200
+#define LUP_RETURN_ALIASES      0x00000400
+#define LUP_RETURN_QUERY_STRING 0x00000800
+#define LUP_FLUSHCACHE          0x00001000
+#define LUP_FLUSHPREVIOUS       0x00002000
+#define LUP_RES_SERVICE         0x00008000
 
 #define SOCKADDR_WITH_LEN	1
 #define SOCKADDR_CONNECT	2

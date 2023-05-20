@@ -6930,7 +6930,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_ccategspec_type,
 			{
 				"type", "mswsp.ccategspec.type",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},
 		{

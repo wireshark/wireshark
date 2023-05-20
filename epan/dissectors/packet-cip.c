@@ -9467,7 +9467,7 @@ proto_register_cip(void)
       { &hf_time_sync_parent_clock_clock_id, { "Clock Identity", "cip.time_sync.parent_clock.clock_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_parent_clock_port_number, { "Port Number", "cip.time_sync.parent_clock.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_parent_clock_observed_offset_scaled_log_variance, { "Observed Offset Scaled Log Variance", "cip.time_sync.parent_clock.observed_offset_scaled_log_variance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_time_sync_parent_clock_observed_phase_change_rate, { "Observed Phase Change Rate", "cip.time_sync.parent_clock.observed_phase_change_rate", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_parent_clock_observed_phase_change_rate, { "Observed Phase Change Rate", "cip.time_sync.parent_clock.observed_phase_change_rate", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_local_clock_clock_id, { "Clock Identity", "cip.time_sync.local_clock.clock_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_local_clock_clock_class, { "Clock Class", "cip.time_sync.local_clock.clock_class", FT_UINT16, BASE_DEC, VALS(cip_time_sync_clock_class_vals), 0, NULL, HFILL }},
       { &hf_time_sync_local_clock_time_accuracy, { "Time Accuracy", "cip.time_sync.local_clock.time_accuracy", FT_UINT16, BASE_DEC, VALS(cip_time_sync_time_accuracy_vals), 0, NULL, HFILL }},

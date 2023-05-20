@@ -270,7 +270,7 @@ static const value_string japan_test_message_type_acro_values[] = {
 #define ANSI_COO_SLC_MASK  0x000f
 #define ANSI_COO_FSN_MASK  0x07f0
 #define ITU_COO_LENGTH     1
-#define ITU_COO_FSN_MASK   0x007f
+#define ITU_COO_FSN_MASK   0x7f
 #define ANSI_XCO_LENGTH    4
 #define ANSI_XCO_SLC_MASK  0x0000000f
 #define ANSI_XCO_FSN_MASK  0x0ffffff0
@@ -319,7 +319,7 @@ static const value_string japan_test_message_type_acro_values[] = {
 #define TEST_LENGTH_MASK    0xf0
 #define TEST_LENGTH_SHIFT   4
 #define TEST_PATTERN_OFFSET TEST_LENGTH
-#define ANSI_TEST_SLC_MASK  0x000f
+#define ANSI_TEST_SLC_MASK  0x0f
 
 #define JAPAN_SPARE_LENGTH 1
 #define JAPAN_H0H1_OFFSET JAPAN_SPARE_LENGTH

@@ -543,13 +543,13 @@ proto_register_dpnet(void)
         },
         { &hf_dpnet_session_offset,
             { "Session Offset", "dpnet.session_offset",
-            FT_UINT16, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }
         },
         { &hf_dpnet_session_size,
             { "Session Size", "dpnet.session_size",
-            FT_UINT16, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }
         },
@@ -585,13 +585,13 @@ proto_register_dpnet(void)
         },
         { &hf_dpnet_application_offset,
             { "Application Offset", "dpnet.application_offset",
-            FT_UINT16, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }
         },
         { &hf_dpnet_application_size,
             { "Application Size", "dpnet.application_size",
-            FT_UINT16, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }
         },

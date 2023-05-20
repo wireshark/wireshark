@@ -28,11 +28,11 @@
 #define OCP1_PDU_TYPE_OCA_KEEPALIVE  0x04
 
 /* DeviceState flags */
-#define OCP1_DEVICESTATE_OPER        0x01
-#define OCP1_DEVICESTATE_DISABLED    0x02
-#define OCP1_DEVICESTATE_ERROR       0x04
-#define OCP1_DEVICESTATE_INIT        0x08
-#define OCP1_DEVICESTATE_UPDATING    0x10
+#define OCP1_DEVICESTATE_OPER        0x0001
+#define OCP1_DEVICESTATE_DISABLED    0x0002
+#define OCP1_DEVICESTATE_ERROR       0x0004
+#define OCP1_DEVICESTATE_INIT        0x0008
+#define OCP1_DEVICESTATE_UPDATING    0x0010
 
 /* no valid PDU type, only used as array index for type errors
  * must be highest PDU type + 1 */

@@ -7556,7 +7556,7 @@ proto_register_dhcp(void)
 
 		{ &hf_dhcp_pkt_mta_cap_len,
 		  { "MTA DC Length", "dhcp.vendor.pktc.mta_cap_len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "PacketCable MTA Device Capabilities Length", HFILL }},
 
 		{ &hf_dhcp_pkt_mta_cap_type,

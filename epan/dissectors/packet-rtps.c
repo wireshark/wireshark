@@ -15650,7 +15650,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_encapsulation_kind, {
         "kind", "rtps.encapsulation_kind",
-        FT_UINT16, BASE_HEX, VALS(participant_message_data_kind), 0, NULL, HFILL }
+        FT_UINT32, BASE_HEX, VALS(participant_message_data_kind), 0, NULL, HFILL }
     },
 
     { &hf_rtps_octets_to_inline_qos, {

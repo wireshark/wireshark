@@ -283,7 +283,9 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
                                             '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
                                             'pdu_info->sbc', 'pdu_info->mbc',
-                                            'seq_info->txt_enc | ENC_NA'  }:
+                                            'seq_info->txt_enc | ENC_NA',
+                                            'BASE_SHOW_UTF_8_PRINTABLE'
+                                          }:
                                 global warnings_found
 
                                 print('Warning:', self.file + ':' + str(line_number),

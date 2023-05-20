@@ -255,25 +255,25 @@ static expert_field ei_pcp_label_error_endianness = EI_INIT;
 #define PCP_SECURE_ACK_SUCCESSFUL 0
 
 static const value_string pcp_feature_flags[] = {
-#define PCP_PDU_FLAG_SECURE         0x1
+#define PCP_PDU_FLAG_SECURE         0x0001
       { PCP_PDU_FLAG_SECURE,        "SECURE" },
-#define PCP_PDU_FLAG_COMPRESS       0x2
+#define PCP_PDU_FLAG_COMPRESS       0x0002
       { PCP_PDU_FLAG_COMPRESS,      "COMPRESS" },
-#define PCP_PDU_FLAG_AUTH           0x4
+#define PCP_PDU_FLAG_AUTH           0x0004
       { PCP_PDU_FLAG_AUTH,          "AUTH"},
-#define PCP_PDU_FLAG_CREDS_REQD     0x8
+#define PCP_PDU_FLAG_CREDS_REQD     0x0008
       { PCP_PDU_FLAG_CREDS_REQD,    "CREDS_REQD" },
-#define PCP_PDU_FLAG_SECURE_ACK     0x10
+#define PCP_PDU_FLAG_SECURE_ACK     0x0010
       { PCP_PDU_FLAG_SECURE_ACK,    "SECURE_ACK" },
-#define PCP_PDU_FLAG_NO_NSS_INIT    0x20
+#define PCP_PDU_FLAG_NO_NSS_INIT    0x0020
       { PCP_PDU_FLAG_NO_NSS_INIT,   "NO_NSS_INIT" },
-#define PCP_PDU_FLAG_CONTAINER      0x40
+#define PCP_PDU_FLAG_CONTAINER      0x0040
       { PCP_PDU_FLAG_CONTAINER,     "CONTAINER" },
-#define PCP_PDU_FLAG_CERT_REQD      0x80
+#define PCP_PDU_FLAG_CERT_REQD      0x0080
       { PCP_PDU_FLAG_CERT_REQD,     "CERT_REQD" },
-#define PCP_PDU_FLAG_BAD_LABEL      0x100
+#define PCP_PDU_FLAG_BAD_LABEL      0x0100
       { PCP_PDU_FLAG_BAD_LABEL,     "BAD_LABEL" },
-#define PCP_PDU_FLAG_LABELS         0x200
+#define PCP_PDU_FLAG_LABELS         0x0200
       { PCP_PDU_FLAG_LABELS,        "LABELS" },
       { 0, NULL }
 };
