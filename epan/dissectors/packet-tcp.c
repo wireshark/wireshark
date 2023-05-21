@@ -7642,7 +7642,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     tcpd->ta->flags|=TCP_A_REUSED_PORTS;
 
                     /* As above, a new conversation starting with a SYN implies conversation completeness value 1 */
-                    tcpd->conversation_completeness = 1;
+                    conversation_is_new = TRUE;
                 }
             } else {
                 if (!(pinfo->fd->visited)) {
@@ -7660,6 +7660,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                         tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
                 }
             }
+        }
+        else {
+            /*
+             * TCP_S_BASE_SEQ_SET being not set, we are dealing with a new conversation,
+             * either created ad hoc above (general case), or by a higher protocol such as FTP.
+             * Track this information, as the Completeness value will be initialized later.
+             * See issue 19092.
+             */
+            if (!(pinfo->fd->visited))
+                conversation_is_new = TRUE;
         }
         tcpd->had_acc_ecn_setup_syn = (tcph->th_flags & (TH_AE|TH_CWR|TH_ECE)) == (TH_AE|TH_CWR|TH_ECE);
     }
