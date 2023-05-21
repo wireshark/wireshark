@@ -57,7 +57,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
 {
     const char *str;
     char *endptr;
-    gint32 lower, upper;
+    gint32 lower, upper = 0;
     drange_node_end_t end = DRANGE_NODE_END_T_UNINITIALIZED;
     drange_node *dn;
     gboolean ok;

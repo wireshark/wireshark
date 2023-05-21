@@ -1636,7 +1636,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     dfilter_t  *dfcode = NULL;
     column_info *cinfo;
     gboolean    create_proto_tree;
-    gboolean    filtering_tap_listeners;
+    gboolean    filtering_tap_listeners = FALSE;
     guint       tap_flags;
     gboolean    add_to_packet_list = FALSE;
     gboolean    compiled _U_;
