@@ -731,6 +731,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>…as decimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as bits</source>
         <translation type="unfinished"></translation>
     </message>

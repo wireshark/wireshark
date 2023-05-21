@@ -730,6 +730,14 @@
         <translation>Visa byte hexadecimalt</translation>
     </message>
     <message>
+        <source>…as decimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as bits</source>
         <translation>… som bitar</translation>
     </message>
