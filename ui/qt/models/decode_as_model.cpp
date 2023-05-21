@@ -29,14 +29,14 @@ static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary
 static const char *DEFAULT_UI_TABLE = "TCP port";    // Arbitrary
 
 DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector) :
- default_dissector_(DECODE_AS_NONE),
  current_dissector_(DECODE_AS_NONE),
  dissector_handle_(NULL),
  tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
  selectorString_(""),
- selectorDCERPC_(NULL)
+ selectorDCERPC_(NULL),
+ default_dissector_(DECODE_AS_NONE)
 {
     if (table_name == nullptr)
         return;
@@ -45,14 +45,14 @@ DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector) :
 }
 
 DecodeAsItem::DecodeAsItem(const decode_as_t *entry, gconstpointer selector) :
- default_dissector_(DECODE_AS_NONE),
  current_dissector_(DECODE_AS_NONE),
  dissector_handle_(NULL),
  tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
  selectorString_(""),
- selectorDCERPC_(NULL)
+ selectorDCERPC_(NULL),
+ default_dissector_(DECODE_AS_NONE)
 {
     if (entry == nullptr)
         return;
@@ -272,7 +272,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
             break;
         }
         case colDefault:
-            return item->default_dissector_;
+            return item->defaultDissector();
         case colProtocol:
             return item->current_dissector_;
         }
@@ -517,7 +517,11 @@ prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(gchar *key, const gchar *value
     QString selector(values[1]);
     item->setSelector(selector);
 
-    item->default_dissector_ = values[2];
+    /* The value for the default dissector in the decode_as_entries file
+     * has no effect other than perhaps making the config file more
+     * informative when edited manually.
+     * We will actually display and reset to the programmatic default value.
+     */
     item->dissector_handle_ = dissector_table_get_dissector_handle(dissector_table, values[3]);
     if (item->dissector_handle_) {
         item->current_dissector_ = values[3];

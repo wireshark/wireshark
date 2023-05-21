@@ -36,13 +36,13 @@ public:
     uint selectorUint() const { return selectorUint_; }
     QString selectorString() const { return selectorString_; }
     decode_dcerpc_bind_values_t* selectorDCERPC() const { return selectorDCERPC_; }
+    QString defaultDissector() const { return default_dissector_; }
     void setTable(const decode_as_t *entry);
     void setSelector(const QString &value);
 
     void updateHandles();
 
 
-    QString default_dissector_;
     QString current_dissector_;
     dissector_handle_t  dissector_handle_;
 
@@ -57,6 +57,8 @@ private:
     uint selectorUint_;
     QString selectorString_;
     decode_dcerpc_bind_values_t* selectorDCERPC_; //for special handling of DCE/RPC
+
+    QString default_dissector_;
 };
 
 class DecodeAsModel : public QAbstractTableModel
