@@ -1211,7 +1211,7 @@ static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 
 		data_flag_tree = proto_tree_add_subtree_format(single_phasor_scaling_and_flags_tree, tvb, offset, 4,
 							       ett_conf_phflags, NULL, "Phasor Data flags: %s",
-							       conf_phasor_type[tvb_get_guint8(tvb, offset + 2)].strptr);
+							       val_to_str_const(tvb_get_guint8(tvb, offset + 2), conf_phasor_type, "Unknown"));
 
 		/* first and second bytes - phasor modification flags*/
 		phasor_flag1_tree = proto_tree_add_subtree_format(data_flag_tree, tvb, offset, 2, ett_conf_phmod_flags,
