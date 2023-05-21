@@ -36,6 +36,23 @@ How to build Wireshark from source:
 
 The application should be launched using the same shell.
 
+How to build an NSIS stand-alone binary installer:
+
+1. Follow the instructions above to compile Wireshark from source.
+
+2. Build the Wireshark User Guide.
+
+    $ ninja user_guide_html
+
+3. Download Npcap and USBpcap and copy them to ${CMAKE_BINARY_DIR}/packaging/nsis.
+
+4. Build the installer
+
+    $ ninja wireshark_nsis_prep
+    $ ninja wireshark_nsis
+
+If successful the installer can be found in ${CMAKE_BINARY_DIR}/packaging/nsis.
+
 Alternatively you can also use the PKGBUILD included in the Wireshark
 source distribution to compile Wireshark into a binary package that can be
 installed using pacman[3].
@@ -52,9 +69,6 @@ the build using MSVC:
 
 * AirPcap is not available. AirPcap is EOL and currently there is no plan to
   add support for it with MinGW-w64 builds.
-
-* TODO: Add a stand-alone distributable binary installer that can be
-  deployed outside the MSYS2 environment.
 
 References:
 

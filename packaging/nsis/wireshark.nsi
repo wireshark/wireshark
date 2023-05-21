@@ -521,6 +521,7 @@ File "${STAGING_DIR}\dumpcap.html"
 File "${STAGING_DIR}\extcap.html"
 File "${STAGING_DIR}\ipmap.html"
 
+!ifdef USE_VCREDIST
 ; C-runtime redistributable
 ; vc_redist.x64.exe or vc_redist.x86.exe - copy and execute the redistributable installer
 File "${VCREDIST_DIR}\${VCREDIST_EXE}"
@@ -553,6 +554,7 @@ ${Switch} $0
 ${EndSwitch}
 
 Delete "$INSTDIR\${VCREDIST_EXE}"
+!endif
 
 
 ; global config files - don't overwrite if already existing
@@ -973,13 +975,15 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Pa
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
 !include wireshark-qt-manifest.nsh
 
-${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
-SetOutPath $INSTDIR
-!ifdef TRANSLATIONS_FOLDER
-  ; Starting from Qt 5.5, *.qm files are put in a translations subfolder
-  File /r "${QT_DIR}\translations"
-!else
-  File "${QT_DIR}\*.qm"
+!ifndef SKIP_QT_TRANSLATIONS
+  ${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
+  SetOutPath $INSTDIR
+  !ifdef TRANSLATIONS_FOLDER
+    ; Starting from Qt 5.5, *.qm files are put in a translations subfolder
+    File /r "${QT_DIR}\translations"
+  !else
+    File "${QT_DIR}\*.qm"
+  !endif
 !endif
 
 ; Is the Start Menu check box checked?
@@ -1162,11 +1166,13 @@ Section /o "Androiddump" SecAndroiddump
 SectionEnd
 !insertmacro CheckExtrasFlag "androiddump"
 
+!ifdef HAVE_ETWDUMP
 Section "Etwdump" SecEtwdump
 ;-------------------------------------------
   !insertmacro InstallExtcap "Etwdump"
 SectionEnd
 !insertmacro CheckExtrasFlag "Etwdump"
+!endif
 
 Section /o "Randpktdump" SecRandpktdump
 ;-------------------------------------------
@@ -1253,7 +1259,9 @@ SectionEnd
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecExtcapGroup} "External Capture Interfaces"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddump} "Provide capture interfaces from Android devices."
+  !ifdef HAVE_ETWDUMP
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEtwdump} "Provide an interface to read Event Tracing for Windows (ETW) event trace (ETL)."
+  !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdump} "Provide an interface to the random packet generator. (see also randpkt)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdump} "Provide remote capture through SSH. (tcpdump, Cisco EPC, wifi)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface to receive UDP packets streamed from network devices."

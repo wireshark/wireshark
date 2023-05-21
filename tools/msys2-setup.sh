@@ -82,6 +82,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-qt6-base \
 	${PACKAGE_PREFIX}-qt6-multimedia \
 	${PACKAGE_PREFIX}-qt6-tools \
+	${PACKAGE_PREFIX}-qt6-translations \
 	${PACKAGE_PREFIX}-qt6-5compat \
 	${PACKAGE_PREFIX}-sbc \
 	${PACKAGE_PREFIX}-snappy \
@@ -97,7 +98,8 @@ ADDITIONAL_LIST="${PACKAGE_PREFIX}-asciidoctor \
 	${PACKAGE_PREFIX}-docbook-xsl \
 	${PACKAGE_PREFIX}-doxygen \
 	${PACKAGE_PREFIX}-libxslt \
-	${PACKAGE_PREFIX}-perl"
+	${PACKAGE_PREFIX}-perl \
+	${PACKAGE_PREFIX}-ntldd"
 
 TESTDEPS_LIST="${PACKAGE_PREFIX}-python-pytest \
 	${PACKAGE_PREFIX}-python-pytest-xdist"

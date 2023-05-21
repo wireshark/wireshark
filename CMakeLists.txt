@@ -178,10 +178,10 @@ if(WIN32)
 and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 	)
 
+	find_package(PowerShell REQUIRED)
+
 	# Determine where the 3rd party libraries will be
 	if(USE_REPOSITORY)
-		find_package(PowerShell REQUIRED)
-
 		if( DEFINED ENV{WIRESHARK_LIB_DIR} )
 			# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
 			file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
@@ -213,6 +213,8 @@ and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 		set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
 
 		# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
+	else()
+		set(EXTRA_INSTALLER_DIR ${CMAKE_BINARY_DIR}/packaging/nsis)
 	endif()
 endif(WIN32)
 
@@ -1397,8 +1399,13 @@ if (QT_FOUND)
 	)
 	# Use qmake to find windeployqt and macdeployqt. Ideally one of
 	# the modules in ${QTDIR}/lib/cmake would do this for us.
-	if(WIN32 AND NOT USE_MSYSTEM)
-		find_program(QT_WINDEPLOYQT_EXECUTABLE windeployqt
+	if(WIN32)
+		if (USE_qt6 AND USE_MSYSTEM)
+			set(_windeployqt_name "windeployqt-qt6")
+		else()
+			set(_windeployqt_name "windeployqt")
+		endif()
+		find_program(QT_WINDEPLOYQT_EXECUTABLE ${_windeployqt_name}
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the windeployqt utility."
 		)
@@ -2263,7 +2270,7 @@ endif()
 # List of extra dependencies for the "copy_data_files" target
 set(copy_data_files_depends)
 
-if(WIN32 AND NOT USE_MSYSTEM)
+if(WIN32)
 	foreach(_install_as_txt_file COPYING NEWS README.md README.windows)
 		# On Windows, install some files with a .txt extension so that they're
 		# double-clickable.
@@ -2720,6 +2727,13 @@ if(BUILD_wireshark AND QT_FOUND)
 		set_target_properties(copy_qt_dlls PROPERTIES FOLDER "Copy Tasks")
 		# Will we ever need to use --debug? Windeployqt seems to
 		# be smart enough to copy debug DLLs when needed.
+		if (USE_MSYSTEM AND Qt${qtver}Widgets_VERSION VERSION_EQUAL 6.5.0)
+			# windeployqt released with Qt 6.5.0 is broken.
+			# https://bugreports.qt.io/browse/QTBUG-112204
+			message(WARNING "Qt Deploy Tool 6.5.0 is broken, skipping translations.")
+			list(APPEND QT_WINDEPLOYQT_EXTRA_ARGS --no-translations)
+			set(SKIP_QT_TRANSLATIONS True)
+		endif()
 		add_custom_command(TARGET copy_qt_dlls
 			POST_BUILD
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
@@ -3263,7 +3277,7 @@ if(BUILD_dcerpcidl2wrs)
 	install(TARGETS idl2wrs RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if(MSVC)
+if(WIN32)
 	find_package( MSVC_REDIST )
 
 	# Must come after executable targets are defined.
