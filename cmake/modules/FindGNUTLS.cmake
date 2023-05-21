@@ -36,7 +36,7 @@ find_library(GNUTLS_LIBRARY
     gnutls libgnutls-28 libgnutls-30
   HINTS
     "${GNUTLS_LIBDIR}"
-    "${GNUTLS_HINTS}/bin"
+    "${GNUTLS_HINTS}/lib"
 )
 
 # On systems without pkg-config (e.g. Windows), search its header
@@ -69,6 +69,8 @@ if(GNUTLS_FOUND)
       "${GNUTLS_DLL_DIR}/libffi-*.dll"
       "${GNUTLS_DLL_DIR}/libgnutls-*.dll"
       "${GNUTLS_DLL_DIR}/libhogweed-*.dll"
+      "${GNUTLS_DLL_DIR}/libiconv-*.dll"
+      "${GNUTLS_DLL_DIR}/libintl-*.dll"
       "${GNUTLS_DLL_DIR}/libnettle-*.dll"
       "${GNUTLS_DLL_DIR}/libp11-kit-*.dll"
       "${GNUTLS_DLL_DIR}/libtasn1-*.dll"
