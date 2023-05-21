@@ -94,8 +94,7 @@ else ()
       CACHE PATH "Path to libssh DLLs"
     )
     file(GLOB _libssh_dlls RELATIVE "${LIBSSH_DLL_DIR}"
-      "${LIBSSH_DLL_DIR}/ssh.dll"
-      "${LIBSSH_DLL_DIR}/pthreadVC3.dll"
+      "${LIBSSH_DLL_DIR}/libssh.dll"
     )
     set(LIBSSH_DLLS ${_libssh_dlls}
       # We're storing filenames only. Should we use STRING instead?
