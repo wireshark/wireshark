@@ -911,10 +911,6 @@ static int hf_h248_pkg_tdmc_gain = -1;
 
 static gint ett_h248_pkg_tdmc = -1;
 
-static const true_false_string h248_tdmc_ec_vals = {
-	"On",
-	"Off"
-};
 static const value_string h248_pkg_tdmc_props_vals[] = {
 	{ 0x0000, "TDM Circuit Package - Annex E (tdmc)" },
 	{ 0x0008, "Echo Cancellation (ec)"},
@@ -1053,7 +1049,7 @@ void proto_register_h248_annex_e(void) {
 
 		/* H.248.1 E.13 TDM Circuit Package */
 		{ &hf_h248_pkg_tdmc, { "TDM Circuit Package", "h248.tdmc", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tdmc_ec, { "Echo Cancellation", "h248.tdmc.ec", FT_BOOLEAN, BASE_NONE, TFS(&h248_tdmc_ec_vals), 0x0, NULL, HFILL }},
+		{ &hf_h248_pkg_tdmc_ec, { "Echo Cancellation", "h248.tdmc.ec", FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0, NULL, HFILL }},
 		{ &hf_h248_pkg_tdmc_gain, { "Gain", "h248.tdmc.gain", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
 

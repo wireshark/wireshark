@@ -13,6 +13,7 @@ import signal
 
 # This utility scans for tfs items, and works out if standard ones
 # could have been used intead (from epan/tfs.c)
+# Can also check for value_string where common tfs could be used instead.
 
 # TODO:
 # - check how many of the definitions in epan/tfs.c are used in other dissectors
@@ -144,7 +145,7 @@ def findItems(filename):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'.*const\s*true_false_string\s*([a-z_]*)\s*=\s*{\s*\"([a-zA-Z_ ]*)\"\s*,\s*\"([a-zA-Z_ ]*)\"', contents)
+        matches =   re.finditer(r'.*const\s*true_false_string\s*([a-zA-Z0-9_]*)\s*=\s*{\s*\"([a-zA-Z_0-9 ]*)\"\s*,\s*\"([a-zA-Z_0-9 ]*)\"', contents)
         for m in matches:
             name = m.group(1)
             val1 = m.group(2)
@@ -171,7 +172,7 @@ def findValueStrings(filename):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z\s\"]*)\};', contents)
+        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9\s\"]*)\};', contents)
         for m in matches:
             name = m.group(1)
             vals = m.group(2)

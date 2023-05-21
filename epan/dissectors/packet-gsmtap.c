@@ -1138,11 +1138,6 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	return tvb_captured_length(tvb);
 }
 
-static const true_false_string sacch_l1h_fpc_mode_vals = {
-	"In use",
-	"Not in use"
-};
-
 void
 proto_register_gsmtap(void)
 {
@@ -1187,7 +1182,7 @@ proto_register_gsmtap(void)
 		{ &hf_sacch_l1h_power_lev, { "MS power level", "gsmtap.sacch_l1.power_lev",
 		  FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
 		{ &hf_sacch_l1h_fpc, { "FPC (Fast Power Control)", "gsmtap.sacch_l1.fpc",
-		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x20, NULL, HFILL } },
+		  FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), 0x20, NULL, HFILL } },
 		{ &hf_sacch_l1h_sro_srr, { "SRO/SRR (SACCH Repetition)", "gsmtap.sacch_l1.sro_srr",
 		  FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x40, NULL, HFILL } },
 		{ &hf_sacch_l1h_ta, { "Actual Timing Advance", "gsmtap.sacch_l1.ta",

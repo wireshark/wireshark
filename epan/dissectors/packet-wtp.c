@@ -53,11 +53,6 @@ static const true_false_string UP_truth = {
     "User Acknowledgement optional"
 };
 
-static const true_false_string TVETOK_truth = {
-    "True",
-    "False"
-};
-
 static const value_string vals_wtp_pdu_type[] = {
     { 0, "Not Allowed" },
     { 1, "Invoke" },
@@ -864,7 +859,7 @@ proto_register_wtp(void)
         },
         { &hf_wtp_header_Ack_flag_TVETOK,
             { "Tve/Tok flag", "wtp.ack.tvetok",
-                FT_BOOLEAN, 8, TFS( &TVETOK_truth ), 0x04,
+                FT_BOOLEAN, 8, TFS( &tfs_true_false ), 0x04,
                 NULL, HFILL
             }
     },

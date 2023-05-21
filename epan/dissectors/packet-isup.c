@@ -2134,7 +2134,7 @@ static const value_string isup_generic_name_type_value[] = {
 
 static const true_false_string isup_INN_ind_value = {
   "routing to internal network number not allowed",
-  "routing to internal network number allowed "
+  "routing to internal network number allowed"
 };
 static const true_false_string isup_NI_ind_value = {
   "incomplete",
@@ -5698,10 +5698,6 @@ dissect_isup_optional_backward_call_indicators_parameter(tvbuff_t *parameter_tvb
 /* ------------------------------------------------------------------
   Dissector Parameter User-to-user indicators
  */
-static const true_false_string isup_UUI_type_value = {
-  "Response",
-  "Request"
-};
 static const value_string isup_UUI_request_service_values[] = {
   { 0,  "No information"},
   { 1,  "Spare"},
@@ -11202,7 +11198,7 @@ proto_register_isup(void)
 
     { &hf_isup_UUI_type,
       { "User-to-User indicator type",  "isup.UUI_type",
-        FT_BOOLEAN, 8, TFS(&isup_UUI_type_value), A_8BIT_MASK,
+        FT_BOOLEAN, 8, TFS(&tfs_response_request), A_8BIT_MASK,
         NULL, HFILL }},
 
     { &hf_isup_UUI_req_service1,
