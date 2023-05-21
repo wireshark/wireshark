@@ -7518,7 +7518,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
                     if(!tcpd->ta)
                         tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
-                    tcpd->ta->flags|=TCP_A_REUSED_PORTS;
                 }
             }
         }
