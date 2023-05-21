@@ -358,16 +358,14 @@ void DecodeAsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     case DecodeAsModel::colProtocol:
         {
         QComboBox *combobox = static_cast<QComboBox *>(editor);
-        const QString &data = combobox->currentText();
-        model->setData(index, data, Qt::EditRole);
 
         //set the dissector handle
         QVariant var = combobox->itemData(combobox->currentIndex());
         dissector_info_t* dissector_info = VariantPointer<dissector_info_t>::asPtr(var);
         if (dissector_info != NULL) {
-            ((DecodeAsModel*)model)->setDissectorHandle(index, dissector_info->dissector_handle);
+            model->setData(index, VariantPointer<dissector_handle>::asQVariant(dissector_info->dissector_handle), Qt::EditRole);
         } else {
-            ((DecodeAsModel*)model)->setDissectorHandle(index, NULL);
+            model->setData(index, QVariant(), Qt::EditRole);
         }
         break;
         }

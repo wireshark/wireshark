@@ -20,6 +20,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/variant_pointer.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
 
@@ -29,14 +30,14 @@ static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary
 static const char *DEFAULT_UI_TABLE = "TCP port";    // Arbitrary
 
 DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector) :
- current_dissector_(DECODE_AS_NONE),
- dissector_handle_(NULL),
  tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
  selectorString_(""),
  selectorDCERPC_(NULL),
- default_dissector_(DECODE_AS_NONE)
+ default_dissector_(DECODE_AS_NONE),
+ current_dissector_(DECODE_AS_NONE),
+ dissector_handle_(NULL)
 {
     if (table_name == nullptr)
         return;
@@ -45,14 +46,14 @@ DecodeAsItem::DecodeAsItem(const char* table_name, gconstpointer selector) :
 }
 
 DecodeAsItem::DecodeAsItem(const decode_as_t *entry, gconstpointer selector) :
- current_dissector_(DECODE_AS_NONE),
- dissector_handle_(NULL),
  tableName_(DEFAULT_TABLE),
  tableUIName_(DEFAULT_UI_TABLE),
  selectorUint_(0),
  selectorString_(""),
  selectorDCERPC_(NULL),
- default_dissector_(DECODE_AS_NONE)
+ default_dissector_(DECODE_AS_NONE),
+ current_dissector_(DECODE_AS_NONE),
+ dissector_handle_(NULL)
 {
     if (entry == nullptr)
         return;
@@ -129,6 +130,16 @@ void DecodeAsItem::setSelector(const QString &value)
     }
 
     updateHandles();
+}
+
+void DecodeAsItem::setDissectorHandle(dissector_handle_t handle)
+{
+    dissector_handle_ = handle;
+    if (handle == nullptr) {
+        current_dissector_ = DECODE_AS_NONE;
+    } else {
+        current_dissector_ = dissector_handle_get_description(handle);
+    }
 }
 
 void DecodeAsItem::updateHandles()
@@ -274,7 +285,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         case colDefault:
             return item->defaultDissector();
         case colProtocol:
-            return item->current_dissector_;
+            return item->currentDissector();
         }
         return QVariant();
 
@@ -363,8 +374,11 @@ bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value,
         }
         break;
     case DecodeAsModel::colProtocol:
-        item->current_dissector_ = value.toString();
+    {
+        dissector_handle_t handle = VariantPointer<dissector_handle>::asPtr(value);
+        item->setDissectorHandle(handle);
         break;
+    }
     case DecodeAsModel::colSelector:
         item->setSelector(value.toString());
         emit dataChanged(index(cur_index.row(), colDefault),
@@ -522,10 +536,7 @@ prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(gchar *key, const gchar *value
      * informative when edited manually.
      * We will actually display and reset to the programmatic default value.
      */
-    item->dissector_handle_ = dissector_table_get_dissector_handle(dissector_table, values[3]);
-    if (item->dissector_handle_) {
-        item->current_dissector_ = values[3];
-    }
+    item->setDissectorHandle(dissector_table_get_dissector_handle(dissector_table, values[3]));
 
     model->decode_as_items_ << item;
     g_strfreev(values);
@@ -638,7 +649,7 @@ void DecodeAsModel::setDissectorHandle(const QModelIndex &index, dissector_handl
 {
     DecodeAsItem* item = decode_as_items_[index.row()];
     if (item != NULL)
-        item->dissector_handle_ = dissector_handle;
+        item->setDissectorHandle(dissector_handle);
 }
 
 void DecodeAsModel::buildChangedList(const gchar *table_name, ftenum_t, gpointer key, gpointer value, gpointer user_data)
@@ -648,15 +659,10 @@ void DecodeAsModel::buildChangedList(const gchar *table_name, ftenum_t, gpointer
         return;
 
     dissector_handle_t current_dh;
-    QString current_dissector(DECODE_AS_NONE);
     DecodeAsItem* item = new DecodeAsItem(table_name, key);
 
     current_dh = dtbl_entry_get_handle((dtbl_entry_t *)value);
-    if (current_dh) {
-        current_dissector = QString(dissector_handle_get_description(current_dh));
-    }
-    item->current_dissector_ = current_dissector;
-    item->dissector_handle_ = current_dh;
+    item->setDissectorHandle(current_dh);
 
     model->decode_as_items_ << item;
 }
@@ -677,10 +683,7 @@ void DecodeAsModel::buildDceRpcChangedList(gpointer data, gpointer user_data)
 
     guid_val.ver = binding->ver;
     guid_val.guid = binding->uuid;
-    item->dissector_handle_ = dissector_get_guid_handle(sub_dissectors, &guid_val);
-    if (item->dissector_handle_) {
-        item->current_dissector_ = QString(dissector_handle_get_description(item->dissector_handle_));
-    }
+    item->setDissectorHandle(dissector_get_guid_handle(sub_dissectors, &guid_val));
 
     model->decode_as_items_ << item;
 }
@@ -760,7 +763,7 @@ void DecodeAsModel::applyChanges()
     foreach(DecodeAsItem *item, decode_as_items_) {
         decode_as_t       *decode_as_entry;
 
-        if (item->current_dissector_.isEmpty()) {
+        if (item->currentDissector().isEmpty()) {
             continue;
         }
 
@@ -804,14 +807,14 @@ void DecodeAsModel::applyChanges()
                     continue;
                 }
 
-                if ((item->current_dissector_ == DECODE_AS_NONE) || !item->dissector_handle_) {
+                if ((item->currentDissector() == DECODE_AS_NONE) || !item->dissectorHandle()) {
                     decode_as_entry->reset_value(decode_as_entry->table_name, selector_value);
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
                     /* For now, only numeric dissector tables can use preferences */
                     if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
-                        if (item->dissector_handle_ != NULL) {
-                            module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissector_handle_)));
+                        if (item->dissectorHandle() != NULL) {
+                            module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
                             pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                             if (pref_value != NULL) {
                                 module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
@@ -821,12 +824,12 @@ void DecodeAsModel::applyChanges()
                     }
                     break;
                 } else {
-                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &item->dissector_handle_, item->current_dissector_.toUtf8().constData());
+                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, item->dissectorHandle(), item->currentDissector().toUtf8().constData());
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
                     /* For now, only numeric dissector tables can use preferences */
                     if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
-                        module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissector_handle_)));
+                        module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
                         pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                         if (pref_value != NULL) {
                             module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
