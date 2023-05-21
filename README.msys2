@@ -10,37 +10,48 @@ for example using the UCRT64 shell:
 
 If you wish to build wireshark from source code keep reading.
 
+MSYS2 comes with different environments/subsystems and the first thing you
+have to decide is which one to use. The differences among the environments
+are mainly environment variables, default compilers/linkers, architecture,
+system libraries used etc. If you are unsure, go with UCRT64.
+
 How to build Wireshark from source:
 
 1. Open the shell for the selected 64-bit environment.
 
-2. Install needed dependencies:
+2. Download the Wireshark source code using Git, if you haven't done so already,
+   and cd into that directory.
 
-    $ cd $srcdir
+3. Install needed dependencies:
+
     $ tools/msys2-setup.sh --install-all
 
-3. Build using CMake + Ninja:
+4. Build using CMake + Ninja:
 
     $ mkdir build && cd build
-    $ cmake -DENABLE_CCACHE=On ..
+    $ cmake -DENABLE_WERROR=Off ..
     $ ninja
-    $ ninja test        # optional
-    $ ninja install     # optional
+    $ ninja test        # optional, to run the test suite
+    $ ninja install     # optional, install to the MSYS2 shell path
 
-The application should be launched using the same shell. Alternatively you
-can also use the PKGBUILD included in the Wireshark distribution.
+The application should be launched using the same shell.
 
-Currently the MSYS2 build has the following limitations compared to
-the build using Visual Studio (MSVC):
+Alternatively you can also use the PKGBUILD included in the Wireshark
+source distribution to compile Wireshark into a binary package that can be
+installed using pacman[3].
+
+The official Wireshark Windows installer is compiled using Microsoft Visual
+Studio (MSVC). Currently the MSYS2 build has the following limitations compared to
+the build using MSVC:
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
-* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have UTF-8 patches[2].
+* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have custom UTF-8 patches[2].
 
 * Enhanced Kerberos dissection with decryption is not available.
 
-* AirPcap SDK is not available. AirPcap is EOL and currently there is no plan to
-  add support for it with MSYS2 builds.
+* AirPcap is not available. AirPcap is EOL and currently there is no plan to
+  add support for it with MinGW-w64 builds.
 
 * TODO: Add a stand-alone distributable binary installer that can be
   deployed outside the MSYS2 environment.
@@ -49,3 +60,4 @@ References:
 
 [1]https://packages.msys2.org/base/mingw-w64-wireshark
 [2]https://github.com/Lekensteyn/lua-unicode
+[3]https://www.msys2.org/wiki/Creating-Packages/
