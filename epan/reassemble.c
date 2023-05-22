@@ -389,7 +389,7 @@ free_fd_head(fragment_head *fd_head)
 	g_slice_free(fragment_head, fd_head);
 }
 
-void
+static void
 unref_fd_head(gpointer data)
 {
 	fragment_head *fd_head = (fragment_head *) data;
@@ -398,6 +398,38 @@ unref_fd_head(gpointer data)
 	if (fd_head->ref_count == 0) {
 		free_fd_head(fd_head);
 	}
+}
+
+static void
+reassembled_table_insert(GHashTable *reassembled_table, reassembled_key *key, fragment_head *fd_head)
+{
+	fragment_head *old_fd_head;
+	fd_head->ref_count++;
+	if ((old_fd_head = g_hash_table_lookup(reassembled_table, key)) != NULL) {
+		if (old_fd_head->ref_count == 1) {
+			/* We're replacing the last entry in the reassembled
+			 * table for an old reassembly. Does it have a tvb?
+			 * We might still be using that tvb's memory for an
+			 * address via set_address_tvb(). (See #19094.)
+			 */
+			if (old_fd_head->tvb_data && fd_head->tvb_data) {
+				/* Free it when the new tvb is freed */
+				tvb_set_child_real_data_tvbuff(fd_head->tvb_data, old_fd_head->tvb_data);
+			}
+			/* XXX: Set the old data to NULL regardless. If we
+			 * have old data but not new data, that is odd (we're
+			 * replacing a reassembly with tvb data with something
+			 * with no tvb data, possibly because a zero length or
+			 * null tvb was passed into a defragment function,
+			 * which is a dissector bug.)
+			 * This leaks the tvb data if we couldn't add it to
+			 * a new tvb's chain, but we might not be able to free
+			 * it yet if set_address_tvb() was used.
+			 */
+			old_fd_head->tvb_data = NULL;
+		}
+	}
+	g_hash_table_insert(reassembled_table, key, fd_head);
 }
 
 typedef struct register_reassembly_table {
@@ -997,6 +1029,7 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 	reassembled_key *new_key;
 	fragment_item *fd;
 
+	fd_head->ref_count = 0;
 	if (fd_head->next == NULL) {
 		/*
 		 * This was not fragmented, so there's no fragment
@@ -1005,20 +1038,16 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 		new_key = g_slice_new(reassembled_key);
 		new_key->frame = pinfo->num;
 		new_key->id = id;
-		fd_head->ref_count = 1;
-		g_hash_table_insert(table->reassembled_table, new_key, fd_head);
+		reassembled_table_insert(table->reassembled_table, new_key, fd_head);
 	} else {
 		/*
 		 * Hash it with the frame numbers for all the frames.
 		 */
-		fd_head->ref_count = 0;
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
 			new_key = g_slice_new(reassembled_key);
 			new_key->frame = fd->frame;
 			new_key->id = id;
-			fd_head->ref_count++;
-			g_hash_table_insert(table->reassembled_table, new_key,
-				fd_head);
+			reassembled_table_insert(table->reassembled_table, new_key, fd_head);
 		}
 	}
 	fd_head->flags |= FD_DEFRAGMENTED;
@@ -1038,6 +1067,7 @@ fragment_reassembled_single(reassembly_table *table, fragment_head *fd_head,
 	reassembled_key *new_key;
 	fragment_item *fd;
 
+	fd_head->ref_count = 0;
 	if (fd_head->next == NULL) {
 		/*
 		 * This was not fragmented, so there's no fragment
@@ -1046,20 +1076,16 @@ fragment_reassembled_single(reassembly_table *table, fragment_head *fd_head,
 		new_key = g_slice_new(reassembled_key);
 		new_key->frame = pinfo->num;
 		new_key->id = id;
-		fd_head->ref_count = 1;
-		g_hash_table_insert(table->reassembled_table, new_key, fd_head);
+		reassembled_table_insert(table->reassembled_table, new_key, fd_head);
 	} else {
 		/*
 		 * Hash it with the frame numbers for all the frames.
 		 */
-		fd_head->ref_count = 0;
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
 			new_key = g_slice_new(reassembled_key);
 			new_key->frame = fd->frame;
 			new_key->id = id + fd->offset;
-			fd_head->ref_count++;
-			g_hash_table_insert(table->reassembled_table, new_key,
-				fd_head);
+			reassembled_table_insert(table->reassembled_table, new_key, fd_head);
 		}
 	}
 	fd_head->flags |= FD_DEFRAGMENTED;
@@ -1767,8 +1793,7 @@ fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const i
 			reassembled_key *new_key = g_slice_new(reassembled_key);
 			new_key->frame = pinfo->num;
 			new_key->id = id;
-			fd_head->ref_count++;
-			g_hash_table_insert(table->reassembled_table, new_key, fd_head);
+			reassembled_table_insert(table->reassembled_table, new_key, fd_head);
 			late_retransmission = TRUE;
 		}
 	}
@@ -2796,8 +2821,7 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 			new_key = g_slice_new(reassembled_key);
 			new_key->frame = pinfo->num;
 			new_key->id = id;
-			fd_head->ref_count++;
-			g_hash_table_insert(table->reassembled_table, new_key, fd_head);
+			reassembled_table_insert(table->reassembled_table, new_key, fd_head);
 		}
 
 		return fd_head;
