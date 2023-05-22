@@ -1190,6 +1190,8 @@ static int hf_rtps_flag_data_present_v1                         = -1;
 static int hf_rtps_flag_multisubmessage                         = -1;
 static int hf_rtps_flag_endianness                              = -1;
 static int hf_rtps_flag_additional_authenticated_data           = -1;
+static int hf_rtps_flag_protected_with_psk                      = -1;
+static int hf_rtps_flag_transport_specific_message              = -1;
 static int hf_rtps_flag_status_info                             = -1;
 static int hf_rtps_flag_data_present_v2                         = -1;
 static int hf_rtps_flag_inline_qos_v2                           = -1;
@@ -2472,13 +2474,13 @@ static int* const SECURE_FLAGS[] = {
 };
 
 static int* const SECURE_PREFIX_FLAGS[] = {
-  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_transport_specific_message,     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
   &hf_rtps_flag_reserved10,                     /* Bit 4 */
   &hf_rtps_flag_reserved08,                     /* Bit 3 */
-  &hf_rtps_flag_reserved04,                     /* Bit 2 */
-  &hf_rtps_flag_additional_authenticated_data,   /* Bit 1 */
+  &hf_rtps_flag_protected_with_psk,             /* Bit 2 */
+  &hf_rtps_flag_additional_authenticated_data,  /* Bit 1 */
   &hf_rtps_flag_endianness,                     /* Bit 0 */
   NULL
 };
@@ -2800,6 +2802,8 @@ static const fragment_items rtps_frag_items = {
     &hf_rtps_reassembled_data,
     "RTPS fragments"
 };
+
+static const true_false_string tfs_little_big_endianness = { "Little-Endian", "Big-Endian" };
 
 static guint32 check_offset_addition(guint32 offset, guint32 value, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
@@ -15864,12 +15868,20 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
     },
     { &hf_rtps_flag_endianness, {
-        "Endianness bit", "rtps.flag.endianness",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+        "Endianness", "rtps.flag.endianness",
+        FT_BOOLEAN, 8, TFS(&tfs_little_big_endianness), 0x01, NULL, HFILL }
     },
     { &hf_rtps_flag_additional_authenticated_data, {
-        "Additional Authenticated Data bit", "rtps.flag.additional_authenticated_data",
+        "Additional Authenticated Data", "rtps.flag.additional_authenticated_data",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_protected_with_psk, {
+        "Message protected with PSK", "rtps.flag.message_protected_with_psk",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_transport_specific_message, {
+        "Transport-Specific Message", "rtps.flag.transport_specific_message",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }
     },
     { &hf_rtps_flag_inline_qos_v2, {
         "Inline QoS", "rtps.flag.inline_qos",
