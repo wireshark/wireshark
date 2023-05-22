@@ -5827,7 +5827,7 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_axis_rx,
-            { "Rz Axis", "usbhid.data.axis.rx", FT_INT32, BASE_DEC,
+            { "Rx Axis", "usbhid.data.axis.rx", FT_INT32, BASE_DEC,
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_axis_ry,
@@ -5843,7 +5843,7 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_axis_vx,
-            { "Vz Axis", "usbhid.data.axis.vx", FT_INT32, BASE_DEC,
+            { "Vx Axis", "usbhid.data.axis.vx", FT_INT32, BASE_DEC,
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_axis_vy,
@@ -5855,7 +5855,7 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_axis_vbrx,
-            { "Vbrz Axis", "usbhid.data.axis.vbrx", FT_INT32, BASE_DEC,
+            { "Vbrx Axis", "usbhid.data.axis.vbrx", FT_INT32, BASE_DEC,
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_axis_vbry,
