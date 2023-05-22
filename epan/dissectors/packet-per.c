@@ -166,7 +166,7 @@ static guint32
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
 	int type_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
-	tvbuff_t *val_tvb = NULL, *pdu_tvb = NULL;
+	tvbuff_t *val_tvb = NULL, *pdu_tvb = NULL, *fragment_tvb = NULL;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
 	gboolean is_fragmented;
@@ -179,10 +179,11 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length, &is_fragmented);
 		if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 		if (is_fragmented) {
+			fragment_tvb = tvb_new_octet_aligned(tvb, offset, 8*type_length);
 			if (fragmented_length == 0) {
 				pdu_tvb = tvb_new_composite();
 			}
-			tvb_composite_append(pdu_tvb, tvb_new_octet_aligned(tvb, offset, 8*type_length));
+			tvb_composite_append(pdu_tvb, fragment_tvb);
 			offset += 8*type_length;
 			fragmented_length += type_length;
 		}
