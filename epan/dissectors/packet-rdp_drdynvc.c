@@ -341,8 +341,6 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					//printf("dynamic %s -> 0x%x\n", channel->name, channel->channelId);
 
 					wmem_multimap_insert32(info->channels, GUINT_TO_POINTER(channelId), pinfo->num, channel);
-				} else {
-					channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 				}
 
 			} else {
