@@ -1293,34 +1293,34 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
             proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_bus_vendor_technica_10m_flags, ett_tecmp_status_bus_vendor_data_flags, vendor_data_flags_10BASE_T1S, ENC_BIG_ENDIAN);
             offset += 1;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res0, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res0, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_beacon_counter, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_beacon_counter, tvb, offset, 4, ENC_NA);
             offset += 4;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res1, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res1, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res2, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res2, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt, tvb, offset, 2, ENC_NA);
         } else {
             if (bytes_remaining >= 1) {
                 proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_status, tvb, offset, 1, ENC_NA);
@@ -1954,7 +1954,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     nstime_t timestamp;
                     timestamp.secs = (time_t)(ns / 1000000000);
                     timestamp.nsecs = (int)(ns % 1000000000);
-                    ti = proto_tree_add_time(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp, sub_tvb, offset2, 8, &timestamp);
+                    proto_tree_add_time(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp, sub_tvb, offset2, 8, &timestamp);
                     ti = proto_tree_add_uint64(tecmp_tree, hf_tecmp_payload_data_beacon_timestamp_ns, sub_tvb, offset2, 8, ns);
                     proto_item_set_hidden(ti);
 
