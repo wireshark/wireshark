@@ -592,7 +592,7 @@ typedef struct _dof_packet_data
      * NON-DPS FIELDS, USED FOR WIRESHARK COMMUNICATION/PROCESSING
      * Protocol-specific data.
      */
-    GSList *data_list;
+    wmem_list_t *data_list;
 
     /**
      * The Wireshark frame. Note that a single frame can have multiple DPS packets.
@@ -835,9 +835,6 @@ static void dof_session_delete_proto_data(dof_session_data *session, int proto);
 
 static void dof_packet_add_proto_data(dof_packet_data *packet, int proto, void *proto_data);
 static void* dof_packet_get_proto_data(dof_packet_data *packet, int proto);
-#if 0 /* TODO not used yet */
-static void dof_packet_delete_proto_data(dof_packet_data *packet, int proto);
-#endif
 
 /* DOF PROTOCOL STACK */
 #define DOF_PROTOCOL_STACK "DOF Protocol Stack"
@@ -5673,6 +5670,7 @@ static dof_packet_data* create_packet_data(packet_info *pinfo)
     /* Create the packet data. */
     dof_packet_data *packet = wmem_new0(wmem_file_scope(), dof_packet_data);
 
+    packet->data_list = wmem_list_new(wmem_file_scope());
     packet->frame = pinfo->fd->num;
     packet->dof_frame = next_dof_frame++;
 
@@ -12448,48 +12446,28 @@ static void dof_packet_add_proto_data(dof_packet_data *packet, int proto, void *
 
     /* Add it to the list of items for this conversation. */
 
-    packet->data_list = g_slist_insert_sorted(packet->data_list, (gpointer *)p1, p_compare);
+    wmem_list_insert_sorted(packet->data_list, (gpointer *)p1, p_compare);
 }
 
 static void *dof_packet_get_proto_data(dof_packet_data *packet, int proto)
 {
     dof_proto_data temp, *p1;
-    GSList *item;
+    wmem_list_frame_t *item;
 
     temp.proto = proto;
     temp.proto_data = NULL;
 
-    item = g_slist_find_custom(packet->data_list, (gpointer *)&temp,
+    item = wmem_list_find_custom(packet->data_list, (gpointer *)&temp,
                                p_compare);
 
     if (item != NULL)
     {
-        p1 = (dof_proto_data *)item->data;
+        p1 = (dof_proto_data *)wmem_list_frame_data(item);
         return p1->proto_data;
     }
 
     return NULL;
 }
-
-#if 0 /* TODO not used yet */
-static void dof_packet_delete_proto_data(dof_packet_data *packet, int proto)
-{
-    dof_proto_data temp;
-    GSList *item;
-
-    temp.proto = proto;
-    temp.proto_data = NULL;
-
-    item = g_slist_find_custom(packet->data_list, (gpointer *)&temp,
-                               p_compare);
-
-    while (item)
-    {
-        packet->data_list = g_slist_remove(packet->data_list, item->data);
-        item = item->next;
-    }
-}
-#endif
 
 static gint dof_dissect_pdu_as_field(dissector_t dissector, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int item, int ett, void *result)
 {
