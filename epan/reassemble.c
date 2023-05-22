@@ -3372,8 +3372,6 @@ reassemble_streaming_data_and_call_subdissector(
 			bytes_belong_to_prev_msp, plurality(bytes_belong_to_prev_msp, "", "s"));
 
 		if (reassembled_tvb) {
-			datalen = tvb_reported_length(reassembled_tvb);
-
 			/* normally, this stage will dissect one or more completed pdus */
 			/* Note, don't call_dissector_with_data because sometime the pinfo->curr_layer_num will changed
 			 * after calling that will make reassembly failed! */
