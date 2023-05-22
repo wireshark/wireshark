@@ -536,13 +536,13 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                         break;
 
                     case EXT_FRAME_ERROR:
-                        fiveco_data_item = proto_tree_add_item(fiveco_data_tree, hf_fiveco_ext_frameerror, tvb,
+                        proto_tree_add_item(fiveco_data_tree, hf_fiveco_ext_frameerror, tvb,
                                                 i, 1, ENC_NA);
                         i += 1;
                         break;
                     case EXT_EOF_MULTI_PACKETS:
                     case EXT_EOF_MULTI_PACKETS_END:
-                        fiveco_data_item = proto_tree_add_item(fiveco_data_tree, hf_fiveco_ext_unsupported, tvb,
+                        proto_tree_add_item(fiveco_data_tree, hf_fiveco_ext_unsupported, tvb,
                                                 i, 2, ENC_NA);
                         i += 2;
                         break;
