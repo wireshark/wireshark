@@ -44,6 +44,13 @@ with support for relative RPATHs).
 Support for building an NSIS Windows installer using the MinGW-w64 toolchain
 and https://www.msys2.org/[MSYS2]. Read README.msys2 in the distribution for more information.
 
+When changing the dissector via the Decode As table for values that
+have default dissectors registered, selecting "(none)" will select
+no dissection (while still allowing heuristic dissectors to attempt to
+dissect.) The previous behavior was to reset the dissector to the default.
+To facilitate resetting the dissector, the default dissector is now sorted
+at the top of the list of possible dissector options.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 

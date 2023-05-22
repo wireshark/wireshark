@@ -271,7 +271,12 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         for (dissector_info_t* protocol : protocols)
         {
-            cb_editor->addItem(protocol->proto_name, VariantPointer<dissector_info_t>::asQVariant(protocol));
+            // Make it easy to reset to the default dissector
+            if (protocol->proto_name == item->defaultDissector()) {
+                cb_editor->insertItem(0, protocol->proto_name, VariantPointer<dissector_info_t>::asQVariant(protocol));
+            } else {
+                cb_editor->addItem(protocol->proto_name, VariantPointer<dissector_info_t>::asQVariant(protocol));
+            }
         }
 
         //Make sure the combo box is at least as wide as the column

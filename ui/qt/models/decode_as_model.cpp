@@ -93,13 +93,14 @@ void DecodeAsItem::init(const char* table_name, gconstpointer selector)
 
     if (default_handle != NULL) {
         default_dissector_ = dissector_handle_get_description(default_handle);
-        // When adding a new record, we leave dissector_handle_ NULL,
-        // which means reset "current" to "default", and let "current" equal
-        // default, so the user can explicitly change it and easily reset
-        // the value.
+        // When adding a new record, we set the "current" values equal to
+        // the default, so the user can easily reset the value.
+        // The existing value read from the prefs file should already
+        // be added to the table from reading the prefs file.
         // When reading existing values the current dissector should be
-        // set explicitly.
+        // set explicitly to the actual current value.
         current_dissector_ = default_dissector_;
+        dissector_handle_ = default_handle;
     }
 }
 
@@ -807,7 +808,7 @@ void DecodeAsModel::applyChanges()
                     continue;
                 }
 
-                if ((item->currentDissector() == DECODE_AS_NONE) || !item->dissectorHandle()) {
+                if ((item->currentDissector() == item->defaultDissector())) {
                     decode_as_entry->reset_value(decode_as_entry->table_name, selector_value);
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
@@ -828,12 +829,14 @@ void DecodeAsModel::applyChanges()
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
                     /* For now, only numeric dissector tables can use preferences */
-                    if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
-                        module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
-                        pref_value = prefs_find_preference(module, decode_as_entry->table_name);
-                        if (pref_value != NULL) {
-                            module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
-                            prefs_add_decode_as_value(pref_value, item->selectorUint(), FALSE);
+                    if (item->dissectorHandle() != NULL) {
+                        if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
+                            module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
+                            pref_value = prefs_find_preference(module, decode_as_entry->table_name);
+                            if (pref_value != NULL) {
+                                module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
+                                prefs_add_decode_as_value(pref_value, item->selectorUint(), FALSE);
+                            }
                         }
                     }
                     break;
