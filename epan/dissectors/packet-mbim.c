@@ -6361,7 +6361,6 @@ mbim_dissect_lte_attach_context(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
     proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_compression, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_auth_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
     if (access_string_offset && access_string_size) {
         it = proto_tree_add_item(tree, hf_mbim_ms_lte_attach_context_access_string, tvb,
             base_offset + access_string_offset, access_string_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
