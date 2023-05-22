@@ -221,7 +221,6 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	nstime_t ts = mpeg->now;
 
 	if (mpeg->is_audio) {
-		ts = mpeg->now;
 		/* mpeg_read_audio_packet calculates the duration of this
 		 * packet to determine an updated relative timestamp for the
 		 * next packet, if possible.
@@ -232,7 +231,6 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * to produce a relative timestamp for this packet, if possible.
 		 */
 		packet_size = mpeg_read_pes_packet(wth, fh, is_random, err, err_info);
-		ts = mpeg->now;
 	}
 
 	if (packet_size == 0)
