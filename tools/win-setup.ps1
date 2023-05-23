@@ -27,7 +27,7 @@ Specifies the destination directory for the text files. The path must
 contain the pattern "wireshark-*-libs".
 
 .PARAMETER Platform
-Target platform. Must be one of "win64" or "win64arm".
+Target platform. Must be one of "win64" or "arm64".
 
 .PARAMETER CMakeExecutable
 Specifies the path to the CMake executable, which is used to extract archives.
@@ -53,7 +53,7 @@ Param(
     $Destination,
 
     [Parameter(Mandatory=$true, Position=1)]
-    [ValidateSet("win64", "win64arm")]
+    [ValidateSet("win64", "arm64")]
     [String]
     $Platform,
 
@@ -70,7 +70,7 @@ Param(
 $ErrorActionPreference = "Stop"
 
 # Archive file / SHA256
-$Win64Archives = @{
+$X64Archives = @{
     "AirPcap/AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729/bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
     "brotli/brotli-1.0.9-1-win64ws.zip" = "3f8d24aec8668201994327ff8d8542fe507d1d468a500a1aec50d0415f695aab";
@@ -98,7 +98,7 @@ $Win64Archives = @{
     "zstd/zstd-1.5.2-1-win64ws.zip" = "d920afe636951cfcf144824d9c075d1f2c13387f4739152fe185fd9c09fc58f2";
 }
 
-$Win64ArmArchives = @{
+$Arm64Archives = @{
     "bcg729/bcg729-1.1.1-1-win64armws.zip" = "f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625";
     "brotli/brotli-1.0.9-1-win64armws.zip" = "5ba1b62ebc514d55c3eae85a00ff107e587b6e7cb1275e2d33fcddcd49f8e2af";
     "c-ares/c-ares-1.19.0-1-win64armws.zip" = "3e02db0c77303fcd5e9b85f2abe7b48ed79b0ed5d3bdada291a71842e91a6215";
@@ -132,20 +132,20 @@ $ArchivesSubDirectory = @{
 
 # Plain file downloads
 
-$Win64Files = @{
+$X64Files = @{
     # Nothing here
 }
 
-$Win64ArmFiles = @{
+$Arm64Files = @{
     # Nothing here
 }
 
-$Archives = $Win64Archives;
-$Files = $Win64Files;
+$Archives = $X64Archives;
+$Files = $X64Files;
 
-if ($Platform -eq "win64arm") {
-    $Archives = $Win64ArmArchives;
-    $Files = $Win64ArmFiles;
+if ($Platform -eq "arm64") {
+    $Archives = $Arm64Archives;
+    $Files = $Arm64Files;
 }
 
 $CurrentManifest = $Archives + $Files

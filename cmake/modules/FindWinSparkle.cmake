@@ -17,10 +17,7 @@ ENDIF (WINSPARKLE_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("WinSparkle.*" "WINSPARKLE_HINTS")
 
-set (_release_subdir "x64/Release")
-if ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64arm")
-  set (_release_subdir "ARM64/Release")
-endif()
+set (_release_subdir "${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}/Release")
 
 FIND_PATH(WINSPARKLE_INCLUDE_DIR winsparkle.h HINTS "${WINSPARKLE_HINTS}/include" )
 
