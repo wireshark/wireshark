@@ -445,7 +445,7 @@ dissect_xra_tlv_cw_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
   it = proto_tree_add_item (tree, hf_xra_tlv_cw_info, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_cw_info_tree = proto_item_add_subtree (it, ett_xra_tlv_cw_info);
 
-  guint32 tlv_index =0;
+  unsigned tlv_index = 0;
   while (tlv_index < tlv_length) {
     guint8 type = tvb_get_guint8 (tvb, tlv_index);
     ++tlv_index;
@@ -500,7 +500,7 @@ dissect_xra_tlv_ms_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
   it = proto_tree_add_item (tree, hf_xra_tlv_ms_info, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_ms_info_tree = proto_item_add_subtree (it, ett_xra_tlv_ms_info);
 
-  guint32 tlv_index =0;
+  unsigned tlv_index = 0;
   while (tlv_index < tlv_length) {
     guint8 type = tvb_get_guint8 (tvb, tlv_index);
     ++tlv_index;
@@ -534,7 +534,7 @@ dissect_xra_tlv_burst_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, gu
   it = proto_tree_add_item (tree, hf_xra_tlv_burst_info, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_burst_info_tree = proto_item_add_subtree (it, ett_xra_tlv_burst_info);
 
-  guint32 tlv_index =0;
+  unsigned tlv_index = 0;
   while (tlv_index < tlv_length) {
     guint8 type = tvb_get_guint8 (tvb, tlv_index);
     ++tlv_index;
@@ -574,7 +574,7 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   it = proto_tree_add_item (tree, hf_xra_tlv, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_tree = proto_item_add_subtree (it, ett_xra_tlv);
 
-  guint32 tlv_index =0;
+  unsigned tlv_index = 0;
   tvbuff_t *xra_tlv_cw_info_tvb, *xra_tlv_ms_info_tvb, *xra_tlv_burst_info_tvb;
 
   while (tlv_index < tlv_length) {
@@ -718,7 +718,7 @@ dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree
   if(packet_start_pointer_field_present) {
     proto_tree_add_item_ret_uint (tree, hf_plc_mb_mc_psp, tvb, 1, 2, FALSE, &packet_start_pointer);
 
-    guint16 docsis_start = 3 + packet_start_pointer;
+    unsigned docsis_start = 3 + packet_start_pointer;
     while (docsis_start + 6 < remaining_length) {
       /* DOCSIS header in packet */
       guint8 fc = tvb_get_guint8(tvb,docsis_start + 0);
@@ -727,7 +727,7 @@ dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree
         docsis_start += 1;
         continue;
       }
-      guint16 docsis_length = 256*tvb_get_guint8(tvb,docsis_start + 2) + tvb_get_guint8(tvb,docsis_start + 3);
+      unsigned docsis_length = 256*tvb_get_guint8(tvb,docsis_start + 2) + tvb_get_guint8(tvb,docsis_start + 3);
       if (docsis_start + 6 + docsis_length <= remaining_length) {
         /* DOCSIS packet included in packet */
         tvbuff_t *docsis_tvb;
@@ -797,7 +797,7 @@ dissect_ncp_message_block(tvbuff_t * tvb, proto_tree * tree) {
 static int
 dissect_plc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
 
-  guint16 offset = 0;
+  int offset = 0;
   proto_tree *plc_tree;
   proto_item *plc_item;
   tvbuff_t *mb_tvb;
@@ -857,7 +857,7 @@ dissect_plc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
 
 static int
 dissect_ncp(tvbuff_t * tvb, proto_tree * tree, void* data _U_) {
-  guint16 offset = 0;
+  int offset = 0;
   proto_tree *ncp_tree;
   proto_item *ncp_item;
   tvbuff_t *ncp_mb_tvb;
