@@ -9,7 +9,9 @@
 #
 
 find_program(POWERSHELL_EXECUTABLE
-  NAMES powershell
+  NAMES
+    powershell
+    pwsh
   DOC "PowerShell command"
 )
 
