@@ -376,7 +376,7 @@ Windows x64 Package:
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
-    - wireshark-win64-package
+    - wireshark-x64-package
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"

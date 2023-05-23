@@ -687,7 +687,7 @@ Note: You should have successfully built Wireshark
 before doing the following.
 
 If you want to build your own
-_Wireshark-win64-{wireshark-version}-myprotocol123.exe_, you'll need
+_Wireshark-{wireshark-version}-myprotocol123-x64.exe_, you'll need
 NSIS. You can download it from http://nsis.sourceforge.net[].
 
 Note that the 32-bit version of NSIS will work for both 64-bit and 32-bit versions of Wireshark.
@@ -706,7 +706,7 @@ If you sign your executables you should do so between the “wireshark_nsis_prep
 Run
 
 ----
-packaging\nsis\wireshark-win64-{wireshark-version}-myprotocol123.exe
+packaging\nsis\wireshark-{wireshark-version}-myprotocol123-x64.exe
 ----
 
 to test your new installer.

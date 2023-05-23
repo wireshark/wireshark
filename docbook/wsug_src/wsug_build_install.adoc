@@ -48,8 +48,8 @@ Select the package most appropriate for your system.
 === Installing Wireshark under Windows
 
 The official Windows packages can be downloaded from the Wireshark {wireshark-main-url}[main page] or the {wireshark-download-url}[download page].
-Installer names contain the platform and version.
-For example, Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version} for 64-bit Windows.
+Installer names contain the version and platform.
+For example, Wireshark-{wireshark-version}-x64.exe installs Wireshark {wireshark-version} for Windows on 64-bit Intel processors.
 The Wireshark installer includes Npcap which is required for packet capture.
 Windows packages automatically update.
 See <<ChBuildInstallUpdatingWireshark>> for details.
@@ -200,9 +200,9 @@ The following extcap binaries are supported.
 
 Example:
 ----
-> Wireshark-win64-wireshark-2.0.5.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
+> Wireshark-4.2.5-x64.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
 
-> Wireshark-win64-3.3.0.exe /S /EXTRACOMPONENTS=sshdump,udpdump
+> Wireshark-4.2.5-x64.exe /S /EXTRACOMPONENTS=sshdump,udpdump
 ----
 
 Running the installer without any parameters shows the normal interactive installer.
