@@ -13,7 +13,7 @@
 #include "win32-utils.h"
 
 #include <tchar.h>
-#include <VersionHelpers.h>
+#include <versionhelpers.h>
 
 /* Quote the argument element if necessary, so that it will get
  * reconstructed correctly in the C runtime startup code.  Note that

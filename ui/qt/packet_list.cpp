@@ -82,7 +82,7 @@
 #ifdef Q_OS_WIN
 #include "wsutil/file_util.h"
 #include <QSysInfo>
-#include <Uxtheme.h>
+#include <uxtheme.h>
 #endif
 
 // To do:

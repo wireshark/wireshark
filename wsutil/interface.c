@@ -38,7 +38,7 @@
 #ifdef _WIN32
 	#include <winsock2.h>
 	#include <iphlpapi.h>
-	#include <Ws2tcpip.h>
+	#include <ws2tcpip.h>
 #endif
 
 #define WORKING_BUFFER_SIZE 15000

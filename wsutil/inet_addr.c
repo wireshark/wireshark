@@ -29,7 +29,7 @@
 #endif
 
 #ifdef _WIN32
-#include <Ws2tcpip.h>	/* indirectly defines AF_ values on Windows */
+#include <ws2tcpip.h>	/* indirectly defines AF_ values on Windows */
 #define _NTOP_SRC_CAST_ (PVOID)
 #else
 #define _NTOP_SRC_CAST_

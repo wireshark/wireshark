@@ -36,7 +36,7 @@
 #include <sys/time.h>
 #endif
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <glib.h>
