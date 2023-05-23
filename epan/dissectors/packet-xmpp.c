@@ -17,6 +17,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
 
 #include "packet-xmpp.h"
 #include "packet-xmpp-core.h"
@@ -362,6 +363,14 @@ static dissector_handle_t xmpp_handle;
 
 static dissector_handle_t xml_handle;
 
+static void
+cleanup_xmpp(void *user_data) {
+
+    xmpp_element_t *root = (xmpp_element_t*)user_data;
+
+    xmpp_element_t_tree_free(root);
+}
+
 static int
 dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
@@ -472,6 +481,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     {
         packet = xmpp_xml_frame_to_element_t(pinfo->pool, xml_frame, NULL, tvb);
         DISSECTOR_ASSERT(packet);
+        CLEANUP_PUSH(cleanup_xmpp, packet);
 
         if (strcmp(packet->name, "iq") == 0) {
             xmpp_iq_reqresp_track(pinfo, packet, xmpp_info);
@@ -537,7 +547,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 col_append_fstr(pinfo->cinfo, COL_INFO, "< %s ", from->value);
         }
 
-        xmpp_element_t_tree_free(packet);
+        CLEANUP_CALL_AND_POP;
         xml_frame = xml_frame->next_sibling;
     }
     return tvb_captured_length(tvb);
