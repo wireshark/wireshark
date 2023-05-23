@@ -289,6 +289,9 @@ echo "Optional package ninja|ninja-build is unavailable" >&2
 add_package ADDITIONAL_LIST libxslt || add_package ADDITIONAL_LIST libxslt1 ||
 echo "Optional package libxslt|libxslt1 is unavailable" >&2
 
+add_package ADDITIONAL_LIST docbook-style-xsl || add_package ADDITIONAL_LIST docbook-xsl-stylesheets ||
+echo "Optional package docbook-style-xsl|docbook-xsl-stylesheets is unavailable" >&2
+
 add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
 echo "Optional packages brotli-devel|libbrotli-devel is unavailable" >&2
 
