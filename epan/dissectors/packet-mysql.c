@@ -1398,10 +1398,6 @@ typedef struct mysql_conn_data {
 	guint16 srv_caps_ext;
 	guint16 clnt_caps;
 	guint16 clnt_caps_ext;
-	mysql_state_t state;
-	guint32 stmt_id;
-	guint16 stmt_num_params;
-	guint16 stmt_num_fields;
 	wmem_tree_t* stmts;
 #ifdef CTDEBUG
 	guint32 generation;
@@ -1415,18 +1411,26 @@ typedef struct mysql_conn_data {
 	gboolean is_mariadb_client; /* set to 1, if connected from a MariaDB client */
 	guint32 mariadb_server_ext_caps;
 	guint32 mariadb_client_ext_caps;
-	guint64 remaining_field_packet_count;
-	my_metadata_list_t field_metas;
 	guint8 *auth_method;
 	streaming_reassembly_info_t *reassembly_info;
+
+	/* The members below refer to the latest state or prepared statement,
+	 * and is only valid during the first pass. For random access on
+	 * later passes, use the data stored in the mysql_frame_data. */
+	mysql_state_t state;
+	guint32 stmt_id;
+	guint64 remaining_field_packet_count;
+	my_metadata_list_t field_metas;
 } mysql_conn_data_t;
 
-/* Data stored for a particular frame. Use this on random access after
- * the first pass to obtain the state when the frame was captured.
+/* Data stored for a particular PDU. Use this on random access after
+ * the first pass to obtain the state at the start of a PDU.
  */
 typedef struct mysql_frame_data {
 	mysql_state_t state;
-	guint32 stmt_id; /* The last prepared stmt ID before this frame */
+	guint32 stmt_id; /* The last prepared stmt ID before this PDU */
+	guint64 remaining_field_packet_count;
+	my_metadata_list_t field_metas;
 } mysql_frame_data_t;
 
 typedef struct my_stmt_data {
@@ -1448,9 +1452,9 @@ static int mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tr
 static int mysql_dissect_caps(tvbuff_t *tvb, int offset, proto_tree *tree, int mysql_caps, guint16 *caps);
 static int mysql_dissect_extcaps(tvbuff_t *tvb, int offset, proto_tree *tree, int mysql_extcaps, guint16 *caps);
 static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data, const mysql_frame_data_t *my_frame_data);
-static int mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi, int offset, proto_tree *tree, packet_info *pinfo, mysql_conn_data_t *conn_data, mysql_state_t current_state);
+static int mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi, int offset, proto_tree *tree, packet_info *pinfo, mysql_conn_data_t *conn_data, const mysql_frame_data_t *my_frame_data);
 static int mysql_dissect_text_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
-static int mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data, const mysql_frame_data_t *my_frame_data);
 static int mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, proto_item *pi);
 static int mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
@@ -1629,19 +1633,33 @@ static void mysql_set_prepared_stmt_id(packet_info *pinfo, mysql_conn_data_t *co
 	}
 }
 
-static guint64 mysql_get_remaining_field_packet_count(mysql_conn_data_t *conn_data)
+/* Decrements the number of remaining field packets. Returns TRUE if this
+ * was the last field packet (and thus the state should change.)
+ */
+static gboolean mysql_dec_remaining_field_packet_count(packet_info *pinfo, mysql_conn_data_t *conn_data)
 {
-	return conn_data->remaining_field_packet_count;
+	if (!pinfo->fd->visited)
+	{
+		conn_data->remaining_field_packet_count--;
+		return (conn_data->remaining_field_packet_count == 0);
+	}
+	return FALSE;
 }
 
-static void mysql_dec_remaining_field_packet_count(mysql_conn_data_t *conn_data)
+static void mysql_set_remaining_field_packet_count(packet_info *pinfo, mysql_conn_data_t *conn_data, guint64 num_fields)
 {
-	conn_data->remaining_field_packet_count--;
+	if (!pinfo->fd->visited)
+	{
+		conn_data->remaining_field_packet_count = num_fields;
+	}
 }
 
-static void mysql_set_remaining_field_packet_count(mysql_conn_data_t *conn_data, guint64 num_fields)
+static void mysql_set_field_metas(packet_info *pinfo, mysql_conn_data_t *conn_data, my_metadata_list_t *field_metas)
 {
-	conn_data->remaining_field_packet_count = num_fields;
+	if (!pinfo->fd->visited)
+	{
+		conn_data->field_metas = *field_metas;
+	}
 }
 
 static int
@@ -2634,6 +2652,10 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	proto_item *ti;
 
 	mysql_state_t current_state = my_frame_data->state;
+	my_stmt_data_t *stmt_data = NULL;
+	if (my_frame_data->stmt_id) {
+		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, my_frame_data->stmt_id);
+	}
 
 	response_code = tvb_get_guint8(tvb, offset);
 	switch (response_code) {
@@ -2653,9 +2675,9 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			offset = mysql_dissect_eof(tvb, pinfo, pi, offset, tree, conn_data);
 
 			if (current_state == PREPARED_PARAMETERS) {
-				if (conn_data->stmt_num_fields > 0) {
+				if (stmt_data != NULL && stmt_data->field_metas.count > 0) {
 					proto_item_append_text(pi, " - %s", val_to_str(INTERMEDIATE_EOF, state_vals, "Unknown (%u)"));
-					mysql_set_remaining_field_packet_count(conn_data, conn_data->stmt_num_fields);
+					mysql_set_remaining_field_packet_count(pinfo, conn_data, stmt_data->field_metas.count);
 					mysql_set_conn_state(pinfo, conn_data, PREPARED_FIELDS);
 				} else {
 					proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_EOF, state_vals, "Unknown (%u)"));
@@ -2710,7 +2732,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 		case ROW_PACKET:
 			proto_item_append_text(pi, " - %s", val_to_str(ROW_PACKET, state_vals, "Unknown (%u)"));
-			offset = mysql_dissect_binary_row_packet(tvb, pinfo, pi, offset, tree, conn_data);
+			offset = mysql_dissect_binary_row_packet(tvb, pinfo, pi, offset, tree, conn_data, my_frame_data);
 			break;
 		case BINLOG_DUMP:
 			proto_item_append_text(pi, " - %s", val_to_str(BINLOG_DUMP, state_vals, "Unknown (%u)"));
@@ -2745,12 +2767,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 		case PREPARED_PARAMETERS:
 			proto_item_append_text(pi, " - %s", val_to_str(current_state, state_vals, "Unknown (%u)"));
-			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, current_state);
-			mysql_dec_remaining_field_packet_count(conn_data);
-			if (mysql_get_remaining_field_packet_count(conn_data) == 0) {
+			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
+			if (mysql_dec_remaining_field_packet_count(pinfo, conn_data)) {
 				if (conn_data->clnt_caps_ext & MYSQL_CAPS_DE) {
-					if (conn_data->stmt_num_fields > 0) {
-						mysql_set_remaining_field_packet_count(conn_data, conn_data->stmt_num_fields);
+					if (stmt_data != NULL && stmt_data->field_metas.count > 0) {
+						mysql_set_remaining_field_packet_count(pinfo, conn_data, stmt_data->field_metas.count);
 						mysql_set_conn_state(pinfo, conn_data, PREPARED_FIELDS);
 					} else {
 						mysql_set_conn_state(pinfo, conn_data, REQUEST);
@@ -2762,9 +2783,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case FIELD_PACKET:
 		case RESPONSE_SHOW_FIELDS:
 			proto_item_append_text(pi, " - %s", val_to_str(current_state, state_vals, "Unknown (%u)"));
-			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, current_state);
-			mysql_dec_remaining_field_packet_count(conn_data);
-			if ((conn_data->clnt_caps_ext & MYSQL_CAPS_DE) && (mysql_get_remaining_field_packet_count(conn_data) == 0)) {
+			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
+			if (mysql_dec_remaining_field_packet_count(pinfo, conn_data) && (conn_data->clnt_caps_ext & MYSQL_CAPS_DE)) {
 				mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 			}
 			break;
@@ -2776,9 +2796,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		case PREPARED_FIELDS:
 			proto_item_append_text(pi, " - %s", val_to_str(current_state, state_vals, "Unknown (%u)"));
-			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, current_state);
-			mysql_dec_remaining_field_packet_count(conn_data);
-			if ((conn_data->clnt_caps_ext & MYSQL_CAPS_DE) && (mysql_get_remaining_field_packet_count(conn_data) == 0)) {
+			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
+			if (mysql_dec_remaining_field_packet_count(pinfo, conn_data) && (conn_data->clnt_caps_ext & MYSQL_CAPS_DE)) {
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			}
 			break;
@@ -3154,13 +3173,13 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		field_metas->count = (guint16)num_fields;
 		field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, (size_t)num_fields);
 		field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, (size_t)num_fields);
-		conn_data->field_metas = *field_metas;
+		mysql_set_field_metas(pinfo, conn_data, field_metas);
 	} else {
 		if (my_frame_data->stmt_id) {
 			stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, my_frame_data->stmt_id);
 			if (stmt_data != NULL) {
 				field_metas = &stmt_data->field_metas;
-				conn_data->field_metas = *field_metas;
+				mysql_set_field_metas(pinfo, conn_data, field_metas);
 			}
 		}
 
@@ -3175,9 +3194,9 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (num_fields) {
 		if (send_meta) {
 			mysql_set_conn_state(pinfo, conn_data, FIELD_PACKET);
-			mysql_set_remaining_field_packet_count(conn_data, num_fields);
+			mysql_set_remaining_field_packet_count(pinfo, conn_data, num_fields);
 		} else {
-			mysql_set_remaining_field_packet_count(conn_data, 0);
+			mysql_set_remaining_field_packet_count(pinfo, conn_data, 0);
 			if (conn_data->clnt_caps_ext & MYSQL_CAPS_DE) {
 				mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 			} else {
@@ -3231,11 +3250,12 @@ mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field)
 
 
 static int
-mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_tree *tree, packet_info *pinfo _U_, mysql_conn_data_t *conn_data, mysql_state_t current_state)
+mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_tree *tree, packet_info *pinfo _U_, mysql_conn_data_t *conn_data, const mysql_frame_data_t *my_frame_data)
 {
 	guint8 fld_type;
 	guint16 fld_flag;
 	int length = tvb_reported_length(tvb);
+	mysql_state_t current_state = my_frame_data->state;
 
 	/* Are these fields optional? a trace suggests they are...*/
 	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_catalog);
@@ -3291,14 +3311,14 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 	offset += 2; /* filler */
 
 	if (current_state == FIELD_PACKET || current_state == PREPARED_FIELDS) {
-		if (conn_data->field_metas.count) {
-			guint64 fieldpos = conn_data->field_metas.count - mysql_get_remaining_field_packet_count(conn_data);
-			if (fieldpos >= conn_data->field_metas.count) {
+		if (my_frame_data->field_metas.count) {
+			guint64 fieldpos = my_frame_data->field_metas.count - my_frame_data->remaining_field_packet_count;
+			if (fieldpos >= my_frame_data->field_metas.count) {
 				expert_add_info_format(pinfo, tree, &ei_mysql_invalid_length, "Invalid length: %" G_GUINT64_FORMAT, fieldpos);
 				return tvb_reported_length_remaining(tvb, 0);
 			}
-			conn_data->field_metas.types[fieldpos] = fld_type;
-			conn_data->field_metas.flags[fieldpos] = fld_flag;
+			my_frame_data->field_metas.types[fieldpos] = fld_type;
+			my_frame_data->field_metas.flags[fieldpos] = fld_flag;
 		}
 	}
 
@@ -3321,13 +3341,13 @@ mysql_dissect_text_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data)
+mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_, const mysql_frame_data_t *my_frame_data)
 {
 	int fieldpos;
-	if (conn_data->field_metas.count) {
+	if (my_frame_data->field_metas.count) {
 
 		/* null bitmap */
-		int nfields = conn_data->field_metas.count;
+		int nfields = my_frame_data->field_metas.count;
 		int null_len = (nfields + 9) / 8;
 
 		char *null_buffer;
@@ -3340,7 +3360,7 @@ mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *p
 			if ((null_buffer[(fieldpos + 2) / 8] & (1 << ((fieldpos + 2) % 8))) == 0) {
 				// data is not null
 				if (tvb_reported_length_remaining(tvb, offset) > 0) {
-					if (!mysql_dissect_binary_row_value(tvb, pinfo, pi, &offset, tree, conn_data->field_metas.types[fieldpos], conn_data->field_metas.flags[fieldpos]))
+					if (!mysql_dissect_binary_row_value(tvb, pinfo, pi, &offset, tree, my_frame_data->field_metas.types[fieldpos], my_frame_data->field_metas.flags[fieldpos]))
 						break;
 				}
 			} else {
@@ -3381,44 +3401,60 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	my_metadata_list_t *param_metas;
 
 	guint32 stmt_id;
+	guint16 stmt_num_fields;
+	guint16 stmt_num_params;
 
 	proto_tree_add_item_ret_uint(tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stmt_id);
 	mysql_set_prepared_stmt_id(pinfo, conn_data, stmt_id);
 	offset += 4;
 	proto_tree_add_item(tree, hf_mysql_num_fields, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	conn_data->stmt_num_fields = tvb_get_letohs(tvb, offset);
+	stmt_num_fields = tvb_get_letohs(tvb, offset);
 	offset += 2;
 	proto_tree_add_item(tree, hf_mysql_num_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
-	stmt_data = wmem_new(wmem_file_scope(), struct my_stmt_data);
+	stmt_num_params = tvb_get_letohs(tvb, offset);
 
-	param_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
-	param_metas->count = conn_data->stmt_num_params;
-	param_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, param_metas->count);
-	param_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, param_metas->count);
-	stmt_data->param_metas = *param_metas;
+	if (!pinfo->fd->visited) {
+#if 0
+		/* XXX: Can statement ids be reused on the same connection?
+	         * If so, the tree should be a multimap or similar. If not,
+	         * there should be an expert info if we see a reused one.
+	         */
+		if (wmem_tree_lookup32(conn_data->stmts, stmt_id) != NULL) {
+			/* Expert Info? */
+		}
+#endif
 
-	field_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
-	field_metas->count = conn_data->stmt_num_fields;
-	field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, field_metas->count);
-	field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, field_metas->count);
-	stmt_data->field_metas = *field_metas;
-	conn_data->field_metas = *field_metas;
+		stmt_data = wmem_new(wmem_file_scope(), struct my_stmt_data);
+		param_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
+		param_metas->count = stmt_num_params;
+		param_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, param_metas->count);
+		param_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, param_metas->count);
+		stmt_data->param_metas = *param_metas;
 
-	wmem_tree_insert32(conn_data->stmts, stmt_id, stmt_data);
+		field_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
+		field_metas->count = stmt_num_fields;
+		field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, field_metas->count);
+		field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, field_metas->count);
+		stmt_data->field_metas = *field_metas;
+
+		wmem_tree_insert32(conn_data->stmts, stmt_id, stmt_data);
+
+		mysql_set_field_metas(pinfo, conn_data, field_metas);
+	}
+
 	offset += 2;
 	/* Filler */
 	offset += 1;
 	proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-	if (conn_data->stmt_num_params > 0) {
-		mysql_set_remaining_field_packet_count(conn_data, conn_data->stmt_num_params);
+	if (stmt_num_params > 0) {
+		mysql_set_remaining_field_packet_count(pinfo, conn_data, stmt_num_params);
 		mysql_set_conn_state(pinfo, conn_data, PREPARED_PARAMETERS);
-	} else if (conn_data->stmt_num_fields > 0) {
-		mysql_set_remaining_field_packet_count(conn_data, conn_data->stmt_num_fields);
+	} else if (stmt_num_fields > 0) {
+		mysql_set_remaining_field_packet_count(pinfo, conn_data, stmt_num_fields);
 		mysql_set_conn_state(pinfo, conn_data, PREPARED_FIELDS);
 	} else {
-		mysql_set_remaining_field_packet_count(conn_data, 0);
+		mysql_set_remaining_field_packet_count(pinfo, conn_data, 0);
 		mysql_set_conn_state(pinfo, conn_data, REQUEST);
 	}
 
@@ -4050,6 +4086,8 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		mysql_frame_data_p = wmem_new(wmem_file_scope(), struct mysql_frame_data);
 		mysql_frame_data_p->state = conn_data->state;
 		mysql_frame_data_p->stmt_id = conn_data->stmt_id;
+		mysql_frame_data_p->remaining_field_packet_count = conn_data->remaining_field_packet_count;
+		mysql_frame_data_p->field_metas = conn_data->field_metas;
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_mysql, tvb_raw_offset(tvb), mysql_frame_data_p);
 	}
 
