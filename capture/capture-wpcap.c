@@ -23,6 +23,7 @@
 #include <ws_attributes.h>
 
 #include "capture/capture-wpcap.h"
+#include <wsutil/feature_list.h>
 
 gboolean has_wpcap = FALSE;
 
