@@ -163,6 +163,40 @@ static drdynvc_know_channel_def knownChannels[] = {
 	{"cliprdr", "cliprdr", DRDYNVC_CHANNEL_CLIPRDR},
 };
 
+static const value_string drdynvc_tunneltype_vals[] = {
+	{   0x1, 	"reliable" },
+	{   0x3, 	"lossy" },
+	{   0x0, NULL},
+};
+
+static const value_string rdp_drdynvc_cbId_vals[] = {
+	{   0x0, "1 byte" },
+	{   0x1, "2 bytes" },
+	{   0x2, "4 bytes" },
+	{   0x0, NULL},
+};
+
+static const value_string rdp_drdynvc_prio_vals[] = {
+	{   0x0, "PriorityCharge0" },
+	{   0x1, "PriorityCharge1" },
+	{   0x2, "PriorityCharge2" },
+	{   0x3, "PriorityCharg32" },
+	{   0x0, NULL},
+};
+
+static const value_string rdp_drdynvc_cmd_vals[] = {
+	{   DRDYNVC_CREATE_REQUEST_PDU, 	"Create PDU" },
+	{   DRDYNVC_DATA_FIRST_PDU, 		"Data first PDU" },
+	{   DRDYNVC_DATA_PDU, 			"Data PDU" },
+	{   DRDYNVC_CLOSE_REQUEST_PDU, 	"Close PDU" },
+	{   DRDYNVC_CAPABILITY_REQUEST_PDU, "Capabilities PDU" },
+	{   DRDYNVC_DATA_FIRST_COMPRESSED_PDU, "Data first compressed PDU" },
+	{   DRDYNVC_DATA_COMPRESSED_PDU, 	"Data compressed PDU" },
+	{   DRDYNVC_SOFT_SYNC_REQUEST_PDU,"Soft-Sync request PDU" },
+	{   DRDYNVC_SOFT_SYNC_RESPONSE_PDU,"Soft-Sync response PDU" },
+	{   0x0, NULL},
+};
+
 static drdynvc_known_channel_t
 drdynvc_find_channel_type(const char *name)
 {
@@ -631,41 +665,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	return offset;
 }
 
-static const value_string drdynvc_tunneltype_vals[] = {
-  {   0x1, 	"reliable" },
-  {   0x3, 	"lossy" },
-  {   0x0, NULL},
-};
-
-
 void proto_register_rdp_drdynvc(void) {
-	static const value_string rdp_drdynvc_cbId_vals[] = {
-	  {   0x0, "1 byte" },
-	  {   0x1, "2 bytes" },
-	  {   0x2, "4 bytes" },
-	  {   0x0, NULL},
-	};
-
-	static const value_string rdp_drdynvc_prio_vals[] = {
-	  {   0x0, "PriorityCharge0" },
-	  {   0x1, "PriorityCharge1" },
-	  {   0x2, "PriorityCharge2" },
-	  {   0x3, "PriorityCharg32" },
-	  {   0x0, NULL},
-	};
-
-	static const value_string rdp_drdynvc_cmd_vals[] = {
-	  {   DRDYNVC_CREATE_REQUEST_PDU, 	"Create PDU" },
-	  {   DRDYNVC_DATA_FIRST_PDU, 		"Data first PDU" },
-	  {   DRDYNVC_DATA_PDU, 			"Data PDU" },
-	  {   DRDYNVC_CLOSE_REQUEST_PDU, 	"Close PDU" },
-	  {   DRDYNVC_CAPABILITY_REQUEST_PDU, "Capabilities PDU" },
-	  {   DRDYNVC_DATA_FIRST_COMPRESSED_PDU, "Data first compressed PDU" },
-	  {   DRDYNVC_DATA_COMPRESSED_PDU, 	"Data compressed PDU" },
-	  {   DRDYNVC_SOFT_SYNC_REQUEST_PDU,"Soft-Sync request PDU" },
-	  {   DRDYNVC_SOFT_SYNC_RESPONSE_PDU,"Soft-Sync response PDU" },
-	  {   0x0, NULL},
-	};
 
 	/* List of fields */
 	static hf_register_info hf[] = {
