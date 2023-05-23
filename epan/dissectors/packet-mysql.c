@@ -2710,18 +2710,6 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 		break;
 
-	case 0xfb:
-		/* https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html */
-		col_append_str(pinfo->cinfo, COL_INFO, " LOCAL INFILE");
-		proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
-		proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_LOCALINFILE, state_vals, "Unknown (%u)"));
-
-		lenstr = tvb_reported_length_remaining(tvb, ++offset);
-		proto_tree_add_item(tree, hf_mysql_loaddata_filename, tvb, offset, lenstr, ENC_ASCII);
-		offset += lenstr;
-		mysql_set_conn_state(pinfo, conn_data, INFILE_DATA);
-		break;
-
 	case 0x00:
 		proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 		offset+=1;
@@ -2762,6 +2750,18 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		case RESPONSE_TABULAR:
 		case REQUEST: /* That shouldn't be the case; maybe two requests in a row (s. bug 15074) */
+			if (response_code == 0xfb) {
+				/* https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html */
+				col_append_str(pinfo->cinfo, COL_INFO, " LOCAL INFILE");
+				proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
+				proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_LOCALINFILE, state_vals, "Unknown (%u)"));
+
+				lenstr = tvb_reported_length_remaining(tvb, ++offset);
+				proto_tree_add_item(tree, hf_mysql_loaddata_filename, tvb, offset, lenstr, ENC_ASCII);
+				offset += lenstr;
+				mysql_set_conn_state(pinfo, conn_data, INFILE_DATA);
+				break;
+			}
 			proto_item_append_text(pi, " - %s", val_to_str(COLUMN_COUNT, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data, my_frame_data);
 			break;
