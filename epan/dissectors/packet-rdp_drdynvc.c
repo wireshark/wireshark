@@ -180,7 +180,7 @@ static const value_string rdp_drdynvc_prio_vals[] = {
 	{   0x0, "PriorityCharge0" },
 	{   0x1, "PriorityCharge1" },
 	{   0x2, "PriorityCharge2" },
-	{   0x3, "PriorityCharg32" },
+	{   0x3, "PriorityCharge3" },
 	{   0x0, NULL},
 };
 
