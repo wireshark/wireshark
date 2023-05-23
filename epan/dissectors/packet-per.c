@@ -2260,7 +2260,7 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	guint32 length, fragmented_length = 0;
 	header_field_info *hfi;
 	gboolean is_fragmented = FALSE;
-	tvbuff_t *fragmented_tvb = NULL, *out_tvb = NULL;
+	tvbuff_t *fragmented_tvb = NULL, *out_tvb = NULL, *fragment_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -2295,9 +2295,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 					BYTE_ALIGN_OFFSET(offset);
 				}
 				if(is_fragmented){
+					fragment_tvb = tvb_new_octet_aligned(tvb, offset, length);
 					if(fragmented_length==0)
 						fragmented_tvb = tvb_new_composite();
-					tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
+					tvb_composite_append(fragmented_tvb, fragment_tvb);
 					offset += length;
 					fragmented_length += length;
 					goto next_fragment1;
@@ -2374,9 +2375,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			BYTE_ALIGN_OFFSET(offset);
 		}
 		if(is_fragmented){
+			fragment_tvb = tvb_new_octet_aligned(tvb, offset, length);
 			if(fragmented_length==0)
 				fragmented_tvb = tvb_new_composite();
-			tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
+			tvb_composite_append(fragmented_tvb, fragment_tvb);
 			offset += length;
 			fragmented_length += length;
 			goto next_fragment2;
@@ -2443,7 +2445,7 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 	guint32 length = 0, fragmented_length = 0;;
 	header_field_info *hfi;
 	gboolean is_fragmented = FALSE;
-	tvbuff_t *out_tvb = NULL;
+	tvbuff_t *out_tvb = NULL, *fragment_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -2508,9 +2510,10 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				BYTE_ALIGN_OFFSET(offset);
 			}
 			if (is_fragmented) {
+				fragment_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
 				if (fragmented_length == 0)
 					out_tvb = tvb_new_composite();
-				tvb_composite_append(out_tvb, tvb_new_octet_aligned(tvb, offset, length * 8));
+				tvb_composite_append(out_tvb, fragment_tvb);
 				offset += length * 8;
 				fragmented_length += length;
 				goto next_fragment;
