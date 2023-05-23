@@ -15,11 +15,7 @@
 # packages. We don't do that because a) we're large and b) we build
 # our 32-bit and 64-bit packages independently in separate pipelines.
 
-if(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
-	set(PORTABLEAPPS_BITS 64)
-else()
-	message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
-endif()
+set(PORTABLEAPPS_BITS 64)
 set(PORTABLEAPPS_BITS ${PORTABLEAPPS_BITS} PARENT_SCOPE)
 
 set(PORTABLEAPPS_NAME "${CMAKE_PROJECT_NAME}Portable${PORTABLEAPPS_BITS}")

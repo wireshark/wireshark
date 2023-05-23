@@ -55,13 +55,6 @@ file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 # STAGING_DIR depends on the build configuration so we pass it
 # on the command line below.
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" DOCBOOK_DIR)
-if(WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
-        set(TARGET_MACHINE x86)
-elseif(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
-        set(TARGET_MACHINE x64)
-else()
-        message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
-endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
 # Must match tools/win-setup.ps1.
@@ -75,11 +68,6 @@ set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 # - Add a VERSION_EXTRA cmake option
 set (PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 set (LOG_PRODUCT_VERSION ${LOG_PROJECT_MAJOR_VERSION}.${LOG_PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
-
-#add_custom_target(build_nsis_package
-#	DEPENDS
-#		wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
-#)
 
 if((BUILD_wireshark OR BUILD_logray) AND QT_FOUND)
 	set (QT_DIR "\${STAGING_DIR}")
@@ -135,8 +123,8 @@ endif()
 
 find_program(_vcredist
 	NAMES
-		"vc_redist.${TARGET_MACHINE}.exe" # Visual Studio 2022 and later
-		"vcredist_${TARGET_MACHINE}.exe" # Visual Studio 2019 and earlier
+		"vc_redist.${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe" # Visual Studio 2022 and later
+		"vcredist_${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe" # Visual Studio 2019 and earlier
 	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
@@ -296,8 +284,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 	# This should probably be fixed, so that people can produce
 	# command-line-only installer packages.
 	if(BUILD_wireshark)
-		#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
-
 		# wireshark-qt-manifest.nsh. Created using Wireshark.exe.
 		if (USE_REPOSITORY)
 			add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
@@ -353,8 +339,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 	endif()
 
 	if(BUILD_logray)
-		#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
-
 		# logray-qt-manifest.nsh. Created using Wireshark.exe.
 		add_custom_command(OUTPUT ${_nsis_binary_dir}/logray-qt-manifest.nsh
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
@@ -401,12 +385,12 @@ set(CLEAN_FILES
 	#NEWS.txt
 	#user-guide.chm
 	${DATAFILE_DIR}/uninstall-wireshark.exe
-	wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+	wireshark-${VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe
 	wireshark-config.nsh
 	wireshark-manifest.nsh
 	wireshark-qt-manifest.nsh
 	${DATAFILE_DIR}/uninstall-logray.exe
-	logray-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+	logray-${VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe
 	logray-config.nsh
 	logray-manifest.nsh
 	logray-qt-manifest.nsh

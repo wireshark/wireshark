@@ -36,7 +36,7 @@ SetCompressorDictSize 64 ; MB
 ; ============================================================================
 
 ; The file to write
-OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
+OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe"
 ; Installer icon
 Icon "${TOP_SRC_DIR}\resources\icons\lograyinst.ico"
 
@@ -191,11 +191,7 @@ ComponentText "The following components are available for installation."
 DirText "Choose a directory in which to install ${PROGRAM_NAME}."
 
 ; The default installation directory
-!if ${WIRESHARK_TARGET_PLATFORM} == "win64"
-  InstallDir $PROGRAMFILES64\${PROGRAM_NAME}
-!else
-  InstallDir $PROGRAMFILES\${PROGRAM_NAME}
-!endif
+InstallDir $PROGRAMFILES64\${PROGRAM_NAME}
 
 ; See if this is an upgrade; if so, use the old InstallDir as default
 InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} "InstallDir"
@@ -262,7 +258,7 @@ Var WIX_UNINSTALLSTRING
 !include WinMessages.nsh
 
 Function .onInit
-  !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
+  !if ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE} == "x64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
     ${IfNot} ${RunningX64}
       MessageBox MB_OK "Logray only runs on 64-bit machines." /SD IDOK

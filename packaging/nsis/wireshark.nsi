@@ -38,7 +38,7 @@ ${StrRep}
 ; ============================================================================
 
 ; The file to write
-OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
+OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe"
 ; Installer icon
 Icon "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
 
@@ -271,7 +271,7 @@ Var WIX_UNINSTALLSTRING
 !include WinMessages.nsh
 
 Function .onInit
-  !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
+  !if ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE} == "x64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
     ${IfNot} ${RunningX64}
       MessageBox MB_OK "Wireshark only runs on x64 machines.$\nTry installing a 32-bit version (3.6 or earlier) instead." /SD IDOK

@@ -61,13 +61,6 @@ file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 # STAGING_DIR depends on the build configuration so we pass it
 # on the command line below.
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" DOCBOOK_DIR)
-if(WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
-	set(TARGET_MACHINE x86)
-elseif(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
-	set(TARGET_MACHINE x64)
-else()
-	message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
-endif()
 
 # To do:
 # - Sync the various version names between CMake and Wix.
@@ -90,7 +83,7 @@ endif()
 # Starting with Visual Studio 2019 merge modules are deprecated but
 # are available as an individual component.
 # https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
-set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm")
+set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.msm")
 set (PF86_ENV "ProgramFiles(x86)")
 
 set(VC_TOOLS_MERGE_MODULES_DIR)
@@ -106,7 +99,7 @@ find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
 		"$ENV{PROGRAMFILES}/Common Files/Merge Modules"
 	NO_DEFAULT_PATH
 )
-file(TO_NATIVE_PATH "${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm" MSM_NATIVE_PATH)
+file(TO_NATIVE_PATH "${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.msm" MSM_NATIVE_PATH)
 message(STATUS "Using ${MSM_NATIVE_PATH} for the WiX installer")
 
 # DependentComponents.wxi. Can be created at configure time.
@@ -209,7 +202,7 @@ endif()
 set(WIX_CANDLE_DEFINES
 	-v
 	-sw1076
-	-dPlatform=${TARGET_MACHINE}
+	-dPlatform=${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}
 	-dWiresharkName=${CMAKE_PROJECT_NAME}
 	-dWiresharkVersion=${PRODUCT_VERSION}
 	-dWiresharkMajorVersion=${PROJECT_MAJOR_VERSION}
@@ -226,7 +219,7 @@ set(WIX_CANDLE_DEFINES
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
 	${d_mmdbresolve_exe}
-	-arch ${TARGET_MACHINE}
+	-arch ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}
 	-ext WixUIExtension
 	-I${CMAKE_SOURCE_DIR}/packaging/wix
 	-out ${CMAKE_CURRENT_BINARY_DIR}/
@@ -236,7 +229,7 @@ set(WIX_CANDLE_DEFINES
 # The NSIS CMakeFile sets the program name + version slightly differently.
 set(WIX_LIGHT_DEFINES
 	-v
-	-out ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${WIRESHARK_TARGET_PLATFORM}-${PROJECT_VERSION}.msi
+	-out ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.msi
 	-sw1076
 	-ext WixUIExtension
 	-loc ${CMAKE_CURRENT_SOURCE_DIR}/StringOverrides.wxl
@@ -362,5 +355,5 @@ set(CLEAN_FILES
 	QtTranslation.wxs
 	#NEWS.txt
 	#user-guide.chm
-	wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+	wireshark-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.msi
 )

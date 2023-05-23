@@ -167,7 +167,7 @@ It also requires the following:
   https://support.microsoft.com/kb/2999226[KB2999226] or
   https://support.microsoft.com/kb/3118401[KB3118401].
 
-* Any modern 64-bit AMD64/x86-64 or 32-bit x86 processor.
+* Any modern 64-bit Intel or Arm processor.
 
 * 500 MB available RAM. Larger capture files require more RAM.
 

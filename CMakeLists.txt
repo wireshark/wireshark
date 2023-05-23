@@ -115,6 +115,10 @@ endif()
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
 # %WIRESHARK_TARGET_PLATFORM%.
 
+# XXX We should probably consolidate WIRESHARK_TARGET_PLATFORM and
+# WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE and just use "x64" and "arm64"
+# instead of "win64" and "win64arm"
+
 if(WIN32)
 	if(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
 		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
@@ -147,12 +151,12 @@ if(WIN32)
 	endif()
 
 	if(WIRESHARK_TARGET_PLATFORM MATCHES "win64")
-		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE amd64)
+		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE x64)
+	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win64arm")
+		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE arm64)
 	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win32")
 		message(FATAL_ERROR "Deprecated target platform ${WIRESHARK_TARGET_PLATFORM}. See https://gitlab.com/wireshark/wireshark/-/issues/17779 for details.")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE x86)
-	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win64arm")
-		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE arm64)
 	else()
 		message(FATAL_ERROR "Invalid target platform: ${WIRESHARK_TARGET_PLATFORM}")
 	endif()
@@ -362,6 +366,10 @@ else()
 endif()
 
 # Used in .rc files and manifests
+set(MANIFEST_PROCESSOR_ARCHITECTURE ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE})
+if (MANIFEST_PROCESSOR_ARCHITECTURE MATCHES "x64")
+	set(MANIFEST_PROCESSOR_ARCHITECTURE "amd64")
+endif()
 set(RC_VERSION ${PROJECT_MAJOR_VERSION},${PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},${PROJECT_BUILD_VERSION})
 set(LOG_RC_VERSION ${LOG_PROJECT_MAJOR_VERSION},${LOG_PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},${PROJECT_BUILD_VERSION})
 
@@ -2255,7 +2263,7 @@ if(USE_REPOSITORY)
 	if(ZIP_EXECUTABLE)
 		add_custom_target(pdb_zip_package COMMENT "This packages .PDBs but will not create them.")
 		set_target_properties(pdb_zip_package PROPERTIES FOLDER "Packaging")
-		set(_pdb_zip "${CMAKE_BINARY_DIR}/Wireshark-pdb-${WIRESHARK_TARGET_PLATFORM}-${PROJECT_VERSION}.zip")
+		set(_pdb_zip "${CMAKE_BINARY_DIR}/Wireshark-pdb-${PROJECT_VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.zip")
 		file(TO_NATIVE_PATH "${_pdb_zip}" _pdb_zip_win)
 		add_custom_command(TARGET pdb_zip_package POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
