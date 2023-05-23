@@ -133,13 +133,11 @@ $ArchivesSubDirectory = @{
 # Plain file downloads
 
 $Win64Files = @{
-    "Npcap/npcap-1.75.exe" = "9ac38dff01b48e18033e8a9015b27042ef847c8c84a9065961a30f8ae22d5245";
-    "USBPcap/USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
+    # Nothing here
 }
 
 $Win64ArmFiles = @{
-    "Npcap/npcap-1.75.exe" = "9ac38dff01b48e18033e8a9015b27042ef847c8c84a9065961a30f8ae22d5245";
-    # "USBPcap/USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
+    # Nothing here
 }
 
 $Archives = $Win64Archives;
