@@ -2,11 +2,11 @@
 
 [#ChapterSetup]
 
-== Quick Setup
+== Toolchain Installation and Build Instructions
 
 [#ChSetupUNIX]
 
-=== UNIX: Installation and Build Instructions
+=== UNIX and UNIX-like Systems
 
 [#ChSetupUNIXBuildEnvironmentSetup]
 
@@ -215,7 +215,7 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 
 // Retain ChSetupWin32 for backward compatibility
 [#ChSetupWindows]
-=== Windows: Step-by-Step Guide[[ChSetupWin32]]
+=== Windows: Microsoft Visual Studio[[ChSetupWin32]]
 
 A quick setup guide for Windows development with recommended configurations.
 
@@ -711,3 +711,69 @@ packaging\nsis\wireshark-{wireshark-version}-myprotocol123-x64.exe
 
 to test your new installer.
 It’s a good idea to test on a different machine than the developer machine.
+
+[#ChSetupMSYS2]
+
+=== Windows: Mingw-w64 with MSYS2
+
+MSYS2 comes with different environments/subsystems and the first thing you
+have to decide is which one to use. The differences among the environments
+are mainly environment variables, default compilers/linkers, architecture,
+system libraries used etc. If you are unsure, go with UCRT64.
+
+==== Building from source
+
+. Open the shell for the selected 64-bit environment.
+
+. Download the Wireshark source code using Git, if you haven't done so already,
+  and cd into that directory.
+
+. Install needed dependencies:
+
+    $ tools/msys2-setup.sh --install-all
+
+. Build using CMake + Ninja:
+
+    $ mkdir build && cd build
+    $ cmake -DENABLE_WERROR=Off ..
+    $ ninja
+    $ ninja test        # optional, to run the test suite
+    $ ninja install     # optional, install to the MSYS2 shell path
+
+The application should be launched using the same shell.
+
+==== Build an installer
+
+. Follow the instructions above to compile Wireshark from source.
+
+. Build the Wireshark User Guide.
+
+    $ ninja user_guide_html
+
+. Download Npcap and USBpcap and copy them to ${CMAKE_BINARY_DIR}/packaging/nsis.
+
+. Build the installer
+
+    $ ninja wireshark_nsis_prep
+    $ ninja wireshark_nsis
+
+If successful the installer can be found in ${CMAKE_BINARY_DIR}/packaging/nsis.
+
+Alternatively you can also use the PKGBUILD included in the Wireshark
+source distribution to compile Wireshark into a binary package that can be
+https://www.msys2.org/wiki/Creating-Packages/[installed using pacman].
+
+==== Comparison with MSVC toolchain
+
+The official Wireshark Windows installer is compiled using Microsoft Visual
+Studio (MSVC). Currently the MSYS2 build has the following limitations compared to
+the build using MSVC:
+
+* The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
+
+* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have
+  https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
+
+* Enhanced Kerberos dissection with decryption is not available.
+
+* AirPcap is not supported.
