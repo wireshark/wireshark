@@ -58,6 +58,24 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
+        <release version="3.6.14" date="2023-05-24">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.14.html</url>
+        </release>
+        <release version="3.6.13" date="2023-04-12">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.13.html</url>
+        </release>
+        <release version="3.6.12" date="2023-03-02">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.12.html</url>
+        </release>
+        <release version="3.6.11" date="2023-01-18">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.11.html</url>
+        </release>
+        <release version="3.6.10" date="2022-12-07">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.10.html</url>
+        </release>
+        <release version="3.6.9" date="2022-10-26">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.9.html</url>
+        </release>
         <release version="3.6.8" date="2022-09-07">
             <url>https://www.wireshark.org/docs/relnotes/wireshark-3.6.8.html</url>
         </release>

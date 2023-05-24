@@ -37,7 +37,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2023-12[]
 Candump log file parser crash.
 wsbuglink:19062[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-2855[].
 // Fixed in master: 0181fafb21
 // Fixed in release-4.0: 55dbdaf47c
 // Fixed in release-3.6: 9ce7445be0
@@ -48,7 +48,7 @@ wsbuglink:19062[].
 * wssalink:2023-13[]
 BLF file parser crash.
 wsbuglink:19063[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-2857[].
 // Fixed in master: c899be35a9
 // Fixed in release-4.0: 35e630ea3e
 // Fixed in release-3.6: 6c7199da0c
@@ -70,7 +70,7 @@ wsbuglink:19068[].
 * wssalink:2023-15[]
 NetScaler file parser crash.
 wsbuglink:19081[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-2858[].
 // Fixed in master: cb190d6839
 // Fixed in release-4.0: 74017383c8
 // Fixed in release-3.6: a0403c4b39
@@ -81,7 +81,7 @@ wsbuglink:19081[].
 * wssalink:2023-16[]
 VMS TCPIPtrace file parser crash.
 wsbuglink:19083[].
-// cveidlink:2023-xxxx[].
+cveidlink:2023-2856[].
 // Fixed in master: db5135826d
 // Fixed in release-4.0: da017472e6
 // Fixed in release-3.6: 1c264ced57
@@ -98,7 +98,18 @@ cveidlink:2023-0668[].
 // Fixed in release-3.6: c23343d221
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-126
-* IEEE-C37.118 parsing buffer overflow. wsbuglink:19087[].
+// * IEEE-C37.118 parsing buffer overflow. wsbuglink:19087[].
+
+* wssalink:2023-20[]
+XRA dissector infinite loop.
+wsbuglink:19100[].
+// cveidlink:2023-xxx[].
+// Fixed in master: ce87eac032
+// Fixed in release-4.0: e18d0e36
+// Fixed in release-3.6: 461a1736
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835
+// * OSS-Fuzz 59248: wireshark:fuzzshark_ip_proto-udp: Timeout in fuzzshark_ip_proto-udp. wsbuglink:19100[].
 
 The following bugs have been fixed:
 
@@ -115,8 +126,7 @@ The following bugs have been fixed:
 * Wireshark can't save this capture in that format wsbuglink:19080[].
 * MSMMS parsing buffer overflow wsbuglink:19086[].
 * USB HID parser shows wrong label for usages Rx/Vx/Vbrx of usage page Generic Desktop Control wsbuglink:19095[].
-
-
+* "Follow -> QUIC Stream" mixes data between streams. wsbuglink:19102[].
 
 === New and Updated Features
 
@@ -143,12 +153,14 @@ ILP
 ISAKMP
 MSMMS
 NTLMSSP
+QUIC
 SPNEGO
 Synphasor
 TCP
 UDS
 ULP
 USB HID
+XRA
 --
 
 === New and Updated Capture File Support
