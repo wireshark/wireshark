@@ -20,11 +20,80 @@ Wireshark 4.0.6 Release Notes
 
    The following vulnerabilities have been fixed:
 
+     • wnpa-sec-2023-12[3] Candump log file parser crash. Issue
+       19062[4]. CVE-2023-2855[5].
+
+     • wnpa-sec-2023-13[6] BLF file parser crash. Issue 19063[7].
+       CVE-2023-2857[8].
+
+     • wnpa-sec-2023-14[9] GDSDB dissector infinite loop. Issue
+       19068[10].
+
+     • wnpa-sec-2023-15[11] NetScaler file parser crash. Issue
+       19081[12]. CVE-2023-2858[13].
+
+     • wnpa-sec-2023-16[14] VMS TCPIPtrace file parser crash. Issue
+       19083[15]. CVE-2023-2856[16].
+
+     • wnpa-sec-2023-17[17] BLF file parser crash. Issue 19084[18].
+       CVE-2023-2854[19].
+
+     • wnpa-sec-2023-18[20] RTPS dissector crash. Issue 19085[21].
+       CVE-2023-0666[22].
+
+     • wnpa-sec-2023-19[23] IEEE C37.118 Synchrophasor dissector crash.
+       Issue 19087[24]. CVE-2023-0668[25].
+
+     • wnpa-sec-2023-20[26] XRA dissector infinite loop. Issue
+       19100[27].
+
    The following bugs have been fixed:
+
+     • Conversations list has incorrect unit (bytes) in bit speed
+       columns in the 3.7 development versions. Issue 18211[28].
+
+     • The media_type table should treat media types, e.g.
+       application/3gppHal+json, as case-insensitive. Issue 18611[29].
+
+     • NNTP dissector bug. Issue 18981[30].
+
+     • Incorrect padding in BFCP decoder. Issue 18890[31].
+
+     • SPNEGO dissector bug. Issue 18991[32].
+
+     • SRT values are incorrect when applying a time shift. Issue
+       18999[33].
+
+     • Add warning that capturing is not supported in Wireshark
+       installed from flatpak. Issue 19008[34].
+
+     • Opening Wireshark with -z io,stat option. Issue 19042[35].
+
+     • batadv dissector bug. Issue 19047[36].
+
+     • radiotap-gen build fails if pcap is not found. Issue 19059[37].
+
+     • [UDS] When filtering the uds.wdbi.data_identifier or
+       uds.iocbi.data_identifier field is interpreted as 1 byte whereas
+       it consists of 2 bytes. Issue 19078[38].
+
+     • Wireshark can’t save this capture in that format. Issue
+       19080[39].
+
+     • MSMMS parsing buffer overflow. Issue 19086[40].
+
+     • USB HID parser shows wrong label for usages Rx/Vx/Vbrx of usage
+       page Generic Desktop Control. Issue 19095[41].
+
+     • "Follow → QUIC Stream" mixes data between streams. Issue
+       19102[42].
 
   New and Updated Features
 
-   There are no new or updated features in this release.
+   The media type dissector table now properly treats media types and
+   subtypes as case-insensitive automatically, per RFC 6838. Media types
+   no longer need to be lower cased before registering or looking up in
+   the table.
 
   Removed Features and Support
 
@@ -34,12 +103,13 @@ Wireshark 4.0.6 Release Notes
 
   Updated Protocol Support
 
-     • The media type dissector table now properly treats media types
-       and subtypes as case-insensitive automatically, per RFC 6838.
-       Media types no longer need to be lower cased before registering
-       or looking up in the table.
+   batadv, BFCP, CommunityID, COSE, GDSDB, H.265, HTTP, ILP, ISAKMP,
+   MSMMS, NNTP, NR RRC, NTLMSSP, QUIC, RTPS, SPNEGO, Synphasor, TCP,
+   UDS, ULP, USB HID, and XRA
 
   New and Updated Capture File Support
+
+   BLF, Candump, NetScaler, and VMS TCPIPtrace
 
   New File Format Decoding Support
 
@@ -55,7 +125,7 @@ Wireshark 4.0.6 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[43] on the Wireshark web site.
 
  File Locations
 
@@ -70,33 +140,73 @@ Wireshark 4.0.6 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[44] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[45].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[46].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[7].
+  SharkFest[47].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[8].
+  at wiresharkfoundation.org[48].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[9].
+  A complete FAQ is available on the Wireshark web site[49].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://sharkfest.wireshark.org
-   8. https://wiresharkfoundation.org
-   9. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/security/wnpa-sec-2023-12
+   4. https://gitlab.com/wireshark/wireshark/-/issues/19062
+   5. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2855
+   6. https://www.wireshark.org/security/wnpa-sec-2023-13
+   7. https://gitlab.com/wireshark/wireshark/-/issues/19063
+   8. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2857
+   9. https://www.wireshark.org/security/wnpa-sec-2023-14
+  10. https://gitlab.com/wireshark/wireshark/-/issues/19068
+  11. https://www.wireshark.org/security/wnpa-sec-2023-15
+  12. https://gitlab.com/wireshark/wireshark/-/issues/19081
+  13. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2858
+  14. https://www.wireshark.org/security/wnpa-sec-2023-16
+  15. https://gitlab.com/wireshark/wireshark/-/issues/19083
+  16. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2856
+  17. https://www.wireshark.org/security/wnpa-sec-2023-17
+  18. https://gitlab.com/wireshark/wireshark/-/issues/19084
+  19. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2854
+  20. https://www.wireshark.org/security/wnpa-sec-2023-18
+  21. https://gitlab.com/wireshark/wireshark/-/issues/19085
+  22. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0666
+  23. https://www.wireshark.org/security/wnpa-sec-2023-19
+  24. https://gitlab.com/wireshark/wireshark/-/issues/19087
+  25. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0668
+  26. https://www.wireshark.org/security/wnpa-sec-2023-20
+  27. https://gitlab.com/wireshark/wireshark/-/issues/19100
+  28. https://gitlab.com/wireshark/wireshark/-/issues/18211
+  29. https://gitlab.com/wireshark/wireshark/-/issues/18611
+  30. https://gitlab.com/wireshark/wireshark/-/issues/18981
+  31. https://gitlab.com/wireshark/wireshark/-/issues/18890
+  32. https://gitlab.com/wireshark/wireshark/-/issues/18991
+  33. https://gitlab.com/wireshark/wireshark/-/issues/18999
+  34. https://gitlab.com/wireshark/wireshark/-/issues/19008
+  35. https://gitlab.com/wireshark/wireshark/-/issues/19042
+  36. https://gitlab.com/wireshark/wireshark/-/issues/19047
+  37. https://gitlab.com/wireshark/wireshark/-/issues/19059
+  38. https://gitlab.com/wireshark/wireshark/-/issues/19078
+  39. https://gitlab.com/wireshark/wireshark/-/issues/19080
+  40. https://gitlab.com/wireshark/wireshark/-/issues/19086
+  41. https://gitlab.com/wireshark/wireshark/-/issues/19095
+  42. https://gitlab.com/wireshark/wireshark/-/issues/19102
+  43. https://www.wireshark.org/download.html
+  44. https://ask.wireshark.org/
+  45. https://www.wireshark.org/lists/
+  46. https://gitlab.com/wireshark/wireshark/-/issues
+  47. https://sharkfest.wireshark.org
+  48. https://wiresharkfoundation.org
+  49. https://www.wireshark.org/faq.html
