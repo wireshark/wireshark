@@ -35,9 +35,8 @@ variables:
 # repo and allow manual runs in the web UI and in forks.
 .if-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-3.6" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
   - if: '$CI_PIPELINE_SOURCE == "web"'
-    when: always
+  - if: '$CI_PIPELINE_SOURCE == "api"'
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
     when: manual
 # Merged commits for runners which are only available in
@@ -45,23 +44,19 @@ variables:
 # the main repo and allow manual runs in the web UI.
 .if-w-w-only-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
   - if: '$CI_PIPELINE_SOURCE == "web"'
-    when: always
+  - if: '$CI_PIPELINE_SOURCE == "api"'
 # Incoming merge requests.
 .if-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    when: always
 # Incoming non-detached merge requests. Must be used for runners which are only
 # available in wireshark/wireshark, e.g. wireshark-windows-*
 .if-w-w-only-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
 # Fuzz jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
 .if-fuzz-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "fuzz"'
-    when: always
 
 .build-linux:
   stage: build
@@ -508,7 +503,6 @@ macOS Intel Package:
       changes:
         - "docbook/**/*"
         - "epan/wslua/**/*"
-      when: always
     - if: '$CI_PIPELINE_SOURCE == "push"'
       changes:
         - "docbook/**/*"
