@@ -150,6 +150,31 @@ static int hf_cigi_frame_size = -1;
 static int hf_cigi_unknown = -1;
 
 
+static const true_false_string attach_detach_tfs = {
+    "Attach",
+    "Detach"
+};
+
+static const true_false_string entity_geodetic_tfs = {
+    "Entity",
+    "Geodetic"
+};
+
+static const true_false_string extended_normal_tfs = {
+    "Extended",
+    "Normal"
+};
+
+static const true_false_string visible_occluded_tfs = {
+    "Visible",
+    "Occluded"
+};
+
+static const true_false_string visible_occulted_tfs = {
+    "Visible",
+    "Occulted"
+};
+
 /*** Fields for CIGI2 ***/
 
 /* CIGI2 Packet ID */
@@ -274,11 +299,6 @@ static const value_string cigi2_entity_control_entity_state_vals[] = {
     {1, "Load/Show"},
     {2, "Unload"},
     {0, NULL},
-};
-
-static const true_false_string cigi2_entity_control_attach_state_tfs = {
-    "Attach",
-    "Detach"
 };
 
 static const value_string cigi2_entity_control_effect_state_vals[] = {
@@ -609,11 +629,6 @@ static int hf_cigi2_line_of_sight_response_alt = -1;
 static int hf_cigi2_line_of_sight_response_lat = -1;
 static int hf_cigi2_line_of_sight_response_lon = -1;
 
-static const true_false_string cigi2_line_of_sight_occult_response_tfs = {
-    "Visible",
-    "Occulted"
-};
-
 /* CIGI2 Collision Detection Segment Response */
 #define CIGI2_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_RESPONSE 24
 static int hf_cigi2_collision_detection_segment_response = -1;
@@ -940,11 +955,6 @@ static const value_string cigi3_entity_control_entity_state_vals[] = {
     {1, "Active"},
     {2, "Destroyed"},
     {0, NULL},
-};
-
-static const true_false_string cigi3_entity_control_attach_state_tfs = {
-    "Attach",
-    "Detach"
 };
 
 static const true_false_string cigi3_entity_control_collision_detection_request_tfs = {
@@ -1452,10 +1462,7 @@ static const true_false_string cigi3_sensor_control_track_white_black_tfs = {
     "White"
 };
 
-static const true_false_string cigi3_sensor_control_response_type_tfs = {
-    "Extended",
-    "Normal"
-};
+
 
 /* CIGI3 Motion Tracker Control */
 #define CIGI3_PACKET_SIZE_MOTION_TRACKER_CONTROL 8
@@ -1601,11 +1608,6 @@ static const value_string cigi3_hat_hot_request_type_vals[] = {
     {0, NULL},
 };
 
-static const true_false_string cigi3_hat_hot_request_coordinate_system_tfs = {
-    "Entity",
-    "Geodetic"
-};
-
 /* CIGI3_2 HAT/HOT Request */
 #define CIGI3_2_PACKET_SIZE_HAT_HOT_REQUEST 32
 static int hf_cigi3_2_hat_hot_request = -1;
@@ -1625,11 +1627,6 @@ static const value_string cigi3_2_hat_hot_request_type_vals[] = {
     {0, NULL},
 };
 
-static const true_false_string cigi3_2_hat_hot_request_coordinate_system_tfs = {
-    "Entity",
-    "Geodetic"
-};
-
 /* CIGI3 Line of Sight Segment Request */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST 64
 static int hf_cigi3_line_of_sight_segment_request = -1;
@@ -1647,16 +1644,6 @@ static int hf_cigi3_line_of_sight_segment_request_destination_lat_xoff = -1;
 static int hf_cigi3_line_of_sight_segment_request_destination_lon_yoff = -1;
 static int hf_cigi3_line_of_sight_segment_request_destination_alt_zoff = -1;
 static int hf_cigi3_line_of_sight_segment_request_material_mask = -1;
-
-static const true_false_string cigi3_line_of_sight_segment_request_type_tfs = {
-    "Extended",
-    "Basic"
-};
-
-static const true_false_string cigi3_line_of_sight_segment_request_coord_tfs = {
-    "Entity",
-    "Geodetic"
-};
 
 /* CIGI3_2 Line of Sight Segment Request */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST 64
@@ -1679,16 +1666,6 @@ static int hf_cigi3_2_line_of_sight_segment_request_material_mask = -1;
 static int hf_cigi3_2_line_of_sight_segment_request_update_period = -1;
 static int hf_cigi3_2_line_of_sight_segment_request_destination_entity_id = -1;
 
-static const true_false_string cigi3_2_line_of_sight_segment_request_type_tfs = {
-    "Extended",
-    "Basic"
-};
-
-static const true_false_string cigi3_2_line_of_sight_segment_request_coord_tfs = {
-    "Entity",
-    "Geodetic"
-};
-
 /* CIGI3 Line of Sight Vector Request */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST 56
 static int hf_cigi3_line_of_sight_vector_request = -1;
@@ -1706,16 +1683,6 @@ static int hf_cigi3_line_of_sight_vector_request_source_lat_xoff = -1;
 static int hf_cigi3_line_of_sight_vector_request_source_lon_yoff = -1;
 static int hf_cigi3_line_of_sight_vector_request_source_alt_zoff = -1;
 static int hf_cigi3_line_of_sight_vector_request_material_mask = -1;
-
-static const true_false_string cigi3_line_of_sight_vector_request_type_tfs = {
-    "Extended",
-    "Basic"
-};
-
-static const true_false_string cigi3_line_of_sight_vector_request_coord_tfs = {
-    "Entity",
-    "Geodetic"
-};
 
 /* CIGI3_2 Line of Sight Vector Request */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST 56
@@ -1735,16 +1702,6 @@ static int hf_cigi3_2_line_of_sight_vector_request_source_lon_yoff = -1;
 static int hf_cigi3_2_line_of_sight_vector_request_source_alt_zoff = -1;
 static int hf_cigi3_2_line_of_sight_vector_request_material_mask = -1;
 static int hf_cigi3_2_line_of_sight_vector_request_update_period = -1;
-
-static const true_false_string cigi3_2_line_of_sight_vector_request_type_tfs = {
-    "Extended",
-    "Basic"
-};
-
-static const true_false_string cigi3_2_line_of_sight_vector_request_coord_tfs = {
-    "Entity",
-    "Geodetic"
-};
 
 /* CIGI3 Position Request */
 #define CIGI3_PACKET_SIZE_POSITION_REQUEST 8
@@ -1979,11 +1936,6 @@ static const value_string cigi3_3_symbol_control_symbol_state_vals[] = {
     {0, NULL}
 };
 
-static const true_false_string cigi3_3_symbol_control_attach_state_tfs = {
-    "Attach",
-    "Detach"
-};
-
 static const true_false_string cigi3_3_symbol_control_flash_control_tfs = {
     "Reset",
     "Continue"
@@ -2144,11 +2096,6 @@ static int hf_cigi3_line_of_sight_response_count = -1;
 static int hf_cigi3_line_of_sight_response_entity_id = -1;
 static int hf_cigi3_line_of_sight_response_range = -1;
 
-static const true_false_string cigi3_line_of_sight_response_visible_tfs = {
-    "Visible",
-    "Occluded"
-};
-
 /* CIGI3_2 Line of Sight Response */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE 16
 static int hf_cigi3_2_line_of_sight_response = -1;
@@ -2160,11 +2107,6 @@ static int hf_cigi3_2_line_of_sight_response_host_frame_number_lsn = -1;
 static int hf_cigi3_2_line_of_sight_response_count = -1;
 static int hf_cigi3_2_line_of_sight_response_entity_id = -1;
 static int hf_cigi3_2_line_of_sight_response_range = -1;
-
-static const true_false_string cigi3_2_line_of_sight_response_visible_tfs = {
-    "Visible",
-    "Occluded"
-};
 
 /* CIGI3 Line of Sight Extended Response */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE 56
@@ -2189,16 +2131,6 @@ static int hf_cigi3_line_of_sight_extended_response_material_code = -1;
 static int hf_cigi3_line_of_sight_extended_response_normal_vector_azimuth = -1;
 static int hf_cigi3_line_of_sight_extended_response_normal_vector_elevation = -1;
 
-static const true_false_string cigi3_line_of_sight_extended_response_visible_tfs = {
-    "Visible",
-    "Occluded"
-};
-
-static const true_false_string cigi3_line_of_sight_extended_response_intersection_coord_tfs = {
-    "Entity",
-    "Geodetic"
-};
-
 /* CIGI3_2 Line of Sight Extended Response */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE 56
 static int hf_cigi3_2_line_of_sight_extended_response = -1;
@@ -2221,11 +2153,6 @@ static int hf_cigi3_2_line_of_sight_extended_response_alpha = -1;
 static int hf_cigi3_2_line_of_sight_extended_response_material_code = -1;
 static int hf_cigi3_2_line_of_sight_extended_response_normal_vector_azimuth = -1;
 static int hf_cigi3_2_line_of_sight_extended_response_normal_vector_elevation = -1;
-
-static const true_false_string cigi3_2_line_of_sight_extended_response_visible_tfs = {
-    "Visible",
-    "Occluded"
-};
 
 /* CIGI3 Sensor Response */
 #define CIGI3_PACKET_SIZE_SENSOR_RESPONSE 24
@@ -6652,7 +6579,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_entity_control_attach_state,
             { "Attach State", "cigi.entity_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&cigi2_entity_control_attach_state_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x20,
                 "Identifies whether the entity should be attach as a child to a parent", HFILL }
         },
         { &hf_cigi2_entity_control_collision_detect,
@@ -6734,7 +6661,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_entity_control_attach_state,
             { "Attach State", "cigi.entity_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_attach_state_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x04,
                 "Specifies whether the entity should be attached as a child to a parent", HFILL }
         },
         { &hf_cigi3_entity_control_collision_detection_request,
@@ -6833,7 +6760,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_entity_control_attach_state,
             { "Attach State", "cigi.entity_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_attach_state_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x04,
                 "Specifies whether the entity should be attached as a child to a parent", HFILL }
         },
         { &hf_cigi3_3_entity_control_collision_detection_request,
@@ -8402,7 +8329,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_control_response_type,
             { "Response Type", "cigi.sensor_control.response_type",
-                FT_BOOLEAN, 8, TFS(&cigi3_sensor_control_response_type_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
                 "Specifies whether the IG should return a Sensor Response packet or a Sensor Extended Response packet", HFILL }
         },
         { &hf_cigi3_sensor_control_gain,
@@ -9249,7 +9176,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_request_coordinate_system,
             { "Coordinate System", "cigi.hat_hot_request.coordinate_system",
-                FT_BOOLEAN, 8, TFS(&cigi3_hat_hot_request_coordinate_system_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
                 "Specifies the coordinate system within which the test point is defined", HFILL }
         },
         { &hf_cigi3_hat_hot_request_entity_id,
@@ -9291,7 +9218,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_request_coordinate_system,
             { "Coordinate System", "cigi.hat_hot_request.coordinate_system",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_hat_hot_request_coordinate_system_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
                 "Specifies the coordinate system within which the test point is defined", HFILL }
         },
         { &hf_cigi3_2_hat_hot_request_update_period,
@@ -9333,22 +9260,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_segment_request_type,
             { "Request Type", "cigi.los_segment_request.type",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_segment_request_type_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
                 "Determines what type of response the IG should return for this request", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_source_coord,
             { "Source Point Coordinate System", "cigi.los_segment_request.source_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_segment_request_coord_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x02,
                 "Indicates the coordinate system relative to which the test segment source endpoint is specified", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_destination_coord,
             { "Destination Point Coordinate System", "cigi.los_segment_request.destination_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_segment_request_coord_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
                 "Indicates the coordinate system relative to which the test segment destination endpoint is specified", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_response_coord,
             { "Response Coordinate System", "cigi.los_segment_request.response_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_segment_request_coord_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x08,
                 "Specifies the coordinate system to be used in the response", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_alpha_threshold,
@@ -9410,22 +9337,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_segment_request_type,
             { "Request Type", "cigi.los_segment_request.type",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_segment_request_type_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
                 "Determines what type of response the IG should return for this request", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_source_coord,
             { "Source Point Coordinate System", "cigi.los_segment_request.source_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_segment_request_coord_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x02,
                 "Indicates the coordinate system relative to which the test segment source endpoint is specified", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_coord,
             { "Destination Point Coordinate System", "cigi.los_segment_request.destination_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_segment_request_coord_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
                 "Indicates the coordinate system relative to which the test segment destination endpoint is specified", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_response_coord,
             { "Response Coordinate System", "cigi.los_segment_request.response_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_segment_request_coord_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x08,
                 "Specifies the coordinate system to be used in the response", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_entity_id_valid,
@@ -9502,17 +9429,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_vector_request_type,
             { "Request Type", "cigi.los_vector_request.type",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_vector_request_type_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
                 "Determines what type of response the IG should return for this request", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_source_coord,
             { "Source Point Coordinate System", "cigi.los_vector_request.source_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_vector_request_coord_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x02,
                 "Indicates the coordinate system relative to which the test vector source point is specified", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_response_coord,
             { "Response Coordinate System", "cigi.los_vector_request.response_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_vector_request_coord_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
                 "Specifies the coordinate system to be used in the response", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_alpha,
@@ -9579,17 +9506,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_vector_request_type,
             { "Request Type", "cigi.los_vector_request.type",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_vector_request_type_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
                 "Determines what type of response the IG should return for this request", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_source_coord,
             { "Source Point Coordinate System", "cigi.los_vector_request.source_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_vector_request_coord_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x02,
                 "Indicates the coordinate system relative to which the test vector source point is specified", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_response_coord,
             { "Response Coordinate System", "cigi.los_vector_request.response_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_vector_request_coord_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
                 "Specifies the coordinate system to be used in the response", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_alpha,
@@ -10520,7 +10447,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_control_attach_state,
             { "Attach State", "cigi.symbol_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_attach_state_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x04,
                 "Specifies whether this symbol should be attached to another", HFILL }
         },
         { &hf_cigi3_3_symbol_control_flash_control,
@@ -10624,7 +10551,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_short_symbol_control_attach_state,
             { "Attach State", "cigi.short_symbol_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_attach_state_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x04,
                 "Specifies whether this symbol should be attached to another", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_flash_control,
@@ -11027,7 +10954,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_line_of_sight_response_occult_response,
             { "Occult Response", "cigi.los_response.occult_response",
-                FT_BOOLEAN, 8, TFS(&cigi2_line_of_sight_occult_response_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&visible_occulted_tfs), 0x40,
                 "Used to respond to the LOS occult request data packet", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_material_type,
@@ -11079,7 +11006,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_response_visible,
             { "Visible", "cigi.los_response.visible",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_response_visible_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&visible_occluded_tfs), 0x04,
                 "Indicates whether the destination point is visible from the source point", HFILL }
         },
         { &hf_cigi3_line_of_sight_response_count,
@@ -11121,7 +11048,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_response_visible,
             { "Visible", "cigi.los_response.visible",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_response_visible_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&visible_occluded_tfs), 0x04,
                 "Indicates whether the destination point is visible from the source point", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_response_host_frame_number_lsn,
@@ -11173,12 +11100,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_extended_response_visible,
             { "Visible", "cigi.los_ext_response.visible",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_extended_response_visible_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&visible_occluded_tfs), 0x08,
                 "Indicates whether the destination point is visible from the source point", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_intersection_coord,
             { "Intersection Point Coordinate System", "cigi.los_ext_response.intersection_coord",
-                FT_BOOLEAN, 8, TFS(&cigi3_line_of_sight_extended_response_intersection_coord_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x10,
                 "Indicates the coordinate system relative to which the intersection point is specified", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_response_count,
@@ -11275,7 +11202,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_extended_response_visible,
             { "Visible", "cigi.3_2_los_ext_response.visible",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_line_of_sight_extended_response_visible_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&visible_occluded_tfs), 0x08,
                 "Indicates whether the destination point is visible from the source point", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_host_frame_number_lsn,
