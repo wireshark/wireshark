@@ -28,104 +28,15 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2023-12[]
-Candump log file parser crash.
-wsbuglink:19062[].
-cveidlink:2023-2855[].
-// Fixed in master: 0181fafb21
-// Fixed in release-4.0: 55dbdaf47c
-// Fixed in release-3.6: 9ce7445be0
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * Stack-buffer-overflow in candump_write_packet. wsbuglink:19062[].
-
-* wssalink:2023-13[]
-BLF file parser crash.
-wsbuglink:19063[].
-cveidlink:2023-2857[].
-// Fixed in master: c899be35a9
-// Fixed in release-4.0: 35e630ea3e
-// Fixed in release-3.6: 6c7199da0c
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * Heap buffer overflow vulnerability in BLF reader. wsbuglink:19063[].
-
-* wssalink:2023-14[]
-GDSDB dissector infinite loop.
-wsbuglink:19068[].
-// cveidlink:2023-xxxx[].
-// Fixed in master: 118815ca7c
-// Fixed in release-4.0: 3d3208f762
-// Fixed in release-3.6: 3412780abd
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-835
-// * Fuzz job crash output: fuzz-2023-05-13-7062.pcap. wsbuglink:19068[].
-
-* wssalink:2023-15[]
-NetScaler file parser crash.
-wsbuglink:19081[].
-cveidlink:2023-2858[].
-// Fixed in master: cb190d6839
-// Fixed in release-4.0: 74017383c8
-// Fixed in release-3.6: a0403c4b39
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * Heap Buffer Overflow in Wireshark 4.0.5's nstrace_read_v10 Function. wsbuglink:19081[].
-
-* wssalink:2023-16[]
-VMS TCPIPtrace file parser crash.
-wsbuglink:19083[].
-cveidlink:2023-2856[].
-// Fixed in master: db5135826d
-// Fixed in release-4.0: da017472e6
-// Fixed in release-3.6: 1c264ced57
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * Stack Buffer Overflow in Wireshark 4.0.5's parse_vms_packet Function. wsbuglink:19083[].
-
-* wssalink:2023-17[]
-BLF file parser crash.
-wsbuglink:19084[].
-cveidlink:2023-2854[].
-// Fixed in master: 8780332817
-// Fixed in release-4.0: 88311a4cf0
-// Fixed in release-3.6: n/a
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * Heap Buffer Overflow in Wireshark 4.0.5's blf_read_apptextmessage Function. wsbuglink:19084[].
-
-* wssalink:2023-18[]
-RTPS dissector crash.
-wsbuglink:19085[].
-cveidlink:2023-0666[].
-// Fixed in master: 28fdce547c
-// Fixed in release-4.0: 265cbf15a4
-// Fixed in release-3.6: n/a
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * RTPS parsing buffer overflow. wsbuglink:19085[].
-
-* wssalink:2023-19[]
-IEEE C37.118 Synchrophasor dissector crash.
-wsbuglink:19087[].
-cveidlink:2023-0668[].
-// Fixed in master: c4f37d77b2
-// Fixed in release-4.0: fbe9291d78
-// Fixed in release-3.6: c23343d221
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-126
-// * IEEE-C37.118 parsing buffer overflow. wsbuglink:19087[].
-
-* wssalink:2023-20[]
-XRA dissector infinite loop.
-wsbuglink:19100[].
+// * wssalink:2023-21[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
 // cveidlink:2023-xxx[].
-// Fixed in master: ce87eac032
-// Fixed in release-4.0: e18d0e36
-// Fixed in release-3.6: 461a1736
+// Fixed in master: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-835
-// * OSS-Fuzz 59248: wireshark:fuzzshark_ip_proto-udp: Timeout in fuzzshark_ip_proto-udp. wsbuglink:19100[].
+// CWE-126
 
 The following bugs have been fixed:
 
@@ -134,27 +45,9 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
-* Conversations list has incorrect unit (bytes) in bit speed columns in the 3.7 development versions. wsbuglink:18211[].
-* The media_type table should treat media types, e.g. application/3gppHal+json, as case-insensitive. wsbuglink:18611[].
-* NNTP dissector bug. wsbuglink:18981[].
-* Incorrect padding in BFCP decoder. wsbuglink:18890[].
-* SPNEGO dissector bug. wsbuglink:18991[].
-* SRT values are incorrect when applying a time shift. wsbuglink:18999[].
-* Add warning that capturing is not supported in Wireshark installed from flatpak. wsbuglink:19008[].
-* Opening Wireshark with -z io,stat option. wsbuglink:19042[].
-* batadv dissector bug. wsbuglink:19047[].
-* radiotap-gen build fails if pcap is not found. wsbuglink:19059[].
-* [UDS] When filtering the uds.wdbi.data_identifier or uds.iocbi.data_identifier field is interpreted as 1 byte whereas it consists of 2 bytes. wsbuglink:19078[].
-* Wireshark can't save this capture in that format. wsbuglink:19080[].
-* MSMMS parsing buffer overflow. wsbuglink:19086[].
-* USB HID parser shows wrong label for usages Rx/Vx/Vbrx of usage page Generic Desktop Control. wsbuglink:19095[].
-* "Follow -> QUIC Stream" mixes data between streams. wsbuglink:19102[].
-
 === New and Updated Features
 
-The media type dissector table now properly treats media types and subtypes
-as case-insensitive automatically, per RFC 6838. Media types no longer need
-to be lower cased before registering or looking up in the table.
+There are no new or updated features in this release.
 
 === Removed Features and Support
 
@@ -176,41 +69,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.6.. | ag packet- | sort -u)
 [commaize]
 --
-batadv
-BFCP
-CommunityID
-COSE
-GDSDB
-H.265
-HTTP
-ILP
-ISAKMP
-MSMMS
-NNTP
-NR RRC
-NTLMSSP
-QUIC
-RTPS
-SPNEGO
-Synphasor
-TCP
-UDS
-ULP
-USB HID
-XRA
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-BLF
-Candump
-NetScaler
-VMS TCPIPtrace
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
