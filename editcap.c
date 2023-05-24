@@ -1936,10 +1936,13 @@ main(int argc, char *argv[])
                         ret = WRITE_ERROR;
                         goto clean_exit;
                     }
-                    nstime_add(&block_next, &secs_per_block); /* reset for next interval */
                     g_free(filename);
-                    filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
+                    /* Use the interval start time for the filename. */
+                    temp_rec = *rec;
+                    temp_rec.ts = block_next;
+                    filename = fileset_get_filename_by_pattern(block_cnt++, &temp_rec, fprefix, fsuffix);
                     ws_assert(filename);
+                    nstime_add(&block_next, &secs_per_block); /* reset for next interval */
 
                     if (verbose)
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
