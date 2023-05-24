@@ -87,6 +87,9 @@ void proto_reg_handoff_pkcs1(void) {
 	/* ECDSA SHA-1 algorithm from RFC 3279 */
 	register_ber_oid_dissector("1.2.840.10045.4.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA1");
 
+	/* SM2-with-SM3 from GM/T 0006 Cryptographic application identifier criterion specification */
+	register_ber_oid_dissector("1.2.156.10197.1.501", dissect_ber_oid_NULL_callback, proto_pkcs1, "SM2-with-SM3");
+
 	/* ECDSA SHA2 algorithms from X9.62, RFC5480, RFC 5758, RFC 5912 */
 	register_ber_oid_dissector("1.2.840.10045.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA224");
 	register_ber_oid_dissector("1.2.840.10045.4.3.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA256");
@@ -112,6 +115,9 @@ void proto_reg_handoff_pkcs1(void) {
 	oid_add_from_string("secp521r1","1.3.132.0.35");
 	oid_add_from_string("sect571k1","1.3.132.0.38");
 	oid_add_from_string("sect571r1","1.3.132.0.39");
+
+	/* SM2 from GM/T 0006 Cryptographic application identifier criterion specification */
+	oid_add_from_string("sm2","1.2.156.10197.1.301");
 
 	/* sha2 family, see RFC3447 and http://www.oid-info.com/get/2.16.840.1.101.3.4.2 */
 	oid_add_from_string("sha256", "2.16.840.1.101.3.4.2.1");
