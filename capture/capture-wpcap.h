@@ -14,6 +14,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifdef HAVE_LIBPCAP
+#ifdef __MINGW32__
+#include <_bsd_types.h>
+#endif
+#include <pcap.h>
+#endif
+
 extern gboolean has_wpcap;
 
 extern void load_wpcap(void);
@@ -24,6 +31,9 @@ extern void load_wpcap(void);
  * an error checking its status.
  */
 gboolean npf_sys_is_running(void);
+
+int
+ws_pcap_findalldevs_ex(const char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf);
 
 #ifdef __cplusplus
 }

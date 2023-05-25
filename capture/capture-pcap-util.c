@@ -68,6 +68,9 @@
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
 #include "capture/capture-pcap-util-int.h"
+#ifdef _WIN32
+#include "capture/capture-wpcap.h"
+#endif
 
 #include <wsutil/file_util.h>
 #include <wsutil/please_report_bug.h>
@@ -623,7 +626,7 @@ get_interface_list_findalldevs_ex(const char *hostname, const char *port,
 	auth.username = g_strdup(username);
 	auth.password = g_strdup(passwd);
 
-	if (pcap_findalldevs_ex(source, &auth, &alldevs, errbuf) == -1) {
+	if (ws_pcap_findalldevs_ex(source, &auth, &alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);

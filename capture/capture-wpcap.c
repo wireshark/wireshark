@@ -420,7 +420,7 @@ pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *errb
 }
 
 int
-pcap_findalldevs_ex(const char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf)
+ws_pcap_findalldevs_ex(const char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf)
 {
 	int ret;
 	ws_assert(has_wpcap);
