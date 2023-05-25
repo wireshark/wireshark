@@ -1142,7 +1142,6 @@ void wslua_init(register_cb cb, gpointer client_data) {
     static gint *ett[] = {
             &ett_wslua_traceback,
     };
-    proto_register_subtree_array(ett, array_length(ett));
 
     static ei_register_info ei[] = {
         /* the following are created so we can continue to support the TreeItem_add_expert_info()
@@ -1267,6 +1266,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
     if (first_time) {
         proto_lua = proto_register_protocol("Lua Dissection", "Lua Dissection", "_ws.lua");
         proto_register_field_array(proto_lua, hf, array_length(hf));
+        proto_register_subtree_array(ett, array_length(ett));
         expert_lua = expert_register_protocol(proto_lua);
         expert_register_field_array(expert_lua, ei, array_length(ei));
     }
