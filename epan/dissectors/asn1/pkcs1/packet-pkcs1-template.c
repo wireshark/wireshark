@@ -125,6 +125,9 @@ void proto_reg_handoff_pkcs1(void) {
 	oid_add_from_string("sha512", "2.16.840.1.101.3.4.2.3");
 	oid_add_from_string("sha224", "2.16.840.1.101.3.4.2.4");
 
+	/* SM3 from GM/T 0006 Cryptographic application identifier criterion specification */
+	oid_add_from_string("sm3","1.2.156.10197.1.401");
+
 	/* PQC digital signature algorithms from OQS-OpenSSL,
 		see https://github.com/open-quantum-safe/openssl/blob/OQS-OpenSSL_1_1_1-stable/oqs-template/oqs-sig-info.md */
 	oid_add_from_string("dilithium2", "1.3.6.1.4.1.2.267.7.4.4");
