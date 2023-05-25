@@ -429,6 +429,11 @@ void ExtArgRadio::setDefaultValue()
 ExtArgBool::ExtArgBool(extcap_arg * argument, QObject * parent) :
         ExtcapArgument(argument, parent), boolBox(0) {}
 
+QWidget * ExtArgBool::createLabel(QWidget * parent)
+{
+    return new QWidget(parent);
+}
+
 QWidget * ExtArgBool::createEditor(QWidget * parent)
 {
     bool state = defaultBool();

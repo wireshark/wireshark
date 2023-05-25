@@ -235,6 +235,7 @@ class ExtArgBool : public ExtcapArgument
 public:
     ExtArgBool(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
+    virtual QWidget * createLabel(QWidget * parent);
     virtual QWidget * createEditor(QWidget * parent);
 
     virtual QString call();
