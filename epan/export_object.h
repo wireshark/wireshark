@@ -90,9 +90,9 @@ WS_DLL_PUBLIC tap_packet_cb get_eo_packet_func(register_eo_t* eo);
  */
 WS_DLL_PUBLIC export_object_gui_reset_cb get_eo_reset_func(register_eo_t* eo);
 
-/** Get Export Object by its short protocol name
+/** Get Export Object by its protocol filter name
  *
- * @param name short protocol name to fetch.
+ * @param name protocol filter name to fetch.
  * @return Export Object handler pointer or NULL.
  */
 WS_DLL_PUBLIC register_eo_t* get_eo_by_name(const char* name);
