@@ -9,6 +9,7 @@ ALIGNED
 #.USE_VALS_EXT
 ProcedureCode
 ProtocolIE-ID
+NI-ProtocolIE-ID
 
 #.EXPORTS ONLY_VALS WS_DLL
 
@@ -30,11 +31,19 @@ E2SM-RC-RANFunctionDefinition
 E2SM-RC-IndicationMessage
 E2SM-RC-IndicationHeader
 E2SM-RC-CallProcessID
-
 E2SM-RC-ControlHeader
 E2SM-RC-ControlMessage
 E2SM-RC-ControlOutcome
 
+E2SM-NI-EventTriggerDefinition
+E2SM-NI-ActionDefinition
+E2SM-NI-RANfunction-Description
+E2SM-NI-IndicationMessage
+E2SM-NI-IndicationHeader
+E2SM-NI-CallProcessID
+E2SM-NI-ControlHeader
+E2SM-NI-ControlMessage
+E2SM-NI-ControlOutcome
 
 
 #.MAKE_ENUM

@@ -74,10 +74,19 @@ static int dissect_E2SM_RC_RANFunctionDefinition_PDU(tvbuff_t *tvb _U_, packet_i
 static int dissect_E2SM_RC_IndicationMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_IndicationHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
 static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+
+static int dissect_E2SM_NI_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_RANfunction_Description_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_IndicationMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_IndicationHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_NI_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 
 
@@ -143,6 +152,7 @@ typedef enum {
     MIN_RANFUNCTIONS,
     KPM_RANFUNCTIONS=0,
     RIC_RANFUNCTIONS,
+    NI_RANFUNCTIONS,
     MAX_RANFUNCTIONS
 } ran_function_t;
 
@@ -179,7 +189,20 @@ static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTION
                         dissect_E2SM_RC_CallProcessID_PDU,
                         dissect_E2SM_RC_EventTrigger_PDU
                      }
-  }
+  },
+  { "ORAN-E2SM-NI",  {  dissect_E2SM_NI_RANfunction_Description_PDU,
+
+                        dissect_E2SM_NI_ControlHeader_PDU,
+                        dissect_E2SM_NI_ControlMessage_PDU,
+                        dissect_E2SM_NI_ControlOutcome_PDU,
+
+                        dissect_E2SM_NI_ActionDefinition_PDU,
+                        dissect_E2SM_NI_IndicationMessage_PDU,
+                        dissect_E2SM_NI_IndicationHeader_PDU,
+                        dissect_E2SM_NI_CallProcessID_PDU,
+                        dissect_E2SM_NI_EventTriggerDefinition_PDU
+                     }
+    }
 };
 
 

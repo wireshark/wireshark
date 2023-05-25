@@ -1,0 +1,486 @@
+-- ASN1START
+-- **************************************************************
+-- E2SM-NI
+-- Information Element Definitions
+--
+-- **************************************************************
+
+E2SM-NI-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1
+(1) e2sm(2) e2sm-NI-IEs (1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+-- IEs
+-- **************************************************************
+
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxofInterfaceProtocolTests INTEGER ::= 15
+maxofRANueGroups INTEGER ::= 255
+maxofActionParameters INTEGER ::= 255
+maxofRANparameters INTEGER ::= 65535
+maxofNItypes INTEGER ::= 63
+maxofRICstyles INTEGER ::= 63
+
+-- **************************************************************
+-- E2SM-NI Service model IEs
+-- **************************************************************
+
+--
+-- Event Trigger Definition OCTET STRING contents
+--
+
+-- E2SM-NI-EventTriggerDefinition IE
+E2SM-NI-EventTriggerDefinition ::= CHOICE{
+    eventDefinition-Format1 E2SM-NI-EventTriggerDefinition-Format1,
+    ...
+}
+
+-- E2SM-NI-EventTriggerDefinition IE is used for Event Trigger Definition Format 1
+E2SM-NI-EventTriggerDefinition-Format1 ::= SEQUENCE{
+    interface-type NI-Type,
+    interface-ID NI-Identifier,
+    interfaceDirection NI-Direction,
+    interfaceMessageType NI-MessageType,
+    interfaceProtocolIE-List SEQUENCE (SIZE(1..maxofInterfaceProtocolTests)) OF NI-ProtocolIE-Item OPTIONAL,
+    ...
+}
+
+--
+-- Action Definition OCTET STRING contents
+--
+-- E2SM-NI-ActionDefinition IE
+    E2SM-NI-ActionDefinition ::= SEQUENCE{
+    ric-Style-Type RIC-Style-Type,
+    action-Definition-Format E2SM-NI-ActionDefinitionFormat,
+    ...
+}
+
+E2SM-NI-ActionDefinitionFormat ::= CHOICE{
+    actionDefinition-Format1 E2SM-NI-ActionDefinition-Format1,
+    actionDefinition-Format2 E2SM-NI-ActionDefinition-Format2,
+    ...
+}
+
+-- E2SM-NI-ActionDefinition IE is used for Action Format 1
+E2SM-NI-ActionDefinition-Format1 ::= SEQUENCE{
+    actionParameter-List SEQUENCE (SIZE(1..maxofActionParameters)) OF RANparameter-Item OPTIONAL,
+    ...
+}
+
+
+-- E2SM-NI-ActionDefinition IE is used for Action Format 2
+E2SM-NI-ActionDefinition-Format2 ::= SEQUENCE{
+    ranUEgroup-List SEQUENCE (SIZE(1..maxofRANueGroups)) OF RANueGroup-Item OPTIONAL,
+    ...
+}
+
+--
+-- Indication Header OCTET STRING contents
+--
+
+-- E2SM-NI-IndicationHeader IE
+E2SM-NI-IndicationHeader ::= CHOICE{
+    indicationHeader-Format1 E2SM-NI-IndicationHeader-Format1,
+    ...
+}
+
+-- E2SM-NI-IndicationHeader Format 1
+E2SM-NI-IndicationHeader-Format1 ::= SEQUENCE{
+    interface-type NI-Type,
+    interface-ID NI-Identifier,
+    interfaceDirection NI-Direction,
+    timestamp NI-TimeStamp OPTIONAL,
+    ...
+}
+
+--
+-- Indication Message OCTET STRING contents
+--
+
+-- E2SM-NI-IndicationMessage IE
+E2SM-NI-IndicationMessage ::= CHOICE{
+    indicationMessage-Format1 E2SM-NI-IndicationMessage-Format1,
+    ...
+}
+
+-- E2SM-NI-IndicationMessage IE
+E2SM-NI-IndicationMessage-Format1 ::= SEQUENCE{
+    interfaceMessage NI-Message,
+    ...
+}
+
+--
+-- Call Process ID
+--
+
+E2SM-NI-CallProcessID ::= CHOICE{
+    callProcessID-Format1 E2SM-NI-CallProcessID-Format1,
+    callProcessID-Format2 E2SM-NI-CallProcessID-Format2,
+    ...
+}
+-- E2SM-NI-callProcessID IE Format 1
+
+E2SM-NI-CallProcessID-Format1 ::= SEQUENCE{
+    callProcess-ID RANcallProcess-ID-number,
+    ...
+}
+
+E2SM-NI-CallProcessID-Format2 ::= SEQUENCE{
+    callProcess-ID RANcallProcess-ID-string,
+    ...
+}
+
+--
+-- Control Header OCTET STRING contents
+--
+
+-- E2SM-NI-ControlHeader IE
+E2SM-NI-ControlHeader ::= CHOICE{
+    controlHeader-Format1 E2SM-NI-ControlHeader-Format1,
+    ...
+}
+-- E2SM-NI-ControlHeader Format 1
+E2SM-NI-ControlHeader-Format1 ::= SEQUENCE{
+    interface-type NI-Type,
+    interface-ID NI-Identifier,
+    interface-Direction NI-Direction,
+    ric-Control-Message-Priority RIC-Control-Message-Priority OPTIONAL,
+    ...
+}
+
+
+--
+-- Control Message OCTET STRING contents
+--
+
+-- E2SM-NI-ControlHeader IE
+E2SM-NI-ControlMessage ::= CHOICE{
+    controlMessage-Format1 E2SM-NI-ControlMessage-Format1,
+    ...
+}
+
+-- E2SM-NI-ControlMessage Format 1
+E2SM-NI-ControlMessage-Format1 ::= SEQUENCE{
+    interfaceMessage NI-Message,
+    ...
+}
+
+--
+-- Control Outcome OCTET STRING contents
+--
+
+-- E2SM-NI-ControlOutcome IE
+E2SM-NI-ControlOutcome ::= CHOICE{
+    controlOutcome-Format1 E2SM-NI-ControlOutcome-Format1,
+    ...
+}
+
+-- E2SM-NI-ControlOutcome Format 1
+E2SM-NI-ControlOutcome-Format1 ::= SEQUENCE{
+    outcomeElement-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANparameter-Item OPTIONAL,
+    ...
+}
+
+--
+-- RAN Function Description OCTET STRING contents
+--
+
+-- E2SM-NI-RANfunction-Description
+E2SM-NI-RANfunction-Description ::= SEQUENCE{
+    ranFunction-Name RANfunction-Name,
+    ni-Type-List SEQUENCE (SIZE(1..maxofNItypes)) OF E2SM-NI-RANfunction-Item OPTIONAL,
+    ...
+}
+
+E2SM-NI-RANfunction-Item ::= SEQUENCE{
+    interface-type NI-Type,
+    ric-EventTriggerStyle-List SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-EventTriggerStyle-List OPTIONAL,
+    ric-ReportStyle-List SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-ReportStyle-List OPTIONAL,
+    ric-InsertStyle-List SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-InsertStyle-List OPTIONAL,
+    ric-ControlStyle-List SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-ControlStyle-List OPTIONAL,
+    ric-PolicyStyle-List SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-PolicyStyle-List OPTIONAL,
+    ...
+}
+
+--
+-- commmon IEs
+--
+
+-- A
+-- B
+-- C
+-- D
+-- E
+-- F
+-- G
+Global-eNB-ID ::= GlobalENB-ID
+Global-en-gNB-ID ::= GlobalenGNB-ID
+Global-gNB-DU-ID ::= SEQUENCE{
+    global-ng-RAN-ID Global-ng-RAN-ID,
+    gNB-DU-ID GNB-DU-ID
+}
+
+Global-gNB-CU-UP-ID ::= SEQUENCE{
+    global-ng-RAN-ID Global-ng-RAN-ID,
+    gNB-CU-UP-ID GNB-CU-UP-ID
+}
+
+Global-ng-RAN-ID ::= GlobalNG-RANNode-ID
+-- H
+-- I
+-- J
+-- K
+-- L
+-- M
+-- N
+NI-Direction ::= ENUMERATED{
+    incoming,
+    outgoing,
+    both,
+    ...
+}
+
+
+
+NI-Identifier ::= CHOICE{
+    global-eNB-ID Global-eNB-ID,
+    global-en-gNB-ID Global-en-gNB-ID,
+    global-ng-RAN-ID Global-ng-RAN-ID,
+    global-gNB-DU-ID Global-gNB-DU-ID,
+    global-gNB-CU-UP-ID Global-gNB-CU-UP-ID,
+    ...
+}
+
+
+
+NI-Message ::= OCTET STRING
+
+NI-MessageType::= CHOICE{
+    s1MessageType NI-MessageTypeS1,
+    x2MessageType NI-MessageTypeX2,
+    ngMessageType NI-MessageTypeNG,
+    xnMessageType NI-MessageTypeXn,
+    f1MessageType NI-MessageTypeF1,
+    e1MessageType NI-MessageTypeE1,
+    ...
+}
+
+NI-MessageTypeS1 ::= NI-MessageTypeApproach1
+NI-MessageTypeX2 ::= NI-MessageTypeApproach1
+NI-MessageTypeNG ::= NI-MessageTypeApproach1
+NI-MessageTypeXn ::= NI-MessageTypeApproach1
+NI-MessageTypeF1 ::= NI-MessageTypeApproach1
+NI-MessageTypeE1 ::= NI-MessageTypeApproach1
+
+NI-MessageTypeApproach1 ::= SEQUENCE {
+    procedureCode ProcedureCode,
+    typeOfMessage TypeOfMessage,
+    ...
+}
+
+TypeOfMessage ::= ENUMERATED { nothing, initiating-message, successful-outcome, unsuccessful-outcome }
+
+
+NI-ProtocolIE-Item ::= SEQUENCE{
+    interfaceProtocolIE-ID NI-ProtocolIE-ID,
+    interfaceProtocolIE-Test NI-ProtocolIE-Test,
+    interfaceProtocolIE-Value NI-ProtocolIE-Value,
+    ...
+}
+
+NI-ProtocolIE-ID ::= ProtocolIE-ID
+
+NI-ProtocolIE-Test ::= ENUMERATED{
+    equal,
+    greaterthan,
+    lessthan,
+    contains,
+    present,
+    ...
+}
+
+NI-ProtocolIE-Value ::= CHOICE{
+    valueInt INTEGER,
+    valueEnum INTEGER,
+    valueBool BOOLEAN,
+    valueBitS BIT STRING,
+    valueOctS OCTET STRING,
+    valuePrtS PrintableString,
+    ...
+}
+
+NI-TimeStamp ::= OCTET STRING (SIZE(8))
+
+NI-Type ::= ENUMERATED{
+    s1,
+    x2,
+    ng,
+    xn,
+    f1,
+    e1,
+    ...
+}
+
+-- O
+-- P
+-- Q
+-- R
+
+RANcallProcess-ID-number ::= INTEGER
+
+RANcallProcess-ID-string ::= PrintableString(SIZE(1..150,...))
+
+
+RANimperativePolicy ::= SEQUENCE{
+    ranImperativePolicy-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANparameter-Item OPTIONAL,
+    ...
+}
+
+RANparameter-Item ::= SEQUENCE {
+    ranParameter-ID RANparameter-ID,
+    ranParameter-Value RANparameter-Value,
+    ...
+}
+
+RANparameterDef-Item ::= SEQUENCE {
+    ranParameter-ID RANparameter-ID,
+    ranParameter-Name RANparameter-Name,
+    ranParameter-Type RANparameter-Type,
+    ...
+}
+
+RANparameter-ID ::= INTEGER (0..maxofRANparameters)
+
+RANparameter-Name ::= PrintableString(SIZE(1..150,...))
+
+RANparameter-Test-Condition ::= ENUMERATED{
+    equal,
+    greaterthan,
+    lessthan,
+    contains,
+    present,
+    ...
+}
+
+RANparameter-Type ::= ENUMERATED{
+    integer,
+    enumerated,
+    boolean,
+    bit-string,
+    octet-string,
+    printable-string,
+    ...
+}
+
+RANparameter-Value ::= CHOICE{
+    valueInt INTEGER,
+    valueEnum INTEGER,
+    valueBool BOOLEAN,
+    valueBitS BIT STRING,
+    valueOctS OCTET STRING,
+    valuePrtS PrintableString,
+    ...
+}
+
+
+RANueGroupID ::= INTEGER (0..maxofRANueGroups)
+
+RANueGroup-Item ::= SEQUENCE {
+    ranUEgroupID RANueGroupID,
+    ranUEgroupDefinition RANueGroupDefinition,
+    ranPolicy RANimperativePolicy,
+    ...
+}
+
+
+
+RANueGroupDefinition ::= SEQUENCE{
+    ranUEgroupDef-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANueGroupDef-Item OPTIONAL,
+    ...
+}
+
+
+RANueGroupDef-Item ::= SEQUENCE{
+    ranParameter-ID RANparameter-ID,
+    ranParameter-Test RANparameter-Test-Condition,
+    ranParameter-Value RANparameter-Value,
+    ...
+}
+
+RIC-Control-Message-Priority ::= INTEGER
+
+
+RIC-ControlStyle-List ::= SEQUENCE{
+    ric-ControlStyle-Type RIC-Style-Type,
+    ric-ControlStyle-Name RIC-Style-Name,
+    ric-ControlFormat-Type RIC-Format-Type,
+    ric-ControlHeaderFormat-Type RIC-Format-Type,
+    ric-ControlMessageFormat-Type RIC-Format-Type,
+    ric-CallProcessIDFormat-Type RIC-Format-Type,
+    ric-ControlOutcomeFormat-Type RIC-Format-Type,
+    ric-ControlOutcomeRanParaDef-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANparameterDef-Item,
+    ...
+}
+
+RIC-EventTriggerStyle-List ::= SEQUENCE{
+    ric-EventTriggerStyle-Type RIC-Style-Type,
+    ric-EventTriggerStyle-Name RIC-Style-Name,
+    ric-EventTriggerFormat-Type RIC-Format-Type,
+    ...
+}
+RIC-InsertStyle-List ::= SEQUENCE{
+    ric-InsertStyle-Type RIC-Style-Type,
+    ric-InsertStyle-Name RIC-Style-Name,
+    ric-InsertActionFormat-Type RIC-Format-Type,
+    ric-InsertRanParameterDef-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANparameterDef-Item,
+    ric-IndicationHeaderFormat-Type RIC-Format-Type,
+    ric-IndicationMessageFormat-Type RIC-Format-Type,
+    ric-CallProcessIDFormat-Type RIC-Format-Type,
+    ...
+}
+RIC-PolicyStyle-List ::= SEQUENCE{
+    ric-PolicyStyle-Type RIC-Style-Type,
+    ric-PolicyStyle-Name RIC-Style-Name,
+    ric-PolicyActionFormat-Type RIC-Format-Type,
+    ric-PolicyRanParameterDef-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANparameterDef-Item,
+    ...
+}
+
+RIC-ReportStyle-List ::= SEQUENCE{
+    ric-ReportStyle-Type RIC-Style-Type,
+    ric-ReportStyle-Name RIC-Style-Name,
+    ric-ReportActionFormat-Type RIC-Format-Type,
+    ric-ReportRanParameterDef-List SEQUENCE (SIZE(1..maxofRANparameters)) OF RANparameterDef-Item,
+    ric-IndicationHeaderFormat-Type RIC-Format-Type,
+    ric-IndicationMessageFormat-Type RIC-Format-Type,
+    ...
+}
+
+-- RIC-Format-Type ::= INTEGER
+
+-- RIC-Style-Type ::= INTEGER
+
+-- RIC-Style-Name ::= PrintableString(SIZE(1..150,...))
+
+
+-- S
+-- T
+-- U
+-- V
+-- W
+-- X
+-- Y
+-- Z
+
+END
+-- ASN1STOP
