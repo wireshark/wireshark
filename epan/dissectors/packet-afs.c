@@ -2376,7 +2376,8 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 			case 503: /* get entry by id */
 			case 504: /* get entry by name */
 				{
-					int nservers,i,j;
+					int nservers,i;
+					unsigned int j;
 					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
 					ptvcursor_advance(cursor, 4);
 					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -2425,7 +2426,8 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 			case 518: /* get entry by id n */
 			case 519: /* get entry by name N */
 				{
-					int nservers,i,j;
+					int nservers,i;
+					unsigned int j;
 					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
 					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
@@ -2461,7 +2463,8 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 			case 526: /* get entry by id u */
 			case 527: /* get entry by name u */
 				{
-					int nservers,i,j;
+					int nservers,i;
+					unsigned int j;
 					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
 					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
