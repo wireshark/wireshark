@@ -1317,7 +1317,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		if(!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tvb_s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
-			conv_set_fid(pinfo, fid, tvb_s, _9p_len+1);
+			conv_set_fid(pinfo, fid, tvb_s, strlen(tvb_s)+1);
 		}
 		offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_aname, ett_9P_aname);
 
