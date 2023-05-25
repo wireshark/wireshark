@@ -1840,6 +1840,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-signal-pdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-simple.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-simulcrypt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sinecap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sipfrag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sita.c
