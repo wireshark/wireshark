@@ -12,6 +12,9 @@
 #ifdef HAVE_LIBPCAP
 #include <glib.h>
 
+#ifdef __MINGW32__
+#include <_bsd_types.h>
+#endif
 #include <pcap.h>
 
 #include "capture_opts.h"

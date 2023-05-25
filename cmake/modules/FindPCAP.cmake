@@ -105,6 +105,8 @@ find_path(PCAP_INCLUDE_DIR
   NAMES
     pcap/pcap.h
     pcap.h
+  PATH_SUFFIXES
+    wpcap
   HINTS
     ${PC_PCAP_INCLUDE_DIRS}
     ${PCAP_CONFIG_INCLUDE_DIRS}
@@ -115,12 +117,13 @@ find_path(PCAP_INCLUDE_DIR
 # capture\capture-wpcap.c. We don't want to link with pcap.lib since
 # that would bring in the non-capturing (null) pcap.dll from the vcpkg
 # library.
-if(WIN32)
+if(WIN32 AND NOT CMAKE_CROSSCOMPILING)
   set(_pkg_required_vars PCAP_INCLUDE_DIR)
 else()
   find_library(PCAP_LIBRARY
     NAMES
       pcap
+      wpcap
     HINTS
       ${PC_PCAP_LIBRARY_DIRS}
       ${PCAP_CONFIG_LIBRARY_DIRS}
@@ -185,7 +188,7 @@ if(PCAP_FOUND)
 
   include(CheckSymbolExists)
 
-  if(WIN32)
+  if(WIN32 AND NOT CMAKE_CROSSCOMPILING)
     #
     # Prepopulate some values. WinPcap 3.1 and later, and Npcap, have these
     # in their SDK, and compilation checks on Windows can be slow.  We check
@@ -238,7 +241,7 @@ if(PCAP_FOUND)
       #
       check_function_exists( "pcap_setsampling" HAVE_PCAP_SETSAMPLING )
     endif( HAVE_PCAP_OPEN )
-  endif(WIN32)
+  endif()
 
   if( HAVE_PCAP_CREATE )
     #
@@ -256,6 +259,9 @@ if(PCAP_FOUND)
   if( HAVE_PCAP_OPEN )
     set( HAVE_PCAP_REMOTE 1 )
   endif()
+
+  check_symbol_exists(PCAP_ERROR_PROMISC_PERM_DENIED ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
+  check_symbol_exists(PCAP_WARNING_TSTAMP_TYPE_NOTSUP ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP)
 
   cmake_pop_check_state()
 endif()

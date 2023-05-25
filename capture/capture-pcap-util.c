@@ -75,6 +75,8 @@
 
 #ifndef _WIN32
 #include <netinet/in.h>
+#else
+#include <ws2tcpip.h>
 #endif
 
 #ifdef _WIN32
@@ -1402,11 +1404,13 @@ open_capture_device_pcap_create(
 			    sizeof *open_status_str);
 			break;
 
+#ifdef HAVE_PCAP_ERROR_PROMISC_PERM_DENIED
 		case PCAP_ERROR_PROMISC_PERM_DENIED:
 			*open_status = CAP_DEVICE_OPEN_ERROR_PROMISC_PERM_DENIED;
 			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
 			break;
+#endif
 
 		case PCAP_ERROR_RFMON_NOTSUP:
 			*open_status = CAP_DEVICE_OPEN_ERROR_RFMON_NOTSUP;
@@ -1448,11 +1452,13 @@ open_capture_device_pcap_create(
 			    sizeof *open_status_str);
 			break;
 
+#ifdef HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP
 		case PCAP_WARNING_TSTAMP_TYPE_NOTSUP:
 			*open_status = CAP_DEVICE_OPEN_WARNING_TSTAMP_TYPE_NOTSUP;
 			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
 			break;
+#endif
 
 		case PCAP_WARNING:
 			*open_status = CAP_DEVICE_OPEN_WARNING_OTHER;
