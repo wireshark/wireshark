@@ -6,8 +6,8 @@
 # After PATHS additional paths for python to search can be provided.
 # When REQUIRED is set, the function will abort the cmake execution is the module is not found
 function(LOCATE_PYTHON_MODULE module)
-	if(NOT PYTHON_EXECUTABLE)
-		find_package(PythonInterp)
+	if(NOT Python3_EXECUTABLE)
+		find_package(Python3)
 	endif()
 
 	# Parse (additional) arguments
@@ -30,7 +30,7 @@ function(LOCATE_PYTHON_MODULE module)
 		endif(LPM_PATHS)
 
 		# Use the (native) python impl module to find the location of the requested module
-		execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c"
+		execute_process(COMMAND "${Python3_EXECUTABLE}" "-c"
 			"import imp; print(imp.find_module('${module}')[1])"
 			RESULT_VARIABLE _${module}_status
 			OUTPUT_VARIABLE _${module}_location

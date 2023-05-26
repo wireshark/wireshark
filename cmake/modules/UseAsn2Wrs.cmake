@@ -42,7 +42,7 @@ function(ASN2WRS)
 	# Creates a dissector in the source directory and store the timestamp.
 	add_custom_command(
 		OUTPUT packet-${PROTOCOL_NAME}-stamp
-		COMMAND "${PYTHON_EXECUTABLE}"
+		COMMAND "${Python3_EXECUTABLE}"
 			${PY_ASN2WRS}
 			${A2W_FLAGS}
 			${PROTO_OPT}
@@ -52,7 +52,7 @@ function(ASN2WRS)
 			-O "${A2W_OUTPUT_DIR}"
 			${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 		COMMAND
-			"${PYTHON_EXECUTABLE}" -c
+			"${Python3_EXECUTABLE}" -c
 				"import shutil, sys; x,s,d=sys.argv; open(d, 'w'); shutil.copystat(s, d)"
 				"${A2W_OUTPUT_DIR}/packet-${PROTOCOL_NAME}.c"
 				packet-${PROTOCOL_NAME}-stamp
@@ -71,7 +71,7 @@ function(ASN2WRS)
 	foreach(_asn2wrs_export_file IN LISTS EXPORT_FILES)
 		add_custom_command(
 			OUTPUT ${_asn2wrs_export_file}
-			COMMAND "${PYTHON_EXECUTABLE}"
+			COMMAND "${Python3_EXECUTABLE}"
 				"${PY_ASN2WRS}"
 				-E
 				${A2W_FLAGS}

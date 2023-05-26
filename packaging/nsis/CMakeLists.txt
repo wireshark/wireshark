@@ -296,7 +296,7 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 			)
 		else()
 			add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
-				COMMAND ${PYTHON_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
+				COMMAND ${Python3_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
 					$<TARGET_FILE:wireshark>
 					${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 					#$<$<CONFIG:Debug>:-DebugConfig>
