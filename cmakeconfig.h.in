@@ -223,6 +223,12 @@
 /* Define to 1 if you have the `pcap_set_tstamp_type' function. */
 #cmakedefine HAVE_PCAP_SET_TSTAMP_TYPE 1
 
+/* Define to 1 if you have the `PCAP_ERROR_PROMISC_PERM_DENIED' symbol. */
+#cmakedefine HAVE_PCAP_ERROR_PROMISC_PERM_DENIED 1
+
+/* Define to 1 if you have the `PCAP_WARNING_TSTAMP_TYPE_NOTSUP' symbol. */
+#cmakedefine HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP 1
+
 /* Define to 1 if you have the <pwd.h> header file. */
 #cmakedefine HAVE_PWD_H 1
 
