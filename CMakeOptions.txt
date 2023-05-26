@@ -146,3 +146,17 @@ if(APPLE)
 	option(ENABLE_APPLICATION_BUNDLE "Build a macOS application bundle (Wireshark.app)" ON)
 	option(ENABLE_SPARKLE "Enable automatic updates using Sparkle" ON)
 endif()
+
+if(WIN32)
+	# Advanced options for developers to work-around limitations in the build
+	# when cross-compiling to Windows.
+	if(CMAKE_CROSSCOMPILING)
+		option(SKIP_NSIS_QT_DEPLOYMENT    "Skip deploying Qt runtime with installer" ON)
+		option(SKIP_NSIS_UNINSTALLER      "Skip creating a Windows uninstaller" ON)
+	else()
+		option(SKIP_NSIS_QT_DEPLOYMENT    "Skip deploying Qt runtime with installer" OFF)
+		option(SKIP_NSIS_UNINSTALLER      "Skip creating a Windows uninstaller" OFF)
+	endif()
+	mark_as_advanced(SKIP_NSIS_QT_DEPLOYMENT)
+	mark_as_advanced(SKIP_NSIS_UNINSTALLER)
+endif()

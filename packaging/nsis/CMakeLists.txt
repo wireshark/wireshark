@@ -13,7 +13,6 @@
 set(WIRESHARK_NSIS_GENERATED_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark-manifest.nsh
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark-config.nsh
-	${CMAKE_CURRENT_BINARY_DIR}/wireshark-qt-manifest.nsh
 )
 set(WIRESHARK_NSIS_GENERATED_FILES ${WIRESHARK_NSIS_GENERATED_FILES} PARENT_SCOPE)
 
@@ -69,7 +68,7 @@ set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 set (PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 set (LOG_PRODUCT_VERSION ${LOG_PROJECT_MAJOR_VERSION}.${LOG_PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 
-if((BUILD_wireshark OR BUILD_logray) AND QT_FOUND)
+if((BUILD_wireshark OR BUILD_logray) AND QT_FOUND AND NOT SKIP_NSIS_QT_DEPLOYMENT)
 	set (QT_DIR "\${STAGING_DIR}")
 endif()
 
@@ -178,7 +177,7 @@ if (BUILD_wireshark)
 		endforeach()
 	endif()
 	foreach(_script "init.lua" "console.lua" "dtd_gen.lua")
-		set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_script}\"\n")
+		set(_all_manifest_contents "${_all_manifest_contents}File \"\${TOP_SRC_DIR}\\epan\\wslua\\${_script}\"\n")
 	endforeach()
 	file(WRITE "${_all_manifest}" "${_all_manifest_contents}")
 endif()
@@ -285,23 +284,25 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 	# command-line-only installer packages.
 	if(BUILD_wireshark)
 		# wireshark-qt-manifest.nsh. Created using Wireshark.exe.
-		if (USE_REPOSITORY)
-			add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
-				COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
-				COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
-					-Executable $<TARGET_FILE:wireshark>
-					-FilePath ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
-					$<$<CONFIG:Debug>:-DebugConfig>
-				DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
-			)
-		else()
-			add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
-				COMMAND ${Python3_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
-					$<TARGET_FILE:wireshark>
-					${_nsis_binary_dir}/wireshark-qt-manifest.nsh
-					#$<$<CONFIG:Debug>:-DebugConfig>
-				DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.py"
-			)
+		if(NOT SKIP_NSIS_QT_DEPLOYMENT)
+			if (USE_REPOSITORY)
+				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
+					COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
+					COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
+						-Executable $<TARGET_FILE:wireshark>
+						-FilePath ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
+						$<$<CONFIG:Debug>:-DebugConfig>
+					DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
+				)
+			else()
+				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
+					COMMAND ${Python3_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
+						$<TARGET_FILE:wireshark>
+						${_nsis_binary_dir}/wireshark-qt-manifest.nsh
+						#$<$<CONFIG:Debug>:-DebugConfig>
+					DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.py"
+				)
+			endif()
 		endif()
 
 		# Build NSIS package dependencies. We build the package in
@@ -310,10 +311,11 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		add_custom_target(wireshark_nsis_prep
 			DEPENDS
 				${WIRESHARK_NSIS_FILES}
+				$<$<NOT:$<BOOL:${SKIP_NSIS_QT_DEPLOYMENT}>>:${CMAKE_CURRENT_BINARY_DIR}/wireshark-qt-manifest.nsh>
 				copy_data_files
 				user_guide_html
 				faq_html
-				${DATAFILE_DIR}/uninstall-wireshark.exe
+				$<$<NOT:$<BOOL:${SKIP_NSIS_UNINSTALLER}>>:${DATAFILE_DIR}/uninstall-wireshark.exe>
 		)
 		set_target_properties(wireshark_nsis_prep PROPERTIES
 			FOLDER "Packaging"
@@ -330,6 +332,7 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
 				$<$<CONFIG:Debug>:-DBUNDLE_DEBUG_DLLS>
 				$<$<BOOL:${MSVC}>:-DUSE_VCREDIST>
+				$<$<BOOL:${SKIP_NSIS_UNINSTALLER}>:-DSKIP_UNINSTALLER>
 				wireshark.nsi
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)

@@ -498,7 +498,9 @@ Section "-Required"
 SetShellVarContext all
 
 SetOutPath $INSTDIR
+!ifndef SKIP_UNINSTALLER
 File "${STAGING_DIR}\${UNINSTALLER_NAME}"
+!endif
 File "${STAGING_DIR}\libwiretap.dll"
 File "${STAGING_DIR}\libwireshark.dll"
 File "${STAGING_DIR}\libwsutil.dll"
