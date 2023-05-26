@@ -122,26 +122,30 @@ check_type_size("ssize_t"       SSIZE_T)
 # Check if the libc vsnprintf() conforms to C99. If this fails we may
 # need to fall-back on GLib I/O.
 #
-check_c_source_runs("
-	#include <stdio.h>
-	int main(void)
-	{
-		/* Check that snprintf() and vsnprintf() don't return
-		 * -1 if the buffer is too small. C99 says this value
-		 * is the length that would be written not including
-		 * the nul byte. */
-		char buf[3];
-		return snprintf(buf, sizeof(buf), \"%s\", \"ABCDEF\") > 0 ? 0 : 1;
-	}"
-	HAVE_C99_VSNPRINTF
-)
-if (NOT HAVE_C99_VSNPRINTF)
-	message(FATAL_ERROR
+# If cross-compiling we can't check so just assume this requirement is met.
+#
+if(NOT CMAKE_CROSSCOMPILING)
+	check_c_source_runs("
+		#include <stdio.h>
+		int main(void)
+		{
+			/* Check that snprintf() and vsnprintf() don't return
+			* -1 if the buffer is too small. C99 says this value
+			* is the length that would be written not including
+			* the nul byte. */
+			char buf[3];
+			return snprintf(buf, sizeof(buf), \"%s\", \"ABCDEF\") > 0 ? 0 : 1;
+		}"
+		HAVE_C99_VSNPRINTF
+	)
+	if (NOT HAVE_C99_VSNPRINTF)
+		message(FATAL_ERROR
 "Building Wireshark requires a C99 compliant vsnprintf() and this \
 target does not meet that requirement. Compiling for ${CMAKE_SYSTEM} \
 using ${CMAKE_C_COMPILER_ID}. Please report this issue to the Wireshark \
 developers at wireshark-dev@wireshark.org."
-	)
+		)
+	endif()
 endif()
 
 #
