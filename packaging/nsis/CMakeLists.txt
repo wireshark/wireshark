@@ -228,10 +228,10 @@ file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _nsis_include_dir)
 
 # Variables we can't set via config.nsh.
 set(NSIS_OPTIONS
-	/DSTAGING_DIR=${_staging_dir}
-	/DOUTFILE_DIR=${_outfile_dir}
-	/DNSIS_INCLUDE_DIR=${_nsis_include_dir}
-	/V2
+	-DSTAGING_DIR=${_staging_dir}
+	-DOUTFILE_DIR=${_outfile_dir}
+	-DNSIS_INCLUDE_DIR=${_nsis_include_dir}
+	-V2
 	PARENT_SCOPE
 )
 
@@ -328,9 +328,8 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		# Note that executables and DLLs *must* be built separately
 		add_custom_target(wireshark_nsis
 			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
-				$<$<CONFIG:Debug>:/DBUNDLE_DEBUG_DLLS>
-				$<$<BOOL:${MSVC}>:/DUSE_VCREDIST>
-				$<$<BOOL:${BUILD_etwdump}>:/DHAVE_ETWDUMP>
+				$<$<CONFIG:Debug>:-DBUNDLE_DEBUG_DLLS>
+				$<$<BOOL:${MSVC}>:-DUSE_VCREDIST>
 				wireshark.nsi
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)
@@ -372,7 +371,7 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		# Note that executables and DLLs *must* be built separately
 		add_custom_target(logray_nsis
 			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
-				$<$<CONFIG:Debug>:/DBUNDLE_DEBUG_DLLS>
+				$<$<CONFIG:Debug>:-DBUNDLE_DEBUG_DLLS>
 				logray.nsi
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)

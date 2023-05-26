@@ -22,6 +22,7 @@
 # Optional components
 
 #cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
+#cmakedefine BUILD_etwdump   HAVE_ETWDUMP
 
 #cmakedefine DOCBOOK_DIR "@DOCBOOK_DIR@"
 
