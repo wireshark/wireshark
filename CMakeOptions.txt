@@ -87,8 +87,8 @@ option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 # only if it is.
 #
 if(WIN32)
-	if(USE_MSYSTEM)
-		# AirPcap SDK is not available with MSYS2.
+	if(MINGW)
+		# AirPcap SDK is not widely available or supported with MinGW.
 		set(_enable_airpcap OFF)
 	else()
 		set(_enable_airpcap ON)
@@ -110,7 +110,7 @@ option(ENABLE_NGHTTP2    "Build with HTTP/2 header decompression support" ON)
 option(ENABLE_LUA        "Build with Lua dissector support" ON)
 option(ENABLE_SMI        "Build with libsmi snmp support" ON)
 option(ENABLE_GNUTLS     "Build with RSA decryption support" ON)
-if(WIN32 AND NOT USE_MSYSTEM)
+if(WIN32 AND USE_REPOSITORY)
 	option(ENABLE_WINSPARKLE "Enable automatic updates using WinSparkle" ON)
 endif()
 if (NOT WIN32)
