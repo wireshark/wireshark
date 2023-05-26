@@ -563,7 +563,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
 
 #ifdef _WIN32
         if ((status == SOCKET_ERROR) && (WSAGetLastError() == WSAEWOULDBLOCK)) {
-            const struct timeval timeout = {
+            struct timeval timeout = {
                 .tv_sec = 0,
                 .tv_usec = SOCKET_CONNECT_DELAY_US,
             };
