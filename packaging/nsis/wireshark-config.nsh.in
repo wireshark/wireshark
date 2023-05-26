@@ -22,7 +22,14 @@
 # Optional components
 
 #cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
-#cmakedefine BUILD_etwdump   HAVE_ETWDUMP
+#cmakedefine BUILD_etwdump
+#cmakedefine SPANDSP_FOUND
+#cmakedefine SPANDSP_FOUND
+#cmakedefine BCG729_FOUND
+#cmakedefine SBC_FOUND
+#cmakedefine ILBC_FOUND
+#cmakedefine OPUS_FOUND
+#cmakedefine LIBSSH_FOUND
 
 #cmakedefine DOCBOOK_DIR "@DOCBOOK_DIR@"
 
