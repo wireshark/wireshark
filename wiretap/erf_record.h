@@ -115,6 +115,10 @@
 #define ERF_META_SECTION_TRANSFORM   0xFF09
 #define ERF_META_SECTION_DNS         0xFF0A
 #define ERF_META_SECTION_SOURCE      0xFF0B
+#define ERF_META_SECTION_NETWORK     0xFF0C
+#define ERF_META_SECTION_ENDPOINT    0xFF0D
+#define ERF_META_SECTION_INPUT       0xFF0E
+#define ERF_META_SECTION_OUTPUT      0xFF0F
 
 #define ERF_META_TAG_padding           0
 #define ERF_META_TAG_comment           1
@@ -179,6 +183,8 @@
 #define ERF_META_TAG_relative_snaplen  59
 #define ERF_META_TAG_temperature       60
 #define ERF_META_TAG_power             61
+#define ERF_META_TAG_vendor            62
+#define ERF_META_TAG_cpu_threads       63
 
 #define ERF_META_TAG_if_num            64
 #define ERF_META_TAG_if_vc             65
@@ -244,6 +250,30 @@
 #define ERF_META_TAG_dpi_state         163
 #define ERF_META_TAG_dpi_protocol_stack 164
 #define ERF_META_TAG_flow_state        165
+#define ERF_META_TAG_vlan_id           166
+#define ERF_META_TAG_mpls_label        167
+#define ERF_META_TAG_vlan_pcp          168
+#define ERF_META_TAG_mpls_tc           169
+#define ERF_META_TAG_dscp              170
+#define ERF_META_TAG_initiator_mpls_label 171
+#define ERF_META_TAG_responder_mpls_label 172
+#define ERF_META_TAG_initiator_mpls_tc 173
+#define ERF_META_TAG_responder_mpls_tc 174
+#define ERF_META_TAG_initiator_ipv4    175
+#define ERF_META_TAG_responder_ipv4    176
+#define ERF_META_TAG_initiator_ipv6    177
+#define ERF_META_TAG_responder_ipv6    178
+#define ERF_META_TAG_initiator_mac     179
+#define ERF_META_TAG_responder_mac     180
+#define ERF_META_TAG_initiator_port    181
+#define ERF_META_TAG_responder_port    182
+#define ERF_META_TAG_initiator_retx    183
+#define ERF_META_TAG_responder_retx    184
+#define ERF_META_TAG_initiator_zwin    185
+#define ERF_META_TAG_responder_zwin    186
+#define ERF_META_TAG_initiator_tcp_flags 187
+#define ERF_META_TAG_responder_tcp_flags 188
+#define ERF_META_TAG_tcp_irtt          189
 
 #define ERF_META_TAG_start_time        193
 #define ERF_META_TAG_end_time          194
@@ -270,6 +300,27 @@
 #define ERF_META_TAG_stat_buf_drop     215
 #define ERF_META_TAG_stream_drop       216
 #define ERF_META_TAG_stream_buf_drop   217
+#define ERF_META_TAG_pkt_drop          218
+#define ERF_META_TAG_record_drop       219
+#define ERF_META_TAG_bandwidth         220
+#define ERF_META_TAG_duration          221
+#define ERF_META_TAG_top_index         222
+#define ERF_META_TAG_concurrent_flows  223
+#define ERF_META_TAG_active_flows      224
+#define ERF_META_TAG_created_flows     225
+#define ERF_META_TAG_deleted_flows     226
+#define ERF_META_TAG_active_endpoints  227
+#define ERF_META_TAG_tx_pkts           228
+#define ERF_META_TAG_tx_bytes          229
+#define ERF_META_TAG_rx_bandwidth      230
+#define ERF_META_TAG_tx_bandwidth      231
+#define ERF_META_TAG_records           232
+#define ERF_META_TAG_record_bytes      233
+#define ERF_META_TAG_pkt_drop_bytes    234
+#define ERF_META_TAG_record_drop_bytes 235
+#define ERF_META_TAG_drop_bandwidth    236
+#define ERF_META_TAG_retx_pkts         237
+#define ERF_META_TAG_zwin_pkts         238
 
 #define ERF_META_TAG_ns_host_ipv4      256
 #define ERF_META_TAG_ns_host_ipv6      257
@@ -285,6 +336,7 @@
 #define ERF_META_TAG_exthdr            321
 #define ERF_META_TAG_pcap_ng_block     322
 #define ERF_META_TAG_asn1              323
+#define ERF_META_TAG_section_ref       324
 
 #define ERF_META_TAG_clk_source             384
 #define ERF_META_TAG_clk_state              385
@@ -317,6 +369,15 @@
 #define ERF_META_TAG_ptp_port_state         412
 #define ERF_META_TAG_ptp_delay_mechanism    413
 #define ERF_META_TAG_clk_port_proto         414
+#define ERF_META_TAG_ntp_status             415
+#define ERF_META_TAG_ntp_stratum            416
+#define ERF_META_TAG_ntp_rootdelay          417
+#define ERF_META_TAG_ntp_rootdisp           418
+#define ERF_META_TAG_ntp_offset             419
+#define ERF_META_TAG_ntp_frequency          420
+#define ERF_META_TAG_ntp_sys_jitter         421
+#define ERF_META_TAG_ntp_peer_remote        422
+#define ERF_META_TAG_ntp_peer_refid         423
 
  /*
   * The timestamp is 64bit unsigned fixed point little-endian value with
