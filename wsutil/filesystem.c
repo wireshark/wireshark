@@ -536,6 +536,7 @@ static void trim_progfile_dir(void)
     g_free(extcap_progfile_dir);
 }
 
+#if !defined(_WIN32) || defined(HAVE_MSYSTEM)
 static char *
 trim_last_dir_from_path(const char *_path)
 {
@@ -546,6 +547,7 @@ trim_last_dir_from_path(const char *_path)
     }
     return path;
 }
+#endif
 
 /*
  * Construct the path name of a non-extcap Wireshark executable file,
