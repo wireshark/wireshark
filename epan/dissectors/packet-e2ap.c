@@ -1574,13 +1574,15 @@ typedef struct  {
     ran_function_id_mapping_t entries[MAX_RANFUNCTION_ENTRIES];
 } ran_functionid_table_t;
 
-const char *ran_function_to_str(ran_function_t ran_function)
+static const char *ran_function_to_str(ran_function_t ran_function)
 {
     switch (ran_function) {
         case KPM_RANFUNCTIONS:
             return "KPM";
         case RIC_RANFUNCTIONS:
             return "RIC";
+        case NI_RANFUNCTIONS:
+            return "NI";
 
         default:
             return "Unknown";
@@ -1601,7 +1603,7 @@ static gnb_ran_functions_t s_gnb_ran_functions;
 
 
 /* Get RANfunctionID table from conversation data - create new if necessary */
-ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
+static ran_functionid_table_t* get_ran_functionid_table(packet_info *pinfo)
 {
     conversation_t *p_conv;
     ran_functionid_table_t *p_conv_data = NULL;
@@ -1702,7 +1704,7 @@ static void store_ran_function_mapping(packet_info *pinfo, ran_functionid_table_
 }
 
 /* Look for Service Model function pointers, based on current RANFunctionID in pinfo */
-ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+static ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     /* Get ranFunctionID from this frame */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
@@ -1731,7 +1733,7 @@ ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, proto_t
 }
 
 /* This will get used for E2nodeConfigurationUpdate, where we have a gnb-id but haven't seen E2setupRequest */
-void update_conversation_from_gnb_id(asn1_ctx_t *actx _U_)
+static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
 {
     packet_info *pinfo = actx->pinfo;
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
