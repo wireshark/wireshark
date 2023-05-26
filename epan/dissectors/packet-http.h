@@ -95,4 +95,12 @@ typedef struct _http_conv_t {
 
 } http_conv_t;
 
+/* Used for HTTP Export Object feature */
+typedef struct _http_eo_t {
+	gchar   *hostname;
+	gchar   *filename;
+	gchar   *content_type;
+	tvbuff_t *payload;
+} http_eo_t;
+
 #endif /* __PACKET_HTTP_H__ */

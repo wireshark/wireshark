@@ -414,16 +414,6 @@ static dissector_table_t streaming_content_type_dissector_table;
 static dissector_table_t upgrade_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
-/* Used for HTTP Export Object feature */
-typedef struct _http_eo_t {
-	guint32  pkt_num;
-	gchar   *hostname;
-	gchar   *filename;
-	gchar   *content_type;
-	guint32  payload_len;
-	const guint8 *payload_data;
-} http_eo_t;
-
 static tap_packet_status
 http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
@@ -437,11 +427,15 @@ http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		entry = g_new(export_object_entry_t, 1);
 
 		entry->pkt_num = pinfo->num;
+		/* XXX: Should this remove the port, if any? It's only
+	         * for display, so probably not. */
 		entry->hostname = g_strdup(eo_info->hostname);
 		entry->content_type = g_strdup(eo_info->content_type);
+		/* XXX: Should this remove the query portion, if any, from
+	         * the path? (Or should that be done in the dissector?) */
 		entry->filename = eo_info->filename ? g_path_get_basename(eo_info->filename) : NULL;
-		entry->payload_len = eo_info->payload_len;
-		entry->payload_data = (guint8 *)g_memdup2(eo_info->payload_data, eo_info->payload_len);
+		entry->payload_len = tvb_captured_length(eo_info->payload);
+		entry->payload_data = (guint8 *)tvb_memdup(NULL, eo_info->payload, 0, entry->payload_len);
 
 		object_list->add_entry(object_list->gui_data, entry);
 
@@ -2152,8 +2146,7 @@ dissecting_body:
 				eo_info->filename = curr->request_uri;
 			}
 			eo_info->content_type = headers->content_type;
-			eo_info->payload_len = tvb_captured_length(next_tvb);
-			eo_info->payload_data = tvb_get_ptr(next_tvb, 0, eo_info->payload_len);
+			eo_info->payload = next_tvb;
 
 			tap_queue_packet(http_eo_tap, pinfo, eo_info);
 		}
