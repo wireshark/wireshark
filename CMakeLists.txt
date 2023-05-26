@@ -2775,9 +2775,8 @@ if(BUILD_wireshark AND QT_FOUND)
 		if (USE_MSYSTEM AND Qt${qtver}Widgets_VERSION VERSION_EQUAL 6.5.0)
 			# windeployqt released with Qt 6.5.0 is broken.
 			# https://bugreports.qt.io/browse/QTBUG-112204
-			message(WARNING "Qt Deploy Tool 6.5.0 is broken, skipping translations.")
-			list(APPEND QT_WINDEPLOYQT_EXTRA_ARGS --no-translations)
-			set(SKIP_QT_TRANSLATIONS True)
+			message(WARNING "Qt Deploy Tool 6.5.0 is broken, please upgrade to a later version.")
+			# lconvert will fail
 		endif()
 		add_custom_command(TARGET copy_qt_dlls
 			POST_BUILD

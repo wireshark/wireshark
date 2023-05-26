@@ -331,7 +331,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 				$<$<CONFIG:Debug>:/DBUNDLE_DEBUG_DLLS>
 				$<$<BOOL:${MSVC}>:/DUSE_VCREDIST>
 				$<$<BOOL:${BUILD_etwdump}>:/DHAVE_ETWDUMP>
-				$<$<BOOL:${SKIP_QT_TRANSLATIONS}>:/DSKIP_QT_TRANSLATIONS>
 				wireshark.nsi
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)
