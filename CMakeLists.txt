@@ -375,7 +375,7 @@ set(LOG_RC_VERSION ${LOG_PROJECT_MAJOR_VERSION},${LOG_PROJECT_MINOR_VERSION},${P
 
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
-find_package(Python3 3.6 REQUIRED)
+find_package(PythonInterp)
 include(UseLemon)
 include(UseMakePluginReg)
 include(UseMakeTaps)
@@ -1745,7 +1745,7 @@ if(VCSVERSION_OVERRIDE)
 else()
 	add_custom_target(vcs_version
 		BYPRODUCTS vcs_version.h
-		COMMAND ${Python3_EXECUTABLE}
+		COMMAND ${PYTHON_EXECUTABLE}
 			${CMAKE_SOURCE_DIR}/tools/make-version.py
 			${CMAKE_SOURCE_DIR}
 	)
@@ -3711,7 +3711,7 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 
 	execute_process(
-		COMMAND ${Python3_EXECUTABLE}
+		COMMAND ${PYTHON_EXECUTABLE}
 			${CMAKE_SOURCE_DIR}/tools/make-version.py
 			${CMAKE_SOURCE_DIR}
 	)
@@ -4102,7 +4102,7 @@ endif()
 
 add_custom_target(test
 	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
-		${Python3_EXECUTABLE} -m pytest
+		${PYTHON_EXECUTABLE} -m pytest
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	DEPENDS test-programs
 	USES_TERMINAL
@@ -4121,7 +4121,7 @@ if (GIT_EXECUTABLE)
 	# Update AUTHORS file with entries from git shortlog
 	add_custom_target(
 		gen-authors
-		COMMAND ${Python3_EXECUTABLE} tools/generate_authors.py AUTHORS
+		COMMAND ${PYTHON_EXECUTABLE} tools/generate_authors.py AUTHORS
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 else (GIT_EXECUTABLE)

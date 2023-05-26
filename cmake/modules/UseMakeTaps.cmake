@@ -5,7 +5,7 @@ MACRO(REGISTER_TAP_FILES _outputfile)
         OUTPUT
           ${_outputfile}
         COMMAND
-          ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py taps ${_outputfile} ${_sources}
+          ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py taps ${_outputfile} ${_sources}
         DEPENDS
           ${CMAKE_SOURCE_DIR}/tools/make-regs.py
           ${_sources}

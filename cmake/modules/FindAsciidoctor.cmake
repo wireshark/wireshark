@@ -127,7 +127,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         ADD_CUSTOM_COMMAND(
             OUTPUT
                 ${_output_txt}
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
                 ${_output_html}
                 > ${_output_txt}
             DEPENDS

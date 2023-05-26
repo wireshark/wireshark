@@ -4,7 +4,7 @@ function(register_plugin_files _outputfile _registertype)
 	add_custom_command(
 	    OUTPUT
 	      ${_outputfile}
-	    COMMAND ${Python3_EXECUTABLE}
+	    COMMAND ${PYTHON_EXECUTABLE}
 	      ${CMAKE_SOURCE_DIR}/tools/make-plugin-reg.py
 	      ${CMAKE_CURRENT_SOURCE_DIR}
 	      ${_registertype}

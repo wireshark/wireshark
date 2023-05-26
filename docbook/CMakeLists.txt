@@ -310,7 +310,7 @@ ADD_CUSTOM_COMMAND(
 	OUTPUT
 		wsluarm
 	COMMAND ${CMAKE_COMMAND} -E make_directory wsluarm_src
-	COMMAND ${Python3_EXECUTABLE}
+	COMMAND ${PYTHON_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.py
 		--output-directory wsluarm_src
 		${WSLUA_MODULES}
