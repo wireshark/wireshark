@@ -1380,6 +1380,11 @@ static const value_string state_vals[] = {
 	{0, NULL}
 };
 
+typedef enum mysql_resultset_fmt {
+	TEXT,
+	BINARY
+} mysql_resultset_fmt_t;
+
 #define MAX_MY_METADATA_COUNT G_MAXINT16 // Arbitrary; is 32k enough?
 typedef struct {
 	guint16 count;
@@ -1418,6 +1423,7 @@ typedef struct mysql_conn_data {
 	 * and is only valid during the first pass. For random access on
 	 * later passes, use the data stored in the mysql_frame_data. */
 	mysql_state_t state;
+	mysql_resultset_fmt_t resultset_fmt;
 	guint32 stmt_id;
 	guint64 remaining_field_packet_count;
 	my_metadata_list_t field_metas;
@@ -1428,6 +1434,7 @@ typedef struct mysql_conn_data {
  */
 typedef struct mysql_frame_data {
 	mysql_state_t state;
+	mysql_resultset_fmt_t resultset_fmt;
 	guint32 stmt_id; /* The last prepared stmt ID before this PDU */
 	guint64 remaining_field_packet_count;
 	my_metadata_list_t field_metas;
@@ -1622,6 +1629,14 @@ static void mysql_set_conn_state(packet_info *pinfo, mysql_conn_data_t *conn_dat
 	if (!pinfo->fd->visited)
 	{
 		conn_data->state = state;
+	}
+}
+
+static void mysql_set_resultset_fmt(packet_info *pinfo, mysql_conn_data_t *conn_data, mysql_resultset_fmt_t fmt)
+{
+	if (!pinfo->fd->visited)
+	{
+		conn_data->resultset_fmt = fmt;
 	}
 }
 
@@ -2197,6 +2212,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 	case MYSQL_PROCESS_INFO:
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_TABULAR);
+		mysql_set_resultset_fmt(pinfo, conn_data, TEXT);
 		break;
 
 	case MYSQL_DEBUG:
@@ -2261,6 +2277,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		}
 		offset += lenstr;
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_TABULAR);
+		mysql_set_resultset_fmt(pinfo, conn_data, TEXT);
 		break;
 
 	case MYSQL_STMT_PREPARE:
@@ -2377,6 +2394,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		proto_tree_add_item(req_tree, hf_mysql_num_rows, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_TABULAR);
+		mysql_set_resultset_fmt(pinfo, conn_data, BINARY);
 		break;
 
 	case MYSQL_STMT_SEND_LONG_DATA:
@@ -2526,6 +2544,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			// if pipelining, keeping PREPARE state
 			mysql_set_conn_state(pinfo, conn_data, RESPONSE_TABULAR);
 		}
+		mysql_set_resultset_fmt(pinfo, conn_data, BINARY);
 
 		break;
 
@@ -2711,22 +2730,32 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		break;
 
 	case 0x00:
-		proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
-		offset+=1;
 		switch (current_state) {
 		case RESPONSE_PREPARE:
+			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
+			offset+=1;
 			proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_PREPARE, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_response_prepare(tvb, pinfo, offset, tree, conn_data);
 			break;
 		case ROW_PACKET:
 			proto_item_append_text(pi, " - %s", val_to_str(ROW_PACKET, state_vals, "Unknown (%u)"));
-			offset = mysql_dissect_binary_row_packet(tvb, pinfo, pi, offset, tree, conn_data, my_frame_data);
+			if (my_frame_data->resultset_fmt == BINARY) {
+				proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
+				offset+=1;
+				offset = mysql_dissect_binary_row_packet(tvb, pinfo, pi, offset, tree, conn_data, my_frame_data);
+			} else {
+				offset = mysql_dissect_text_row_packet(tvb, offset, tree);
+			}
 			break;
 		case BINLOG_DUMP:
+			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
+			offset+=1;
 			proto_item_append_text(pi, " - %s", val_to_str(BINLOG_DUMP, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree, pi);
 			break;
 		default:
+			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
+			offset+=1;
 			proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_OK, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_ok_packet(tvb, pinfo, offset, tree, conn_data);
 			if (conn_data->compressed_state == MYSQL_COMPRESS_INIT) {
@@ -2749,7 +2778,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 
 		case RESPONSE_TABULAR:
-		case REQUEST: /* That shouldn't be the case; maybe two requests in a row (s. bug 15074) */
+		case REQUEST: /* That shouldn't be the case; maybe two requests in a row (s. bug 15074), or after pipelining */
 			if (response_code == 0xfb) {
 				/* https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html */
 				col_append_str(pinfo->cinfo, COL_INFO, " LOCAL INFILE");
@@ -4085,6 +4114,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		 */
 		mysql_frame_data_p = wmem_new(wmem_file_scope(), struct mysql_frame_data);
 		mysql_frame_data_p->state = conn_data->state;
+		mysql_frame_data_p->resultset_fmt = conn_data->resultset_fmt;
 		mysql_frame_data_p->stmt_id = conn_data->stmt_id;
 		mysql_frame_data_p->remaining_field_packet_count = conn_data->remaining_field_packet_count;
 		mysql_frame_data_p->field_metas = conn_data->field_metas;
