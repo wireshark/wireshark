@@ -223,11 +223,16 @@ typedef struct {
 } http2_data_stream_body_info_t;
 
 /* struct to track header state, so we know if continuation frames are part
- * of a HEADERS frame or a PUSH_PROMISE. Note: does not take into account
- * trailing headers */
+ * of a HEADERS frame or a PUSH_PROMISE.
+ */
 typedef struct {
+    /* Only track the latest received because we only use this on the first
+     * pass. We could keep all the data in a wmem_list_t if we needed it on
+     * later passes. */
     http2_frame_num_t header_start_in;
     http2_frame_num_t header_end_in;
+    guint32 stream_id; /* Normally the same as the parent http2_stream_info_t
+                        * During a PUSH_PROMISE, this is the promised stream. */
     /* list of pointer to wmem_array_t, which is array of http2_header_t
     * that come from all HEADERS and CONTINUATION frames. */
     wmem_list_t *stream_header_list;
@@ -1396,9 +1401,8 @@ hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, vo
 }
 
 static http2_stream_info_t*
-get_stream_info(packet_info *pinfo, http2_session_t *http2_session, gboolean initializeOppositeDirection)
+get_stream_info_for_id(packet_info *pinfo, http2_session_t *http2_session, gboolean initializeOppositeDirection, guint32 stream_id)
 {
-    guint32 stream_id = http2_session->current_stream_id;
     wmem_map_t *stream_map = http2_session->per_stream_info;
     guint32 flow_index = select_http2_flow_index(pinfo, http2_session);
 
@@ -1408,6 +1412,8 @@ get_stream_info(packet_info *pinfo, http2_session_t *http2_session, gboolean ini
         stream_info->oneway_stream_info[0].header_stream_info.stream_header_list = wmem_list_new(wmem_file_scope());
         stream_info->oneway_stream_info[1].header_stream_info.stream_header_list = wmem_list_new(wmem_file_scope());
         stream_info->stream_id = stream_id;
+        stream_info->oneway_stream_info[0].header_stream_info.stream_id = stream_id;
+        stream_info->oneway_stream_info[1].header_stream_info.stream_id = stream_id;
         stream_info->reassembly_mode = HTTP2_DATA_REASSEMBLY_MODE_END_STREAM;
         stream_info->oneway_stream_info[0].is_window_initialized = FALSE;
         stream_info->oneway_stream_info[0].current_window_size = INITIAL_WINDOW_SIZE;
@@ -1432,6 +1438,14 @@ get_stream_info(packet_info *pinfo, http2_session_t *http2_session, gboolean ini
     }
 
     return stream_info;
+}
+
+static http2_stream_info_t*
+get_stream_info(packet_info *pinfo, http2_session_t *http2_session, gboolean initializeOppositeDirection)
+{
+    guint32 stream_id = http2_session->current_stream_id;
+
+    return get_stream_info_for_id(pinfo, http2_session, initializeOppositeDirection, stream_id);
 }
 #endif
 
@@ -1536,9 +1550,9 @@ get_http2_frame_num(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 static http2_oneway_stream_info_t*
-get_oneway_stream_info(packet_info *pinfo, http2_session_t* http2_session, gboolean the_other_direction)
+get_oneway_stream_info_for_id(packet_info *pinfo, http2_session_t* http2_session, gboolean the_other_direction, guint32 stream_id)
 {
-    http2_stream_info_t *http2_stream_info = get_stream_info(pinfo, http2_session, FALSE);
+    http2_stream_info_t *http2_stream_info = get_stream_info_for_id(pinfo, http2_session, FALSE, stream_id);
     guint32 flow_index = select_http2_flow_index(pinfo, http2_session);
     if (the_other_direction) {
         /* need stream info of the other direction,
@@ -1549,17 +1563,40 @@ get_oneway_stream_info(packet_info *pinfo, http2_session_t* http2_session, gbool
     return &http2_stream_info->oneway_stream_info[flow_index];
 }
 
+static http2_oneway_stream_info_t*
+get_oneway_stream_info(packet_info *pinfo, http2_session_t* http2_session, gboolean the_other_direction)
+{
+    return get_oneway_stream_info_for_id(pinfo, http2_session, the_other_direction, http2_session->current_stream_id);
+}
+
+static http2_data_stream_body_info_t*
+get_data_stream_body_info_for_id(packet_info *pinfo, http2_session_t* http2_session, guint32 stream_id)
+{
+    return &(get_oneway_stream_info_for_id(pinfo, http2_session, FALSE, stream_id)->data_stream_body_info);
+}
+
 static http2_data_stream_body_info_t*
 get_data_stream_body_info(packet_info *pinfo, http2_session_t* http2_session)
 {
     return &(get_oneway_stream_info(pinfo, http2_session, FALSE)->data_stream_body_info);
 }
 
+static http2_data_stream_reassembly_info_t*
+get_data_reassembly_info_for_id(packet_info *pinfo, http2_session_t* http2_session, guint32 stream_id)
+{
+    return &(get_oneway_stream_info_for_id(pinfo, http2_session, FALSE, stream_id)->data_stream_reassembly_info);
+}
 
 static http2_data_stream_reassembly_info_t*
 get_data_reassembly_info(packet_info *pinfo, http2_session_t* http2_session)
 {
     return &(get_oneway_stream_info(pinfo, http2_session, FALSE)->data_stream_reassembly_info);
+}
+
+static http2_header_stream_info_t*
+get_header_stream_info_for_id(packet_info *pinfo, http2_session_t* http2_session,gboolean the_other_direction, guint32 stream_id)
+{
+    return &(get_oneway_stream_info_for_id(pinfo, http2_session, the_other_direction, stream_id)->header_stream_info);
 }
 
 static http2_header_stream_info_t*
@@ -1775,7 +1812,11 @@ static gboolean http2_hdrcache_equal(gconstpointer lhs, gconstpointer rhs)
     return alen == blen && memcmp(a, b, alen) == 0;
 }
 
-static int
+/* If we are in a HEADERS or PUSH_PROMISE context, return the stream id
+ * the headers describe. (For PUSH_PROMISE or CONTIUATIONs thereof, this
+ * is the promised stream id.) Otherwise return 0.
+ */
+static guint32
 is_in_header_context(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2session)
 {
     http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo, h2session, FALSE);
@@ -1783,10 +1824,10 @@ is_in_header_context(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sessi
         /* We either haven't established the frame that the headers end in so we are currently in the HEADERS context,
          * or if we have, it should be equal or less that the current frame number */
         if (stream_info->header_end_in == 0 || get_http2_frame_num(tvb, pinfo) <= stream_info->header_end_in) {
-            return TRUE;
+            return stream_info->stream_id;
         }
     }
-    return FALSE;
+    return 0;
 }
 
 /* Extracts only the media-type from a content-type header. EG:
@@ -1844,13 +1885,20 @@ get_content_type_parameters_only(const gchar *content_type, int content_type_str
     return cp;
 }
 
+/* Populates HTTP/2 header information for the given stream. For frames
+ * associated with HEADERS this is the current frame, but for PUSH_PROMISE
+ * populate information for the promised stream id.
+ */
 static void
 populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t *h2session, int header_value_length,
-                                   const gchar *header_name, const gchar *header_value)
+                                   const gchar *header_name, const gchar *header_value, guint32 stream_id)
 {
+    http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, h2session, FALSE, stream_id);
+    http2_data_stream_body_info_t *body_info = get_data_stream_body_info_for_id(pinfo, h2session, stream_id);
+    http2_data_stream_reassembly_info_t *reassembly_info = get_data_reassembly_info_for_id(pinfo, h2session, stream_id);
+
     /* Populate the content encoding used so we can uncompress the body later if required */
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_ENCODING) == 0) {
-        http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
         if (body_info->content_encoding == NULL) {
             body_info->content_encoding = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
         }
@@ -1858,19 +1906,16 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
     /* Store the frame number so we can enhance the display of request/response */
     if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0) {
-        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->request_in_frame_num = pinfo->num;
         stream_info->request_ts = pinfo->abs_ts;
     }
     if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
-        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->response_in_frame_num = pinfo->num;
     }
 
     /* Is this a partial content? */
     if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0 &&
                 strcmp(header_value, HTTP2_HEADER_STATUS_PARTIAL_CONTENT) == 0) {
-        http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
         body_info->is_partial_content = TRUE;
     }
 
@@ -1879,7 +1924,6 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
                 strcmp(header_name, HTTP2_HEADER_METHOD) == 0 ||
                 /* If we are in the middle of a stream assume there might be data transfer */
                 strcmp(header_name, HTTP2_HEADER_UNKNOWN) == 0){
-        http2_data_stream_reassembly_info_t *reassembly_info = get_data_reassembly_info(pinfo, h2session);
         if (reassembly_info->data_initiated_in == 0) {
             reassembly_info->data_initiated_in = get_http2_frame_num(tvb, pinfo);
         }
@@ -1887,22 +1931,18 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
     /* Do we have transfer encoding of bodies? We don't support reassembling these so mark it as such. */
     if (strcmp(header_name, HTTP2_HEADER_TRANSFER_ENCODING) == 0) {
-        http2_data_stream_reassembly_info_t *reassembly_info = get_data_reassembly_info(pinfo, h2session);
         reassembly_info->has_transfer_encoded_body = TRUE;
     }
 
     /* Store away if the stream is associated with a CONNECT request */
     if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0 &&
                 strcmp(header_value, HTTP2_HEADER_METHOD_CONNECT) == 0) {
-        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->is_stream_http_connect = TRUE;
     }
 
     /* Populate the content type so we can dissect the body later */
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_TYPE) == 0) {
-        http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);
         if (body_info->content_type == NULL) {
-            http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
             body_info->content_type = get_content_type_only(header_value, header_value_length);
             body_info->content_type_parameters = get_content_type_parameters_only(header_value, header_value_length);
             stream_info->reassembly_mode = http2_get_data_reassembly_mode(body_info->content_type);
@@ -1914,12 +1954,10 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     }
 
     if (strcmp(header_name, HTTP2_HEADER_PATH) == 0) {
-        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->path = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
     }
 
     if (strcmp(header_name, HTTP2_HEADER_AUTHORITY) == 0) {
-        http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->authority = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
     }
 }
@@ -2177,7 +2215,15 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         }
 
         /* add this packet headers to stream header list */
-        header_stream_info = get_header_stream_info(pinfo, h2session, FALSE);
+        /* If this is a PUSH_PROMISE frame (or a CONTINUATION of a PUSH_PROMISE
+         * field block), we don't want to add it to this list, but to the list
+         * for the promised stream.
+         */
+        guint32 header_stream_id = is_in_header_context(tvb, pinfo, h2session);
+        if (header_stream_id == 0) {
+            header_stream_id = h2session->current_stream_id;
+        }
+        header_stream_info = get_header_stream_info_for_id(pinfo, h2session, FALSE, header_stream_id);
         if (header_stream_info) {
             wmem_list_append(header_stream_info->stream_header_list, headers);
         }
@@ -2300,13 +2346,13 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         }
         hoffset += header_value_length;
 
-        /* Only track HEADER and CONTINUATION frames part there of. Don't look at PUSH_PROMISE and trailing CONTINUATION.
-         * (XXX: For PUSH_PROMISE, header information should be tracked, but
-         * using the promised stream ID instead.)
+        /* Track HEADER and CONTINUATION frames part thereof for this stream id.
+         * For PUSH_PROMISE and CONTINUATION frames thereof, add to the promised stream id.
          * Only do it for the first pass in case the current layer changes, altering where the headers frame number,
          * http2_frame_num_t points to. */
-        if (is_in_header_context(tvb, pinfo, h2session) && !PINFO_FD_VISITED(pinfo)) {
-            populate_http_header_tracking(tvb, pinfo, h2session, header_value_length, header_name, header_value);
+        guint32 header_stream_id;
+        if (!PINFO_FD_VISITED(pinfo) && (header_stream_id = is_in_header_context(tvb, pinfo, h2session))) {
+            populate_http_header_tracking(tvb, pinfo, h2session, header_value_length, header_name, header_value, header_stream_id);
         }
 
         /* Add encoding representation */
@@ -2443,7 +2489,7 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
             }
 
             populate_http_header_tracking(tvb, pinfo, h2session, (int)strlen(fake_header->header_value),
-                fake_header->header_name, fake_header->header_value);
+                fake_header->header_name, fake_header->header_value, h2session->current_stream_id);
 
             wmem_array_append(header_stream_info->fake_headers, &fake_header, 1);
         }
@@ -3545,12 +3591,15 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
     /* Mark this frame as the first header frame seen and last if the END_HEADERS flag
      * is set. We use this to ensure when we read header values, we are not reading ones
      * that have come from a PUSH_PROMISE header (and associated CONTINUATION frames) */
-    http2_header_stream_info_t *header_stream_info = get_header_stream_info(pinfo, h2session, FALSE);
-    if (header_stream_info->header_start_in == 0) {
+    if (!PINFO_FD_VISITED(pinfo)) {
+        http2_header_stream_info_t *header_stream_info = get_header_stream_info(pinfo, h2session, FALSE);
         header_stream_info->header_start_in = get_http2_frame_num(tvb, pinfo);
-    }
-    if (header_stream_info->header_end_in == 0 && flags & HTTP2_FLAGS_END_HEADERS) {
-        header_stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
+        if (flags & HTTP2_FLAGS_END_HEADERS) {
+            header_stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
+        } else {
+            header_stream_info->header_end_in = 0;
+        }
+        header_stream_info->stream_id = h2session->current_stream_id;
     }
 #endif
 
@@ -3783,12 +3832,25 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
 {
     guint16 padding;
     gint headlen;
+    guint32 promised_stream_id;
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
     proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_promised_stream_id, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(http2_tree, hf_http2_push_promise_promised_stream_id, tvb,
+                        offset, 4, ENC_BIG_ENDIAN, &promised_stream_id);
+#ifdef HAVE_NGHTTP2
+    if (!PINFO_FD_VISITED(pinfo)) {
+        http2_header_stream_info_t *header_stream_info = get_header_stream_info(pinfo, h2session, FALSE);
+        header_stream_info->header_start_in = get_http2_frame_num(tvb, pinfo);
+        if (flags & HTTP2_FLAGS_END_HEADERS) {
+            header_stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
+        } else {
+            header_stream_info->header_end_in = 0;
+        }
+        header_stream_info->stream_id = promised_stream_id;
+    }
+#endif
     offset += 4;
 
     headlen = tvb_reported_length_remaining(tvb, offset);
@@ -3802,6 +3864,17 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
 
 #ifdef HAVE_NGHTTP2
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+
+    /* Display request/response links */
+    /* For PUSH_PROMISE, the response is on the promised stream ID. The
+     * response is also in the same direction as the request.
+     */
+    http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, h2session, FALSE, promised_stream_id);
+    if (pinfo->num == stream_info->request_in_frame_num && stream_info->response_in_frame_num > 0) {
+        /* Request frame */
+        proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_response_in, tvb, 0, 0, stream_info->response_in_frame_num));
+    }
+
 #endif
 
     offset += headlen;
@@ -3879,7 +3952,7 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
 #ifdef HAVE_NGHTTP2
     /* Mark this as the last CONTINUATION frame for a HEADERS frame. This is used to know the context when we read
      * header (is the source a HEADER frame or a PUSH_PROMISE frame?) */
-    if (flags & HTTP2_FLAGS_END_HEADERS) {
+    if (!PINFO_FD_VISITED(pinfo) && flags & HTTP2_FLAGS_END_HEADERS) {
         http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo, h2session, FALSE);
         if (stream_info->header_start_in != 0 && stream_info->header_end_in == 0) {
             stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
