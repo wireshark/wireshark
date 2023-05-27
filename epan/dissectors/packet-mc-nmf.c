@@ -128,7 +128,7 @@ static gint ett_mc_nmf_rec = -1;
 
 static gboolean get_size_length(tvbuff_t *tvb, int *offset, guint *len_length, packet_info *pinfo, guint32 *out_size) {
     guint8    lbyte;
-    gint64    size = 0;
+    guint64   size = 0;
     guint     shiftcount = 0;
 
     lbyte = tvb_get_guint8(tvb, *offset);
@@ -138,13 +138,20 @@ static gboolean get_size_length(tvbuff_t *tvb, int *offset, guint *len_length, p
     while ( lbyte & 0x80 ) {
         lbyte = tvb_get_guint8(tvb, *offset);
         *offset += 1;
+        /* Guard against the pathological case of a sequence of 0x80
+         * bytes (which add nothing to size).
+         */
+        if (*len_length >= 5) {
+            expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
+            return FALSE;
+        }
         shiftcount = 7 * *len_length;
-        size = ((lbyte & 0x7F) << shiftcount) | (size);
+        size = ((lbyte & UINT64_C(0x7F)) << shiftcount) | (size);
         *len_length += 1;
         /*
          * Check if size if is too big to prevent against overflow.
          * According to spec an implementation SHOULD support record sizes as
-         * large as 0xffffffff octets.
+         * large as 0xffffffff octets (encoded size requires five octets).
          */
         if (size > 0xffffffff) {
             expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
