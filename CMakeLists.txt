@@ -85,7 +85,7 @@ if(USE_MSYSTEM)
 	# Use the deprecated FindPythonInterp.cmake module to Work around bugs and odd behavior in MSYS2 CMake
 	# searching in the wrong paths for python3.exe using FindPython3.cmake
 	find_package(PythonInterp REQUIRED)
-	set(Python3_Executable ${PYTHON_EXECUTABLE})
+	set(Python3_EXECUTABLE ${PYTHON_EXECUTABLE} CACHE FILEPATH "")
 else()
 	find_package(Python3 3.6 REQUIRED)
 endif()
