@@ -232,12 +232,6 @@ bytes_to_str_punct_maxlen(wmem_allocator_t *scope,
 	if (!punct)
 		return bytes_to_str_maxlen(scope, src, src_size, max_bytes_len);
 
-	/* Sanity check */
-	if (src_size > 8192) {
-		src_size = 8192;
-		truncated = 1;
-	}
-
 	if (max_bytes_len == 0 || max_bytes_len > src_size) {
 		max_bytes_len = src_size;
 	}
@@ -273,12 +267,6 @@ bytes_to_str_maxlen(wmem_allocator_t *scope,
 
 	ws_return_str_if_null(scope, src);
 	ws_return_str_if_zero(scope, src_size);
-
-	/* Sanity check */
-	if (src_size > 8192) {
-		src_size = 8192;
-		truncated = 1;
-	}
 
 	if (max_bytes_len == 0 || max_bytes_len > src_size) {
 		max_bytes_len = src_size;
