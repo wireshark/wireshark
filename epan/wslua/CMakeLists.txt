@@ -74,7 +74,7 @@ add_custom_command(
 		# XXX taps.txt doesn't appear to be used anywhere.
 		${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
 	COMMAND
-		${PYTHON_EXECUTABLE}
+		${Python3_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.py
 		${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
 		${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
@@ -91,7 +91,7 @@ add_custom_command(
 		declare_wslua.h
 		register_wslua.c
 	COMMAND
-		${PYTHON_EXECUTABLE}
+		${Python3_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.py
 		${WSLUA_MODULES}
 	DEPENDS

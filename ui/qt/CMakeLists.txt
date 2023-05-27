@@ -669,7 +669,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/authors.qrc"
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
-	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-authors-csv.py
+	COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-authors-csv.py
 			< ${CMAKE_SOURCE_DIR}/AUTHORS
 			> ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
 	DEPENDS

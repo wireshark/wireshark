@@ -29,7 +29,7 @@ endif()
 
 add_custom_command(
 	OUTPUT ps.c
-	COMMAND ${PYTHON_EXECUTABLE}
+	COMMAND ${Python3_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/tools/rdps.py
 		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
 		ps.c
