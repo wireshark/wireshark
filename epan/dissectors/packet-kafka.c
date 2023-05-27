@@ -8804,15 +8804,15 @@ dissect_kafka_offset_delete_response(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* MAIN */
 
-static wmem_tree_t *
+static wmem_multimap_t *
 dissect_kafka_get_match_map(packet_info *pinfo)
 {
     conversation_t         *conversation;
-    wmem_tree_t            *match_map;
+    wmem_multimap_t        *match_map;
     conversation = find_or_create_conversation(pinfo);
-    match_map    = (wmem_tree_t *) conversation_get_proto_data(conversation, proto_kafka);
+    match_map    = (wmem_multimap_t *) conversation_get_proto_data(conversation, proto_kafka);
     if (match_map == NULL) {
-        match_map = wmem_tree_new(wmem_file_scope());
+        match_map = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         conversation_add_proto_data(conversation, proto_kafka, match_map);
 
     }
@@ -8822,17 +8822,17 @@ dissect_kafka_get_match_map(packet_info *pinfo)
 static gboolean
 dissect_kafka_insert_match(packet_info *pinfo, guint32 correlation_id, kafka_query_response_t *match)
 {
-    if (wmem_tree_lookup32(dissect_kafka_get_match_map(pinfo), correlation_id)) {
+    if (wmem_multimap_lookup32(dissect_kafka_get_match_map(pinfo), GUINT_TO_POINTER(correlation_id), pinfo->num)) {
         return 0;
     }
-    wmem_tree_insert32(dissect_kafka_get_match_map(pinfo), correlation_id, match);
+    wmem_multimap_insert32(dissect_kafka_get_match_map(pinfo), GUINT_TO_POINTER(correlation_id), pinfo->num, match);
     return 1;
 }
 
 static kafka_query_response_t *
 dissect_kafka_lookup_match(packet_info *pinfo, guint32 correlation_id)
 {
-    kafka_query_response_t *match = (kafka_query_response_t*)wmem_tree_lookup32(dissect_kafka_get_match_map(pinfo), correlation_id);
+    kafka_query_response_t *match = (kafka_query_response_t*)wmem_multimap_lookup32_le(dissect_kafka_get_match_map(pinfo), GUINT_TO_POINTER(correlation_id), pinfo->num);
     return match;
 }
 
