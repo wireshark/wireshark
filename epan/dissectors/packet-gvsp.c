@@ -3017,7 +3017,7 @@ void proto_register_gvsp(void)
         }},
 
         {&hf_gvsp_sc_zone11_direction,
-        { "Zone 11 Direction", "gvsp.zone1direction",
+        { "Zone 11 Direction", "gvsp.zone11direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00100000,
         NULL, HFILL
         }},

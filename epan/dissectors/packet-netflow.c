@@ -3222,7 +3222,7 @@ static int      hf_pie_ntop_num_pkts_ttl_96_128        = -1;
 static int      hf_pie_ntop_num_pkts_ttl_128_160       = -1;
 static int      hf_pie_ntop_num_pkts_ttl_160_192       = -1;
 static int      hf_pie_ntop_num_pkts_ttl_192_224       = -1;
-static int      hf_pie_ntop_num_pkts_ttl_224_225       = -1;
+static int      hf_pie_ntop_num_pkts_ttl_224_255       = -1;
 static int      hf_pie_ntop_gtpv1_rai_lac              = -1;
 static int      hf_pie_ntop_gtpv1_rai_rac              = -1;
 static int      hf_pie_ntop_gtpv1_uli_mcc              = -1;
@@ -9436,7 +9436,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 341):           /* NUM_PKTS_TTL_224_255 */
         case ((VENDOR_NTOP << 16) | 341): /* NUM_PKTS_TTL_224_255 */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_num_pkts_ttl_224_225,
+            ti = proto_tree_add_item(pdutree, hf_pie_ntop_num_pkts_ttl_224_255,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
@@ -17286,8 +17286,8 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         /* ntop, 35632 / 341 */
-        {&hf_pie_ntop_num_pkts_ttl_224_225,
-         {"# packets with TTL > 224 and <= 255", "cflow.pie.ntop.num_pkts_ttl_224_225",
+        {&hf_pie_ntop_num_pkts_ttl_224_255,
+         {"# packets with TTL > 224 and <= 255", "cflow.pie.ntop.num_pkts_ttl_224_255",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },

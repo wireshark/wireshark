@@ -6476,7 +6476,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_edch_macis_flag,
               { "Flag",
-                "fp.edch.mac-is.lchid", FT_UINT8, BASE_HEX, 0, 0x01,
+                "fp.edch.mac-is.flag", FT_UINT8, BASE_HEX, 0, 0x01,
                 "Indicates if another entry follows", HFILL
               }
             },
@@ -6772,7 +6772,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_duration,
               { "Duration (ms)",
-                "fp.pusch-set-id", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "fp.pusch-duration", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Duration of the activation period of the PUSCH Set", HFILL
               }
             },

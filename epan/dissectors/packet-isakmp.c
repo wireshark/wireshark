@@ -7617,7 +7617,7 @@ proto_register_isakmp(void)
         FT_UINT8, BASE_DEC, NULL, 0x00,
         NULL, HFILL }},
     { &hf_isakmp_cfg_attr_internal_ip6_netmask,
-      { "INTERNAL IP4 NETMASK", "isakmp.cfg.attr.internal_ip6_netmask",
+      { "INTERNAL IP6 NETMASK", "isakmp.cfg.attr.internal_ip6_netmask",
         FT_IPv6, BASE_NONE, NULL, 0x00,
         "The internal network's netmask", HFILL }},
     { &hf_isakmp_cfg_attr_internal_ip6_dns,

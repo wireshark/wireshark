@@ -3378,7 +3378,7 @@ proto_register_oran(void)
 
         /* Section 7.5.3.28 */
         {&hf_oran_lbtCWConfig_H,
-         {"lbtCWConfig_H", "oran_fh_cus.hf_oran_lbtCWConfig_H",
+         {"lbtCWConfig_H", "oran_fh_cus.lbtCWConfig_H",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
           "HARQ parameters for congestion window management",
@@ -3387,7 +3387,7 @@ proto_register_oran(void)
 
         /* Section 7.5.3.29 */
         {&hf_oran_lbtCWConfig_T,
-         {"lbtCWConfig_T", "oran_fh_cus.hf_oran_lbtCWConfig_T",
+         {"lbtCWConfig_T", "oran_fh_cus.lbtCWConfig_T",
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
           "TB parameters for congestion window management",
@@ -3738,7 +3738,7 @@ proto_register_oran(void)
             HFILL }
         },
         { &hf_oran_num_bund_prbs,
-          { "numBundPrb", "oran_fh_cus.numBundPrbs",
+          { "numBundPrb", "oran_fh_cus.numBundPrb",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
             "Number of bundled PRBs per BFWs",
@@ -3939,7 +3939,7 @@ proto_register_oran(void)
         },
         /* 7.7.20.4 startPuncPrb */
         {&hf_oran_startPuncPrb,
-         {"numPuncPrb", "oran_fh_cus.startPuncPrb",
+         {"startPuncPrb", "oran_fh_cus.startPuncPrb",
           FT_UINT16, BASE_DEC,
           NULL, 0x03ff,
           "starting PRB to which one puncturing pattern applies",
@@ -3955,7 +3955,7 @@ proto_register_oran(void)
         },
         /* 7.7.20.6 puncReMask */
         {&hf_oran_puncReMask,
-         {"puncReMask", "oran_fh_cus.punkReMask",
+         {"puncReMask", "oran_fh_cus.puncReMask",
           FT_UINT16, BASE_DEC,
           NULL, 0xffc0,
           "puncturing pattern RE mask",

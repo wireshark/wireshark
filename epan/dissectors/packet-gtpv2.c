@@ -12310,7 +12310,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL }
       },
       { &hf_gtpv2_ext_tra_info_loi_pcf_n15,
-      { "N15", "gtpv2.ext_tra_info_loi.pcf.n25",
+      { "N15", "gtpv2.ext_tra_info_loi.pcf.n15",
           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
           NULL, HFILL }
       },

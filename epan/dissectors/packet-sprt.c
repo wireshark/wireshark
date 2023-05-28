@@ -2249,7 +2249,7 @@ proto_register_sprt(void)
             &hf_sprt_payload_msg_jminfo_mod_v26bis,
             {
                 "V.26bis",
-                "sprt.payload.msg_jminfo.mod_v16bis",
+                "sprt.payload.msg_jminfo.mod_v26bis",
                 FT_BOOLEAN,
                 16,
                 TFS(&tfs_available_not_available),

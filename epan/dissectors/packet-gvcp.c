@@ -4060,7 +4060,7 @@ void proto_register_gvcp(void)
 		}},
 
 		{ &hf_gvcp_sc_zone11_direction_v2_0,
-		{ "Zone 11 Direction", "gvcp.bootstrap.sczdx.zone1direction",
+		{ "Zone 11 Direction", "gvcp.bootstrap.sczdx.zone11direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00100000,
 		NULL, HFILL
 		}},

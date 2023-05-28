@@ -702,6 +702,46 @@ class Item:
                 global warnings_found
                 warnings_found += 1
 
+    def check_label_vs_filter(self):
+        global warnings_found
+
+        last_filter = self.filter.split('.')[-1]
+        last_filter_orig = last_filter
+        last_filter = last_filter.replace('-', '')
+        last_filter = last_filter.replace('_', '')
+        last_filter = last_filter.replace(' ', '')
+        label = self.label
+        label_orig = label
+        label = label.replace(' ', '')
+        label = label.replace('-', '')
+        label = label.replace('_', '')
+
+        # OK if filter is abbrev of label.
+        label_words = self.label.split(' ')
+        label_words = [w for w in label_words if len(w)]
+        if len(label_words) == len(last_filter):
+            #print(label_words)
+            abbrev_letters = [w[0] for w in label_words]
+            abbrev = ''.join(abbrev_letters)
+            if abbrev.lower() == last_filter.lower():
+                return
+
+        # If both have numbers, they should probably match!
+        label_numbers =  re.findall(r'\d+', label_orig)
+        filter_numbers = re.findall(r'\d+', last_filter_orig)
+        if len(label_numbers) == len(filter_numbers) and label_numbers != filter_numbers:
+            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
+            print(label_numbers, filter_numbers)
+            warnings_found += 1
+            return
+
+        # Are they just different?
+        # TODO: if the dissector is not written this way, can generate a lot of noise.  Maybe should scan whole dissector and only report
+        # differences if a certain proportion do follow this convention?
+        if label.lower().find(last_filter.lower()) == -1:
+            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" does not seem to match filter="' + self.filter + '"')
+            warnings_found += 1
+
 
 class CombinedCallsCheck:
     def __init__(self, file, apiChecks):
@@ -1023,7 +1063,8 @@ def findDissectorFilesInFolder(folder, recursive=False):
 
 
 # Run checks on the given dissector file.
-def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False, check_missing_items=False, check_bitmask_fields=False):
+def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
+              check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
@@ -1056,6 +1097,10 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     if check_bitmask_fields:
         field_arrays = find_field_arrays(filename, fields, items_defined)
 
+    if label_vs_filter:
+        for hf in items_defined:
+            items_defined[hf].check_label_vs_filter()
+
 
 
 #################################################################
@@ -1084,6 +1129,8 @@ parser.add_argument('--missing-items', action='store_true',
                     help='when set, look for used items that were never registered')
 parser.add_argument('--check-bitmask-fields', action='store_true',
                     help='when set, attempt to check arrays of hf items passed to add_bitmask() calls')
+parser.add_argument('--label-vs-filter', action='store_true',
+                    help='when set, check whether label matches last part of filter')
 parser.add_argument('--all-checks', action='store_true',
                     help='when set, apply all checks to selected files')
 
@@ -1163,7 +1210,7 @@ for f in files:
         exit(1)
     checkFile(f, check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
               check_consecutive=args.consecutive, check_missing_items=args.missing_items,
-              check_bitmask_fields=args.check_bitmask_fields)
+              check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter)
 
     # Do checks against all calls.
     if args.consecutive:

@@ -769,7 +769,7 @@ proto_register_adb(void)
             NULL, HFILL }
         },
         { &hf_argument_1,
-            { "Argument 0",                      "adb.argument.1",
+            { "Argument 1",                      "adb.argument.1",
             FT_UINT32, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },

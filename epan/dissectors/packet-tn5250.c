@@ -5296,7 +5296,7 @@ proto_register_tn5250(void)
                                  FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     { &hf_tn5250_soh_pf24, { "PF24", "tn5250.soh_pf24",
                              FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-    { &hf_tn5250_soh_pf23, { "PF22", "tn5250.soh_pf23",
+    { &hf_tn5250_soh_pf23, { "PF23", "tn5250.soh_pf23",
                              FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
     { &hf_tn5250_soh_pf22, { "PF22", "tn5250.soh_pf22",
                              FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},

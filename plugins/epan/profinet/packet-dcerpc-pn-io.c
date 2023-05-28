@@ -15531,7 +15531,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_subframe_reserved2,
-      { "Reserved1", "pn_io.subframe_data.reserved2",
+      { "Reserved2", "pn_io.subframe_data.reserved2",
         FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
         NULL, HFILL }
     },
@@ -15556,7 +15556,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_subframe_data_reserved2,
-      { "Reserved1", "pn_io.subframe_data.reserved_2",
+      { "Reserved2", "pn_io.subframe_data.reserved_2",
         FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
         NULL, HFILL }
     },

@@ -1986,14 +1986,14 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3906_timer,
-			{ "TU3907 Timer value(seconds)","uma.urr.tu3906",
+			{ "TU3906 Timer value(seconds)","uma.urr.tu3906",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"TU3906 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3910_timer,
-			{ "TU3907 Timer value(seconds)","uma.urr.tu3910",
+			{ "TU3910 Timer value(seconds)","uma.urr.tu3910",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"TU3910 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3902_timer,
 			{ "TU3902 Timer value(seconds)","uma.urr.tu3902",

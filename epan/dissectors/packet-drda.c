@@ -3157,7 +3157,7 @@ proto_register_drda(void)
             NULL, HFILL }},
 
         { &hf_drda_outexp,
-          { "Output Expected", "drda.rdbcmtok", FT_UINT8, BASE_NONE,
+          { "Output Expected", "drda.outexp", FT_UINT8, BASE_NONE,
             VALS(drda_boolean_vals), 0x0,
             NULL, HFILL }},
 

@@ -1014,7 +1014,7 @@ proto_register_pn_rt(void)
             NULL, HFILL }},
 
         { &hf_pn_rt_data_status_res3,
-          { "Reserved_1 (should be zero)", "pn_rt.ds_res3",
+          { "Reserved_3 (should be zero)", "pn_rt.ds_res3",
             FT_UINT8, BASE_HEX, 0, 0x08,
             NULL, HFILL }},
 
