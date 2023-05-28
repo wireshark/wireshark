@@ -1673,7 +1673,6 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tv
         dst_size = (size_t)lz4_info.contentSize;
     }
 
-    decompressed_buffer = wmem_alloc(pinfo->pool, dst_size);
     size_t out_size;
     int count = 0;
 
@@ -1683,11 +1682,15 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tv
             goto end;
         }
 
+        decompressed_buffer = wmem_alloc(pinfo->pool, dst_size);
         out_size = dst_size;
         rc = LZ4F_decompress(lz4_ctxt, decompressed_buffer, &out_size,
                               &data[src_offset], &src_size, NULL);
         if (LZ4F_isError(rc)) {
             goto end;
+        }
+        if (out_size != dst_size) {
+            decompressed_buffer = (guint8 *)wmem_realloc(pinfo->pool, decompressed_buffer, out_size);
         }
         if (out_size == 0) {
             goto end;
@@ -1730,7 +1733,7 @@ static gboolean
 decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tvbuff_t **decompressed_tvb, int *decompressed_offset)
 {
     guint8 *data = (guint8*)tvb_memdup(pinfo->pool, tvb, offset, length);
-    size_t uncompressed_size;
+    size_t uncompressed_size, out_size;
     snappy_status rc = SNAPPY_OK;
     tvbuff_t *composite_tvb = NULL;
     gboolean ret = FALSE;
@@ -1767,18 +1770,21 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
                 goto end;
             }
             guint8 *decompressed_buffer = (guint8*)wmem_alloc(pinfo->pool, uncompressed_size);
-            rc = snappy_uncompress(&data[pos], chunk_size, decompressed_buffer, &uncompressed_size);
+            out_size = uncompressed_size;
+            rc = snappy_uncompress(&data[pos], chunk_size, decompressed_buffer, &out_size);
             if (rc != SNAPPY_OK) {
                 goto end;
+            }
+            if (out_size != uncompressed_size) {
+                decompressed_buffer = (guint8 *)wmem_realloc(pinfo->pool, decompressed_buffer, out_size);
             }
 
             if (!composite_tvb) {
                 composite_tvb = tvb_new_composite();
             }
             tvb_composite_append(composite_tvb,
-                      tvb_new_child_real_data(tvb, decompressed_buffer, (guint)uncompressed_size, (gint)uncompressed_size));
+                      tvb_new_child_real_data(tvb, decompressed_buffer, (guint)out_size, (gint)out_size));
             pos += chunk_size;
-            wmem_free(pinfo->pool, decompressed_buffer);
             count++;
             DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
         }
@@ -1793,12 +1799,16 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
 
         guint8 *decompressed_buffer = (guint8*)wmem_alloc(pinfo->pool, uncompressed_size);
 
-        rc = snappy_uncompress(data, length, decompressed_buffer, &uncompressed_size);
+        out_size = uncompressed_size;
+        rc = snappy_uncompress(data, length, decompressed_buffer, &out_size);
         if (rc != SNAPPY_OK) {
             goto end;
         }
+        if (out_size != uncompressed_size) {
+            decompressed_buffer = (guint8 *)wmem_realloc(pinfo->pool, decompressed_buffer, out_size);
+        }
 
-        *decompressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (guint)uncompressed_size, (gint)uncompressed_size);
+        *decompressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (guint)out_size, (gint)out_size);
         *decompressed_offset = 0;
 
     }
