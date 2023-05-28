@@ -382,9 +382,8 @@ void MainApplication::setMonospaceFont(const char *font_string) {
     substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_fonts << fallback_fonts;
 #endif // Q_OS
 
-    mono_font_.setFamily(default_font);
+    mono_font_ = QFont(default_font, mainApp->font().pointSize() + font_size_adjust);
     mono_font_.insertSubstitutions(default_font, substitutes);
-    mono_font_.setPointSize(mainApp->font().pointSize() + font_size_adjust);
     mono_font_.setBold(false);
 
     // Retrieve the effective font and apply it.
