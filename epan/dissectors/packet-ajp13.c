@@ -1088,7 +1088,7 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_rsmsg,
-      { "RSMSG",  "ajp13.rmsg", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP Status Message",
+      { "RSMSG",  "ajp13.rsmsg", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP Status Message",
         HFILL }
     },
     { &hf_ajp13_data,

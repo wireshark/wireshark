@@ -1395,7 +1395,7 @@ proto_register_bthci_vendor_broadcom(void)
             NULL, HFILL }
         },
         { &hf_broadcom_le_multi_advertising_instance_id,
-            { "Full Max",                                  "bthci_vendor.broadcom.le.multi_advertising.instance_id",
+            { "Instance Id",                                  "bthci_vendor.broadcom.le.multi_advertising.instance_id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

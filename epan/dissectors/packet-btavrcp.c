@@ -2699,12 +2699,12 @@ proto_register_btavrcp(void)
             NULL, HFILL }
         },
         { &hf_btavrcp_attribute_name_length,
-            { "Value Length",                    "btavrcp.attribute_name.length",
+            { "Name Length",                    "btavrcp.attribute_name.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_attribute_name,
-            { "Value",                           "btavrcp.attribute_name",
+            { "Name",                           "btavrcp.attribute_name",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },

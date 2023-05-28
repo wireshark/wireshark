@@ -11944,7 +11944,7 @@ proto_register_amqp(void)
             FT_NONE, BASE_NONE, NULL, 0,
             "client-properties", HFILL}},
         {&hf_amqp_0_10_method_message_transfer_destination, {
-            "Description", "amqp.message.transfer.destination",
+            "Destination", "amqp.message.transfer.destination",
             FT_UINT_STRING, BASE_NONE, NULL, 0,
             "Message destination", HFILL}},
         {&hf_amqp_0_10_method_message_transfer_accept_mode, {

@@ -702,7 +702,8 @@ class Item:
                 global warnings_found
                 warnings_found += 1
 
-    def check_label_vs_filter(self):
+    # Return True if appears to be a match
+    def check_label_vs_filter(self, reportError=True):
         global warnings_found
 
         last_filter = self.filter.split('.')[-1]
@@ -715,6 +716,9 @@ class Item:
         label = label.replace(' ', '')
         label = label.replace('-', '')
         label = label.replace('_', '')
+        label = label.replace('(', '')
+        label = label.replace(')', '')
+
 
         # OK if filter is abbrev of label.
         label_words = self.label.split(' ')
@@ -724,23 +728,26 @@ class Item:
             abbrev_letters = [w[0] for w in label_words]
             abbrev = ''.join(abbrev_letters)
             if abbrev.lower() == last_filter.lower():
-                return
+                return True
 
         # If both have numbers, they should probably match!
         label_numbers =  re.findall(r'\d+', label_orig)
         filter_numbers = re.findall(r'\d+', last_filter_orig)
         if len(label_numbers) == len(filter_numbers) and label_numbers != filter_numbers:
-            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
-            print(label_numbers, filter_numbers)
-            warnings_found += 1
-            return
+            if reportError:
+                print('Warning:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
+                print(label_numbers, filter_numbers)
+                warnings_found += 1
+            return False
 
         # Are they just different?
-        # TODO: if the dissector is not written this way, can generate a lot of noise.  Maybe should scan whole dissector and only report
-        # differences if a certain proportion do follow this convention?
         if label.lower().find(last_filter.lower()) == -1:
-            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" does not seem to match filter="' + self.filter + '"')
-            warnings_found += 1
+            if reportError:
+                print('Warning:', self.filename, self.hf, 'label="' + self.label + '" does not seem to match filter="' + self.filter + '"')
+                warnings_found += 1
+            return False
+
+        return True
 
 
 class CombinedCallsCheck:
@@ -1098,8 +1105,17 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         field_arrays = find_field_arrays(filename, fields, items_defined)
 
     if label_vs_filter:
+        matches = 0
         for hf in items_defined:
-            items_defined[hf].check_label_vs_filter()
+            if items_defined[hf].check_label_vs_filter(reportError=False):
+                matches += 1
+
+        # Only checking if almost every field does match.
+        checking = len(items_defined) and matches<len(items_defined) and ((matches / len(items_defined)) > 0.9)
+        if checking:
+            print(filename, ':', matches, 'label-vs-filter matches of out of', len(items_defined), 'so reporting mismatches')
+            for hf in items_defined:
+                items_defined[hf].check_label_vs_filter(reportError=True)
 
 
 
@@ -1143,6 +1159,7 @@ if args.all_checks:
     args.mask_exact_width = True
     args.consecutive = True
     args.check_bitmask_fields = True
+    args.label_vs_filter = True
 
 
 # Get files from wherever command-line args indicate.

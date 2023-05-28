@@ -8756,12 +8756,12 @@ void proto_register_nfapi(void)
 			"The offset from VNF SFN/SF 0/0 time reference of the message transmission at the transport layer, in microseconds, with a range of 0 to 10239999", HFILL }
 		},
 		{ &hf_nfapi_tl_tag,
-			{ "TLV Tag", "nfapi.tl_tag",
+			{ "TLV Tag", "nfapi.tlv_tag",
 			FT_UINT16, BASE_CUSTOM, CF_FUNC(nfapi_tag_vals_fn), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_tl_length,
-			{ "TLV Length", "nfapi.tl_length",
+			{ "TLV Length", "nfapi.tlv_length",
 			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0,
 			NULL, HFILL }
 		},
@@ -9572,7 +9572,7 @@ void proto_register_nfapi(void)
 			"The minimum supported uplink frequency in 100kHz units", HFILL }
 		},
 		{ &hf_nfapi_maximum_uplink_frequency,
-			{ "Maximum uplink frequency", "nfapi.maximum_downlink_frequency",
+			{ "Maximum uplink frequency", "nfapi.maximum_uplink_frequency",
 			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
 			"The maximum supported uplink frequency in 100kHz units", HFILL }
 		},
@@ -9702,7 +9702,7 @@ void proto_register_nfapi(void)
 			"Indicates if PHY supports CSI-RS enhancements (FD-MIMO Class A). Equivalent to csi-RS-EnhancementsTDD-r13 in TS36.306", HFILL }
 		},
 		{ &hf_nfapi_drms_enhancements_supported,
-			{ "DMRS enhancements supported", "nfapi.pnf.phy_rel13.drms_enhancements_supported",
+			{ "DRMS enhancements supported", "nfapi.pnf.phy_rel13.drms_enhancements_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports DMRS enhancements added in Release 13. Equivalent to dmrs-Enhancements-r13 in TS36.306", HFILL }
 		},
@@ -11114,7 +11114,7 @@ void proto_register_nfapi(void)
 			"The format of the ACK/NACK response expected", HFILL }
 		},
 		{ &hf_nfapi_number_of_ack_nack,
-			{ "Number of ACK/NACK", "nfapi.uint16.tag",
+			{ "Number of ACK/NACK", "nfapi.num-ack-nack",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"The number of ACK/NACK results reported for this UE", HFILL }
 		},
