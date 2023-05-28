@@ -305,6 +305,27 @@ Fedora RPM Package:
 #     - tshark --version
 #  needs: [ 'Fedora RPM Package' ]
 
+Fedora MinGW-w64:
+  stage: build
+  image: registry.gitlab.com/wireshark/wireshark-containers/mingw-dev
+  rules: !reference [.if-merged]
+  tags:
+    - docker
+  before_script:
+    - mkdir build
+    - cd build
+  script:
+    - mingw64-cmake -G Ninja ..
+    - ninja
+    - ninja user_guide_html
+    - ninja wireshark_nsis_prep
+    - ninja wireshark_nsis
+  artifacts:
+    paths:
+      - build/packaging/nsis/wireshark-*.exe
+    expire_in: 3 days
+  needs: []
+
 openSUSE 15.4 RPM Package:
   extends: .build-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.4-dev
