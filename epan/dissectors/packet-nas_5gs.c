@@ -504,6 +504,7 @@ static int ett_nas_5gs_mm_mapped_nssai = -1;
 static int ett_nas_5gs_mm_partial_extended_rejected_nssai_list = -1;
 static int ett_nas_5gs_mm_ext_rej_nssai = -1;
 static int ett_nas_5gs_mm_op_def_acc_cat_def = -1;
+static int ett_nas_5gs_mm_op_def_acc_cat_criteria_component = -1;
 static int ett_nas_5gs_mm_op_def_acc_cat_criteria = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
@@ -544,7 +545,6 @@ static int hf_nas_5gs_mm_op_def_access_cat_criteria_os_app_id_len = -1;
 static int hf_nas_5gs_mm_op_def_access_cat_criteria_os_app_id = -1;
 static int hf_nas_5gs_mm_op_def_access_cat_criteria_s_nssai_count = -1;
 static int hf_nas_5gs_mm_op_def_access_cat_criteria_s_nssai_len = -1;
-static int hf_nas_5gs_mm_op_def_access_cat_criteria_payload = -1;
 static int hf_nas_5gs_mm_op_def_access_cat_standardized_number = -1;
 static int hf_nas_5gs_mm_sms_indic_sai = -1;
 
@@ -2551,11 +2551,11 @@ de_nas_5gs_mm_op_def_acc_cat_def(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree *sub_tree, *sub_tree2;
-    proto_item *item, *item2;
-    int i = 1;
-    guint32 length, criteria_length, criteria_type, criteria_count, j;
-    guint32 curr_offset, saved_offset, saved_offset2;
+    proto_tree *sub_tree, *sub_tree2, *sub_tree3;
+    proto_item *item, *item2, *item3;
+    guint32 i = 1, j, k;
+    guint32 length, criteria_length, criteria_type, criteria_count;
+    guint32 curr_offset, saved_offset, saved_offset2, saved_offset3, criteria_offset;
     gboolean psac;
 
     curr_offset = offset;
@@ -2584,72 +2584,75 @@ de_nas_5gs_mm_op_def_acc_cat_def(tvbuff_t *tvb, proto_tree *tree, packet_info *p
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_op_def_access_cat_criteria_length,
                                      tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_length);
         curr_offset++;
-        /* Criteria */
-        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_op_def_access_cat_criteria_type,
-                                     tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_type);
-        curr_offset++;
-        switch (criteria_type) {
-        case 0:
-            proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_op_def_access_cat_criteria_dnn_count,
-                                         tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_count);
+        criteria_offset = curr_offset;
+        j = 1;
+        while ((curr_offset - criteria_offset) < criteria_length) {
+            saved_offset2 = curr_offset;
+            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, 1, ett_nas_5gs_mm_op_def_acc_cat_criteria_component,
+                                                      &item2, "Criteria component %u", j++);
+            /* Criteria */
+            proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_type,
+                                         tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_type);
             curr_offset++;
-            for (j = 1; j <= criteria_count; j++) {
-                guint32 dnn_len;
-                saved_offset2 = curr_offset;
-                sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1,
-                                                          ett_nas_5gs_mm_op_def_acc_cat_criteria, &item2, "DNN %u", j);
-                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_dnn_len,
-                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN, &dnn_len);
+            switch (criteria_type) {
+            case 0:
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_dnn_count,
+                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_count);
                 curr_offset++;
-                de_nas_5gs_cmn_dnn(tvb, sub_tree2, pinfo, curr_offset, dnn_len, NULL, 0);
-                curr_offset += dnn_len;
-                proto_item_set_len(item2, curr_offset - saved_offset2);
-            }
-            break;
-        case 1:
-            proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_op_def_access_cat_criteria_os_id_os_app_id_count,
-                                         tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_count);
-            curr_offset++;
-            for (j = 1; j <= criteria_count; j++) {
-                guint32 os_app_id_len;
-                saved_offset2 = curr_offset;
-                sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_mm_op_def_acc_cat_criteria,
-                                                          &item2, "OS Id + Os App Id %u", j);
-                proto_tree_add_item(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_os_id,
-                                    tvb, curr_offset, 16, ENC_NA);
-                curr_offset += 16;
-                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_os_app_id_len,
-                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN, &os_app_id_len);
+                for (k = 1; k <= criteria_count; k++) {
+                    guint32 dnn_len;
+                    saved_offset3 = curr_offset;
+                    sub_tree3 = proto_tree_add_subtree_format(sub_tree2, tvb, curr_offset, -1,
+                                                              ett_nas_5gs_mm_op_def_acc_cat_criteria, &item3, "DNN %u", k);
+                    proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_mm_op_def_access_cat_criteria_dnn_len,
+                                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN, &dnn_len);
+                    curr_offset++;
+                    de_nas_5gs_cmn_dnn(tvb, sub_tree3, pinfo, curr_offset, dnn_len, NULL, 0);
+                    curr_offset += dnn_len;
+                    proto_item_set_len(item3, curr_offset - saved_offset3);
+                }
+                break;
+            case 1:
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_os_id_os_app_id_count,
+                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_count);
                 curr_offset++;
-                proto_tree_add_item(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_os_app_id,
-                                    tvb, curr_offset, os_app_id_len, ENC_NA);
-                curr_offset += os_app_id_len;
-                proto_item_set_len(item2, curr_offset - saved_offset2);
-            }
-            break;
-        case 2:
-            proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_op_def_access_cat_criteria_s_nssai_count,
-                                         tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_count);
-            curr_offset++;
-            for (j = 1; j <= criteria_count; j++) {
-                guint32 s_nssai_len;
-                saved_offset2 = curr_offset;
-                sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1,
-                                                          ett_nas_5gs_mm_op_def_acc_cat_criteria, &item2, "S-NSSAI %u", j);
-                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_s_nssai_len,
-                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN, &s_nssai_len);
+                for (k = 1; k <= criteria_count; k++) {
+                    guint32 os_app_id_len;
+                    saved_offset3 = curr_offset;
+                    sub_tree3 = proto_tree_add_subtree_format(sub_tree2, tvb, curr_offset, -1, ett_nas_5gs_mm_op_def_acc_cat_criteria,
+                                                              &item3, "OS Id + Os App Id %u", k);
+                    proto_tree_add_item(sub_tree3, hf_nas_5gs_mm_op_def_access_cat_criteria_os_id,
+                                        tvb, curr_offset, 16, ENC_NA);
+                    curr_offset += 16;
+                    proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_mm_op_def_access_cat_criteria_os_app_id_len,
+                                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN, &os_app_id_len);
+                    curr_offset++;
+                    proto_tree_add_item(sub_tree3, hf_nas_5gs_mm_op_def_access_cat_criteria_os_app_id,
+                                        tvb, curr_offset, os_app_id_len, ENC_NA);
+                    curr_offset += os_app_id_len;
+                    proto_item_set_len(item3, curr_offset - saved_offset3);
+                }
+                break;
+            case 2:
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_mm_op_def_access_cat_criteria_s_nssai_count,
+                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN, &criteria_count);
                 curr_offset++;
-                curr_offset += de_nas_5gs_cmn_s_nssai(tvb, sub_tree2, pinfo, curr_offset, s_nssai_len, NULL, 0);
-                proto_item_set_len(item2, curr_offset - saved_offset2);
+                for (k = 1; k <= criteria_count; k++) {
+                    guint32 s_nssai_len;
+                    saved_offset3 = curr_offset;
+                    sub_tree3 = proto_tree_add_subtree_format(sub_tree2, tvb, curr_offset, -1,
+                                                              ett_nas_5gs_mm_op_def_acc_cat_criteria, &item3, "S-NSSAI %u", k);
+                    proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_mm_op_def_access_cat_criteria_s_nssai_len,
+                                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN, &s_nssai_len);
+                    curr_offset++;
+                    curr_offset += de_nas_5gs_cmn_s_nssai(tvb, sub_tree3, pinfo, curr_offset, s_nssai_len, NULL, 0);
+                    proto_item_set_len(item3, curr_offset - saved_offset3);
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        default:
-            if (criteria_length > 1) {
-                proto_tree_add_item(sub_tree, hf_nas_5gs_mm_op_def_access_cat_criteria_payload,
-                                    tvb, curr_offset, criteria_length - 1, ENC_NA);
-                curr_offset += criteria_length - 1;
-            }
-            break;
+            proto_item_set_len(item2, curr_offset - saved_offset2);
         }
         if (psac) {
             /* 0 Spare    0 Spare    0 Spare    Standardized access category */
@@ -11187,11 +11190,6 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_op_def_access_cat_criteria_payload,
-        { "Criteria payload", "nas_5gs.mm.operator_defined_access_cat.criteria_payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_nas_5gs_mm_op_def_access_cat_standardized_number,
         { "Standardized access category number", "nas_5gs.mm.operator_defined_access_cat.standardized_number",
             FT_UINT8, BASE_CUSTOM, CF_FUNC(nas_5gs_mm_access_standardized_cat_number), 0x1f,
@@ -11597,7 +11595,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    34
+#define NUM_INDIVIDUAL_ELEMS    35
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -11639,6 +11637,7 @@ proto_register_nas_5gs(void)
     ett[31] = &ett_nas_5gs_mm_ext_rej_nssai;
     ett[32] = &ett_nas_5gs_mm_op_def_acc_cat_def;
     ett[33] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
+    ett[34] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
