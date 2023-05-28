@@ -10,6 +10,9 @@ Wireshark 4.1.0 Release Notes
 
  What’s New
 
+  Windows installer file names now have the format
+  Wireshark-<version>-<architecture>.exe.
+
   Wireshark is now better about generating valid UTF-8 output.
 
   A new display filter feature for filtering raw bytes has been added.
@@ -33,6 +36,17 @@ Wireshark 4.1.0 Release Notes
   The Wireshark installation is relocatable on Linux (and other ELF
   platforms with support for relative RPATHs).
 
+  Support for building an NSIS Windows installer using the MinGW-w64
+  toolchain and MSYS2[1]. Read README.msys2 in the distribution for more
+  information.
+
+  When changing the dissector via the Decode As table for values that
+  have default dissectors registered, selecting "(none)" will select no
+  dissection (while still allowing heuristic dissectors to attempt to
+  dissect.) The previous behavior was to reset the dissector to the
+  default. To facilitate resetting the dissector, the default dissector
+  is now sorted at the top of the list of possible dissector options.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -40,10 +54,10 @@ Wireshark 4.1.0 Release Notes
 
    The following bugs have been fixed:
 
-     • Issue 18413[1] - RTP player do not play audio frequently on Win32
+     • Issue 18413[2] - RTP player do not play audio frequently on Win32
        builds with Qt6
 
-     • Issue 18510[2] - Playback marker do not move after unpause with
+     • Issue 18510[3] - Playback marker do not move after unpause with
        Qt6
 
   New and Updated Features
@@ -86,7 +100,7 @@ Wireshark 4.1.0 Release Notes
      • The display filter drop-down list is now sorted by "most recently
        used" instead of "most recently created".
 
-     • Running the test suite requires the pytest[3] Python module. The
+     • Running the test suite requires the pytest[4] Python module. The
        emulation layer that allowed running tests without pytest
        installed has been removed.
 
@@ -103,11 +117,13 @@ Wireshark 4.1.0 Release Notes
    GUI (SAPDiag), SAP HANA SQL Command Network Protocol (SAPHDB), SAP
    Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS), SAP
    Network Interface (SAPNI), SAP Router (SAPROUTER), SAP Secure Network
-   Connection (SNC), SBAS L1 Navigation Messages (SBAS L1), Support for
-   almost all WoW 1.12 messages has been added., Train Real-Time Data
-   Protocol (TRDP), UBX protocol of u-blox GNSS receivers (UBX), Windows
-   Delivery Optimization (MS-DO), and World of Warcraft World (WOWW)
-   display filters have been changed to be more internally consistent.
+   Connection (SNC), SBAS L1 Navigation Messages (SBAS L1), SINEC AP1
+   Protocol (SINEC AP), Support for almost all WoW 1.12 messages has
+   been added., Train Real-Time Data Protocol (TRDP), UBX protocol of
+   u-blox GNSS receivers (UBX), UDP Tracker Protocol for BitTorrent
+   (BT-Tracker), Windows Delivery Optimization (MS-DO), and World of
+   Warcraft World (WOWW) display filters have been changed to be more
+   internally consistent.
 
   Updated Protocol Support
 
@@ -147,7 +163,7 @@ Wireshark 4.1.0 Release Notes
 
   New and Updated Codec support
 
-   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[4]
+   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[5]
 
  Getting Wireshark
 
@@ -159,7 +175,7 @@ Wireshark 4.1.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[5] on the Wireshark web site.
+   be found on the download page[6] on the Wireshark web site.
 
  File Locations
 
@@ -174,35 +190,36 @@ Wireshark 4.1.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[6] and on the
+  Community support is available on Wireshark’s Q&A site[7] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[7].
+  for all of Wireshark’s mailing lists can be found on the web site[8].
 
-  Bugs and feature requests can be reported on the issue tracker[8].
+  Bugs and feature requests can be reported on the issue tracker[9].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[9].
+  SharkFest[10].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[10].
+  at wiresharkfoundation.org[11].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[11].
+  A complete FAQ is available on the Wireshark web site[12].
 
  References
 
-   1. https://gitlab.com/wireshark/wireshark/-/issues/18413
-   2. https://gitlab.com/wireshark/wireshark/-/issues/18510
-   3. https://pypi.org/project/pytest/
-   4. https://sourceforge.net/projects/opencore-amr/
-   5. https://www.wireshark.org/download.html
-   6. https://ask.wireshark.org/
-   7. https://www.wireshark.org/lists/
-   8. https://gitlab.com/wireshark/wireshark/-/issues
-   9. https://sharkfest.wireshark.org
-  10. https://wiresharkfoundation.org
-  11. https://www.wireshark.org/faq.html
+   1. https://www.msys2.org/
+   2. https://gitlab.com/wireshark/wireshark/-/issues/18413
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18510
+   4. https://pypi.org/project/pytest/
+   5. https://sourceforge.net/projects/opencore-amr/
+   6. https://www.wireshark.org/download.html
+   7. https://ask.wireshark.org/
+   8. https://www.wireshark.org/lists/
+   9. https://gitlab.com/wireshark/wireshark/-/issues
+  10. https://sharkfest.wireshark.org
+  11. https://wiresharkfoundation.org
+  12. https://www.wireshark.org/faq.html
