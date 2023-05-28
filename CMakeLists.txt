@@ -194,7 +194,9 @@ if(WIN32)
 and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 	)
 
-	find_package(PowerShell REQUIRED)
+	if(NOT CMAKE_CROSSCOMPILING)
+		find_package(PowerShell REQUIRED)
+	endif()
 
 	# Determine where the 3rd party libraries will be
 	if(USE_REPOSITORY)
