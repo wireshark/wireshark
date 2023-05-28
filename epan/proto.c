@@ -377,9 +377,9 @@ struct _protocol {
 	gboolean    enabled_by_default; /* TRUE if protocol is enabled by default */
 	gboolean    can_toggle;         /* TRUE if is_enabled can be changed */
 	int         parent_proto_id;    /* Used to identify "pino"s (Protocol In Name Only).
-                                       For dissectors that need a protocol name so they
-                                       can be added to a dissector table, but use the
-                                       parent_proto_id for things like enable/disable */
+	                                   For dissectors that need a protocol name so they
+	                                   can be added to a dissector table, but use the
+	                                   parent_proto_id for things like enable/disable */
 	GList      *heur_list;          /* Heuristic dissectors associated with this protocol */
 };
 
@@ -6433,7 +6433,7 @@ protoo_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
 	gsize res = g_strlcpy(dest, src, dest_size);
 
 	/* At most dest_size - 1 characters will be copied
-         * (unless dest_size is 0). */
+	 * (unless dest_size is 0). */
 	if (res >= dest_size)
 		res = dest_size - 1;
 	return (int) res;
@@ -7163,12 +7163,12 @@ proto_item_set_len(proto_item *pi, const gint length)
 	field_info *fi;
 
 	/* XXX: We actually want to set the length of non visible proto_items
-         * that are protocols, if we're not faking protocols, so that
-         * ui/proto_hier_stats can work correctly. (#17877) But we don't
-         * want to set the length of the protocol accidentally when intending
-         * to set the length of a faked child. However, we can't tell whether
-         * this is called by the original item or the child when faking items.
-         */
+	 * that are protocols, if we're not faking protocols, so that
+	 * ui/proto_hier_stats can work correctly. (#17877) But we don't
+	 * want to set the length of the protocol accidentally when intending
+	 * to set the length of a faked child. However, we can't tell whether
+	 * this is called by the original item or the child when faking items.
+	 */
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);

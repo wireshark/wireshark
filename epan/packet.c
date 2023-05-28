@@ -2058,7 +2058,7 @@ int dissector_try_guid_new(dissector_table_t sub_dissectors,
 int dissector_try_guid(dissector_table_t sub_dissectors,
     guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    return dissector_try_guid_new(sub_dissectors, guid_val, tvb, pinfo, tree, TRUE, NULL);
+	return dissector_try_guid_new(sub_dissectors, guid_val, tvb, pinfo, tree, TRUE, NULL);
 }
 
 /** Look for a given value in a given guid dissector table and, if found,
@@ -2321,19 +2321,18 @@ dissector_table_supports_decode_as(dissector_table_t dissector_table)
 static gint
 uuid_equal(gconstpointer k1, gconstpointer k2)
 {
-    const guid_key *key1 = (const guid_key *)k1;
-    const guid_key *key2 = (const guid_key *)k2;
-    return ((memcmp(&key1->guid, &key2->guid, sizeof (e_guid_t)) == 0)
-            && (key1->ver == key2->ver));
+	const guid_key *key1 = (const guid_key *)k1;
+	const guid_key *key2 = (const guid_key *)k2;
+	return ((memcmp(&key1->guid, &key2->guid, sizeof (e_guid_t)) == 0)
+		&& (key1->ver == key2->ver));
 }
 
 static guint
 uuid_hash(gconstpointer k)
 {
-    const guid_key *key = (const guid_key *)k;
-    /* This isn't perfect, but the Data1 part of these is almost always
-       unique. */
-    return key->guid.data1;
+	const guid_key *key = (const guid_key *)k;
+	/* This isn't perfect, but the Data1 part of these is almost always unique. */
+	return key->guid.data1;
 }
 
 /**************************************************/
@@ -2448,7 +2447,7 @@ dissector_table_foreach_handle(const char     *table_name,
 
 	for (tmp = sub_dissectors->dissector_handles; tmp != NULL;
 	     tmp = g_slist_next(tmp))
-        func(table_name, tmp->data, user_data);
+		func(table_name, tmp->data, user_data);
 }
 
 /*
@@ -3052,7 +3051,7 @@ dissector_all_heur_tables_foreach_table_func (gpointer key, gpointer value, gpoi
 	heur_dissector_foreach_table_info_t *info;
 
 	info = (heur_dissector_foreach_table_info_t *)user_data;
-    (*info->caller_func)((gchar *)key, (struct heur_dissector_list *)value, info->caller_data);
+	(*info->caller_func)((gchar *)key, (struct heur_dissector_list *)value, info->caller_data);
 }
 
 /*
@@ -3062,10 +3061,10 @@ dissector_all_heur_tables_foreach_table_func (gpointer key, gpointer value, gpoi
 static void
 dissector_all_heur_tables_foreach_list_func (gpointer key, gpointer user_data)
 {
-    struct heur_dissector_list          *list;
+	struct heur_dissector_list          *list;
 	heur_dissector_foreach_table_info_t *info;
 
-    list = (struct heur_dissector_list *)g_hash_table_lookup(heur_dissector_lists, key);
+	list = (struct heur_dissector_list *)g_hash_table_lookup(heur_dissector_lists, key);
 	info = (heur_dissector_foreach_table_info_t *)user_data;
 	(*info->caller_func)((gchar*)key, list, info->caller_data);
 }
@@ -3328,7 +3327,7 @@ static dissector_handle_t
 register_dissector_handle(const char *name, dissector_handle_t handle)
 {
 	/* Make sure name is "parsing friendly" - descriptions should be
-         * used for complicated phrases. */
+	 * used for complicated phrases. */
 	check_valid_dissector_name_or_fail(name);
 
 	/* Make sure the registration is unique */
