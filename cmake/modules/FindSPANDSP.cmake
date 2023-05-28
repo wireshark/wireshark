@@ -27,7 +27,9 @@ find_path( SPANDSP_INCLUDE_DIR
 )
 
 find_library( SPANDSP_LIBRARY
-  NAMES spandsp
+  NAMES
+    spandsp
+    libspandsp-2
   HINTS
     "${SPANDSP_LIBDIR}"
     "${SPANDSP_HINTS}/lib"

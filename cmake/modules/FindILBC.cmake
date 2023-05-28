@@ -25,7 +25,7 @@ find_path(ILBC_INCLUDE_DIR
 find_library(ILBC_LIBRARY
   NAMES
     ilbc
-    libilbc
+    libilbc-2
   HINTS
     "${PC_ILBC_LIBRARY_DIRS}"
     "${ILBC_HINTS}/lib"
@@ -61,7 +61,7 @@ if( ILBC_FOUND )
       CACHE PATH "Path to ilbc DLL"
     )
     file( GLOB _ilbc_dll RELATIVE "${ILBC_DLL_DIR}"
-      "${ILBC_DLL_DIR}/libilbc.dll"
+      "${ILBC_DLL_DIR}/libilbc-*.dll"
     )
     set ( ILBC_DLL ${_ilbc_dll}
       # We're storing filenames only. Should we use STRING instead?

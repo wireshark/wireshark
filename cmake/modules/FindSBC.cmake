@@ -19,6 +19,7 @@ find_path( SBC_INCLUDE_DIR
 find_library( SBC_LIBRARY
   NAMES
     sbc
+    libsbc-1
   HINTS
     "${SBC_HINTS}/lib"
 )
