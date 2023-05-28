@@ -1347,9 +1347,21 @@ bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
             case CF_WRITE_OK:
                 /* The save succeeded; we're done.
                    If we discarded comments, redraw the packet list to reflect
-                   any packets that no longer have comments. */
-                if (discard_comments)
-                    packet_list_->redrawVisiblePackets();
+                   any packets that no longer have comments. If we had unsaved
+                   changes, redraw the packet list, because saving a time
+                   shift zeroes out the frame.offset_shift field.
+                   If we had a color filter based on frame data, recolor. */
+                /* XXX: If there is a filter based on those, we want to force
+                   a rescan with the current filter (we don't actually
+                   need to redissect.)
+                   */
+                if (discard_comments || cf->unsaved_changes) {
+                    if (color_filters_use_proto(proto_get_id_by_filter_name("frame"))) {
+                        packet_list_->recolorPackets();
+                    } else {
+                        packet_list_->redrawVisiblePackets();
+                    }
+                }
 
                 cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
                 updateForUnsavedChanges(); // we update the title bar to remove the *
@@ -1461,9 +1473,21 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
             set_last_open_dir(get_dirname(dirname));
             g_free(dirname);
             /* If we discarded comments, redraw the packet list to reflect
-               any packets that no longer have comments. */
-            if (discard_comments)
-                packet_list_->redrawVisiblePackets();
+               any packets that no longer have comments. If we had unsaved
+               changes, redraw the packet list, because saving a time
+               shift zeroes out the frame.offset_shift field.
+               If we had a color filter based on frame data, recolor. */
+            /* XXX: If there is a filter based on those, we want to force
+               a rescan with the current filter (we don't actually
+               need to redissect.)
+               */
+            if (discard_comments || cf->unsaved_changes) {
+                if (color_filters_use_proto(proto_get_id_by_filter_name("frame"))) {
+                    packet_list_->recolorPackets();
+                } else {
+                    packet_list_->redrawVisiblePackets();
+                }
+            }
 
             cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
             updateForUnsavedChanges(); // we update the title bar to remove the *
@@ -1604,6 +1628,9 @@ void LograyMainWindow::exportSelectedPackets() {
             g_free(dirname);
             /* If we discarded comments, redraw the packet list to reflect
                any packets that no longer have comments. */
+            /* XXX: Why? We're exporting some packets to a new file but not
+               changing our current capture file, that shouldn't change the
+               current packet list. */
             if (discard_comments)
                 packet_list_->redrawVisiblePackets();
             /* Add this filename to the list of recent files in the "Recent Files" submenu */

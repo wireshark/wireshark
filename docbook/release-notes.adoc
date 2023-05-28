@@ -108,6 +108,9 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
   Python module. The emulation layer that allowed running tests without pytest
   installed has been removed.
 
+* When saving files or exporting packets after changing their time with the
+"Time Shift" dialog, the shifted time is written to the new file.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

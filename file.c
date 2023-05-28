@@ -4425,6 +4425,7 @@ typedef struct {
     wtap_dumper *pdh;
     const char  *fname;
     int          file_type;
+    gboolean     export;
 } save_callback_args_t;
 
 /*
@@ -4455,13 +4456,33 @@ save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         pkt_block = rec->block;
     new_rec.block  = pkt_block;
     new_rec.block_was_modified = fdata->has_modified_block ? TRUE : FALSE;
-    /* XXX - what if times have been shifted? */
+
+    if (!nstime_is_zero(&fdata->shift_offset)) {
+        if (new_rec.presence_flags & WTAP_HAS_TS) {
+            nstime_add(&new_rec.ts, &fdata->shift_offset);
+        }
+    }
 
     /* and save the packet */
     if (!wtap_dump(args->pdh, &new_rec, ws_buffer_start_ptr(buf), &err, &err_info)) {
         cfile_write_failure_alert_box(NULL, args->fname, err, err_info, fdata->num,
                 args->file_type);
         return FALSE;
+    }
+
+    /* If we are saving (i.e., replacing the current file with the one we're
+     * writing), then update the frame data to clear the shift offset.
+     * This keeps us from having to re-read the entire file.
+     * We could do this in rescan_file(), but
+     * 1) Ideally we shouldn't have to call rescan_file if all we're doing
+     * is changing the timestamps, since that shouldn't change the offsets.
+     * 2) The long term goal is to try to do the offset adjustment here
+     * instead of using rescan_file, which should be faster (#1257).
+     *
+     * If we're exporting to a different file, then don't do that.
+     */
+    if (!args->export && new_rec.presence_flags & WTAP_HAS_TS) {
+        nstime_set_zero(&fdata->shift_offset);
     }
 
     return TRUE;
@@ -4601,7 +4622,8 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
        now rescan_file() is only used when a file is being saved to a different
        format than the original, and the user is not given a choice of which
        reader to use (only which format to save it in), so doing this makes
-       sense for now. */
+       sense for now. (XXX: Now it is also used when saving a changed file,
+       e.g. comments or time-shifted frames.) */
     cf->provider.wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (cf->provider.wth == NULL) {
         cfile_open_failure_alert_box(fname, err, err_info);
@@ -4761,6 +4783,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         SAVE_WITH_WTAP
     }                    how_to_save;
     save_callback_args_t callback_args;
+    callback_args.export = FALSE;
     gboolean needs_reload = FALSE;
 
     /* XXX caller should avoid saving the file while a read is pending
@@ -5109,6 +5132,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     wtap_dump_params             params;
     int                          encap;
 
+    callback_args.export = TRUE;
     packet_range_process_init(range);
 
     /* We're writing out specified packets from the specified capture
