@@ -1,4 +1,4 @@
- Wireshark 3.6.14 Release Notes
+ Wireshark 3.6.15 Release Notes
 
  What is Wireshark?
 
@@ -20,51 +20,7 @@
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2023-12[3] Candump log file parser crash. Issue
-       19062[4]. CVE-2023-2855[5].
-
-     • wnpa-sec-2023-13[6] BLF file parser crash. Issue 19063[7].
-       CVE-2023-2857[8].
-
-     • wnpa-sec-2023-14[9] GDSDB dissector infinite loop. Issue
-       19068[10].
-
-     • wnpa-sec-2023-15[11] NetScaler file parser crash. Issue
-       19081[12]. CVE-2023-2858[13].
-
-     • wnpa-sec-2023-16[14] VMS TCPIPtrace file parser crash. Issue
-       19083[15]. CVE-2023-2856[16].
-
-     • wnpa-sec-2023-19[17] IEEE C37.118 Synchrophasor dissector crash.
-       Issue 19087[18]. CVE-2023-0668[19].
-
-     • wnpa-sec-2023-20[20] XRA dissector infinite loop. Issue
-       19100[21].
-
    The following bugs have been fixed:
-
-     • Incorrect padding in BFCP decoder Issue 18890[22].
-
-     • SPNEGO dissector bug Issue 18991[23].
-
-     • SRT values are incorrect when applying a time shift. Issue
-       18999[24].
-
-     • batadv dissector bug Issue 19047[25].
-
-     • [UDS] When filtering the uds.wdbi.data_identifier or
-       uds.iocbi.data_identifier field is interpreted as 1 byte whereas
-       it consists of 2 bytes Issue 19078[26].
-
-     • Wireshark can’t save this capture in that format Issue 19080[27].
-
-     • MSMMS parsing buffer overflow Issue 19086[28].
-
-     • USB HID parser shows wrong label for usages Rx/Vx/Vbrx of usage
-       page Generic Desktop Control Issue 19095[29].
-
-     • "Follow → QUIC Stream" mixes data between streams. Issue
-       19102[30].
 
   New and Updated Features
 
@@ -74,12 +30,9 @@
 
   Updated Protocol Support
 
-   batadv, BFCP, CommunityID, COSE, GDSDB, ILP, ISAKMP, MSMMS, NTLMSSP,
-   QUIC, SPNEGO, Synphasor, TCP, UDS, ULP, USB HID, and XRA
-
   New and Updated Capture File Support
 
-   BLF, Candump, NetScaler, and VMS TCPIPtrace
+   There is no new or updated capture file support in this release.
 
   New File Format Decoding Support
 
@@ -95,7 +48,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[31] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -110,57 +63,29 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[32] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[33].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[34].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[35].
+  at wiresharkfoundation.org[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[36].
+  A complete FAQ is available on the Wireshark web site[8].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/security/wnpa-sec-2023-12
-   4. https://gitlab.com/wireshark/wireshark/-/issues/19062
-   5. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2855
-   6. https://www.wireshark.org/security/wnpa-sec-2023-13
-   7. https://gitlab.com/wireshark/wireshark/-/issues/19063
-   8. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2857
-   9. https://www.wireshark.org/security/wnpa-sec-2023-14
-  10. https://gitlab.com/wireshark/wireshark/-/issues/19068
-  11. https://www.wireshark.org/security/wnpa-sec-2023-15
-  12. https://gitlab.com/wireshark/wireshark/-/issues/19081
-  13. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2858
-  14. https://www.wireshark.org/security/wnpa-sec-2023-16
-  15. https://gitlab.com/wireshark/wireshark/-/issues/19083
-  16. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2856
-  17. https://www.wireshark.org/security/wnpa-sec-2023-19
-  18. https://gitlab.com/wireshark/wireshark/-/issues/19087
-  19. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0668
-  20. https://www.wireshark.org/security/wnpa-sec-2023-20
-  21. https://gitlab.com/wireshark/wireshark/-/issues/19100
-  22. https://gitlab.com/wireshark/wireshark/-/issues/18890
-  23. https://gitlab.com/wireshark/wireshark/-/issues/18991
-  24. https://gitlab.com/wireshark/wireshark/-/issues/18999
-  25. https://gitlab.com/wireshark/wireshark/-/issues/19047
-  26. https://gitlab.com/wireshark/wireshark/-/issues/19078
-  27. https://gitlab.com/wireshark/wireshark/-/issues/19080
-  28. https://gitlab.com/wireshark/wireshark/-/issues/19086
-  29. https://gitlab.com/wireshark/wireshark/-/issues/19095
-  30. https://gitlab.com/wireshark/wireshark/-/issues/19102
-  31. https://www.wireshark.org/download.html
-  32. https://ask.wireshark.org/
-  33. https://www.wireshark.org/lists/
-  34. https://gitlab.com/wireshark/wireshark/-/issues
-  35. https://wiresharkfoundation.org
-  36. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://wiresharkfoundation.org
+   8. https://www.wireshark.org/faq.html
