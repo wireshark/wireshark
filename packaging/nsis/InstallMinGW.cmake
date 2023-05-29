@@ -30,6 +30,7 @@ if(MINGW AND NOT USE_MSYSTEM)
 		${MINGW_BIN}/liblzma-5.dll
 		${MINGW_BIN}/libminizip-3.dll
 		${MINGW_BIN}/libnettle-8.dll
+		${MINGW_BIN}/libopus-0.dll
 		${MINGW_BIN}/libp11-kit-0.dll
 		${MINGW_BIN}/libpcre2-16-0.dll
 		${MINGW_BIN}/libpcre2-8-0.dll
@@ -37,8 +38,8 @@ if(MINGW AND NOT USE_MSYSTEM)
 		${MINGW_BIN}/libspeexdsp-1.dll
 		${MINGW_BIN}/libssp-0.dll
 		${MINGW_BIN}/libstdc++-6.dll
-		${MINGW_BIN}/libstdc++-6.dll
 		${MINGW_BIN}/libtasn1-6.dll
+		${MINGW_BIN}/libwinpthread-1.dll
 		${MINGW_BIN}/libxml2-2.dll
 		${MINGW_BIN}/libzstd.dll
 		${MINGW_BIN}/zlib1.dll

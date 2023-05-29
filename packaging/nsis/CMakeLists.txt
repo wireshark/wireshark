@@ -305,14 +305,26 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 						$<$<CONFIG:Debug>:-DebugConfig>
 					DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
 				)
-			else()
+			elseif(HAVE_MSYSTEM)
 				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 					COMMAND ${Python3_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
-						$<TARGET_FILE:wireshark>
+						--executable $<TARGET_FILE:wireshark>
 						${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 						#$<$<CONFIG:Debug>:-DebugConfig>
 					DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.py"
 				)
+			elseif(MINGW AND CMAKE_CROSSCOMPILING)
+				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
+					COMMAND ${Python3_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
+						--mapping "${_nsis_source_dir}/mingw64-qt-mapping.txt"
+						${_nsis_binary_dir}/wireshark-qt-manifest.nsh
+						#$<$<CONFIG:Debug>:-DebugConfig>
+					DEPENDS
+						"${_nsis_source_dir}/windeployqt-to-nsis.py"
+						"${_nsis_source_dir}/mingw64-qt-mapping.txt"
+				)
+			else()
+				message(FATAL_ERROR "Unknown Qt deployment method")
 			endif()
 		endif()
 
