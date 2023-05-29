@@ -24,7 +24,6 @@
 #cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
 #cmakedefine BUILD_etwdump
 #cmakedefine SPANDSP_FOUND
-#cmakedefine SPANDSP_FOUND
 #cmakedefine BCG729_FOUND
 #cmakedefine SBC_FOUND
 #cmakedefine ILBC_FOUND
