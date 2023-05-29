@@ -4233,7 +4233,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_mysql_decompressed_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	tvbuff_t *next_tvb;
+	tvbuff_t *volatile next_tvb;
 	volatile int offset = 0;
 	int offset_before;
 	unsigned int remaining, pdu_len;
