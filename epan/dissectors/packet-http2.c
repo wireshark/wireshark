@@ -3877,7 +3877,7 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
         THROW(ReportedBoundsError);
     }
     headlen -= padding;
-    proto_tree_add_item(http2_tree, hf_http2_continuation_header, tvb, offset, headlen, ENC_ASCII);
+    proto_tree_add_item(http2_tree, hf_http2_continuation_header, tvb, offset, headlen, ENC_NA);
 
 #ifdef HAVE_NGHTTP2
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
@@ -4664,9 +4664,9 @@ proto_register_http2(void)
 
         /* Continuation */
         { &hf_http2_continuation_header,
-            { "Continuation Header", "http2.continuation.header",
-               FT_STRING, BASE_NONE, NULL, 0x0,
-              "Contains a header block fragment", HFILL }
+            { "Header Block Fragment", "http2.continuation.header",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Continues a HEADERS or PUSH_PROMISE field block", HFILL }
         },
         { &hf_http2_continuation_padding,
             { "Padding", "http2.continuation.padding",
