@@ -58,7 +58,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/conversation.h>
 #include <epan/iana_charsets.h>
 #include <epan/proto_data.h>
 #include "packet-tcp.h"

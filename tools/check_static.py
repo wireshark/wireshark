@@ -220,7 +220,7 @@ issues_found = 0
 # command-line args.  Controls which dissector files should be checked.
 # If no args given, will just scan epan/dissectors folder.
 parser = argparse.ArgumentParser(description='Check calls in dissectors')
-parser.add_argument('--build', action='store', default='',
+parser.add_argument('--build-folder', action='store', default='',
                     help='build folder', required=False)
 parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
@@ -235,8 +235,8 @@ args = parser.parse_args()
 # Get files from wherever command-line args indicate.
 files = []
 
-if args.build:
-    build_folder = args.build
+if args.build_folder:
+    build_folder = args.build_folder
 
 if args.file:
     # Add specified file(s)
