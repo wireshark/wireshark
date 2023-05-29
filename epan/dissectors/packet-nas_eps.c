@@ -26,7 +26,6 @@
 #include <wsutil/pint.h>
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
-#include "packet-e212.h"
 #include "packet-lcsap.h"
 
 void proto_register_nas_eps(void);

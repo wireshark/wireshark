@@ -63,7 +63,6 @@
 
 #include "packet-rtcp.h"
 #include "packet-rtp.h"
-#include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 
 #include <epan/conversation.h>

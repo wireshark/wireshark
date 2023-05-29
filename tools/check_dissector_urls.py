@@ -114,7 +114,7 @@ class Link(object):
         else:
             self.success = True
 
-        if args.verbose and not should_exit:
+        if (args.verbose or not self.success) and not should_exit:
             print(self)
 
 links = []

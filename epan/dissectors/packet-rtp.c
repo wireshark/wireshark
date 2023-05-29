@@ -58,8 +58,6 @@
 #include "packet-tcp.h"
 
 #include <epan/rtp_pt.h>
-#include <epan/conversation.h>
-#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
 

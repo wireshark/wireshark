@@ -28,7 +28,6 @@
 #include <wsutil/wsjson.h>
 
 #include "packet-gsm_a_common.h"
-#include "packet-e212.h"
 #include "packet-media-type.h"
 #include "packet-tcp.h"
 

@@ -23,7 +23,6 @@
 #include <epan/rtp_pt.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
-#include <epan/proto_data.h>
 #include <epan/conversation.h>
 
 #include <wsutil/strtoi.h>

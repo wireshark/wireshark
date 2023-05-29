@@ -13,7 +13,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <wsutil/file_util.h>
 #include <wsutil/strtoi.h>

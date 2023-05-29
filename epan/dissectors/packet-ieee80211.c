@@ -53,7 +53,6 @@
 #include <epan/capture_dissectors.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
-#include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
 #include <epan/addr_resolv.h>
 #include <epan/address_types.h>
@@ -61,8 +60,6 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include "packet-eapol.h"
-#include "packet-ipx.h"
-#include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include <epan/etypes.h>
 #include <epan/oui.h>
@@ -72,7 +69,6 @@
 #include <epan/conversation_table.h>
 #include <epan/uat.h>
 #include <epan/eapol_keydes_types.h>
-#include <epan/to_str.h>
 #include <epan/proto_data.h>
 
 #include "packet-wps.h"
