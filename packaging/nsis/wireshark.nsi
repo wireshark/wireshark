@@ -271,10 +271,21 @@ Var WIX_UNINSTALLSTRING
 !include WinMessages.nsh
 
 Function .onInit
+  ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
+  ${IfNot} ${RunningX64}
+    MessageBox MB_OK "Wireshark only runs on 64 bit machines.$\nTry installing a 32 bit version (3.6 or earlier) instead." /SD IDOK
+    Abort
+  ${EndIf}
+
   !if ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE} == "x64"
-    ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
-    ${IfNot} ${RunningX64}
-      MessageBox MB_OK "Wireshark only runs on x64 machines.$\nTry installing a 32-bit version (3.6 or earlier) instead." /SD IDOK
+    ${If} ${IsNativeARM64}
+      MessageBox MB_OK "You're installing the x64 version of Wireshark on an Arm64 system.$\nThe native Arm64 installer might work better." /SD IDOK
+    ${EndIf}
+  !endif
+
+  !if ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE} == "arm64"
+    ${IfNot} ${IsNativeARM64}
+      MessageBox MB_OK "You're trying to install the Arm64 version of Wireshark on an x64 system.$\nTry the native x64 installer instead." /SD IDOK
       Abort
     ${EndIf}
   !endif
