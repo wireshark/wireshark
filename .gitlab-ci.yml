@@ -305,21 +305,32 @@ Fedora RPM Package:
 #     - tshark --version
 #  needs: [ 'Fedora RPM Package' ]
 
-Fedora MinGW-w64:
+Windows MinGW-w64 Package:
   stage: build
   image: registry.gitlab.com/wireshark/wireshark-containers/mingw-dev
   rules: !reference [.if-merged]
   tags:
     - docker
+  cache:
+    # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
+    key: ${CI_JOB_NAME}-master
+    paths:
+      - ccache/
   before_script:
+    - mkdir -p ccache
+    - ccache --show-stats
     - mkdir build
     - cd build
   script:
-    - mingw64-cmake -G Ninja ..
+    - mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes ..
     - ninja
     - ninja user_guide_html
     - ninja wireshark_nsis_prep
     - ninja wireshark_nsis
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   artifacts:
     paths:
       - build/packaging/nsis/wireshark-*.exe
