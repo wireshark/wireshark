@@ -8234,6 +8234,25 @@ proto_reenable_all(void)
 }
 
 void
+proto_disable_all(void)
+{
+	protocol_t *protocol;
+	GList	   *list_item = protocols;
+
+	if (protocols == NULL)
+		return;
+
+	while (list_item) {
+		protocol = (protocol_t *)list_item->data;
+		if (protocol->can_toggle){
+			protocol->is_enabled = FALSE;
+			protocol->enabled_by_default = FALSE;
+		}
+		list_item = g_list_next(list_item);
+	}
+}
+
+void
 proto_set_cant_toggle(const int proto_id)
 {
 	protocol_t *protocol;

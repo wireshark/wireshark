@@ -196,6 +196,15 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
     case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disableed by default) */
         global_dissect_options.enable_protocol_slist = g_slist_append(global_dissect_options.enable_protocol_slist, optarg_str_p);
         break;
+    case LONGOPT_ONLY_PROTOCOLS: /* enable dissection of these comma separated protocols only */
+        proto_disable_all();
+        for (char *ps = strtok (optarg_str_p, ","); ps; ps = strtok(NULL, ",")){
+          global_dissect_options.enable_protocol_slist = g_slist_append(global_dissect_options.enable_protocol_slist, ps);
+        }
+        break;
+    case LONGOPT_DISABLE_ALL_PROTOCOLS: /* disable dissection of all protocols */
+        proto_disable_all();
+        break;
     default:
         /* the caller is responsible to send us only the right opt's */
         ws_assert_not_reached();

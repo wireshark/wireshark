@@ -2782,6 +2782,9 @@ WS_DLL_PUBLIC void proto_disable_all(void);
 /** Re-enable all protocols that are not marked as disabled by default. */
 WS_DLL_PUBLIC void proto_reenable_all(void);
 
+/** Disable all available protocols and mark them as disabled by default **/
+WS_DLL_PUBLIC void proto_disable_all(void);
+
 /** Disable disabling/enabling of protocol of the given item number.
  @param proto_id protocol id (0-indexed) */
 WS_DLL_PUBLIC void proto_set_cant_toggle(const int proto_id);

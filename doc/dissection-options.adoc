@@ -73,6 +73,18 @@ temporarily disable all protocols but a list of exceptions.
 Example: *--disable-protocol ALL --enable-protocol eth,ip*
 --
 
+--only-protocols <protocols>::
++
+--
+Only enable dissection of these protocols, comma separated. Disable everything else.
+--
+
+--disable-all-protocols::
++
+--
+Disable dissection of all protocols.
+--
+
 --enable-heuristic <short_name>::
 +
 --

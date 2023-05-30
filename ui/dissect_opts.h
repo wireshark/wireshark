@@ -29,10 +29,12 @@ extern "C" {
  * options; we should probably pick appropriate option names for them.
  */
 
-#define LONGOPT_DISABLE_PROTOCOL  LONGOPT_BASE_DISSECTOR+1
-#define LONGOPT_ENABLE_HEURISTIC  LONGOPT_BASE_DISSECTOR+2
-#define LONGOPT_DISABLE_HEURISTIC LONGOPT_BASE_DISSECTOR+3
-#define LONGOPT_ENABLE_PROTOCOL   LONGOPT_BASE_DISSECTOR+4
+#define LONGOPT_DISABLE_PROTOCOL      LONGOPT_BASE_DISSECTOR+1
+#define LONGOPT_ENABLE_HEURISTIC      LONGOPT_BASE_DISSECTOR+2
+#define LONGOPT_DISABLE_HEURISTIC     LONGOPT_BASE_DISSECTOR+3
+#define LONGOPT_ENABLE_PROTOCOL       LONGOPT_BASE_DISSECTOR+4
+#define LONGOPT_ONLY_PROTOCOLS        LONGOPT_BASE_DISSECTOR+5
+#define LONGOPT_DISABLE_ALL_PROTOCOLS LONGOPT_BASE_DISSECTOR+6
 
 /*
  * Options for dissecting common to all dissecting programs.
@@ -42,6 +44,8 @@ extern "C" {
     {"enable-heuristic", ws_required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
     {"disable-heuristic", ws_required_argument, NULL, LONGOPT_DISABLE_HEURISTIC }, \
     {"enable-protocol", ws_required_argument, NULL, LONGOPT_ENABLE_PROTOCOL }, \
+    {"only-protocols", ws_required_argument, NULL, LONGOPT_ONLY_PROTOCOLS }, \
+    {"disable-all-protocols", ws_no_argument, NULL, LONGOPT_DISABLE_ALL_PROTOCOLS }, \
 
 #define OPTSTRING_DISSECT_COMMON \
     "d:K:nN:t:u:"

@@ -143,6 +143,11 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "                           enable dissection of proto_name\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
     fprintf(output, "                           disable dissection of proto_name\n");
+    fprintf(output, "  --only-protocols <proto_name>\n");
+    fprintf(output, "                           Only enable dissection of these protocols, comma\n");
+    fprintf(output, "                           separated. Disable everything else\n");
+    fprintf(output, "  --disable-all-protocols\n");
+    fprintf(output, "                           Disable dissection of all protocols\n");
     fprintf(output, "  --enable-heuristic <short_name>\n");
     fprintf(output, "                           enable dissection of heuristic protocol\n");
     fprintf(output, "  --disable-heuristic <short_name>\n");
@@ -605,6 +610,8 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
             case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
+            case LONGOPT_ONLY_PROTOCOLS: /* enable dissection of these comma separated protocols only */
+            case LONGOPT_DISABLE_ALL_PROTOCOLS: /* disable dissection of all protocols */
                 if (!dissect_opts_handle_opt(opt, ws_optarg))
                    exit_application(1);
                 break;
