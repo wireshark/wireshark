@@ -171,7 +171,7 @@ static int hf_woww_auction_command_action = -1;
 static int hf_woww_auction_command_result = -1;
 static int hf_woww_auction_command_result_two = -1;
 static int hf_woww_auction_duration_in_minutes = -1;
-static int hf_woww_auction_house_id = -1;
+static int hf_woww_auction_house = -1;
 static int hf_woww_auction_id = -1;
 static int hf_woww_auction_main_category = -1;
 static int hf_woww_auction_out_bid = -1;
@@ -6888,6 +6888,26 @@ static const value_string e_account_data_type_strings[] =  {
     { ACCOUNT_DATA_TYPE_PER_CHARACTER_LAYOUT_CACHE, "Per Character Layout Cache" },
     { ACCOUNT_DATA_TYPE_PER_CHARACTER_CHAT_CACHE, "Per Character Chat Cache" },
     { ACCOUNT_DATA_TYPE_NUM_ACCOUNT_DATA_TYPES, "Num Account Data Types" },
+    { 0, NULL }
+};
+
+typedef enum {
+    AUCTION_HOUSE_STORMWIND = 0x1,
+    AUCTION_HOUSE_ALLIANCE = 0x2,
+    AUCTION_HOUSE_DARNASSUS = 0x3,
+    AUCTION_HOUSE_UNDERCITY = 0x4,
+    AUCTION_HOUSE_THUNDER_BLUFF = 0x5,
+    AUCTION_HOUSE_HORDE = 0x6,
+    AUCTION_HOUSE_GOBLIN = 0x7,
+} e_auction_house;
+static const value_string e_auction_house_strings[] =  {
+    { AUCTION_HOUSE_STORMWIND, "Stormwind" },
+    { AUCTION_HOUSE_ALLIANCE, "Alliance" },
+    { AUCTION_HOUSE_DARNASSUS, "Darnassus" },
+    { AUCTION_HOUSE_UNDERCITY, "Undercity" },
+    { AUCTION_HOUSE_THUNDER_BLUFF, "Thunder Bluff" },
+    { AUCTION_HOUSE_HORDE, "Horde" },
+    { AUCTION_HOUSE_GOBLIN, "Goblin" },
     { 0, NULL }
 };
 
@@ -13869,7 +13889,7 @@ add_body_fields(guint32 header_opcode,
         case MSG_AUCTION_HELLO:
             if (WOWW_SERVER_TO_CLIENT) {
                 ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_auction_house_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_auction_house, 4, ENC_LITTLE_ENDIAN);
             }
             else {
                 ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
@@ -15947,7 +15967,7 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_total_amount_of_auctions, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_AUCTION_BIDDER_NOTIFICATION:
-            ptvcursor_add(ptv, hf_woww_auction_house_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auction_house, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bidder, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_won, 4, ENC_LITTLE_ENDIAN);
@@ -19501,9 +19521,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_auction_house_id,
-            { "Auction House Id", "woww.auction.house.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_auction_house,
+            { "Auction House", "woww.auction.house",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_auction_house_strings), 0,
                 NULL, HFILL
             }
         },
