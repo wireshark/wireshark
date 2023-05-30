@@ -10249,22 +10249,22 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_4_b4,
-        { "PSI(4)","nas_5gs.pdu_ses_rect_res_psi_3_b4",
+        { "PSI(4)","nas_5gs.pdu_ses_rect_res_psi_4_b4",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x10,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_5_b5,
-        { "PSI(5)","nas_5gs.pdu_ses_rect_res_psi_3_b5",
+        { "PSI(5)","nas_5gs.pdu_ses_rect_res_psi_5_b5",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x20,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_6_b6,
-        { "PSI(6)","nas_5gs.pdu_ses_rect_res_psi_3_b6",
+        { "PSI(6)","nas_5gs.pdu_ses_rect_res_psi_6_b6",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x40,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_7_b7,
-        { "PSI(7)","nas_5gs.pdu_ses_rect_res_psi_3_b7",
+        { "PSI(7)","nas_5gs.pdu_ses_rect_res_psi_7_b7",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x80,
             NULL, HFILL }
         },
@@ -10294,17 +10294,17 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_13_b5,
-        { "PSI(13)","nas_5gs.pdu_ses_sts_psi_13_b5",
+        { "PSI(13)","nas_5gs.pdu_ses_res_psi_13_b5",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x20,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_14_b6,
-        { "PSI(14)","nas_5gs.pdu_ses_sts_psi_14_b6",
+        { "PSI(14)","nas_5gs.pdu_ses_res_psi_14_b6",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x40,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_rect_res_psi_15_b7,
-        { "PSI(15)","nas_5gs.pdu_ses_sts_psi_15_b7",
+        { "PSI(15)","nas_5gs.pdu_ses_res_psi_15_b7",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x80,
             NULL, HFILL }
         },
