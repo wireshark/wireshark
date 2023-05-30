@@ -359,6 +359,10 @@ static ran_function_pointers_t* lookup_ranfunction_pointers(packet_info *pinfo, 
 
     /* Look in table function pointers for this ranFunctionID */
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    if (!table) {
+        /* There is no ran function table associated with this frame's conversation info */
+        return NULL;
+    }
     for (guint n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
             /* Point back at the setup frame where this ranfunction was mapped */
