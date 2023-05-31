@@ -10,11 +10,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h>
+#include "xtea.h"
+
 #include <string.h>
 
 #include "pint.h"
-#include "xtea.h"
 
 void decrypt_xtea_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const guint32 key[4], guint num_rounds)
 {

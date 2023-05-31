@@ -13,7 +13,6 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include "rsa.h"
-#include <glib.h>
 #include "filesystem.h"
 #include "file_util.h"
 #include <errno.h>

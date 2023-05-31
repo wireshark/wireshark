@@ -24,11 +24,9 @@
  * ws_ascii_XXX() to reflect this.
  */
 
-
-#include <glib.h>
-
 #include "strnatcmp.h"
 
+#include <glib.h>
 
 /* These are defined as macros to make it easier to adapt this code to
  * different characters types or comparison functions. */

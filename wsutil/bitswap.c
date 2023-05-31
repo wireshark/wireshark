@@ -10,9 +10,6 @@
  */
 
 #include "config.h"
-
-#include <glib.h>
-
 #include "bitswap.h"
 
 /* "swaptab[i]" is the value of "i" with the bits reversed. */

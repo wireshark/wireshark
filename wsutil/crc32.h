@@ -11,7 +11,7 @@
 #ifndef __CRC32_H__
 #define __CRC32_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

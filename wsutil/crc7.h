@@ -23,7 +23,7 @@
 #ifndef __CRC7__H__
 #define __CRC7__H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -8,9 +8,6 @@
  */
 
 #include "config.h"
-
-#include <glib.h>
-
 #include "crc10.h"
 
 /*

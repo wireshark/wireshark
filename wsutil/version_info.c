@@ -9,6 +9,7 @@
  */
 
 #include <config.h>
+#include "version_info.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,8 +33,6 @@
 #endif
 
 #include "vcs_version.h"
-
-#include "version_info.h"
 
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>

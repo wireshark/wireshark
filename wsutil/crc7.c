@@ -23,7 +23,6 @@
  *****************************************************************************/
 #include "config.h"
 
-#include <glib.h>
 #include "crc7.h"     /* include the header file generated with pycrc */
 
 /**

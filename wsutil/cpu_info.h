@@ -11,7 +11,7 @@
 #ifndef __WSUTIL_CPU_INFO_H__
 #define __WSUTIL_CPU_INFO_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

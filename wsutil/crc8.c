@@ -13,7 +13,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <wsutil/crc8.h>
 
 /* @brief Precompiled table for CRC8 values for the polynom 0x2F */

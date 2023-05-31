@@ -9,12 +9,11 @@
  */
 
 #include "config.h"
+#include <wsutil/cpu_info.h>
 
 #include <string.h>
-#include <glib.h>
 
 #include <wsutil/ws_cpuid.h>
-#include <wsutil/cpu_info.h>
 #include <wsutil/file_util.h>
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__)

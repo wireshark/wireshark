@@ -11,6 +11,7 @@
 
 #include <config.h>
 #define WS_LOG_DOMAIN LOG_DOMAIN_CAPTURE
+#include "wsutil/ws_pipe.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,8 +29,6 @@
 #endif
 #endif
 
-#include <glib.h>
-
 #ifdef __linux__
 #define HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
 #include <fcntl.h>
@@ -38,7 +37,6 @@
 #endif
 
 #include "wsutil/filesystem.h"
-#include "wsutil/ws_pipe.h"
 #include "wsutil/wslog.h"
 
 #ifdef HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG

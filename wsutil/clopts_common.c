@@ -10,13 +10,13 @@
 
 #include "config.h"
 
+#include "clopts_common.h"
+
 #include <stdlib.h>
 #include <errno.h>
 
 #include <wsutil/strtoi.h>
 #include <wsutil/cmdarg_err.h>
-
-#include "clopts_common.h"
 
 int
 get_natural_int(const char *string, const char *name)

@@ -16,8 +16,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
-
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>

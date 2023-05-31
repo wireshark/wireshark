@@ -18,7 +18,6 @@
  */
 #include "config.h"
 
-#include <glib.h>
 #include "report_message.h"
 
 static const char *friendly_program_name;

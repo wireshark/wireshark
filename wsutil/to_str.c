@@ -9,13 +9,11 @@
  */
 
 #include "config.h"
+#include "to_str.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <glib.h>
-
-#include "to_str.h"
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/wslog.h>

@@ -19,9 +19,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <wsutil/crc16.h>
-
 
 /*****************************************************************/
 

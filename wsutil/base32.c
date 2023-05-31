@@ -9,11 +9,9 @@
  */
 
 #include "config.h"
-
-#include <glib.h>
+#include "base32.h"
 
 #include <string.h>
-#include "base32.h"
 
 /*
  * Cjdns style base32 encoding

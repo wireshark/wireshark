@@ -10,10 +10,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "nstime.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "nstime.h"
 #include "epochs.h"
 #include "time_util.h"
 

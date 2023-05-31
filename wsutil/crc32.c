@@ -15,7 +15,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <wsutil/crc32.h>
 
 #define CRC32_ACCUMULATE(c,d,table) (c=(c>>8)^(table)[(c^(d))&0xFF])

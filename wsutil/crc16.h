@@ -13,7 +13,7 @@
 #ifndef __CRC16_H__
 #define __CRC16_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

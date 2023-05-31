@@ -11,7 +11,7 @@
 #ifndef __PRIVILEGES_H__
 #define __PRIVILEGES_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

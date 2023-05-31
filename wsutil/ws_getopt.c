@@ -25,6 +25,8 @@
  * ----------------------------------------------------------------------
  */
 
+#include <wsutil/ws_getopt.h>
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -33,8 +35,6 @@
 #include <wchar.h>
 
 #include <ws_codepoints.h>
-
-#include <wsutil/ws_getopt.h>
 
 char *ws_optarg;
 int ws_optind=1, ws_opterr=1, ws_optopt, ws_optpos, ws_optreset=0;

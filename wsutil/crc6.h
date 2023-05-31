@@ -10,7 +10,7 @@
 #ifndef __CRC6_H__
 #define __CRC6_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 WS_DLL_PUBLIC guint16 crc6_0X6F(guint16 crc6, const guint8 *data_blk_ptr, int data_blk_size);
 

@@ -10,6 +10,8 @@
 
 #include "config.h"
 
+#include <wsutil/os_version_info.h>
+
 #include <string.h>
 #include <errno.h>
 
@@ -22,11 +24,7 @@
 #include <wsutil/cfutils.h>
 #endif
 
-#include <glib.h>
-
 #include <wsutil/unicode-utils.h>
-
-#include <wsutil/os_version_info.h>
 
 /*
  * Handles the rather elaborate process of getting OS version information

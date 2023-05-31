@@ -12,7 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <wsutil/crc5.h>
 
 static guint8 crc5_usb_bits(guint32 v, int vl, guint8 ival)

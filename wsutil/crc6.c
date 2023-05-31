@@ -15,7 +15,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include "crc6.h"
 
 /**
