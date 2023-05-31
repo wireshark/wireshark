@@ -158,7 +158,7 @@ const value_string etype_vals[] = {
 	{ PPP_PAP,                        "PPP Password Authentication Protocol" },
 	{ PPP_CCP,                        "PPP Compression Control Protocol" },
 	{ ETHERTYPE_LLT,                  "Veritas Low Latency Transport (not officially registered)" },
-	{ ETHERTYPE_CFM,                  "IEEE 802.1ag Connectivity Fault Management (CFM) protocol" },
+	{ ETHERTYPE_CFM,                  "IEEE 802.1Q Connectivity Fault Management (CFM) protocol" },
 	{ ETHERTYPE_DCE,                  "Data Center Ethernet (DCE) protocol(Cisco)" },
 	{ ETHERTYPE_FCOE,                 "Fibre Channel over Ethernet" },
 	{ ETHERTYPE_IEEE80211_DATA_ENCAP, "IEEE 802.11 data encapsulation" },

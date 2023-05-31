@@ -519,7 +519,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_CFM
-#define ETHERTYPE_CFM			0x8902	/* IEEE 802.1ag Connectivity Fault Management(CFM) protocol */
+#define ETHERTYPE_CFM			0x8902	/* IEEE 802.1Q Connectivity Fault Management(CFM) protocol */
 #endif
 
 #ifndef ETHERTYPE_DCE
