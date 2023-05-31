@@ -592,12 +592,12 @@ static int mctp_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 	const guint8 *addr_data = (const guint8 *)addr->data;
 	gchar *bufp = buf;
 
-	return g_snprintf(bufp, 3, "%d", addr_data[0]);
+	return g_snprintf(bufp, 4, "%d", addr_data[0]);
 }
 
 static int mctp_addr_str_len(const address* addr _U_)
 {
-	return 3;
+	return 4;
 }
 
 static int mctp_len(void)
