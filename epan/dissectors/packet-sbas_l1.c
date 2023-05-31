@@ -50,6 +50,28 @@ static const value_string UDREI_EVALUATION[] = {
     {0,  NULL}
 };
 
+// Mapping for fast correction degradation factor
+// see ICAO Annex 10, Vol I, Table B-34
+static const value_string DEGRADATION_FACTOR_INDICATOR[] = {
+    {0,  "0.0 mm/s^2"},
+    {1,  "0.05 mm/s^2"},
+    {2,  "0.09 mm/s^2"},
+    {3,  "0.12 mm/s^2"},
+    {4,  "0.15 mm/s^2"},
+    {5,  "0.20 mm/s^2"},
+    {6,  "0.30 mm/s^2"},
+    {7,  "0.45 mm/s^2"},
+    {8,  "0.60 mm/s^2"},
+    {9,  "0.90 mm/s^2"},
+    {10, "1.50 mm/s^2"},
+    {11, "2.10 mm/s^2"},
+    {12, "2.70 mm/s^2"},
+    {13, "3.30 mm/s^2"},
+    {14, "4.60 mm/s^2"},
+    {15, "5.80 mm/s^2"},
+    {0,  NULL}
+};
+
 // table for SBAS L1 CRC24Q computation
 static const guint32 CRC24Q_TBL[] = {
     0x000000, 0x864CFB, 0x8AD50D, 0x0C99F6, 0x93E6E1, 0x15AA1A, 0x1933EC, 0x9F7F17,
@@ -285,6 +307,63 @@ static int hf_sbas_l1_mt6_udrei_49 = -1;
 static int hf_sbas_l1_mt6_udrei_50 = -1;
 static int hf_sbas_l1_mt6_udrei_51 = -1;
 
+// see ICAO Annex 10, Vol I, Table B-41
+static int hf_sbas_l1_mt7          = -1;
+static int hf_sbas_l1_mt7_t_lat    = -1;
+static int hf_sbas_l1_mt7_iodp     = -1;
+static int hf_sbas_l1_mt7_spare    = -1;
+static int hf_sbas_l1_mt7_ai_1     = -1;
+static int hf_sbas_l1_mt7_ai_2     = -1;
+static int hf_sbas_l1_mt7_ai_3     = -1;
+static int hf_sbas_l1_mt7_ai_4     = -1;
+static int hf_sbas_l1_mt7_ai_5     = -1;
+static int hf_sbas_l1_mt7_ai_6     = -1;
+static int hf_sbas_l1_mt7_ai_7     = -1;
+static int hf_sbas_l1_mt7_ai_8     = -1;
+static int hf_sbas_l1_mt7_ai_9     = -1;
+static int hf_sbas_l1_mt7_ai_10    = -1;
+static int hf_sbas_l1_mt7_ai_11    = -1;
+static int hf_sbas_l1_mt7_ai_12    = -1;
+static int hf_sbas_l1_mt7_ai_13    = -1;
+static int hf_sbas_l1_mt7_ai_14    = -1;
+static int hf_sbas_l1_mt7_ai_15    = -1;
+static int hf_sbas_l1_mt7_ai_16    = -1;
+static int hf_sbas_l1_mt7_ai_17    = -1;
+static int hf_sbas_l1_mt7_ai_18    = -1;
+static int hf_sbas_l1_mt7_ai_19    = -1;
+static int hf_sbas_l1_mt7_ai_20    = -1;
+static int hf_sbas_l1_mt7_ai_21    = -1;
+static int hf_sbas_l1_mt7_ai_22    = -1;
+static int hf_sbas_l1_mt7_ai_23    = -1;
+static int hf_sbas_l1_mt7_ai_24    = -1;
+static int hf_sbas_l1_mt7_ai_25    = -1;
+static int hf_sbas_l1_mt7_ai_26    = -1;
+static int hf_sbas_l1_mt7_ai_27    = -1;
+static int hf_sbas_l1_mt7_ai_28    = -1;
+static int hf_sbas_l1_mt7_ai_29    = -1;
+static int hf_sbas_l1_mt7_ai_30    = -1;
+static int hf_sbas_l1_mt7_ai_31    = -1;
+static int hf_sbas_l1_mt7_ai_32    = -1;
+static int hf_sbas_l1_mt7_ai_33    = -1;
+static int hf_sbas_l1_mt7_ai_34    = -1;
+static int hf_sbas_l1_mt7_ai_35    = -1;
+static int hf_sbas_l1_mt7_ai_36    = -1;
+static int hf_sbas_l1_mt7_ai_37    = -1;
+static int hf_sbas_l1_mt7_ai_38    = -1;
+static int hf_sbas_l1_mt7_ai_39    = -1;
+static int hf_sbas_l1_mt7_ai_40    = -1;
+static int hf_sbas_l1_mt7_ai_41    = -1;
+static int hf_sbas_l1_mt7_ai_42    = -1;
+static int hf_sbas_l1_mt7_ai_43    = -1;
+static int hf_sbas_l1_mt7_ai_44    = -1;
+static int hf_sbas_l1_mt7_ai_45    = -1;
+static int hf_sbas_l1_mt7_ai_46    = -1;
+static int hf_sbas_l1_mt7_ai_47    = -1;
+static int hf_sbas_l1_mt7_ai_48    = -1;
+static int hf_sbas_l1_mt7_ai_49    = -1;
+static int hf_sbas_l1_mt7_ai_50    = -1;
+static int hf_sbas_l1_mt7_ai_51    = -1;
+
 // see ICAO Annex 10, Vol I, Table B-48
 static int hf_sbas_l1_mt25                     = -1;
 static int hf_sbas_l1_mt25_h1_velocity_code    = -1;
@@ -331,6 +410,7 @@ static int ett_sbas_l1_mt3  = -1;
 static int ett_sbas_l1_mt4  = -1;
 static int ett_sbas_l1_mt5  = -1;
 static int ett_sbas_l1_mt6  = -1;
+static int ett_sbas_l1_mt7  = -1;
 static int ett_sbas_l1_mt25 = -1;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
@@ -690,6 +770,74 @@ static int dissect_sbas_l1_mt6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 }
 
+/* Dissect SBAS L1 MT 7 */
+static int dissect_sbas_l1_mt7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT7");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt7, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt7_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt7);
+
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_t_lat,  tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_iodp,   tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_spare,  tvb, 1, 1, ENC_NA);
+
+    // Degradation factor indicator ai_i
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_1,  tvb, 1,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_2,  tvb, 2,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_3,  tvb, 2,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_4,  tvb, 3,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_5,  tvb, 3,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_6,  tvb, 4,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_7,  tvb, 4,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_8,  tvb, 5,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_9,  tvb, 5,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_10, tvb, 6,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_11, tvb, 6,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_12, tvb, 7,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_13, tvb, 7,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_14, tvb, 8,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_15, tvb, 8,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_16, tvb, 9,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_17, tvb, 9,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_18, tvb, 10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_19, tvb, 10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_20, tvb, 11, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_21, tvb, 11, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_22, tvb, 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_23, tvb, 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_24, tvb, 13, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_25, tvb, 13, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_26, tvb, 14, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_27, tvb, 14, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_28, tvb, 15, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_29, tvb, 15, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_30, tvb, 16, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_31, tvb, 16, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_32, tvb, 17, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_33, tvb, 17, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_34, tvb, 18, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_35, tvb, 18, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_36, tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_37, tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_38, tvb, 20, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_39, tvb, 20, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_40, tvb, 21, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_41, tvb, 21, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_42, tvb, 22, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_43, tvb, 22, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_44, tvb, 23, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_45, tvb, 23, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_46, tvb, 24, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_47, tvb, 24, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_48, tvb, 25, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_49, tvb, 25, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_50, tvb, 26, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt7_tree, hf_sbas_l1_mt7_ai_51, tvb, 26, 2, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect SBAS L1 MT 25 */
 static int dissect_sbas_l1_mt25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     guint32 velocity_code;
@@ -973,6 +1121,63 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt6_udrei_50, {"UDREI_50",                                 "sbas_l1.mt6.udrei_50", FT_UINT16, BASE_DEC,  VALS(UDREI_EVALUATION), 0x3c00, NULL, HFILL}},
         {&hf_sbas_l1_mt6_udrei_51, {"UDREI_51",                                 "sbas_l1.mt6.udrei_51", FT_UINT16, BASE_DEC,  VALS(UDREI_EVALUATION), 0x03c0, NULL, HFILL}},
 
+        // MT7
+        {&hf_sbas_l1_mt7,          {"MT7",                                "sbas_l1.mt7",          FT_NONE,   BASE_NONE, NULL,                               0x0,    NULL, HFILL}},
+        {&hf_sbas_l1_mt7_t_lat,    {"System Latency (t_lat)",             "sbas_l1.mt7.t_lat",    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds,     0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_iodp,     {"Issue of Data PRN (IODP)",           "sbas_l1.mt7.iodp",     FT_UINT8,  BASE_DEC,  NULL,                               0x30,   NULL, HFILL}},
+        {&hf_sbas_l1_mt7_spare,    {"Spare",                              "sbas_l1.mt7.spare",    FT_UINT8,  BASE_DEC,  NULL,                               0x0c,   NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_1,     {"Degradation Factor Indicator ai_1",  "sbas_l1.mt7.ai_1",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_2,     {"Degradation Factor Indicator ai_2",  "sbas_l1.mt7.ai_2",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_3,     {"Degradation Factor Indicator ai_3",  "sbas_l1.mt7.ai_3",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_4,     {"Degradation Factor Indicator ai_4",  "sbas_l1.mt7.ai_4",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_5,     {"Degradation Factor Indicator ai_5",  "sbas_l1.mt7.ai_5",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_6,     {"Degradation Factor Indicator ai_6",  "sbas_l1.mt7.ai_6",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_7,     {"Degradation Factor Indicator ai_7",  "sbas_l1.mt7.ai_7",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_8,     {"Degradation Factor Indicator ai_8",  "sbas_l1.mt7.ai_8",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_9,     {"Degradation Factor Indicator ai_9",  "sbas_l1.mt7.ai_9",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_10,    {"Degradation Factor Indicator ai_10", "sbas_l1.mt7.ai_10",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_11,    {"Degradation Factor Indicator ai_11", "sbas_l1.mt7.ai_11",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_12,    {"Degradation Factor Indicator ai_12", "sbas_l1.mt7.ai_12",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_13,    {"Degradation Factor Indicator ai_13", "sbas_l1.mt7.ai_13",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_14,    {"Degradation Factor Indicator ai_14", "sbas_l1.mt7.ai_14",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_15,    {"Degradation Factor Indicator ai_15", "sbas_l1.mt7.ai_15",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_16,    {"Degradation Factor Indicator ai_16", "sbas_l1.mt7.ai_16",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_17,    {"Degradation Factor Indicator ai_17", "sbas_l1.mt7.ai_17",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_18,    {"Degradation Factor Indicator ai_18", "sbas_l1.mt7.ai_18",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_19,    {"Degradation Factor Indicator ai_19", "sbas_l1.mt7.ai_19",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_20,    {"Degradation Factor Indicator ai_20", "sbas_l1.mt7.ai_20",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_21,    {"Degradation Factor Indicator ai_21", "sbas_l1.mt7.ai_21",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_22,    {"Degradation Factor Indicator ai_22", "sbas_l1.mt7.ai_22",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_23,    {"Degradation Factor Indicator ai_23", "sbas_l1.mt7.ai_23",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_24,    {"Degradation Factor Indicator ai_24", "sbas_l1.mt7.ai_24",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_25,    {"Degradation Factor Indicator ai_25", "sbas_l1.mt7.ai_25",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_26,    {"Degradation Factor Indicator ai_26", "sbas_l1.mt7.ai_26",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_27,    {"Degradation Factor Indicator ai_27", "sbas_l1.mt7.ai_27",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_28,    {"Degradation Factor Indicator ai_28", "sbas_l1.mt7.ai_28",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_29,    {"Degradation Factor Indicator ai_29", "sbas_l1.mt7.ai_29",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_30,    {"Degradation Factor Indicator ai_30", "sbas_l1.mt7.ai_30",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_31,    {"Degradation Factor Indicator ai_31", "sbas_l1.mt7.ai_31",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_32,    {"Degradation Factor Indicator ai_32", "sbas_l1.mt7.ai_32",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_33,    {"Degradation Factor Indicator ai_33", "sbas_l1.mt7.ai_33",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_34,    {"Degradation Factor Indicator ai_34", "sbas_l1.mt7.ai_34",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_35,    {"Degradation Factor Indicator ai_35", "sbas_l1.mt7.ai_35",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_36,    {"Degradation Factor Indicator ai_36", "sbas_l1.mt7.ai_36",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_37,    {"Degradation Factor Indicator ai_37", "sbas_l1.mt7.ai_37",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_38,    {"Degradation Factor Indicator ai_38", "sbas_l1.mt7.ai_38",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_39,    {"Degradation Factor Indicator ai_39", "sbas_l1.mt7.ai_39",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_40,    {"Degradation Factor Indicator ai_40", "sbas_l1.mt7.ai_40",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_41,    {"Degradation Factor Indicator ai_41", "sbas_l1.mt7.ai_41",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_42,    {"Degradation Factor Indicator ai_42", "sbas_l1.mt7.ai_42",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_43,    {"Degradation Factor Indicator ai_43", "sbas_l1.mt7.ai_43",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_44,    {"Degradation Factor Indicator ai_44", "sbas_l1.mt7.ai_44",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_45,    {"Degradation Factor Indicator ai_45", "sbas_l1.mt7.ai_45",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_46,    {"Degradation Factor Indicator ai_46", "sbas_l1.mt7.ai_46",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_47,    {"Degradation Factor Indicator ai_47", "sbas_l1.mt7.ai_47",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_48,    {"Degradation Factor Indicator ai_48", "sbas_l1.mt7.ai_48",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_49,    {"Degradation Factor Indicator ai_49", "sbas_l1.mt7.ai_49",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_50,    {"Degradation Factor Indicator ai_50", "sbas_l1.mt7.ai_50",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_ai_51,    {"Degradation Factor Indicator ai_51", "sbas_l1.mt7.ai_51",    FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},
+
         // MT25
         {&hf_sbas_l1_mt25,                     {"MT25",                     "sbas_l1.mt25",                     FT_NONE,   BASE_NONE,   NULL,                           0x0,    NULL, HFILL}},
         {&hf_sbas_l1_mt25_h1_velocity_code,    {"Velocity Code",            "sbas_l1.mt25.h1.velocity_code",    FT_UINT8,  BASE_DEC,    NULL,                           0x02,   NULL, HFILL}},
@@ -1023,6 +1228,7 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt4,
         &ett_sbas_l1_mt5,
         &ett_sbas_l1_mt6,
+        &ett_sbas_l1_mt7,
         &ett_sbas_l1_mt25,
     };
 
@@ -1054,5 +1260,6 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 4,  create_dissector_handle(dissect_sbas_l1_mt4,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 5,  create_dissector_handle(dissect_sbas_l1_mt5,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 6,  create_dissector_handle(dissect_sbas_l1_mt6,  proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 7,  create_dissector_handle(dissect_sbas_l1_mt7,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 25, create_dissector_handle(dissect_sbas_l1_mt25, proto_sbas_l1));
 }
