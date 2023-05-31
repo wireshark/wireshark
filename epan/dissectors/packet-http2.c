@@ -258,6 +258,7 @@ typedef struct {
     guint32 stream_id;
     guint32 request_in_frame_num;
     guint32 response_in_frame_num;
+    nstime_t request_ts;
     enum http2_data_reassembly_mode_t reassembly_mode;
     char *authority;
     char *path;
@@ -514,6 +515,7 @@ static int hf_http2_origin_origin = -1;
 static int hf_http2_priority_update_stream_id = -1;
 static int hf_http2_priority_update_field_value = -1;
 /* Generated fields */
+static int hf_http2_time = -1;
 static int hf_http2_request_in = -1;
 static int hf_http2_response_in = -1;
 
@@ -1411,6 +1413,7 @@ get_stream_info(packet_info *pinfo, http2_session_t *http2_session, gboolean ini
         stream_info->oneway_stream_info[0].current_window_size = INITIAL_WINDOW_SIZE;
         stream_info->oneway_stream_info[1].is_window_initialized = FALSE;
         stream_info->oneway_stream_info[1].current_window_size = INITIAL_WINDOW_SIZE;
+        nstime_set_unset(&(stream_info->request_ts));
         wmem_map_insert(stream_map, GINT_TO_POINTER(stream_id), stream_info);
     }
 
@@ -1857,6 +1860,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0) {
         http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
         stream_info->request_in_frame_num = pinfo->num;
+        stream_info->request_ts = pinfo->abs_ts;
     }
     if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
         http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, FALSE);
@@ -3569,6 +3573,12 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
     /* Display request/response links */
     if (pinfo->num > stream_info->request_in_frame_num && stream_info->request_in_frame_num > 0) {
         /* Response frame */
+        if (! nstime_is_unset(&(stream_info->request_ts))) {
+            nstime_t delta;
+
+            nstime_delta(&delta, &pinfo->abs_ts, &(stream_info->request_ts));
+            proto_item_set_generated(proto_tree_add_time(http2_tree, hf_http2_time, tvb, 0, 0, &delta));
+        }
         proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_request_in, tvb, 0, 0, stream_info->request_in_frame_num));
     }
     if (pinfo->num == stream_info->request_in_frame_num && stream_info->response_in_frame_num > 0) {
@@ -4734,6 +4744,11 @@ proto_register_http2(void)
             { "Priority Update Field Value", "http2.priority_update_field_value",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_http2_time,
+          { "Time since request", "http2.time",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+            "Time since the request was sent", HFILL }
         },
         { &hf_http2_request_in,
             { "Request in frame", "http2.request_in",
