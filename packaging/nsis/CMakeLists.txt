@@ -59,11 +59,6 @@ file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" DOCBOOK_DIR)
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
-# Must match tools/win-setup.ps1.
-set(NPCAP_PACKAGE_VERSION "1.75")
-
-set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
-
 # To do:
 # - Sync the various version names between CMake and NSIS.
 # - Set CMakeLists.txt version strings in tools/make-version.py
