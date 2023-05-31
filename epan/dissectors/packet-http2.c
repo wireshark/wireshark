@@ -2813,6 +2813,15 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
     if (!streaming_mode)
         proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
 
+    if (have_tap_listener(http2_follow_tap) && get_body_uncompression_info(pinfo, h2session) != BODY_UNCOMPRESSION_NONE) {
+        http2_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
+
+        follow_data->tvb = tvb;
+        follow_data->stream_id = stream_id;
+
+        tap_queue_packet(http2_follow_tap, pinfo, follow_data);
+    }
+
     if (have_tap_listener(http_eo_tap)) {
         eo_info = wmem_new0(pinfo->pool, http_eo_t);
 
@@ -4081,6 +4090,11 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     switch(type){
         case HTTP2_DATA: /* Data (0) */
             dissect_http2_data(tvb, pinfo, http2_session, http2_tree, offset, flags);
+#ifdef HAVE_NGHTTP2
+            if (get_body_uncompression_info(pinfo, http2_session) != BODY_UNCOMPRESSION_NONE) {
+                use_follow_tap = FALSE;
+            }
+#endif
         break;
 
         case HTTP2_HEADERS: /* Headers (1) */
