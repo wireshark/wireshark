@@ -21,7 +21,6 @@ set(WIRESHARK_NSIS_GENERATED_FILES ${WIRESHARK_NSIS_GENERATED_FILES} PARENT_SCOP
 
 set(WIRESHARK_NSIS_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/wireshark.nsi
-	${CMAKE_CURRENT_SOURCE_DIR}/uninstall-wireshark.nsi
 	${CMAKE_CURRENT_SOURCE_DIR}/wireshark-common.nsh
 	${CMAKE_CURRENT_SOURCE_DIR}/GetWindowsVersion.nsh
 	${CMAKE_CURRENT_SOURCE_DIR}/servicelib.nsh
@@ -252,20 +251,6 @@ macro( ADD_NSIS_UNINSTALLER_TARGETS )
 	# XXX - if we're not building Wireshark, we can't build
 	# anything, so there's nothing to uninstall.
 	#
-	if(BUILD_wireshark)
-		add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall-wireshark.exe
-			DEPENDS ${_nsis_source_dir}/uninstall-wireshark.nsi
-				${_nsis_source_dir}/wireshark-common.nsh
-			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
-				uninstall-wireshark.nsi
-			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/makeUninstall.ps1" ${DATAFILE_DIR}/uninstall_wireshark_installer.exe
-			COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_wireshark_installer.exe
-			WORKING_DIRECTORY ${_nsis_source_dir}
-		)
-	else()
-		message(WARNING "The NSIS installer cannot be built if the Wireshark program isn't built.")
-	endif()
-
 	if(BUILD_logray)
 		add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall-logray.exe
 			DEPENDS ${_nsis_source_dir}/uninstall-logray.nsi
@@ -280,6 +265,8 @@ macro( ADD_NSIS_UNINSTALLER_TARGETS )
 endmacro( ADD_NSIS_UNINSTALLER_TARGETS )
 
 macro( ADD_NSIS_PACKAGE_TARGETS )
+	set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
+	set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
 	#
 	# XXX - if we're not building Wireshark, we can't build the
 	# manifest below.  On the other hand, if we're not building
@@ -332,7 +319,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 				copy_data_files
 				user_guide_html
 				faq_html
-				$<$<NOT:$<BOOL:${SKIP_NSIS_UNINSTALLER}>>:${DATAFILE_DIR}/uninstall-wireshark.exe>
 		)
 		set_target_properties(wireshark_nsis_prep PROPERTIES
 			FOLDER "Packaging"
