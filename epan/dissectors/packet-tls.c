@@ -4418,7 +4418,7 @@ proto_register_tls(void)
             "Always set to value 23, actual content type is known after decryption", HFILL}
         },
         { &hf_ssl2_msg_type,
-          { "Handshake Message Type", "tls.handshake.type",
+          { "Handshake Message Type", "tls.ssl2.handshake.type",
             FT_UINT8, BASE_DEC, VALS(ssl_20_msg_types), 0x0,
             "SSLv2 handshake message type", HFILL}
         },
@@ -4488,7 +4488,7 @@ proto_register_tls(void)
             "Length of handshake message", HFILL }
         },
         { &hf_ssl2_handshake_cipher_spec,
-          { "Cipher Spec", "tls.handshake.cipherspec",
+          { "Cipher Spec", "tls.ssl2.handshake.cipherspec",
             FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
         },
@@ -4600,7 +4600,7 @@ proto_register_tls(void)
             "Did the server find the client's Session ID?", HFILL }
         },
         { &hf_ssl2_handshake_cert_type,
-          { "Certificate Type", "tls.handshake.cert_type",
+          { "Certificate Type", "tls.ssl2.handshake.cert_type",
             FT_UINT8, BASE_DEC, VALS(ssl_20_certificate_type), 0x0,
             NULL, HFILL }
         },
