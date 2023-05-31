@@ -18,20 +18,20 @@ libwiretap.so.0 libwiretap0 #MINVER#
  merge_string_to_idb_merge_mode@Base 1.99.9
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
- pcapng_process_options@Base 3.5.0
  pcapng_process_bytes_option@Base 3.5.0
+ pcapng_process_options@Base 3.5.0
  pcapng_process_string_option@Base 3.5.0
  pcapng_process_timestamp_option@Base 3.5.0
- pcapng_process_uint8_option@Base 3.5.0
  pcapng_process_uint32_option@Base 3.5.0
  pcapng_process_uint64_option@Base 3.5.0
+ pcapng_process_uint8_option@Base 3.5.0
  register_pcapng_block_type_handler@Base 1.99.0
  register_pcapng_option_handler@Base 1.99.2
  wtap_add_generated_idb@Base 3.3.0
  wtap_addrinfo_list_empty@Base 2.5.0
- wtap_block_add_custom_option@Base 3.5.0
  wtap_block_add_bytes_option@Base 3.5.0
  wtap_block_add_bytes_option_borrow@Base 3.5.0
+ wtap_block_add_custom_option@Base 3.5.0
  wtap_block_add_if_filter_option@Base 3.5.0
  wtap_block_add_ipv4_option@Base 2.1.2
  wtap_block_add_ipv6_option@Base 2.1.2
@@ -40,6 +40,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_add_packet_verdict_option@Base 3.5.1
  wtap_block_add_string_option@Base 2.1.2
  wtap_block_add_string_option_format@Base 2.1.2
+ wtap_block_add_string_option_owned@Base 4.1.0
  wtap_block_add_uint32_option@Base 3.5.0
  wtap_block_add_uint64_option@Base 2.1.2
  wtap_block_add_uint8_option@Base 2.1.2
@@ -80,6 +81,9 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_set_uint64_option_value@Base 2.1.2
  wtap_block_set_uint8_option_value@Base 2.1.2
  wtap_block_unref@Base 3.5.0
+ wtap_buffer_append_epdu_end@Base 4.1.0
+ wtap_buffer_append_epdu_tag@Base 4.1.0
+ wtap_buffer_append_epdu_uint@Base 4.1.0
  wtap_cleanup@Base 2.3.0
  wtap_cleareof@Base 1.9.1
  wtap_close@Base 1.9.1
@@ -96,6 +100,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_can_write_encap@Base 3.5.0
  wtap_dump_close@Base 1.9.1
  wtap_dump_discard_decryption_secrets@Base 3.0.0
+ wtap_dump_discard_name_resolution@Base 4.1.0
  wtap_dump_fdopen@Base 1.9.1
  wtap_dump_file_seek@Base 1.12.0~rc1
  wtap_dump_file_tell@Base 1.12.0~rc1
@@ -107,6 +112,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_open_tempfile@Base 2.0.0
  wtap_dump_params_cleanup@Base 2.9.0
  wtap_dump_params_discard_decryption_secrets@Base 3.0.0
+ wtap_dump_params_discard_name_resolution@Base 4.1.0
  wtap_dump_params_init@Base 2.9.0
  wtap_dump_params_init_no_idbs@Base 3.3.2
  wtap_dump_required_file_encap_type@Base 4.1.0
@@ -149,12 +155,12 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_init@Base 2.3.0
  wtap_inspect_enums@Base 4.1.0
  wtap_inspect_enums_bsearch@Base 4.1.0
- wtap_inspect_enums_count@Base 4.1.0rc0-408-gda4277971fe0
  wtap_inspect_enums_count@Base 4.1.0
+ wtap_name_to_encap@Base 4.1.0
  wtap_name_to_file_type_subtype@Base 3.5.0
  wtap_open_offline@Base 1.9.1
- wtap_opttypes_initialize@Base 2.1.2
  wtap_opttypes_cleanup@Base 2.3.0
+ wtap_opttypes_initialize@Base 2.1.2
  wtap_packet_hash_free@Base 4.1.0
  wtap_packet_verdict_free@Base 3.5.1
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
@@ -178,9 +184,9 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_seek_read@Base 1.9.1
  wtap_sequential_close@Base 1.9.1
  wtap_set_bytes_dumped@Base 1.9.1
- wtap_set_cb_new_secrets@Base 2.9.0
  wtap_set_cb_new_ipv4@Base 1.9.1
  wtap_set_cb_new_ipv6@Base 1.9.1
+ wtap_set_cb_new_secrets@Base 2.9.0
  wtap_snapshot_length@Base 1.9.1
  wtap_strerror@Base 1.9.1
  wtap_tsprec_string@Base 1.99.9

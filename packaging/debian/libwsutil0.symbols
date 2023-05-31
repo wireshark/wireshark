@@ -3,6 +3,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  EBCDIC_to_ASCII1@Base 4.1.0
  EBCDIC_to_ASCII@Base 4.1.0
  Eax_Decrypt@Base 1.12.0~rc1
+ add_to_filter_list@Base 4.1.0
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
  alaw2linear@Base 1.12.0~rc1
@@ -14,6 +15,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  bytes_to_hexstr_punct@Base 3.5.0
  bytes_to_str_maxlen@Base 3.7.0
  bytes_to_str_punct_maxlen@Base 3.7.0
+ cmdarg_err@Base 4.1.0
+ cmdarg_err_cont@Base 4.1.0
+ cmdarg_err_init@Base 4.1.0
  codec_decode@Base 3.1.0
  codec_get_channels@Base 3.1.0
  codec_get_frequency@Base 3.1.0
@@ -39,8 +43,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc16_plain_update@Base 1.10.0
  crc16_usb@Base 3.1.0
  crc16_x25_ccitt_seed@Base 1.99.3
- crc32_0x5D6DCB_seed@Base 2.3.0
  crc32_0x0AA725CF_seed@Base 1.12.0~rc1
+ crc32_0x5D6DCB_seed@Base 2.3.0
  crc32_ccitt@Base 1.10.0
  crc32_ccitt_seed@Base 1.10.0
  crc32_ccitt_table_lookup@Base 1.10.0
@@ -58,6 +62,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  create_persconffile_dir@Base 1.12.0~rc1
  create_persconffile_profile@Base 1.12.0~rc1
  create_profiles_dir@Base 2.5.0
+ create_tempdir@Base 4.1.0
  create_tempfile@Base 1.12.0~rc1
  create_timestamp@Base 2.5.0
  crypt_des_ecb@Base 2.3.0
@@ -69,6 +74,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
  deregister_codec@Base 3.1.0
+ doc_file_url@Base 4.1.0
  dword_to_hex@Base 3.5.1
  dword_to_hex_punct@Base 3.5.1
  eui64_to_str@Base 3.5.1
@@ -87,19 +93,36 @@ libwsutil.so.0 libwsutil0 #MINVER#
  format_text_string@Base 4.1.0
  format_text_wsp@Base 4.1.0
  free_features@Base 3.7.0
+ free_filter_lists@Base 4.1.0
  free_progdirs@Base 2.3.0
+ gather_pcre2_compile_info@Base 4.1.0
+ gather_pcre2_runtime_info@Base 4.1.0
+ gather_zlib_compile_info@Base 4.1.0
+ gather_zlib_runtime_info@Base 4.1.0
+ get_appname_and_version@Base 4.1.0
  get_basename@Base 1.12.0~rc1
+ get_compiled_version_info@Base 4.1.0
  get_configuration_namespace@Base 3.7.0
+ get_copyright_info@Base 4.1.0
+ get_cpu_info@Base 2.3.0
  get_cur_groupname@Base 1.10.0
  get_cur_username@Base 1.10.0
- get_cpu_info@Base 2.3.0
  get_datafile_dir@Base 1.12.0~rc1
  get_datafile_path@Base 1.12.0~rc1
  get_dirname@Base 1.12.0~rc1
+ get_doc_dir@Base 4.1.0
+ get_docfile_path@Base 4.1.0
  get_executable_path@Base 4.1.0
  get_extcap_dir@Base 1.99.0
+ get_extcap_pers_dir@Base 4.1.0
+ get_filter_list_first@Base 4.1.0
  get_friendly_program_name@Base 3.5.0
  get_global_profiles_dir@Base 1.12.0~rc1
+ get_guint32@Base 4.1.0
+ get_license_info@Base 4.1.0
+ get_license_info_short@Base 4.1.0
+ get_natural_int@Base 4.1.0
+ get_nonzero_guint32@Base 4.1.0
  get_os_version_info@Base 1.99.0
  get_persconffile_path@Base 1.12.0~rc1
  get_persdatafile_dir@Base 1.12.0~rc1
@@ -107,19 +130,25 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_plugins_dir_with_version@Base 2.5.0
  get_plugins_pers_dir@Base 1.12.0~rc1
  get_plugins_pers_dir_with_version@Base 2.5.0
+ get_positive_double@Base 4.1.0
+ get_positive_int@Base 4.1.0
  get_profile_dir@Base 2.9.0
  get_profile_name@Base 1.12.0~rc1
  get_profiles_dir@Base 1.12.0~rc1
  get_progfile_dir@Base 1.12.0~rc1
  get_resource_usage@Base 2.3.0
+ get_runtime_version_info@Base 4.1.0
  get_systemfile_dir@Base 1.12.0~rc1
+ get_ws_vcs_version_info@Base 4.1.0
+ get_ws_vcs_version_info_short@Base 4.1.0
+ get_ws_version_number@Base 4.1.0
  guint32_to_str_buf@Base 3.5.1
  guint64_to_str_buf@Base 3.5.1
  guint8_to_hex@Base 3.5.1
  has_global_profiles@Base 1.12.0~rc1
  hex64_to_str_back_len@Base 3.5.1
- hex_to_str_back_len@Base 3.5.1
  hex_dump_buffer@Base 4.1.0
+ hex_to_str_back_len@Base 3.5.1
  hkdf_expand@Base 2.5.1
  ieee80211_chan_to_mhz@Base 1.99.7
  ieee80211_mhz_to_chan@Base 1.99.7
@@ -176,6 +205,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_cmp@Base 1.12.0~rc1
  nstime_copy@Base 1.12.0~rc1
  nstime_delta@Base 1.12.0~rc1
+ nstime_hash@Base 4.1.0
  nstime_is_unset@Base 1.12.0~rc1
  nstime_is_zero@Base 1.12.0~rc1
  nstime_set_unset@Base 1.12.0~rc1
@@ -191,14 +221,18 @@ libwsutil.so.0 libwsutil0 #MINVER#
  plugins_dump_all@Base 1.12.0~rc1
  plugins_get_count@Base 2.5.0
  plugins_get_descriptions@Base 1.12.0~rc1
+ plugins_init@Base 2.5.0
+ plugins_supported@Base 4.1.0
  printable_char_or_period@Base 1.99.0
  profile_exists@Base 1.12.0~rc1
  profile_register_persconffile@Base 3.5.1
  profile_store_persconffiles@Base 1.12.0~rc1
  qword_to_hex@Base 3.5.1
  qword_to_hex_punct@Base 3.5.1
+ read_filter_list@Base 4.1.0
  register_codec@Base 3.1.0
  relinquish_special_privs_perm@Base 1.10.0
+ remove_from_filter_list@Base 4.1.0
  rename_persconffile_profile@Base 1.12.0~rc1
  report_cfile_close_failure@Base 3.5.0
  report_cfile_dump_open_failure@Base 3.5.0
@@ -210,17 +244,19 @@ libwsutil.so.0 libwsutil0 #MINVER#
  report_read_failure@Base 1.12.0~rc1
  report_warning@Base 2.3.0
  report_write_failure@Base 1.12.0~rc1
+ rsa_decrypt_inplace@Base 2.5.0
  rsa_load_pem_key@Base 2.5.0
  rsa_load_pkcs12@Base 2.5.0
- rsa_decrypt_inplace@Base 2.5.0
  rsa_private_key_free@Base 2.5.0
  rsa_privkey_to_sexp@Base 2.5.0
  running_in_build_directory@Base 1.12.0~rc1
  running_with_special_privs@Base 1.10.0
- plugins_init@Base 2.5.0
+ save_filter_list@Base 4.1.0
  set_persconffile_dir@Base 1.12.0~rc1
  set_persdatafile_dir@Base 1.12.0~rc1
  set_profile_name@Base 1.12.0~rc1
+ show_help_header@Base 4.1.0
+ show_version@Base 4.1.0
  sober128_add_entropy@Base 1.99.0
  sober128_read@Base 1.99.0
  sober128_start@Base 1.99.0
@@ -239,6 +275,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  unix_epoch_to_nstime@Base 3.5.0
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0
+ vcmdarg_err@Base 4.1.0
  with_feature@Base 3.7.0
  without_feature@Base 3.7.0
  wmem_alloc0@Base 3.5.0
@@ -246,6 +283,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_allocator_new@Base 3.5.0
  wmem_array_append@Base 3.5.0
  wmem_array_bzero@Base 3.5.0
+ wmem_array_finalize@Base 4.1.0
  wmem_array_get_count@Base 3.5.0
  wmem_array_get_raw@Base 3.5.0
  wmem_array_grow@Base 3.5.0
@@ -320,8 +358,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_str_hash@Base 3.5.0
  wmem_strbuf_append@Base 3.5.0
  wmem_strbuf_append_c@Base 3.5.0
+ wmem_strbuf_append_c_count@Base 4.1.0
  wmem_strbuf_append_hex@Base 4.1.0
- wmem_strbuf_append_hex@Base 4.1.0
+ wmem_strbuf_append_hex_unichar@Base 4.1.0
  wmem_strbuf_append_len@Base 3.5.0
  wmem_strbuf_append_printf@Base 3.5.0
  wmem_strbuf_append_unichar@Base 3.5.0
@@ -337,9 +376,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strbuf_new_sized@Base 4.1.0
  wmem_strbuf_strcmp@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_strstr@Base 3.7.1rc0-272-gfe25d701baa2
+ wmem_strbuf_truncate@Base 3.5.0
  wmem_strbuf_utf8_make_valid@Base 4.1.0
  wmem_strbuf_utf8_validate@Base 4.1.0
- wmem_strbuf_truncate@Base 3.5.0
  wmem_strconcat@Base 3.5.0
  wmem_strdup@Base 3.5.0
  wmem_strdup_printf@Base 3.5.0
@@ -364,8 +403,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_tree_lookup_string@Base 3.5.0
  wmem_tree_new@Base 3.5.0
  wmem_tree_new_autoreset@Base 3.5.0
- wmem_tree_remove_string@Base 3.5.0
  wmem_tree_remove32@Base 3.5.0
+ wmem_tree_remove_string@Base 3.5.0
  wmem_unregister_callback@Base 3.5.0
  word_to_hex@Base 3.5.1
  word_to_hex_npad@Base 3.5.1
@@ -382,6 +421,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_basestrtou@Base 3.3.0
  ws_buffer_append@Base 1.99.0
  ws_buffer_assure_space@Base 1.99.0
+ ws_buffer_cleanup@Base 2.3.0
  ws_buffer_free@Base 1.99.0
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
@@ -395,7 +435,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_getopt@Base 3.5.1
  ws_getopt_long@Base 3.5.1
  ws_getopt_long_only@Base 3.5.1
- ws_buffer_cleanup@Base 2.3.0
  ws_hexstrtou16@Base 2.3.0
  ws_hexstrtou32@Base 2.3.0
  ws_hexstrtou64@Base 2.3.0
@@ -407,6 +446,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_pton4@Base 2.1.2
  ws_inet_pton6@Base 2.1.2
  ws_init_sockets@Base 3.1.0
+ ws_init_version_info@Base 4.1.0
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
  ws_log_buffer_full@Base 3.5.1
@@ -426,12 +466,12 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_print_usage@Base 3.5.0
  ws_log_set_debug_filter@Base 3.5.0
  ws_log_set_domain_filter@Base 3.5.0
- ws_log_set_noisy_filter@Base 3.5.0
  ws_log_set_fatal_domain_filter@Base 4.1.0
  ws_log_set_fatal_level@Base 4.1.0
  ws_log_set_fatal_level_str@Base 4.1.0
  ws_log_set_level@Base 3.5.0
  ws_log_set_level_str@Base 3.5.0
+ ws_log_set_noisy_filter@Base 3.5.0
  ws_log_set_writer@Base 3.7.0
  ws_log_set_writer_with_data@Base 3.7.0
  ws_log_utf8_full@Base 4.1.0
@@ -473,6 +513,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_strtou64@Base 2.3.0
  ws_strtou8@Base 2.3.0
  ws_strtou@Base 3.3.0
+ ws_utf8_make_valid@Base 4.1.0
+ ws_utf8_make_valid_strbuf@Base 4.1.0
  ws_utf8_seqlen@Base 4.1.0
  ws_utf8_truncate@Base 4.1.0
  ws_vadd_crash_info@Base 2.5.2
