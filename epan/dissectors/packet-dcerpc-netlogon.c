@@ -7849,12 +7849,14 @@ static int hf_netlogon_secchan_verf_nonce = -1;
 
 static const value_string sign_algs[] = {
     { 0x0077, "HMAC-MD5"},
+    { 0x0013, "HMAC-SHA256"},
     { 0, NULL}
 };
 
 static const value_string seal_algs[] = {
     { 0xFFFF, "Not Encrypted"},
     { 0x007A, "RC4"},
+    { 0x001A, "AES-128"},
     { 0, NULL}
 };
 
