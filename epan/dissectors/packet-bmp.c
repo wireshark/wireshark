@@ -12,7 +12,7 @@
  * Supports:
  * RFC7854 BGP Monitoring Protocol
  * RFC8671 Support for Adj-RIB-Out in the BGP Monitoring Protocol (BMP)
- * draft-ietf-grow-bmp-local-rib-06 Support for Local RIB in BGP Monitoring Protocol (BMP)
+ * RFC9069 Support for Local RIB in BGP Monitoring Protocol (BMP)
  * draft-xu-grow-bmp-route-policy-attr-trace-04 BGP Route Policy and Attribute Trace Using BMP
  */
 
@@ -61,7 +61,7 @@ void proto_reg_handoff_bmp(void);
 #define BMP_PEER_FLAG_RES               0x0F    /* Reserved */
 #define BMP_PEER_FLAG_MASK              0xFF
 
-/* BMP Per Peer Loc-RIB Header Flags : draft-ietf-grow-bmp-local-rib-06 */
+/* BMP Per Peer Loc-RIB Header Flags : RFC9069 */
 #define BMP_PEER_FLAG_LOC_RIB           0x80    /* F Flag : Loc-RIB */
 #define BMP_PEER_FLAG_LOC_RIB_RES       0x7F    /* Reserved */
 
@@ -86,12 +86,12 @@ void proto_reg_handoff_bmp(void);
 #define BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT    0x11    /* Number of routes in per-AFI/SAFI post-policy Adj RIB-Out */
 
 /* BMP Peer Down Reason Codes */
-#define BMP_PEER_DOWN_LOCAL_NOTIFY      0x1     /* Local system closed the session with notification */
-#define BMP_PEER_DOWN_LOCAL_NO_NOTIFY   0x2     /* Local system closed the session with FSM code */
-#define BMP_PEER_DOWN_REMOTE_NOTIFY     0x3     /* Remote system closed the session with notification */
-#define BMP_PEER_DOWN_REMOTE_NO_NOTIFY  0x4     /* Remote system closed the session without notification */
-#define BMP_PEER_DOWN_INFO_NO_LONGER    0x5     /* Information for this peer will no longer be sent to the monitoring station for configuration reasons */
-#define BMP_LOCAL_SYSTEM_CLOSED         0x6     /* Local system CLosed, TLV data Follows */ //draft-ietf-grow-bmp-local-rib-06 TBD3
+#define BMP_PEER_DOWN_LOCAL_NOTIFY          0x1     /* Local system closed the session with notification */
+#define BMP_PEER_DOWN_LOCAL_NO_NOTIFY       0x2     /* Local system closed the session with FSM code */
+#define BMP_PEER_DOWN_REMOTE_NOTIFY         0x3     /* Remote system closed the session with notification */
+#define BMP_PEER_DOWN_REMOTE_NO_NOTIFY      0x4     /* Remote system closed the session without notification */
+#define BMP_PEER_DOWN_INFO_NO_LONGER        0x5     /* Information for this peer will no longer be sent to the monitoring station for configuration reasons */
+#define BMP_PEER_DOWN_LOCAL_SYSTEM_CLOSED   0x6     /* Local system closed, TLV data Follows */ //RFC9069
 
 /* BMP Termination Message Types */
 #define BMP_TERM_TYPE_STRING            0x00    /* String */
@@ -110,6 +110,17 @@ void proto_reg_handoff_bmp(void);
 #define BMP_ROUTE_POLICY_TLV_PRE_POLICY     0x02
 #define BMP_ROUTE_POLICY_TLV_POST_POLICY    0x03
 #define BMP_ROUTE_POLICY_TLV_STRING         0x04
+
+/* BMP Peer Up TLV */
+#define BMP_PEER_UP_TLV_STRING              0x00
+#define BMP_PEER_UP_TLV_SYS_DESCR           0x01
+#define BMP_PEER_UP_TLV_SYS_NAME            0x02
+#define BMP_PEER_UP_TLV_VRF_TABLE_NAME      0x03
+#define BMP_PEER_UP_TLV_ADMIN_LABEL         0x04
+
+/* BMP Route Mirroring TLV */
+#define BMP_ROUTE_MIRRORING_TLV_BGP_MESSAGE 0x00
+#define BMP_ROUTE_MIRRORING_TLV_INFORMATION 0x01
 
 static const value_string bmp_typevals[] = {
     { BMP_MSG_TYPE_ROUTE_MONITORING,    "Route Monitoring" },
@@ -141,12 +152,12 @@ static const value_string peer_typevals[] = {
 };
 
 static const value_string down_reason_typevals[] = {
-    { BMP_PEER_DOWN_LOCAL_NOTIFY,       "Local System, Notification" },
-    { BMP_PEER_DOWN_LOCAL_NO_NOTIFY,    "Local System, No Notification" },
-    { BMP_PEER_DOWN_REMOTE_NOTIFY,      "Remote System, Notification" },
-    { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,   "Remote System, No Notification" },
-    { BMP_PEER_DOWN_INFO_NO_LONGER,     "Peer no longer be sent INformation (Configuration reasons)" },
-    { BMP_LOCAL_SYSTEM_CLOSED,          "Local system Closed, TLV data Follows" },
+    { BMP_PEER_DOWN_LOCAL_NOTIFY,           "Local System, Notification" },
+    { BMP_PEER_DOWN_LOCAL_NO_NOTIFY,        "Local System, No Notification" },
+    { BMP_PEER_DOWN_REMOTE_NOTIFY,          "Remote System, Notification" },
+    { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,       "Remote System, No Notification" },
+    { BMP_PEER_DOWN_INFO_NO_LONGER,         "Peer no longer be sent INformation (Configuration reasons)" },
+    { BMP_PEER_DOWN_LOCAL_SYSTEM_CLOSED,    "Local system closed, TLV data Follows" },
     { 0, NULL }
 };
 
@@ -209,6 +220,28 @@ static const value_string route_policy_tlv_policy_class_typevals[] = {
     { 0, NULL }
 };
 
+static const value_string peer_up_tlv_typevals[] = {
+    { BMP_PEER_UP_TLV_STRING,           "String" },
+    { BMP_PEER_UP_TLV_SYS_DESCR,        "sysDescr" },
+    { BMP_PEER_UP_TLV_SYS_NAME,         "sysName" },
+    { BMP_PEER_UP_TLV_VRF_TABLE_NAME,   "VRF/Table" },
+    { BMP_PEER_UP_TLV_ADMIN_LABEL,      "Admin Label" },
+    { 0, NULL }
+};
+
+static const value_string route_mirroring_typevals[] = {
+    { BMP_ROUTE_MIRRORING_TLV_BGP_MESSAGE,  "BGP Message" },
+    { BMP_ROUTE_MIRRORING_TLV_INFORMATION,  "Information" },
+    { 0, NULL }
+};
+
+static const value_string route_mirroring_information_typevals[] = {
+    { 0,  "Errored PDU" },
+    { 1,  "Messages Lost" },
+    { 0, NULL }
+};
+
+
 static int proto_bmp = -1;
 
 /* BMP Common Header field */
@@ -244,11 +277,25 @@ static int hf_peer_bgp_id = -1;
 static int hf_peer_timestamp_sec = -1;
 static int hf_peer_timestamp_msec = -1;
 
+static int hf_peer_route_mirroring_type = -1;
+static int hf_peer_route_mirroring_length = -1;
+static int hf_peer_route_mirroring_code = -1;
+
 /* BMP Peer Up Notification field */
 static int hf_peer_up_ipv4_address = -1;
 static int hf_peer_up_ipv6_address = -1;
 static int hf_peer_up_local_port = -1;
 static int hf_peer_up_remote_port = -1;
+
+static int hf_peer_up_tlv = -1;
+static int hf_peer_up_tlv_type = -1;
+static int hf_peer_up_tlv_length = -1;
+static int hf_peer_up_tlv_value = -1;
+static int hf_peer_up_tlv_string = -1;
+static int hf_peer_up_tlv_sys_name = -1;
+static int hf_peer_up_tlv_sys_descr = -1;
+static int hf_peer_up_tlv_vrf_table_name = -1;
+static int hf_peer_up_tlv_admin_label = -1;
 
 /* BMP Peer Down Notification field */
 static int hf_peer_down_reason = -1;
@@ -348,6 +395,7 @@ static gint ett_bmp_stat_report = -1;
 static gint ett_bmp_stat_type = -1;
 static gint ett_bmp_peer_down = -1;
 static gint ett_bmp_peer_up = -1;
+static gint ett_bmp_peer_up_tlv = -1;
 static gint ett_bmp_peer_header = -1;
 static gint ett_bmp_peer_flags = -1;
 static gint ett_bmp_init = -1;
@@ -418,6 +466,9 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
  *   |                  Received OPEN Message                        |
  *   ~                                                               ~
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |                  Information (variable)                       |
+ *   ~                                                               ~
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
  */
 static void
@@ -442,7 +493,60 @@ dissect_bmp_peer_up_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     col_clear(pinfo->cinfo, COL_INFO);
     offset += call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     offset += call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
-    /* XXX: (#19004) Information TLVs optionally follow, if bytes remaining. */
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        guint32 type, length;
+        proto_item *tlv_item;
+        proto_tree *tlv_tree;
+        tlv_item = proto_tree_add_item(tree, hf_peer_up_tlv, tvb, offset, 2+2, ENC_NA);
+        tlv_tree = proto_item_add_subtree(tlv_item, ett_bmp_peer_up_tlv);
+
+        proto_tree_add_item_ret_uint(tlv_tree, hf_peer_up_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
+        offset += 2;
+
+        proto_tree_add_item_ret_uint(tlv_tree, hf_peer_up_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+        offset += 2;
+
+        proto_item_append_text(tlv_item, ": (t=%d,l=%d) %s", type, length, val_to_str(type, peer_up_tlv_typevals, "Unknown TLV Type (%02d)") );
+        proto_item_set_len(tlv_item, 2 + 2 + length);
+
+        proto_tree_add_item(tlv_tree, hf_peer_up_tlv_value, tvb, offset, length, ENC_NA);
+        switch(type){
+            case BMP_PEER_UP_TLV_STRING: {
+                proto_tree_add_item(tlv_tree, hf_peer_up_tlv_string, tvb, offset, length, ENC_ASCII);
+                offset += length;
+            }
+            break;
+            case BMP_PEER_UP_TLV_SYS_DESCR: {
+                proto_tree_add_item(tlv_tree, hf_peer_up_tlv_sys_descr, tvb, offset, length, ENC_ASCII);
+                offset += length;
+            }
+            break;
+            case BMP_PEER_UP_TLV_SYS_NAME: {
+                proto_tree_add_item(tlv_tree, hf_peer_up_tlv_sys_name, tvb, offset, length, ENC_ASCII);
+                offset += length;
+            }
+            break;
+            case BMP_PEER_UP_TLV_VRF_TABLE_NAME: {
+                proto_tree_add_item(tlv_tree, hf_peer_up_tlv_vrf_table_name, tvb, offset, length, ENC_ASCII);
+                offset += length;
+            }
+            break;
+            case BMP_PEER_UP_TLV_ADMIN_LABEL: {
+                proto_tree_add_item(tlv_tree, hf_peer_up_tlv_admin_label, tvb, offset, length, ENC_ASCII);
+                offset += length;
+            }
+            break;
+            default:{
+                //TODO: Add expert info about undecoded type ?
+                offset += length;
+            }
+
+        }
+
+    }
+
+
 }
 
 /*
@@ -716,13 +820,31 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 
     switch (bmp_type) {
         case BMP_MSG_TYPE_ROUTE_MONITORING:
-        case BMP_MSG_TYPE_ROUTE_MIRRORING:
-            /* XXX: According to RFC 7854, Route Mirroring is different, and
-             * has a set of TLVs here, the last one of which may be a BGP PDU.
-             */
             col_clear(pinfo->cinfo, COL_INFO);
             call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
             break;
+        case BMP_MSG_TYPE_ROUTE_MIRRORING: {
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                guint32 route_mirroring_type, length;
+                proto_tree_add_item_ret_uint(tree, hf_peer_route_mirroring_type, tvb, offset, 2, ENC_BIG_ENDIAN, &route_mirroring_type);
+                offset += 2;
+                proto_tree_add_item_ret_uint(tree, hf_peer_route_mirroring_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+                offset += 2;
+                switch (route_mirroring_type) {
+                    case BMP_ROUTE_MIRRORING_TLV_BGP_MESSAGE: /* BGP Message */
+                        col_clear(pinfo->cinfo, COL_INFO);
+                        call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                        offset += length;
+                        break;
+                    case BMP_ROUTE_MIRRORING_TLV_INFORMATION: /* Information */
+                        proto_tree_add_item(tree, hf_peer_route_mirroring_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        break;
+                    }
+            }
+            break;
+
+            }
         case BMP_MSG_TYPE_STAT_REPORT:
             dissect_bmp_stat_report(tvb, tree, pinfo, offset, flags);
             break;
@@ -1261,6 +1383,17 @@ proto_register_bmp(void)
         { &hf_peer_timestamp_msec,
             { "Timestamp (msec)", "bmp.peer.timestamp.msec", FT_UINT32, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
+        /* Route Mirroring */
+        { &hf_peer_route_mirroring_type,
+            { "Route Mirroring Type", "bmp.peer.route_mirroring.type", FT_UINT16, BASE_DEC,
+                VALS(route_mirroring_typevals), 0x0, NULL, HFILL }},
+        { &hf_peer_route_mirroring_length,
+            { "Length", "bmp.peer.route_mirroring.length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_route_mirroring_code,
+            { "Code", "bmp.peer.route_mirroring.code", FT_UINT16, BASE_DEC,
+                VALS(route_mirroring_information_typevals), 0x0, NULL, HFILL }},
+
         { &hf_peer_up_ipv4_address,
             { "Local Address", "bmp.peer.up.ip.addr", FT_IPv4, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
@@ -1272,6 +1405,35 @@ proto_register_bmp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_peer_up_remote_port,
             { "Remote Port", "bmp.peer.up.port.remote", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+
+        /* Peer Up TLV */
+        { &hf_peer_up_tlv,
+            { "Peer UP TLV", "bmp.peer_up.tlv", FT_NONE, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_type,
+            { "Type", "bmp.peer_up.tlv.type", FT_UINT16, BASE_DEC,
+                VALS(peer_up_tlv_typevals), 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_length,
+            { "Length", "bmp.peer_up.tlv.length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_value,
+            { "Value", "bmp.peer_up.tlv.value", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_string,
+            { "String", "bmp.peer_up.tlv.sys_string", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_sys_descr,
+            { "SysDescr", "bmp.peer_up.tlv.sys_descr", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_sys_name,
+            { "SysName", "bmp.peer_up.tlv.sys_name", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_vrf_table_name,
+            { "VRF/Table name", "bmp.peer_up.tlv.vrf_table_name", FT_STRING, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_peer_up_tlv_admin_label,
+            { "Admin Label", "bmp.peer_up.tlv.admin_label", FT_STRING, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
 
         /* Peer Down Notification */
@@ -1539,6 +1701,7 @@ proto_register_bmp(void)
         &ett_bmp_stat_type,
         &ett_bmp_peer_down,
         &ett_bmp_peer_up,
+        &ett_bmp_peer_up_tlv,
         &ett_bmp_peer_header,
         &ett_bmp_peer_flags,
         &ett_bmp_init,
