@@ -7643,7 +7643,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         ENSURE_LENGTH(8);
         proto_tree *sub_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, 4,
             ett_rtps_crypto_algorithm_requirements, NULL, "Shared Secret");
-        offset = dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
+        dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
             encoding, SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS);
       break;
     }
