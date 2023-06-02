@@ -16331,7 +16331,7 @@ add_body_fields(guint32 header_opcode,
                     ptvcursor_add_ret_uint(ptv, hf_woww_update_type, 1, ENC_LITTLE_ENDIAN, &update_type);
                     if (update_type == UPDATE_TYPE_VALUES) {
                         add_packed_guid(ptv, pinfo);
-                        add_update_mask(ptv, pinfo);
+                        add_update_mask(ptv);
                     }
                     else if (update_type == UPDATE_TYPE_MOVEMENT) {
                         add_packed_guid(ptv, pinfo);
@@ -16526,7 +16526,7 @@ add_body_fields(guint32 header_opcode,
                             ptvcursor_add(ptv, hf_woww_transport_progress_in_ms, 4, ENC_LITTLE_ENDIAN);
                         }
                         ptvcursor_pop_subtree(ptv);
-                        add_update_mask(ptv, pinfo);
+                        add_update_mask(ptv);
                     }
                     else if (update_type == UPDATE_TYPE_OUT_OF_RANGE_OBJECTS
                      || update_type == UPDATE_TYPE_NEAR_OBJECTS) {
@@ -18554,7 +18554,7 @@ add_body_fields(guint32 header_opcode,
                 ptvcursor_add_ret_uint(ptv, hf_woww_update_type, 1, ENC_LITTLE_ENDIAN, &update_type);
                 if (update_type == UPDATE_TYPE_VALUES) {
                     add_packed_guid(ptv, pinfo);
-                    add_update_mask(ptv, pinfo);
+                    add_update_mask(ptv);
                 }
                 else if (update_type == UPDATE_TYPE_MOVEMENT) {
                     add_packed_guid(ptv, pinfo);
@@ -18749,7 +18749,7 @@ add_body_fields(guint32 header_opcode,
                         ptvcursor_add(ptv, hf_woww_transport_progress_in_ms, 4, ENC_LITTLE_ENDIAN);
                     }
                     ptvcursor_pop_subtree(ptv);
-                    add_update_mask(ptv, pinfo);
+                    add_update_mask(ptv);
                 }
                 else if (update_type == UPDATE_TYPE_OUT_OF_RANGE_OBJECTS
                  || update_type == UPDATE_TYPE_NEAR_OBJECTS) {
