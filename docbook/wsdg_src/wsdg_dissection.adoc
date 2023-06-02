@@ -297,7 +297,7 @@ and `proto_register_subtree_array()`:
 [source,c]
 ----
 static int hf_foo_pdu_type = -1;
-static gint ett_foo = -1;
+static int ett_foo = -1;
 
 /* ... */
 
@@ -314,7 +314,7 @@ proto_register_foo(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_foo
     };
 
@@ -410,7 +410,7 @@ static int hf_foo_initialip = -1;
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;
+    int offset = 0;
 
     ...
     proto_item *ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
@@ -581,8 +581,8 @@ window.
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;
-    guint8 packet_type = tvb_get_guint8(tvb, 0);
+    int offset = 0;
+    uint8_t packet_type = tvb_get_guint8(tvb, 0);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
     /* Clear out stuff in the info column */
@@ -702,7 +702,7 @@ to actually add the expert item to the dissection.
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 sequenceno = 0xFFFF;
+    uint32_t sequenceno = 0xFFFF;
 
     /* ... */
 
@@ -749,10 +749,10 @@ effect.
 .Decompressing data packets for dissection.
 [source,c]
 ----
-    guint8 flags = tvb_get_guint8(tvb, offset);
+    uint8_t flags = tvb_get_guint8(tvb, offset);
     offset ++;
     if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
-        guint16 orig_size = tvb_get_ntohs(tvb, offset);
+        uint16_t orig_size = tvb_get_ntohs(tvb, offset);
         guchar *decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
         offset += 2;
         decompress_packet(tvb_get_ptr(tvb, offset, -1),
@@ -855,10 +855,10 @@ flags = tvb_get_guint8(tvb, offset); offset++;
 if (flags & FL_FRAGMENT) { /* fragmented */
     tvbuff_t* new_tvb = NULL;
     fragment_data *frag_msg = NULL;
-    guint16 msg_seqid = tvb_get_ntohs(tvb, offset); offset += 2;
-    guint16 msg_num = tvb_get_ntohs(tvb, offset); offset += 2;
+    uint16_t msg_seqid = tvb_get_ntohs(tvb, offset); offset += 2;
+    uint16_t msg_num = tvb_get_ntohs(tvb, offset); offset += 2;
 
-    pinfo->fragmented = TRUE;
+    pinfo->fragmented = true;
     frag_msg = fragment_add_seq_check(msg_reassembly_table,
         tvb, offset, pinfo,
         msg_seqid, NULL, /* ID for fragments belonging together */
@@ -978,8 +978,8 @@ static int hf_msg_fragment_count = -1;
 static int hf_msg_reassembled_in = -1;
 static int hf_msg_reassembled_length = -1;
 ...
-static gint ett_msg_fragment = -1;
-static gint ett_msg_fragments = -1;
+static int ett_msg_fragment = -1;
+static int ett_msg_fragments = -1;
 ...
 static const fragment_items msg_frag_items = {
     /* Fragment subtrees */
@@ -1038,7 +1038,7 @@ static hf_register_info hf[] =
     {"Reassembled length", "msg.reassembled.length",
     FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 ...
-static gint *ett[] =
+static int *ett[] =
 {
 ...
 &ett_msg_fragment,
@@ -1095,18 +1095,18 @@ dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
 }
 
 /* determine PDU length of protocol foo */
-static guint
+static unsigned
 get_foo_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* TODO: change this to your needs */
-    return (guint)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */
+    return (unsigned)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */
 }
 
 /* The main dissecting routine */
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LEN,
                      get_foo_message_len, dissect_foo_message, data);
     return tvb_captured_length(tvb);
 }
@@ -1157,8 +1157,8 @@ string name with which to find it again.
 static int foo_tap = -1;
 
 struct FooTap {
-    gint packet_type;
-    gint priority;
+    int packet_type;
+    int priority;
        ...
 };
 
@@ -1259,14 +1259,14 @@ In this case we only need the first two functions, as there is nothing specific 
 .Initialising a stats session
 [source,c]
 ----
-static const guint8* st_str_packets = "Total Packets";
-static const guint8* st_str_packet_types = "FOO Packet Types";
+static const uint8_t* st_str_packets = "Total Packets";
+static const uint8_t* st_str_packet_types = "FOO Packet Types";
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
 
 static void foo_stats_tree_init(stats_tree* st)
 {
-    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, true);
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }
 ----
@@ -1282,7 +1282,7 @@ different packet types.
 static tap_packet_status foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p, tap_flags_t flags)
 {
     struct FooTap *pi = (struct FooTap *)p;
-    tick_stat_node(st, st_str_packets, 0, FALSE);
+    tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
             val_to_str(pi->packet_type, packettypenames, "Unknown packet type (%d)"));
     return TAP_PACKET_REDRAW;

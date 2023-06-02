@@ -61,18 +61,18 @@ static dissector_handle_t PROTOABBREV_handle;
 static dissector_handle_t PROTOABBREV_tls_handle;
 
 /* Global sample preference ("controls" display of numbers) */
-static gboolean pref_hex = FALSE;
+static bool pref_hex = false;
 /* Global sample port preference - real port preferences should generally
  * default to "" (for a range) or 0 (for a single uint) unless there is an
  * IANA-registered (or equivalent) port for your protocol. */
 #define PROTOABBREV_TLS_PORT 5678
-static guint tls_port_pref = PROTOABBREV_TLS_PORT;
+static unsigned tls_port_pref = PROTOABBREV_TLS_PORT;
 
 #define PROTOABBREV_TCP_PORTS "1234"
 static range_t *tcp_port_range = PROTOABBREV_TCP_PORTS;
 
 /* Initialize the subtree pointers */
-static gint ett_PROTOABBREV = -1;
+static int ett_PROTOABBREV = -1;
 
 /* A sample #define of the minimum length (in bytes) of the protocol data.
  * If data is received with fewer than this many bytes it is rejected by
@@ -88,8 +88,8 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti, *expert_ti;
     proto_tree *PROTOABBREV_tree;
     /* Other misc. local variables. */
-    guint       offset = 0;
-    int         len    = 0;
+    unsigned offset = 0;
+    int      len    = 0;
 
     /*** HEURISTICS ***/
 
@@ -231,7 +231,7 @@ proto_register_PROTOABBREV(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_PROTOABBREV
     };
 
@@ -321,7 +321,7 @@ proto_register_PROTOABBREV(void)
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
     static int current_tls_port_pref;
 
     if (!initialized) {

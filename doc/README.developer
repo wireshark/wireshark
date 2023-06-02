@@ -118,13 +118,12 @@ instead.
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", "u_long" or "boolean"; they aren't defined on all platforms.
 
-glib typedefs are used extensively throughout the codebase (gchar, guint8,
-gint16, etc).  We would like to move instead towards the fixed width integers
-provided in C since C99. These are defined in <stdint.h>. However, lots of our
-internal APIs are defined using these glib types, and it seems that even the
-glib project is finding it difficult to move away from them.  So when you
-have a choice, choose stdint types, but realise that until we can change
-our APIs, in many situations the glib types still make sense.
+GLib typedefs have historically been used extensively throughout the
+codebase (gchar, guint8, gint16, etc).  We are moving towards the fixed
+width integers provided in C since C99. These are defined in <stdint.h>,
+which is included in <wireshark.h>. You should choose stdint types when
+possible, but realise that until we can fully migrate our APIs, in many
+situations the GLib types still make sense.
 
 If you want an 8-bit unsigned quantity, use "uint8_t"; if you want an
 8-bit character value with the 8th bit not interpreted as a sign bit,
@@ -141,8 +140,8 @@ To print fixed width integers you must use the macros provided in <inttypes.h>.
 
 Don't use "long" to mean "signed 32-bit integer", and don't use
 "unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
-long on many platforms.  Use "gint32" for signed 32-bit integers and use
-"guint32" for unsigned 32-bit integers.
+long on many platforms.  Use "int32_t" for signed 32-bit integers and use
+"uint32_t" for unsigned 32-bit integers.
 
 Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
 long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
@@ -163,7 +162,7 @@ functions won't accept a size_t on LLP64:
 
     size_t i;
     char greeting[] = "hello, sailor";
-    guint byte_after_greet;
+    unsigned byte_after_greet;
 
     i = strlen(greeting);
     byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */

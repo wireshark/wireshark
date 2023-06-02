@@ -27,18 +27,18 @@ extern "C" {
  * @return The equivalent channel or -1 if no match is found.
  */
 WS_DLL_PUBLIC
-gint
-ieee80211_mhz_to_chan(guint freq);
+int
+ieee80211_mhz_to_chan(unsigned freq);
 
 /**
  * Given an 802.11 channel number and a band type, return a center frequency.
  * @param chan Channel number
- * @param is_bg TRUE if the channel is a b/g channel, FALSE otherwise.
+ * @param is_bg true if the channel is a b/g channel, false otherwise.
  * @return The equivalent frequency or 0 if no match is found.
  */
 WS_DLL_PUBLIC
-guint
-ieee80211_chan_to_mhz(gint chan, gboolean is_bg);
+unsigned
+ieee80211_chan_to_mhz(int chan, bool is_bg);
 
 /**
  * Given an 802.11 channel center frequency in MHz, return a string
@@ -48,8 +48,8 @@ ieee80211_chan_to_mhz(gint chan, gboolean is_bg);
  * The string must be freed with g_free() after use.
  */
 WS_DLL_PUBLIC
-gchar*
-ieee80211_mhz_to_str(guint freq);
+char*
+ieee80211_mhz_to_str(unsigned freq);
 
 /* Should this be "(freq < 4920)", or something else? */
 #define FREQ_IS_BG(freq) ((freq) <= 2484)
