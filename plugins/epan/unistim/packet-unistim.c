@@ -3335,7 +3335,7 @@ proto_register_unistim(void){
          8,NULL,AUDIO_SIDETONE_DISABLE,NULL,HFILL}
       },
       { &hf_audio_destruct_additive,
-        {"Destructive/Additive","unistim.destructive.active",FT_BOOLEAN,
+        {"Destructive/Additive","unistim.destructive.additive",FT_BOOLEAN,
          8,TFS(&destruct_additive),AUDIO_DESTRUCT_ADD,NULL,HFILL}
       },
       { &hf_audio_dont_force_active,

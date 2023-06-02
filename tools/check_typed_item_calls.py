@@ -718,6 +718,7 @@ class Item:
         label = label.replace('_', '')
         label = label.replace('(', '')
         label = label.replace(')', '')
+        label = label.replace('/', '')
 
 
         # OK if filter is abbrev of label.
@@ -739,6 +740,10 @@ class Item:
                 print(label_numbers, filter_numbers)
                 warnings_found += 1
             return False
+
+        # If they match after trimming number from filter, they should match.
+        if label.lower() == last_filter.lower().rstrip("0123456789"):
+            return True
 
         # Are they just different?
         if label.lower().find(last_filter.lower()) == -1:

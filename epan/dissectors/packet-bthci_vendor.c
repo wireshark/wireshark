@@ -1435,12 +1435,12 @@ proto_register_bthci_vendor_broadcom(void)
             NULL, HFILL }
         },
         { &hf_broadcom_le_multi_advertising_channel_map_38,
-            { "Channel 39",                                "bthci_vendor.broadcom.le.multi_advertising.channel_map.38",
+            { "Channel 38",                                "bthci_vendor.broadcom.le.multi_advertising.channel_map.38",
             FT_UINT8, BASE_HEX, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_broadcom_le_multi_advertising_channel_map_37,
-            { "Channel 39",                                "bthci_vendor.broadcom.le.multi_advertising.channel_map.37",
+            { "Channel 37",                                "bthci_vendor.broadcom.le.multi_advertising.channel_map.37",
             FT_UINT8, BASE_HEX, NULL, 0x01,
             NULL, HFILL }
         },

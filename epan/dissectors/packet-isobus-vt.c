@@ -4475,7 +4475,7 @@ proto_register_isobus_vt(void)
             NULL, HFILL }
         },
         { &hf_isobus_vt_vtselectinputobject_openforinput,
-          { "Bitmask",                  "isobus.vt.vt_select_input_object.open_for_input",
+          { "Open For Input",           "isobus.vt.vt_select_input_object.open_for_input",
             FT_UINT8, BASE_DEC, NULL, 0x80,
             NULL, HFILL }
         },

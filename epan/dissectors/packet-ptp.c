@@ -7030,7 +7030,7 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_dds_SO,
-          { "Slave only",           "ptp.v2.mm.SlavOnly",
+          { "Slave only",           "ptp.v2.mm.SlaveOnly",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },

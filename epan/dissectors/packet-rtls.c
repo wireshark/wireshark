@@ -438,7 +438,7 @@ proto_register_rtls(void)
             NULL, HFILL }
         },
         { &hf_rtls_version_minor,
-          { "Version Major", "rtls.version_minor",
+          { "Version Minor", "rtls.version_minor",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

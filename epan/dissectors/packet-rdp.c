@@ -4246,7 +4246,7 @@ proto_register_rdp(void) {
 		FT_BOOLEAN, 8, NULL, PACKET_AT_FRONT,
 		NULL, HFILL }},
 	{ &hf_rdp_fastpathServerCompressionType_flushed,
-	  { "At front", "rdp.fastpath.server.compressionflags.flushed",
+	  { "Flushed", "rdp.fastpath.server.compressionflags.flushed",
 		FT_BOOLEAN, 8, NULL, PACKET_FLUSHED,
 		NULL, HFILL }},
 	{ &hf_rdp_fastpathServerCompressionFlags,

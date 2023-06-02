@@ -44,10 +44,10 @@ static const value_string gmhdr_ftype_timestamp[] = {
   { 0,                           NULL }
 };
 
-#define GMHDR_SRCPORT_G_PLFM_MASK   0x00f80000
-#define GMHDR_SRCPORT_G_GID_MASK    0x00078000
-#define GMHDR_SRCPORT_G_BID_MASK    0x00007c00
-#define GMHDR_SRCPORT_G_PID_MASK    0x000003ff
+#define GMHDR_SRCPORT_G_PLFM_MASK   0xf80000
+#define GMHDR_SRCPORT_G_GID_MASK    0x078000
+#define GMHDR_SRCPORT_G_BID_MASK    0x007c00
+#define GMHDR_SRCPORT_G_PID_MASK    0x0003ff
 #define GMHDR_SRCPORT_G_PLFM_SHFT   19
 #define GMHDR_SRCPORT_G_GID_SHFT    15
 #define GMHDR_SRCPORT_G_BID_SHFT    10
