@@ -79,6 +79,7 @@ struct _output_fields {
     GHashTable   *field_indicies;
     GPtrArray   **field_values;
     gchar         quote;
+    gboolean      escape;
     gboolean      includes_col_fields;
 };
 
@@ -1903,6 +1904,9 @@ print_escaped_csv(FILE *fh, const char *unescaped_string)
         case '\t':
             fputs("\\t", fh);
             break;
+        case '\v':
+            fputs("\\v", fh);
+            break;
         default:
             fputc(*p, fh);
         }
@@ -2247,6 +2251,19 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         }
         return TRUE;
     }
+    else if (0 == strcmp(option_name, "escape")) {
+        switch (*option_value) {
+        case 'n':
+            info->escape = FALSE;
+            break;
+        case 'y':
+            info->escape = TRUE;
+            break;
+        default:
+            return FALSE;
+        }
+        return TRUE;
+    }
 
     return FALSE;
 }
@@ -2463,7 +2480,11 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                         fputc(fields->aggregator, fh);
                     }
                     str = (gchar *)g_ptr_array_index(fv_p, j);
-                    print_escaped_csv(fh, str);
+                    if (fields->escape) {
+                        print_escaped_csv(fh, str);
+                    } else {
+                        fputs(str, fh);
+                    }
                 }
                 if (fields->quote != '\0') {
                     fputc(fields->quote, fh);
@@ -2700,6 +2721,7 @@ output_fields_t* output_fields_new(void)
     fields->field_indicies      = NULL;
     fields->field_values        = NULL;
     fields->quote               ='\0';
+    fields->escape              = TRUE;
     fields->includes_col_fields = FALSE;
     return fields;
 }
