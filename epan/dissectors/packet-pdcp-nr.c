@@ -2289,10 +2289,12 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
         /* Compute payload length (no MAC on common control Bearers) */
-        guint32 data_length = tvb_reported_length_remaining(payload_tvb, offset)-4;
+        guint32 data_length = tvb_reported_length_remaining(payload_tvb, offset);
+        if (p_pdcp_info->maci_present) {
+            data_length -= 4;
+        }
 
-        /* RRC data is all but last 4 bytes.
-           Call nr-rrc dissector (according to direction and Bearer type) if we have valid data */
+        /* Call nr-rrc dissector (according to direction and Bearer type) if we have valid data */
         if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
             ((pdu_security == NULL) || (pdu_security->ciphering == nea0) || payload_deciphered ||
              p_pdcp_info->ciphering_disabled || !pdu_security->seen_next_ul_pdu)) {
