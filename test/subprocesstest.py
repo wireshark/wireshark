@@ -16,12 +16,25 @@ import re
 import subprocess
 import sys
 import unittest
+import enum
 
 # To do:
 # - Add a subprocesstest.SkipUnlessCapture decorator?
 # - Try to catch crashes? See the comments below in waitProcess.
 
 process_timeout = 300 # Seconds
+
+class ExitCodes(enum.IntEnum):
+    OK = 0
+    COMMAND_LINE = 1
+    INVALID_INTERFACE = 2
+    INVALID_FILE_ERROR = 3
+    INVALID_FILTER_ERROR = 4
+    INVALID_CAPABILITY = 5
+    IFACE_NO_LINK_TYPES = 6
+    IFACE_HAS_NO_TIMESTAMP_TYPES = 7
+    INIT_FAILED = 8
+    OPEN_ERROR = 9
 
 def cat_dhcp_command(mode):
     '''Create a command string for dumping dhcp.pcap to stdout'''
