@@ -6177,8 +6177,19 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
         return;
     }
     ssl_data_set(app_secret, new_secret, hash_len);
+    if (tls13_generate_keys(ssl, app_secret, is_from_server)) {
+        /*
+         * Remember the application traffic secret on the new decoder to
+         * support another Key Update.
+         */
+        decoder = is_from_server ? ssl->server : ssl->client;
+        app_secret = &decoder->app_traffic_secret;
+        app_secret->data = (guchar *) wmem_realloc(wmem_file_scope(),
+                                                   app_secret->data,
+                                                   hash_len);
+        ssl_data_set(app_secret, new_secret, hash_len);
+    }
     wmem_free(NULL, new_secret);
-    tls13_generate_keys(ssl, app_secret, is_from_server);
 }
 
 /** SSL keylog file handling. {{{ */
