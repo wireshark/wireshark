@@ -85,7 +85,7 @@ def capture_command(*args, shell=False):
 def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_10_packets_real(self, cmd=None, to_stdout=False):
-        self.assertIsNotNone(cmd)
+        assert cmd is not None
         testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
         if to_stdout:
@@ -112,7 +112,7 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator, 
             ))
         stop_traffic()
         capture_returncode = capture_proc.returncode
-        self.assertEqual(capture_returncode, 0)
+        assert capture_returncode == 0
         self.checkPacketCount(10)
     return check_capture_10_packets_real
 
@@ -123,7 +123,7 @@ def check_capture_fifo(cmd_dumpcap, result_file):
         fixtures.skip('Test requires OS fifo support.')
 
     def check_capture_fifo_real(self, cmd=None):
-        self.assertIsNotNone(cmd)
+        assert cmd is not None
         testout_file = result_file(testout_pcap)
         fifo_file = result_file('testout.fifo')
         try:
@@ -143,7 +143,7 @@ def check_capture_fifo(cmd_dumpcap, result_file):
             '-a', 'duration:{}'.format(capture_duration),
         ))
         fifo_proc.kill()
-        self.assertTrue(os.path.isfile(testout_file))
+        assert os.path.isfile(testout_file)
         self.checkPacketCount(8)
     return check_capture_fifo_real
 
@@ -153,7 +153,7 @@ def check_capture_stdin(cmd_dumpcap, result_file):
     # Capturing always requires dumpcap, hence the dependency on it.
     def check_capture_stdin_real(self, cmd=None):
         # Similar to suite_io.check_io_4_packets.
-        self.assertIsNotNone(cmd)
+        assert cmd is not None
         testout_file = result_file(testout_pcap)
         slow_dhcp_cmd = subprocesstest.cat_dhcp_command('slow')
         capture_cmd = capture_command(cmd,
@@ -169,10 +169,10 @@ def check_capture_stdin(cmd_dumpcap, result_file):
             fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = self.assertRun(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         if is_gui:
-            self.assertTrue(self.grepOutput('Wireshark is up and ready to go'), 'No startup message.')
-            self.assertTrue(self.grepOutput('Capture started'), 'No capture start message.')
-            self.assertTrue(self.grepOutput('Capture stopped'), 'No capture stop message.')
-        self.assertTrue(os.path.isfile(testout_file))
+            assert self.grepOutput('Wireshark is up and ready to go'), 'No startup message.'
+            assert self.grepOutput('Capture started'), 'No capture start message.'
+            assert self.grepOutput('Capture stopped'), 'No capture stop message.'
+        assert os.path.isfile(testout_file)
         self.checkPacketCount(8)
     return check_capture_stdin_real
 
@@ -181,7 +181,7 @@ def check_capture_stdin(cmd_dumpcap, result_file):
 def check_capture_read_filter(capture_interface, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_read_filter_real(self, cmd=None):
-        self.assertIsNotNone(cmd)
+        assert cmd is not None
         testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
         capture_proc = self.assertRun(capture_command(cmd,
@@ -202,7 +202,7 @@ def check_capture_read_filter(capture_interface, traffic_generator, result_file)
 def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_snapshot_len_real(self, cmd=None):
-        self.assertIsNotNone(cmd)
+        assert cmd is not None
         stop_traffic = start_traffic()
         testout_file = result_file(testout_pcap)
         capture_proc = self.assertRun(capture_command(cmd,
@@ -214,7 +214,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-f', cfilter,
         ))
         stop_traffic()
-        self.assertTrue(os.path.isfile(testout_file))
+        assert os.path.isfile(testout_file)
 
         # Use tshark to filter out all packets larger than 68 bytes.
         testout2_file = result_file('testout2.pcap')
@@ -236,13 +236,12 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
         cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
         condition='oops:invalid'
 
-        self.assertTrue(packets is not None or filesize is not None, 'Need one of packets or filesize')
-        self.assertFalse(packets is not None and filesize is not None, 'Need one of packets or filesize')
-
         if packets is not None:
             condition = 'packets:{}'.format(packets)
         elif filesize is not None:
             condition = 'filesize:{}'.format(filesize)
+        else:
+            raise AssertionError('Need one of packets or filesize')
 
         cmd_ = '"{}"'.format(cmd_dumpcap)
         capture_cmd = ' '.join((cmd_,
@@ -253,13 +252,13 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
         if sysconfig.get_platform().startswith('mingw'):
             fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = self.assertRun(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
-        self.assertTrue(os.path.isfile(testout_file))
+        assert os.path.isfile(testout_file)
 
         if packets is not None:
             self.checkPacketCount(packets)
         elif filesize is not None:
             capturekb = os.path.getsize(testout_file) / 1000
-            self.assertGreaterEqual(capturekb, filesize)
+            assert capturekb >= filesize
     return check_dumpcap_autostop_stdin_real
 
 
@@ -273,13 +272,12 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
         cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
         condition='oops:invalid'
 
-        self.assertTrue(packets is not None or filesize is not None, 'Need one of packets or filesize')
-        self.assertFalse(packets is not None and filesize is not None, 'Need one of packets or filesize')
-
         if packets is not None:
             condition = 'packets:{}'.format(packets)
         elif filesize is not None:
             condition = 'filesize:{}'.format(filesize)
+        else:
+            raise AssertionError('Need one of packets or filesize')
 
         cmd_ = '"{}"'.format(cmd_dumpcap)
         capture_cmd = ' '.join((cmd_,
@@ -296,15 +294,15 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
         for rbf in rb_files:
             self.cleanup_files.append(rbf)
 
-        self.assertEqual(len(rb_files), 2)
+        assert len(rb_files) == 2
 
         for rbf in rb_files:
-            self.assertTrue(os.path.isfile(rbf))
+            assert os.path.isfile(rbf)
             if packets is not None:
                 self.checkPacketCount(packets, cap_file=rbf)
             elif filesize is not None:
                 capturekb = os.path.getsize(rbf) / 1000
-                self.assertGreaterEqual(capturekb, filesize)
+                assert capturekb >= filesize
     return check_dumpcap_ringbuffer_stdin_real
 
 
@@ -415,13 +413,13 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_
         rb_files = []
         if multi_output:
             rb_files = sorted(glob.glob(testout_glob))
-            self.assertEqual(len(rb_files), 2)
+            assert len(rb_files) == 2
             check_vals[0]['filename'] = rb_files[0]
             check_vals[1]['filename'] = rb_files[1]
 
         for rbf in rb_files:
             self.cleanup_files.append(rbf)
-            self.assertTrue(os.path.isfile(rbf))
+            assert os.path.isfile(rbf)
 
         # Output tests
 
@@ -435,7 +433,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_
                     in_hash.update(f.read())
             with open(testout_file, 'rb') as f:
                 out_hash.update(f.read())
-            self.assertEqual(in_hash.hexdigest(), out_hash.hexdigest())
+            assert in_hash.hexdigest() == out_hash.hexdigest()
 
         # many_interfaces.pcapng.1 : 64 packets written by "Passthrough test #1"
         # many_interfaces.pcapng.2 : 15 packets written by "Passthrough test #2"
@@ -457,20 +455,20 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_
             ))
             # XXX Are there any other sanity checks we should run?
             if idb_compare_eq:
-                self.assertEqual(self.countOutput(r'Block: Interface Description Block',
-                    proc=tshark_proc), check_val['idb_count'])
+                assert self.countOutput(r'Block: Interface Description Block',
+                    proc=tshark_proc) == check_val['idb_count']
             else:
-                self.assertGreaterEqual(self.countOutput(r'Block: Interface Description Block',
-                    proc=tshark_proc), check_val['idb_count'])
+                assert self.countOutput(r'Block: Interface Description Block',
+                    proc=tshark_proc) >= check_val['idb_count']
                 idb_compare_eq = True
-            self.assertEqual(self.countOutput(r'Option: User Application = Passthrough test #1',
-                proc=tshark_proc), check_val['ua_pt1_count'])
-            self.assertEqual(self.countOutput(r'Option: User Application = Passthrough test #2',
-                proc=tshark_proc), check_val['ua_pt2_count'])
-            self.assertEqual(self.countOutput(r'Option: User Application = Passthrough test #3',
-                proc=tshark_proc), check_val['ua_pt3_count'])
-            self.assertEqual(self.countOutput(r'Option: User Application = Dumpcap \(Wireshark\)',
-                proc=tshark_proc), check_val['ua_dc_count'])
+            assert self.countOutput(r'Option: User Application = Passthrough test #1',
+                proc=tshark_proc) == check_val['ua_pt1_count']
+            assert self.countOutput(r'Option: User Application = Passthrough test #2',
+                proc=tshark_proc) == check_val['ua_pt2_count']
+            assert self.countOutput(r'Option: User Application = Passthrough test #3',
+                proc=tshark_proc) == check_val['ua_pt3_count']
+            assert self.countOutput(r'Option: User Application = Dumpcap \(Wireshark\)',
+                proc=tshark_proc) == check_val['ua_dc_count']
     return check_dumpcap_pcapng_sections_real
 
 
