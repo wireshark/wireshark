@@ -402,7 +402,32 @@ GArray* wtap_file_get_shb_for_new_file(wtap *wth);
 WS_DLL_PUBLIC
 void wtap_add_generated_idb(wtap *wth);
 
+/**
+ * @brief Generate an IDB, given a set of dump parameters, using the
+ *      parameters' encapsulation type, snapshot length, and time stamp
+ *      resolution. For use when a dump file has a given encapsulation type,
+ *      and the source is not passing IDBs.
+ * @note This requires that the encapsulation type and time stamp
+ *      resolution not be per-packet; it will terminate the process
+ *      if either of them are.
+ *
+ * @param params The wtap dump parameters.
+ */
+
 wtap_block_t wtap_dump_params_generate_idb(const wtap_dump_params *params);
+
+/**
+ * @brief Generate an IDB, given a packet record, using the records's
+ *      encapsulation type and time stamp resolution, and the default
+ *      snap length for the encapsulation type. For use when a file has
+ *      per-packet encapsulation, and the source is not passing along IDBs.
+ * @note This requires that the record type be REC_TYPE_PACKET, and the
+ *      encapsulation type and time stamp resolution not be per-packet;
+ *      it will terminate the process if any of them are.
+ *
+ * @param rec The packet record.
+ */
+wtap_block_t wtap_rec_generate_idb(const wtap_rec *rec);
 
 /**
  * @brief Gets new name resolution info for new file, based on existing info.

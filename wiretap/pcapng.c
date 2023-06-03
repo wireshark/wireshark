@@ -53,6 +53,9 @@ pcapng_close(wtap *wth);
 static gboolean
 pcapng_encap_is_ft_specific(int encap);
 
+static gboolean
+pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err);
+
 /*
  * Minimum block size = size of block header + size of block trailer.
  */
@@ -4944,28 +4947,39 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         options_size = compute_options_size(rec->block, compute_epb_option_size);
     }
 
-    /* write (enhanced) packet block header */
-    bh.block_type = BLOCK_TYPE_EPB;
-    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + options_size + 4;
-
-    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
-        return FALSE;
-
-    /* write block fixed content */
+    /*
+     * Check the interface ID. Do this before writing the header,
+     * in case we need to add a new IDB.
+     */
     if (rec->presence_flags & WTAP_HAS_INTERFACE_ID)
         epb.interface_id        = rec->rec_header.packet_header.interface_id;
     else {
         /*
-         * XXX - we should support writing WTAP_ENCAP_PER_PACKET
-         * data to pcapng files even if we *don't* have interface
-         * IDs.
+         * The source isn't sending us IDBs. See if we already have a
+         * matching interface, and use it if so.
          */
-        epb.interface_id        = 0;
+        for (epb.interface_id = 0; epb.interface_id < wdh->interface_data->len; ++epb.interface_id) {
+            int_data = g_array_index(wdh->interface_data, wtap_block_t,
+                                     epb.interface_id);
+            int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+            if (int_data_mand->wtap_encap == rec->rec_header.packet_header.pkt_encap) {
+                if (int_data_mand->tsprecision == rec->tsprec || (!(rec->presence_flags & WTAP_HAS_TS))) {
+                    break;
+                }
+            }
+        }
+        if (epb.interface_id == wdh->interface_data->len) {
+            /*
+             * We don't have a matching IDB. Generate a new one
+             * and write it to the file.
+             */
+            int_data = wtap_rec_generate_idb(rec);
+            g_array_append_val(wdh->interface_data, int_data);
+            if (!pcapng_write_if_descr_block(wdh, int_data, err)) {
+                return FALSE;
+            }
+        }
     }
-    /*
-     * Split the 64-bit timestamp into two 32-bit pieces, using
-     * the time stamp resolution for the interface.
-     */
     if (epb.interface_id >= wdh->interface_data->len) {
         /*
          * Our caller is doing something bad.
@@ -4989,6 +5003,19 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
                                     rec->rec_header.packet_header.pkt_encap);
         return FALSE;
     }
+
+    /* write (enhanced) packet block header */
+    bh.block_type = BLOCK_TYPE_EPB;
+    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + options_size + 4;
+
+    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
+        return FALSE;
+
+    /* write block fixed content */
+    /*
+     * Split the 64-bit timestamp into two 32-bit pieces, using
+     * the time stamp resolution for the interface.
+     */
     ts = ((guint64)rec->ts.secs) * int_data_mand->time_units_per_second +
         (((guint64)rec->ts.nsecs) * int_data_mand->time_units_per_second) / 1000000000;
     epb.timestamp_high      = (guint32)(ts >> 32);

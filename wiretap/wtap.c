@@ -1822,6 +1822,20 @@ wtap_rec_cleanup(wtap_rec *rec)
 	ws_buffer_free(&rec->options_buf);
 }
 
+wtap_block_t
+wtap_rec_generate_idb(const wtap_rec *rec)
+{
+	int tsprec;
+	ws_assert(rec->rec_type == REC_TYPE_PACKET);
+	if (rec->presence_flags & WTAP_HAS_TS) {
+		tsprec = rec->tsprec;
+	} else {
+		tsprec = WTAP_TSPREC_USEC;
+		/* The default */
+	}
+	return wtap_generate_idb(rec->rec_header.packet_header.pkt_encap, tsprec, 0);
+}
+
 gboolean
 wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
