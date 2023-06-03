@@ -41,6 +41,20 @@
 #define INVALID_TYPE 2
 #define CLOSE_ERROR  2
 
+static void
+list_capture_types(void) {
+    GArray *writable_type_subtypes;
+
+    cmdarg_err("The available capture file types for the \"-F\" flag are:\n");
+    writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+        int ft = g_array_index(writable_type_subtypes, int, i);
+        fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+            wtap_file_type_subtype_description(ft));
+    }
+    g_array_free(writable_type_subtypes, TRUE);
+}
+
 /*
  * Report an error in command-line arguments.
  */
@@ -78,9 +92,10 @@ usage(gboolean is_error)
         output = stderr;
     }
 
-    fprintf(output, "Usage: randpkt [-b maxbytes] [-c count] [-t type] [-r] filename\n");
+    fprintf(output, "Usage: randpkt [-b maxbytes] [-c count] [-t type] [-r] [-F output file type] filename\n");
     fprintf(output, "Default max bytes (per packet) is 5000\n");
     fprintf(output, "Default count is 1000.\n");
+    fprintf(output, "Default output file type is pcapng.\n");
     fprintf(output, "-r: random packet type selection\n");
     fprintf(output, "\n");
     fprintf(output, "Types:\n");
@@ -119,6 +134,7 @@ main(int argc, char *argv[])
     char *produce_filename = NULL;
     int produce_max_bytes = 5000;
     int produce_count = 1000;
+    int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
     randpkt_example *example;
     guint8* type = NULL;
     int allrandom = FALSE;
@@ -164,7 +180,7 @@ main(int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-    while ((opt = ws_getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, "b:c:F:ht:r", long_options, NULL)) != -1) {
         switch (opt) {
             case 'b':	/* max bytes */
                 produce_max_bytes = get_positive_int(ws_optarg, "max bytes");
@@ -179,6 +195,15 @@ main(int argc, char *argv[])
                 produce_count = get_positive_int(ws_optarg, "count");
                 break;
 
+            case 'F':
+                file_type_subtype = wtap_name_to_file_type_subtype(ws_optarg);
+                if (file_type_subtype < 0) {
+                    cmdarg_err("\"%s\" isn't a valid capture file type", ws_optarg);
+                    list_capture_types();
+                    return WS_EXIT_INVALID_OPTION;
+                }
+                break;
+
             case 't':	/* type of packet to produce */
                 type = g_strdup(ws_optarg);
                 break;
@@ -191,6 +216,15 @@ main(int argc, char *argv[])
             case 'r':
                 allrandom = TRUE;
                 break;
+
+            case '?':
+                switch(ws_optopt) {
+                    case 'F':
+                        list_capture_types();
+                        return WS_EXIT_INVALID_OPTION;
+                        break;
+                }
+                /* FALLTHROUGH */
 
             default:
                 usage(TRUE);
@@ -209,6 +243,10 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
+    if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+        file_type_subtype = wtap_pcapng_file_type_subtype();
+    }
+
     if (!allrandom) {
         produce_type = randpkt_parse_type(type);
         g_free(type);
@@ -219,7 +257,7 @@ main(int argc, char *argv[])
             goto clean_exit;
         }
 
-        ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
+        ret = randpkt_example_init(example, produce_filename, produce_max_bytes, file_type_subtype);
         if (ret != EXIT_SUCCESS)
             goto clean_exit;
         randpkt_loop(example, produce_count, 0);
@@ -236,7 +274,7 @@ main(int argc, char *argv[])
             ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
-        ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
+        ret = randpkt_example_init(example, produce_filename, produce_max_bytes, file_type_subtype);
         if (ret != EXIT_SUCCESS)
             goto clean_exit;
 

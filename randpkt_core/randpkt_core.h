@@ -44,7 +44,7 @@ int randpkt_parse_type(char *string);
 randpkt_example* randpkt_find_example(int type);
 
 /* Init a new example */
-int randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes);
+int randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes, int file_type_subtype);
 
 /* Loop the packet generation */
 void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packet_delay_ms);
