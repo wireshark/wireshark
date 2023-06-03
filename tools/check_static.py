@@ -12,7 +12,8 @@ import argparse
 import signal
 
 # Look for dissector symbols that could/should be static.
-# This will not run on Windows..
+# This will not run on Windows, unless/until we check the platform
+# and use (I think) dumpbin.exe
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
@@ -92,13 +93,14 @@ class DefinedSymbols:
 
         command = ['nm', object_file]
         for f in subprocess.check_output(command).splitlines():
+            # Line consists of whitespace, [address], letter, symbolName
             l = str(f)[2:-1]
             p = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
             m = p.match(l)
             if m:
                 letter = m.group(1)
                 function_name = m.group(2)
-                # Locally-defined symbols.
+                # globally-defined symbols. Would be 't' or 'd' if already static.
                 if letter in 'TD':
                     self.add(function_name, l)
 
