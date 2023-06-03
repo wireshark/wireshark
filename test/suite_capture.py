@@ -263,12 +263,12 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
 
 
 @fixtures.fixture
-def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
+def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, result_file):
     def check_dumpcap_ringbuffer_stdin_real(self, packets=None, filesize=None):
         # Similar to check_capture_stdin.
         rb_unique = 'dhcp_rb_' + uuid.uuid4().hex[:6] # Random ID
-        testout_file = '{}.{}.pcapng'.format(self.id(), rb_unique)
-        testout_glob = '{}.{}_*.pcapng'.format(self.id(), rb_unique)
+        testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
+        testout_glob = result_file('testout.{}_*.pcapng'.format(rb_unique))
         cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
         condition='oops:invalid'
 
@@ -342,8 +342,8 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_
 
         if multi_output:
             rb_unique = 'sections_rb_' + uuid.uuid4().hex[:6] # Random ID
-            testout_glob = '{}.{}_*.pcapng'.format(self.id(), rb_unique)
-            testout_file = '{}.{}.pcapng'.format(self.id(), rb_unique)
+            testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
+            testout_glob = result_file('testout.{}_*.pcapng'.format(rb_unique))
             check_vals.append(check_val_d.copy())
             # check_vals[]['filename'] will be filled in below
         else:
