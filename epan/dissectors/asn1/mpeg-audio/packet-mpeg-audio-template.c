@@ -24,14 +24,58 @@
 void proto_register_mpeg_audio(void);
 void proto_reg_handoff_mpeg_audio(void);
 
+dissector_handle_t mpeg_audio_handle;
+
 static int proto_mpeg_audio = -1;
 
+static int hf_mpeg_audio_header = -1;
 static int hf_mpeg_audio_data = -1;
 static int hf_mpeg_audio_padbytes = -1;
 static int hf_id3v1 = -1;
 static int hf_id3v2 = -1;
 
+static int ett_mpeg_audio = -1;
+
 static gboolean
+test_mpeg_audio(tvbuff_t *tvb, int offset)
+{
+	guint32 hdr;
+	struct mpa mpa;
+
+	if (!tvb_bytes_exist(tvb, offset, 4))
+		return FALSE;
+	if (tvb_strneql(tvb, offset, "TAG", 3) == 0)
+		return TRUE;
+	if (tvb_strneql(tvb, offset, "ID3", 3) == 0)
+		return TRUE;
+
+	hdr = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+	MPA_UNMARSHAL(&mpa, hdr);
+	return MPA_VALID(&mpa);
+}
+
+static int
+mpeg_resync(tvbuff_t *tvb, int offset)
+{
+	guint32 hdr;
+	struct mpa mpa;
+
+	/* This only looks to resync on another frame; it doesn't
+	 * look for an ID3 tag.
+	 */
+	offset = tvb_find_guint8(tvb, offset, -1, '\xff');
+	while (offset != -1 && tvb_bytes_exist(tvb, offset, 4)) {
+		hdr = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		MPA_UNMARSHAL(&mpa, hdr);
+		if (MPA_VALID(&mpa)) {
+			return offset;
+		}
+		offset = tvb_find_guint8(tvb, offset + 1, -1, '\xff');
+	}
+	return tvb_reported_length(tvb);
+}
+
+static int
 dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 h;
@@ -42,16 +86,13 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static const char *version_names[] = { "1", "2", "2.5" };
 
 	if (!tvb_bytes_exist(tvb, 0, 4))
-		return FALSE;	/* not enough data for an MPEG audio frame */
+		return 0;
 
 	h = tvb_get_ntohl(tvb, 0);
 	MPA_UNMARSHAL(&mpa, h);
-	if (!MPA_SYNC_VALID(&mpa))
-		return FALSE;
-	if (!MPA_VERSION_VALID(&mpa))
-		return FALSE;
-	if (!MPA_LAYER_VALID(&mpa))
-		return FALSE;
+	if (!MPA_SYNC_VALID(&mpa) || !MPA_VERSION_VALID(&mpa) || !MPA_LAYER_VALID(&mpa)) {
+		return 0;
+	}
 
 	col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
 			"MPEG-%s", version_names[mpa_version(&mpa)]);
@@ -65,12 +106,9 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						mpa_frequency(&mpa) / (float)1000);
 	}
 
-	if (tree == NULL)
-		return TRUE;
-
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 	offset = dissect_mpeg_audio_Audio(tvb, offset, &asn1_ctx,
-			tree, proto_mpeg_audio);
+			tree, hf_mpeg_audio_header);
 	if (data_size > 0) {
 		unsigned int padding;
 
@@ -81,52 +119,81 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (padding > 0) {
 			proto_tree_add_item(tree, hf_mpeg_audio_padbytes, tvb,
 					offset / 8, padding, ENC_NA);
+			offset += padding * 8;
 		}
 	}
-	return TRUE;
+	return offset / 8;
 }
 
-static void
+static int
 dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	asn1_ctx_t asn1_ctx;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
 	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree == NULL)
-		return;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-	dissect_mpeg_audio_ID3v1(tvb, 0, &asn1_ctx,
+	return dissect_mpeg_audio_ID3v1(tvb, 0, &asn1_ctx,
 			tree, hf_id3v1);
 }
 
-static void
+static int
 dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item *ti;
+	guint32 frame_len;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
 	col_clear(pinfo->cinfo, COL_INFO);
-	proto_tree_add_item(tree, hf_id3v2, tvb,
+	ti = proto_tree_add_item(tree, hf_id3v2, tvb,
 			0, -1, ENC_NA);
+
+	frame_len = tvb_get_guint32(tvb, 6, ENC_BIG_ENDIAN);
+	frame_len = decode_synchsafe_int(frame_len) + 10;
+	proto_item_set_len(ti, frame_len);
+	return frame_len;
+}
+
+static int
+dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	proto_item *ti;
+	proto_tree *mpeg_audio_tree;
+
+	int magic, offset = 0;
+	guint32 frame_len;
+	tvbuff_t *next_tvb;
+
+	ti = proto_tree_add_item(tree, proto_mpeg_audio, tvb, offset, -1, ENC_NA);
+	mpeg_audio_tree = proto_item_add_subtree(ti, ett_mpeg_audio);
+	while (tvb_reported_length_remaining(tvb, offset) >= 4) {
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		magic = tvb_get_ntoh24(next_tvb, 0);
+		switch (magic) {
+			case 0x544147: /* TAG */
+				offset += dissect_id3v1(next_tvb, pinfo, mpeg_audio_tree);
+				break;
+			case 0x494433: /* ID3 */
+				offset += dissect_id3v2(next_tvb, pinfo, mpeg_audio_tree);
+				break;
+			default:
+				frame_len = dissect_mpeg_audio_frame(next_tvb, pinfo, mpeg_audio_tree);
+				if (frame_len == 0) {
+					frame_len = mpeg_resync(next_tvb, 0);
+				}
+				offset += frame_len;
+		}
+	}
+	return tvb_reported_length(tvb);
 }
 
 static gboolean
-dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mpeg_audio_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	int magic;
-
-	if (!tvb_bytes_exist(tvb, 0, 3))
-		return FALSE;	/* not enough data for an ID tag or audio frame */
-	magic = tvb_get_ntoh24(tvb, 0);
-	switch (magic) {
-		case 0x544147: /* TAG */
-			dissect_id3v1(tvb, pinfo, tree);
-			return TRUE;
-		case 0x494433: /* ID3 */
-			dissect_id3v2(tvb, pinfo, tree);
-			return TRUE;
-		default:
-			return dissect_mpeg_audio_frame(tvb, pinfo, tree);
+	if (!test_mpeg_audio(tvb, 0)) {
+		return FALSE;
 	}
+	dissect_mpeg_audio(tvb, pinfo, tree, data);
+	return TRUE;
 }
 
 void
@@ -134,6 +201,9 @@ proto_register_mpeg_audio(void)
 {
 	static hf_register_info hf[] = {
 #include "packet-mpeg-audio-hfarr.c"
+		{ &hf_mpeg_audio_header,
+			{ "Frame Header", "mpeg-audio.header",
+				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg-audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -150,6 +220,7 @@ proto_register_mpeg_audio(void)
 	};
 
 	static gint *ett[] = {
+		&ett_mpeg_audio,
 #include "packet-mpeg-audio-ettarr.c"
 	};
 
@@ -157,10 +228,17 @@ proto_register_mpeg_audio(void)
 			"Moving Picture Experts Group Audio", "MPEG Audio", "mpeg-audio");
 	proto_register_field_array(proto_mpeg_audio, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	mpeg_audio_handle = register_dissector("mpeg-audio", dissect_mpeg_audio, proto_mpeg_audio);
 }
 
 void
 proto_reg_handoff_mpeg_audio(void)
 {
-	heur_dissector_add("mpeg", dissect_mpeg_audio, "MPEG Audio", "mpeg_audio", proto_mpeg_audio, HEURISTIC_ENABLE);
+	dissector_add_string("media_type", "audio/mpeg", mpeg_audio_handle);
+	/* "audio/mp3" used by Chrome before 2020 */
+	/* https://chromium.googlesource.com/chromium/src/+/842f46a95f49e24534ad35c7a71e5c425d426550 */
+	dissector_add_string("media_type", "audio/mp3", mpeg_audio_handle);
+
+	heur_dissector_add("mpeg", dissect_mpeg_audio_heur, "MPEG Audio", "mpeg_audio", proto_mpeg_audio, HEURISTIC_ENABLE);
 }
