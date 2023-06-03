@@ -402,6 +402,8 @@ GArray* wtap_file_get_shb_for_new_file(wtap *wth);
 WS_DLL_PUBLIC
 void wtap_add_generated_idb(wtap *wth);
 
+wtap_block_t wtap_dump_params_generate_idb(const wtap_dump_params *params);
+
 /**
  * @brief Gets new name resolution info for new file, based on existing info.
  * @details Creates a new wtap_block_t of name resolution info and only

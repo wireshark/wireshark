@@ -207,25 +207,24 @@ wtap_add_idb(wtap *wth, wtap_block_t idb)
 	g_array_append_val(wth->interface_data, idb);
 }
 
-void
-wtap_add_generated_idb(wtap *wth)
+static wtap_block_t
+wtap_generate_idb(int encap, int tsprec, int snaplen)
 {
 	wtap_block_t idb;
 	wtapng_if_descr_mandatory_t *if_descr_mand;
-	int snaplen;
 
-	ws_assert(wth->file_encap != WTAP_ENCAP_UNKNOWN &&
-	    wth->file_encap != WTAP_ENCAP_PER_PACKET &&
-	    wth->file_encap != WTAP_ENCAP_NONE);
-	ws_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
-	    wth->file_tsprec != WTAP_TSPREC_PER_PACKET);
+	ws_assert(encap != WTAP_ENCAP_UNKNOWN &&
+	    encap != WTAP_ENCAP_PER_PACKET &&
+	    encap != WTAP_ENCAP_NONE);
+	ws_assert(tsprec != WTAP_TSPREC_UNKNOWN &&
+	    tsprec != WTAP_TSPREC_PER_PACKET);
 
 	idb = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 
 	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb);
-	if_descr_mand->wtap_encap = wth->file_encap;
-	if_descr_mand->tsprecision = wth->file_tsprec;
-	switch (wth->file_tsprec) {
+	if_descr_mand->wtap_encap = encap;
+	if_descr_mand->tsprecision = tsprec;
+	switch (tsprec) {
 
 	case WTAP_TSPREC_SEC:
 		if_descr_mand->time_units_per_second = 1;
@@ -266,7 +265,6 @@ wtap_add_generated_idb(wtap *wth)
 		ws_assert_not_reached();
 		break;
 	}
-	snaplen = wth->snapshot_length;
 	if (snaplen == 0) {
 		/*
 		 * No snapshot length was specified.  Pick an
@@ -282,9 +280,9 @@ wtap_add_generated_idb(wtap *wth)
 		 * to allocate an unnecessarily huge chunk of
 		 * memory for a packet buffer.
 		 */
-		if (wth->file_encap == WTAP_ENCAP_DBUS)
+		if (encap == WTAP_ENCAP_DBUS)
 			snaplen = 128*1024*1024;
-		else if (wth->file_encap == WTAP_ENCAP_EBHSCR)
+		else if (encap == WTAP_ENCAP_EBHSCR)
 			snaplen = 8*1024*1024;
 		else
 			snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
@@ -293,6 +291,15 @@ wtap_add_generated_idb(wtap *wth)
 	if_descr_mand->num_stat_entries = 0;          /* Number of ISBs */
 	if_descr_mand->interface_statistics = NULL;
 
+	return idb;
+}
+
+void
+wtap_add_generated_idb(wtap *wth)
+{
+	wtap_block_t idb;
+
+	idb = wtap_generate_idb(wth->file_encap, wth->file_tsprec, wth->snapshot_length);
 	/*
 	 * Add this IDB.
 	 */
@@ -535,6 +542,12 @@ wtap_dump_params_cleanup(wtap_dump_params *params)
 	/* params->idb_inf is currently expected to be freed by the caller. */
 
 	memset(params, 0, sizeof(*params));
+}
+
+wtap_block_t
+wtap_dump_params_generate_idb(const wtap_dump_params *params)
+{
+	return wtap_generate_idb(params->encap, params->tsprec, params->snaplen);
 }
 
 /* Table of the encapsulation types we know about. */

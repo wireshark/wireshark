@@ -2331,9 +2331,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 				g_array_append_val(wdh->interface_data, descr);
 			}
 		}
-	} else if (params->encap != WTAP_ENCAP_NONE) {
-		int snaplen;
-
+	} else if (params->encap != WTAP_ENCAP_NONE && params->encap != WTAP_ENCAP_PER_PACKET) {
 		/* Generate a fake IDB if we don't have one, unless the
 		 * file encapsulation is none. (WTAP_ENCAP_NONE either
 		 * means that there are no interfaces, or they will be
@@ -2345,72 +2343,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 		 * pcapng is the output. This doesn't work for files with
 		 * WTAP_ENCAP_PER_PACKET.
 		 */
-		descr = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
-		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
-		descr_mand->wtap_encap = params->encap;
-		descr_mand->tsprecision = params->tsprec;
-		switch (params->tsprec) {
-
-		case WTAP_TSPREC_SEC:
-			descr_mand->time_units_per_second = 1;
-			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 0);
-			break;
-
-		case WTAP_TSPREC_DSEC:
-			descr_mand->time_units_per_second = 10;
-			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 1);
-			break;
-
-		case WTAP_TSPREC_CSEC:
-			descr_mand->time_units_per_second = 100;
-			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 2);
-			break;
-
-		case WTAP_TSPREC_MSEC:
-			descr_mand->time_units_per_second = 1000;
-			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 3);
-			break;
-
-		case WTAP_TSPREC_USEC:
-			descr_mand->time_units_per_second = 1000000;
-			/* This is the default, so we save a few bytes by not adding the option. */
-			break;
-
-		case WTAP_TSPREC_NSEC:
-			descr_mand->time_units_per_second = 1000000000;
-			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 9);
-			break;
-
-		default:
-			descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-			break;
-		}
-		snaplen = params->snaplen;
-		if (snaplen == 0) {
-			/*
-			 * No snapshot length was specified.  Pick an
-			 * appropriate snapshot length for this
-			 * link-layer type.
-			 *
-			 * We use WTAP_MAX_PACKET_SIZE_STANDARD for everything except
-			 * D-Bus, which has a maximum packet size of 128MB,
-			 * and EBHSCR, which has a maximum packet size of 8MB,
-			 * which is more than we want to put into files
-			 * with other link-layer header types, as that
-			 * might cause some software reading those files
-			 * to allocate an unnecessarily huge chunk of
-			 * memory for a packet buffer.
-			 */
-			if (params->encap == WTAP_ENCAP_DBUS)
-				snaplen = 128*1024*1024;
-			else if (params->encap == WTAP_ENCAP_EBHSCR)
-				snaplen = 8*1024*1024;
-			else
-				snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
-		}
-		descr_mand->snap_len = snaplen;
-		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
-		descr_mand->interface_statistics = NULL;
+		descr = wtap_dump_params_generate_idb(params);
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	/* Set Decryption Secrets Blocks */
