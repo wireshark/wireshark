@@ -112,9 +112,6 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator, 
             ))
         stop_traffic()
         capture_returncode = capture_proc.returncode
-        if capture_returncode != 0:
-            self.log_fd.write('{} -D output:\n'.format(cmd))
-            self.runProcess((cmd, '-D'))
         self.assertEqual(capture_returncode, 0)
         self.checkPacketCount(10)
     return check_capture_10_packets_real
