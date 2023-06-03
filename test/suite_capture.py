@@ -291,9 +291,6 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
         pipe_proc = self.assertRun(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
 
         rb_files = glob.glob(testout_glob)
-        for rbf in rb_files:
-            self.cleanup_files.append(rbf)
-
         assert len(rb_files) == 2
 
         for rbf in rb_files:
@@ -418,7 +415,6 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_
             check_vals[1]['filename'] = rb_files[1]
 
         for rbf in rb_files:
-            self.cleanup_files.append(rbf)
             assert os.path.isfile(rbf)
 
         # Output tests
