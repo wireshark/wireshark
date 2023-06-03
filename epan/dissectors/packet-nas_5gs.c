@@ -531,6 +531,8 @@ static int ett_nas_5gs_updp_ue_policy_section_mgm_lst = -1;
 static int ett_nas_5gs_updp_ue_policy_section_mgm_sublst = -1;
 static int ett_nas_5gs_ue_policies_ursp = -1;
 static int ett_nas_5gs_ursp_traff_desc = -1;
+static int ett_nas_5gs_usrp_r_sel_list = -1;
+static int ett_nas_5gs_usrp_r_sel = -1;
 static int ett_nas_5gs_ursp_r_sel_desc_cont = -1;
 static int ett_nas_5gs_updp_upsi_list = -1;
 static int ett_nas_5gs_mm_rej_nssai = -1;
@@ -9028,8 +9030,8 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 static void
 de_nas_5gs_ue_policies_ursp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
-    proto_tree* sub_tree, * traff_desc_sub_tree, *r_sel_tree, *r_sel_desc_sub_tree;
-    proto_item* item;
+    proto_tree* sub_tree, * traff_desc_sub_tree, *r_sel_list_tree, *r_sel_tree, *r_sel_desc_sub_tree;
+    proto_item* item, *r_sel_list;
     guint32 len = tvb_reported_length(tvb);
     guint32 curr_offset = 0, offset;
     guint32 list_len, traff_desc_len, r_sel_desc_lst_len, r_sel_desc_len, r_sel_desc_cont_len;
@@ -9063,12 +9065,13 @@ de_nas_5gs_ue_policies_ursp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 
         /* Route selection descriptor list */
         offset = curr_offset;
-        proto_tree_add_item(sub_tree, hf_nas_5gs_ursp_r_sel_desc_lst, tvb, curr_offset, r_sel_desc_lst_len, ENC_NA);
+        r_sel_list = proto_tree_add_item(sub_tree, hf_nas_5gs_ursp_r_sel_desc_lst, tvb, curr_offset, r_sel_desc_lst_len, ENC_NA);
+        r_sel_list_tree = proto_item_add_subtree(r_sel_list, ett_nas_5gs_usrp_r_sel_list);
         int j = 0;
         while ((curr_offset - offset) < r_sel_desc_lst_len) {
             j++;
-            r_sel_tree = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_ue_policies_ursp, &item,
-                "Route selection descriptor %u", j);
+            r_sel_tree = proto_tree_add_subtree_format(r_sel_list_tree, tvb, curr_offset, -1, ett_nas_5gs_usrp_r_sel, &item,
+                                                       "Route selection descriptor %u", j);
             /* Length of route selection descriptor octet b octet b+1 */
             proto_tree_add_item_ret_uint(r_sel_tree, hf_nas_5gs_ursp_traff_desc_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &r_sel_desc_len);
             curr_offset += 2;
@@ -13488,7 +13491,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    42
+#define NUM_INDIVIDUAL_ELEMS    44
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -13515,29 +13518,31 @@ proto_register_nas_5gs(void)
     ett[16] = &ett_nas_5gs_updp_ue_policy_section_mgm_sublst;
     ett[17] = &ett_nas_5gs_ue_policies_ursp;
     ett[18] = &ett_nas_5gs_ursp_traff_desc;
-    ett[19] = &ett_nas_5gs_ursp_r_sel_desc_cont;
-    ett[20] = &ett_nas_5gs_updp_upsi_list;
-    ett[21] = &ett_nas_5gs_mm_rej_nssai;
-    ett[22] = &ett_nas_5gs_mm_scheme_output;
-    ett[23] = &ett_nas_5gs_mm_pld_cont_pld_entry;
-    ett[24] = &ett_nas_5gs_mm_pld_cont_opt_ie;
-    ett[25] = &ett_nas_5gs_mm_cag_info_entry;
-    ett[26] = &ett_nas_5gs_ciot_small_data_cont_data_contents;
-    ett[27] = &ett_nas_5gs_user_data_cont;
-    ett[28] = &ett_nas_5gs_ciph_data_set;
-    ett[29] = &ett_nas_5gs_mm_mapped_nssai;
-    ett[30] = &ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
-    ett[31] = &ett_nas_5gs_mm_ext_rej_nssai;
-    ett[32] = &ett_nas_5gs_mm_op_def_acc_cat_def;
-    ett[33] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
-    ett[34] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
-    ett[35] = &ett_nas_5gs_cmn_service_level_aa_cont_param;
-    ett[36] = &ett_nas_5gs_mm_pld_cont_event_notif_ind;
-    ett[37] = &ett_nas_5gs_mm_peips_assist_info;
-    ett[38] = &ett_nas_5gs_mm_nssrg_info;
-    ett[39] = &ett_nas_5gs_mm_plmns_list_disaster_cond;
-    ett[40] = &ett_nas_5gs_mm_reg_wait_range;
-    ett[41] = &ett_nas_5gs_mm_nsag_info;
+    ett[19] = &ett_nas_5gs_usrp_r_sel_list;
+    ett[20] = &ett_nas_5gs_usrp_r_sel;
+    ett[21] = &ett_nas_5gs_ursp_r_sel_desc_cont;
+    ett[22] = &ett_nas_5gs_updp_upsi_list;
+    ett[23] = &ett_nas_5gs_mm_rej_nssai;
+    ett[24] = &ett_nas_5gs_mm_scheme_output;
+    ett[25] = &ett_nas_5gs_mm_pld_cont_pld_entry;
+    ett[26] = &ett_nas_5gs_mm_pld_cont_opt_ie;
+    ett[27] = &ett_nas_5gs_mm_cag_info_entry;
+    ett[28] = &ett_nas_5gs_ciot_small_data_cont_data_contents;
+    ett[29] = &ett_nas_5gs_user_data_cont;
+    ett[30] = &ett_nas_5gs_ciph_data_set;
+    ett[31] = &ett_nas_5gs_mm_mapped_nssai;
+    ett[32] = &ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
+    ett[33] = &ett_nas_5gs_mm_ext_rej_nssai;
+    ett[34] = &ett_nas_5gs_mm_op_def_acc_cat_def;
+    ett[35] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
+    ett[36] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
+    ett[37] = &ett_nas_5gs_cmn_service_level_aa_cont_param;
+    ett[38] = &ett_nas_5gs_mm_pld_cont_event_notif_ind;
+    ett[39] = &ett_nas_5gs_mm_peips_assist_info;
+    ett[40] = &ett_nas_5gs_mm_nssrg_info;
+    ett[41] = &ett_nas_5gs_mm_plmns_list_disaster_cond;
+    ett[42] = &ett_nas_5gs_mm_reg_wait_range;
+    ett[43] = &ett_nas_5gs_mm_nsag_info;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
