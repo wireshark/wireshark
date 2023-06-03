@@ -46,6 +46,25 @@ def cat_cap_file_command(cap_files):
         return 'copy {} CON'.format(quoted_paths)
     return 'cat {}'.format(quoted_paths)
 
+def count_output(text, search_pat=None):
+    '''Returns the number of output lines (search_pat=None), otherwise returns a match count.'''
+
+    if not search_pat:
+        return len(text.splitlines())
+
+    match_count = 0
+
+    search_re = re.compile(search_pat)
+    for line in text.splitlines():
+        if search_re.search(line):
+            match_count += 1
+
+    return match_count
+
+def grep_output(text, search_pat):
+    return count_output(text, search_pat) > 0
+
+
 class LoggingPopen(subprocess.Popen):
     '''Run a process using subprocess.Popen. Capture and log its output.
 

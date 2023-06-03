@@ -15,6 +15,7 @@ import os
 import socket
 import subprocess
 import subprocesstest
+from subprocesstest import count_output, grep_output
 import sys
 import threading
 import time
@@ -169,9 +170,9 @@ def check_capture_stdin(check_packet_count, result_file):
             fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = self.assertRun(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         if is_gui:
-            assert self.grepOutput('Wireshark is up and ready to go'), 'No startup message.'
-            assert self.grepOutput('Capture started'), 'No capture start message.'
-            assert self.grepOutput('Capture stopped'), 'No capture stop message.'
+            assert grep_output('Wireshark is up and ready to go'), 'No startup message.'
+            assert grep_output('Capture started'), 'No capture start message.'
+            assert grep_output('Capture stopped'), 'No capture stop message.'
         assert os.path.isfile(testout_file)
         check_packet_count(8, testout_file)
     return check_capture_stdin_real
@@ -451,20 +452,20 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
             ))
             # XXX Are there any other sanity checks we should run?
             if idb_compare_eq:
-                assert self.countOutput(r'Block: Interface Description Block',
-                    proc=tshark_proc) == check_val['idb_count']
+                assert count_output(tshark_proc.stdout_str, r'Block: Interface Description Block') \
+                        == check_val['idb_count']
             else:
-                assert self.countOutput(r'Block: Interface Description Block',
-                    proc=tshark_proc) >= check_val['idb_count']
+                assert count_output(tshark_proc.stdout_str, r'Block: Interface Description Block') \
+                        >= check_val['idb_count']
                 idb_compare_eq = True
-            assert self.countOutput(r'Option: User Application = Passthrough test #1',
-                proc=tshark_proc) == check_val['ua_pt1_count']
-            assert self.countOutput(r'Option: User Application = Passthrough test #2',
-                proc=tshark_proc) == check_val['ua_pt2_count']
-            assert self.countOutput(r'Option: User Application = Passthrough test #3',
-                proc=tshark_proc) == check_val['ua_pt3_count']
-            assert self.countOutput(r'Option: User Application = Dumpcap \(Wireshark\)',
-                proc=tshark_proc) == check_val['ua_dc_count']
+            assert count_output(tshark_proc.stdout_str, r'Option: User Application = Passthrough test #1') \
+                        == check_val['ua_pt1_count']
+            assert count_output(tshark_proc.stdout_str, r'Option: User Application = Passthrough test #2') \
+                        == check_val['ua_pt2_count']
+            assert count_output(tshark_proc.stdout_str, r'Option: User Application = Passthrough test #3') \
+                        == check_val['ua_pt3_count']
+            assert count_output(tshark_proc.stdout_str, r'Option: User Application = Dumpcap \(Wireshark\)') \
+                        == check_val['ua_dc_count']
     return check_dumpcap_pcapng_sections_real
 
 
