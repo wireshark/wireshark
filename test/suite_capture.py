@@ -134,7 +134,7 @@ def check_capture_fifo(check_packet_count, result_file):
             pass
         os.mkfifo(fifo_file)
         slow_dhcp_cmd = subprocesstest.cat_dhcp_command('slow')
-        fifo_proc = subprocesstest.LoggingPopen(
+        fifo_proc = subprocess.Popen(
             ('{0} > {1}'.format(slow_dhcp_cmd, fifo_file)),
             shell=True)
         capture_proc = subprocess.run(capture_command(cmd,
@@ -346,7 +346,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
             except Exception: pass
             os.mkfifo(fifo_file)
             cat_cmd = subprocesstest.cat_cap_file_command(in_files)
-            fifo_procs.append(subprocesstest.LoggingPopen(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
+            fifo_procs.append(subprocess.Popen(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
 
         if multi_output:
             rb_unique = 'sections_rb_' + uuid.uuid4().hex[:6] # Random ID
