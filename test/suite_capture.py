@@ -82,7 +82,7 @@ def capture_command(*args, shell=False):
 
 
 @fixtures.fixture
-def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator, result_file):
+def check_capture_10_packets(capture_interface, check_packet_count, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_10_packets_real(self, cmd=None, to_stdout=False):
         assert cmd is not None
@@ -113,12 +113,12 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator, 
         stop_traffic()
         capture_returncode = capture_proc.returncode
         assert capture_returncode == 0
-        self.checkPacketCount(10)
+        check_packet_count(10, testout_file)
     return check_capture_10_packets_real
 
 
 @fixtures.fixture
-def check_capture_fifo(cmd_dumpcap, result_file):
+def check_capture_fifo(check_packet_count, result_file):
     if sys.platform == 'win32':
         fixtures.skip('Test requires OS fifo support.')
 
@@ -144,12 +144,12 @@ def check_capture_fifo(cmd_dumpcap, result_file):
         ))
         fifo_proc.kill()
         assert os.path.isfile(testout_file)
-        self.checkPacketCount(8)
+        check_packet_count(8, testout_file)
     return check_capture_fifo_real
 
 
 @fixtures.fixture
-def check_capture_stdin(cmd_dumpcap, result_file):
+def check_capture_stdin(check_packet_count, result_file):
     # Capturing always requires dumpcap, hence the dependency on it.
     def check_capture_stdin_real(self, cmd=None):
         # Similar to suite_io.check_io_4_packets.
@@ -173,12 +173,12 @@ def check_capture_stdin(cmd_dumpcap, result_file):
             assert self.grepOutput('Capture started'), 'No capture start message.'
             assert self.grepOutput('Capture stopped'), 'No capture stop message.'
         assert os.path.isfile(testout_file)
-        self.checkPacketCount(8)
+        check_packet_count(8, testout_file)
     return check_capture_stdin_real
 
 
 @fixtures.fixture
-def check_capture_read_filter(capture_interface, traffic_generator, result_file):
+def check_capture_read_filter(capture_interface, traffic_generator, check_packet_count, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_read_filter_real(self, cmd=None):
         assert cmd is not None
@@ -195,11 +195,11 @@ def check_capture_read_filter(capture_interface, traffic_generator, result_file)
             '-f', cfilter,
         ))
         stop_traffic()
-        self.checkPacketCount(0)
+        check_packet_count(0, testout_file)
     return check_capture_read_filter_real
 
 @fixtures.fixture
-def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, result_file):
+def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, check_packet_count, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_snapshot_len_real(self, cmd=None):
         assert cmd is not None
@@ -224,12 +224,12 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-w', testout2_file,
             '-Y', 'frame.cap_len>{}'.format(snapshot_len),
         ))
-        self.checkPacketCount(0, cap_file=testout2_file)
+        check_packet_count(0, testout2_file)
     return check_capture_snapshot_len_real
 
 
 @fixtures.fixture
-def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
+def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
     def check_dumpcap_autostop_stdin_real(self, packets=None, filesize=None):
         # Similar to check_capture_stdin.
         testout_file = result_file(testout_pcap)
@@ -255,7 +255,7 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
         assert os.path.isfile(testout_file)
 
         if packets is not None:
-            self.checkPacketCount(packets)
+            check_packet_count(packets, testout_file)
         elif filesize is not None:
             capturekb = os.path.getsize(testout_file) / 1000
             assert capturekb >= filesize
@@ -263,7 +263,7 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, result_file):
 
 
 @fixtures.fixture
-def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, result_file):
+def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file):
     def check_dumpcap_ringbuffer_stdin_real(self, packets=None, filesize=None):
         # Similar to check_capture_stdin.
         rb_unique = 'dhcp_rb_' + uuid.uuid4().hex[:6] # Random ID
@@ -296,7 +296,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, result_file):
         for rbf in rb_files:
             assert os.path.isfile(rbf)
             if packets is not None:
-                self.checkPacketCount(packets, cap_file=rbf)
+                check_packet_count(packets, rbf)
             elif filesize is not None:
                 capturekb = os.path.getsize(rbf) / 1000
                 assert capturekb >= filesize
@@ -304,7 +304,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, result_file):
 
 
 @fixtures.fixture
-def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_file):
+def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, capture_file, result_file):
     if sys.platform == 'win32':
         fixtures.skip('Test requires OS fifo support.')
     def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False):
@@ -442,7 +442,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file, result_
             # file in is nondeterministic.
             idb_compare_eq = False
         for check_val in check_vals:
-            self.checkPacketCount(check_val['packet_count'], cap_file=check_val['filename'])
+            check_packet_count(check_val['packet_count'], check_val['filename'])
 
             tshark_proc = self.assertRun(capture_command(cmd_tshark,
                 '-r', check_val['filename'],

@@ -399,3 +399,17 @@ def make_screenshot_on_error(request, make_screenshot, result_file):
             make_screenshot(filename)
             raise
     return make_screenshot_on_error_real
+
+@fixtures.fixture
+def check_packet_count(cmd_capinfos):
+    def check_packet_count_real(num_packets, cap_file):
+        '''Make sure a capture file contains a specific number of packets.'''
+        got_num_packets = False
+        capinfos_testout = subprocess.run([cmd_capinfos, cap_file], capture_output=True, check=True, encoding='utf-8')
+        assert capinfos_testout.returncode == 0
+        assert capinfos_testout.stdout
+        count_pat = r'Number of packets:\s+{}'.format(num_packets)
+        if re.search(count_pat, capinfos_testout.stdout):
+            got_num_packets = True
+        assert got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets)
+    return check_packet_count_real
