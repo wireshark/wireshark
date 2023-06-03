@@ -8,7 +8,6 @@
 #
 '''Capture tests'''
 
-import fixtures
 import glob
 import hashlib
 import os
@@ -21,6 +20,7 @@ import threading
 import time
 import uuid
 import sysconfig
+import pytest
 
 capture_duration = 5
 
@@ -45,7 +45,7 @@ class UdpTrafficGenerator(threading.Thread):
             self.join()
 
 
-@fixtures.fixture
+@pytest.fixture
 def traffic_generator():
     '''
     Traffic generator factory. Invoking it returns a tuple (start_func, cfilter)
@@ -67,7 +67,7 @@ def traffic_generator():
             thread.stop()
 
 
-@fixtures.fixture(scope='session')
+@pytest.fixture(scope='session')
 def wireshark_k(wireshark_command):
     return tuple(list(wireshark_command) + ['-k'])
 
@@ -82,10 +82,10 @@ def capture_command(*args, shell=False):
     return cmd_args
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_capture_10_packets(capture_interface, check_packet_count, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
-    def check_capture_10_packets_real(self, cmd=None, to_stdout=False):
+    def check_capture_10_packets_real(self, cmd=None, to_stdout=False, env=None):
         assert cmd is not None
         testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
@@ -100,7 +100,7 @@ def check_capture_10_packets(capture_interface, check_packet_count, traffic_gene
                 '>', testout_file,
                 shell=True
             ),
-            shell=True
+            shell=True, env=env
             )
         else:
             capture_proc = subprocess.run(capture_command(cmd,
@@ -110,7 +110,7 @@ def check_capture_10_packets(capture_interface, check_packet_count, traffic_gene
                 '-c', '10',
                 '-a', 'duration:{}'.format(capture_duration),
                 '-f', cfilter,
-            ))
+            ), env=env)
         stop_traffic()
         capture_returncode = capture_proc.returncode
         assert capture_returncode == 0
@@ -118,12 +118,12 @@ def check_capture_10_packets(capture_interface, check_packet_count, traffic_gene
     return check_capture_10_packets_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_capture_fifo(check_packet_count, result_file):
     if sys.platform == 'win32':
-        fixtures.skip('Test requires OS fifo support.')
+        pytest.skip('Test requires OS fifo support.')
 
-    def check_capture_fifo_real(self, cmd=None):
+    def check_capture_fifo_real(self, cmd=None, env=None):
         assert cmd is not None
         testout_file = result_file(testout_pcap)
         fifo_file = result_file('testout.fifo')
@@ -142,7 +142,7 @@ def check_capture_fifo(check_packet_count, result_file):
             '-p',
             '-w', testout_file,
             '-a', 'duration:{}'.format(capture_duration),
-        ))
+        ), env=env)
         assert capture_proc.returncode == 0
         fifo_proc.kill()
         assert os.path.isfile(testout_file)
@@ -150,10 +150,10 @@ def check_capture_fifo(check_packet_count, result_file):
     return check_capture_fifo_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_capture_stdin(check_packet_count, result_file):
     # Capturing always requires dumpcap, hence the dependency on it.
-    def check_capture_stdin_real(self, cmd=None):
+    def check_capture_stdin_real(self, cmd=None, env=None):
         # Similar to suite_io.check_io_4_packets.
         assert cmd is not None
         testout_file = result_file(testout_pcap)
@@ -168,8 +168,8 @@ def check_capture_stdin(check_packet_count, result_file):
         if is_gui:
             capture_cmd += ' --log-level=info'
         if sysconfig.get_platform().startswith('mingw'):
-            fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
-        pipe_proc = subprocess.run(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
+            pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
+        pipe_proc = subprocess.run(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
         assert pipe_proc.returncode == 0
         if is_gui:
             assert grep_output('Wireshark is up and ready to go'), 'No startup message.'
@@ -180,7 +180,7 @@ def check_capture_stdin(check_packet_count, result_file):
     return check_capture_stdin_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_capture_read_filter(capture_interface, traffic_generator, check_packet_count, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_read_filter_real(self, cmd=None):
@@ -196,16 +196,16 @@ def check_capture_read_filter(capture_interface, traffic_generator, check_packet
             '-c', '10',
             '-a', 'duration:{}'.format(capture_duration),
             '-f', cfilter,
-        ))
+        ), env=env)
         assert capture_proc.returncode == 0
         stop_traffic()
         check_packet_count(0, testout_file)
     return check_capture_read_filter_real
 
-@fixtures.fixture
+@pytest.fixture
 def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, check_packet_count, result_file):
     start_traffic, cfilter = traffic_generator
-    def check_capture_snapshot_len_real(self, cmd=None):
+    def check_capture_snapshot_len_real(self, cmd=None, env=None):
         assert cmd is not None
         stop_traffic = start_traffic()
         testout_file = result_file(testout_pcap)
@@ -216,7 +216,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-s', str(snapshot_len),
             '-a', 'duration:{}'.format(capture_duration),
             '-f', cfilter,
-        ))
+        ), env=env)
         assert capture_proc.returncode == 0
         stop_traffic()
         assert os.path.isfile(testout_file)
@@ -228,15 +228,15 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-r', testout_file,
             '-w', testout2_file,
             '-Y', 'frame.cap_len>{}'.format(snapshot_len),
-        ))
+        ), env=env)
         assert filter_proc.returncode == 0
         check_packet_count(0, testout2_file)
     return check_capture_snapshot_len_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
-    def check_dumpcap_autostop_stdin_real(self, packets=None, filesize=None):
+    def check_dumpcap_autostop_stdin_real(self, packets=None, filesize=None, env=None):
         # Similar to check_capture_stdin.
         testout_file = result_file(testout_pcap)
         cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
@@ -256,8 +256,8 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
             '-a', condition,
         ))
         if sysconfig.get_platform().startswith('mingw'):
-            fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
-        pipe_proc = subprocess.run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
+            pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
+        pipe_proc = subprocess.run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
         pipe_proc.returncode == 0
         assert os.path.isfile(testout_file)
 
@@ -269,9 +269,9 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
     return check_dumpcap_autostop_stdin_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file):
-    def check_dumpcap_ringbuffer_stdin_real(self, packets=None, filesize=None):
+    def check_dumpcap_ringbuffer_stdin_real(self, packets=None, filesize=None, env=None):
         # Similar to check_capture_stdin.
         rb_unique = 'dhcp_rb_' + uuid.uuid4().hex[:6] # Random ID
         testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
@@ -294,8 +294,8 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file)
             '-b', condition,
         ))
         if sysconfig.get_platform().startswith('mingw'):
-            fixtures.skip('FIXME Pipes are broken with the MSYS2 shell')
-        pipe_proc = subprocess.run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
+            pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
+        pipe_proc = subprocess.run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
         pipe_proc.returncode == 0
 
         rb_files = glob.glob(testout_glob)
@@ -311,11 +311,11 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file)
     return check_dumpcap_ringbuffer_stdin_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, capture_file, result_file):
     if sys.platform == 'win32':
-        fixtures.skip('Test requires OS fifo support.')
-    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False):
+        pytest.skip('Test requires OS fifo support.')
+    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False, env=None):
         # Make sure we always test multiple SHBs in an input.
         in_files_l = [ [
             capture_file('many_interfaces.pcapng.1'),
@@ -412,7 +412,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
 
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
 
-        capture_proc = subprocess.run(capture_cmd)
+        capture_proc = subprocess.run(capture_cmd, env=env)
         capture_proc.returncode == 0
         for fifo_proc in fifo_procs: fifo_proc.kill()
 
@@ -457,7 +457,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
                 '-r', check_val['filename'],
                 '-V',
                 '-X', 'read_format:MIME Files Format'
-            ), capture_output=True, encoding='utf-8')
+            ), capture_output=True, encoding='utf-8', env=env)
             # XXX Are there any other sanity checks we should run?
             if idb_compare_eq:
                 assert count_output(tshark_proc.stdout, r'Block: Interface Description Block') \
@@ -477,132 +477,120 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
     return check_dumpcap_pcapng_sections_real
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_wireshark_capture(subprocesstest.SubprocessTestCase):
-    def test_wireshark_capture_10_packets_to_file(self, wireshark_k, check_capture_10_packets, make_screenshot_on_error):
+class TestWiresharkCapture:
+    def test_wireshark_capture_10_packets_to_file(self, wireshark_k, check_capture_10_packets, make_screenshot_on_error, test_env):
         '''Capture 10 packets from the network to a file using Wireshark'''
         with make_screenshot_on_error():
-            check_capture_10_packets(self, cmd=wireshark_k)
+            check_capture_10_packets(self, cmd=wireshark_k, env=test_env)
 
     # Wireshark doesn't currently support writing to stdout while capturing.
     # def test_wireshark_capture_10_packets_to_stdout(self, wireshark_k, check_capture_10_packets):
     #     '''Capture 10 packets from the network to stdout using Wireshark'''
     #     check_capture_10_packets(self, cmd=wireshark_k, to_stdout=True)
 
-    def test_wireshark_capture_from_fifo(self, wireshark_k, check_capture_fifo, make_screenshot_on_error):
+    def test_wireshark_capture_from_fifo(self, wireshark_k, check_capture_fifo, make_screenshot_on_error, test_env):
         '''Capture from a fifo using Wireshark'''
         with make_screenshot_on_error():
-            check_capture_fifo(self, cmd=wireshark_k)
+            check_capture_fifo(self, cmd=wireshark_k, env=test_env)
 
-    def test_wireshark_capture_from_stdin(self, wireshark_k, check_capture_stdin, make_screenshot_on_error):
+    def test_wireshark_capture_from_stdin(self, wireshark_k, check_capture_stdin, make_screenshot_on_error, test_env):
         '''Capture from stdin using Wireshark'''
         with make_screenshot_on_error():
-            check_capture_stdin(self, cmd=wireshark_k)
+            check_capture_stdin(self, cmd=wireshark_k, env=test_env)
 
-    def test_wireshark_capture_snapshot_len(self, wireshark_k, check_capture_snapshot_len, make_screenshot_on_error):
+    def test_wireshark_capture_snapshot_len(self, wireshark_k, check_capture_snapshot_len, make_screenshot_on_error, test_env):
         '''Capture truncated packets using Wireshark'''
         with make_screenshot_on_error():
-            check_capture_snapshot_len(self, cmd=wireshark_k)
+            check_capture_snapshot_len(self, cmd=wireshark_k, env=test_env)
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_tshark_capture(subprocesstest.SubprocessTestCase):
-    def test_tshark_capture_10_packets_to_file(self, cmd_tshark, check_capture_10_packets):
+class TestTsharkCapture:
+    def test_tshark_capture_10_packets_to_file(self, cmd_tshark, check_capture_10_packets, test_env):
         '''Capture 10 packets from the network to a file using TShark'''
-        check_capture_10_packets(self, cmd=cmd_tshark)
+        check_capture_10_packets(self, cmd=cmd_tshark, env=test_env)
 
-    def test_tshark_capture_10_packets_to_stdout(self, cmd_tshark, check_capture_10_packets):
+    def test_tshark_capture_10_packets_to_stdout(self, cmd_tshark, check_capture_10_packets, test_env):
         '''Capture 10 packets from the network to stdout using TShark'''
-        check_capture_10_packets(self, cmd=cmd_tshark, to_stdout=True)
+        check_capture_10_packets(self, cmd=cmd_tshark, to_stdout=True, env=test_env)
 
-    def test_tshark_capture_from_fifo(self, cmd_tshark, check_capture_fifo):
+    def test_tshark_capture_from_fifo(self, cmd_tshark, check_capture_fifo, test_env):
         '''Capture from a fifo using TShark'''
-        check_capture_fifo(self, cmd=cmd_tshark)
+        check_capture_fifo(self, cmd=cmd_tshark, env=test_env)
 
-    def test_tshark_capture_from_stdin(self, cmd_tshark, check_capture_stdin):
+    def test_tshark_capture_from_stdin(self, cmd_tshark, check_capture_stdin, test_env):
         '''Capture from stdin using TShark'''
-        check_capture_stdin(self, cmd=cmd_tshark)
+        check_capture_stdin(self, cmd=cmd_tshark, env=test_env)
 
-    def test_tshark_capture_snapshot_len(self, cmd_tshark, check_capture_snapshot_len):
+    def test_tshark_capture_snapshot_len(self, cmd_tshark, check_capture_snapshot_len, test_env):
         '''Capture truncated packets using TShark'''
-        check_capture_snapshot_len(self, cmd=cmd_tshark)
+        check_capture_snapshot_len(self, cmd=cmd_tshark, env=test_env)
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_dumpcap_capture(subprocesstest.SubprocessTestCase):
-    def test_dumpcap_capture_10_packets_to_file(self, cmd_dumpcap, check_capture_10_packets):
+class TestDumpcapCaspture:
+    def test_dumpcap_capture_10_packets_to_file(self, cmd_dumpcap, check_capture_10_packets, base_env):
         '''Capture 10 packets from the network to a file using Dumpcap'''
-        check_capture_10_packets(self, cmd=cmd_dumpcap)
+        check_capture_10_packets(self, cmd=cmd_dumpcap, env=base_env)
 
-    def test_dumpcap_capture_10_packets_to_stdout(self, cmd_dumpcap, check_capture_10_packets):
+    def test_dumpcap_capture_10_packets_to_stdout(self, cmd_dumpcap, check_capture_10_packets, base_env):
         '''Capture 10 packets from the network to stdout using Dumpcap'''
-        check_capture_10_packets(self, cmd=cmd_dumpcap, to_stdout=True)
+        check_capture_10_packets(self, cmd=cmd_dumpcap, to_stdout=True, env=base_env)
 
-    def test_dumpcap_capture_from_fifo(self, cmd_dumpcap, check_capture_fifo):
+    def test_dumpcap_capture_from_fifo(self, cmd_dumpcap, check_capture_fifo, base_env):
         '''Capture from a fifo using Dumpcap'''
-        check_capture_fifo(self, cmd=cmd_dumpcap)
+        check_capture_fifo(self, cmd=cmd_dumpcap, env=base_env)
 
-    def test_dumpcap_capture_from_stdin(self, cmd_dumpcap, check_capture_stdin):
+    def test_dumpcap_capture_from_stdin(self, cmd_dumpcap, check_capture_stdin, base_env):
         '''Capture from stdin using Dumpcap'''
-        check_capture_stdin(self, cmd=cmd_dumpcap)
+        check_capture_stdin(self, cmd=cmd_dumpcap, env=base_env)
 
-    def test_dumpcap_capture_snapshot_len(self, check_capture_snapshot_len, cmd_dumpcap):
+    def test_dumpcap_capture_snapshot_len(self, check_capture_snapshot_len, cmd_dumpcap, base_env):
         '''Capture truncated packets using Dumpcap'''
-        check_capture_snapshot_len(self, cmd=cmd_dumpcap)
+        check_capture_snapshot_len(self, cmd=cmd_dumpcap, env=base_env)
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_dumpcap_autostop(subprocesstest.SubprocessTestCase):
+class TestDumpcapAutostop:
     # duration, filesize, packets, files
-    def test_dumpcap_autostop_filesize(self, check_dumpcap_autostop_stdin):
+    def test_dumpcap_autostop_filesize(self, check_dumpcap_autostop_stdin, base_env):
         '''Capture from stdin using Dumpcap until we reach a file size limit'''
-        check_dumpcap_autostop_stdin(self, filesize=15)
+        check_dumpcap_autostop_stdin(self, filesize=15, env=base_env)
 
-    def test_dumpcap_autostop_packets(self, check_dumpcap_autostop_stdin):
+    def test_dumpcap_autostop_packets(self, check_dumpcap_autostop_stdin, base_env):
         '''Capture from stdin using Dumpcap until we reach a packet limit'''
-        check_dumpcap_autostop_stdin(self, packets=97) # Last prime before 100. Arbitrary.
+        check_dumpcap_autostop_stdin(self, packets=97, env=base_env) # Last prime before 100. Arbitrary.
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_dumpcap_ringbuffer(subprocesstest.SubprocessTestCase):
+class TestDumpcapRingbuffer:
     # duration, interval, filesize, packets, files
-    def test_dumpcap_ringbuffer_filesize(self, check_dumpcap_ringbuffer_stdin):
+    def test_dumpcap_ringbuffer_filesize(self, check_dumpcap_ringbuffer_stdin, base_env):
         '''Capture from stdin using Dumpcap and write multiple files until we reach a file size limit'''
-        check_dumpcap_ringbuffer_stdin(self, filesize=15)
+        check_dumpcap_ringbuffer_stdin(self, filesize=15, env=base_env)
 
-    def test_dumpcap_ringbuffer_packets(self, check_dumpcap_ringbuffer_stdin):
+    def test_dumpcap_ringbuffer_packets(self, check_dumpcap_ringbuffer_stdin, base_env):
         '''Capture from stdin using Dumpcap and write multiple files until we reach a packet limit'''
-        check_dumpcap_ringbuffer_stdin(self, packets=47) # Last prime before 50. Arbitrary.
+        check_dumpcap_ringbuffer_stdin(self, packets=47, env=base_env) # Last prime before 50. Arbitrary.
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_dumpcap_pcapng_sections(subprocesstest.SubprocessTestCase):
-    def test_dumpcap_pcapng_single_in_single_out(self, check_dumpcap_pcapng_sections):
+class TestDumpcapPcapngSections:
+    def test_dumpcap_pcapng_single_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from a single pcapng source using Dumpcap and write a single file'''
         if sys.byteorder == 'big':
-            fixtures.skip('this test is supported on little endian only')
-        check_dumpcap_pcapng_sections(self)
+            pytest.skip('this test is supported on little endian only')
+        check_dumpcap_pcapng_sections(self, env=base_env)
 
-    def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections):
+    def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from a single pcapng source using Dumpcap and write two files'''
         if sys.byteorder == 'big':
-            fixtures.skip('this test is supported on little endian only')
-        check_dumpcap_pcapng_sections(self, multi_output=True)
+            pytest.skip('this test is supported on little endian only')
+        check_dumpcap_pcapng_sections(self, multi_output=True, env=base_env)
 
-    def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections):
+    def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from two pcapng sources using Dumpcap and write a single file'''
         if sys.byteorder == 'big':
-            fixtures.skip('this test is supported on little endian only')
-        check_dumpcap_pcapng_sections(self, multi_input=True)
+            pytest.skip('this test is supported on little endian only')
+        check_dumpcap_pcapng_sections(self, multi_input=True, env=base_env)
 
-    def test_dumpcap_pcapng_multi_in_multi_out(self, check_dumpcap_pcapng_sections):
+    def test_dumpcap_pcapng_multi_in_multi_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from two pcapng sources using Dumpcap and write two files'''
         if sys.byteorder == 'big':
-            fixtures.skip('this test is supported on little endian only')
-        check_dumpcap_pcapng_sections(self, multi_input=True, multi_output=True)
+            pytest.skip('this test is supported on little endian only')
+        check_dumpcap_pcapng_sections(self, multi_input=True, multi_output=True, env=base_env)
