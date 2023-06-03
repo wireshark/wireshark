@@ -2451,7 +2451,24 @@ finished_fwd:
                         ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
                     }
 
-                    if(seq_not_advanced && t < ooo_thres) {
+                    /* If the segment is already seen and waiting to be acknowledged, ignore the
+                     * Fast-Retrans/OOO debate and go ahead, as it only can be an ordinary Retrans.
+                     * Fast-Retrans/Retrans are never ambiguous in the context of packets seen but
+                     * this code could be moved above.
+                     * See Issues 13284, 13843
+                     * XXX: if compared packets have different sizes, it's not handled yet
+                     */
+                    gboolean pk_already_seen = FALSE;
+                    ual = tcpd->fwd->tcp_analyze_seq_info->segments;
+                    while(ual) {
+                        if(GE_SEQ(seq,ual->seq) && LE_SEQ(seq+seglen,ual->nextseq)) {
+                            pk_already_seen = TRUE;
+                            break;
+                        }
+                        ual=ual->next;
+                    }
+
+                    if(seq_not_advanced && t < ooo_thres && !pk_already_seen) {
                         /* ordinary OOO with SEQ numbers and lengths clearly stating the situation */
                         if( tcpd->fwd->tcp_analyze_seq_info->nextseq != (seq + seglen + (flags&(TH_SYN|TH_FIN) ? 1 : 0))) {
                             if(!tcpd->ta) {
