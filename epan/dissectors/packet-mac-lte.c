@@ -2755,6 +2755,8 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
    - 1 or 2 other labels (optional)
 */
 static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
+                                     packet_info *pinfo, const char *format, ...) G_GNUC_PRINTF(4, 5);
+static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
                                      packet_info *pinfo, const char *format, ...)
 {
     #define MAX_INFO_BUFFER 256

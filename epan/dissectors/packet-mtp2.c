@@ -582,8 +582,8 @@ new_byte(char full_byte, guint8 **data, guint8 *data_len)
 /* print debug info to stderr if debug is enabled
  * this function prints the packet bytes as bits separated by new lines
  * and adds extra info to bytes (flag found, frame reset, zeros were skipped, etc. */
-static void
-debug(char *format, ...)
+static void debug(char *format, ...) G_GNUC_PRINTF(1, 2);
+static void debug(char *format, ...)
 {
   guint32 max_buffer_length = 256;
   gchar *buffer = NULL;

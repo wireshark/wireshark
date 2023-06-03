@@ -645,6 +645,8 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    - the top-level RLC PDU item
    - another subtree item (if supplied) */
 static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
+                                     packet_info *pinfo, const char *format, ...) G_GNUC_PRINTF(4, 5);
+static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
                                      packet_info *pinfo, const char *format, ...)
 {
     #define MAX_INFO_BUFFER 256

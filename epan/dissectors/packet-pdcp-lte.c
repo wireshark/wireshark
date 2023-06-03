@@ -1200,6 +1200,8 @@ static wmem_map_t *pdcp_security_result_hash = NULL;
    - the info column
    - the top-level RLC PDU item */
 static void write_pdu_label_and_info(proto_item *pdu_ti,
+                                     packet_info *pinfo, const char *format, ...) G_GNUC_PRINTF(3, 4);
+static void write_pdu_label_and_info(proto_item *pdu_ti,
                                      packet_info *pinfo, const char *format, ...)
 {
     #define MAX_INFO_BUFFER 256
