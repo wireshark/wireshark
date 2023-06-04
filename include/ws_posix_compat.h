@@ -15,19 +15,13 @@
 #include <limits.h>
 
 #if !defined(SSIZE_MAX) && !defined(HAVE_SSIZE_T)
-#if defined(_WIN64)
+#if defined(_WIN32)
+#include <BaseTsd.h>
 
-typedef int64_t ssize_t;
+typedef SSIZE_T ssize_t;
+#define SSIZE_MAX SSIZE_T_MAX
 
-#define SSIZE_MAX INT64_MAX
-
-#else /* !_WIN64 */
-
-typedef signed long int ssize_t;
-
-#define SSIZE_MAX LONG_MAX
-
-#endif /* _WIN64 */
+#endif /* _WIN32 */
 #endif /* !SSIZE_MAX && !HAVE_SSIZE_T */
 
 #endif /* __POSIX_COMPAT_H__ */
