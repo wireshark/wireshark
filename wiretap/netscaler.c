@@ -592,6 +592,7 @@ typedef struct nspr_pktracepart_v26
 
 typedef struct {
     gchar  *pnstrace_buf;
+    guint32 page_size;
     gint64  xxx_offset;
     guint32 nstrace_buf_offset;
     guint32 nstrace_buflen;
@@ -612,7 +613,7 @@ typedef struct {
 #define NSPM_SIGNATURE_3_5       3
 #define NSPM_SIGNATURE_NOMATCH  -1
 
-static int nspm_signature_version(gchar*, gint32);
+static int nspm_signature_version(gchar*, guint);
 static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
                                  int *err, gchar **err_info,
                                  gint64 *data_offset);
@@ -690,23 +691,24 @@ static guint64 ns_hrtime2nsec(guint32 tm)
 }
 
 static gboolean
-nstrace_read_buf(FILE_T fh, void *buf, guint32 buflen, int *err,
-    gchar **err_info)
+nstrace_read_page(wtap *wth, int *err, gchar **err_info)
 {
+    nstrace_t *nstrace = (nstrace_t *)wth->priv;
     int bytes_read;
 
-    bytes_read = file_read(buf, buflen, fh);
+    bytes_read = file_read(nstrace->pnstrace_buf, nstrace->page_size, wth->fh);
     if (bytes_read < 0) {
-        *err = file_error(fh, err_info);
+        *err = file_error(wth->fh, err_info);
         return FALSE;
     }
-    if ((guint32)bytes_read != buflen) {
+    if (bytes_read == 0) {
         /*
-         * XXX - for which files can the last page be short?
+         * EOF.
          */
         *err = 0;
         return FALSE;
     }
+    nstrace->nstrace_buflen = (guint32)bytes_read;
     return TRUE;
 }
 
@@ -729,22 +731,29 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     /* The size is 64 bits; we assume it fits in 63 bits, so it's positive */
 
     nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
-    page_size = GET_READ_PAGE_SIZE(file_size);
+    page_size = NSPR_PAGESIZE;
 
-    /* Read the first page, so we can look for a signature */
-    bytes_read = file_read(nstrace_buf, page_size, wth->fh);
-    if (bytes_read < 0 || bytes_read != page_size) {
+    /*
+     * Read the first page, so we can look for a signature.
+     * A short read is OK, as a file may have fewer records
+     * than required to fill up a page.
+     */
+    bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE, wth->fh);
+    if (bytes_read < 0) {
         *err = file_error(wth->fh, err_info);
         g_free(nstrace_buf);
-        if (*err == 0 && bytes_read > 0)
-            return WTAP_OPEN_NOT_MINE;
         return WTAP_OPEN_ERROR;
+    }
+    if (bytes_read == 0) {
+        /* An empty file. */
+        g_free(nstrace_buf);
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /*
      * Scan it for a signature block.
      */
-    file_version = nspm_signature_version(nstrace_buf, page_size);
+    file_version = nspm_signature_version(nstrace_buf, (guint)bytes_read);
     switch (file_version) {
 
     case NSPM_SIGNATURE_1_0:
@@ -760,38 +769,30 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     case NSPM_SIGNATURE_3_0:
         wth->file_type_subtype = nstrace_3_0_file_type_subtype;
         wth->file_encap = WTAP_ENCAP_NSTRACE_3_0;
+        /*
+         * File pages are larger in version 3.0; grow the buffer.
+         * (XXX - use g_realloc()?)
+         */
         g_free(nstrace_buf);
         nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
-        page_size = GET_READ_PAGE_SIZEV3(file_size);
+        page_size = NSPR_PAGESIZE_TRACE;
         break;
 
     case NSPM_SIGNATURE_3_5:
         wth->file_type_subtype = nstrace_3_5_file_type_subtype;
         wth->file_encap = WTAP_ENCAP_NSTRACE_3_5;
+        /*
+         * File pages are larger in version 3.5; grow the buffer.
+         * (XXX - use g_realloc()?)
+         */
         g_free(nstrace_buf);
         nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
-        page_size = GET_READ_PAGE_SIZEV3(file_size);
+        page_size = NSPR_PAGESIZE_TRACE;
         break;
 
     default:
         /* No known signature found, assume it's not NetScaler */
         g_free(nstrace_buf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    /* Seek back to the beginning of the file after reading the first byte. */
-    if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
-    {
-        g_free(nstrace_buf);
-        return WTAP_OPEN_ERROR;
-    }
-
-    /* XXX - didn't the read above already handle this? */
-    if (!wtap_read_bytes(wth->fh, nstrace_buf, page_size, err, err_info))
-    {
-        g_free(nstrace_buf);
-        if (*err != WTAP_ERR_SHORT_READ)
-            return WTAP_OPEN_ERROR;
         return WTAP_OPEN_NOT_MINE;
     }
 
@@ -822,8 +823,8 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     nstrace = g_new(nstrace_t, 1);
     wth->priv = (void *)nstrace;
     nstrace->pnstrace_buf = nstrace_buf;
+    nstrace->page_size = page_size;
     nstrace->xxx_offset = 0;
-    nstrace->nstrace_buflen = page_size;
     nstrace->nstrace_buf_offset = 0;
     nstrace->nspm_curtime = 0;
     nstrace->nspm_curtimemsec = 0;
@@ -831,6 +832,24 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     nstrace->nsg_creltime = 0;
     nstrace->file_size = file_size;
 
+    /*
+     * Seek back to the beginning of the file and read the first page,
+     * now that we know the page size.
+     */
+    if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
+    {
+        g_free(nstrace_buf);
+        return WTAP_OPEN_ERROR;
+    }
+    if (!nstrace_read_page(wth, err, err_info)) {
+        if (*err == 0) {
+            /* EOF, so an empty file. */
+            g_free(nstrace_buf);
+            return WTAP_OPEN_NOT_MINE;
+        }
+        /* Read error. */
+        return WTAP_OPEN_ERROR;
+    }
 
     /* Set the start time by looking for the abstime record */
     if ((nstrace_set_start_time(wth, file_version, err, err_info)) == FALSE)
@@ -852,8 +871,13 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
         }
 
         /* Read the first page of data */
-        if (!wtap_read_bytes(wth->fh, nstrace_buf, page_size, err, err_info))
-        {
+        if (!nstrace_read_page(wth, err, err_info)) {
+            if (*err == 0) {
+                /* EOF, so an empty file. */
+                g_free(nstrace_buf);
+                return WTAP_OPEN_NOT_MINE;
+            }
+            /* Read error. */
             return WTAP_OPEN_ERROR;
         }
 
@@ -922,11 +946,11 @@ nspm_signature_func(35)
 ** XXX - can we assume the signature block is the first block?
 */
 static int
-nspm_signature_version(gchar *nstrace_buf, gint32 len)
+nspm_signature_version(gchar *nstrace_buf, guint len)
 {
     gchar *dp = nstrace_buf;
 
-    for ( ; len > (gint32)(MIN(nspr_signature_v10_s, nspr_signature_v20_s)); dp++, len--)
+    for ( ; len > MIN(nspr_signature_v10_s, nspr_signature_v20_s); dp++, len--)
     {
 #define sigv10p    ((nspr_signature_v10_t*)dp)
         /*
@@ -946,7 +970,7 @@ nspm_signature_version(gchar *nstrace_buf, gint32 len)
          * (XXX - are all V10 signature records that size, or might they
          * be smaller, with a shorter signature field?)
          */
-        if ((size_t)len >= nspr_signature_v10_s &&
+        if (len >= nspr_signature_v10_s &&
             (pletoh16(&sigv10p->nsprRecordType) == NSPR_SIGNATURE_V10) &&
             (pletoh16(&sigv10p->nsprRecordSize) <= len) &&
             (pletoh16(&sigv10p->nsprRecordSize) >= nspr_signature_v10_s))
@@ -971,7 +995,7 @@ nspm_signature_version(gchar *nstrace_buf, gint32 len)
          *    4) it also specifies something as large as, or larger than,
          *       the declared size of a V20 signature record.
          */
-        if ((size_t)len >= nspr_signature_v20_s &&
+        if (len >= nspr_signature_v20_s &&
             (sigv20p->sig_RecordType == NSPR_SIGNATURE_V20) &&
             (sigv20p->sig_RecordSize <= len) &&
             (sigv20p->sig_RecordSize >= nspr_signature_v20_s))
@@ -1000,6 +1024,14 @@ nspm_signature_version(gchar *nstrace_buf, gint32 len)
           (hdp)->phd_RecordSizeLow)
 
 
+/*
+ * For a given file version, this defines a routine to find an absolute
+ * time record in a file of that version and set the start time based on
+ * that.
+ *
+ * The routine called from the open routine after a file has been recognized
+ * as a NetScaler trace.
+ */
 #define nstrace_set_start_time_ver(ver) \
     gboolean nstrace_set_start_time_v##ver(wtap *wth, int *err, gchar **err_info) \
     {\
@@ -1040,7 +1072,7 @@ nspm_signature_version(gchar *nstrace_buf, gint32 len)
             nstrace_buf_offset = 0;\
             nstrace->xxx_offset += nstrace_buflen;\
             nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));\
-        }while((nstrace_buflen > 0) && (nstrace_read_buf(wth->fh, nstrace_buf, nstrace_buflen, err, err_info)));\
+        }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));\
         return FALSE;\
     }
 
@@ -1237,7 +1269,7 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
-    }while((nstrace_buflen > 0) && (nstrace_read_buf(wth->fh, nstrace_buf, nstrace_buflen, err, err_info)));
+    }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));
 
     return FALSE;
 }
@@ -1463,7 +1495,7 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
-    }while((nstrace_buflen > 0) && (nstrace_read_buf(wth->fh, nstrace_buf, nstrace_buflen, err, err_info)));
+    }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));
 
     return FALSE;
 }
