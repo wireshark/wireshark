@@ -88,6 +88,19 @@ def check_packet_count(cmd_capinfos, num_packets, cap_file):
         got_num_packets = True
     assert got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets)
 
+def get_capture_info(cmd_capinfos, capinfos_args, cap_file):
+    '''Run capinfos on a capture file and log its output.
+
+    capinfos_args must be a sequence.'''
+
+    capinfos_cmd = [cmd_capinfos]
+    if capinfos_args:
+        capinfos_cmd += capinfos_args
+    capinfos_cmd.append(cap_file)
+    capinfos_data = subprocess.check_output(capinfos_cmd)
+    capinfos_stdout = capinfos_data.decode('UTF-8', 'replace')
+    return capinfos_stdout
+
 class LoggingPopen(subprocess.Popen):
     '''Run a process using subprocess.Popen. Capture and log its output.
 
