@@ -7,13 +7,12 @@
 #
 '''Release tests'''
 
-import fixtures
 import re
 import subprocess
-import subprocesstest
 import types
+import pytest
 
-@fixtures.fixture
+@pytest.fixture
 def wireshark_features(request, cmd_wireshark, make_env):
     '''
     Returns an object describing available features in Wireshark. Tests
@@ -21,7 +20,7 @@ def wireshark_features(request, cmd_wireshark, make_env):
     '''
     enabled = request.config.getoption('--enable-release', default=False)
     if not enabled:
-        fixtures.skip('Release tests are not enabled via --enable-release')
+        pytest.skip('Release tests are not enabled via --enable-release')
 
     try:
         wireshark_v = subprocess.check_output(
@@ -38,9 +37,8 @@ def wireshark_features(request, cmd_wireshark, make_env):
         have_automatic_updates='with automatic updates' in wireshark_v,
     )
 
-@fixtures.uses_fixtures
-class case_release_automatic_updates(subprocesstest.SubprocessTestCase):
+class TestReleaseAutomaticUpdates:
     def test_automatic_updates_present(self, wireshark_features):
         '''Checks whether Wireshark was built with automatic updates.'''
 
-        self.assertTrue(wireshark_features.have_automatic_updates);
+        assert wireshark_features.have_automatic_updates
