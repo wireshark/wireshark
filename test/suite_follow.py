@@ -7,13 +7,11 @@
 #
 '''Follow Stream tests'''
 
-import subprocesstest
-import fixtures
+import subprocess
+import pytest
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_follow_tcp(subprocesstest.SubprocessTestCase):
+class TestFollowTcp:
     def test_follow_tcp_bad_conditions(self, cmd_tshark, capture_file):
         '''Checks whether Follow TCP correctly handles lots of edge cases.'''
         # Edge cases include:
@@ -26,12 +24,12 @@ class case_follow_tcp(subprocesstest.SubprocessTestCase):
         # 6. lost but acked segments
         # 7. lost 3/5 fragments, but acked
         # Not checked: lost and not acked (currently truncated, is that OK?)
-        proc = self.assertRun((cmd_tshark,
+        proc_stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('tcp-badsegments.pcap'),
                                 '-qz', 'follow,tcp,hex,0',
-                                ))
+                                ), encoding='utf-8')
 
-        self.assertIn("""\
+        assert """\
 ===================================================================
 Follow: tcp,hex
 Filter: tcp.stream eq 0
@@ -69,5 +67,4 @@ Node 1: 10.0.0.2:80
 0000017D  4f 66 2d 35 2d 42 75 74  2d 41 43 4b 3a 59 0d 0a  Of-5-But -ACK:Y..
 0000018D  0d 0a                                             ..
 ===================================================================
-""".replace("\r\n", "\n"),
-            proc.stdout_str)
+""".replace("\r\n", "\n") in proc_stdout
