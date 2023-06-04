@@ -9,9 +9,9 @@
 '''File format conversion tests'''
 
 import os.path
-import subprocesstest
-import unittest
-import fixtures
+from subprocesstest import count_output
+import subprocess
+import pytest
 
 # XXX Currently unused. It would be nice to be able to use this below.
 time_output_args = ('-Tfields', '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta')
@@ -22,99 +22,94 @@ time_output_args = ('-Tfields', '-e', 'frame.number', '-e', 'frame.time_epoch', 
 baseline_file = 'ff-ts-usec-pcap-direct.txt'
 
 
-@fixtures.fixture(scope='session')
+@pytest.fixture(scope='session')
 def fileformats_baseline_str(dirs):
     with open(os.path.join(dirs.baseline_dir, baseline_file), 'r') as f:
         return f.read()
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_fileformat_pcap(subprocesstest.SubprocessTestCase):
-    def test_pcap_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
+class TestFileFormatPcap:
+    def test_pcap_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs microsecond pcap stdin'''
-        capture_proc = self.assertRun(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 '<', capture_file('dhcp.pcap')
                 )),
-            shell=True)
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            shell=True, encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
-    def test_pcap_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
+    def test_pcap_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs nanosecond pcap stdin'''
-        capture_proc = self.assertRun(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 '<', capture_file('dhcp-nanosecond.pcap')
                 )),
-            shell=True)
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            shell=True, encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
-    def test_pcap_nsec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str):
+    def test_pcap_nsec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs nanosecond pcap direct'''
-        capture_proc = self.assertRun((cmd_tshark,
+        capture_stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('dhcp-nanosecond.pcap'),
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 ),
-            )
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_fileformat_pcapng(subprocesstest.SubprocessTestCase):
-    def test_pcapng_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
+class TestFileFormatsPcapng:
+    def test_pcapng_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs microsecond pcapng stdin'''
-        capture_proc = self.assertRun(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
                 '<', capture_file('dhcp.pcapng')
                 )),
-            shell=True)
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            shell=True, encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
-    def test_pcapng_usec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str):
+    def test_pcapng_usec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs microsecond pcapng direct'''
-        capture_proc = self.assertRun((cmd_tshark,
+        capture_stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('dhcp.pcapng'),
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 ),
-            )
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
-    def test_pcapng_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
+    def test_pcapng_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs nanosecond pcapng stdin'''
-        capture_proc = self.assertRun(' '.join((cmd_tshark,
+        capture_stdout = subprocess.check_output(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
                 '<', capture_file('dhcp-nanosecond.pcapng')
                 )),
-            shell=True)
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            shell=True, encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
-    def test_pcapng_nsec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str):
+    def test_pcapng_nsec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str, test_env):
         '''Microsecond pcap direct vs nanosecond pcapng direct'''
-        capture_proc = self.assertRun((cmd_tshark,
+        capture_stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('dhcp-nanosecond.pcapng'),
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 ),
-            )
-        self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
+            encoding='utf-8', env=test_env)
+        assert capture_stdout == fileformats_baseline_str
 
-@fixtures.fixture
+@pytest.fixture
 def check_pcapng_dsb_fields(request, cmd_tshark):
     '''Factory that checks whether the DSB within the capture file matches.'''
-    self = request.instance
-    def check_dsb_fields_real(outfile, fields):
-        proc = self.assertRun((cmd_tshark,
+    def check_dsb_fields_real(outfile, fields, env=None):
+        proc_stdout = subprocess.check_output((cmd_tshark,
                 '-r', outfile,
                 '-Xread_format:MIME Files Format',
                 '-Tfields',
@@ -122,31 +117,29 @@ def check_pcapng_dsb_fields(request, cmd_tshark):
                 '-e', 'pcapng.dsb.secrets_length',
                 '-e', 'pcapng.dsb.secrets_data',
                 '-Y', 'pcapng.dsb.secrets_data'
-            ))
+            ), encoding='utf-8', env=env)
         # Convert "t1,t2 l1,l2 v1,2" -> [(t1, l1, v1), (t2, l2, v2)]
-        output = proc.stdout_str.strip()
+        output = proc_stdout.strip()
         actual = list(zip(*[x.split(",") for x in output.split('\t')]))
         def format_field(field):
             t, l, v = field
             v_hex = ''.join('%02x' % c for c in v)
             return ('0x%08x' % t, str(l), v_hex)
         fields = [format_field(field) for field in fields]
-        self.assertEqual(fields, actual)
+        assert fields == actual
     return check_dsb_fields_real
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
-    def test_pcapng_dsb_1(self, cmd_tshark, dirs, capture_file, result_file, check_pcapng_dsb_fields):
+class TestFileFormatsPcapngDsb:
+    def test_pcapng_dsb_1(self, cmd_tshark, dirs, capture_file, result_file, check_pcapng_dsb_fields, base_env):
         '''Check that DSBs are preserved while rewriting files.'''
         dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
         dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
         outfile = result_file('tls12-dsb-same.pcapng')
-        self.assertRun((cmd_tshark,
+        subprocess.run((cmd_tshark,
             '-r', capture_file('tls12-dsb.pcapng'),
             '-w', outfile,
-        ))
+        ), check=True, env=base_env)
         with open(dsb_keys1, 'r') as f:
             dsb1_contents = f.read().encode('utf8')
         with open(dsb_keys2, 'r') as f:
@@ -154,32 +147,32 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
         check_pcapng_dsb_fields(outfile, (
             (0x544c534b, len(dsb1_contents), dsb1_contents),
             (0x544c534b, len(dsb2_contents), dsb2_contents),
-        ))
+        ), env=base_env)
 
-    def test_pcapng_dsb_2(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_2(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields, base_env):
         '''Insert a single DSB into a pcapng file.'''
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         outfile = result_file('dhe1-dsb.pcapng')
-        self.assertRun((cmd_editcap,
+        subprocess.run((cmd_editcap,
             '--inject-secrets', 'tls,%s' % key_file,
             capture_file('dhe1.pcapng.gz'), outfile
-        ))
+        ), check=True, env=base_env)
         with open(key_file, 'rb') as f:
             keylog_contents = f.read()
         check_pcapng_dsb_fields(outfile, (
             (0x544c534b, len(keylog_contents), keylog_contents),
-        ))
+        ), env=base_env)
 
-    def test_pcapng_dsb_3(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_3(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields, base_env):
         '''Insert two DSBs into a pcapng file.'''
         key_file1 = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         key_file2 = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
         outfile = result_file('dhe1-dsb.pcapng')
-        self.assertRun((cmd_editcap,
+        subprocess.run((cmd_editcap,
             '--inject-secrets', 'tls,%s' % key_file1,
             '--inject-secrets', 'tls,%s' % key_file2,
             capture_file('dhe1.pcapng.gz'), outfile
-        ))
+        ), check=True, env=base_env)
         with open(key_file1, 'rb') as f:
             keylog1_contents = f.read()
         with open(key_file2, 'rb') as f:
@@ -187,18 +180,18 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
         check_pcapng_dsb_fields(outfile, (
             (0x544c534b, len(keylog1_contents), keylog1_contents),
             (0x544c534b, len(keylog2_contents), keylog2_contents),
-        ))
+        ), env=base_env)
 
-    def test_pcapng_dsb_4(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_4(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields, base_env):
         '''Insert a single DSB into a pcapng file with existing DSBs.'''
         dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
         dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         outfile = result_file('tls12-dsb-extra.pcapng')
-        self.assertRun((cmd_editcap,
+        subprocess.run((cmd_editcap,
             '--inject-secrets', 'tls,%s' % key_file,
             capture_file('tls12-dsb.pcapng'), outfile
-        ))
+        ), check=True, env=base_env)
         with open(dsb_keys1, 'r') as f:
             dsb1_contents = f.read().encode('utf8')
         with open(dsb_keys2, 'r') as f:
@@ -212,19 +205,19 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(keylog_contents), keylog_contents),
             (0x544c534b, len(dsb1_contents), dsb1_contents),
             (0x544c534b, len(dsb2_contents), dsb2_contents),
-        ))
+        ), env=base_env)
 
-    def test_pcapng_dsb_bad_key(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields):
+    def test_pcapng_dsb_bad_key(self, cmd_editcap, dirs, capture_file, result_file, check_pcapng_dsb_fields, base_env):
         '''Insertion of a RSA key file is not very effective.'''
         rsa_keyfile = os.path.join(dirs.key_dir, 'rsasnakeoil2.key')
         p12_keyfile = os.path.join(dirs.key_dir, 'key.p12')
         outfile = result_file('rsasnakeoil2-dsb.pcapng')
-        proc = self.assertRun((cmd_editcap,
+        proc = subprocess.run((cmd_editcap,
             '--inject-secrets', 'tls,%s' % rsa_keyfile,
             '--inject-secrets', 'tls,%s' % p12_keyfile,
             capture_file('rsasnakeoil2.pcap'), outfile
-        ))
-        self.assertEqual(proc.stderr_str.count('unsupported private key file'), 2)
+        ), capture_output=True, encoding='utf-8', check=True, env=base_env)
+        assert count_output(proc.stderr, 'unsupported private key file') == 2
         with open(rsa_keyfile, 'rb') as f:
             dsb1_contents = f.read()
         with open(p12_keyfile, 'rb') as f:
@@ -232,20 +225,18 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
         check_pcapng_dsb_fields(outfile, (
             (0x544c534b, len(dsb1_contents), dsb1_contents),
             (0x544c534b, len(dsb2_contents), dsb2_contents),
-        ))
+        ), env=base_env)
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_fileformat_mime(subprocesstest.SubprocessTestCase):
-    def test_mime_pcapng_gz(self, cmd_tshark, capture_file):
+class TestFileFormatMime:
+    def test_mime_pcapng_gz(self, cmd_tshark, capture_file, test_env):
         '''Test that the full uncompressed contents is shown.'''
-        proc = self.assertRun((cmd_tshark,
+        proc_stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('icmp.pcapng.gz'),
                 '-Xread_format:MIME Files Format',
                 '-Tfields',
                 '-e', 'frame.len',
                 '-e', 'pcapng.block.length',
                 '-e', 'pcapng.block.length_trailer',
-            ))
-        self.assertEqual(proc.stdout_str.strip(), '480\t128,88,132,132\t128,88,132,132')
+            ), encoding='utf-8', env=test_env)
+        assert proc_stdout.strip() == '480\t128,88,132,132\t128,88,132,132'
