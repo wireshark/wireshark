@@ -620,7 +620,10 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		# https://gitlab.kitware.com/cmake/cmake/-/issues/19682
 		# For now, we set CAExcludePath=C:\Qt;%include% in the Visual Studio
 		# Code Analys builder's environment.
-		list(APPEND LOCAL_CFLAGS /analyze:WX-)
+		list(APPEND LOCAL_CFLAGS
+			/analyze:WX-
+			/analyze:log:format:sarif
+			)
 	endif()
 
 	# Additional compiler warnings to be treated as "Level 3"

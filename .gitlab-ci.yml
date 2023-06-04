@@ -795,9 +795,17 @@ Visual Studio Code Analysis:
     # The wireshark-windows-* tags are only available in wireshark/wireshark.
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   script:
+    - py -m venv sarif-tools.venv
+    - sarif-tools.venv\Scripts\pip.exe install sarif-tools
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
+    - $report = "visual-c++-analyze-" + (Get-Date -format "yyyy-MM-dd") + ".html"
+    - sarif-tools.venv\Scripts\sarif html --output $report
+    - |
+      if (Test-Path env:S3_DESTINATION_ANALYSIS) {
+        aws s3 cp "$report" "$env:S3_DESTINATION_ANALYSIS/"
+      }
 
 # Build all doxygen docs
 API Reference:
