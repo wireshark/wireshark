@@ -679,9 +679,22 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         }
 
         if (Z_OK != inflateEnd(&infstream)) {
-            /* Returns either Z_OK or Z_STREAM_ERROR. */
-            *err = WTAP_ERR_DECOMPRESS;
-            *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
+            /*
+             * The zlib manual says this only returns Z_OK on success
+             * and Z_STREAM_ERROR if the stream state was inconsistent.
+             *
+             * It's not clear what useful information can be reported
+             * for Z_STREAM_ERROR; a look at the 1.2.11 source indicates
+             * that no string is returned to indicate what the problem
+             * was.
+             *
+             * It's also not clear what to do about infstream if this
+             * fails.
+             */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateEnd failed for LogContainer %d", index_log_container);
+            g_free(buf);
+            g_free(compressed_data);
             ws_debug("inflateEnd failed for LogContainer %d", index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
@@ -695,7 +708,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         return TRUE;
 #else
         *err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
-        *err_info = NULL;
+        *err_info = ws_strdup("blf_pull_logcontainer_into_memory: reading gzip-compressed containers isn't supported");
         return FALSE;
 #endif
     }
