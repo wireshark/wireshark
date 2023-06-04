@@ -240,9 +240,6 @@ ssl_proto_tree_add_segment_data(
 
 
 static ssl_master_key_map_t       ssl_master_key_map;
-/* used by "Export TLS Session Keys" */
-GHashTable *ssl_session_hash;
-GHashTable *ssl_crandom_hash;
 
 #ifdef HAVE_LIBGNUTLS
 static GHashTable         *ssl_key_hash             = NULL;
@@ -286,10 +283,6 @@ ssl_init(void)
                     &ssl_decrypted_data, &ssl_compressed_data);
     ssl_debug_flush();
 
-    /* for "Export TLS Session Keys" */
-    ssl_session_hash = ssl_master_key_map.session;
-    ssl_crandom_hash = ssl_master_key_map.crandom;
-
     /* We should have loaded "keys_list" by now. Mark it obsolete */
     if (ssl_module) {
         keys_list_pref = prefs_find_preference(ssl_module, "keys_list");
@@ -313,11 +306,6 @@ ssl_cleanup(void)
 #endif
     ssl_common_cleanup(&ssl_master_key_map, &ssl_keylog_file,
                        &ssl_decrypted_data, &ssl_compressed_data);
-
-    /* should not be needed since the UI code prevents this from being accessed
-     * when no file is open. Clear it anyway just to be sure. */
-    ssl_session_hash = NULL;
-    ssl_crandom_hash = NULL;
 }
 
 ssl_master_key_map_t *
@@ -2870,10 +2858,13 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                  * since the server may not agree on using TLS 1.3. If
                  * early_data is advertised, it must be TLS 1.3 though.
                  */
-                if (ssl && ssl->has_early_data) {
-                    session->version = TLSV1DOT3_VERSION;
-                    ssl->state |= SSL_VERSION;
-                    ssl_debug_printf("%s forcing version 0x%04X -> state 0x%02X\n", G_STRFUNC, version, ssl->state);
+                if (ssl) {
+                    tls_save_crandom(ssl, &ssl_master_key_map);
+                    if  (ssl->has_early_data) {
+                        session->version = TLSV1DOT3_VERSION;
+                        ssl->state |= SSL_VERSION;
+                        ssl_debug_printf("%s forcing version 0x%04X -> state 0x%02X\n", G_STRFUNC, version, ssl->state);
+                    }
                 }
                 break;
 

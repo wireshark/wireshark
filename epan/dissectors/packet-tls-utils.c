@@ -5783,6 +5783,10 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
     mk_map->tls13_server_appdata = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_early_exporter = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_exporter = g_hash_table_new(ssl_hash, ssl_equal);
+
+    mk_map->used_session = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->used_crandom = g_hash_table_new(ssl_hash, ssl_equal);
+
     ssl_data_alloc(decrypted_data, 32);
     ssl_data_alloc(compressed_data, 32);
 }
@@ -5803,6 +5807,9 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
     g_hash_table_destroy(mk_map->tls13_server_appdata);
     g_hash_table_destroy(mk_map->tls13_early_exporter);
     g_hash_table_destroy(mk_map->tls13_exporter);
+
+    g_hash_table_destroy(mk_map->used_session);
+    g_hash_table_destroy(mk_map->used_crandom);
 
     g_free(decrypted_data->data);
     g_free(compressed_data->data);
@@ -6038,6 +6045,7 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
                         &ssl->client_random, &ssl->master_secret);
     ssl_save_master_key("Session ID", mk_map->session,
                         &ssl->session_id, &ssl->master_secret);
+    tls_save_session(ssl, mk_map);
     /* Only save the new secrets if the server sent the ticket. The client
      * ticket might have become stale. */
     if (ssl->state & SSL_NEW_SESSION_TICKET) {
@@ -6210,6 +6218,22 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
         ssl_data_set(app_secret, new_secret, hash_len);
     }
     wmem_free(NULL, new_secret);
+}
+
+void
+tls_save_session(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
+{
+    if (ssl) {
+        g_hash_table_add(mk_map->used_session, &ssl->session_id);
+    }
+}
+
+void
+tls_save_crandom(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
+{
+    if (ssl && (ssl->state & SSL_CLIENT_RANDOM)) {
+        g_hash_table_add(mk_map->used_crandom, &ssl->client_random);
+    }
 }
 
 /** SSL keylog file handling. {{{ */

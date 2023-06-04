@@ -2532,6 +2532,9 @@ void WiresharkMainWindow::setMenusForCaptureFile(bool force_disable)
 
     main_ui_->actionFileExportPDU->setEnabled(enable);
     main_ui_->actionFileStripHeaders->setEnabled(enable);
+    /* XXX: "Export TLS Session Keys..." should be enabled only if
+     * ssl_session_key_count() > 0.
+     */
     main_ui_->actionFileExportTLSSessionKeys->setEnabled(enable);
 
     foreach(QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {

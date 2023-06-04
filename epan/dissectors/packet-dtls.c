@@ -1450,6 +1450,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             ssl_dissect_hnd_cli_hello(&dissect_dtls_hf, sub_tvb, pinfo,
                                       ssl_hand_tree, 0, length, session, ssl,
                                       &dtls_hfs);
+            if (ssl) {
+                tls_save_crandom(ssl, tls_get_master_key_map(FALSE));
+            }
             break;
 
           case SSL_HND_SERVER_HELLO:
