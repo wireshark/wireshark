@@ -77,6 +77,16 @@ def count_output(text, search_pat=None):
 def grep_output(text, search_pat):
     return count_output(text, search_pat) > 0
 
+def check_packet_count(cmd_capinfos, num_packets, cap_file):
+    '''Make sure a capture file contains a specific number of packets.'''
+    got_num_packets = False
+    capinfos_testout = subprocess.run([cmd_capinfos, cap_file], capture_output=True, check=True, encoding='utf-8')
+    assert capinfos_testout.returncode == 0
+    assert capinfos_testout.stdout
+    count_pat = r'Number of packets:\s+{}'.format(num_packets)
+    if re.search(count_pat, capinfos_testout.stdout):
+        got_num_packets = True
+    assert got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets)
 
 class LoggingPopen(subprocess.Popen):
     '''Run a process using subprocess.Popen. Capture and log its output.

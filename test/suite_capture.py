@@ -13,8 +13,7 @@ import hashlib
 import os
 import socket
 import subprocess
-import subprocesstest
-from subprocesstest import count_output, grep_output
+from subprocesstest import cat_dhcp_command, cat_cap_file_command, count_output, grep_output, check_packet_count
 import sys
 import threading
 import time
@@ -83,7 +82,7 @@ def capture_command(*args, shell=False):
 
 
 @pytest.fixture
-def check_capture_10_packets(capture_interface, check_packet_count, traffic_generator, result_file):
+def check_capture_10_packets(capture_interface, cmd_capinfos, traffic_generator, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_10_packets_real(self, cmd=None, to_stdout=False, env=None):
         assert cmd is not None
@@ -114,12 +113,12 @@ def check_capture_10_packets(capture_interface, check_packet_count, traffic_gene
         stop_traffic()
         capture_returncode = capture_proc.returncode
         assert capture_returncode == 0
-        check_packet_count(10, testout_file)
+        check_packet_count(cmd_capinfos, 10, testout_file)
     return check_capture_10_packets_real
 
 
 @pytest.fixture
-def check_capture_fifo(check_packet_count, result_file):
+def check_capture_fifo(cmd_capinfos, result_file):
     if sys.platform == 'win32':
         pytest.skip('Test requires OS fifo support.')
 
@@ -133,7 +132,7 @@ def check_capture_fifo(check_packet_count, result_file):
         except Exception:
             pass
         os.mkfifo(fifo_file)
-        slow_dhcp_cmd = subprocesstest.cat_dhcp_command('slow')
+        slow_dhcp_cmd = cat_dhcp_command('slow')
         fifo_proc = subprocess.Popen(
             ('{0} > {1}'.format(slow_dhcp_cmd, fifo_file)),
             shell=True)
@@ -146,18 +145,18 @@ def check_capture_fifo(check_packet_count, result_file):
         assert capture_proc.returncode == 0
         fifo_proc.kill()
         assert os.path.isfile(testout_file)
-        check_packet_count(8, testout_file)
+        check_packet_count(cmd_capinfos, 8, testout_file)
     return check_capture_fifo_real
 
 
 @pytest.fixture
-def check_capture_stdin(check_packet_count, result_file):
+def check_capture_stdin(cmd_capinfos, result_file):
     # Capturing always requires dumpcap, hence the dependency on it.
     def check_capture_stdin_real(self, cmd=None, env=None):
         # Similar to suite_io.check_io_4_packets.
         assert cmd is not None
         testout_file = result_file(testout_pcap)
-        slow_dhcp_cmd = subprocesstest.cat_dhcp_command('slow')
+        slow_dhcp_cmd = cat_dhcp_command('slow')
         capture_cmd = capture_command(cmd,
             '-i', '-',
             '-w', testout_file,
@@ -176,12 +175,12 @@ def check_capture_stdin(check_packet_count, result_file):
             assert grep_output('Capture started'), 'No capture start message.'
             assert grep_output('Capture stopped'), 'No capture stop message.'
         assert os.path.isfile(testout_file)
-        check_packet_count(8, testout_file)
+        check_packet_count(cmd_capinfos, 8, testout_file)
     return check_capture_stdin_real
 
 
 @pytest.fixture
-def check_capture_read_filter(capture_interface, traffic_generator, check_packet_count, result_file):
+def check_capture_read_filter(capture_interface, traffic_generator, cmd_capinfos, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_read_filter_real(self, cmd=None):
         assert cmd is not None
@@ -199,11 +198,11 @@ def check_capture_read_filter(capture_interface, traffic_generator, check_packet
         ), env=env)
         assert capture_proc.returncode == 0
         stop_traffic()
-        check_packet_count(0, testout_file)
+        check_packet_count(cmd_capinfos, 0, testout_file)
     return check_capture_read_filter_real
 
 @pytest.fixture
-def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, check_packet_count, result_file):
+def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator, cmd_capinfos, result_file):
     start_traffic, cfilter = traffic_generator
     def check_capture_snapshot_len_real(self, cmd=None, env=None):
         assert cmd is not None
@@ -230,16 +229,16 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-Y', 'frame.cap_len>{}'.format(snapshot_len),
         ), env=env)
         assert filter_proc.returncode == 0
-        check_packet_count(0, testout2_file)
+        check_packet_count(cmd_capinfos, 0, testout2_file)
     return check_capture_snapshot_len_real
 
 
 @pytest.fixture
-def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
+def check_dumpcap_autostop_stdin(cmd_dumpcap, cmd_capinfos, result_file):
     def check_dumpcap_autostop_stdin_real(self, packets=None, filesize=None, env=None):
         # Similar to check_capture_stdin.
         testout_file = result_file(testout_pcap)
-        cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
+        cat100_dhcp_cmd = cat_dhcp_command('cat100')
         condition='oops:invalid'
 
         if packets is not None:
@@ -262,7 +261,7 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
         assert os.path.isfile(testout_file)
 
         if packets is not None:
-            check_packet_count(packets, testout_file)
+            check_packet_count(cmd_capinfos, packets, testout_file)
         elif filesize is not None:
             capturekb = os.path.getsize(testout_file) / 1000
             assert capturekb >= filesize
@@ -270,13 +269,13 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, check_packet_count, result_file):
 
 
 @pytest.fixture
-def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file):
+def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, cmd_capinfos, result_file):
     def check_dumpcap_ringbuffer_stdin_real(self, packets=None, filesize=None, env=None):
         # Similar to check_capture_stdin.
         rb_unique = 'dhcp_rb_' + uuid.uuid4().hex[:6] # Random ID
         testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
         testout_glob = result_file('testout.{}_*.pcapng'.format(rb_unique))
-        cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
+        cat100_dhcp_cmd = cat_dhcp_command('cat100')
         condition='oops:invalid'
 
         if packets is not None:
@@ -304,7 +303,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file)
         for rbf in rb_files:
             assert os.path.isfile(rbf)
             if packets is not None:
-                check_packet_count(packets, rbf)
+                check_packet_count(cmd_capinfos, packets, rbf)
             elif filesize is not None:
                 capturekb = os.path.getsize(rbf) / 1000
                 assert capturekb >= filesize
@@ -312,7 +311,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, check_packet_count, result_file)
 
 
 @pytest.fixture
-def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, capture_file, result_file):
+def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture_file, result_file):
     if sys.platform == 'win32':
         pytest.skip('Test requires OS fifo support.')
     def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False, env=None):
@@ -345,7 +344,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
                 os.unlink(fifo_file)
             except Exception: pass
             os.mkfifo(fifo_file)
-            cat_cmd = subprocesstest.cat_cap_file_command(in_files)
+            cat_cmd = cat_cap_file_command(in_files)
             fifo_procs.append(subprocess.Popen(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
 
         if multi_output:
@@ -451,7 +450,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, check_packet_count, c
             # file in is nondeterministic.
             idb_compare_eq = False
         for check_val in check_vals:
-            check_packet_count(check_val['packet_count'], check_val['filename'])
+            check_packet_count(cmd_capinfos, check_val['packet_count'], check_val['filename'])
 
             tshark_proc = subprocess.run(capture_command(cmd_tshark,
                 '-r', check_val['filename'],
