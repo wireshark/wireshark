@@ -8,22 +8,22 @@
 #
 '''extcap tests'''
 
-import subprocesstest
-import fixtures
+import subprocess
 import re
 import os
 import sys
+import pytest
 
 
-@fixtures.fixture
-def check_extcap_execution(cmd_extcap, program_path, request):
+@pytest.fixture
+def check_extcap_execution(cmd_extcap, program_path, base_env):
     def check_extcap_interface_execution(extcap_name, interface):
         ''' Check if an extcap runs flawlessly for interface configuration. '''
-        self = request.instance
-        self.assertRun([cmd_extcap(extcap_name), '--extcap-interface',
-                        interface, '--extcap-dlts'], cwd=program_path)
-        self.assertRun([cmd_extcap(extcap_name), '--extcap-interface',
-                        interface, '--extcap-config'], cwd=program_path)
+
+        subprocess.check_call([cmd_extcap(extcap_name), '--extcap-interface',
+                        interface, '--extcap-dlts'], cwd=program_path, env=base_env)
+        subprocess.check_call([cmd_extcap(extcap_name), '--extcap-interface',
+                        interface, '--extcap-config'], cwd=program_path, env=base_env)
 
     def extcap_get_interfaces(extcap_output):
         ''' Extract the interface name from extcap. '''
@@ -39,22 +39,20 @@ def check_extcap_execution(cmd_extcap, program_path, request):
         Check if an extcap runs flawlessly.
         always_present: at least one interface is always offered by the extcap.
         '''
-        self = request.instance
-        self.assertRun([cmd_extcap(extcap_name), '--help'], cwd=program_path)
-        extcap_proc = self.assertRun(
-            [cmd_extcap(extcap_name), '--extcap-interfaces'], cwd=program_path)
-        interfaces = extcap_get_interfaces(extcap_proc.stdout_str)
+
+        subprocess.check_call([cmd_extcap(extcap_name), '--help'], cwd=program_path, env=base_env)
+        extcap_stdout = subprocess.check_output(
+            [cmd_extcap(extcap_name), '--extcap-interfaces'], cwd=program_path, encoding='utf-8', env=base_env)
+        interfaces = extcap_get_interfaces(extcap_stdout)
         if always_present:
-            self.assertGreaterEqual(len(interfaces), 1)
+            assert len(interfaces) > 0
         for interface in interfaces:
             check_extcap_interface_execution(extcap_name, interface)
 
     return check_extcap_execution_real
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_extcaps(subprocesstest.SubprocessTestCase):
+class TestExtcaps:
     def test_androiddump(self, check_extcap_execution):
         ''' extcap interface tests for androiddump '''
         check_extcap_execution("androiddump", always_present=False)
@@ -66,7 +64,7 @@ class case_extcaps(subprocesstest.SubprocessTestCase):
     def test_dpauxmon(self, check_extcap_execution):
         ''' extcap interface tests for dpauxmon '''
         if not sys.platform.startswith('linux'):
-            fixtures.skip('dpauxmon available on Linux only')
+            pytest.skip('dpauxmon available on Linux only')
         check_extcap_execution("dpauxmon")
 
     def test_randpktdump(self, check_extcap_execution):
@@ -76,7 +74,7 @@ class case_extcaps(subprocesstest.SubprocessTestCase):
     def test_sdjournal(self, check_extcap_execution):
         ''' extcap interface tests for sdjournal '''
         if not sys.platform.startswith('linux'):
-            fixtures.skip('sdjournal is available on Linux only')
+            pytest.skip('sdjournal is available on Linux only')
         check_extcap_execution("sdjournal")
 
     def test_sshdump(self, check_extcap_execution):
