@@ -7,26 +7,24 @@
 #
 '''Follow DCCP Stream tests'''
 
-import subprocesstest
-import fixtures
+import subprocess
+import pytest
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_follow_dccp(subprocesstest.SubprocessTestCase):
-    def test_follow_dccp_existing_flow(self, cmd_tshark, capture_file):
+class TestFollowDCCP:
+    def test_follow_dccp_existing_flow(self, cmd_tshark, capture_file, test_env):
         '''Checks whether Follow DCCP correctly handles an existing flow.'''
 
         # Test 1:
         # 1. Identification of DCCP Flow #9
         # 2. Selection and decoding of DCCP Flow #9
-        proc = self.assertRun((cmd_tshark,
+        proc = subprocess.run((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-qz', 'follow,dccp,hex,9',
-                                ))
+                                ), check=True, capture_output=True, encoding='utf-8', env=test_env)
 
-        result = ''.join([x.strip()+"\n" for x in proc.stdout_str.splitlines()])
-        self.assertIn(r"""
+        result = ''.join([x.strip()+"\n" for x in proc.stdout.splitlines()])
+        assert r"""
 ===================================================================
 Follow: dccp,hex
 Filter: dccp.stream eq 9
@@ -66,26 +64,24 @@ Node 1: 192.168.0.27:9000
 000000D0  41 40 3f 3e 3d 3c 3b 3a  39 38 37 36 35 34 33 32  A@?>=<;: 98765432
 000000E0  31 30 2f 2e 2d 2c 2b 2a  29 28 27 26 25 24 23 22  10/.-,+* )('&%$#"
 000000F0  21 20 1f 1e 7f 7e 7d 7c  7b 7a 79 78 77 76 75 74  ! ...~}| {zyxwvut
-""".replace("\r\n", "\n"),
-            result)
+""".replace("\r\n", "\n") in result
 
 
-    def test_follow_dccp_non_existing_flow(self, cmd_tshark, capture_file):
+    def test_follow_dccp_non_existing_flow(self, cmd_tshark, capture_file, test_env):
         '''Checks whether Follow DCCP correctly handles a non-existing existing flow.'''
 
         # Test 2:
         # Trying identification of not-existing DCCP Flow #10
-        proc = self.assertRun((cmd_tshark,
+        proc = subprocess.run((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-qz', 'follow,dccp,hex,10',
-                                ))
+                                ), check=True, capture_output=True, encoding='utf-8', env=test_env)
 
-        self.assertIn("""\
+        assert """\
 ===================================================================
 Follow: dccp,hex
 Filter: dccp.stream eq 10
 Node 0: :0
 Node 1: :0
 ===================================================================
-""".replace("\r\n", "\n"),
-            proc.stdout_str)
+""".replace("\r\n", "\n") in proc.stdout
