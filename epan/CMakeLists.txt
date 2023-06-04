@@ -87,6 +87,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	expert.h
 	export_object.h
 	exported_pdu.h
+	fifo_string_cache.h
 	filter_expressions.h
 	follow.h
 	frame_data.h
@@ -199,6 +200,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	expert.c
 	export_object.c
 	exported_pdu.c
+	fifo_string_cache.c
 	filter_expressions.c
 	follow.c
 	frame_data.c
@@ -395,6 +397,15 @@ install(FILES ${LIBWIRESHARK_PUBLIC_HEADERS}
 add_executable(exntest EXCLUDE_FROM_ALL exntest.c except.c)
 target_link_libraries(exntest epan)
 set_target_properties(exntest PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
+add_executable(fifo_string_cache_test EXCLUDE_FROM_ALL fifo_string_cache_test.c)
+target_link_libraries(fifo_string_cache_test epan)
+set_target_properties(fifo_string_cache_test PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"

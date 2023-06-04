@@ -1271,7 +1271,7 @@ void WiresharkMainWindow::mergeCaptureFile()
            previous read filter attached to "cf"). */
         cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
 
-        switch (cf_read(CaptureFile::globalCapFile(), FALSE)) {
+        switch (cf_read(CaptureFile::globalCapFile(), /*reloading=*/FALSE)) {
 
         case CF_READ_OK:
         case CF_READ_ERROR:

@@ -3768,6 +3768,17 @@ prefs_register_modules(void)
                                    "Currently ICMP and ICMPv6 use this preference to add VLAN ID to conversation tracking, and IPv4 uses this preference to take VLAN ID into account during reassembly",
                                    &prefs.strict_conversation_tracking_heuristics);
 
+    prefs_register_bool_preference(protocols_module, "ignore_dup_frames",
+                                   "Ignore duplicate frames",
+                                   "Ignore frames that are exact duplicates of any previous frame.",
+                                   &prefs.ignore_dup_frames);
+
+    prefs_register_uint_preference(protocols_module, "ignore_dup_frames_cache_entries",
+            "The max number of hashes to keep in memory for determining duplicates frames",
+            "If \"Ignore duplicate frames\" is set, this setting sets the maximum number "
+            "of cache entries to maintain. A 0 means no limit.",
+            10, &prefs.ignore_dup_frames_cache_entries);
+
     /* Obsolete preferences
      * These "modules" were reorganized/renamed to correspond to their GUI
      * configuration screen within the preferences dialog
@@ -4182,8 +4193,12 @@ pre_init_prefs(void)
     prefs.st_sort_defcolflag = ST_SORT_COL_COUNT;
     prefs.st_sort_defdescending = TRUE;
     prefs.st_sort_showfullname = FALSE;
+
+    /* protocols */
     prefs.display_hidden_proto_items = FALSE;
     prefs.display_byte_fields_with_spaces = FALSE;
+    prefs.ignore_dup_frames = FALSE;
+    prefs.ignore_dup_frames_cache_entries = 10000;
 
     /* set the default values for the io graph dialog */
     prefs.gui_io_graph_automatic_update = TRUE;

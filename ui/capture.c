@@ -253,7 +253,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
     }
 
     /* read in the packet data */
-    switch (cf_read((capture_file *)cap_session->cf, FALSE)) {
+    switch (cf_read((capture_file *)cap_session->cf, /*reloading=*/FALSE)) {
 
         case CF_READ_OK:
         case CF_READ_ERROR:

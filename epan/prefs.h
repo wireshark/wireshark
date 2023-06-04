@@ -206,6 +206,8 @@ typedef struct _e_prefs {
   gboolean     enable_incomplete_dissectors_check;
   gboolean     incomplete_dissectors_check_debug;
   gboolean     strict_conversation_tracking_heuristics;
+  gboolean     ignore_dup_frames;
+  guint        ignore_dup_frames_cache_entries;
   gboolean     filter_expressions_old;  /* TRUE if old filter expressions preferences were loaded. */
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;

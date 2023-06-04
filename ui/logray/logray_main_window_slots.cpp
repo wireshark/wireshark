@@ -232,7 +232,7 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
             continue;
         }
 
-        switch (cf_read(CaptureFile::globalCapFile(), FALSE)) {
+        switch (cf_read(CaptureFile::globalCapFile(), /*reloading=*/FALSE)) {
         case CF_READ_OK:
         case CF_READ_ERROR:
             /* Just because we got an error, that doesn't mean we were unable

@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include <epan/column-utils.h>
 #include <epan/expert.h>
+#include <epan/fifo_string_cache.h>
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>
@@ -74,7 +75,8 @@
 #endif
 
 static gboolean read_record(capture_file *cf, wtap_rec *rec, Buffer *buf,
-    dfilter_t *dfcode, epan_dissect_t *edt, column_info *cinfo, gint64 offset);
+    dfilter_t *dfcode, epan_dissect_t *edt, column_info *cinfo, gint64 offset,
+    fifo_string_cache_t *frame_cache, GChecksum *cksum);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item, gboolean redissect);
 
@@ -565,6 +567,16 @@ cf_read(capture_file *cf, gboolean reloading)
     /* Find the size of the file. */
     size = wtap_file_size(cf->provider.wth, NULL);
 
+    /* If we are to ignore duplicate frames, we need a container to store
+     * hashes frame contents */
+    fifo_string_cache_t frame_dup_cache;
+    GChecksum *cksum = NULL;
+
+    if (prefs.ignore_dup_frames) {
+        fifo_string_cache_init(&frame_dup_cache, prefs.ignore_dup_frames_cache_entries, g_free);
+        cksum = g_checksum_new(G_CHECKSUM_SHA256);
+    }
+
     g_timer_start(prog_timer);
 
     wtap_rec_init(&rec);
@@ -636,7 +648,7 @@ cf_read(capture_file *cf, gboolean reloading)
                    hours even on fast machines) just to see that it was the wrong file. */
                 break;
             }
-            read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
+            read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset, &frame_dup_cache, cksum);
             wtap_rec_reset(&rec);
         }
     }
@@ -653,6 +665,11 @@ cf_read(capture_file *cf, gboolean reloading)
 #endif
     }
     ENDTRY;
+
+    if (prefs.ignore_dup_frames) {
+        fifo_string_cache_free(&frame_dup_cache);
+        g_checksum_free(cksum);
+    }
 
     /* We're done reading sequentially through the file. */
     cf->state = FILE_READ_DONE;
@@ -824,7 +841,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
                    aren't any packets left to read) exit. */
                 break;
             }
-            if (read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset)) {
+            // NOTE: We don't yet handle prefs.ignore_dup_frames here
+            if (read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset, NULL, NULL)) {
                 newly_displayed_packets++;
             }
             to_read--;
@@ -953,7 +971,8 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err)
                aren't any packets left to read) exit. */
             break;
         }
-        read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset);
+        // NOTE: We don't yet handle prefs.ignore_dup_frames here
+        read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset, NULL, NULL);
         wtap_rec_reset(rec);
     }
 
@@ -1242,12 +1261,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
  */
 static gboolean
 read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
-        epan_dissect_t *edt, column_info *cinfo, gint64 offset)
+        epan_dissect_t *edt, column_info *cinfo, gint64 offset,
+        fifo_string_cache_t *frame_cache, GChecksum *cksum)
 {
     frame_data    fdlocal;
     frame_data   *fdata;
     gboolean      passed = TRUE;
     gboolean      added = FALSE;
+    const gchar   *cksum_string;
+    gboolean      was_in_cache;
 
     /* Add this packet's link-layer encapsulation type to cf->linktypes, if
        it's not already there.
@@ -1284,7 +1306,21 @@ read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
         cf->count++;
         if (rec->block != NULL)
             cf->packet_comment_count += wtap_block_count_option(rec->block, OPT_COMMENT);
-        cf->f_datalen = offset + fdlocal.cap_len;
+         cf->f_datalen = offset + fdlocal.cap_len;
+
+        // Should we check if the frame data is a duplicate, and thus, ignore
+        // this frame?
+        if (prefs.ignore_dup_frames && rec->rec_type == REC_TYPE_PACKET) {
+            g_checksum_reset(cksum);
+            g_checksum_update(cksum, ws_buffer_start_ptr(buf), ws_buffer_length(buf));
+            cksum_string = g_strdup(g_checksum_get_string(cksum));
+            was_in_cache = fifo_string_cache_insert(frame_cache, cksum_string);
+            if (was_in_cache) {
+                g_free((gpointer)cksum_string);
+                fdata->ignored = TRUE;
+                cf->ignored_count++;
+            }
+        }
 
         /* When a redissection is in progress (or queued), do not process packets.
          * This will be done once all (new) packets have been scanned. */
@@ -5059,7 +5095,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
                    In that case, we need to reload the whole file */
                 if(needs_reload) {
                     if (cf_open(cf, fname, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
-                        if (cf_read(cf, TRUE) != CF_READ_OK) {
+                        if (cf_read(cf, /*reloading=*/TRUE) != CF_READ_OK) {
                             /* The rescan failed; just close the file.  Either
                                a dialog was popped up for the failure, so the
                                user knows what happened, or they stopped the
@@ -5316,7 +5352,7 @@ cf_reload(capture_file *cf)
     is_tempfile = cf->is_tempfile;
     cf->is_tempfile = FALSE;
     if (cf_open(cf, filename, cf->open_type, is_tempfile, &err) == CF_OK) {
-        switch (cf_read(cf, TRUE)) {
+        switch (cf_read(cf, /*reloading=*/TRUE)) {
 
             case CF_READ_OK:
             case CF_READ_ERROR:

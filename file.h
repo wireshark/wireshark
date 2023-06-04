@@ -144,10 +144,10 @@ cf_status_t cf_reload(capture_file *cf);
  * Read all packets of a capture file into the internal structures.
  *
  * @param cf the capture file to be read
- * @param from_save reread asked from cf_save_records
+ * @param reloading reread asked for from cf_save_records()
  * @return one of cf_read_status_t
  */
-cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
+cf_read_status_t cf_read(capture_file *cf, gboolean reloading);
 
 /**
  * Read the metadata and raw data for a record.  It will pop

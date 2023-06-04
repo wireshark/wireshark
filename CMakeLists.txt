@@ -4126,6 +4126,7 @@ endif(DOXYGEN_EXECUTABLE)
 
 add_custom_target(test-programs
 	DEPENDS exntest
+		fifo_string_cache_test
 		oids_test
 		reassemble_test
 		tvbtest

@@ -91,7 +91,7 @@ do_export_pdu(const char *filter, const gchar *temp_dir, const gchar *tap_name)
         return;
     }
 
-    switch (cf_read(&cfile, FALSE)) {
+    switch (cf_read(&cfile, /*reloading=*/FALSE)) {
     case CF_READ_OK:
     case CF_READ_ERROR:
         /* Just because we got an error, that doesn't mean we were unable
