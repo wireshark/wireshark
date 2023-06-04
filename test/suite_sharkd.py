@@ -10,57 +10,49 @@
 
 import json
 import subprocess
-import unittest
-import subprocesstest
-import fixtures
+import pytest
 from matchers import *
 
 
-@fixtures.fixture(scope='session')
+@pytest.fixture(scope='session')
 def cmd_sharkd(program):
     return program('sharkd')
 
 
-@fixtures.fixture
-def run_sharkd_session(cmd_sharkd, request):
-    self = request.instance
-
+@pytest.fixture
+def run_sharkd_session(cmd_sharkd, base_env):
     def run_sharkd_session_real(sharkd_commands):
-        sharkd_proc = self.startProcess(
-            (cmd_sharkd, '-'), stdin=subprocess.PIPE)
-        sharkd_proc.stdin.write('\n'.join(sharkd_commands).encode('utf8'))
-        self.waitProcess(sharkd_proc)
+        sharkd_proc = subprocess.Popen(
+            (cmd_sharkd, '-'), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', env=base_env)
+        sharkd_proc.stdin.write('\n'.join(sharkd_commands))
+        stdout, stderr = sharkd_proc.communicate()
 
-        self.assertIn('Hello in child.', sharkd_proc.stderr_str)
+        assert 'Hello in child.' in stderr
 
         outputs = []
-        for line in sharkd_proc.stdout_str.splitlines():
+        for line in stdout.splitlines():
             line = line.strip()
             if not line:
                 continue
             try:
                 jdata = json.loads(line)
             except json.JSONDecodeError:
-                self.fail('Invalid JSON: %r' % line)
+                pytest.fail('Invalid JSON: %r' % line)
             outputs.append(jdata)
         return tuple(outputs)
     return run_sharkd_session_real
 
 
-@fixtures.fixture
-def check_sharkd_session(run_sharkd_session, request):
-    self = request.instance
-
+@pytest.fixture
+def check_sharkd_session(run_sharkd_session):
     def check_sharkd_session_real(sharkd_commands, expected_outputs):
         sharkd_commands = [json.dumps(x) for x in sharkd_commands]
         actual_outputs = run_sharkd_session(sharkd_commands)
-        self.assertEqual(expected_outputs, actual_outputs)
+        assert expected_outputs == actual_outputs
     return check_sharkd_session_real
 
 
-@fixtures.mark_usefixtures('base_env')
-@fixtures.uses_fixtures
-class case_sharkd(subprocesstest.SubprocessTestCase):
+class TestSharkd:
     def test_sharkd_req_load_bad_pcap(self, check_sharkd_session, capture_file):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"load",
