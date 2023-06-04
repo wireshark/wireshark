@@ -582,7 +582,7 @@ static const true_false_string tfs_fc_fctl_rexmitted_seq = {
 };
 static const true_false_string tfs_fc_fctl_rel_offset = {
     "Rel Offset SET",
-    "rel offset NOT set"
+    "Rel Offset NOT set"
 };
 
 /*

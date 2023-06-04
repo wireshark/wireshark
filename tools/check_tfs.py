@@ -81,11 +81,33 @@ class TFS:
         self.val1 = val1
         self.val2 = val2
 
-        # Do some extra checks on values.
+        # Should not be empty
+        if not len(val1) or not len(val2):
+            print(file, name, 'has an empty field', self)
+        else:
+            # Strange if one begins with capital but other doesn't?
+            if val1[0].isalpha() and val2[0].isalpha():
+                if val1[0].isupper() != val2[0].isupper():
+                    print(file, name, 'one starts lowercase and the other upper', self)
+
+        # Leading or trailing space should not be needed.
         if val1.startswith(' ') or val1.endswith(' '):
             print('N.B.: file=' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.val1 + '\"')
         if val2.startswith(' ') or val2.endswith(' '):
             print('N.B.: file=' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.val2 + '\"')
+
+        # Should really not be identical...
+        if val1.lower() == val2.lower():
+            print(file, name, 'true and false strings are the same', self)
+
+        # Shouldn't both be negation (with exception..)
+        if (file != os.path.join('epan', 'dissectors', 'packet-smb.c') and (val1.lower().find('not ') != -1) and (val2.lower().find('not ') != -1)):
+            print(file, name, self, 'both strings contain not')
+
+        # Not expecting full-stops inside strings..
+        if val1.find('.') != -1 or val2.find('.') != -1:
+            print(file, name, 'Period found in string..', self)
+
 
     def __str__(self):
         return '{' + '"' + self.val1 + '", "' + self.val2 + '"}'
@@ -135,7 +157,7 @@ def removeComments(code_string):
 
 
 # Look for true_false_string items in a dissector file.
-def findItems(filename):
+def findTFS(filename):
     items = {}
 
     with open(filename, 'r') as f:
@@ -214,7 +236,7 @@ def checkFile(filename, tfs_items, look_for_common=False, check_value_strings=Fa
         return
 
     # Find items.
-    items = findItems(filename)
+    items = findTFS(filename)
 
     # See if any of these items already existed in tfs.c
     for i in items:
@@ -365,7 +387,7 @@ else:
 
 
 # Get standard/ shared ones.
-tfs_entries = findItems(os.path.join('epan', 'tfs.c'))
+tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
 
 # Now check the files to see if they could have used shared ones instead.
 for f in files:
