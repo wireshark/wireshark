@@ -3,13 +3,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_string(unittest.TestCase):
+class TestDfilterString:
     trace_file = "http.pcap"
 
     def test_eq_1(self, checkDFilterCount):
@@ -184,8 +182,7 @@ class case_string(unittest.TestCase):
         dfilter = 'tcp.checksum.status == "Unverified" || tcp.checksum.status == "Good"'
         checkDFilterCount(dfilter, 1)
 
-@fixtures.uses_fixtures
-class case_stringz(unittest.TestCase):
+class TestDfilterStringz:
     trace_file = "tftp.pcap"
 
     def test_stringz_1(self, checkDFilterCount):

@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_membership(unittest.TestCase):
+class TestDfilterMembership:
     trace_file = "http.pcap"
 
     def test_membership_match_1(self, checkDFilterCount):

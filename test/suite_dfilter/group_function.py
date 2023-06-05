@@ -2,12 +2,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
-@fixtures.uses_fixtures
-class case_dfunction_string(unittest.TestCase):
+class TestFunctionString:
     trace_file = "dhcp.pcap"
 
     def test_matches_1(self, checkDFilterCount):
@@ -42,8 +40,7 @@ class case_dfunction_string(unittest.TestCase):
         error = 'String conversion for field "dhcp.option.value" is not supported'
         checkDFilterFail(dfilter, error)
 
-@fixtures.uses_fixtures
-class case_dfunction_maxmin(unittest.TestCase):
+class TestFunctionMaxMin:
     trace_file = "sip.pcapng"
 
     def test_min_1(self, checkDFilterCount):
@@ -75,8 +72,7 @@ class case_dfunction_maxmin(unittest.TestCase):
         dfilter = 'max(5060, 5070) == udp.srcport'
         checkDFilterFail(dfilter, error)
 
-@fixtures.uses_fixtures
-class case_dfunction_abs(unittest.TestCase):
+class TestFunctionAbs:
     trace_file = "dhcp.pcapng"
 
     def test_function_abs_1(self, checkDFilterCount):

@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_range(unittest.TestCase):
+class TestDfilterRange:
     trace_file = "ipx_rip.pcap"
 
     def test_slice_1_pos(self, checkDFilterCount):

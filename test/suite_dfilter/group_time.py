@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_time(unittest.TestCase):
+class TestDfilterTime:
     trace_file = "http.pcap"
 
     def test_eq_1(self, checkDFilterCount):
@@ -101,8 +99,7 @@ class case_time(unittest.TestCase):
         error = '"mrt 1, 2000 00:00:00" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
         checkDFilterFail(dfilter, error)
 
-@fixtures.uses_fixtures
-class case_time_relative(unittest.TestCase):
+class TestDfilterTimeRelative:
     trace_file = "nfs.pcap"
 
     def test_relative_time_1(self, checkDFilterCount):

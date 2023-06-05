@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_bytes_type(unittest.TestCase):
+class TestDfilterBytes:
     trace_file = "arp.pcap"
 
     def test_bytes_1(self, checkDFilterCount):

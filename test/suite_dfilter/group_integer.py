@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_integer(unittest.TestCase):
+class TestDfilterInteger:
     trace_file = "ntp.pcap"
 
     def test_eq_1(self, checkDFilterCount):
@@ -173,8 +171,7 @@ class case_integer(unittest.TestCase):
         dfilter = "ip.flags.df != 0"
         checkDFilterCount(dfilter, 0)
 
-@fixtures.uses_fixtures
-class case_integer_1_byte(unittest.TestCase):
+class TestDfilterInteger1Byte:
 
     trace_file = "ipx_rip.pcap"
 
@@ -186,8 +183,7 @@ class case_integer_1_byte(unittest.TestCase):
         dfilter = "ipx.src.net == 0x29"
         checkDFilterCount(dfilter, 0)
 
-@fixtures.uses_fixtures
-class case_uint64(unittest.TestCase):
+class TestDfilterUint64:
     trace_file = "nfs.pcap"
 
     def test_uint64_1(self, checkDFilterCount):

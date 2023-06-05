@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import subprocess
-import fixtures
+import pytest
 
 
-@fixtures.fixture
+@pytest.fixture
 def dfilter_cmd(cmd_tshark, capture_file, request):
     def wrapped(dfilter, frame_number=None):
         cmd = [
@@ -27,12 +27,12 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
         return cmd
     return wrapped
 
-@fixtures.fixture(scope='session')
+@pytest.fixture(scope='session')
 def cmd_dftest(program):
     return program('dftest')
 
 
-@fixtures.fixture
+@pytest.fixture
 def checkDFilterCount(dfilter_cmd, base_env):
     def checkDFilterCount_real(dfilter, expected_count):
         """Run a display filter and expect a certain number of packets."""
@@ -47,7 +47,7 @@ def checkDFilterCount(dfilter_cmd, base_env):
         assert dfp_count == expected_count, msg
     return checkDFilterCount_real
 
-@fixtures.fixture
+@pytest.fixture
 def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
     def checkDFilterCount_real(dfilter, expected_count, selected_frame):
         """Run a display filter and expect a certain number of packets."""
@@ -63,7 +63,7 @@ def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
     return checkDFilterCount_real
 
 
-@fixtures.fixture
+@pytest.fixture
 def checkDFilterFail(cmd_dftest, base_env):
     def checkDFilterFail_real(dfilter, error_message):
         """Run a display filter and expect dftest to fail."""
@@ -80,7 +80,7 @@ def checkDFilterFail(cmd_dftest, base_env):
             (proc.returncode, outs)
     return checkDFilterFail_real
 
-@fixtures.fixture
+@pytest.fixture
 def checkDFilterSucceed(cmd_dftest, base_env):
     def checkDFilterSucceed_real(dfilter, expect_stdout=None):
         """Run a display filter and expect dftest to succeed."""

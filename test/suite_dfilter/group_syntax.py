@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-import fixtures
+import pytest
 from suite_dfilter.dfiltertest import *
 
 
-@fixtures.uses_fixtures
-class case_syntax(unittest.TestCase):
+class TestDfilterSyntax:
     trace_file = "http.pcap"
 
     def test_exists_1(self, checkDFilterCount):
@@ -138,8 +136,7 @@ class case_syntax(unittest.TestCase):
         dfilter = 'frame == tcp()'
         checkDFilterFail(dfilter, error)
 
-@fixtures.uses_fixtures
-class case_equality(unittest.TestCase):
+class TestDfilterEquality:
     trace_file = "sip.pcapng"
 
     def test_all_eq_1(self, checkDFilterCount):
@@ -213,8 +210,7 @@ class case_equality(unittest.TestCase):
         dfilter = 'frame contains fc:'
         checkDFilterSucceed(dfilter)
 
-@fixtures.uses_fixtures
-class case_bitwise(unittest.TestCase):
+class TestDfilterBitwise:
     trace_file = "http.pcap"
 
     def test_exists_1(self, checkDFilterCount):
@@ -233,8 +229,7 @@ class case_bitwise(unittest.TestCase):
         dfilter = "tcp.srcport != tcp.dstport & 0x0F"
         checkDFilterCount(dfilter, 1)
 
-@fixtures.uses_fixtures
-class case_unary_minus(unittest.TestCase):
+class TestDfilterUnaryMinus:
     trace_file = "http.pcap"
 
     def test_minus_const_1(self, checkDFilterCount):
@@ -271,8 +266,7 @@ class case_unary_minus(unittest.TestCase):
         dfilter = "-tcp"
         checkDFilterFail(dfilter, error)
 
-@fixtures.uses_fixtures
-class case_arithmetic(unittest.TestCase):
+class TestDfilterArithmetic:
     trace_file = "dhcp.pcap"
 
     def test_add_1(self, checkDFilterCount):
@@ -328,8 +322,7 @@ class case_arithmetic(unittest.TestCase):
         dfilter = 'udp.dstport * { udp.srcport / {5 - 4} } == udp.srcport * { 2 * udp.dstport - 68 }'
         checkDFilterCount(dfilter, 2)
 
-@fixtures.uses_fixtures
-class case_field_reference(unittest.TestCase):
+class TestDfilterFieldReference:
     trace_file = "ipoipoip.pcap"
 
     def test_ref_1(self, checkDFilterCountWithSelectedFrame):
@@ -342,8 +335,7 @@ class case_field_reference(unittest.TestCase):
         # select frame 1, expect 1 frames out of 2.
         checkDFilterCountWithSelectedFrame(dfilter, 1, 1)
 
-@fixtures.uses_fixtures
-class case_layer(unittest.TestCase):
+class TestDfilterLayer:
     trace_file = "ipoipoip.pcap"
 
     def test_layer_1(self, checkDFilterCount):
@@ -374,8 +366,7 @@ class case_layer(unittest.TestCase):
         dfilter = 'ip.dst#[-5] == 2.2.2.2'
         checkDFilterCount(dfilter, 1)
 
-@fixtures.uses_fixtures
-class case_quantifiers(unittest.TestCase):
+class TestDfilterQuantifiers:
     trace_file = "ipoipoip.pcap"
 
     def test_any_1(self, checkDFilterCount):
@@ -386,8 +377,7 @@ class case_quantifiers(unittest.TestCase):
         dfilter = 'all ip.addr > 1.1.1.1'
         checkDFilterCount(dfilter, 1)
 
-@fixtures.uses_fixtures
-class case_raw_modifier(unittest.TestCase):
+class TestDfilterRawModifier:
     trace_file = "s7comm-fuzz.pcapng.gz"
 
     def test_regular(self, checkDFilterCount):
