@@ -2474,10 +2474,7 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
 
     /* build an empty oca_request_val
      * if wmem lookup fails, reference this one to force the parameter dissectors to fail */
-    request_val_empty.method_index = 0;
-    request_val_empty.ono = 0;
-    request_val_empty.tree_level = 0;
-    request_val_empty.pnum = 0;
+    request_val_empty = (struct oca_request_hash_val) {0};
 
     request_val = (struct oca_request_hash_val *) wmem_map_lookup(oca_request_hash_map, &request_key);
     if(!request_val) {
