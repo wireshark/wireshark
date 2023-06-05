@@ -428,7 +428,8 @@ Windows x64 Package:
     - msbuild /verbosity:minimal /maxcpucount wireshark_wix_prep.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - msbuild /verbosity:minimal wireshark_nsis.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
+    # No need for explicit signing of NSIS installer here. The signing is done by makensis.
+    #- C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
     - msbuild /verbosity:minimal wireshark_wix.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix
     - msbuild /verbosity:minimal wireshark_portableapps.vcxproj
