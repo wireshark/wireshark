@@ -21,6 +21,7 @@ void proto_reg_handoff_bt_tracker(void);
 
 /* Specifications:
  * https://www.bittorrent.org/beps/bep_0015.html BEP 15 UDP Tracker Protocol for BitTorrent
+ * https://www.bittorrent.org/beps/bep_0041.html BEP 41 UDP Tracker Protocol Extensions
  */
 
 enum {
@@ -69,6 +70,20 @@ static const value_string bt_tracker_action_vals[] = {
   { 0, NULL }
 };
 
+enum {
+  EXT_END_OF_OPTIONS  = 0,
+  EXT_NOP             = 1,
+  EXT_URLDATA         = 2,
+  EXT_MAX
+};
+
+static const value_string bt_tracker_extension_type_vals[] = {
+  { EXT_END_OF_OPTIONS, "End of Options" },
+  { EXT_NOP,            "NOP" },
+  { EXT_URLDATA,        "URL Data" },
+  { 0, NULL }
+};
+
 static int proto_bt_tracker = -1;
 static dissector_handle_t bt_tracker_handle;
 
@@ -97,9 +112,15 @@ static int hf_bt_tracker_tr_ip6 = -1;
 static int hf_bt_tracker_tr_port = -1;
 static int hf_bt_tracker_completed = -1;
 static int hf_bt_tracker_error_msg = -1;
+static int hf_bt_tracker_extension = -1;
+static int hf_bt_tracker_extension_type = -1;
+static int hf_bt_tracker_extension_len = -1;
+static int hf_bt_tracker_extension_unknown = -1;
+static int hf_bt_tracker_extension_urldata = -1;
 
 static gint ett_bt_tracker = -1;
 static gint ett_bt_tracker_trackers = -1;
+static gint ett_bt_tracker_extension = -1;
 
 #define MAGIC_CONSTANT 0x41727101980
 
@@ -149,6 +170,51 @@ is_ipv4_format(packet_info *pinfo)
     cur = wmem_list_frame_prev(cur);
   }
   return TRUE;
+}
+static int
+dissect_bt_tracker_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset)
+{
+  proto_item *ti;
+  proto_tree *ext_tree;
+  guint8 extension_type;
+  guint32 extension_length;
+  gint32 tot_length;
+
+  while (offset < (int)tvb_reported_length(tvb)) {
+    extension_type = tvb_get_guint8(tvb, offset);
+
+    tot_length = 1;
+    if (extension_type == EXT_URLDATA) {
+      tot_length += 1 + tvb_get_guint8(tvb, offset + 1);
+    } else if (extension_type >= EXT_MAX) {
+      tot_length = -1;
+    }
+
+    ti = proto_tree_add_none_format(tree, hf_bt_tracker_extension, tvb, offset, tot_length, "Extension: %s", val_to_str_const(extension_type, bt_tracker_extension_type_vals, "Unknown"));
+    ext_tree = proto_item_add_subtree(ti, ett_bt_tracker_extension);
+    proto_tree_add_item(ext_tree, hf_bt_tracker_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    switch (extension_type) {
+      case EXT_END_OF_OPTIONS:
+        /* Option parsing continues until either the end of the packet is reached, or an EndOfOptions option is encountered, whichever happens first */
+        return offset;
+      case EXT_NOP:
+        /* A special case option that has a fixed-length of one byte. It is not followed by a length field, or associated data.
+           A NOP has no affect on option parsing. It is used only if optional padding is necessary in the future. */
+        break;
+      case EXT_URLDATA:
+        proto_tree_add_item_ret_uint(ext_tree, hf_bt_tracker_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_length);
+        offset += 1;
+        proto_tree_add_item(ext_tree, hf_bt_tracker_extension_urldata, tvb, offset, extension_length, ENC_ASCII);
+        offset += extension_length;
+        break;
+      default:
+        proto_tree_add_item(ext_tree, hf_bt_tracker_extension_unknown, tvb, offset, -1, ENC_NA);
+        return offset;
+    }
+  }
+  return offset;
 }
 
 static int
@@ -209,6 +275,8 @@ dissect_bt_tracker_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     offset += 4;
     proto_tree_add_item(tree, hf_bt_tracker_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
+
+    offset = dissect_bt_tracker_extension(tvb, pinfo, tree, offset);
     break;
 
   case MSG_TYPE_ANNOUNCE_RESPONSE:
@@ -485,10 +553,35 @@ proto_register_bt_tracker(void)
       FT_STRING, BASE_NONE, NULL, 0x00,
       NULL, HFILL }
     },
+    { &hf_bt_tracker_extension,
+      { "Extension", "bt-tracker.extension",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_tracker_extension_type,
+      { "Extension Type", "bt-tracker.extension_type",
+      FT_UINT8, BASE_HEX, VALS(bt_tracker_extension_type_vals), 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_tracker_extension_len,
+      { "Extension Length", "bt-tracker.extension_len",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_tracker_extension_unknown,
+      { "Extension Unknown", "bt-tracker.extension_unknown",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_tracker_extension_urldata,
+      { "URL Data", "bt-tracker.extension.urldata",
+      FT_STRING, BASE_NONE, NULL, 0x00,
+      NULL, HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = { &ett_bt_tracker, &ett_bt_tracker_trackers };
+  static gint *ett[] = { &ett_bt_tracker, &ett_bt_tracker_trackers, &ett_bt_tracker_extension};
   module_t *bt_tracker_module;
 
   /* Register protocol */
