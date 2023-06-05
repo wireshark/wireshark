@@ -2483,8 +2483,8 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
             false, message_tree);
     }
 
-    /* Add generated/expert info for packet lookup */
-    if(request_val) {
+    /* Add generated/expert info for packet lookup (request_val is available either way) */
+    if(request_val->pnum > 0) {
         r_pkt = proto_tree_add_uint(message_tree , hf_ocp1_response_to, tvb, 0, 0, request_val->pnum);
         proto_item_set_generated(r_pkt);
     } else {
