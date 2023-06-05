@@ -17,6 +17,7 @@
 #include <wiretap/wtap.h>
 #include <epan/epan.h>
 #include <epan/print.h>
+#include <epan/fifo_string_cache.h>
 #include <ui/packet_range.h>
 
 #ifdef __cplusplus
@@ -189,7 +190,8 @@ gboolean cf_read_current_record(capture_file *cf);
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read,
-                                  wtap_rec *rec, Buffer *buf, int *err);
+                                  wtap_rec *rec, Buffer *buf, int *err,
+                                  fifo_string_cache_t *frame_dup_cache, GChecksum *frame_cksum);
 
 /**
  * Fake reading packets from the "end" of a capture file.
@@ -208,7 +210,8 @@ void cf_fake_continue_tail(capture_file *cf);
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_finish_tail(capture_file *cf, wtap_rec *rec,
-                                Buffer *buf, int *err);
+                                Buffer *buf, int *err,
+                                fifo_string_cache_t *frame_dup_cache, GChecksum *frame_cksum);
 
 /**
  * Determine whether this capture file (or a range of it) can be written

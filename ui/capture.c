@@ -404,7 +404,8 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
                 cap_session->session_will_restart = TRUE;
                 capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
                 cf_finish_tail((capture_file *)cap_session->cf,
-                               &cap_session->rec, &cap_session->buf, &err);
+                               &cap_session->rec, &cap_session->buf, &err,
+                               &cap_session->frame_dup_cache, cap_session->frame_cksum);
                 cf_close((capture_file *)cap_session->cf);
             } else {
                 capture_callback_invoke(capture_cb_capture_fixed_finished, cap_session);
@@ -531,7 +532,8 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     if(capture_opts->real_time_mode) {
         /* Read from the capture file the number of records the child told us it added. */
         switch (cf_continue_tail((capture_file *)cap_session->cf, to_read,
-                                 &cap_session->rec, &cap_session->buf, &err)) {
+                                 &cap_session->rec, &cap_session->buf, &err,
+                                 &cap_session->frame_dup_cache, cap_session->frame_cksum)) {
 
             case CF_READ_OK:
             case CF_READ_ERROR:
@@ -715,7 +717,8 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
             /* Read what remains of the capture file. */
             status = cf_finish_tail((capture_file *)cap_session->cf,
-                                    &cap_session->rec, &cap_session->buf, &err);
+                                    &cap_session->rec, &cap_session->buf, &err,
+                                    &cap_session->frame_dup_cache, cap_session->frame_cksum);
 
             /* Tell the GUI we are not doing a capture any more.
                Must be done after the cf_finish_tail(), so file lengths are

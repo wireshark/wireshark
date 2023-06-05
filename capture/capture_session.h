@@ -19,6 +19,7 @@
 
 #include "capture_opts.h"
 
+#include <epan/fifo_string_cache.h>
 #include <wsutil/processes.h>
 
 #include "cfile.h"
@@ -105,6 +106,10 @@ struct _capture_session {
     Buffer buf;                           /**< Buffer we're reading packet data into */
     struct wtap *wtap;                    /**< current wtap file */
     struct _info_data *cap_data_info;     /**< stats for this capture */
+
+    // If the user wants to ignore duplicate frames, we need these.
+    fifo_string_cache_t frame_dup_cache;
+    GChecksum           *frame_cksum;
 
     /*
      * Routines supplied by our caller; we call them back to notify them
