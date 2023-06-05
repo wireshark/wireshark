@@ -3131,7 +3131,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint16     mcc, mnc;
     guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
     proto_item *item;
-    gchar      *mcc_mnc_str;
+    gchar      *mcc_str, *mnc_str, *mcc_mnc_str;
     gboolean    long_mnc = FALSE;
     int         hf_E212_mcc_id, hf_E212_mnc_id;
 
@@ -3206,15 +3206,20 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         else
             mnc = 100 * mnc3 + mnc;
     }
-    item = proto_tree_add_uint(tree, hf_E212_mcc_id , tvb, start_offset, 2, mcc );
+    mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
+    item = proto_tree_add_string_format_value(tree, hf_E212_mcc_id, tvb,
+                                              start_offset, 2, mcc_str, "%s (%s)",
+                                              val_to_str_ext_const(mcc, &E212_codes_ext, "Unknown"),
+                                              mcc_str);
     if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) && (mcc_mnc != 0xffffff))
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
     if (long_mnc) {
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc,
-                   "%s (%03u)",
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
-                   mnc);
+                   mnc_str);
         /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
@@ -3224,10 +3229,11 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             mnc,
             val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, ""));
     } else {
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc,
-                   "%s (%02u)",
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
-                   mnc);
+                   mnc_str);
         /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
@@ -3293,6 +3299,7 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint32     start_offset, mcc_mnc;
     guint8      octet;
     guint16     mcc, mnc;
+    gchar      *mcc_str, *mnc_str;
     guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
     proto_item *item;
     gboolean    long_mnc;
@@ -3329,20 +3336,27 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         long_mnc = TRUE;
     }
 
-    item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc);
+    mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
+    item = proto_tree_add_string_format_value(tree, hf_E212_mcc, tvb,
+                                              start_offset, 2, mcc_str, "%s (%s)",
+                                              val_to_str_ext_const(mcc, &E212_codes_ext, "Unknown"),
+                                              mcc_str);
     if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) && (mcc_mnc != 0xffffff))
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
-    if (long_mnc)
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-                   "%s (%03u)",
+    if (long_mnc){
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
-                   mnc);
-    else
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-                   "%s (%02u)",
+                   mnc_str);
+    }else{
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
-                   mnc);
+                   mnc_str);
+    }
 
     if (((mnc1 > 9) || (mnc2 > 9) || (long_mnc && (mnc3 > 9))) && (mcc_mnc != 0xffffff))
         expert_add_info(pinfo, item, &ei_E212_mnc_non_decimal);
@@ -3385,6 +3399,7 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     guint32     start_offset;
     guint8      octet;
     guint16     mcc, mnc;
+    gchar      *mcc_str, *mnc_str;
     guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
     gboolean    long_mnc;
 
@@ -3421,18 +3436,25 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         long_mnc = TRUE;
     }
 
-    proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
+    mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
+    proto_tree_add_string_format_value(tree, hf_E212_mcc, tvb,
+                                       start_offset, 2, mcc_str, "%s (%s)",
+                                       val_to_str_ext_const(mcc, &E212_codes_ext, "Unknown"),
+                                       mcc_str);
 
-    if (long_mnc)
-        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 2, mnc,
-                   "%s (%03u)",
+    if (long_mnc){
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
+        proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 2, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
-                   mnc);
-    else
-        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 1, mnc,
-                   "%s (%02u)",
+                   mnc_str);
+    }else{
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
+        proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 1, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
-                   mnc);
+                   mnc_str);
+    }
 
     if (long_mnc)
         return 7;
@@ -3444,6 +3466,7 @@ int
 dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     guint16 mcc = 0, mnc = 0;
+    gchar  *mcc_str, *mnc_str;
     gboolean    long_mnc = FALSE;
 
     ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset, 3, ENC_UTF_8),
@@ -3460,18 +3483,25 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         }
     }
 
-    proto_tree_add_uint(tree, hf_E212_mcc, tvb, offset, 3, mcc );
+    mcc_str = wmem_strdup_printf(pinfo->pool, "%03u", mcc);
+    proto_tree_add_string_format_value(tree, hf_E212_mcc, tvb,
+                                       offset, 3, mcc_str, "%s (%s)",
+                                       val_to_str_ext_const(mcc, &E212_codes_ext, "Unknown"),
+                                       mcc_str);
 
-    if (long_mnc)
-        proto_tree_add_uint_format_value(tree, hf_E212_mnc, tvb, offset + 3, 3, mnc,
-                   "%s (%03u)",
+    if (long_mnc){
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
+        proto_tree_add_string_format_value(tree, hf_E212_mnc, tvb, offset + 3, 3, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown1"),
-                   mnc);
-    else
-        proto_tree_add_uint_format_value(tree, hf_E212_mnc, tvb, offset + 3, 2, mnc,
-                   "%s (%02u)",
+                   mnc_str);
+    }else{
+        mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
+        proto_tree_add_string_format_value(tree, hf_E212_mnc, tvb, offset + 3, 2, mnc_str,
+                   "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown2"),
-                   mnc);
+                   mnc_str);
+    }
 
     if (long_mnc)
         return 6;
@@ -3581,112 +3611,112 @@ proto_register_e212(void)
 
     { &hf_E212_mcc,
         { "Mobile Country Code (MCC)","e212.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_lai,
         { "Mobile Country Code (MCC)","e212.lai.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_rai,
         { "Mobile Country Code (MCC)","e212.rai.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_sai,
         { "Mobile Country Code (MCC)","e212.sai.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_cgi,
         { "Mobile Country Code (MCC)","e212.cgi.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_ecgi,
         { "Mobile Country Code (MCC)","e212.ecgi.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_tai,
         { "Mobile Country Code (MCC)","e212.tai.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_nrcgi,
         { "Mobile Country Code (MCC)","e212.nrcgi.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_5gstai,
         { "Mobile Country Code (MCC)","e212.5gstai.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_gummei,
         { "Mobile Country Code (MCC)","e212.gummei.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mcc_guami,
         { "Mobile Country Code (MCC)","e212.guami.mcc",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mnc,
         { "Mobile Network Code (MNC)","e212.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_lai,
         { "Mobile Network Code (MNC)","e212.lai.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_rai,
         { "Mobile Network Code (MNC)","e212.rai.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_sai,
         { "Mobile Network Code (MNC)","e212.sai.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_cgi,
         { "Mobile Network Code (MNC)","e212.cgi.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_ecgi,
         { "Mobile Network Code (MNC)","e212.ecgi.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_tai,
         { "Mobile Network Code (MNC)","e212.tai.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_nrcgi,
         { "Mobile Network Code (MNC)","e212.nrcgi.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_5gstai,
         { "Mobile Network Code (MNC)","e212.5gstai.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_gummei,
         { "Mobile Network Code (MNC)","e212.gummei.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
     { &hf_E212_mnc_guami,
         { "Mobile Network Code (MNC)","e212.guami.mnc",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile network code", HFILL }
     },
 #if 0
