@@ -6,18 +6,14 @@
 #
 '''ASTERIX dissector tests'''
 
-# Standard modules
 import inspect
+import pytest
 
 # Wireshark modules
-import fixtures
-import subprocesstest
 from suite_dissectors.dissectorstest import *
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_asterix(subprocesstest.SubprocessTestCase):
+class TestAsterix:
 
     def test_for_asterix(self, dissection_validator):
         '''Verifies that the asterix dissector is installed and accessible'''
@@ -66,7 +62,7 @@ class _asterix_validator_real:
         self.validator.check_dissections()
 
 
-@fixtures.fixture
+@pytest.fixture
 def asterix_validator(dissection_validator):
 
     def generate_asterix_validator(category):
@@ -101,7 +97,7 @@ class _asterix_re_validator_real(_asterix_validator_real):
             self.category), expected_result, line_no)
 
 
-@fixtures.fixture
+@pytest.fixture
 def asterix_re_validator(dissection_validator):
 
     def generate_re_asterix_validator(category, re_byte_list):
@@ -174,9 +170,7 @@ def counter_local(vmap, counter, key, idx, value):
     return result
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_category_019(subprocesstest.SubprocessTestCase):
+class TestCategory019:
     '''
     Unittest case for ASTERIX Category 019
 
@@ -207,8 +201,6 @@ class case_category_019(subprocesstest.SubprocessTestCase):
     14  SP        Special Purpose Field                       -
     FX   -        Field Extension Indicator                   -
     '''
-
-    maxDiff = None
 
     def test_for_fields(self, asterix_validator):
         '''verifies existence of all fields and their maximum value'''
@@ -783,9 +775,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
         validator.check_dissections()
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_category_034(subprocesstest.SubprocessTestCase):
+class TestCategory034:
     '''
     Unittest case for ASTERIX Category 034
 
@@ -815,8 +805,6 @@ class case_category_034(subprocesstest.SubprocessTestCase):
     14  SP-Data   Item Special Purpose Field                          1+1+
     FX  N/A.      Field Extension Indicator                           n.a.
     '''
-
-    maxDiff = None
 
     def test_for_fields(self, asterix_validator):
         '''verifies existence of all fields and their maximum value'''
@@ -1373,9 +1361,7 @@ class case_category_034(subprocesstest.SubprocessTestCase):
         validator.check_dissections()
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_category_048(subprocesstest.SubprocessTestCase):
+class TestCategory048:
     '''
     Unittest case for ASTERIX Category 048
 
@@ -1422,8 +1408,6 @@ class case_category_048(subprocesstest.SubprocessTestCase):
     28  RE-Data   Item Reserved Expansion Field                       1+1+
     FX  n.a.      Field Extension Indicator                           n.a.
     '''
-
-    maxDiff = None
 
     def test_for_fields(self, asterix_re_validator):
         '''verifies existence of all fields and their maximum value'''
@@ -3091,9 +3075,7 @@ class case_category_048(subprocesstest.SubprocessTestCase):
         validator.check_dissections()
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_category_063(subprocesstest.SubprocessTestCase):
+class TestCategory063:
     '''
     Unittest case for ASTERIX Category 063
 
@@ -3123,8 +3105,6 @@ class case_category_063(subprocesstest.SubprocessTestCase):
     14  SP        Special Purpose Field                       1+1+
     FX   -        Field extension indicator                   -
     '''
-
-    maxDiff = None
 
     def test_for_fields(self, asterix_validator):
         '''verifies existence of all fields and their maximum value'''
@@ -3530,9 +3510,7 @@ class case_category_063(subprocesstest.SubprocessTestCase):
         validator.check_dissections()
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_category_065(subprocesstest.SubprocessTestCase):
+class TestCategory065:
     '''
     Unittest case for ASTERIX Category 065
 
@@ -3563,8 +3541,6 @@ class case_category_065(subprocesstest.SubprocessTestCase):
     14  SP        Special Purpose Field                       1+1+
     FX   -        Field extension indicator                   -
     '''
-
-    maxDiff = None
 
     def test_for_fields(self, asterix_validator):
         '''verifies existence of all fields and their maximum value'''

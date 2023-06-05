@@ -4,13 +4,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-# Standard modules
 import inspect
 import json
-
-# Wireshark modules
-import fixtures
-import subprocesstest
+import subprocess
+import pytest
 
 
 class _dissection_validator_real:
@@ -26,13 +23,14 @@ class _dissection_validator_real:
     unacceptable overhead during execution of the unittests.
     '''
 
-    def __init__(self, protocol, request, cmd_tshark, cmd_text2pcap, result_file):
+    def __init__(self, protocol, request, cmd_tshark, cmd_text2pcap, result_file, env):
         self.dissection_list = []
         self.protocol = protocol
         self.cmd_tshark = cmd_tshark
         self.cmd_text2pcap = cmd_text2pcap
         self.test_case = request.instance
         self.result_file = result_file
+        self.env = env
 
     def add_dissection(self, byte_list, expected_result, line_no=None):
         '''Adds a byte bundle and an expected result to the set of byte
@@ -71,41 +69,39 @@ class _dissection_validator_real:
                 f.write("0 {}\n".format(hex_string))
 
         # generate our pcap file by feeding the messages to text2pcap
-        self.test_case.assertRun((
+        subprocess.check_call((
             self.cmd_text2pcap,
             '-u', '1234,1234',
             text_file, pcap_file
-        ))
+        ), env=self.env)
 
         # generate our dissection from our pcap file
-        tshark_proc = self.test_case.assertRun((
+        tshark_stdout = subprocess.check_output((
             self.cmd_tshark,
             '-r', pcap_file,
             '-T', 'json',
             '-d', 'udp.port==1234,{}'.format(self.protocol),
             '-J', self.protocol
-        ))
+        ), encoding='utf-8', env=self.env)
 
-        dissections = json.loads(tshark_proc.stdout_str)
+        dissections = json.loads(tshark_stdout)
         for (line_no, hex_string, expected_result), dissection in zip(self.dissection_list, dissections):
 
             # strip away everything except the protocol
             result = dissection['_source']['layers']
-            self.test_case.assertIn(self.protocol, result)
+            assert self.protocol in result
             result = result[self.protocol]
 
             # verify that the dissection is as expected
-            self.test_case.assertEqual(
-                expected_result,
-                result,
-                "expected != result, while dissecting [{}] from line {}.".format(hex_string, line_no))
+            assert expected_result == result, \
+                "expected != result, while dissecting [{}] from line {}.".format(hex_string, line_no)
 
         # cleanup for next test
         self.dissection_list = []
 
 
-@fixtures.fixture
-def dissection_validator(request, cmd_tshark, cmd_text2pcap, result_file):
+@pytest.fixture
+def dissection_validator(request, cmd_tshark, cmd_text2pcap, result_file, test_env):
 
     def generate_validator(protocol):
         retval = _dissection_validator_real(
@@ -113,7 +109,8 @@ def dissection_validator(request, cmd_tshark, cmd_text2pcap, result_file):
             request,
             cmd_tshark,
             cmd_text2pcap,
-            result_file)
+            result_file,
+            test_env)
         return retval
 
     return generate_validator
