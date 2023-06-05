@@ -7,26 +7,25 @@
 #
 '''NetPerfMeter tests'''
 
-import subprocesstest
-import fixtures
+import subprocess
+import pytest
 
 
-@fixtures.mark_usefixtures('test_env')
-@fixtures.uses_fixtures
-class case_netperfmeter(subprocesstest.SubprocessTestCase):
+class TestNetperfmeter:
 
-    def test_netperfmeter_test_control(self, cmd_tshark, capture_file):
+    def test_netperfmeter_test_control(self, cmd_tshark, capture_file, test_env):
         '''Checks whether the NetPerfMeter dissector correctly handles NetPerfMeter Control via SCTP.'''
 
         # Test: Identify and decode NetPerfMeter Control via SCTP
-        proc = self.assertRun((cmd_tshark,
+        stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-Y', 'sctp && netperfmeter && ((netperfmeter.message_type != 5) && (netperfmeter.message_type != 4))'
-                                ))
+                                ),
+                                encoding='utf-8', env=test_env)
 
-        result = ''.join([x.strip()+"\n" for x in proc.stdout_str.splitlines()])
-        # print(proc.stdout_str)
-        self.assertIn("""\
+        result = ''.join([x.strip()+"\n" for x in stdout.splitlines()])
+
+        assert """\
 8 0.019316433 192.168.0.20 → 192.168.0.27 SCTP, NetPerfMeter 260 NetPerfMeter Add Flow
 10 0.038537718 192.168.0.27 → 192.168.0.20 SCTP, NetPerfMeter 88 NetPerfMeter Acknowledge
 14 0.326752277 192.168.0.27 → 192.168.0.20 SCTP, NetPerfMeter 88 NetPerfMeter Acknowledge
@@ -255,21 +254,21 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 2335 17.395701306 192.168.0.27 → 192.168.0.20 SCTP, NetPerfMeter 104 SACK (Ack=43, Arwnd=106496) NetPerfMeter Acknowledge
 2336 17.397791412 192.168.0.27 → 192.168.0.20 SCTP, NetPerfMeter 1468 NetPerfMeter Results
 2338 17.398332887 192.168.0.27 → 192.168.0.20 SCTP, NetPerfMeter 284 NetPerfMeter Results
-""".replace("\r\n", "\n"),
-            result)
+""".replace("\r\n", "\n") in result
 
-    def test_netperfmeter_test_udp(self, cmd_tshark, capture_file):
+    def test_netperfmeter_test_udp(self, cmd_tshark, capture_file, test_env):
         '''Checks whether the NetPerfMeter dissector correctly handles NetPerfMeter Data via UDP.'''
 
         # Test: Identify and decode NetPerfMeter Data via UDP
-        proc = self.assertRun((cmd_tshark,
+        stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-Y', 'frame.number >= 1 && frame.number <= 512 && udp && netperfmeter'
-                                ))
+                                ),
+                                encoding='utf-8', env=test_env)
 
-        result = ''.join([x.strip()+"\n" for x in proc.stdout_str.splitlines()])
-        # print(proc.stdout_str)
-        self.assertIn("""\
+        result = ''.join([x.strip()+"\n" for x in stdout.splitlines()])
+
+        assert """\
 26 0.556893098 192.168.0.20 → 192.168.0.27 UDP, NetPerfMeter 70 NetPerfMeter Identify Flow
 31 0.778199411 192.168.0.20 → 192.168.0.27 UDP, NetPerfMeter 70 NetPerfMeter Identify Flow
 166 5.097058561 192.168.0.20 → 192.168.0.27 UDP, NetPerfMeter 1068 NetPerfMeter Data
@@ -296,21 +295,21 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 499 6.850796522 192.168.0.20 → 192.168.0.27 UDP, NetPerfMeter 1068 NetPerfMeter Data
 509 6.874579699 192.168.0.27 → 192.168.0.20 UDP, NetPerfMeter 1068 NetPerfMeter Data
 510 6.875289205 192.168.0.27 → 192.168.0.20 UDP, NetPerfMeter 556 NetPerfMeter Data
-""".replace("\r\n", "\n"),
-            result)
+""".replace("\r\n", "\n") in result
 
-    def test_netperfmeter_test_dccp(self, cmd_tshark, capture_file):
+    def test_netperfmeter_test_dccp(self, cmd_tshark, capture_file, test_env):
         '''Checks whether the NetPerfMeter dissector correctly handles NetPerfMeter Data via DCCP.'''
 
         # Test: Identify and decode NetPerfMeter Data via DCCP
-        proc = self.assertRun((cmd_tshark,
+        stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-Y', 'frame.number >= 1 && frame.number <= 256 && dccp && netperfmeter'
-                                ))
+                                ),
+                                encoding='utf-8', env=test_env)
 
-        result = ''.join([x.strip()+"\n" for x in proc.stdout_str.splitlines()])
-        # print(proc.stdout_str)
-        self.assertIn("""\
+        result = ''.join([x.strip()+"\n" for x in stdout.splitlines()])
+
+        assert """\
 39 1.000448305 192.168.0.20 → 192.168.0.27 DCCP, NetPerfMeter 106 NetPerfMeter Identify Flow
 47 1.257376250 192.168.0.20 → 192.168.0.27 DCCP, NetPerfMeter 106 NetPerfMeter Identify Flow
 55 1.518626642 192.168.0.20 → 192.168.0.27 DCCP, NetPerfMeter 106 NetPerfMeter Identify Flow
@@ -350,20 +349,21 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 250 5.597889485 192.168.0.20 → 192.168.0.27 DCCP, NetPerfMeter 1096 NetPerfMeter Data
 255 5.598126766 192.168.0.20 → 192.168.0.27 DCCP, NetPerfMeter 1088 NetPerfMeter Data
 256 5.598378615 192.168.0.20 → 192.168.0.27 DCCP, NetPerfMeter 576 NetPerfMeter Data
-""".replace("\r\n", "\n"),
-            result)
+""".replace("\r\n", "\n") in result
 
-    def test_netperfmeter_test_tcp(self, cmd_tshark, capture_file):
+    def test_netperfmeter_test_tcp(self, cmd_tshark, capture_file, test_env):
         '''Checks whether the NetPerfMeter dissector correctly handles NetPerfMeter Data via TCP.'''
 
         # Test: Identify and decode NetPerfMeter Data via TCP
-        proc = self.assertRun((cmd_tshark,
+        stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-Y', 'frame.number >= 1 && frame.number <= 512 && tcp && netperfmeter'
-                                ))
+                                ),
+                                encoding='utf-8', env=test_env)
 
-        result = ''.join([x.strip()+"\n" for x in proc.stdout_str.splitlines()])
-        self.assertIn("""\
+        result = ''.join([x.strip()+"\n" for x in stdout.splitlines()])
+
+        assert """\
 12 0.038833197 192.168.0.20 → 192.168.0.27 TCP, NetPerfMeter 94 NetPerfMeter Identify Flow
 20 0.340423798 192.168.0.20 → 192.168.0.27 TCP, NetPerfMeter 94 NetPerfMeter Identify Flow
 164 5.096822593 192.168.0.20 → 192.168.0.27 TCP, NetPerfMeter 1092 NetPerfMeter Data
@@ -390,21 +390,21 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 497 6.846781911 192.168.0.27 → 192.168.0.20 TCP, NetPerfMeter 1092 NetPerfMeter Data
 502 6.850917051 192.168.0.20 → 192.168.0.27 TCP, NetPerfMeter 1092 NetPerfMeter Data
 507 6.857231771 192.168.0.27 → 192.168.0.20 TCP, NetPerfMeter 580 NetPerfMeter Data
-""".replace("\r\n", "\n"),
-            result)
+""".replace("\r\n", "\n") in result
 
-    def test_netperfmeter_test_sctp(self, cmd_tshark, capture_file):
+    def test_netperfmeter_test_sctp(self, cmd_tshark, capture_file, test_env):
         '''Checks whether the NetPerfMeter dissector correctly handles NetPerfMeter Data via SCTP.'''
 
         # Test: Identify and decode NetPerfMeter Data via SCTP
-        proc = self.assertRun((cmd_tshark,
+        stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('netperfmeter.pcapng.gz'),
                                 '-Y', 'frame.number >= 1 && frame.number <= 256 && sctp && netperfmeter && ((netperfmeter.message_type == 5) || (netperfmeter.message_type == 4))'
-                                ))
+                                ),
+                                encoding='utf-8', env=test_env)
 
-        result = ''.join([x.strip()+"\n" for x in proc.stdout_str.splitlines()])
-        # print(proc.stdout_str)
-        self.assertIn("""\
+        result = ''.join([x.strip()+"\n" for x in stdout.splitlines()])
+
+        assert """\
 120 3.541753666 192.168.0.20 → 192.168.0.27 SCTP, NetPerfMeter 92 NetPerfMeter Identify Flow
 126 3.784578040 192.168.0.20 → 192.168.0.27 SCTP, NetPerfMeter 92 NetPerfMeter Identify Flow
 132 4.006622016 192.168.0.20 → 192.168.0.27 SCTP, NetPerfMeter 92 NetPerfMeter Identify Flow
@@ -427,5 +427,4 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 232 5.349726358 192.168.0.20 → 192.168.0.27 SCTP, NetPerfMeter 208 SACK (Ack=5, Arwnd=212992) NetPerfMeter Data
 235 5.355361743 192.168.0.27 → 192.168.0.20 SCTP, NetPerfMeter 1104 SACK (Ack=14, Arwnd=106368) NetPerfMeter Data
 242 5.475302128 192.168.0.20 → 192.168.0.27 SCTP, NetPerfMeter 208 SACK (Ack=6, Arwnd=212992) NetPerfMeter Data
-""".replace("\r\n", "\n"),
-            result)
+""".replace("\r\n", "\n") in result
