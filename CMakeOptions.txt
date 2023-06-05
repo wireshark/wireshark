@@ -148,9 +148,19 @@ if(APPLE)
 endif()
 
 if(WIN32)
+	# Enable signing of NSIS installer by default only if we have 'sign-wireshark.bat' on the path
+	# of the host system.
+	set(_enable_signed_nsis False)
+	if(CMAKE_HOST_WIN32)
+		find_file(SIGN_WIRESHARK_BAT "sign-wireshark.bat")
+		if (SIGN_WIRESHARK_BAT)
+			set(_enable_signed_nsis True)
+		endif()
+	endif()
+	option(ENABLE_SIGNED_NSIS         "Enable the code signing step of the NSIS installer build" ${_enable_signed_nsis})
+
 	# Advanced options for developers to work-around limitations in the build
 	# when cross-compiling to Windows.
-	option(SKIP_NSIS_QT_DEPLOYMENT    "Skip deploying Qt runtime with installer" OFF)
-	mark_as_advanced(SKIP_NSIS_QT_DEPLOYMENT)
-	option(ENABLE_SIGNED_NSIS         "Enable the code signing step of the NSIS installer build" OFF)
+	option(SKIP_NSIS_QT_DLLS    "Skip deploying Qt runtime DLLs with installer" OFF)
+	mark_as_advanced(SKIP_NSIS_QT_DLLS)
 endif()

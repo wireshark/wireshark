@@ -1005,7 +1005,10 @@ File "${QT_DIR}\${PROGRAM_NAME_PATH}"
 ; Write an entry for ShellExecute
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "" '$INSTDIR\${PROGRAM_NAME_PATH}'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
+
+!ifndef SKIP_NSIS_QT_DLLS
 !include wireshark-qt-manifest.nsh
+!endif
 
 ${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
 SetOutPath $INSTDIR
