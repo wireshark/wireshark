@@ -1545,8 +1545,10 @@ NoFinalErrorMsg:
 SectionEnd
 
 ; Sign our installer and uninstaller during compilation.
+!ifdef ENABLE_SIGNED_NSIS
 !finalize 'sign-wireshark.bat "%1"' = 0 ; %1 is replaced by the installer exe to be signed.
 !uninstfinalize 'sign-wireshark.bat "%1"' = 0 ; %1 is replaced by the uninstaller exe to be signed.
+!endif
 
 ; ============================================================================
 ; PLEASE MAKE SURE, THAT THE DESCRIPTIVE TEXT FITS INTO THE DESCRIPTION FIELD!

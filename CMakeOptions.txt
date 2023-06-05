@@ -151,11 +151,6 @@ if(WIN32)
 	# Advanced options for developers to work-around limitations in the build
 	# when cross-compiling to Windows.
 	option(SKIP_NSIS_QT_DEPLOYMENT    "Skip deploying Qt runtime with installer" OFF)
-	if(CMAKE_CROSSCOMPILING)
-		option(SKIP_NSIS_UNINSTALLER      "Skip creating a Windows uninstaller" ON)
-	else()
-		option(SKIP_NSIS_UNINSTALLER      "Skip creating a Windows uninstaller" OFF)
-	endif()
 	mark_as_advanced(SKIP_NSIS_QT_DEPLOYMENT)
-	mark_as_advanced(SKIP_NSIS_UNINSTALLER)
+	option(ENABLE_SIGNED_NSIS         "Enable the code signing step of the NSIS installer build" OFF)
 endif()
