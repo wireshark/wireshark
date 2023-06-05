@@ -127,6 +127,10 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
 * When saving files or exporting packets after changing their time with the
 "Time Shift" dialog, the shifted time is written to the new file.
 
+* TLS secrets used in decrypting packets can be embedded (or discarded) from
+  the capture file via the GUI, similar to the options --inject-secrets and
+  --discard-all-secrets in editcap.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

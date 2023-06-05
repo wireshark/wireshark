@@ -564,10 +564,9 @@ typedef struct {
     /* The hash tables above store the static keylog file contents and secrets
      * from any DSB, not all of which may be used, in addition to any master
      * secrets derived at runtime ([D]TLS < 1.3). These store the used
-     * Client Random and Session IDs for exporting master secrets and
-     * derived secrets in TLS Export Sessions (future: writing a DSB?)
+     * Client Random for exporting master secrets and derived secrets in
+     * TLS Export Sessions or adding a DSB.
      */
-    GHashTable *used_session;
     GHashTable *used_crandom;
 } ssl_master_key_map_t;
 
@@ -789,19 +788,12 @@ extern void
 ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp);
 #endif
 
-/**
- * Mark a Session ID as used (not just present in the keylog file),
- * to enable "Export TLS Sessions Keys" (or eventually adding a DSB)
- */
-extern void
-tls_save_session(SslDecryptSession* ssl, ssl_master_key_map_t *mk_map);
-
 extern void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 
 /**
  * Mark a Client Random as used (not just present in the keylog file),
- * to enable "Export TLS Sessions Keys" (or eventually adding a DSB)
+ * to enable "Export TLS Sessions Keys" or "Inject Secrets"
  */
 extern void
 tls_save_crandom(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);

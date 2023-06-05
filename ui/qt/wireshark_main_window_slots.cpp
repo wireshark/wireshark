@@ -2088,6 +2088,12 @@ void WiresharkMainWindow::connectEditMenuActions()
     connect(main_ui_->actionDeleteAllPacketComments, &QAction::triggered, this,
             [this]() { deleteAllPacketComments(); }, Qt::QueuedConnection);
 
+    connect(main_ui_->actionEditInjectSecrets, &QAction::triggered, this,
+            [this]() { injectSecrets(); }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditDiscardAllSecrets, &QAction::triggered, this,
+            [this]() { discardAllSecrets(); }, Qt::QueuedConnection);
+
     connect(main_ui_->actionEditConfigurationProfiles, &QAction::triggered, this,
             [this]() { editConfigurationProfiles(); }, Qt::QueuedConnection);
 
@@ -2315,6 +2321,72 @@ void WiresharkMainWindow::deleteAllPacketCommentsFinished(int result)
         /* XXX Do we need a wait/hourglass for large files? */
         packet_list_->deleteAllPacketComments();
         updateForUnsavedChanges();
+    }
+}
+
+void WiresharkMainWindow::injectSecrets()
+{
+    int keylist_len;
+
+    keylist_len = ssl_session_key_count();
+    /* don't do anything if no data has to be saved */
+    if (keylist_len < 1) {
+        QMessageBox::Button ret = QMessageBox::warning(
+            this,
+            tr("No TLS Secrets"),
+            tr("There are no available secrets used to decrypt TLS traffic in the capture file.\
+  Would you like to view information about how to decrypt TLS traffic on the wiki?"),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No);
+
+        if (ret != QMessageBox::Yes) return;
+
+        QUrl wiki_url = QString(WS_WIKI_URL("TLS/#tls-decryption"));
+        QDesktopServices::openUrl(wiki_url);
+        return;
+    }
+
+    if (!capture_file_.isValid())
+        return;
+
+    /* XXX: It would be nice to handle other types of secrets that
+     * can be written to a DSB, maybe have a proper dialog.
+     */
+    capture_file *cf = capture_file_.capFile();
+    tls_export_dsb(cf);
+    updateForUnsavedChanges();
+}
+
+void WiresharkMainWindow::discardAllSecrets()
+{
+    if (!capture_file_.isValid())
+        return;
+
+    QMessageBox* msg_dialog = new QMessageBox();
+    connect(msg_dialog, SIGNAL(finished(int)), this, SLOT(discardAllSecretsFinished(int)));
+
+    msg_dialog->setIcon(QMessageBox::Question);
+    msg_dialog->setText(tr("Are you sure you want to discard all decryption secrets?"));
+
+    msg_dialog->setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msg_dialog->setDefaultButton(QMessageBox::Ok);
+
+    msg_dialog->setWindowModality(Qt::ApplicationModal);
+    msg_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    msg_dialog->show();
+}
+
+void WiresharkMainWindow::discardAllSecretsFinished(int result)
+{
+    if (result == QMessageBox::Ok) {
+        /* XXX: It would be nice to handle other types of secrets that
+         * can be written to a DSB, maybe have a proper dialog.
+         */
+        capture_file* cf = capture_file_.capFile();
+        if (wtap_file_discard_decryption_secrets(cf->provider.wth)) {
+            cf->unsaved_changes = TRUE;
+            updateForUnsavedChanges();
+        }
     }
 }
 

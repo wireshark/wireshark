@@ -202,6 +202,26 @@ wtap_get_next_interface_description(wtap *wth)
 }
 
 void
+wtap_file_add_decryption_secrets(wtap *wth, const wtap_block_t dsb)
+{
+	if (!wth->dsbs) {
+		wth->dsbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	}
+	g_array_append_val(wth->dsbs, dsb);
+}
+
+gboolean
+wtap_file_discard_decryption_secrets(wtap *wth)
+{
+	if (!wth->dsbs || wth->dsbs->len == 0)
+		return FALSE;
+
+	wtap_block_array_free(wth->dsbs);
+	wth->dsbs = NULL;
+	return TRUE;
+}
+
+void
 wtap_add_idb(wtap *wth, wtap_block_t idb)
 {
 	g_array_append_val(wth->interface_data, idb);

@@ -537,9 +537,8 @@ class TestSharkd:
             },
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
-            # TODO remove "RSA Session-ID:" support and support "CLIENT_RANDOM "... only
             {"jsonrpc":"2.0","id":2,"result":{"file": "keylog.txt", "mime": "text/plain",
-                "data": MatchRegExp(r'UlNBIFNlc3Npb24tSUQ6.+')}
+                "data": MatchRegExp(r'Q0xJRU5UX1JBTkRPTSBm.+')}
             },
         ))
 

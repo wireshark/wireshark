@@ -686,6 +686,9 @@
     <addaction name="menuPacketComment"/>
     <addaction name="actionDeleteAllPacketComments"/>
     <addaction name="separator"/>
+    <addaction name="actionEditInjectSecrets"/>
+    <addaction name="actionEditDiscardAllSecrets"/>
+    <addaction name="separator"/>
     <addaction name="actionEditConfigurationProfiles"/>
     <addaction name="actionEditPreferences"/>
    </widget>
@@ -1603,6 +1606,22 @@
    </property>
    <property name="toolTip">
     <string>Remove all packet comments in the capture file</string>
+   </property>
+  </action>
+  <action name="actionEditInjectSecrets">
+   <property name="text">
+    <string>Inject TLS Secrets</string>
+   </property>
+   <property name="toolTip">
+    <string>Embed used TLS secrets in the capture file</string>
+   </property>
+  </action>
+  <action name="actionEditDiscardAllSecrets">
+   <property name="text">
+    <string>Discard All Secrets</string>
+   </property>
+   <property name="toolTip">
+    <string>Discard all decryption secrets in the capture file</string>
    </property>
   </action>
   <action name="actionEditConfigurationProfiles">

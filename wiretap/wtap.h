@@ -1981,6 +1981,28 @@ gchar *wtap_get_debug_if_descr(const wtap_block_t if_descr,
 WS_DLL_PUBLIC
 wtap_block_t wtap_file_get_nrb(wtap *wth);
 
+/**
+ * @brief Adds a Decryption Secrets Block to the open wiretap session.
+ * @details The passed-in DSB is added to the DSBs for the current
+ *          session.
+ *
+ * @param wth The wiretap session.
+ * @param dsb The Decryption Secrets Block to add
+ */
+WS_DLL_PUBLIC
+void wtap_file_add_decryption_secrets(wtap *wth, const wtap_block_t dsb);
+
+/**
+ * Remove any decryption secret information from the per-file information;
+ * used if we're stripping decryption secrets while the file is open
+ *
+ * @param wth The wiretap session from which to remove the
+ * decryption secrets.
+ * @return TRUE if any DSBs were removed
+ */
+WS_DLL_PUBLIC
+gboolean wtap_file_discard_decryption_secrets(wtap *wth);
+
 /*** close the file descriptors for the current file ***/
 WS_DLL_PUBLIC
 void wtap_fdclose(wtap *wth);

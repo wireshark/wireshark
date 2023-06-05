@@ -17,40 +17,43 @@
 #include <epan/address.h>
 #include <epan/dissectors/packet-tls-utils.h>
 
+#include <wiretap/secrets-types.h>
+
 #include "ui/ssl_key_export.h"
 
 int
 ssl_session_key_count(void)
 {
+    int count = 0;
     ssl_master_key_map_t *mk_map = tls_get_master_key_map(FALSE);
     if (!mk_map)
-        return 0;
+        return count;
 
-    return g_hash_table_size(mk_map->used_session) +
-           g_hash_table_size(mk_map->used_crandom);
-}
+    GHashTableIter iter;
+    gpointer key;
 
-static void
-ssl_export_sessions_func(gpointer key, gpointer value, gpointer user_data)
-{
-    guint i;
-    StringInfo *sslid = (StringInfo *)key;
-    StringInfo *master_secret = (StringInfo *)value;
-    GString *keylist = (GString *)user_data;
-
-    g_string_append(keylist, "RSA Session-ID:");
-
-    for (i = 0; i < sslid->data_len; i++) {
-        g_string_append_printf(keylist, "%.2x", sslid->data[i]);
+    g_hash_table_iter_init(&iter, mk_map->used_crandom);
+    while (g_hash_table_iter_next(&iter, &key, NULL)) {
+        if (g_hash_table_contains(mk_map->crandom, key)) {
+            count++;
+        }
+        if (g_hash_table_contains(mk_map->tls13_client_early, key)) {
+            count++;
+        }
+        if (g_hash_table_contains(mk_map->tls13_client_handshake, key)) {
+            count++;
+        }
+        if (g_hash_table_contains(mk_map->tls13_server_handshake, key)) {
+            count++;
+        }
+        if (g_hash_table_contains(mk_map->tls13_client_appdata, key)) {
+            count++;
+        }
+        if (g_hash_table_contains(mk_map->tls13_server_appdata, key)) {
+            count++;
+        }
     }
-
-    g_string_append(keylist, " Master-Key:");
-
-    for (i = 0; i < master_secret->data_len; i++) {
-        g_string_append_printf(keylist, "%.2x", master_secret->data[i]);
-    }
-
-    g_string_append_c(keylist, '\n');
+    return count;
 }
 
 static void
@@ -80,11 +83,6 @@ gchar*
 ssl_export_sessions(gsize *length)
 {
     /* Output format is:
-     * "RSA Session-ID:xxxx Master-Key:yyyy\n"
-     * Where xxxx is the session ID in hex (max 64 chars)
-     * Where yyyy is the Master Key in hex (always 96 chars)
-     * So in total max 3+1+11+64+1+11+96+2 = 189 chars
-     * or
      * "CLIENT_RANDOM zzzz yyyy\n"
      * Where zzzz is the client random (always 64 chars)
      * Where yyyy is same as above
@@ -100,8 +98,7 @@ ssl_export_sessions(gsize *length)
      * "CLIENT_HANDSHAKE_TRAFFIC_SECRET zzzz yyyy\n"
      *
      * The TLS 1.3 values are obtained from an existing key log, but exporting
-     * them is useful in order to filter actually used secrets.
-     * (Eventually, this can be used to add a DSB as well, issue #18400)
+     * them is useful in order to filter actually used secrets or add a DSB.
      */
     ssl_master_key_map_t *mk_map = tls_get_master_key_map(FALSE);
 
@@ -110,20 +107,11 @@ ssl_export_sessions(gsize *length)
         return g_strdup("");
     }
 
-    /* This at least provides a minimum for the string length. */
-    gsize len = 189 * g_hash_table_size(mk_map->used_session) +
-                177 * g_hash_table_size(mk_map->used_crandom);
+    gsize len = 177 * (gsize)ssl_session_key_count();
     GString *keylist = g_string_sized_new(len);
 
     GHashTableIter iter;
     gpointer key, value;
-
-    g_hash_table_iter_init(&iter, mk_map->used_session);
-    while (g_hash_table_iter_next(&iter, &key, NULL)) {
-        if ((value = g_hash_table_lookup(mk_map->session, key))) {
-            ssl_export_sessions_func(key, value, (gpointer)keylist);
-        }
-    }
 
     g_hash_table_iter_init(&iter, mk_map->used_crandom);
     while (g_hash_table_iter_next(&iter, &key, NULL)) {
@@ -145,14 +133,41 @@ ssl_export_sessions(gsize *length)
         if ((value = g_hash_table_lookup(mk_map->tls13_client_appdata, key))) {
             tls_export_client_randoms_func(key, value, (gpointer)keylist, "CLIENT_TRAFFIC_SECRET_0 ");
         }
+#if 0
+        /* We don't use the EARLY_EXPORT_SECRET or EXPORTER_SECRET now so don't
+           export, but we may in the future. */
         if ((value = g_hash_table_lookup(mk_map->tls13_early_exporter, key))) {
             tls_export_client_randoms_func(key, value, (gpointer)keylist, "EARLY_EXPORTER_SECRET ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_exporter, key))) {
             tls_export_client_randoms_func(key, value, (gpointer)keylist, "EXPORTER_SECRET ");
         }
+#endif
     }
 
     *length = keylist->len;
     return g_string_free(keylist, FALSE);
+}
+
+void
+tls_export_dsb(capture_file *cf)
+{
+    wtap_block_t block;
+    wtapng_dsb_mandatory_t *dsb;
+    size_t secrets_len;
+    char* secrets = ssl_export_sessions(&secrets_len);
+
+    block = wtap_block_create(WTAP_BLOCK_DECRYPTION_SECRETS);
+    dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
+
+    dsb->secrets_type = SECRETS_TYPE_TLS;
+    dsb->secrets_data = g_memdup2(secrets, secrets_len);
+    dsb->secrets_len = (guint)secrets_len;
+
+    /* XXX - support replacing the DSB of the same type instead of adding? */
+    wtap_file_add_decryption_secrets(cf->provider.wth, block);
+    /* Mark the file as having unsaved changes */
+    cf->unsaved_changes = TRUE;
+
+    return;
 }

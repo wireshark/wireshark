@@ -374,6 +374,17 @@ This will delete all comments from all packets. Note that the ability to save
 capture comments depends on your file format. E.g., pcapng supports
 comments, pcap does not.
 
+|menu:Inject TLS Secrets[]                        ||
+Embeds the used TLS decryption secrets into the capture file, which lets
+TLS be decrypted without having the separate keylog file.
+Note that the ability to save decryption secrets depends on your file
+format. E.g., pcapng supports Decryption Secrets Blocks, pcap does not.
+
+|menu:Discard All Secrets[]                   ||
+This will discard all embedded decryption secrets from the capture file.
+Note that the ability to save decryption secrets depends on your file
+format. E.g., pcapng supports Decryption Secrets Blocks, pcap does not.
+
 |menu:Configuration Profiles...[]             |kbd:[Ctrl+Shift+A]|
 This menu item brings up a dialog box for handling configuration profiles.  More
 detail is provided in <<ChCustConfigProfilesSection>>.
