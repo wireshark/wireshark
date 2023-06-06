@@ -6,10 +6,13 @@
 // Required for btn, kbd:, and menu: macros.
 :experimental:
 
-// Don't add a "Last updated" footer to our man pages.
+// We want footers (which include page numbers) in our PDF output but
+// not elsewhere, particularly in our man pages.
 // We could use the "reproducible" attribute here, but it generates an
 // empty black box.
+ifndef::backend-pdf[]
 :nofooter:
+endif::[]
 
 // Create PA4 (210 × 280mm) pages: https://en.wikipedia.org/wiki/Paper_size#PA4_or_L4
 // This is the approximate intersection of A4 (210 × 297mm) and U.S. Letter
