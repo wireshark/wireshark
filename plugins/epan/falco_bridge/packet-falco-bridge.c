@@ -542,7 +542,11 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
     }
 
     // If we have a failure, try to dissect what we can first, then bail out with an error.
-    bool rc = extract_sisnp_source_fields(bi->ssi, pinfo->num, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
+    bool rc = extract_sisnp_source_fields(bi->ssi, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
+
+    if (!rc) {
+        REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
+    }
 
     for (uint32_t idx = 0; idx < bi->num_conversation_filters; idx++) {
         bi->conversation_filters[idx].is_present = false;

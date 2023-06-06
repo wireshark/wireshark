@@ -36,6 +36,9 @@ typedef struct ss_plugin_info ss_plugin_info;
 
 typedef struct sinsp_source_info_t {
     sinsp_plugin *source;
+    sinsp_evt *evt;
+    uint8_t *evt_storage;
+    size_t evt_storage_size;
     const char *name;
     const char *description;
     char *last_error;
@@ -65,9 +68,9 @@ create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_
     sinsp_source_info_t *ssi = new sinsp_source_info_t();
 
     try {
-        sinsp_plugin *sp = sinsp_span->inspector.register_plugin(libname).get();
+        auto sp = sinsp_span->inspector.register_plugin(libname);
         if (sp->caps() & CAP_EXTRACTION) {
-            ssi->source = dynamic_cast<sinsp_plugin *>(sp);
+            ssi->source = dynamic_cast<sinsp_plugin *>(sp.get());
         } else {
             err_str = g_strdup_printf("%s has unsupported plugin capabilities 0x%02x", libname, sp->caps());
         }
@@ -76,8 +79,10 @@ create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_
     }
 
     std::string init_err;
-    if (!ssi->source->init("{}", init_err)) {
-        err_str = g_strdup_printf("Unable to initialize %s: %s", libname, init_err.c_str());
+    if (!err_str) {
+        if (!ssi->source->init("{}", init_err)) {
+            err_str = g_strdup_printf("Unable to initialize %s: %s", libname, init_err.c_str());
+        }
     }
 
     if (err_str) {
@@ -85,6 +90,9 @@ create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_
         return err_str;
     }
 
+    ssi->evt = new sinsp_evt(&sinsp_span->inspector);
+    ssi->evt_storage_size = 4096;
+    ssi->evt_storage = (uint8_t *) g_malloc(ssi->evt_storage_size);
     ssi->name = strdup(ssi->source->name().c_str());
     ssi->description = strdup(ssi->source->description().c_str());
     *ssi_ptr = ssi;
@@ -167,10 +175,32 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
 // The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
 // The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
 // plugin_info.h. We need to build against a compatible revision of /libs.
-bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint32_t evt_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
+bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
 {
-    ss_plugin_event evt = { evt_num, evt_data, evt_datalen, (uint64_t) -1 };
     std::vector<ss_plugin_extract_field> fields;
+
+    // PPME_PLUGINEVENT_E events have the following format:
+    // | scap_evt header | uint32_t sizeof(id) = 4 | uint32_t evt_datalen | uint32_t id | uint8_t[] evt_data |
+
+    uint32_t payload_hdr[3] = {4, evt_datalen, ssi->source->id()};
+    uint32_t tot_evt_len = (uint32_t)sizeof(scap_evt) + sizeof(payload_hdr) +  evt_datalen;
+    if (ssi->evt_storage_size < tot_evt_len) {
+        while (ssi->evt_storage_size < tot_evt_len) {
+            ssi->evt_storage_size *= 2;
+        }
+        ssi->evt_storage = (uint8_t *) g_realloc(ssi->evt_storage, ssi->evt_storage_size);
+    }
+    scap_evt *sevt = (scap_evt *) ssi->evt_storage;
+
+    sevt->ts = -1;
+    sevt->tid = -1;
+    sevt->len = tot_evt_len;
+    sevt->type = PPME_PLUGINEVENT_E;
+    sevt->nparams = 2; // Plugin ID + evt_data
+
+    memcpy(ssi->evt_storage + sizeof(scap_evt), payload_hdr, sizeof(payload_hdr));
+    memcpy(ssi->evt_storage + sizeof(scap_evt) + sizeof(payload_hdr), evt_data, evt_datalen);
+    ssi->evt->init(ssi->evt_storage, 0);
 
     fields.resize(sinsp_field_len);
     // We must supply field_id, field, arg, and type.
@@ -185,7 +215,7 @@ bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint32_t evt_num, uin
     }
 
     bool status = true;
-    if (!ssi->source->extract_fields(evt, sinsp_field_len, fields.data())) {
+    if (!ssi->source->extract_fields(ssi->evt, sinsp_field_len, fields.data())) {
         status = false;
     }
 
