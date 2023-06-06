@@ -773,3 +773,57 @@ the build using MSVC:
 * Enhanced Kerberos dissection with decryption is not available.
 
 * AirPcap is not supported.
+
+[#ChSetupCross]
+
+=== Windows: Cross-compilation from Linux
+
+It is possible to compile Wireshark for Microsoft Windows using Linux and MinGW.
+This way developers can deploy Wireshark on Windows systems without requiring
+a Windows host machine. Building for Windows using a Linux host is also
+easier for devs already familiar with Linux, the build itself is faster and it
+uses a very mature C/C++ compiler (GCC) and debugger (GDB).
+
+https://fedoraproject.org/[Fedora Linux] provides the best out-of-the-box
+support for MinGW cross-compilation. Fedora is what the project uses to test
+the build and it's what we recommend. While any other reasonably modern Linux
+distribution can be used, that will make the process more time consuming and
+involve some trial and error to setup.
+
+The build instructions on Fedora follow the familiar recipe for building Wireshark
+using Linux.
+
+==== Building from source
+
+. Install needed dependencies:
+
+    $ tools/mingw-rpm-setup.sh --install-all
+
+. Build using CMake + Ninja:
+
+    $ mkdir build && cd build
+    $ mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes ..
+    $ ninja
+
+  Note that currently it is not possible to run the test-suite when cross-compiling.
+
+. Build the NSIS installer
+
+    $ ninja wireshark_nsis_prep
+    $ ninja wireshark_nsis
+
+If successful the installer can be found in $CMAKE_BINARY_DIR/packaging/nsis.
+
+==== Notes and comparison with MSVC builds
+
+* Only the MSVCRT C library for Microsoft Windows can be used. Support for the
+  UCRT (Universal C Runtime) library on Fedora Linux is in the initial stages of
+  deployment and not ready for prime-time (at the time of this writing).
+
+* Some optional dependencies are missing from Fedora repositories and must be
+  compiled from source if desired. An up-to-date complete list can be found in
+  the bug tracker (https://gitlab.com/wireshark/wireshark/-/issues/19108[issue 19108]).
+
+* The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
+
+* AirPcap is not supported.
