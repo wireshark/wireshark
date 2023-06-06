@@ -794,9 +794,10 @@ Visual Studio Code Analysis:
     # The wireshark-windows-* tags are only available in wireshark/wireshark.
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   script:
-    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
     - py -m venv sarif-tools.venv
     - sarif-tools.venv\Scripts\pip.exe install sarif-tools
+    - msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
+    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
