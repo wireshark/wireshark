@@ -70,6 +70,8 @@
 #include "capture/capture-pcap-util-int.h"
 #ifdef _WIN32
 #include "capture/capture-wpcap.h"
+#else
+#define ws_pcap_findalldevs_ex pcap_findalldevs_ex
 #endif
 
 #include <wsutil/file_util.h>
