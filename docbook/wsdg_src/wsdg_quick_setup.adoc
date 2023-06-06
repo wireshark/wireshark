@@ -702,7 +702,7 @@ msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
 
 to build a Wireshark installer.
 If you sign your executables you should do so between the “wireshark_nsis_prep” and “wireshark_nsis” steps.
-To sign your installler you should place the signing batch script on the path. It must be named "sign-wireshark.bat".
+To sign your installer you should place the signing batch script on the path. It must be named "sign-wireshark.bat".
 It should be autodetected by CMake, to always require signing set the -DENABLE_SIGNED_NSIS=On CMake option.
 
 Run
