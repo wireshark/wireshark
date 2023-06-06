@@ -285,7 +285,9 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 						-Executable $<TARGET_FILE:wireshark>
 						-FilePath ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 						$<$<CONFIG:Debug>:-DebugConfig>
-					DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
+					DEPENDS
+						"${_nsis_source_dir}/windeployqt-to-nsis.ps1"
+						$<TARGET_FILE:wireshark>
 				)
 			elseif(HAVE_MSYSTEM)
 				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
@@ -293,7 +295,9 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 						--executable $<TARGET_FILE:wireshark>
 						${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 						#$<$<CONFIG:Debug>:-DebugConfig>
-					DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.py"
+					DEPENDS
+						"${_nsis_source_dir}/windeployqt-to-nsis.py"
+						$<TARGET_FILE:wireshark>
 				)
 			elseif(MINGW AND CMAKE_CROSSCOMPILING)
 				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
