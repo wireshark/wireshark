@@ -3274,6 +3274,7 @@ reassemble_streaming_data_and_call_subdissector(
 	guint32 reassembly_id = 0, frag_offset = 0;
 	fragment_head* head = NULL;
 	gboolean need_more = FALSE;
+	gboolean found_BoMSP = FALSE;
 	multisegment_pdu_t* cur_msp = NULL, * prev_msp = NULL;
 	guint16 save_can_desegment;
 	int save_desegment_offset;
@@ -3287,7 +3288,11 @@ reassemble_streaming_data_and_call_subdissector(
 	/* calculate how many bytes of this payload belongs to previous MSP (EoMSP) */
 	if (!PINFO_FD_VISITED(pinfo)) {
 		/* this is first scan */
-		if (reassembly_info->prev_deseg_len > 0) {
+		if (reassembly_info->prev_deseg_len == DESEGMENT_ONE_MORE_SEGMENT) {
+			/* assuming the entire tvb belongs to the previous MSP */
+			bytes_belong_to_prev_msp = length;
+			reassembly_info->prev_deseg_len = length;
+		} else if (reassembly_info->prev_deseg_len > 0) {
 			/* part or all of current payload belong to previous MSP */
 			bytes_belong_to_prev_msp = MIN(reassembly_info->prev_deseg_len, length);
 			reassembly_info->prev_deseg_len -= bytes_belong_to_prev_msp;
@@ -3382,25 +3387,43 @@ reassemble_streaming_data_and_call_subdissector(
 			/* that must only happen during first scan the reassembly_info->prev_deseg_len might be only the
 			 * head length of entire message. */
 			DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
-			DISSECTOR_ASSERT_HINT(pinfo->desegment_len != DESEGMENT_ONE_MORE_SEGMENT
-				&& pinfo->desegment_len != DESEGMENT_UNTIL_FIN, "Subdissector MUST NOT "
-				"set pinfo->desegment_len to DESEGMENT_ONE_MORE_SEGMENT or DESEGMENT_UNTIL_FIN. "
-				"Instead, it can set pinfo->desegment_len to the length of head if the length of "
-				"entire message is not able to be determined.");
-			DISSECTOR_ASSERT_HINT(pinfo->desegment_offset == 0, "Subdissector MUST NOT set pinfo->desegment_len greater than "
-				"the length of one message if the length message is undetermined.");
+			DISSECTOR_ASSERT_HINT(pinfo->desegment_len != DESEGMENT_UNTIL_FIN, "Subdissector MUST NOT "
+				"set pinfo->desegment_len to DESEGMENT_UNTIL_FIN. Instead, it can set pinfo->desegment_len to "
+				" DESEGMENT_ONE_MORE_SEGMENT or the length of head if the length of entire message is not able to be determined.");
 
-			/* Remove the data added by previous fragment_add(), and reopen fragments for adding more bytes. */
-			fragment_truncate(&streaming_reassembly_table, pinfo, reassembly_id, NULL, reassembly_info->last_msp->length);
-			fragment_set_partial_reassembly(&streaming_reassembly_table, pinfo, reassembly_id, NULL);
+			if (pinfo->desegment_offset > 0) {
+				DISSECTOR_ASSERT_HINT(pinfo->desegment_offset > reassembly_info->last_msp->length
+					&& pinfo->desegment_offset < reassembly_info->last_msp->length + bytes_belong_to_prev_msp,
+					wmem_strdup_printf(pinfo->pool,
+						"Subdissector MUST NOT set pinfo->desegment_offset(%d) in previous or next part of MSP, must between (%d, %d).",
+						pinfo->desegment_offset, reassembly_info->last_msp->length, reassembly_info->last_msp->length + bytes_belong_to_prev_msp));
 
-			reassembly_info->prev_deseg_len = bytes_belong_to_prev_msp + pinfo->desegment_len;
-			bytes_belong_to_prev_msp = MIN(reassembly_info->prev_deseg_len, length);
-			reassembly_info->prev_deseg_len -= bytes_belong_to_prev_msp;
-			need_more = (reassembly_info->prev_deseg_len > 0);
-		} else {
+				/* shorten the bytes_belong_to_prev_msp and just truncate the ressembled tvb */
+				bytes_belong_to_prev_msp = pinfo->desegment_offset - reassembly_info->last_msp->length;
+				fragment_truncate(&streaming_reassembly_table, pinfo, reassembly_id, NULL, pinfo->desegment_offset);
+				found_BoMSP = TRUE;
+			} else {
+				if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+					/* just need more bytes, all remaining bytes belongs to previous MSP (to run fragment_add again) */
+					bytes_belong_to_prev_msp = length;
+				}
+
+				/* Remove the data added by previous fragment_add(), and reopen fragments for adding more bytes. */
+				fragment_truncate(&streaming_reassembly_table, pinfo, reassembly_id, NULL, reassembly_info->last_msp->length);
+				fragment_set_partial_reassembly(&streaming_reassembly_table, pinfo, reassembly_id, NULL);
+
+				reassembly_info->prev_deseg_len = bytes_belong_to_prev_msp + pinfo->desegment_len;
+				bytes_belong_to_prev_msp = MIN(reassembly_info->prev_deseg_len, length);
+				reassembly_info->prev_deseg_len -= bytes_belong_to_prev_msp;
+				need_more = (reassembly_info->prev_deseg_len > 0);
+				continue;
+			}
+		}
+
+		if (pinfo->desegment_len == 0 || found_BoMSP) {
 			/* We will arrive here, only when the MSP is defragmented and dissected or this
 			 * payload all belongs to previous MSP (only fragment_add() with need_more=TRUE called)
+			 * or BoMSP is parsed while pinfo->desegment_offset > 0 and pinfo->desegment_len != 0
 			 */
 			offset += bytes_belong_to_prev_msp;
 			length -= bytes_belong_to_prev_msp;
@@ -3413,14 +3436,14 @@ reassemble_streaming_data_and_call_subdissector(
 				/* completed current msp */
 				reassembly_info->last_msp->last_frame = cur_frame_num;
 				reassembly_info->last_msp->end_offset_at_last_frame = offset;
-				reassembly_info->prev_deseg_len = 0;
+				reassembly_info->prev_deseg_len = pinfo->desegment_len;
 			}
 			bytes_belong_to_prev_msp = 0; /* break */
 		}
 	}
 
 	/* to find and handle OmNFP, and find BoMSP at first scan. */
-	if (length > 0) {
+	if (length > 0 && !found_BoMSP) {
 		if (!PINFO_FD_VISITED(pinfo)) {
 			/* It is first scan, to dissect remaining bytes to find whether it is OmNFP only, or BoMSP only or OmNFP + BoMSP. */
 			datalen = length;
@@ -3448,6 +3471,9 @@ reassemble_streaming_data_and_call_subdissector(
 				pinfo, subdissector_tree, subdissector_data);
 
 			if (pinfo->desegment_len) {
+				DISSECTOR_ASSERT_HINT(pinfo->desegment_len != DESEGMENT_UNTIL_FIN, "Subdissector MUST NOT "
+					"set pinfo->desegment_len to DESEGMENT_UNTIL_FIN. Instead, it can set pinfo->desegment_len to "
+					" DESEGMENT_ONE_MORE_SEGMENT or the length of head if the length of entire message is not able to be determined.");
 				/* only happen during first scan */
 				DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo) && datalen == length);
 				offset += pinfo->desegment_offset;
@@ -3471,6 +3497,7 @@ reassemble_streaming_data_and_call_subdissector(
 			/* create a msp for current frame during first scan */
 			cur_msp = wmem_new0(wmem_file_scope(), multisegment_pdu_t);
 			cur_msp->first_frame = cur_frame_num;
+			cur_msp->last_frame = G_MAXUINT64;
 			cur_msp->start_offset_at_first_frame = offset;
 			cur_msp->length = length;
 			cur_msp->streaming_reassembly_id = reassembly_id = create_streaming_reassembly_id();

@@ -809,13 +809,15 @@ streaming_reassembly_info_new(void);
  *
  * The subdissector (ProtoB dissector) needs to set the pinfo->desegment_len to cooperate with the function
  * reassemble_streaming_data_and_call_subdissector() to complete the reassembly task.
- * The pinfo->desegment_len should contain the estimated number of additional bytes required for completing
+ * The pinfo->desegment_len should be DESEGMENT_ONE_MORE_SEGMENT or contain the estimated number of additional bytes required for completing
  * the current PDU (MSP), and set pinfo->desegment_offset to the offset in the tvbuff at which the dissector will
  * continue processing when next called. Next time the subdissector is called, it will be passed a tvbuff composed
  * of the end of the data from the previous tvbuff together with desegment_len more bytes. If the dissector cannot
  * tell how many more bytes it will need, it should set pinfo->desegment_len to additional bytes required for parsing
  * message head. It will then be called again as soon as more data becomes available. Subdissector MUST NOT set the
- * pinfo->desegment_len to DESEGMENT_ONE_MORE_SEGMENT or DESEGMENT_UNTIL_FIN, we don't support these two values yet.
+ * pinfo->desegment_len to DESEGMENT_UNTIL_FIN, we don't support it yet. Note that the subdissector MUST return the
+ * length of the tvb handled by itself (return 0 length if nothing is parsed in MoMSP), otherwise it may cause
+ * unexpected dissecting errors.
  *
  * Following is sample code of ProtoB which on top of ProtoA mentioned above:
  * <code>
@@ -832,6 +834,7 @@ streaming_reassembly_info_new(void);
  *                 if (pinfo->can_desegment) {
  *                     pinfo->desegment_offset = offset;
  *                     // calculate how many additional bytes needed to parse head of a ProtoB message
+ *                     // or just return DESEGMENT_ONE_MORE_SEGMENT
  *                     pinfo->desegment_len = PROTO_B_MESSAGE_HEAD_LEN - (tvb_len - offset);
  *                     return offset; // return the length handled by ProtoB
  *                 }
