@@ -702,6 +702,8 @@ msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
 
 to build a Wireshark installer.
 If you sign your executables you should do so between the “wireshark_nsis_prep” and “wireshark_nsis” steps.
+To sign your installler you should place the signing batch script on the path. It must be named "sign-wireshark.bat".
+It should be autodetected by CMake, to always require signing set the -DENABLE_SIGNED_NSIS=On CMake option.
 
 Run
 
@@ -742,17 +744,11 @@ system libraries used etc. If you are unsure, go with UCRT64.
 
 The application should be launched using the same shell.
 
-==== Build an installer
+==== Building an .exe installer
 
 . Follow the instructions above to compile Wireshark from source.
 
-. Build the Wireshark User Guide.
-
-    $ ninja user_guide_html
-
-. Download Npcap and USBpcap and copy them to ${CMAKE_BINARY_DIR}/packaging/nsis.
-
-. Build the installer
+. Build the NSIS installer target.
 
     $ ninja wireshark_nsis_prep
     $ ninja wireshark_nsis
