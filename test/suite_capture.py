@@ -13,6 +13,7 @@ import hashlib
 import os
 import socket
 import subprocess
+import subprocesstest
 from subprocesstest import cat_dhcp_command, cat_cap_file_command, count_output, grep_output, check_packet_count
 import sys
 import threading
@@ -89,7 +90,7 @@ def check_capture_10_packets(capture_interface, cmd_capinfos, traffic_generator,
         testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
         if to_stdout:
-            capture_proc = subprocess.run(capture_command(cmd,
+            subprocesstest.check_run(capture_command(cmd,
                 '-i', '"{}"'.format(capture_interface),
                 '-p',
                 '-w', '-',
@@ -99,10 +100,9 @@ def check_capture_10_packets(capture_interface, cmd_capinfos, traffic_generator,
                 '>', testout_file,
                 shell=True
             ),
-            shell=True, env=env
-            )
+            shell=True, env=env)
         else:
-            capture_proc = subprocess.run(capture_command(cmd,
+            subprocesstest.check_run(capture_command(cmd,
                 '-i', capture_interface,
                 '-p',
                 '-w', testout_file,
@@ -111,8 +111,6 @@ def check_capture_10_packets(capture_interface, cmd_capinfos, traffic_generator,
                 '-f', cfilter,
             ), env=env)
         stop_traffic()
-        capture_returncode = capture_proc.returncode
-        assert capture_returncode == 0
         check_packet_count(cmd_capinfos, 10, testout_file)
     return check_capture_10_packets_real
 
@@ -136,13 +134,12 @@ def check_capture_fifo(cmd_capinfos, result_file):
         fifo_proc = subprocess.Popen(
             ('{0} > {1}'.format(slow_dhcp_cmd, fifo_file)),
             shell=True)
-        capture_proc = subprocess.run(capture_command(cmd,
+        subprocesstest.check_run(capture_command(cmd,
             '-i', fifo_file,
             '-p',
             '-w', testout_file,
             '-a', 'duration:{}'.format(capture_duration),
         ), env=env)
-        assert capture_proc.returncode == 0
         fifo_proc.kill()
         assert os.path.isfile(testout_file)
         check_packet_count(cmd_capinfos, 8, testout_file)
@@ -168,12 +165,13 @@ def check_capture_stdin(cmd_capinfos, result_file):
             capture_cmd += ' --log-level=info'
         if sysconfig.get_platform().startswith('mingw'):
             pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
-        pipe_proc = subprocess.run(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
-        assert pipe_proc.returncode == 0
+        pipe_proc = subprocesstest.check_run(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True, capture_output=True, env=env)
         if is_gui:
-            assert grep_output('Wireshark is up and ready to go'), 'No startup message.'
-            assert grep_output('Capture started'), 'No capture start message.'
-            assert grep_output('Capture stopped'), 'No capture stop message.'
+            # Wireshark uses stdout and not stderr for diagnostic messages
+            # XXX: Confirm this
+            assert grep_output(pipe_proc.stdout, 'Wireshark is up and ready to go'), 'No startup message.'
+            assert grep_output(pipe_proc.stdout, 'Capture started'), 'No capture start message.'
+            assert grep_output(pipe_proc.stdout, 'Capture stopped'), 'No capture stop message.'
         assert os.path.isfile(testout_file)
         check_packet_count(cmd_capinfos, 8, testout_file)
     return check_capture_stdin_real
@@ -182,11 +180,11 @@ def check_capture_stdin(cmd_capinfos, result_file):
 @pytest.fixture
 def check_capture_read_filter(capture_interface, traffic_generator, cmd_capinfos, result_file):
     start_traffic, cfilter = traffic_generator
-    def check_capture_read_filter_real(self, cmd=None):
+    def check_capture_read_filter_real(self, cmd=None, env=None):
         assert cmd is not None
         testout_file = result_file(testout_pcap)
         stop_traffic = start_traffic()
-        capture_proc = subprocess.run(capture_command(cmd,
+        subprocesstest.check_run(capture_command(cmd,
             '-i', capture_interface,
             '-p',
             '-w', testout_file,
@@ -196,7 +194,6 @@ def check_capture_read_filter(capture_interface, traffic_generator, cmd_capinfos
             '-a', 'duration:{}'.format(capture_duration),
             '-f', cfilter,
         ), env=env)
-        assert capture_proc.returncode == 0
         stop_traffic()
         check_packet_count(cmd_capinfos, 0, testout_file)
     return check_capture_read_filter_real
@@ -208,7 +205,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
         assert cmd is not None
         stop_traffic = start_traffic()
         testout_file = result_file(testout_pcap)
-        capture_proc = subprocess.run(capture_command(cmd,
+        subprocesstest.check_run(capture_command(cmd,
             '-i', capture_interface,
             '-p',
             '-w', testout_file,
@@ -216,19 +213,17 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-a', 'duration:{}'.format(capture_duration),
             '-f', cfilter,
         ), env=env)
-        assert capture_proc.returncode == 0
         stop_traffic()
         assert os.path.isfile(testout_file)
 
         # Use tshark to filter out all packets larger than 68 bytes.
         testout2_file = result_file('testout2.pcap')
 
-        filter_proc = subprocess.run((cmd_tshark,
+        subprocesstest.check_run((cmd_tshark,
             '-r', testout_file,
             '-w', testout2_file,
             '-Y', 'frame.cap_len>{}'.format(snapshot_len),
         ), env=env)
-        assert filter_proc.returncode == 0
         check_packet_count(cmd_capinfos, 0, testout2_file)
     return check_capture_snapshot_len_real
 
@@ -256,8 +251,7 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, cmd_capinfos, result_file):
         ))
         if sysconfig.get_platform().startswith('mingw'):
             pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
-        pipe_proc = subprocess.run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
-        pipe_proc.returncode == 0
+        subprocesstest.check_run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
         assert os.path.isfile(testout_file)
 
         if packets is not None:
@@ -294,8 +288,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, cmd_capinfos, result_file):
         ))
         if sysconfig.get_platform().startswith('mingw'):
             pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
-        pipe_proc = subprocess.run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
-        pipe_proc.returncode == 0
+        subprocesstest.check_run(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True, env=env)
 
         rb_files = glob.glob(testout_glob)
         assert len(rb_files) == 2
@@ -411,8 +404,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
 
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
 
-        capture_proc = subprocess.run(capture_cmd, env=env)
-        capture_proc.returncode == 0
+        subprocesstest.check_run(capture_cmd, env=env)
         for fifo_proc in fifo_procs: fifo_proc.kill()
 
         rb_files = []
@@ -452,11 +444,11 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
         for check_val in check_vals:
             check_packet_count(cmd_capinfos, check_val['packet_count'], check_val['filename'])
 
-            tshark_proc = subprocess.run(capture_command(cmd_tshark,
+            tshark_proc = subprocesstest.check_run(capture_command(cmd_tshark,
                 '-r', check_val['filename'],
                 '-V',
                 '-X', 'read_format:MIME Files Format'
-            ), capture_output=True, encoding='utf-8', env=env)
+            ), capture_output=True, env=env)
             # XXX Are there any other sanity checks we should run?
             if idb_compare_eq:
                 assert count_output(tshark_proc.stdout, r'Block: Interface Description Block') \

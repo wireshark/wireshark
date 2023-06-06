@@ -33,6 +33,25 @@ class ExitCodes(enum.IntEnum):
     INIT_FAILED = 8
     OPEN_ERROR = 9
 
+def run(*args, capture_output=False, stdout=None, stderr=None, encoding='utf-8', **kwargs):
+    ''' Wrapper for subprocess.run() that captures and decodes output.'''
+
+    # If the user told us what to do with standard streams use that.
+    if capture_output or stdout or stderr:
+        return subprocess.run(*args, capture_output=capture_output, stdout=stdout, stderr=stderr, encoding=encoding, **kwargs)
+
+    # If the user doesn't want to capture output try to ensure the child inherits the parents stdout and stderr on
+    # all platforms, so pytest can reliably capture it and do the right thing. Otherwise the child output may be interleaved
+    # on the console with the parent and mangle pytest's status output.
+    #
+    # Make the child inherit only the parents stdout and stderr.
+    return subprocess.run(*args, close_fds=True, stdout=sys.stdout, stderr=sys.stderr, encoding=encoding, **kwargs)
+
+def check_run(*args, **kwargs):
+    ''' Same as run(), also check child process returns 0 (success)'''
+    proc = run(*args, check=True, **kwargs)
+    return proc
+
 def cat_dhcp_command(mode):
     '''Create a command string for dumping dhcp.pcap to stdout'''
     # XXX Do this in Python in a thread?
