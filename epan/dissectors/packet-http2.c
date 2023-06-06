@@ -3105,6 +3105,7 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
             /* create a msp for current frame during first scan */
             cur_msp = wmem_new0(wmem_file_scope(), http2_multisegment_pdu_t);
             cur_msp->first_frame = cur_frame_num;
+            cur_msp->last_frame = G_MAXUINT64;
             cur_msp->start_offset_at_first_frame = offset;
             cur_msp->length = length;
             cur_msp->streaming_reassembly_id = reassembly_id = create_streaming_reassembly_id();
