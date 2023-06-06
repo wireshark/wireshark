@@ -224,6 +224,10 @@ then
 	# This in only required on OpenSUSE
 	add_package BASIC_LIST libQt5Concurrent-devel ||
 	echo "Required OpenSUSE package libQt5Concurrent-devel is unavailable. Not required for other distributions." >&2
+
+	add_package ADDITIONAL_LIST qt5-qtimageformats ||
+	add_package ADDITIONAL_LIST libqt5-qtimageformats ||
+	echo "Optional Qt5 Image Formats is unavailable" >&2
 fi
 
 if [ $ADD_QT6 -ne 0 ]
@@ -240,6 +244,9 @@ then
 		add_package BASIC_LIST "$pkg" ||
 		echo "Qt6 dependency $pkg is unavailable" >&2
 	done
+
+	add_package ADDITIONAL_LIST qt6-qtimageformats ||
+	echo "Optional Qt6 Image Formats is unavailable" >&2
 fi
 
 # This in only required on OpenSUSE
