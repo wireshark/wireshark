@@ -13,6 +13,7 @@ set -e -u -o pipefail
 
 eval "$(brew shellenv)"
 
+HOMEBREW_NO_AUTO_UPDATE=${HOMEBREW_NO_AUTO_UPDATE:-}
 # Update to last brew release
 if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ] ; then
     brew update

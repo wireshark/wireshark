@@ -1,3 +1,40 @@
+MacOS Quick Start (Using Homebrew)
+-----------------------------------
+
+> Note that this method is particularly recommended for M1 and later Macs.
+
+1. Install the latest Xcode from the MacOS app store.
+   See https://guide.macports.org/#installing.xcode for details.
+
+2. Install Homebrew (https://brew.sh/)
+
+3. From the top-level source directory, run tools/macos-setup-brew.sh and wait
+   for it to complete.
+
+   Note: You may set the environment variable HOMEBREW_NO_AUTO_UPDATE=1 if you
+         do not want the script to update homebrew.
+
+4. Create a build directory and enter it:
+    mkdir build && cd build
+
+5. Configure the build:
+    cmake ..
+
+6. Build wireshark!
+    make -j
+
+The wireshark binary will be found at run/wireshark under your build directory.
+
+Note that for subsequent builds, you will only need to enter the build
+directory and run "make -j".
+
+Note that if you cannot use homebrew, or otherwise need to manually install
+prerequisites, you cannot use this method; continue reading for more detailed
+instructions.
+
+
+Non-Homebrew Setup and Build of Wireshark for macOS
+----------------------------------------------------
 This file tries to help building Wireshark for macOS (The Operating
 System Formerly Known As Mac OS X And Then OS X) (Wireshark does not
 work on the classic Mac OS).
@@ -13,6 +50,7 @@ Store.  See
 for details.  For Xcode 4, you will need to install the command-line
 tools; select Preferences from the Xcode menu, select Downloads in the
 Preferences window, and install Command Line Tools.
+
 
 You must also have GLib and, if you want to build Wireshark as well as
 TShark, you must have also Qt installed.  You can download precompiled
