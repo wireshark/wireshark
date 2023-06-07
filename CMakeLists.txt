@@ -178,6 +178,7 @@ if(WIN32)
 				" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
 		endif()
 	endif()
+
 	message(STATUS
 		"Building for ${WIRESHARK_TARGET_PLATFORM}"
 	)
