@@ -1033,6 +1033,7 @@ static int hf_rtps_secure_secure_data                       = -1;
 static int hf_rtps_param_enable_authentication              = -1;
 static int hf_rtps_param_builtin_endpoint_qos               = -1;
 static int hf_rtps_secure_dataheader_transformation_kind    = -1;
+static int hf_rtps_secure_dataheader_transformation_key_revision_id    = -1;
 static int hf_rtps_secure_dataheader_transformation_key_id  = -1;
 static int hf_rtps_secure_dataheader_plugin_sec_header      = -1;
 static int hf_rtps_secure_datatag_plugin_sec_tag            = -1;
@@ -1314,6 +1315,7 @@ static int hf_rtps_param_plugin_endpoint_security_attributes_mask               
 static int hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected             = -1;
 static int hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected        = -1;
 static int hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected       = -1;
+static int fh_rtps_flag_participant_security_attribute_flag_key_revisions_enabled         = -1;
 static int hf_rtps_flag_participant_security_attribute_flag_is_valid                      = -1;
 static int hf_rtps_param_participant_security_attributes_mask                             = -1;
 static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_encrypted              = -1;
@@ -2497,6 +2499,7 @@ static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
 };
 static int* const PARTICIPANT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_participant_security_attribute_flag_is_valid,                     /* Bit 31 */
+  &fh_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,        /* Bit 3 */
   &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,      /* Bit 2 */
   &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,       /* Bit 1 */
   &hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected,            /* Bit 0 */
@@ -13163,9 +13166,18 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
   sec_data_header_tree = proto_tree_add_subtree_format(tree, tvb, offset, octets_to_next_header,
           ett_rtps_secure_dataheader_tree, NULL, "Secure Data Header");
 
+  /* Transformation Kind field used to be 4 bytes. Now it is splitted:
+   * - 3 bytes: Transformation Key Revision
+   * - 1 byte: Transformation Kind
+   * A single byte is enough for Transformation Kind since it only has five possible values (0-4).
+   */
+  proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_key_revision_id, tvb,
+          offset, 3, ENC_BIG_ENDIAN);
+  offset += 3;
+
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_kind, tvb,
-          offset, 4, ENC_BIG_ENDIAN);
-  offset += 4;
+          offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
 
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_key_id, tvb,
           offset, 4, encoding);
@@ -16421,6 +16433,10 @@ void proto_register_rtps(void) {
         "Liveliness Protected", "rtps.flag.security.info.participant_liveliness_protected",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
     },
+    { &fh_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,{
+        "Key Revisions Enabled", "rtps.flag.security.info.key_revisions_enabled",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
     { &hf_rtps_flag_participant_security_attribute_flag_is_valid,{
         "Mask Valid", "rtps.flag.security.info.participant_mask_valid",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }
@@ -16493,7 +16509,12 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_secure_dataheader_transformation_kind, {
         "Transformation Kind", "rtps.secure.data_header.transformation_kind",
-        FT_INT32, BASE_DEC, VALS(secure_transformation_kind), 0,
+        FT_INT8, BASE_DEC, VALS(secure_transformation_kind), 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_secure_dataheader_transformation_key_revision_id, {
+        "Transformation Key Revision Id", "rtps.secure.data_header.transformation_key_revision_id",
+        FT_INT24, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_rtps_secure_dataheader_transformation_key_id, {
