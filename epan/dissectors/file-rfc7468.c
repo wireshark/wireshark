@@ -459,7 +459,7 @@ proto_register_rfc7468(void)
 
     rfc7468_label_table = register_dissector_table("rfc7468.preeb_label", "FFF",
                                                    proto_rfc7468, FT_STRING,
-                                                   TRUE);
+                                                   STRING_CASE_INSENSITIVE);
 
     rfc7468_handle = register_dissector("rfc7468", dissect_rfc7468, proto_rfc7468);
 }
