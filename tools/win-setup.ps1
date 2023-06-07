@@ -43,7 +43,7 @@ their compressed archives.
 A manifest file (library-manifest.xml)
 
 .EXAMPLE
-C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-master-64-libs -Platform win64
+C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-master-64-libs -Platform x64
 #>
 
 Param(
@@ -53,7 +53,7 @@ Param(
     $Destination,
 
     [Parameter(Mandatory=$true, Position=1)]
-    [ValidateSet("win64", "arm64")]
+    [ValidateSet("x64", "arm64")]
     [String]
     $Platform,
 

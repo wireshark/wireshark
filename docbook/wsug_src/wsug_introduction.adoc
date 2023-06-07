@@ -513,7 +513,6 @@ Email _backtrace.txt_ to mailto:{wireshark-dev-list-email}[].
 
 The Windows distributions don’t contain the symbol files (.pdb) because they are
 very large. You can download them separately at
-{wireshark-main-url}download/win32/all-versions/ and
 {wireshark-main-url}download/win64/all-versions/ .
 
 // End of WSUG Chapter 1

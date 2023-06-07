@@ -119,8 +119,8 @@ endif()
 
 find_program(_vcredist
 	NAMES
-		"vc_redist.${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe" # Visual Studio 2022 and later
-		"vcredist_${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe" # Visual Studio 2019 and earlier
+		"vc_redist.${WIRESHARK_TARGET_PLATFORM}.exe" # Visual Studio 2022 and later
+		"vcredist_${WIRESHARK_TARGET_PLATFORM}.exe" # Visual Studio 2019 and earlier
 	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
@@ -396,12 +396,12 @@ set(CLEAN_FILES
 	#NEWS.txt
 	#user-guide.chm
 	${DATAFILE_DIR}/uninstall-wireshark.exe
-	wireshark-${VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe
+	wireshark-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.exe
 	wireshark-config.nsh
 	wireshark-manifest.nsh
 	wireshark-qt-manifest.nsh
 	${DATAFILE_DIR}/uninstall-logray.exe
-	logray-${VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.exe
+	logray-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.exe
 	logray-config.nsh
 	logray-manifest.nsh
 	logray-qt-manifest.nsh

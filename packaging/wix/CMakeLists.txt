@@ -83,7 +83,7 @@ endif()
 # Starting with Visual Studio 2019 merge modules are deprecated but
 # are available as an individual component.
 # https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
-set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.msm")
+set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PLATFORM}.msm")
 set (PF86_ENV "ProgramFiles(x86)")
 
 set(VC_TOOLS_MERGE_MODULES_DIR)
@@ -99,7 +99,7 @@ find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
 		"$ENV{PROGRAMFILES}/Common Files/Merge Modules"
 	NO_DEFAULT_PATH
 )
-file(TO_NATIVE_PATH "${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.msm" MSM_NATIVE_PATH)
+file(TO_NATIVE_PATH "${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PLATFORM}.msm" MSM_NATIVE_PATH)
 message(STATUS "Using ${MSM_NATIVE_PATH} for the WiX installer")
 
 # DependentComponents.wxi. Can be created at configure time.
@@ -202,7 +202,7 @@ endif()
 set(WIX_CANDLE_DEFINES
 	-v
 	-sw1076
-	-dPlatform=${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}
+	-dPlatform=${WIRESHARK_TARGET_PLATFORM}
 	-dWiresharkName=${CMAKE_PROJECT_NAME}
 	-dWiresharkVersion=${PRODUCT_VERSION}
 	-dWiresharkMajorVersion=${PROJECT_MAJOR_VERSION}
@@ -219,7 +219,7 @@ set(WIX_CANDLE_DEFINES
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
 	${d_mmdbresolve_exe}
-	-arch ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}
+	-arch ${WIRESHARK_TARGET_PLATFORM}
 	-ext WixUIExtension
 	-I${CMAKE_SOURCE_DIR}/packaging/wix
 	-out ${CMAKE_CURRENT_BINARY_DIR}/
@@ -229,7 +229,7 @@ set(WIX_CANDLE_DEFINES
 # The NSIS CMakeFile sets the program name + version slightly differently.
 set(WIX_LIGHT_DEFINES
 	-v
-	-out ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}.msi
+	-out ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-${WIRESHARK_TARGET_PLATFORM}.msi
 	-sw1076
 	-ext WixUIExtension
 	-loc ${CMAKE_CURRENT_SOURCE_DIR}/StringOverrides.wxl
