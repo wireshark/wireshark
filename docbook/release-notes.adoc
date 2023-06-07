@@ -51,6 +51,20 @@ dissect.) The previous behavior was to reset the dissector to the default.
 To facilitate resetting the dissector, the default dissector is now sorted
 at the top of the list of possible dissector options.
 
+Sorting changes:
+* When sorting packet list with a filter applied, only the visible packets are
+sorted, which greatly increases sorting speed.
+* The cache size for column text is limited to a default of 10000 rows,
+which limits the maximum memory usage. The maximum value can be changed in
+Preferences->Appearance->Layout
+* Due to the above, columns that require packet dissection can only be sorted
+if the number of visible rows is less than the cache size. If there are
+more rows visible, a warning will appear. Columns that do not require packet
+dissection (those that calculated directly from the capture file frame
+headers, such as packet number, time, and frame length) can be sorted with
+any number of visible rows.
+* Sorting can be interrupted.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
