@@ -24,6 +24,7 @@
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <wiretap/wtap.h>
 
 void proto_reg_handoff_uci(void);
 void proto_register_uci(void);

@@ -10,12 +10,13 @@
  */
 
 #include <config.h>
-#include <conversation.h>
-
-#include "packet-dpaux.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <wiretap/wtap.h>
+
+#include "packet-dpaux.h"
 
 enum {
     DPAUXMON_DATA = 0x00,

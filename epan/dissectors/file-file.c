@@ -25,10 +25,9 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
-
-#include <wsutil/str_util.h>
-
 #include <epan/color_filters.h>
+#include <wiretap/wtap.h>
+#include <wsutil/str_util.h>
 
 #include "file-file.h"
 

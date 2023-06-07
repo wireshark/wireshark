@@ -15,7 +15,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <wiretap/wtap.h>
 #include "packet-actrace.h"
+
 #define UDP_PORT_ACTRACE 2428 /* Not IANA registered */
 
 #define NOT_ACTRACE  0

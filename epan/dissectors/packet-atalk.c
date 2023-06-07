@@ -27,7 +27,6 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-llc.h>
-#include <wiretap/wtap.h>
 #include <epan/capture_dissectors.h>
 #include "packet-atalk.h"
 #include "packet-afp.h"

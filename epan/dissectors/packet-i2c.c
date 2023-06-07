@@ -16,7 +16,6 @@
 #include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
-#include <wiretap/wtap.h>
 
 void proto_register_i2c(void);
 void proto_reg_handoff_i2c(void);

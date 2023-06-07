@@ -13,7 +13,6 @@
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
-#include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
 #include <epan/xdlc.h>

@@ -15,7 +15,6 @@
  */
 
 #include "config.h"
-#include <wiretap/wtap.h>
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/decode_as.h>

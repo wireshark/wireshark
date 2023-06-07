@@ -22,6 +22,7 @@
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
+#include <wiretap/wtap.h>
 #include "packet-usb.h"
 
 void proto_register_usbll(void);

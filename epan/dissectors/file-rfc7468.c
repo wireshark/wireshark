@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 void proto_register_rfc7468(void);
 void proto_reg_handoff_rfc7468(void);

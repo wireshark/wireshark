@@ -42,6 +42,7 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/ipproto.h>
+#include <wiretap/wtap.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"

@@ -14,12 +14,13 @@
 #define WS_LOG_DOMAIN "packet-knxip"
 
 #include <wsutil/file_util.h>
-#include "proto.h"
+#include <epan/proto.h>
 #include "packet-knxip_decrypt.h"
 #include <epan/wmem_scopes.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
+#include <wsutil/inet_addr.h>
 
 #define TEXT_BUFFER_SIZE  128
 

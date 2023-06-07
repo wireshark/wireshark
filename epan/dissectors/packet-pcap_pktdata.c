@@ -16,7 +16,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include <wiretap/wtap.h>
 #include <wiretap/pcap-encap.h>
 
 #include <epan/dissectors/packet-pcap_pktdata.h>

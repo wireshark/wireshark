@@ -13,7 +13,6 @@
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
-#include <wiretap/wtap.h>
 #include <epan/address_types.h>
 #include <epan/arcnet_pids.h>
 #include <epan/to_str.h>

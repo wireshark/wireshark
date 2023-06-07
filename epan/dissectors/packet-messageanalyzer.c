@@ -16,7 +16,6 @@
 #include <epan/expert.h>
 #include <wsutil/inet_ipv6.h>
 #include <wsutil/utf8_entities.h>
-#include <wiretap/wtap.h>
 
 #include "packet-netmon.h"
 #include "packet-windows-common.h"

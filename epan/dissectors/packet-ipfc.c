@@ -16,7 +16,6 @@
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
-#include <wiretap/wtap.h>
 #include <epan/to_str.h>
 
 #include "packet-llc.h"

@@ -16,7 +16,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
-
+#include <wiretap/wtap.h>
 #include <wsutil/strtoi.h>
 
 #include "packet-mac-lte.h"

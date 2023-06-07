@@ -17,7 +17,6 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <range.h>
-#include <wiretap/wtap.h>
 #include <wsutil/crc16-plain.h>
 #include <wsutil/pint.h>
 #include <wsutil/wsgcrypt.h>

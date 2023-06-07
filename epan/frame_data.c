@@ -14,10 +14,10 @@
 #include <glib.h>
 
 #include <epan/epan.h>
-#include <wiretap/wtap.h>
 #include <epan/frame_data.h>
 #include <epan/column-utils.h>
 #include <epan/timestamp.h>
+#include <wiretap/wtap.h>
 #include <wsutil/ws_assert.h>
 
 #define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \

@@ -15,12 +15,11 @@
 #include <ws_symbol_export.h>
 #include <wsutil/nstime.h>
 
-#include <wiretap/wtap.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+typedef struct wtap_rec wtap_rec;
 struct _packet_info;
 struct epan_session;
 

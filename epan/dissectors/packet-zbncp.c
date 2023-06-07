@@ -11,10 +11,11 @@
 
 #include <config.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
+#include <wiretap/wtap.h>
 
 #include "packet-ieee802154.h"
 #include "packet-zbncp.h"
-#include "conversation.h"
 
 void proto_reg_handoff_zbncp(void);
 void proto_register_zbncp(void);

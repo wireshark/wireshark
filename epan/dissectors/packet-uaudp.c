@@ -16,6 +16,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <wsutil/report_message.h>
+#include <wsutil/inet_addr.h>
 
 #include "packet-uaudp.h"
 

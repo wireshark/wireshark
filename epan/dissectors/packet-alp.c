@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <wiretap/wtap.h>
 
 void proto_reg_handoff_alp(void);
 void proto_register_alp(void);

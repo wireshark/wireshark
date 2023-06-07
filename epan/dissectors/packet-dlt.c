@@ -31,6 +31,7 @@
 
 #include <epan/to_str.h>
 #include <epan/uat.h>
+#include <wiretap/wtap.h>
 
 #include <epan/dissectors/packet-dlt.h>
 

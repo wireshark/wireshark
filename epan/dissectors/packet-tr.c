@@ -21,7 +21,6 @@
 #include "packet-llc.h"
 #include "packet-sflow.h"
 #include <epan/prefs.h>
-#include <wiretap/wtap.h>
 void proto_register_tr(void);
 void proto_reg_handoff_tr(void);
 

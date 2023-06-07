@@ -1378,7 +1378,7 @@ typedef struct {
  */
 #define WTAP_NSTIME_32BIT_SECS_MAX ((time_t)(sizeof(time_t) > sizeof(gint32) ? G_MAXUINT32 : G_MAXINT32))
 
-typedef struct {
+typedef struct wtap_rec {
     guint     rec_type;          /* what type of record is this? */
     guint32   presence_flags;    /* what stuff do we have? */
     guint     section_number;    /* section, within file, containing this record */

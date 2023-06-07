@@ -28,7 +28,6 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/arptypes.h>
-#include <wiretap/wtap.h>
 
 #include "packet-llc.h"
 #include "packet-chdlc.h"

@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 void proto_register_etw(void);
 void proto_reg_handoff_etw(void);

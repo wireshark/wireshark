@@ -16,12 +16,14 @@
 #include <epan/ipproto.h>
 #include <epan/to_str.h>
 #include <wsutil/str_util.h>
+#include <wiretap/wtap.h>
+#include <wiretap/erf_record.h>
+
 #include "packet-erf.h"
 #include "packet-ptp.h"
 
 /*
 */
-#include "wiretap/erf_record.h"
 
 void proto_register_erf(void);
 void proto_reg_handoff_erf(void);

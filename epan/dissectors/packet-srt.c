@@ -23,11 +23,12 @@
  */
 
 #include <config.h>
-#include <wsutil/str_util.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <wsutil/str_util.h>
+#include <wsutil/inet_addr.h>
 
 /* Prototypes */
 void proto_reg_handoff_srt(void);

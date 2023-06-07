@@ -24,7 +24,6 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/sequence_analysis.h>
-#include <wiretap/wtap.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <wsutil/wsgcrypt.h>

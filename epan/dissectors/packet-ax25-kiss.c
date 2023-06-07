@@ -101,7 +101,6 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
-#include <wiretap/wtap.h>
 
 #define STRLEN	80
 
