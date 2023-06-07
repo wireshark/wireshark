@@ -185,11 +185,18 @@ Test dependencies (such as programs, directories, or the environment
 variables) are injected through method parameters. Commonly used
 fixtures include `cmd_tshark` and `capture_file`.
 
-Processes (tshark, capinfos, etc.) are run using the "subprocess" Python module.
-Possible functions include run(), check_call(), check_output() or creating
-a Popen object if the utility functions are not sufficient for some reason.
+Processes (tshark, capinfos, etc.) are run using the "subprocess" Python module,
+or the Wireshark `subprocesstest` module with some convenience functions.
+Possible functions include `subprocesstest.run()`, `subprocesstest.check_run()`
+or creating `subprocess.Popen` object if the utility functions are not sufficient for some reason.
 Usually this is only required if two-way communication is performed with
-the child process.
+the child process. `subprocesstest.check_run()` is exactly the same as
+calling `subprocesstest.run()` with `check=True` as an argument, only
+a bit more expressive.
+
+Check the documentation for the Python subprocess module for a full description
+of the arguments available to the `subprocesstest.run()` convenience wrapper
+and the `subprocess.Popen` object.
 
 All of the current tests run one or more of Wireshark's suite of
 executables and either check their return code or their output. A
@@ -198,35 +205,34 @@ which reads a capture file using TShark and checks its exit code.
 
 [source,python]
 ----
-import subprocess
+import subprocesstest
 import pytest
 
 class TestBasicClopts:
     def test_existing_file(self, cmd_tshark, capture_file, test_env):
-        subprocess.check_call((cmd_tshark, '-r', capture_file('dhcp.pcap')), env=test_env)
+        subprocess.check_run((cmd_tshark, '-r', capture_file('dhcp.pcap')), env=test_env)
 ----
-
-Check the options to the subprocess Popen object for a full description of the arguments
-available.
 
 Output can be checked using `assert subprocesstest.grep_output()`,
 `assert subprocesstest.count_output()` or any other `assert` statement.
+`subprocesstest.check_run()` also asserts that the child process returns
+the value 0 as exit code.
 
 [source,python]
 ----
-import subprocess
+import subprocesstest
 import pytest
 
 class TestDecrypt80211:
     def test_80211_wpa_psk(self, cmd_tshark, capture_file, test_env):
-        tshark_stdout = subprocess.check_output((cmd_tshark,
+        tshark_proc = subprocesstest.run((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-Tfields',
                 '-e', 'http.request.uri',
                 '-r', capture_file('wpa-Induction.pcap.gz'),
                 '-Y', 'http',
-            ), encoding='utf-8', env=test_env)
-        assert 'favicon.ico' in tshark_stdout
+            ), capture_output=True, env=test_env)
+        assert 'favicon.ico' in tshark_proc.stdout
 ----
 
 Tests can be run in parallel. This means that any files you create must
