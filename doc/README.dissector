@@ -1500,12 +1500,15 @@ order.
 For string fields, the encoding specifies the character set used for the
 string and the way individual code points in that character set are
 encoded. For FT_UINT_STRING fields, the byte order of the count must be
-specified; for UCS-2 and UTF-16, the byte order of the encoding must be
-specified (for counted UCS-2 and UTF-16 strings, the byte order of the
-count and the 16-bit values in the string must be the same). In other
-cases the string encoding has no endianness or the endianness is implicitly
-specified and nothing should be used. The character encodings that are
-currently supported are:
+specified. For UTF-16, UCS-2, and UCS-4, the byte order of the encoding
+must be specified, and optionally ENC_BOM can also be indicated to detect
+an initial BYTE ORDER MARK (the specified value is used if the field does
+not begin with a BOM.) For counted UTF-16, UCS-2, and UCS-4 strings, the
+byte order of the count and the characters in the string must be the same,
+unless a BOM overrides the value for the characters. In other cases the
+string encoding has no endianness or the endianness is implicitly specified
+and nothing should be used. The character encodings that are currently
+supported are:
 
     ENC_ASCII - ASCII (currently treated as UTF-8; in the future,
         all bytes with the 8th bit set will be treated as
@@ -1514,7 +1517,7 @@ currently supported are:
     ENC_UTF_16 - UTF-16-encoded Unicode, with surrogate pairs
     ENC_UCS_2 - UCS-2-encoded subset of Unicode, with no surrogate pairs
         and thus no code points above 0xFFFF
-    ENC_UCS_4 - UCS-4-encoded Unicode
+    ENC_UCS_4 - UCS-4-encoded Unicode (aka UTF-32)
     ENC_WINDOWS_1250 - Windows-1250 code page
     ENC_WINDOWS_1251 - Windows-1251 code page
     ENC_WINDOWS_1252 - Windows-1252 code page

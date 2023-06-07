@@ -82,6 +82,7 @@ static ws_enum_t all_enums[] = {
     ENUM(ENC_BCD_ODD_NUM_DIG),
     ENUM(ENC_BCD_SKIP_FIRST),
     ENUM(ENC_BIG_ENDIAN),
+    ENUM(ENC_BOM),
     ENUM(ENC_CHARENCODING_MASK),
     ENUM(ENC_CP437),
     ENUM(ENC_CP855),

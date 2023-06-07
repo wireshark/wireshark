@@ -28,6 +28,9 @@
  */
 #define UNREPL UNICODE_REPLACEMENT_CHARACTER
 
+/* ZERO WIDTH NON-BREAKING SPACE, also known informally as BOM */
+#define BYTE_ORDER_MARK 0xFEFF
+
 /*
  * Wikipedia's "Character encoding" template, giving a pile of character
  * encodings and Wikipedia pages for them:
@@ -699,23 +702,36 @@ get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, con
  * Unicode, and return a pointer to a UTF-8 string, allocated with the
  * wmem scope.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * possibly ORed with ENC_BOM.
  *
  * Specify length in bytes.
  */
 guint8 *
-get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
+get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, guint encoding)
 {
     gunichar2      uchar;
-    gint           i;       /* Byte counter for string */
+    gint           i = 0;       /* Byte counter for string */
     wmem_strbuf_t *strbuf;
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
-    for(i = 0; i + 1 < length; i += 2) {
-        if (encoding == ENC_BIG_ENDIAN){
+    if (encoding & ENC_BOM && length >= 2) {
+        if (pletoh16(ptr) == BYTE_ORDER_MARK) {
+            encoding = ENC_LITTLE_ENDIAN;
+            i += 2;
+        } else if (pntoh16(ptr) == BYTE_ORDER_MARK) {
+            encoding = ENC_BIG_ENDIAN;
+            i += 2;
+        }
+    }
+
+    encoding = encoding & ENC_LITTLE_ENDIAN;
+
+    for(; i + 1 < length; i += 2) {
+        if (encoding == ENC_BIG_ENDIAN) {
             uchar = pntoh16(ptr + i);
-        }else{
+        } else {
             uchar = pletoh16(ptr + i);
         }
         wmem_strbuf_append_unichar_validated(strbuf, uchar);
@@ -738,21 +754,34 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
  *
  * See RFC 2781 section 2.2.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * possibly ORed with ENC_BOM.
  *
  * Specify length in bytes.
  */
 guint8 *
-get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
+get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, guint encoding)
 {
     wmem_strbuf_t *strbuf;
     gunichar2      uchar2, lead_surrogate;
     gunichar       uchar;
-    gint           i;       /* Byte counter for string */
+    gint           i = 0;       /* Byte counter for string */
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
-    for(i = 0; i + 1 < length; i += 2) {
+    if (encoding & ENC_BOM && length >= 2) {
+        if (pletoh16(ptr) == BYTE_ORDER_MARK) {
+            encoding = ENC_LITTLE_ENDIAN;
+            i += 2;
+        } else if (pntoh16(ptr) == BYTE_ORDER_MARK) {
+            encoding = ENC_BIG_ENDIAN;
+            i += 2;
+        }
+    }
+
+    encoding = encoding & ENC_LITTLE_ENDIAN;
+
+    for(; i + 1 < length; i += 2) {
         if (encoding == ENC_BIG_ENDIAN)
             uchar2 = pntoh16(ptr + i);
         else
@@ -831,15 +860,27 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
  * Specify length in bytes
  */
 guint8 *
-get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
+get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, guint encoding)
 {
     gunichar       uchar;
-    gint           i;       /* Byte counter for string */
+    gint           i = 0;       /* Byte counter for string */
     wmem_strbuf_t *strbuf;
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
-    for(i = 0; i + 3 < length; i += 4) {
+    if (encoding & ENC_BOM && length >= 4) {
+        if (pletoh32(ptr) == BYTE_ORDER_MARK) {
+            encoding = ENC_LITTLE_ENDIAN;
+            i += 4;
+        } else if (pntoh32(ptr) == BYTE_ORDER_MARK) {
+            encoding = ENC_BIG_ENDIAN;
+            i += 4;
+        }
+    }
+
+    encoding = encoding & ENC_LITTLE_ENDIAN;
+
+    for(; i + 3 < length; i += 4) {
         if (encoding == ENC_BIG_ENDIAN)
             uchar = pntoh32(ptr + i);
         else

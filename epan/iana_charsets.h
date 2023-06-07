@@ -187,7 +187,7 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(0, YYY(XXX, IANA_CS_UTF_7,                     1012, "UTF-7",               ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(1, YYY(XXX, IANA_CS_UTF_16BE,                  1013, "UTF-16BE",            ENC_BIG_ENDIAN|ENC_UTF_16)) \
     ZZZ(1, YYY(XXX, IANA_CS_UTF_16LE,                  1014, "UTF-16LE",            ENC_LITTLE_ENDIAN|ENC_UTF_16)) \
-    ZZZ(1, YYY(XXX, IANA_CS_UTF_16,                    1015, "UTF-16",              ENC_LITTLE_ENDIAN|ENC_UTF_16)) \
+    ZZZ(1, YYY(XXX, IANA_CS_UTF_16,                    1015, "UTF-16",              ENC_LITTLE_ENDIAN|ENC_BOM|ENC_UTF_16)) \
     ZZZ(0, YYY(XXX, IANA_CS_CESU_8,                    1016, "CESU-8",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_UTF_32,                    1017, "UTF-32",              ENC_NA|_DEFAULT_WS_ENC)) \
     ZZZ(0, YYY(XXX, IANA_CS_UTF_32BE,                  1018, "UTF-32BE",            ENC_NA|_DEFAULT_WS_ENC)) \
@@ -315,6 +315,12 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
     ZZZ(1, YYY(XXX, IANA_CS_TIS_620,                   2259, "TIS-620",             ENC_NA|ENC_ISO_8859_11)) \
     ZZZ(0, YYY(XXX, IANA_CS_CP50220,                   2260, "CP50220",             ENC_NA|_DEFAULT_WS_ENC))
 /*  ZZZ(Mark,....., IANA_ENUM,                     IANA_VAL, IANA_NAME,             WIRESHARK_ENCODING */
+
+/* RFC 2781 suggests that 1015 "UTF-16" (UTF-16 with BOM) SHOULD be
+ * interpreted as ENC_BIG_ENDIAN if the BOM is missing, but in practice
+ * it's more common to see the encoding as Little Endian, especially if
+ * a BOM is expected.
+ */
 
 /* select all records */
 #define ICWE_SELECT_ALL(N, ...)   ICWE_SELECT_ALL_##N(__VA_ARGS__)

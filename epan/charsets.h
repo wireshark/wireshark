@@ -128,12 +128,13 @@ get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, con
  * Unicode, and return a pointer to a UTF-8 string, allocated with the
  * wmem scope.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * possibly ORed with ENC_BOM.
  *
  * Specify length in bytes.
  */
 WS_DLL_PUBLIC guint8 *
-get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
+get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, guint encoding);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
@@ -142,24 +143,26 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
  *
  * See RFC 2781 section 2.2.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * possibly ORed with ENC_BOM.
  *
  * Specify length in bytes.
  */
 WS_DLL_PUBLIC guint8 *
-get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
+get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, guint encoding);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
  * referred to by the pointer and length as a UCS-4 encoded string, and
  * return a pointer to a UTF-8 string, allocated with the wmem scope.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * possibly ORed with ENC_BOM.
  *
- * Specify length in bytes
+ * Specify length in bytes.
  */
 WS_DLL_PUBLIC guint8 *
-get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
+get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, guint encoding);
 
 WS_DLL_PUBLIC guint8 *
 get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, const guint8 *ptr,

@@ -461,6 +461,16 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_ZIGBEE               0x40000000
 
 /*
+ * This is a modifier for ENC_UTF_16, ENC_UCS_2, and ENC_UCS_4
+ * indicating that if the first two (or four, for UCS-4) octets
+ * are a big-endian or little-endian BOM, use that to determine
+ * the serialization order and ignore the ENC_LITTLE_ENDIAN or
+ * ENC_BIG_ENDIAN flag. This can't collide with ENC_ZIGBEE because
+ * it could be used simultaneously.
+ */
+#define ENC_BOM                  0x20000000
+
+/*
  * For cases where either native type or string encodings could both be
  * valid arguments, we need something to distinguish which one is being
  * passed as the argument, because ENC_BIG_ENDIAN and ENC_ASCII are both

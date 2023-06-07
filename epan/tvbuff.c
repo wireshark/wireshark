@@ -3137,17 +3137,17 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_UTF_16:
 		strptr = tvb_get_utf_16_string(scope, tvb, offset, length,
-		    encoding & ENC_LITTLE_ENDIAN);
+		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_UCS_2:
 		strptr = tvb_get_ucs_2_string(scope, tvb, offset, length,
-		    encoding & ENC_LITTLE_ENDIAN);
+		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_UCS_4:
 		strptr = tvb_get_ucs_4_string(scope, tvb, offset, length,
-		    encoding & ENC_LITTLE_ENDIAN);
+		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_ISO_8859_1:
@@ -3633,17 +3633,17 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_UTF_16:
 		strptr = tvb_get_utf_16_stringz(scope, tvb, offset, lengthp,
-		    encoding & ENC_LITTLE_ENDIAN);
+		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_UCS_2:
 		strptr = tvb_get_ucs_2_stringz(scope, tvb, offset, lengthp,
-		    encoding & ENC_LITTLE_ENDIAN);
+		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_UCS_4:
 		strptr = tvb_get_ucs_4_stringz(scope, tvb, offset, lengthp,
-		    encoding & ENC_LITTLE_ENDIAN);
+		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_ISO_8859_1:
