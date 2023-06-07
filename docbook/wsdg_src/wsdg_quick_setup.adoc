@@ -2,11 +2,11 @@
 
 [#ChapterSetup]
 
-== Toolchain Installation and Build Instructions
+== Setup and Build Instructions
 
 [#ChSetupUNIX]
 
-=== UNIX and UNIX-like Systems
+=== UN*X: Step-by-step guide
 
 [#ChSetupUNIXBuildEnvironmentSetup]
 
@@ -215,7 +215,7 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 
 // Retain ChSetupWin32 for backward compatibility
 [#ChSetupWindows]
-=== Windows: Microsoft Visual Studio[[ChSetupWin32]]
+=== Windows: Using Microsoft Visual Studio[[ChSetupWin32]]
 
 A quick setup guide for Windows development with recommended configurations.
 
@@ -716,7 +716,7 @@ It’s a good idea to test on a different machine than the developer machine.
 
 [#ChSetupMSYS2]
 
-=== Windows: Mingw-w64 with MSYS2
+=== Windows: Using MinGW-w64 with MSYS2
 
 MSYS2 comes with different environments/subsystems and the first thing you
 have to decide is which one to use. The differences among the environments
@@ -776,7 +776,7 @@ the build using MSVC:
 
 [#ChSetupCross]
 
-=== Windows: Cross-compilation from Linux
+=== Windows: Cross-compilation using Linux
 
 It is possible to compile Wireshark for Microsoft Windows using Linux and MinGW.
 This way developers can deploy Wireshark on Windows systems without requiring
