@@ -135,9 +135,9 @@ static const value_string proxy2_tlv_vals[] = {
 };
 
 static int
-dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int header_len)
+dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int next_offset)
 {
-    while (offset < header_len) {
+    while (offset < next_offset) {
         guint32 type, length;
         proto_item *ti_tlv;
         proto_tree *tlv_tree;
@@ -159,7 +159,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
             offset += 1;
             proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_verify, tvb, offset, 4, ENC_NA);
             offset += 4;
-            offset = dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset, header_len);
+            offset = dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset, next_offset);
         break;
         case PP2_SUBTYPE_SSL_VERSION: /* SSL Version */
             proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_version, tvb, offset, length, ENC_ASCII);
@@ -483,9 +483,10 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return offset;
     }
 
-    if (offset < header_len) {
+    /* Do we have additional TLV to parse? */
+    if (offset < next_offset) {
         /* TLV */
-        offset = dissect_proxy_v2_tlv(tvb, pinfo, proxy_tree, offset, header_len);
+        offset = dissect_proxy_v2_tlv(tvb, pinfo, proxy_tree, offset, next_offset);
     }
 
     return offset;
