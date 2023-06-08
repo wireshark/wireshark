@@ -40,6 +40,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/inet_addr.h>
 #include <wsutil/report_message.h>
 
 #include "sinsp-span.h"
