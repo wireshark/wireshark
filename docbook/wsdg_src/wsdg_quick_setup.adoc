@@ -765,10 +765,10 @@ The official Wireshark Windows installer is compiled using Microsoft Visual
 Studio (MSVC). Currently the MSYS2 build has the following limitations compared to
 the build using MSVC:
 
-* The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
-
 * Lua version is 5.1 (MSVC uses Lua 5.2) and does not have
   https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
+
+* The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
 * Enhanced Kerberos dissection with decryption is not available.
 
@@ -784,6 +784,8 @@ a Windows host machine. Building for Windows using a Linux host is also
 easier for devs already familiar with Linux, the build itself is faster and it
 uses a very mature C/C++ compiler (GCC) and debugger (GDB).
 
+==== Using Fedora Linux
+
 https://fedoraproject.org/[Fedora Linux] provides the best out-of-the-box
 support for MinGW cross-compilation. Fedora is what the project uses to test
 the build and it's what we recommend. While any other reasonably modern Linux
@@ -793,28 +795,28 @@ involve some trial and error to setup.
 The build instructions on Fedora follow the familiar recipe for building Wireshark
 using Linux.
 
-==== Building from source
+===== Building from source
 
 . Install needed dependencies:
 
-    tools/mingw-rpm-setup.sh --install-all
+  tools/mingw-rpm-setup.sh --install-all
 
 . Build using CMake + Ninja:
 
-    mkdir build && cd build
-    mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes ..
-    ninja
+  mkdir build && cd build
+  mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes -DFETCH_lua=Yes ..
+  ninja
 
   Note that currently it is not possible to run the test-suite when cross-compiling.
 
 . Build the NSIS installer
 
-    ninja wireshark_nsis_prep
-    ninja wireshark_nsis
+  ninja wireshark_nsis_prep
+  ninja wireshark_nsis
 
 If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 
-==== Notes and comparison with MSVC builds
+===== Notes and comparison with MSVC builds
 
 * Only the MSVCRT C library for Microsoft Windows can be used. Support for the
   UCRT (Universal C Runtime) library on Fedora Linux is in the initial stages of
@@ -826,4 +828,73 @@ If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
+* Enhanced Kerberos dissection with decryption is not available.
+
 * AirPcap is not supported.
+
+==== Using Arch Linux
+
+https://archlinux.org/[Arch Linux] has good support for MinGW using packages
+from the https://aur.archlinux.org/[AUR]. Note that the mingw-w64 AUR packages
+sometimes break. If that happens you may be required to fix it or skip the
+package until it is fixed by the maintainer, if it's an optional dependency.
+You may also want to consider using the "ownstuff"
+https://wiki.archlinux.org/title/unofficial_user_repositories[unofficial user repository].
+This will greatly simplify the initial setup and subsequent upgrades.
+
+You will need to install an https://wiki.archlinux.org/title/AUR_helpers[AUR helper].
+This guide assumes `paru` is being used.
+
+. Install required dependencies from official repositories:
+
+  pacman -S mingw-w64 nsis lemon qt6-tools ccache
+
+. Install required dependencies from the AUR:
+
+  paru -S mingw-w64-cmake
+  paru -S mingw-w64-glib2
+  paru -S mingw-w64-libgcrypt
+  paru -S mingw-w64-c-ares
+  paru -S mingw-w64-libpcap
+
+. Install Qt6:
+
+  paru -S mingw-w64-qt6-base mingw-w64-qt6-5compat mingw-w64-qt6-multimedia
+
+. Install optional dependencies:
+
+  paru -S mingw-w64-speexdsp
+  paru -S mingw-w64-gnutls
+  paru -S mingw-w64-lz4
+  paru -S mingw-w64-snappy
+  paru -S mingw-w64-opus
+  paru -S mingw-w64-opencore-amr
+  paru -S mingw-w64-libxml2
+  paru -S mingw-w64-libnghttp2
+  paru -S mingw-w64-libssh
+  paru -S mingw-w64-minizip
++
+Search the AUR for other dependencies not listed above.
+
+. Build Wireshark using CMake + Ninja. From the directory containing the
+  Wireshark source tree run:
+
+  mkdir build && cd build
+  x86_64-w64-mingw32-cmake -G Ninja -DENABLE_CCACHE=Yes -DFETCH_lua=Yes \
+        -DMINGW_SYSROOT=/usr/x86_64-w64-mingw32 ..
+  ninja
++
+This will automatically download and build Lua as a static library.
++
+To reconfigure the CMake build you may to do it explicitly by running
+`x86_64-w64-mingw32-cmake .` in the build directory,
+instead of letting `ninja` do it for you automatically.
+
+. Build the NSIS installer
+
+  ninja wireshark_nsis_prep
+  ninja wireshark_nsis
+
+If everything goes well the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
+
+The same notes as the build using Fedora apply.
