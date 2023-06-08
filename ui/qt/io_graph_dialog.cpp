@@ -27,6 +27,8 @@
 #include <ui/qt/widgets/qcustomplot.h>
 #include "progress_frame.h"
 #include "main_application.h"
+
+#include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
@@ -431,6 +433,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     loadProfileGraphs();
     bool filterExists = false;
+    QString graph_name = is_packet_configuration_namespace() ? tr("Filtered packets") : tr("Filtered events");
     if (uat_model_->rowCount() > 0) {
         for (int i = 0; i < uat_model_->rowCount(); i++) {
             createIOGraph(i);
@@ -438,13 +441,13 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
                 filterExists = true;
         }
         if (! filterExists && displayFilter.length() > 0)
-            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
+            addGraph(true, graph_name, displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
     } else {
         addDefaultGraph(true, 0);
         addDefaultGraph(true, 1);
         if (displayFilter.length() > 0)
-            addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
+            addGraph(true, graph_name, displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
     }
 
@@ -504,7 +507,11 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
     newRowData.append(val_to_str_const(style, graph_style_vs, "None"));
-    newRowData.append(val_to_str_const(value_units, y_axis_vs, "Packets"));
+    if (is_packet_configuration_namespace()) {
+        newRowData.append(val_to_str_const(value_units, y_axis_vs, "Packets"));
+    } else {
+        newRowData.append(val_to_str_const(value_units, y_axis_vs, "Events"));
+    }
     newRowData.append(yfield);
     newRowData.append(val_to_str_const((guint32) moving_average, moving_avg_vs, "None"));
     newRowData.append(y_axis_factor);
@@ -567,15 +574,28 @@ void IOGraphDialog::createIOGraph(int currentRow)
 
 void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 {
-    switch (idx % 2) {
-    case 0:
-        addGraph(enabled, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
-                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-        break;
-    default:
-        addGraph(enabled, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
-                 IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-        break;
+    if (is_packet_configuration_namespace()) {
+        switch (idx % 2) {
+        case 0:
+            addGraph(enabled, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
+                    IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+            break;
+        default:
+            addGraph(enabled, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
+                    IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+            break;
+        }
+    } else {
+        switch (idx % 2) {
+        case 0:
+            addGraph(enabled, tr("All Events"), QString(), ColorUtils::graphColor(idx),
+                    IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+            break;
+        default:
+            addGraph(enabled, tr("Access Denied"), "ct.error == \"AccessDenied\"", ColorUtils::graphColor(4), // 4 = red
+                    IOGraph::psDot, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+            break;
+        }
     }
 }
 
@@ -1090,13 +1110,19 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
         if (interval_packet < 0) {
             hint += tr("Hover over the graph for details.");
         } else {
-            QString msg = tr("No packets in interval");
+            QString msg = is_packet_configuration_namespace() ? tr("No packets in interval") : tr("No events in interval");
             QString val;
             if (interval_packet > 0) {
                 packet_num_ = (guint32) interval_packet;
-                msg = QString("%1 %2")
-                        .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
-                        .arg(packet_num_);
+                if (is_packet_configuration_namespace()) {
+                    msg = QString("%1 %2")
+                            .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
+                            .arg(packet_num_);
+                } else {
+                    msg = QString("%1 %2")
+                            .arg(!file_closed_ ? tr("Click to select event") : tr("Event"))
+                            .arg(packet_num_);
+                }
                 val = " = " + QString::number(tracer_->position->value(), 'g', 4);
             }
             hint += tr("%1 (%2s%3).")
