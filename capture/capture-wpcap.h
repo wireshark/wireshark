@@ -32,8 +32,10 @@ extern void load_wpcap(void);
  */
 gboolean npf_sys_is_running(void);
 
+#ifdef HAVE_LIBPCAP
 int
 ws_pcap_findalldevs_ex(const char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf);
+#endif
 
 #ifdef __cplusplus
 }
