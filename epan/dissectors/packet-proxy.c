@@ -106,6 +106,7 @@ static const value_string proxy2_family_vals[] = {
 #define PP2_TYPE_AUTHORITY      0x02
 #define PP2_TYPE_CRC32C         0x03
 #define PP2_TYPE_NOOP           0x04
+#define PP2_TYPE_UNIQUE_ID      0x05
 #define PP2_TYPE_SSL            0x20
 #define PP2_SUBTYPE_SSL_VERSION 0x21
 #define PP2_SUBTYPE_SSL_CN      0x22
@@ -121,6 +122,7 @@ static const value_string proxy2_tlv_vals[] = {
     { PP2_TYPE_AUTHORITY, "AUTHORITY" },
     { PP2_TYPE_CRC32C, "CRC32C" },
     { PP2_TYPE_NOOP, "NOOP" },
+    { PP2_TYPE_UNIQUE_ID, "UNIQUE_ID" },
     { PP2_TYPE_SSL, "SSL" },
     { PP2_SUBTYPE_SSL_VERSION, "SSL VERSION" },
     { PP2_SUBTYPE_SSL_CN, "SSL CN" },
