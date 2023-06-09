@@ -679,10 +679,10 @@ add_library(ui_logray OBJECT
 target_include_directories(ui_logray
 	SYSTEM PRIVATE
 		# Include Qt before anything else, see the comment about
-		# QT_INCLUDE_DIRS in the top-level CMakeLists.txt
+		# QT5_INCLUDE_DIRS in the top-level CMakeLists.txt
 		# Basically, qt@5 headers should be prioritized over qt@6 which
 		# would be found due to GCRYPT_INCLUDE_DIRS=/usr/local/include
-		${QT_INCLUDE_DIRS}
+		${QT5_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${MINIZIP_INCLUDE_DIRS}
 		${PCAP_INCLUDE_DIRS}
@@ -694,9 +694,21 @@ target_include_directories(ui_logray
 		${CMAKE_CURRENT_SOURCE_DIR}/../qt
 )
 
+if(USE_qt6)
+	target_link_libraries(ui_logray PUBLIC
+		Qt6::Widgets
+		Qt6::Core5Compat
+		Qt6::Concurrent
+		Qt6::PrintSupport
+	)
+	if(Qt6Multimedia_FOUND)
+		target_link_libraries(ui_logray PUBLIC Qt6::Multimedia)
+	endif()
+endif()
+
 target_compile_definitions(ui_logray
 	PUBLIC
-		${QT_COMPILE_DEFINITIONS}
+		${QT5_COMPILE_DEFINITIONS}
 )
 
 set_target_properties(ui_logray PROPERTIES

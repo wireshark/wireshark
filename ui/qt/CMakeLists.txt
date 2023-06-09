@@ -740,7 +740,7 @@ set_source_files_properties(
 	SKIP_AUTOGEN ON
 )
 
-add_definitions(${QT_DEFINITIONS})
+add_definitions(${QT5_DEFINITIONS})
 
 register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_QT_TAP_SRC}
@@ -777,13 +777,25 @@ add_library(qtui OBJECT
 	wireshark-tap-register.c
 )
 
+if(USE_qt6)
+	target_link_libraries(qtui PUBLIC
+		Qt6::Widgets
+		Qt6::Core5Compat
+		Qt6::Concurrent
+		Qt6::PrintSupport
+	)
+	if(Qt6Multimedia_FOUND)
+		target_link_libraries(qtui PUBLIC Qt6::Multimedia)
+	endif()
+endif()
+
 target_include_directories(qtui
 	SYSTEM PRIVATE
 		# Include Qt before anything else, see the comment about
-		# QT_INCLUDE_DIRS in the top-level CMakeLists.txt
+		# QT5_INCLUDE_DIRS in the top-level CMakeLists.txt
 		# Basically, qt@5 headers should be prioritized over qt@6 which
 		# would be found due to GCRYPT_INCLUDE_DIRS=/usr/local/include
-		${QT_INCLUDE_DIRS}
+		${QT5_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${MINIZIP_INCLUDE_DIRS}
 		${PCAP_INCLUDE_DIRS}
@@ -796,7 +808,7 @@ target_include_directories(qtui
 
 target_compile_definitions(qtui
 	PUBLIC
-		${QT_COMPILE_DEFINITIONS}
+		${QT5_COMPILE_DEFINITIONS}
 )
 
 set_target_properties(qtui PROPERTIES

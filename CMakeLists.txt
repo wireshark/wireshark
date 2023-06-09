@@ -1230,43 +1230,10 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 # Build one of the Qt GUIs?
 if(BUILD_wireshark OR BUILD_logray)
 	if(USE_qt6)
-		set(qtver "6")
 		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
 			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT6_PREFIX_PATH})
 		endif()
-	else()
-		set(qtver "5")
-		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
-			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
-		# XXX We used to recommend setting QT5_BASE_DIR. Remove after the 4.0 branch is created.
-		elseif(WIN32 AND NOT USE_MSYSTEM AND DEFINED ENV{QT5_BASE_DIR})
-			message(WARNING "Support for QT5_BASE_DIR will be removed in a future release.")
-			set(QT5_BASE_PATH "$ENV{QT5_BASE_DIR}")
-			set(CMAKE_PREFIX_PATH "${QT5_BASE_PATH}")
-		endif()
-	endif()
-	if(APPLE AND EXISTS /usr/local/opt/qt5)
-		# Homebrew installs Qt5 (up to at least 5.11.0) in
-		# /usr/local/qt5. Ensure that it can be found by CMake
-		# since it is not in the default /usr/local prefix.
-		# Add it to PATHS so that it doesn't override the
-		# CMAKE_PREFIX_PATH environment variable.
-		# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
-		# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
-		list(APPEND QT_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
-	endif()
-	set(QT_PACKAGELIST
-		Qt${qtver}Core
-		Qt${qtver}Gui
-		Qt${qtver}LinguistTools
-		Qt${qtver}PrintSupport
-		Qt${qtver}Widgets
-		Qt${qtver}Concurrent
-	)
-	set(QT_OPTIONAL_PACKAGELIST
-		Qt${qtver}Multimedia
-	)
-	if(USE_qt6)
+
 		set(CMAKE_CXX_STANDARD 17)
 		# Setting CMAKE_CXX_STANDARD is not sufficient with MSVC, see
 		#   https://gitlab.kitware.com/cmake/cmake/-/issues/18837
@@ -1276,39 +1243,89 @@ if(BUILD_wireshark OR BUILD_logray)
 			# https://cmake.org/pipermail/cmake/2009-August/031672.html
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Zc:__cplusplus")
 		endif()
-		list(APPEND QT_PACKAGELIST Qt6Core5Compat)
-	else()
-		if(WIN32)
-			list(APPEND QT_PACKAGELIST Qt5WinExtras)
+
+		find_package(Qt6 REQUIRED
+			COMPONENTS
+				Core
+				Gui
+				LinguistTools
+				PrintSupport
+				Widgets
+				Concurrent
+				Core5Compat
+			OPTIONAL_COMPONENTS
+				Multimedia
+		)
+	else(USE_qt6)
+		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
+			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
 		endif()
-	endif()
-	foreach(_qt_package IN LISTS QT_PACKAGELIST)
-		find_package(${_qt_package} REQUIRED ${QT_FIND_PACKAGE_OPTIONS})
-		list(APPEND QT_LIBRARIES ${${_qt_package}_LIBRARIES})
-		list(APPEND QT_INCLUDE_DIRS ${${_qt_package}_INCLUDE_DIRS})
-		list(APPEND QT_COMPILE_DEFINITIONS ${${_qt_package}_COMPILE_DEFINITIONS})
-	endforeach()
-	foreach(_qt_package IN LISTS QT_OPTIONAL_PACKAGELIST)
-		find_package(${_qt_package} ${QT_FIND_PACKAGE_OPTIONS})
-		list(APPEND QT_LIBRARIES ${${_qt_package}_LIBRARIES})
-		list(APPEND QT_INCLUDE_DIRS ${${_qt_package}_INCLUDE_DIRS})
-		list(APPEND QT_COMPILE_DEFINITIONS ${${_qt_package}_COMPILE_DEFINITIONS})
-	endforeach()
-	if(APPLE AND "/usr/local/opt/qt5/lib/QtCore.framework" IN_LIST Qt5Core_INCLUDE_DIRS)
-		# When qt@6 and qt@5 are both installed via Homebrew,
-		# /usr/local/include/QtCore/qvariant.h points to Qt 6 headers.
-		# Normally the Headers from `-iframework /usr/local/opt/qt5/lib`
-		# should be used, but `-isystem /usr/local/include` (via
-		# Libgcrypt and others) seems to prioritized, resulting in use
-		# of the Qt6 headers. Resolve this by explicit including Qt5.
-		list(APPEND QT_INCLUDE_DIRS /usr/local/opt/qt5/include)
-	endif()
+		if(APPLE AND EXISTS /usr/local/opt/qt5)
+			# Homebrew installs Qt5 (up to at least 5.11.0) in
+			# /usr/local/qt5. Ensure that it can be found by CMake
+			# since it is not in the default /usr/local prefix.
+			# Add it to PATHS so that it doesn't override the
+			# CMAKE_PREFIX_PATH environment variable.
+			# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
+			# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
+			list(APPEND QT5_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
+		endif()
+
+		set(QT5_PACKAGELIST
+			Qt5Core
+			Qt5Gui
+			Qt5LinguistTools
+			Qt5PrintSupport
+			Qt5Widgets
+			Qt5Concurrent
+		)
+		set(QT5_OPTIONAL_PACKAGELIST
+			Qt5Multimedia
+		)
+		if(WIN32)
+			list(APPEND QT5_PACKAGELIST Qt5WinExtras)
+		endif()
+		foreach(_qt5_package IN LISTS QT5_PACKAGELIST)
+			find_package(${_qt5_package} REQUIRED ${QT5_FIND_PACKAGE_OPTIONS})
+			list(APPEND QT5_LIBRARIES ${${_qt5_package}_LIBRARIES})
+			list(APPEND QT5_INCLUDE_DIRS ${${_qt5_package}_INCLUDE_DIRS})
+			list(APPEND QT5_COMPILE_DEFINITIONS ${${_qt5_package}_COMPILE_DEFINITIONS})
+		endforeach()
+		foreach(_qt5_package IN LISTS QT5_OPTIONAL_PACKAGELIST)
+			find_package(${_qt5_package} ${QT5_FIND_PACKAGE_OPTIONS})
+			list(APPEND QT5_LIBRARIES ${${_qt5_package}_LIBRARIES})
+			list(APPEND QT5_INCLUDE_DIRS ${${_qt5_package}_INCLUDE_DIRS})
+			list(APPEND QT5_COMPILE_DEFINITIONS ${${_qt5_package}_COMPILE_DEFINITIONS})
+		endforeach()
+
+		if (Qt5Widgets_VERSION VERSION_LESS 5.10)
+			message(FATAL_ERROR "Qt 5.12 or later is required.")
+		endif()
+		if (Qt5Widgets_VERSION VERSION_LESS 5.12)
+			message(WARNING "Wireshark can be build with this version of Qt, though 5.12 or higher is recommended.")
+		endif()
+
+		if(APPLE AND "/usr/local/opt/qt5/lib/QtCore.framework" IN_LIST Qt5Core_INCLUDE_DIRS)
+			# When qt@6 and qt@5 are both installed via Homebrew,
+			# /usr/local/include/QtCore/qvariant.h points to Qt 6 headers.
+			# Normally the Headers from `-iframework /usr/local/opt/qt5/lib`
+			# should be used, but `-isystem /usr/local/include` (via
+			# Libgcrypt and others) seems to prioritized, resulting in use
+			# of the Qt6 headers. Resolve this by explicit including Qt5.
+			list(APPEND QT5_INCLUDE_DIRS /usr/local/opt/qt5/include)
+		endif()
+	endif(USE_qt6)
+
 	set(QT_FOUND ON)
 	if(APPLE)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE 2)
 	endif()
-	if(Qt${qtver}Multimedia_FOUND)
+	if(Qt6Multimedia_FOUND OR Qt5Multimedia_FOUND)
 		set(QT_MULTIMEDIA_LIB 1)
+	endif()
+	if(NOT DEFINED MOC_OPTIONS)
+		# Squelch moc verbose "nothing to do" output
+		set(MOC_OPTIONS -nn)
 	endif()
 endif()
 
@@ -1430,17 +1447,6 @@ if(GNUTLS_FOUND)
 endif()
 
 if (QT_FOUND)
-	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.10)
-		message(FATAL_ERROR "Qt 5.12 or later is required.")
-	endif()
-	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.12)
-		message(WARNING "Wireshark can be build with this version of Qt, though 5.12 or higher is recommended.")
-	endif()
-	if(NOT DEFINED MOC_OPTIONS)
-		# Squelch moc verbose "nothing to do" output
-		set(MOC_OPTIONS -nn)
-	endif()
-
 	# CMake uses qmake to find Qt4. It relies on Qt's CMake modules
 	# to find Qt5. This means that we can't assume that the qmake
 	# in our PATH is the correct one. We can fetch qmake's location
@@ -2562,7 +2568,6 @@ if(BUILD_wireshark AND QT_FOUND)
 	)
 	set(wireshark_FILES
 		$<TARGET_OBJECTS:capture_opts>
-		$<TARGET_OBJECTS:qtui>
 		$<TARGET_OBJECTS:shark_common>
 		${WIRESHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
@@ -2579,7 +2584,6 @@ if(BUILD_logray AND QT_FOUND)
 	)
 	set(logray_FILES
 		$<TARGET_OBJECTS:capture_opts>
-		$<TARGET_OBJECTS:ui_logray>
 		$<TARGET_OBJECTS:shark_common>
 		${LOGRAY_SRC}
 		${PLATFORM_UI_RC_FILES}
@@ -2700,13 +2704,14 @@ endif()
 if(BUILD_wireshark AND QT_FOUND)
 	set(wireshark_LIBS
 		ui
+		qtui
 		capchild
 		caputils
 		iface_monitor
 		wiretap
 		epan
 		summary
-		${QT_LIBRARIES}
+		${QT5_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
@@ -2812,13 +2817,14 @@ endif()
 if(BUILD_logray AND QT_FOUND)
 	set(logray_LIBS
 		ui
+		ui_logray
 		capchild
 		caputils
 		iface_monitor
 		wiretap
 		epan
 		summary
-		${QT_LIBRARIES}
+		${QT5_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
