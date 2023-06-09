@@ -253,6 +253,10 @@ typedef struct _uat_field_t {
  * Flags to indicate what the settings in this UAT affect.
  * This is used when UATs are changed interactively, to indicate what needs
  * to be redone when the UAT is changed.
+ *
+ * UAT_AFFECTS_FIELDS does *not* trigger a redissection, so usually one
+ * will also want UAT_AFFECTS_DISSECTION. A rare exception is changing
+ * the defined dfilter macros.
  */
 #define UAT_AFFECTS_DISSECTION	0x00000001	/* affects packet dissection */
 #define UAT_AFFECTS_FIELDS	0x00000002	/* affects what named fields exist */
