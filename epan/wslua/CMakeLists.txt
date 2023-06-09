@@ -122,6 +122,10 @@ add_library(wslua OBJECT
 	${WSLUA_FILES}
 )
 
+if(FETCH_lua)
+	add_dependencies(wslua lua52)
+endif()
+
 target_include_directories(wslua
 	SYSTEM PRIVATE
 		${LUA_INCLUDE_DIRS}

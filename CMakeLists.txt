@@ -1352,7 +1352,12 @@ ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
 ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2 "1.11.0")
 
 # Embedded Lua interpreter
-ws_find_package(LUA ENABLE_LUA HAVE_LUA "5.1")
+if(FETCH_lua)
+	# Download and build lua
+	include(${CMAKE_SOURCE_DIR}/cmake/external/lua52/Lua52.cmake)
+else()
+	ws_find_package(LUA ENABLE_LUA HAVE_LUA "5.1")
+endif()
 
 ws_find_package(NL ENABLE_NETLINK HAVE_LIBNL)
 

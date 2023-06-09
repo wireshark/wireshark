@@ -1,0 +1,28 @@
+From f9430b91ae6957f9b77e03e3ce1edfbce99b5019 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jo=C3=A3o=20Valverde?= <j@v6e.pt>
+Date: Sat, 10 Jun 2023 19:16:51 +0100
+Subject: [PATCH] Add an install-static target
+
+---
+ Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index b2a62cf..7134775 100644
+--- a/Makefile
++++ b/Makefile
+@@ -64,6 +64,11 @@ install: dummy
+ 	cd src && $(INSTALL_DATA) $(TO_LIB) $(INSTALL_LIB)
+ 	cd doc && $(INSTALL_DATA) $(TO_MAN) $(INSTALL_MAN)
+ 
++install-static: dummy
++	cd src && $(MKDIR) $(INSTALL_INC) $(INSTALL_LIB)
++	cd src && $(INSTALL_DATA) $(TO_INC) $(INSTALL_INC)
++	cd src && $(INSTALL_DATA) $(TO_LIB) $(INSTALL_LIB)
++
+ uninstall:
+ 	cd src && cd $(INSTALL_BIN) && $(RM) $(TO_BIN)
+ 	cd src && cd $(INSTALL_INC) && $(RM) $(TO_INC)
+-- 
+2.41.0
+
