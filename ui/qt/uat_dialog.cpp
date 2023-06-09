@@ -344,11 +344,11 @@ void UatDialog::applyChanges()
     if (!uat_) return;
 
     if (uat_->flags & UAT_AFFECTS_FIELDS) {
-        /* Recreate list with new fields and redissect packets */
+        /* Recreate list with new fields */
         wsApp->queueAppSignal(WiresharkApplication::FieldsChanged);
     }
     if (uat_->flags & UAT_AFFECTS_DISSECTION) {
-        /* Just redissect packets if we have any */
+        /* Redissect packets if we have any */
         wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
     }
 }
