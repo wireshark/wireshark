@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <epan/etypes.h>
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 #include <epan/proto_data.h>
@@ -36,6 +38,8 @@ static int proto_json_3gpp = -1;
 static gint ett_json_base64decoded_eps_ie = -1;
 static gint ett_json_base64decoded_nas5g_ie = -1;
 static gint ett_json_3gpp_data = -1;
+
+static expert_field ei_json_3gpp_data_not_decoded = EI_INIT;
 
 static int hf_json_3gpp_binary_data = -1;
 
@@ -53,92 +57,115 @@ static int hf_json_3gpp_suppFeat = -1;
 
 
 static int hf_json_3gpp_suppfeat = -1;
-static int hf_json_3gpp_suppfeat_npcf_1_tsc = -1;
-static int hf_json_3gpp_suppfeat_npcf_2_resshare = -1;
-static int hf_json_3gpp_suppfeat_npcf_3_3gpppsdataoff = -1;
-static int hf_json_3gpp_suppfeat_npcf_4_adc = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_5_umc = -1;
-static int hf_json_3gpp_suppfeat_npcf_6_netloc = -1;
-static int hf_json_3gpp_suppfeat_npcf_7_rannascause = -1;
-static int hf_json_3gpp_suppfeat_npcf_8_provafsignalflow = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_1_slicesupport = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_2_pendingtransaction = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_3_ueambrauthorization = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_4_dnnreplacementcontrol = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_9_pcscfrestorationenhancement = -1;
-static int hf_json_3gpp_suppfeat_npcf_10_pra = -1;
-static int hf_json_3gpp_suppfeat_npcf_11_ruleversioning = -1;
-static int hf_json_3gpp_suppfeat_npcf_12_sponsoredconnectivity = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_5_multipleaccesstypes = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_6_wirelinewirelessconvergence = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_7_immediatereport = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_8_es3xx = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_13_ransupportinfo = -1;
-static int hf_json_3gpp_suppfeat_npcf_14_policyupdatewhenuesuspends = -1;
-static int hf_json_3gpp_suppfeat_npcf_15_accesstypecondition = -1;
-static int hf_json_3gpp_suppfeat_npcf_16_multiipv6addrprefix = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_9_ueslicembrauthorization = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_10_aminfluence = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_11_enena = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_12_targetnassai = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_17_sessionruleerrorhandling = -1;
-static int hf_json_3gpp_suppfeat_npcf_18_af_charging_identifier = -1;
-static int hf_json_3gpp_suppfeat_npcf_19_atsss = -1;
-static int hf_json_3gpp_suppfeat_npcf_20_pendingtransaction = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_13_5gaccessstratumtime = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_21_urllc = -1;
-static int hf_json_3gpp_suppfeat_npcf_22_macaddressrange = -1;
-static int hf_json_3gpp_suppfeat_npcf_23_wwc = -1;
-static int hf_json_3gpp_suppfeat_npcf_24_qosmonitoring = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_1_tsc = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_2_resshare = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_3_3gpppsdataoff = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_4_adc = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_25_authorizationwithrequiredqos = -1;
-static int hf_json_3gpp_suppfeat_npcf_26_enhancedbackgrounddatatransfer = -1;
-static int hf_json_3gpp_suppfeat_npcf_27_dn_authorization = -1;
-static int hf_json_3gpp_suppfeat_npcf_28_pdusessionrelcause = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_5_umc = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_6_netloc = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_7_rannascause = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_8_provafsignalflow = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_29_samepcf = -1;
-static int hf_json_3gpp_suppfeat_npcf_30_adcmultiredirection = -1;
-static int hf_json_3gpp_suppfeat_npcf_31_respbasedsessionrel = -1;
-static int hf_json_3gpp_suppfeat_npcf_32_timesensitivenetworking = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_9_pcscfrestorationenhancement = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_10_pra = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_11_ruleversioning = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_12_sponsoredconnectivity = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_33_emdbv = -1;
-static int hf_json_3gpp_suppfeat_npcf_34_dnnselectionmode = -1;
-static int hf_json_3gpp_suppfeat_npcf_35_epsfallbackreport = -1;
-static int hf_json_3gpp_suppfeat_npcf_36_policydecisionerrorhandling = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_13_ransupportinfo = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_14_policyupdatewhenuesuspends = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_15_accesstypecondition = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_16_multiipv6addrprefix = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_37_ddneventpolicycontrol = -1;
-static int hf_json_3gpp_suppfeat_npcf_38_reallocationofcredit = -1;
-static int hf_json_3gpp_suppfeat_npcf_39_bdtpolicyrenegotiation = -1;
-static int hf_json_3gpp_suppfeat_npcf_40_extpolicydecisionerrorhandling = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_17_sessionruleerrorhandling = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_18_af_charging_identifier = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_19_atsss = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_20_pendingtransaction = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_41_immediatetermination = -1;
-static int hf_json_3gpp_suppfeat_npcf_42_aggregateduelocchanges = -1;
-static int hf_json_3gpp_suppfeat_npcf_43_es3xx = -1;
-static int hf_json_3gpp_suppfeat_npcf_44_groupidlistchange = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_21_urllc = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_22_macaddressrange = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_23_wwc = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_24_qosmonitoring = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_45_disableuenotification = -1;
-static int hf_json_3gpp_suppfeat_npcf_46_offlinechonly = -1;
-static int hf_json_3gpp_suppfeat_npcf_47_dual_connectivity_redundant_up_paths = -1;
-static int hf_json_3gpp_suppfeat_npcf_48_ddneventpolicycontrol2 = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_25_authorizationwithrequiredqos = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_26_enhancedbackgrounddatatransfer = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_27_dn_authorization = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_28_pdusessionrelcause = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_49_vplmn_qos_control = -1;
-static int hf_json_3gpp_suppfeat_npcf_50_2g3giwk = -1;
-static int hf_json_3gpp_suppfeat_npcf_51_timesensitivecommunication = -1;
-static int hf_json_3gpp_suppfeat_npcf_52_enedge = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_29_samepcf = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_30_adcmultiredirection = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_31_respbasedsessionrel = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_32_timesensitivenetworking = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_53_satbackhaulcategorychg = -1;
-static int hf_json_3gpp_suppfeat_npcf_54_chfsetsupport = -1;
-static int hf_json_3gpp_suppfeat_npcf_55_enatssss = -1;
-static int hf_json_3gpp_suppfeat_npcf_56_mpsfordts = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_33_emdbv = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_34_dnnselectionmode = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_35_epsfallbackreport = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_36_policydecisionerrorhandling = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_57_routinginforemoval = -1;
-static int hf_json_3gpp_suppfeat_npcf_58_epra = -1;
-static int hf_json_3gpp_suppfeat_npcf_59_aminfluence = -1;
-static int hf_json_3gpp_suppfeat_npcf_60_pvssupport = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_37_ddneventpolicycontrol = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_38_reallocationofcredit = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_39_bdtpolicyrenegotiation = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_40_extpolicydecisionerrorhandling = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_61_enena = -1;
-static int hf_json_3gpp_suppfeat_npcf_62_biumr = -1;
-static int hf_json_3gpp_suppfeat_npcf_63_easipreplacement = -1;
-static int hf_json_3gpp_suppfeat_npcf_64_exposuretoeas = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_41_immediatetermination = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_42_aggregateduelocchanges = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_43_es3xx = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_44_groupidlistchange = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_65_simultconnectivity = -1;
-static int hf_json_3gpp_suppfeat_npcf_66_sgwrest = -1;
-static int hf_json_3gpp_suppfeat_npcf_67_releasetoreactivate = -1;
-static int hf_json_3gpp_suppfeat_npcf_68_easdiscovery = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_45_disableuenotification = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_46_offlinechonly = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_47_dual_connectivity_redundant_up_paths = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_48_ddneventpolicycontrol2 = -1;
 
-static int hf_json_3gpp_suppfeat_npcf_69_accnetchargid_string = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_49_vplmn_qos_control = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_50_2g3giwk = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_51_timesensitivecommunication = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_52_enedge = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_sm_53_satbackhaulcategorychg = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_54_chfsetsupport = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_55_enatssss = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_56_mpsfordts = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_sm_57_routinginforemoval = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_58_epra = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_59_aminfluence = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_60_pvssupport = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_sm_61_enena = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_62_biumr = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_63_easipreplacement = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_64_exposuretoeas = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_sm_65_simultconnectivity = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_66_sgwrest = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_67_releasetoreactivate = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_68_easdiscovery = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_sm_69_accnetchargid_string = -1;
+
+
+#define NPCF_AM_POLICY_CONTROL "/npcf-am-policy-control/v1/policies"
+#define NPCF_SM_POLICY_CONTROL "/npcf-smpolicycontrol/v1/sm-policies" /* inconsistency nameing from 3gpp */
+
 
 /* Functions to sub dissect json content */
 static void
@@ -194,7 +221,7 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 }
 
 static void
-dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, int offset, int len, const char* key_str _U_, gboolean use_compact)
+dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_, gboolean use_compact)
 {
 	/* TS 29.571 ch5.2.2
 	 * A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500 [25].
@@ -207,6 +234,12 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	 * If the string contains a lower number of characters than there are defined features for an API,
 	 * all features that would be represented by characters that are not present in the string are not supported.
 	 */
+
+	/* Exptect to have :path from HTTP2 here, if not return */
+	if (!pinfo->path) {
+		return;
+	}
+
 	proto_item* ti;
 	proto_tree* sub_tree;
 	tvbuff_t   *suppfeat_tvb;
@@ -223,262 +256,325 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
 	int offset_reverse = len - 1;
 
-	/* TODO add handling of different API
-	 * Idea: fetch "HTTP2 header path: /{NF}"
-	 */
+	if (strcmp(pinfo->path, NPCF_AM_POLICY_CONTROL) == 0) {
+		/* TS 29.507 ch5.8 Feature negotiation */
 
-	static int * const json_3gpp_suppfeat_npcf_list_1[] = {
-		&hf_json_3gpp_suppfeat_npcf_1_tsc,
-		&hf_json_3gpp_suppfeat_npcf_2_resshare,
-		&hf_json_3gpp_suppfeat_npcf_3_3gpppsdataoff,
-		&hf_json_3gpp_suppfeat_npcf_4_adc,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_1, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_am_list_1[] = {
+			&hf_json_3gpp_suppfeat_npcf_am_1_slicesupport,
+			&hf_json_3gpp_suppfeat_npcf_am_2_pendingtransaction,
+			&hf_json_3gpp_suppfeat_npcf_am_3_ueambrauthorization,
+			&hf_json_3gpp_suppfeat_npcf_am_4_dnnreplacementcontrol,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_1, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_2[] = {
-		&hf_json_3gpp_suppfeat_npcf_5_umc,
-		&hf_json_3gpp_suppfeat_npcf_6_netloc,
-		&hf_json_3gpp_suppfeat_npcf_7_rannascause,
-		&hf_json_3gpp_suppfeat_npcf_8_provafsignalflow,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_2, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_am_list_2[] = {
+			&hf_json_3gpp_suppfeat_npcf_am_5_multipleaccesstypes,
+			&hf_json_3gpp_suppfeat_npcf_am_6_wirelinewirelessconvergence,
+			&hf_json_3gpp_suppfeat_npcf_am_7_immediatereport,
+			&hf_json_3gpp_suppfeat_npcf_am_8_es3xx,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_2, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_3[] = {
-		&hf_json_3gpp_suppfeat_npcf_9_pcscfrestorationenhancement,
-		&hf_json_3gpp_suppfeat_npcf_10_pra,
-		&hf_json_3gpp_suppfeat_npcf_11_ruleversioning,
-		&hf_json_3gpp_suppfeat_npcf_12_sponsoredconnectivity,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_3, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_am_list_3[] = {
+			&hf_json_3gpp_suppfeat_npcf_am_9_ueslicembrauthorization,
+			&hf_json_3gpp_suppfeat_npcf_am_10_aminfluence,
+			&hf_json_3gpp_suppfeat_npcf_am_11_enena,
+			&hf_json_3gpp_suppfeat_npcf_am_12_targetnassai,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_3, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_4[] = {
-		&hf_json_3gpp_suppfeat_npcf_13_ransupportinfo,
-		&hf_json_3gpp_suppfeat_npcf_14_policyupdatewhenuesuspends,
-		&hf_json_3gpp_suppfeat_npcf_15_accesstypecondition,
-		&hf_json_3gpp_suppfeat_npcf_16_multiipv6addrprefix,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_4, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_am_list_4[] = {
+			&hf_json_3gpp_suppfeat_npcf_am_13_5gaccessstratumtime,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_4, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_5[] = {
-		&hf_json_3gpp_suppfeat_npcf_17_sessionruleerrorhandling,
-		&hf_json_3gpp_suppfeat_npcf_18_af_charging_identifier,
-		&hf_json_3gpp_suppfeat_npcf_19_atsss,
-		&hf_json_3gpp_suppfeat_npcf_20_pendingtransaction,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_5, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		if (offset_reverse > -1) {
+			proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+		}
 
-	if (offset_reverse == -1) {
-		return;
-	}
+	} else if (strcmp(pinfo->path, NPCF_SM_POLICY_CONTROL) == 0) {
+		/* TS 29.512 ch5.8 Feature negotiation */
 
-	static int * const json_3gpp_suppfeat_npcf_list_6[] = {
-		&hf_json_3gpp_suppfeat_npcf_21_urllc,
-		&hf_json_3gpp_suppfeat_npcf_22_macaddressrange,
-		&hf_json_3gpp_suppfeat_npcf_23_wwc,
-		&hf_json_3gpp_suppfeat_npcf_24_qosmonitoring,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_6, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_1[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_1_tsc,
+			&hf_json_3gpp_suppfeat_npcf_sm_2_resshare,
+			&hf_json_3gpp_suppfeat_npcf_sm_3_3gpppsdataoff,
+			&hf_json_3gpp_suppfeat_npcf_sm_4_adc,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_1, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_7[] = {
-		&hf_json_3gpp_suppfeat_npcf_25_authorizationwithrequiredqos,
-		&hf_json_3gpp_suppfeat_npcf_26_enhancedbackgrounddatatransfer,
-		&hf_json_3gpp_suppfeat_npcf_27_dn_authorization,
-		&hf_json_3gpp_suppfeat_npcf_28_pdusessionrelcause,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_7, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_2[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_5_umc,
+			&hf_json_3gpp_suppfeat_npcf_sm_6_netloc,
+			&hf_json_3gpp_suppfeat_npcf_sm_7_rannascause,
+			&hf_json_3gpp_suppfeat_npcf_sm_8_provafsignalflow,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_2, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_8[] = {
-		&hf_json_3gpp_suppfeat_npcf_29_samepcf,
-		&hf_json_3gpp_suppfeat_npcf_30_adcmultiredirection,
-		&hf_json_3gpp_suppfeat_npcf_31_respbasedsessionrel,
-		&hf_json_3gpp_suppfeat_npcf_32_timesensitivenetworking,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_8, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_3[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_9_pcscfrestorationenhancement,
+			&hf_json_3gpp_suppfeat_npcf_sm_10_pra,
+			&hf_json_3gpp_suppfeat_npcf_sm_11_ruleversioning,
+			&hf_json_3gpp_suppfeat_npcf_sm_12_sponsoredconnectivity,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_3, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_9[] = {
-		&hf_json_3gpp_suppfeat_npcf_33_emdbv,
-		&hf_json_3gpp_suppfeat_npcf_34_dnnselectionmode,
-		&hf_json_3gpp_suppfeat_npcf_35_epsfallbackreport,
-		&hf_json_3gpp_suppfeat_npcf_36_policydecisionerrorhandling,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_9, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_4[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_13_ransupportinfo,
+			&hf_json_3gpp_suppfeat_npcf_sm_14_policyupdatewhenuesuspends,
+			&hf_json_3gpp_suppfeat_npcf_sm_15_accesstypecondition,
+			&hf_json_3gpp_suppfeat_npcf_sm_16_multiipv6addrprefix,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_4, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_10[] = {
-		&hf_json_3gpp_suppfeat_npcf_37_ddneventpolicycontrol,
-		&hf_json_3gpp_suppfeat_npcf_38_reallocationofcredit,
-		&hf_json_3gpp_suppfeat_npcf_39_bdtpolicyrenegotiation,
-		&hf_json_3gpp_suppfeat_npcf_40_extpolicydecisionerrorhandling,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_10, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_5[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_17_sessionruleerrorhandling,
+			&hf_json_3gpp_suppfeat_npcf_sm_18_af_charging_identifier,
+			&hf_json_3gpp_suppfeat_npcf_sm_19_atsss,
+			&hf_json_3gpp_suppfeat_npcf_sm_20_pendingtransaction,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_5, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_11[] = {
-		&hf_json_3gpp_suppfeat_npcf_41_immediatetermination,
-		&hf_json_3gpp_suppfeat_npcf_42_aggregateduelocchanges,
-		&hf_json_3gpp_suppfeat_npcf_43_es3xx,
-		&hf_json_3gpp_suppfeat_npcf_44_groupidlistchange,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_11, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_6[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_21_urllc,
+			&hf_json_3gpp_suppfeat_npcf_sm_22_macaddressrange,
+			&hf_json_3gpp_suppfeat_npcf_sm_23_wwc,
+			&hf_json_3gpp_suppfeat_npcf_sm_24_qosmonitoring,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_6, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_12[] = {
-		&hf_json_3gpp_suppfeat_npcf_45_disableuenotification,
-		&hf_json_3gpp_suppfeat_npcf_46_offlinechonly,
-		&hf_json_3gpp_suppfeat_npcf_47_dual_connectivity_redundant_up_paths,
-		&hf_json_3gpp_suppfeat_npcf_48_ddneventpolicycontrol2,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_12, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_7[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_25_authorizationwithrequiredqos,
+			&hf_json_3gpp_suppfeat_npcf_sm_26_enhancedbackgrounddatatransfer,
+			&hf_json_3gpp_suppfeat_npcf_sm_27_dn_authorization,
+			&hf_json_3gpp_suppfeat_npcf_sm_28_pdusessionrelcause,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_7, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_13[] = {
-		&hf_json_3gpp_suppfeat_npcf_49_vplmn_qos_control,
-		&hf_json_3gpp_suppfeat_npcf_50_2g3giwk,
-		&hf_json_3gpp_suppfeat_npcf_51_timesensitivecommunication,
-		&hf_json_3gpp_suppfeat_npcf_52_enedge,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_13, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_8[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_29_samepcf,
+			&hf_json_3gpp_suppfeat_npcf_sm_30_adcmultiredirection,
+			&hf_json_3gpp_suppfeat_npcf_sm_31_respbasedsessionrel,
+			&hf_json_3gpp_suppfeat_npcf_sm_32_timesensitivenetworking,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_8, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_14[] = {
-		&hf_json_3gpp_suppfeat_npcf_53_satbackhaulcategorychg,
-		&hf_json_3gpp_suppfeat_npcf_54_chfsetsupport,
-		&hf_json_3gpp_suppfeat_npcf_55_enatssss,
-		&hf_json_3gpp_suppfeat_npcf_56_mpsfordts,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_14, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_9[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_33_emdbv,
+			&hf_json_3gpp_suppfeat_npcf_sm_34_dnnselectionmode,
+			&hf_json_3gpp_suppfeat_npcf_sm_35_epsfallbackreport,
+			&hf_json_3gpp_suppfeat_npcf_sm_36_policydecisionerrorhandling,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_9, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_15[] = {
-		&hf_json_3gpp_suppfeat_npcf_57_routinginforemoval,
-		&hf_json_3gpp_suppfeat_npcf_58_epra,
-		&hf_json_3gpp_suppfeat_npcf_59_aminfluence,
-		&hf_json_3gpp_suppfeat_npcf_60_pvssupport,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_15, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_10[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_37_ddneventpolicycontrol,
+			&hf_json_3gpp_suppfeat_npcf_sm_38_reallocationofcredit,
+			&hf_json_3gpp_suppfeat_npcf_sm_39_bdtpolicyrenegotiation,
+			&hf_json_3gpp_suppfeat_npcf_sm_40_extpolicydecisionerrorhandling,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_10, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int * const json_3gpp_suppfeat_npcf_list_16[] = {
-		&hf_json_3gpp_suppfeat_npcf_61_enena,
-		&hf_json_3gpp_suppfeat_npcf_62_biumr,
-		&hf_json_3gpp_suppfeat_npcf_63_easipreplacement,
-		&hf_json_3gpp_suppfeat_npcf_64_exposuretoeas,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_16, ENC_UTF_8|BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_11[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_41_immediatetermination,
+			&hf_json_3gpp_suppfeat_npcf_sm_42_aggregateduelocchanges,
+			&hf_json_3gpp_suppfeat_npcf_sm_43_es3xx,
+			&hf_json_3gpp_suppfeat_npcf_sm_44_groupidlistchange,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_11, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int* const json_3gpp_suppfeat_npcf_list_17[] = {
-		&hf_json_3gpp_suppfeat_npcf_65_simultconnectivity,
-		&hf_json_3gpp_suppfeat_npcf_66_sgwrest,
-		&hf_json_3gpp_suppfeat_npcf_67_releasetoreactivate,
-		&hf_json_3gpp_suppfeat_npcf_68_easdiscovery,
-		NULL
-	};
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_17, ENC_UTF_8 | BASE_DEC_HEX);
-	offset_reverse--;
+		static int * const json_3gpp_suppfeat_npcf_sm_list_12[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_45_disableuenotification,
+			&hf_json_3gpp_suppfeat_npcf_sm_46_offlinechonly,
+			&hf_json_3gpp_suppfeat_npcf_sm_47_dual_connectivity_redundant_up_paths,
+			&hf_json_3gpp_suppfeat_npcf_sm_48_ddneventpolicycontrol2,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_12, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	static int* const json_3gpp_suppfeat_npcf_list_18[] = {
-		&hf_json_3gpp_suppfeat_npcf_69_accnetchargid_string,
-		NULL
-	};
+		static int * const json_3gpp_suppfeat_npcf_sm_list_13[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_49_vplmn_qos_control,
+			&hf_json_3gpp_suppfeat_npcf_sm_50_2g3giwk,
+			&hf_json_3gpp_suppfeat_npcf_sm_51_timesensitivecommunication,
+			&hf_json_3gpp_suppfeat_npcf_sm_52_enedge,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_13, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_18, ENC_UTF_8 | BASE_DEC_HEX);
-	offset_reverse--;
+		if (offset_reverse == -1) {
+			return;
+		}
 
-	if (offset_reverse == -1) {
-		return;
-	}
+		static int * const json_3gpp_suppfeat_npcf_sm_list_14[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_53_satbackhaulcategorychg,
+			&hf_json_3gpp_suppfeat_npcf_sm_54_chfsetsupport,
+			&hf_json_3gpp_suppfeat_npcf_sm_55_enatssss,
+			&hf_json_3gpp_suppfeat_npcf_sm_56_mpsfordts,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_14, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
 
-	if (offset_reverse > -1) {
-		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		static int * const json_3gpp_suppfeat_npcf_sm_list_15[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_57_routinginforemoval,
+			&hf_json_3gpp_suppfeat_npcf_sm_58_epra,
+			&hf_json_3gpp_suppfeat_npcf_sm_59_aminfluence,
+			&hf_json_3gpp_suppfeat_npcf_sm_60_pvssupport,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_15, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		static int * const json_3gpp_suppfeat_npcf_sm_list_16[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_61_enena,
+			&hf_json_3gpp_suppfeat_npcf_sm_62_biumr,
+			&hf_json_3gpp_suppfeat_npcf_sm_63_easipreplacement,
+			&hf_json_3gpp_suppfeat_npcf_sm_64_exposuretoeas,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_16, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		static int* const json_3gpp_suppfeat_npcf_sm_list_17[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_65_simultconnectivity,
+			&hf_json_3gpp_suppfeat_npcf_sm_66_sgwrest,
+			&hf_json_3gpp_suppfeat_npcf_sm_67_releasetoreactivate,
+			&hf_json_3gpp_suppfeat_npcf_sm_68_easdiscovery,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_17, ENC_UTF_8 | BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		static int* const json_3gpp_suppfeat_npcf_sm_list_18[] = {
+			&hf_json_3gpp_suppfeat_npcf_sm_69_accnetchargid_string,
+			NULL
+		};
+
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_18, ENC_UTF_8 | BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		if (offset_reverse > -1) {
+			proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+		}
+
+	} else {
+		proto_tree_add_expert(tree, pinfo, &ei_json_3gpp_data_not_decoded, tvb, offset, -1);
 	}
 
 	return;
@@ -607,362 +703,432 @@ proto_register_json_3gpp(void)
 			  FT_STRING, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_1_tsc,
+
+		{ &hf_json_3gpp_suppfeat_npcf_am_1_slicesupport,
+			{ "SliceSupport", "json.3gpp.suppfeat.slicesupport",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_2_pendingtransaction,
+			{ "PendingTransaction", "json.3gpp.suppfeat.pendingtransaction",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_3_ueambrauthorization,
+			{ "UE-AMBR_Authorization", "json.3gpp.suppfeat.ueambrauthorization",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_4_dnnreplacementcontrol,
+			{ "DNNReplacementControl", "json.3gpp.suppfeat.dnnreplacementcontrol",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_am_5_multipleaccesstypes,
+			{ "MultipleAccessTypes", "json.3gpp.suppfeat.multipleaccesstypes",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_6_wirelinewirelessconvergence,
+			{ "WirelineWirelessConvergence", "json.3gpp.suppfeat.wirelinewirelessconvergence",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_7_immediatereport,
+			{ "ImmediateReport", "json.3gpp.suppfeat.immediatereport",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_8_es3xx,
+			{ "ES3XX", "json.3gpp.suppfeat.es3xx",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_am_9_ueslicembrauthorization,
+			{ "UE-Slice-MBR_Authorization", "json.3gpp.suppfeat.ueslicembrauthorization",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_10_aminfluence,
+			{ "AMInfluence", "json.3gpp.suppfeat.aminfluence",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_11_enena,
+			{ "EneNA", "json.3gpp.suppfeat.enena",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_am_12_targetnassai,
+			{ "TargetNSSAI", "json.3gpp.suppfeat.targetnassai",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_am_13_5gaccessstratumtime,
+			{ "5GAccessStratumTime", "json.3gpp.suppfeat.5gaccessstratumtime",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_sm_1_tsc,
 			{ "TSC", "json.3gpp.suppfeat.tsc",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_2_resshare,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_2_resshare,
 			{ "ResShare", "json.3gpp.suppfeat.resshare",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_3_3gpppsdataoff,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_3_3gpppsdataoff,
 			{ "3GPP-PS-Data-Off", "json.3gpp.suppfeat.3gpppsdataoff",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_4_adc,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_4_adc,
 			{ "ADC", "json.3gpp.suppfeat.adc",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_5_umc,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_5_umc,
 			{ "UMC", "json.3gpp.suppfeat.umc",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_6_netloc,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_6_netloc,
 			{ "NetLoc", "json.3gpp.suppfeat.netloc",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_7_rannascause,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_7_rannascause,
 			{ "RAN-NAS-Cause", "json.3gpp.suppfeat.rannascause",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_8_provafsignalflow,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_8_provafsignalflow,
 			{ "ProvAFsignalFlow", "json.3gpp.suppfeat.provafsignalflow",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_9_pcscfrestorationenhancement,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_9_pcscfrestorationenhancement,
 			{ "PCSCF-Restoration-Enhancement", "json.3gpp.suppfeat.pcscfrestorationenhancement",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_10_pra,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_10_pra,
 			{ "PRA", "json.3gpp.suppfeat.pra",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_11_ruleversioning,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_11_ruleversioning,
 			{ "RuleVersioning", "json.3gpp.suppfeat.ruleversioning",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_12_sponsoredconnectivity,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_12_sponsoredconnectivity,
 			{ "SponsoredConnectivity", "json.3gpp.suppfeat.sponsoredconnectivity",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_13_ransupportinfo,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_13_ransupportinfo,
 			{ "RAN-Support-Info", "json.3gpp.suppfeat.ransupportinfo",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_14_policyupdatewhenuesuspends,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_14_policyupdatewhenuesuspends,
 			{ "PolicyUpdateWhenUESuspends", "json.3gpp.suppfeat.policyupdatewhenuesuspends",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_15_accesstypecondition,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_15_accesstypecondition,
 			{ "AccessTypeCondition", "json.3gpp.suppfeat.accesstypecondition",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_16_multiipv6addrprefix,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_16_multiipv6addrprefix,
 			{ "MultiIpv6AddrPrefix", "json.3gpp.suppfeat.multiipv6addrprefix",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_17_sessionruleerrorhandling,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_17_sessionruleerrorhandling,
 			{ "SessionRuleErrorHandling", "json.3gpp.suppfeat.sessionruleerrorhandling",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_18_af_charging_identifier,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_18_af_charging_identifier,
 			{ "AF_Charging_Identifier", "json.3gpp.suppfeat.af_charging_identifier",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_19_atsss,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_19_atsss,
 			{ "ATSSS", "json.3gpp.suppfeat.atsss",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_20_pendingtransaction,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_20_pendingtransaction,
 			{ "PendingTransaction", "json.3gpp.suppfeat.pendingtransaction",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_21_urllc,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_21_urllc,
 			{ "URLLC", "json.3gpp.suppfeat.urllc",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_22_macaddressrange,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_22_macaddressrange,
 			{ "MacAddressRange", "json.3gpp.suppfeat.macaddressrange",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_23_wwc,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_23_wwc,
 			{ "WWC", "json.3gpp.suppfeat.wwc",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_24_qosmonitoring,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_24_qosmonitoring,
 			{ "QosMonitoring", "json.3gpp.suppfeat.qosmonitoring",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_25_authorizationwithrequiredqos,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_25_authorizationwithrequiredqos,
 			{ "AuthorizationWithRequiredQoS", "json.3gpp.suppfeat.authorizationwithrequiredqos",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_26_enhancedbackgrounddatatransfer,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_26_enhancedbackgrounddatatransfer,
 			{ "EnhancedBackgroundDataTransfer", "json.3gpp.suppfeat.enhancedbackgrounddatatransfer",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_27_dn_authorization,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_27_dn_authorization,
 			{ "DN-Authorization", "json.3gpp.suppfeat.dn_authorization",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_28_pdusessionrelcause,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_28_pdusessionrelcause,
 			{ "PDUSessionRelCause", "json.3gpp.suppfeat.pdusessionrelcause",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_29_samepcf,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_29_samepcf,
 			{ "SamePcf", "json.3gpp.suppfeat.samepcf",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_30_adcmultiredirection,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_30_adcmultiredirection,
 			{ "ADCmultiRedirection", "json.3gpp.suppfeat.adcmultiredirection",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_31_respbasedsessionrel,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_31_respbasedsessionrel,
 			{ "RespBasedSessionRel", "json.3gpp.suppfeat.respbasedsessionrel",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_32_timesensitivenetworking,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_32_timesensitivenetworking,
 			{ "TimeSensitiveNetworking", "json.3gpp.suppfeat.timesensitivenetworking",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_33_emdbv,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_33_emdbv,
 			{ "EMDBV", "json.3gpp.suppfeat.emdbv",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_34_dnnselectionmode,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_34_dnnselectionmode,
 			{ "DNNSelectionMode", "json.3gpp.suppfeat.adcmultirednnselectionmodedirection",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_35_epsfallbackreport,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_35_epsfallbackreport,
 			{ "EPSFallbackReport", "json.3gpp.suppfeat.epsfallbackreport",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_36_policydecisionerrorhandling,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_36_policydecisionerrorhandling,
 			{ "PolicyDecisionErrorHandling", "json.3gpp.suppfeat.policydecisionerrorhandling",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_37_ddneventpolicycontrol,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_37_ddneventpolicycontrol,
 			{ "DDNEventPolicyControl", "json.3gpp.suppfeat.ddneventpolicycontrol",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_38_reallocationofcredit,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_38_reallocationofcredit,
 			{ "ReallocationOfCredit", "json.3gpp.suppfeat.reallocationofcredit",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_39_bdtpolicyrenegotiation,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_39_bdtpolicyrenegotiation,
 			{ "BDTPolicyRenegotiation", "json.3gpp.suppfeat.bdtpolicyrenegotiation",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_40_extpolicydecisionerrorhandling,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_40_extpolicydecisionerrorhandling,
 			{ "ExtPolicyDecisionErrorHandling", "json.3gpp.suppfeat.extpolicydecisionerrorhandling",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_41_immediatetermination,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_41_immediatetermination,
 			{ "ImmediateTermination", "json.3gpp.suppfeat.immediatetermination",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_42_aggregateduelocchanges,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_42_aggregateduelocchanges,
 			{ "AggregatedUELocChanges", "json.3gpp.suppfeat.aggregateduelocchanges",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_43_es3xx,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_43_es3xx,
 			{ "ES3XX", "json.3gpp.suppfeat.es3xx",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_44_groupidlistchange,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_44_groupidlistchange,
 			{ "GroupIdListChange", "json.3gpp.suppfeat.groupidlistchange",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_45_disableuenotification,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_45_disableuenotification,
 			{ "DisableUENotification", "json.3gpp.suppfeat.disableuenotification",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_46_offlinechonly,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_46_offlinechonly,
 			{ "OfflineChOnly", "json.3gpp.suppfeat.offlinechonly",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_47_dual_connectivity_redundant_up_paths,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_47_dual_connectivity_redundant_up_paths,
 			{ "Dual-Connectivity-redundant-UP-paths", "json.3gpp.suppfeat.dual_connectivity_redundant_up_paths",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_48_ddneventpolicycontrol2,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_48_ddneventpolicycontrol2,
 			{ "DDNEventPolicyControl2", "json.3gpp.suppfeat.ddneventpolicycontrol2",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_49_vplmn_qos_control,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_49_vplmn_qos_control,
 			{ "VPLMN-QoS-Control", "json.3gpp.suppfeat.vplmn_qos_control",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_50_2g3giwk,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_50_2g3giwk,
 			{ "2G3GIWK", "json.3gpp.suppfeat.2g3giwk",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_51_timesensitivecommunication,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_51_timesensitivecommunication,
 			{ "TimeSensitiveCommunication", "json.3gpp.suppfeat.timesensitivecommunication",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_52_enedge,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_52_enedge,
 			{ "EnEDGE", "json.3gpp.suppfeat.enedge",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_53_satbackhaulcategorychg,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_53_satbackhaulcategorychg,
 			{ "SatBackhaulCategoryChg", "json.3gpp.suppfeat.satbackhaulcategorychg",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_54_chfsetsupport,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_54_chfsetsupport,
 			{ "CHFsetSupport", "json.3gpp.suppfeat.chfsetsupport",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_55_enatssss,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_55_enatssss,
 			{ "EnATSSS", "json.3gpp.suppfeat.enatssss",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_56_mpsfordts,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_56_mpsfordts,
 			{ "MPSforDTS", "json.3gpp.suppfeat.mpsfordts",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_57_routinginforemoval,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_57_routinginforemoval,
 			{ "RoutingInfoRemoval", "json.3gpp.suppfeat.routinginforemoval",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_58_epra,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_58_epra,
 			{ "ePRA", "json.3gpp.suppfeat.epra",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_59_aminfluence,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_59_aminfluence,
 			{ "AMInfluence", "json.3gpp.suppfeat.aminfluence",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_60_pvssupport,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_60_pvssupport,
 			{ "PvsSupport", "json.3gpp.suppfeat.pvssupport",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
 
-		{ &hf_json_3gpp_suppfeat_npcf_61_enena,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_61_enena,
 			{ "EneNA", "json.3gpp.suppfeat.enena",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_62_biumr,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_62_biumr,
 			{ "BIUMR", "json.3gpp.suppfeat.biumr",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_63_easipreplacement,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_63_easipreplacement,
 			{ "EASIPreplacement", "json.3gpp.suppfeat.easipreplacement",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_64_exposuretoeas,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_64_exposuretoeas,
 			{ "ExposureToEAS", "json.3gpp.suppfeat.exposuretoeas",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_65_simultconnectivity,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_65_simultconnectivity,
 			{ "SimultConnectivity", "json.3gpp.suppfeat.simultconnectivity",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_66_sgwrest,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_66_sgwrest,
 			{ "SGWRest", "json.3gpp.suppfeat.sgwrest",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_67_releasetoreactivate,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_67_releasetoreactivate,
 			{ "ReleaseToReactivate", "json.3gpp.suppfeat.releasetoreactivate",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_68_easdiscovery,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_68_easdiscovery,
 			{ "EASDiscovery", "json.3gpp.suppfeat.enena",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_69_accnetchargid_string,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_69_accnetchargid_string,
 			{ "AccNetChargId_String", "json.3gpp.suppfeat.accnetchargid_string",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
@@ -976,10 +1142,18 @@ proto_register_json_3gpp(void)
 		&ett_json_3gpp_data,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_json_3gpp_data_not_decoded,{ "json.3gpp.data_not_decoded", PI_UNDECODED, PI_NOTE, "Data not decoded by WS yet", EXPFILL } },
+	};
+
+	expert_module_t* expert_json_3gpp;
+
 	/* Required function calls to register the header fields and subtrees used */
 	proto_json_3gpp = proto_register_protocol("JSON 3GPP","JSON_3GPP", "json.3gpp");
 	proto_register_field_array(proto_json_3gpp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_json_3gpp = expert_register_protocol(proto_json_3gpp);
+	expert_register_field_array(expert_json_3gpp, ei, array_length(ei));
 
 	/* Fill hash table with static headers */
 	register_static_headers();

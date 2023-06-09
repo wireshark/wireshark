@@ -2883,6 +2883,11 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
         tap_queue_packet(http_eo_tap, pinfo, eo_info);
     }
 
+    /* adding path of 3GPP NF Service, used by JSON 3GPP */
+    if (stream_info->path) {
+        pinfo->path = stream_info->path;
+    }
+
     if (content_type != NULL) {
         /* add it to STREAM level */
         proto_tree* ptree = proto_tree_get_parent_tree(tree);

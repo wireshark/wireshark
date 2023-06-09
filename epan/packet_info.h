@@ -144,6 +144,7 @@ typedef struct _packet_info {
   guint16 clnp_srcref;          /**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
   guint16 clnp_dstref;          /**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
 
+  const char *path;             /**< HTTP2 path, used by 3GPP NF Service */
   int link_dir;                 /**< 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
 
   gint16 src_win_scale;        /**< Rcv.Wind.Shift src applies when sending segments; -1 unknown; -2 disabled */
