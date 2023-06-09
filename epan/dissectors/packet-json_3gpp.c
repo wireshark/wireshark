@@ -162,9 +162,21 @@ static int hf_json_3gpp_suppfeat_npcf_sm_68_easdiscovery = -1;
 
 static int hf_json_3gpp_suppfeat_npcf_sm_69_accnetchargid_string = -1;
 
+static int hf_json_3gpp_suppfeat_npcf_ue_1_pendingtransaction = -1;
+static int hf_json_3gpp_suppfeat_npcf_ue_2_plmnchange = -1;
+static int hf_json_3gpp_suppfeat_npcf_ue_3_connectivitystatechange = -1;
+static int hf_json_3gpp_suppfeat_npcf_ue_4_v2x = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_ue_5_groupidlistchange = -1;
+static int hf_json_3gpp_suppfeat_npcf_ue_6_immediatereport = -1;
+static int hf_json_3gpp_suppfeat_npcf_ue_7_errorresponse = -1;
+static int hf_json_3gpp_suppfeat_npcf_ue_8_es3xx = -1;
+
+static int hf_json_3gpp_suppfeat_npcf_ue_9_prose = -1;
 
 #define NPCF_AM_POLICY_CONTROL "/npcf-am-policy-control/v1/policies"
 #define NPCF_SM_POLICY_CONTROL "/npcf-smpolicycontrol/v1/sm-policies" /* inconsistency nameing from 3gpp */
+#define NPCF_UE_POLICY_CONTROL "/npcf-ue-policy-control/v1/policies"
 
 
 /* Functions to sub dissect json content */
@@ -563,6 +575,52 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		};
 
 		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_18, ENC_UTF_8 | BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		if (offset_reverse > -1) {
+			proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+		}
+
+	} else if (strcmp(pinfo->path, NPCF_UE_POLICY_CONTROL) == 0) {
+		/* TS 29.525 ch5.8 Feature negotiation */
+
+		static int * const json_3gpp_suppfeat_npcf_ue_list_1[] = {
+			&hf_json_3gpp_suppfeat_npcf_ue_1_pendingtransaction,
+			&hf_json_3gpp_suppfeat_npcf_ue_2_plmnchange,
+			&hf_json_3gpp_suppfeat_npcf_ue_3_connectivitystatechange,
+			&hf_json_3gpp_suppfeat_npcf_ue_4_v2x,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_1, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		static int * const json_3gpp_suppfeat_npcf_ue_list_2[] = {
+			&hf_json_3gpp_suppfeat_npcf_ue_5_groupidlistchange,
+			&hf_json_3gpp_suppfeat_npcf_ue_6_immediatereport,
+			&hf_json_3gpp_suppfeat_npcf_ue_7_errorresponse,
+			&hf_json_3gpp_suppfeat_npcf_ue_8_es3xx,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_2, ENC_UTF_8|BASE_DEC_HEX);
+		offset_reverse--;
+
+		if (offset_reverse == -1) {
+			return;
+		}
+
+		static int * const json_3gpp_suppfeat_npcf_ue_list_3[] = {
+			&hf_json_3gpp_suppfeat_npcf_ue_9_prose,
+			NULL
+		};
+		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_3, ENC_UTF_8|BASE_DEC_HEX);
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -1130,6 +1188,54 @@ proto_register_json_3gpp(void)
 		},
 		{ &hf_json_3gpp_suppfeat_npcf_sm_69_accnetchargid_string,
 			{ "AccNetChargId_String", "json.3gpp.suppfeat.accnetchargid_string",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_ue_1_pendingtransaction,
+			{ "PendingTransaction", "json.3gpp.suppfeat.pendingtransaction",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_ue_2_plmnchange,
+			{ "PlmnChange", "json.3gpp.suppfeat.plmnchange",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_ue_3_connectivitystatechange,
+			{ "ConnectivityStateChange", "json.3gpp.suppfeat.connectivitystatechange",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_ue_4_v2x,
+			{ "V2X", "json.3gpp.suppfeat.v2x",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_ue_5_groupidlistchange,
+			{ "GroupIdListChange", "json.3gpp.suppfeat.groupidlistchange",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_ue_6_immediatereport,
+			{ "ImmediateReport", "json.3gpp.suppfeat.immediatereport",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_ue_7_errorresponse,
+			{ "ErrorResponse", "json.3gpp.suppfeat.errorresponse",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_ue_8_es3xx,
+			{ "ES3XX", "json.3gpp.suppfeat.es3xx",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_npcf_ue_9_prose,
+			{ "ProSe", "json.3gpp.suppfeat.prose",
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
