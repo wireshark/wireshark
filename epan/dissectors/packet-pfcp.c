@@ -16332,6 +16332,7 @@ void
 proto_reg_handoff_pfcp(void)
 {
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PFCP, pfcp_handle);
+    dissector_add_string("media_type", "application/vnd.3gpp.pfcp", pfcp_handle);
 }
 
 /*
