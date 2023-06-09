@@ -302,6 +302,7 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 			elseif(MINGW AND CMAKE_CROSSCOMPILING)
 				add_custom_command(OUTPUT ${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 					COMMAND ${Python3_EXECUTABLE} "${_nsis_source_dir}/windeployqt-to-nsis.py"
+						--sysroot "${MINGW_SYSROOT}"
 						--mapping "${_nsis_source_dir}/mingw64-qt-mapping.txt"
 						${_nsis_binary_dir}/wireshark-qt-manifest.nsh
 						#$<$<CONFIG:Debug>:-DebugConfig>

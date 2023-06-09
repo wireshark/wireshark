@@ -24,10 +24,13 @@ parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('--mapping')
 group.add_argument('--executable')
+parser.add_argument('--sysroot')
 parser.add_argument('outfile')
 args = parser.parse_args()
 
 if args.mapping:
+    if not args.sysroot:
+        sys.exit('Option --sysroot is required with option --mapping')
     qt_version = None
     with open(args.mapping, 'r', encoding='utf-8') as f:
         out = f.read()
@@ -79,6 +82,10 @@ with open(args.outfile, 'w') as f:
                 set_out_path = 'SetOutPath "$INSTDIR\{}"'.format(base_dir)
                 print(set_out_path, file=f)
                 current_dir = base_dir
-        file_path = 'File {}'.format(path)
+
+        path = path.strip('"')
+        if args.sysroot:
+            path = os.path.join(args.sysroot, path)
+        file_path = 'File "{}"'.format(path)
         print(file_path, file=f)
 
