@@ -180,7 +180,6 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
     bool found = false;
 
     QList<ByteViewText *> allBVTs = findChildren<ByteViewText *>();
-    unsigned int length = search_tvb->length;
     for (int i = 0; i < allBVTs.size() && ! found; ++i)
     {
         ByteViewText * bvt = allBVTs.at(i);
@@ -188,19 +187,6 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
         if (stored == search_tvb)
         {
             found = true;
-        }
-        else if (stored)
-        {
-            if (stored->length >= length && tvb_memeql(search_tvb, 0, tvb_get_ptr(stored, 0, length), length) == 0)
-            {
-                /* In packetDialog we do not match, because we came from different data sources.
-                 * Assuming the capture files match, this should be a sufficient enough difference */
-                found = true;
-            }
-        }
-
-        if (found)
-        {
             int wdgIdx = bvt->property("tab_index").toInt();
             if (idx)
             {
