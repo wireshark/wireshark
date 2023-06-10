@@ -130,6 +130,7 @@ void PacketDialog::captureFileClosing()
             .arg(cap_file_.fileName())
             .arg(col_info_);
     ui->hintLabel->setText(closed_title);
+    byte_view_tab_->captureFileClosing();
     WiresharkDialog::captureFileClosing();
 }
 

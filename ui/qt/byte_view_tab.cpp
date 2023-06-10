@@ -97,8 +97,9 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
     if (tvb) {
         int data_len = (int) tvb_captured_length(tvb);
         if (data_len > 0) {
-            // Note: this does not copy the data and will be invalidated when
-            // the tvb becomes invalid (e.g. when the current packet changes).
+            // Note: this does not copy the data and will be invalidated
+            // when the tvbuff's real data becomes invalid (which is not
+            // necessarily when the tvb itself becomes invalid.)
             data = QByteArray::fromRawData((const char *) tvb_get_ptr(tvb, 0, data_len), data_len);
         }
     }
@@ -109,6 +110,30 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
     if (tvb)
     {
+        // There are some secondary data source tvbuffs whose datais not freed
+        // when the epan_dissect_t is freed, but at some other point expected
+        // to outlive the packet, generally when the capture file is closed.
+        // If this is a PacketDialog, it can break that assumption.
+        // To get around this, we deep copy their data when the file is closed.
+        //
+        // XXX: We could add a function to the tvbuff API and only do this if
+        // there is no free_cb (a free_cb implies the data is freed at the
+        // same time as the tvb, i.e. when leaving the packet.)
+        if (is_fixed_packet_ && count() > 0) {
+            connect(this, &ByteViewTab::detachData, byte_view_text, &ByteViewText::detachData);
+        }
+        // See above - this tvb is (expected to be) scoped to the packet, but
+        // the real data is not necessarily so. If this is a PacketDialog
+        // and such a secondary data source, then we MUST NOT use any tvb
+        // function that accesses the real data after the capture file closes.
+        // That includes via the ds_tvb item of a field_info in the tree.
+        // proto_find_field_from_offset() is OK. See #14363.
+        //
+        // XXX: It sounds appealing to clone the secondary data source tvbs
+        // and set them to be freed when the byte_view_text is freed, perhaps
+        // even doing so only when the capture file is closing. However, while
+        // relatively simple for the few number of secondary data sources, it
+        // would be a pain to change the pointers for every field_info.
         byte_view_text->setProperty(tvb_data_property, VariantPointer<tvbuff_t>::asQVariant(tvb));
 
         connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)), byte_view_text, SLOT(setMonospaceFont(QFont)));
@@ -337,4 +362,9 @@ void ByteViewTab::setCaptureFile(capture_file *cf)
     selectedFrameChanged(QList<int>());
 
     cap_file_ = cf;
+}
+
+void ByteViewTab::captureFileClosing()
+{
+    emit detachData();
 }

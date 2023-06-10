@@ -238,6 +238,11 @@ void ByteViewText::updateByteViewSettings()
     viewport()->update();
 }
 
+void ByteViewText::detachData()
+{
+    data_.detach();
+}
+
 void ByteViewText::paintEvent(QPaintEvent *)
 {
     updateLayoutMetrics();
