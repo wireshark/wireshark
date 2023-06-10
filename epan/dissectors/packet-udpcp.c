@@ -543,9 +543,9 @@ void
 proto_register_udpcp(void)
 {
   static hf_register_info hf[] = {
-    { &hf_udpcp_checksum,
-      { "Checksum", "udpcp.checksum", FT_UINT32, BASE_HEX,
-        NULL, 0x0, "Adler32 checksum", HFILL }},
+      { &hf_udpcp_checksum,
+        { "Checksum", "udpcp.checksum", FT_UINT32, BASE_HEX,
+          NULL, 0x0, "Adler32 checksum", HFILL }},
       { &hf_udpcp_msg_type,
         { "Msg Type", "udpcp.msg-type", FT_UINT8, BASE_HEX,
           VALS(msg_type_vals), 0xc0, NULL, HFILL }},
