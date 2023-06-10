@@ -4305,13 +4305,6 @@ static const value_string DIS_PDU_IffAlternateMode4_Strings[] =
     {  0, NULL }
 };
 
-static const value_string DIS_PDU_IffPresent_Strings[] =
-{
-    {  0, "Not Present" },
-    {  1, "Present" },
-    {  0, NULL }
-};
-
 static const value_string DIS_PDU_IffDamaged_Strings[] =
 {
     {  0, "No damage" },
@@ -5839,13 +5832,6 @@ static const value_string appearance_tent_vals[] =
 {
     { 0, "Not extended" },
     { 1, "Extended" },
-    { 0, NULL }
-};
-
-static const value_string appearance_ramp_vals[] =
-{
-    { 0, "Up" },
-    { 1, "Down" },
     { 0, NULL }
 };
 
@@ -9557,7 +9543,7 @@ void proto_register_dis(void)
             },
             { &hf_appearance_landform_ramp,
               { "Ramp", "dis.appearance.landform.ramp",
-                FT_UINT32, BASE_DEC, VALS(appearance_ramp_vals), 0x02000000,
+                FT_BOOLEAN, 32, TFS(&tfs_down_up), 0x02000000,
                 NULL, HFILL}
             },
             { &hf_appearance_landform_blackout_lights,
@@ -10733,37 +10719,37 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_information_layers_layer_1,
               { "Layer 1",  "dis.iff.information_layers.layer_1",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x2,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_2,
               { "Layer 2",  "dis.iff.information_layers.layer_2",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x4,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x4,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_3,
               { "Layer 3",  "dis.iff.information_layers.layer_3",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x8,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x8,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_4,
               { "Layer 4",  "dis.iff.information_layers.layer_4",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_5,
               { "Layer 5",  "dis.iff.information_layers.layer_5",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_6,
               { "Layer 6",  "dis.iff.information_layers.layer_6",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_7,
               { "Layer 7",  "dis.iff.information_layers.layer_7",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier,
