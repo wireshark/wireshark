@@ -1115,7 +1115,7 @@ proto_register_json_3gpp(void)
 			NULL, HFILL }
 		},
 		{ &hf_json_3gpp_suppfeat_npcf_sm_55_enatssss,
-			{ "EnATSSS", "json.3gpp.suppfeat.enatssss",
+			{ "EnATSSS", "json.3gpp.suppfeat.enatsss",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
