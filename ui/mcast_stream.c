@@ -32,9 +32,7 @@
 #include <epan/tap.h>
 #include <epan/to_str.h>
 
-#include "ui/alert_box.h"
 #include "ui/mcast_stream.h"
-#include "ui/simple_dialog.h"
 
 gint32  mcast_stream_trigger         =     50; /* limit for triggering the burst alarm (in packets per second) */
 gint32  mcast_stream_bufferalarm     =  10000; /* limit for triggering the buffer alarm (in bytes) */
@@ -131,7 +129,7 @@ mcaststream_draw(void *ti_ptr)
 
 /****************************************************************************/
 /* whenever a udp packet is seen by the tap listener */
-static tap_packet_status
+tap_packet_status
 mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_, tap_flags_t flags _U_)
 {
     mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
@@ -281,27 +279,6 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 }
 
 /****************************************************************************/
-/* scan for Mcast streams */
-void
-mcaststream_scan(mcaststream_tapinfo_t *tapinfo, capture_file *cap_file)
-{
-    gboolean was_registered;
-
-    if (!tapinfo || !cap_file) {
-        return;
-    }
-
-    was_registered = tapinfo->is_registered;
-    if (!tapinfo->is_registered)
-        register_tap_listener_mcast_stream(tapinfo);
-
-    cf_retap_packets(cap_file);
-
-    if (!was_registered)
-        remove_tap_listener_mcast_stream(tapinfo);
-}
-
-/****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
 
@@ -317,29 +294,26 @@ remove_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 
 
 /****************************************************************************/
-void
+GString *
 register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 {
     GString *error_string;
-
     if (!tapinfo) {
-        return;
+        return NULL;
     }
 
-    if (!tapinfo->is_registered) {
-        error_string = register_tap_listener("udp", tapinfo,
-            NULL, 0, mcaststream_reset_cb, mcaststream_packet,
-            mcaststream_draw, NULL);
+    if (tapinfo->is_registered) {
+        return NULL;
+    }
 
-        if (error_string != NULL) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "%s", error_string->str);
-            g_string_free(error_string, TRUE);
-            exit(1);
-        }
+    error_string = register_tap_listener("udp", tapinfo,
+        NULL, 0, mcaststream_reset_cb, mcaststream_packet,
+        mcaststream_draw, NULL);
 
+    if (NULL == error_string) {
         tapinfo->is_registered = TRUE;
     }
+    return error_string;
 }
 
 /*******************************************************************************/

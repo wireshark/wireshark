@@ -16,6 +16,9 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
+#include "ui/simple_dialog.h"
+#include <file.h>
+
 #include "main_application.h"
 
 enum {
@@ -245,7 +248,13 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
             this, &MulticastStatisticsDialog::updateMulticastParameters);
 
     /* Register the tap listener */
-    register_tap_listener_mcast_stream(tapinfo_);
+    GString * error_string = register_tap_listener_mcast_stream(tapinfo_);
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+        exit(1);
+    }
 
     updateWidgets();
 }
@@ -436,15 +445,27 @@ void MulticastStatisticsDialog::fillTree()
 
     foreach (QWidget *w, disable_widgets) w->setEnabled(false);
 
-    /* Scan for Mcast streams (redissect all packets) */
-    mcaststream_scan(tapinfo_, cap_file_.capFile());
-    tapDraw(tapinfo_);
+    rescan();
 
     foreach (QWidget *w, disable_widgets) w->setEnabled(true);
     for (int col = 0; col < statsTreeWidget()->columnCount() - 1; col++) {
         statsTreeWidget()->resizeColumnToContents(col);
     }
     updateWidgets();
+}
+
+void MulticastStatisticsDialog::rescan()
+{
+    gboolean was_registered = tapinfo_->is_registered;
+    if (!tapinfo_->is_registered)
+        register_tap_listener_mcast_stream(tapinfo_);
+
+    cf_retap_packets(cap_file_.capFile());
+
+    if (!was_registered)
+        remove_tap_listener_mcast_stream(tapinfo_);
+
+    tapDraw(tapinfo_);
 }
 
 void MulticastStatisticsDialog::captureFileClosing()

@@ -48,6 +48,7 @@
 #include <epan/follow.h>
 #include <epan/rtd_table.h>
 #include <epan/srt_table.h>
+#include <epan/to_str.h>
 
 #include <epan/dissectors/packet-h225.h>
 #include <epan/rtp_pt.h>
@@ -61,6 +62,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <ui/rtp_media.h>
+#include <ui/mcast_stream.h>
 #include <speex/speex_resampler.h>
 
 #include <epan/maxmind_db.h>
@@ -1011,6 +1013,11 @@ sharkd_session_process_info(void)
 
     sharkd_json_array_open("taps");
     {
+        json_dumper_begin_object(&dumper);
+        sharkd_json_value_string("name", "UDP Multicast Streams");
+        sharkd_json_value_string("tap", "multicast");
+        json_dumper_end_object(&dumper);
+
         json_dumper_begin_object(&dumper);
         sharkd_json_value_string("name", "RTP streams");
         sharkd_json_value_string("tap", "rtp-streams");
@@ -2775,6 +2782,99 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 }
 
 /**
+* sharkd_session_process_tap_multicast_cb()
+*
+* Output UDP Multicast streams tap:
+*   (m) tap                     - tap name
+*   (m) type                    - tap output type
+*   (m) bufferThresholdBytes    - byte count for a stream where a buffer alarm shold be reported
+*   (m) burstIntervalMs         - analysis interval in milliseconds
+*   (m) burstThresholdPackets   - count of packets in an interval that should trigger an alarm
+*   (m) streams                 - array of streams with metrics:
+*           (m) saddr       - source address
+*           (m) sport       - source port
+*           (m) daddr       - destination address
+*           (m) dport       - destination port
+*           (m) packets     - object group for packet metrics with attributes:
+*                (m) number     - count of packets in the stream
+*                (m) perSecond  - average number of packets per seconds in the stream
+*           (m) bandwidth     - object group for bandwidth metrics with attributes:
+*                (m) average    - average measured bitrate in the stream
+*                (m) max        - max measured bitrate in the stream
+*           (m) buffer       - object group for buffer metrics with attributes:
+*                (m) alarms     - number of times the stream exceeded the buffer threshold
+*                (m) max        - highest stream buffer utilization
+*           (m) burst        - object group for burst metrics with attributes:
+*                (m) alarms     - number of times the stream exceeded the burst threshold
+*                (m) max        - most stream packets measured in a burst interval
+*/
+static void
+sharkd_session_process_tap_multicast_cb(void *arg)
+{
+    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
+    GList *list_item;
+
+    json_dumper_begin_object(&dumper);
+
+    sharkd_json_value_string("tap", "multicast");
+    sharkd_json_value_string("type", "multicast");
+
+    sharkd_json_value_anyf("bufferThresholdBytes", "%u", mcast_stream_bufferalarm);
+    sharkd_json_value_anyf("burstIntervalMs", "%u", mcast_stream_burstint);
+    sharkd_json_value_anyf("burstThresholdPackets", "%u", mcast_stream_trigger);
+
+    sharkd_json_array_open("streams");
+    for (list_item = g_list_first(tapinfo->strinfo_list); list_item; list_item = list_item->next) {
+        mcast_stream_info_t *stream_info = (mcast_stream_info_t *) list_item->data;
+        sharkd_json_object_open(NULL);
+        {
+            sharkd_json_value_string("saddr", address_to_display(NULL, &stream_info->src_addr));
+            sharkd_json_value_anyf("sport", "%u", stream_info->src_port);
+            sharkd_json_value_string("daddr", address_to_display(NULL, &stream_info->dest_addr));
+            sharkd_json_value_anyf("dport", "%u", stream_info->dest_port);
+            sharkd_json_object_open("packets");
+            {
+                sharkd_json_value_anyf("number", "%u", stream_info->npackets);
+                sharkd_json_value_anyf("perSecond", "%f", stream_info->apackets);
+            }
+            sharkd_json_object_close();
+            sharkd_json_object_open("bandwidth");
+            {
+                sharkd_json_value_anyf("average", "%f", stream_info->average_bw);
+                sharkd_json_value_anyf("max", "%f", stream_info->element.maxbw);
+            }
+            sharkd_json_object_close();
+            sharkd_json_object_open("buffer");
+            {
+                sharkd_json_value_anyf("alarms", "%u", stream_info->element.numbuffalarms);
+                sharkd_json_value_anyf("max", "%u", stream_info->element.topbuffusage);
+            }
+            sharkd_json_object_close();
+            sharkd_json_object_open("burst");
+            {
+                sharkd_json_value_anyf("alarms", "%u", stream_info->element.numbursts);
+                sharkd_json_value_anyf("max", "%u", stream_info->element.topburstsize);
+            }
+            sharkd_json_object_close();
+        }
+        sharkd_json_object_close();
+    }
+    sharkd_json_array_close();
+
+    json_dumper_end_object(&dumper);
+}
+
+static void
+sharkd_session_process_free_tap_multicast_cb(void *tapdata)
+{
+    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)tapdata;
+
+    mcaststream_reset(tapinfo);
+
+    g_free(tapinfo);
+}
+
+/**
  * sharkd_session_process_tap()
  *
  * Process tap request
@@ -3121,6 +3221,15 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
             tap_data = rtp_req;
             tap_free = sharkd_session_process_tap_rtp_free_cb;
+        }
+        else if (!strcmp(tok_tap, "multicast"))
+        {
+            mcaststream_tapinfo_t *mcaststream_tapinfo;
+            mcaststream_tapinfo = (mcaststream_tapinfo_t *) g_malloc0(sizeof(*mcaststream_tapinfo));
+
+            tap_error = register_tap_listener("udp", mcaststream_tapinfo, tap_filter, 0, NULL, mcaststream_packet, sharkd_session_process_tap_multicast_cb, NULL);
+            tap_data = mcaststream_tapinfo;
+            tap_free = sharkd_session_process_free_tap_multicast_cb;
         }
         else
         {
