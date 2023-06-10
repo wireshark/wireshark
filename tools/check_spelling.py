@@ -142,7 +142,7 @@ class File:
         m = re.search(r'^([0-9]+)([a-zA-Z]+)$', word)
         if m:
             if m.group(2).lower() in { "bit", "bits", "gb", "kbps", "gig", "mb", "th", "mhz", "v", "hz", "k",
-                                       "mbps", "m", "g", "ms", "nd", "nds", "rd", "kb", "kbit",
+                                       "mbps", "m", "g", "ms", "nd", "nds", "rd", "kb", "kbit", "ghz",
                                        "khz", "km", "ms", "usec", "sec", "gbe", "ns", "ksps", "qam", "mm" }:
                 return True
         return False
