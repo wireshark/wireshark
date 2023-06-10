@@ -9941,12 +9941,11 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                 q += 1;
                                                 proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_mpls_label,
                                                         tvb, q, 3, ENC_BIG_ENDIAN);
-                                                q += 2;
                                                 proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class,
-                                                        tvb, q, 1, ENC_BIG_ENDIAN);
+                                                        tvb, q, 3, ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack,
-                                                        tvb, q, 1, ENC_BIG_ENDIAN);
-                                                q += 1;
+                                                        tvb, q, 3, ENC_BIG_ENDIAN);
+                                                q += 3;
                                                 proto_tree_add_item(subtree8, hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl,
                                                         tvb, q, 1, ENC_BIG_ENDIAN);
                                                 q += 1;
@@ -11945,11 +11944,11 @@ proto_register_bgp(void)
         { "MPLS Label", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.mpls_label", FT_UINT24,
           BASE_HEX, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class,
-        { "Traffic Class", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.traffic_class", FT_UINT8,
+        { "Traffic Class", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.traffic_class", FT_UINT24,
           BASE_HEX, NULL, BGP_MPLS_TRAFFIC_CLASS, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack,
         { "Bottom-of-Stack", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.bottom_stack", FT_BOOLEAN,
-          8, NULL, BGP_MPLS_BOTTOM_L_STACK, NULL, HFILL}},
+          24, NULL, BGP_MPLS_BOTTOM_L_STACK, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl,
         { "TTL", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.ttl", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -12453,10 +12452,10 @@ proto_register_bgp(void)
         { "Reserved", "bgp.ext_com_etree.flag_reserved",FT_UINT16, BASE_HEX,
           NULL, BGP_EXT_COM_ETREE_FLAG_RESERVED, NULL, HFILL }},
       { &hf_bgp_ext_com_etree_flag_p,
-        { "P", "bgp.ext_com_etree.flag_p",FT_BOOLEAN, 8,
+        { "P", "bgp.ext_com_etree.flag_p",FT_BOOLEAN, 16,
           TFS(&tfs_set_notset), BGP_EXT_COM_ETREE_FLAG_P, "PE is attached with leaf nodes only", HFILL }},
       { &hf_bgp_ext_com_etree_flag_v,
-        { "V", "bgp.ext_com_etree.flag_v",FT_BOOLEAN, 8,
+        { "V", "bgp.ext_com_etree.flag_v",FT_BOOLEAN, 16,
           TFS(&tfs_set_notset), BGP_EXT_COM_ETREE_FLAG_V, "VLAN mapping", HFILL }},
       { &hf_bgp_ext_com_evpn_mmac_flag,
         { "Flags", "bgp.ext_com_evpn.mmac.flags", FT_UINT8, BASE_HEX,
