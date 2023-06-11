@@ -375,7 +375,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     while(tvbparse_get(tt, want)) ;
 
-    /* Save XML structure in case it is useful for the caller (only XMPP for now) */
+    /* Save XML structure in case it is useful for the caller */
     p_add_proto_data(pinfo->pool, pinfo, xml_ns.hf_tag, 0, current_frame);
 
     return tvb_captured_length(tvb);

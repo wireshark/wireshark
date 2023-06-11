@@ -25,6 +25,8 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 
+#include "packet-lls.h"
+
 #define LLS_PORT 4937 // IANA Registered (atsc-mh-ssc)
 
 void proto_reg_handoff_lls(void);
@@ -45,6 +47,7 @@ static expert_field ei_lls_table_decompression_failed = EI_INIT;
 
 static int hf_lls_table_id = -1;
 #define LLS_TABLE_TYPE_SIGNED_MULTI_TABLE 0xFE
+#define LLS_TABLE_TYPE_SLT                0x01
 static const value_string hf_lls_table_type_vals[] = {
     { 0x01, "SLT (Service List Table)" },
     { 0x02, "RRT (Rating Region Table)" },
@@ -101,6 +104,7 @@ dissect_lls_table_payload(guint8 lls_table_id, tvbuff_t *tvb, packet_info *pinfo
 
     proto_tree *uncompress_tree = proto_item_add_subtree(ti, ett_lls_table_payload);
     tvbuff_t *uncompress_tvb = tvb_uncompress(tvb, offset, len);
+    proto_tree *xml_tree = NULL;
     if (uncompress_tvb) {
         const gchar *table_type_short = val_to_str_const(lls_table_id, hf_lls_table_type_short_vals, "Unknown");
         gchar *source_name = wmem_strdup_printf(pinfo->pool, "Table ID %u (%s)", lls_table_id, table_type_short);
@@ -111,11 +115,15 @@ dissect_lls_table_payload(guint8 lls_table_id, tvbuff_t *tvb, packet_info *pinfo
         proto_item_set_generated(ti_uncomp);
 
         if (xml_handle) {
-            proto_tree *xml_tree = proto_item_add_subtree(ti_uncomp, ett_lls_table_payload_xml);
+            xml_tree = proto_item_add_subtree(ti_uncomp, ett_lls_table_payload_xml);
             call_dissector(xml_handle, uncompress_tvb, pinfo, xml_tree);
         }
     } else {
         expert_add_info(pinfo, ti, &ei_lls_table_decompression_failed);
+    }
+
+    if (lls_table_id == LLS_TABLE_TYPE_SLT && xml_tree != NULL) {
+        lls_extract_save_slt_table(pinfo, xml_handle);
     }
 }
 

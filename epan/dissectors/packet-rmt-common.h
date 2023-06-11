@@ -23,9 +23,13 @@
 #define LCT_PREFS_EXT_193_NONE 0
 #define LCT_PREFS_EXT_193_FLUTE 1
 
+#define LCT_ATSC3_MODE_DISABLED 0
+#define LCT_ATSC3_MODE_AUTO 1
+#define LCT_ATSC3_MODE_FORCE 2
 
 extern const enum_val_t enum_lct_ext_192[];
 extern const enum_val_t enum_lct_ext_193[];
+extern const enum_val_t enum_lct_atsc3_mode[];
 
 /* String tables external references */
 extern const value_string string_fec_encoding_id[];
@@ -38,10 +42,12 @@ typedef struct lct_data_exchange
 	/* inputs */
 	gint ext_192;
 	gint ext_193;
+	gboolean is_atsc3;
 
 	/* outputs */
 	guint8 codepoint;
 	gboolean is_flute;
+	gboolean is_sp; /* is Source Packet? Source Packet Indicator is defined in RFC 5775 */
 
 } lct_data_exchange_t;
 
