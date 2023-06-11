@@ -1253,6 +1253,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_registrar_dump_elastic@Base 2.9.0
  proto_registrar_dump_fieldcount@Base 2.0.0
  proto_registrar_dump_fields@Base 1.9.1
+ proto_registrar_dump_field_completions@Base 3.5.0
  proto_registrar_dump_ftypes@Base 1.9.1
  proto_registrar_dump_protocols@Base 1.9.1
  proto_registrar_dump_values@Base 1.9.1

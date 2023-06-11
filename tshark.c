@@ -533,7 +533,7 @@ glossary_option_help(void)
     fprintf(output, "  -G dissector-tables      dump dissector table names, types, and properties\n");
     fprintf(output, "  -G elastic-mapping       dump ElasticSearch mapping file\n");
     fprintf(output, "  -G fieldcount            dump count of header fields and exit\n");
-    fprintf(output, "  -G fields                dump fields glossary and exit\n");
+    fprintf(output, "  -G fields [prefix]       dump fields glossary and exit\n");
     fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
     fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
     fprintf(output, "  -G plugins               dump installed plugins and exit\n");
@@ -1167,8 +1167,20 @@ main(int argc, char *argv[])
                 /* return value for the test suite */
                 exit_status = proto_registrar_dump_fieldcount();
                 goto clean_exit;
-            } else if (strcmp(argv[2], "fields") == 0)
-                proto_registrar_dump_fields();
+            }
+            else if (strcmp(argv[2], "fields") == 0) {
+                if (argc >= 4) {
+                    gboolean matched = proto_registrar_dump_field_completions(argv[3]);
+                    if (!matched) {
+                        cmdarg_err("No field or protocol begins with \"%s\"", argv[3]);
+                        exit_status = EXIT_FAILURE;
+                        goto clean_exit;
+                    }
+                }
+                else {
+                    proto_registrar_dump_fields();
+                }
+            }
             else if (strcmp(argv[2], "folders") == 0) {
                 epan_load_settings();
                 about_folders();

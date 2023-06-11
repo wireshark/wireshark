@@ -11435,6 +11435,66 @@ proto_registrar_dump_fields(void)
 	}
 }
 
+/* Dumps all abbreviated field and protocol completions of the given string to
+ * stdout.  An independent program may use this for command-line tab completion
+ * of fields.
+ */
+gboolean
+proto_registrar_dump_field_completions(char *prefix)
+{
+	header_field_info *hfinfo;
+	int		   i, len;
+	size_t		   prefix_len;
+	gboolean	   matched = FALSE;
+
+	prefix_len = strlen(prefix);
+	len = gpa_hfinfo.len;
+	for (i = 0; i < len ; i++) {
+		if (gpa_hfinfo.hfi[i] == NULL)
+			continue; /* This is a deregistered protocol or header field */
+
+		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
+
+		/*
+		 * Skip the pseudo-field for "proto_tree_add_text()" since
+		 * we don't want it in the list of filterable fields.
+		 */
+		if (hfinfo->id == hf_text_only)
+			continue;
+
+		/* format for protocols */
+		if (proto_registrar_is_protocol(i)) {
+			if(0 == strncmp(hfinfo->abbrev, prefix, prefix_len)) {
+				matched = TRUE;
+				printf("%s\t%s\n", hfinfo->abbrev, hfinfo->name);
+			}
+		}
+		/* format for header fields */
+		else {
+			/*
+			 * If this field isn't at the head of the list of
+			 * fields with this name, skip this field - all
+			 * fields with the same name are really just versions
+			 * of the same field stored in different bits, and
+			 * should have the same type/radix/value list, and
+			 * just differ in their bit masks.	(If a field isn't
+			 * a bitfield, but can be, say, 1 or 2 bytes long,
+			 * it can just be made FT_UINT16, meaning the
+			 * *maximum* length is 2 bytes, and be used
+			 * for all lengths.)
+			 */
+			if (hfinfo->same_name_prev_id != -1)
+				continue;
+
+			if(0 == strncmp(hfinfo->abbrev, prefix, prefix_len)) {
+				matched = TRUE;
+				printf("%s\t%s\n", hfinfo->abbrev, hfinfo->name);
+			}
+		}
+	}
+	return matched;
+}
+
 /* Dumps field types and descriptive names to stdout. An independent
  * program can take this output and format it into nice tables or HTML or
  * whatever.

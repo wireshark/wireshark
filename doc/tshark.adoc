@@ -467,6 +467,15 @@ Field 6:: base for display (for integer types); "parent bitfield width" for FT_B
 Field 7:: bitmask: format: hex: 0x....
 Field 8:: blurb describing field
 
+An optional search prefix argument can be given to
+*fields*, in which case the output is limited to protocols and fields whose
+abbreviation starts with the search prefix.
+
+.Search Output
+[horizontal]
+Field 1:: protocol or field abbreviation
+Field 2:: descriptive protocol or field name
+
 *folders* Dumps various folders used by *TShark*.  This is essentially the
 same data reported in Wireshark's About | Folders tab.
 There is one record per line.  The fields are tab-delimited.

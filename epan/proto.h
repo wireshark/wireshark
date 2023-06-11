@@ -2770,6 +2770,9 @@ WS_DLL_PUBLIC gboolean proto_registrar_dump_fieldcount(void);
 /** Dumps a glossary of the protocol and field registrations to STDOUT. */
 WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 
+/** Dumps protocol and field abbreviations to STDOUT which start with prefix. */
+WS_DLL_PUBLIC gboolean proto_registrar_dump_field_completions(char *prefix);
+
 /** Dumps a glossary field types and descriptive names to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_ftypes(void);
 
