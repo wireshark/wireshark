@@ -600,6 +600,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	#                                   See https://devblogs.microsoft.com/cppblog/spectre-mitigations-in-msvc/
 	list(APPEND LOCAL_CFLAGS /diagnostics:caret /Zo /utf-8 /guard:cf)
 	set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
+	set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /STACK:0x800000")
 	# /Qspectre is not available for VS2015 or older VS2017. Test for its availability.
 	set(WIRESHARK_COMMON_FLAGS /Qspectre)
 
