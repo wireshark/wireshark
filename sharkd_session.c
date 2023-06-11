@@ -321,7 +321,7 @@ static gboolean
 json_prep(char* buf, const jsmntok_t* tokens, int count)
 {
     int i;
-    char* method = NULL;
+    const char* method = NULL;
     char* attr_name = NULL;
     char* attr_value = NULL;
 
@@ -484,6 +484,55 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 
     for (i = 0; i < count; i += 2)
     {
+        buf[tokens[i + 0].end] = '\0';
+        buf[tokens[i + 1].end] = '\0';
+    }
+
+    // we must get the id as soon as possible so that it's available in all future error messages
+    attr_value = (char*)json_find_attr(buf, tokens, count, "id");
+    if (attr_value)
+    {
+        if (!ws_strtou32(attr_value, NULL, &rpcid))
+        {
+            sharkd_json_error(
+                    rpcid, -32600, NULL,
+                    "The id value must be a positive integer"
+                    );
+            return FALSE;
+        }
+    }
+
+    method = json_find_attr(buf, tokens, count, "method");
+
+    if (method)
+    {
+        gboolean is_supported = FALSE;
+        i = 0;  // name array index
+
+        // check that the request method is good
+        while (name_array[i].value_type != SHARKD_ARRAY_END)
+        {
+            if (name_array[i].parent_ctx)
+            {
+                if (!strcmp(method, name_array[i].name) && !strcmp(name_array[i].parent_ctx, "method"))
+                    is_supported = TRUE;  // the method is valid
+            }
+
+            i++;
+        }
+
+        if (!is_supported)
+        {
+            sharkd_json_error(
+                    rpcid, -32601, NULL,
+                    "The method %s is not supported", method
+                    );
+            return FALSE;
+        }
+    }
+
+    for (i = 0; i < count; i += 2)
+    {
         if (tokens[i].type != JSMN_STRING)
         {
             sharkd_json_error(
@@ -493,24 +542,8 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
             return FALSE;
         }
 
-        buf[tokens[i + 0].end] = '\0';
-        buf[tokens[i + 1].end] = '\0';
-
         attr_name = &buf[tokens[i + 0].start];
         attr_value = &buf[tokens[i + 1].start];
-
-        // we must get the id as soon as possible so that it's available in all future error messages
-        if (!strcmp(attr_name, "id"))
-        {
-            if (!ws_strtou32(attr_value, NULL, &rpcid))
-            {
-                sharkd_json_error(
-                        rpcid, -32600, NULL,
-                        "The id value must be a positive integer"
-                        );
-                return FALSE;
-            }
-        }
 
         if (!strcmp(attr_name, "jsonrpc"))
         {
@@ -623,31 +656,6 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
                     break; // looks like a valid match
                 }
                 j++;
-            }
-
-            if (!strcmp(attr_name, "method"))
-            {
-                int k = 0;  // name array index
-                // check that the request method is good
-                while (name_array[k].value_type != SHARKD_ARRAY_END)
-                {
-                    if (name_array[k].parent_ctx)
-                    {
-                        if (!strcmp(attr_value, name_array[k].name) && !strcmp(name_array[k].parent_ctx, "method"))
-                            method = attr_value;  // the method is valid
-                    }
-
-                    k++;
-                }
-
-                if (!method)
-                {
-                    sharkd_json_error(
-                            rpcid, -32601, NULL,
-                            "The method %s is not supported", attr_value
-                            );
-                    return FALSE;
-                }
             }
         }
 
