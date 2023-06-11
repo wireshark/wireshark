@@ -47,6 +47,19 @@ Wireshark 4.1.0 Release Notes
   default. To facilitate resetting the dissector, the default dissector
   is now sorted at the top of the list of possible dissector options.
 
+  Sorting changes: * When sorting packet list with a filter applied,
+  only the visible packets are sorted, which greatly increases sorting
+  speed. * The cache size for column text is limited to a default of
+  10000 rows, which limits the maximum memory usage. The maximum value
+  can be changed in Preferences→Appearance→Layout * Due to the above,
+  columns that require packet dissection can only be sorted if the
+  number of visible rows is less than the cache size. If there are more
+  rows visible, a warning will appear. Columns that do not require
+  packet dissection (those that calculated directly from the capture
+  file frame headers, such as packet number, time, and frame length) can
+  be sorted with any number of visible rows. * Sorting can be
+  interrupted.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -113,14 +126,14 @@ Wireshark 4.1.0 Release Notes
    DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer
    (DECT-NWK), DECT proprietary Mitel OMM/RFP Protocol (also named
    AaMiDe), FiRa UWB Controller Interface (UCI), FiveCo’s Register
-   Access Protocol (5CoRAP), GPS L1 C/A LNAV navigation messages, Low
-   Level Signalling (ATSC3 LLS), Management Component Transport Protocol
-   (MCTP), Management Component Transport Protocol - Control Protocol
-   (MCTP CP), Matter home automation protocol, Non-volatile Memory
-   Express - Management Interface (NVMe-MI) over MCTP, SAP Enqueue
-   Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command Network
-   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
-   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
+   Access Protocol (5CoRAP), GPS L1 C/A LNAV navigation messages, ID3v2,
+   Low Level Signalling (ATSC3 LLS), Management Component Transport
+   Protocol (MCTP), Management Component Transport Protocol - Control
+   Protocol (MCTP CP), Matter home automation protocol, Non-volatile
+   Memory Express - Management Interface (NVMe-MI) over MCTP, SAP
+   Enqueue Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command
+   Network Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP
+   Message Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
    (SAPROUTER), SAP Secure Network Connection (SNC), SBAS L1 Navigation
    Messages (SBAS L1), SINEC AP1 Protocol (SINEC AP), Support for almost
    all WoW 1.12 messages has been added., Train Real-Time Data Protocol

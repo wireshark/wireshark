@@ -4170,12 +4170,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Gefilterte Pakete</translation>
     </message>
     <message>
+        <source>Filtered events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Packets</source>
         <translation>Alle Pakete</translation>
     </message>
     <message>
         <source>TCP Errors</source>
         <translation>TCP Fehler</translation>
+    </message>
+    <message>
+        <source>All Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access Denied</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4186,12 +4198,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Keine Pakete im Intervall</translation>
     </message>
     <message>
+        <source>No events in interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Click to select packet</source>
         <translation>Klicken zur Paketauswahl</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paket</translation>
+    </message>
+    <message>
+        <source>Click to select event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished">Ereignis</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>

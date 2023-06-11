@@ -4170,12 +4170,24 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Paquets filtrés</translation>
     </message>
     <message>
+        <source>Filtered events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Packets</source>
         <translation>Tous les paquets</translation>
     </message>
     <message>
         <source>TCP Errors</source>
         <translation>Erreurs TCP</translation>
+    </message>
+    <message>
+        <source>All Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access Denied</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4186,12 +4198,24 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Aucun paquet dans l&apos;intervale</translation>
     </message>
     <message>
+        <source>No events in interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Click to select packet</source>
         <translation>Cliquez pour sélectionner le paquet</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paquet</translation>
+    </message>
+    <message>
+        <source>Click to select event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished">Évènement</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>

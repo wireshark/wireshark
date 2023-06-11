@@ -4147,11 +4147,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Filtered events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TCP Errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access Denied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4163,12 +4175,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>间隔期没有分组</translation>
     </message>
     <message>
+        <source>No events in interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Click to select packet</source>
         <translation>点击选取分组</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>分组</translation>
+    </message>
+    <message>
+        <source>Click to select event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished">事件</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>

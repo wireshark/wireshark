@@ -5760,6 +5760,7 @@ dsmcc-passthru	13820/tcp/udp	# DSMCC Pass-Thru Messages
 dsmcc-download	13821/tcp/udp	# DSMCC Download Protocol
 dsmcc-ccp	13822/tcp/udp	# DSMCC Channel Change Protocol
 bmdss		13823/tcp	# Blackmagic Design Streaming Server
+a-trust-rpc	13832/tcp	# Certificate Management and Issuing
 ucontrol	13894/tcp/udp	# Ultimate Control communication protocol
 dta-systems	13929/tcp/udp	# D-TA SYSTEMS
 medevolve	13930/tcp	# MedEvolve Port Requester

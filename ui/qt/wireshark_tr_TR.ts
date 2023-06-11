@@ -4155,12 +4155,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Filtrelenmiş paketler</translation>
     </message>
     <message>
+        <source>Filtered events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Packets</source>
         <translation>Tüm Paketler</translation>
     </message>
     <message>
         <source>TCP Errors</source>
         <translation>TCP Hataları</translation>
+    </message>
+    <message>
+        <source>All Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access Denied</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4171,12 +4183,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Aralıkta paket yok</translation>
     </message>
     <message>
+        <source>No events in interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Click to select packet</source>
         <translation>Paket seçmek için tıklayın</translation>
     </message>
     <message>
         <source>Packet</source>
         <translation>Paket</translation>
+    </message>
+    <message>
+        <source>Click to select event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished">Olay</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
