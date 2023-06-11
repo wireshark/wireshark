@@ -30,6 +30,7 @@
 #include "packet-gtpv2.h"
 #include "packet-gsm_a_common.h"
 #include "packet-json.h"
+#include "packet-http2.h"
 
 void proto_register_json_3gpp(void);
 
@@ -175,7 +176,7 @@ static int hf_json_3gpp_suppfeat_npcf_ue_8_es3xx = -1;
 static int hf_json_3gpp_suppfeat_npcf_ue_9_prose = -1;
 
 #define NPCF_AM_POLICY_CONTROL "/npcf-am-policy-control/v1/policies"
-#define NPCF_SM_POLICY_CONTROL "/npcf-smpolicycontrol/v1/sm-policies" /* inconsistency nameing from 3gpp */
+#define NPCF_SM_POLICY_CONTROL "/npcf-smpolicycontrol/v1/sm-policies" /* inconsistency naming from 3gpp */
 #define NPCF_UE_POLICY_CONTROL "/npcf-ue-policy-control/v1/policies"
 
 
@@ -235,6 +236,8 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 static void
 dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_, gboolean use_compact)
 {
+	const char *path;
+
 	/* TS 29.571 ch5.2.2
 	 * A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500 [25].
 	 * The string shall contain a bitmask indicating supported features in hexadecimal representation:
@@ -248,7 +251,11 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	 */
 
 	/* Exptect to have :path from HTTP2 here, if not return */
-	if (!pinfo->path) {
+	path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
+	if (!path) {
+		path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, TRUE);
+	}
+	if (!path) {
 		return;
 	}
 
@@ -268,7 +275,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
 	int offset_reverse = len - 1;
 
-	if (strcmp(pinfo->path, NPCF_AM_POLICY_CONTROL) == 0) {
+	if (strcmp(path, NPCF_AM_POLICY_CONTROL) == 0) {
 		/* TS 29.507 ch5.8 Feature negotiation */
 
 		static int * const json_3gpp_suppfeat_npcf_am_list_1[] = {
@@ -328,7 +335,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
 		}
 
-	} else if (strcmp(pinfo->path, NPCF_SM_POLICY_CONTROL) == 0) {
+	} else if (strcmp(path, NPCF_SM_POLICY_CONTROL) == 0) {
 		/* TS 29.512 ch5.8 Feature negotiation */
 
 		static int * const json_3gpp_suppfeat_npcf_sm_list_1[] = {
@@ -585,7 +592,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
 		}
 
-	} else if (strcmp(pinfo->path, NPCF_UE_POLICY_CONTROL) == 0) {
+	} else if (strcmp(path, NPCF_UE_POLICY_CONTROL) == 0) {
 		/* TS 29.525 ch5.8 Feature negotiation */
 
 		static int * const json_3gpp_suppfeat_npcf_ue_list_1[] = {

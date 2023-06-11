@@ -1285,19 +1285,6 @@ static const value_string http2_type_vals[] = {
 #define HTTP2_FLAGS_R2          0xFA
 #define HTTP2_FLAGS_R4          0xFB
 
-/* http header keys and values */
-#define HTTP2_HEADER_CONTENT_ENCODING "content-encoding"
-#define HTTP2_HEADER_STATUS ":status"
-#define HTTP2_HEADER_STATUS_PARTIAL_CONTENT "206"
-#define HTTP2_HEADER_METHOD ":method"
-#define HTTP2_HEADER_METHOD_CONNECT "CONNECT"
-#define HTTP2_HEADER_TRANSFER_ENCODING "transfer-encoding"
-#define HTTP2_HEADER_PATH ":path"
-#define HTTP2_HEADER_AUTHORITY ":authority"
-#define HTTP2_HEADER_SCHEME ":scheme"
-#define HTTP2_HEADER_CONTENT_TYPE "content-type"
-#define HTTP2_HEADER_UNKNOWN "<unknown>"
-
 /* header matching helpers */
 #define IS_HTTP2_END_STREAM(flags)   (flags & HTTP2_FLAGS_END_STREAM)
 
@@ -2881,11 +2868,6 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
         eo_info->payload = tvb_new_subset_length(tvb, start, length);
 
         tap_queue_packet(http_eo_tap, pinfo, eo_info);
-    }
-
-    /* adding path of 3GPP NF Service, used by JSON 3GPP */
-    if (stream_info->path) {
-        pinfo->path = stream_info->path;
     }
 
     if (content_type != NULL) {

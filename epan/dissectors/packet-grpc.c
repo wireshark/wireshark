@@ -71,12 +71,6 @@
 
 #define GRPC_MESSAGE_HEAD_LEN 5
 
-/* http2 standard headers */
-#define HTTP2_HEADER_PATH ":path"
-#define HTTP2_HEADER_CONTENT_TYPE "content-type"
-/* http2 for grpc */
-#define HTTP2_HEADER_GRPC_ENCODING "grpc-encoding"
-
 /* calculate the size of a bytes after decoding as base64 */
 #define BASE64_ENCODE_SIZE(len)  ((len) / 3 * 4 + ((len) % 3 == 0 ? 0 : 4))
 

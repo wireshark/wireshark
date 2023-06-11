@@ -14,6 +14,21 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* http2 standard headers */
+#define HTTP2_HEADER_CONTENT_ENCODING "content-encoding"
+#define HTTP2_HEADER_STATUS ":status"
+#define HTTP2_HEADER_STATUS_PARTIAL_CONTENT "206"
+#define HTTP2_HEADER_METHOD ":method"
+#define HTTP2_HEADER_METHOD_CONNECT "CONNECT"
+#define HTTP2_HEADER_TRANSFER_ENCODING "transfer-encoding"
+#define HTTP2_HEADER_PATH ":path"
+#define HTTP2_HEADER_AUTHORITY ":authority"
+#define HTTP2_HEADER_SCHEME ":scheme"
+#define HTTP2_HEADER_CONTENT_TYPE "content-type"
+#define HTTP2_HEADER_UNKNOWN "<unknown>"
+/* http2 for grpc */
+#define HTTP2_HEADER_GRPC_ENCODING "grpc-encoding"
+
 int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ );
 
 /** Get header value from current or the other direction stream.
