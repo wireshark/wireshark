@@ -173,7 +173,35 @@ static const value_string info_mode_types[] = {
 	{ 0,		NULL}
 };
 
-/* According to rfc, primary (stratum-0 and stratum-1) servers should set
+/* According to rfc, unspecified or invalid (stratum-0) servers should
+ * set their Reference ID (4bytes field) according to following table:
+ * https://www.iana.org/assignments/ntp-parameters/ntp-parameters.xhtml#ntp-parameters-2
+ */
+static const struct {
+	const char *id;
+	const char *data;
+} kod_messages[] = {
+	/* IANA / RFC 5905 */
+	{ "ACST",	"The association belongs to a unicast server" },
+	{ "AUTH",	"Server authentication failed" },
+	{ "AUTO",	"Autokey sequence failed" },
+	{ "BCST",	"The association belongs to a broadcast server" },
+	{ "CRYP",	"Cryptographic authentication or identification failed" },
+	{ "DENY",	"Access denied by remote server" },
+	{ "DROP",	"Lost peer in symmetric mode" },
+	{ "RSTR",	"Access denied due to local policy" },
+	{ "INIT",	"The association has not yet synchronized for the first time" },
+	{ "MCST",	"The association belongs to a dynamically discovered server" },
+	{ "NKEY",	"No key found. Either the key was never installed or is not trusted" },
+	{ "NTSN",	"Network Time Security (NTS) negative-acknowledgment (NAK)" },
+	{ "RATE",	"Rate exceeded. The server has temporarily denied access because the client exceeded the rate threshold" },
+	{ "RMOT",	"Alteration of association from a remote host running ntpdc." },
+	{ "STEP",	"A step change in system time has occurred, but the association has not yet resynchronized" },
+	{ "\0\0\0\0",	"NULL" },
+	{ NULL,		NULL}
+};
+
+/* According to rfc 4330, primary (stratum-1) servers should set
  * their Reference ID (4bytes field) according to following table:
  */
 static const struct {
@@ -213,7 +241,7 @@ static const struct {
 	{ "VLF\0",	"VLF radio (OMEGA,, etc.)" },
 	{ "1PPS",	"External 1 PPS input" },
 	{ "FREE",	"(Internal clock)" },
-	{ "INIT",	"(Initialization)" },
+	// { "INIT",	"(Initialization)" },
 	{ "\0\0\0\0",	"NULL" },
 	{ NULL,		NULL}
 };
@@ -1022,7 +1050,7 @@ static tvbparse_wanted_t *want_ignore;
  */
 #define NTP_BASETIME EPOCH_DELTA_1900_01_01_00_00_00_UTC
 #define NTP_FLOAT_DENOM 4294967296.0
-#define NTP_TS_SIZE 100
+#define NTP_TS_SIZE 110
 
 /* tvb_ntp_fmt_ts_sec - converts an NTP timestamps second part (32bits) to an human readable string.
 * TVB and an offset (IN).
@@ -1242,7 +1270,17 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 * higher level server. My decision was to resolve this address.
 	 */
 	buff = (gchar *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
-	if (stratum <= 1) {
+	if (stratum == 0) {
+		snprintf (buff, NTP_TS_SIZE, "Unidentified Kiss-o\'-Death message '%s'",
+			tvb_get_string_enc(wmem_packet_scope(), tvb, 12, 4, ENC_ASCII));
+		for (i = 0; kod_messages[i].id; i++) {
+			if (tvb_memeql(tvb, 12, kod_messages[i].id, 4) == 0) {
+				snprintf(buff, NTP_TS_SIZE, "%s",
+					kod_messages[i].data);
+				break;
+			}
+		}
+	} else if (stratum == 1) {
 		snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%s'",
 			tvb_get_string_enc(wmem_packet_scope(), tvb, 12, 4, ENC_ASCII));
 		for (i = 0; primary_sources[i].id; i++) {
