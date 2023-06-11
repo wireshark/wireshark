@@ -643,7 +643,8 @@ Set when the all of the following are true:
 * The segment size is zero.
 * The window size is non-zero and not equal to the last-seen window size.
 * The sequence number is equal to the next expected sequence number.
-* The acknowledgment number is equal to the last-seen acknowledgment number.
+* The acknowledgment number is equal to the last-seen acknowledgment number,
+* or to the next expected sequence number when answering to a ZeroWindowProbe.
 * None of SYN, FIN, or RST are set.
 
 // TCP_A_ZERO_WINDOW

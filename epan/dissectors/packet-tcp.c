@@ -2274,13 +2274,23 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
     &&  window==0
     &&  window==tcpd->fwd->window
     &&  seq==tcpd->fwd->tcp_analyze_seq_info->nextseq
-    &&  ack==tcpd->fwd->tcp_analyze_seq_info->lastack
+    &&  (ack==tcpd->fwd->tcp_analyze_seq_info->lastack || EQ_SEQ(ack,tcpd->fwd->tcp_analyze_seq_info->lastack+1))
     && (tcpd->rev->lastsegmentflags&TCP_A_ZERO_WINDOW_PROBE)
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ) {
         if(!tcpd->ta) {
             tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ZERO_WINDOW_PROBE_ACK;
+
+        /* Some receivers consume that extra byte brought in the PROBE,
+         * but it was too early to know that during the WINDOW PROBE analysis.
+         * Do it now by moving the rev nextseq & maxseqtobeacked.
+         * See issue 10745.
+         */
+        if(EQ_SEQ(ack,tcpd->fwd->tcp_analyze_seq_info->lastack+1)) {
+            tcpd->rev->tcp_analyze_seq_info->nextseq=ack;
+            tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=ack;
+        }
         goto finished_fwd;
     }
 
@@ -2324,7 +2334,10 @@ finished_fwd:
     /* ACKED LOST PACKET
      * If this segment acks beyond the 'max seq to be acked' in the other direction
      * then that means we have missed packets going in the
-     * other direction
+     * other direction.
+     * It might also indicate we are resuming from a Zero Window,
+     * where a Probe is just followed by an ACK opening again the window.
+     * See issue 8404.
      *
      * We only check this if we have actually seen some seq numbers
      * in the other direction.
@@ -2336,33 +2349,46 @@ finished_fwd:
             tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
         }
 
-        /* We ensure there is no matching packet waiting in the unacked list,
-         * and take this opportunity to push the tail further than this single packet
+        /* resuming from a Zero Window Probe which re-opens the window,
+         * mark it as a Window Update
          */
-        gboolean is_seq_in_unacked = FALSE;
-        guint32 maxseqtail = ack;
-        ual = tcpd->rev->tcp_analyze_seq_info->segments;
-        while(ual) {
-            /* prevent false positives */
-            if(GT_SEQ(ack,ual->seq) && LE_SEQ(ack,ual->nextseq)) {
-                is_seq_in_unacked = TRUE;
-            }
-            /* look for a possible tail pushing the maxseqtobeacked further */
-            if(maxseqtail==ual->seq) {
-                maxseqtail = ual->nextseq;
-            }
-            ual=ual->next;
+        if(EQ_SEQ(ack,tcpd->fwd->tcp_analyze_seq_info->lastack+1)
+        && (seq==tcpd->fwd->tcp_analyze_seq_info->nextseq)
+        && (tcpd->rev->lastsegmentflags&TCP_A_ZERO_WINDOW_PROBE) ) {
+            tcpd->rev->tcp_analyze_seq_info->nextseq=ack;
+            tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=ack;
+            tcpd->ta->flags|=TCP_A_WINDOW_UPDATE;
         }
-
-        /* update 'max seq to be acked' in the other direction so we don't get
-         * this indication again.
-         */
-        if(is_seq_in_unacked) {
-            tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=(GT_SEQ(maxseqtail, ack)) ? ack : maxseqtail;
-        }
+        /* real ACKED LOST PACKET */
         else {
-            tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=maxseqtail;
-            tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
+            /* We ensure there is no matching packet waiting in the unacked list,
+             * and take this opportunity to push the tail further than this single packet
+             */
+            gboolean is_seq_in_unacked = FALSE;
+            guint32 maxseqtail = ack;
+            ual = tcpd->rev->tcp_analyze_seq_info->segments;
+            while(ual) {
+                /* prevent false positives */
+                if(GT_SEQ(ack,ual->seq) && LE_SEQ(ack,ual->nextseq)) {
+                    is_seq_in_unacked = TRUE;
+                }
+                /* look for a possible tail pushing the maxseqtobeacked further */
+                if(maxseqtail==ual->seq) {
+                    maxseqtail = ual->nextseq;
+                }
+                ual=ual->next;
+            }
+
+            /* update 'max seq to be acked' in the other direction so we don't get
+             * this indication again.
+             */
+            if(is_seq_in_unacked) {
+                tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=(GT_SEQ(maxseqtail, ack)) ? ack : maxseqtail;
+            }
+            else {
+                tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=maxseqtail;
+                tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
+            }
         }
     }
 
@@ -2626,6 +2652,9 @@ finished_checking_retransmission_type:
      * If this ever happens, this boundary value can "jump" further in order to
      * avoid duplicating multiple messages for the very same lost packet. See later
      * how ACKED LOST PACKET are handled.
+     * Zero Window Probes are logically left out at this moment, but if their data
+     * really were to be ack'ed, then it will be done later when analyzing their
+     * Probe ACK (be it a real Probe ACK, or an ordinary ACK moving the RCV Window).
      */
     if(EQ_SEQ(seq, tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked) || !tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked) {
         if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ) {
