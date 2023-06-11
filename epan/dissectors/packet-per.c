@@ -559,7 +559,7 @@ guint32
 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
 	proto_item *ti_tmp;
 
-	ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>3, 1, ENC_BIG_ENDIAN);
+	ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>3, 0, ENC_BIG_ENDIAN);
 	proto_item_append_text(ti_tmp, ": NULL");
 
 	return offset;
