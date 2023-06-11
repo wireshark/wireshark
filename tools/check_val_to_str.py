@@ -33,7 +33,7 @@ signal.signal(signal.SIGINT, signal_handler)
 # Test for whether the given file was automatically generated.
 def isGeneratedFile(filename):
     # Open file
-    f_read = open(os.path.join(filename), 'r')
+    f_read = open(os.path.join(filename), 'r', encoding="utf8")
     lines_tested = 0
     for line in f_read:
         # The comment to say that its generated is near the top, so give up once
@@ -106,7 +106,7 @@ def checkFile(filename):
         print(filename, 'does not exist!')
         return
 
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
 
         # Remove comments so as not to trip up RE.

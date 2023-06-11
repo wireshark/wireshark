@@ -55,7 +55,7 @@ class bcolors:
 # scan whole epan/dissectors folder.
 parser = argparse.ArgumentParser(description='Check calls in dissectors')
 # required
-parser.add_argument('--build-folder', action='store',
+parser.add_argument('--build-folder', action='store', required=True,
                     help='specify individual dissector file to test')
 parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
@@ -73,10 +73,7 @@ args = parser.parse_args()
 
 
 test_folder = os.path.join(os.getcwd(), args.folder)
-#run_folder = args.build_folder
 
-# Work out wireshark folder based upon CWD.  Assume run in wireshark folder
-wireshark_root = os.getcwd()
 
 # Usually only building one module, so no -j benefit?
 make_command = ['cmake', '--build', args.build_folder]

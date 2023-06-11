@@ -277,7 +277,7 @@ def removeComments(code_string):
 def findTFS(filename):
     tfs_found = {}
 
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Example: const true_false_string tfs_true_false = { "True", "False" };
 
@@ -305,7 +305,7 @@ def findValueStrings(filename):
     #    { 0, NULL }
     #};
 
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
 
         # Remove comments so as not to trip up RE.
@@ -323,7 +323,7 @@ def findValueStrings(filename):
 def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
@@ -342,7 +342,7 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
 
 def find_macros(filename):
     macros = {}
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)

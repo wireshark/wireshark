@@ -23,7 +23,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include <wsutil/wmem/wmem_tree.h>
 
 void proto_register_udpcp(void);
 

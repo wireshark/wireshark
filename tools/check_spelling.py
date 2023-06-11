@@ -69,7 +69,7 @@ class File:
         self.code_file = extension in {'.c', '.cpp'}
 
 
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding="utf8") as f:
             contents = f.read()
 
             if self.code_file:
@@ -88,7 +88,7 @@ class File:
 
     # Add a string found in this file.
     def add(self, value):
-        self.values.append(value)
+        self.values.append(value.encode('utf-8'))
 
     # Whole word is not recognised, but is it 2 words concatenated (without camelcase) ?
     def checkMultiWords(self, word):
@@ -155,6 +155,8 @@ class File:
         for value_index,v in enumerate(self.values):
             if should_exit:
                 exit(1)
+
+            v = str(v)
 
             # Ignore includes.
             if v.endswith('.h'):
@@ -277,7 +279,7 @@ def removeHexSpecifiers(code_string):
 
 # Create a File object that knows about all of the strings in the given file.
 def findStrings(filename):
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
 
         # Remove comments & embedded quotes so as not to trip up RE.
@@ -293,7 +295,7 @@ def findStrings(filename):
         if file.code_file:
             contents = removeComments(contents)
             # Code so only checking strings.
-            matches =   re.finditer(r'\"([^\"]*)\"', contents)
+            matches = re.finditer(r'\"([^\"]*)\"', contents)
             for m in matches:
                 file.add(m.group(1))
         else:
@@ -314,7 +316,7 @@ def isGeneratedFile(filename):
         return True
 
     # Open file
-    f_read = open(os.path.join(filename), 'r')
+    f_read = open(os.path.join(filename), 'r', encoding="utf8")
     for line_no,line in enumerate(f_read):
         # The comment to say that its generated is near the top, so give up once
         # get a few lines down.

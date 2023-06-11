@@ -122,7 +122,7 @@ files = []
 all_urls = set()
 
 def find_links_in_file(filename):
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         for line_number, line in enumerate(f, start=1):
             # TODO: not matching
             # https://cwiki.apache.org/confluence/display/KAFKA/A+Guide+To+The+Kafka+Protocol

@@ -81,25 +81,35 @@ if args.file_list:
 
 # Tools that should be run on selected files.
 # Boolean arg is for whether build-dir is needed in order to run it.
+# 3rd is Windows support.
 tools = [
-    ('tools/delete_includes.py --folder .',            True),
-    ('tools/check_spelling.py',                        False),
-    ('tools/check_tfs.py',                             False),
-    ('tools/check_typed_item_calls.py --all-checks',   False),
-    ('tools/check_static.py',                          True),
-    ('tools/check_dissector_urls.py',                  False),
-    ('tools/check_val_to_str.py',                      False),
-    ('tools/cppcheck/cppcheck.sh',                     False),
-    ('tools/checkhf.pl',                               False),
-    ('tools/checkAPIs.pl',                             False),
-    ('tools/fix-encoding-args.pl',                     False),
-    ('tools/checkfiltername.pl',                       False),
+    ('tools/delete_includes.py --folder .',            True,   True),
+    ('tools/check_spelling.py',                        False,  True),
+    ('tools/check_tfs.py',                             False,  True),
+    ('tools/check_typed_item_calls.py --all-checks',   False,  True),
+    ('tools/check_static.py',                          True,   False),
+    ('tools/check_dissector_urls.py',                  False,  True),
+    ('tools/check_val_to_str.py',                      False,  True),
+    ('tools/cppcheck/cppcheck.sh',                     False,  True),
+    ('tools/checkhf.pl',                               False,  True),
+    ('tools/checkAPIs.pl',                             False,  True),
+    ('tools/fix-encoding-args.pl',                     False,  True),
+    ('tools/checkfiltername.pl',                       False,  True)
 ]
 
 
 def run_check(tool, dissectors, python):
     # Create command-line with all dissectors included
-    command = tool[0]
+    command = ''
+
+    # Don't trust shebang on windows.
+    if sys.platform.startswith('win'):
+        if python:
+            command += 'python.exe '
+        else:
+            command += 'perl.exe '
+
+    command += tool[0]
     if tool[1]:
         command += ' --build-folder ' + args.build_folder
 
@@ -116,5 +126,8 @@ def run_check(tool, dissectors, python):
 for tool in tools:
     if should_exit:
         exit(1)
-    if not tool[1] or (tool[1] and args.build_folder):
+    if ((not sys.platform.startswith('win') or tool[2]) and # Supported on this platform?
+        (not tool[1] or (tool[1] and args.build_folder))):   # Have --build-folder if needed?
+
+        # Run it.
         run_check(tool, dissectors, tool[0].find('.py') != -1)

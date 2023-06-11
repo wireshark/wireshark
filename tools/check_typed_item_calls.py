@@ -124,7 +124,7 @@ class APICheck:
         self.file = file
         self.calls = []
 
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding="utf8") as f:
             contents = f.read()
             lines = contents.splitlines()
             total_lines = len(lines)
@@ -232,7 +232,7 @@ class ProtoTreeAddItemCheck(APICheck):
     def find_calls(self, file, macros):
         self.file = file
         self.calls = []
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding="utf8") as f:
 
             contents = f.read()
             lines = contents.splitlines()
@@ -771,7 +771,7 @@ class CombinedCallsCheck:
         self.all_calls.sort(key=lambda x:x.line_number)
 
     def check_consecutive_item_calls(self):
-        lines = open(self.file, 'r').read().splitlines()
+        lines = open(self.file, 'r', encoding="utf8").read().splitlines()
 
         prev = None
         for call in self.all_calls:
@@ -897,7 +897,7 @@ def removeComments(code_string):
 # Test for whether the given file was automatically generated.
 def isGeneratedFile(filename):
     # Open file
-    f_read = open(os.path.join(filename), 'r')
+    f_read = open(os.path.join(filename), 'r', encoding="utf8")
     lines_tested = 0
     for line in f_read:
         # The comment to say that its generated is near the top, so give up once
@@ -926,7 +926,7 @@ def isGeneratedFile(filename):
 
 def find_macros(filename):
     macros = {}
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
@@ -942,7 +942,7 @@ def find_macros(filename):
 def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
@@ -969,7 +969,7 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
 # TODO: return items (rather than local checks) from here so can be checked against list of calls for given filename
 def find_field_arrays(filename, all_fields, all_hf):
     global warnings_found
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
@@ -1027,7 +1027,7 @@ def find_field_arrays(filename, all_fields, all_hf):
 def find_item_declarations(filename):
     items = set()
 
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         lines = f.read().splitlines()
         p = re.compile(r'^static int (hf_[a-zA-Z0-9_]*)\s*\=\s*-1;')
         for line in lines:
@@ -1038,7 +1038,7 @@ def find_item_declarations(filename):
 
 def find_item_extern_declarations(filename):
     items = set()
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8") as f:
         lines = f.read().splitlines()
         p = re.compile(r'^\s*(hf_[a-zA-Z0-9_]*)\s*\=\s*proto_registrar_get_id_byname\s*\(')
         for line in lines:
