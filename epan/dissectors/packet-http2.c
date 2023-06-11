@@ -2947,6 +2947,78 @@ get_reassembly_id_from_stream(packet_info *pinfo, http2_session_t* session)
     return stream_info->stream_id | (flow_index << 31);
 }
 
+/*
+ * Like process_reassembled_data() in reassemble.[ch], but ignores the layer
+ * number, which is not always stable in HTTP/2, if multiple TLS records are
+ * in the same frame.
+ */
+static tvbuff_t*
+http2_process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
+	const char *name, fragment_head *fd_head, const fragment_items *fit,
+	gboolean *update_col_infop, proto_tree *tree)
+{
+    tvbuff_t* next_tvb;
+    gboolean update_col_info;
+    proto_item* frag_tree_item;
+
+    if (fd_head != NULL) {
+        /*
+         * OK, we've reassembled this.
+         * Is this something that's been reassembled from more
+         * than one fragment?
+         */
+        if (fd_head->next != NULL) {
+            /*
+             * Yes.
+             * Allocate a new tvbuff, referring to the
+             * reassembled payload, and set
+             * the tvbuff to the list of tvbuffs to which
+             * the tvbuff we were handed refers, so it'll get
+             * cleaned up when that tvbuff is cleaned up.
+             */
+            next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+
+            /* Add the defragmented data to the data source list. */
+            add_new_data_source(pinfo, next_tvb, name);
+
+            /* show all fragments */
+            if (fd_head->flags & FD_BLOCKSEQUENCE) {
+                update_col_info = !show_fragment_seq_tree(
+                    fd_head, fit, tree, pinfo, next_tvb, &frag_tree_item);
+            }
+            else {
+                update_col_info = !show_fragment_tree(fd_head,
+                    fit, tree, pinfo, next_tvb, &frag_tree_item);
+            }
+        }
+        else {
+            /*
+             * No.
+             * Return a tvbuff with the payload. next_tvb ist from offset until end
+             */
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            pinfo->fragmented = FALSE;	/* one-fragment packet */
+            update_col_info = TRUE;
+        }
+        if (update_col_infop != NULL)
+            *update_col_infop = update_col_info;
+    } else {
+        /*
+         * We don't have the complete reassembled payload, or this
+         * isn't the final frame of that payload.
+         */
+        next_tvb = NULL;
+        /* process_reassembled_data() in reassemble.[ch] adds reassembled_in
+         * here, but the reas_in_layer_num is often unstable in HTTP/2 now so
+         * we rely on the stream end flag (that's why we have this function).
+         *
+         * Perhaps we could DISSECTOR_ASSERT() in this path, we shouldn't
+         * get here.
+         */
+    }
+    return next_tvb;
+}
+
 static tvbuff_t*
 reassemble_http2_data_into_full_frame(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_session, proto_tree *http2_tree, guint offset,
                                       guint8 flags, guint datalen)
@@ -2973,8 +3045,8 @@ reassemble_http2_data_into_full_frame(tvbuff_t *tvb, packet_info *pinfo, http2_s
      * incorrectly match for frames that exist in the same packet as the final DATA frame and incorrectly add
      * reassembly information to those dissection trees */
     if (head && IS_HTTP2_END_STREAM(flags)) {
-        return process_reassembled_data(tvb, offset, pinfo, "Reassembled body", head,
-                                        &http2_body_fragment_items, NULL, http2_tree);
+        return http2_process_reassembled_data(tvb, offset, pinfo, "Reassembled body", head,
+                                              &http2_body_fragment_items, NULL, http2_tree);
     }
 
     /* Add frame where reassembly happened. process_reassembled_data() does this automatically if the reassembled
