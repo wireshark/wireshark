@@ -665,7 +665,10 @@ cf_read(capture_file *cf, gboolean reloading)
     }
     ENDTRY;
 
-    if (prefs.ignore_dup_frames) {
+    // If we're ignoring duplicate frames, clear the data structures.
+    // We really could look at prefs.ignore_dup_frames here, but it's even
+    // safer to check if we had allocated 'cksum'.
+    if (cksum != NULL) {
         fifo_string_cache_free(&frame_dup_cache);
         g_checksum_free(cksum);
     }
@@ -1308,7 +1311,7 @@ read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
 
         // Should we check if the frame data is a duplicate, and thus, ignore
         // this frame?
-        if (prefs.ignore_dup_frames && rec->rec_type == REC_TYPE_PACKET) {
+        if (frame_cksum != NULL && rec->rec_type == REC_TYPE_PACKET) {
             g_checksum_reset(frame_cksum);
             g_checksum_update(frame_cksum, ws_buffer_start_ptr(buf), ws_buffer_length(buf));
             cksum_string = g_strdup(g_checksum_get_string(frame_cksum));

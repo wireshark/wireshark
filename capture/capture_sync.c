@@ -144,14 +144,7 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->error                           = error;
     cap_session->cfilter_error                   = cfilter_error;
     cap_session->closed                          = closed;
-
-    // When we are called during WiresharkMainWindow::WiresharkMainWindow(),
-    // the prefs haven't been loaded yet, so we don't know if the user wants
-    // to ignore duplicate frames. So we always initialize the data structures
-    // used for deduping, just in case.
-    fifo_string_cache_init(&cap_session->frame_dup_cache,
-            prefs.ignore_dup_frames_cache_entries, g_free);
-    cap_session->frame_cksum = g_checksum_new(G_CHECKSUM_SHA256);
+    cap_session->frame_cksum                     = NULL;
 }
 
 void capture_process_finished(capture_session *cap_session)
@@ -199,11 +192,6 @@ void capture_process_finished(capture_session *cap_session)
     g_free(capture_opts->closed_msg);
     capture_opts->closed_msg = NULL;
     capture_opts->stop_after_extcaps = FALSE;
-
-    // Reset the data structures for frame deduping
-    fifo_string_cache_free(&cap_session->frame_dup_cache);
-    g_checksum_free(cap_session->frame_cksum);
-    cap_session->frame_cksum = NULL;
 }
 
 /* Append an arg (realloc) to an argc/argv array */

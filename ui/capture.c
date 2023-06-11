@@ -144,6 +144,13 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
         return FALSE;
     }
 
+    // Do we need data structures for ignoring duplicate frames?
+    if (prefs.ignore_dup_frames && capture_opts->real_time_mode) {
+        fifo_string_cache_init(&cap_session->frame_dup_cache,
+                prefs.ignore_dup_frames_cache_entries, g_free);
+        cap_session->frame_cksum = g_checksum_new(G_CHECKSUM_SHA256);
+    }
+
     /* the capture child might not respond shortly after bringing it up */
     /* (for example: it will block if no input arrives from an input capture pipe (e.g. mkfifo)) */
 
@@ -719,6 +726,16 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
             status = cf_finish_tail((capture_file *)cap_session->cf,
                                     &cap_session->rec, &cap_session->buf, &err,
                                     &cap_session->frame_dup_cache, cap_session->frame_cksum);
+
+            // The real-time reading of the pcap is done. Now we can clear the
+            // dup-frame cache, if present. But check that we actually have
+            // data structures to clear (by checking frame-checksum); the user
+            // could have changed the preference *during* the live capture.
+            if (cap_session->frame_cksum != NULL) {
+                fifo_string_cache_free(&cap_session->frame_dup_cache);
+                g_checksum_free(cap_session->frame_cksum);
+                cap_session->frame_cksum = NULL;
+            }
 
             /* Tell the GUI we are not doing a capture any more.
                Must be done after the cf_finish_tail(), so file lengths are
