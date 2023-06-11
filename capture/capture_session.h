@@ -100,6 +100,7 @@ struct _capture_session {
 #endif
     gboolean  session_will_restart;       /**< Set when session will restart */
     guint32   count;                      /**< Total number of frames captured */
+    guint32   count_pending;              /**< Number of frames captured but not yet read */
     capture_options *capture_opts;        /**< options for this capture */
     capture_file *cf;                     /**< handle to cfile */
     wtap_rec rec;                         /**< record we're reading packet metadata into */

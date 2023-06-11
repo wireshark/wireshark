@@ -225,11 +225,11 @@ void TimeShiftDialog::applyTimeShift()
 {
     const gchar *err_str = NULL;
 
-    if (!cap_file_ || cap_file_->state == FILE_CLOSED) return;
+    if (!cap_file_ || cap_file_->state == FILE_CLOSED || cap_file_->state == FILE_READ_PENDING) return;
 
     syntax_err_.clear();
     if (cap_file_->state == FILE_READ_IN_PROGRESS) {
-        syntax_err_ = tr("Time shifting is not available capturing packets.");
+        syntax_err_ = tr("Time shifting is not available while capturing packets.");
     } else if (ts_ui_->shiftAllButton->isChecked()) {
         err_str = time_shift_all(cap_file_,
                                  ts_ui_->shiftAllTimeLineEdit->text().toUtf8().constData());

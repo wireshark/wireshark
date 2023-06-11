@@ -26,6 +26,7 @@ extern "C" {
 /* Current state of file. */
 typedef enum {
     FILE_CLOSED,                  /* No file open */
+    FILE_READ_PENDING,            /* A file to read, but haven't opened it yet */
     FILE_READ_IN_PROGRESS,        /* Reading a file we've opened */
     FILE_READ_ABORTED,            /* Read aborted by user */
     FILE_READ_DONE                /* Read completed */

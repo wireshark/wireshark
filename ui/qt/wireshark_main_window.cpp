@@ -1832,11 +1832,14 @@ bool WiresharkMainWindow::testCaptureFileClose(QString before_what, FileCloseCon
     }
 
 #ifdef HAVE_LIBPCAP
-    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
+    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS ||
+        capture_file_.capFile()->state == FILE_READ_PENDING) {
         /*
-         * This (FILE_READ_IN_PROGRESS) is true if we're reading a capture file
+         * FILE_READ_IN_PROGRESS is true if we're reading a capture file
          * *or* if we're doing a live capture. From the capture file itself we
          * cannot differentiate the cases, so check the current capture session.
+         * FILE_READ_PENDING is only used for a live capture, but it doesn't
+         * hurt to check it here.
          */
         capture_in_progress = captureSession()->state != CAPTURE_STOPPED;
     }
@@ -2029,7 +2032,8 @@ bool WiresharkMainWindow::testCaptureFileClose(QString before_what, FileCloseCon
 void WiresharkMainWindow::captureStop() {
     stopCapture();
 
-    while (capture_file_.capFile() && capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
+    while (capture_file_.capFile() && (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS ||
+                                       capture_file_.capFile()->state == FILE_READ_PENDING)) {
         WiresharkApplication::processEvents();
     }
 }
@@ -2496,7 +2500,7 @@ void WiresharkMainWindow::setMenusForCaptureFile(bool force_disable)
     bool can_save = false;
     bool can_save_as = false;
 
-    if (force_disable || capture_file_.capFile() == NULL || capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
+    if (force_disable || capture_file_.capFile() == NULL || capture_file_.capFile()->state == FILE_READ_IN_PROGRESS || capture_file_.capFile()->state == FILE_READ_PENDING) {
         /* We have no capture file or we're currently reading a file */
         enable = false;
     } else {

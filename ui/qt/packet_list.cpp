@@ -2119,7 +2119,7 @@ void PacketList::rowsInserted(const QModelIndex &parent, int start, int end)
 
 void PacketList::resizeAllColumns(bool onlyTimeFormatted)
 {
-    if (!cap_file_ || cap_file_->state == FILE_CLOSED)
+    if (!cap_file_ || cap_file_->state == FILE_CLOSED || cap_file_->state == FILE_READ_PENDING)
         return;
 
     for (int col = 0; col < cap_file_->cinfo.num_cols; col++) {

@@ -385,48 +385,43 @@ void MainStatusBar::showCaptureStatistics()
 #ifdef HAVE_LIBPCAP
     if (cap_file_) {
         /* Do we have any packets? */
-        if (cs_fixed_ && cs_count_ > 0) {
-            if (prefs.gui_show_selected_packet && rows.count() == 1) {
-                packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                                   .arg(rows.at(0))
-                                   .arg(UTF8_MIDDLE_DOT));
-            }
-            packets_str.append(QString(tr("Packets: %1"))
-                               .arg(cs_count_));
-        } else if (cs_count_ > 0) {
+        if (!cs_fixed_) {
+            cs_count_ = cap_file_->count;
+        }
+        if (cs_count_ > 0) {
             if (prefs.gui_show_selected_packet && rows.count() == 1) {
                 packets_str.append(QString(tr("Selected Packet: %1 %2 "))
                                    .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
             }
             packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
-                               .arg(cap_file_->count)
+                               .arg(cs_count_)
                                .arg(cap_file_->displayed_count)
-                               .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
+                               .arg((100.0*cap_file_->displayed_count)/cs_count_, 0, 'f', 1)
                                .arg(UTF8_MIDDLE_DOT));
             if (rows.count() > 1) {
                 packets_str.append(QString(tr(" %1 Selected: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(rows.count())
-                                   .arg((100.0*rows.count())/cap_file_->count, 0, 'f', 1));
+                                   .arg((100.0*rows.count())/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->marked_count > 0) {
                 packets_str.append(QString(tr(" %1 Marked: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->marked_count)
-                                   .arg((100.0*cap_file_->marked_count)/cap_file_->count, 0, 'f', 1));
+                                   .arg((100.0*cap_file_->marked_count)/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->drops_known) {
                 packets_str.append(QString(tr(" %1 Dropped: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->drops)
-                                   .arg((100.0*cap_file_->drops)/cap_file_->count, 0, 'f', 1));
+                                   .arg((100.0*cap_file_->drops)/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->ignored_count > 0) {
                 packets_str.append(QString(tr(" %1 Ignored: %2 (%3%)"))
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->ignored_count)
-                                   .arg((100.0*cap_file_->ignored_count)/cap_file_->count, 0, 'f', 1));
+                                   .arg((100.0*cap_file_->ignored_count)/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->packet_comment_count > 0) {
                 packets_str.append(QString(tr(" %1 Comments: %2"))
@@ -443,6 +438,15 @@ void MainStatusBar::showCaptureStatistics()
                                    .arg(computed_elapsed%1000, 3, 10, QLatin1Char('0')));
             }
         }
+    } else if (cs_fixed_ && cs_count_ > 0) {
+        /* There shouldn't be any rows without a cap_file_ but this is benign */
+        if (prefs.gui_show_selected_packet && rows.count() == 1) {
+            packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+                .arg(rows.at(0))
+                .arg(UTF8_MIDDLE_DOT));
+        }
+        packets_str.append(QString(tr("Packets: %1"))
+            .arg(cs_count_));
     }
 #endif // HAVE_LIBPCAP
 
@@ -648,6 +652,9 @@ void MainStatusBar::captureEventHandler(CaptureEvent ev)
         switch (ev.eventType())
         {
         case CaptureEvent::Continued:
+            updateCaptureStatistics(ev.capSession());
+            break;
+        case CaptureEvent::Finished:
             updateCaptureStatistics(ev.capSession());
             break;
         default:

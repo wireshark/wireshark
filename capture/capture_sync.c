@@ -136,6 +136,7 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->group                           = getgid();
 #endif
     cap_session->count                           = 0;
+    cap_session->count_pending                   = 0;
     cap_session->session_will_restart            = FALSE;
 
     cap_session->new_file                        = new_file;

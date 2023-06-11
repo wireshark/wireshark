@@ -347,7 +347,7 @@ void
 cf_close(capture_file *cf)
 {
     cf->stop_flag = FALSE;
-    if (cf->state == FILE_CLOSED)
+    if (cf->state == FILE_CLOSED || cf->state == FILE_READ_PENDING)
         return; /* Nothing to do */
 
     /* Die if we're in the middle of reading a file. */
@@ -908,7 +908,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
 void
 cf_fake_continue_tail(capture_file *cf)
 {
-    cf->state = FILE_READ_DONE;
+    if (cf->state == FILE_CLOSED) {
+        cf->state = FILE_READ_PENDING;
+    }
 }
 
 cf_read_status_t
@@ -1679,6 +1681,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     gboolean    compiled _U_;
     guint32     frames_count;
     gboolean    queued_rescan_type = RESCAN_NONE;
+
+    if (cf->state == FILE_CLOSED || cf->state == FILE_READ_PENDING) {
+        return;
+    }
 
     /* Rescan in progress, clear pending actions. */
     cf->redissection_queued = RESCAN_NONE;
