@@ -165,16 +165,12 @@ if(WIN32)
 	endif()
 
 	# Sanity check
-	if(MSVC)
-		if(DEFINED ENV{PLATFORM})
-			string(TOLOWER $ENV{PLATFORM} _vs_platform)
-		else()
-			set(_vs_platform "[undefined]") # x86
-		endif()
+	if(MSVC AND DEFINED ENV{PLATFORM})
+		string(TOLOWER $ENV{PLATFORM} _vs_platform)
 		if(
 			(_vs_platform STREQUAL "x64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "x64")
 			OR
-			(_vs_platform STREQUAL "[undefined]" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
+			(_vs_platform STREQUAL "arm64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "arm64")
 		)
 			message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
 				" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
