@@ -1229,7 +1229,7 @@ dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_flags, offset);
 	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohi64(tvb, offset + 4);
+	timestamp.nsecs = (int)tvb_get_ntohi64(tvb, offset + 4);
 	if (tree)
 		proto_tree_add_time(tree, hf_rpc_auth_ctime, tvb,
 					offset, 12, &timestamp);
