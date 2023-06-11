@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/proto_data.h>
 
+#include <wsutil/inet_addr.h>
 #include <wsutil/strtoi.h>
 
 #include "packet-lls.h"

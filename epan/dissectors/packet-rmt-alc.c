@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <wiretap/wtap.h>
 
 #include "packet-rmt-common.h"
 #include "packet-lls.h"
