@@ -322,7 +322,7 @@ Windows MinGW-w64 Package:
     - mkdir build
     - cd build
   script:
-    - mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes ..
+    - mingw64-cmake -G Ninja -DENABLE_CCACHE=Yes -DFETCH_lua=Yes ..
     - ninja
     - ninja user_guide_html
     - ninja wireshark_nsis_prep
