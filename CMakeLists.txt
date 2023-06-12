@@ -24,22 +24,7 @@ if(POLICY CMP0135)
 	cmake_policy(SET CMP0135 NEW)
 endif()
 
-if(WIN32)
-	if(DEFINED ENV{MSYSTEM})
-		set(_msystem $ENV{MSYSTEM})
-		set(_repository False)
-		message(STATUS "Using MSYS2 with MSYSTEM=${_msystem}")
-	else()
-		set(_msystem False)
-		set(_repository True)
-		message(STATUS "Using 3rd party repository")
-	endif()
-	set(USE_MSYSTEM ${_msystem} CACHE INTERNAL "Use MSYS2 subsystem")
-	set(HAVE_MSYSTEM ${USE_MSYSTEM}) # For config.h
-	set(USE_REPOSITORY ${_repository} CACHE INTERNAL "Use Wireshark 3rd Party Repository")
-endif()
-
-if(WIN32 AND NOT USE_MSYSTEM)
+if(WIN32 AND NOT DEFINED ENV{MSYSTEM})
 	set(_project_name Wireshark)
 	set(_log_project_name Logray)
 else()
@@ -48,6 +33,23 @@ else()
 endif()
 
 project(${_project_name} C CXX)
+
+if(WIN32)
+	set(_msystem False)
+	set(_repository False)
+	if(DEFINED ENV{MSYSTEM})
+		set(_msystem $ENV{MSYSTEM})
+		message(STATUS "Using MSYS2 with MSYSTEM=${_msystem}")
+	elseif(MSVC)
+		set(_repository True)
+		message(STATUS "Using 3rd party repository")
+	else()
+		# Neither own package repository nor MSYS2 repository.
+	endif()
+	set(USE_MSYSTEM ${_msystem} CACHE INTERNAL "Use MSYS2 subsystem")
+	set(HAVE_MSYSTEM ${USE_MSYSTEM}) # For config.h
+	set(USE_REPOSITORY ${_repository} CACHE INTERNAL "Use Wireshark 3rd Party Repository")
+endif()
 
 # Updated by tools/make-version.py
 set(PROJECT_MAJOR_VERSION 4)
