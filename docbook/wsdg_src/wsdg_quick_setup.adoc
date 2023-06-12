@@ -855,6 +855,7 @@ This guide assumes `paru` is being used.
   paru -S mingw-w64-glib2
   paru -S mingw-w64-libgcrypt
   paru -S mingw-w64-c-ares
+  paru -S mingw-w64-speexdsp
   paru -S mingw-w64-libpcap
 
 . Install Qt6:
@@ -863,7 +864,6 @@ This guide assumes `paru` is being used.
 
 . Install optional dependencies:
 
-  paru -S mingw-w64-speexdsp
   paru -S mingw-w64-gnutls
   paru -S mingw-w64-lz4
   paru -S mingw-w64-snappy
