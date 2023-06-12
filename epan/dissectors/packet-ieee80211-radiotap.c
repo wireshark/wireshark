@@ -573,7 +573,6 @@ static int hf_radiotap_eht_ui_reserved_not_known = -1;
 static int hf_radiotap_eht_ui_beamforming = -1;
 static int hf_radiotap_eht_ui_beamforming_not_known = -1;
 static int hf_radiotap_eht_ui_spatial_config = -1;
-static int hf_radiotap_eht_ui_spatial_config_not_known = -1;
 static int hf_radiotap_eht_ui_rsvd1 = -1;
 
 /* S1G */
@@ -3298,7 +3297,7 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /*
          * Now, are there any user-info entries?
          */
-	if (tvb_captured_length_remaining(tvb, offset)) {
+	if (tvb_captured_length_remaining(tvb, offset) && len > 0) {
 		user_info_tree = proto_tree_add_subtree(eht_tree, tvb, offset,
 			4, ett_radiotap_eht_user_info, NULL,
 			"User Info");
@@ -7634,11 +7633,6 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_eht_ui_spatial_config,
 		 {"Spatial Configuration",
 		  "radiotap.eht.user_info.spatial_configuration",
-		  FT_UINT32, BASE_HEX, NULL, 0x3f000000, NULL, HFILL }},
-
-		{&hf_radiotap_eht_ui_spatial_config_not_known,
-		 {"Spatial Configuration",
-		  "radiotap.eht.user_info.spatial_configuration_not_known",
 		  FT_UINT32, BASE_HEX, NULL, 0x3f000000, NULL, HFILL }},
 
 		{&hf_radiotap_eht_ui_rsvd1,
