@@ -737,7 +737,8 @@ system libraries used etc. If you are unsure, go with UCRT64.
 . Build using CMake + Ninja:
 
     mkdir build && cd build
-    cmake -DENABLE_WERROR=Off ..
+    # Ninja generator is the default
+    cmake -DENABLE_CCACHE=On -DFETCH_lua=Yes ..
     ninja
     ninja test        # optional, to run the test suite
     ninja install     # optional, install to the MSYS2 shell path
@@ -765,8 +766,7 @@ The official Wireshark Windows installer is compiled using Microsoft Visual
 Studio (MSVC). Currently the MSYS2 build has the following limitations compared to
 the build using MSVC:
 
-* Lua version is 5.1 (MSVC uses Lua 5.2) and does not have
-  https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
+* Lua does not have https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
@@ -825,6 +825,8 @@ If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 * Some optional dependencies are missing from Fedora repositories and must be
   compiled from source if desired. An up-to-date complete list can be found in
   the bug tracker (https://gitlab.com/wireshark/wireshark/-/issues/19108[issue 19108]).
+
+* Lua does not have https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 

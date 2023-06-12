@@ -71,7 +71,6 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-libsmi \
 	${PACKAGE_PREFIX}-libssh \
 	${PACKAGE_PREFIX}-libxml2 \
-	${PACKAGE_PREFIX}-lua51 \
 	${PACKAGE_PREFIX}-lz4 \
 	${PACKAGE_PREFIX}-minizip \
 	${PACKAGE_PREFIX}-ninja \

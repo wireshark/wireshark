@@ -22,7 +22,6 @@ depends=("${MINGW_PACKAGE_PREFIX}-bcg729"
          "${MINGW_PACKAGE_PREFIX}-libsmi"
          "${MINGW_PACKAGE_PREFIX}-libssh"
          "${MINGW_PACKAGE_PREFIX}-libxml2"
-         "${MINGW_PACKAGE_PREFIX}-lua51"
          "${MINGW_PACKAGE_PREFIX}-lz4"
          "${MINGW_PACKAGE_PREFIX}-minizip"
          "${MINGW_PACKAGE_PREFIX}-nghttp2"
@@ -79,6 +78,7 @@ build() {
       -DENABLE_WERROR=OFF \
       -DUSE_qt6=ON \
       -DENABLE_WINSPARKLE=OFF \
+      -DFETCH_lua=ON \
       ../${_realname}
 
   "${MINGW_PREFIX}"/bin/cmake.exe --build .
