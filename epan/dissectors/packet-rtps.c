@@ -1194,7 +1194,7 @@ static int hf_rtps_flag_multisubmessage                         = -1;
 static int hf_rtps_flag_endianness                              = -1;
 static int hf_rtps_flag_additional_authenticated_data           = -1;
 static int hf_rtps_flag_protected_with_psk                      = -1;
-static int hf_rtps_flag_transport_specific_message              = -1;
+static int hf_rtps_flag_vendor_specific_content                 = -1;
 static int hf_rtps_flag_status_info                             = -1;
 static int hf_rtps_flag_data_present_v2                         = -1;
 static int hf_rtps_flag_inline_qos_v2                           = -1;
@@ -2455,7 +2455,7 @@ static int* const SECURE_FLAGS[] = {
 };
 
 static int* const SECURE_PREFIX_FLAGS[] = {
-  &hf_rtps_flag_transport_specific_message,     /* Bit 7 */
+  &hf_rtps_flag_vendor_specific_content,        /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
   &hf_rtps_flag_reserved20,                     /* Bit 5 */
   &hf_rtps_flag_reserved10,                     /* Bit 4 */
@@ -15866,8 +15866,8 @@ void proto_register_rtps(void) {
         "Message protected with PSK", "rtps.flag.message_protected_with_psk",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
     },
-    { &hf_rtps_flag_transport_specific_message, {
-        "Transport-Specific Message", "rtps.flag.transport_specific_message",
+    { &hf_rtps_flag_vendor_specific_content, {
+        "Vendor-Specific Content", "rtps.flag.vendor_specific_content",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }
     },
     { &hf_rtps_flag_inline_qos_v2, {
