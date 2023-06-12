@@ -137,18 +137,6 @@ static int hf_http_unknown_header = -1;
 static int hf_http_http2_settings_uri = -1;
 static int hf_http_path_segment = -1;
 static int hf_http_path_sub_segment = -1;
-static int hf_http_body_fragments = -1;
-static int hf_http_body_fragment = -1;
-static int hf_http_body_fragment_overlap = -1;
-static int hf_http_body_fragment_overlap_conflicts = -1;
-static int hf_http_body_fragment_multiple_tails = -1;
-static int hf_http_body_fragment_too_long_fragment = -1;
-static int hf_http_body_fragment_error = -1;
-static int hf_http_body_fragment_count = -1;
-static int hf_http_body_reassembled_in = -1;
-static int hf_http_body_reassembled_length = -1;
-static int hf_http_body_reassembled_data = -1;
-static int hf_http_body_segment = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -162,8 +150,6 @@ static gint ett_http_encoded_entity = -1;
 static gint ett_http_header_item = -1;
 static gint ett_http_http2_settings_item = -1;
 static gint ett_http_path = -1;
-static gint ett_http_body_fragment = -1;
-static gint ett_http_body_fragments = -1;
 
 static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_te_and_length = EI_INIT;
@@ -194,24 +180,7 @@ static ws_mempbrk_pattern pbrk_sub_delims;
 /* reassembly table for streaming chunk mode */
 static reassembly_table http_streaming_reassembly_table;
 
-static const fragment_items http_body_fragment_items = {
-	/* Fragment subtrees */
-	&ett_http_body_fragment,
-	&ett_http_body_fragments,
-	/* Fragment fields */
-	&hf_http_body_fragments,
-	&hf_http_body_fragment,
-	&hf_http_body_fragment_overlap,
-	&hf_http_body_fragment_overlap_conflicts,
-	&hf_http_body_fragment_multiple_tails,
-	&hf_http_body_fragment_too_long_fragment,
-	&hf_http_body_fragment_error,
-	&hf_http_body_fragment_count,
-	&hf_http_body_reassembled_in,
-	&hf_http_body_reassembled_length,
-	&hf_http_body_reassembled_data,
-	"Reassembled HTTP Chunked Body fragments"
-};
+REASSEMBLE_ITEMS_DEFINE(http_body, "HTTP Chunked Body");
 
 /* HTTP chunk virtual frame number (similar to HTTP2 frame num) */
 #define get_http_chunk_frame_num  get_virtual_frame_num64
@@ -4433,66 +4402,7 @@ proto_register_http(void)
 		NULL, HFILL } },
 
 		/* Body fragments */
-	    { &hf_http_body_fragments,
-		{ "Reassembled HTTP Chunked Body fragments", "http.body.fragments",
-		  FT_NONE, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment,
-		{ "Body fragment", "http.body.fragment",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment_overlap,
-		{ "Body fragment overlap", "http.body.fragment.overlap",
-		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment_overlap_conflicts,
-		{ "Body fragment overlapping with conflicting data", "http.body.fragment.overlap.conflicts",
-		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment_multiple_tails,
-		{ "Body has multiple tail fragments", "http.body.fragment.multiple_tails",
-		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment_too_long_fragment,
-		{ "Body fragment too long", "http.body.fragment.too_long_fragment",
-		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment_error,
-		{ "Body defragment error", "http.body.fragment.error",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_fragment_count,
-		{ "Body fragment count", "http.body.fragment.count",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  NULL, HFILL }
-	    },
-	    { &hf_http_body_reassembled_in,
-		{ "Reassembled body in frame", "http.body.reassembled.in",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		  "Reassembled body in frame number", HFILL }
-	    },
-	    { &hf_http_body_reassembled_length,
-		{ "Reassembled body length", "http.body.reassembled.length",
-		   FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Reassembled body in frame number", HFILL }
-	    },
-	    { &hf_http_body_reassembled_data,
-		{ "Reassembled body data", "http.body.reassembled.data",
-		   FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Reassembled body data for multisegment PDU spanning across DATAs", HFILL }
-	    },
-	    { &hf_http_body_segment,
-		{ "Body segment", "http.body.segment",
-		   FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "A body segment used in reassembly", HFILL}
-	    },
+	    REASSEMBLE_INIT_HF_ITEMS(http_body, "HTTP Chunked Body", "http.body"),
 	};
 	static gint *ett[] = {
 		&ett_http,
@@ -4506,8 +4416,7 @@ proto_register_http(void)
 		&ett_http_encoded_entity,
 		&ett_http_header_item,
 		&ett_http_http2_settings_item,
-		&ett_http_body_fragment,
-		&ett_http_body_fragments,
+		REASSEMBLE_INIT_ETT_ITEMS(http_body),
 		&ett_http_path
 	};
 

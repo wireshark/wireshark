@@ -531,6 +531,196 @@ extern void
 reassembly_table_cleanup(void);
 
 /* ===================== Streaming data reassembly helper ===================== */
+/**
+ * Macro to help to define ett or hf items variables for reassembly (especially for streaming reassembly).
+ * The statement:
+ *
+ *     REASSEMBLE_ITEMS_DEFINE(foo_body, "Foo Body");  // in global scope
+ *
+ * will create global variables:
+ *
+ *     static gint ett_foo_body_fragment = -1;
+ *     static gint ett_foo_body_fragments = -1;
+ *     static int hf_foo_body_fragment = -1;
+ *     static int hf_foo_body_fragments = -1;
+ *     static int hf_foo_body_fragment_overlap = -1;
+ *     ...
+ *     static int hf_foo_body_segment = -1;
+ *
+ *     static const fragment_items foo_body_fragment_items = {
+ *         &ett_foo_body_fragment,
+ *         &ett_foo_body_fragments,
+ *         &hf_foo_body_fragments,
+ *         &hf_foo_body_fragment,
+ *         &hf_foo_body_fragment_overlap,
+ *         ...
+ *         "Foo Body fragments"
+ *     };
+ */
+#define REASSEMBLE_ITEMS_DEFINE(var_prefix, name_prefix) \
+    static gint ett_##var_prefix##_fragment = -1; \
+    static gint ett_##var_prefix##_fragments = -1; \
+    static int hf_##var_prefix##_fragments = -1; \
+    static int hf_##var_prefix##_fragment = -1; \
+    static int hf_##var_prefix##_fragment_overlap = -1; \
+    static int hf_##var_prefix##_fragment_overlap_conflicts = -1; \
+    static int hf_##var_prefix##_fragment_multiple_tails = -1; \
+    static int hf_##var_prefix##_fragment_too_long_fragment = -1; \
+    static int hf_##var_prefix##_fragment_error = -1; \
+    static int hf_##var_prefix##_fragment_count = -1; \
+    static int hf_##var_prefix##_reassembled_in = -1; \
+    static int hf_##var_prefix##_reassembled_length = -1; \
+    static int hf_##var_prefix##_reassembled_data = -1; \
+    static int hf_##var_prefix##_segment = -1; \
+    static const fragment_items var_prefix##_fragment_items = { \
+        &ett_##var_prefix##_fragment, \
+        &ett_##var_prefix##_fragments, \
+        &hf_##var_prefix##_fragments, \
+        &hf_##var_prefix##_fragment, \
+        &hf_##var_prefix##_fragment_overlap, \
+        &hf_##var_prefix##_fragment_overlap_conflicts, \
+        &hf_##var_prefix##_fragment_multiple_tails, \
+        &hf_##var_prefix##_fragment_too_long_fragment, \
+        &hf_##var_prefix##_fragment_error, \
+        &hf_##var_prefix##_fragment_count, \
+        &hf_##var_prefix##_reassembled_in, \
+        &hf_##var_prefix##_reassembled_length, \
+        &hf_##var_prefix##_reassembled_data, \
+        name_prefix " fragments" \
+    }
+
+/**
+ * Macro to help to initialize hf (head field) items for reassembly.
+ * The statement:
+ *
+ *     void proto_register_foo(void) {
+ *         static hf_register_info hf[] = {
+ *             ...
+ *             { &hf_proto_foo_payload,
+ *                 { "Payload", "foo.payload",
+ *                     FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+ *             },
+ *
+ *             // Add fragments items
+ *             REASSEMBLE_INIT_HF_ITEMS(foo_body, "Foo Body", "foo.body"),
+ *             ...
+ *         };
+ *         ...
+ *     }
+ *
+ * will expand like:
+ *
+ *     void proto_register_foo(void) {
+ *         static hf_register_info hf[] = {
+ *             ...
+ *             { &hf_proto_foo_payload,
+ *                 { "Payload", "foo.payload",
+ *                     FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+ *             },
+ *
+ *             // Add fragments items
+ *             { &hf_foo_body_fragments, \
+ *                 { "Reassembled Foo Body fragments", "foo.body.fragments", \
+ * 	                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+ *             },
+ *             { &hf_foo_body_fragment, \
+ *                 { "Foo Body fragment", "foo.body.fragment", \
+ * 	                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+ *             },
+ *             { &hf_foo_body_fragment_overlap, \
+ *                 { "Foo Body fragment overlap", "foo.body.fragment.overlap", \
+ *                     FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+ *             },
+ *             ...
+ *         };
+ *         ...
+ *     }
+ */
+#define REASSEMBLE_INIT_HF_ITEMS(var_prefix, name_prefix, abbrev_prefix) \
+	    { &hf_##var_prefix##_fragments, \
+            { "Reassembled " name_prefix " fragments", abbrev_prefix ".fragments", \
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment, \
+            { name_prefix " fragment", abbrev_prefix ".fragment", \
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment_overlap, \
+            { name_prefix " fragment overlap", abbrev_prefix ".fragment.overlap", \
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment_overlap_conflicts, \
+            { name_prefix " fragment overlapping with conflicting data", abbrev_prefix ".fragment.overlap.conflicts", \
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment_multiple_tails, \
+            { name_prefix " has multiple tail fragments", abbrev_prefix ".fragment.multiple_tails", \
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment_too_long_fragment, \
+            { name_prefix " fragment too long", abbrev_prefix ".fragment.too_long_fragment", \
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment_error, \
+            { name_prefix " defragment error", abbrev_prefix ".fragment.error", \
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_fragment_count, \
+            { name_prefix " fragment count", abbrev_prefix ".fragment.count", \
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_reassembled_in, \
+            { "Reassembled in", abbrev_prefix ".reassembled.in", \
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_reassembled_length, \
+            { "Reassembled length", abbrev_prefix ".reassembled.length", \
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_reassembled_data, \
+            { "Reassembled data", abbrev_prefix ".reassembled.data", \
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } \
+        }, \
+        { &hf_##var_prefix##_segment, \
+            { name_prefix " segment", abbrev_prefix ".segment", \
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL} \
+        }
+
+/**
+ * Macro to help to initialize protocol subtree (ett) items for reassembly.
+ * The statement:
+ *
+ *     void proto_register_foo(void) {
+ *         ...
+ *         static gint* ett[] = {
+ *             &ett_foo_abc,
+ *             ...
+ *             // Add ett items
+ *             REASSEMBLE_INIT_ETT_ITEMS(foo_body),
+ *             ...
+ *         };
+ *         ...
+ *     }
+ *
+ * will expand like:
+ *
+ *     void proto_register_foo(void) {
+ *         ...
+ *         static gint* ett[] = {
+ *             &ett_foo_abc,
+ *             ...
+ *             // Add ett items
+ *             &ett_foo_body_fragment,
+ *             &ett_foo_body_fragments,
+ *             ...
+ *         };
+ *         ...
+ *     }
+ */
+#define REASSEMBLE_INIT_ETT_ITEMS(var_prefix) \
+        &ett_##var_prefix##_fragment, \
+        &ett_##var_prefix##_fragments
+
 /** a private structure for keeping streaming reassembly information  */
 typedef struct streaming_reassembly_info_t streaming_reassembly_info_t;
 
@@ -643,7 +833,7 @@ streaming_reassembly_info_new(void);
  *                     pinfo->desegment_offset = offset;
  *                     // calculate how many additional bytes needed to parse head of a ProtoB message
  *                     pinfo->desegment_len = PROTO_B_MESSAGE_HEAD_LEN - (tvb_len - offset);
- *                     return tvb_len;
+ *                     return offset; // return the length handled by ProtoB
  *                 }
  *                 ...
  *     	       }
@@ -657,12 +847,13 @@ streaming_reassembly_info_new(void);
  *                     pinfo->desegment_offset = offset;
  *                     // caculate how many additional bytes need to parsing body of a ProtoB message
  *                     pinfo->desegment_len = body_len - (tvb_len - offset - PROTO_B_MESSAGE_HEAD_LEN);
- *                     return tvb_len;
+ *                     return offset;
  *                 }
  *                 ...
  *             }
  *             ...
  *         }
+ *         return tvb_len; // all bytes of this tvb are parsed
  *     }
  * </code>
  *
@@ -784,6 +975,67 @@ streaming_reassembly_info_new(void);
  *             ...
  *             &ett_msg_fragment,
  *             &ett_msg_fragments
+ *         }
+ *         ...
+ *         reassembly_table_register(&proto_a_streaming_reassembly_table,
+ *                                    &addresses_ports_reassembly_table_functions);
+ *         ...
+ *     }
+ * </code>
+ *
+ * Alternatively, the code of ProtoA (packet-proto-a.c) can be made simpler with helper macros:
+ * <code>
+ *     // file packet-proto-a.c
+ *     ...
+ *     // reassembly table for streaming chunk mode
+ *     static reassembly_table proto_a_streaming_reassembly_table;
+ *     // reassembly head field items definition
+ *     REASSEMBLE_ITEMS_DEFINE(proto_a_body, "ProtoA Body");
+ *     ...
+ *     static int
+ *     dissect_proto_a(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+ *     {
+ *         ...
+ *         streaming_reassembly_info_t* streaming_reassembly_info = NULL;
+ *         ...
+ *         proto_a_tree = proto_item_add_subtree(ti, ett_proto_a);
+ *         ...
+ *         if (!PINFO_FD_VISITED(pinfo)) {
+ *             streaming_reassembly_info = streaming_reassembly_info_new();
+ *             // save streaming reassembly info in the stream conversation or something like that
+ *             save_reassembly_info(pinfo, stream_id, flow_dir, streaming_reassembly_info);
+ *         } else {
+ *             streaming_reassembly_info = get_reassembly_info(pinfo, stream_id, flow_dir);
+ *         }
+ *         ...
+ *         while (offset < tvb_len)
+ *         {
+ *             ...
+ *             payload_len = xxx;
+ *             ...
+ *             if (dissecting_in_streaming_mode) {
+ *                 // reassemble and call subdissector
+ *                 reassemble_streaming_data_and_call_subdissector(tvb, pinfo, offset,
+ *                     payload_len, proto_a_tree, proto_tree_get_parent_tree(proto_a_tree),
+ *                     proto_a_streaming_reassembly_table, streaming_reassembly_info,
+ *                     get_virtual_frame_num64(tvb, pinfo, offset), subdissector_handle,
+ *                     proto_tree_get_parent_tree(tree), NULL, "ProtoA Body",
+ *                     &proto_a_body_fragment_items, hf_proto_a_body_segment);
+ *             ...
+ *         }
+ *     }
+ *
+ *     ...
+ *     void proto_register_proto_a(void) {
+ *         ...
+ *         static hf_register_info hf[] = {
+ *             ...
+ *             REASSEMBLE_INIT_HF_ITEMS(proto_a_body, "ProtoA Body", "protoa.body")
+ *         }
+ *         ...
+ *         static gint *ett[] = {
+ *             ...
+ *             REASSEMBLE_INIT_ETT_ITEMS(proto_a_body)
  *         }
  *         ...
  *         reassembly_table_register(&proto_a_streaming_reassembly_table,
