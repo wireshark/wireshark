@@ -132,6 +132,7 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
          */
         gbl_cur_packet_list->selectionModel()->clearSelection();
         gbl_cur_packet_list->selectionModel()->setCurrentIndex(model->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        gbl_cur_packet_list->scrollTo(gbl_cur_packet_list->currentIndex(), PacketList::PositionAtCenter);
         return TRUE;
     }
 
@@ -1271,6 +1272,7 @@ void PacketList::thaw(bool restore_selection)
         foreach (QModelIndex idx, frozen_selected_rows_) {
             selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
         }
+        scrollTo(currentIndex(), PositionAtCenter);
     }
     frozen_current_row_ = QModelIndex();
     frozen_selected_rows_ = QModelIndexList();
@@ -1618,6 +1620,7 @@ void PacketList::goToPacket(int packet, int hf_id)
     int row = packet_list_model_->packetNumberToRow(packet);
     if (row >= 0) {
         selectionModel()->setCurrentIndex(packet_list_model_->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        scrollTo(currentIndex(), PositionAtCenter);
         proto_tree_->goToHfid(hf_id);
     }
 
