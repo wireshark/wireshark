@@ -1714,6 +1714,34 @@ smb_saved_info_hash_matched(gconstpointer k)
 
 static GSList *conv_tables = NULL;
 
+static gint
+smb_find_unicode_null_offset(tvbuff_t *tvb, gint offset, const gint maxlength, const guint16 needle, const guint encoding)
+{
+    guint captured_length = tvb_captured_length(tvb);
+    if (G_LIKELY((guint) offset > captured_length)) {
+        return -1;
+    }
+
+    guint limit = captured_length - offset;
+
+    /* Only search to end of tvbuff, w/o throwing exception. */
+    if (maxlength >= 0 && limit > (guint) maxlength) {
+        /* Maximum length doesn't go past end of tvbuff; search
+           to that value. */
+        limit = (guint) maxlength;
+    }
+
+    limit = limit & ~1;
+
+    while(limit){
+        if (needle == tvb_get_guint16(tvb, offset, encoding)){
+            return offset;
+        }
+        offset += 2;
+        limit -= 2;
+    }
+    return -1;
+}
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    End of request/response matching functions
@@ -1739,7 +1767,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
 		 * string followed by a single NUL byte when the string
 		 * takes up the entire byte count.
 		 */
-		len = tvb_find_guint16(tvb, offset, bc, 0);
+		len = smb_find_unicode_null_offset(tvb, offset, bc, 0, ENC_LITTLE_ENDIAN);
 		if (len == -1) {
 			if (bc % 2 == 1	&& tvb_get_guint8(tvb, offset + bc - 1) == 0) {
 				*us_lenp = bc;
