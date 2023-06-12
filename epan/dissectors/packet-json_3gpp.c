@@ -143,7 +143,7 @@ static int hf_json_3gpp_suppfeat_npcf_sm_52_enedge = -1;
 
 static int hf_json_3gpp_suppfeat_npcf_sm_53_satbackhaulcategorychg = -1;
 static int hf_json_3gpp_suppfeat_npcf_sm_54_chfsetsupport = -1;
-static int hf_json_3gpp_suppfeat_npcf_sm_55_enatssss = -1;
+static int hf_json_3gpp_suppfeat_npcf_sm_55_enatsss = -1;
 static int hf_json_3gpp_suppfeat_npcf_sm_56_mpsfordts = -1;
 
 static int hf_json_3gpp_suppfeat_npcf_sm_57_routinginforemoval = -1;
@@ -523,7 +523,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		static int * const json_3gpp_suppfeat_npcf_sm_list_14[] = {
 			&hf_json_3gpp_suppfeat_npcf_sm_53_satbackhaulcategorychg,
 			&hf_json_3gpp_suppfeat_npcf_sm_54_chfsetsupport,
-			&hf_json_3gpp_suppfeat_npcf_sm_55_enatssss,
+			&hf_json_3gpp_suppfeat_npcf_sm_55_enatsss,
 			&hf_json_3gpp_suppfeat_npcf_sm_56_mpsfordts,
 			NULL
 		};
@@ -1121,7 +1121,7 @@ proto_register_json_3gpp(void)
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_sm_55_enatssss,
+		{ &hf_json_3gpp_suppfeat_npcf_sm_55_enatsss,
 			{ "EnATSSS", "json.3gpp.suppfeat.enatsss",
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
