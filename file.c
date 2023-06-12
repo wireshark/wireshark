@@ -569,7 +569,7 @@ cf_read(capture_file *cf, gboolean reloading)
     /* If we are to ignore duplicate frames, we need a container to store
      * hashes frame contents */
     fifo_string_cache_t frame_dup_cache;
-    GChecksum *cksum = NULL;
+    GChecksum *volatile cksum = NULL;
 
     if (prefs.ignore_dup_frames) {
         fifo_string_cache_init(&frame_dup_cache, prefs.ignore_dup_frames_cache_entries, g_free);
