@@ -61,7 +61,8 @@ BASIC_LIST="mingw64-gcc \
 	docbook-style-xsl \
 	ccache \
 	git \
-	patch"
+	patch \
+	cmake"
 
 ACTUAL_LIST=$BASIC_LIST
 
