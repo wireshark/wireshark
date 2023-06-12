@@ -3754,6 +3754,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 			dissect_file_data(d_tvb, pipe_tree, 0,
 			    (guint16) tvb_reported_length(d_tvb),
+			    -1,
 			    (guint16) tvb_reported_length(d_tvb));
 		}
 		break;
@@ -3766,6 +3767,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 			dissect_file_data(d_tvb, pipe_tree,
 			    offset, (guint16) tvb_reported_length(d_tvb),
+			    -1,
 			    (guint16) tvb_reported_length(d_tvb));
 		} else {
 			if (p_tvb == NULL)

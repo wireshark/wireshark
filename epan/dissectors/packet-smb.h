@@ -251,7 +251,7 @@ typedef struct smb_info {
  * Show file data for a read or write.
  */
 extern int dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset,
-    guint16 bc, guint16 datalen);
+    guint16 bc, int dataoffset, guint16 datalen);
 
 
 #define SMB_FID_TYPE_UNKNOWN	0
