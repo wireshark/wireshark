@@ -166,34 +166,6 @@ dissect_turnchannel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	return tvb_captured_length(tvb);
 }
 
-
-static gboolean
-dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	guint   len;
-	guint16 channel_id;
-	guint16 data_len;
-
-	len = tvb_captured_length(tvb);
-	/* First, make sure we have enough data to do the check. */
-	if (len < TURNCHANNEL_HDR_LEN) {
-		  return FALSE;
-	}
-
-	channel_id = tvb_get_ntohs(tvb, 0);
-	data_len = tvb_get_ntohs(tvb, 2);
-
-	if (!test_turnchannel_id(channel_id)) {
-	  return FALSE;
-	}
-
-	if (len != TURNCHANNEL_HDR_LEN + data_len) {
-	  return FALSE;
-	}
-
-	return dissect_turnchannel_message(tvb, pinfo, tree, NULL);
-}
-
 void
 proto_register_turnchannel(void)
 {
@@ -248,10 +220,6 @@ proto_reg_handoff_turnchannel(void)
 	 */
 	dissector_add_string("tls.alpn", "stun.turn", turnchannel_tcp_handle);
 	dissector_add_string("dtls.alpn", "stun.turn", turnchannel_udp_handle);
-
-	/* TURN negotiation is handled through STUN2 dissector (packet-stun.c),
-	   so only it should be able to determine if a packet is a TURN packet */
-	heur_dissector_add("stun", dissect_turnchannel_heur, "TURN Channel over STUN", "turnchannel_stun", proto_turnchannel, HEURISTIC_ENABLE);
 }
 
 /*
