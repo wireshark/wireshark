@@ -45,6 +45,7 @@ private slots:
     void viewVisibilityStateChanged(int);
 
     void setHintText(FieldInformation *);
+    void setHintTextSelected(FieldInformation*);
 
 private:
     Ui::PacketDialog *ui;
