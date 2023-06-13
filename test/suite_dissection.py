@@ -432,8 +432,8 @@ class TestDissectHttp2:
         assert grep_output(stdout, '00000000  00 00 12 04 00 00 00 00')
         # Stream ID 1 bytes, decrypted but compressed by HPACK
         assert not grep_output(stdout, '00000000  00 00 2c 01 05 00 00 00')
-        # Stream ID 1 bytes, decrypted and uncompressed
-        assert not grep_output(stdout, '00000000  00 00 00 07 3a 6d 65 74')
+        # Stream ID 1 bytes, decrypted and uncompressed, human readable
+        assert not grep_output(stdout, '00000000  3a 6d 65 74 68 6f 64 3a')
 
     def test_http2_follow_1(self, cmd_tshark, features, dirs, capture_file, test_env):
         '''Follow HTTP/2 Stream ID 1 test'''
@@ -449,8 +449,8 @@ class TestDissectHttp2:
         assert not grep_output(stdout, '00000000  00 00 12 04 00 00 00 00')
         # Stream ID 1 bytes, decrypted but compressed by HPACK
         assert not grep_output(stdout, '00000000  00 00 2c 01 05 00 00 00')
-        # Stream ID 1 bytes, decrypted and uncompressed
-        assert grep_output(stdout, '00000000  00 00 00 07 3a 6d 65 74')
+        # Stream ID 1 bytes, decrypted and uncompressed, human readable
+        assert grep_output(stdout, '00000000  3a 6d 65 74 68 6f 64 3a')
 
 class TestDissectProtobuf:
     def test_protobuf_udp_message_mapping(self, cmd_tshark, features, dirs, capture_file, test_env):

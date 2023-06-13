@@ -2262,15 +2262,6 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
     ti = proto_tree_add_uint(tree, hf_http2_header_length, header_tvb, hoffset, 1, header_len);
     proto_item_set_generated(ti);
 
-    if (have_tap_listener(http2_follow_tap)) {
-        http2_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
-
-        follow_data->tvb = header_tvb;
-        follow_data->stream_id = h2session->current_stream_id;
-
-        tap_queue_packet(http2_follow_tap, pinfo, follow_data);
-    }
-
     if (header_data->header_size_attempted > 0) {
         expert_add_info_format(pinfo, ti, &ei_http2_header_size,
                                "Decompression stopped after %u bytes (%u attempted).",
@@ -2284,6 +2275,9 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
     if (header_data->header_lines_exceeded) {
         expert_add_info(pinfo, ti, &ei_http2_header_lines);
     }
+
+    wmem_strbuf_t* headers_buf = wmem_strbuf_create(pinfo->pool);
+    wmem_strbuf_t* header_buf;
 
     for(i = 0; i < wmem_array_get_count(headers); ++i) {
         http2_header_t *in = (http2_header_t*)wmem_array_index(headers, i);
@@ -2360,7 +2354,10 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
             proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, index_length, in->table.data.idx);
         }
 
-        proto_item_append_text(header, ": %s: %s", header_name, header_value);
+        header_buf = wmem_strbuf_new(pinfo->pool, header_name);
+        wmem_strbuf_append_printf(header_buf, ": %s", header_value);
+        proto_item_append_text(header, ": %s", wmem_strbuf_get_str(header_buf));
+        wmem_strbuf_append_printf(headers_buf, "%s\n", wmem_strbuf_finalize(header_buf));
 
         /* Display :method, :path and :status in info column (just like http1.1 dissector does)*/
         if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0) {
@@ -2388,6 +2385,18 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 	}
 
         offset += in->length;
+    }
+
+    if (have_tap_listener(http2_follow_tap)) {
+        http2_follow_tap_data_t* follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
+
+        wmem_strbuf_append(headers_buf, "\n");
+        follow_data->tvb = tvb_new_child_real_data(header_tvb,
+            wmem_strbuf_get_str(headers_buf), (unsigned)wmem_strbuf_get_len(headers_buf),
+            (int)wmem_strbuf_get_len(headers_buf));
+        follow_data->stream_id = h2session->current_stream_id;
+
+        tap_queue_packet(http2_follow_tap, pinfo, follow_data);
     }
 
     /* Use the Authority Header as an indication that this packet is a request */
@@ -2850,10 +2859,10 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
     if (!streaming_mode)
         proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
 
-    if (have_tap_listener(http2_follow_tap) && get_body_uncompression_info(pinfo, h2session) != BODY_UNCOMPRESSION_NONE) {
+    if (have_tap_listener(http2_follow_tap)) {
         http2_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
 
-        follow_data->tvb = tvb;
+        follow_data->tvb = tvb_new_subset_length(tvb, start, length);
         follow_data->stream_id = stream_id;
 
         tap_queue_packet(http2_follow_tap, pinfo, follow_data);
@@ -4162,9 +4171,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         case HTTP2_DATA: /* Data (0) */
             dissect_http2_data(tvb, pinfo, http2_session, http2_tree, offset, flags);
 #ifdef HAVE_NGHTTP2
-            if (get_body_uncompression_info(pinfo, http2_session) != BODY_UNCOMPRESSION_NONE) {
-                use_follow_tap = FALSE;
-            }
+            use_follow_tap = FALSE;
 #endif
         break;
 
