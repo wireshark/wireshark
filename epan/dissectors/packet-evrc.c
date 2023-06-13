@@ -37,6 +37,13 @@
 void proto_register_evrc(void);
 void proto_reg_handoff_evrc(void);
 
+static dissector_handle_t evrc_handle;
+static dissector_handle_t evrcb_handle;
+static dissector_handle_t evrcwb_handle;
+static dissector_handle_t evrcnw_handle;
+static dissector_handle_t evrcnw2k_handle;
+static dissector_handle_t evrc_legacy_handle;
+
 static const value_string evrc_frame_type_vals[] = {
     { 0,        "Blank (0 bits)" },
     { 1,        "1/8 Rate (16 bits)" },
@@ -594,6 +601,13 @@ proto_register_evrc(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 
+    evrc_handle        = register_dissector("evrc", dissect_evrc, proto_evrc);
+    evrcb_handle       = register_dissector("evrcb", dissect_evrcb, proto_evrcb);
+    evrcwb_handle      = register_dissector("evrcwb", dissect_evrcwb, proto_evrcwb);
+    evrcnw_handle      = register_dissector("evrcnw", dissect_evrcnw, proto_evrcnw);
+    evrcnw2k_handle    = register_dissector("evrcnw2k", dissect_evrcnw2k, proto_evrcnw2k);
+    evrc_legacy_handle = register_dissector("evrc_legacy", dissect_evrc_legacy, proto_evrc_legacy);
+
     expert_evrc =
         expert_register_protocol(proto_evrc);
     expert_register_field_array(expert_evrc, ei, array_length(ei));
@@ -615,23 +629,9 @@ void
 proto_reg_handoff_evrc(void)
 {
     static gboolean             evrc_prefs_initialized = FALSE;
-    static dissector_handle_t   evrc_legacy_handle;
 
     if (!evrc_prefs_initialized)
     {
-        dissector_handle_t evrc_handle;
-        dissector_handle_t evrcb_handle;
-        dissector_handle_t evrcwb_handle;
-        dissector_handle_t evrcnw_handle;
-        dissector_handle_t evrcnw2k_handle;
-
-        evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
-        evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrcb);
-        evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrcwb);
-        evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrcnw);
-        evrcnw2k_handle    = create_dissector_handle(dissect_evrcnw2k, proto_evrcnw2k);
-        evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc_legacy);
-
         /* header-full mime types */
         dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);
         dissector_add_string("rtp_dyn_payload_type",  "EVRCB", evrcb_handle);

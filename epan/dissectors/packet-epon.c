@@ -26,6 +26,8 @@
 void proto_register_epon(void);
 void proto_reg_handoff_epon(void);
 
+static dissector_handle_t epon_handle;
+
 static int proto_epon = -1;
 static int hf_epon_dpoe_security = -1;
 static int hf_epon_dpoe_encrypted = -1;
@@ -272,14 +274,12 @@ proto_register_epon(void)
   expert_epon = expert_register_protocol(proto_epon);
   expert_register_field_array(expert_epon, ei, array_length(ei));
 
+  epon_handle = register_dissector("epon", dissect_epon, proto_epon);
 }
 
 void
 proto_reg_handoff_epon(void)
 {
-  dissector_handle_t epon_handle;
-
-  epon_handle = create_dissector_handle(dissect_epon, proto_epon);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_EPON, epon_handle);
 
   eth_maybefcs_handle = find_dissector_add_dependency("eth_maybefcs", proto_epon);

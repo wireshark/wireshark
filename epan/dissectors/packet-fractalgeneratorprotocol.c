@@ -24,6 +24,8 @@
 void proto_register_fractalgeneratorprotocol(void);
 void proto_reg_handoff_fractalgeneratorprotocol(void);
 
+static dissector_handle_t fgp_handle;
+
 #define FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097601
 
 
@@ -477,14 +479,13 @@ proto_register_fractalgeneratorprotocol(void)
   tap_fractalgeneratorprotocol = register_tap("fractalgeneratorprotocol");
 
   register_stat_tap_table_ui(&fgp_stat_table);
+
+  fgp_handle = register_dissector("fractalgeneratorprotocol", dissect_fractalgeneratorprotocol, proto_fractalgeneratorprotocol);
 }
 
 void
 proto_reg_handoff_fractalgeneratorprotocol(void)
 {
-  dissector_handle_t fgp_handle;
-
-  fgp_handle = create_dissector_handle(dissect_fractalgeneratorprotocol, proto_fractalgeneratorprotocol);
   dissector_add_uint("sctp.ppi", FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, fgp_handle);
   dissector_add_uint("sctp.ppi", FGP_PAYLOAD_PROTOCOL_ID, fgp_handle);
 }

@@ -15,6 +15,10 @@
 void proto_register_enc(void);
 void proto_reg_handoff_enc(void);
 
+static dissector_handle_t enc_handle;
+static capture_dissector_handle_t enc_cap_handle;
+
+
 /* The header in OpenBSD Encapsulating Interface files. */
 
 struct enchdr {
@@ -182,18 +186,15 @@ proto_register_enc(void)
 
   enc_dissector_table = register_dissector_table("enc", "OpenBSD Encapsulating device", proto_enc, FT_UINT32, BASE_DEC);
   register_capture_dissector_table("enc", "ENC");
+
+  enc_handle  = register_dissector("enc", dissect_enc, proto_enc);
+  enc_cap_handle = register_capture_dissector("enc", capture_enc, proto_enc);
 }
 
 void
 proto_reg_handoff_enc(void)
 {
-  dissector_handle_t enc_handle;
-  capture_dissector_handle_t enc_cap_handle;
-
-  enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
-
-  enc_cap_handle = create_capture_dissector_handle(capture_enc, proto_enc);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_cap_handle);
 }
 

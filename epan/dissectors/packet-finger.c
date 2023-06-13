@@ -19,6 +19,8 @@
 void proto_register_finger(void);
 void proto_reg_handoff_finger(void);
 
+static dissector_handle_t finger_handle;
+
 #define FINGER_PORT     79  /* This is the registered IANA port */
 
 static int proto_finger = -1;
@@ -185,7 +187,7 @@ proto_register_finger(void)
     };
 
     proto_finger = proto_register_protocol("finger", "FINGER", "finger");
-    register_dissector("finger", dissect_finger, proto_finger);
+    finger_handle = register_dissector("finger", dissect_finger, proto_finger);
     proto_register_field_array(proto_finger, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_finger = expert_register_protocol(proto_finger);
@@ -195,7 +197,7 @@ proto_register_finger(void)
 void
 proto_reg_handoff_finger(void)
 {
-    dissector_add_uint_with_preference("tcp.port", FINGER_PORT, find_dissector("finger"));
+    dissector_add_uint_with_preference("tcp.port", FINGER_PORT, finger_handle);
 }
 
 /*

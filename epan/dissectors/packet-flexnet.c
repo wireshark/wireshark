@@ -30,6 +30,8 @@
 void proto_register_flexnet(void);
 void proto_reg_handoff_flexnet(void);
 
+static dissector_handle_t flexnet_handle;
+
 #define FLEXNET_ADRLEN  15
 #define FLEXNET_CTLLEN  15
 #define FLEXNET_HDRLEN  (FLEXNET_ADRLEN + FLEXNET_ADRLEN + FLEXNET_CTLLEN)
@@ -115,12 +117,14 @@ proto_register_flexnet(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_flexnet, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
+
+	flexnet_handle = register_dissector( "flexnet", dissect_flexnet, proto_flexnet );
 }
 
 void
 proto_reg_handoff_flexnet(void)
 {
-	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
+	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, flexnet_handle );
 }
 
 /*

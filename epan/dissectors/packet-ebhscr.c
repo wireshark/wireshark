@@ -500,6 +500,8 @@ static expert_field ei_ebhscr_frame_header = EI_INIT;
 static expert_field ei_ebhscr_err_status_flag = EI_INIT;
 static expert_field ei_ebhscr_info_status_flag = EI_INIT;
 
+static dissector_handle_t ebhscr_handle;
+
 static dissector_handle_t can_handle;
 static dissector_handle_t can_fd_handle;
 static dissector_handle_t eth_withfcs_handle;
@@ -1832,7 +1834,7 @@ proto_register_ebhscr(void)
 	expert_ebhscr = expert_register_protocol(proto_ebhscr);
 	expert_register_field_array(expert_ebhscr, ei, array_length(ei));
 
-	register_dissector("ebhscr", dissect_ebhscr, proto_ebhscr);
+	ebhscr_handle = register_dissector("ebhscr", dissect_ebhscr, proto_ebhscr);
 	subdissector_table = register_decode_as_next_proto(proto_ebhscr, "ebhscr.subdissector",
 														"ebhscr next level dissector", NULL);
 }
@@ -1840,8 +1842,6 @@ proto_register_ebhscr(void)
 void
 proto_reg_handoff_ebhscr(void)
 {
-	static dissector_handle_t ebhscr_handle;
-
 	can_handle = find_dissector_add_dependency("can-hostendian", proto_ebhscr);
 	can_fd_handle = find_dissector_add_dependency("canfd", proto_ebhscr);
 
@@ -1851,7 +1851,6 @@ proto_reg_handoff_ebhscr(void)
 
 	flexray_handle = find_dissector_add_dependency("flexray", proto_ebhscr);
 
-	ebhscr_handle = create_dissector_handle( dissect_ebhscr, proto_ebhscr);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_EBHSCR, ebhscr_handle);
 }
 

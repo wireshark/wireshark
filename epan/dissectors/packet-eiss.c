@@ -19,6 +19,8 @@
 void proto_register_eiss(void);
 void proto_reg_handoff_eiss(void);
 
+static dissector_handle_t eiss_handle;
+
 static int proto_eiss = -1;
 
 static int hf_eiss_reserved2 = -1;
@@ -557,15 +559,14 @@ proto_register_eiss(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_eiss = expert_register_protocol(proto_eiss);
 	expert_register_field_array(expert_eiss, ei, array_length(ei));
+
+	eiss_handle = register_dissector("eiss", dissect_eiss, proto_eiss);
 }
 
 
 void
 proto_reg_handoff_eiss(void)
 {
-	dissector_handle_t eiss_handle;
-
-	eiss_handle = create_dissector_handle(dissect_eiss, proto_eiss);
 	dissector_add_uint("mpeg_sect.tid", EISS_SECTION_TID, eiss_handle);
 }
 

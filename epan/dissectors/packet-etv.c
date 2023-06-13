@@ -19,6 +19,9 @@
 void proto_register_etv(void);
 void proto_reg_handoff_etv(void);
 
+static dissector_handle_t etv_dii_handle;
+static dissector_handle_t etv_ddb_handle;
+
 static int proto_etv_dii = -1;
 static int proto_etv_ddb = -1;
 
@@ -211,17 +214,15 @@ proto_register_etv(void)
 	expert_register_field_array(expert_etv_dii, ei_dii, array_length(ei_dii));
 	expert_etv_ddb = expert_register_protocol(proto_etv_ddb);
 	expert_register_field_array(expert_etv_ddb, ei_ddb, array_length(ei_ddb));
+
+	etv_dii_handle = register_dissector("etv-dii", dissect_etv_dii, proto_etv_dii);
+	etv_ddb_handle = register_dissector("etv-ddb", dissect_etv_ddb, proto_etv_ddb);
 }
 
 
 void
 proto_reg_handoff_etv(void)
 {
-	dissector_handle_t etv_dii_handle;
-	dissector_handle_t etv_ddb_handle;
-
-	etv_dii_handle = create_dissector_handle(dissect_etv_dii, proto_etv_dii);
-	etv_ddb_handle = create_dissector_handle(dissect_etv_ddb, proto_etv_ddb);
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DII_SECTION, etv_dii_handle);
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DDB_SECTION, etv_ddb_handle);
 	dsmcc_handle = find_dissector_add_dependency("mp2t-dsmcc", proto_etv_dii);

@@ -50,6 +50,8 @@
 void proto_register_exeh(void);
 void proto_reg_handoff_exeh(void);
 
+static dissector_handle_t exeh_handle;
+
 static dissector_handle_t ethnofcs_handle;
 
 static int proto_exeh = -1;
@@ -289,16 +291,15 @@ proto_register_exeh(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_exeh = expert_register_protocol(proto_exeh);
 	expert_register_field_array(expert_exeh, ei, array_length(ei));
+
+	exeh_handle = register_dissector("exeh", dissect_exeh, proto_exeh);
 }
 
 void
 proto_reg_handoff_exeh(void)
 {
-	dissector_handle_t exeh_handle;
-
 	ethnofcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_exeh);
 
-	exeh_handle = create_dissector_handle(dissect_exeh, proto_exeh);
 	dissector_add_uint("ethertype", ETHERTYPE_EXEH, exeh_handle);
 }
 

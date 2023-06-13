@@ -18,6 +18,8 @@
 void proto_register_fefd(void);
 void proto_reg_handoff_fefd(void);
 
+static dissector_handle_t fefd_handle;
+
 /* Offsets in TLV structure. */
 #define TLV_TYPE        0
 #define TLV_LENGTH      2
@@ -264,14 +266,13 @@ proto_register_fefd(void)
     proto_fefd = proto_register_protocol("Far End Failure Detection", "FEFD", "fefd");
     proto_register_field_array(proto_fefd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    fefd_handle = register_dissector("fefd", dissect_fefd, proto_fefd);
 }
 
 void
 proto_reg_handoff_fefd(void)
 {
-    dissector_handle_t fefd_handle;
-
-    fefd_handle = create_dissector_handle(dissect_fefd, proto_fefd);
     dissector_add_uint("llc.force10_pid", 0x0111, fefd_handle);
 }
 

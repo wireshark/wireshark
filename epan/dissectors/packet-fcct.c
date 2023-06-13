@@ -19,6 +19,8 @@
 void proto_register_fcct(void);
 void proto_reg_handoff_fcct(void);
 
+static dissector_handle_t fcct_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_fcct           = -1;
 static int hf_fcct_revision     = -1;
@@ -264,14 +266,13 @@ proto_register_fcct(void)
     fcct_gserver_table = register_dissector_table ("fcct.server",
                                                    "FCCT Server",
                                                    proto_fcct, FT_UINT8, BASE_HEX);
+
+    fcct_handle = register_dissector("fcct", dissect_fcct, proto_fcct);
 }
 
 void
 proto_reg_handoff_fcct (void)
 {
-    dissector_handle_t fcct_handle;
-
-    fcct_handle = create_dissector_handle (dissect_fcct, proto_fcct);
     dissector_add_uint("fc.ftype", FC_FTYPE_FCCT, fcct_handle);
 }
 

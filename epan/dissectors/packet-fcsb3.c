@@ -19,6 +19,8 @@
 void proto_register_fcsbccs(void);
 void proto_reg_handoff_fcsbccs(void);
 
+static dissector_handle_t fc_sbccs_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_fc_sbccs = -1;
 static int hf_sbccs_chid = -1;
@@ -1119,16 +1121,13 @@ proto_register_fcsbccs (void)
 
     proto_register_field_array(proto_fc_sbccs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    fc_sbccs_handle = register_dissector("fcsb3", dissect_fc_sbccs, proto_fc_sbccs);
 }
 
 void
 proto_reg_handoff_fcsbccs (void)
 {
-    dissector_handle_t fc_sbccs_handle;
-
-    fc_sbccs_handle = create_dissector_handle (dissect_fc_sbccs,
-                                               proto_fc_sbccs);
-
     dissector_add_uint("fc.ftype", FC_FTYPE_SBCCS, fc_sbccs_handle);
 }
 

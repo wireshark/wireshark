@@ -21,6 +21,9 @@ void proto_register_vdp(void);
 void proto_reg_handoff_ecp_21(void);
 void proto_reg_handoff_vdp(void);
 
+static dissector_handle_t ecp_handle;
+static dissector_handle_t vdp_handle;
+
 static int proto_ecp = -1;
 static int hf_ecp_version = -1;
 static int hf_ecp_op = -1;
@@ -431,6 +434,7 @@ proto_register_ecp(void)
 	proto_register_field_array(proto_ecp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	ecp_handle = register_dissector("ecp21", dissect_ecp, proto_ecp);
 	ecp_subdissector_table = register_dissector_table("ecp.subtype", "ECP Subtypes", proto_ecp, FT_UINT32, BASE_DEC);
 }
 
@@ -537,23 +541,18 @@ proto_register_vdp(void)
 	expert_vdp = expert_register_protocol(proto_vdp);
 	expert_register_field_array(expert_vdp, ei, array_length(ei));
 
+	vdp_handle = register_dissector("vdp21", dissect_vdp, proto_vdp);
 }
 
 void
 proto_reg_handoff_ecp_21(void)
 {
-	dissector_handle_t ecp_handle;
-
-	ecp_handle = create_dissector_handle(dissect_ecp, proto_ecp);
 	dissector_add_uint("ethertype", ETHERTYPE_ECP, ecp_handle);
 }
 
 void
 proto_reg_handoff_vdp(void)
 {
-	dissector_handle_t vdp_handle;
-
-	vdp_handle = create_dissector_handle(dissect_vdp, proto_vdp);
 	dissector_add_uint("ecp.subtype", ECP_SUBTYPE_VDP, vdp_handle);
 }
 

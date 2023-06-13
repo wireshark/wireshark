@@ -21,6 +21,8 @@
 void proto_register_fcp(void);
 void proto_reg_handoff_fcp(void);
 
+static dissector_handle_t fcp_handle;
+
 typedef struct _fcp_proto_data_t {
     guint16 lun;
 } fcp_proto_data_t;
@@ -962,14 +964,13 @@ proto_register_fcp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    fcp_handle = register_dissector("fcp", dissect_fcp, proto_fcp);
 }
 
 void
 proto_reg_handoff_fcp(void)
 {
-    dissector_handle_t fcp_handle;
-
-    fcp_handle = create_dissector_handle(dissect_fcp, proto_fcp);
     dissector_add_uint("fc.ftype", FC_FTYPE_SCSI, fcp_handle);
 }
 

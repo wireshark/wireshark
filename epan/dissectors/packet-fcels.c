@@ -25,6 +25,8 @@
 void proto_register_fcels(void);
 void proto_reg_handoff_fcels(void);
 
+static dissector_handle_t els_handle;
+
 #define FC_ELS_RPLY 0
 #define FC_ELS_REQ  1
 
@@ -2592,14 +2594,13 @@ proto_register_fcels (void)
     expert_fcels = expert_register_protocol(proto_fcels);
     expert_register_field_array(expert_fcels, ei, array_length(ei));
     fcels_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcels_hash, fcels_equal);
+
+    els_handle = register_dissector("fcels", dissect_fcels, proto_fcels);
 }
 
 void
 proto_reg_handoff_fcels (void)
 {
-    dissector_handle_t els_handle;
-
-    els_handle = create_dissector_handle (dissect_fcels, proto_fcels);
     dissector_add_uint("fc.ftype", FC_FTYPE_ELS, els_handle);
 
     fcsp_handle = find_dissector_add_dependency ("fcsp", proto_fcels);

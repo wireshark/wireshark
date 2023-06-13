@@ -22,6 +22,7 @@
 void proto_register_echo(void);
 void proto_reg_handoff_echo(void);
 
+static dissector_handle_t echo_handle;
 static int proto_echo = -1;
 
 static int hf_echo_data = -1;
@@ -75,14 +76,11 @@ void proto_register_echo(void)
   proto_echo = proto_register_protocol("Echo", "ECHO", "echo");
   proto_register_field_array(proto_echo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  echo_handle = register_dissector("echo", dissect_echo, proto_echo);
 }
 
 void proto_reg_handoff_echo(void)
 {
-  dissector_handle_t echo_handle;
-
-  echo_handle = create_dissector_handle(dissect_echo, proto_echo);
-
   dissector_add_uint_with_preference("udp.port", ECHO_PORT, echo_handle);
   dissector_add_uint_with_preference("tcp.port", ECHO_PORT, echo_handle);
 }

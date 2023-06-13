@@ -21,6 +21,8 @@
 void proto_register_fcswils(void);
 void proto_reg_handoff_fcswils(void);
 
+static dissector_handle_t swils_handle;
+
 /*
  * See the FC-SW specifications.
  */
@@ -2500,14 +2502,13 @@ proto_register_fcswils(void)
     expert_register_field_array(expert_fcswils, ei, array_length(ei));
 
     fcswils_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcswils_hash, fcswils_equal);
+
+    swils_handle = register_dissector("swils", dissect_fcswils, proto_fcswils);
 }
 
 void
 proto_reg_handoff_fcswils(void)
 {
-    dissector_handle_t swils_handle;
-
-    swils_handle = create_dissector_handle(dissect_fcswils, proto_fcswils);
     dissector_add_uint("fc.ftype", FC_FTYPE_SWILS, swils_handle);
 
     fcsp_handle = find_dissector_add_dependency("fcsp", proto_fcswils);

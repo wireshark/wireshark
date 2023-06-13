@@ -45,6 +45,8 @@
 void proto_register_flip(void);
 void proto_reg_handoff_flip(void);
 
+static dissector_handle_t flip_handle;
+
 static int proto_flip = -1;
 
 /* BASIC */
@@ -436,7 +438,7 @@ proto_register_flip(void)
         "FLIP",     /* short name */
         "flip"      /* abbrev */
         );
-    register_dissector("flip", dissect_flip, proto_flip);
+    flip_handle = register_dissector("flip", dissect_flip, proto_flip);
 
     proto_register_field_array(proto_flip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -459,7 +461,7 @@ proto_register_flip(void)
 void
 proto_reg_handoff_flip(void)
 {
-    dissector_add_uint("ethertype", ETHERTYPE_FLIP, find_dissector("flip"));
+    dissector_add_uint("ethertype", ETHERTYPE_FLIP, flip_handle);
 } /* proto_reg_handoff_flip() */
 
 /*

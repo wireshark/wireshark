@@ -19,6 +19,8 @@
 void proto_register_forces(void);
 void proto_reg_handoff_forces(void);
 
+static dissector_handle_t  forces_handle_tcp, forces_handle;
+
 static dissector_handle_t ip_handle;
 
 /* Initialize the ForCES protocol and registered fields */
@@ -814,6 +816,9 @@ proto_register_forces(void)
     expert_forces = expert_register_protocol(proto_forces);
     expert_register_field_array(expert_forces, ei, array_length(ei));
 
+    forces_handle_tcp = register_dissector("forces.tcp", dissect_forces_tcp,     proto_forces);
+    forces_handle     = register_dissector("forces",     dissect_forces_not_tcp, proto_forces);
+
     forces_module = prefs_register_protocol(proto_forces,proto_reg_handoff_forces);
 
     prefs_register_uint_preference(forces_module, "sctp_high_prio_port",
@@ -841,11 +846,7 @@ proto_reg_handoff_forces(void)
     static guint alternate_sctp_med_prio_channel_port  = 0;
     static guint alternate_sctp_low_prio_channel_port  = 0;
 
-    static dissector_handle_t  forces_handle_tcp, forces_handle;
-
     if (!inited) {
-        forces_handle_tcp = create_dissector_handle(dissect_forces_tcp,     proto_forces);
-        forces_handle     = create_dissector_handle(dissect_forces_not_tcp, proto_forces);
         ip_handle = find_dissector_add_dependency("ip", proto_forces);
         /* Register TCP port for dissection */
         dissector_add_for_decode_as_with_preference("tcp.port", forces_handle_tcp);

@@ -15274,6 +15274,9 @@ proto_register_ff(void)
     proto_ff = proto_register_protocol("FOUNDATION Fieldbus", "FF", "ff");
     proto_register_field_array(proto_ff, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ff_udp_handle = register_dissector("ff.udp", dissect_ff_udp, proto_ff);
+    ff_tcp_handle = register_dissector("ff.tcp", dissect_ff_tcp, proto_ff);
 }
 
 
@@ -15284,8 +15287,6 @@ proto_reg_handoff_ff(void)
     /*
      * 4.8. Using UDP and TCP
      */
-    ff_udp_handle = create_dissector_handle(dissect_ff_udp, proto_ff);
-    ff_tcp_handle = create_dissector_handle(dissect_ff_tcp, proto_ff);
 
     /*
      * 4.8.4.2. Use

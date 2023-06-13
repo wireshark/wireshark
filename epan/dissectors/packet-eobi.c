@@ -41,6 +41,8 @@
 void proto_reg_handoff_eobi(void);
 void proto_register_eobi(void);
 
+static dissector_handle_t eobi_handle;
+
 static int proto_eobi = -1;
 static expert_field ei_eobi_counter_overflow = EI_INIT;
 static expert_field ei_eobi_invalid_template = EI_INIT;
@@ -4313,14 +4315,13 @@ proto_register_eobi(void)
     static gint * const ett[] = { &ett_eobi[0], &ett_eobi[1], &ett_eobi[2], &ett_eobi[3], &ett_eobi[4], &ett_eobi[5], &ett_eobi[6], &ett_eobi_dscp };
     proto_register_subtree_array(ett, array_length(ett));
     proto_disable_by_default(proto_eobi);
+
+    eobi_handle = register_dissector("eobi", dissect_eobi, proto_eobi);
 }
 
 void
 proto_reg_handoff_eobi(void)
 {
-    dissector_handle_t eobi_handle = create_dissector_handle(dissect_eobi,
-            proto_eobi);
-
     // cf. N7 Network Access Guide, e.g.
     // https://www.xetra.com/xetra-en/technology/t7/system-documentation/release10-0/Release-10.0-2692700?frag=2692724
     // https://www.xetra.com/resource/blob/2762078/388b727972b5122945eedf0e63c36920/data/N7-Network-Access-Guide-v2.0.59.pdf

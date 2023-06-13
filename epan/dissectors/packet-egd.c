@@ -41,6 +41,8 @@
 void proto_register_egd(void);
 void proto_reg_handoff_egd(void);
 
+static dissector_handle_t egd_handle;
+
 /* Translate status to string */
 static const value_string egd_stat_vals[] = {
   { EGD_ST_NONEW,                  "No new status event has occurred" },
@@ -224,13 +226,12 @@ void proto_register_egd(void)
   proto_egd = proto_register_protocol ("Ethernet Global Data", "EGD", "egd");
   proto_register_field_array(proto_egd, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  egd_handle = register_dissector("egd", dissect_egd, proto_egd);
 }
 
 void proto_reg_handoff_egd(void)
 {
-  dissector_handle_t egd_handle;
-
-  egd_handle = create_dissector_handle(dissect_egd, proto_egd);
   dissector_add_uint_with_preference("udp.port", EGD_PORT, egd_handle);
 }
 

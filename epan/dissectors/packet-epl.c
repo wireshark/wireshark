@@ -1818,6 +1818,7 @@ static expert_field ei_sendseq_value          = EI_INIT;
 static expert_field ei_real_length_differs    = EI_INIT;
 
 static dissector_handle_t epl_handle;
+static dissector_handle_t epl_udp_handle;
 
 static gboolean show_cmd_layer_for_duplicated = FALSE;
 static gboolean show_pdo_meta_info = FALSE;
@@ -6356,6 +6357,7 @@ proto_register_epl(void)
 
 	/* Registering protocol to be called by another dissector */
 	epl_handle = register_dissector("epl", dissect_epl, proto_epl);
+	epl_udp_handle = register_dissector("epl.udp", dissect_epludp, proto_epl);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_epl, hf, array_length(hf));
@@ -6450,8 +6452,6 @@ proto_register_epl(void)
 void
 proto_reg_handoff_epl(void)
 {
-	dissector_handle_t epl_udp_handle = create_dissector_handle(dissect_epludp, proto_epl);
-
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_EPL, epl_udp_handle);
         apply_prefs();

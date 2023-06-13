@@ -22,6 +22,8 @@
 void proto_register_etw(void);
 void proto_reg_handoff_etw(void);
 
+static dissector_handle_t etw_handle;
+
 static int proto_etw = -1;
 static int hf_etw_size = -1;
 static int hf_etw_header_type = -1;
@@ -310,14 +312,13 @@ proto_register_etw(void)
     proto_etw = proto_register_protocol("Event Tracing for Windows", "ETW", "etw");
     proto_register_field_array(proto_etw, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    etw_handle = register_dissector("etw", dissect_etw, proto_etw);
 }
 
 void
 proto_reg_handoff_etw(void)
 {
-    static dissector_handle_t etw_handle;
-
-    etw_handle = create_dissector_handle(dissect_etw, proto_etw);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_ETW, etw_handle);
 
     mbim_dissector = find_dissector("mbim.control");

@@ -448,6 +448,8 @@ static dissector_handle_t  enip_udp_handle;
 static dissector_handle_t  cipio_handle;
 static dissector_handle_t  cip_class1_handle;
 static dissector_handle_t  dtls_handle;
+static dissector_handle_t  dlr_handle;
+
 
 static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -5014,6 +5016,7 @@ proto_register_enip(void)
       FT_PROTOCOL);
 
    enip_tcp_handle = register_dissector("enip", dissect_enip_tcp, proto_enip);
+   enip_udp_handle = register_dissector("enip.udp", dissect_enip_udp, proto_enip);
    cipio_handle = register_dissector("cipio", dissect_cipio, proto_cipio);
    cip_class1_handle = register_dissector("cipio_class1", dissect_cip_class1, proto_cip_class1);
    cip_io_generic_handle = register_dissector("cipgenericio", dissect_cip_io_generic, proto_cipio);
@@ -5063,6 +5066,7 @@ proto_register_enip(void)
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
+   dlr_handle = register_dissector("dlr", dissect_dlr, proto_dlr);
 
    register_conversation_filter("enip", "CIP Connection", cip_connection_conv_valid, cip_connection_conv_filter, NULL);
 
@@ -5127,13 +5131,10 @@ int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 void
 proto_reg_handoff_enip(void)
 {
-   dissector_handle_t dlr_handle;
-
    /* Register for EtherNet/IP, using TCP */
    dissector_add_uint_with_preference("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
 
    /* Register for EtherNet/IP, using UDP */
-   enip_udp_handle = create_dissector_handle(dissect_enip_udp, proto_enip);
    dissector_add_uint_with_preference("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
@@ -5160,7 +5161,6 @@ proto_reg_handoff_enip(void)
    cip_handle = find_dissector_add_dependency("cip", proto_enip);
 
    /* Register for EtherNet/IP Device Level Ring protocol */
-   dlr_handle = create_dissector_handle(dissect_dlr, proto_dlr);
    dissector_add_uint("ethertype", ETHERTYPE_DLR, dlr_handle);
 
    subdissector_class_table = find_dissector_table("cip.class.iface");

@@ -41,6 +41,8 @@
 void proto_reg_handoff_eti(void);
 void proto_register_eti(void);
 
+static dissector_handle_t eti_handle;
+
 static int proto_eti = -1;
 static expert_field ei_eti_counter_overflow = EI_INIT;
 static expert_field ei_eti_invalid_template = EI_INIT;
@@ -14264,14 +14266,13 @@ proto_register_eti(void)
     proto_register_field_array(proto_eti, hf, array_length(hf));
     static gint * const ett[] = { &ett_eti[0], &ett_eti[1], &ett_eti[2], &ett_eti[3], &ett_eti[4], &ett_eti[5], &ett_eti[6], &ett_eti[7], &ett_eti[8], &ett_eti[9], &ett_eti[10], &ett_eti[11], &ett_eti[12], &ett_eti[13], &ett_eti[14], &ett_eti[15], &ett_eti[16], &ett_eti[17], &ett_eti[18], &ett_eti[19], &ett_eti[20], &ett_eti[21], &ett_eti[22], &ett_eti[23], &ett_eti[24], &ett_eti[25], &ett_eti[26], &ett_eti[27], &ett_eti[28], &ett_eti[29], &ett_eti[30], &ett_eti[31], &ett_eti[32], &ett_eti[33], &ett_eti[34], &ett_eti[35], &ett_eti[36], &ett_eti[37], &ett_eti[38], &ett_eti[39], &ett_eti[40], &ett_eti[41], &ett_eti[42], &ett_eti[43], &ett_eti[44], &ett_eti[45], &ett_eti[46], &ett_eti[47], &ett_eti[48], &ett_eti[49], &ett_eti[50], &ett_eti[51], &ett_eti[52], &ett_eti_dscp };
     proto_register_subtree_array(ett, array_length(ett));
+
+    eti_handle = register_dissector("eti", dissect_eti, proto_eti);
 }
 
 void
 proto_reg_handoff_eti(void)
 {
-    dissector_handle_t eti_handle = create_dissector_handle(dissect_eti,
-            proto_eti);
-
     // cf. N7 Network Access Guide, e.g.
     // https://www.xetra.com/xetra-en/technology/t7/system-documentation/release10-0/Release-10.0-2692700?frag=2692724
     // https://www.xetra.com/resource/blob/2762078/388b727972b5122945eedf0e63c36920/data/N7-Network-Access-Guide-v2.0.59.pdf

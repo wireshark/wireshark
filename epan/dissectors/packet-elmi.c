@@ -26,6 +26,8 @@ static int proto_elmi = -1;
 void proto_register_elmi(void);
 void proto_reg_handoff_elmi(void);
 
+static dissector_handle_t elmi_handle;
+
 static gint ett_elmi = -1;
 static gint ett_elmi_info_elem = -1;
 static gint ett_elmi_sub_info_elem = -1;
@@ -512,15 +514,14 @@ proto_register_elmi(void)
 
     proto_register_field_array(proto_elmi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    elmi_handle = register_dissector("elmi", dissect_elmi, proto_elmi);
 }
 
 
 void
 proto_reg_handoff_elmi(void)
 {
-    dissector_handle_t elmi_handle;
-
-    elmi_handle = create_dissector_handle(dissect_elmi, proto_elmi);
     dissector_add_uint("ethertype", ETHERTYPE_ELMI, elmi_handle);
 }
 

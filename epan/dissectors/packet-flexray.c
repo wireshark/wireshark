@@ -23,6 +23,8 @@
 void proto_reg_handoff_flexray(void);
 void proto_register_flexray(void);
 
+static dissector_handle_t flexray_handle;
+
 static gboolean prefvar_try_heuristic_first = FALSE;
 
 static dissector_table_t subdissector_table;
@@ -493,7 +495,7 @@ proto_register_flexray(void)
 	expert_flexray = expert_register_protocol(proto_flexray);
 	expert_register_field_array(expert_flexray, ei, array_length(ei));
 
-	register_dissector("flexray", dissect_flexray, proto_flexray);
+	flexray_handle = register_dissector("flexray", dissect_flexray, proto_flexray);
 
 	prefs_register_bool_preference(
 		flexray_module,
@@ -512,9 +514,6 @@ proto_register_flexray(void)
 void
 proto_reg_handoff_flexray(void)
 {
-	static dissector_handle_t flexray_handle;
-
-	flexray_handle = create_dissector_handle( dissect_flexray, proto_flexray );
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_FLEXRAY, flexray_handle);
 }
 

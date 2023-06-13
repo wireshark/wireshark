@@ -220,6 +220,10 @@ void proto_register_f5ethtrailer(void);
 void proto_reg_handoff_f5fileinfo(void);
 void proto_register_f5fileinfo(void);
 
+static dissector_handle_t f5dpt_noise_handle;
+static dissector_handle_t f5dpt_tls_handle;
+
+
 /* Common Fields */
 static gint hf_provider    = -1;
 static gint hf_type        = -1;
@@ -4113,6 +4117,10 @@ proto_register_f5ethtrailer(void)
     tls_subdissector_table = register_dissector_table("f5ethtrailer.tls_type_ver",
         "F5 Ethernet Trailer TLS", proto_f5ethtrailer, FT_UINT32, BASE_DEC);
 
+    f5dpt_noise_handle =
+        register_dissector("f5ethtrailer.noise", dissect_dpt_trailer_noise, proto_f5ethtrailer_dpt_noise);
+    f5dpt_tls_handle = register_dissector("f5ethtrailer.tls", dissect_dpt_trailer_tls, proto_f5ethtrailer_dpt_tls);
+
     /* Analyze Menu Items */
     register_conversation_filter("f5ethtrailer", "F5 TCP", f5_tcp_conv_valid, f5_tcp_conv_filter, NULL);
     register_conversation_filter("f5ethtrailer", "F5 UDP", f5_udp_conv_valid, f5_udp_conv_filter, NULL);
@@ -4139,40 +4147,34 @@ proto_register_f5ethtrailer(void)
 void
 proto_reg_handoff_f5ethtrailer(void)
 {
-    dissector_handle_t f5dpt_noise_handle;
-    dissector_handle_t f5dpt_tls_handle;
-
     heur_dissector_add("eth.trailer", dissect_f5ethtrailer, "F5 Ethernet Trailer",
             "f5ethtrailer", proto_f5ethtrailer, HEURISTIC_ENABLE);
 
     /* Register helper dissectors */
     /* Noise Provider */
-    f5dpt_noise_handle =
-        create_dissector_handle(dissect_dpt_trailer_noise, proto_f5ethtrailer_dpt_noise);
     dissector_add_uint("f5ethtrailer.provider", F5_DPT_PROVIDER_NOISE, f5dpt_noise_handle);
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 2,
-        create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
+        create_dissector_handle(dissect_dpt_trailer_noise_low, proto_f5ethtrailer_dpt_noise));
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 3,
-        create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
+        create_dissector_handle(dissect_dpt_trailer_noise_low, proto_f5ethtrailer_dpt_noise));
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 4,
-        create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
+        create_dissector_handle(dissect_dpt_trailer_noise_low, proto_f5ethtrailer_dpt_noise));
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_MED << 16 | 4,
-        create_dissector_handle(dissect_dpt_trailer_noise_med, -1));
+        create_dissector_handle(dissect_dpt_trailer_noise_med, proto_f5ethtrailer_dpt_noise));
     dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_HIGH << 16 | 1,
-        create_dissector_handle(dissect_dpt_trailer_noise_high, -1));
+        create_dissector_handle(dissect_dpt_trailer_noise_high, proto_f5ethtrailer_dpt_noise));
     /* TLS provider */
-    f5dpt_tls_handle = create_dissector_handle(dissect_dpt_trailer_tls, proto_f5ethtrailer_dpt_tls);
     dissector_add_uint("f5ethtrailer.provider", F5_DPT_PROVIDER_TLS, f5dpt_tls_handle);
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_PRE13_STD << 16 | 0,
-        create_dissector_handle(dissect_dpt_trailer_tls_type0, -1));
+        create_dissector_handle(dissect_dpt_trailer_tls_type0, proto_f5ethtrailer_dpt_tls));
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_PRE13_EXT << 16 | 0,
-        create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
+        create_dissector_handle(dissect_dpt_trailer_tls_extended, proto_f5ethtrailer_dpt_tls));
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_STD << 16 | 0,
-        create_dissector_handle(dissect_dpt_trailer_tls_type2, -1));
+        create_dissector_handle(dissect_dpt_trailer_tls_type2, proto_f5ethtrailer_dpt_tls));
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_STD << 16 | 1,
-        create_dissector_handle(dissect_dpt_trailer_tls_type2, -1));
+        create_dissector_handle(dissect_dpt_trailer_tls_type2, proto_f5ethtrailer_dpt_tls));
     dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_EXT << 16 | 0,
-        create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
+        create_dissector_handle(dissect_dpt_trailer_tls_extended, proto_f5ethtrailer_dpt_tls));
 
     /* These fields are duplicates of other, well-known fields so that
      * filtering on these fields will also pick up data out of the

@@ -25,6 +25,8 @@
 void proto_register_epl_v1(void);
 void proto_reg_handoff_epl_v1(void);
 
+static dissector_handle_t epl_v1_handle;
+
 /* Offsets of fields within an EPL_V1 packet. */
 #define EPL_V1_SERVICE_OFFSET                     0   /* same offset for all message types*/
 #define EPL_V1_DEST_OFFSET                        1   /* same offset for all message types*/
@@ -626,6 +628,8 @@ proto_register_epl_v1(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_epl_v1, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	epl_v1_handle = register_dissector("epl_v1", dissect_epl_v1, proto_epl_v1);
 }
 
 
@@ -633,9 +637,6 @@ proto_register_epl_v1(void)
 void
 proto_reg_handoff_epl_v1(void)
 {
-	dissector_handle_t epl_v1_handle;
-
-	epl_v1_handle = create_dissector_handle(dissect_epl_v1, proto_epl_v1);
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V1, epl_v1_handle);
 }
 

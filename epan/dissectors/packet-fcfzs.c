@@ -21,6 +21,8 @@
 void proto_register_fcfzs(void);
 void proto_reg_handoff_fcfzs(void);
 
+static dissector_handle_t fzs_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_fcfzs                     = -1;
 static int hf_fcfzs_opcode                 = -1;
@@ -842,14 +844,13 @@ proto_register_fcfzs(void)
     expert_register_field_array(expert_fcfzs, ei, array_length(ei));
 
     fcfzs_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcfzs_hash, fcfzs_equal);
+
+    fzs_handle = register_dissector("fcfzs", dissect_fcfzs, proto_fcfzs);
 }
 
 void
 proto_reg_handoff_fcfzs(void)
 {
-    dissector_handle_t fzs_handle;
-
-    fzs_handle = create_dissector_handle(dissect_fcfzs, proto_fcfzs);
     dissector_add_uint("fcct.server", FCCT_GSRVR_FZS, fzs_handle);
 }
 

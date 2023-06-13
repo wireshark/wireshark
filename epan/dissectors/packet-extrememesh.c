@@ -63,6 +63,8 @@ typedef enum _MeshPathSelectionFrameType
 void proto_register_extrememesh(void);
 void proto_reg_handoff_extrememesh(void);
 
+static dissector_handle_t extrememesh_handle;
+
 /* Mesh pkt types */
 static int proto_extrememesh = -1;
 static int proto_extrememesh_mch = -1;
@@ -2441,6 +2443,8 @@ void proto_register_extrememesh(void)
 	proto_register_field_array(proto_extrememesh, hf_extrememesh, array_length(hf_extrememesh));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	extrememesh_handle = register_dissector("extrememesh", dissect_extrememesh, proto_extrememesh);
+
 	/* extrememesh mesh control header */
 	proto_extrememesh_mch = proto_register_protocol("Extreme Mesh Control Header", "EXTREME MCH", "extrememesh_mch");
 	proto_register_field_array(proto_extrememesh_mch, hf_extrememesh_mch, array_length(hf_extrememesh_mch));
@@ -2547,10 +2551,7 @@ dissector table.
 /*****************************************************************************/
 void proto_reg_handoff_extrememesh(void)
 {
-	static dissector_handle_t extrememesh_handle;
-
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
-	extrememesh_handle = create_dissector_handle(dissect_extrememesh, proto_extrememesh);
 	dissector_add_uint("ethertype", ETHERTYPE_IEEE_EXTREME_MESH, extrememesh_handle);
 }

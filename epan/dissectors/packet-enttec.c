@@ -59,6 +59,8 @@ static const value_string enttec_data_type_vals[] = {
 void proto_register_enttec(void);
 void proto_reg_handoff_enttec(void);
 
+static dissector_handle_t enttec_udp_handle, enttec_tcp_handle;
+
 /* Define the enttec proto */
 static int proto_enttec = -1;
 
@@ -530,6 +532,9 @@ proto_register_enttec(void)
 	proto_register_field_array(proto_enttec,hf,array_length(hf));
 	proto_register_subtree_array(ett,array_length(ett));
 
+	enttec_udp_handle = register_dissector("enttec.udp", dissect_enttec_udp,proto_enttec);
+	enttec_tcp_handle = register_dissector("enttec.tcp", dissect_enttec_tcp,proto_enttec);
+
 	enttec_module = prefs_register_protocol(proto_enttec, NULL);
 
 	prefs_register_enum_preference(enttec_module, "dmx_disp_chan_val_type",
@@ -554,11 +559,6 @@ proto_register_enttec(void)
 /* The registration hand-off routing */
 void
 proto_reg_handoff_enttec(void) {
-	dissector_handle_t enttec_udp_handle, enttec_tcp_handle;
-
-	enttec_udp_handle = create_dissector_handle(dissect_enttec_udp,proto_enttec);
-	enttec_tcp_handle = create_dissector_handle(dissect_enttec_tcp,proto_enttec);
-
 	dissector_add_uint_with_preference("tcp.port",TCP_PORT_ENTTEC,enttec_tcp_handle);
 	dissector_add_uint_with_preference("udp.port",UDP_PORT_ENTTEC,enttec_udp_handle);
 }

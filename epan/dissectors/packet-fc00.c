@@ -24,6 +24,8 @@
 void proto_reg_handoff_fc00(void);
 void proto_register_fc00(void);
 
+static dissector_handle_t fc00_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_fc00 = -1;
 static int hf_fc00_session_state    = -1;
@@ -265,14 +267,13 @@ proto_register_fc00(void)
 
     proto_register_field_array(proto_fc00, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    fc00_handle = register_dissector("fc00", dissect_cryptoauth, proto_fc00);
 }
 
 void
 proto_reg_handoff_fc00(void)
 {
-    dissector_handle_t fc00_handle;
-
-    fc00_handle = create_dissector_handle(dissect_cryptoauth, proto_fc00);
     dissector_add_for_decode_as_with_preference("udp.port", fc00_handle);
 }
 

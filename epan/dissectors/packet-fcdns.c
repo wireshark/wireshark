@@ -2083,7 +2083,7 @@ proto_register_fcdns (void)
 
     fcdns_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcdns_hash, fcdns_equal);
 
-    dns_handle = create_dissector_handle (dissect_fcdns, proto_fcdns);
+    dns_handle = register_dissector("fcdns", dissect_fcdns, proto_fcdns);
 }
 
 void

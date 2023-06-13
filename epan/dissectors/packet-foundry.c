@@ -22,6 +22,8 @@
 void proto_register_fdp(void);
 void proto_reg_handoff_fdp(void);
 
+static dissector_handle_t fdp_handle;
+
 static int hf_llc_foundry_pid = -1;
 
 static int proto_fdp = -1;
@@ -446,14 +448,13 @@ proto_register_fdp(void)
 	expert_register_field_array(expert_fdp, ei, array_length(ei));
 
 	llc_add_oui(OUI_FOUNDRY, "llc.foundry_pid", "LLC Foundry OUI PID", oui_hf, proto_fdp);
+
+	fdp_handle = register_dissector("fdp", dissect_fdp, proto_fdp);
 }
 
 void
 proto_reg_handoff_fdp(void)
 {
-	dissector_handle_t fdp_handle;
-
-	fdp_handle = create_dissector_handle(dissect_fdp, proto_fdp);
 	dissector_add_uint("llc.foundry_pid", 0x2000, fdp_handle);
 }
 

@@ -52,6 +52,9 @@ typedef struct {
 void proto_register_elasticsearch(void);
 void proto_reg_handoff_elasticsearch(void);
 
+static dissector_handle_t elasticsearch_handle_binary;
+static dissector_handle_t elasticsearch_zen_handle;
+
 static int proto_elasticsearch = -1;
 
 /* Fields */
@@ -821,15 +824,12 @@ void proto_register_elasticsearch(void) {
     proto_register_field_array(proto_elasticsearch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    elasticsearch_handle_binary = register_dissector("elasticsearch_binary", dissect_elasticsearch_binary, proto_elasticsearch);
+    elasticsearch_zen_handle = register_dissector("elasticsearch_zen_ping", dissect_elasticsearch_zen_ping, proto_elasticsearch);
+
 }
 
 void proto_reg_handoff_elasticsearch(void) {
-
-    dissector_handle_t elasticsearch_handle_binary;
-    dissector_handle_t elasticsearch_zen_handle;
-
-    elasticsearch_handle_binary = create_dissector_handle(dissect_elasticsearch_binary, proto_elasticsearch);
-    elasticsearch_zen_handle = create_dissector_handle(dissect_elasticsearch_zen_ping, proto_elasticsearch);
 
     dissector_add_uint_with_preference("udp.port", ELASTICSEARCH_DISCOVERY_PORT, elasticsearch_zen_handle);
     dissector_add_uint_with_preference("tcp.port", ELASTICSEARCH_BINARY_PORT, elasticsearch_handle_binary);
