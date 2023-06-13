@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Choco install
-        run: cinst -y --force --no-progress asciidoctorj xsltproc docbook-bundle nsis winflexbison3 cmake
+        run: choco install -y --force --no-progress asciidoctorj xsltproc docbook-bundle nsis winflexbison3 cmake
       - name: Install strawberryperl
         uses: shogo82148/actions-setup-perl@v1
         with:
