@@ -590,6 +590,12 @@ const value_string ssl_extension_curves[] = {
     { 0x2F34, "p384_sntrup857" },
     { 0x0242, "sntrup1277" },
     { 0x2F42, "p521_sntrup1277" },
+    /* Other PQ key exchange algorithms:
+        https://blog.cloudflare.com/post-quantum-for-all
+	https://www.ietf.org/archive/id/draft-tls-westerbaan-xyber768d00-02.txt */
+    { 0xFE30, "X25519Kyber512Draft00" },
+    { 0xFE31, "X25519Kyber768Draft00 (obsolete value)" },
+    { 0x6399, "X25519Kyber768Draft00" },
     { 2570, "Reserved (GREASE)" }, /* RFC 8701 */
     { 6682, "Reserved (GREASE)" }, /* RFC 8701 */
     { 10794, "Reserved (GREASE)" }, /* RFC 8701 */
