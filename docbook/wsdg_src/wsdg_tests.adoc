@@ -240,3 +240,48 @@ be unique for each test. Filenames based on the current test name are
 generated using fixtures such as "capture_file" and "result_file". By default
 pytest generates paths in the system's temporary directory and the last three
 pytest runs are kept. Temporary files from older runs are automatically deleted.
+
+[#ChTestsExternal]
+=== External Tests
+
+You can create your own Python test files outside of the Wireshark source tree.
+To include your tests when running the Wireshark test suite, simply add the
+directory containing your test files to the `pytest` command line. Note that
+filenames must match the same conventions as discussed above.
+
+In order for your tests to have access to the Wireshark test fixtures, you will
+need this line in each test file:
+
+[source,python]
+----
+from fixtures_ws import *
+----
+
+[#ChTestsExtFixtures]
+==== Custom Fixtures
+
+You may wish to define your own test fixtures -- for example, a fixture similar
+to `capture_file` but which gives the path to a file in your external test
+directory. Here is an example Python file containing such a fixture. It presumes
+a subdirectory named `extra_captures` which exists in the same directory, and
+which contains your extra capture files.
+
+[source,python]
+----
+# my_fixtures.py
+# To use in your own tests, import like so:
+#   from my_fixtures import *
+
+from pathlib import Path
+import pytest
+
+@pytest.fixture(scope='session')
+def extra_file():
+    def resolver(filename):
+        return Path(__file__).parent.joinpath("extra_captures", filename)
+    return resolver
+----
+
+NOTE: If you give your fixture the same name as an existing Wireshark fixture,
+any tests using your fixture library will lose access to the Wireshark fixture
+of the same name. This can lead to confusing behavior and is not recommended.
