@@ -1885,7 +1885,8 @@ file_clearerr(FILE_T stream)
 void
 file_fdclose(FILE_T file)
 {
-    ws_close(file->fd);
+    if (file->fd != -1)
+        ws_close(file->fd);
     file->fd = -1;
 }
 
