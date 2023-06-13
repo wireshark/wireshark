@@ -413,9 +413,8 @@ def main():
     parser = argparse.ArgumentParser(description='Wireshark file and package versions')
     action_group = parser.add_mutually_exclusive_group()
     action_group.add_argument('--set-version', '-v', metavar='<x.y.z>', type=parse_versionstring, help='Set the major, minor, and patch versions in the top-level CMakeLists.txt, docbook/attributes.adoc, packaging/debian/changelog, and the CMakeLists.txt for all libraries to the provided version number')
-    sr = action_group.add_argument('--set-release', '-r', action='store_true', help='Set the extra release information in the top-level CMakeLists.txt based on either default or command-line specified options.')
+    action_group.add_argument('--set-release', '-r', action='store_true', help='Set the extra release information in the top-level CMakeLists.txt based on either default or command-line specified options.')
     setrel_group = parser.add_argument_group()
-    setrel_group._group_actions.append(sr)
     setrel_group.add_argument('--tagged-version-extra', '-t', default="", help="Extra version information format to use when a tag is found. No format \
 (an empty string) is used by default.")
     setrel_group.add_argument('--untagged-version-extra', '-u', default='-{vcsinfo}', help='Extra version information format to use when no tag is found. The format "-{vcsinfo}" (the number of commits and commit ID) is used by default.')
