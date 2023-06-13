@@ -36355,7 +36355,11 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           retransmit_key key;
           retransmit_key *result;
 
-          memcpy(key.bssid, whdr->bssid.data, 6);
+          if (whdr->bssid.type == wlan_bssid_address_type) {
+            memcpy(key.bssid, whdr->bssid.data, 6);
+          } else {
+            memset(key.bssid, 0, 6);
+          }
           memcpy(key.src, whdr->src.data, 6);
           key.seq_control = 0;
           result = (retransmit_key *)g_hash_table_lookup(fc_analyse_retransmit_table, &key);
