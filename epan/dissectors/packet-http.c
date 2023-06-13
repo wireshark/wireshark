@@ -101,6 +101,8 @@ static int hf_http_transfer_encoding = -1;
 static int hf_http_upgrade = -1;
 static int hf_http_user_agent = -1;
 static int hf_http_host = -1;
+static int hf_http_range = -1;
+static int hf_http_content_range = -1;
 static int hf_http_connection = -1;
 static int hf_http_cookie = -1;
 static int hf_http_cookie_pair = -1;
@@ -2956,6 +2958,8 @@ static const header_info headers[] = {
 	{ "Upgrade", &hf_http_upgrade, HDR_UPGRADE },
 	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
 	{ "Host", &hf_http_host, HDR_HOST },
+	{ "Range", &hf_http_range, HDR_NO_SPECIAL },
+	{ "Content-Range", &hf_http_content_range, HDR_NO_SPECIAL },
 	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
 	{ "Cookie", &hf_http_cookie, HDR_COOKIE },
 	{ "Accept", &hf_http_accept, HDR_NO_SPECIAL },
@@ -4256,6 +4260,14 @@ proto_register_http(void)
 	      { "Host", "http.host",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Host", HFILL }},
+	    { &hf_http_range,
+	      { "Range", "http.range",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Range", HFILL }},
+	    { &hf_http_content_range,
+	      { "Content-Range", "http.content_range",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Content-Range", HFILL }},
 	    { &hf_http_connection,
 	      { "Connection", "http.connection",
 		FT_STRING, BASE_NONE, NULL, 0x0,
