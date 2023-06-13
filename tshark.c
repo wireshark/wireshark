@@ -1344,7 +1344,13 @@ main(int argc, char *argv[])
                 break;
             case 'e':
                 /* Field entry */
-                output_fields_add(output_fields, ws_optarg);
+                {
+                    header_field_info *hfi = proto_registrar_get_byalias(ws_optarg);
+                    if (hfi)
+                        output_fields_add(output_fields, hfi->abbrev);
+                    else
+                        output_fields_add(output_fields, ws_optarg);
+                }
                 break;
             case 'E':
                 /* Field option */
