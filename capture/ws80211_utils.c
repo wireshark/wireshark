@@ -92,7 +92,7 @@ int ws80211_init(void)
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
 	ws80211_get_protocol_features(&features);
 	if (features & NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP)
-		state->have_split_wiphy = TRUE;
+		state->have_split_wiphy = true;
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
 	return WS80211_INIT_OK;
@@ -235,7 +235,7 @@ static int ws80211_get_protocol_features(int* features)
 static void parse_band_ht_capa(struct ws80211_interface *iface,
 			       struct nlattr *tb)
 {
-	gboolean ht40;
+	bool ht40;
 
 	if (!tb) return;
 
@@ -252,7 +252,7 @@ static void parse_band_ht_capa(struct ws80211_interface *iface,
 static void parse_band_vht_capa(struct ws80211_interface *iface,
 				struct nlattr *tb)
 {
-	guint32 chan_capa;
+	uint32_t chan_capa;
 	if (!tb) return;
 
 	chan_capa = (nla_get_u32(tb) >> 2) & 3;
@@ -350,10 +350,10 @@ static void parse_supported_commands(struct ws80211_interface *iface,
 
 	nla_for_each_nested(nl_cmd, tb, cmd) {
 		if(nla_get_u32(nl_cmd) == NL80211_CMD_SET_CHANNEL)
-			iface->can_set_freq = TRUE;
+			iface->can_set_freq = true;
 	}
 #else
-	iface->can_set_freq = TRUE;
+	iface->can_set_freq = true;
 #endif
 }
 
@@ -385,7 +385,7 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		}
 		added = 1;
 		iface->ifname = ifname;
-		iface->frequencies = g_array_new(FALSE, FALSE, sizeof(uint32_t));
+		iface->frequencies = g_array_new(false, false, sizeof(uint32_t));
 		iface->channel_types = 1 << WS80211_CHAN_NO_HT;
 	} else {
 		g_free(ifname);
@@ -490,7 +490,7 @@ static int get_iface_info_handler(struct nl_msg *msg, void *arg)
 	}
 
 	if (tb_msg[NL80211_ATTR_WIPHY_FREQ]) {
-		gboolean found_ch_width = FALSE;
+		bool found_ch_width = false;
 		iface_info->pub->current_freq = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_FREQ]);
 		iface_info->pub->current_chan_type = WS80211_CHAN_NO_HT;
 #ifdef HAVE_NL80211_VHT_CAPABILITY
@@ -498,15 +498,15 @@ static int get_iface_info_handler(struct nl_msg *msg, void *arg)
 			switch (nla_get_u32(tb_msg[NL80211_ATTR_CHANNEL_WIDTH])) {
 			case NL80211_CHAN_WIDTH_80:
 				iface_info->pub->current_chan_type = WS80211_CHAN_VHT80;
-				found_ch_width = TRUE;
+				found_ch_width = true;
 				break;
 			case NL80211_CHAN_WIDTH_80P80:
 				iface_info->pub->current_chan_type = WS80211_CHAN_VHT80P80;
-				found_ch_width = TRUE;
+				found_ch_width = true;
 				break;
 			case NL80211_CHAN_WIDTH_160:
 				iface_info->pub->current_chan_type = WS80211_CHAN_VHT160;
-				found_ch_width = TRUE;
+				found_ch_width = true;
 				break;
 			}
 		}
@@ -606,7 +606,7 @@ restart:
 		iface = g_array_index(interfaces, struct ws80211_interface *, j);
 		if (!iface->cap_monitor) {
 			g_array_remove_index(interfaces, j);
-			g_array_free(iface->frequencies, TRUE);
+			g_array_free(iface->frequencies, true);
 			g_free(iface->ifname);
 			g_free(iface);
 			goto restart;
@@ -620,7 +620,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 	FILE *fh;
 	char line[200];
 	char *t;
-	gchar *t2;
+	char *t2;
 	char *ret;
 	int i;
 	unsigned int j;
@@ -749,7 +749,7 @@ nla_put_failure:
 }
 DIAG_ON_CLANG(shorten-64-to-32)
 
-int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2)
+int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U_ center_freq, uint32_t _U_ center_freq2)
 {
 	int devidx, err;
 	struct nl_msg *msg;
@@ -837,7 +837,7 @@ GArray* ws80211_find_interfaces(void)
 	if (!nl_state.nl_sock)
 		return NULL;
 
-	interfaces = g_array_new(FALSE, FALSE, sizeof(struct ws80211_interface *));
+	interfaces = g_array_new(false, false, sizeof(struct ws80211_interface *));
 	if (!interfaces)
 		return NULL;
 
@@ -849,7 +849,7 @@ GArray* ws80211_find_interfaces(void)
 }
 
 int
-ws80211_str_to_chan_type(const gchar *s)
+ws80211_str_to_chan_type(const char *s)
 {
 	int ret = -1;
 	if (!s)
@@ -873,7 +873,7 @@ ws80211_str_to_chan_type(const gchar *s)
 	return ret;
 }
 
-const gchar
+const char
 *ws80211_chan_type_to_str(int type)
 {
 	switch (type) {
@@ -895,9 +895,9 @@ const gchar
 	return NULL;
 }
 
-gboolean ws80211_has_fcs_filter(void)
+bool ws80211_has_fcs_filter(void)
 {
-	return FALSE;
+	return false;
 }
 
 int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation fcs_validation _U_)
@@ -935,9 +935,9 @@ GArray* ws80211_find_interfaces(void)
 	GArray *interfaces;
 	GList *airpcap_if_list, *cur_if;
 	int err;
-	gchar *err_str = NULL;
+	char *err_str = NULL;
 
-	interfaces = g_array_new(FALSE, FALSE, sizeof(struct ws80211_interface *));
+	interfaces = g_array_new(false, false, sizeof(struct ws80211_interface *));
 	if (!interfaces)
 		return NULL;
 
@@ -945,7 +945,7 @@ GArray* ws80211_find_interfaces(void)
 
 	if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
 		g_free(err_str);
-		g_array_free(interfaces, TRUE);
+		g_array_free(interfaces, true);
 		return NULL;
 	}
 
@@ -953,8 +953,8 @@ GArray* ws80211_find_interfaces(void)
 		struct ws80211_interface *iface;
 		airpcap_if_info_t *airpcap_if_info = (airpcap_if_info_t *) cur_if->data;
 		char *ifname;
-		guint32 chan;
-		guint32 i;
+		uint32_t chan;
+		uint32_t i;
 
 		if (!airpcap_if_info) continue;
 		ifname = airpcap_if_info->name;
@@ -962,8 +962,8 @@ GArray* ws80211_find_interfaces(void)
 
 		iface = (struct ws80211_interface *)g_malloc0(sizeof(*iface));
 		iface->ifname = g_strdup(ifname);
-		iface->can_set_freq = TRUE;
-		iface->frequencies = g_array_new(FALSE, FALSE, sizeof(guint32));
+		iface->can_set_freq = true;
+		iface->frequencies = g_array_new(false, false, sizeof(uint32_t));
 
 		iface->channel_types = 1 << WS80211_CHAN_NO_HT;
 		/*
@@ -993,7 +993,7 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
 {
 	GList *airpcap_if_list;
 	int err;
-	gchar *err_str = NULL;
+	char *err_str = NULL;
 	airpcap_if_info_t *airpcap_if_info;
 
 	if (!iface_info) return -1;
@@ -1043,13 +1043,13 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
 	return 0;
 }
 
-int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2)
+int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U_ center_freq, uint32_t _U_ center_freq2)
 {
 	GList *airpcap_if_list;
 	int err;
-	gchar *err_str = NULL;
+	char *err_str = NULL;
 	airpcap_if_info_t *airpcap_if_info;
-	gchar err_buf[AIRPCAP_ERRBUF_SIZE];
+	char err_buf[AIRPCAP_ERRBUF_SIZE];
 	PAirpcapHandle adapter;
 	int ret_val = -1;
 
@@ -1092,28 +1092,28 @@ int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ 
 	return ret_val;
 }
 
-int ws80211_str_to_chan_type(const gchar *s _U_)
+int ws80211_str_to_chan_type(const char *s _U_)
 {
 	return -1;
 }
 
-const gchar *ws80211_chan_type_to_str(int type _U_)
+const char *ws80211_chan_type_to_str(int type _U_)
 {
 	return NULL;
 }
 
-gboolean ws80211_has_fcs_filter(void)
+bool ws80211_has_fcs_filter(void)
 {
-	return TRUE;
+	return true;
 }
 
 int ws80211_set_fcs_validation(const char *name, enum ws80211_fcs_validation fcs_validation)
 {
 	GList *airpcap_if_list;
 	int err;
-	gchar *err_str = NULL;
+	char *err_str = NULL;
 	airpcap_if_info_t *airpcap_if_info;
-	gchar err_buf[AIRPCAP_ERRBUF_SIZE];
+	char err_buf[AIRPCAP_ERRBUF_SIZE];
 	PAirpcapHandle adapter;
 	int ret_val = -1;
 
@@ -1201,24 +1201,24 @@ int ws80211_get_iface_info(const char *name _U_, struct ws80211_iface_info *ifac
 	return -1;
 }
 
-int ws80211_set_freq(const char *name _U_, guint32 freq _U_, int _U_ chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2)
+int ws80211_set_freq(const char *name _U_, uint32_t freq _U_, int _U_ chan_type, uint32_t _U_ center_freq, uint32_t _U_ center_freq2)
 {
 	return -1;
 }
 
-int ws80211_str_to_chan_type(const gchar *s _U_)
+int ws80211_str_to_chan_type(const char *s _U_)
 {
 	return -1;
 }
 
-const gchar *ws80211_chan_type_to_str(int type _U_)
+const char *ws80211_chan_type_to_str(int type _U_)
 {
 	return NULL;
 }
 
-gboolean ws80211_has_fcs_filter(void)
+bool ws80211_has_fcs_filter(void)
 {
-	return FALSE;
+	return false;
 }
 
 int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation fcs_validation _U_)
@@ -1244,11 +1244,11 @@ void ws80211_free_interfaces(GArray *interfaces)
 	while (interfaces->len) {
 		iface = g_array_index(interfaces, struct ws80211_interface *, 0);
 		g_array_remove_index(interfaces, 0);
-		g_array_free(iface->frequencies, TRUE);
+		g_array_free(iface->frequencies, true);
 		g_free(iface->ifname);
 		g_free(iface);
 	}
-	g_array_free(interfaces, TRUE);
+	g_array_free(interfaces, true);
 }
 
 /*

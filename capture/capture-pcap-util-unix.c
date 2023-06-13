@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include <string.h>
 #include <ws_attributes.h>
@@ -49,7 +49,7 @@ get_interface_list(int *err, char **err_str)
  * Get an error message string for a CANT_GET_INTERFACE_LIST error from
  * "get_interface_list()".
  */
-gchar *
+char *
 cant_get_if_list_error_message(const char *err_str)
 {
 	return ws_strdup_printf("Can't get list of interfaces: %s", err_str);

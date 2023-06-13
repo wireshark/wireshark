@@ -13,7 +13,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -401,7 +401,7 @@ if_info_get(const char *name)
 	}
 #endif /* __FreeBSD__ */
 #endif /* SIOCGIFDESCR */
-	if_info = if_info_new(name, description, FALSE);
+	if_info = if_info_new(name, description, false);
 	g_free(description);
 	return if_info;
 }
@@ -418,7 +418,7 @@ if_info_free(if_info_t *if_info)
 }
 
 if_info_t *
-if_info_new(const char *name, const char *description, gboolean loopback)
+if_info_new(const char *name, const char *description, bool loopback)
 {
 	if_info_t *if_info;
 #ifdef _WIN32
@@ -651,7 +651,7 @@ get_interface_list_findalldevs_ex(const char *hostname, const char *port,
 
 	for (dev = alldevs; dev != NULL; dev = dev->next) {
 		if_info = if_info_new(dev->name, dev->description,
-		    (dev->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE);
+		    (dev->flags & PCAP_IF_LOOPBACK) ? true : false);
 		il = g_list_append(il, if_info);
 		if_info_ip(if_info, dev);
 	}
@@ -690,7 +690,7 @@ get_interface_list_findalldevs(int *err, char **err_str)
 
 	for (dev = alldevs; dev != NULL; dev = dev->next) {
 		if_info = if_info_new(dev->name, dev->description,
-		    (dev->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE);
+		    (dev->flags & PCAP_IF_LOOPBACK) ? true : false);
 		il = g_list_append(il, if_info);
 		if_info_ip(if_info, dev);
 	}
@@ -700,7 +700,7 @@ get_interface_list_findalldevs(int *err, char **err_str)
 }
 
 static void
-free_if_cb(gpointer data, gpointer user_data _U_)
+free_if_cb(void * data, void * user_data _U_)
 {
 	if_info_free((if_info_t *)data);
 }
@@ -713,7 +713,7 @@ free_interface_list(GList *if_list)
 }
 
 static void
-free_linktype_cb(gpointer data, gpointer user_data _U_)
+free_linktype_cb(void * data, void * user_data _U_)
 {
 	data_link_info_t *linktype_info = (data_link_info_t *)data;
 
@@ -723,7 +723,7 @@ free_linktype_cb(gpointer data, gpointer user_data _U_)
 }
 
 static void
-free_timestamp_cb(gpointer data, gpointer user_data _U_)
+free_timestamp_cb(void * data, void * user_data _U_)
 {
 	timestamp_info_t *timestamp_info = (timestamp_info_t *)data;
 
@@ -883,7 +883,7 @@ get_pcap_datalink(pcap_t *pch,
 }
 
 /* Set the data link type on a pcap. */
-gboolean
+bool
 set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
     char *errmsg, size_t errmsg_len,
     char *secondary_errmsg, size_t secondary_errmsg_len)
@@ -891,9 +891,9 @@ set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
 	char *set_datalink_err_str;
 
 	if (datalink == -1)
-		return TRUE; /* just use the default */
+		return true; /* just use the default */
 	if (pcap_set_datalink(pcap_h, datalink) == 0)
-		return TRUE; /* no error */
+		return true; /* no error */
 	set_datalink_err_str = pcap_geterr(pcap_h);
 	snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type on interface '%s' (%s).",
 	    name, set_datalink_err_str);
@@ -906,7 +906,7 @@ set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
 		           "%s", please_report_bug());
 	else
 		secondary_errmsg[0] = '\0';
-	return FALSE;
+	return false;
 }
 
 static data_link_info_t *
@@ -1079,14 +1079,14 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 	 * libpcap, and dlsym() to find a pointer to pcap_set_tstamp_precision(),
 	 * and if we find the pointer, call it.
 	 */
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 	static int (*p_pcap_set_tstamp_precision)(pcap_t *, int);
 
 	if (!initialized) {
 		p_pcap_set_tstamp_precision =
 		    (int (*)(pcap_t *, int))
 		      dlsym(RTLD_NEXT, "pcap_set_tstamp_precision");
-		initialized = TRUE;
+		initialized = true;
 	}
 	if (p_pcap_set_tstamp_precision != NULL)
 		(*p_pcap_set_tstamp_precision)(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
@@ -1101,29 +1101,29 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 }
 
 /*
- * Return TRUE if the pcap_t in question is set up for high-precision
- * time stamps, FALSE otherwise.
+ * Return true if the pcap_t in question is set up for high-precision
+ * time stamps, false otherwise.
  */
-gboolean
+bool
 have_high_resolution_timestamp(pcap_t *pcap_h)
 {
 #ifdef __APPLE__
 	/*
 	 * See above.
 	 */
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 	static int (*p_pcap_get_tstamp_precision)(pcap_t *);
 
 	if (!initialized) {
 		p_pcap_get_tstamp_precision =
 		    (int (*)(pcap_t *))
 		      dlsym(RTLD_NEXT, "pcap_get_tstamp_precision");
-		initialized = TRUE;
+		initialized = true;
 	}
 	if (p_pcap_get_tstamp_precision != NULL)
 		return (*p_pcap_get_tstamp_precision)(pcap_h) == PCAP_TSTAMP_PRECISION_NANO;
 	else
-		return FALSE;	/* Can't get implies couldn't set */
+		return false;	/* Can't get implies couldn't set */
 #else /* __APPLE__ */
 	/*
 	 * On other UN*Xes we require that we be run on an OS version
@@ -1138,7 +1138,7 @@ have_high_resolution_timestamp(pcap_t *pcap_h)
 
 #ifdef HAVE_PCAP_CREATE
 #ifdef HAVE_BONDING
-static gboolean
+static bool
 is_linux_bonding_device(const char *ifname)
 {
 	int fd;
@@ -1147,7 +1147,7 @@ is_linux_bonding_device(const char *ifname)
 
 	fd = socket(PF_INET, SOCK_DGRAM, 0);
 	if (fd == -1)
-		return FALSE;
+		return false;
 
 	memset(&ifr, 0, sizeof ifr);
 	(void) g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
@@ -1156,23 +1156,23 @@ is_linux_bonding_device(const char *ifname)
 #if defined(SIOCBONDINFOQUERY)
 	if (ioctl(fd, SIOCBONDINFOQUERY, &ifr) == 0) {
 		close(fd);
-		return TRUE;
+		return true;
 	}
 #else
 	if (ioctl(fd, BOND_INFO_QUERY_OLD, &ifr) == 0) {
 		close(fd);
-		return TRUE;
+		return true;
 	}
 #endif
 
 	close(fd);
-	return FALSE;
+	return false;
 }
 #else
-static gboolean
+static bool
 is_linux_bonding_device(const char *ifname _U_)
 {
-	return FALSE;
+	return false;
 }
 #endif
 
@@ -1238,9 +1238,9 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 	}
 	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
 	if (status == 0)
-		caps->can_set_rfmon = FALSE;
+		caps->can_set_rfmon = false;
 	else if (status == 1) {
-		caps->can_set_rfmon = TRUE;
+		caps->can_set_rfmon = true;
 		if (interface_opts->monitor_mode)
 			pcap_set_rfmon(pch, 1);
 	} else {
@@ -1504,7 +1504,7 @@ get_if_capabilities_pcap_open_live(interface_options *interface_opts,
 	}
 
 	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
-	caps->can_set_rfmon = FALSE;
+	caps->can_set_rfmon = false;
 	caps->data_link_types = get_data_link_types(pch, interface_opts,
 	    open_status, open_status_str);
 	if (caps->data_link_types == NULL) {
@@ -1641,7 +1641,7 @@ get_if_capabilities(interface_options *interface_opts,
 	}
 
         caps = (if_capabilities_t *)g_malloc(sizeof *caps);
-        caps->can_set_rfmon = FALSE;
+        caps->can_set_rfmon = false;
         caps->data_link_types = NULL;
         deflt = get_pcap_datalink(pch, interface_opts->name);
         data_link_info = create_data_link_info(deflt);

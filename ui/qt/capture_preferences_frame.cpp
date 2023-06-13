@@ -9,7 +9,7 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <wireshark.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_globals.h"

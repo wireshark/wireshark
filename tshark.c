@@ -217,7 +217,7 @@ static gboolean infoprint;      /* if TRUE, print capture info after clearing in
 #endif /* SIGINFO */
 
 static gboolean capture(void);
-static gboolean capture_input_new_file(capture_session *cap_session,
+static bool capture_input_new_file(capture_session *cap_session,
         gchar *new_file);
 static void capture_input_new_packets(capture_session *cap_session,
         int to_read);
@@ -2755,7 +2755,7 @@ capture_input_cfilter_error(capture_session *cap_session, guint i, const char *e
 
 
 /* capture child tells us we have a new (or the first) capture file */
-static gboolean
+static bool
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
     capture_options *capture_opts = cap_session->capture_opts;

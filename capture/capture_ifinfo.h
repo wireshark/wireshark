@@ -49,7 +49,7 @@ typedef struct {
 				   or NULL if not available */
 	GSList  *addrs;         /* containing address values of if_addr_t */
 	interface_type type;    /* type of interface */
-	gboolean loopback;      /* TRUE if loopback, FALSE otherwise */
+	bool loopback;      /* true if loopback, false otherwise */
 	char	*extcap;		/* extcap arguments, which present the data to call the extcap interface */
 } if_info_t;
 
@@ -64,8 +64,8 @@ typedef enum {
 typedef struct {
 	if_address_type ifat_type;
 	union {
-		guint32 ip4_addr;   /*  4 byte IP V4 address, or */
-		guint8 ip6_addr[16];/* 16 byte IP V6 address */
+		uint32_t ip4_addr;   /*  4 byte IP V4 address, or */
+		uint8_t ip6_addr[16];/* 16 byte IP V6 address */
 	} addr;
 } if_addr_t;
 
@@ -97,7 +97,7 @@ void if_info_free(if_info_t *if_info);
  * frees the returned instance.
  */
 typedef struct {
-	gboolean	can_set_rfmon;	/* TRUE if can be put into monitor mode */
+	bool	can_set_rfmon;	/* true if can be put into monitor mode */
 	GList		*data_link_types;	/* GList of data_link_info_t's */
 	GList		*timestamp_types;   /* GList of timestamp_info_t's */
 } if_capabilities_t;
@@ -123,8 +123,8 @@ typedef struct {
  * Fetch the linktype list for the specified interface from a child process.
  */
 extern if_capabilities_t *
-capture_get_if_capabilities(const gchar *devname, gboolean monitor_mode,
-                            const gchar *auth_string,
+capture_get_if_capabilities(const char *devname, bool monitor_mode,
+                            const char *auth_string,
                             char **err_primary_msg, char **err_secondary_msg,
                             void (*update_cb)(void));
 

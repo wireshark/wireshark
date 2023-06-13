@@ -13,13 +13,12 @@
 #define INTERFACE_TREE_MODEL_H
 
 #include <config.h>
+#include <wireshark.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #include "ui/capture_globals.h"
 #endif
-
-#include <glib.h>
 
 #include <QAbstractTableModel>
 #include <QList>

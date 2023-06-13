@@ -46,9 +46,9 @@ enum ws80211_fcs_validation {
 struct ws80211_interface
 {
 	char *ifname;
-	gboolean can_set_freq;
-	gboolean can_check_fcs;
-	GArray *frequencies; /* Array of guint32? */
+	bool can_set_freq;
+	bool can_check_fcs;
+	GArray *frequencies; /* Array of uint32_t? */
 	int channel_types; /* Union for all bands */
 	int cap_monitor;
 };
@@ -100,16 +100,16 @@ void ws80211_free_interfaces(GArray *interfaces);
  * @param center_freq2 The 2nd center frequency in MHz (if 80+80MHz).
  * @return Zero on success, nonzero on failure.
  */
-int ws80211_set_freq(const char *name, guint32 freq, int chan_type, guint32 _U_ center_freq, guint32 _U_ center_freq2);
+int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U_ center_freq, uint32_t _U_ center_freq2);
 
-int ws80211_str_to_chan_type(const gchar *s);
-const gchar *ws80211_chan_type_to_str(int type);
+int ws80211_str_to_chan_type(const char *s);
+const char *ws80211_chan_type_to_str(int type);
 
 /** Check to see if we have FCS filtering.
  *
- * @return TRUE if FCS filtering is supported on this platform.
+ * @return true if FCS filtering is supported on this platform.
  */
-gboolean ws80211_has_fcs_filter(void);
+bool ws80211_has_fcs_filter(void);
 
 /** Set the FCS validation behavior for an interface.
  *

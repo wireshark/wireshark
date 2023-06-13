@@ -11,8 +11,6 @@
 
 #include <ui/qt/models/interface_tree_cache_model.h>
 
-#include "glib.h"
-
 #include "epan/prefs.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>

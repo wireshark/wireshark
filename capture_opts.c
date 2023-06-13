@@ -10,6 +10,8 @@
 
 #include <config.h>
 
+#include <wireshark.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,11 +21,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <string.h>
-
 #include <errno.h>
-
-#include <glib.h>
 
 #include <ws_exit_codes.h>
 

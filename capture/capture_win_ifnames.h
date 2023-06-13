@@ -15,10 +15,10 @@
 
 /*
  * If a string is a GUID in {}, fill in a GUID structure with the GUID
- * value and return TRUE; otherwise, if the string is not a valid GUID
- * in {}, return FALSE.
+ * value and return true; otherwise, if the string is not a valid GUID
+ * in {}, return false.
  */
-extern gboolean parse_as_guid(const char *guid_text, GUID *guid);
+extern bool parse_as_guid(const char *guid_text, GUID *guid);
 
 /* Get the friendly name for the given GUID */
 extern char *get_interface_friendly_name_from_device_guid(GUID *guid);

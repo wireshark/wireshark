@@ -50,7 +50,7 @@ typedef struct _capture_session capture_session;
 /**
  * Capture child told us we have a new (or the first) capture file.
  */
-typedef gboolean (*new_file_fn)(capture_session *cap_session, gchar *new_file);
+typedef bool (*new_file_fn)(capture_session *cap_session, char *new_file);
 
 /**
  * Capture child told us we have new packets to read.
@@ -60,7 +60,7 @@ typedef void (*new_packets_fn)(capture_session *cap_session, int to_read);
 /**
  * Capture child told us how many dropped packets it counted.
  */
-typedef void (*drops_fn)(capture_session *cap_session, guint32 dropped,
+typedef void (*drops_fn)(capture_session *cap_session, uint32_t dropped,
                          const char *interface_name);
 
 /**
@@ -74,14 +74,14 @@ typedef void (*error_fn)(capture_session *cap_session, char *error_msg,
  * Capture child told us that an error has occurred while parsing a
  * capture filter when starting/running the capture.
  */
-typedef void (*cfilter_error_fn)(capture_session *cap_session, guint i,
+typedef void (*cfilter_error_fn)(capture_session *cap_session, unsigned i,
                                  const char *error_message);
 
 /**
  * Capture child closed its side of the pipe, report any error and
  * do the required cleanup.
  */
-typedef void (*closed_fn)(capture_session *cap_session, gchar *msg);
+typedef void (*closed_fn)(capture_session *cap_session, char *msg);
 
 /*
  * The structure for the session.
@@ -98,9 +98,9 @@ struct _capture_session {
     uid_t     owner;                      /**< owner of the cfile */
     gid_t     group;                      /**< group of the cfile */
 #endif
-    gboolean  session_will_restart;       /**< Set when session will restart */
-    guint32   count;                      /**< Total number of frames captured */
-    guint32   count_pending;              /**< Number of frames captured but not yet read */
+    bool  session_will_restart;       /**< Set when session will restart */
+    uint32_t   count;                      /**< Total number of frames captured */
+    uint32_t   count_pending;              /**< Number of frames captured but not yet read */
     capture_options *capture_opts;        /**< options for this capture */
     capture_file *cf;                     /**< handle to cfile */
     wtap_rec rec;                         /**< record we're reading packet metadata into */

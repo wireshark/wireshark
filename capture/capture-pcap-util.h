@@ -48,16 +48,16 @@ int linktype_name_to_val(const char *linktype);
 
 int get_pcap_datalink(pcap_t *pch, const char *devicename);
 
-gboolean set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
+bool set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
     char *errmsg, size_t errmsg_len,
     char *secondary_errmsg, size_t secondary_errmsg_len);
 
 #ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 /*
- * Return TRUE if the pcap_t in question is set up for high-precision
- * time stamps, FALSE otherwise.
+ * Return true if the pcap_t in question is set up for high-precision
+ * time stamps, false otherwise.
  */
-gboolean have_high_resolution_timestamp(pcap_t *pcap_h);
+bool have_high_resolution_timestamp(pcap_t *pcap_h);
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 /*
@@ -108,7 +108,7 @@ extern void gather_caplibs_compile_info(feature_list l);
 extern void gather_caplibs_runtime_info(feature_list l);
 
 #ifdef _WIN32
-extern gboolean caplibs_have_npcap(void);
+extern bool caplibs_have_npcap(void);
 #endif
 
 #ifdef __cplusplus

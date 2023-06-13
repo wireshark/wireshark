@@ -13,13 +13,13 @@
 
 #ifdef _WIN32
 
+#include <wireshark.h>
+
 #include <winsock2.h>
 #include <windows.h>
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <glib.h>
 
 #include <ntddndis.h>
 
@@ -49,7 +49,7 @@ static int gethexdigit(const char *p)
     }
 }
 
-static gboolean get8hexdigits(const char *p, DWORD *d)
+static bool get8hexdigits(const char *p, DWORD *d)
 {
     int digit;
     DWORD val;
@@ -59,15 +59,15 @@ static gboolean get8hexdigits(const char *p, DWORD *d)
     for(i = 0; i < 8; i++){
         digit = gethexdigit(p++);
         if(digit == -1){
-            return FALSE; /* Not a hex digit */
+            return false; /* Not a hex digit */
         }
         val = (val << 4) | digit;
     }
     *d = val;
-    return TRUE;
+    return true;
 }
 
-static gboolean get4hexdigits(const char *p, WORD *w)
+static bool get4hexdigits(const char *p, WORD *w)
 {
     int digit;
     WORD val;
@@ -77,57 +77,57 @@ static gboolean get4hexdigits(const char *p, WORD *w)
     for(i = 0; i < 4; i++){
         digit = gethexdigit(p++);
         if(digit == -1){
-            return FALSE; /* Not a hex digit */
+            return false; /* Not a hex digit */
         }
         val = (val << 4) | digit;
     }
     *w = val;
-    return TRUE;
+    return true;
 }
 
 /*
  * If a string is a GUID in {}, fill in a GUID structure with the GUID
- * value and return TRUE; otherwise, if the string is not a valid GUID
- * in {}, return FALSE.
+ * value and return true; otherwise, if the string is not a valid GUID
+ * in {}, return false.
  */
-gboolean
+bool
 parse_as_guid(const char *guid_text, GUID *guid)
 {
     int i;
     int digit1, digit2;
 
     if(*guid_text != '{'){
-        return FALSE; /* Nope, not enclosed in {} */
+        return false; /* Nope, not enclosed in {} */
     }
     guid_text++;
     /* There must be 8 hex digits; if so, they go into guid->Data1 */
     if(!get8hexdigits(guid_text, &guid->Data1)){
-        return FALSE; /* nope, not 8 hex digits */
+        return false; /* nope, not 8 hex digits */
     }
     guid_text += 8;
     /* Now there must be a hyphen */
     if(*guid_text != '-'){
-        return FALSE; /* Nope */
+        return false; /* Nope */
     }
     guid_text++;
     /* There must be 4 hex digits; if so, they go into guid->Data2 */
     if(!get4hexdigits(guid_text, &guid->Data2)){
-        return FALSE; /* nope, not 4 hex digits */
+        return false; /* nope, not 4 hex digits */
     }
     guid_text += 4;
     /* Now there must be a hyphen */
     if(*guid_text != '-'){
-        return FALSE; /* Nope */
+        return false; /* Nope */
     }
     guid_text++;
     /* There must be 4 hex digits; if so, they go into guid->Data3 */
     if(!get4hexdigits(guid_text, &guid->Data3)){
-        return FALSE; /* nope, not 4 hex digits */
+        return false; /* nope, not 4 hex digits */
     }
     guid_text += 4;
     /* Now there must be a hyphen */
     if(*guid_text != '-'){
-        return FALSE; /* Nope */
+        return false; /* Nope */
     }
     guid_text++;
     /*
@@ -137,19 +137,19 @@ parse_as_guid(const char *guid_text, GUID *guid)
     for(i = 0; i < 2; i++){
         digit1 = gethexdigit(guid_text);
         if(digit1 == -1){
-            return FALSE; /* Not a hex digit */
+            return false; /* Not a hex digit */
         }
         guid_text++;
         digit2 = gethexdigit(guid_text);
         if(digit2 == -1){
-            return FALSE; /* Not a hex digit */
+            return false; /* Not a hex digit */
         }
         guid_text++;
         guid->Data4[i] = (digit1 << 4)|(digit2);
     }
     /* Now there must be a hyphen */
     if(*guid_text != '-'){
-        return FALSE; /* Nope */
+        return false; /* Nope */
     }
     guid_text++;
     /*
@@ -159,26 +159,26 @@ parse_as_guid(const char *guid_text, GUID *guid)
     for(i = 0; i < 6; i++){
         digit1 = gethexdigit(guid_text);
         if(digit1 == -1){
-            return FALSE; /* Not a hex digit */
+            return false; /* Not a hex digit */
         }
         guid_text++;
         digit2 = gethexdigit(guid_text);
         if(digit2 == -1){
-            return FALSE; /* Not a hex digit */
+            return false; /* Not a hex digit */
         }
         guid_text++;
         guid->Data4[i+2] = (digit1 << 4)|(digit2);
     }
     /* Now there must be a closing } */
     if(*guid_text != '}'){
-        return FALSE; /* Nope */
+        return false; /* Nope */
     }
     guid_text++;
     /* And that must be the end of the string */
     if(*guid_text != '\0'){
-        return FALSE; /* Nope */
+        return false; /* Nope */
     }
-    return TRUE;
+    return true;
 }
 
 /**********************************************************************************/

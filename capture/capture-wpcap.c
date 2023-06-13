@@ -13,19 +13,20 @@
 
 #include "config.h"
 
+#include <wireshark.h>
+
 #include <windows.h>
 #include <wchar.h>
 #include <tchar.h>
 
 #include <stdio.h>
-#include <glib.h>
 
 #include <ws_attributes.h>
 
 #include "capture/capture-wpcap.h"
 #include <wsutil/feature_list.h>
 
-gboolean has_wpcap = FALSE;
+bool has_wpcap = false;
 
 #ifdef HAVE_LIBPCAP
 
@@ -114,11 +115,11 @@ static const char * (*p_pcap_tstamp_type_val_to_description)(int);
 
 typedef struct {
 	const char	*name;
-	gpointer	*ptr;
-	gboolean	optional;
+	void *	*ptr;
+	bool	optional;
 } symbol_table_t;
 
-#define SYM(x, y)	{ G_STRINGIFY(x) , (gpointer) &G_PASTE(p_,x), y }
+#define SYM(x, y)	{ G_STRINGIFY(x) , (void *) &G_PASTE(p_,x), y }
 
 void
 load_wpcap(void)
@@ -126,65 +127,65 @@ load_wpcap(void)
 
 	/* These are the symbols I need or want from Wpcap */
 	static const symbol_table_t	symbols[] = {
-		SYM(pcap_close, FALSE),
-		SYM(pcap_stats, FALSE),
-		SYM(pcap_dispatch, FALSE),
-		SYM(pcap_snapshot, FALSE),
-		SYM(pcap_datalink, FALSE),
-		SYM(pcap_setfilter, FALSE),
-		SYM(pcap_geterr, FALSE),
-		SYM(pcap_compile, FALSE),
-		SYM(pcap_compile_nopcap, FALSE),
-		SYM(pcap_lookupnet, FALSE),
+		SYM(pcap_close, false),
+		SYM(pcap_stats, false),
+		SYM(pcap_dispatch, false),
+		SYM(pcap_snapshot, false),
+		SYM(pcap_datalink, false),
+		SYM(pcap_setfilter, false),
+		SYM(pcap_geterr, false),
+		SYM(pcap_compile, false),
+		SYM(pcap_compile_nopcap, false),
+		SYM(pcap_lookupnet, false),
 #ifdef HAVE_PCAP_REMOTE
-		SYM(pcap_open, FALSE),
-		SYM(pcap_findalldevs_ex, FALSE),
-		SYM(pcap_createsrcstr, FALSE),
+		SYM(pcap_open, false),
+		SYM(pcap_findalldevs_ex, false),
+		SYM(pcap_createsrcstr, false),
 #endif
-		SYM(pcap_open_live, FALSE),
-		SYM(pcap_open_dead, FALSE),
+		SYM(pcap_open_live, false),
+		SYM(pcap_open_dead, false),
 #ifdef HAVE_PCAP_SETSAMPLING
-		SYM(pcap_setsampling, TRUE),
+		SYM(pcap_setsampling, true),
 #endif
-		SYM(pcap_loop, FALSE),
-		SYM(pcap_freecode, FALSE),
-		SYM(pcap_findalldevs, FALSE),
-		SYM(pcap_freealldevs, FALSE),
-		SYM(pcap_datalink_name_to_val, FALSE),
-		SYM(pcap_datalink_val_to_name, FALSE),
-		SYM(pcap_datalink_val_to_description, FALSE),
-		SYM(pcap_breakloop, FALSE),
-		SYM(pcap_lib_version, FALSE),
-		SYM(pcap_setbuff, TRUE),
-		SYM(pcap_next_ex, TRUE),
-		SYM(pcap_list_datalinks, FALSE),
-		SYM(pcap_set_datalink, FALSE),
+		SYM(pcap_loop, false),
+		SYM(pcap_freecode, false),
+		SYM(pcap_findalldevs, false),
+		SYM(pcap_freealldevs, false),
+		SYM(pcap_datalink_name_to_val, false),
+		SYM(pcap_datalink_val_to_name, false),
+		SYM(pcap_datalink_val_to_description, false),
+		SYM(pcap_breakloop, false),
+		SYM(pcap_lib_version, false),
+		SYM(pcap_setbuff, true),
+		SYM(pcap_next_ex, true),
+		SYM(pcap_list_datalinks, false),
+		SYM(pcap_set_datalink, false),
 #ifdef HAVE_PCAP_FREE_DATALINKS
-		SYM(pcap_free_datalinks, TRUE),
+		SYM(pcap_free_datalinks, true),
 #endif
-		SYM(bpf_image, FALSE),
+		SYM(bpf_image, false),
 #ifdef HAVE_PCAP_CREATE
-		SYM(pcap_create, TRUE),
-		SYM(pcap_set_snaplen, TRUE),
-		SYM(pcap_set_promisc, TRUE),
-		SYM(pcap_can_set_rfmon, TRUE),
-		SYM(pcap_set_rfmon, TRUE),
-		SYM(pcap_set_timeout, FALSE),
-		SYM(pcap_set_buffer_size, FALSE),
-		SYM(pcap_activate, TRUE),
-		SYM(pcap_statustostr, TRUE),
+		SYM(pcap_create, true),
+		SYM(pcap_set_snaplen, true),
+		SYM(pcap_set_promisc, true),
+		SYM(pcap_can_set_rfmon, true),
+		SYM(pcap_set_rfmon, true),
+		SYM(pcap_set_timeout, false),
+		SYM(pcap_set_buffer_size, false),
+		SYM(pcap_activate, true),
+		SYM(pcap_statustostr, true),
 #endif
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE
-		SYM(pcap_set_tstamp_type, TRUE),
-		SYM(pcap_set_tstamp_precision, TRUE),
-		SYM(pcap_get_tstamp_precision, TRUE),
-		SYM(pcap_list_tstamp_types, TRUE),
-		SYM(pcap_free_tstamp_types, TRUE),
-		SYM(pcap_tstamp_type_name_to_val, TRUE),
-		SYM(pcap_tstamp_type_val_to_name, TRUE),
-		SYM(pcap_tstamp_type_val_to_description, TRUE),
+		SYM(pcap_set_tstamp_type, true),
+		SYM(pcap_set_tstamp_precision, true),
+		SYM(pcap_get_tstamp_precision, true),
+		SYM(pcap_list_tstamp_types, true),
+		SYM(pcap_free_tstamp_types, true),
+		SYM(pcap_tstamp_type_name_to_val, true),
+		SYM(pcap_tstamp_type_val_to_name, true),
+		SYM(pcap_tstamp_type_val_to_description, true),
 #endif
-		{ NULL, NULL, FALSE }
+		{ NULL, NULL, false }
 	};
 
 	GModule		*wh; /* wpcap handle */
@@ -216,10 +217,10 @@ load_wpcap(void)
 	}
 
 
-	has_wpcap = TRUE;
+	has_wpcap = true;
 }
 
-gboolean
+bool
 caplibs_have_npcap(void)
 {
 	return has_wpcap && g_str_has_prefix(p_pcap_lib_version(), "Npcap");
@@ -256,7 +257,7 @@ prepare_errbuf(char *errbuf)
 static void
 convert_errbuf_to_utf8(char *errbuf)
 {
-	gchar *utf8_err;
+	char *utf8_err;
 	if (errbuf[0] == '\0') {
 		return;
 	}
@@ -758,7 +759,7 @@ get_interface_list(int *err, char **err_str)
  * Get an error message string for a CANT_GET_INTERFACE_LIST error from
  * "get_interface_list()".
  */
-gchar *
+char *
 cant_get_if_list_error_message(const char *err_str)
 {
 	/*
@@ -838,9 +839,9 @@ gather_caplibs_runtime_info(feature_list l)
 }
 
 /*
- * If npf.sys is running, return TRUE.
+ * If npf.sys is running, return true.
  */
-gboolean
+bool
 npf_sys_is_running(void)
 {
 	SC_HANDLE h_scm, h_serv;
@@ -848,14 +849,14 @@ npf_sys_is_running(void)
 
 	h_scm = OpenSCManager(NULL, NULL, 0);
 	if (!h_scm)
-		return FALSE;
+		return false;
 
 	h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
 	if (!h_serv) {
 		h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
 		if (!h_serv) {
 			CloseServiceHandle(h_scm);
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -863,12 +864,12 @@ npf_sys_is_running(void)
 		if (ss.dwCurrentState & SERVICE_RUNNING) {
 			CloseServiceHandle(h_serv);
 			CloseServiceHandle(h_scm);
-			return TRUE;
+			return true;
 		}
 	}
 	CloseServiceHandle(h_serv);
 	CloseServiceHandle(h_scm);
-	return FALSE;
+	return false;
 }
 
 #else /* HAVE_LIBPCAP */
@@ -894,10 +895,10 @@ gather_caplibs_runtime_info(feature_list l _U_)
 {
 }
 
-gboolean
+bool
 caplibs_have_npcap(void)
 {
-	return FALSE;
+	return false;
 }
 
 #endif /* HAVE_LIBPCAP */

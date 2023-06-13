@@ -13,11 +13,10 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <wireshark.h>
 
-#include <glib.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "capture_opts.h"
 
@@ -84,9 +83,9 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     int        ret;
     GList     *if_list = NULL;
     int        i, j;
-    gchar     *data, *primary_msg, *secondary_msg;
-    gchar    **raw_list, **if_parts, **addr_parts;
-    gchar     *name;
+    char     *data, *primary_msg, *secondary_msg;
+    char    **raw_list, **if_parts, **addr_parts;
+    char     *name;
     if_info_t *if_info;
     if_addr_t *if_addr;
 
@@ -168,7 +167,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
             }
         }
         if (strcmp(if_parts[5], "loopback") == 0)
-            if_info->loopback = TRUE;
+            if_info->loopback = true;
         if_info->extcap = g_strdup(if_parts[6]);
         g_strfreev(if_parts);
         g_strfreev(addr_parts);
@@ -192,16 +191,16 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 /* XXX - We parse simple text output to get our interface list.  Should
  * we use "real" data serialization instead, e.g. via XML? */
 if_capabilities_t *
-capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
-                            const gchar *auth_string,
+capture_get_if_capabilities(const char *ifname, bool monitor_mode,
+                            const char *auth_string,
                             char **err_primary_msg, char **err_secondary_msg,
                             void (*update_cb)(void))
 {
     if_capabilities_t *caps;
     GList              *linktype_list = NULL, *timestamp_list = NULL;
     int                 err, i;
-    gchar              *data, *primary_msg, *secondary_msg;
-    gchar             **raw_list;
+    char              *data, *primary_msg, *secondary_msg;
+    char             **raw_list;
 
     /* see if the interface is from extcap */
     caps = extcap_get_if_dlts(ifname, err_primary_msg);
@@ -256,11 +255,11 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     switch (*raw_list[0]) {
 
     case '0':
-        caps->can_set_rfmon = FALSE;
+        caps->can_set_rfmon = false;
         break;
 
     case '1':
-        caps->can_set_rfmon = TRUE;
+        caps->can_set_rfmon = true;
         break;
 
     default:

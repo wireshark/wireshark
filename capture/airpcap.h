@@ -68,8 +68,8 @@ extern "C" {
 typedef struct _AirpcapDeviceDescription
 {
     struct    _AirpcapDeviceDescription *next;  /* < Next element in the list */
-    gchar *    Name;                            /* < Device name */
-    gchar *    Description;                     /* < Device description */
+    char *    Name;                            /* < Device name */
+    char *    Description;                     /* < Device description */
 } AirpcapDeviceDescription, *PAirpcapDeviceDescription;
 
 #define MAX_ENCRYPTION_KEYS 64
@@ -93,9 +93,9 @@ typedef struct _AirpcapDeviceDescription
 */
 typedef struct _AirpcapKey
 {
-    guint KeyType;                    /* < Type of key, can be on of: \ref AIRPCAP_KEYTYPE_WEP, \ref AIRPCAP_KEYTYPE_TKIP, \ref AIRPCAP_KEYTYPE_CCMP. Only AIRPCAP_KEYTYPE_WEP is supported by the driver at the moment. */
-    guint KeyLen;                     /* < Length of the key, in bytes */
-    guint8 KeyData[WEP_KEY_MAX_SIZE]; /* < Key Data */
+    unsigned KeyType;                    /* < Type of key, can be on of: \ref AIRPCAP_KEYTYPE_WEP, \ref AIRPCAP_KEYTYPE_TKIP, \ref AIRPCAP_KEYTYPE_CCMP. Only AIRPCAP_KEYTYPE_WEP is supported by the driver at the moment. */
+    unsigned KeyLen;                     /* < Length of the key, in bytes */
+    uint8_t KeyData[WEP_KEY_MAX_SIZE]; /* < Key Data */
 }
 #ifdef __MINGW32__
 __attribute__((__packed__))
@@ -144,7 +144,7 @@ typedef enum _AirpcapDecryptionState
 */
 typedef struct _AirpcapMacAddress
 {
-    guint8 Address[6];        /* < MAC address bytes */
+    uint8_t Address[6];        /* < MAC address bytes */
 }
 #ifdef __MINGW32__
 __attribute__((__packed__))
@@ -160,7 +160,7 @@ AirpcapMacAddress, *PAirpcapMacAddress;
 
   \code
     PAirpcapKeysCollection KeysCollection;
-    guint KeysCollectionSize;
+    unsigned KeysCollectionSize;
 
     KeysCollectionSize = AirpcapKeysCollectionSize(NumKeys);
 
@@ -173,14 +173,14 @@ AirpcapMacAddress, *PAirpcapMacAddress;
 */
 typedef struct _AirpcapKeysCollection
 {
-    guint nKeys;                    /* < Number of keys in the collection */
+    unsigned nKeys;                    /* < Number of keys in the collection */
     AirpcapKey Keys[1];             /* < Array of nKeys keys. */
 } AirpcapKeysCollection, *PAirpcapKeysCollection;
 
 #define AirpcapKeysCollectionSize(nKeys) \
 	((sizeof(AirpcapKeysCollection) - sizeof(AirpcapKey)) + ((nKeys) * sizeof(AirpcapKey)))
 #define AirpcapKeysCollectionSizeToKeyCount(size) \
-	(guint)(((size) - AirpcapKeysCollectionSize(0))/sizeof(AirpcapKey))
+	(unsigned)(((size) - AirpcapKeysCollectionSize(0))/sizeof(AirpcapKey))
 
 /*!
   \brief Packet header.
@@ -189,11 +189,11 @@ typedef struct _AirpcapKeysCollection
 */
 typedef struct _AirpcapBpfHeader
 {
-    guint TsSec;        /* < Timestamp associated with the captured packet. SECONDS. */
-    guint TsUsec;       /* < Timestamp associated with the captured packet. MICROSECONDS. */
-    guint Caplen;       /* < Length of captured portion. The captured portion <b>can be different</b> from the original packet, because it is possible (with a proper filter) to instruct the driver to capture only a portion of the packets. */
-    guint Originallen;  /* < Original length of packet */
-    guint16 Hdrlen;     /* < Length of bpf header (this struct plus alignment padding). In some cases, a padding could be added between the end of this structure and the packet data for performance reasons. This field can be used to retrieve the actual data of the packet. */
+    unsigned TsSec;        /* < Timestamp associated with the captured packet. SECONDS. */
+    unsigned TsUsec;       /* < Timestamp associated with the captured packet. MICROSECONDS. */
+    unsigned Caplen;       /* < Length of captured portion. The captured portion <b>can be different</b> from the original packet, because it is possible (with a proper filter) to instruct the driver to capture only a portion of the packets. */
+    unsigned Originallen;  /* < Original length of packet */
+    uint16_t Hdrlen;     /* < Length of bpf header (this struct plus alignment padding). In some cases, a padding could be added between the end of this structure and the packet data for performance reasons. This field can be used to retrieve the actual data of the packet. */
 }
 #ifdef __MINGW32__
 __attribute__((__packed__))
@@ -241,14 +241,14 @@ typedef struct _AirpcapHandle AirpcapHandle, *PAirpcapHandle;
 */
 typedef struct _AirpcapStats
 {
-    guint Recvs;        /* < Number of packets that the driver received by the adapter */
+    unsigned Recvs;        /* < Number of packets that the driver received by the adapter */
                         /* < from the beginning of the current capture. This value includes the packets */
                         /* < dropped because of buffer full. */
-    guint Drops;        /* < number of packets that the driver dropped from the beginning of a capture. */
+    unsigned Drops;        /* < number of packets that the driver dropped from the beginning of a capture. */
                         /* < A packet is lost when the driver's buffer is full. */
-    guint IfDrops;      /* < Packets dropped by the card before going to the USB bus. */
+    unsigned IfDrops;      /* < Packets dropped by the card before going to the USB bus. */
                         /* < Not supported at the moment. */
-    guint Capt;         /* < number of packets that pass the BPF filter, find place in the kernel buffer and */
+    unsigned Capt;         /* < number of packets that pass the BPF filter, find place in the kernel buffer and */
                         /* < therefore reach the application. */
 }AirpcapStats, *PAirpcapStats;
 
@@ -258,7 +258,7 @@ typedef struct _AirpcapStats
 */
 typedef struct _AirpcapChannelInfo
 {
-    guint Frequency;    /* < Channel frequency, in MHz. */
+    unsigned Frequency;    /* < Channel frequency, in MHz. */
     /*!
         \brief 802.11n specific. Offset of the extension channel in case of 40MHz channels.
 
@@ -269,8 +269,8 @@ typedef struct _AirpcapChannelInfo
 
         In case of 802.11a/b/g channels (802.11n legacy mode), this field should be set to 0.
     */
-    gint8 ExtChannel;
-    guint8 Reserved[3]; /* < Reserved. It should be set to {0,0,0}. */
+    int8_t ExtChannel;
+    uint8_t Reserved[3]; /* < Reserved. It should be set to {0,0,0}. */
 }
     AirpcapChannelInfo, *PAirpcapChannelInfo;
 
@@ -288,25 +288,25 @@ typedef struct _AirpcapChannelInfo
   \param VersionRev Pointer to a variable that will be filled with the revision number.
   \param VersionBuild Pointer to a variable that will be filled with the build number.
 */
-void AirpcapGetVersion(guint * VersionMajor, guint * VersionMinor, guint * VersionRev, guint * VersionBuild);
+void AirpcapGetVersion(unsigned * VersionMajor, unsigned * VersionMinor, unsigned * VersionRev, unsigned * VersionBuild);
 
 /*!
   \brief Return the last error related to the specified handle
   \param AdapterHandle Handle to an open adapter.
   \return The string with the last error.
 */
-gchar * AirpcapGetLastError(PAirpcapHandle AdapterHandle);
+char * AirpcapGetLastError(PAirpcapHandle AdapterHandle);
 
 /*!
   \brief Return the list of available devices
   \param PPAllDevs Address to a caller allocated pointer. On success this pointer will receive the head of a list of available devices.
-  \param Ebuf String that will contain error information if FALSE is returned. The size of the string must be AIRPCAP_ERRBUF_SIZE bytes.
-  \return TRUE on success. FALSE is returned on failure, in which case Ebuf is filled in with an appropriate error message.
+  \param Ebuf String that will contain error information if false is returned. The size of the string must be AIRPCAP_ERRBUF_SIZE bytes.
+  \return true on success. false is returned on failure, in which case Ebuf is filled in with an appropriate error message.
 
     Here's a snippet of code that shows how to use AirpcapGetDeviceList():
 
     \code
-    gchar Ebuf[AIRPCAP_ERRBUF_SIZE];
+    char Ebuf[AIRPCAP_ERRBUF_SIZE];
     AirpcapDeviceDescription *Desc, *tDesc;
 
     if(AirpcapGetDeviceList(&Desc, Ebuf) == -1)
@@ -326,7 +326,7 @@ gchar * AirpcapGetLastError(PAirpcapHandle AdapterHandle);
     AirpcapFreeDeviceList(Desc);
     \endcode
 */
-gboolean AirpcapGetDeviceList(PAirpcapDeviceDescription *PPAllDevs, gchar * Ebuf);
+bool AirpcapGetDeviceList(PAirpcapDeviceDescription *PPAllDevs, char * Ebuf);
 
 /*!
   \brief Free a list of devices returned by AirpcapGetDeviceList()
@@ -340,7 +340,7 @@ void AirpcapFreeDeviceList(PAirpcapDeviceDescription PAllDevs);
   \param Ebuf String that will contain error information in case of failure. The size of the string must be AIRPCAP_ERRBUF_SIZE bytes.
   \return A PAirpcapHandle handle on success. NULL is returned on failure, in which case Ebuf is filled in with an appropriate error message.
 */
-PAirpcapHandle AirpcapOpen(gchar * DeviceName, gchar * Ebuf);
+PAirpcapHandle AirpcapOpen(char * DeviceName, char * Ebuf);
 
 /*!
   \brief Close an adapter
@@ -351,9 +351,9 @@ void AirpcapClose(PAirpcapHandle AdapterHandle);
 /*!
   \brief Sets the monitor mode for the specified adapter
   \param AdapterHandle Handle to the adapter.
-  \param MonitorModeEnabled If TRUE, the adapter will be put in monitor mode. If FALSE, the adapter will be configured
+  \param MonitorModeEnabled If true, the adapter will be put in monitor mode. If false, the adapter will be configured
          for normal operation.
-  \return TRUE on success.
+  \return true on success.
 
   When monitor mode is on, the adapter captures all the packets transmitted on the channel. This includes:
 
@@ -378,25 +378,25 @@ void AirpcapClose(PAirpcapHandle AdapterHandle);
         configuration is not stored persistently, so if you want to turn monitor mode off, you will need to do it
         every time you open the adapter.
 */
-gboolean AirpcapSetMonitorMode(PAirpcapHandle AdapterHandle, gboolean MonitorModeEnabled);
+bool AirpcapSetMonitorMode(PAirpcapHandle AdapterHandle, bool MonitorModeEnabled);
 
 /*!
-  \brief Returns TRUE if the specified adapter is in monitor mode.
+  \brief Returns true if the specified adapter is in monitor mode.
   \param AdapterHandle Handle to the adapter.
   \param PMonitorModeEnabled User-provided variable that will be set to true if the adapter is in monitor mode.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   \note When an adapter is plugged into the system, it's always configured with monitor mode ON. The monitor mode
         configuration is not stored persistently, so if you want to turn monitor mode off, you will need to do it
         every time you open the adapter.
 */
-gboolean AirpcapGetMonitorMode(PAirpcapHandle AdapterHandle, gboolean * PMonitorModeEnabled);
+bool AirpcapGetMonitorMode(PAirpcapHandle AdapterHandle, bool * PMonitorModeEnabled);
 
 /*!
   \brief Set the link type of an adapter
   \param AdapterHandle Handle to the adapter.
   \param NewLinkType the "link type", i.e. the format of the frames that will be received from the adapter.
-  \return TRUE on success.
+  \return true on success.
 
   the "link type" determines how the driver will encode the packets captured from the network.
   Aircap supports two link types:
@@ -411,13 +411,13 @@ gboolean AirpcapGetMonitorMode(PAirpcapHandle AdapterHandle, gboolean * PMonitor
     header that contains per-packet meta information like channel and power information. More details on the PPI header can
     be found in the PPI online documentation (TODO).
 */
-gboolean AirpcapSetLinkType(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLinkType);
+bool AirpcapSetLinkType(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLinkType);
 
 /*!
   \brief Get the link type of the specified adapter
   \param AdapterHandle Handle to the adapter.
   \param PLinkType Pointer to a caller allocated AirpcapLinkType variable that will contain the link type of the adapter.
-  \return TRUE on success.
+  \return true on success.
 
   the "link type" determines how the driver will encode the packets captured from the network.
   Aircap supports two link types:
@@ -429,13 +429,13 @@ gboolean AirpcapSetLinkType(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLin
   radiotap section. Moreover, the "Capture_radio" example application in
   the developer's pack can be used as a reference on how to decode 802.11 frames with radiotap headers.
 */
-gboolean AirpcapGetLinkType(PAirpcapHandle AdapterHandle, PAirpcapLinkType PLinkType);
+bool AirpcapGetLinkType(PAirpcapHandle AdapterHandle, PAirpcapLinkType PLinkType);
 
 /*!
   \brief Configures the adapter on whether to include the MAC Frame Check Sequence in the captured packets.
   \param AdapterHandle Handle to the adapter.
-  \param IsFcsPresent TRUE if the packets should include the FCS. FALSE otherwise
-  \return TRUE on success.
+  \param IsFcsPresent true if the packets should include the FCS. false otherwise
+  \return true on success.
 
   In the default configuration, the adapter includes the FCS in the captured packets. The MAC Frame Check Sequence
   is 4 bytes and is located at the end of the 802.11 packet, with both AIRPCAP_LT_802_11 and AIRPCAP_LT_802_11_PLUS_RADIO
@@ -444,13 +444,13 @@ gboolean AirpcapGetLinkType(PAirpcapHandle AdapterHandle, PAirpcapLinkType PLink
   that precedes each frame has two additional fields at the end: Padding and FCS. These two fields are not present
   when FCS inclusion is off.
 */
-gboolean AirpcapSetFcsPresence(PAirpcapHandle AdapterHandle, gboolean IsFcsPresent);
+bool AirpcapSetFcsPresence(PAirpcapHandle AdapterHandle, bool IsFcsPresent);
 
 /*!
-  \brief Returns TRUE if the specified adapter includes the MAC Frame Check Sequence in the captured packets
+  \brief Returns true if the specified adapter includes the MAC Frame Check Sequence in the captured packets
   \param AdapterHandle Handle to the adapter.
   \param PIsFcsPresent User-provided variable that will be set to true if the adapter is including the FCS.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   In the default configuration, the adapter has FCS inclusion turned on. The MAC Frame Check Sequence is 4 bytes
   and is located at the end of the 802.11 packet, with both AIRPCAP_LT_802_11 and AIRPCAP_LT_802_11_PLUS_RADIO
@@ -459,33 +459,33 @@ gboolean AirpcapSetFcsPresence(PAirpcapHandle AdapterHandle, gboolean IsFcsPrese
   that precedes each frame has two additional fields at the end: Padding and FCS. These two fields are not present
   when FCS inclusion is off.
 */
-gboolean AirpcapGetFcsPresence(PAirpcapHandle AdapterHandle, gboolean * PIsFcsPresent);
+bool AirpcapGetFcsPresence(PAirpcapHandle AdapterHandle, bool * PIsFcsPresent);
 
 /*!
   \brief Configures the adapter to accept or drop frames with an incorrect Frame Check sequence (FCS).
   \param AdapterHandle Handle to the adapter.
   \param ValidationType The type of validation the driver will perform. See the documentation of \ref AirpcapValidationType for details.
-  \return TRUE on success.
+  \return true on success.
 
   \note By default, the driver is configured in AIRPCAP_VT_ACCEPT_EVERYTHING mode.
 */
-gboolean AirpcapSetFcsValidation(PAirpcapHandle AdapterHandle, AirpcapValidationType ValidationType);
+bool AirpcapSetFcsValidation(PAirpcapHandle AdapterHandle, AirpcapValidationType ValidationType);
 
 /*!
   \brief Checks if the specified adapter is configured to capture frames with incorrect an incorrect Frame Check Sequence (FCS).
   \param AdapterHandle Handle to the adapter.
   \param ValidationType Pointer to a user supplied variable that will contain the type of validation the driver will perform. See the documentation of \ref AirpcapValidationType for details.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   \note By default, the driver is configured in AIRPCAP_VT_ACCEPT_EVERYTHING mode.
 */
-gboolean AirpcapGetFcsValidation(PAirpcapHandle AdapterHandle, PAirpcapValidationType ValidationType);
+bool AirpcapGetFcsValidation(PAirpcapHandle AdapterHandle, PAirpcapValidationType ValidationType);
 
 /*!
   \brief Set the list of decryption keys that the driver is going to use with the specified device.
   \param AdapterHandle Handle an open adapter instance.
   \param KeysCollection Pointer to a PAirpcapKeysCollection structure that contains the keys to be set in the driver.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   The AirPcap driver is able to use a set of decryption keys to decrypt the traffic transmitted on a specific SSID. If one of the
   keys corresponds to the one the frame has been encrypted with, the driver will perform decryption and return the cleartext frames
@@ -502,7 +502,7 @@ gboolean AirpcapGetFcsValidation(PAirpcapHandle AdapterHandle, PAirpcapValidatio
   \note: when you change the set of keys from an open capture instance, the change will be
          immediately reflected on all the other capture instances.
 */
-gboolean AirpcapSetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+bool AirpcapSetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
 
 /*!
   \brief Returns the list of decryption keys in the driver that are currently associated with the specified device
@@ -510,9 +510,9 @@ gboolean AirpcapSetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
   \param KeysCollection User-allocated PAirpcapKeysCollection structure that will be filled with the keys.
   \param PKeysCollectionSize \b IN: pointer to a user-allocated variable that contains the length of the KeysCollection structure, in bytes.
                             \b OUT: amount of data moved by the driver in the buffer pointed by KeysBuffer, in bytes.
-  \return TRUE if the operation is successful. If an error occurs, the return value is FALSE and KeysCollectionSize is zero.
-  If the provided buffer is too small to contain the keys, the return value is FALSE and KeysCollectionSize contains the
-  needed KeysCollection length, in bytes. If the device doesn't have any decryption key configured, the return value is TRUE, and
+  \return true if the operation is successful. If an error occurs, the return value is false and KeysCollectionSize is zero.
+  If the provided buffer is too small to contain the keys, the return value is false and KeysCollectionSize contains the
+  needed KeysCollection length, in bytes. If the device doesn't have any decryption key configured, the return value is true, and
   KeysCollectionSize will be zero.
 
   This function returns the <b>adapter-specific</b> set of keys. These keys are used by the specified adapter only,
@@ -528,13 +528,13 @@ gboolean AirpcapSetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
 
   At this time, the only supported decryption method is WEP.
 */
-gboolean AirpcapGetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize);
+bool AirpcapGetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, unsigned * PKeysCollectionSize);
 
 /*!
   \brief Set the global list of decryption keys that the driver is going to use with all the devices.
   \param AdapterHandle Handle an open adapter instance.
   \param KeysCollection Pointer to a PAirpcapKeysCollection structure that contains the keys to be set in the driver.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   The AirPcap driver is able to use a set of decryption keys to decrypt the traffic transmitted on a specific SSID. If one of the
   keys corresponds to the one the frame has been encrypted with, the driver will perform decryption and return the cleartext frames
@@ -551,7 +551,7 @@ gboolean AirpcapGetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
   \note: when you change the set of keys from an open capture instance, the change will be
          immediately reflected on all the other capture instances.
 */
-gboolean AirpcapSetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+bool AirpcapSetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
 
 /*!
   \brief Returns the global list of decryption keys in the driver that are associated with all the devices.
@@ -559,9 +559,9 @@ gboolean AirpcapSetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
   \param KeysCollection User-allocated PAirpcapKeysCollection structure that will be filled with the keys.
   \param PKeysCollectionSize \b IN: pointer to a user-allocated variable that contains the length of the KeysCollection structure, in bytes.
                             \b OUT: amount of data moved by the driver in the buffer pointed by KeysBuffer, in bytes.
-  \return TRUE if the operation is successful. If an error occurs, the return value is FALSE and KeysCollectionSize is zero.
-  If the provided buffer is too small to contain the keys, the return value is FALSE and KeysCollectionSize contains the
-  needed KeysCollection length, in bytes. If the device doesn't have any decryption key configured, the return value is TRUE, and
+  \return true if the operation is successful. If an error occurs, the return value is false and KeysCollectionSize is zero.
+  If the provided buffer is too small to contain the keys, the return value is false and KeysCollectionSize contains the
+  needed KeysCollection length, in bytes. If the device doesn't have any decryption key configured, the return value is true, and
   KeysCollectionSize will be zero.
 
   This function returns the <b>global driver</b> set of keys. These keys will be used by all the adapters plugged in
@@ -573,83 +573,83 @@ gboolean AirpcapSetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
 
   At this time, the only supported decryption method is WEP.
 */
-gboolean AirpcapGetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize);
+bool AirpcapGetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, unsigned * PKeysCollectionSize);
 
 /*!
   \brief Turns on or off the decryption of the incoming frames with the <b>adapter-specific</b> keys.
   \param AdapterHandle Handle to the adapter.
   \param Enable Either AIRPCAP_DECRYPTION_ON or AIRPCAP_DECRYPTION_OFF
-  \return TRUE on success.
+  \return true on success.
 
   The adapter-specific decryption keys can be configured with the \ref AirpcapSetDeviceKeys() function.
   \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
-gboolean AirpcapSetDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
+bool AirpcapSetDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
 
 /*!
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>adapter-specific</b> keys.
   \param AdapterHandle Handle to the adapter.
   \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref _AirpcapDecryptionState for details.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   The adapter-specific decryption keys can be configured with the \ref AirpcapSetDeviceKeys() function.
   \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
-gboolean AirpcapGetDecryptionState(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
+bool AirpcapGetDecryptionState(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 
 /*!
   \brief Turns on or off the decryption of the incoming frames with the <b>global driver</b> set of keys.
   \param AdapterHandle Handle to the adapter.
   \param Enable Either AIRPCAP_DECRYPTION_ON or AIRPCAP_DECRYPTION_OFF
-  \return TRUE on success.
+  \return true on success.
 
   The global decryption keys can be configured with the \ref AirpcapSetDriverKeys() function.
   \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
-gboolean AirpcapSetDriverDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
+bool AirpcapSetDriverDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
 
 /*!
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>global driver</b> set of keys.
   \param AdapterHandle Handle to the adapter.
   \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref _AirpcapDecryptionState for details.
-  \return TRUE if the operation is successful. FALSE otherwise.
+  \return true if the operation is successful. false otherwise.
 
   The global decryption keys can be configured with the \ref AirpcapSetDriverKeys() function.
   \note By default, the driver is configured with AIRPCAP_DECRYPTION_ON.
 */
-gboolean AirpcapGetDriverDecryptionState(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
+bool AirpcapGetDriverDecryptionState(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 
 /*!
   \brief Set the radio channel of a device
   \param AdapterHandle Handle to the adapter.
   \param Channel the new channel to set.
-  \return TRUE on success.
+  \return true on success.
 
   The list of available channels can be retrieved with \ref AirpcapGetDeviceSupportedChannels(). The default channel setting is 6.
 
   \note this is a device-related function: when you change the channel from an open capture instance, the change will be
          immediately reflected on all the other capture instances.
 */
-gboolean AirpcapSetDeviceChannel(PAirpcapHandle AdapterHandle, guint Channel);
+bool AirpcapSetDeviceChannel(PAirpcapHandle AdapterHandle, unsigned Channel);
 
 /*!
   \brief Get the radio channel of a device
   \param AdapterHandle Handle to the adapter.
   \param PChannel Pointer to a user-supplied variable into which the function will copy the currently configured radio channel.
-  \return TRUE on success.
+  \return true on success.
 
   The list of available channels can be retrieved with \ref AirpcapGetDeviceSupportedChannels(). The default channel setting is 6.
 
   \note this is a device-related function: when you change the channel from an open capture instance, the change will be
          immediately reflected on all the other capture instances.
 */
-gboolean AirpcapGetDeviceChannel(PAirpcapHandle AdapterHandle, guint * PChannel);
+bool AirpcapGetDeviceChannel(PAirpcapHandle AdapterHandle, unsigned * PChannel);
 
 /*!
   \brief Set the size of the kernel packet buffer for this adapter
   \param AdapterHandle Handle to the adapter.
   \param BufferSize New size, in bytes.
-  \return TRUE on success.
+  \return true on success.
 
   Every AirPcap open instance has an associated kernel buffer, whose default size is 1 Mbyte.
   This function can be used to change the size of this buffer, and can be called at any time.
@@ -659,23 +659,23 @@ gboolean AirpcapGetDeviceChannel(PAirpcapHandle AdapterHandle, guint * PChannel)
   \note don't use this function unless you know what you are doing. Due to caching issues and bigger non-paged
   memory consumption, bigger buffer sizes can decrease the capture performance instead of improving it.
 */
-gboolean AirpcapSetKernelBuffer(PAirpcapHandle AdapterHandle, guint BufferSize);
+bool AirpcapSetKernelBuffer(PAirpcapHandle AdapterHandle, unsigned BufferSize);
 
 /*!
   \brief Get the size of the kernel packet buffer for this adapter
   \param AdapterHandle Handle to the adapter.
   \param PSizeBytes User-allocated variable that will be filled with the size of the kernel buffer.
-  \return TRUE on success.
+  \return true on success.
 
   Every AirPcap open instance has an associated kernel buffer, whose default size is 1 Mbyte.
   This function can be used to get the size of this buffer.
 */
-gboolean AirpcapGetKernelBufferSize(PAirpcapHandle AdapterHandle, guint * PSizeBytes);
+bool AirpcapGetKernelBufferSize(PAirpcapHandle AdapterHandle, unsigned * PSizeBytes);
 
 /*!
   \brief Saves the configuration of the specified adapter in the registry, so that it becomes the default for this adapter.
   \param AdapterHandle Handle to the adapter.
-  \return TRUE on success. FALSE on failure.
+  \return true on success. false on failure.
 
   Almost all the AirPcap calls that modify the configuration (\ref AirpcapSetLinkType(), \ref AirpcapSetFcsPresence(),
   \ref AirpcapSetFcsValidation(), \ref AirpcapSetKernelBuffer(), \ref AirpcapSetMinToCopy())
@@ -709,7 +709,7 @@ gboolean AirpcapGetKernelBufferSize(PAirpcapHandle AdapterHandle, guint * PSizeB
    AirpcapStoreCurConfigAsAdapterDefault() needs administrator privileges. It will fail if the calling user
    is not a local machine administrator.
 */
-gboolean AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
+bool AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
 
 /*!
   \brief Set the BPF kernel filter for an adapter
@@ -718,7 +718,7 @@ gboolean AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
    in a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
   \param Len Number of instructions in the array pointed by the previous field. Corresponds to the bf_len in
   a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
-  \return TRUE on success.
+  \return true on success.
 
   The AirPcap driver is able to perform kernel-level filtering using the standard BPF pseudo-machine format. You can read
   the WinPcap documentation at https://www.winpcap.org/devel.htm for more details on the BPF filtering mechanism.
@@ -729,22 +729,22 @@ gboolean AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
   with the -d or -dd or -ddd flags to obtain the pseudocode.
 
 */
-gboolean AirpcapSetFilter(PAirpcapHandle AdapterHandle, void * Instructions, guint Len);
+bool AirpcapSetFilter(PAirpcapHandle AdapterHandle, void * Instructions, unsigned Len);
 
 /*!
   \brief Return the MAC address of an adapter.
   \param AdapterHandle Handle to the adapter.
   \param PMacAddress Pointer to a user allocated MAC address.
    The size of this buffer needs to be at least 6 bytes.
-  \return TRUE on success.
+  \return true on success.
 */
-gboolean AirpcapGetMacAddress(PAirpcapHandle AdapterHandle, PAirpcapMacAddress PMacAddress);
+bool AirpcapGetMacAddress(PAirpcapHandle AdapterHandle, PAirpcapMacAddress PMacAddress);
 
 /*!
   \brief Set the mintocopy parameter for an open adapter
   \param AdapterHandle Handle to the adapter.
   \param MinToCopy is the mintocopy size in bytes.
-  \return TRUE on success.
+  \return true on success.
 
   When the number of bytes in the kernel buffer changes from less than mintocopy bytes to greater than or equal to mintocopy bytes,
   the read event is signalled (see \ref AirpcapGetReadEvent()). A high value for mintocopy results in poor responsiveness since the
@@ -753,19 +753,19 @@ gboolean AirpcapGetMacAddress(PAirpcapHandle AdapterHandle, PAirpcapMacAddress P
   A low MinToCopy results in good responsiveness since the driver will signal the application close to the arrival time of
   the packet. This has higher CPU loading over the first approach.
 */
-gboolean AirpcapSetMinToCopy(PAirpcapHandle AdapterHandle, guint MinToCopy);
+bool AirpcapSetMinToCopy(PAirpcapHandle AdapterHandle, unsigned MinToCopy);
 
 /*!
   \brief Gets an event that is signaled when that is signalled when packets are available in the kernel buffer (see \ref AirpcapSetMinToCopy()).
   \param AdapterHandle Handle to the adapter.
   \param PReadEvent Pointer to a user-supplied handle that in which the read event will be copied.
-  \return TRUE on success.
+  \return true on success.
 
   \note the event is signalled when at least mintocopy bytes are present in the kernel buffer (see \ref AirpcapSetMinToCopy()).
   This event can be used by WaitForSingleObject() and WaitForMultipleObjects() to create blocking behavior when reading
   packets from one or more adapters (see \ref AirpcapRead()).
 */
-gboolean AirpcapGetReadEvent(PAirpcapHandle AdapterHandle, void *** PReadEvent);
+bool AirpcapGetReadEvent(PAirpcapHandle AdapterHandle, void *** PReadEvent);
 
 /*!
   \brief Fills a user-provided buffer with zero or more packets that have been captured on the referenced adapter.
@@ -774,7 +774,7 @@ gboolean AirpcapGetReadEvent(PAirpcapHandle AdapterHandle, void *** PReadEvent);
   \param BufSize size of the input buffer that will contain the packets, in bytes.
   \param PReceievedBytes Pointer to a user supplied variable that will receive the number of bytes copied by AirpcapRead.
   Can be smaller than BufSize.
-  \return TRUE on success.
+  \return true on success.
 
   802.11 frames are returned by the driver in buffers. Every 802.11 frame in the buffer is preceded by a \ref AirpcapBpfHeader structure.
   The suggested way to use an AirPcap adapter is through the pcap API exported by wpcap.dll. If this is not
@@ -784,14 +784,14 @@ gboolean AirpcapGetReadEvent(PAirpcapHandle AdapterHandle, void *** PReadEvent);
   \note this function is NOT blocking. Blocking behavior can be obtained using the event returned
    by \ref AirpcapGetReadEvent(). See also \ref AirpcapSetMinToCopy().
 */
-gboolean AirpcapRead(PAirpcapHandle AdapterHandle, guint8 * Buffer, guint BufSize, guint * PReceievedBytes);
+bool AirpcapRead(PAirpcapHandle AdapterHandle, uint8_t * Buffer, unsigned BufSize, unsigned * PReceievedBytes);
 
 /*!
   \brief Transmits a packet.
   \param AdapterHandle Handle to the adapter.
   \param TxPacket Pointer to a buffer that contains the packet to be transmitted.
   \param PacketLen Length of the buffer pointed by the TxPacket argument, in bytes.
-  \return TRUE on success.
+  \return true on success.
 
   The packet will be transmitted on the channel the device is currently set. To change the device adapter, use the
   \ref AirpcapSetDeviceChannel() function.
@@ -803,61 +803,61 @@ gboolean AirpcapRead(PAirpcapHandle AdapterHandle, guint8 * Buffer, guint BufSiz
   header followed by the 802.11 packet. AirpcapWrite will use the rate information in the radiotap header when
   transmitting the packet.
 */
-gboolean AirpcapWrite(PAirpcapHandle AdapterHandle, gchar * TxPacket, guint32 PacketLen);
+bool AirpcapWrite(PAirpcapHandle AdapterHandle, char * TxPacket, uint32_t PacketLen);
 
 /*!
   \brief Get per-adapter WinPcap-compatible capture statistics.
   \param AdapterHandle Handle to the adapter.
   \param PStats pointer to a user-allocated AirpcapStats structure that will be filled with statistical information.
-  \return TRUE on success.
+  \return true on success.
 */
-gboolean AirpcapGetStats(PAirpcapHandle AdapterHandle, PAirpcapStats PStats);
+bool AirpcapGetStats(PAirpcapHandle AdapterHandle, PAirpcapStats PStats);
 
 /*!
   \brief Get the number of LEDs the referenced adapter has available.
   \param AdapterHandle Handle to the adapter.
   \param NumberOfLeds Number of LEDs available on this adapter.
-  \return TRUE on success.
+  \return true on success.
 */
-gboolean AirpcapGetLedsNumber(PAirpcapHandle AdapterHandle, guint * NumberOfLeds);
+bool AirpcapGetLedsNumber(PAirpcapHandle AdapterHandle, unsigned * NumberOfLeds);
 
 /*!
   \brief Turn on one of the adapter's LEDs.
   \param AdapterHandle Handle to the adapter.
   \param LedNumber zero-based identifier of the LED to turn on.
-  \return TRUE on success.
+  \return true on success.
 */
-gboolean AirpcapTurnLedOn(PAirpcapHandle AdapterHandle, guint LedNumber);
+bool AirpcapTurnLedOn(PAirpcapHandle AdapterHandle, unsigned LedNumber);
 
 /*!
   \brief Turn off one of the adapter's LEDs.
   \param AdapterHandle Handle to the adapter.
   \param LedNumber zero-based identifier of the LED to turn off.
-  \return TRUE on success.
+  \return true on success.
 */
-gboolean AirpcapTurnLedOff(PAirpcapHandle AdapterHandle, guint LedNumber);
+bool AirpcapTurnLedOff(PAirpcapHandle AdapterHandle, unsigned LedNumber);
 
 /*!
   \brief Set the channel of a device through its radio frequency. In case of 802.11n enabled devices, it sets the extension channel, if used.
   \param AdapterHandle Handle to the adapter.
   \param ChannelInfo The new channel information to set.
-  \return TRUE on success.
+  \return true on success.
 
   \note this is a device-related function: when you change the channel from an open capture instance, the change will be
          immediately reflected on all the other capture instances.
 */
-gboolean AirpcapSetDeviceChannelEx(PAirpcapHandle AdapterHandle, AirpcapChannelInfo ChannelInfo);
+bool AirpcapSetDeviceChannelEx(PAirpcapHandle AdapterHandle, AirpcapChannelInfo ChannelInfo);
 
 /*!
   \brief Get the channel of a device through its radiofrequency. In case of 802.11n enabled devices, it gets the extension channel, if in use.
   \param AdapterHandle Handle to the adapter.
   \param PChannelInfo Pointer to a user-supplied variable into which the function will copy the currently configured channel information.
-  \return TRUE on success.
+  \return true on success.
 
   \note this is a device-related function: when you change the channel from an open capture instance, the change will be
          immediately reflected on all the other capture instances.
 */
-gboolean AirpcapGetDeviceChannelEx(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo PChannelInfo);
+bool AirpcapGetDeviceChannelEx(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo PChannelInfo);
 
 /*!
   \brief Get the list of supported channels for a given device. In case of a 802.11n capable device, information related to supported extension channels is also reported.
@@ -869,11 +869,11 @@ gboolean AirpcapGetDeviceChannelEx(PAirpcapHandle AdapterHandle, PAirpcapChannel
   \param AdapterHandle Handle to the adapter.
   \param ppChannelInfo Pointer to a user-supplied variable that will point to an array of supported channel. Such list must not be freed by the caller
   \param pNumChannelInfo Number of channels returned in the array.
-  \return TRUE on success.
+  \return true on success.
 
   \note The supported channels are not listed in any specific order.
 */
-gboolean AirpcapGetDeviceSupportedChannels(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo *ppChannelInfo, guint * pNumChannelInfo);
+bool AirpcapGetDeviceSupportedChannels(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo *ppChannelInfo, unsigned * pNumChannelInfo);
 
 /*!
   \brief Converts a given frequency to the corresponding channel.
@@ -881,18 +881,18 @@ gboolean AirpcapGetDeviceSupportedChannels(PAirpcapHandle AdapterHandle, PAirpca
   \param Frequency Frequency of the channel, in MHz.
   \param PChannel Pointer to a user-supplied variable that will contain the channel number on success.
   \param PBand Pointer to a user-supplied variable that will contain the band (a or b/g) of the given channel.
-  \return TRUE on success, i.e. the frequency corresponds to a valid a or b/g channel.
+  \return true on success, i.e. the frequency corresponds to a valid a or b/g channel.
 */
-gboolean AirpcapConvertFrequencyToChannel(guint Frequency, guint * PChannel, PAirpcapChannelBand PBand);
+bool AirpcapConvertFrequencyToChannel(unsigned Frequency, unsigned * PChannel, PAirpcapChannelBand PBand);
 
 /*!
   \brief Converts a given channel to the corresponding frequency.
 
   \param Channel Channel number to be converted.
   \param PFrequency Pointer to a user-supplied variable that will contain the channel frequency in MHz on success.
-  \return TRUE on success, i.e. the given channel number exists.
+  \return true on success, i.e. the given channel number exists.
 */
-gboolean AirpcapConvertChannelToFrequency(guint Channel, guint * PFrequency);
+bool AirpcapConvertChannelToFrequency(unsigned Channel, unsigned * PFrequency);
 
 
 /*@}*/

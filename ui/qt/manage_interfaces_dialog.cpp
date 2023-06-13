@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h>
+#include <wireshark.h>
 #include "manage_interfaces_dialog.h"
 #include <ui_manage_interfaces_dialog.h>
 

@@ -40,9 +40,9 @@ struct _info_data;
  *  @param cap_session a handle for the capture session
  *  @param cap_data a struct with capture info data
  *  @param update_cb update screen
- *  @return             TRUE if a capture could be started, FALSE if not
+ *  @return             true if a capture could be started, false if not
  */
-extern gboolean
+extern bool
 sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
                 capture_session *cap_session, struct _info_data* cap_data,
                 void(*update_cb)(void));
@@ -78,29 +78,29 @@ sync_pipe_kill(ws_process_id fork_child);
  *  @return 0 on success
  */
 extern int
-sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
-                              const gchar *center_freq1, const gchar *center_freq2,
-                              gchar **data, gchar **primary_msg,
-                              gchar **secondary_msg, void (*update_cb)(void));
+sync_interface_set_80211_chan(const char *iface, const char *freq, const char *type,
+                              const char *center_freq1, const char *center_freq2,
+                              char **data, char **primary_msg,
+                              char **secondary_msg, void (*update_cb)(void));
 
 /** Get an interface list using dumpcap */
 extern int
-sync_interface_list_open(gchar **data, gchar **primary_msg,
-                         gchar **secondary_msg, void (*update_cb)(void));
+sync_interface_list_open(char **data, char **primary_msg,
+                         char **secondary_msg, void (*update_cb)(void));
 
 /** Get interface capabilities using dumpcap */
 extern int
-sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gchar* auth,
-                          gchar **data, gchar **primary_msg,
-                          gchar **secondary_msg, void (*update_cb)(void));
+sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* auth,
+                          char **data, char **primary_msg,
+                          char **secondary_msg, void (*update_cb)(void));
 
 /** Start getting interface statistics using dumpcap. */
 extern int
-sync_interface_stats_open(int *read_fd, ws_process_id *fork_child, gchar **msg, void (*update_cb)(void));
+sync_interface_stats_open(int *read_fd, ws_process_id *fork_child, char **msg, void (*update_cb)(void));
 
 /** Stop gathering statistics. */
 extern int
-sync_interface_stats_close(int *read_fd, ws_process_id *fork_child, gchar **msg);
+sync_interface_stats_close(int *read_fd, ws_process_id *fork_child, char **msg);
 
 /** Read a line from a pipe, similar to fgets.  Non-blocking. */
 extern int

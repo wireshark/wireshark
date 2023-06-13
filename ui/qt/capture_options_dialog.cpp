@@ -9,7 +9,7 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include "capture_options_dialog.h"
 #include <ui/qt/widgets/capture_filter_combo.h>

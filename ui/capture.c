@@ -386,7 +386,7 @@ cf_open_error_message(int err, gchar *err_info)
 }
 
 /* capture child tells us we have a new (or the first) capture file */
-static gboolean
+static bool
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
     capture_options *capture_opts = cap_session->capture_opts;

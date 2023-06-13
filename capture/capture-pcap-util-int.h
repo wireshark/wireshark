@@ -13,7 +13,7 @@
 #define __PCAP_UTIL_INT_H__
 
 extern if_info_t *if_info_new(const char *name, const char *description,
-	gboolean loopback);
+	bool loopback);
 extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
 #ifdef HAVE_PCAP_REMOTE
 extern GList *get_interface_list_findalldevs_ex(const char *hostname,
@@ -58,6 +58,6 @@ extern pcap_t *open_capture_device_pcap_open_live(interface_options *interface_o
  * "get_interface_list()".  This is used to let the error message string
  * be platform-dependent.
  */
-extern gchar *cant_get_if_list_error_message(const char *err_str);
+extern char *cant_get_if_list_error_message(const char *err_str);
 
 #endif /* __PCAP_UTIL_INT_H__ */
