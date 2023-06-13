@@ -27,7 +27,7 @@ set(LUA_FOUND TRUE CACHE INTERNAL "")
 # does not work with MinGW.
 #
 ExternalProject_Add(lua52
-	URL               https://gitlab.com/wireshark/wireshark-development-libraries/-/blob/main/public/src/lua/lua-5.2.4.tar.gz
+	URL               https://gitlab.com/wireshark/wireshark-development-libraries/-/raw/main/public/src/lua/lua-5.2.4.tar.gz
 	URL               https://www.lua.org/ftp/lua-5.2.4.tar.gz
 	URL_HASH          SHA256=b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b
 	PATCH_COMMAND     patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/0001-Add-an-install-static-target.patch
