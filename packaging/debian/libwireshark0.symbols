@@ -681,6 +681,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ext_toolbar_update_value@Base 2.3.0
  fc_fc4_val@Base 1.9.1
  fetch_tapped_data@Base 1.9.1
+ fifo_string_cache_contains@Base 4.1.0
+ fifo_string_cache_free@Base 4.1.0
+ fifo_string_cache_init@Base 4.1.0
+ fifo_string_cache_insert@Base 4.1.0
  filter_expression_iterate_expressions@Base 2.5.0
  filter_expression_new@Base 1.9.1
  find_and_mark_frame_depended_upon@Base 4.1.0
@@ -1251,9 +1255,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_register_protocol_in_name_only@Base 2.3.0
  proto_register_subtree_array@Base 1.9.1
  proto_registrar_dump_elastic@Base 2.9.0
+ proto_registrar_dump_field_completions@Base 3.5.0
  proto_registrar_dump_fieldcount@Base 2.0.0
  proto_registrar_dump_fields@Base 1.9.1
- proto_registrar_dump_field_completions@Base 3.5.0
  proto_registrar_dump_ftypes@Base 1.9.1
  proto_registrar_dump_protocols@Base 1.9.1
  proto_registrar_dump_values@Base 1.9.1
@@ -1596,10 +1600,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  srt_table_iterate_tables@Base 1.99.8
  srtcp_add_address@Base 1.9.1
  srtp_add_address@Base 1.9.1
- ssl_crandom_hash@Base 1.99.4
  ssl_dissector_add@Base 2.1.0
  ssl_dissector_delete@Base 2.1.0
- ssl_session_hash@Base 1.9.1
  ssl_set_master_secret@Base 1.9.1
  ssl_starttls_ack@Base 2.1.0
  ssl_starttls_post_ack@Base 2.1.0
@@ -1772,6 +1774,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  timestamp_set_precision@Base 1.9.1
  timestamp_set_seconds_type@Base 1.9.1
  timestamp_set_type@Base 1.9.1
+ tls_get_master_key_map@Base 4.1.0
  tls_set_appdata_dissector@Base 3.1.1
  tmp_color_filters_used@Base 2.1.0
  trans2_cmd_vals_ext@Base 1.9.1
