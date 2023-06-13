@@ -2248,13 +2248,14 @@ proto_register_hartip(void)
                                   &hartip_desegment);
 
   hartip_tap = register_tap("hart_ip");
+
+  hartip_udp_handle = register_dissector_with_description("hart_ip", "HART-IP over UDP", dissect_hartip_udp, proto_hartip);
+  hartip_tcp_handle = register_dissector_with_description("hart_ip.tcp", "HART-IP over TCP", dissect_hartip_tcp, proto_hartip);
 }
 
 void
 proto_reg_handoff_hartip(void)
 {
-  hartip_tcp_handle = create_dissector_handle(dissect_hartip_tcp, proto_hartip);
-  hartip_udp_handle = create_dissector_handle(dissect_hartip_udp, proto_hartip);
   dissector_add_uint_with_preference("udp.port", HARTIP_PORT, hartip_udp_handle);
   dissector_add_uint_with_preference("tcp.port", HARTIP_PORT, hartip_tcp_handle);
 
