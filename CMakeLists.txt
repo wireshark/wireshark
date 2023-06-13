@@ -4052,7 +4052,7 @@ if(WIN32 AND NOT USE_MSYSTEM)
 	# path (incorrect relative path computation).
 	set(WIRESHARK_INSTALL_CMAKEDIR "cmake")
 else()
-	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake")
+	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 endif()
 
 include(CMakePackageConfigHelpers)
