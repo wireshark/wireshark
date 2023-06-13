@@ -16,26 +16,47 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <glib.h>
+#include <ws_symbol_export.h>
+
+/*
+ * Tell if protocols have been enabled/disabled since
+ * we've last loaded (or saved) the lists.
+ */
+WS_DLL_PUBLIC gboolean
+enabled_protos_unsaved_changes(void);
+
 /*
  * Disable a particular protocol by name
- */
-WS_DLL_PUBLIC void
-proto_disable_proto_by_name(const char *name);
-
-/*
- * Enable a particular protocol by name.  This will only enable
- * protocols that are disabled by default.  All others will be ignored.
- */
-WS_DLL_PUBLIC void
-proto_enable_proto_by_name(const char *name);
-
-/*
- * Enable/disable a particular heuristic dissector by name
  * On success (found the protocol), return TRUE.
  * On failure (didn't find the protocol), return FALSE.
  */
 WS_DLL_PUBLIC gboolean
-proto_enable_heuristic_by_name(const char *name, gboolean enable);
+proto_disable_proto_by_name(const char *name);
+
+/*
+ * Enable a particular protocol by name
+ * On success (found the protocol), return TRUE.
+ * On failure (didn't find the protocol), return FALSE.
+ */
+WS_DLL_PUBLIC gboolean
+proto_enable_proto_by_name(const char *name);
+
+/*
+ * Enable a particular heuristic dissector by name
+ * On success (found the protocol), return TRUE.
+ * On failure (didn't find the protocol), return FALSE.
+ */
+WS_DLL_PUBLIC gboolean
+proto_enable_heuristic_by_name(const char *name);
+
+/*
+ * Disable a particular heuristic dissector by name
+ * On success (found the protocol), return TRUE.
+ * On failure (didn't find the protocol), return FALSE.
+ */
+WS_DLL_PUBLIC gboolean
+proto_disable_heuristic_by_name(const char *name);
 
 /*
  * Read the files that enable and disable protocols and heuristic
@@ -43,8 +64,10 @@ proto_enable_heuristic_by_name(const char *name, gboolean enable);
  *
  * This is called by epan_load_settings(); programs should call that
  * rather than individually calling the routines it calls.
+ * This is only public (instead of extern) to allow users who temporarily
+ * disable protocols in the PHS GUI to re-enable them.
  */
-extern void
+WS_DLL_PUBLIC void
 read_enabled_and_disabled_lists(void);
 
 /*

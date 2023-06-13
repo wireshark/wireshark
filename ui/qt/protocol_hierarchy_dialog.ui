@@ -114,6 +114,30 @@
     <string>Copy stream list as YAML.</string>
    </property>
   </action>
+  <action name="actionCopyProtoList">
+   <property name="text">
+    <string>Copy short names</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy short protocol names in use.</string>
+   </property>
+  </action>
+  <action name="actionDisableProtos">
+   <property name="text">
+    <string>Disable unused protocols</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable all protocols but those listed.</string>
+   </property>
+  </action>
+  <action name="actionRevertProtos">
+   <property name="text">
+    <string>Re-enable unused protocols</string>
+   </property>
+   <property name="toolTip">
+    <string>Re-enable protocols that were disabled in this dialog.</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

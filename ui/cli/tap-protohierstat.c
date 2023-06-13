@@ -22,6 +22,8 @@
 
 #include <wsutil/cmdarg_err.h>
 
+static int pc_proto_id = -1;
+
 void register_tap_listener_protohierstat(void);
 
 typedef struct _phs_t {
@@ -125,6 +127,16 @@ phs_draw(phs_t *rs, int indentation)
 		if (rs->protocol == -1) {
 			return;
 		}
+		/*
+		 * If the first child is a tree of comments, skip over it.
+		 * This keeps us from having a top-level "pkt_comment"
+		 * entry that represents a nonexistent protocol,
+		 * and matches how the GUI treats comments.
+		 */
+		if (G_UNLIKELY(rs->protocol == pc_proto_id)) {
+			phs_draw(rs->child, indentation);
+			continue;
+		}
 		str[0] = 0;
 		stroff = 0;
 		for (i=0; i<indentation; i++) {
@@ -172,6 +184,8 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("invalid \"-z io,phs[,<filter>]\" argument");
 		exit(1);
 	}
+
+	pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
 
 	rs = new_phs_t(NULL);
 	rs->filter = g_strdup(filter);

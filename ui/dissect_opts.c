@@ -205,45 +205,69 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
     return TRUE;
 }
 
+typedef gboolean (proto_set_func)(const char *);
+
+static gboolean
+slist_break_commas(GSList *list, proto_set_func callback)
+{
+    gboolean success = TRUE;
+    gboolean rv;
+    GSList *iter;
+    char *c;
+    char *proto_name;
+
+    for (iter = list; iter != NULL; iter = g_slist_next(iter)) {
+        proto_name = (char *)iter->data;
+        c = strchr(proto_name, ',');
+        if (c == NULL) {
+            rv = callback(proto_name);
+            if (!rv) {
+                cmdarg_err("No such protocol %s", proto_name);
+                success = FALSE;
+            }
+        }
+        else {
+            char *start;
+            char save;
+
+            start = proto_name;
+            while(1) {
+                if (c != NULL) {
+                    save = *c;
+                    *c = '\0';
+                }
+                rv = callback(start);
+                if (!rv) {
+                    cmdarg_err("No such protocol %s", start);
+                    success = FALSE;
+                }
+                if (c != NULL) {
+                    *c = save;
+                    start = (save == ',' ? c+1 : c);
+                    c = strchr(start, ',');
+                }
+                else {
+                    break;
+                }
+            }
+        }
+    }
+
+    return success;
+}
+
 gboolean
 setup_enabled_and_disabled_protocols(void)
 {
     gboolean success = TRUE;
 
-    if (global_dissect_options.disable_protocol_slist) {
-        GSList *proto_disable;
-
-        for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
-            proto_disable_proto_by_name((char*)proto_disable->data);
-    }
-
-    if (global_dissect_options.enable_protocol_slist) {
-        GSList *proto_enable;
-
-        for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
-            proto_enable_proto_by_name((char*)proto_enable->data);
-    }
-
-    if (global_dissect_options.enable_heur_slist) {
-        GSList *heur_enable;
-
-        for (heur_enable = global_dissect_options.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable)) {
-            if (!proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE)) {
-                cmdarg_err("No such protocol %s, can't enable", (char*)heur_enable->data);
-                success = FALSE;
-            }
-        }
-    }
-
-    if (global_dissect_options.disable_heur_slist) {
-        GSList *heur_disable;
-
-        for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable)) {
-            if (!proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE)) {
-                cmdarg_err("No such protocol %s, can't disable", (char*)heur_disable->data);
-                success = FALSE;
-            }
-        }
-    }
+    success &= slist_break_commas(global_dissect_options.disable_protocol_slist,
+            proto_disable_proto_by_name);
+    success &= slist_break_commas(global_dissect_options.enable_protocol_slist,
+            proto_enable_proto_by_name);
+    success &= slist_break_commas(global_dissect_options.enable_heur_slist,
+            proto_enable_heuristic_by_name);
+    success &= slist_break_commas(global_dissect_options.disable_heur_slist,
+            proto_disable_heuristic_by_name);
     return success;
 }

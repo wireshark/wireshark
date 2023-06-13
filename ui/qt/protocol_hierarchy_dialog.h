@@ -11,6 +11,7 @@
 #define PROTOCOL_HIERARCHY_DIALOG_H
 
 #include <QMenu>
+#include <QSet>
 
 #include "filter_action.h"
 #include <ui/qt/models/percent_bar_delegate.h>
@@ -39,14 +40,19 @@ private slots:
     void filterActionTriggered();
     void on_actionCopyAsCsv_triggered();
     void on_actionCopyAsYaml_triggered();
+    void on_actionCopyProtoList_triggered();
+    void on_actionDisableProtos_triggered();
+    void on_actionRevertProtos_triggered();
     void on_buttonBox_helpRequested();
 
 private:
     Ui::ProtocolHierarchyDialog *ui;
-    QPushButton *copy_button_;
+    QAction *proto_disable_;
+    QAction *proto_revert_;
     QMenu ctx_menu_;
     PercentBarDelegate percent_bar_delegate_;
     QString display_filter_;
+    QSet<QString> used_protos_;
 
     // Callback for g_node_children_foreach
     static void addTreeNode(GNode *node, gpointer data);

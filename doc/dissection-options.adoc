@@ -44,10 +44,13 @@ See the xref:tshark.html#decode_as[tshark](1) manual page for more examples.
 --
 // end::decode_as[]
 
---disable-protocol <proto_name>::
+--disable-protocol <proto_name>[,<proto_name>,...]::
 +
 --
 Disable dissection of proto_name.
+Use a proto_name of *ALL* to override
+your chosen profile's default enabled protocol list and temporarily
+disable all protocols.
 --
 
 --disable-heuristic <short_name>::
@@ -56,10 +59,18 @@ Disable dissection of proto_name.
 Disable dissection of heuristic protocol.
 --
 
---enable-protocol <proto_name>::
+--enable-protocol <proto_name>[,<proto_name>,...]::
 +
 --
 Enable dissection of proto_name.
+Use a proto_name of *ALL* to override
+your chosen profile's default disabled protocol list and temporarily
+enable all protocols which are enabled by default.
+
+If a protocol is implicated in both *--disable-protocol*
+and *--enable-protocol*, the protocol is enabled. This allows you to
+temporarily disable all protocols but a list of exceptions.
+Example: *--disable-protocol ALL --enable-protocol eth,ip*
 --
 
 --enable-heuristic <short_name>::

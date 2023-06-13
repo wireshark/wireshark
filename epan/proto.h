@@ -2705,6 +2705,9 @@ WS_DLL_PUBLIC void proto_disable_by_default(const int proto_id);
  @param enabled enable / disable the protocol */
 WS_DLL_PUBLIC void proto_set_decoding(const int proto_id, const gboolean enabled);
 
+/** Disable all protocols. */
+WS_DLL_PUBLIC void proto_disable_all(void);
+
 /** Re-enable all protocols that are not marked as disabled by default. */
 WS_DLL_PUBLIC void proto_reenable_all(void);
 

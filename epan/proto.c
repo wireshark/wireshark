@@ -8030,6 +8030,28 @@ proto_set_decoding(const int proto_id, const gboolean enabled)
 }
 
 void
+proto_disable_all(void)
+{
+	/* This doesn't explicitly disable heuristic protocols,
+	 * but the heuristic doesn't get called if the parent
+	 * protocol isn't enabled.
+	 */
+	protocol_t *protocol;
+	GList      *list_item = protocols;
+
+	if (protocols == NULL)
+		return;
+
+	while (list_item) {
+		protocol = (protocol_t *)list_item->data;
+		if (protocol->can_toggle) {
+			protocol->is_enabled = FALSE;
+		}
+		list_item = g_list_next(list_item);
+	}
+}
+
+void
 proto_reenable_all(void)
 {
 	protocol_t *protocol;
@@ -8040,8 +8062,8 @@ proto_reenable_all(void)
 
 	while (list_item) {
 		protocol = (protocol_t *)list_item->data;
-		if (protocol->can_toggle && protocol->enabled_by_default)
-			protocol->is_enabled = TRUE;
+		if (protocol->can_toggle)
+			protocol->is_enabled = protocol->enabled_by_default;
 		list_item = g_list_next(list_item);
 	}
 }

@@ -578,6 +578,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
  endpoint_table_set_gui_info@Base 4.0.0-rc2
+ enabled_protos_unsaved_changes@Base 3.7.0
  enterprises_base_custom@Base 2.5.0
  enterprises_lookup@Base 2.5.0
  eo_ct2ext@Base 2.3.0
@@ -1195,7 +1196,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_checksum_vals@Base 2.2.0
  proto_construct_match_selected_string@Base 1.9.1
  proto_deregister_field@Base 1.99.9
+ proto_disable_all@Base 3.7.0
  proto_disable_by_default@Base 2.1.2
+ proto_disable_heuristic_by_name@Base 3.7.0
  proto_disable_proto_by_name@Base 1.99.8
  proto_enable_heuristic_by_name@Base 1.99.8
  proto_enable_proto_by_name@Base 2.3.0
@@ -1434,6 +1437,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_foreach@Base 1.9.1
  range_remove_value@Base 2.3.0
  ranges_are_equal@Base 1.9.1
+ read_enabled_and_disabled_lists@Base 3.7.0
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
  read_prefs_file@Base 1.9.1

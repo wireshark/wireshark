@@ -21,6 +21,9 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
 
+#include <epan/proto.h>
+#include <epan/disabled_protos.h>
+
 #include <QClipboard>
 #include <QPushButton>
 #include <QTextStream>
@@ -47,6 +50,11 @@ const int end_packets_col_ = 6;
 const int end_bytes_col_ = 7;
 const int end_bandwidth_col_ = 8;
 const int pdus_col_ = 9;
+
+struct addTreeNodeData {
+    QSet<QString> *protos;
+    QTreeWidgetItem *widget;
+};
 
 class ProtocolHierarchyTreeWidgetItem : public QTreeWidgetItem
 {
@@ -181,7 +189,8 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     ph_stats_t *ph_stats = ph_stats_new(cap_file_.capFile());
     if (ph_stats) {
         ui->hierStatsTreeWidget->invisibleRootItem()->setData(0, Qt::UserRole, VariantPointer<ph_stats_t>::asQVariant(ph_stats));
-        g_node_children_foreach(ph_stats->stats_tree, G_TRAVERSE_ALL, addTreeNode, ui->hierStatsTreeWidget->invisibleRootItem());
+        addTreeNodeData atnd { &used_protos_, ui->hierStatsTreeWidget->invisibleRootItem() };
+        g_node_children_foreach(ph_stats->stats_tree, G_TRAVERSE_ALL, addTreeNode, (void *)&atnd);
         ph_stats_free(ph_stats);
     }
 
@@ -226,9 +235,9 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     ctx_menu_.addAction(ui->actionCopyAsCsv);
     ctx_menu_.addAction(ui->actionCopyAsYaml);
 
-    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
+    QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
 
-    QMenu *copy_menu = new QMenu(copy_button_);
+    QMenu *copy_menu = new QMenu(copy_button);
     QAction *ca;
     ca = copy_menu->addAction(tr("as CSV"));
     ca->setToolTip(ui->actionCopyAsCsv->toolTip());
@@ -236,7 +245,22 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     ca = copy_menu->addAction(tr("as YAML"));
     ca->setToolTip(ui->actionCopyAsYaml->toolTip());
     connect(ca, &QAction::triggered, this, &ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered);
-    copy_button_->setMenu(copy_menu);
+    copy_button->setMenu(copy_menu);
+    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
+    ca = copy_menu->addAction(tr("protocol short names"));
+    ca->setToolTip(ui->actionCopyProtoList->toolTip());
+    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyProtoList_triggered()));
+    copy_button->setMenu(copy_menu);
+
+    QPushButton *protos_button = ui->buttonBox->addButton(tr("Protocols"), QDialogButtonBox::ApplyRole);
+    QMenu *protos_menu = new QMenu(protos_button);
+    proto_disable_ = protos_menu->addAction(tr("Disable unused"));
+    proto_disable_->setToolTip(ui->actionDisableProtos->toolTip());
+    connect(proto_disable_, SIGNAL(triggered()), this, SLOT(on_actionDisableProtos_triggered()));
+    proto_revert_ = protos_menu->addAction(tr("Revert changes"));
+    proto_revert_->setToolTip(ui->actionRevertProtos->toolTip());
+    connect(proto_revert_, SIGNAL(triggered()), this, SLOT(on_actionRevertProtos_triggered()));
+    protos_button->setMenu(protos_menu);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -286,12 +310,16 @@ void ProtocolHierarchyDialog::addTreeNode(GNode *node, gpointer data)
     ph_stats_node_t *stats = (ph_stats_node_t *)node->data;
     if (!stats) return;
 
-    QTreeWidgetItem *parent_ti = static_cast<QTreeWidgetItem *>(data);
+    addTreeNodeData *atndp = (addTreeNodeData *)data;
+    QTreeWidgetItem *parent_ti = atndp->widget;
     if (!parent_ti) return;
 
-    ProtocolHierarchyTreeWidgetItem *phti = new ProtocolHierarchyTreeWidgetItem(parent_ti, *stats);
+    atndp->protos->insert(QString(stats->hfinfo->abbrev));
 
-    g_node_children_foreach(node, G_TRAVERSE_ALL, addTreeNode, phti);
+    ProtocolHierarchyTreeWidgetItem *phti = new ProtocolHierarchyTreeWidgetItem(parent_ti, *stats);
+    addTreeNodeData atnd { atndp->protos, phti };
+
+    g_node_children_foreach(node, G_TRAVERSE_ALL, addTreeNode, (void *)&atnd);
 
 }
 
@@ -305,6 +333,8 @@ void ProtocolHierarchyDialog::updateWidgets()
     }
     hint += "</i></small>";
     ui->hintLabel->setText(hint);
+
+    proto_revert_->setEnabled(enabled_protos_unsaved_changes());
 
     WiresharkDialog::updateWidgets();
 }
@@ -373,6 +403,59 @@ void ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered()
         first = false;
     }
     mainApp->clipboard()->setText(stream.readAll());
+}
+
+void ProtocolHierarchyDialog::on_actionCopyProtoList_triggered()
+{
+    QString plist;
+    QTextStream stream(&plist, QIODevice::Text);
+    bool first = true;
+    QSetIterator<QString> iter(used_protos_);
+    while (iter.hasNext()) {
+        if (!first) stream << ',';
+        stream << iter.next();
+        first = false;
+    }
+    mainApp->clipboard()->setText(stream.readAll());
+}
+
+void ProtocolHierarchyDialog::on_actionDisableProtos_triggered()
+{
+    proto_disable_all();
+
+    QSetIterator<QString> iter(used_protos_);
+    while (iter.hasNext()) {
+        proto_enable_proto_by_name(iter.next().toStdString().c_str());
+    }
+    /* Note that we aren't saving the changes here; they only apply
+     * to the current dissection.
+     * (Though if the user goes to the Enabled Protocols dialog and
+     * makes changes, these changes as well as the user's will be saved.)
+     */
+    proto_revert_->setEnabled(enabled_protos_unsaved_changes());
+
+    QString hint = "<small><i>"
+        + tr("Unused protocols have been disabled.")
+        + "</i></small>";
+    ui->hintLabel->setText(hint);
+
+    // If we've done everything right, nothing should change.
+    //wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+}
+
+void ProtocolHierarchyDialog::on_actionRevertProtos_triggered()
+{
+    proto_reenable_all();
+    read_enabled_and_disabled_lists();
+
+    proto_revert_->setEnabled(enabled_protos_unsaved_changes());
+    QString hint = "<small><i>"
+        + tr("Protocol changes have been reverted.")
+        + "</i></small>";
+    ui->hintLabel->setText(hint);
+
+    // If we've done everything right, nothing should change.
+    //wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
 }
 
 void ProtocolHierarchyDialog::on_buttonBox_helpRequested()

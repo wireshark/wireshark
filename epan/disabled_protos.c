@@ -62,7 +62,15 @@ static GList *enabled_protos = NULL;
 static GList *global_disabled_heuristics = NULL;
 static GList *disabled_heuristics = NULL;
 
+static gboolean unsaved_changes = FALSE;
+
 #define INIT_BUF_SIZE   128
+
+gboolean
+enabled_protos_unsaved_changes(void)
+{
+  return unsaved_changes;
+}
 
 static void
 discard_existing_list (GList **flp)
@@ -468,21 +476,31 @@ read_protos_list(char **gpath_return, int *gopen_errno_return,
 /*
  * Disable a particular protocol by name
  */
-void
+gboolean
 proto_disable_proto_by_name(const char *name)
 {
-    protocol_t *protocol;
-    int proto_id;
+  protocol_t *protocol;
+  int proto_id;
 
-    proto_id = proto_get_id_by_filter_name(name);
-    if (proto_id >= 0 ) {
-        protocol = find_protocol_by_id(proto_id);
-        if (proto_is_protocol_enabled(protocol) == TRUE) {
-            if (proto_can_toggle_protocol(proto_id) == TRUE) {
-                proto_set_decoding(proto_id, FALSE);
-            }
-        }
+  proto_id = proto_get_id_by_filter_name(name);
+  if (proto_id >= 0 ) {
+    protocol = find_protocol_by_id(proto_id);
+    if (proto_is_protocol_enabled(protocol) == TRUE) {
+      if (proto_can_toggle_protocol(proto_id) == TRUE) {
+        unsaved_changes = TRUE;
+        proto_set_decoding(proto_id, FALSE);
+      }
     }
+    return TRUE;
+  }
+  else if (!strcmp(name, "ALL")) {
+    unsaved_changes = TRUE;
+    proto_disable_all();
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 static gboolean disable_proto_list_check(protocol_t  *protocol)
@@ -497,7 +515,7 @@ static gboolean disable_proto_list_check(protocol_t  *protocol)
  * Enabling dissectors (that are disabled by default)
  ************************************************************************/
 
-WS_DLL_PUBLIC void
+gboolean
 proto_enable_proto_by_name(const char *name)
 {
   protocol_t *protocol;
@@ -506,12 +524,21 @@ proto_enable_proto_by_name(const char *name)
   proto_id = proto_get_id_by_filter_name(name);
   if (proto_id >= 0 ) {
     protocol = find_protocol_by_id(proto_id);
-    if ((proto_is_protocol_enabled_by_default(protocol) == FALSE) &&
-        (proto_is_protocol_enabled(protocol) == FALSE)) {
+    if ((proto_is_protocol_enabled(protocol) == FALSE)) {
       if (proto_can_toggle_protocol(proto_id) == TRUE) {
+        unsaved_changes = TRUE;
         proto_set_decoding(proto_id, TRUE);
       }
     }
+    return TRUE;
+  }
+  else if (!strcmp(name, "ALL")) {
+    unsaved_changes = TRUE;
+    proto_reenable_all();
+    return TRUE;
+  }
+  else {
+    return FALSE;
   }
 }
 
@@ -868,16 +895,29 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return)
   g_free(ff_path);
 }
 
-gboolean
-proto_enable_heuristic_by_name(const char *name, gboolean enable)
+static gboolean
+proto_set_heuristic_by_name(const char *name, gboolean enable)
 {
   heur_dtbl_entry_t* heur = find_heur_dissector_by_unique_short_name(name);
   if (heur != NULL) {
+      unsaved_changes |= (heur->enabled != enable);
       heur->enabled = enable;
       return TRUE;
   } else {
       return FALSE;
   }
+}
+
+gboolean
+proto_enable_heuristic_by_name(const char *name)
+{
+  return proto_set_heuristic_by_name(name, TRUE);
+}
+
+gboolean
+proto_disable_heuristic_by_name(const char *name)
+{
+  return proto_set_heuristic_by_name(name, FALSE);
 }
 
 static void
@@ -1000,6 +1040,7 @@ read_enabled_and_disabled_lists(void)
   set_protos_list(disabled_protos, global_disabled_protos, FALSE);
   set_protos_list(enabled_protos, global_enabled_protos, TRUE);
   set_disabled_heur_dissector_list();
+  unsaved_changes = FALSE;
 }
 
 /*
@@ -1012,6 +1053,7 @@ save_enabled_and_disabled_lists(void)
   char *pf_dir_path;
   char *pf_path;
   int pf_save_errno;
+  gboolean ok = TRUE;
 
   /* Create the directory that holds personal configuration files, if
      necessary.  */
@@ -1028,6 +1070,7 @@ save_enabled_and_disabled_lists(void)
     report_failure("Could not save to your disabled protocols file\n\"%s\": %s.",
                    pf_path, g_strerror(pf_save_errno));
     g_free(pf_path);
+    ok = FALSE;
   }
 
   save_protos_list(&pf_path, &pf_save_errno, ENABLED_PROTOCOLS_FILE_NAME,
@@ -1037,6 +1080,7 @@ save_enabled_and_disabled_lists(void)
     report_failure("Could not save to your enabled protocols file\n\"%s\": %s.",
                    pf_path, g_strerror(pf_save_errno));
     g_free(pf_path);
+    ok = FALSE;
   }
 
   save_disabled_heur_dissector_list(&pf_path, &pf_save_errno);
@@ -1044,7 +1088,11 @@ save_enabled_and_disabled_lists(void)
     report_failure("Could not save to your disabled heuristic protocol file\n\"%s\": %s.",
                    pf_path, g_strerror(pf_save_errno));
     g_free(pf_path);
+    ok = FALSE;
   }
+
+  if (ok)
+    unsaved_changes = FALSE;
 }
 
 void
