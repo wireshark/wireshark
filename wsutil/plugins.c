@@ -9,7 +9,7 @@
  */
 
 #include "config.h"
-#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+#define WS_LOG_DOMAIN LOG_DOMAIN_PLUGINS
 #include "plugins.h"
 
 #include <time.h>
@@ -152,6 +152,8 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
         return;
     }
 
+    ws_debug("Scanning plugins folder \"%s\"", plugin_folder);
+
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with .dll or .so. */
         if (!g_str_has_suffix(name, MODULE_SUFFIX))
@@ -169,11 +171,11 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
 
         plugin_file = g_build_filename(plugin_folder, name, (gchar *)NULL);
         handle = g_module_open(plugin_file, G_MODULE_BIND_LOCAL);
-        g_free(plugin_file);
         if (handle == NULL) {
             /* g_module_error() provides file path. */
             report_failure("Couldn't load plugin '%s': %s", name,
                             g_module_error());
+            g_free(plugin_file);
             continue;
         }
 
@@ -181,12 +183,14 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
         {
             report_failure("The plugin '%s' has no \"plugin_version\" symbol", name);
             g_module_close(handle);
+            g_free(plugin_file);
             continue;
         }
         plug_version = (const char *)symbol;
 
         if (!pass_plugin_version_compatibility(handle, name)) {
             g_module_close(handle);
+            g_free(plugin_file);
             continue;
         }
 
@@ -194,6 +198,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
         if (!g_module_symbol(handle, "plugin_register", &symbol)) {
             report_failure("The plugin '%s' has no \"plugin_register\" symbol", name);
             g_module_close(handle);
+            g_free(plugin_file);
             continue;
         }
 
@@ -210,6 +215,8 @@ DIAG_ON_PEDANTIC
 
         /* Add it to the list of plugins. */
         g_hash_table_replace(plugins_module, new_plug->name, new_plug);
+        ws_info("Registered plugin: %s (%s)", new_plug->name, plugin_file);
+        g_free(plugin_file);
     }
     ws_dir_close(dir);
     g_free(plugin_folder);

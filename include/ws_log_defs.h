@@ -48,6 +48,8 @@
 
 #define LOG_DOMAIN_EINVAL     "InvalidArg"
 
+#define LOG_DOMAIN_PLUGINS    "Plugins"
+
 /*
  * Ascending order by priority needs to be maintained. Higher priorities have
  * higher values.
