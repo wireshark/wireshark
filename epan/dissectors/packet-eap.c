@@ -670,6 +670,7 @@ static int hf_eap_tls_fragment_multiple_tails = -1;
 static int hf_eap_tls_fragment_too_long_fragment = -1;
 static int hf_eap_tls_fragment_error = -1;
 static int hf_eap_tls_fragment_count = -1;
+static int hf_eap_tls_reassembled_in = -1;
 static int hf_eap_tls_reassembled_length = -1;
 static int hf_eap_fast_type = -1;
 static int hf_eap_fast_length = -1;
@@ -694,7 +695,7 @@ static const fragment_items eap_tls_frag_items = {
   &hf_eap_tls_fragment_too_long_fragment,
   &hf_eap_tls_fragment_error,
   &hf_eap_tls_fragment_count,
-  NULL,
+  &hf_eap_tls_reassembled_in,
   &hf_eap_tls_reassembled_length,
   /* Reassembled data field */
   NULL,
@@ -2243,22 +2244,28 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        size,
                                        more_fragments, 0);
 
-            if (fd_head != NULL && fd_head->reassembled_in == pinfo->num) {
-              /* Reassembled  */
-              proto_item *frag_tree_item;
+            if (fd_head != NULL) {
+              if (fd_head->reassembled_in == pinfo->num) {
+                /* Reassembled  */
+                proto_item* frag_tree_item;
 
-              next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
-              add_new_data_source(pinfo, next_tvb, "Reassembled EAP-TLS");
+                next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+                add_new_data_source(pinfo, next_tvb, "Reassembled EAP-TLS");
 
-              show_fragment_seq_tree(fd_head, &eap_tls_frag_items,
-                                     eap_tree, pinfo, next_tvb, &frag_tree_item);
+                show_fragment_seq_tree(fd_head, &eap_tls_frag_items,
+                  eap_tree, pinfo, next_tvb, &frag_tree_item);
 
-              /*
-               * We're finished reassembing this frame.
-               * Reinitialize the reassembly state.
-               */
-              if (!pinfo->fd->visited)
-                conversation_state->eap_tls_seq = -1;
+                /*
+                 * We're finished reassembing this frame.
+                 * Reinitialize the reassembly state.
+                 */
+                if (!pinfo->fd->visited)
+                  conversation_state->eap_tls_seq = -1;
+              } else {
+                ti = proto_tree_add_uint(eap_tree, hf_eap_tls_reassembled_in, tvb,
+                  0, 0, fd_head->reassembled_in);
+                proto_item_set_generated(ti);
+              }
             }
 
             pinfo->fragmented = save_fragmented;
@@ -2705,7 +2712,12 @@ proto_register_eap(void)
     { &hf_eap_tls_fragment_count, {
       "Fragment Count", "eap.tls.fragment.count",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Total length of the reassembled payload", HFILL }},
+      NULL, HFILL }},
+
+    { &hf_eap_tls_reassembled_in, {
+      "Reassembled EAP-TLS PDU in frame", "eap.tls.reassembled_in",
+      FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      "A PDU with a fragment from this frame is reassembled in this frame", HFILL } },
 
     { &hf_eap_tls_reassembled_length, {
       "Reassembled EAP-TLS Length", "eap.tls.reassembled.len",
