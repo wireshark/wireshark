@@ -441,8 +441,6 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %{_libdir}/lib*.so*
-# Don't pick up the cmake files here
-%exclude %{_libdir}/wireshark/cmake
 %{_libdir}/wireshark
 # Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
@@ -475,10 +473,13 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %files devel
 %{_includedir}/wireshark
-%{_libdir}/wireshark/cmake
+%{_libdir}/cmake/wireshark
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Wed Jun 14 2023 Joao Valverde
+- Update CMake devel files path
+
 * Wed Aug 24 2022 Joao Valverde
 - Add Qt6 support with Fedora build dependencies
 
