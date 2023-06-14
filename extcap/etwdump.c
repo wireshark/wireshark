@@ -52,7 +52,7 @@ static struct ws_option longopts[] = {
     { 0, 0, 0, 0 }
 };
 
-int g_include_undecidable_event = FALSE;
+int g_include_undecidable_event = false;
 
 void SignalHandler(_U_ int signal)
 {
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
             break;
 
         case OPT_INCLUDE_UNDECIDABLE_EVENT:
-            g_include_undecidable_event = TRUE;
+            g_include_undecidable_event = true;
             break;
 
         case ':':
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
             goto end;
         }
 
-        wtap_init(FALSE);
+        wtap_init(false);
 
         signal(SIGINT, SignalHandler);
 

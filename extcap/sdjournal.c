@@ -69,7 +69,7 @@ static struct ws_option longopts[] = {
 static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 {
 	int ret = EXIT_SUCCESS;
-	guint8 *entry_buff = g_new(guint8, ENTRY_BUF_LENGTH);
+	uint8_t *entry_buff = g_new(uint8_t, ENTRY_BUF_LENGTH);
 	int jr = 0;
 
 	/*
@@ -81,11 +81,11 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 		uint64_t pkt_rt_ts, mono_ts;
 		sd_id128_t boot_id;
 		char boot_id_str[FLD_BOOT_ID_LEN] = FLD_BOOT_ID;
-		guint32 block_type = BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT;
-		guint32 data_end = 8; // Block type + total length
+		uint32_t block_type = BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT;
+		uint32_t data_end = 8; // Block type + total length
 		const void *fld_data;
 		size_t fld_len;
-		guint64 bytes_written = 0;
+		uint64_t bytes_written = 0;
 		int err;
 
 		memcpy(entry_buff, &block_type, 4);
@@ -125,12 +125,12 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 		ws_debug("Entry header is %u bytes", data_end);
 
 		SD_JOURNAL_FOREACH_DATA(jnl, fld_data, fld_len) {
-			guint8 *eq_ptr = (guint8 *) memchr(fld_data, '=', fld_len);
+			uint8_t *eq_ptr = (uint8_t *) memchr(fld_data, '=', fld_len);
 			if (!eq_ptr) {
 				ws_warning("Invalid field.");
 				goto end;
 			}
-			if (g_utf8_validate((const char *) fld_data, (gssize) fld_len, NULL)) {
+			if (g_utf8_validate((const char *) fld_data, (ssize_t) fld_len, NULL)) {
 				// Allow for two trailing newlines, one here and one
 				// at the end of the buffer.
 				if (fld_len > MAX_EXPORT_ENTRY_LENGTH-data_end-2) {
@@ -138,7 +138,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 					break;
 				}
 				memcpy(entry_buff+data_end, fld_data, fld_len);
-				data_end += (guint32) fld_len;
+				data_end += (uint32_t) fld_len;
 				entry_buff[data_end] = '\n';
 				data_end++;
 			} else {
@@ -147,7 +147,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 					ws_debug("Breaking on binary field: %u + %zd", data_end, fld_len);
 					break;
 				}
-				ptrdiff_t name_len = eq_ptr - (const guint8 *) fld_data;
+				ptrdiff_t name_len = eq_ptr - (const uint8_t *) fld_data;
 				uint64_t le_data_len;
 				le_data_len = htole64(fld_len - name_len - 1);
 				memcpy(entry_buff+data_end, fld_data, name_len);
@@ -156,7 +156,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 				data_end++;
 				memcpy(entry_buff+data_end, &le_data_len, 8);
 				data_end += 8;
-				memcpy(entry_buff+data_end, (const guint8 *) fld_data + name_len + 1, fld_len - name_len);
+				memcpy(entry_buff+data_end, (const uint8_t *) fld_data + name_len + 1, fld_len - name_len);
 				data_end += fld_len - name_len;
 			}
 		}
@@ -167,7 +167,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 			data_end += pad_len;
 		}
 
-		guint32 total_len = data_end + 4;
+		uint32_t total_len = data_end + 4;
 		memcpy (entry_buff+4, &total_len, 4);
 		memcpy (entry_buff+data_end, &total_len, 4);
 
@@ -186,10 +186,10 @@ end:
 	return ret;
 }
 
-static int sdj_start_export(const int start_from_entries, const gboolean start_from_end, const char* fifo)
+static int sdj_start_export(const int start_from_entries, const bool start_from_end, const char* fifo)
 {
 	FILE* fp = stdout;
-	guint64 bytes_written = 0;
+	uint64_t bytes_written = 0;
 	int err;
 	sd_journal *jnl = NULL;
 	sd_id128_t boot_id;
@@ -197,7 +197,7 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 	int ret = EXIT_FAILURE;
 	char* err_info = NULL;
 	char *appname;
-	gboolean success;
+	bool success;
 	int jr = 0;
 
 	if (g_strcmp0(fifo, "-")) {
@@ -335,7 +335,7 @@ int main(int argc, char **argv)
 	int result;
 	int option_idx = 0;
 	int start_from_entries = 10;
-	gboolean start_from_end = TRUE;
+	bool start_from_end = true;
 	int ret = EXIT_FAILURE;
 	extcap_parameters* extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
@@ -411,10 +411,10 @@ int main(int argc, char **argv)
 					goto end;
 				}
 				if (strlen(ws_optarg) > 0 && ws_optarg[0] == '+') {
-					start_from_end = FALSE;
+					start_from_end = false;
 				}
 				if (start_from_entries < 0) {
-					start_from_end = TRUE;
+					start_from_end = true;
 					start_from_entries *= -1;
 				}
 				ws_debug("start %d from %s", start_from_entries, start_from_end ? "end" : "beginning");

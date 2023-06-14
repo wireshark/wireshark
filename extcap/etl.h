@@ -29,7 +29,7 @@ typedef struct
     char padding[64];
 } SUPER_EVENT_TRACE_PROPERTIES;
 
-wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filename, const char* params, int* err, gchar** err_info);
+wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filename, const char* params, int* err, char** err_info);
 
 #endif
 

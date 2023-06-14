@@ -102,7 +102,7 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-static int setup_listener(const guint16 port, socket_handle_t* sock)
+static int setup_listener(const uint16_t port, socket_handle_t* sock)
 {
 	int optval;
 	struct sockaddr_in serveraddr;
@@ -150,7 +150,7 @@ cleanup_setup_listener:
 
 static int setup_dumpfile(const char* fifo, FILE** fp)
 {
-	guint64 bytes_written = 0;
+	uint64_t bytes_written = 0;
 	int err;
 
 	if (!g_strcmp0(fifo, "-")) {
@@ -164,7 +164,7 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 		return EXIT_FAILURE;
 	}
 
-	if (!libpcap_write_file_header(*fp, 252, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
+	if (!libpcap_write_file_header(*fp, 252, PCAP_SNAPLEN, false, &bytes_written, &err)) {
 		ws_warning("Can't write pcap file header: %s", g_strerror(err));
 		return EXIT_FAILURE;
 	}
@@ -172,10 +172,10 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 	return EXIT_SUCCESS;
 }
 
-static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
+static void add_proto_name(uint8_t* mbuf, unsigned* offset, const char* proto_name)
 {
 	size_t proto_str_len = strlen(proto_name);
-	guint16 proto_name_len = (guint16)((proto_str_len + 3) & 0xfffffffc);
+	uint16_t proto_name_len = (uint16_t)((proto_str_len + 3) & 0xfffffffc);
 
 	phton16(mbuf + *offset, EXP_PDU_TAG_DISSECTOR_NAME);
 	*offset += 2;
@@ -186,7 +186,7 @@ static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
 	*offset += proto_name_len;
 }
 
-static void add_ip_source_address(guint8* mbuf, guint* offset, uint32_t source_address)
+static void add_ip_source_address(uint8_t* mbuf, unsigned* offset, uint32_t source_address)
 {
 	phton16(mbuf + *offset, EXP_PDU_TAG_IPV4_SRC);
 	*offset += 2;
@@ -196,7 +196,7 @@ static void add_ip_source_address(guint8* mbuf, guint* offset, uint32_t source_a
 	*offset += 4;
 }
 
-static void add_ip_dest_address(guint8* mbuf, guint* offset, uint32_t dest_address)
+static void add_ip_dest_address(uint8_t* mbuf, unsigned* offset, uint32_t dest_address)
 {
 	phton16(mbuf + *offset, EXP_PDU_TAG_IPV4_DST);
 	*offset += 2;
@@ -206,7 +206,7 @@ static void add_ip_dest_address(guint8* mbuf, guint* offset, uint32_t dest_addre
 	*offset += 4;
 }
 
-static void add_udp_source_port(guint8* mbuf, guint* offset, uint16_t src_port)
+static void add_udp_source_port(uint8_t* mbuf, unsigned* offset, uint16_t src_port)
 {
 	uint32_t port = htonl(src_port);
 
@@ -218,7 +218,7 @@ static void add_udp_source_port(guint8* mbuf, guint* offset, uint16_t src_port)
 	*offset += 4;
 }
 
-static void add_udp_dst_port(guint8* mbuf, guint* offset, uint16_t dst_port)
+static void add_udp_dst_port(uint8_t* mbuf, unsigned* offset, uint16_t dst_port)
 {
 	uint32_t port = htonl(dst_port);
 
@@ -230,24 +230,24 @@ static void add_udp_dst_port(guint8* mbuf, guint* offset, uint16_t dst_port)
 	*offset += 4;
 }
 
-static void add_end_options(guint8* mbuf, guint* offset)
+static void add_end_options(uint8_t* mbuf, unsigned* offset)
 {
 	memset(mbuf + *offset, 0x0, 4);
 	*offset += 4;
 }
 
-static int dump_packet(const char* proto_name, const guint16 listenport, const char* buf,
+static int dump_packet(const char* proto_name, const uint16_t listenport, const char* buf,
 		const ssize_t buflen, const struct sockaddr_in clientaddr, FILE* fp)
 {
-	guint8* mbuf;
-	guint offset = 0;
-	gint64 curtime = g_get_real_time();
-	guint64 bytes_written = 0;
+	uint8_t* mbuf;
+	unsigned offset = 0;
+	int64_t curtime = g_get_real_time();
+	uint64_t bytes_written = 0;
 	int err;
 	int ret = EXIT_SUCCESS;
 
 	/* The space we need is the standard header + variable lengths */
-	mbuf = (guint8*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
+	mbuf = (uint8_t*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
 
 	add_proto_name(mbuf, &offset, proto_name);
 	add_ip_source_address(mbuf, &offset, clientaddr.sin_addr.s_addr);
@@ -257,10 +257,10 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	add_end_options(mbuf, &offset);
 
 	memcpy(mbuf + offset, buf, buflen);
-	offset += (guint)buflen;
+	offset += (unsigned)buflen;
 
 	if (!libpcap_write_packet(fp,
-			(guint32)(curtime / G_USEC_PER_SEC), (guint32)(curtime % G_USEC_PER_SEC),
+			(uint32_t)(curtime / G_USEC_PER_SEC), (uint32_t)(curtime % G_USEC_PER_SEC),
 			offset, offset, mbuf, &bytes_written, &err)) {
 		ws_warning("Can't write packet: %s", g_strerror(err));
 		ret = EXIT_FAILURE;
@@ -272,7 +272,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	return ret;
 }
 
-static void run_listener(const char* fifo, const guint16 port, const char* proto_name)
+static void run_listener(const char* fifo, const uint16_t port, const char* proto_name)
 {
 	struct sockaddr_in clientaddr;
 	socklen_t clientlen = sizeof(clientaddr);
@@ -317,12 +317,12 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 #else
 					ws_warning("Error in recvfrom: %s (errno=%d)", strerror(errno), errno);
 #endif
-					extcap_end_application = TRUE;
+					extcap_end_application = true;
 					break;
 			}
 		} else {
 			if (dump_packet(proto_name, port, buf, buflen, clientaddr, fp) == EXIT_FAILURE)
-				extcap_end_application = TRUE;
+				extcap_end_application = true;
 		}
 	}
 
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
 	char* err_msg;
 	int option_idx = 0;
 	int result;
-	guint16 port = 0;
+	uint16_t port = 0;
 	int ret = EXIT_FAILURE;
 	extcap_parameters* extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;

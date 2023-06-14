@@ -41,14 +41,14 @@
 	{ "proxycommand", ws_required_argument, NULL, OPT_PROXYCOMMAND}
 
 typedef struct _ssh_params {
-	gchar* host;
-	guint16 port;
-	gchar* username;
-	gchar* password;
-	gchar* sshkey_path;
-	gchar* sshkey_passphrase;
-	gchar* proxycommand;
-	gboolean debug;
+	char* host;
+	uint16_t port;
+	char* username;
+	char* password;
+	char* sshkey_path;
+	char* sshkey_passphrase;
+	char* proxycommand;
+	bool debug;
 } ssh_params_t;
 
 /* Add libssh version information to an extcap_parameters structure */

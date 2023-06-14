@@ -358,7 +358,7 @@ PBYTE extract_properties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Po
         {
             StringCbCat(pExtract->value, sizeof(pExtract->value), L"]");
         }
-    } while (FALSE);
+    } while (false);
 
     if (oversize_formatted_data)
     {
@@ -377,7 +377,7 @@ PBYTE extract_properties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Po
 
 BOOL get_event_information(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO* pInfo)
 {
-    BOOL bReturn = FALSE;
+    BOOL bReturn = false;
     DWORD status;
     DWORD BufferSize = 0;
 
@@ -399,7 +399,7 @@ BOOL get_event_information(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO* pInfo)
     {
         goto Exit;
     }
-    bReturn = TRUE;
+    bReturn = true;
 Exit:
 
     return bReturn;

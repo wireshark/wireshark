@@ -21,6 +21,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <evntrace.h>
 #include <evntcons.h>
 #include <tdh.h>
@@ -91,7 +92,7 @@ char AuxFragBuf[MAX_PACKET_SIZE] = {0};
 unsigned long AuxFragBufOffset = 0;
 
 DOT11_EXTSTA_RECV_CONTEXT PacketMetadata;
-BOOLEAN AddWlanMetadata = FALSE;
+BOOLEAN AddWlanMetadata = false;
 
 typedef struct _NDIS_NET_BUFFER_LIST_8021Q_INFO {
     union {
@@ -134,7 +135,7 @@ typedef struct _VMSWITCH_PACKET_FRAGMENT {
     short VlanId;
 } VMSWITCH_PACKET_FRAGMENT, *PVMSWITCH_PACKET_FRAGMENT;
 
-BOOLEAN CurrentPacketIsVMSwitchPacketFragment = FALSE;
+BOOLEAN CurrentPacketIsVMSwitchPacketFragment = false;
 VMSWITCH_PACKET_FRAGMENT VMSwitchPacketFragment;
 
 struct INTERFACE {
@@ -207,16 +208,16 @@ struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, uns
         sprintf_s(g_err_info, sizeof(g_err_info), "malloc failed to allocate memory for NewIface");
         exit(1);
     }
-    
+
     NewIface->LowerIfIndex = LowerIfIndex;
     NewIface->MiniportIfIndex = MiniportIfIndex;
     NewIface->PktEncapType = Type;
     NewIface->VlanId = 0;
-    NewIface->IsVMNic = FALSE;
+    NewIface->IsVMNic = false;
 
     if (CurrentPacketIsVMSwitchPacketFragment) {
 
-        NewIface->IsVMNic = TRUE;
+        NewIface->IsVMNic = true;
 
         wchar_t Buffer[8192];
         PROPERTY_DATA_DESCRIPTOR Desc;
@@ -525,7 +526,7 @@ void etw_dump_write_ndiscap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
             return;
         }
 
-        AddWlanMetadata = TRUE;
+        AddWlanMetadata = true;
         return;
     }
 
@@ -604,7 +605,7 @@ void etw_dump_write_ndiscap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
                 PacketMetadata.lRSSI,
                 PacketMetadata.ucDataRate);
 
-            AddWlanMetadata = FALSE;
+            AddWlanMetadata = false;
             memset(&PacketMetadata, 0, sizeof(DOT11_EXTSTA_RECV_CONTEXT));
         } else if (CurrentPacketIsVMSwitchPacketFragment) {
             if (VMSwitchPacketFragment.DestinationCount > 0) {

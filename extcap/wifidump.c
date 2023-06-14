@@ -31,7 +31,7 @@
 
 #include <cli_main.h>
 
-static gchar* wifidump_extcap_interface;
+static char* wifidump_extcap_interface;
 #ifdef _WIN32
 #define DEFAULT_WIFIDUMP_EXTCAP_INTERFACE "wifidump.exe"
 #else
@@ -284,7 +284,7 @@ static int ssh_loop_read(ssh_channel channel, FILE* fp)
 		if (nbytes == 0) {
 			break;
 		}
-		if (fwrite(buffer, 1, nbytes, fp) != (guint)nbytes) {
+		if (fwrite(buffer, 1, nbytes, fp) != (unsigned)nbytes) {
 			ws_warning("Error writing to fifo");
 			ret = EXIT_FAILURE;
 			goto end;
@@ -299,7 +299,7 @@ static int ssh_loop_read(ssh_channel channel, FILE* fp)
 			ws_warning("Error reading from channel");
 			goto end;
 		}
-		if (fwrite(buffer, 1, nbytes, stderr) != (guint)nbytes) {
+		if (fwrite(buffer, 1, nbytes, stderr) != (unsigned)nbytes) {
 			ws_warning("Error writing to stderr");
 			break;
 		}
@@ -314,10 +314,10 @@ end:
 }
 
 static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_functions,
-	const char* iface, const guint16 channel_frequency, const guint16 channel_width,
-	const guint16 center_frequency, const char* cfilter, const guint32 count)
+	const char* iface, const uint16_t channel_frequency, const uint16_t channel_width,
+	const uint16_t center_frequency, const char* cfilter, const uint32_t count)
 {
-	gchar* cmdline;
+	char* cmdline;
 	ssh_channel channel;
 	char* quoted_iface = NULL;
 	char* quoted_filter = NULL;
@@ -366,8 +366,8 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_functio
 }
 
 static int ssh_open_remote_connection(const ssh_params_t* params, const char* capture_functions,
-	const char* iface, const guint16 channel_frequency, const guint16 channel_width,
-	const guint16 center_frequency, const char* cfilter, const guint32 count, const char* fifo)
+	const char* iface, const uint16_t channel_frequency, const uint16_t channel_width,
+	const uint16_t center_frequency, const char* cfilter, const uint32_t count, const char* fifo)
 {
 	ssh_session sshs = NULL;
 	ssh_channel channel = NULL;
@@ -516,16 +516,16 @@ int main(int argc, char *argv[])
 	int option_idx = 0;
 	ssh_params_t* ssh_params = ssh_params_new();
 	char* remote_interface = NULL;
-	guint16 remote_channel_frequency = 0;
-	guint16 remote_channel_width = 0;
-	guint16 remote_center_frequency = 0;
+	uint16_t remote_channel_frequency = 0;
+	uint16_t remote_channel_width = 0;
+	uint16_t remote_center_frequency = 0;
 	char* remote_filter = NULL;
-	guint32 count = 0;
+	uint32_t count = 0;
 	int ret = EXIT_FAILURE;
 	extcap_parameters* extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
 	char* help_header = NULL;
-	gchar* interface_description = g_strdup("Wi-Fi remote capture");
+	char* interface_description = g_strdup("Wi-Fi remote capture");
 
 	/* Initialize log handler early so we can have proper logging during startup. */
 	extcap_log_init("wifidump");
@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
 	g_free(help_url);
 	add_libssh_info(extcap_conf);
 	if (g_strcmp0(wifidump_extcap_interface, DEFAULT_WIFIDUMP_EXTCAP_INTERFACE)) {
-		gchar* temp = interface_description;
+		char* temp = interface_description;
 		interface_description = ws_strdup_printf("%s, custom version", interface_description);
 		g_free(temp);
 	}

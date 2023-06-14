@@ -11,10 +11,31 @@ convert-glib-types.py - Convert glib types to their C and C99 eqivalents.
 # Imports
 
 import argparse
+import glob
+import platform
 import re
 import sys
 
 type_map = {
+    # Try to preserve alignment first
+    'gboolean  ': 'bool      ',
+    'gchar  ': 'char   ',
+    'gint  ': 'int   ',
+    'guint    ': 'unsigned ',
+    'gint8  ': 'int8_t ',
+    'gint16  ': 'int16_t ',
+    'gint32  ': 'int32_t ',
+    'gint64  ': 'int64_t ',
+    'guint8'  : 'uint8_t ',
+    'guint16  ': 'uint16_t ',
+    'guint32  ': 'uint32_t ',
+    'guint64  ': 'uint64_t ',
+    'gfloat  ': 'float ',
+    'gdouble  ': 'double ',
+    'gpointer  ': 'void *    ',
+    'gsize  ': 'size_t ',
+    'gssize  ': 'ssize_t ',
+
     'gboolean': 'bool',
     'gchar': 'char',
     'gint': 'int',
@@ -54,7 +75,14 @@ def main():
     parser.add_argument('files', metavar='FILE', nargs='*')
     args = parser.parse_args()
 
-    for file in args.files:
+    files = []
+    if platform.system() == 'Windows':
+        for arg in args.files:
+            files += glob.glob(arg)
+    else:
+        files = args.files
+
+    for file in files:
         convert_file(file)
 
 # On with the show

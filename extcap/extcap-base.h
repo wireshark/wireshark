@@ -17,6 +17,7 @@
 #include <glib/gprintf.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <wsutil/ws_getopt.h>
 
@@ -80,18 +81,18 @@ typedef struct _extcap_parameters
     char * help_header;
     GList * help_options;
 
-    gboolean debug;
+    bool debug;
 } extcap_parameters;
 
 /* used to inform to extcap application that end of application is requested */
-extern gboolean extcap_end_application;
+extern bool extcap_end_application;
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );
 void extcap_base_register_interface_ext(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltname, const char * dltdescription );
 
 /* used to inform extcap framework that graceful shutdown supported by the extcap
  */
-gboolean extcap_base_register_graceful_shutdown_cb(extcap_parameters * extcap, void (*callback)(void));
+bool extcap_base_register_graceful_shutdown_cb(extcap_parameters * extcap, void (*callback)(void));
 
 void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major, const char * minor, const char * release, const char * helppage);
 void extcap_base_set_compiled_with(extcap_parameters * extcap, const char *fmt, ...);

@@ -35,8 +35,8 @@ void add_libssh_info(extcap_parameters * extcap_conf)
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info)
 {
 	ssh_session sshs;
-	gchar* username = NULL;
-	guint port;
+	char* username = NULL;
+	unsigned port;
 
 	/* Open session and set options */
 	sshs = ssh_new();
@@ -163,14 +163,14 @@ failure:
 
 int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
 {
-	gchar* buf;
+	char* buf;
 	va_list arg;
 	int ret = EXIT_SUCCESS;
 
 	va_start(arg, fmt);
 	buf = ws_strdup_vprintf(fmt, arg);
 	ws_debug("%s", buf);
-	if (ssh_channel_write(channel, buf, (guint32)strlen(buf)) == SSH_ERROR)
+	if (ssh_channel_write(channel, buf, (uint32_t)strlen(buf)) == SSH_ERROR)
 		ret = EXIT_FAILURE;
 	va_end(arg);
 	g_free(buf);

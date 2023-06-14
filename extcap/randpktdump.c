@@ -137,11 +137,11 @@ int main(int argc, char *argv[])
 	char* err_msg;
 	int option_idx = 0;
 	int result;
-	guint16 maxbytes = 5000;
-	guint64 count = 1000;
-	guint64 packet_delay_ms = 0;
-	int random_type = FALSE;
-	int all_random = FALSE;
+	uint16_t maxbytes = 5000;
+	uint64_t count = 1000;
+	uint64_t packet_delay_ms = 0;
+	int random_type = false;
+	int all_random = false;
 	char* type = NULL;
 	int produce_type = -1;
 	int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
@@ -239,11 +239,11 @@ int main(int argc, char *argv[])
 			break;
 
 		case OPT_RANDOM_TYPE:
-			random_type = TRUE;
+			random_type = true;
 			break;
 
 		case OPT_ALL_RANDOM:
-			all_random = TRUE;
+			all_random = true;
 			break;
 
 		case OPT_TYPE:
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 			goto end;
 		}
 
-		wtap_init(FALSE);
+		wtap_init(false);
 
 		if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
 			file_type_subtype = wtap_pcapng_file_type_subtype();
