@@ -1044,29 +1044,28 @@ static void wimaxasncp_dissect_tlv_value(
     {
         if (tree)
         {
-            const gchar  *format1;
-            const gchar  *format2;
-            const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar  *s = bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
-
-            if (length <= max_show_bytes)
-            {
-                format1 = "Value: %s";
-                format2 = " - %s";
-            }
-            else
-            {
-                format1 = "Value: %s...";
-                format2 = " - %s...";
-            }
-
-            proto_tree_add_bytes_format(
+            proto_tree_add_item(
                 tree, tlv_info->hf_value,
-                tvb, offset, length, p,
-                format1, s);
+                tvb, offset, length, ENC_NA);
 
-            proto_item_append_text(
-                tlv_item, format2, s);
+            if (length) {
+                const gchar* format;
+                if (length <= max_show_bytes)
+                {
+                    format = " - %s";
+                }
+                else
+                {
+                    format = " - %s...";
+                }
+                const gchar* s = tvb_bytes_to_str_punct(
+                    pinfo->pool, tvb, offset, MIN(length, max_show_bytes), 0);
+
+                proto_item_append_text(
+                    tlv_item, format, s);
+            } else {
+                proto_item_append_text(tlv_item, " - <MISSING>");
+            }
         }
 
         return;
@@ -1225,23 +1224,26 @@ static void wimaxasncp_dissect_tlv_value(
 
         if (tree)
         {
-            const gchar  *format;
-            const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar  *s = bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
+            if (length) {
+                const char *format;
+                const char *s = tvb_bytes_to_str_punct(
+                    pinfo->pool, tvb, offset, length, 0);
 
-            if (length <= max_show_bytes)
-            {
-                format = "Value: %s %s";
-            }
-            else
-            {
-                format = "Value: %s %s...";
-            }
+                if (length <= max_show_bytes) {
+                    format = "%s %s";
+                } else {
+                    format = "%s %s...";
+                }
 
-            proto_tree_add_bytes_format(
-                tree, tlv_info->hf_value,
-                tvb, offset, length, p,
-                format, hex_note, s);
+                proto_tree_add_bytes_format_value(
+                    tree, tlv_info->hf_value,
+                    tvb, offset, length, NULL, format, s);
+
+            } else {
+                proto_tree_add_bytes_format_value(
+                    tree, tlv_info->hf_value,
+                    tvb, offset, length, NULL, "%s", "<MISSING>");
+            }
 
             proto_item_append_text(tlv_item, " - TBD");
         }
@@ -1712,30 +1714,37 @@ static void wimaxasncp_dissect_tlv_value(
     {
         if (tree)
         {
-            const gchar *format1;
-            const gchar *format2;
-            const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar *s =
-                bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
+            const char* s;
+            if (length) {
+                const char* format1;
+                const char* format2;
+                if (length <= max_show_bytes)
+                {
+                    format1 = "%s %s";
+                    format2 = " - %s %s";
+                }
+                else
+                {
+                    format1 = "%s %s...";
+                    format2 = " - %s %s...";
+                }
+                s = tvb_bytes_to_str_punct(
+                    pinfo->pool, tvb, offset, MIN(length, max_show_bytes), 0);
 
-            if (length <= max_show_bytes)
-            {
-                format1 = "Value: %s %s";
-                format2 = " - %s %s";
+                proto_tree_add_bytes_format_value(
+                    tree, tlv_info->hf_value,
+                    tvb, offset, length, NULL, format1, hex_note, s);
+
+                proto_item_append_text(
+                    tlv_item, format2, hex_note, s);
             }
-            else
-            {
-                format1 = "Value: %s %s...";
-                format2 = " - %s %s...";
+            else {
+                proto_tree_add_bytes_format_value(
+                    tree, tlv_info->hf_value,
+                    tvb, offset, length, NULL, "%s", "<MISSING>");
+
+                proto_item_append_text(tlv_item, " - <MISSING>");
             }
-
-            proto_tree_add_bytes_format(
-                tree, tlv_info->hf_value,
-                tvb, offset, length, p,
-                format1, hex_note, s);
-
-            proto_item_append_text(
-                tlv_item, format2, hex_note, s);
 
         }
 
@@ -1754,23 +1763,27 @@ static void wimaxasncp_dissect_tlv_value(
 
     if (tree)
     {
-        const gchar *format;
-        const guint8 *p = tvb_get_ptr(tvb, offset, length);
-        const gchar *s = bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
+        if (length) {
+            const char* format;
+            const char *s = tvb_bytes_to_str_punct(
+                pinfo->pool, tvb, offset, MIN(length, max_show_bytes), 0);
 
-        if (length <= max_show_bytes)
-        {
-            format = "Value: %s %s";
-        }
-        else
-        {
-            format = "Value: %s %s...";
-        }
+            if (length <= max_show_bytes) {
+                format = "%s %s";
+            } else {
+                format = "%s %s...";
+            }
 
-        proto_tree_add_bytes_format(
-            tree, hf_wimaxasncp_tlv_value_bytes,
-            tvb, offset, length, p,
-            format, hex_note, s);
+            proto_tree_add_bytes_format_value(
+                tree, hf_wimaxasncp_tlv_value_bytes,
+                tvb, offset, length, NULL,
+                format, hex_note, s);
+        } else {
+            proto_tree_add_bytes_format_value(
+                tree, hf_wimaxasncp_tlv_value_bytes,
+                tvb, offset, length, NULL,
+                "%s", "<MISSING>");
+        }
     }
 }
 
