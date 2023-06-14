@@ -1239,7 +1239,7 @@ void PacketList::freeze()
     column_state_ = header()->saveState();
     setHeaderHidden(true);
     frozen_current_row_ = currentIndex();
-    frozen_selected_rows_ = selectedIndexes();
+    frozen_selected_rows_ = selectionModel()->selectedRows();
     selectionModel()->clear();
     setModel(Q_NULLPTR);
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
