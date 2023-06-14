@@ -15,7 +15,6 @@
 #include "config.h"
 
 #include <stdio.h>	/* for sscanf() */
-#include <stdbool.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

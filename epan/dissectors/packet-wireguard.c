@@ -16,7 +16,6 @@
 #include <config.h>
 
 #include <errno.h>
-#include <stdbool.h>
 
 #define WS_LOG_DOMAIN "packet-wireguard"
 

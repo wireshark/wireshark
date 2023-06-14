@@ -23,7 +23,6 @@
 #include <epan/packet.h>
 
 #include "packet-tcp.h"
-#include <stdbool.h>
 
 #define SMC_TCP_MIN_HEADER_LENGTH 7
 #define CLC_MSG_START_OFFSET 5

@@ -12,7 +12,6 @@
 
 #include "config.h"
 
-#include <stdbool.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/tvbuff.h>

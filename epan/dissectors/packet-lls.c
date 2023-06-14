@@ -21,7 +21,6 @@
  */
 
 #include <config.h>
-#include <stdbool.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
 
