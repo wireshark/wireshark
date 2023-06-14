@@ -69,6 +69,7 @@ WS_DLL_PUBLIC GSList * output_fields_valid(output_fields_t* info);
 WS_DLL_PUBLIC gsize output_fields_num_fields(output_fields_t* info);
 WS_DLL_PUBLIC gboolean output_fields_set_option(output_fields_t* info, gchar* option);
 WS_DLL_PUBLIC void output_fields_list_options(FILE *fh);
+WS_DLL_PUBLIC bool output_fields_add_protocolfilter(output_fields_t* info, const char* field, pf_flags filter_flags);
 WS_DLL_PUBLIC gboolean output_fields_has_cols(output_fields_t* info);
 
 /*
@@ -94,7 +95,7 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
 WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
-WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, wmem_map_t *protocolfilter, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color);
+WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
 // Implementations of proto_node_children_grouper_func
@@ -107,7 +108,6 @@ WS_DLL_PUBLIC json_dumper write_json_preamble(FILE *fh);
 WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
                                          print_dissections_e print_dissections,
                                          gboolean print_hex_data,
-                                         wmem_map_t *protocolfilter,
                                          epan_dissect_t *edt,
                                          column_info *cinfo,
                                          proto_node_children_grouper_func node_children_grouper,
@@ -117,7 +117,6 @@ WS_DLL_PUBLIC void write_json_finale(json_dumper *dumper);
 WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
                                        gboolean print_summary,
                                        gboolean print_hex_data,
-                                       wmem_map_t *protocolfilter,
                                        epan_dissect_t *edt,
                                        column_info *cinfo, FILE *fh);
 

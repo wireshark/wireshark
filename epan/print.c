@@ -78,6 +78,7 @@ struct _output_fields {
     GPtrArray    *fields;
     GHashTable   *field_indicies;
     GPtrArray   **field_values;
+    wmem_map_t   *protocolfilter;
     gchar         quote;
     gboolean      escape;
     gboolean      includes_col_fields;
@@ -313,7 +314,7 @@ static gboolean check_protocolfilter(wmem_map_t *protocolfilter, const char *str
 }
 
 void
-write_pdml_proto_tree(output_fields_t* fields, wmem_map_t *protocolfilter, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color)
+write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color)
 {
     write_pdml_data data;
     const color_filter_t *cfp;
@@ -340,7 +341,7 @@ write_pdml_proto_tree(output_fields_t* fields, wmem_map_t *protocolfilter, epan_
         data.level    = 0;
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
-        data.filter   = protocolfilter;
+        data.filter   = fields ? fields->protocolfilter : NULL;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
                                     &data);
@@ -355,7 +356,6 @@ write_pdml_proto_tree(output_fields_t* fields, wmem_map_t *protocolfilter, epan_
 void
 write_ek_proto_tree(output_fields_t* fields,
                     gboolean print_summary, gboolean print_hex,
-                    wmem_map_t *protocolfilter,
                     epan_dissect_t *edt,
                     column_info *cinfo,
                     FILE *fh)
@@ -397,7 +397,7 @@ write_ek_proto_tree(output_fields_t* fields,
         if (fields == NULL || fields->fields == NULL) {
             /* Write out all fields */
             data.src_list = edt->pi.data_src;
-            data.filter = protocolfilter;
+            data.filter = fields ? fields->protocolfilter : NULL;
             data.print_hex = print_hex;
             proto_tree_write_node_ek(edt->tree, &data);
         } else {
@@ -737,7 +737,7 @@ write_json_index(json_dumper *dumper, epan_dissect_t *edt)
 void
 write_json_proto_tree(output_fields_t* fields,
                       print_dissections_e print_dissections,
-                      gboolean print_hex, wmem_map_t *protocolfilter,
+                      gboolean print_hex,
                       epan_dissect_t *edt, column_info *cinfo,
                       proto_node_children_grouper_func node_children_grouper,
                       json_dumper *dumper)
@@ -759,7 +759,7 @@ write_json_proto_tree(output_fields_t* fields,
     if (fields == NULL || fields->fields == NULL) {
         /* Write out all fields */
         data.src_list = edt->pi.data_src;
-        data.filter = protocolfilter;
+        data.filter = fields ? fields->protocolfilter : NULL;
         data.print_hex = print_hex;
         data.print_text = TRUE;
         if (print_dissections == print_dissections_none) {
@@ -2111,6 +2111,33 @@ void output_fields_add(output_fields_t *fields, const gchar *field)
 
 }
 
+/*
+ * Returns TRUE if the field did not exist yet (or existed with the same
+ * filter_flags value), FALSE if the field was in the protocolfilter with
+ * a different flag.
+ */
+bool
+output_fields_add_protocolfilter(output_fields_t* fields, const char* field, pf_flags filter_flags)
+{
+    void* value;
+    bool ret = TRUE;
+    if (!fields->protocolfilter) {
+        fields->protocolfilter = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+    }
+    if (wmem_map_lookup_extended(fields->protocolfilter, field, NULL, &value)) {
+        if (GPOINTER_TO_UINT(value) != (guint)filter_flags) {
+            ret = FALSE;
+        }
+    }
+    wmem_map_insert(fields->protocolfilter, field, GINT_TO_POINTER(filter_flags));
+
+    /* See if we have a column as a field entry */
+    if (!strncmp(field, COLUMN_FIELD_FILTER, strlen(COLUMN_FIELD_FILTER)))
+        fields->includes_col_fields = TRUE;
+
+    return ret;
+}
+
 static void
 output_field_check(void *data, void *user_data)
 {
@@ -2126,15 +2153,23 @@ output_field_check(void *data, void *user_data)
 
 }
 
+static void
+output_field_check_protocolfilter(void* key, void* value _U_, void* user_data)
+{
+    output_field_check(key, user_data);
+}
+
 GSList *
 output_fields_valid(output_fields_t *fields)
 {
     GSList *invalid_fields = NULL;
-    if (fields->fields == NULL) {
-        return NULL;
+    if (fields->fields != NULL) {
+        g_ptr_array_foreach(fields->fields, output_field_check, &invalid_fields);
     }
 
-    g_ptr_array_foreach(fields->fields, output_field_check, &invalid_fields);
+    if (fields->protocolfilter != NULL) {
+        wmem_map_foreach(fields->protocolfilter, output_field_check_protocolfilter, &invalid_fields);
+    }
 
     return invalid_fields;
 }
@@ -2720,6 +2755,7 @@ output_fields_t* output_fields_new(void)
     fields->fields              = NULL; /*Do lazy initialisation */
     fields->field_indicies      = NULL;
     fields->field_values        = NULL;
+    fields->protocolfilter      = NULL;
     fields->quote               ='\0';
     fields->escape              = TRUE;
     fields->includes_col_fields = FALSE;
