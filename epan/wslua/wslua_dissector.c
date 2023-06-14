@@ -98,11 +98,13 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     TRY {
         len = call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         /* XXX Are we sure about this??? is this the right/only thing to catch */
-    } CATCH_NONFATAL_ERRORS {
+    } CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
         show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
-        error = "Malformed frame";
+        error = GET_MESSAGE ? GET_MESSAGE : "Malformed frame";
     } ENDTRY;
 
+    /* XXX: Some exceptions, like FragmentBoundsError and ScsiBoundsError,
+       are normal conditions and possibly don't need the Lua traceback. */
     if (error) { WSLUA_ERROR(Dissector_call,error); }
 
     lua_pushnumber(L,(lua_Number)len);
