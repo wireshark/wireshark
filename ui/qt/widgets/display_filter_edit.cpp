@@ -205,10 +205,10 @@ void DisplayFilterEdit::alignActionButtons()
 
     int leftPadding = frameWidth + 1;
     int leftMargin = bksz.width();
-    int rightMargin = cbsz.width() + apsz.width() + frameWidth + 1;
+    int rightMargin = cbsz.width() + apsz.width() + frameWidth + 2;
     if (leftAlignActions_)
     {
-        leftMargin = rightMargin + bksz.width() + 2;
+        leftMargin = rightMargin + bksz.width() - 2;
         rightMargin = 0;
     }
 
@@ -282,7 +282,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
             return;
         }
 
-        // Draw the right border by hand. We could try to do this in the
+        // Draw the borders by hand. We could try to do this in the
         // style sheet but it's a pain.
 #ifdef Q_OS_MAC
         QColor divider_color = Qt::gray;
@@ -292,17 +292,27 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         QPainter painter(this);
         painter.setPen(divider_color);
         QRect cr = contentsRect();
-        int xpos = 0;
+        int left_xpos = 0;
+        int right_xpos = 0;
+
         if (leftAlignActions_)
         {
-            xpos = 1 + bookmark_button_->size().width() + apply_button_->size().width();
+            left_xpos = 1 + bookmark_button_->size().width() + apply_button_->size().width();
             if (clear_button_->isVisible())
-                xpos += clear_button_->size().width();
+                left_xpos += clear_button_->size().width();
+            right_xpos = cr.width();
         }
         else
-            xpos = bookmark_button_->size().width();
+        {
+            left_xpos = bookmark_button_->size().width();
+            right_xpos = cr.width() - apply_button_->size().width() - 3;
+            if (clear_button_->isVisible())
+                right_xpos -= clear_button_->size().width();
+        }
 
-        painter.drawLine(xpos, cr.top(), xpos, cr.bottom() + 1);
+        painter.drawLine(left_xpos, cr.top(), left_xpos, cr.bottom() + 1);
+        if (!text().isEmpty())
+            painter.drawLine(right_xpos, cr.top(), right_xpos, cr.bottom() + 1);
     }
 }
 

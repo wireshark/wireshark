@@ -204,7 +204,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
             )
             .arg(frameWidth + 1)
             .arg(bksz.width())
-            .arg(cbsz.width() + apsz.width() + frameWidth + 1)
+            .arg(cbsz.width() + apsz.width() + frameWidth + 2)
             );
 
     QComboBox *cf_combo = qobject_cast<QComboBox *>(parent);
@@ -244,7 +244,7 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
     SyntaxLineEdit::paintEvent(evt);
 
     if (bookmark_button_) {
-        // Draw the right border by hand. We could try to do this in the
+        // Draw the borders by hand. We could try to do this in the
         // style sheet but it's a pain.
 #ifdef Q_OS_MAC
         QColor divider_color = Qt::gray;
@@ -256,6 +256,15 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
         QRect cr = contentsRect();
         QSize bksz = bookmark_button_->size();
         painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom() + 1);
+
+        if (!text().isEmpty()) {
+            int xpos = cr.width() - 2;
+            if (clear_button_)
+                xpos -= clear_button_->size().width();
+            if (apply_button_)
+                xpos -= apply_button_->size().width();
+            painter.drawLine(xpos, cr.top(), xpos, cr.bottom() + 1);
+        }
     }
 }
 
