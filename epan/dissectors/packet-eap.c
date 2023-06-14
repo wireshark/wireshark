@@ -1812,12 +1812,24 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    *  * src ether = client mac -> dst ether = PAE multicast group address
    * We set the port so the TLS decoder can figure out which side is the server
    */
+  address conv_src, conv_dst;
+  guint32 tls_group = pinfo->curr_proto_layer_num << 16;
+  uint32_t conv_srcport = pinfo->srcport;
+  uint32_t conv_destport = pinfo->destport;
   if (pinfo->src.type == AT_ETHER) {
     if (eap_code == EAP_REQUEST) {	/* server -> client */
-      conversation_set_conv_addr_port_endpoints(pinfo, &null_address, &pae_group_address, conversation_pt_to_conversation_type(pinfo->ptype), 443, pinfo->destport);
+      copy_address_shallow(&conv_src, &null_address);
+      copy_address_shallow(&conv_dst, &pae_group_address);
+      conv_srcport = 443;
     } else {				/* client -> server */
-      conversation_set_conv_addr_port_endpoints(pinfo, &pae_group_address, &null_address, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, 443);
+      copy_address_shallow(&conv_src, &pae_group_address);
+      copy_address_shallow(&conv_dst, &null_address);
+      conv_destport = 443;
     }
+  }
+  else {
+    copy_address_shallow(&conv_src, &pinfo->src);
+    copy_address_shallow(&conv_dst, &pinfo->dst);
   }
 
   /*
@@ -1826,20 +1838,24 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * as offsets for p_get_proto_data/p_add_proto_data and as done for
    * EAPOL above we massage the client port using this too
    */
-  guint32 tls_group = pinfo->curr_proto_layer_num << 16;
+
   if (eap_code == EAP_REQUEST) {	/* server -> client */
-    conversation_set_conv_addr_port_endpoints(pinfo, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport | tls_group);
-  } else {				/* client -> server */
-    conversation_set_conv_addr_port_endpoints(pinfo, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport | tls_group, pinfo->destport);
+    conv_destport |= tls_group;
+  }
+  else {				/* client -> server */
+    conv_srcport |= tls_group;
   }
 
+  conversation_set_conv_addr_port_endpoints(pinfo, &conv_src, &conv_dst,
+    conversation_pt_to_conversation_type(pinfo->ptype), conv_srcport, conv_destport);
+
   if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
-    conversation = find_conversation_pinfo(pinfo, 0);
+    conversation = find_or_create_conversation(pinfo);
   }
   if (conversation == NULL) {
-    conversation = conversation_new(pinfo->num, &pinfo->src,
-		      &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
-		      pinfo->srcport, pinfo->destport, 0);
+    conversation = conversation_new(pinfo->num, &conv_src,
+		      &conv_dst, conversation_pt_to_conversation_type(pinfo->ptype),
+		      conv_srcport, conv_destport, 0);
   }
 
   /*
