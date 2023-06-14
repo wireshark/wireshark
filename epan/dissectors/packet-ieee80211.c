@@ -36360,7 +36360,11 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           } else {
             memset(key.bssid, 0, 6);
           }
-          memcpy(key.src, whdr->src.data, 6);
+          if (whdr->src.type != AT_NONE) {
+            memcpy(key.src, whdr->src.data, 6);
+          } else {
+            memset(key.src, 0, 6);
+          }
           key.seq_control = 0;
           result = (retransmit_key *)g_hash_table_lookup(fc_analyse_retransmit_table, &key);
           if (result && (result->seq_control == seq_control)) {
