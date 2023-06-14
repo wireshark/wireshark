@@ -70,6 +70,10 @@ static dissector_table_t ipx_socket_dissector_table;
 static dissector_table_t spx_socket_dissector_table;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t ipxsap_handle;
+static dissector_handle_t spx_handle;
+static dissector_handle_t ipxrip_handle;
+static dissector_handle_t serialization_handle;
+static dissector_handle_t ipxmsg_handle;
 
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
@@ -1547,24 +1551,28 @@ proto_register_ipx(void)
 	proto_ipx = proto_register_protocol("Internetwork Packet eXchange",
 	    "IPX", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
-
 	ipx_handle = register_dissector("ipx", dissect_ipx, proto_ipx);
 
 	proto_spx = proto_register_protocol("Sequenced Packet eXchange",
 	    "SPX", "spx");
 	proto_register_field_array(proto_spx, hf_spx, array_length(hf_spx));
+	spx_handle = register_dissector("spx", dissect_spx, proto_spx);
 
 	proto_ipxrip = proto_register_protocol("IPX Routing Information Protocol",
 	    "IPX RIP", "ipxrip");
 	proto_register_field_array(proto_ipxrip, hf_ipxrip, array_length(hf_ipxrip));
+	ipxrip_handle = register_dissector("ipxrip", dissect_ipxrip, proto_ipxrip);
 
 	proto_serialization = proto_register_protocol("NetWare Serialization Protocol",
 	    "NW_SERIAL", "nw_serial");
 	proto_register_field_array(proto_serialization, hf_serial, array_length(hf_serial));
+	serialization_handle = register_dissector("nw_serial", dissect_serialization,
+	    proto_serialization);
 
 	proto_ipxmsg = proto_register_protocol("IPX Message", "IPX MSG",
 	    "ipxmsg");
 	proto_register_field_array(proto_ipxmsg, hf_ipxmsg, array_length(hf_ipxmsg));
+	ipxmsg_handle = register_dissector("ipxmsg", dissect_ipxmsg, proto_ipxmsg);
 
 	proto_sap = proto_register_protocol("Service Advertisement Protocol",
 	    "IPX SAP", "ipxsap");
@@ -1592,9 +1600,6 @@ proto_register_ipx(void)
 void
 proto_reg_handoff_ipx(void)
 {
-	dissector_handle_t spx_handle;
-	dissector_handle_t ipxrip_handle;
-	dissector_handle_t serialization_handle, ipxmsg_handle;
 	capture_dissector_handle_t ipx_cap_handle;
 
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_IPX, ipx_handle);
@@ -1609,20 +1614,15 @@ proto_reg_handoff_ipx(void)
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
 
-	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
 	dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
 
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
 
-	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
 
-	serialization_handle = create_dissector_handle(dissect_serialization,
-	    proto_serialization);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SERIALIZATION,
 	    serialization_handle);
 
-	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 

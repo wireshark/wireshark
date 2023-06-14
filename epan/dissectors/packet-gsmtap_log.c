@@ -18,6 +18,8 @@
 void proto_register_gsmtap_log(void);
 void proto_reg_handoff_gsmtap_log(void);
 
+static dissector_handle_t gsmtap_log_handle;
+
 static int proto_gsmtap_log = -1;
 
 static int hf_log_ident = -1;
@@ -113,14 +115,13 @@ proto_register_gsmtap_log(void)
 	proto_gsmtap_log = proto_register_protocol("GSMTAP libosmocore logging", "GSMTAP-LOG", "gsmtap_log");
 	proto_register_field_array(proto_gsmtap_log, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	gsmtap_log_handle = register_dissector("gsmtap_log", dissect_gsmtap_log, proto_gsmtap_log);
 }
 
 void
 proto_reg_handoff_gsmtap_log(void)
 {
-	dissector_handle_t gsmtap_log_handle;
-
-	gsmtap_log_handle = create_dissector_handle(dissect_gsmtap_log, proto_gsmtap_log);
 	dissector_add_uint("gsmtap.type", GSMTAP_TYPE_OSMOCORE_LOG, gsmtap_log_handle);
 }
 

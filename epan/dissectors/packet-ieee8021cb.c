@@ -26,8 +26,10 @@
 void proto_register_ieee8021cb(void);
 void proto_reg_handoff_ieee8021cb(void);
 
+static dissector_handle_t ieee8021cb_handle;
 static dissector_handle_t ethertype_handle;
 
+static capture_dissector_handle_t ieee8021cb_cap_handle;
 static capture_dissector_handle_t ipx_cap_handle;
 static capture_dissector_handle_t llc_cap_handle;
 
@@ -132,18 +134,17 @@ proto_register_ieee8021cb(void)
     proto_ieee8021cb = proto_register_protocol("802.1CB Redundancy Tag", "R-Tag", "ieee8021cb");
     proto_register_field_array(proto_ieee8021cb, hf_1cb, array_length(hf_1cb));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ieee8021cb_handle = register_dissector("ieee8021cb", dissect_ieee8021cb, proto_ieee8021cb);
+    ieee8021cb_cap_handle = register_capture_dissector("ieee8021cb", capture_ieee8021cb, proto_ieee8021cb);
 }
 
 void
 proto_reg_handoff_ieee8021cb(void)
 {
-    static dissector_handle_t         ieee8021cb_handle;
-    static capture_dissector_handle_t ieee8021cb_cap_handle;
 
-    ieee8021cb_handle = create_dissector_handle(dissect_ieee8021cb, proto_ieee8021cb);
     dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1CB, ieee8021cb_handle);
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_ieee8021cb);
-    ieee8021cb_cap_handle = create_capture_dissector_handle(capture_ieee8021cb, proto_ieee8021cb);
     capture_dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1CB, ieee8021cb_cap_handle);
 
     ipx_cap_handle = find_capture_dissector("ipx");

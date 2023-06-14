@@ -18,6 +18,8 @@
 void proto_reg_handoff_hicp(void);
 void proto_register_hicp(void);
 
+static dissector_handle_t hicp_handle;
+
 /* Protocols and header fields. */
 static int proto_hicp = -1;
 static int hf_hicp_cmd = -1;
@@ -390,15 +392,13 @@ proto_register_hicp(void)
 
     expert_hicp = expert_register_protocol(proto_hicp);
     expert_register_field_array(expert_hicp, ei, array_length(ei));
+
+    hicp_handle = register_dissector("hicp", dissect_hicp, proto_hicp);
 }
 
 void
 proto_reg_handoff_hicp(void)
 {
-    static dissector_handle_t hicp_handle;
-
-    hicp_handle = create_dissector_handle(dissect_hicp, proto_hicp);
-
     dissector_add_uint("udp.port", HICP_PORT, hicp_handle);
 }
 

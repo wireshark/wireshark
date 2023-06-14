@@ -18,6 +18,8 @@
 void proto_register_idp(void);
 void proto_reg_handoff_idp(void);
 
+static dissector_handle_t idp_handle;
+
 static int proto_idp = -1;
 static int hf_idp_checksum = -1;
 static int hf_idp_len = -1;
@@ -184,14 +186,13 @@ proto_register_idp(void)
 
 	idp_type_dissector_table = register_dissector_table("idp.packet_type",
 	    "IDP packet type", proto_idp, FT_UINT8, BASE_DEC);
+
+	idp_handle = register_dissector("idp", dissect_idp, proto_idp);
 }
 
 void
 proto_reg_handoff_idp(void)
 {
-	dissector_handle_t idp_handle;
-
-	idp_handle = create_dissector_handle(dissect_idp, proto_idp);
 	dissector_add_uint("ethertype", ETHERTYPE_XNS_IDP, idp_handle);
 	dissector_add_uint("chdlc.protocol", ETHERTYPE_XNS_IDP, idp_handle);
 }

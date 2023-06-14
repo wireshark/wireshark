@@ -2861,10 +2861,7 @@ proto_register_btpa(void)
 void
 proto_reg_handoff_btpa(void)
 {
-    dissector_handle_t btpa_handle_;
-
-    btpa_handle_ = create_dissector_handle(dissect_btpa, proto_btpa);
-    dissector_add_uint("geonw.ch.nh", 1, btpa_handle_);
+    dissector_add_uint("geonw.ch.nh", 1, btpa_handle);
 
     find_dissector_add_dependency("gnw", proto_btpa);
 
@@ -2915,10 +2912,7 @@ proto_register_btpb(void)
 void
 proto_reg_handoff_btpb(void)
 {
-    dissector_handle_t btpb_handle_;
-
-    btpb_handle_ = create_dissector_handle(dissect_btpb, proto_btpb);
-    dissector_add_uint("geonw.ch.nh", 2, btpb_handle_);
+    dissector_add_uint("geonw.ch.nh", 2, btpb_handle);
 
     find_dissector_add_dependency("gnw", proto_btpb);
 
@@ -3665,13 +3659,13 @@ proto_register_geonw(void)
 void
 proto_reg_handoff_geonw(void)
 {
-    dissector_handle_t geonw_handle_;
     dissector_handle_t sgeonw_handle_;
 
-    geonw_handle_ = create_dissector_handle(dissect_geonw, proto_geonw);
+    // This is a minimal dissector that just stores the tvbuff for later use;
+    // not useful from outside a dissector table, so not using register_dissector()
     sgeonw_handle_ = create_dissector_handle(dissect_sgeonw, proto_geonw);
 
-    dissector_add_uint_with_preference("ethertype", ETHERTYPE_GEONETWORKING, geonw_handle_);
+    dissector_add_uint_with_preference("ethertype", ETHERTYPE_GEONETWORKING, geonw_handle);
 
     // IPv6 over GeoNetworking Protocols
     ipv6_handle = find_dissector("ipv6");

@@ -19,6 +19,8 @@
 void proto_register_gift(void);
 void proto_reg_handoff_gift(void);
 
+static dissector_handle_t gift_handle;
+
 #define TCP_PORT_GIFT 1213 /* Not IANA registered */
 
 static int proto_gift = -1;
@@ -138,14 +140,13 @@ proto_register_gift(void)
 
 	proto_register_field_array(proto_gift, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	gift_handle = register_dissector("gift", dissect_gift, proto_gift);
 }
 
 void
 proto_reg_handoff_gift(void)
 {
-	dissector_handle_t gift_handle;
-
-	gift_handle = create_dissector_handle(dissect_gift, proto_gift);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_GIFT, gift_handle);
 }
 

@@ -24,6 +24,8 @@
 void proto_register_gearman(void);
 void proto_reg_handoff_gearman(void);
 
+static dissector_handle_t gearman_handle;
+
 static int proto_gearman = -1;
 
 static int hf_gearman_mgr_cmd = -1;
@@ -668,14 +670,12 @@ proto_register_gearman(void)
                                   "Whether the Gearman dissector should desegment all messages spanning multiple TCP segments",
                                   &gearman_desegment);
 
+  gearman_handle = register_dissector("gearman", dissect_gearman, proto_gearman);
 }
 
 void
 proto_reg_handoff_gearman(void)
 {
-  dissector_handle_t gearman_handle;
-
-  gearman_handle = create_dissector_handle(dissect_gearman, proto_gearman);
   dissector_add_uint_with_preference("tcp.port", GEARMAN_PORT, gearman_handle);
 }
 

@@ -119,6 +119,9 @@ static expert_field ei_esp_sequence_analysis_wrong_sequence_number = EI_INIT;
 
 static gint exported_pdu_tap = -1;
 
+static dissector_handle_t ipcomp_handle;
+static capture_dissector_handle_t ah_cap_handle;
+
 static dissector_handle_t data_handle;
 
 static dissector_table_t ip_dissector_table;
@@ -2600,26 +2603,26 @@ proto_register_ipsec(void)
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);
 
+  ipcomp_handle = register_dissector("ipcomp", dissect_ipcomp, proto_ipcomp);
+  ah_cap_handle = register_capture_dissector("ah", capture_ah, proto_ah);
+
   register_decode_as(&ah_da);
 }
 
 void
 proto_reg_handoff_ipsec(void)
 {
-  dissector_handle_t esp_handle, ah_handle, ipcomp_handle;
-  capture_dissector_handle_t ah_cap_handle;
+  dissector_handle_t esp_handle, ah_handle;
 
   data_handle = find_dissector("data");
   ah_handle = find_dissector("ah");
   dissector_add_uint("ip.proto", IP_PROTO_AH, ah_handle);
   esp_handle = find_dissector("esp");
   dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
-  ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
 
-  ah_cap_handle = create_capture_dissector_handle(capture_ah, proto_ah);
   capture_dissector_add_uint("ip.proto", IP_PROTO_AH, ah_cap_handle);
 
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_3);

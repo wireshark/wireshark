@@ -49,6 +49,8 @@ void proto_register_ippusb(void);
 void proto_reg_handoff_ippusb(void);
 static gint is_http_header(guint first_linelen, const guchar *first_line);
 
+static dissector_handle_t ippusb_handle;
+
 static gint proto_ippusb = -1;
 static gint ett_ippusb = -1;
 static gint ett_ippusb_as = -1;
@@ -526,14 +528,13 @@ proto_register_ippusb(void)
     return_newline_tvb = tvb_new_real_data(RETURN_NEWLINE, sizeof(RETURN_NEWLINE), sizeof(RETURN_NEWLINE));
 
     register_shutdown_routine(ippusb_shutdown);
+
+    ippusb_handle = register_dissector("ippusb", dissect_ippusb, proto_ippusb);
 }
 
 void
 proto_reg_handoff_ippusb(void)
 {
-    dissector_handle_t ippusb_handle;
-
-    ippusb_handle = create_dissector_handle(dissect_ippusb, proto_ippusb);
     dissector_add_uint("usb.bulk", IF_CLASS_PRINTER, ippusb_handle);
 }
 

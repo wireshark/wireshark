@@ -67,6 +67,16 @@ void proto_reg_handoff_1722_acf_can(void);
 void proto_register_1722_acf_lin(void);
 void proto_reg_handoff_1722_acf_lin(void);
 
+static dissector_handle_t avtp_handle_eth;
+static dissector_handle_t avtp_handle_udp;
+static dissector_handle_t avb1722_61883_handle;
+static dissector_handle_t avb1722_aaf_handle;
+static dissector_handle_t avb1722_cvf_handle;
+static dissector_handle_t avb1722_crf_handle;
+static dissector_handle_t avb1722_ntscf_handle;
+static dissector_handle_t avb1722_tscf_handle;
+static dissector_handle_t avb1722_acf_lin_handle;
+
 static dissector_handle_t jpeg_handle;
 static dissector_handle_t h264_handle;
 static dissector_handle_t mp2t_handle;
@@ -957,14 +967,13 @@ void proto_register_1722(void)
     /* Sub-dissector for 1722.1, 1722 AAF, 1722 CRF, 1722 61883, 1722 CVF */
     avb_dissector_table = register_dissector_table("ieee1722.subtype",
                           "IEEE1722 AVTP Subtype", proto_1722, FT_UINT8, BASE_HEX);
+
+    avtp_handle_eth = register_dissector("ieee1722.eth", dissect_1722_eth, proto_1722);
+    avtp_handle_udp = register_dissector("ieee1722.udp", dissect_1722_udp, proto_1722);
 }
 
 void proto_reg_handoff_1722(void)
 {
-    dissector_handle_t avtp_handle_eth, avtp_handle_udp;
-
-    avtp_handle_eth = create_dissector_handle(dissect_1722_eth, proto_1722);
-    avtp_handle_udp = create_dissector_handle(dissect_1722_udp, proto_1722);
     dissector_add_uint("ethertype", ETHERTYPE_AVTP, avtp_handle_eth);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_IEEE_1722, avtp_handle_udp);
 }
@@ -1431,13 +1440,12 @@ void proto_register_1722_61883(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_1722_61883 = expert_register_protocol(proto_1722_61883);
     expert_register_field_array(expert_1722_61883, ei, array_length(ei));
+
+    avb1722_61883_handle = register_dissector("iec61883", dissect_1722_61883, proto_1722_61883);
 }
 
 void proto_reg_handoff_1722_61883(void)
 {
-    dissector_handle_t avb1722_61883_handle;
-
-    avb1722_61883_handle = create_dissector_handle(dissect_1722_61883, proto_1722_61883);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_61883, avb1722_61883_handle);
 
     mp2t_handle = find_dissector_add_dependency("mp2t", proto_1722_61883);
@@ -1664,13 +1672,12 @@ void proto_register_1722_aaf (void)
 
     expert_1722_aaf = expert_register_protocol(proto_1722_aaf);
     expert_register_field_array(expert_1722_aaf, ei, array_length(ei));
+
+    avb1722_aaf_handle = register_dissector("aaf", dissect_1722_aaf, proto_1722_aaf);
 }
 
 void proto_reg_handoff_1722_aaf(void)
 {
-    dissector_handle_t avb1722_aaf_handle;
-
-    avb1722_aaf_handle = create_dissector_handle(dissect_1722_aaf, proto_1722_aaf);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_AAF, avb1722_aaf_handle);
 }
 
@@ -1859,13 +1866,11 @@ void proto_register_1722_cvf (void)
     expert_1722_cvf = expert_register_protocol(proto_1722_cvf);
     expert_register_field_array(expert_1722_cvf, ei, array_length(ei));
 
+    avb1722_cvf_handle = register_dissector("cvf", dissect_1722_cvf, proto_1722_cvf);
 }
 
 void proto_reg_handoff_1722_cvf(void)
 {
-    dissector_handle_t avb1722_cvf_handle;
-
-    avb1722_cvf_handle = create_dissector_handle(dissect_1722_cvf, proto_1722_cvf);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_CVF, avb1722_cvf_handle);
 
     jpeg_handle = find_dissector_add_dependency("jpeg", proto_1722_cvf);
@@ -2010,13 +2015,12 @@ void proto_register_1722_crf(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_1722_crf = expert_register_protocol(proto_1722_crf);
     expert_register_field_array(expert_1722_crf, ei, array_length(ei));
+
+    avb1722_crf_handle = register_dissector("crf", dissect_1722_crf, proto_1722_crf);
 }
 
 void proto_reg_handoff_1722_crf(void)
 {
-    dissector_handle_t avb1722_crf_handle;
-
-    avb1722_crf_handle = create_dissector_handle(dissect_1722_crf, proto_1722_crf);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_CRF, avb1722_crf_handle);
 }
 
@@ -2137,13 +2141,12 @@ void proto_register_1722_ntscf(void)
 
     expert_1722_ntscf = expert_register_protocol(proto_1722_ntscf);
     expert_register_field_array(expert_1722_ntscf, ei, array_length(ei));
+
+    avb1722_ntscf_handle = register_dissector("ntscf", dissect_1722_ntscf, proto_1722_ntscf);
 }
 
 void proto_reg_handoff_1722_ntscf(void)
 {
-    dissector_handle_t avb1722_ntscf_handle;
-
-    avb1722_ntscf_handle = create_dissector_handle(dissect_1722_ntscf, proto_1722_ntscf);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_NTSCF, avb1722_ntscf_handle);
 }
 
@@ -2324,13 +2327,12 @@ void proto_register_1722_tscf(void)
 
     expert_1722_tscf = expert_register_protocol(proto_1722_tscf);
     expert_register_field_array(expert_1722_tscf, ei, array_length(ei));
+
+    avb1722_tscf_handle = register_dissector("tscf", dissect_1722_tscf, proto_1722_tscf);
 }
 
 void proto_reg_handoff_1722_tscf(void)
 {
-    dissector_handle_t avb1722_tscf_handle;
-
-    avb1722_tscf_handle = create_dissector_handle(dissect_1722_tscf, proto_1722_tscf);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_TSCF, avb1722_tscf_handle);
 }
 
@@ -2929,13 +2931,12 @@ void proto_register_1722_acf_lin(void)
     expert_register_field_array(expert_1722_acf_lin, ei, array_length(ei));
 
     avb1722_acf_lin_dissector_table = register_decode_as_next_proto(proto_1722_acf_lin, "acf-lin.subdissector", "ACF-LIN next level dissector", NULL);
+
+    avb1722_acf_lin_handle = register_dissector("acf-lin", dissect_1722_acf_lin, proto_1722_acf_lin);
 }
 
 void proto_reg_handoff_1722_acf_lin(void)
 {
-    dissector_handle_t avb1722_acf_lin_handle;
-
-    avb1722_acf_lin_handle = create_dissector_handle(dissect_1722_acf_lin, proto_1722_acf_lin);
     dissector_add_uint("acf.msg_type", IEEE_1722_ACF_TYPE_LIN, avb1722_acf_lin_handle);
 }
 

@@ -17,6 +17,8 @@
 void proto_register_hsr(void);
 void proto_reg_handoff_hsr(void);
 
+static dissector_handle_t hsr_frame_handle;
+
 /**********************************************************/
 /* Lengths of fields within a HSR packet.                 */
 /**********************************************************/
@@ -169,13 +171,13 @@ void proto_register_hsr(void)
     /* Required function calls to register the header fields and subtree used */
     proto_register_field_array(proto_hsr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    hsr_frame_handle = register_dissector("hsr", dissect_hsr_frame, proto_hsr);
 }
 
 
 void proto_reg_handoff_hsr(void)
 {
-    dissector_handle_t hsr_frame_handle;
-    hsr_frame_handle = create_dissector_handle(dissect_hsr_frame, proto_hsr);
     dissector_add_uint("ethertype", ETHERTYPE_HSR, hsr_frame_handle);
 
     ethertype_subdissector_table = find_dissector_table("ethertype");

@@ -129,6 +129,8 @@
 void proto_register_hsrp(void);
 void proto_reg_handoff_hsrp(void);
 
+static dissector_handle_t hsrp_handle;
+
 static gint proto_hsrp = -1;
 
 static gint hf_hsrp_version = -1;
@@ -831,14 +833,13 @@ void proto_register_hsrp(void)
         proto_register_subtree_array(ett, array_length(ett));
         expert_hsrp = expert_register_protocol(proto_hsrp);
         expert_register_field_array(expert_hsrp, ei, array_length(ei));
+
+        hsrp_handle = register_dissector("hsrp", dissect_hsrp, proto_hsrp);
 }
 
 void
 proto_reg_handoff_hsrp(void)
 {
-        dissector_handle_t hsrp_handle;
-
-        hsrp_handle = create_dissector_handle(dissect_hsrp, proto_hsrp);
         dissector_add_uint_range_with_preference("udp.port", UDP_PORT_HSRP_RANGE, hsrp_handle);
 }
 

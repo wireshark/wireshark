@@ -37,6 +37,8 @@
 void proto_register_igap(void);
 void proto_reg_handoff_igap(void);
 
+static dissector_handle_t igap_handle;
+
 static int proto_igap      = -1;
 static int hf_type         = -1;
 static int hf_max_resp     = -1;
@@ -333,16 +335,15 @@ proto_register_igap(void)
     proto_igap = proto_register_protocol("Internet Group membership Authentication Protocol", "IGAP", "igap");
     proto_register_field_array(proto_igap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-	expert_igap = expert_register_protocol(proto_igap);
-	expert_register_field_array(expert_igap, ei, array_length(ei));
+    expert_igap = expert_register_protocol(proto_igap);
+    expert_register_field_array(expert_igap, ei, array_length(ei));
+
+    igap_handle = register_dissector("igap", dissect_igap, proto_igap);
 }
 
 void
 proto_reg_handoff_igap(void)
 {
-    dissector_handle_t igap_handle;
-
-    igap_handle = create_dissector_handle(dissect_igap, proto_igap);
     dissector_add_uint("igmp.type", IGMP_IGAP_JOIN, igap_handle);
     dissector_add_uint("igmp.type", IGMP_IGAP_QUERY, igap_handle);
     dissector_add_uint("igmp.type", IGMP_IGAP_LEAVE, igap_handle);

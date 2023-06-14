@@ -52,6 +52,8 @@
 void proto_reg_handoff_iser(void);
 void proto_register_iser(void);
 
+static dissector_handle_t iser_handle;
+
 static int proto_iser = -1;
 static dissector_handle_t iscsi_handler;
 
@@ -343,6 +345,8 @@ proto_register_iser(void)
                                     "Range of iSER target ports"
                                     "(default " TCP_PORT_ISER_RANGE ")",
                                     &gPORT_RANGE, MAX_TCP_PORT);
+
+    iser_handle = register_dissector("iser",  dissect_packet, proto_iser );
 }
 
 void
@@ -351,7 +355,7 @@ proto_reg_handoff_iser(void)
     heur_dissector_add("infiniband.payload", dissect_iser, "iSER Infiniband", "iser_infiniband", proto_iser, HEURISTIC_ENABLE);
     heur_dissector_add("infiniband.mad.cm.private", dissect_iser, "iSER in PrivateData of CM packets", "iser_ib_private", proto_iser, HEURISTIC_ENABLE);
 
-    dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_packet, proto_iser ) );
+    dissector_add_for_decode_as("infiniband", iser_handle);
 
     iscsi_handler = find_dissector_add_dependency("iscsi", proto_iser);
     proto_ib = proto_get_id_by_filter_name( "infiniband" );

@@ -82,6 +82,8 @@ void proto_register_ieee80211(void);
 void proto_reg_handoff_ieee80211(void);
 void proto_register_wlan_rsna_eapol(void);
 
+static dissector_handle_t centrino_handle;
+
 typedef struct {
   DOT11DECRYPT_KEY_ITEM used_key;
   guint keydata_len;
@@ -55551,6 +55553,7 @@ proto_register_ieee80211(void)
   /* Created to remove Decode As confusion */
   proto_centrino = proto_register_protocol("IEEE 802.11 wireless LAN (Centrino)", "IEEE 802.11 (Centrino)", "wlan_centrino");
   proto_register_field_array(proto_wlan, hf, array_length(hf));
+  centrino_handle = register_dissector("wlan_centrino",  dissect_ieee80211_centrino, proto_centrino );
 
   proto_wlan_ext = proto_register_protocol("IEEE 802.11 wireless LAN extension frame",
       "IEEE 802.11 EXT", "wlan_ext");
@@ -55820,7 +55823,7 @@ proto_register_wlan_rsna_eapol(void)
 void
 proto_reg_handoff_ieee80211(void)
 {
-  dissector_handle_t data_encap_handle, centrino_handle;
+  dissector_handle_t data_encap_handle;
   dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle;
   capture_dissector_handle_t ieee80211_cap_handle;
 
@@ -55843,7 +55846,6 @@ proto_reg_handoff_ieee80211(void)
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 
-  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
   ieee80211_cap_handle = find_capture_dissector("ieee80211");

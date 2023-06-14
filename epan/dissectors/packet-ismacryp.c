@@ -24,6 +24,10 @@
 void proto_register_ismacryp(void);
 void proto_reg_handoff_ismacryp(void);
 
+static dissector_handle_t ismacryp_handle;
+static dissector_handle_t ismacryp_v11_handle;
+static dissector_handle_t ismacryp_v20_handle;
+
 /* keeps track of current position in buffer in terms of bit and byte offset */
 typedef struct Toffset_struct
 {
@@ -852,6 +856,10 @@ void proto_register_ismacryp (void)
 	proto_register_field_array (proto_ismacryp, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 
+	ismacryp_handle = register_dissector("ismacryp", dissect_ismacryp, proto_ismacryp);
+	ismacryp_v11_handle = register_dissector("ismacryp_v11", dissect_ismacryp_v11, proto_ismacryp_v11);
+	ismacryp_v20_handle = register_dissector("ismacryp_v20", dissect_ismacryp_v20, proto_ismacryp_v20);
+
 	/* Register our configuration options for ismacryp */
 	ismacryp_module = prefs_register_protocol(proto_ismacryp, NULL);
 
@@ -982,18 +990,10 @@ void proto_register_ismacryp (void)
 				       "Indicates the number of bits on which the stream state field is encoded"
 				       " in the AU Header (bits)",
 				       10, &pref_stream_state_indication);
-
 }
 
 void proto_reg_handoff_ismacryp(void)
 {
-	dissector_handle_t ismacryp_handle;
-	dissector_handle_t ismacryp_v11_handle;
-	dissector_handle_t ismacryp_v20_handle;
-
-	ismacryp_handle = create_dissector_handle(dissect_ismacryp, proto_ismacryp);
-	ismacryp_v11_handle = create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp_v11);
-	ismacryp_v20_handle = create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp_v20);
 	dissector_add_string("rtp_dyn_payload_type", "ISMACRYP", ismacryp_handle);
 	dissector_add_string("rtp_dyn_payload_type", "enc-mpeg4-generic", ismacryp_v11_handle);
 	dissector_add_string("rtp_dyn_payload_type", "enc-isoff-generic", ismacryp_v20_handle);

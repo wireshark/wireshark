@@ -23,6 +23,8 @@
 void proto_reg_handoff_homeplug(void);
 void proto_register_homeplug(void);
 
+static dissector_handle_t homeplug_handle;
+
 static int proto_homeplug                     = -1;
 
 static int hf_homeplug_mctrl                  = -1;
@@ -1343,9 +1345,6 @@ homeplug_fmt_mhz( gchar *result, guint32 ns_bytes40 )
 void
 proto_reg_handoff_homeplug(void)
 {
-  dissector_handle_t homeplug_handle;
-
-  homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
   dissector_add_uint("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
 }
 
@@ -2177,6 +2176,8 @@ proto_register_homeplug(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_homeplug = expert_register_protocol(proto_homeplug);
   expert_register_field_array(expert_homeplug, ei, array_length(ei));
+
+  homeplug_handle = register_dissector("homeplug", dissect_homeplug, proto_homeplug);
 }
 
 /*

@@ -12574,12 +12574,6 @@ void proto_register_gtpv2(void)
     expert_gtpv2 = expert_register_protocol(proto_gtpv2);
     expert_register_field_array(expert_gtpv2, ei, array_length(ei));
 
-    /* AVP Code: 22 3GPP-User-Location-Info */
-    dissector_add_uint("diameter.3gpp", 22, create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
-
-    /* AVP Code: 2820 Presence-Reporting-Area-Elements-List */
-    dissector_add_uint("diameter.3gpp", 2820, create_dissector_handle(dissect_diameter_3gpp_presence_reporting_area_elements_list, proto_gtpv2));
-
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
     /* Dissector table for private extensions */
     gtpv2_priv_ext_dissector_table = register_dissector_table("gtpv2.priv_ext", "GTPv2 Private Extension", proto_gtpv2, FT_UINT16, BASE_DEC);
@@ -12597,6 +12591,13 @@ proto_reg_handoff_gtpv2(void)
     nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_gtpv2);
 
     radius_register_avp_dissector(VENDOR_THE3GPP, 22, dissect_radius_user_loc);
+
+    /* AVP Code: 22 3GPP-User-Location-Info */
+    dissector_add_uint("diameter.3gpp", 22, create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
+
+    /* AVP Code: 2820 Presence-Reporting-Area-Elements-List */
+    dissector_add_uint("diameter.3gpp", 2820, create_dissector_handle(dissect_diameter_3gpp_presence_reporting_area_elements_list, proto_gtpv2));
+
 }
 
 /*

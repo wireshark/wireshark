@@ -33,6 +33,7 @@
 #include "packet-wifi-dpp.h"
 #include "packet-ieee80211.h"
 
+static dissector_handle_t ieee1905_handle;
 static dissector_handle_t eapol_handle;
 
 extern value_string_ext ieee80211_reason_code_ext;
@@ -11538,16 +11539,13 @@ proto_register_ieee1905(void)
 
     reassembly_table_register(&g_ieee1905_reassembly_table,
                               &ieee1905_reassembly_table_functions);
+
+    ieee1905_handle = register_dissector("ieee1905", dissect_ieee1905, proto_ieee1905);
 }
 
 void
 proto_reg_handoff_ieee1905(void)
 {
-    static dissector_handle_t ieee1905_handle;
-
-    ieee1905_handle = create_dissector_handle(dissect_ieee1905,
-                proto_ieee1905);
-
     dissector_add_uint("ethertype", ETHERTYPE_IEEE_1905, ieee1905_handle);
 
     eapol_handle = find_dissector("eapol");

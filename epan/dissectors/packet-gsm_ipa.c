@@ -468,6 +468,9 @@ void proto_register_ipa(void)
 	prefs_register_bool_preference(ipa_module, "hsl_debug_in_info",
 					"HSL Debug messages in INFO column",
 					NULL, &global_ipa_in_info);
+
+	ipa_tcp_handle = register_dissector("gsm_ipa.tcp", dissect_ipa_tcp, proto_ipa);
+	ipa_udp_handle = register_dissector("gsm_ipa.udp", dissect_ipa_udp, proto_ipa);
 }
 
 void proto_reg_handoff_gsm_ipa(void)
@@ -478,8 +481,6 @@ void proto_reg_handoff_gsm_ipa(void)
 	sub_handles[SUB_MGCP] = find_dissector_add_dependency("mgcp", proto_ipa);
 	sub_handles[SUB_DATA] = find_dissector("data");
 
-	ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
-	ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
 	dissector_add_uint_range_with_preference("tcp.port", IPA_TCP_PORTS, ipa_tcp_handle);
 	dissector_add_uint_range_with_preference("udp.port", "", ipa_udp_handle);
 }

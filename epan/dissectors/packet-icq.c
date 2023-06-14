@@ -24,6 +24,8 @@
 void proto_register_icq(void);
 void proto_reg_handoff_icq(void);
 
+static dissector_handle_t icq_handle;
+
 static int proto_icq = -1;
 static int hf_icq_version = -1;
 static int hf_icq_uin = -1;
@@ -1351,14 +1353,13 @@ proto_register_icq(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_icq = expert_register_protocol(proto_icq);
     expert_register_field_array(expert_icq, ei, array_length(ei));
+
+    icq_handle = register_dissector("icq", dissect_icq, proto_icq);
 }
 
 void
 proto_reg_handoff_icq(void)
 {
-    dissector_handle_t icq_handle;
-
-    icq_handle = create_dissector_handle(dissect_icq, proto_icq);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_ICQ, icq_handle);
 }
 

@@ -1696,6 +1696,10 @@ void proto_register_isns(void)
     expert_isns = expert_register_protocol(proto_isns);
     expert_register_field_array(expert_isns, ei, array_length(ei));
 
+    /* Register the dissectors */
+    isns_tcp_handle = register_dissector("isns.tcp", dissect_isns_tcp,proto_isns);
+    isns_udp_handle = register_dissector("isns.udp", dissect_isns_udp,proto_isns);
+
     /* Register preferences */
     isns_module = prefs_register_protocol(proto_isns, NULL);
     prefs_register_bool_preference(
@@ -1709,9 +1713,6 @@ void proto_register_isns(void)
 void
 proto_reg_handoff_isns(void)
 {
-    isns_tcp_handle = create_dissector_handle(dissect_isns_tcp,proto_isns);
-    isns_udp_handle = create_dissector_handle(dissect_isns_udp,proto_isns);
-
     dissector_add_uint_with_preference("tcp.port",ISNS_TCP_PORT,isns_tcp_handle);
     dissector_add_uint_with_preference("udp.port",ISNS_UDP_PORT,isns_udp_handle);
 }

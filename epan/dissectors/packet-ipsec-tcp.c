@@ -25,6 +25,8 @@
 void proto_register_tcpencap(void);
 void proto_reg_handoff_tcpencap(void);
 
+static dissector_handle_t tcpencap_handle;
+
 static int hf_tcpencap_unknown = -1;
 static int hf_tcpencap_zero = -1;
 static int hf_tcpencap_seq = -1;
@@ -210,14 +212,13 @@ proto_register_tcpencap(void)
 
 	proto_register_field_array(proto_tcpencap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	tcpencap_handle = register_dissector("tcpencap", dissect_tcpencap, proto_tcpencap);
 }
 
 void
 proto_reg_handoff_tcpencap(void)
 {
-	dissector_handle_t tcpencap_handle;
-
-	tcpencap_handle = create_dissector_handle(dissect_tcpencap, proto_tcpencap);
 	esp_handle = find_dissector_add_dependency("esp", proto_tcpencap);
 	udp_handle = find_dissector_add_dependency("udp", proto_tcpencap);
 

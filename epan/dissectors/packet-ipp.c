@@ -26,6 +26,8 @@
 void proto_register_ipp(void);
 void proto_reg_handoff_ipp(void);
 
+static dissector_handle_t ipp_handle;
+
 static int proto_ipp = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_ipp_version = -1;
@@ -1575,17 +1577,16 @@ proto_register_ipp(void)
 
     proto_register_field_array(proto_ipp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ipp_handle = register_dissector("ipp", dissect_ipp, proto_ipp);
 }
 
 void
 proto_reg_handoff_ipp(void)
 {
-    dissector_handle_t ipp_handle;
-
     /*
      * Register ourselves as running atop HTTP and using port 631.
      */
-    ipp_handle = create_dissector_handle(dissect_ipp, proto_ipp);
     http_tcp_dissector_add(631, ipp_handle);
     dissector_add_string("media_type", "application/ipp", ipp_handle);
 }

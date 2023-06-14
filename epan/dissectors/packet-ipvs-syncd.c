@@ -15,6 +15,8 @@
 void proto_register_ipvs_syncd(void);
 void proto_reg_handoff_ipvs_syncd(void);
 
+static dissector_handle_t ipvs_syncd_handle;
+
 static int proto_ipvs_syncd = -1;
 static int hf_conn_count = -1;
 static int hf_syncid = -1;
@@ -460,14 +462,13 @@ proto_register_ipvs_syncd(void)
 	proto_ipvs_syncd = proto_register_protocol("IP Virtual Services Sync Daemon", "IPVS", "ipvs");
 	proto_register_field_array(proto_ipvs_syncd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ipvs_syncd_handle = register_dissector("ipvs", dissect_ipvs_syncd, proto_ipvs_syncd);
 }
 
 void
 proto_reg_handoff_ipvs_syncd(void)
 {
-	dissector_handle_t ipvs_syncd_handle;
-
-	ipvs_syncd_handle = create_dissector_handle(dissect_ipvs_syncd, proto_ipvs_syncd);
 	dissector_add_uint_with_preference("udp.port", IPVS_SYNCD_PORT, ipvs_syncd_handle);
 }
 

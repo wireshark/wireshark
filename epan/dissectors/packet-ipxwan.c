@@ -17,6 +17,8 @@
 void proto_register_ipxwan(void);
 void proto_reg_handoff_ipxwan(void);
 
+static dissector_handle_t ipxwan_handle;
+
 /*
  * See RFC 1362 for version 1 of this protocol; see the NetWare Link
  * Services Protocol Specification, chapter 3, for version 2.
@@ -419,15 +421,13 @@ proto_register_ipxwan(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ipxwan = expert_register_protocol(proto_ipxwan);
 	expert_register_field_array(expert_ipxwan, ei, array_length(ei));
+
+	ipxwan_handle = register_dissector("ipxwan", dissect_ipxwan, proto_ipxwan);
 }
 
 void
 proto_reg_handoff_ipxwan(void)
 {
-	dissector_handle_t ipxwan_handle;
-
-	ipxwan_handle = create_dissector_handle(dissect_ipxwan,
-	    proto_ipxwan);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXWAN, ipxwan_handle);
 }
 

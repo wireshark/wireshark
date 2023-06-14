@@ -28,6 +28,8 @@
 void proto_reg_handoff_greb(void);
 void proto_register_greb(void);
 
+static dissector_handle_t greb_handle;
+
 static int proto_greb = -1;
 
 static int hf_greb_message_type = -1;
@@ -566,14 +568,13 @@ proto_register_greb(void)
     proto_register_field_array(proto_greb, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    greb_handle = register_dissector("grebonding", dissect_greb, proto_greb);
 }
 
 void
 proto_reg_handoff_greb(void)
 {
-    dissector_handle_t greb_handle;
-
-    greb_handle = create_dissector_handle(dissect_greb, proto_greb);
     dissector_add_uint("gre.proto", 0x0101, greb_handle); // used in production at Deutsche Telekom
     dissector_add_uint("gre.proto", 0xB7EA, greb_handle); // according to RFC
 

@@ -437,7 +437,7 @@ proto_register_gcsna(void)
         "gcsna"     /* abbrev */
     );
 
-    register_dissector("gcsna", dissect_gcsna, proto_gcsna);
+    gcsna_handle = register_dissector("gcsna", dissect_gcsna, proto_gcsna);
 
     proto_register_field_array(proto_gcsna, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -450,12 +450,5 @@ proto_register_gcsna(void)
 void
 proto_reg_handoff_gcsna(void)
 {
-    static int once = 1;
-
-    if (once == 1)
-    {
-        cdma2k_handle = find_dissector("cdma2k");
-        gcsna_handle = create_dissector_handle(dissect_gcsna, proto_gcsna);
-        once = 0;
-    }
+    cdma2k_handle = find_dissector("cdma2k");
 }

@@ -37,6 +37,8 @@
 void proto_register_ipdc(void);
 void proto_reg_handoff_ipdc(void);
 
+static dissector_handle_t ipdc_tcp_handle = NULL;
+
 #define	TCP_PORT_IPDC	6668 /* Not IANA registered */
 #define	TRANS_ID_SIZE_IPDC	4
 
@@ -1059,15 +1061,13 @@ proto_register_ipdc(void)
 				       "Whether the IPDC dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &ipdc_desegment);
+
+	ipdc_tcp_handle = register_dissector("ipdc", dissect_ipdc_tcp, proto_ipdc);
 }
 
 void
 proto_reg_handoff_ipdc(void)
 {
-	static dissector_handle_t ipdc_tcp_handle = NULL;
-
-	ipdc_tcp_handle =
-		create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
 	q931_handle = find_dissector_add_dependency("q931", proto_ipdc);
 
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_IPDC, ipdc_tcp_handle);

@@ -41,6 +41,8 @@
 void proto_reg_handoff_icall(void);
 void proto_register_icall(void);
 
+static dissector_handle_t icall_handle;
+
 static expert_field ei_icall_unexpected_header = EI_INIT;
 static expert_field ei_icall_unexpected_record = EI_INIT;
 static expert_field ei_icall_unexpected_end = EI_INIT;
@@ -183,9 +185,6 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 void
 proto_reg_handoff_icall(void)
 {
-	dissector_handle_t icall_handle;
-
-	icall_handle = create_dissector_handle(dissect_icall, proto_icall);
 	dissector_add_for_decode_as("udp.port", icall_handle);
 	dissector_add_for_decode_as("tcp.port", icall_handle);
 }
@@ -294,6 +293,8 @@ proto_register_icall(void)
 
 	expert_icall = expert_register_protocol(proto_icall);
 	expert_register_field_array(expert_icall, ei, array_length(ei));
+
+	icall_handle = register_dissector("icall", dissect_icall, proto_icall);
 }
 
 /*

@@ -17,6 +17,8 @@
 void proto_register_gnutella(void);
 void proto_reg_handoff_gnutella(void);
 
+static dissector_handle_t gnutella_handle;
+
 /*
  * See
  *
@@ -802,12 +804,11 @@ void proto_register_gnutella(void) {
 	proto_register_field_array(proto_gnutella, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	gnutella_handle = register_dissector("gnutella", dissect_gnutella, proto_gnutella);
 }
 
 void proto_reg_handoff_gnutella(void) {
-	dissector_handle_t gnutella_handle;
-
-	gnutella_handle = create_dissector_handle(dissect_gnutella, proto_gnutella);
 	dissector_add_uint_with_preference("tcp.port", GNUTELLA_TCP_PORT, gnutella_handle);
 }
 

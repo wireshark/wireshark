@@ -1014,12 +1014,12 @@ proto_register_hislip(void)
     hislip_module = prefs_register_protocol(proto_hislip, NULL);
     prefs_register_obsolete_preference(hislip_module, "enable_heuristic");
 
+    hislip_handle = register_dissector("hislip", dissect_hislip, proto_hislip);
 }
 
 void
 proto_reg_handoff_hislip(void)
 {
-    hislip_handle = create_dissector_handle(dissect_hislip, proto_hislip);
     /* disabled by default since heuristic is weak */
     heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip, HEURISTIC_DISABLE);
 

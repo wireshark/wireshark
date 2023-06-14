@@ -549,12 +549,12 @@ void proto_register_osmux(void)
     osmux_stream_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                              osmux_hash, osmux_equal);
 
+    osmux_handle = register_dissector("osmux", dissect_osmux, proto_osmux);
 }
 
 
 void proto_reg_handoff_osmux(void)
 {
-    osmux_handle = create_dissector_handle(dissect_osmux, proto_osmux);
     dissector_add_for_decode_as_with_preference("udp.port", osmux_handle);
 
     osmux_tap = register_tap("osmux");

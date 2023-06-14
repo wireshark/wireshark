@@ -113,6 +113,8 @@ typedef struct {
 void proto_register_idn(void);
 void proto_reg_handoff_idn(void);
 
+static dissector_handle_t idn_handle;
+
 static int proto_idn = -1;
 
 static gint ett_idn = -1;
@@ -1666,12 +1668,11 @@ void proto_register_idn(void) {
 
 	proto_register_field_array(proto_idn, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	idn_handle = register_dissector("idn", dissect_idn, proto_idn);
 }
 
 void proto_reg_handoff_idn(void) {
-	static dissector_handle_t idn_handle;
-
-	idn_handle = create_dissector_handle(dissect_idn, proto_idn);
 	dissector_add_uint("udp.port", IDN_PORT, idn_handle);
 }
 

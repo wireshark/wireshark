@@ -332,6 +332,8 @@ static struct iso_type  iso_1993[128] = {
 void proto_reg_handoff_iso8583(void);
 void proto_register_iso8583(void);
 
+static dissector_handle_t iso8583_handle;
+
 static int proto_iso8583 = -1;
 
 static int hf_iso8583_len = -1;
@@ -1329,6 +1331,9 @@ proto_register_iso8583(void)
   expert_iso8583 = expert_register_protocol(proto_iso8583);
   expert_register_field_array(expert_iso8583, ei, array_length(ei));
 
+  /* Register dissector handle */
+  iso8583_handle = register_dissector("iso8583", dissect_iso8583, proto_iso8583);
+
   /* Register preferences module */
   iso8583_module = prefs_register_protocol(proto_iso8583, NULL);
 
@@ -1351,10 +1356,6 @@ proto_register_iso8583(void)
 
 void proto_reg_handoff_iso8583(void)
 {
-  dissector_handle_t iso8583_handle;
-
-  iso8583_handle = create_dissector_handle(dissect_iso8583, proto_iso8583);
-
   dissector_add_for_decode_as_with_preference("tcp.port", iso8583_handle);
 }
 

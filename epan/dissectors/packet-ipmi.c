@@ -20,6 +20,8 @@
 
 #include "packet-ipmi.h"
 
+static dissector_handle_t ipmi_i2c_handle;
+
 void proto_register_ipmi(void);
 void proto_reg_handoff_ipmi(void);
 
@@ -1806,6 +1808,7 @@ proto_register_ipmi(void)
 	}
 
 	register_dissector("ipmi", dissect_ipmi, proto_ipmi);
+	ipmi_i2c_handle = register_dissector("ipmi.i2c",  dissect_i2c_ipmi, proto_ipmi );
 	register_dissector("ipmb", dissect_ipmi, proto_ipmb);
 	register_dissector("kcs", dissect_kcs, proto_kcs);
 	register_dissector("tmode", dissect_tmode, proto_tmode);
@@ -1833,10 +1836,7 @@ proto_register_ipmi(void)
 
 void proto_reg_handoff_ipmi(void)
 {
-	dissector_handle_t ipmi_handle;
-
-	ipmi_handle = create_dissector_handle( dissect_i2c_ipmi, proto_ipmi );
-	dissector_add_for_decode_as("i2c.message", ipmi_handle );
+	dissector_add_for_decode_as("i2c.message", ipmi_i2c_handle );
 }
 
 /*

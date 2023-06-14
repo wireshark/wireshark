@@ -17,6 +17,8 @@
 void proto_register_iapp(void);
 void proto_reg_handoff_iapp(void);
 
+static dissector_handle_t iapp_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_iapp = -1;
 static int hf_iapp_version = -1;
@@ -454,6 +456,8 @@ proto_register_iapp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_iapp = expert_register_protocol(proto_iapp);
     expert_register_field_array(expert_iapp, ei, array_length(ei));
+
+    iapp_handle = register_dissector("iapp", dissect_iapp, proto_iapp);
 }
 
 
@@ -464,9 +468,6 @@ proto_register_iapp(void)
 void
 proto_reg_handoff_iapp(void)
 {
-    dissector_handle_t iapp_handle;
-
-    iapp_handle = create_dissector_handle(dissect_iapp, proto_iapp);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_IAPP, iapp_handle);
 }
 /*

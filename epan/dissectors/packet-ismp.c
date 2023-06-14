@@ -21,6 +21,8 @@
 void proto_register_ismp(void);
 void proto_reg_handoff_ismp(void);
 
+static dissector_handle_t ismp_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_ismp = -1;
 static int hf_ismp_version = -1;
@@ -869,6 +871,8 @@ proto_register_ismp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ismp = expert_register_protocol(proto_ismp);
 	expert_register_field_array(expert_ismp, ei, array_length(ei));
+
+	ismp_handle = register_dissector("ismp", dissect_ismp, proto_ismp);
 }
 
 
@@ -879,10 +883,6 @@ proto_register_ismp(void)
 void
 proto_reg_handoff_ismp(void)
 {
-	dissector_handle_t ismp_handle;
-
-	ismp_handle = create_dissector_handle(dissect_ismp,
-	    proto_ismp);
 	dissector_add_uint("ethertype", ETHERTYPE_ISMP, ismp_handle);
 }
 

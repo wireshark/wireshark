@@ -590,6 +590,8 @@ proto_register_ifcp (void)
                                    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &ifcp_desegment);
     prefs_register_obsolete_preference(ifcp_module, "target_port");
+
+    ifcp_handle = register_dissector("ifcp", dissect_ifcp_handle, proto_ifcp);
 }
 
 void
@@ -597,7 +599,6 @@ proto_reg_handoff_ifcp (void)
 {
     heur_dissector_add("tcp", dissect_ifcp_heur, "iFCP over TCP", "ifcp_tcp", proto_ifcp, HEURISTIC_ENABLE);
 
-    ifcp_handle = create_dissector_handle(dissect_ifcp_handle, proto_ifcp);
     dissector_add_for_decode_as_with_preference("tcp.port", ifcp_handle);
 
     fc_handle = find_dissector_add_dependency("fc_ifcp", proto_ifcp);

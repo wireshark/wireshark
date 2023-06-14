@@ -108,6 +108,8 @@
 void proto_register_igmp(void);
 void proto_reg_handoff_igmp(void);
 
+static dissector_handle_t igmp_handle, igmpv0_handle, igmpv1_handle, igmpv2_handle;
+
 static int proto_igmp = -1;
 static int hf_type = -1;
 static int hf_reserved = -1;
@@ -1094,30 +1096,29 @@ proto_register_igmp(void)
 
 	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", proto_igmp, FT_UINT32, BASE_HEX);
 
+	igmp_handle = register_dissector("igmp", dissect_igmp, proto_igmp);
+	igmpv0_handle = register_dissector("igmp_v0", dissect_igmp_v0, proto_igmp);
+	igmpv1_handle = register_dissector("igmp_v1", dissect_igmp_v1, proto_igmp);
+	igmpv2_handle = register_dissector("igmp_v2", dissect_igmp_v2, proto_igmp);
 }
 
 void
 proto_reg_handoff_igmp(void)
 {
-	dissector_handle_t igmp_handle, igmpv0_handle, igmpv1_handle, igmpv2_handle,
-						igmp_mquery_handle, igmp_mtrace_handle, igmp_report_handle;
+	dissector_handle_t igmp_mquery_handle, igmp_mtrace_handle, igmp_report_handle;
 	range_t *igmpv0_range = NULL;
 
-	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
 	dissector_add_uint("ip.proto", IP_PROTO_IGMP, igmp_handle);
 
 	/* IGMP v0 */
 	range_convert_str(NULL, &igmpv0_range, "0-15", 15);
-	igmpv0_handle = create_dissector_handle(dissect_igmp_v0, proto_igmp);
 	dissector_add_uint_range("igmp.type", igmpv0_range, igmpv0_handle);
 	wmem_free(NULL, igmpv0_range);
 
 	/* IGMP v1 */
-	igmpv1_handle = create_dissector_handle(dissect_igmp_v1, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_V1_HOST_MEMBERSHIP_REPORT, igmpv1_handle);
 
 	/* IGMP v2 */
-	igmpv2_handle = create_dissector_handle(dissect_igmp_v2, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_V2_MEMBERSHIP_REPORT, igmpv2_handle);
 	dissector_add_uint("igmp.type", IGMP_V2_LEAVE_GROUP, igmpv2_handle);
 

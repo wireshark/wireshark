@@ -19,6 +19,8 @@
 void proto_register_ipmi_session(void);
 void proto_reg_handoff_ipmi_session(void);
 
+static dissector_handle_t ipmi_session_handle;
+
 #define RMCP_CLASS_IPMI 0x07
 
 static int proto_ipmi_session = -1;
@@ -294,14 +296,13 @@ proto_register_ipmi_session(void)
 			"ipmi_session");
 	proto_register_field_array(proto_ipmi_session, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ipmi_session_handle = register_dissector("ipmi_session", dissect_ipmi_session, proto_ipmi_session);
 }
 
 void
 proto_reg_handoff_ipmi_session(void)
 {
-	dissector_handle_t ipmi_session_handle;
-
-	ipmi_session_handle = create_dissector_handle(dissect_ipmi_session, proto_ipmi_session);
 	dissector_add_uint("rmcp.class", RMCP_CLASS_IPMI, ipmi_session_handle);
 
 	ipmi_handle = find_dissector_add_dependency("ipmi", proto_ipmi_session);

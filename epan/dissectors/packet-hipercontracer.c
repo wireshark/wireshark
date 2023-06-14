@@ -114,17 +114,13 @@ proto_register_hipercontracer(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_hipercontracer, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("hipercontracer", heur_dissect_hipercontracer, proto_hipercontracer);
 }
 
 void
 proto_reg_handoff_hipercontracer(void)
 {
-  /* dissector_handle_t hipercontracer_handle;
-
-  hipercontracer_handle =
-  */
-  create_dissector_handle(heur_dissect_hipercontracer, proto_hipercontracer);
-
   /* Heuristic dissector for ICMP/ICMPv6 */
   heur_dissector_add("icmp",   heur_dissect_hipercontracer, "HiPerConTracer over ICMP",   "hipercontracer_icmp",   proto_hipercontracer, HEURISTIC_ENABLE);
   heur_dissector_add("icmpv6", heur_dissect_hipercontracer, "HiPerConTracer over ICMPv6", "hipercontracer_icmpv6", proto_hipercontracer, HEURISTIC_ENABLE);

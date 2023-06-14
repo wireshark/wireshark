@@ -51,6 +51,8 @@ static expert_field ei_hcrt_error = EI_INIT;
 void proto_reg_handoff_hcrt(void);
 void proto_register_hcrt(void);
 
+static dissector_handle_t hcrt_handle;
+
 #define HCRT_HDR_LEN 4
 
 #define HCRT_NOP      0x0
@@ -461,16 +463,16 @@ void proto_register_hcrt(void)
         "Ethernet type",
         "The ethernet type used for L2 communications",
         10, &ethertype_pref);
+
+    hcrt_handle = register_dissector("hcrt", dissect_hcrt, proto_hcrt);
 }
 
 void proto_reg_handoff_hcrt(void)
 {
-    static dissector_handle_t hcrt_handle;
     static gboolean hcrt_prefs_initialized = FALSE;
     static gint hcrt_ethertype;
 
     if (!hcrt_prefs_initialized) {
-        hcrt_handle = create_dissector_handle(dissect_hcrt, proto_hcrt);
         /* Also register as a dissector that can be selected by a TCP port number via
         "decode as" */
         dissector_add_for_decode_as_with_preference("tcp.port", hcrt_handle);

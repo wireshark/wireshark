@@ -33,6 +33,8 @@ static int hf_gsm_um_l2_pseudo_len = -1;
 
 static gint ett_gsm_um = -1;
 
+static dissector_handle_t gsm_um_handle;
+
 static dissector_handle_t lapdm_handle;
 static dissector_handle_t dtap_handle;
 
@@ -277,17 +279,14 @@ proto_register_gsm_um(void)
 				   "Treat ARFCN 512-810 as DCS 1800 rather than PCS 1900",
 				   &dcs1800_gsm);
 
+	gsm_um_handle = register_dissector("gsm_um", dissect_gsm_um, proto_gsm_um);
 }
 
 void
 proto_reg_handoff_gsm_um(void)
 {
-	dissector_handle_t gsm_um_handle;
-
 	lapdm_handle = find_dissector_add_dependency("lapdm", proto_gsm_um);
 	dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_gsm_um);
-
-	gsm_um_handle = create_dissector_handle(dissect_gsm_um, proto_gsm_um);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_GSM_UM, gsm_um_handle);
 }

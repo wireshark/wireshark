@@ -59,6 +59,8 @@
 void proto_reg_handoff_hsms(void);
 void proto_register_hsms(void);
 
+static dissector_handle_t hsms_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_hsms = -1;
 
@@ -744,16 +746,14 @@ proto_register_hsms(void)
     expert_hsms = expert_register_protocol(proto_hsms);
     expert_register_field_array(expert_hsms, ei, array_length(ei));
 
+    hsms_handle = register_dissector("hsms", dissect_hsms, proto_hsms);
+
     hsms_init();
 }
 
 void
 proto_reg_handoff_hsms(void)
 {
-    static dissector_handle_t hsms_handle;
-
-    hsms_handle = create_dissector_handle(dissect_hsms, proto_hsms);
-
     dissector_add_for_decode_as_with_preference("tcp.port", hsms_handle);
 }
 

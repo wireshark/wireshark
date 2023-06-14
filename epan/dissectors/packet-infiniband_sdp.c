@@ -24,6 +24,8 @@
 void proto_register_ib_sdp(void);
 void proto_reg_handoff_ib_sdp(void);
 
+static dissector_handle_t ib_sdp_handle;
+
 /* If the service-id is non-zero after being ANDed with the following mask then
    this is SDP traffic */
 #define SERVICE_ID_MASK 0x0000000000010000
@@ -428,7 +430,7 @@ proto_register_ib_sdp(void)
 
     proto_ib_sdp = proto_register_protocol("Infiniband Sockets Direct Protocol", "Infiniband SDP", "infiniband_sdp");
 
-    register_dissector("infiniband_sdp", dissect_ib_sdp, proto_ib_sdp);
+    ib_sdp_handle = register_dissector("infiniband_sdp", dissect_ib_sdp, proto_ib_sdp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ib_sdp, hf, array_length(hf));
@@ -461,7 +463,7 @@ proto_reg_handoff_ib_sdp(void)
     heur_dissector_add("infiniband.payload", dissect_ib_sdp_heur, "Infiniband SDP", "sdp_infiniband", proto_ib_sdp, HEURISTIC_ENABLE);
     heur_dissector_add("infiniband.mad.cm.private", dissect_ib_sdp_heur, "Infiniband SDP in PrivateData of CM packets", "sdp_ib_private", proto_ib_sdp, HEURISTIC_ENABLE);
 
-    dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_ib_sdp, proto_ib_sdp ) );
+    dissector_add_for_decode_as("infiniband", ib_sdp_handle);
 
     proto_infiniband = proto_get_id_by_filter_name( "infiniband" );
 }

@@ -18,6 +18,8 @@
 void proto_register_ipoib(void);
 void proto_reg_handoff_ipoib(void);
 
+static dissector_handle_t ipoib_handle;
+
 static int proto_ipoib          = -1;
 static int hf_dgid              = -1;
 static int hf_daddr             = -1;
@@ -167,13 +169,13 @@ proto_register_ipoib(void)
   proto_ipoib = proto_register_protocol("IP over Infiniband", "IPoIB", "ipoib");
   proto_register_field_array(proto_ipoib, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  ipoib_handle = register_dissector("ipoib", dissect_ipoib, proto_ipoib);
 }
 
 void
 proto_reg_handoff_ipoib(void)
 {
-  dissector_handle_t ipoib_handle;
-
   /*
    * Get handles for the ARP, IP and IPv6 dissectors.
    */
@@ -181,7 +183,6 @@ proto_reg_handoff_ipoib(void)
   ip_handle   = find_dissector_add_dependency("ip", proto_ipoib);
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_ipoib);
 
-  ipoib_handle = create_dissector_handle(dissect_ipoib, proto_ipoib);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_IB_SNOOP, ipoib_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_IB_PCAP, ipoib_handle);
 }

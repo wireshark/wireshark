@@ -70,6 +70,8 @@ static const val64_string option_names[] = {
 void proto_register_geneve(void);
 void proto_reg_handoff_geneve(void);
 
+static dissector_handle_t geneve_handle;
+
 static int proto_geneve = -1;
 
 static int hf_geneve_version = -1;
@@ -465,14 +467,13 @@ proto_register_geneve(void)
 
     expert_geneve = expert_register_protocol(proto_geneve);
     expert_register_field_array(expert_geneve, ei, array_length(ei));
+
+    geneve_handle = register_dissector("geneve", dissect_geneve, proto_geneve);
 }
 
 void
 proto_reg_handoff_geneve(void)
 {
-    dissector_handle_t geneve_handle;
-
-    geneve_handle = create_dissector_handle(dissect_geneve, proto_geneve);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_GENEVE, geneve_handle);
 
     ethertype_dissector_table = find_dissector_table("ethertype");

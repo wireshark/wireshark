@@ -429,6 +429,8 @@ static int * const hiqnet_cat_fields[] = {
 void proto_register_hiqnet(void);
 void proto_reg_handoff_hiqnet(void);
 
+static dissector_handle_t hiqnet_udp_handle;
+static dissector_handle_t hiqnet_tcp_handle;
 
 static void
 hiqnet_display_vdobjectaddr(proto_tree *hiqnet_tree, int hf_hiqnet, tvbuff_t *tvb, gint offset) {
@@ -1795,17 +1797,15 @@ proto_register_hiqnet(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_hiqnet = expert_register_protocol(proto_hiqnet);
     expert_register_field_array(expert_hiqnet, ei, array_length(ei));
+
+    hiqnet_udp_handle = register_dissector("hiqnet.udp", dissect_hiqnet_udp, proto_hiqnet);
+    hiqnet_tcp_handle = register_dissector("hiqnet.tcp", dissect_hiqnet_tcp, proto_hiqnet);
 }
 
 
 void
 proto_reg_handoff_hiqnet(void)
 {
-    static dissector_handle_t hiqnet_udp_handle;
-    static dissector_handle_t hiqnet_tcp_handle;
-
-    hiqnet_udp_handle = create_dissector_handle(dissect_hiqnet_udp, proto_hiqnet);
-    hiqnet_tcp_handle = create_dissector_handle(dissect_hiqnet_tcp, proto_hiqnet);
     dissector_add_uint_with_preference("udp.port", HIQNET_PORT, hiqnet_udp_handle);
     dissector_add_uint_with_preference("tcp.port", HIQNET_PORT, hiqnet_tcp_handle);
 }

@@ -28,6 +28,8 @@
 void proto_reg_handoff_http3(void);
 void proto_register_http3(void);
 
+static dissector_handle_t http3_handle;
+
 static int proto_http3 = -1;
 static int hf_http3_stream_type = -1;
 static int hf_http3_push_id = -1;
@@ -594,14 +596,13 @@ proto_register_http3(void)
 
     expert_http3 = expert_register_protocol(proto_http3);
     expert_register_field_array(expert_http3, ei, array_length(ei));
+
+    http3_handle = register_dissector("http3", dissect_http3, proto_http3);
 }
 
 void
 proto_reg_handoff_http3(void)
 {
-    dissector_handle_t http3_handle;
-
-    http3_handle = create_dissector_handle(dissect_http3, proto_http3);
     dissector_add_string("quic.proto", "h3", http3_handle);
 }
 

@@ -50,6 +50,8 @@ struct channel_node {
 void proto_register_hpfeeds(void);
 void proto_reg_handoff_hpfeeds(void);
 
+static dissector_handle_t hpfeeds_handle;
+
 static heur_dissector_list_t heur_subdissector_list;
 
 /* Preferences */
@@ -459,6 +461,8 @@ proto_register_hpfeeds(void)
     expert_hpfeeds = expert_register_protocol(proto_hpfeeds);
     expert_register_field_array(expert_hpfeeds, ei, array_length(ei));
 
+    hpfeeds_handle = register_dissector("hpfeeds", dissect_hpfeeds, proto_hpfeeds);
+
     hpfeeds_module = prefs_register_protocol(proto_hpfeeds, NULL);
     prefs_register_bool_preference(hpfeeds_module, "desegment_hpfeeds_messages",
         "Reassemble HPFEEDS messages spanning multiple TCP segments",
@@ -479,9 +483,6 @@ proto_register_hpfeeds(void)
 void
 proto_reg_handoff_hpfeeds(void)
 {
-    dissector_handle_t hpfeeds_handle;
-
-    hpfeeds_handle = create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
     stats_tree_register("hpfeeds", "hpfeeds", "HPFEEDS", 0, hpfeeds_stats_tree_packet, hpfeeds_stats_tree_init, NULL);
 
     dissector_add_for_decode_as_with_preference("tcp.port", hpfeeds_handle);

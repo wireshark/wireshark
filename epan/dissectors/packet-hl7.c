@@ -52,7 +52,6 @@ struct msh {                    // typical/default values
 };
 
 dissector_handle_t hl7_handle;
-dissector_handle_t hl7_heur_handle;
 
 static int proto_hl7 = -1;
 
@@ -1017,12 +1016,10 @@ void
 proto_reg_handoff_hl7(void)
 {
     /* register as heuristic dissector for TCP */
-    hl7_heur_handle = create_dissector_handle(dissect_hl7_heur, proto_hl7);
     heur_dissector_add("tcp", dissect_hl7_heur, "HL7 over TCP",
                        "hl7_tcp", proto_hl7, HEURISTIC_ENABLE);
 
     /* register as normal dissector for TCP well-known port */
-    hl7_handle = create_dissector_handle(dissect_hl7, proto_hl7);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_HL7, hl7_handle);
 }
 
@@ -1098,6 +1095,8 @@ proto_register_hl7(void)
                                    "should be displayed (Start/End Of Block) "
                                    "in addition to the dissection tree",
                                    &global_hl7_llp);
+
+    hl7_handle = register_dissector("hl7", dissect_hl7, proto_hl7);
 }
 
 /*

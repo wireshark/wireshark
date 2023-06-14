@@ -655,6 +655,10 @@ proto_register_ipdr(void)
     prefs_register_range_preference(ipdr_module, "sessions.samis_type_1", "SAMIS-TYPE-1 Sessions",
                                     "Range of session IDs to be decoded as SAMIS-TYPE-1 records",
                                     &global_sessions_samis_type_1, 255);
+
+    ipdr_handle = register_dissector("ipdr", dissect_ipdr, proto_ipdr);
+    ipdr_samis_type_1_handle = register_dissector("ipdr-samis-type-1", dissect_ipdr_samis_type_1,
+                                                  proto_ipdr_samis_type_1);
 }
 
 void
@@ -664,9 +668,6 @@ proto_reg_handoff_ipdr(void)
     static gboolean ipdr_prefs_initialized = FALSE;
 
     if (!ipdr_prefs_initialized) {
-        ipdr_handle = create_dissector_handle(dissect_ipdr, proto_ipdr);
-        ipdr_samis_type_1_handle = register_dissector("ipdr-samis-type-1", dissect_ipdr_samis_type_1,
-                                                      proto_ipdr_samis_type_1);
         dissector_add_uint_with_preference("tcp.port", IPDR_PORT, ipdr_handle);
 
         ipdr_prefs_initialized = TRUE;

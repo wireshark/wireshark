@@ -19,6 +19,8 @@
 void proto_register_ieee802a(void);
 void proto_reg_handoff_ieee802a(void);
 
+static dissector_handle_t ieee802a_handle;
+
 static int proto_ieee802a = -1;
 static int hf_ieee802a_oui = -1;
 static int hf_ieee802a_pid = -1;
@@ -145,6 +147,8 @@ proto_register_ieee802a(void)
 	proto_register_field_array(proto_ieee802a, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_shutdown_routine(ieee802a_shutdown);
+
+	ieee802a_handle = register_dissector("ieee802a", dissect_ieee802a, proto_ieee802a);
 }
 
 static void
@@ -158,10 +162,6 @@ register_hf(gpointer key _U_, gpointer value, gpointer user_data _U_)
 void
 proto_reg_handoff_ieee802a(void)
 {
-	dissector_handle_t ieee802a_handle;
-
-	ieee802a_handle = create_dissector_handle(dissect_ieee802a,
-	    proto_ieee802a);
 	dissector_add_uint("ethertype", ETHERTYPE_IEEE802_OUI_EXTENDED,
 	    ieee802a_handle);
 

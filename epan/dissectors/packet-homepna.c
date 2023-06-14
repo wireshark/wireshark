@@ -15,6 +15,8 @@
 void proto_register_homepna(void);
 void proto_reg_handoff_homepna(void);
 
+static dissector_handle_t homepna_handle;
+
 static int proto_homepna = -1;
 
 static int hf_homepna_type   = -1;
@@ -140,15 +142,14 @@ proto_register_homepna(void)
     proto_homepna = proto_register_protocol("HomePNA, wlan link local tunnel", "HomePNA", "hpna");
     proto_register_field_array(proto_homepna, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    homepna_handle = register_dissector("hpna", dissect_homepna, proto_homepna);
 }
 
 
 void
 proto_reg_handoff_homepna(void)
 {
-    dissector_handle_t homepna_handle;
-
-    homepna_handle = create_dissector_handle(dissect_homepna, proto_homepna);
     dissector_add_uint("ethertype", ETHERTYPE_LINK_CTL, homepna_handle);
 
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_homepna);

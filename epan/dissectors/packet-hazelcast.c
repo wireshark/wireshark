@@ -27,6 +27,8 @@
 void proto_register_hazelcast(void);
 void proto_reg_handoff_hazelcast(void);
 
+static dissector_handle_t hazelcast_handle;
+
 static int proto_hazelcast = -1;
 static int hazelcast_tap = -1;
 
@@ -561,16 +563,12 @@ void proto_register_hazelcast(void) {
 
     hazelcast_tap = register_tap("hzlcst");
 
+    hazelcast_handle = register_dissector("hzlcst", dissect_hazelcast, proto_hazelcast);
 }
 
 
 void
 proto_reg_handoff_hazelcast(void) {
-
-    dissector_handle_t hazelcast_handle;
-
-    hazelcast_handle = create_dissector_handle(dissect_hazelcast, proto_hazelcast);
-
     dissector_add_uint_with_preference("tcp.port", HAZELCAST_PORT, hazelcast_handle);
 }
 

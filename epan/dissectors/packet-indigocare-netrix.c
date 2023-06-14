@@ -71,6 +71,8 @@
 void proto_reg_handoff_netrix(void);
 void proto_register_netrix(void);
 
+static dissector_handle_t netrix_handle;
+
 static expert_field ei_netrix_unexpected_header = EI_INIT;
 static expert_field ei_netrix_unexpected_record = EI_INIT;
 
@@ -403,9 +405,6 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 void
 proto_reg_handoff_netrix(void)
 {
-	static dissector_handle_t netrix_handle;
-
-	netrix_handle = create_dissector_handle(dissect_netrix, proto_netrix);
 	dissector_add_for_decode_as("tcp.port", netrix_handle);
 }
 
@@ -651,6 +650,8 @@ proto_register_netrix(void)
 
 	expert_netrix = expert_register_protocol(proto_netrix);
 	expert_register_field_array(expert_netrix, ei, array_length(ei));
+
+	netrix_handle = register_dissector("netrix", dissect_netrix, proto_netrix);
 }
 
 /*
