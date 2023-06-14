@@ -590,6 +590,11 @@ GCC Release Build:
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
     - su user -c pytest-3
+    # Test CMake install code and CPack config code. Select any one of the archive generators.
+    - ninja user_guide_html
+    - ninja developer_guide_html
+    - cpack -G TZST .
+    - ls wireshark-*.tar.zst{,.sha256}
   artifacts:
     paths:
       - gcc_report.html
