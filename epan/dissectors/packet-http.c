@@ -79,6 +79,7 @@ static int hf_http_request_method = -1;
 static int hf_http_request_uri = -1;
 static int hf_http_request_full_uri = -1;
 static int hf_http_request_path = -1;
+static int hf_http_request_path_segment = -1;
 static int hf_http_request_query = -1;
 static int hf_http_request_query_parameter = -1;
 static int hf_http_request_version = -1;
@@ -137,13 +138,12 @@ static int hf_http_chunked_trailer_part = -1;
 static int hf_http_file_data = -1;
 static int hf_http_unknown_header = -1;
 static int hf_http_http2_settings_uri = -1;
-static int hf_http_path_segment = -1;
-static int hf_http_path_sub_segment = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
 static gint ett_http_kerberos = -1;
 static gint ett_http_request = -1;
+static gint ett_http_request_uri = -1;
 static gint ett_http_request_path = -1;
 static gint ett_http_request_query = -1;
 static gint ett_http_chunked_response = -1;
@@ -151,7 +151,6 @@ static gint ett_http_chunk_data = -1;
 static gint ett_http_encoded_entity = -1;
 static gint ett_http_header_item = -1;
 static gint ett_http_http2_settings_item = -1;
-static gint ett_http_path = -1;
 
 static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_te_and_length = EI_INIT;
@@ -504,44 +503,60 @@ static int st_node_reqs_by_srv_addr = -1;
 static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
 
-/* Parse HTTP path sub components RFC3986 Ch 2.2*/
+/* Parse HTTP path sub components RFC3986 Ch 3.3, 3.4 */
 void
 http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_item* item, int offset, int length)
 {
-	int end_offset, gen_delim_offset, next_gen_delim_offset, comp_len, sub_compomet_end_offset, sub_comp_len, next_sub_comp_delim_offset;
+	proto_item* ti;
+	proto_tree* uri_tree;
+	int end_offset, end_path_offset, query_offset, path_len, query_len, parameter_offset;
 	end_offset = offset + length;
-	/* Check of we have any general delimiters in the path string */
-	gen_delim_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, length, &pbrk_gen_delims, NULL);
-	if (gen_delim_offset == -1) {
+	/* The Content-Location (and Referer) headers in HTTP 1.1, and the
+	 * :path header in HTTP/2 can be an absolute-URI or a partial-URI;
+	 * i.e. that they can include a path and a query, but not a fragment.
+	 * RFC 7230 2.7 Uniform Request Identifiers, RFC 7231 Appendices C and D,
+	 * RFC 7540 8.1.2.3. Request Pseudo-Header Fields
+	 * Look for a ? to mark a query.
+	 */
+	query_offset = tvb_find_guint8(tvb, offset, length, '?');
+	end_path_offset = (query_offset == -1) ? end_offset : query_offset;
+	parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
+	if (query_offset == -1 && parameter_offset == -1) {
+		/* Nothing interesting, no need to split. */
 		return;
 	}
-	proto_tree *tree = proto_item_add_subtree(item, ett_http_path);
-	comp_len = gen_delim_offset - offset;
-	while (end_offset > offset) {
-		next_gen_delim_offset = tvb_ws_mempbrk_pattern_guint8(tvb, gen_delim_offset + 1, length - comp_len, &pbrk_gen_delims, NULL);
-		if (next_gen_delim_offset == -1) {
-			sub_compomet_end_offset = end_offset;
-		} else {
-			sub_compomet_end_offset = next_gen_delim_offset - 1;
-		}
-		proto_tree_add_item(tree, hf_http_path_segment, tvb, offset, comp_len, ENC_ASCII);
-		offset = offset + comp_len + 1;
-
-		/* Dissect sub segments */
-		while (sub_compomet_end_offset > offset) {
-			next_sub_comp_delim_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, sub_compomet_end_offset - offset, &pbrk_sub_delims, NULL);
-			if (next_sub_comp_delim_offset == -1) {
-				sub_comp_len = sub_compomet_end_offset - offset;
-				proto_tree_add_item(tree, hf_http_path_sub_segment, tvb, offset, sub_comp_len, ENC_ASCII);
-				offset = sub_compomet_end_offset;
-			} else {
-				sub_comp_len = next_sub_comp_delim_offset - offset;
-				proto_tree_add_item(tree, hf_http_path_sub_segment, tvb, offset, sub_comp_len, ENC_ASCII);
-				offset = next_sub_comp_delim_offset + 1;
+	uri_tree = proto_item_add_subtree(item, ett_http_request_uri);
+	path_len = end_path_offset - offset;
+	ti = proto_tree_add_item(uri_tree, hf_http_request_path, tvb, offset, path_len, ENC_ASCII);
+	parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
+	if (parameter_offset != -1) {
+		proto_tree* path_tree = proto_item_add_subtree(item, ett_http_request_path);
+		while (offset < end_path_offset) {
+			parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
+			if (parameter_offset == -1) {
+				parameter_offset = end_path_offset;
 			}
+			proto_tree_add_item(path_tree, hf_http_request_path_segment, tvb, offset, parameter_offset - offset, ENC_ASCII);
+			offset = parameter_offset + 1;
 		}
 	}
-
+	if (query_offset == -1) {
+		return;
+	}
+	/* Skip past the delimiter. */
+	query_offset++;
+	query_len = end_offset - query_offset;
+	offset = query_offset;
+	ti = proto_tree_add_item(uri_tree, hf_http_request_query, tvb, query_offset, query_len, ENC_ASCII);
+	proto_tree *query_tree = proto_item_add_subtree(ti, ett_http_request_query);
+	while (offset < end_offset) {
+		parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_offset - offset - 1, &pbrk_sub_delims, NULL);
+		if (parameter_offset == -1) {
+			parameter_offset = end_offset;
+		}
+		proto_tree_add_item(query_tree, hf_http_request_query_parameter, tvb, offset, parameter_offset - offset, ENC_ASCII);
+		offset = parameter_offset + 1;
+	}
 }
 
 /* HTTP/Load Distribution stats init function */
@@ -2294,11 +2309,8 @@ basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 {
 	const guchar *next_token;
 	const gchar *request_uri;
-	gchar *query_str, *parameter_str, *path_str;
-	int request_uri_len, query_str_len, parameter_str_len;
-	int tokenlen, query_offset, path_len;
-	proto_item *ti, *tj;
-	proto_tree *query_tree, *path_tree;
+	int tokenlen;
+	proto_item* ti;
 	http_info_value_t *stat_info = p_get_proto_data(pinfo->pool, pinfo, proto_http, HTTP_PROTO_DATA_INFO);
 
 	/* The first token is the method. */
@@ -2323,26 +2335,8 @@ basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 	if (!PINFO_FD_VISITED(pinfo) && curr) {
 		curr->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
 	}
-	tj = proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen, request_uri);
-	if (( query_str = strchr(request_uri, '?')) != NULL) {
-		if (strlen(query_str) > 1) {
-			query_str++;
-			query_str_len = (int)strlen(query_str);
-			request_uri_len = (int)strlen(request_uri);
-			path_len = request_uri_len - query_str_len;
-			query_offset = offset + path_len;
-			path_tree = proto_item_add_subtree(tj, ett_http_request_path);
-			path_str = wmem_strndup(pinfo->pool, request_uri, path_len-1);
-			proto_tree_add_string(path_tree, hf_http_request_path, tvb, offset, path_len-1, path_str);
-			ti = proto_tree_add_string(path_tree, hf_http_request_query, tvb, query_offset, query_str_len, query_str);
-			query_tree = proto_item_add_subtree(ti, ett_http_request_query);
-			for ( parameter_str = strtok(query_str, "&"); parameter_str; parameter_str = strtok(NULL, "&") ) {
-				parameter_str_len = (int) strlen(parameter_str);
-				proto_tree_add_string(query_tree, hf_http_request_query_parameter, tvb, query_offset, parameter_str_len, parameter_str);
-				query_offset += parameter_str_len + 1;
-			}
-		}
-	}
+	ti = proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen, request_uri);
+	http_add_path_components_to_tree(tvb, pinfo, ti, offset, tokenlen);
 	offset += (int) (next_token - line);
 	line = next_token;
 
@@ -4168,6 +4162,10 @@ proto_register_http(void)
 	      { "Request URI Path", "http.request.uri.path",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request-URI Path", HFILL }},
+	    { &hf_http_request_path_segment,
+	      { "Request URI Path Segment", "http.request.uri.path.segment",
+		FT_STRING, BASE_NONE, NULL, 0,
+		NULL, HFILL } },
 	    { &hf_http_request_query,
 	      { "Request URI Query", "http.request.uri.query",
 		FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4404,14 +4402,6 @@ proto_register_http(void)
 	      { "HTTP2 Settings URI", "http.http2_settings_uri",
 		FT_BYTES, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
-	    { &hf_http_path_segment,
-	      { "Path segment", "http.path_segment",
-		FT_STRING, BASE_NONE, NULL, 0,
-		NULL, HFILL } },
-	    { &hf_http_path_sub_segment,
-	      { "Path sub segment", "http.path_sub_segment",
-		FT_STRING, BASE_NONE, NULL, 0,
-		NULL, HFILL } },
 
 		/* Body fragments */
 	    REASSEMBLE_INIT_HF_ITEMS(http_body, "HTTP Chunked Body", "http.body"),
@@ -4421,6 +4411,7 @@ proto_register_http(void)
 		&ett_http_ntlmssp,
 		&ett_http_kerberos,
 		&ett_http_request,
+		&ett_http_request_uri,
 		&ett_http_request_path,
 		&ett_http_request_query,
 		&ett_http_chunked_response,
@@ -4429,7 +4420,6 @@ proto_register_http(void)
 		&ett_http_header_item,
 		&ett_http_http2_settings_item,
 		REASSEMBLE_INIT_ETT_ITEMS(http_body),
-		&ett_http_path
 	};
 
 	static ei_register_info ei[] = {
@@ -4566,9 +4556,9 @@ proto_register_http(void)
 							get_tcp_stream_count, NULL);
 	http_eo_tap = register_export_object(proto_http, http_eo_packet, NULL);
 
-	/* compile patterns, exluding "/" */
+	/* compile patterns, excluding "/" */
 	ws_mempbrk_compile(&pbrk_gen_delims, ":?#[]@");
-	/* exlude "=" */
+	/* exclude "=", separating key and value should be done separately */
 	ws_mempbrk_compile(&pbrk_sub_delims, "!$&'()*+,;");
 
 }
