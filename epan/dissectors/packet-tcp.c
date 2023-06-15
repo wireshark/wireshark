@@ -173,6 +173,12 @@ static int hf_tcp_dstport = -1;
 static int hf_tcp_port = -1;
 static int hf_tcp_stream = -1;
 static int hf_tcp_completeness = -1;
+static int hf_tcp_completeness_syn = -1;
+static int hf_tcp_completeness_syn_ack = -1;
+static int hf_tcp_completeness_ack = -1;
+static int hf_tcp_completeness_data = -1;
+static int hf_tcp_completeness_fin = -1;
+static int hf_tcp_completeness_rst = -1;
 static int hf_tcp_seq = -1;
 static int hf_tcp_seq_abs = -1;
 static int hf_tcp_nxtseq = -1;
@@ -388,6 +394,7 @@ static int hf_tcp_syncookie_option_sack = -1;
 static int hf_tcp_syncookie_option_wscale = -1;
 
 static gint ett_tcp = -1;
+static gint ett_tcp_completeness = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_timestamp = -1;
@@ -7757,7 +7764,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_item_set_generated(item);
 
         /* Display the completeness of this TCP conversation */
-        item = proto_tree_add_uint(tcp_tree, hf_tcp_completeness, NULL, 0, 0, tcpd->conversation_completeness);
+        static int* const completeness_fields[] = {
+            &hf_tcp_completeness_syn,
+            &hf_tcp_completeness_syn_ack,
+            &hf_tcp_completeness_ack,
+            &hf_tcp_completeness_data,
+            &hf_tcp_completeness_fin,
+            &hf_tcp_completeness_rst,
+            NULL};
+        item = proto_tree_add_bitmask_value_with_flags(tcp_tree, NULL, 0,
+            hf_tcp_completeness, ett_tcp_completeness, completeness_fields,
+            tcpd->conversation_completeness, BMT_NO_APPEND);
         proto_item_set_generated(item);
 
         /* Copy the stream index into the header as well to make it available
@@ -8609,6 +8626,36 @@ proto_register_tcp(void)
             BASE_CUSTOM, CF_FUNC(conversation_completeness_fill), 0x0,
             "The completeness of the conversation capture", HFILL }},
 
+        { &hf_tcp_completeness_syn,
+        { "SYN",        "tcp.completeness.syn", FT_BOOLEAN, 8,
+            TFS(&tfs_present_absent), TCP_COMPLETENESS_SYNSENT,
+            "Conversation has a SYN packet", HFILL}},
+
+        { &hf_tcp_completeness_syn_ack,
+        { "SYN-ACK",    "tcp.completeness.syn-ack", FT_BOOLEAN, 8,
+            TFS(&tfs_present_absent), TCP_COMPLETENESS_SYNACK,
+            "Conversation has a SYN-ACK packet", HFILL}},
+
+        { &hf_tcp_completeness_ack,
+        { "ACK",        "tcp.completeness.ack", FT_BOOLEAN, 8,
+            TFS(&tfs_present_absent), TCP_COMPLETENESS_ACK,
+            "Conversation has an ACK packet", HFILL}},
+
+        { &hf_tcp_completeness_data,
+        { "Data",       "tcp.completeness.data", FT_BOOLEAN, 8,
+            TFS(&tfs_present_absent), TCP_COMPLETENESS_DATA,
+            "Conversation has payload DATA", HFILL}},
+
+        { &hf_tcp_completeness_fin,
+        { "FIN",        "tcp.completeness.fin", FT_BOOLEAN, 8,
+            TFS(&tfs_present_absent), TCP_COMPLETENESS_FIN,
+            "Conversation has a FIN packet", HFILL}},
+
+        { &hf_tcp_completeness_rst,
+        { "RST",        "tcp.completeness.rst", FT_BOOLEAN, 8,
+            TFS(&tfs_present_absent), TCP_COMPLETENESS_RST,
+            "Conversation has a RST packet", HFILL}},
+
         { &hf_tcp_seq,
         { "Sequence Number",        "tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
@@ -9421,6 +9468,7 @@ proto_register_tcp(void)
 
     static gint *ett[] = {
         &ett_tcp,
+        &ett_tcp_completeness,
         &ett_tcp_flags,
         &ett_tcp_options,
         &ett_tcp_option_timestamp,
