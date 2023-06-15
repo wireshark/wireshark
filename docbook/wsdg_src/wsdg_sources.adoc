@@ -689,7 +689,7 @@ You can do so as follows:
 [source,sh,subs="attributes+"]
 ----
 # Create a new topic branch for the backport.
-$ git checkout -b backport-g1ab2c3d4 upstream/{example-branch}
+$ git checkout -b backport-1ab2c3d4 upstream/{example-branch}
 
 # Cherry-pick the change. Include a "cherry picked from..." line.
 $ git cherry-pick -x 1ab2c3d4
