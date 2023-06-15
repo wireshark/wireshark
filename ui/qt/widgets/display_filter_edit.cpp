@@ -184,7 +184,7 @@ void DisplayFilterEdit::alignActionButtons()
 {
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize bksz, cbsz, apsz;
-    bksz = apsz = cbsz = QSize(0,0);
+    bksz = apsz = cbsz = QSize(0, 0);
 
     if (type_ == DisplayFilterToApply) {
         bookmark_button_->setMinimumHeight(contentsRect().height());
@@ -297,17 +297,21 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
 
         if (leftAlignActions_)
         {
-            left_xpos = 1 + bookmark_button_->size().width() + apply_button_->size().width();
+            left_xpos = 1 + bookmark_button_->width();
             if (clear_button_->isVisible())
-                left_xpos += clear_button_->size().width();
+                left_xpos += clear_button_->width();
+            if (apply_button_->isVisible())
+                left_xpos += apply_button_->width();
             right_xpos = cr.width() - 1;
         }
         else
         {
-            left_xpos = bookmark_button_->size().width();
-            right_xpos = cr.width() - apply_button_->size().width() - 4;
+            left_xpos = bookmark_button_->width();
+            right_xpos = cr.width() - 4;
             if (clear_button_->isVisible())
-                right_xpos -= clear_button_->size().width();
+                right_xpos -= clear_button_->width();
+            if (apply_button_->isVisible())
+                right_xpos -= apply_button_->width();
         }
 
         painter.drawLine(left_xpos, cr.top(), left_xpos, cr.bottom() + 1);

@@ -95,7 +95,7 @@ void CaptureFilterCombo::updateStyleSheet()
                 "QComboBox::drop-down {"
                 "  subcontrol-origin: padding;"
                 "  subcontrol-position: top right;"
-                "  width: 16px;"
+                "  width: 14px;"
                 "  border-left-width: 0px;"
                 " }"
 

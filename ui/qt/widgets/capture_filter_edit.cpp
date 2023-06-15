@@ -172,24 +172,18 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
         apply_button_->setEnabled(false);
         apply_button_->setToolTip(tr("Apply this filter string to the display."));
         apply_button_->setIconSize(QSize(24, 14));
-        apply_button_->setStyleSheet(
-                "QToolButton {"
-                "  border: none;"
-                "  background: transparent;" // Disables platform style on Windows.
-                "  padding: 0 0 0 0;"
-                "}"
-                );
+        apply_button_->setStyleSheet(buttonStyle);
         connect(apply_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::applyCaptureFilter);
     }
 #endif
     connect(this, &CaptureFilterEdit::returnPressed, this, &CaptureFilterEdit::applyCaptureFilter);
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    QSize bksz;
+    QSize bksz(0, 0);
     if (bookmark_button_) bksz = bookmark_button_->sizeHint();
-    QSize cbsz;
+    QSize cbsz(0, 0);
     if (clear_button_) cbsz = clear_button_->sizeHint();
-    QSize apsz;
+    QSize apsz(0, 0);
     if (apply_button_) apsz = apply_button_->sizeHint();
 
     setStyleSheet(QString(
@@ -255,11 +249,11 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
         painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom() + 1);
 
         if (!text().isEmpty()) {
-            int xpos = cr.width() - 3;
-            if (clear_button_)
-                xpos -= clear_button_->size().width();
-            if (apply_button_)
-                xpos -= apply_button_->size().width();
+            int xpos = cr.width() - 4;
+            if (clear_button_ && clear_button_->isVisible())
+                xpos -= clear_button_->width();
+            if (apply_button_ && apply_button_->isVisible())
+                xpos -= apply_button_->width();
             painter.drawLine(xpos, cr.top(), xpos, cr.bottom() + 1);
         }
     }
@@ -267,9 +261,9 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
 
 void CaptureFilterEdit::resizeEvent(QResizeEvent *)
 {
-    QSize cbsz;
+    QSize cbsz(0, 0);
     if (clear_button_) cbsz = clear_button_->sizeHint();
-    QSize apsz;
+    QSize apsz(0, 0);
     if (apply_button_) apsz = apply_button_->sizeHint();
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
