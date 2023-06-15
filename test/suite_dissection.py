@@ -710,6 +710,28 @@ class case_dissect_tls(subprocesstest.SubprocessTestCase):
         self.check_tls_handshake_reassembly(
             cmd_tshark, capture_file, extraArgs=['-2'])
 
+    def check_tls_out_of_order(self, cmd_tshark, capture_file, test_env, extraArgs=[]):
+        proc = self.assertRun([cmd_tshark,
+                '-r', capture_file('challenge01_ooo_stream.pcapng.gz'),
+                '-otcp.reassemble_out_of_order:TRUE',
+                '-q',
+                '-zhttp,stat,png or image-jfif',
+            ] + extraArgs)
+        self.assertTrue(self.grepOutput(r'200 OK\s*11'))
+
+    def test_tls_out_of_order(self, cmd_tshark, capture_file, features, test_env):
+        '''Verify that TLS reassembly over TCP reassembly works.'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
+        self.check_tls_out_of_order(cmd_tshark, capture_file, test_env)
+
+    def test_tls_out_of_order_second_pass(self, cmd_tshark, capture_file, features, test_env):
+        '''Verify that TLS reassembly over TCP reassembly works (second pass).'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
+        self.check_tls_out_of_order(cmd_tshark, capture_file,
+            test_env, extraArgs=['-2'])
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_quic(subprocesstest.SubprocessTestCase):
