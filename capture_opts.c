@@ -650,6 +650,28 @@ fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
                 matched = TRUE;
                 break;
             }
+
+#ifdef _WIN32
+            /*
+             * On Windows, we store interface names in preferences as:
+             *  friendlyname (name)
+             * Do we have a case-insensitive match for that?
+             */
+            if (if_info->friendly_name != NULL) {
+                GString* combined_name = g_string_new(if_info->friendly_name);
+                g_string_append_printf(combined_name, " (%s)", if_info->name);
+                if (g_ascii_strcasecmp(combined_name->str, name) == 0) {
+                    /*
+                     * Yes.
+                     */
+                    matched = TRUE;
+                }
+                g_string_free(combined_name, TRUE);
+                if (matched == TRUE) {
+                    break;
+                }
+            }
+#endif
         }
 
         if (!matched) {
