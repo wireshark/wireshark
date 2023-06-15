@@ -100,6 +100,8 @@ static const unit_name_string units_di_dis = { "DI", "DIs" };
 
 static const unit_name_string units_ppm = { " ppm", NULL };
 
+static const unit_name_string units_ms = { "ms", NULL };
+
 /* az min/max time units */
 static const unit_name_string units_100_us = { " times 100 microseconds", NULL };
 static const unit_name_string units_10_ms = { " times 10 milliseconds", NULL };
@@ -704,6 +706,8 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_ESS_REPORT                        45
 #define ETAG_OPS                               46
 #define ETAG_HE_BSS_LOAD                       47
+#define ETAG_MAX_CHANNEL_SWITCH_TIME           52
+#define ETAG_OCI                               54
 #define ETAG_MULTIPLE_BSSID_CONFIGURATION      55
 #define ETAG_NON_INHERITANCE                   56
 #define ETAG_KNOWN_BSSID                       57
@@ -760,8 +764,10 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT,       "BSS Color Change Announcement" },
   { ETAG_QUIET_TIME_PERIOD_SETUP,             "Quiet Time Period Setup" },
   { ETAG_ESS_REPORT,                          "ESS Report" },
-  { ETAG_OPS,                                 "OPS" },
+  { ETAG_OPS,                                 "Opportunistic Power Save" },
   { ETAG_HE_BSS_LOAD,                         "HE BSS Load" },
+  { ETAG_MAX_CHANNEL_SWITCH_TIME,             "Max Channel Switch Time" },
+  { ETAG_OCI,                                 "Operating Channel Information" },
   { ETAG_MULTIPLE_BSSID_CONFIGURATION,        "Multiple BSSID Configuration" },
   { ETAG_NON_INHERITANCE,                     "Non-Inheritance"},
   { ETAG_KNOWN_BSSID,                         "Known BSSID" },
@@ -7644,10 +7650,20 @@ static int hf_ieee80211_he_new_bss_color_info_reserved = -1;
 static int hf_ieee80211_he_bss_color_change_switch_countdown = -1;
 static int hf_ieee80211_he_ess_report_info_field = -1;
 static int hf_ieee80211_he_ess_report_recommend_transition_thresh = -1;
+static int hf_ieee80211_he_ops_duration = -1;
 static int hf_ieee80211_he_uora_field = -1;
 static int hf_ieee80211_he_uora_eocwmin = -1;
 static int hf_ieee80211_he_uora_owcwmax = -1;
 static int hf_ieee80211_he_uora_reserved = -1;
+
+static int hf_ieee80211_max_channel_switch_time = -1;
+
+static int hf_ieee80211_oci_operating_class = -1;
+static int hf_ieee80211_oci_primary_channel_number = -1;
+static int hf_ieee80211_oci_frequency_segment_1 = -1;
+static int hf_ieee80211_oci_oct_operating_class = -1;
+static int hf_ieee80211_oci_oct_primary_channel_number = -1;
+static int hf_ieee80211_oci_oct_frequency_segment_1 = -1;
 
 /* ************************************************************************* */
 /*                              802.11BE fields                              */
@@ -7672,14 +7688,23 @@ static int hf_ieee80211_rejected_groups_group = -1;
 static int hf_ieee80211_twt_bcast_flow = -1;
 static int hf_ieee80211_twt_individual_flow = -1;
 static int hf_ieee80211_twt_individual_flow_id = -1;
+static int hf_ieee80211_twt_individual_reserved = -1;
 static int hf_ieee80211_twt_bcast_id = -1;
 static int hf_ieee80211_twt_neg_type = -1;
+static int hf_ieee80211_twt_neg_type2_reserved1 = -1;
+static int hf_ieee80211_twt_neg_type2_reserved2 = -1;
+static int hf_ieee80211_twt_bcast_teardown_all = -1;
+static int hf_ieee80211_twt_bcast_teardown_all_twt = -1;
+static int hf_ieee80211_twt_bcast_twt_id_reserved = -1;
+static int hf_ieee80211_twt_bcast_neg_type_reserved = -1;
+
 static int hf_ieee80211_tag_twt_control_field = -1;
 static int hf_ieee80211_tag_twt_ndp_paging_indicator = -1;
 static int hf_ieee80211_tag_twt_responder_pm_mode = -1;
 static int hf_ieee80211_tag_twt_neg_type = -1;
 static int hf_ieee80211_tag_twt_info_frame_disabled = -1;
 static int hf_ieee80211_tag_twt_wake_duration_unit = -1;
+static int hf_ieee80211_tag_twt_link_id_bitmap_present = -1;
 static int hf_ieee80211_tag_twt_ctrl_field_reserved = -1;
 
 static int hf_ieee80211_tag_twt_req_type_field = -1;
@@ -7691,8 +7716,24 @@ static int hf_ieee80211_tag_twt_req_type_flow_type = -1;
 static int hf_ieee80211_tag_twt_req_type_flow_id = -1;
 static int hf_ieee80211_tag_twt_req_type_wake_int_exp = -1;
 static int hf_ieee80211_tag_twt_req_type_prot = -1;
+static int hf_ieee80211_tag_twt_req_type_last_bcst_parm_set = -1;
+static int hf_ieee80211_tag_twt_req_type_bcst_twt_recom = -1;
+static int hf_ieee80211_tag_twt_req_type_reserved = -1;
+
+static int hf_ieee80211_tag_twt_ndp_paging_field = -1;
+static int hf_ieee80211_tag_twt_ndp_paging_p_id = -1;
+static int hf_ieee80211_tag_twt_ndp_max_ndp_paging_period = -1;
+static int hf_ieee80211_tag_twt_ndp_partial_tsf_offset = -1;
+static int hf_ieee80211_tag_twt_ndp_action = -1;
+static int hf_ieee80211_tag_twt_ndp_min_sleep_duration = -1;
+static int hf_ieee80211_tag_twt_ndp_reserved = -1;
+static int hf_ieee80211_tag_twt_broadcast_info = -1;
+static int hf_ieee80211_tag_twt_bcast_info_persistence = -1;
+static int hf_ieee80211_tag_twt_bcast_info_id = -1;
+static int hf_ieee80211_tag_twt_bcast_info_reserved = -1;
 
 static int hf_ieee80211_tag_twt_target_wake_time = -1;
+static int hf_ieee80211_tag_twt_target_wake_time_short = -1;
 static int hf_ieee80211_tag_twt_nom_min_twt_wake_dur = -1;
 static int hf_ieee80211_tag_twt_wake_interval_mantissa = -1;
 static int hf_ieee80211_tag_twt_channel = -1;
@@ -8155,8 +8196,8 @@ static expert_field ei_ieee80211_vs_routerboard_unexpected_len = EI_INIT;
 static expert_field ei_ieee80211_vs_sgdsn_serialnumber_invalid_len_val = EI_INIT;
 static expert_field ei_ieee80211_vs_sgdsn_serialnumber_unexpected_len_val = EI_INIT;
 static expert_field ei_ieee80211_twt_tear_down_bad_neg_type = EI_INIT;
-static expert_field ei_ieee80211_twt_setup_not_supported_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_bad_command = EI_INIT;
+static expert_field ei_ieee80211_twt_bcast_info_no_term = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_word = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_id = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_length = EI_INIT;
@@ -8192,8 +8233,8 @@ static gint ett_s1g_sync_control_tree = -1;
 static gint ett_s1g_sector_id_index = -1;
 static gint ett_s1g_twt_information_control = -1;
 static gint ett_twt_tear_down_tree = -1;
-static int ett_twt_control_field_tree = -1;
-static int ett_twt_req_type_tree = -1;
+static gint ett_twt_control_field_tree = -1;
+static gint ett_twt_req_type_tree = -1;
 static gint ett_twt_ndp_paging_field_tree = -1;
 static gint ett_twt_broadcast_info_tree = -1;
 
@@ -15216,23 +15257,56 @@ add_ff_s1g_twt_setup(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
   return offset - start;
 }
 
+static int * const ieee80211_twt_individual_flow[] = {
+  &hf_ieee80211_twt_individual_flow_id,
+  &hf_ieee80211_twt_individual_reserved,
+  &hf_ieee80211_twt_neg_type,
+  &hf_ieee80211_twt_bcast_teardown_all_twt,
+  NULL,
+};
+static int * const ieee80211_twt_bcast_flow[] = {
+  &hf_ieee80211_twt_bcast_id,
+  &hf_ieee80211_twt_neg_type,
+  &hf_ieee80211_twt_bcast_teardown_all_twt,
+  NULL,
+};
+static int * const ieee80211_twt_neg_type2[] = {
+  &hf_ieee80211_twt_neg_type2_reserved1,
+  &hf_ieee80211_twt_neg_type,
+  &hf_ieee80211_twt_neg_type2_reserved2,
+  NULL,
+};
+static int * const ieee80211_twt_teardown_all[] = {
+  &hf_ieee80211_twt_bcast_twt_id_reserved,
+  &hf_ieee80211_twt_bcast_neg_type_reserved,
+  &hf_ieee80211_twt_bcast_teardown_all_twt,
+  NULL,
+};
+
 static guint
 add_ff_s1g_twt_teardown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 twt_flow_id = tvb_get_guint8(tvb, offset);
-  static int * const ieee80211_twt_individual_flow[] = {
-    &hf_ieee80211_twt_individual_flow_id,
-    &hf_ieee80211_twt_neg_type,
-    NULL,
-  };
-  static int * const ieee80211_twt_bcast_flow[] = {
-    &hf_ieee80211_twt_bcast_id,
-    &hf_ieee80211_twt_neg_type,
-    NULL,
-  };
+
+  // Bit 7 is means Teardown All TWT, and the other fields are reserved
+  if (twt_flow_id & 0x80) {
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee80211_twt_bcast_teardown_all,
+                           ett_twt_tear_down_tree,
+                           ieee80211_twt_teardown_all,
+                           ENC_NA);
+    return 1;
+  }
 
   // Bits 5 and 6 are the negotiation type - See ieee80211.ax/D3.0 9.6.25.9
   switch ((twt_flow_id & 0x60) >> 5) {
+    case 2:
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                        hf_ieee80211_twt_bcast_flow,
+                                        ett_twt_tear_down_tree, ieee80211_twt_neg_type2,
+                                        ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+      break;
+
     case 3:
       // According to 11ax, first 5 bits are the BCAST TWT flow ID
       proto_tree_add_bitmask_with_flags(tree, tvb, offset,
@@ -30495,6 +30569,58 @@ dissect_ess_report(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
+dissect_ops(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree_add_item(tree, hf_ieee80211_he_ops_duration, tvb, offset, 1,
+                      ENC_NA);
+}
+
+static void
+dissect_max_channel_switch_time(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree_add_item(tree, hf_ieee80211_max_channel_switch_time, tvb, offset,
+                      3, ENC_LITTLE_ENDIAN);
+}
+
+static void
+dissect_oci(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree_add_item(tree, hf_ieee80211_oci_operating_class, tvb, offset,
+                      1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_oci_primary_channel_number, tvb,
+                      offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_oci_frequency_segment_1, tvb,
+                      offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Does it have the OCT fields? */
+  if (len > 3) {
+    if (len != 6) {
+      expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
+                             "OCI element with OCT field length must be 6 bytes");
+    }
+
+    proto_tree_add_item(tree, hf_ieee80211_oci_oct_operating_class, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_oci_oct_primary_channel_number, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_oci_oct_frequency_segment_1, tvb,
+                        offset, 1, ENC_NA);
+  }
+}
+
+static void
 dissect_multiple_bssid_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, int len _U_)
 {
@@ -30913,131 +31039,230 @@ dissect_owe_dh_parameter(tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
+static int * const ieee80211_twt_ctrl_field[] = {
+  &hf_ieee80211_tag_twt_ndp_paging_indicator,
+  &hf_ieee80211_tag_twt_responder_pm_mode,
+  &hf_ieee80211_tag_twt_neg_type,
+  &hf_ieee80211_tag_twt_info_frame_disabled,
+  &hf_ieee80211_tag_twt_wake_duration_unit,
+  &hf_ieee80211_tag_twt_link_id_bitmap_present,
+  &hf_ieee80211_tag_twt_ctrl_field_reserved,
+  NULL,
+};
+
+static int * const ieee80211_twt_req_type_field[] = {
+  &hf_ieee80211_tag_twt_req_type_req,
+  &hf_ieee80211_tag_twt_req_type_setup_cmd,
+  &hf_ieee80211_tag_twt_req_type_trigger,
+  &hf_ieee80211_tag_twt_req_type_implicit,
+  &hf_ieee80211_tag_twt_req_type_flow_type,
+  &hf_ieee80211_tag_twt_req_type_flow_id,
+  &hf_ieee80211_tag_twt_req_type_wake_int_exp,
+  &hf_ieee80211_tag_twt_req_type_prot,
+  NULL,
+};
+
+static int * const ieee80211_bcst_twt_req_type_field[] = {
+  &hf_ieee80211_tag_twt_req_type_req,
+  &hf_ieee80211_tag_twt_req_type_setup_cmd,
+  &hf_ieee80211_tag_twt_req_type_trigger,
+  &hf_ieee80211_tag_twt_req_type_last_bcst_parm_set,
+  &hf_ieee80211_tag_twt_req_type_flow_type,
+  &hf_ieee80211_tag_twt_req_type_bcst_twt_recom,
+  &hf_ieee80211_tag_twt_req_type_wake_int_exp,
+  &hf_ieee80211_tag_twt_req_type_reserved,
+  NULL,
+};
+
+static int * const ieee80211_twt_ndp_paging_field[] = {
+  &hf_ieee80211_tag_twt_ndp_paging_p_id,
+  &hf_ieee80211_tag_twt_ndp_max_ndp_paging_period,
+  &hf_ieee80211_tag_twt_ndp_partial_tsf_offset,
+  &hf_ieee80211_tag_twt_ndp_action,
+  &hf_ieee80211_tag_twt_ndp_min_sleep_duration,
+  &hf_ieee80211_tag_twt_ndp_reserved,
+  NULL
+};
+
+static int * const ieee80211_twt_broadcast_info_field[] = {
+  &hf_ieee80211_tag_twt_bcast_info_persistence,
+  &hf_ieee80211_tag_twt_bcast_info_id,
+  &hf_ieee80211_tag_twt_bcast_info_reserved,
+  NULL
+};
+
+static const value_string twt_ndp_action_vals[] = {
+  { 0, "Send a PD-Poll or uplink trigger frame" },
+  { 1, "Wake up at the time indicated by Min Sleep Duration" },
+  { 2, "Wake up to receive the Beacon" },
+  { 3, "Wake up to receive the DTIM Beacon" },
+  { 4, "Wake up at the time indicated by the sum of the Min Sleep Duration and the ASD" },
+  { 5, "Reserved" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
+
 static int
 ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  int tag_len = tvb_reported_length(tvb);
+  int tag_len;
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  proto_item *item;
-
-  static int * const ieee80211_twt_ctrl_field[] = {
-    &hf_ieee80211_tag_twt_ndp_paging_indicator,
-    &hf_ieee80211_tag_twt_responder_pm_mode,
-    &hf_ieee80211_tag_twt_neg_type,
-    &hf_ieee80211_tag_twt_info_frame_disabled,
-    &hf_ieee80211_tag_twt_wake_duration_unit,
-    &hf_ieee80211_tag_twt_ctrl_field_reserved,
-    NULL,
-  };
-
-  static int * const ieee80211_twt_req_type_field[] = {
-    &hf_ieee80211_tag_twt_req_type_req,
-    &hf_ieee80211_tag_twt_req_type_setup_cmd,
-    &hf_ieee80211_tag_twt_req_type_trigger,
-    &hf_ieee80211_tag_twt_req_type_implicit,
-    &hf_ieee80211_tag_twt_req_type_flow_type,
-    &hf_ieee80211_tag_twt_req_type_flow_id,
-    &hf_ieee80211_tag_twt_req_type_wake_int_exp,
-    &hf_ieee80211_tag_twt_req_type_prot,
-    NULL,
-  };
-
+  proto_item *item = NULL;
   gboolean twt_requester;
   guint8 setup_command;
   guint8 ctrl_field;
   guint16 req_type;
   guint8 neg_type;
-
-  // 1 byte  - control
-  // 2 bytes - request type
-  // 8 bytes - target wake time
-  // 1 byte  - nominal minimum interval TWT wake duration
-  // 2 bytes - TWT wake interval mantissa
-  // 1 byte  - channel
-  // total: 15 bytes.
-  // TODO: support other configurations that have a different size
-  if (tag_len < 15) {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
-                           "Tag Length %u wrong, must be >= 15", tag_len);
-    return tvb_captured_length(tvb);
-  }
+  gboolean last_bcast = FALSE;
 
   ctrl_field = tvb_get_guint8(tvb, offset);
   proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                                     hf_ieee80211_tag_twt_control_field,
-                                    ett_twt_control_field_tree, ieee80211_twt_ctrl_field,
+                                    ett_twt_control_field_tree,
+                                    ieee80211_twt_ctrl_field,
                                     ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
   offset += 1;
   neg_type = (ctrl_field & 0xc) >> 2;
 
-  if (neg_type != 0) {
-    // This is a broadcast TWT, or uses TWT information frames and this is not supported yet
-    proto_tree_add_expert(tree, pinfo, &ei_ieee80211_twt_setup_not_supported_neg_type,
-                          tvb, offset, tvb_reported_length_remaining(tvb, offset));
-    return tvb_captured_length(tvb);
-  }
-
-  req_type = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-  item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_twt_req_type_field,
-                                           ett_twt_req_type_tree, ieee80211_twt_req_type_field,
-                                           ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  twt_requester = req_type & 0x1;
-  setup_command = (req_type & 0xe) >> 1;
-
-  switch (setup_command) {
-    case REQUEST_TWT:
-    case SUGGEST_TWT:
-    case DEMAND_TWT:
-      // we must be TWT requester
-      if (!twt_requester) {
-        expert_add_info_format(pinfo, item, &ei_ieee80211_twt_setup_bad_command,
-                               "Command %d is not allowed if TWT Request is not set",
-                               setup_command);
+  while (!last_bcast) {
+    tag_len = tvb_captured_length_remaining(tvb, offset);
+    if (tag_len < 2) {
+      expert_add_info(pinfo, item ? item : tree,
+                      &ei_ieee80211_twt_bcast_info_no_term);
+        return tvb_captured_length(tvb);
+    }
+    req_type = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    if (neg_type & 0x2) { /* If a bcast TWT */
+      // 2 bytes - request type
+      // 2 bytes - target wake time
+      // 1 byte  - nominal minimum interval TWT wake duration
+      // 2 bytes - TWT wake interval mantissa
+      // 2 byte  - Broadcast TWT info
+      // total: 10 bytes.
+      if (tag_len < 9) {
+        expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+            "Tag Length %u wrong, must be >= 9", tag_len);
         return tvb_captured_length(tvb);
       }
-      break;
-    case TWT_GROUPING:
-      // TODO: There are more tests needed here
-      //       Fall through since we can't be requester here as well.
-    case ACCEPT_TWT:
-    case ALTERNATE_TWT:
-      // we can't be TWT requester
-      if (twt_requester) {
-        expert_add_info_format(pinfo, item, &ei_ieee80211_twt_setup_bad_command,
-                               "Command %d is not allowed if TWT Request is set",
-                               setup_command);
+      item = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_twt_req_type_field,
+                                    ett_twt_req_type_tree,
+                                    ieee80211_bcst_twt_req_type_field,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      last_bcast = (req_type & 0x20) >> 5;
+    } else {
+      // 2 bytes - request type
+      // 8 bytes - target wake time
+      // 1 byte  - nominal minimum interval TWT wake duration
+      // 2 bytes - TWT wake interval mantissa
+      // 1 byte  - channel
+      // total: 14 bytes.
+      if (tag_len < 14) {
+        expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+            "Tag Length %u wrong, must be >= 14", tag_len);
         return tvb_captured_length(tvb);
       }
-      break;
-    case DICTATE_TWT:
-    case REJECT_TWT:
-      // TODO: Unclear what to do here. Looks like we can't be Requester, OTOH
-      //       the spec doesn't say anything
-      break;
-    default:
-      break;
+      item = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_twt_req_type_field,
+                                    ett_twt_req_type_tree,
+                                    ieee80211_twt_req_type_field,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      last_bcast = TRUE;
+    }
+
+    twt_requester = req_type & 0x1;
+    setup_command = (req_type & 0xe) >> 1;
+
+    switch (setup_command) {
+      case REQUEST_TWT:
+      case SUGGEST_TWT:
+      case DEMAND_TWT:
+        // we must be TWT requester
+        if (!twt_requester) {
+          expert_add_info_format(pinfo, item,
+                         &ei_ieee80211_twt_setup_bad_command,
+                         "Command %d is not allowed if TWT Request is not set",
+                         setup_command);
+          return tvb_captured_length(tvb);
+        }
+        break;
+      case TWT_GROUPING:
+        // TODO: There are more tests needed here
+        //       Fall through since we can't be requester here as well.
+      case ACCEPT_TWT:
+      case ALTERNATE_TWT:
+        // we can't be TWT requester
+        if (twt_requester) {
+          expert_add_info_format(pinfo, item,
+                         &ei_ieee80211_twt_setup_bad_command,
+                         "Command %d is not allowed if TWT Request is set",
+                         setup_command);
+          return tvb_captured_length(tvb);
+        }
+        break;
+      case DICTATE_TWT:
+      case REJECT_TWT:
+        // TODO: Unclear what to do here. Looks like we can't be Requester, OTOH
+        //       the spec doesn't say anything
+        break;
+      default:
+        break;
+    }
+
+    offset += 2;
+
+    if (neg_type & 0x2) { /* If a bcast TWT */
+      proto_tree_add_item(tree, hf_ieee80211_tag_twt_target_wake_time_short,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_twt_nom_min_twt_wake_dur, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_twt_wake_interval_mantissa,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                        hf_ieee80211_tag_twt_broadcast_info,
+                                        ett_twt_broadcast_info_tree,
+                                        ieee80211_twt_broadcast_info_field,
+                                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      offset += 2;
+    } else {
+      proto_tree_add_item(tree, hf_ieee80211_tag_twt_target_wake_time, tvb,
+                          offset, 8, ENC_LITTLE_ENDIAN);
+      offset += 8;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_twt_nom_min_twt_wake_dur, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+
+      item = proto_tree_add_item(tree,
+                                 hf_ieee80211_tag_twt_wake_interval_mantissa,
+                                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_twt_channel, tvb, offset, 1,
+                          ENC_NA);
+      offset += 1;
+
+      if (ctrl_field & 0x01) { /* NDP Paging */
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                        hf_ieee80211_tag_twt_ndp_paging_field,
+                                        ett_twt_ndp_paging_field_tree,
+                                        ieee80211_twt_ndp_paging_field,
+                                        ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
+        offset += 4;
+      }
+    }
   }
-
-  offset += 2;
-
-  proto_tree_add_item(tree, hf_ieee80211_tag_twt_target_wake_time, tvb, offset, 8,
-                      ENC_LITTLE_ENDIAN);
-  offset += 8;
-
-  proto_tree_add_item(tree, hf_ieee80211_tag_twt_nom_min_twt_wake_dur, tvb, offset, 1,
-                      ENC_NA);
-  offset += 1;
-
-  proto_tree_add_item(tree, hf_ieee80211_tag_twt_wake_interval_mantissa, tvb, offset, 2,
-                      ENC_LITTLE_ENDIAN);
-  offset += 2;
-
-  proto_tree_add_item(tree, hf_ieee80211_tag_twt_channel, tvb, offset, 1, ENC_NA);
 
   return tvb_captured_length(tvb);
 }
-
 
 static int
 ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -31246,6 +31471,15 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_ESS_REPORT:
       dissect_ess_report(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_OPS:
+      dissect_ops(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_MAX_CHANNEL_SWITCH_TIME:
+      dissect_max_channel_switch_time(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_OCI:
+      dissect_oci(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_MULTIPLE_BSSID_CONFIGURATION:
       dissect_multiple_bssid_configuration(tvb, pinfo, tree, offset, ext_tag_len);
@@ -53590,6 +53824,10 @@ proto_register_ieee80211(void)
      {"Recommended BSS Transition Threshold", "wlan.ext_tag.ess_report.ess_info.thresh",
      FT_INT8, BASE_DEC, NULL, 0xFC, NULL, HFILL }},
 
+    {&hf_ieee80211_he_ops_duration,
+     {"OPS Duration", "wlan.ext_tag.ops.ops_duration",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_ms, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_he_uora_field,
      {"UL OFDMA-based Random Access Parameter SET", "wlan.ext_tag.uora_parameter_set.field",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -53605,6 +53843,38 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_uora_reserved,
      {"Reserved", "wlan.ext_tag.uora_parameter_set.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_max_channel_switch_time,
+     {"Max Channel Switch Time",
+      "wlan.ext_tag.max_channel_switch_time.switch_time",
+      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oci_operating_class,
+     {"Operating Class", "wlan.ext_tag.oci.operating_class",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oci_primary_channel_number,
+     {"Primary Channel Number", "wlan.ext_tag.oci.primary_channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oci_frequency_segment_1,
+     {"Frequency Segment 1 Channel Number",
+      "wlan.ext_tag.oci.frequency_segment_1_channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oci_oct_operating_class,
+     {"OCT Operating Class", "wlan.ext_tag.oci.oct_operating_class",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oci_oct_primary_channel_number,
+     {"OCT Primary Channel Number",
+      "wlan.ext_tag.oci.oct_primary_channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oci_oct_frequency_segment_1,
+     {"OCT Frequency Segment 1 Channel Number",
+      "wlan.ext_tag.oci.oct_frequency_segment_1_channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_multiple_bssid_configuration_bssid_count,
      {"BSSID Count", "wlan.ext_tag.multiple_bssid_configuration.bssid_count",
@@ -53776,6 +54046,10 @@ proto_register_ieee80211(void)
       {"Individual TWT Flow Id", "wlan.twt.individual_flow_id",
        FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL }},
 
+    {&hf_ieee80211_twt_individual_reserved,
+     {"Reserved", "wlan.twt.individual_reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x18, NULL, HFILL }},
+
     {&hf_ieee80211_twt_bcast_id,
       {"Broadcast TWT Id", "wlan.twt.bcast_flow_id",
        FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
@@ -53784,6 +54058,30 @@ proto_register_ieee80211(void)
       {"TWT Negotiation type", "wlan.twt.neg_type",
        FT_UINT8, BASE_DEC, VALS(twt_neg_type_vals), 0x60,
        NULL, HFILL }},
+
+    {&hf_ieee80211_twt_neg_type2_reserved1,
+     {"Reserved", "wlan.twt.flow_id_reserved1",
+      FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_neg_type2_reserved2,
+     {"Reserved", "wlan.twt.flow_id_reserved2",
+      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_bcast_teardown_all,
+     {"TWT Flow", "wlan.twt.bcast_flow",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_bcast_twt_id_reserved,
+     {"Reserved", "wlan.twt.bcast_flow.twt_id_reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_bcast_neg_type_reserved,
+     {"Reserved", "wlan.twt.bcast_flow.negotiation_type_reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x60, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_bcast_teardown_all_twt,
+     {"Teardown All TWT", "wlan.twt.bcast_flow.teardown_all_twt",
+      FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_control_field,
       {"Control Field", "wlan.twt.control_field",
@@ -53799,7 +54097,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_twt_neg_type,
       {"Negotiation type", "wlan.twt.neg_type",
-       FT_UINT8, BASE_HEX, VALS(twt_neg_type_vals), 0xc, NULL, HFILL }},
+       FT_UINT8, BASE_DEC, VALS(twt_neg_type_vals), 0xc, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_info_frame_disabled,
      {"TWT Information Frame Disabled", "wlan.twt.info_frame_disabled",
@@ -53809,9 +54107,13 @@ proto_register_ieee80211(void)
      {"Wake Duration Unit", "wlan.twt.wake_duration_unit",
       FT_BOOLEAN, 8, TFS(&twt_wake_duration_unit_tfs), 0x20, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_twt_link_id_bitmap_present,
+     {"Link ID Bitmap Present", "wlan.twt.link_id_bitmap_present",
+      FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
     {&hf_ieee80211_tag_twt_ctrl_field_reserved,
       {"Reserved", "wlan.twt.control_field_reserved",
-       FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL }},
+       FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_req_type_field,
       {"Request Type", "wlan.twt.request_type",
@@ -53849,9 +54151,72 @@ proto_register_ieee80211(void)
       {"Protection", "wlan.twt.prot",
        FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_twt_req_type_last_bcst_parm_set,
+      {"Last Broadcast Parameter Set",
+       "wlan.twt.last_broadcast_parameter_set",
+       FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_bcst_twt_recom,
+      {"Broadcast TWT Recommendation", "wlan.twt.broadcast_twt_recommendation",
+       FT_UINT16, BASE_DEC, NULL, 0x0380, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_reserved,
+      {"Reserved", "wlan.twt.reserved",
+       FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_paging_field,
+     {"NDP Paging", "wlan.twt.ndp_paging",
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_paging_p_id,
+     {"P-ID", "wlan.twt.ndp_paging.p_id",
+      FT_UINT32, BASE_HEX, NULL, 0x000001FF, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_max_ndp_paging_period,
+     {"Max NDP Paging Period", "wlan.twt.ndp_paging.max_ndp_paging_period",
+      FT_UINT32, BASE_DEC, NULL, 0x0001FE00, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_partial_tsf_offset,
+     {"Partial TSF Offset", "wlan.twt.ndp_paging.partial_tsf_offset",
+      FT_UINT32, BASE_DEC, NULL, 0x001E0000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_action,
+     {"Action", "wlan.twt.ndp_paging.action",
+      FT_UINT32, BASE_DEC, VALS(twt_ndp_action_vals),
+      0x00E00000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_min_sleep_duration,
+     {"Min Sleep Duration", "wlan.twt.ndp_paging.min_sleep_duration",
+      FT_UINT32, BASE_DEC, NULL, 0x3C000000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_reserved,
+     {"Reserved", "wlan.twt.ndp_paging.reserved",
+      FT_UINT32, BASE_HEX, NULL, 0xC0000000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_broadcast_info,
+     {"Broadcast TWT Info", "wlan.twt.broadcast_twt_info",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_bcast_info_persistence,
+     {"Broadcast TWT Persistence",
+      "wlan.twt.bcast_twt_info.broadcast_twt_persistence",
+      FT_UINT16, BASE_HEX, NULL, 0xFF00, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_bcast_info_id,
+     {"Broadcast TWT ID", "wlan.twt.bcast_twt_info.broadcast_twt_id",
+      FT_UINT16, BASE_HEX, NULL, 0x00F8, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_bcast_info_reserved,
+     {"Reserved", "wlan.twt.bcast_twt_info.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0x0007, NULL, HFILL }},
+
     {&hf_ieee80211_tag_twt_target_wake_time,
       {"Target Wake Time", "wlan.twt.target_wake_time",
        FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_target_wake_time_short,
+      {"Target Wake Time", "wlan.twt.target_wake_time",
+       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_nom_min_twt_wake_dur,
       {"Nominal Minimum TWT Wake duration", "wlan.twt.nom_min_twt_wake_duration",
@@ -55499,13 +55864,13 @@ proto_register_ieee80211(void)
       { "wlan.twt.tear_down_bad_neg_type", PI_PROTOCOL, PI_ERROR,
         "Bad Negotiation type for S1G TWT Flow field in TWT teardown", EXPFILL }},
 
-    { &ei_ieee80211_twt_setup_not_supported_neg_type,
-      { "wlan.twt.setup_unsup_neg_type", PI_UNDECODED, PI_WARN,
-        "Undecoded TWT setup tag because the Negotiation Type is not supported", EXPFILL }},
-
     { &ei_ieee80211_twt_setup_bad_command,
       { "wlan.twt.setup_bad_command", PI_PROTOCOL, PI_ERROR,
         "This TWT Setup Command is not allowed, check the TWT Request field", EXPFILL }},
+
+    { &ei_ieee80211_twt_bcast_info_no_term,
+      { "wlan.twt.incorrect_length", PI_PROTOCOL, PI_ERROR,
+        "Incorrect length or missing Last Broadcast Parameter Set field", EXPFILL }},
 
     { &ei_ieee80211_invalid_control_word,
       { "wlan.htc.he.a_control.invalid", PI_PROTOCOL, PI_ERROR,
