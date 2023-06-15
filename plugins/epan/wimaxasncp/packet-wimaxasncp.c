@@ -1237,7 +1237,7 @@ static void wimaxasncp_dissect_tlv_value(
 
                 proto_tree_add_bytes_format_value(
                     tree, tlv_info->hf_value,
-                    tvb, offset, length, NULL, format, s);
+                    tvb, offset, length, NULL, format, hex_note, s);
 
             } else {
                 proto_tree_add_bytes_format_value(
