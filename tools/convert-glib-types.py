@@ -42,6 +42,18 @@ type_map = {
 
     'TRUE': 'true',
     'FALSE': 'false',
+    'G_MAXINT8': 'INT8_MAX',
+    'G_MAXINT16': 'INT16_MAX',
+    'G_MAXINT32': 'INT32_MAX',
+    'G_MAXINT64': 'INT64_MAX',
+    'G_MAXUINT8': 'UINT8_MAX',
+    'G_MAXUINT16': 'UINT16_MAX',
+    'G_MAXUINT32': 'UINT32_MAX',
+    'G_MAXUINT64': 'UINT64_MAX',
+    'G_MININT8': 'INT8_MIN',
+    'G_MININT16': 'INT16_MIN',
+    'G_MININT32': 'INT32_MIN',
+    'G_MININT64': 'INT64_MIN',
 }
 
 def convert_file(file):

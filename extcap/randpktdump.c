@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 		case OPT_MAXBYTES:
 			if (!ws_strtou16(ws_optarg, NULL, &maxbytes)) {
 				ws_warning("Invalid parameter maxbytes: %s (max value is %u)",
-					ws_optarg, G_MAXUINT16);
+					ws_optarg, UINT16_MAX);
 				goto end;
 			}
 			break;
