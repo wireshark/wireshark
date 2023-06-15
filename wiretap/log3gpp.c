@@ -30,7 +30,7 @@
 #define MAX_PROTOCOL_NAME          64
 #define MAX_PROTOCOL_PAR_STRING    64
 
-/* 's' or 'r' of a packet as read from .out file */
+/* 'u' or 'd' of a packet as read from file */
 typedef enum packet_direction_t
 {
     uplink,
@@ -554,7 +554,6 @@ read_new_line(FILE_T fh, gint* length,
 
 /**********************************************************************/
 /* Parse a line from buffer, by identifying:                          */
-/* - context, port and direction of packet                            */
 /* - timestamp                                                        */
 /* - data position and length                                         */
 /* Return TRUE if this packet looks valid and can be displayed        */
@@ -565,8 +564,6 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
                     gboolean *is_text_data)
 {
     int  n = 0;
-    /*not used int  variant_digits = 0;*/
-    /*not used int  variant = 1;*/
     int  protocol_chars = 0;
     int  prot_option_chars = 0;
     char seconds_buff[MAX_SECONDS_CHARS+1];
@@ -625,9 +622,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
 
     /* Subsecond decimal digits (expect 4-digit accuracy) */
     for (subsecond_decimals_chars = 0;
-         (linebuff[n] != ' ') &&
-         (subsecond_decimals_chars <= MAX_SUBSECOND_DECIMALS) &&
-         (n < line_length);
+         (linebuff[n] != ' ') && (subsecond_decimals_chars < MAX_SUBSECOND_DECIMALS) && (n < line_length);
          n++, subsecond_decimals_chars++)
     {
         if (!g_ascii_isdigit((guchar)linebuff[n]))
@@ -636,18 +631,20 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
     }
+
     if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS || n >= line_length)
     {
         /* More numbers than expected - give up */
         return FALSE;
     }
+
     /* Convert found value into microseconds */
     subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
     /* Already know they are digits, so avoid expense of ws_strtoi32() */
     *useconds = ((subsecond_decimals_buff[0] - '0') * 100000) +
-        ((subsecond_decimals_buff[1] - '0') * 10000) +
-        ((subsecond_decimals_buff[2] - '0') * 1000) +
-        ((subsecond_decimals_buff[3] - '0') * 100);
+                ((subsecond_decimals_buff[1] - '0') * 10000) +
+                ((subsecond_decimals_buff[2] - '0') * 1000) +
+                ((subsecond_decimals_buff[3] - '0') * 100);
 
     /* Space character must follow end of timestamp */
     if (linebuff[n] != ' ')
@@ -659,7 +656,6 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     /*********************************************************************/
     /* Find and read protocol name                                       */
     /*********************************************************************/
-    /* Read context name until find ' ' */
     for (protocol_chars = 0;
          (linebuff[n] != ' ') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
          n++, protocol_chars++)
