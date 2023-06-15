@@ -755,6 +755,29 @@ class TestDissectTls:
         self.check_tls_reassembly_over_tcp_reassembly(cmd_tshark, capture_file,
             test_env, extraArgs=['-2'])
 
+    @staticmethod
+    def check_tls_out_of_order(cmd_tshark, capture_file, test_env, extraArgs=[]):
+        stdout = subprocess.check_output([cmd_tshark,
+                '-r', capture_file('challenge01_ooo_stream.pcapng.gz'),
+                '-otcp.reassemble_out_of_order:TRUE',
+                '-q',
+                '-zhttp,stat,png or image-jfif',
+            ] + extraArgs, encoding='utf-8', env=test_env)
+        assert grep_output(stdout, r'200 OK\s*11')
+
+    def test_tls_out_of_order(self, cmd_tshark, capture_file, features, test_env):
+        '''Verify that TLS reassembly over TCP reassembly works.'''
+        if not features.have_gnutls:
+            pytest.skip('Requires GnuTLS.')
+        self.check_tls_out_of_order(cmd_tshark, capture_file, test_env)
+
+    def test_tls_out_of_order_second_pass(self, cmd_tshark, capture_file, features, test_env):
+        '''Verify that TLS reassembly over TCP reassembly works (second pass).'''
+        if not features.have_gnutls:
+            pytest.skip('Requires GnuTLS.')
+        self.check_tls_out_of_order(cmd_tshark, capture_file,
+            test_env, extraArgs=['-2'])
+
 class TestDissectQuic:
     @staticmethod
     def check_quic_tls_handshake_reassembly(cmd_tshark, capture_file, test_env,

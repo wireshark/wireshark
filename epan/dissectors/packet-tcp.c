@@ -3901,6 +3901,9 @@ msp_add_out_of_order(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struc
                         msp->nxtpdu, fd->frame);
             has_unfinished_msp = TRUE;
         }
+        /* There might be segments already added to the msp that now extend
+         * the maximum contiguous sequence number. Check for them. */
+        tcpd->fwd->maxnextseq = find_maxnextseq(pinfo, msp, tcpd->fwd->maxnextseq);
         tvb_free(tvb_data);
         wmem_list_remove_frame(tcpd->fwd->ooo_segments, curr_entry);
         curr_entry = wmem_list_head(tcpd->fwd->ooo_segments);
