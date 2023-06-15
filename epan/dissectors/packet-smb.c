@@ -1815,11 +1815,12 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 				   it to the largest signed number, so that we throw the appropriate
 				   exception. */
 				string_len = INT_MAX;
+			} else if (string_len > *bcp){
+				string_len = *bcp;
 			}
 		}
 
 		string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
-
 	} else {
 		/* XXX: Use the local OEM (extended ASCII DOS) code page.
                  * On US English machines that means ENC_CP437, but it
@@ -12678,6 +12679,11 @@ dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
    and 2.2.8.3.11 of the MS-CIFS spec
    although the latter two are used to fetch the 8.3 name
    rather than the long name
+
+   https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/4718fc40-e539-4014-8e33-b675af74e3e1
+
+   FileNormalizedNameInformation:
+   https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/20bcadba-808c-4880-b757-4af93e41edf6
 */
 int
 dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -12688,12 +12694,14 @@ dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	/* file name len */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb_file_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &fn_len);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, FALSE, FALSE, bcp);
+	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, TRUE, TRUE, bcp);
+
 	CHECK_STRING_SUBR(fn);
+
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
